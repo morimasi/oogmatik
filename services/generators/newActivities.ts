@@ -62,32 +62,32 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     const { worksheetCount, difficulty, studentContext, mapInstructionTypes, emphasizedRegion, itemCount } = options;
     
     const typesDesc = mapInstructionTypes?.join(', ') || 'Yönler, Harf Özellikleri, Coğrafi Özellikler';
-    const regionDesc = emphasizedRegion === 'all' ? 'Tüm Türkiye' : emphasizedRegion;
+    const regionDesc = emphasizedRegion === 'all' ? 'Tüm Türkiye' : `${emphasizedRegion} Bölgesi`;
 
     const prompt = `
     [ROL: KIDEMLİ COĞRAFYA VE ÖZEL EĞİTİM UZMANI]
     ${getStudentContextPrompt(studentContext)}
     "Harita Dedektifi" (Türkiye Coğrafyası ve Yönerge Takibi) etkinliği oluştur.
     
-    Zorluk Seviyesi: ${difficulty}.
-    ODAK BÖLGE: ${regionDesc}
-    YÖNERGE TİPLERİ: ${typesDesc}
-    YÖNERGE ADEDİ: ${itemCount || 8}
+    ZORUNLU KISITLAMALAR:
+    - ODAK BÖLGE: ${regionDesc}. SADECE bu bölgedeki şehirleri temel alan sorular hazırla.
+    - YÖNERGE TİPLERİ: ${typesDesc}.
+    - YÖNERGE ADEDİ: Her sayfa için tam ${itemCount || 8} adet.
+    - ZORLUK: ${difficulty}.
     
     GÖREV STRATEJİSİ:
-    1. Yönergeler karmaşık mantık ve görsel tarama gerektirmeli.
-    2. Konum bazlı sorular: "İç Anadolu'nun doğusunda yer alan ve ismi 'S' ile başlayan..."
-    3. Rota bazlı sorular: "İstanbul'dan Ankara'ya en kısa yoldan giderken geçilen..."
-    4. Özellik bazlı sorular: "Denize kıyısı olan ama Akdeniz bölgesinde olmayan..."
-    5. Disleksi dostu kısa ve net eylem cümleleri kur.
+    1. Yönergeler SADECE konum değil, fonolojik ve coğrafi mantık içermeli.
+    2. "Kuzeyinde şu olan, ismi 'A' ile biten ve deniz kıyısı olmayan..." gibi çok katmanlı sorular sor.
+    3. Hayali şehir uydurma, Türkiye'nin gerçek 81 ilini kullan.
+    4. Disleksi dostu, eylem odaklı (Boya, İşaretle, Çiz) emir kipleri kullan.
     
     ÇIKTI FORMATI:
     - title: "Harita Dedektifi"
-    - instruction: Öğrenciye yönelik motive edici yönerge.
-    - pedagogicalNote: Bu çalışmanın bilişsel faydaları.
-    - instructions: Kesinlikle ${itemCount || 8} adet profesyonel yönerge dizisi.
+    - instruction: Öğrenci motivasyon yönergesi.
+    - pedagogicalNote: Bilişsel faydalar (akademik dil).
+    - instructions: [string array]
     
-    ÖNEMLİ: Sadece geçerli JSON döndür. Gemini 3.0 Flash Preview yeteneklerini kullan.
+    SADECE JSON DÖNDÜR.
     `;
 
     const schema = {
@@ -106,7 +106,7 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
 
     const raw = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as any[];
     
-    // Şehir veritabanını offline'dan çekip AI yönergeleriyle birleştiriyoruz
+    // Şehir koordinat veritabanını offline'dan al
     const { generateOfflineMapDetective } = await import('../offlineGenerators/mapDetective');
     const base = await generateOfflineMapDetective({ ...options, worksheetCount: 1 });
     

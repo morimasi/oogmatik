@@ -127,7 +127,10 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         mapInstructionTypes: ['spatial_logic', 'linguistic_geo', 'attribute_search', 'neighbor_path'],
         showCityNames: false,
         markerStyle: 'circle',
-        emphasizedRegion: 'all'
+        emphasizedRegion: 'all',
+        // Find Difference Defaults
+        findDiffType: 'linguistic',
+        distractionLevel: 'medium'
     });
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
@@ -224,6 +227,49 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             ]} 
                             icon="fa-crosshairs"
                         />
+                    </div>
+                </div>
+            );
+        }
+
+        if (activity.id === ActivityType.FIND_THE_DIFFERENCE) {
+            return (
+                <div className="space-y-5">
+                    <CompactSelect 
+                        label="İçerik Tipi" 
+                        value={options.findDiffType} 
+                        onChange={(v:any) => handleChange('findDiffType', v)}
+                        options={[
+                            { value: 'linguistic', label: 'Harf/Hece (Ayna Karakterler)' },
+                            { value: 'numeric', label: 'Sayılar (6-9 Benzerliği)' },
+                            { value: 'pictographic', label: 'Semboller & Şekiller' },
+                            { value: 'semantic', label: 'Kelime/Anlam (dere-dede)' }
+                        ]}
+                        icon="fa-shapes"
+                    />
+
+                    <CompactSlider 
+                        label="Görev Adedi (Satır)" 
+                        value={options.itemCount} 
+                        onChange={(v:number) => handleChange('itemCount', v)} 
+                        min={4} max={12} 
+                        icon="fa-list" 
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700">
+                        <CompactToggleGroup 
+                            label="Çeldirici Zorluğu" 
+                            selected={options.distractionLevel} 
+                            onChange={(v: string) => handleChange('distractionLevel', v)} 
+                            options={[
+                                { value: 'low', label: 'Düşük' },
+                                { value: 'medium', label: 'Orta' },
+                                { value: 'high', label: 'Yüksek' }
+                            ]} 
+                        />
+                        <p className="text-[9px] text-zinc-400 mt-2 italic px-1">
+                            *Yüksek zorlukta öğeler arasındaki farklar minimal detaylara (rotasyon, nokta konumu vb.) iner.
+                        </p>
                     </div>
                 </div>
             );

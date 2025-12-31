@@ -33,7 +33,7 @@ export enum ActivityType {
     RAPID_NAMING = 'RAPID_NAMING',
     LETTER_DISCRIMINATION = 'LETTER_DISCRIMINATION',
     MIRROR_LETTERS = 'MIRROR_LETTERS',
-    SYMMETRY_TRAIN = 'SYMMETRY_TRAIN',
+    SYLLABLE_TRAIN = 'SYLLABLE_TRAIN',
     VISUAL_TRACKING_LINES = 'VISUAL_TRACKING_LINES',
     BACKWARD_SPELLING = 'BACKWARD_SPELLING',
     CODE_READING = 'CODE_READING',
@@ -492,7 +492,9 @@ export interface GeneratorOptions {
     // Map Detective Specifics
     mapInstructionTypes?: string[];
     showCityNames?: boolean;
-    // Fix: Added 'none' option for consistency
     markerStyle?: 'dot' | 'circle' | 'star' | 'target' | 'none';
     emphasizedRegion?: string;
+    // Find The Difference Specifics
+    findDiffType?: 'linguistic' | 'pictographic' | 'semantic' | 'numeric';
+    distractionLevel?: 'low' | 'medium' | 'high' | 'extreme';
 }

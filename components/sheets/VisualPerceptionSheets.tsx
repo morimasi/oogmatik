@@ -8,29 +8,86 @@ import { ShapeDisplay, SegmentDisplay, GridComponent, ImageDisplay, PedagogicalH
 import { CONNECT_COLORS } from '../../services/offlineGenerators/helpers';
 import { EditableElement, EditableText } from '../Editable';
 
-export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
-        <div className="dynamic-grid max-w-4xl mx-auto">
-            {(data?.rows || []).map((row, index) => {
-                const isVisual = row?.visualDistractionLevel === 'high';
-                return (
-                    <EditableElement key={index} className={`flex items-center justify-between p-4 border-2 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow break-inside-avoid ${isVisual ? 'flex-col gap-4' : ''}`} style={{borderColor: 'var(--worksheet-border-color)'}}>
-                        {!isVisual && <div className="w-8 h-8 flex items-center justify-center bg-black text-white rounded-full font-bold mr-4 shrink-0">{index + 1}</div>}
-                        <div className={`flex-1 flex justify-around w-full ${isVisual ? 'gap-4' : ''}`}>
-                            {(row?.items || []).map((item, itemIndex) => (
-                                <div key={itemIndex} className={`px-4 py-2 border border-dashed border-zinc-300 rounded cursor-pointer hover:bg-zinc-50 flex items-center justify-center ${isVisual ? 'w-full h-24 text-3xl font-black bg-zinc-50 overflow-hidden tracking-widest leading-none break-all text-center' : ''}`}>
-                                    <span className={isVisual ? "text-4xl text-black" : "text-2xl font-mono tracking-wider text-black"}><EditableText value={item} tag="span" /></span>
+export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> = ({ data }) => {
+    const rows = data?.rows || [];
+    // Sayfa doluluğuna göre grid yapısını ayarla
+    const isSingleColumn = rows.length <= 6;
+
+    return (
+        <div className="flex flex-col h-full bg-white p-2">
+            <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
+            
+            <div className={`grid ${isSingleColumn ? 'grid-cols-1' : 'grid-cols-2'} gap-4 mt-2 flex-1 content-start`}>
+                {rows.map((row, index) => {
+                    const items = row?.items || [];
+                    const isHard = row?.visualDistractionLevel === 'high' || row?.visualDistractionLevel === 'extreme';
+                    
+                    return (
+                        <EditableElement 
+                            key={index} 
+                            className={`flex flex-col p-6 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm hover:shadow-md transition-all break-inside-avoid relative group`}
+                        >
+                            {/* Görev Numarası */}
+                            <div className="absolute -top-3 -left-2 w-10 h-10 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black shadow-lg text-sm border-4 border-white">
+                                {index + 1}
+                            </div>
+
+                            {/* İçerik Alanı */}
+                            <div className="flex-1 flex items-center justify-around w-full gap-4 py-2">
+                                {items.map((item, itemIndex) => (
+                                    <div 
+                                        key={itemIndex} 
+                                        className={`
+                                            flex-1 aspect-square max-h-24 flex items-center justify-center border-2 border-dashed border-zinc-200 rounded-2xl cursor-pointer hover:bg-indigo-50 transition-colors relative group/item
+                                            ${isHard ? 'bg-zinc-50' : 'bg-white'}
+                                        `}
+                                    >
+                                        <span className={`
+                                            font-black leading-none select-none text-zinc-900
+                                            ${item.length > 5 ? 'text-lg' : item.length > 3 ? 'text-2xl' : 'text-4xl'}
+                                            ${isHard ? 'tracking-tighter' : 'tracking-normal'}
+                                            font-mono
+                                        `}>
+                                            <EditableText value={item} tag="span" />
+                                        </span>
+
+                                        {/* Seçim İşareti (Görünmez, öğrenci için placeholder) */}
+                                        <div className="absolute -bottom-2 -right-1 w-6 h-6 rounded-full border-2 border-zinc-200 bg-white group-hover/item:border-indigo-500 transition-colors shadow-sm"></div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Profesyonel Detay Hattı */}
+                            <div className="mt-4 flex items-center gap-3">
+                                <div className="h-1 flex-1 bg-zinc-100 rounded-full overflow-hidden">
+                                    <div className={`h-full w-1/4 ${isHard ? 'bg-amber-400' : 'bg-indigo-400'} opacity-20`}></div>
                                 </div>
-                            ))}
-                        </div>
-                        <div className="w-8 h-8 border-2 border-zinc-300 rounded-lg ml-4"></div>
-                    </EditableElement>
-                );
-            })}
+                                <span className="text-[8px] font-black text-zinc-300 uppercase tracking-widest">{isHard ? 'Yüksek Odak' : 'Standart'}</span>
+                            </div>
+                        </EditableElement>
+                    );
+                })}
+            </div>
+
+            {/* Sayfa Alt Bilgisi */}
+            <div className="mt-auto pt-6 flex justify-between items-center px-6 border-t border-zinc-100">
+                <div className="flex gap-8">
+                     <div className="flex flex-col">
+                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Kategori</span>
+                        <span className="text-[10px] font-bold text-zinc-800 uppercase">Görsel Ayrıştırma</span>
+                     </div>
+                     <div className="flex flex-col">
+                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Batarya</span>
+                        <span className="text-[10px] font-bold text-indigo-600 uppercase">Dikkati Sürdürme</span>
+                     </div>
+                </div>
+                <div className="text-right">
+                    <p className="text-[8px] text-zinc-300 font-bold uppercase tracking-[0.3em]">Bursa Disleksi AI • Uzman Serisi</p>
+                </div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 export const WordComparisonSheet: React.FC<{ data: WordComparisonData }> = ({ data }) => (
     <div>

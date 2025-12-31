@@ -29,41 +29,44 @@ export const generateOfflineMapDetective = async (options: GeneratorOptions): Pr
     const { worksheetCount, difficulty, itemCount, mapInstructionTypes, showCityNames, markerStyle, emphasizedRegion } = options;
     const results: MapInstructionData[] = [];
 
+    // Bölgeye göre şehir havuzunu filtrele
+    const cityPool = (emphasizedRegion && emphasizedRegion !== 'all')
+        ? CALIBRATED_CITIES.filter(c => c.region === emphasizedRegion)
+        : CALIBRATED_CITIES;
+
     const activeTypes = (mapInstructionTypes && mapInstructionTypes.length > 0) 
         ? mapInstructionTypes 
         : ['spatial_logic', 'linguistic_geo', 'attribute_search', 'neighbor_path'];
 
-    const getAdvancedRule = (diff: string) => {
+    const getAdvancedRule = () => {
         const type = getRandomItems(activeTypes, 1)[0];
+        const randomCity = cityPool[getRandomInt(0, cityPool.length - 1)];
 
         if (type === 'spatial_logic') {
-            const city = CALIBRATED_CITIES[getRandomInt(0, CALIBRATED_CITIES.length - 1)];
             const directions = ['KUZEYİNDEKİ', 'GÜNEYİNDEKİ', 'DOĞUSUNDAKİ', 'BATISINDAKİ'];
             const dir = directions[getRandomInt(0, 3)];
-            return `${city.name} ilinin hemen ${dir} komşu ili bul ve üzerine bir YILDIZ çiz.`;
+            return `${randomCity.name} ilinin hemen ${dir} komşu ili bul ve üzerine bir YILDIZ çiz.`;
         }
 
         if (type === 'linguistic_geo') {
-            const chars = ['A', 'B', 'M', 'S', 'T'];
+            const chars = ['A', 'B', 'M', 'S', 'T', 'İ', 'K'];
             const char = chars[getRandomInt(0, chars.length - 1)];
             const colors = ['MAVİYE', 'KIRMIZIYA', 'SARIYA', 'YEŞİLE'];
             const color = colors[getRandomInt(0, colors.length - 1)];
-            return `Adı "${char}" harfi ile başlayan ve denize kıyısı olan bir ili bulup ${color} boya.`;
+            return `İsminde "${char}" harfi geçen ve ${randomCity.region} bölgesinde olan bir ili bulup ${color} boya.`;
         }
 
         if (type === 'attribute_search') {
             const isCoastal = Math.random() > 0.5;
-            const region = emphasizedRegion && emphasizedRegion !== 'all' 
-                ? emphasizedRegion 
-                : getRandomItems(['Marmara', 'İç Anadolu', 'Ege', 'Doğu Anadolu', 'Karadeniz'], 1)[0];
-            return `${region} bölgesinde yer alan ve denize kıyısı ${isCoastal ? 'OLAN' : 'OLMAYAN'} bir ili bul ve daire içine al.`;
+            return `${randomCity.region} bölgesinde yer alan ve denize kıyısı ${isCoastal ? 'OLAN' : 'OLMAYAN'} bir ili bul ve daire içine al.`;
         }
 
         if (type === 'neighbor_path') {
-            return `Başkent Ankara'dan yola çıkıp doğuya doğru ilerlerken karşılaştığın ilk büyük şehri bul ve ismini boya.`;
+            const dest = cityPool[getRandomInt(0, cityPool.length - 1)];
+            return `${randomCity.name} ilinden yola çıkıp ${dest.name} iline doğru en kısa yoldan giderken geçtiğin ilk büyük şehri bul ve ismini boya.`;
         }
 
-        return "Türkiye'nin en batısındaki ili bul ve üzerine bir çarpı (X) koy.";
+        return "Haritadaki en büyük şehri bul ve üzerine bir çarpı (X) koy.";
     };
 
     for (let p = 0; p < worksheetCount; p++) {
@@ -71,18 +74,18 @@ export const generateOfflineMapDetective = async (options: GeneratorOptions): Pr
         const count = itemCount || (difficulty === 'Başlangıç' ? 6 : difficulty === 'Orta' ? 8 : 12);
 
         for (let i = 0; i < count; i++) {
-            instructions.push(getAdvancedRule(difficulty));
+            instructions.push(getAdvancedRule());
         }
 
         results.push({
             title: "Harita Dedektifi: Uzamsal Analiz",
             instruction: "Aşağıdaki profesyonel coğrafi yönergeleri dikkatle oku. Harita üzerindeki konumları ve sınırları analiz ederek her görevi tamamla.",
-            pedagogicalNote: "Bu çalışma; görsel tarama, uzamsal konumlandırma (yönler), fonolojik farkındalık ve tümdengelim becerilerini ileri seviyede tetikler. Disleksi terapisinde yön karmaşasını önlemek için tasarlanmıştır.",
+            pedagogicalNote: `Bu çalışma; ${emphasizedRegion === 'all' ? 'Türkiye geneli' : emphasizedRegion + ' bölgesi'} odaklı görsel tarama ve uzamsal konumlandırma becerilerini tetikler.`,
             cities: CALIBRATED_CITIES.map(c => ({ ...c })),
             instructions,
             settings: {
                 showCityNames: showCityNames !== undefined ? showCityNames : false,
-                markerStyle: markerStyle || 'circle',
+                markerStyle: (markerStyle as any) || 'circle',
                 difficulty
             }
         });

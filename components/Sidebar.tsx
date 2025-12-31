@@ -9,6 +9,15 @@ import { statsService } from '../services/statsService';
 import { adminService } from '../services/adminService';
 import { useStudent } from '../context/StudentContext';
 
+// Fix: Improved toPascalCase to handle UPPERCASE strings correctly
+const toPascalCase = (str: string): string => {
+    if (!str) return '';
+    return str.toLowerCase()
+              .split('_')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+              .join('');
+};
+
 interface SidebarProps {
   selectedActivity: ActivityType | null;
   onSelectActivity: (id: ActivityType | null) => void;
@@ -28,10 +37,6 @@ interface SidebarProps {
   onOpenReadingStudio?: () => void;
   onOpenMathStudio?: () => void;
 }
-
-const toPascalCase = (str: string): string => {
-    return str.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
-};
 
 const Sidebar: React.FC<SidebarProps> = ({
   isSidebarOpen,
@@ -65,7 +70,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                   const mergedActivities = [...ACTIVITIES];
                   customActs.forEach(ca => {
                       if (!ca || !ca.id) return;
-                      // Fixed type compatibility by casting dynamic activity id
                       const index = mergedActivities.findIndex(a => a && a.id === (ca.id as ActivityType));
                       if (index !== -1) mergedActivities[index] = { ...mergedActivities[index], ...ca } as Activity;
                       else mergedActivities.push(ca as unknown as Activity);
@@ -94,9 +98,14 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     const currentAct = getActivityById(selectedActivity);
-    const promptId = currentAct?.promptId;
+    
+    // Fix: Force bypass AI if mode is fast, regardless of database promptId
+    const useAI = options.mode === 'ai';
+    const promptId = useAI ? currentAct?.promptId : null;
+
     try {
         let result: WorksheetData | null = null;
+        
         if (promptId) {
              const promptTemplate = await adminService.getPromptTemplate(promptId);
              if (promptTemplate) {
@@ -113,30 +122,40 @@ const Sidebar: React.FC<SidebarProps> = ({
                  else result = [aiResult];
              }
         } 
+        
         if (!result) {
             const pascalCaseName = toPascalCase(selectedActivity);
             const generatorFunctionName = `generate${pascalCaseName}FromAI`;
             const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
+            
             const runOfflineGenerator = async () => {
                  const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
                  if (offlineGenerator) return await offlineGenerator(enrichedOptions);
-                 throw new Error(`"${currentAct?.title}" motoru bulunamadı.`);
+                 throw new Error(`"${currentAct?.title}" yerel üretim motoru bulunamadı.`);
             };
+
             if (options.mode === 'ai') {
                 const onlineGenerator = (generators as any)[generatorFunctionName];
                 if (onlineGenerator) {
                     try { result = await onlineGenerator(enrichedOptions); } 
                     catch (err) { result = await runOfflineGenerator(); }
                 } else result = await runOfflineGenerator();
-            } else result = await runOfflineGenerator();
+            } else {
+                result = await runOfflineGenerator();
+            }
         }
+
         if (result) {
             const labeledResult = result.map((page: any) => ({ ...page, title: page.title || currentAct?.title || 'Etkinlik' }));
             setWorksheetData(labeledResult);
             onAddToHistory(selectedActivity, labeledResult);
             statsService.incrementUsage(selectedActivity).catch(console.error);
         }
-    } catch (e: any) { setError(e.message || "Hata oluştu."); } finally { setIsLoading(false); }
+    } catch (e: any) { 
+        setError(e.message || "İçerik üretilemedi."); 
+    } finally { 
+        setIsLoading(false); 
+    }
   };
 
   const categorizedActivities = useMemo(() => {

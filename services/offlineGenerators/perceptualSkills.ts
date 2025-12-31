@@ -5,6 +5,24 @@ import {
 } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, SHAPE_TYPES, TR_VOCAB, generateConnectedPath, generateSymmetricPattern, PREDEFINED_GRID_PATTERNS } from './helpers';
 
+// Critical Character Sets for SLD (Specific Learning Disabilities)
+const CRITICAL_PAIRS = {
+    linguistic: [
+        ['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'n'], ['a', 'e'], 
+        ['s', 'z'], ['t', 'f'], ['ğ', 'g'], ['ı', 'i'], ['v', 'y']
+    ],
+    numeric: [
+        ['6', '9'], ['2', '5'], ['1', '7'], ['0', '8'], ['3', '8'], ['4', '7']
+    ],
+    semantic: [
+        ['dere', 'dede'], ['baba', 'dada'], ['kasa', 'masa'], ['kale', 'lale'], 
+        ['kitap', 'katip'], ['sarı', 'darı'], ['para', 'yara'], ['kuzu', 'kutu']
+    ],
+    pictographic: [
+        ['▲', '▼'], ['◀', '▶'], ['⬈', '⬉'], ['◐', '◑'], ['◒', '◓'], ['◖', '◗']
+    ]
+};
+
 const dotArtShapes: Record<string, { dots: { cx: number; cy: number }[]; name: string; }> = {
     'heart': {
         name: 'Kalp',
@@ -67,28 +85,41 @@ const createShapePath = (type: 'triangle' | 'square' | 'circle' | 'line', cx: nu
 };
 
 export const generateOfflineFindTheDifference = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
-    const { topic, itemCount, worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, itemCount, findDiffType, distractionLevel } = options;
     const results: FindTheDifferenceData[] = [];
-    const pool = [...TR_VOCAB.confusing_words.flat(), ...getWordsForDifficulty(difficulty, topic)];
-    const uniquePool = [...new Set(pool)];
+    
+    const type = findDiffType || 'linguistic';
+    const pairPool = CRITICAL_PAIRS[type as keyof typeof CRITICAL_PAIRS] || CRITICAL_PAIRS.linguistic;
+    
     for (let i = 0; i < worksheetCount; i++) {
         const rows = [];
         const rowsCount = itemCount || 8;
-        for(let r=0; r<rowsCount; r++) {
-            const word = getRandomItems(uniquePool, 1)[0] || 'ELMA';
-            const distractionLevel = difficulty === 'Zor' || difficulty === 'Uzman' ? 'high' : 'low';
-            let variation = word + '.';
-            if (word.length > 3) {
-                 const mid = Math.floor(word.length / 2);
-                 variation = word.substring(0, mid-1) + word[mid] + word[mid-1] + word.substring(mid+1);
-            }
-            const target = Math.random() > 0.5 ? variation : word;
-            const items = Array.from({length: 4}, () => word);
-            const correctIndex = getRandomInt(0, 3);
-            items[correctIndex] = target;
-            rows.push({ items, correctIndex, visualDistractionLevel: distractionLevel });
+        
+        for(let r = 0; r < rowsCount; r++) {
+            const pair = pairPool[getRandomInt(0, pairPool.length - 1)];
+            const base = pair[0];
+            const odd = pair[1];
+            
+            // Satır başına öğe sayısı zorluğa göre artar
+            const itemsCount = difficulty === 'Uzman' ? 6 : (difficulty === 'Zor' ? 5 : 4);
+            const items = Array.from({ length: itemsCount }, () => base);
+            const correctIndex = getRandomInt(0, itemsCount - 1);
+            items[correctIndex] = odd;
+            
+            rows.push({ 
+                items, 
+                correctIndex, 
+                visualDistractionLevel: (distractionLevel as any) || 'medium' 
+            });
         }
-        results.push({ title: 'Farklı Olanı Bul', instruction: "Sıradaki farklı kelimeyi/şekli bul ve işaretle.", pedagogicalNote: "Görsel ayrıştırma ve dikkat.", imagePrompt: 'Difference', rows });
+
+        results.push({ 
+            title: `Farklı Olanı Bul: ${type === 'linguistic' ? 'Harf Ayrıştırma' : type === 'numeric' ? 'Sayı Ayrıştırma' : 'Görsel Ayrıştırma'}`, 
+            instruction: "Her satırda diğerlerinden farklı olan öğeyi bul ve işaretle.", 
+            pedagogicalNote: "Bu çalışma, benzer uyaranlar arasındaki farkları yakalama becerisini (Visual Discrimination) geliştirir. Disleksi terapisinde 'b-d-p-q' gibi ayna karakterlerin ayrıştırılması için kritiktir.", 
+            imagePrompt: 'Visual Discrimination Test', 
+            rows 
+        });
     }
     return results;
 };

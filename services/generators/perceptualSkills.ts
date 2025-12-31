@@ -23,8 +23,34 @@ const PEDAGOGICAL_PROMPT = `
 const SHAPE_TYPES = ['circle', 'square', 'triangle', 'hexagon', 'star', 'diamond', 'pentagon', 'octagon', 'cube', 'sphere', 'pyramid', 'cone', 'heart', 'cloud', 'moon'];
 
 export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
-    const { topic, itemCount, difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Farklı Olanı Bul (Görsel). ${PEDAGOGICAL_PROMPT} ${worksheetCount} sayfa üret.`;
+    const { difficulty, itemCount, worksheetCount, findDiffType, distractionLevel, studentContext } = options;
+    
+    const typeDesc = findDiffType === 'linguistic' ? 'Harf ve Hece Ayrıştırma (Ayna harfler b-d vb.)' : 
+                   findDiffType === 'numeric' ? 'Sayı Ayrıştırma (6-9 benzerliği vb.)' : 
+                   findDiffType === 'semantic' ? 'Kelime/Anlam Ayrıştırma (dere-dede vb.)' : 'Sembolik/Piktografik Ayrıştırma';
+
+    const prompt = `
+    [GÖREV: GÖRSEL AYRIŞTIRMA (VISUAL DISCRIMINATION) BATARYASI]
+    Öğrenci Profili: ${studentContext?.diagnosis?.join(', ') || 'Genel Gelişim'}.
+    
+    İÇERİK STRATEJİSİ:
+    - Tip: ${typeDesc}.
+    - Zorluk: ${difficulty}.
+    - Çeldirici Zorluğu: ${distractionLevel}.
+    - Satır Başı Öğe: ${difficulty === 'Uzman' ? 6 : 4}.
+    
+    KURALLAR:
+    1. Her satırda (row) birbirine ÇOK benzeyen öğeler kullan.
+    2. Farklı olan öğe (target), diğerlerinden sadece küçük bir detayla (örn: bir nokta, rotasyon, bir harf değişimi) ayrılmalıdır.
+    3. Disleksik çocukların hata yapma eğiliminde olduğu çiftleri seç (b/d, p/q, 6/9, m/n, u/ü).
+    
+    ÇIKTI FORMATI:
+    - title: "Farkı Bul: [Odak Alanı]"
+    - rows: [{ items: string[], correctIndex: number, visualDistractionLevel: string }]
+    
+    ${PEDAGOGICAL_PROMPT}
+    `;
+
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -32,12 +58,24 @@ export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions)
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
             imagePrompt: { type: Type.STRING },
-            rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { items: { type: Type.ARRAY, items: { type: Type.STRING } }, correctIndex: { type: Type.INTEGER }, visualDistractionLevel: { type: Type.STRING, enum: ['low', 'medium', 'high'] } }, required: ['items', 'correctIndex', 'visualDistractionLevel'] } }
+            rows: { 
+                type: Type.ARRAY, 
+                items: { 
+                    type: Type.OBJECT, 
+                    properties: { 
+                        items: { type: Type.ARRAY, items: { type: Type.STRING } }, 
+                        correctIndex: { type: Type.INTEGER }, 
+                        visualDistractionLevel: { type: Type.STRING } 
+                    }, 
+                    required: ['items', 'correctIndex'] 
+                } 
+            }
         },
-        required: ['title', 'instruction', 'rows', 'pedagogicalNote', 'imagePrompt']
+        required: ['title', 'instruction', 'rows', 'pedagogicalNote']
     };
+
     const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<FindTheDifferenceData[]>;
+    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<FindTheDifferenceData[]>;
 };
 
 export const generateShapeMatchingFromAI = async (options: GeneratorOptions): Promise<ShapeMatchingData[]> => {
