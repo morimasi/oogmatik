@@ -72,6 +72,28 @@ export interface SyllableTrainData extends BaseActivityData { trains: { syllable
 export interface BackwardSpellingData extends BaseActivityData { items: { reversed: string; }[]; }
 export interface HandwritingPracticeData extends BaseActivityData { guideType: string; lines: { text: string; type: 'trace' | 'copy' | 'empty'; imagePrompt?: string; }[]; }
 
+// Fixed RapidNamingData interface to match usage in generators and components
+export interface RapidNamingData extends BaseActivityData { 
+    type: 'object' | 'color' | 'letter' | 'number';
+    grid: { 
+        items: { 
+            type: 'color' | 'label'; 
+            value?: string; 
+            label?: string; 
+        }[]; 
+    }; 
+}
+
+// Fixed PhonologicalAwarenessData interface to match usage in generators and components
+export interface PhonologicalAwarenessData extends BaseActivityData { 
+    exercises: { 
+        question: string; 
+        word: string; 
+        options?: string[]; 
+        answer?: string; 
+    }[]; 
+}
+
 export interface ShapeCountingData extends BaseActivityData {
     figures: {
         targetShape: string;

@@ -501,7 +501,7 @@ const AppContent: React.FC = () => {
         <Suspense fallback={<LoadingSpinner />}>
             <ReadingStudio 
                 onBack={handleGoBack} 
-                onAddToWorkbook={(data: any) => handleAddToWorkbookGeneral('STORY_COMPREHENSION', data)}
+                onAddToWorkbook={(data: any) => handleAddToWorkbookGeneral(ActivityType.STORY_COMPREHENSION, data)}
             />
         </Suspense>
     );
@@ -510,7 +510,7 @@ const AppContent: React.FC = () => {
         <Suspense fallback={<LoadingSpinner />}>
             <MathStudio 
                 onBack={handleGoBack}
-                onAddToWorkbook={(data: any) => handleAddToWorkbookGeneral('MATH_STUDIO' as any, data)}
+                onAddToWorkbook={(data: any) => handleAddToWorkbookGeneral(ActivityType.MATH_STUDIO, data)}
             />
         </Suspense>
     );
@@ -565,7 +565,7 @@ const AppContent: React.FC = () => {
                             <i className="fa-solid fa-user-doctor"></i> Değerlendirme
                         </button>
 
-                        <div className="h-6 w-px bg-[var(--border-color)] mx-1 hidden sm:block"></div>
+                        <div className="h-66 w-px bg-[var(--border-color)] mx-1 hidden sm:block"></div>
 
                         <div className="flex items-center gap-2">
                         

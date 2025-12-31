@@ -3,7 +3,7 @@ export const printService = {
     /**
      * Global Direct Print Engine.
      * Clones elements, cleans up UI, and triggers browser print dialog.
-     * Content flows naturally across A4 sheets.
+     * Fixed for A4 alignment and cutting issues.
      */
     generatePdf: async (
         elementSelector: string, 
@@ -28,20 +28,22 @@ export const printService = {
             return;
         }
 
-        // 2. Prepare Print Container
+        // 2. Prepare Print Container (Clean Slate)
         const existingContainer = document.getElementById('print-container');
         if (existingContainer) existingContainer.remove();
 
         const printContainer = document.createElement('div');
         printContainer.id = 'print-container';
         
-        // Print container styling
-        printContainer.style.position = 'absolute';
-        printContainer.style.top = '0';
-        printContainer.style.left = '0';
-        printContainer.style.width = '210mm'; 
-        printContainer.style.zIndex = '99999';
-        printContainer.style.background = 'white';
+        // Force reset any potential parent positioning
+        printContainer.style.setProperty('position', 'absolute', 'important');
+        printContainer.style.setProperty('top', '0', 'important');
+        printContainer.style.setProperty('left', '0', 'important');
+        printContainer.style.setProperty('width', '210mm', 'important');
+        printContainer.style.setProperty('margin', '0', 'important');
+        printContainer.style.setProperty('padding', '0', 'important');
+        printContainer.style.setProperty('background', 'white', 'important');
+        printContainer.style.setProperty('z-index', '9999999', 'important');
 
         if (options.grayscale) {
             printContainer.style.filter = 'grayscale(100%) contrast(1.1)';
@@ -69,19 +71,24 @@ export const printService = {
                 }
             });
 
-            // Cleanup UI noise
+            // CRITICAL: Cleanup UI noise and reset transforms
             const uiGarbage = clone.querySelectorAll('.edit-handle, .page-navigator, .no-print, button, .overlay-ui, [data-testid="edit-btn"], .page-label-container');
             uiGarbage.forEach(e => e.remove());
 
-            // Reset for print
-            clone.style.transform = 'none';
-            clone.style.margin = '0';
-            clone.style.boxShadow = 'none';
-            clone.style.position = 'relative';
-            clone.style.overflow = 'visible';
-            clone.style.height = 'auto'; 
-            clone.style.width = '210mm';
-            clone.style.pageBreakAfter = 'always';
+            // Reset ALL styles that might cause misalignment
+            clone.style.setProperty('transform', 'none', 'important');
+            clone.style.setProperty('margin', '0', 'important');
+            clone.style.setProperty('box-shadow', 'none', 'important');
+            clone.style.setProperty('position', 'relative', 'important');
+            clone.style.setProperty('top', '0', 'important');
+            clone.style.setProperty('left', '0', 'important');
+            clone.style.setProperty('width', '210mm', 'important');
+            clone.style.setProperty('min-height', '297mm', 'important');
+            clone.style.setProperty('box-sizing', 'border-box', 'important');
+            clone.style.setProperty('display', 'flex', 'important');
+            clone.style.setProperty('flex-direction', 'column', 'important');
+            clone.style.setProperty('overflow', 'visible', 'important');
+            clone.style.setProperty('page-break-after', 'always', 'important');
             
             clone.classList.add('print-page');
             
@@ -90,7 +97,7 @@ export const printService = {
 
         document.body.appendChild(printContainer);
 
-        // Wait for images
+        // Wait for images to load to prevent blank prints
         const images = printContainer.querySelectorAll('img');
         const imagePromises = Array.from(images).map(img => {
             if (img.complete) return Promise.resolve();
@@ -101,13 +108,16 @@ export const printService = {
         });
         await Promise.all(imagePromises);
 
+        // Trigger Print
         const originalTitle = document.title;
         document.title = title.replace(/[^a-z0-9]/gi, '_');
         
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Small delay to ensure browser layout engine settles
+        await new Promise(resolve => setTimeout(resolve, 800));
         
         window.print();
 
+        // Cleanup
         document.title = originalTitle;
         setTimeout(() => {
              if (printContainer.parentNode) {

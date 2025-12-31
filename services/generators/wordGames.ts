@@ -1,41 +1,35 @@
-
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions } from '../../types';
-import {
-    WordSearchData, AnagramsData, CrosswordData
-} from '../../types';
+import { GeneratorOptions, HiddenPasswordGridData } from '../../types';
 
-const getDifficultyPrompt = (diff: string) => {
-    return `Zorluk: ${diff}.`;
-};
+const PEDAGOGICAL_PROMPT = `
+[ROL: KIDEMLİ EĞİTİM MATERYALİ TASARIMCISI]
+Görevin: Disleksik çocuklar için dikkat ve görsel tarama becerilerini geliştiren materyaller üretmek.
+Yönergeler kısa, net ve teşvik edici olmalıdır.
+Sadece JSON döndür.
+`;
 
-const PEDAGOGICAL_PROMPT = `[ROL: PEDAGOG] Sözel oyun materyali üret. Sadece JSON.`;
+export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions): Promise<HiddenPasswordGridData[]> => {
+    const { topic, difficulty, worksheetCount, gridSize = 5, itemCount = 9, case: letterCase } = options;
+    
+    const prompt = `
+    "Gizli Şifre Matrisi" (Letter Cancellation) etkinliği üret. 
+    Konu: ${topic || 'Karışık'}. Zorluk: ${difficulty}.
+    
+    PARAMETRELER:
+    - Sayfa başı blok sayısı: ${itemCount}
+    - Matris boyutu: ${gridSize}x${gridSize}
+    - Harf Tipi: ${letterCase === 'upper' ? 'SADECE BÜYÜK HARFLER' : 'SADECE KÜÇÜK HARFLER'}
+    
+    KURALLAR:
+    1. Her blok için bir 'targetLetter' (çeldirici harf) seç. Bu harf gizli kelime içinde ASLA geçmemeli.
+    2. Gizli kelimeler 3-7 harf arasında olmalı.
+    3. Matrisi 'targetLetter' ile doldur, aralara gizli kelimenin harflerini soldan sağa akacak şekilde serpiştir.
+    
+    ${PEDAGOGICAL_PROMPT}
+    ${worksheetCount} adet çalışma sayfası üret.
+    `;
 
-export const generateWordSearchFromAI = async (options: GeneratorOptions): Promise<WordSearchData[]> => {
-  const { topic, difficulty, worksheetCount } = options;
-  const prompt = `Konu: ${topic}. ${getDifficultyPrompt(difficulty)} Kelime Bulmaca üret. ${PEDAGOGICAL_PROMPT}`;
-  const schema = {
-    type: Type.ARRAY,
-    items: {
-      type: Type.OBJECT,
-      properties: {
-        title: { type: Type.STRING },
-        instruction: { type: Type.STRING },
-        pedagogicalNote: { type: Type.STRING },
-        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-        words: { type: Type.ARRAY, items: { type: Type.STRING } },
-        hiddenMessage: { type: Type.STRING }
-      },
-      required: ['title', 'instruction', 'grid', 'words']
-    }
-  };
-  return generateWithSchema(prompt, schema);
-};
-
-export const generateAnagramFromAI = async (options: GeneratorOptions): Promise<AnagramsData[]> => {
-    const { topic, difficulty } = options;
-    const prompt = `Konu: ${topic}. Anagram etkinliği üret. ${PEDAGOGICAL_PROMPT}`;
     const schema = {
         type: Type.ARRAY,
         items: {
@@ -44,54 +38,40 @@ export const generateAnagramFromAI = async (options: GeneratorOptions): Promise<
                 title: { type: Type.STRING },
                 instruction: { type: Type.STRING },
                 pedagogicalNote: { type: Type.STRING },
-                anagrams: {
+                settings: {
+                    type: Type.OBJECT,
+                    properties: {
+                        gridSize: { type: Type.NUMBER },
+                        itemCount: { type: Type.NUMBER },
+                        cellStyle: { type: Type.STRING },
+                        letterCase: { type: Type.STRING }
+                    }
+                },
+                grids: {
                     type: Type.ARRAY,
                     items: {
                         type: Type.OBJECT,
                         properties: {
-                            word: { type: Type.STRING },
-                            scrambled: { type: Type.STRING },
-                            letters: { type: Type.ARRAY, items: { type: Type.STRING } }
+                            targetLetter: { type: Type.STRING },
+                            hiddenWord: { type: Type.STRING },
+                            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
                         },
-                        required: ['word', 'scrambled']
+                        required: ['targetLetter', 'hiddenWord', 'grid']
                     }
                 }
             },
-            required: ['title', 'anagrams']
+            required: ['title', 'instruction', 'grids']
         }
     };
-    return generateWithSchema(prompt, schema);
-};
 
-export const generateCrosswordFromAI = async (options: GeneratorOptions): Promise<CrosswordData[]> => {
-    const { topic, difficulty } = options;
-    const prompt = `Konu: ${topic}. Çapraz bulmaca üret. ${PEDAGOGICAL_PROMPT}`;
-    const schema = {
-        type: Type.ARRAY,
-        items: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                instruction: { type: Type.STRING },
-                pedagogicalNote: { type: Type.STRING },
-                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-                clues: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            id: { type: Type.INTEGER },
-                            direction: { type: Type.STRING },
-                            text: { type: Type.STRING },
-                            word: { type: Type.STRING }
-                        },
-                        required: ['id', 'direction', 'text', 'word']
-                    }
-                },
-                passwordPrompt: { type: Type.STRING }
-            },
-            required: ['title', 'grid', 'clues', 'passwordPrompt']
+    const result = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+    return result.map((page: any) => ({
+        ...page,
+        settings: {
+            gridSize,
+            itemCount,
+            cellStyle: options.variant || 'square',
+            letterCase: letterCase || 'upper'
         }
-    };
-    return generateWithSchema(prompt, schema);
+    }));
 };

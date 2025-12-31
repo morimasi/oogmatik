@@ -49,7 +49,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               const newCustoms = customActs.filter(ca => !ACTIVITIES.find(a => a.id === ca.id));
               
               if (newCustoms.length > 0) {
-                  setAllActivities([...ACTIVITIES, ...newCustoms]);
+                  // Fixed type compatibility by casting dynamic activity id
+                  setAllActivities([...ACTIVITIES, ...newCustoms.map(ca => ({ ...ca, id: ca.id as ActivityType }))]);
                   const updatedCategories = ACTIVITY_CATEGORIES.map(cat => ({...cat}));
                   
                   let otherCat = updatedCategories.find(c => c.id === 'others');
@@ -67,12 +68,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                   newCustoms.forEach(act => {
                       const targetCatId = act.category || 'others';
                       const targetCat = updatedCategories.find(c => c.id === targetCatId);
+                      const actId = act.id as ActivityType;
                       if (targetCat) {
-                          if (!targetCat.activities.includes(act.id)) {
-                              targetCat.activities.push(act.id);
+                          if (!targetCat.activities.includes(actId)) {
+                              targetCat.activities.push(actId);
                           }
                       } else {
-                           otherCat!.activities.push(act.id);
+                           otherCat!.activities.push(actId);
                       }
                   });
                   setCategories(updatedCategories);
@@ -86,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const getActivityById = (id: ActivityType | null): Activity | undefined => {
       if (!id) return undefined;
-      return allActivities.find(a => a.id === id);
+      return allActivities.find(a => a && a.id === id);
   }
 
   const handleGenerate = async (options: GeneratorOptions) => {

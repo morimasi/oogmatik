@@ -1,5 +1,12 @@
-
 import { Activity, ActivityCategory, ActivityType } from './types';
+
+// Difficulty Levels
+export const DIFFICULTY_OPTIONS = [
+    { value: 'Başlangıç', label: 'Başlangıç' },
+    { value: 'Orta', label: 'Orta' },
+    { value: 'Zor', label: 'Zor' },
+    { value: 'Uzman', label: 'Uzman' }
+];
 
 // Activities List
 export const ACTIVITIES: Activity[] = [
@@ -14,6 +21,12 @@ export const ACTIVITIES: Activity[] = [
         title: 'AI Destekli Dönüştürücü',
         description: 'Mevcut materyalleri yapay zeka ile akıllı çalışma sayfalarına dönüştürün.',
         icon: 'fa-solid fa-wand-sparkles'
+    },
+    {
+        id: ActivityType.HIDDEN_PASSWORD_GRID,
+        title: 'Gizli Şifre Matrisi',
+        description: 'Izgara içindeki harfleri eleyerek gizli kelimeyi bulma bulmacası.',
+        icon: 'fa-solid fa-border-none'
     },
     {
         id: ActivityType.NUMBER_LOGIC_RIDDLES,
@@ -60,7 +73,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         title: 'Okuma & Dil',
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
-        activities: [ActivityType.STORY_COMPREHENSION, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
+        activities: [ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
     },
     {
         id: 'math-logic',

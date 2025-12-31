@@ -83,7 +83,7 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
                     <div id={`page-${index}`} className="worksheet-page print-page" style={pageStyle}>
                         
                         {/* Compact Header Area */}
-                        <div className="w-full px-4 py-2 flex justify-between items-end border-b-2 border-zinc-900 mb-2" style={{ display: 'var(--display-student-info)' }}>
+                        <div className="w-full px-4 py-2 flex justify-between items-end border-b-2 border-zinc-900 mb-4" style={{ display: 'var(--display-student-info)' }}>
                             <div className="flex gap-6">
                                 <div className="flex flex-col text-left">
                                     <span className="text-[7px] text-zinc-400 uppercase font-black">Öğrenci Adı</span>

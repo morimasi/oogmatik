@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react';
 import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig, ActivityType, Student } from '../../types';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
@@ -74,7 +75,7 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
     { id: 'story_block', label: 'Hikaye Metni', defaultTitle: 'OKUMA METNİ', icon: 'fa-book-open', description: 'Ana metin ve görsel alanı.', defaultStyle: { h: 400, imageSettings: { enabled: true, position: 'right', widthPercent: 40, opacity: 1, objectFit: 'cover', borderRadius: 8, blendMode: 'normal' } } },
     { id: 'vocabulary', label: 'Sözlükçe', defaultTitle: 'SÖZLÜKÇE', icon: 'fa-spell-check', description: 'Zor kelimeler ve anlamları.', defaultStyle: { h: 150 } },
     { id: 'questions_5n1k', label: '5N 1K Analizi', defaultTitle: '5N 1K SORULARI', icon: 'fa-circle-question', description: 'Kim, Ne, Nerede soruları.', defaultStyle: { w: 754, h: 300 } },
-    { id: 'questions_test', label: 'Test Soruları', defaultTitle: 'DEĞERLENDİRME', icon: 'fa-list-check', description: 'Çoktan seçmeli sorular.', defaultStyle: { w: 754, h: 300 } },
+    { id: 'questions_test', label: 'Test Soruları', defaultTitle: 'DEĞERLENDİRRE', icon: 'fa-list-check', description: 'Çoktan seçmeli sorular.', defaultStyle: { w: 754, h: 300 } },
     { id: 'questions_inference', label: 'Derin Analiz', defaultTitle: 'DERİN ANALİZ', icon: 'fa-brain', description: 'Çıkarım ve yorum soruları.', defaultStyle: { h: 150 } },
     { id: 'creative', label: 'Yaratıcı Alan', defaultTitle: 'YARATICI ALAN', icon: 'fa-paintbrush', description: 'Çizim ve yazma alanı.', defaultStyle: { h: 200 } },
     { id: 'notes', label: 'Not Alanı', defaultTitle: 'NOTLAR', icon: 'fa-note-sticky', description: 'Boş not satırları.', defaultStyle: { h: 100 } },
@@ -465,31 +466,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
     });
 
-    /**
-     * Fix Error in file components/ReadingStudio/ReadingStudio.tsx on line 1142: Cannot find name 'toggleSection'.
-     * Fix Error in file components/ReadingStudio/ReadingStudio.tsx on line 1162: Cannot find name 'toggleSection'.
-     */
-    const toggleSection = (section: keyof typeof openSections) => {
-        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
-    };
-
-    /**
-     * Fix Error in file components/ReadingStudio/ReadingStudio.tsx on line 1153: Cannot find name 'toggleVisibility'.
-     */
-    const toggleVisibility = (instanceId: string) => {
-        setLayout(prev => prev.map(item => 
-            item.instanceId === instanceId ? { ...item, isVisible: !item.isVisible } : item
-        ));
-        setIsSaved(false);
-    };
-    
-    // Sync with global active student
-    useEffect(() => {
-        if (activeStudent) {
-            setConfig(prev => ({...prev, studentName: activeStudent.name, gradeLevel: activeStudent.grade}));
-        }
-    }, [activeStudent]);
-
     const [templates, setTemplates] = useState<SavedTemplate[]>([]);
     const [templateName, setTemplateName] = useState("");
 
@@ -503,6 +479,18 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     const canvasRef = useRef<HTMLDivElement>(null);
 
     const [dragState, setDragState] = useState<{ mode: 'drag' | 'resize' | 'rotate'; resizeHandle?: string; startX: number; startY: number; initialX: number; initialY: number; initialW: number; initialH: number; initialR: number; centerX?: number; centerY?: number; } | null>(null);
+
+    // Added missing toggle functions
+    const toggleSection = (section: keyof typeof openSections) => {
+        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
+
+    const toggleVisibility = (instanceId: string) => {
+        setLayout(prev => prev.map(item => 
+            item.instanceId === instanceId ? { ...item, isVisible: !item.isVisible } : item
+        ));
+        setIsSaved(false);
+    };
 
     const contentHeight = useMemo(() => {
         if (layout.length === 0) return A4_HEIGHT_PX;
@@ -865,7 +853,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             const studentId = activeStudent?.id;
             
             await worksheetService.saveWorksheet(
-                user.id, title, 'STORY_COMPREHENSION', [{ storyData, layout }], 'fa-solid fa-book-open-reader', { id: 'reading-verbal', title: 'Okuma & Dil' },
+                user.id, title, ActivityType.STORY_COMPREHENSION, [{ storyData, layout }], 'fa-solid fa-book-open-reader', { id: 'reading-verbal', title: 'Okuma & Dil' },
                 undefined, undefined, studentId
             );
             setIsSaved(true);
@@ -905,7 +893,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             const title = storyData?.title || (layout.find(l => l.id === 'header')?.specificData as any)?.title || 'Yeni Hikaye';
             const mockSavedWorksheet: any = {
                 name: title,
-                activityType: 'STORY_COMPREHENSION',
+                activityType: ActivityType.STORY_COMPREHENSION,
                 worksheetData: [{ storyData, layout }],
                 icon: 'fa-solid fa-book-open-reader',
                 category: { id: 'reading-verbal', title: 'Okuma & Dil' }
@@ -1073,7 +1061,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     };
 
     return (
-        <div className="h-full flex flex-col bg-[#121212] font-['OpenDyslexic'] overflow-hidden text-zinc-100 absolute inset-0 z-50">
+        <div className="h-full flex flex-col bg-[#121214] font-['OpenDyslexic'] overflow-hidden text-zinc-100 absolute inset-0 z-50">
             <div className="h-16 bg-[#18181b] border-b border-zinc-800 flex justify-between items-center px-6 shrink-0 z-50">
                 <div className="flex items-center gap-4">
                     <button onClick={onBack} className="w-10 h-10 rounded-xl hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors">

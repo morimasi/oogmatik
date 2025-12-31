@@ -22,12 +22,13 @@ const DOMAINS: { id: CognitiveDomain; title: string; desc: string; icon: string;
     { id: 'logical_reasoning', title: 'Mantıksal Muhakeme', desc: 'Akışkan zeka ve problem çözme becerisi.', icon: 'fa-brain', estimatedTime: '5 dk' }
 ];
 
+// Fixed ActivityType usage from string to enum
 const DOMAIN_ACTIVITY_MAP: Record<CognitiveDomain, ActivityType[]> = {
-    visual_spatial_memory: ['VISUAL_MEMORY', 'GRID_DRAWING', 'MATRIX_MEMORY' as any, 'DOT_PAINTING'],
-    processing_speed: ['RAPID_NAMING', 'READING_FLOW', 'SPEED_READING' as any],
-    selective_attention: ['STROOP_TEST', 'BURDON_TEST', 'ATTENTION_TO_QUESTION', 'FIND_THE_DIFFERENCE'],
-    phonological_loop: ['PHONOLOGICAL_AWARENESS', 'SYLLABLE_TRAIN', 'WORD_MEMORY'],
-    logical_reasoning: ['LOGIC_GRID_PUZZLE', 'NUMBER_PATTERN', 'SUDOKU' as any]
+    visual_spatial_memory: [ActivityType.VISUAL_MEMORY, ActivityType.GRID_DRAWING, ActivityType.DOT_PAINTING],
+    processing_speed: [ActivityType.RAPID_NAMING, ActivityType.READING_FLOW],
+    selective_attention: [ActivityType.STROOP_TEST, ActivityType.BURDON_TEST, ActivityType.ATTENTION_TO_QUESTION, ActivityType.FIND_THE_DIFFERENCE],
+    phonological_loop: [ActivityType.PHONOLOGICAL_AWARENESS, ActivityType.SYLLABLE_TRAIN, ActivityType.WORD_MEMORY],
+    logical_reasoning: [ActivityType.LOGIC_GRID_PUZZLE, ActivityType.NUMBER_PATTERN]
 };
 
 export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook, onAutoGenerateWorkbook }) => {

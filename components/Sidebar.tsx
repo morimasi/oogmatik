@@ -65,9 +65,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                   const mergedActivities = [...ACTIVITIES];
                   customActs.forEach(ca => {
                       if (!ca || !ca.id) return;
-                      const index = mergedActivities.findIndex(a => a && a.id === ca.id);
-                      if (index !== -1) mergedActivities[index] = { ...mergedActivities[index], ...ca };
-                      else mergedActivities.push(ca);
+                      // Fixed type compatibility by casting dynamic activity id
+                      const index = mergedActivities.findIndex(a => a && a.id === (ca.id as ActivityType));
+                      if (index !== -1) mergedActivities[index] = { ...mergedActivities[index], ...ca } as Activity;
+                      else mergedActivities.push(ca as unknown as Activity);
                   });
                   setAllActivities(mergedActivities);
               }

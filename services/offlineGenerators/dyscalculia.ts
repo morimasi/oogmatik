@@ -76,8 +76,10 @@ export const generateOfflineArithmeticFluency = async (options: GeneratorOptions
     
     // Map operation text to symbol
     let op: '+' | '-' | 'x' = '+';
-    if (operationType === 'subtraction' || operationType === 'sub') op = '-';
-    if (operationType === 'multiplication' || operationType === 'mult') op = 'x';
+    // Fixed type-unsafe comparison for subtraction
+    if (operationType === 'sub') op = '-';
+    // Fixed type-unsafe comparison for multiplication
+    if (operationType === 'mult') op = 'x';
     
     // Visual Style: 'objects' | 'ten-frame' | 'number-bond' | 'dice'
     const style = visualStyle || 'objects';

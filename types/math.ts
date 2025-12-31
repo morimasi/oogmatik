@@ -1,4 +1,3 @@
-
 import { BaseActivityData, ShapeType, VisualMathType } from './core';
 
 export * from './core';
@@ -305,7 +304,6 @@ export interface RomanNumeralMultiplicationData extends BaseActivityData {
     items: any[];
 }
 
-// Added missing Math types for offline generators and components
 export interface NumberLogicRiddleData extends BaseActivityData {
     sumTarget: number;
     sumMessage: string;
