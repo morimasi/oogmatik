@@ -1,3 +1,4 @@
+
 import { Activity, ActivityCategory, ActivityType } from './types';
 
 // Difficulty Levels
@@ -10,6 +11,12 @@ export const DIFFICULTY_OPTIONS = [
 
 // Activities List
 export const ACTIVITIES: Activity[] = [
+    {
+        id: ActivityType.MAP_INSTRUCTION,
+        title: 'Harita Dedektifi',
+        description: 'Türkiye haritası üzerinde yön, konum and harf takibi yaparak yönergeleri uygulama.',
+        icon: 'fa-solid fa-map-location-dot'
+    },
     {
         id: ActivityType.ALGORITHM_GENERATOR,
         title: 'Algoritma Üretici',
@@ -63,11 +70,44 @@ export const ACTIVITIES: Activity[] = [
         title: 'Matematik Hafıza Kartları',
         description: 'İşlemler ve sonuçlarını eşleştirerek belleği güçlendiren hafıza oyunu.',
         icon: 'fa-solid fa-clone'
+    },
+    {
+        id: ActivityType.FIND_THE_DIFFERENCE,
+        title: 'Farkı Bul',
+        description: 'Görsel veya metinsel diziler arasındaki farkları ayırt etme.',
+        icon: 'fa-solid fa-eye'
+    },
+    {
+        id: ActivityType.VISUAL_ODD_ONE_OUT,
+        title: 'Görsel Farklıyı Bul',
+        description: 'Görsel örüntüler içindeki uyumsuz öğeyi tespit etme.',
+        icon: 'fa-solid fa-ghost'
+    },
+    // Fix: Added missing metadata for referenced activities
+    {
+        id: ActivityType.GRID_DRAWING,
+        title: 'Kare Kopyalama',
+        description: 'Izgara üzerindeki desenleri hatasız bir şekilde kopyalama çalışması.',
+        icon: 'fa-solid fa-border-all'
+    },
+    {
+        id: ActivityType.SYMMETRY_DRAWING,
+        title: 'Simetri Tamamlama',
+        description: 'Görselin aynadaki yansımasını çizerek tamamlama çalışması.',
+        icon: 'fa-solid fa-mirror'
     }
 ];
 
 // Activity Categories
 export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
+    {
+        id: 'visual-perception',
+        title: 'Görsel & Mekansal',
+        description: 'Görsel tarama, uzamsal algı ve yön tayini çalışmaları.',
+        icon: 'fa-solid fa-eye',
+        // Fix: Removed unnecessary 'as any' after adding SYMMETRY_DRAWING to enum
+        activities: [ActivityType.MAP_INSTRUCTION, ActivityType.FIND_THE_DIFFERENCE, ActivityType.VISUAL_ODD_ONE_OUT, ActivityType.GRID_DRAWING, ActivityType.SYMMETRY_DRAWING]
+    },
     {
         id: 'reading-verbal',
         title: 'Okuma & Dil',

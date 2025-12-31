@@ -43,16 +43,17 @@ export enum ActivityType {
     HANDWRITING_PRACTICE = 'HANDWRITING_PRACTICE',
     NUMBER_SEARCH = 'NUMBER_SEARCH',
     ODD_EVEN_SUDOKU = 'ODD_EVEN_SUDOKU',
-    // Added missing punctuation related activity types
     PUNCTUATION_MAZE = 'PUNCTUATION_MAZE',
     PUNCTUATION_PHONE_NUMBER = 'PUNCTUATION_PHONE_NUMBER',
-    // Added missing members to fix AssessmentModule errors
     VISUAL_MEMORY = 'VISUAL_MEMORY',
     DOT_PAINTING = 'DOT_PAINTING',
     STROOP_TEST = 'STROOP_TEST',
     BURDON_TEST = 'BURDON_TEST',
     WORD_MEMORY = 'WORD_MEMORY',
-    LOGIC_GRID_PUZZLE = 'LOGIC_GRID_PUZZLE'
+    LOGIC_GRID_PUZZLE = 'LOGIC_GRID_PUZZLE',
+    MAP_INSTRUCTION = 'MAP_INSTRUCTION',
+    // Added missing SYMMETRY_DRAWING enum value
+    SYMMETRY_DRAWING = 'SYMMETRY_DRAWING'
 }
 
 export type View = 'generator' | 'admin' | 'profile' | 'messages' | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'favorites' | 'savedList' | 'workbook' | 'shared' | 'assessment';
@@ -456,7 +457,6 @@ export interface HiddenPasswordGridData extends BaseActivityData {
     }[];
 }
 
-// Added missing GeneratorOptions interface
 export interface GeneratorOptions {
     mode: 'fast' | 'ai';
     difficulty: 'Başlangıç' | 'Orta' | 'Zor' | 'Uzman';
