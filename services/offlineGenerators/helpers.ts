@@ -206,7 +206,8 @@ export const generateLatinSquare = (n: number): number[][] => {
     return grid[0].map((_, c) => grid.map(r => r[c]));
 };
 
-export const PREDEFINED_GRID_PATTERNS = {
+// Fixed PREDEFINED_GRID_PATTERNS to ensure correct typing of coordinates as tuples
+export const PREDEFINED_GRID_PATTERNS: Record<string, [number, number][][]> = {
     'house': [[[1,4], [1,2]], [[1,2], [3,0]], [[3,0], [5,2]], [[5,2], [5,4]], [[5,4], [1,4]], [[2,4], [2,2]], [[2,2], [4,2]], [[4,2], [4,4]]],
     'boat': [[[1,3], [5,3]], [[1,3], [2,5]], [[5,3], [4,5]], [[2,5], [4,5]], [[3,3], [3,1]], [[3,1], [4,2]], [[4,2], [3,2]]],
     'tree': [[[3,5], [3,3]], [[3,3], [1,3]], [[1,3], [2,1]], [[2,1], [3,2]], [[3,2], [4,1]], [[4,1], [5,3]], [[5,3], [3,3]]],

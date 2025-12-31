@@ -131,13 +131,14 @@ export const generateOfflineLetterDiscrimination = async (options: GeneratorOpti
     return Array.from({ length: options.worksheetCount }, () => ({ title: 'Harf Ayırt Etme', instruction: 'Seç.', pedagogicalNote: 'Görsel.', imagePrompt: 'Letters', targetLetters: [], rows: [] }));
 };
 
+// Fixed generateOfflineRapidNaming to ensure grid property matches RapidNamingData interface structure (array of objects with items property)
 export const generateOfflineRapidNaming = async (options: GeneratorOptions): Promise<RapidNamingData[]> => {
     return Array.from({ length: options.worksheetCount }, () => ({ 
         title: 'Hızlı İsimlendirme', 
         instruction: 'Oku.', 
         pedagogicalNote: 'RAN.', 
         imagePrompt: 'Clock', 
-        grid: {items:[]}, 
+        grid: [{items:[]}], 
         type: 'object' 
     }));
 };

@@ -228,3 +228,10 @@ export interface LogicDeductionData extends BaseActivityData {
         correctLetter: string;
     }[];
 }
+
+// Added missing data interfaces for dyslexiaSupport.ts and ReadingFlowSheet
+export interface ReadingFlowData extends BaseActivityData { text: { paragraphs: { sentences: { syllables: { text: string }[] }[] }[] }; }
+export interface PhonologicalAwarenessData extends BaseActivityData { exercises: { question: string; word: string }[]; }
+export interface SyllableTrainData extends BaseActivityData { trains: { syllables: string[] }[]; }
+export interface BackwardSpellingData extends BaseActivityData { items: { reversed: string }[]; }
+export interface HandwritingPracticeData extends BaseActivityData { guideType: 'standard' | 'simple'; lines: { text: string; type: 'trace' | 'copy' | 'empty'; imagePrompt?: string }[]; }

@@ -1,3 +1,4 @@
+
 export enum ActivityType {
     ALGORITHM_GENERATOR = 'ALGORITHM_GENERATOR',
     AI_WORKSHEET_CONVERTER = 'AI_WORKSHEET_CONVERTER',
@@ -60,6 +61,9 @@ export type View = 'generator' | 'admin' | 'profile' | 'messages' | 'ocr' | 'cur
 
 export type AppTheme = 'light' | 'dark' | 'anthracite' | 'space' | 'nature' | 'ocean' | 'anthracite-gold' | 'anthracite-cyber';
 
+export type UserRole = 'user' | 'admin';
+export type UserStatus = 'active' | 'suspended';
+
 export interface User {
     id: string;
     email: string;
@@ -75,8 +79,34 @@ export interface User {
     lastActiveActivity?: { id: string; title: string; date: string };
 }
 
-export type UserRole = 'user' | 'admin';
-export type UserStatus = 'active' | 'suspended';
+export interface Student {
+    id: string;
+    teacherId: string;
+    name: string;
+    age: number;
+    grade: string;
+    avatar: string;
+    diagnosis: string[];
+    interests: string[];
+    strengths: string[];
+    weaknesses: string[];
+    learningStyle: 'Görsel' | 'İşitsel' | 'Kinestetik' | 'Karma';
+    parentName: string;
+    contactPhone: string;
+    contactEmail: string;
+    notes: string;
+    notesHistory?: string;
+    createdAt: string;
+}
+
+export interface StudentProfile {
+    studentId?: string;
+    name: string;
+    school: string;
+    grade: string;
+    date: string;
+    notes?: string;
+}
 
 export interface StyleSettings {
     fontSize: number;
@@ -122,6 +152,338 @@ export interface BaseActivityData {
     imageBase64?: string;
 }
 
+// Added Activity and ActivityCategory missing from constants.ts errors
+export interface Activity {
+    id: ActivityType;
+    title: string;
+    description: string;
+    icon: string;
+    promptId?: string;
+    isCustom?: boolean;
+    defaultStyle?: Partial<StyleSettings>;
+}
+
+export interface ActivityCategory {
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+    activities: ActivityType[];
+}
+
+// Added GeneratorOptions missing from GeneratorView.tsx and App.tsx
+export interface GeneratorOptions {
+    mode: 'fast' | 'ai';
+    difficulty: 'Başlangıç' | 'Orta' | 'Zor' | 'Uzman';
+    worksheetCount: number;
+    itemCount: number;
+    gridSize?: number;
+    topic?: string;
+    distractionLevel?: 'low' | 'medium' | 'high' | 'extreme';
+    visualType?: string;
+    concept?: string;
+    variant?: string;
+    case?: 'upper' | 'lower';
+    useSearch?: boolean;
+    studentContext?: Student;
+    selectedOperations?: string[];
+    allowCarry?: boolean;
+    allowBorrow?: boolean;
+    numberRange?: string;
+    operationType?: string;
+    visualStyle?: string;
+    groupSize?: number;
+    groupCount?: number;
+    symbolType?: string;
+    codeLength?: number;
+    targetLetters?: string;
+    targetPair?: string;
+    targetChar?: string;
+    distractorChar?: string;
+    memorizeRatio?: number;
+    findDiffType?: string;
+    mapInstructionTypes?: string[];
+    emphasizedRegion?: string;
+    showCityNames?: boolean;
+    markerStyle?: string;
+    customInput?: string;
+    [key: string]: any;
+}
+
+// Added data tracking missing from App.tsx
+export interface SavedWorksheet {
+    id: string;
+    userId: string;
+    studentId?: string;
+    name: string;
+    activityType: ActivityType;
+    worksheetData: any[];
+    createdAt: string;
+    icon: string;
+    category: { id: string; title: string };
+    sharedBy?: string;
+    sharedByName?: string;
+    sharedWith?: string;
+    styleSettings?: StyleSettings;
+    studentProfile?: StudentProfile;
+    workbookItems?: any[];
+    workbookSettings?: any;
+}
+
+export interface HistoryItem {
+    id: string;
+    userId: string;
+    activityType: ActivityType;
+    data: any[];
+    timestamp: string;
+    title: string;
+    category: { id: string; title: string };
+}
+
+export interface CollectionItem {
+    id: string;
+    activityType: ActivityType;
+    itemType?: 'activity' | 'divider';
+    data: any;
+    settings: StyleSettings;
+    title: string;
+    overrideStyle?: Partial<StyleSettings>;
+    dividerConfig?: {
+        title: string;
+        subtitle?: string;
+        icon?: string;
+    };
+}
+
+export interface WorkbookSettings {
+    title: string;
+    studentName: string;
+    schoolName: string;
+    year: string;
+    teacherNote: string;
+    theme: 'modern' | 'classic' | 'fun' | 'minimal' | 'academic' | 'artistic' | 'space' | 'nature' | 'geometric';
+    accentColor: string;
+    coverStyle: 'centered' | 'left' | 'split';
+    showTOC: boolean;
+    showPageNumbers: boolean;
+    showWatermark: boolean;
+    watermarkOpacity: number;
+    showBackCover: boolean;
+    logoUrl?: string;
+}
+
+// Added AssessmentProfile missing from assessmentGenerator.ts
+export interface AssessmentProfile {
+    studentName: string;
+    age: number;
+    grade: string;
+    observations: string[];
+    testResults?: Record<string, { name: string; accuracy: number }>;
+    errorPatterns?: Record<string, number>;
+}
+
+// Added Assessment types missing from App.tsx and AssessmentModule.tsx
+export interface AssessmentReport {
+    overallSummary: string;
+    scores: Record<string, number>;
+    chartData: { label: string; value: number; fullMark: number }[];
+    analysis: {
+        strengths: string[];
+        weaknesses: string[];
+        errorAnalysis: string[];
+    };
+    roadmap: {
+        activityId: string;
+        reason: string;
+        frequency: string;
+    }[];
+    observations?: any;
+}
+
+export interface SavedAssessment {
+    id: string;
+    userId: string;
+    studentId?: string;
+    studentName: string;
+    gender: 'Kız' | 'Erkek';
+    age: number;
+    grade: string;
+    report: AssessmentReport;
+    createdAt: string;
+    sharedBy?: string;
+    sharedByName?: string;
+    sharedWith?: string;
+}
+
+export interface Curriculum {
+    id: string;
+    studentId?: string;
+    studentName: string;
+    grade: string;
+    startDate: string;
+    durationDays: number;
+    goals: string[];
+    schedule: CurriculumDay[];
+    note: string;
+    interests: string[];
+    weaknesses: string[];
+    createdAt?: string;
+    userId?: string;
+    sharedBy?: string;
+    sharedByName?: string;
+    sharedWith?: string;
+}
+
+export interface CurriculumDay {
+    day: number;
+    focus: string;
+    activities: CurriculumActivity[];
+    isCompleted: boolean;
+}
+
+export interface CurriculumActivity {
+    id: string;
+    activityId: string;
+    title: string;
+    duration: number;
+    goal: string;
+    difficultyLevel: 'Easy' | 'Medium' | 'Hard';
+    status: CurriculumActivityStatus;
+}
+
+export type CurriculumActivityStatus = 'pending' | 'completed' | 'skipped';
+
+// Added OverlayItem missing from Worksheet.tsx
+export interface OverlayItem {
+    id: string;
+    type: 'text' | 'sticker';
+    x: number;
+    y: number;
+    content: string;
+    style?: any;
+}
+
+// Added Feedback types missing from FeedbackModal.tsx
+export interface FeedbackItem {
+    id: string;
+    userId?: string;
+    userName: string;
+    userEmail?: string;
+    activityType: string;
+    activityTitle: string;
+    rating: number;
+    category: FeedbackCategory;
+    message: string;
+    timestamp: string;
+    status: FeedbackStatus;
+    adminReply?: string;
+}
+
+export type FeedbackCategory = 'general' | 'bug' | 'feature' | 'content';
+export type FeedbackStatus = 'new' | 'read' | 'in-progress' | 'replied' | 'resolved';
+
+// Added Message missing from MessagesView.tsx
+export interface Message {
+    id: string;
+    senderId: string;
+    receiverId: string;
+    senderName: string;
+    content: string;
+    timestamp: string;
+    isRead: boolean;
+    relatedFeedbackId?: string;
+}
+
+// Added ActivityStats missing from AdminDashboard.tsx
+export interface ActivityStats {
+    activityId: ActivityType;
+    title: string;
+    generationCount: number;
+    lastGenerated: string;
+    avgCompletionTime: number;
+}
+
+// Added Clinical/Assessment types missing from AssessmentModule.tsx
+export type CognitiveDomain = 'visual_spatial_memory' | 'processing_speed' | 'selective_attention' | 'logical_reasoning' | 'phonological_loop';
+
+export interface SubTestResult {
+    testId: CognitiveDomain;
+    name: string;
+    score: number;
+    rawScore: number;
+    totalItems: number;
+    avgReactionTime: number;
+    accuracy: number;
+    status: 'completed' | 'skipped' | 'incomplete';
+    timestamp: number;
+}
+
+export interface ProfessionalAssessmentReport {
+    id: string;
+    studentId: string;
+    studentName: string;
+    examinerId: string;
+    date: string;
+    duration: number;
+    subTests: SubTestResult[];
+    observations: ClinicalObservation;
+    overallRiskAnalysis: {
+        dyslexiaRisk: 'low' | 'moderate' | 'high';
+        dyscalculiaRisk: 'low' | 'moderate' | 'high';
+        attentionDeficitRisk: 'low' | 'moderate' | 'high';
+        summary: string;
+    };
+    recommendations: string[];
+    roadmap: AssessmentRoadmapItem[];
+}
+
+export interface ClinicalObservation {
+    anxietyLevel: 'low' | 'medium' | 'high';
+    attentionSpan: 'focused' | 'distracted' | 'hyperactive';
+    motorSkills: 'typical' | 'delayed';
+    notes: string;
+}
+
+export interface AssessmentRoadmapItem {
+    activityId: ActivityType;
+    title: string;
+    reason: string;
+    frequency: string;
+    priority: 'low' | 'medium' | 'high';
+}
+
+export interface AdaptiveQuestion {
+    id: string;
+    text: string;
+    options: string[];
+    correct: string;
+    difficulty: number;
+    skill: TestCategory;
+    subSkill?: string;
+    errorTags: Record<string, string>;
+}
+
+export type TestCategory = 'linguistic' | 'logical' | 'spatial' | 'attention' | 'musical' | 'kinesthetic' | 'naturalistic' | 'interpersonal' | 'intrapersonal';
+
+export interface AssessmentConfig {
+    selectedSkills: TestCategory[];
+    mode: 'quick' | 'standard' | 'expert';
+}
+
+// Added OCR types missing from ocrService.ts
+export interface OCRResult {
+    rawText: string;
+    detectedType: string;
+    title: string;
+    description: string;
+    generatedTemplate: string;
+    structuredData: any;
+    baseType: string;
+}
+
+// Added Shape and Math types missing from math.ts and visual.ts imports
+export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'diamond' | 'pentagon' | 'octagon';
+export type VisualMathType = 'objects' | 'ten-frame' | 'number-bond' | 'dice' | 'blocks' | 'mixed';
+
 export type SingleWorksheetData = any;
 export type WorksheetData = SingleWorksheetData[] | null;
-

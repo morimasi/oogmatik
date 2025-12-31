@@ -1,3 +1,4 @@
+
 import { BaseActivityData, ShapeType, VisualMathType } from './core';
 
 export * from './core';
@@ -72,6 +73,19 @@ export interface MathPageConfig {
     showDate: boolean;
     showName: boolean;
     title: string;
+}
+
+// Added missing AlgorithmStep missing from sheets and generators
+export interface AlgorithmStep {
+    id: number;
+    type: 'start' | 'process' | 'decision' | 'input' | 'output' | 'end';
+    text: string;
+}
+
+// Added missing AlgorithmData missing from sheets and generators
+export interface AlgorithmData extends BaseActivityData {
+    challenge: string;
+    steps: AlgorithmStep[];
 }
 
 export interface MathPuzzleData extends BaseActivityData {

@@ -20,27 +20,112 @@ const PEDAGOGICAL_PROMPT = `
     - İçerik dolu ve gerçekçi olmalı.
 `;
 
-export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
-    const { difficulty, itemCount, worksheetCount, findDiffType, distractionLevel, studentContext } = options;
+export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
+    const { difficulty, worksheetCount, visualType, distractionLevel, gridSize, studentContext } = options;
     
-    const typeDesc = findDiffType === 'linguistic' ? 'Harf ve Hece Ayrıştırma (Ayna harfler b-d vb.)' : 
-                   findDiffType === 'numeric' ? 'Sayı Ayrıştırma (6-9 benzerliği vb.)' : 
-                   findDiffType === 'semantic' ? 'Kelime/Anlam Ayrıştırma (dere-dede vb.)' : 'Sembolik/Piktografik Ayrıştırma';
+    const typeDesc = visualType === 'geometric' ? 'Karmaşık Geometrik Şekiller (Düz çizgiler)' : 
+                   visualType === 'abstract' ? 'Soyut Desenler ve Eğri Çizgiler (Bezier paths)' : 
+                   visualType === 'character' ? 'Ayna Harf ve Rakamlar (b/d, p/q, 6/9 vb.)' : 'Karmaşık poligonlar ve fraktal benzeri yapılar';
 
     const prompt = `
-    [GÖREV: GÖRSEL AYRIŞTIRMA (VISUAL DISCRIMINATION) BATARYASI]
+    [GÖREV: GÖRSEL AYRİT ETME (VISUAL ODD-ONE-OUT) TANISAL ETKİNLİK]
+    [MODEL: Gemini 3.0 Flash Preview Multimodal]
+    
+    PARAMETRELER:
+    - Mimari Tip: ${typeDesc}.
+    - Zorluk: ${difficulty}.
+    - Çeldirici Hassasiyeti: ${distractionLevel}.
+    - Satır Başı Öğe Sayısı: ${gridSize || 4}.
+    - Öğrenci Profili: ${studentContext?.diagnosis?.join(', ') || 'Genel Gelişim'}.
+    
+    İÇERİK MİMARİSİ:
+    1. Eğer 'character' seçildiyse: 'label' alanına tek karakter (örn: "b") yaz.
+    2. Diğer tipler için 'svgPaths' dizisinde 100x100 koordinat sistemine uygun geçerli SVG 'd' yolları döndür.
+    3. Her satırda bir adet "Odd One" (Farklı) ve diğerleri birbirinin aynısı "Base" öğeler üret.
+    4. Farkı oluştururken ${distractionLevel} seviyesini baz al (renk, rotasyon, bir çizgi eksikliği veya ayna görüntüsü).
+    
+    ÇIKTI FORMATI:
+    - rows: [{ items: [{ svgPaths?: [{ d: string, fill?: string, stroke?: string, strokeWidth?: number }], label?: string, rotation?: number, scale?: number }], correctIndex: number, reason: string }]
+    
+    ${PEDAGOGICAL_PROMPT}
+    `;
+
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            difficultyLevel: { type: Type.STRING },
+            distractionLevel: { type: Type.STRING },
+            rows: { 
+                type: Type.ARRAY, 
+                items: { 
+                    type: Type.OBJECT, 
+                    properties: { 
+                        items: { 
+                            type: Type.ARRAY, 
+                            items: { 
+                                type: Type.OBJECT, 
+                                properties: { 
+                                    svgPaths: { 
+                                        type: Type.ARRAY, 
+                                        items: { 
+                                            type: Type.OBJECT, 
+                                            properties: { 
+                                                d: { type: Type.STRING }, 
+                                                fill: { type: Type.STRING }, 
+                                                stroke: { type: Type.STRING },
+                                                strokeWidth: { type: Type.NUMBER }
+                                            } 
+                                        } 
+                                    },
+                                    label: { type: Type.STRING },
+                                    rotation: { type: Type.NUMBER },
+                                    scale: { type: Type.NUMBER },
+                                    isMirrored: { type: Type.BOOLEAN }
+                                } 
+                            } 
+                        }, 
+                        correctIndex: { type: Type.INTEGER }, 
+                        reason: { type: Type.STRING }
+                    }, 
+                    required: ["items", "correctIndex"] 
+                } 
+            }
+        },
+        required: ["title", "instruction", "rows", "pedagogicalNote"]
+    };
+
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<VisualOddOneOutData[]>;
+};
+
+export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
+    const { difficulty, itemCount, worksheetCount, findDiffType, distractionLevel, studentContext, gridSize } = options;
+    
+    const typeDesc = findDiffType === 'linguistic' ? 'Harf ve Hece Ayrıştırma (Ayna harfler b-d, p-q, m-n, u-ü vb.)' : 
+                   findDiffType === 'numeric' ? 'Sayı Ayrıştırma (6-9, 2-5, 3-8, 1-7 benzerliği vb.)' : 
+                   findDiffType === 'semantic' ? 'Kelime/Anlam Ayrıştırma (kale-lale, dere-dede, baba-dada vb.)' : 'Sembolik/Piktografik Ayrıştırma (Ok yönleri, konum farkları)';
+
+    const prompt = `
+    [ROL: KIDEMLİ ÖZEL EĞİTİM PROFÖSÖRÜ]
+    [GÖREV: GÖRSEL AYRIŞTIRMA (VISUAL DISCRIMINATION) BATARYASI ÜRET]
+    [MODEL: Gemini 3.0 Flash Preview Multimodal]
+    
     Öğrenci Profili: ${studentContext?.diagnosis?.join(', ') || 'Genel Gelişim'}.
     
     İÇERİK STRATEJİSİ:
-    - Tip: ${typeDesc}.
-    - Zorluk: ${difficulty}.
-    - Çeldirici Zorluğu: ${distractionLevel}.
-    - Satır Başı Öğe: ${difficulty === 'Uzman' ? 6 : 4}.
+    - ODAK ALAN: ${typeDesc}.
+    - ZORLUK: ${difficulty}.
+    - FARK BELİRGİNLİĞİ: ${distractionLevel}. (Extreme ise farklar neredeyse görünmez olmalı).
+    - SATIR BAŞI ÖĞE: ${gridSize || 4}.
+    - TOPLAM SATIR (GÖREV): ${itemCount || 8}.
     
     KURALLAR:
     1. Her satırda (row) birbirine ÇOK benzeyen öğeler kullan.
-    2. Farklı olan öğe (target), diğerlerinden sadece küçük bir detayla (örn: bir nokta, rotasyon, bir harf değişimi) ayrılmalıdır.
-    3. Disleksik çocukların hata yapma eğiliminde olduğu çiftleri seç (b/d, p/q, 6/9, m/n, u/ü).
+    2. Farklı olan öğe (target), diğerlerinden sadece kritik bir detayla ayrılmalı.
+    3. Disleksik çocukların hata yapma eğiliminde olduğu çiftleri seç.
     
     ÇIKTI FORMATI:
     - title: "Farkı Bul: [Odak Alanı]"
@@ -55,7 +140,6 @@ export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions)
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
             rows: { 
                 type: Type.ARRAY, 
                 items: { 
@@ -75,459 +159,3 @@ export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions)
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<FindTheDifferenceData[]>;
 };
-
-export const generateGridDrawingFromAI = async (options: GeneratorOptions): Promise<GridDrawingData[]> => {
-    const { gridSize, difficulty, worksheetCount, concept, useSearch } = options;
-    
-    const prompt = `
-    [ROL: ÖZEL ÖĞRENME GÜÇLÜĞÜ PROFESÖRÜ]
-    GÖREV: ${gridSize}x${gridSize} boyutunda bir ızgara üzerinde "Kare Kopyalama" (Pattern Copying) etkinliği oluştur.
-    
-    DÖNÜŞÜM MODU: ${concept || 'copy'} 
-    (Yönerge: 'copy' ise birebir, 'mirror_v' ise dikey ayna görüntüsü, 'mirror_h' ise yatay ayna, 'rotate_90' ise 90 derece döndürülmüş hali istenecektir.)
-    
-    ZORLUK STRATEJİSİ:
-    - ${difficulty} seviyesinde bir geometrik desen (çizgiler topluluğu) tasarla.
-    - Desen, ızgara üzerindeki nokta koordinatlarını birleştiren [x1, y1] - [x2, y2] segmentlerinden oluşmalıdır.
-    - Desenlerin çocukların ilgisini çekecek nesnelere (ev, kedi, roket, yıldız) benzemesini sağla.
-    
-    KOORDİNAT SİSTEMİ: ${useSearch ? 'A-B-C / 1-2-3 etiketlerini kullanarak koordinat takibi yaptır.' : 'Etiket kullanma, sadece görsel takibe odaklan.'}
-    
-    ${PEDAGOGICAL_PROMPT}
-    `;
-
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            gridDim: { type: Type.INTEGER },
-            transformMode: { type: Type.STRING },
-            showCoordinates: { type: Type.BOOLEAN },
-            drawings: { 
-                type: Type.ARRAY, 
-                items: { 
-                    type: Type.OBJECT, 
-                    properties: { 
-                        lines: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } } }, 
-                        complexityLevel: { type: Type.STRING },
-                        title: { type: Type.STRING }
-                    }, 
-                    required: ["lines", "complexityLevel"] 
-                } 
-            }
-        },
-        required: ["title", "gridDim", "drawings", "instruction", "pedagogicalNote", "transformMode"]
-    };
-
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<GridDrawingData[]>;
-};
-
-export const generateSymmetryDrawingFromAI = async (options: GeneratorOptions): Promise<SymmetryDrawingData[]> => {
-    const { difficulty, worksheetCount, gridSize, visualType, useSearch, itemCount } = options;
-    const axis = visualType || 'vertical';
-    
-    const prompt = `
-    [ROL: REHABİLİTASYON UZMANI & GÖRSEL ALGI PROFESÖRÜ]
-    GÖREV: ${gridSize}x${gridSize} boyutunda profesyonel "Simetri Tamamlama" (Ayna Çizimi) etkinliği oluştur.
-    
-    PARAMETRELER:
-    - Eksen: ${axis} (Simetri hattı ${axis === 'vertical' ? 'DİKEY - dikey bir ayna' : 'YATAY - yatay bir ayna'} gibi davranacaktır).
-    - Koordinat Sistemi: ${useSearch ? 'A-B-C ve 1-2-3 etiketleri ile koordinat odaklı çalışma.' : 'Sadece görsel kılavuz noktaları.'}
-    - Zorluk Seviyesi: ${difficulty}.
-    - Segment Adedi: ~${itemCount || 8} çizgi segmenti.
-
-    TASARIM KURALLARI:
-    1. ${gridSize}x${gridSize} bir ızgarada koordinatlar [0, ${gridSize}] arasındadır.
-    2. SADECE simetri ekseninin ${axis === 'vertical' ? 'SOL' : 'ÜST'} tarafındaki çizgileri tanımla. 
-    3. Örn: Dikey eksende ${gridSize}x${gridSize} grid için x değerleri 0 ile ${Math.floor(gridSize/2)} arasında olmalıdır.
-    4. Çizgiler birleşerek anlamlı veya kompleks geometrik bir figür (ev yarısı, kelebek kanadı, roket yarısı vb.) oluşturmalıdır.
-    5. Koordinatların tam sayı olduğundan emin ol.
-    
-    ${PEDAGOGICAL_PROMPT}
-    "pedagogicalNote" alanında disleksi/disgrafi rehabilitasyonunda 'mental rotation' (zihinsel döndürme) ve 'spatial awareness' (uzamsal farkındalık) üzerindeki etkisini vurgula.
-    `;
-
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            gridDim: { type: Type.INTEGER },
-            axis: { type: Type.STRING, enum: ['vertical', 'horizontal'] },
-            showCoordinates: { type: Type.BOOLEAN },
-            lines: { 
-                type: Type.ARRAY, 
-                items: { 
-                    type: Type.OBJECT, 
-                    properties: { 
-                        x1: { type: Type.INTEGER }, 
-                        y1: { type: Type.INTEGER }, 
-                        x2: { type: Type.INTEGER }, 
-                        y2: { type: Type.INTEGER }, 
-                        color: { type: Type.STRING } 
-                    }, 
-                    required: ["x1", "y1", "x2", "y2"] 
-                } 
-            },
-            dots: { 
-                type: Type.ARRAY, 
-                items: { 
-                    type: Type.OBJECT, 
-                    properties: { x: { type: Type.INTEGER }, y: { type: Type.INTEGER }, color: { type: Type.STRING } }, 
-                    required: ["x", "y"] 
-                } 
-            }
-        },
-        required: ["title", "instruction", "gridDim", "lines", "axis", "pedagogicalNote"]
-    };
-
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<SymmetryDrawingData[]>;
-};
-
-export const generateShapeMatchingFromAI = async (options: GeneratorOptions): Promise<ShapeMatchingData[]> => {
-  const { difficulty, worksheetCount } = options;
-  const prompt = `
-  "${difficulty}" seviyesinde Şekil Eşleştirme. 
-  Sol sütun ve Sağ sütun için eşleşen nesneler oluştur.
-  Her nesne için 'imageBase64' alanına o nesneyi temsil eden **BASİT, RENKLİ BİR SVG KODU** (<svg>...</svg>) yaz.
-  ${PEDAGOGICAL_PROMPT}
-  ${worksheetCount} sayfa üret.
-  `;
-  const singleSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      instruction: { type: Type.STRING },
-      pedagogicalNote: { type: Type.STRING },
-      imagePrompt: { type: Type.STRING },
-      leftColumn: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.STRING }, imageBase64: { type: Type.STRING }, color: { type: Type.STRING } }, required: ['id', 'imageBase64'] } },
-      rightColumn: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.STRING }, imageBase64: { type: Type.STRING }, color: { type: Type.STRING } }, required: ['id', 'imageBase64'] } },
-      complexity: { type: Type.INTEGER }
-    },
-    required: ['title', 'instruction', 'leftColumn', 'rightColumn', 'complexity', 'pedagogicalNote', 'imagePrompt']
-  };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<ShapeMatchingData[]>;
-};
-
-export const generateFindIdenticalWordFromAI = async (options: GeneratorOptions): Promise<FindIdenticalWordData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Aynısını Bul. Hedef kelime ve çeldiriciler. ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            groups: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { words: { type: Type.ARRAY, items: { type: Type.STRING } }, distractors: { type: Type.ARRAY, items: { type: Type.STRING } } }, required: ['words', 'distractors'] } }
-        },
-        required: ['title', 'groups', 'instruction', 'pedagogicalNote', 'imagePrompt']
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<FindIdenticalWordData[]>;
-};
-
-export const generateSymbolCipherFromAI = async (options: GeneratorOptions): Promise<SymbolCipherData[]> => {
-  const { difficulty, worksheetCount } = options;
-  const prompt = `"${difficulty}" seviyesinde Şekil Şifresi. Anahtar ve şifreli kelimeler. ${PEDAGOGICAL_PROMPT}`;
-  const singleSchema = {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      instruction: { type: Type.STRING },
-      pedagogicalNote: { type: Type.STRING },
-      imagePrompt: { type: Type.STRING },
-      cipherKey: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { shape: { type: Type.STRING }, letter: { type: Type.STRING }, color: { type: Type.STRING } }, required: ['shape', 'letter'] } },
-      wordsToSolve: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { shapeSequence: { type: Type.ARRAY, items: { type: Type.STRING } }, wordLength: { type: Type.INTEGER }, answer: { type: Type.STRING } }, required: ['shapeSequence', 'wordLength', 'answer'] } }
-    },
-    required: ['title', 'cipherKey', 'wordsToSolve', 'instruction', 'pedagogicalNote', 'imagePrompt']
-  };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<SymbolCipherData[]>;
-};
-
-export const generateBlockPaintingFromAI = async (options: GeneratorOptions): Promise<BlockPaintingData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Blok Boyama. ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            grid: { type: Type.OBJECT, properties: { rows: { type: Type.INTEGER }, cols: { type: Type.INTEGER } }, required: ["rows", "cols"]},
-            targetPattern: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
-            shapes: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, color: { type: Type.STRING }, pattern: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } }, count: { type: Type.INTEGER } }, required: ["color", "pattern", "count"] } }
-        },
-        required: ["title", "instruction", "grid", "shapes", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<BlockPaintingData[]>;
-};
-
-export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Şekillerle Farklı Olanı Bul. ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { segments: { type: Type.ARRAY, items: { type: Type.BOOLEAN } } }, required: ["segments"] } }, correctIndex: { type: Type.INTEGER }, reason: { type: Type.STRING } }, required: ["items", "correctIndex", "reason"] } }
-        },
-        required: ["title", "instruction", "rows", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<VisualOddOneOutData[]>;
-};
-
-export const generateFindDifferentStringFromAI = async (options: GeneratorOptions): Promise<FindDifferentStringData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Farklı Diziyi Bul. ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { items: { type: Type.ARRAY, items: { type: Type.STRING } }, correctIndex: { type: Type.INTEGER } }, required: ["items", "correctIndex"] } }
-        },
-        required: ["title", "instruction", "rows", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<FindDifferentStringData[]>;
-};
-
-export const generateDotPaintingFromAI = async (options: GeneratorOptions): Promise<DotPaintingData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Nokta Boyama (Gizli Resim). ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            prompt1: { type: Type.STRING },
-            prompt2: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            svgViewBox: { type: Type.STRING },
-            gridPaths: { type: Type.ARRAY, items: { type: Type.STRING } },
-            dots: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { cx: { type: Type.NUMBER }, cy: { type: Type.NUMBER }, color: { type: Type.STRING } }, required: ["cx", "cy", "color"] } },
-            hiddenImageName: { type: Type.STRING }
-        },
-        required: ["title", "prompt1", "prompt2", "svgViewBox", "gridPaths", "dots", "hiddenImageName", "instruction", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<DotPaintingData[]>;
-};
-
-export const generateAbcConnectFromAI = async (options: GeneratorOptions): Promise<AbcConnectData[]> => {
-    const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `"${difficulty}" seviyesinde Nokta Birleştirme (Flow Free). ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, gridDim: { type: Type.INTEGER }, points: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { label: { type: Type.STRING }, x: { type: Type.INTEGER }, y: { type: Type.INTEGER }, color: { type: Type.STRING } }, required: ["label", "x", "y"] } } }, required: ["id", "gridDim", "points"] } }
-        },
-        required: ["title", "instruction", "puzzles", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<AbcConnectData[]>;
-};
-
-export const generateCoordinateCipherFromAI = async (options: GeneratorOptions): Promise<CoordinateCipherData[]> => {
-    const { topic, difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Koordinat Şifreleme. ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-            wordsToFind: { type: Type.ARRAY, items: { type: Type.STRING } },
-            cipherCoordinates: { type: Type.ARRAY, items: { type: Type.STRING } },
-            decodedMessage: { type: Type.STRING }
-        },
-        required: ['title', 'instruction', 'grid', 'wordsToFind', 'cipherCoordinates', 'decodedMessage', 'pedagogicalNote', 'imagePrompt']
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<CoordinateCipherData[]>;
-};
-
-export const generateWordConnectFromAI = async (options: GeneratorOptions): Promise<WordConnectData[]> => {
-    const { topic, difficulty, worksheetCount, itemCount } = options;
-    const prompt = `
-    "${difficulty}" seviyesinde, '${topic || 'Genel'}' temalı "Kelime Bağlama" (Eşleştirme) etkinliği.
-    ${itemCount || 5} adet kelime çifti oluştur.
-    ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
-    `;
-    
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }, 
-            gridDim: { type: Type.INTEGER }, 
-            points: { 
-                type: Type.ARRAY, 
-                items: { 
-                    type: Type.OBJECT, 
-                    properties: { 
-                        word: { type: Type.STRING }, 
-                        imagePrompt: { type: Type.STRING }, 
-                        pairId: { type: Type.INTEGER }, 
-                        x: { type: Type.INTEGER }, 
-                        y: { type: Type.INTEGER }, 
-                        color: { type: Type.STRING } 
-                    }, 
-                    required: ['word', 'pairId', 'x', 'y'] 
-                } 
-            }
-        },
-        required: ['title', 'instruction', 'points', 'pedagogicalNote', 'imagePrompt']
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<WordConnectData[]>;
-};
-
-export const generateProfessionConnectFromAI = async (options: GeneratorOptions): Promise<ProfessionConnectData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `
-    "${difficulty}" seviyesinde Meslek Eşleştirme. Meslekler ve araçları için **İngilizce** 'imagePrompt'.
-    ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
-    `;
-     const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            gridDim: { type: Type.INTEGER },
-            points: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { label: { type: Type.STRING }, imageDescription: { type: Type.STRING }, imagePrompt: { type: Type.STRING }, x: { type: Type.NUMBER }, y: { type: Type.NUMBER }, pairId: { type: Type.INTEGER } }, required: ["label", "imageDescription", "imagePrompt", "x", "y", "pairId"] } }
-        },
-        required: ["title", "instruction", "points", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<ProfessionConnectData[]>;
-};
-
-export const generateMatchstickSymmetryFromAI = async (options: GeneratorOptions): Promise<MatchstickSymmetryData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Kibrit Simetrisi. ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.INTEGER }, axis: { type: Type.STRING, enum: ['vertical', 'horizontal'] }, lines: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { x1: { type: Type.NUMBER }, y1: { type: Type.NUMBER }, x2: { type: Type.NUMBER }, y2: { type: Type.NUMBER }, color: { type: Type.STRING } }, required: ["x1", "y1", "x2", "y2"] } } }, required: ["id", "lines", "axis"] } }
-        },
-        required: ["title", "instruction", "puzzles", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<MatchstickSymmetryData[]>;
-};
-
-export const generateVisualOddOneOutThemedFromAI = async (options: GeneratorOptions): Promise<VisualOddOneOutThemedData[]> => {
-    const { topic, difficulty, worksheetCount } = options;
-    const prompt = `
-    '${topic}' temalı, "${difficulty}" seviyesinde Görsel Farklı Olanı Bul.
-    ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
-    `;
-     const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            rows: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { theme: { type: Type.STRING }, items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { description: { type: Type.STRING }, imagePrompt: { type: Type.STRING }, isOdd: { type: Type.BOOLEAN } }, required: ["description", "imagePrompt", "isOdd"] } } }, required: ["theme", "items"] } }
-        },
-        required: ["title", "instruction", "rows", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<VisualOddOneOutThemedData[]>;
-};
-
-export const generatePunctuationColoringFromAI = async (options: GeneratorOptions): Promise<PunctuationColoringData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Noktalama Boyama. ${PEDAGOGICAL_PROMPT}`;
-     const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            sentences: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: { type: Type.STRING }, color: { type: Type.STRING }, correctMark: { type: Type.STRING } }, required: ["text", "color", "correctMark"] } }
-        },
-        required: ["title", "instruction", "sentences", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<PunctuationColoringData[]>;
-};
-
-export const generateSynonymAntonymColoringFromAI = async (options: GeneratorOptions): Promise<SynonymAntonymColoringData[]> => {
-    const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde Eş/Zıt Anlam Boyama. ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            colorKey: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: { type: Type.STRING }, color: { type: Type.STRING } }, required: ["text", "color"] } },
-            wordsOnImage: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { word: { type: Type.STRING }, x: { type: Type.NUMBER }, y: { type: Type.NUMBER } }, required: ["word", "x", "y"] } }
-        },
-        required: ["title", "instruction", "colorKey", "wordsOnImage", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<SynonymAntonymColoringData[]>;
-};
-
-export const generateStarHuntFromAI = async (options: GeneratorOptions): Promise<StarHuntData[]> => {
-    const { difficulty, worksheetCount, gridSize } = options;
-    const prompt = `"${difficulty}" seviyesinde Yıldız Avı. ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-            targetCount: { type: Type.INTEGER }
-        },
-        required: ["title", "instruction", "grid", "targetCount", "pedagogicalNote", "imagePrompt"]
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as Promise<StarHuntData[]>;
-};
-
-/* Removed duplicate generateShapeCountingFromAI as it is already defined in mathGeometry.ts */
