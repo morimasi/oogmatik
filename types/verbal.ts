@@ -4,17 +4,6 @@ import { WordSearchData, MissingPartsData } from './visual';
 
 export * from './core';
 
-export interface MorphologicalAnalysisData extends BaseActivityData {
-    rootSets: {
-        root: string;
-        meaning: string;
-        suffixes: { text: string; function: string; example: string }[];
-        correctDerivations: { word: string; meaning: string }[];
-        distractors: string[];
-    }[];
-    visualStyle: 'architect' | 'tree' | 'blocks';
-}
-
 export interface StoryQuestion {
     type: 'multiple-choice' | 'open-ended' | 'true-false' | 'logic' | 'vocabulary' | 'inference' | 'bloom_analysis' | 'bloom_synthesis';
     question: string;
@@ -103,19 +92,6 @@ export interface InteractiveStoryData extends BaseActivityData {
     mainIdea: string;
     imagePrompt: string;
     answers?: any[];
-}
-
-export interface PseudowordReadingData extends BaseActivityData {
-    words: string[];
-    syllableType: string;
-    visualMode: 'standard' | 'bionic' | 'rainbow';
-    scoringTable: boolean;
-    difficulty: string;
-    settings: {
-        columns: number;
-        itemCount: number;
-        fontSize: number;
-    };
 }
 
 // Proverb Specific Aliases/Interfaces

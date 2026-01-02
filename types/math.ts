@@ -327,6 +327,7 @@ export interface NumberLogicRiddleData extends BaseActivityData {
         options: string[];
         answer: string;
         answerValue: number;
+        visualHint?: string;
     }[];
 }
 

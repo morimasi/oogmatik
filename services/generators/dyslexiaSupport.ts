@@ -1,123 +1,218 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, PseudowordReadingData, MorphologicalAnalysisData } from '../../types';
-import { getDyslexiaPrompt } from './prompts';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
+import { getAttentionPrompt, getDyslexiaPrompt } from './prompts';
 
-export const generatePseudowordReadingFromAI = async (options: GeneratorOptions): Promise<PseudowordReadingData[]> => {
-    const { difficulty, studentContext, variant, itemCount = 24, gridSize = 4, syllableStructure = 'mixed' } = options;
+// 1. Code Reading
+export const generateCodeReadingFromAI = async (options: GeneratorOptions): Promise<CodeReadingData[]> => {
+    const { worksheetCount, symbolType, codeLength, itemCount } = options;
     
-    const structureDesc = {
-        'basic': 'Sadece KV-KV (paka, tede) yapısında basit heceler.',
-        'medium': 'KVK-KV veya KV-KVK (termo, kaban) yapısında orta zorlukta heceler.',
-        'hard': 'KKV veya VCC (trapo, alst) yapısında ünsüz öbeği içeren zor heceler.',
-        'mixed': 'Tüm hece yapılarının dengeli karışımı.'
-    }[syllableStructure];
-
     const specifics = `
-    GÖREV: Profesyonel klinik düzeyde Sözde Kelime (Pseudoword) listesi üret.
-    ZORLUK: ${difficulty}.
-    ADET: ${itemCount} adet özgün kelime.
-    HECE YAPISI: ${structureDesc}
-    
-    PEDAGOJİK KURALLAR:
-    - Kelimeler anlamsız olmalı ama Türkçe fonetik kurallarına (Büyük/Küçük ünlü uyumu) uymalıdır.
-    - Disleksi odaklı: Karıştırılan harfleri (b-d, p-q, m-n, u-ü) stratejik olarak kelimelerin içine yerleştir.
-    - Tekrardan kaçın, her kelime fonolojik olarak ayırt edici olsun.
+    - Sembol Tipi: ${symbolType || 'arrows'}.
+    - Kod Uzunluğu: ${codeLength || 4}.
+    - Bir "Anahtar Tablosu" oluştur.
+    - Şifreler çözüldüğünde anlamlı kelimeler veya basit cümleler oluşsun.
     `;
-
-    const prompt = getDyslexiaPrompt("Sözde Kelime Okuma Analizi", difficulty, specifics, studentContext);
-
-    const schema = {
+    
+    const prompt = getDyslexiaPrompt("Kod Okuma (Şifre Çözme)", options.difficulty, specifics);
+    
+    const singleSchema = {
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            words: { type: Type.ARRAY, items: { type: Type.STRING } }
-        },
-        required: ['title', 'instruction', 'words', 'pedagogicalNote']
-    };
-
-    const result = await generateWithSchema(prompt, schema) as any;
-    return [{
-        ...result,
-        visualMode: (variant as any) || 'standard',
-        scoringTable: true,
-        difficulty: difficulty,
-        settings: {
-            columns: gridSize,
-            itemCount: itemCount,
-            fontSize: itemCount > 40 ? 18 : 24
-        }
-    }];
-};
-
-export const generateMorphologicalAnalysisFromAI = async (options: GeneratorOptions): Promise<MorphologicalAnalysisData[]> => {
-    const { difficulty, topic, studentContext, visualStyle = 'architect' } = options;
-    
-    const specifics = `
-    GÖREV: Morfolojik Analiz (Kelime Mimarisi) seti üret.
-    TEMA: ${topic || 'Genel'}.
-    ZORLUK: ${difficulty}.
-    
-    PEDAGOJİK KURALLAR:
-    - Bir "Kök" (Root) seç ve bu kökten türeyen 3-5 adet anlamlı "Gövde" (Derivations) oluştur.
-    - Her gövdenin hangi yapım ekiyle oluştuğunu ve kazandığı yeni anlamı açıkla.
-    - ${difficulty === 'Uzman' ? 'Soyut ve akademik kökler kullan.' : 'Somut ve günlük kökler kullan.'}
-    - Karıştırmaya müsait çeldirici ekler (Distractors) ekle.
-    `;
-
-    const prompt = getDyslexiaPrompt("Morfolojik Analiz Atölyesi", difficulty, specifics, studentContext);
-
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            rootSets: {
+            imagePrompt: { type: Type.STRING },
+            keyMap: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: { symbol: { type: Type.STRING }, value: { type: Type.STRING }, color: { type: Type.STRING } },
+                    required: ['symbol', 'value']
+                }
+            },
+            codesToSolve: {
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        root: { type: Type.STRING },
-                        meaning: { type: Type.STRING },
-                        suffixes: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    text: { type: Type.STRING },
-                                    function: { type: Type.STRING },
-                                    example: { type: Type.STRING }
-                                },
-                                required: ['text', 'function']
-                            }
-                        },
-                        correctDerivations: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    word: { type: Type.STRING },
-                                    meaning: { type: Type.STRING }
-                                },
-                                required: ['word', 'meaning']
-                            }
-                        },
-                        distractors: { type: Type.ARRAY, items: { type: Type.STRING } }
+                        sequence: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        answer: { type: Type.STRING }
                     },
-                    required: ['root', 'suffixes', 'correctDerivations']
+                    required: ['sequence', 'answer']
                 }
             }
         },
-        required: ['title', 'instruction', 'rootSets', 'pedagogicalNote']
+        required: ['title', 'instruction', 'keyMap', 'codesToSolve', 'pedagogicalNote', 'imagePrompt']
+    };
+    
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<CodeReadingData[]>;
+};
+
+// 2. Attention To Question
+export const generateAttentionToQuestionFromAI = async (options: GeneratorOptions): Promise<AttentionToQuestionData[]> => {
+    const { worksheetCount, subType } = options;
+    
+    const specifics = `
+    Alt Tip: ${subType || 'letter-cancellation'}.
+    
+    - 'letter-cancellation': Bir ızgara içinde belirli harfleri (örn: b, d) bulma ve eleme.
+    - 'path-finding': Başlangıçtan bitişe sembolleri takip etme.
+    - 'visual-logic': Şekil dizilerindeki mantık hatasını bulma.
+    `;
+    
+    const prompt = getAttentionPrompt(`Soruya Dikkat (${subType})`, 1, options.difficulty) + specifics;
+    
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            subType: { type: Type.STRING, enum: ['letter-cancellation', 'path-finding', 'visual-logic'] },
+            // Letter Cancellation Props
+            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            targetChars: { type: Type.ARRAY, items: { type: Type.STRING } },
+            password: { type: Type.STRING },
+            // Path Finding Props
+            pathGrid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            correctPath: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: {r: {type: Type.NUMBER}, c: {type: Type.NUMBER}} } },
+            // Visual Logic Props
+            logicItems: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.NUMBER },
+                        isOdd: { type: Type.BOOLEAN },
+                        correctAnswer: { type: Type.STRING },
+                        shapes: { 
+                            type: Type.ARRAY, 
+                            items: { 
+                                type: Type.OBJECT, 
+                                properties: { color: { type: Type.STRING }, type: { type: Type.STRING }, connectedTo: { type: Type.ARRAY, items: { type: Type.NUMBER } } } 
+                            } 
+                        }
+                    }
+                }
+            }
+        },
+        required: ['title', 'instruction', 'subType', 'pedagogicalNote', 'imagePrompt']
+    };
+    
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<AttentionToQuestionData[]>;
+};
+
+// 3. Attention Development
+export const generateAttentionDevelopmentFromAI = async (options: GeneratorOptions): Promise<AttentionDevelopmentData[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+    
+    const specifics = `
+    Görev: Mantık Bilmeceleri oluştur.
+    Format: Sol/Sağ kutu veya A/B kutusu.
+    İçerik: Hedef sayıyı veya nesneyi bulmak için "olumsuzlama", "karşılaştırma" ve "matematiksel özellikler" (tek/çift, büyük/küçük) içeren ipuçları yaz.
+    `;
+    
+    const prompt = getAttentionPrompt("Dikkat Geliştirme (Mantık)", itemCount || 4, difficulty) + specifics;
+    
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        riddle: { type: Type.STRING },
+                        boxes: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    label: { type: Type.STRING },
+                                    numbers: { type: Type.ARRAY, items: { type: Type.INTEGER } }
+                                },
+                                required: ['numbers']
+                            }
+                        },
+                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        answer: { type: Type.STRING }
+                    },
+                    required: ['riddle', 'boxes', 'options', 'answer']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'puzzles', 'pedagogicalNote', 'imagePrompt']
+    };
+    
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<AttentionDevelopmentData[]>;
+};
+
+// 4. Attention Focus
+export const generateAttentionFocusFromAI = async (options: GeneratorOptions): Promise<AttentionFocusData[]> => {
+    const { worksheetCount, itemCount, difficulty } = options;
+
+    const specifics = `
+    Görev: Özellik eşleştirme ve eleme.
+    Format: Nesne listeleri (örn: Meyveler, Eşyalar).
+    İpuçları: Rengi kırmızı olmayan, çekirdeği olan, suda batmayan vb. özellikler üzerinden hedefi buldur.
+    `;
+
+    const prompt = getAttentionPrompt("Dikkatini Ver (Özellik Analizi)", itemCount || 4, difficulty) + specifics;
+
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING },
+            puzzles: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        riddle: { type: Type.STRING },
+                        boxes: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    title: { type: Type.STRING }, // e.g. "Kutu 1" or empty
+                                    items: { type: Type.ARRAY, items: { type: Type.STRING } }
+                                },
+                                required: ['items']
+                            }
+                        },
+                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        answer: { type: Type.STRING }
+                    },
+                    required: ['riddle', 'boxes', 'options', 'answer']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'puzzles', 'pedagogicalNote', 'imagePrompt']
     };
 
-    const result = await generateWithSchema(prompt, schema) as any;
-    return [{
-        ...result,
-        visualStyle: visualStyle as any
-    }];
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<AttentionFocusData[]>;
 };
+
+// Placeholder exports
+export const generateReadingFlowFromAI = async (o: GeneratorOptions): Promise<ReadingFlowData[]> => [];
+export const generateLetterDiscriminationFromAI = async (o: GeneratorOptions): Promise<LetterDiscriminationData[]> => [];
+export const generateRapidNamingFromAI = async (o: GeneratorOptions): Promise<RapidNamingData[]> => [];
+export const generatePhonologicalAwarenessFromAI = async (o: GeneratorOptions): Promise<PhonologicalAwarenessData[]> => [];
+export const generateMirrorLettersFromAI = async (o: GeneratorOptions): Promise<MirrorLettersData[]> => [];
+export const generateSyllableTrainFromAI = async (o: GeneratorOptions): Promise<SyllableTrainData[]> => [];
+export const generateVisualTrackingLinesFromAI = async (o: GeneratorOptions): Promise<VisualTrackingLineData[]> => [];
+export const generateBackwardSpellingFromAI = async (o: GeneratorOptions): Promise<BackwardSpellingData[]> => [];

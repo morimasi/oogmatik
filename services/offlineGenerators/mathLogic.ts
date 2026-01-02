@@ -1,9 +1,10 @@
 
 import { GeneratorOptions, NumberPatternData, NumberPyramidData, OddEvenSudokuData, KendokuData, BasicOperationsData, MoneyCountingData, MathMemoryCardsData, ClockReadingData, RealLifeProblemData, MathPuzzleData, NumberLogicRiddleData } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, TR_VOCAB } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, turkishAlphabet, generateSudokuGrid, generateLatinSquare, TR_VOCAB } from './helpers';
 
+// SAYISAL MANTIK BİLMECELERİ (Gelişmiş Yerel Üretici)
 export const generateOfflineNumberLogicRiddles = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
-    const { worksheetCount, numberRange, difficulty, logicModel, itemCount = 4, gridSize = 3 } = options;
+    const { worksheetCount, numberRange, difficulty, gridSize = 3, itemCount = 4 } = options;
     
     const [minRange, maxRange] = (numberRange || '1-50').split('-').map(Number);
     const pages: NumberLogicRiddleData[] = [];
@@ -13,66 +14,56 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
         let runningTotal = 0;
         
         for (let i = 0; i < itemCount; i++) {
-            const n = getRandomInt(minRange, maxRange);
-            const cluePool: string[] = [];
+            const targetNumber = getRandomInt(minRange, maxRange);
+            const hints: string[] = [];
             
-            // 1. Temel Kimlik İpuçları
-            cluePool.push(n % 2 === 0 ? "Ben bir çift sayıyım." : "Ben bir tek sayıyım.");
-            
-            // 2. Aralık İpuçları
-            const mid = Math.floor((minRange + maxRange) / 2);
-            cluePool.push(n > mid ? `${mid}'den daha büyüğüm.` : `${mid}'den daha küçüğüm.`);
-            
-            // 3. Rakam Analizi
-            const sumDigits = n.toString().split('').reduce((acc, curr) => acc + parseInt(curr), 0);
-            cluePool.push(`Rakamlarımın toplamı ${sumDigits}'dir.`);
-            
-            // 4. Onluk Analizi (Eğer sayı > 10 ise)
-            if (n >= 10) {
-                const tens = Math.floor(n / 10);
-                cluePool.push(`${tens}0 ile ${(tens + 1)}0 arasındayım.`);
-            } else {
-                cluePool.push(`Ben birler basamağında bir rakamım.`);
-            }
+            // Dinamik İpucu Üretim Havuzu (gridSize kadar seçilecek)
+            const potentialHints = [
+                targetNumber % 2 === 0 ? "Ben bir çift sayıyım." : "Ben bir tek sayıyım.",
+                targetNumber > (maxRange / 2) ? `${Math.floor(maxRange/2)}'den büyüğüm.` : `${Math.floor(maxRange/2)}'den küçüğüm.`,
+                targetNumber > 9 ? `Onlar basamağım ${Math.floor(targetNumber/10)}'dir.` : "Tek basamaklı bir sayıyım.",
+                targetNumber % 5 === 0 ? "5'in tam katıyım." : "5'e tam bölünmem.",
+                targetNumber % 10 === 0 ? "Sonumda 0 rakamı var." : "Son rakamım 0 değil.",
+                `Rakamlarım toplamı ${targetNumber.toString().split('').reduce((a,b)=>a+parseInt(b),0)}'dir.`,
+                targetNumber < 100 ? `100'e olan uzaklığım ${100-targetNumber}'dir.` : "Üç basamaklıyım."
+            ];
 
-            // 5. Kat/Bölüm İpuçları
-            if (n % 5 === 0) cluePool.push("5'er sayarken beni söylersin.");
-            else if (n % 3 === 0) cluePool.push("3'er ritmik saymada varım.");
-            else cluePool.push(`${n-1}'den hemen sonra gelirim.`);
+            // Kullanıcının istediği ipucu sayısı kadar rastgele ama tutarlı ipucu seç
+            const selectedHints = shuffle(potentialHints).slice(0, gridSize);
 
-            // Seçilen derinliğe (gridSize) göre benzersiz ipuçlarını al
-            const selectedClues = getRandomItems([...new Set(cluePool)], Math.min(gridSize, cluePool.length));
-
-            // Options Matrix
-            const boxes = Array.from({ length: 5 }, () => [getRandomInt(minRange, maxRange), getRandomInt(minRange, maxRange)]);
-            boxes[getRandomInt(0, 4)][0] = n;
+            // Seçenek kutuları (Boxes) görsel doluluk için
+            const boxes = Array.from({ length: 5 }, () => {
+                const b = [getRandomInt(minRange, maxRange), getRandomInt(minRange, maxRange)];
+                return b;
+            });
+            // Bir tanesine mutlaka doğru cevabı koy
+            boxes[getRandomInt(0, 4)][getRandomInt(0, 1)] = targetNumber;
 
             const distractors = new Set<number>();
             while(distractors.size < 3) {
                 const d = getRandomInt(minRange, maxRange);
-                if (d !== n) distractors.add(d);
+                if (d !== targetNumber) distractors.add(d);
             }
-            const allOptions = shuffle([n.toString(), ...Array.from(distractors).map(d => d.toString())]);
-            const correctLetter = ['A', 'B', 'C', 'D'][allOptions.indexOf(n.toString())];
+            const allOptions = shuffle([targetNumber.toString(), ...Array.from(distractors).map(d => d.toString())]);
+            const correctLetter = ['A', 'B', 'C', 'D'][allOptions.indexOf(targetNumber.toString())];
 
             puzzles.push({
-                clues: selectedClues,
-                visualHint: 'math_logic_icon',
+                riddle: selectedHints.join(' '),
                 boxes,
                 options: allOptions,
-                answer: `${correctLetter} - ${n}`,
-                answerValue: n
+                answer: `${correctLetter} - ${targetNumber}`,
+                answerValue: targetNumber
             });
             
-            runningTotal += n;
+            runningTotal += targetNumber;
         }
 
         pages.push({
             title: "Sayısal Mantık Bilmeceleri",
-            instruction: "İpuçlarını tek tek oku, elediğin sayıların üzerine çarpı at ve gizli sayıyı bul!",
-            pedagogicalNote: "Bu etkinlik, öğrencinin çalışma belleğini ve tümdengelimsel mantık yürütme becerilerini geliştirir. İpucu derinliği arttıkça analitik düşünme yükü artar.",
+            instruction: "İpuçlarını dikkatle oku, zihninde sayıyı canlandır ve doğru seçeneği işaretle!",
+            pedagogicalNote: `Bu etkinlik, ${gridSize} aşamalı mantıksal çıkarım yapma, işleyen bellek ve sayı hissi becerilerini geliştirir.`,
             sumTarget: runningTotal,
-            sumMessage: `Sayfadaki 4 bilmecenin cevaplarını topladığında sonuç ${runningTotal} olmalı.`,
+            sumMessage: `Kontrol Paneli: Tüm doğru cevapları topladığında ${runningTotal} sayısına ulaşmalısın.`,
             puzzles
         });
     }

@@ -58,29 +58,29 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
     } = options;
     
     const modelDesc = {
-        'identity': 'Sayı Kimliği (Basamak değeri, tek/çift, aralık)',
-        'exclusion': 'Eleme Mantığı (Şu değildir, şundan küçüktür)',
-        'sequence': 'Dizi İlişkisi (Örüntü kuralı)',
-        'cryptarithmetic': 'Şifreli Mantık (Sembolik karşılık)'
+        'identity': 'Sayı Kimliği: Sayının basamak değerleri, tek/çift durumu ve komşuluk ilişkilerine odaklan.',
+        'exclusion': 'Eleme Mantığı: "X değildir", "Şundan küçüktür ama şu değildir" gibi dışlayıcı önermeler kullan.',
+        'sequence': 'Dizi/Örüntü: Sayının bir aritmetik dizideki yerini veya katlarını ipucu olarak ver.',
+        'cryptarithmetic': 'Şifreleme: Sayıyı oluşturan rakamları sembollerle veya toplamsal bulmacalarla anlat.'
     }[logicModel];
 
     const rule = `
-    [GÖREV]: Üst düzey "Sayısal Muhakeme" bilmeceleri üret.
-    [İPUCU DERİNLİĞİ]: Her bilmece için TAM OLARAK ${gridSize} adet bağımsız ipucu üret.
+    [KESİN GÖREV]: Sayısal Muhakeme ve Mantık Bilmeceleri Üret.
+    [ZORLUK SEVİYESİ]: ${difficulty}
+    [SAYI EVRENİ]: ${numberRange || '1-50'}
+    [MANTIK MODELİ]: ${modelDesc}
+    [İPUCU SAYISI]: Her bir bilmece için TAM OLARAK ${gridSize} ADET bağımsız ipucu/önerme yaz. Ne eksik ne fazla!
+    [SAYFA YAPISI]: Bir sayfada ${itemCount} adet bağımsız bilmece kutusu olsun.
     
-    [İPUCU KATEGORİLERİ (Derinliğe göre karma kullan)]:
-    1. Basit Özellik: Tek/Çift olma durumu.
-    2. Aralık: X ile Y arasında olma.
-    3. Rakam Analizi: Rakamları toplamı veya birler basamağı özelliği.
-    4. Kat İlişkisi: X'in katı olma veya X'e bölünme.
-    5. Karşılaştırma: Onluklarından büyük olma, yarısından küçük olma vb.
-
-    [ZORUNLU]: "clues" bir dizi (array) olmalı. Her ipucu kısa, net ve disleksi dostu olmalı.
+    HESAPLAMA KURALLARI:
+    1. Zorluk seviyesine göre sayıları seç: Başlangıç (1-10), Orta (1-50), Zor (1-100), Uzman (100-999).
+    2. İpuçları birbirini desteklemeli ve tek bir doğru cevaba götürmeli.
+    3. ${showSumTarget ? "'sumTarget' alanına, bu sayfadaki tüm doğru cevapların matematiksel toplamını yaz." : ""}
     
-    [SAYFA HEDEFİ]: ${showSumTarget ? "Tüm doğru cevapların toplamı 'sumTarget' alanına yazılmalıdır." : ""}
+    JSON formatında döndür. Her bilmece için 'riddle' alanı ipuçlarının birleşimi olsun. 'options' alanında 4 seçenek ver.
     `;
 
-    const prompt = getMathPrompt(`Mantık Bilmeceleri (Model: ${modelDesc})`, difficulty, rule, studentContext);
+    const prompt = getMathPrompt("Gelişmiş Sayısal Mantık Bilmeceleri", difficulty, rule, studentContext);
 
     const schema = {
         type: Type.ARRAY,
@@ -97,14 +97,14 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
                     items: {
                         type: Type.OBJECT,
                         properties: {
-                            clues: { type: Type.ARRAY, items: { type: Type.STRING } },
+                            riddle: { type: Type.STRING },
                             visualHint: { type: Type.STRING },
                             boxes: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
                             options: { type: Type.ARRAY, items: { type: Type.STRING } },
                             answer: { type: Type.STRING },
                             answerValue: { type: Type.INTEGER }
                         },
-                        required: ['clues', 'boxes', 'options', 'answer', 'answerValue']
+                        required: ['riddle', 'boxes', 'options', 'answer', 'answerValue']
                     }
                 }
             },
