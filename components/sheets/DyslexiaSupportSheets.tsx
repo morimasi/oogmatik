@@ -18,54 +18,66 @@ import {
 import { ImageDisplay, PedagogicalHeader, DyslexicText, HandwritingGuide, TracingText } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
-// --- PSEUDOWORD READING SHEET ---
+// --- PSEUDOWORD READING SHEET (PROFESSIONAL CLINIC VERSION) ---
 export const PseudowordReadingSheet: React.FC<{ data: PseudowordReadingData }> = ({ data }) => {
     const words = data.words || [];
+    const { columns = 4, fontSize = 24 } = data.settings || {};
     
     return (
-        <div className="flex flex-col h-full bg-white">
+        <div className="flex flex-col h-full bg-white font-sans">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
             
-            <div className="flex-1 grid grid-cols-4 gap-x-8 gap-y-10 mt-6 content-start px-4">
+            {/* Professional Grid Layout */}
+            <div 
+                className="flex-1 grid gap-x-4 gap-y-6 mt-8 content-start px-4"
+                style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+            >
                 {words.map((word, i) => (
-                    <EditableElement key={i} className="flex flex-col items-center">
-                        <div className="text-center w-full">
+                    <EditableElement key={i} className="flex items-center gap-4 group">
+                        <span className="text-[10px] font-mono text-zinc-300 w-4 border-r border-zinc-100">{i + 1}</span>
+                        <div className="flex-1">
                             <DyslexicText 
                                 text={word} 
                                 mode={data.visualMode || 'standard'} 
-                                className="font-black text-2xl tracking-widest text-zinc-800 uppercase"
+                                className={`font-black tracking-[0.1em] text-zinc-900 uppercase`}
+                                style={{ fontSize: `${fontSize}px` }}
                             />
                         </div>
-                        <div className="mt-2 w-full flex justify-center gap-1 opacity-20">
-                            <div className="w-4 h-4 rounded-full border border-zinc-300"></div>
-                            <div className="w-4 h-4 rounded-full border border-zinc-300"></div>
+                        {/* Scoring checkmarks (for physical use) */}
+                        <div className="flex gap-1 opacity-10 group-hover:opacity-100 transition-opacity no-print">
+                            <div className="w-3 h-3 rounded-full border border-green-500"></div>
+                            <div className="w-3 h-3 rounded-full border border-red-500"></div>
                         </div>
                     </EditableElement>
                 ))}
             </div>
 
+            {/* Professional Assessment Footer */}
             {data.scoringTable && (
-                <div className="mt-12 p-6 bg-zinc-50 rounded-[2.5rem] border-2 border-zinc-100 shadow-inner break-inside-avoid">
-                    <div className="flex justify-between items-center mb-4 border-b border-zinc-200 pb-2">
-                        <h4 className="font-black text-[10px] text-zinc-400 uppercase tracking-[0.2em]">Klinik Değerlendirme Çizelgesi</h4>
-                        <span className="text-[10px] font-bold text-indigo-500 uppercase">Zorluk: {data.difficulty}</span>
+                <div className="mt-auto pt-8 border-t-4 border-zinc-900 break-inside-avoid">
+                    <div className="grid grid-cols-4 gap-8 bg-zinc-50 p-6 rounded-[2.5rem] border-2 border-zinc-200 shadow-inner">
+                        <div className="space-y-2">
+                            <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest block">Toplam Süre</span>
+                            <div className="h-10 border-b-2 border-zinc-800 flex items-end pb-1 font-mono font-bold text-xl text-zinc-400">____ : ____</div>
+                            <p className="text-[8px] text-zinc-400 italic">Hız (RAN) Analizi</p>
+                        </div>
+                        <div className="space-y-2">
+                            <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest block">Hata Adedi</span>
+                            <div className="h-10 border-b-2 border-zinc-800 flex items-end pb-1 font-mono font-bold text-xl text-zinc-400">/ {words.length}</div>
+                            <p className="text-[8px] text-zinc-400 italic">Doğruluk Oranı</p>
+                        </div>
+                        <div className="col-span-2 space-y-2">
+                            <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest block">Klinik Gözlem Notları</span>
+                            <div className="h-10 border-b-2 border-zinc-300 border-dashed"></div>
+                            <div className="h-6 border-b-2 border-zinc-300 border-dashed"></div>
+                        </div>
                     </div>
-                    <div className="grid grid-cols-4 gap-6">
-                        <div className="space-y-1">
-                            <span className="text-[9px] font-bold text-zinc-400 uppercase">Toplam Süre</span>
-                            <div className="h-8 border-b-2 border-zinc-200 border-dashed"></div>
-                        </div>
-                        <div className="space-y-1">
-                            <span className="text-[9px] font-bold text-zinc-400 uppercase">Doğru Sayısı</span>
-                            <div className="h-8 border-b-2 border-zinc-200 border-dashed"></div>
-                        </div>
-                        <div className="space-y-1">
-                            <span className="text-[9px] font-bold text-zinc-400 uppercase">Hata Türü</span>
-                            <div className="h-8 border-b-2 border-zinc-200 border-dashed"></div>
-                        </div>
-                        <div className="space-y-1">
-                            <span className="text-[9px] font-bold text-zinc-400 uppercase">Gözlem Notu</span>
-                            <div className="h-8 border-b-2 border-zinc-200 border-dashed"></div>
+                    
+                    <div className="mt-4 flex justify-between items-center text-[8px] text-zinc-300 font-bold uppercase tracking-[0.5em]">
+                        <span>Bursa Disleksi AI • Fonolojik Kod Çözme Bataryası</span>
+                        <div className="flex gap-1">
+                             <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                             <div className="w-2 h-2 rounded-full bg-zinc-200"></div>
                         </div>
                     </div>
                 </div>
@@ -135,7 +147,7 @@ export const MorphologicalAnalysisSheet: React.FC<{ data: MorphologicalAnalysisD
     );
 };
 
-// --- STUBS FOR OTHER DYSLEXIA COMPONENTS ---
+// ... ReadingFlow, RapidNaming, vb. aynı kalır ...
 export const ReadingFlowSheet: React.FC<{ data: ReadingFlowData }> = ({ data }) => (
     <div className="p-4">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />

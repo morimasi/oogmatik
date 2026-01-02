@@ -1,41 +1,66 @@
 
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData, PseudowordReadingData, MorphologicalAnalysisData } from '../../types';
-import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
+import { GeneratorOptions, PseudowordReadingData, MorphologicalAnalysisData } from '../../types';
+import { getRandomItems, shuffle } from './helpers';
 
-// --- PSEUDOWORD GENERATOR ENGINE ---
-const SYLLABLES_CV = ['ba', 'be', 'bı', 'bi', 'bo', 'bö', 'bu', 'bü', 'ca', 'ce', 'cı', 'ci', 'co', 'cü', 'da', 'de', 'dı', 'di', 'do', 'dö', 'fa', 'fe', 'ga', 'ge', 'ha', 'he', 'ka', 'ke', 'la', 'le', 'ma', 'me', 'na', 'ne', 'pa', 'pe', 'ra', 're', 'sa', 'se', 'ta', 'te', 'va', 've', 'ya', 'ye', 'za', 'ze'];
-const SYLLABLES_CVC = ['bak', 'bal', 'bel', 'ber', 'cek', 'cer', 'dak', 'dal', 'der', 'fak', 'fer', 'gak', 'gel', 'hak', 'han', 'kan', 'kar', 'lak', 'ler', 'man', 'mer', 'nak', 'ner', 'pak', 'per', 'rak', 'rek', 'sak', 'sel', 'tak', 'ter', 'vak', 'ver', 'yak', 'yer', 'zak', 'zer'];
+// --- PSEUDOWORD GENERATOR ENGINE (PROFESSIONAL) ---
+const VOWELS = ['a', 'e', 'ı', 'i', 'o', 'ö', 'u', 'ü'];
+const CONSONANTS = ['b', 'c', 'ç', 'd', 'f', 'g', 'ğ', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'r', 's', 'ş', 't', 'v', 'y', 'z'];
+const CRITICAL_CONSONANTS = ['b', 'd', 'p', 'q', 'm', 'n'];
 
-const generatePseudoWord = (length: number): string => {
+const generateSyllable = (type: string): string => {
+    const v = VOWELS[Math.floor(Math.random() * VOWELS.length)];
+    const c1 = CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)];
+    const c2 = CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)];
+    const crit = CRITICAL_CONSONANTS[Math.floor(Math.random() * CRITICAL_CONSONANTS.length)];
+
+    switch (type) {
+        case 'CV': return (Math.random() > 0.4 ? crit : c1) + v;
+        case 'VC': return v + c1;
+        case 'CVC': return c1 + v + (Math.random() > 0.5 ? crit : c2);
+        case 'CCV': return c1 + c2 + v;
+        default: return c1 + v;
+    }
+};
+
+const generatePseudoWordByStructure = (structure: string): string => {
     let word = "";
-    for (let i = 0; i < length; i++) {
-        const pool = Math.random() > 0.3 ? SYLLABLES_CV : SYLLABLES_CVC;
-        word += pool[Math.floor(Math.random() * pool.length)];
+    if (structure === 'basic') {
+        word = generateSyllable('CV') + generateSyllable('CV');
+    } else if (structure === 'medium') {
+        word = (Math.random() > 0.5 ? generateSyllable('CVC') : generateSyllable('CV')) + generateSyllable('CVC');
+    } else if (structure === 'hard') {
+        word = generateSyllable('CCV') + generateSyllable('CV') + (Math.random() > 0.5 ? 'st' : 'rt');
+    } else {
+        // Mixed
+        const len = Math.random() > 0.5 ? 2 : 3;
+        for(let i=0; i<len; i++) word += generateSyllable(Math.random() > 0.7 ? 'CVC' : 'CV');
     }
     return word;
 };
 
 export const generateOfflinePseudowordReading = async (options: GeneratorOptions): Promise<PseudowordReadingData[]> => {
-    const { worksheetCount, difficulty, variant } = options;
-    const count = 24; // Standard grid size
+    const { worksheetCount, difficulty, variant, itemCount = 24, gridSize = 4, syllableStructure = 'mixed' } = options;
 
     return Array.from({ length: worksheetCount }, () => {
         const words = [];
-        const syllLen = difficulty === 'Başlangıç' ? 2 : (difficulty === 'Orta' ? 3 : 4);
-        
-        for (let i = 0; i < count; i++) {
-            words.push(generatePseudoWord(syllLen));
+        for (let i = 0; i < itemCount; i++) {
+            words.push(generatePseudoWordByStructure(syllableStructure as string));
         }
 
         return {
             title: "Sözde Kelime Okuma Analizi",
             instruction: "Aşağıdaki kelimeler gerçek değildir. Lütfen her birini yüksek sesle ve hızlıca okumaya çalış.",
-            pedagogicalNote: "Sözde kelime okuma, öğrencinin kelime ezberleme stratejisini devre dışı bırakarak doğrudan fonolojik kod çözme becerisini ölçer. Akıcılık ve hata türleri disleksi tanısı için kritiktir.",
+            pedagogicalNote: "Sözde kelime okuma, öğrencinin kelime ezberleme stratejisini devre dışı bırakarak doğrudan fonolojik kod çözme becerisini ölçer.",
             words: shuffle(words),
-            syllableType: "Karışık",
+            syllableType: syllableStructure as string,
             visualMode: (variant as any) || 'standard',
             scoringTable: true,
-            difficulty: difficulty
+            difficulty: difficulty,
+            settings: {
+                columns: gridSize || 4,
+                itemCount: itemCount,
+                fontSize: itemCount > 40 ? 18 : 24
+            }
         };
     });
 };

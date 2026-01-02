@@ -15,7 +15,6 @@ export interface MorphologicalAnalysisData extends BaseActivityData {
     visualStyle: 'architect' | 'tree' | 'blocks';
 }
 
-// ... existing interfaces remain same ...
 export interface StoryQuestion {
     type: 'multiple-choice' | 'open-ended' | 'true-false' | 'logic' | 'vocabulary' | 'inference' | 'bloom_analysis' | 'bloom_synthesis';
     question: string;
@@ -112,13 +111,17 @@ export interface PseudowordReadingData extends BaseActivityData {
     visualMode: 'standard' | 'bionic' | 'rainbow';
     scoringTable: boolean;
     difficulty: string;
+    settings: {
+        columns: number;
+        itemCount: number;
+        fontSize: number;
+    };
 }
 
 // Proverb Specific Aliases/Interfaces
 export interface ProverbFillData extends MissingPartsData {}
 export interface ProverbSayingSortData extends StoryData {}
 export interface ProverbWordChainData extends StorySequencingData {}
-export interface ProverbSentenceFinderData extends StorySequencingData {}
 export interface ProverbSentenceFinderData extends StorySequencingData {}
 export interface ProverbSearchData extends WordSearchData {}
 

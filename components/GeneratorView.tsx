@@ -71,13 +71,14 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
         mode: 'fast',
         difficulty: 'Orta',
         worksheetCount: 1,
-        itemCount: 6,
-        gridSize: 5,
+        itemCount: 24,
+        gridSize: 4,
         case: 'upper',
-        variant: 'square',
+        variant: 'standard',
         numberRange: '1-50',
         logicModel: 'identity',
-        showSumTarget: true
+        showSumTarget: true,
+        syllableStructure: 'mixed'
     });
 
     const handleChange = (key: string, value: any) => {
@@ -85,6 +86,48 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
     };
 
     const renderActivityControls = () => {
+        // --- SÖZDE KELİME OKUMA (PSEUDOWORD READING) ---
+        if (activity.id === ActivityType.PSEUDOWORD_READING) {
+            return (
+                <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="grid grid-cols-2 gap-4">
+                        <CompactSlider label="Kelime Sayısı" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={12} max={60} step={4} icon="fa-list-ol" />
+                        <CompactSlider label="Sütun Sayısı" value={options.gridSize} onChange={(v:number) => handleChange('gridSize', v)} min={2} max={6} step={1} icon="fa-table-columns" />
+                    </div>
+
+                    <CompactToggleGroup 
+                        label="Hece Yapısı" 
+                        selected={options.syllableStructure} 
+                        onChange={(v: string) => handleChange('syllableStructure', v)} 
+                        options={[
+                            { value: 'basic', label: 'BASİT (CV-CV)' },
+                            { value: 'medium', label: 'ORTA (CVC)' },
+                            { value: 'hard', label: 'ZOR (CCV)' },
+                            { value: 'mixed', label: 'KARIŞIK' }
+                        ]} 
+                    />
+
+                    <CompactToggleGroup 
+                        label="Görsel Okuma Modu" 
+                        selected={options.variant} 
+                        onChange={(v: string) => handleChange('variant', v)} 
+                        options={[
+                            { value: 'standard', label: 'STANDART' },
+                            { value: 'bionic', label: 'BİYONİK' },
+                            { value: 'rainbow', label: 'GÖKKUŞAĞI' }
+                        ]} 
+                    />
+
+                    <div className="p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-800/30">
+                        <p className="text-[10px] text-blue-600 dark:text-blue-400 leading-relaxed font-medium">
+                            <i className="fa-solid fa-microscope mr-1"></i>
+                            Biyonik mod, kelimenin başlangıcına odaklanmayı artırarak okuma hızını (RAN) destekler.
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
         // --- GİZLİ ŞİFRE MATRİSİ (HIDDEN PASSWORD GRID) ---
         if (activity.id === ActivityType.HIDDEN_PASSWORD_GRID) {
             return (

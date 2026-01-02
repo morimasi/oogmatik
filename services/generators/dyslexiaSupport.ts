@@ -1,21 +1,29 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, PseudowordReadingData, MorphologicalAnalysisData } from '../../types';
-import { getAttentionPrompt, getDyslexiaPrompt } from './prompts';
+import { GeneratorOptions, PseudowordReadingData, MorphologicalAnalysisData } from '../../types';
+import { getDyslexiaPrompt } from './prompts';
 
 export const generatePseudowordReadingFromAI = async (options: GeneratorOptions): Promise<PseudowordReadingData[]> => {
-    const { difficulty, studentContext, variant } = options;
+    const { difficulty, studentContext, variant, itemCount = 24, gridSize = 4, syllableStructure = 'mixed' } = options;
     
+    const structureDesc = {
+        'basic': 'Sadece KV-KV (paka, tede) yapısında basit heceler.',
+        'medium': 'KVK-KV veya KV-KVK (termo, kaban) yapısında orta zorlukta heceler.',
+        'hard': 'KKV veya VCC (trapo, alst) yapısında ünsüz öbeği içeren zor heceler.',
+        'mixed': 'Tüm hece yapılarının dengeli karışımı.'
+    }[syllableStructure];
+
     const specifics = `
-    GÖREV: Sözde Kelime (Pseudoword) listesi üret.
+    GÖREV: Profesyonel klinik düzeyde Sözde Kelime (Pseudoword) listesi üret.
     ZORLUK: ${difficulty}.
-    ADET: 24 kelime.
+    ADET: ${itemCount} adet özgün kelime.
+    HECE YAPISI: ${structureDesc}
     
     PEDAGOJİK KURALLAR:
-    - Kelimeler anlamsız olmalı ama Türkçe telaffuz kurallarına (Büyük/Küçük ünlü uyumu) uymalıdır.
-    - ${difficulty === 'Başlangıç' ? '2 heceli (KV-KV) yapılar seç.' : '3-4 heceli karmaşık yapılar seç.'}
-    - Karıştırılan harfleri (b-d, p-q, m-n) içeren sözde kelimelere ağırlık ver.
+    - Kelimeler anlamsız olmalı ama Türkçe fonetik kurallarına (Büyük/Küçük ünlü uyumu) uymalıdır.
+    - Disleksi odaklı: Karıştırılan harfleri (b-d, p-q, m-n, u-ü) stratejik olarak kelimelerin içine yerleştir.
+    - Tekrardan kaçın, her kelime fonolojik olarak ayırt edici olsun.
     `;
 
     const prompt = getDyslexiaPrompt("Sözde Kelime Okuma Analizi", difficulty, specifics, studentContext);
@@ -26,8 +34,7 @@ export const generatePseudowordReadingFromAI = async (options: GeneratorOptions)
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            words: { type: Type.ARRAY, items: { type: Type.STRING } },
-            difficulty: { type: Type.STRING }
+            words: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
         required: ['title', 'instruction', 'words', 'pedagogicalNote']
     };
@@ -37,7 +44,12 @@ export const generatePseudowordReadingFromAI = async (options: GeneratorOptions)
         ...result,
         visualMode: (variant as any) || 'standard',
         scoringTable: true,
-        difficulty: difficulty
+        difficulty: difficulty,
+        settings: {
+            columns: gridSize,
+            itemCount: itemCount,
+            fontSize: itemCount > 40 ? 18 : 24
+        }
     }];
 };
 
