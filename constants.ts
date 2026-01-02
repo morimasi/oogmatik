@@ -12,11 +12,19 @@ export const DIFFICULTY_OPTIONS = [
 // Activities List
 export const ACTIVITIES: Activity[] = [
     {
+        id: ActivityType.MORPHOLOGICAL_ANALYSIS,
+        title: 'Kelime Mimarisi',
+        description: 'Kök ve ekleri birleştirerek kelime aileleri kurma ve anlamsal farkındalık.',
+        icon: 'fa-solid fa-trowel-bricks',
+        defaultStyle: { columns: 1, fontSize: 18 }
+    },
+    {
         id: ActivityType.MAP_INSTRUCTION,
         title: 'Harita Dedektifi',
         description: 'Türkiye haritası üzerinde yön, konum and harf takibi yaparak yönergeleri uygulama.',
         icon: 'fa-solid fa-map-location-dot'
     },
+    // ... rest of activities remain unchanged
     {
         id: ActivityType.ALGORITHM_GENERATOR,
         title: 'Algoritma Üretici',
@@ -69,7 +77,7 @@ export const ACTIVITIES: Activity[] = [
     {
         id: ActivityType.MONEY_COUNTING,
         title: 'Paralarımız',
-        description: 'Madeni ve kağıt paraları tanıma, basit alışveriş hesapları.',
+        description: 'Madeni ve kağıp paraları tanıma, basit alışveriş hesapları.',
         icon: 'fa-solid fa-money-bill-wave'
     },
     {
@@ -118,7 +126,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         title: 'Okuma & Dil',
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
-        activities: [ActivityType.STORY_COMPREHENSION, ActivityType.PSEUDOWORD_READING, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
+        activities: [ActivityType.STORY_COMPREHENSION, ActivityType.MORPHOLOGICAL_ANALYSIS, ActivityType.PSEUDOWORD_READING, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
     },
     {
         id: 'math-logic',

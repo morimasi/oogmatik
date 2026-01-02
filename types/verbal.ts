@@ -4,6 +4,18 @@ import { WordSearchData, MissingPartsData } from './visual';
 
 export * from './core';
 
+export interface MorphologicalAnalysisData extends BaseActivityData {
+    rootSets: {
+        root: string;
+        meaning: string;
+        suffixes: { text: string; function: string; example: string }[];
+        correctDerivations: { word: string; meaning: string }[];
+        distractors: string[];
+    }[];
+    visualStyle: 'architect' | 'tree' | 'blocks';
+}
+
+// ... existing interfaces remain same ...
 export interface StoryQuestion {
     type: 'multiple-choice' | 'open-ended' | 'true-false' | 'logic' | 'vocabulary' | 'inference' | 'bloom_analysis' | 'bloom_synthesis';
     question: string;
@@ -106,6 +118,7 @@ export interface PseudowordReadingData extends BaseActivityData {
 export interface ProverbFillData extends MissingPartsData {}
 export interface ProverbSayingSortData extends StoryData {}
 export interface ProverbWordChainData extends StorySequencingData {}
+export interface ProverbSentenceFinderData extends StorySequencingData {}
 export interface ProverbSentenceFinderData extends StorySequencingData {}
 export interface ProverbSearchData extends WordSearchData {}
 

@@ -1,52 +1,71 @@
 
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData, PseudowordReadingData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData, PseudowordReadingData, MorphologicalAnalysisData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
-// Helper for generating pseudowords offline
-const generateTurkishPseudowords = (count: number, difficulty: string): string[] => {
-    const vowels = "aeıioöuü".split("");
-    const consonants = "bcçdfgğhjklmnprsştvyz".split("");
-    const result: string[] = [];
+// --- PSEUDOWORD GENERATOR ENGINE ---
+const SYLLABLES_CV = ['ba', 'be', 'bı', 'bi', 'bo', 'bö', 'bu', 'bü', 'ca', 'ce', 'cı', 'ci', 'co', 'cü', 'da', 'de', 'dı', 'di', 'do', 'dö', 'fa', 'fe', 'ga', 'ge', 'ha', 'he', 'ka', 'ke', 'la', 'le', 'ma', 'me', 'na', 'ne', 'pa', 'pe', 'ra', 're', 'sa', 'se', 'ta', 'te', 'va', 've', 'ya', 'ye', 'za', 'ze'];
+const SYLLABLES_CVC = ['bak', 'bal', 'bel', 'ber', 'cek', 'cer', 'dak', 'dal', 'der', 'fak', 'fer', 'gak', 'gel', 'hak', 'han', 'kan', 'kar', 'lak', 'ler', 'man', 'mer', 'nak', 'ner', 'pak', 'per', 'rak', 'rek', 'sak', 'sel', 'tak', 'ter', 'vak', 'ver', 'yak', 'yer', 'zak', 'zer'];
 
-    for (let i = 0; i < count; i++) {
-        let word = "";
-        if (difficulty === 'Başlangıç') {
-            // CV-CV or V-CV structure
-            const h1 = consonants[getRandomInt(0, consonants.length - 1)] + vowels[getRandomInt(0, vowels.length - 1)];
-            const h2 = consonants[getRandomInt(0, consonants.length - 1)] + vowels[getRandomInt(0, vowels.length - 1)];
-            word = h1 + h2;
-        } else if (difficulty === 'Orta') {
-            // CVC-CVC structure
-            const h1 = consonants[getRandomInt(0, consonants.length - 1)] + vowels[getRandomInt(0, vowels.length - 1)] + consonants[getRandomInt(0, consonants.length - 1)];
-            const h2 = consonants[getRandomInt(0, consonants.length - 1)] + vowels[getRandomInt(0, vowels.length - 1)] + consonants[getRandomInt(0, consonants.length - 1)];
-            word = h1 + "-" + h2;
-        } else {
-            // CCVC or multi-syllable complex
-            const c1 = consonants[getRandomInt(0, consonants.length - 1)];
-            const c2 = consonants[getRandomInt(0, consonants.length - 1)];
-            const v1 = vowels[getRandomInt(0, vowels.length - 1)];
-            const c3 = consonants[getRandomInt(0, consonants.length - 1)];
-            word = c1 + c2 + v1 + c3 + vowels[getRandomInt(0, vowels.length - 1)] + consonants[getRandomInt(0, consonants.length - 1)];
-        }
-        result.push(word.toLowerCase());
+const generatePseudoWord = (length: number): string => {
+    let word = "";
+    for (let i = 0; i < length; i++) {
+        const pool = Math.random() > 0.3 ? SYLLABLES_CV : SYLLABLES_CVC;
+        word += pool[Math.floor(Math.random() * pool.length)];
     }
-    return result;
+    return word;
 };
 
 export const generateOfflinePseudowordReading = async (options: GeneratorOptions): Promise<PseudowordReadingData[]> => {
-    const { difficulty, itemCount, worksheetCount, visualMode = 'standard' } = options;
-    const count = itemCount || 40;
-    
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Sözde Kelime Okuma Seti",
-        instruction: "Aşağıdaki kelimeler anlamlı değildir. Sadece seslerine odaklanarak en hızlı ve doğru şekilde oku.",
-        pedagogicalNote: "Ezbere okumayı engeller, fonolojik farkındalığı ve kod çözme becerisini artırır.",
-        words: generateTurkishPseudowords(count, difficulty),
-        syllableType: difficulty,
-        visualMode: visualMode as any,
-        scoringTable: true,
-        difficulty
-    }));
+    const { worksheetCount, difficulty, variant } = options;
+    const count = 24; // Standard grid size
+
+    return Array.from({ length: worksheetCount }, () => {
+        const words = [];
+        const syllLen = difficulty === 'Başlangıç' ? 2 : (difficulty === 'Orta' ? 3 : 4);
+        
+        for (let i = 0; i < count; i++) {
+            words.push(generatePseudoWord(syllLen));
+        }
+
+        return {
+            title: "Sözde Kelime Okuma Analizi",
+            instruction: "Aşağıdaki kelimeler gerçek değildir. Lütfen her birini yüksek sesle ve hızlıca okumaya çalış.",
+            pedagogicalNote: "Sözde kelime okuma, öğrencinin kelime ezberleme stratejisini devre dışı bırakarak doğrudan fonolojik kod çözme becerisini ölçer. Akıcılık ve hata türleri disleksi tanısı için kritiktir.",
+            words: shuffle(words),
+            syllableType: "Karışık",
+            visualMode: (variant as any) || 'standard',
+            scoringTable: true,
+            difficulty: difficulty
+        };
+    });
 };
 
-// ... existing exports ...
+const TURKISH_ROOT_DATABASE = [
+    { root: 'göz', meaning: 'Görme organı', derivations: [{w: 'gözlük', m: 'Göze takılan cam'}, {w: 'gözcü', m: 'Gözetleyen kişi'}, {w: 'gözlem', m: 'Bir şeyi inceleme'}] },
+    { root: 'yol', meaning: 'Gidilen yer', derivations: [{w: 'yolcu', m: 'Yola giden kişi'}, {w: 'yolluk', m: 'Yol azığı'}, {w: 'yolsuz', m: 'Yolu olmayan'}] },
+    { root: 'su', meaning: 'Sıvı madde', derivations: [{w: 'sulu', m: 'İçinde su olan'}, {w: 'susuz', m: 'Suyu olmayan'}, {w: 'sulak', m: 'Suyu bol yer'}] },
+    { root: 'bil', meaning: 'Anlamak, kavramak', derivations: [{w: 'bilgi', m: 'Öğrenilen şey'}, {w: 'bilim', m: 'Düzenli bilgi'}, {w: 'bilgin', m: 'Bilgili kişi'}] }
+];
+
+export const generateOfflineMorphologicalAnalysis = async (options: GeneratorOptions): Promise<MorphologicalAnalysisData[]> => {
+    const { worksheetCount } = options;
+    const count = 3;
+
+    return Array.from({ length: worksheetCount }, () => {
+        const selectedRoots = getRandomItems(TURKISH_ROOT_DATABASE, count);
+        
+        return {
+            title: "Kelime Mimarisi: Morfolojik Analiz",
+            instruction: "Kelimelerin köklerini ve eklerini incele. Parçaları birleştirerek yeni anlamlar inşa et.",
+            pedagogicalNote: "Morfolojik farkındalık, karmaşık kelimeleri çözümleme ve kelime dağarcığını zenginleştirme için en güçlü stratejidir.",
+            rootSets: selectedRoots.map(r => ({
+                root: r.root,
+                meaning: r.meaning,
+                suffixes: r.derivations.map(d => ({ text: d.w.replace(r.root, '-'), function: 'Yapım Eki', example: d.w })),
+                correctDerivations: r.derivations.map(d => ({ word: d.w, meaning: d.m })),
+                distractors: ['-miş', '-yor', '-ecek']
+            })),
+            visualStyle: 'architect'
+        };
+    });
+};
