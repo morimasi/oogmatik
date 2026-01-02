@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ActivityType, SingleWorksheetData } from '../types';
 import * as MathLogic from './sheets/MathLogicSheets';
@@ -20,10 +21,13 @@ interface SheetRendererProps {
     data: SingleWorksheetData;
 }
 
-// Fix: Implemented RichContentRenderer to render section-based content produced by multimodal AI analysis
+/**
+ * KLONLANMIŞ İÇERİK RENDERER
+ * OCR'dan gelen mimari taslakları görselleştirir.
+ */
 const RichContentRenderer = ({ data }: { data: any }) => {
     return (
-        <div className="space-y-8 w-full">
+        <div className="space-y-10 w-full animate-in fade-in duration-700">
             <PedagogicalHeader 
                 title={data.title} 
                 instruction={data.instruction} 
@@ -31,49 +35,101 @@ const RichContentRenderer = ({ data }: { data: any }) => {
                 data={data}
             />
             
-            <div className="space-y-6">
-                {(data.sections || []).map((section: any, idx: number) => (
-                    <EditableElement key={idx} className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm w-full">
-                        {section.title && (
-                            <h4 className="text-sm font-black text-indigo-600 uppercase mb-3 border-b border-indigo-100 pb-1">
-                                <EditableText value={section.title} tag="span" />
-                            </h4>
-                        )}
-                        
-                        {section.type === 'text' && (
-                            <div className="prose max-w-none text-zinc-800 leading-relaxed font-dyslexic">
-                                <EditableText value={section.content} tag="div" />
-                            </div>
-                        )}
-                        
-                        {section.type === 'image' && (
-                            <div className="w-full h-64 bg-zinc-50 rounded-xl overflow-hidden my-4">
-                                <ImageDisplay prompt={section.content} description={section.title} className="w-full h-full" />
-                            </div>
-                        )}
-                        
-                        {section.type === 'list' && (
-                            <ul className="space-y-3">
-                                {(section.items || []).map((item: string, i: number) => (
-                                    <li key={i} className="flex gap-3 items-start">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-2 shrink-0"></div>
-                                        <div className="flex-1"><EditableText value={item} tag="span" /></div>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+            <div className="flex flex-col gap-8">
+                {(data.sections || []).map((section: any, idx: number) => {
+                    const isGrid = section.type === 'grid';
+                    const isMatching = section.type === 'matching';
+                    const isText = section.type === 'text';
 
-                        {section.type === 'grid' && (
-                            <div className="grid grid-cols-2 gap-4">
-                                {(section.items || []).map((item: string, i: number) => (
-                                    <div key={i} className="p-4 bg-zinc-50 rounded-xl border border-zinc-100 font-bold text-center flex items-center justify-center min-h-[60px]">
-                                        <EditableText value={item} tag="span" />
+                    return (
+                        <EditableElement key={idx} className={`bg-white rounded-[2.5rem] border-2 border-zinc-100 shadow-sm w-full relative overflow-hidden group hover:border-indigo-200 transition-all ${isText ? 'p-8' : 'p-6'}`}>
+                            {section.title && (
+                                <h4 className="text-xs font-black text-indigo-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2 border-b border-indigo-50 pb-2">
+                                    <i className={`fa-solid ${isGrid ? 'fa-table-cells' : isMatching ? 'fa-arrows-left-right' : 'fa-align-left'}`}></i>
+                                    <EditableText value={section.title} tag="span" />
+                                </h4>
+                            )}
+                            
+                            {section.type === 'text' && (
+                                <div className="prose max-w-none text-zinc-800 leading-relaxed font-dyslexic text-lg text-justify">
+                                    <EditableText value={section.content} tag="div" />
+                                </div>
+                            )}
+                            
+                            {section.type === 'image' && (
+                                <div className="w-full h-72 bg-zinc-50 rounded-3xl overflow-hidden my-4 border border-zinc-100">
+                                    <ImageDisplay prompt={section.content} description={section.title} className="w-full h-full" />
+                                </div>
+                            )}
+                            
+                            {section.type === 'list' && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {(section.items || []).map((item: string, i: number) => (
+                                        <div key={i} className="flex gap-4 items-start p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
+                                            <div className="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-[10px] font-black shrink-0">{i+1}</div>
+                                            <div className="flex-1 font-medium text-zinc-800"><EditableText value={item} tag="span" /></div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {section.type === 'grid' && (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full border-collapse">
+                                        {section.columnLabels && (
+                                            <thead>
+                                                <tr>
+                                                    {section.columnLabels.map((label: string, i: number) => (
+                                                        <th key={i} className="p-3 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest border border-zinc-800">
+                                                            {label}
+                                                        </th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                        )}
+                                        <tbody>
+                                            {(section.gridData || section.items?.map((it:any)=>[it]) || []).map((row: string[], rIdx: number) => (
+                                                <tr key={rIdx}>
+                                                    {row.map((cell, cIdx) => (
+                                                        <td key={cIdx} className="p-4 border border-zinc-200 text-center font-bold text-sm text-zinc-700 bg-white hover:bg-indigo-50/30 transition-colors">
+                                                            <EditableText value={cell} tag="span" />
+                                                        </td>
+                                                    ))}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+
+                            {isMatching && (
+                                <div className="flex justify-between gap-12 py-4">
+                                    <div className="flex-1 space-y-3">
+                                        {(section.items || []).slice(0, Math.ceil(section.items.length/2)).map((item: string, i: number) => (
+                                            <div key={i} className="p-3 bg-zinc-50 border-2 border-zinc-100 rounded-xl flex items-center justify-between group/row">
+                                                <span className="text-sm font-bold text-zinc-700"><EditableText value={item} tag="span" /></span>
+                                                <div className="w-3 h-3 rounded-full bg-zinc-300 group-hover/row:bg-indigo-400 transition-colors"></div>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                        )}
-                    </EditableElement>
-                ))}
+                                    <div className="flex-1 space-y-3">
+                                        {(section.items || []).slice(Math.ceil(section.items.length/2)).map((item: string, i: number) => (
+                                            <div key={i} className="p-3 bg-zinc-50 border-2 border-zinc-100 rounded-xl flex items-center gap-3 group/row">
+                                                <div className="w-3 h-3 rounded-full bg-zinc-300 group-hover/row:bg-indigo-400 transition-colors"></div>
+                                                <span className="text-sm font-bold text-zinc-700"><EditableText value={item} tag="span" /></span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </EditableElement>
+                    );
+                })}
+            </div>
+            
+            <div className="pt-10 border-t border-zinc-100 flex justify-between items-center opacity-40">
+                <p className="text-[8px] font-black uppercase tracking-[0.4em]">Bursa Disleksi AI • Tasarım Klonlama Modülü v2.0</p>
+                <i className="fa-solid fa-wand-magic-sparkles"></i>
             </div>
         </div>
     );
@@ -82,7 +138,7 @@ const RichContentRenderer = ({ data }: { data: any }) => {
 export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererProps) => {
     if (!data) return null;
     
-    // Fix: Now correctly using RichContentRenderer
+    // Zengin içerik veya OCR sonucu
     if (activityType === ActivityType.AI_WORKSHEET_CONVERTER || activityType === ActivityType.OCR_CONTENT || data.sections) {
         return <RichContentRenderer data={data} />;
     }

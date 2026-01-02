@@ -1,55 +1,40 @@
 
 import { Type } from "@google/genai";
 import { analyzeImage } from './geminiClient';
-import { ActivityType, OCRResult } from '../types';
+import { OCRResult } from '../types';
 import { ACTIVITIES } from '../constants';
 
 export const ocrService = {
     /**
-     * Specialized multimodal analysis for converting physical activities into digital blueprints.
-     * Uses vision to identify grid structures, question patterns, and visual components.
+     * MATERYAL KLONLAMA VE DİJİTAL İKİZ ÜRETİMİ
+     * Görüntüdeki etkinliğin hem görsel düzenini (layout) hem de pedagojik kurgusunu analiz eder.
      */
     processImage: async (base64Image: string, targetType: 'CONVERTER' | 'ALGORITHM'): Promise<OCRResult> => {
         const validIds = ACTIVITIES.map(a => a.id).join(', ');
 
-        const prompt = targetType === 'ALGORITHM' ? `
-        [ROL: KIDEMLİ ALGORİTMA TASARIMCISI & ÖZEL EĞİTİM PROFESÖRÜ]
-        GÖREV: Görüntüdeki etkinliğin MANTIKSAL AKIŞINI (Algoritmasını) analiz et. 
+        const prompt = `
+        [ROL: KIDEMLİ EĞİTİM MATERYALİ MİMARI & ÖZEL ÖĞRENME PROFESÖRÜ]
+        GÖREV: Görüntüdeki çalışma sayfasının "PEDAGOJİK VE GÖRSEL DNA'SINI" analiz et ve bir üretim taslağı (blueprint) oluştur.
         
-        MULTIMODAL ANALİZ KRİTERLERİ:
-        1. **Adım Adım Yapı:** Başlangıçtan bitişe giden mantıksal adımları ("Başla", "İşlem", "Karar", "Giriş/Çıkış", "Bitiş") görsel hiyerarşiye göre belirle.
-        2. **Karar Mekanizmaları:** Eğer görselde bir yol ayırımı, evet/hayır durumu veya koşul varsa bunu 'decision' adımı olarak işaretle.
-        3. **Varlık Klonlama:** Orijinal görseldeki "Problem Senaryosunu" (Challenge) ve terminolojiyi koru ancak adımları disleksi dostu bir dille yeniden kurgula.
+        ANALİZ KRİTERLERİ (DERİNLEMESİNE):
+        1. **Görsel Mimari:** Sayfa düzeni nasıl? (Örn: 2 sütunlu eşleştirme, 4x4 harf matrisi, alt alta dizili sorular, görsel etrafında metinler vb.)
+        2. **Mantıksal Akış:** Öğrenciden ne yapması isteniyor? (Eleme mi, toplama mı, hece ayırma mı, görsel tarama mı?)
+        3. **Veri Yapısı:** Sorularda kullanılan verilerin karakteristiği nedir? (Örn: Sadece tek basamaklı sayılar, "b" ve "d" içeren kelimeler, 3 heceli sözcükler vb.)
+        4. **İkiz Üretim Talimatı:** Bu etkinliğin BİREBİR AYNI DÜZENİNDE ama TAMAMEN FARKLI verilerle (yeni sorular, yeni kelimeler) üretilmesi için AI'ya teknik bir komut yaz.
         
-        ÇIKTI (Kesinlikle JSON):
+        ÇIKTI FORMATI (SADECE JSON):
         {
-            "detectedType": "ALGORITHM_GENERATOR",
-            "title": "Görselden Analiz Edilen Akış",
-            "description": "Görseldeki mantıksal akışın dijital simülasyonu.",
-            "blueprint": "ALGORİTMA TALİMATI: [Orijinal görseldeki adımların mantığını burada teknik olarak tarif et]. Bu tarif, yeni bir algoritma üretmek için kullanılacaktır.",
-            "layoutHint": { "type": "flowchart", "nodeCount": 6 }
-        }
-        ` : `
-        [ROL: KIDEMLİ EĞİTİM MATERYALİ MİMARI & ÖZEL ÖĞRENME GÜÇLÜĞÜ UZMANI]
-        GÖREV: Görüntüdeki çalışma sayfasının MİMARİ PLANINI (Blueprint) çıkar ve dijital ikizini üretmek için talimat hazırla.
-        
-        MİMARİ ANALİZ KURALLARI:
-        1. **Yapısal Sadakat:** Görseldeki tablo sütun sayısını, grid yapısını, soru-cevap kutusu yerleşimini (sol/sağ/üst) teknik olarak belirle.
-        2. **Pedagojik Mantık:** Sayfadaki soruların çözüm mantığını (eşleştirme, hesaplama, labirent, boyama vb.) profesyonel bir dille özetle.
-        3. **İçerik Stratejisi:** Soruları tek tek kopyalama. Bunun yerine "Şu zorlukta, şu konuda, şu mimaride sorular üret" talimatı oluştur. 
-        
-        ÇIKTI (Kesinlikle JSON):
-        {
-            "detectedType": "ActivityType",
-            "title": "Dönüştürülen Materyal",
-            "description": "Fiziksel materyalden AI ile türetilen interaktif form.",
+            "detectedType": "En yakın ActivityType",
+            "title": "Orijinal Başlık veya Tanımlayıcı İsim",
+            "description": "Pedagojik amacın özeti",
+            "blueprint": "AI ÜRETİM KOMUTU: [Bu bölüm çok detaylı olmalı. Sayfanın mimarisini ve soru mantığını 'Şu düzende, şu kısıtlamalarla yeni veriler üret' şeklinde tarif et.]",
             "layoutHint": {
-                "containerType": "grid | list | table",
-                "gridCols": 1,
-                "hasImages": true
+                "structure": "grid | list | columns | matching | maze",
+                "columns": number,
+                "hasVisuals": boolean,
+                "dataComplexity": "low | medium | high"
             },
-            "blueprint": "MİMARİ TALİMAT: [Görseldeki yapı ve soru mantığının teknik özeti]. Örn: '4x4 grid yapısı, her hücrede bir harf, altlarında cevap çizgisi olsun.'",
-            "baseType": "En yakın ActivityType eşleşmesi"
+            "baseType": "ACTIVITY_ID"
         }
         `;
 
@@ -59,46 +44,40 @@ export const ocrService = {
                 detectedType: { type: Type.STRING },
                 title: { type: Type.STRING },
                 description: { type: Type.STRING },
+                blueprint: { type: Type.STRING },
                 layoutHint: {
                     type: Type.OBJECT,
                     properties: {
-                        containerType: { type: Type.STRING },
-                        gridCols: { type: Type.NUMBER },
-                        hasImages: { type: Type.BOOLEAN },
-                        nodeCount: { type: Type.NUMBER }
-                    }
+                        structure: { type: Type.STRING },
+                        columns: { type: Type.NUMBER },
+                        hasVisuals: { type: Type.BOOLEAN },
+                        dataComplexity: { type: Type.STRING }
+                    },
+                    required: ['structure']
                 },
-                blueprint: { type: Type.STRING },
                 baseType: { type: Type.STRING }
             },
-            required: ['detectedType', 'title', 'blueprint']
+            required: ['detectedType', 'title', 'blueprint', 'layoutHint']
         };
 
         try {
             const result = await analyzeImage(base64Image, prompt, schema, 'gemini-3-flash-preview');
             
-            let safeType = result.baseType || result.detectedType;
-            if (targetType === 'ALGORITHM') safeType = 'ALGORITHM_GENERATOR';
-            else if (!validIds.includes(safeType)) safeType = 'AI_WORKSHEET_CONVERTER';
-
             return {
                 rawText: '', 
-                detectedType: safeType,
-                title: result.title || 'Analiz Edilen Materyal',
-                description: result.description || 'Görsel mimarisi AI ile çözümlendi.',
-                generatedTemplate: result.blueprint || '',
+                detectedType: result.baseType || 'AI_WORKSHEET_CONVERTER',
+                title: result.title,
+                description: result.description,
+                generatedTemplate: result.blueprint, // AI artık buradaki mimari talimatı kullanacak
                 structuredData: {
-                    difficulty: 'Orta',
-                    itemCount: 10,
-                    topic: 'Görsel Analiz',
-                    instructions: result.blueprint || '',
-                    layoutHint: result.layoutHint 
+                    layoutHint: result.layoutHint,
+                    originalBlueprint: result.blueprint
                 },
-                baseType: safeType
+                baseType: result.baseType || 'AI_WORKSHEET_CONVERTER'
             };
         } catch (error) {
-            console.error("OCR Analysis Error:", error);
-            throw new Error("Görsel mimarisi çözümlenemedi. Lütfen daha net bir görsel yükleyin.");
+            console.error("Deep OCR Error:", error);
+            throw new Error("Görsel mimarisi çözümlenemedi. Lütfen daha net bir görsel kullanın.");
         }
     }
 };

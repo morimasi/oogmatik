@@ -1,30 +1,35 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema, analyzeImage } from '../geminiClient';
-import { GeneratorOptions, FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, ActivityType } from '../../types';
+import { GeneratorOptions, MapInstructionData, ActivityType } from '../../types';
 import { PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE, getStudentContextPrompt } from './prompts';
 
-// Fix: Added generateFromRichPrompt to handle the reconstruction of custom activity structures identified by AI vision
+/**
+ * OCR BLUEPRINT'ten DİJİTAL İKİZ ÜRETİCİ
+ * Bu fonksiyon, OCR ile analiz edilen bir sayfanın mimarisini alır ve farklı verilerle varyasyon üretir.
+ */
 export const generateFromRichPrompt = async (activityType: ActivityType, instructions: string, options: GeneratorOptions): Promise<any> => {
     const prompt = `
     ${PEDAGOGICAL_BASE}
     ${getStudentContextPrompt(options.studentContext)}
 
-    GÖREV: "${activityType}" türünde, disleksi ve özel öğrenme güçlüğü dostu bir education materyali üret.
+    GÖREV: Ekteki mimari taslağa (BLUEPRINT) dayalı bir "DİJİTAL İKİZ" materyal üret.
     
-    MİMARİ YÖNERGE (BU ŞABLONA SADIK KALARAK İÇERİĞİ KURGULA):
+    TASLAK (ARCHITECTURAL BLUEPRINT):
+    =========================================
     ${instructions}
+    =========================================
     
-    ÖZEL PARAMETRELER:
-    - Zorluk Seviyesi: ${options.difficulty}
-    - Tema/Konu: ${options.topic || 'Genel'}
-    - Öğe Sayısı: ${options.itemCount || 10}
-    
-    ${options.customInput ? `[MULTIMODAL]: Bu içerik bir görsel analizinden türetilmiştir. Görseldeki yerleşim mantığını koru ancak tamamen yeni ve özgün veriler kullan.` : ''}
+    ÜRETİM KURALLARI:
+    1. **Sıfır Kopyalama:** Orijinal görseldeki verileri (sayılar, kelimeler, cümleler) KESİNLİKLE kullanma. Her şeyi yeniden ve özgün olarak oluştur.
+    2. **Mimari Sadakat:** Görseldeki yerleşim düzenini (tablo, kutu, kolon yapısı vb.) aynen koru.
+    3. **Varyasyon:** Eğer orijinalde 10 soru varsa, sen de tam 10 tane benzer mantıkta ama farklı içerikte soru üret.
+    4. **Disleksi Uyumu:** ${options.difficulty} zorluk seviyesine uygun, disleksi dostu dil ve görselleştirme kullan.
     
     ${IMAGE_GENERATION_GUIDE}
     
-    ÇIKTI: Kesinlikle ve sadece JSON formatında, "sections" dizisi içeren bir nesne döndür.
+    ÇIKTI: JSON formatında, 'sections' dizisi içeren zengin bir veri yapısı döndür. 
+    Her section; 'type' (text|list|grid|matching), 'title' (opsiyonel), 'content' ve 'items' içermeli.
     `;
 
     const schema = {
@@ -39,10 +44,12 @@ export const generateFromRichPrompt = async (activityType: ActivityType, instruc
                 items: {
                     type: Type.OBJECT,
                     properties: {
-                        type: { type: Type.STRING, enum: ['text', 'image', 'list', 'grid'] },
+                        type: { type: Type.STRING, enum: ['text', 'image', 'list', 'grid', 'matching'] },
                         title: { type: Type.STRING },
                         content: { type: Type.STRING },
-                        items: { type: Type.ARRAY, items: { type: Type.STRING } }
+                        items: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        columnLabels: { type: Type.ARRAY, items: { type: Type.STRING } }, // Izgaralar için
+                        gridData: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } } // Karmaşık tablolar için
                     },
                     required: ['type']
                 }
@@ -51,6 +58,7 @@ export const generateFromRichPrompt = async (activityType: ActivityType, instruc
         required: ['title', 'instruction', 'sections']
     };
 
+    // Multimodal destek: Orijinal görseli AI'ya referans olarak tekrar gönderiyoruz ki mimariyi gözüyle de teyit etsin
     if (options.customInput && options.customInput.startsWith('data:image')) {
         return await analyzeImage(options.customInput, prompt, schema, 'gemini-3-flash-preview');
     }
@@ -70,23 +78,14 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     "Harita Dedektifi" (Türkiye Coğrafyası ve Yönerge Takibi) etkinliği oluştur.
     
     ZORUNLU KRİTERLER:
-    - ODAK BÖLGE: ${regionDesc}. SADECE bu bölgedeki illeri veya bu bölgeyle doğrudan ilişkili (komşu vb.) coğrafi özellikleri temel al. 
+    - ODAK BÖLGE: ${regionDesc}. SADECE bu bölgedeki illeri veya bu bölgeyle doğrudan ilişkili coğrafi özellikleri temel al. 
     - YÖNERGE TİPLERİ: ${typesDesc} kategorilerinden karma sorular hazırla.
-    - ADET: Her sayfa için tam ${itemCount || 8} adet bağımsız yönerge üret.
+    - ADET: Her sayfa için tam ${itemCount || 8} adet yönerge üret.
     - ZORLUK: ${difficulty}. 
-      * Başlangıç: "X ilini bul ve kırmızıya boya." tarzı tek aşamalı.
-      * Uzman: "${regionDesc} bölgesinde olup, ismi 'A' ile başlayan ve denize kıyısı olan ili bul, bu ilin hemen doğusundaki komşusuna git ve ismini yaz." tarzı çok katmanlı.
-    
-    STRATEJİ:
-    1. Hayali şehir uydurma, Türkiye'nin gerçek 81 ilini kullan.
-    2. Disleksi dostu, kısa ve eylem odaklı cümleler kur.
-    3. Eğer bir bölge seçildiyse (Örn: Ege), tüm yönergeler Ege bölgesi şehirlerini hedef almalıdır.
     
     ÇIKTI FORMATI:
     - title: "Harita Dedektifi: ${regionDesc}"
-    - instruction: Öğrenci için yönlendirici talimat.
-    - pedagogicalNote: Akademik dille eğitsel faydalar.
-    - instructions: [SADECE stringlerden oluşan bir dizi]
+    - instructions: [SADECE string dizi]
     
     SADECE JSON DÖNDÜR.
     `;
@@ -107,7 +106,6 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
 
     const raw = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as any[];
     
-    // Şehir koordinat veritabanını offline motordan al (Tutarlılık için)
     const { generateOfflineMapInstruction } = await import('../offlineGenerators/mapDetective');
     const base = await generateOfflineMapInstruction({ ...options, worksheetCount: 1 });
     
