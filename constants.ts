@@ -24,6 +24,13 @@ export const ACTIVITIES: Activity[] = [
         icon: 'fa-solid fa-code-fork'
     },
     {
+        id: ActivityType.PSEUDOWORD_READING,
+        title: 'Sözde Kelime Okuma',
+        description: 'Anlamlı olmayan ama dile uygun kelimelerle fonolojik kod çözme ve RAN hızlandırma.',
+        icon: 'fa-solid fa-microphone-lines',
+        defaultStyle: { columns: 2, fontSize: 24 }
+    },
+    {
         id: ActivityType.AI_WORKSHEET_CONVERTER,
         title: 'AI Destekli Dönüştürücü',
         description: 'Mevcut materyalleri yapay zeka ile akıllı çalışma sayfalarına dönüştürün.',
@@ -83,7 +90,6 @@ export const ACTIVITIES: Activity[] = [
         description: 'Görsel örüntüler içindeki uyumsuz öğeyi tespit etme.',
         icon: 'fa-solid fa-ghost'
     },
-    // Fix: Added missing metadata for referenced activities
     {
         id: ActivityType.GRID_DRAWING,
         title: 'Kare Kopyalama',
@@ -105,7 +111,6 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         title: 'Görsel & Mekansal',
         description: 'Görsel tarama, uzamsal algı ve yön tayini çalışmaları.',
         icon: 'fa-solid fa-eye',
-        // Fix: Removed unnecessary 'as any' after adding SYMMETRY_DRAWING to enum
         activities: [ActivityType.MAP_INSTRUCTION, ActivityType.FIND_THE_DIFFERENCE, ActivityType.VISUAL_ODD_ONE_OUT, ActivityType.GRID_DRAWING, ActivityType.SYMMETRY_DRAWING]
     },
     {
@@ -113,7 +118,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         title: 'Okuma & Dil',
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
-        activities: [ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
+        activities: [ActivityType.STORY_COMPREHENSION, ActivityType.PSEUDOWORD_READING, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
     },
     {
         id: 'math-logic',

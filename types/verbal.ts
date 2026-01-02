@@ -94,6 +94,14 @@ export interface InteractiveStoryData extends BaseActivityData {
     answers?: any[];
 }
 
+export interface PseudowordReadingData extends BaseActivityData {
+    words: string[];
+    syllableType: string;
+    visualMode: 'standard' | 'bionic' | 'rainbow';
+    scoringTable: boolean;
+    difficulty: string;
+}
+
 // Proverb Specific Aliases/Interfaces
 export interface ProverbFillData extends MissingPartsData {}
 export interface ProverbSayingSortData extends StoryData {}

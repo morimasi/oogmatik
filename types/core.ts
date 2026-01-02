@@ -54,7 +54,8 @@ export enum ActivityType {
     MAP_INSTRUCTION = 'MAP_INSTRUCTION',
     SYMMETRY_DRAWING = 'SYMMETRY_DRAWING',
     FIND_IDENTICAL_WORD = 'FIND_IDENTICAL_WORD',
-    FIND_DIFFERENT_STRING = 'FIND_DIFFERENT_STRING'
+    FIND_DIFFERENT_STRING = 'FIND_DIFFERENT_STRING',
+    PSEUDOWORD_READING = 'PSEUDOWORD_READING'
 }
 
 export type View = 'generator' | 'admin' | 'profile' | 'messages' | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'favorites' | 'savedList' | 'workbook' | 'shared' | 'assessment';
