@@ -91,17 +91,49 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
     </div>
 );
 
+const CompactCheckboxGroup = ({ label, selected, onChange, options }: any) => (
+    <div className="space-y-1">
+        <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
+        <div className="grid grid-cols-2 gap-2">
+            {options.map((opt: any) => (
+                <button 
+                    key={opt.value} 
+                    onClick={() => {
+                        const next = selected.includes(opt.value) 
+                            ? selected.filter((v:string) => v !== opt.value)
+                            : [...selected, opt.value];
+                        if (next.length > 0) onChange(next);
+                    }} 
+                    className={`py-1.5 px-2 text-[10px] font-bold rounded-lg border-2 transition-all flex items-center gap-2 ${selected.includes(opt.value) ? 'bg-indigo-50 border-indigo-600 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-400 dark:text-indigo-300' : 'bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700 text-zinc-500'}`}
+                >
+                    <div className={`w-3 h-3 rounded flex items-center justify-center border ${selected.includes(opt.value) ? 'bg-indigo-600 border-indigo-600' : 'border-zinc-300'}`}>
+                        {selected.includes(opt.value) && <i className="fa-solid fa-check text-[7px] text-white"></i>}
+                    </div>
+                    {opt.label}
+                </button>
+            ))}
+        </div>
+    </div>
+);
+
 export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true, onOpenStudentModal, studentProfile }) => {
     const [options, setOptions] = useState<GeneratorOptions>({
         mode: 'fast',
         difficulty: 'Orta',
         worksheetCount: 1,
-        itemCount: 8,
-        gridSize: 4,
+        itemCount: 4,
+        gridSize: 3,
         topic: '',
         distractionLevel: 'medium',
-        visualType: 'geometric',
-        findDiffType: 'linguistic'
+        visualType: 'identity',
+        logicModel: 'identity',
+        numberRange: '1-50',
+        findDiffType: 'linguistic',
+        showSumTarget: true,
+        mapInstructionTypes: ['spatial_logic', 'linguistic_geo', 'attribute_search'],
+        emphasizedRegion: 'all',
+        showCityNames: true,
+        markerStyle: 'circle'
     });
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
@@ -109,6 +141,113 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     };
 
     const renderActivityControls = () => {
+        // --- HARİTA DEDEKTİFİ ---
+        if (activity.id === ActivityType.MAP_INSTRUCTION) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <CompactSelect 
+                        label="Odak Bölge" 
+                        value={options.emphasizedRegion} 
+                        onChange={(v:any) => handleChange('emphasizedRegion', v)}
+                        options={[
+                            { value: 'all', label: 'Tüm Türkiye' },
+                            { value: 'Marmara', label: 'Marmara Bölgesi' },
+                            { value: 'Ege', label: 'Ege Bölgesi' },
+                            { value: 'Akdeniz', label: 'Akdeniz Bölgesi' },
+                            { value: 'İç Anadolu', label: 'İç Anadolu' },
+                            { value: 'Karadeniz', label: 'Karadeniz Bölgesi' },
+                            { value: 'Doğu Anadolu', label: 'Doğu Anadolu' },
+                            { value: 'Güneydoğu', label: 'Güneydoğu Anadolu' }
+                        ]}
+                        icon="fa-earth-americas"
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactCheckboxGroup 
+                            label="Yönerge Türleri" 
+                            selected={options.mapInstructionTypes || []}
+                            onChange={(v:string[]) => handleChange('mapInstructionTypes', v)}
+                            options={[
+                                { value: 'spatial_logic', label: 'Konum Mantığı' },
+                                { value: 'linguistic_geo', label: 'Harf & Bölge' },
+                                { value: 'attribute_search', label: 'Özellik Arama' },
+                                { value: 'neighbor_path', label: 'Komşu & Yol' }
+                            ]}
+                        />
+                        <CompactCounter label="Yönerge Sayısı" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={4} max={12} icon="fa-list-ol" />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                         <CompactToggleGroup 
+                            label="Şehir İsimleri" 
+                            selected={options.showCityNames ? 'on' : 'off'} 
+                            onChange={(v: string) => handleChange('showCityNames', v === 'on')} 
+                            options={[{ value: 'on', label: 'GÖSTER' }, { value: 'off', label: 'GİZLE' }]} 
+                        />
+                         <CompactSelect 
+                            label="İşaretçi Stili" 
+                            value={options.markerStyle} 
+                            onChange={(v:any) => handleChange('markerStyle', v)}
+                            options={[
+                                { value: 'circle', label: 'Daire' },
+                                { value: 'star', label: 'Yıldız' },
+                                { value: 'target', label: 'Hedef' },
+                                { value: 'dot', label: 'Nokta' }
+                            ]}
+                            icon="fa-location-dot"
+                        />
+                    </div>
+                </div>
+            );
+        }
+
+        // --- SAYISAL MANTIK BİLMECELERİ ---
+        if (activity.id === ActivityType.NUMBER_LOGIC_RIDDLES) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <CompactSelect 
+                        label="Düşünme Modeli" 
+                        value={options.logicModel} 
+                        onChange={(v:any) => handleChange('logicModel', v)}
+                        options={[
+                            { value: 'identity', label: 'Sayı Kimliği (Önerme Bazlı)' },
+                            { value: 'exclusion', label: 'Eleme / Dışlama Mantığı' },
+                            { value: 'sequence', label: 'Dizi ve Örüntü Çıkarımı' },
+                            { value: 'cryptarithmetic', label: 'Şifreli İşlem Çözme' }
+                        ]}
+                        icon="fa-brain-circuit"
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactSelect 
+                            label="Sayı Evreni" 
+                            value={options.numberRange} 
+                            onChange={(v:string) => handleChange('numberRange', v)}
+                            options={[
+                                { value: '1-10', label: 'Tek Basamak (1-10)' },
+                                { value: '1-20', label: 'Küçük Onluk (1-20)' },
+                                { value: '1-50', label: 'Orta Ölçek (1-50)' },
+                                { value: '10-100', label: 'İki Basamak (10-100)' },
+                                { value: '100-999', label: 'Üç Basamak (100-999)' }
+                            ]}
+                            icon="fa-infinity"
+                        />
+                        <CompactSlider label="Önerme/İpucu Sayısı" value={options.gridSize || 3} onChange={(v:number) => handleChange('gridSize', v)} min={2} max={5} icon="fa-list-check" />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <CompactCounter label="Görev Adedi" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={2} max={12} icon="fa-hashtag" />
+                        <CompactToggleGroup 
+                            label="Toplam Hedefi" 
+                            selected={options.showSumTarget ? 'on' : 'off'} 
+                            onChange={(v: string) => handleChange('showSumTarget', v === 'on')} 
+                            options={[{ value: 'on', label: 'AKTİF' }, { value: 'off', label: 'KAPALI' }]} 
+                        />
+                    </div>
+                </div>
+            );
+        }
+
         if (activity.id === ActivityType.FIND_THE_DIFFERENCE) {
             return (
                 <div className="space-y-5 animate-in fade-in duration-300">

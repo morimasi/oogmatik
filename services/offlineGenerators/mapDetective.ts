@@ -34,18 +34,24 @@ export const generateOfflineMapDetective = async (options: GeneratorOptions): Pr
         ? CALIBRATED_CITIES.filter(c => c.region === emphasizedRegion)
         : CALIBRATED_CITIES;
 
+    // Eğer filtreleme sonucu boşsa tüm listeyi kullan
+    const safeCityPool = cityPool.length > 0 ? cityPool : CALIBRATED_CITIES;
+
     const activeTypes = (mapInstructionTypes && mapInstructionTypes.length > 0) 
         ? mapInstructionTypes 
         : ['spatial_logic', 'linguistic_geo', 'attribute_search', 'neighbor_path'];
 
     const getAdvancedRule = () => {
         const type = getRandomItems(activeTypes, 1)[0];
-        const randomCity = cityPool[getRandomInt(0, cityPool.length - 1)];
+        const randomCity = safeCityPool[getRandomInt(0, safeCityPool.length - 1)];
+
+        // Zorluk bazlı karmaşıklık ayarı
+        const complexityPrefix = difficulty === 'Zor' || difficulty === 'Uzman' ? 'Hızlıca analiz ederek: ' : '';
 
         if (type === 'spatial_logic') {
             const directions = ['KUZEYİNDEKİ', 'GÜNEYİNDEKİ', 'DOĞUSUNDAKİ', 'BATISINDAKİ'];
             const dir = directions[getRandomInt(0, 3)];
-            return `${randomCity.name} ilinin hemen ${dir} komşu ili bul ve üzerine bir YILDIZ çiz.`;
+            return `${complexityPrefix}${randomCity.name} ilinin hemen ${dir} komşu ili bul ve üzerine bir YILDIZ çiz.`;
         }
 
         if (type === 'linguistic_geo') {
@@ -62,7 +68,7 @@ export const generateOfflineMapDetective = async (options: GeneratorOptions): Pr
         }
 
         if (type === 'neighbor_path') {
-            const dest = cityPool[getRandomInt(0, cityPool.length - 1)];
+            const dest = safeCityPool[getRandomInt(0, safeCityPool.length - 1)];
             return `${randomCity.name} ilinden yola çıkıp ${dest.name} iline doğru en kısa yoldan giderken geçtiğin ilk büyük şehri bul ve ismini boya.`;
         }
 

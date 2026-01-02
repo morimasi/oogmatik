@@ -152,7 +152,6 @@ export interface BaseActivityData {
     imageBase64?: string;
 }
 
-// Added Activity and ActivityCategory missing from constants.ts errors
 export interface Activity {
     id: ActivityType;
     title: string;
@@ -171,7 +170,6 @@ export interface ActivityCategory {
     activities: ActivityType[];
 }
 
-// Added GeneratorOptions missing from GeneratorView.tsx and App.tsx
 export interface GeneratorOptions {
     mode: 'fast' | 'ai';
     difficulty: 'Başlangıç' | 'Orta' | 'Zor' | 'Uzman';
@@ -207,10 +205,11 @@ export interface GeneratorOptions {
     showCityNames?: boolean;
     markerStyle?: string;
     customInput?: string;
+    logicModel?: 'identity' | 'exclusion' | 'sequence' | 'cryptarithmetic';
+    showSumTarget?: boolean;
     [key: string]: any;
 }
 
-// Added data tracking missing from App.tsx
 export interface SavedWorksheet {
     id: string;
     userId: string;
@@ -272,7 +271,6 @@ export interface WorkbookSettings {
     logoUrl?: string;
 }
 
-// Added AssessmentProfile missing from assessmentGenerator.ts
 export interface AssessmentProfile {
     studentName: string;
     age: number;
@@ -282,7 +280,6 @@ export interface AssessmentProfile {
     errorPatterns?: Record<string, number>;
 }
 
-// Added Assessment types missing from App.tsx and AssessmentModule.tsx
 export interface AssessmentReport {
     overallSummary: string;
     scores: Record<string, number>;
@@ -353,7 +350,6 @@ export interface CurriculumActivity {
 
 export type CurriculumActivityStatus = 'pending' | 'completed' | 'skipped';
 
-// Added OverlayItem missing from Worksheet.tsx
 export interface OverlayItem {
     id: string;
     type: 'text' | 'sticker';
@@ -363,7 +359,6 @@ export interface OverlayItem {
     style?: any;
 }
 
-// Added Feedback types missing from FeedbackModal.tsx
 export interface FeedbackItem {
     id: string;
     userId?: string;
@@ -382,7 +377,6 @@ export interface FeedbackItem {
 export type FeedbackCategory = 'general' | 'bug' | 'feature' | 'content';
 export type FeedbackStatus = 'new' | 'read' | 'in-progress' | 'replied' | 'resolved';
 
-// Added Message missing from MessagesView.tsx
 export interface Message {
     id: string;
     senderId: string;
@@ -394,7 +388,6 @@ export interface Message {
     relatedFeedbackId?: string;
 }
 
-// Added ActivityStats missing from AdminDashboard.tsx
 export interface ActivityStats {
     activityId: ActivityType;
     title: string;
@@ -403,7 +396,6 @@ export interface ActivityStats {
     avgCompletionTime: number;
 }
 
-// Added Clinical/Assessment types missing from AssessmentModule.tsx
 export type CognitiveDomain = 'visual_spatial_memory' | 'processing_speed' | 'selective_attention' | 'logical_reasoning' | 'phonological_loop';
 
 export interface SubTestResult {
@@ -470,7 +462,6 @@ export interface AssessmentConfig {
     mode: 'quick' | 'standard' | 'expert';
 }
 
-// Added OCR types missing from ocrService.ts
 export interface OCRResult {
     rawText: string;
     detectedType: string;
@@ -481,7 +472,6 @@ export interface OCRResult {
     baseType: string;
 }
 
-// Added Shape and Math types missing from math.ts and visual.ts imports
 export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'diamond' | 'pentagon' | 'octagon';
 export type VisualMathType = 'objects' | 'ten-frame' | 'number-bond' | 'dice' | 'blocks' | 'mixed';
 
