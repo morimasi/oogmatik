@@ -18,11 +18,12 @@ const CompassRose = () => (
     </div>
 );
 
-const MapMarker = ({ type }: { type: string }) => {
+const MapMarker = ({ type, color = "indigo" }: { type: string, color?: string }) => {
     switch (type) {
-        case 'star': return <i className="fa-solid fa-star text-indigo-600 text-xs"></i>;
-        case 'target': return <i className="fa-solid fa-crosshairs text-indigo-600 text-xs"></i>;
+        case 'star': return <i className="fa-solid fa-star text-indigo-600 text-[10px]"></i>;
+        case 'target': return <i className="fa-solid fa-crosshairs text-indigo-600 text-[10px]"></i>;
         case 'dot': return <circle r="4" fill="#000" />;
+        case 'none': return null;
         default: return (
             <g>
                 <circle r="8" fill="indigo" fillOpacity="0.1" className="animate-pulse" />
@@ -33,7 +34,7 @@ const MapMarker = ({ type }: { type: string }) => {
 };
 
 export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data }) => {
-    // Gerçekçi ve daha güvenilir Türkiye İdari Siyasi Haritası
+    // Gerçekçi ve daha güvenilir Türkiye İdari Siyasi Haritası (Wikimedia standardı)
     const REAL_ADMIN_MAP = "https://upload.wikimedia.org/wikipedia/commons/c/cf/Turkey_administrative_divisions_map.svg";
 
     return (
@@ -48,12 +49,13 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
                      <img 
                         src={REAL_ADMIN_MAP} 
                         alt="Türkiye İdari Haritası" 
+                        crossOrigin="anonymous"
                         className="w-full h-full object-contain mix-blend-multiply opacity-100 transition-opacity duration-500"
                         onLoad={(e) => {
                             e.currentTarget.style.opacity = '1';
                         }}
                         onError={(e) => {
-                            // Harita kaynağı hata verirse yedek SVG yolu
+                            // Fallback image in case of Wikimedia link failure
                             e.currentTarget.src = "https://simplemaps.com/static/svg/tr/tr.svg";
                         }}
                     />
@@ -68,10 +70,10 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
                                 <text 
                                     y="-12" 
                                     textAnchor="middle" 
-                                    fontSize="9" 
+                                    fontSize="10" 
                                     fontWeight="900" 
                                     className="fill-zinc-900 font-sans tracking-tight"
-                                    style={{ paintOrder: 'stroke', stroke: 'white', strokeWidth: '3px', strokeLinejoin: 'round' }}
+                                    style={{ paintOrder: 'stroke', stroke: 'white', strokeWidth: '4px', strokeLinejoin: 'round' }}
                                 >
                                     {city.name}
                                 </text>
@@ -82,15 +84,17 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
 
                 {/* Pusula & Ölçek Araçları */}
                 <div className="absolute bottom-8 right-10 flex items-end gap-10 z-30">
-                    <div className="flex flex-col items-center bg-white/95 backdrop-blur-md p-4 rounded-2xl border-2 border-zinc-900 shadow-lg">
+                    <div className="hidden md:flex flex-col items-center bg-white/95 backdrop-blur-md p-4 rounded-2xl border-2 border-zinc-900 shadow-lg no-print">
                         <div className="h-1 w-32 bg-zinc-900 mb-2"></div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-zinc-800">Ölçek: 0 - 200 KM</span>
                     </div>
-                    <CompassRose />
+                    <div className="no-print">
+                        <CompassRose />
+                    </div>
                 </div>
 
                 {/* Lejant (Klinik Analiz İçin) */}
-                <div className="absolute top-8 right-10 bg-white/95 backdrop-blur-md p-4 rounded-2xl border-2 border-zinc-900 shadow-lg space-y-2 z-30">
+                <div className="absolute top-8 right-10 bg-white/95 backdrop-blur-md p-4 rounded-2xl border-2 border-zinc-900 shadow-lg space-y-2 z-30 no-print">
                     <div className="flex items-center gap-3">
                         <div className="w-3 h-3 rounded-full bg-red-500 shadow-sm"></div>
                         <span className="text-[9px] font-black uppercase tracking-tight">Büyükşehir</span>
@@ -103,7 +107,7 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
             </div>
 
             {/* YÖNERGE KONTROL MERKEZİ */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 p-10 bg-zinc-50 rounded-[4.5rem] border-2 border-zinc-100 shadow-inner">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 p-8 bg-zinc-50 rounded-[4.5rem] border-2 border-zinc-100 shadow-inner">
                 {data.instructions.map((inst, i) => (
                     <EditableElement key={i} className="flex items-start gap-6 p-6 bg-white rounded-[2.5rem] border border-zinc-200 shadow-sm hover:border-indigo-500 hover:shadow-indigo-100 transition-all group cursor-default">
                         <div className="w-12 h-12 rounded-2xl bg-zinc-900 text-white flex items-center justify-center text-base font-black shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-indigo-600 transition-all">
@@ -114,7 +118,7 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
                                 <EditableText value={inst} tag="span" />
                             </p>
                         </div>
-                        <div className="w-10 h-10 rounded-2xl border-[3px] border-zinc-100 shrink-0 mt-1 cursor-pointer hover:bg-emerald-500 hover:border-emerald-600 transition-all shadow-inner flex items-center justify-center group/check">
+                        <div className="w-10 h-10 rounded-2xl border-[3px] border-zinc-100 shrink-0 mt-1 cursor-pointer hover:bg-emerald-500 hover:border-emerald-600 transition-all shadow-inner flex items-center justify-center group/check no-print">
                             <i className="fa-solid fa-check text-white opacity-0 group-hover/check:opacity-100 text-lg"></i>
                         </div>
                     </EditableElement>
@@ -129,8 +133,8 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
                         <span className="text-[12px] font-bold text-zinc-800 uppercase">Mekansal Akıl Yürütme</span>
                      </div>
                      <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Modül</span>
-                        <span className="text-[12px] font-bold text-indigo-600 uppercase">Coğrafi Dikkat Analizi</span>
+                        <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Zorluk</span>
+                        <span className="text-[12px] font-bold text-indigo-600 uppercase">{data.settings?.difficulty || 'Orta'}</span>
                      </div>
                 </div>
                 <div className="flex flex-col items-end">

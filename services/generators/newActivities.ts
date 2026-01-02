@@ -10,7 +10,7 @@ export const generateFromRichPrompt = async (activityType: ActivityType, instruc
     ${PEDAGOGICAL_BASE}
     ${getStudentContextPrompt(options.studentContext)}
 
-    GÖREV: "${activityType}" türünde, disleksi ve özel öğrenme güçlüğü dostu bir eğitim materyali üret.
+    GÖREV: "${activityType}" türünde, disleksi ve özel öğrenme güçlüğü dostu bir education materyali üret.
     
     MİMARİ YÖNERGE (BU ŞABLONA SADIK KALARAK İÇERİĞİ KURGULA):
     ${instructions}
@@ -59,9 +59,9 @@ export const generateFromRichPrompt = async (activityType: ActivityType, instruc
 };
 
 export const generateMapInstructionFromAI = async (options: GeneratorOptions): Promise<MapInstructionData[]> => {
-    const { worksheetCount, difficulty, studentContext, mapInstructionTypes, emphasizedRegion, itemCount } = options;
+    const { worksheetCount, difficulty, studentContext, mapInstructionTypes, emphasizedRegion, itemCount, showCityNames, markerStyle } = options;
     
-    const typesDesc = mapInstructionTypes?.join(', ') || 'Yönler, Harf Özellikleri, Coğrafi Özellikler';
+    const typesDesc = mapInstructionTypes?.join(', ') || 'Konum Mantığı, Harf Özellikleri, Coğrafi Özellikler';
     const regionDesc = emphasizedRegion === 'all' ? 'Tüm Türkiye' : `${emphasizedRegion} Bölgesi`;
 
     const prompt = `
@@ -69,23 +69,23 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     ${getStudentContextPrompt(studentContext)}
     "Harita Dedektifi" (Türkiye Coğrafyası ve Yönerge Takibi) etkinliği oluştur.
     
-    ZORUNLU KISITLAMALAR:
-    - ODAK BÖLGE: ${regionDesc}. SADECE bu bölgedeki şehirleri temel alan sorular hazırla.
-    - YÖNERGE TİPLERİ: ${typesDesc}.
-    - YÖNERGE ADEDİ: Her sayfa için tam ${itemCount || 8} adet.
-    - ZORLUK: ${difficulty}.
+    ZORUNLU KRİTERLER:
+    - ODAK BÖLGE: ${regionDesc}. SADECE bu bölgedeki illeri veya bu bölgeyle ilişkili coğrafi özellikleri temel al.
+    - YÖNERGE TİPLERİ: ${typesDesc} kategorilerinden karma sorular hazırla.
+    - ADET: Her sayfa için tam ${itemCount || 8} adet bağımsız yönerge üret.
+    - ZORLUK: ${difficulty}. 
+      * Başlangıç: "X ilini bul ve kırmızıya boya." tarzı tek aşamalı.
+      * Uzman: "${regionDesc} bölgesinde olup, ismi 'A' ile başlayan ve denize kıyısı olan ili bul, bu ilin hemen doğusundaki komşusuna git ve ismini yaz." tarzı çok katmanlı.
     
-    GÖREV STRATEJİSİ:
-    1. Yönergeler SADECE konum değil, fonolojik ve coğrafi mantık içermeli.
-    2. "Kuzeyinde şu olan, ismi 'A' ile biten ve deniz kıyısı olmayan..." gibi çok katmanlı sorular sor.
-    3. Hayali şehir uydurma, Türkiye'nin gerçek 81 ilini kullan.
-    4. Disleksi dostu, eylem odaklı (Boya, İşaretle, Çiz) emir kipleri kullan.
+    STRATEJİ:
+    1. Hayali şehir uydurma, Türkiye'nin gerçek 81 ilini kullan.
+    2. Disleksi dostu, kısa ve eylem odaklı cümleler kur.
     
     ÇIKTI FORMATI:
-    - title: "Harita Dedektifi"
-    - instruction: Öğrenci motivasyon yönergesi.
-    - pedagogicalNote: Bilişsel faydalar (akademik dil).
-    - instructions: [string array]
+    - title: "Harita Dedektifi: ${regionDesc}"
+    - instruction: Öğrenci için yönlendirici talimat.
+    - pedagogicalNote: Akademik dille eğitsel faydalar.
+    - instructions: [SADECE stringlerden oluşan bir dizi]
     
     SADECE JSON DÖNDÜR.
     `;
@@ -106,7 +106,7 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
 
     const raw = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as any[];
     
-    // Şehir koordinat veritabanını offline'dan al
+    // Şehir koordinat veritabanını offline motordan al (Tutarlılık için)
     const { generateOfflineMapDetective } = await import('../offlineGenerators/mapDetective');
     const base = await generateOfflineMapDetective({ ...options, worksheetCount: 1 });
     
@@ -114,8 +114,8 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
         ...item,
         cities: base[0].cities,
         settings: { 
-            showCityNames: options.showCityNames || false, 
-            markerStyle: options.markerStyle || 'circle', 
+            showCityNames: showCityNames ?? true, 
+            markerStyle: markerStyle ?? 'circle', 
             difficulty 
         }
     }));
