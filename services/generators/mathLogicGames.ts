@@ -58,29 +58,29 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
     } = options;
     
     const modelDesc = {
-        'identity': 'Sayı Kimliği: Bir sayının tek/çift, basamak değerleri ve büyüklük-küçüklük özelliklerine dayalı önermeler.',
-        'exclusion': 'Eleme Mantığı: Verilen seçenekler arasından yanlış olanları eledikten sonra kalan tek doğruyu buldurma.',
-        'sequence': 'Dizi Çıkarımı: Gizli bir kurala göre ilerleyen sayılar arasındaki ilişkiyi bulma.',
-        'cryptarithmetic': 'Şifreli İşlem: Sembollerin veya harflerin temsil ettiği rakamları mantıksal olarak çözme.'
+        'identity': 'Sayı Kimliği (Basamak değeri, tek/çift, aralık)',
+        'exclusion': 'Eleme Mantığı (Şu değildir, şundan küçüktür)',
+        'sequence': 'Dizi İlişkisi (Örüntü kuralı)',
+        'cryptarithmetic': 'Şifreli Mantık (Sembolik karşılık)'
     }[logicModel];
 
     const rule = `
-    [GÖREV]: Üst düzey "Sayısal Muhakeme ve Mantık Bilmeceleri" üret.
-    [ZORLUK]: ${difficulty}
-    [SAYI EVRENİ]: ${numberRange || '1-50'}
-    [MANTIK MODELİ]: ${modelDesc}
-    [İPUCU DERİNLİĞİ]: Her bilmece için tam ${gridSize} adet kesin önerme/ipucu yaz.
-    [SAYFA YAPISI]: Her sayfada ${itemCount} adet bağımsız bento-grid bloğu olmalı.
+    [GÖREV]: Üst düzey "Sayısal Muhakeme" bilmeceleri üret.
+    [İPUCU DERİNLİĞİ]: Her bilmece için TAM OLARAK ${gridSize} adet bağımsız ipucu üret.
     
-    ÖZEL KURALLAR:
-    1. İpuçları "Sadece X değil" veya "X ile Y arasında" gibi disleksi dostu, somut ve mantıksal olmalı.
-    2. Seçenekler birbirine yakın ama tek bir cevap doğru olmalı.
-    3. ${showSumTarget ? "[YÖNETİCİ İŞLEV]: 'sumTarget' alanına sayfadaki tüm doğru cevapların toplamını yaz. Bu, öğrencinin dikkatini tüm sayfaya yaymasını sağlar." : ""}
+    [İPUCU KATEGORİLERİ (Derinliğe göre karma kullan)]:
+    1. Basit Özellik: Tek/Çift olma durumu.
+    2. Aralık: X ile Y arasında olma.
+    3. Rakam Analizi: Rakamları toplamı veya birler basamağı özelliği.
+    4. Kat İlişkisi: X'in katı olma veya X'e bölünme.
+    5. Karşılaştırma: Onluklarından büyük olma, yarısından küçük olma vb.
+
+    [ZORUNLU]: "clues" bir dizi (array) olmalı. Her ipucu kısa, net ve disleksi dostu olmalı.
     
-    ÖNEMLİ: Sadece JSON döndür. Multimodal zekanı kullanarak her bilmece için bir "visualHint" (İngilizce SVG promptu) ekle.
+    [SAYFA HEDEFİ]: ${showSumTarget ? "Tüm doğru cevapların toplamı 'sumTarget' alanına yazılmalıdır." : ""}
     `;
 
-    const prompt = getMathPrompt("Gelişmiş Sayısal Mantık Bilmeceleri", difficulty, rule, studentContext);
+    const prompt = getMathPrompt(`Mantık Bilmeceleri (Model: ${modelDesc})`, difficulty, rule, studentContext);
 
     const schema = {
         type: Type.ARRAY,
@@ -97,14 +97,14 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
                     items: {
                         type: Type.OBJECT,
                         properties: {
-                            riddle: { type: Type.STRING },
+                            clues: { type: Type.ARRAY, items: { type: Type.STRING } },
                             visualHint: { type: Type.STRING },
                             boxes: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
                             options: { type: Type.ARRAY, items: { type: Type.STRING } },
                             answer: { type: Type.STRING },
                             answerValue: { type: Type.INTEGER }
                         },
-                        required: ['riddle', 'boxes', 'options', 'answer', 'answerValue']
+                        required: ['clues', 'boxes', 'options', 'answer', 'answerValue']
                     }
                 }
             },

@@ -59,8 +59,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.VISUAL_MEMORY: return <Memory.VisualMemorySheet data={data} />;
         case ActivityType.CHARACTER_MEMORY: return <Memory.CharacterMemorySheet data={data} />;
         case ActivityType.COLOR_WHEEL_MEMORY: return <Memory.ColorWheelSheet data={data} />;
-        case ActivityType.IMAGE_COMPRE_HENSION:
-        // Fix: Removed ActivityType.IMAGE_COMPRE_HENSION which does not exist on ActivityType enum
+        // Fix: Removed duplicate and incorrect ActivityType.IMAGE_COMPRE_HENSION
         case ActivityType.IMAGE_COMPREHENSION: return <Memory.ImageComprehensionSheet data={data} />;
         case ActivityType.BURDON_TEST: return <Memory.BurdonTestSheet data={data} />;
         case ActivityType.STROOP_TEST: return <Memory.StroopTestSheet data={data} />;
