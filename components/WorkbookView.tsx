@@ -6,6 +6,7 @@ import { worksheetService } from '../services/worksheetService';
 import { useAuth } from '../context/AuthContext';
 import { printService } from '../utils/printService';
 import { Toolbar } from './Toolbar'; 
+import { useStudent } from '../context/StudentContext';
 
 interface WorkbookViewProps {
     items: CollectionItem[];
@@ -92,8 +93,9 @@ const SortablePageItem = React.memo(({
 
 export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, settings, setSettings, onBack }) => {
     const { user } = useAuth();
+    const { students } = useStudent();
     const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
-    const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
+    const [activeTab, setActiveTab] = useState<'content' | 'design' | 'assign'>('content');
     const [isSaving, setIsSaving] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
     
@@ -115,7 +117,6 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         }
     }, [setItems]);
 
-    // HTML5 Drag & Drop Handlers (Memoized)
     const handleDragStart = useCallback((index: number) => {
         setDraggedItemIndex(index);
     }, []);
@@ -171,7 +172,6 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         }
     };
 
-    // Item Edit Logic
     const handleEditItemClick = useCallback((item: CollectionItem) => {
         if (item.itemType === 'divider') {
             setEditingDividerId(item.id);
@@ -216,7 +216,9 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
         setIsSaving(true);
         try {
-            await worksheetService.saveWorkbook(user.id, settings, items);
+            // Find student ID if assigned
+            const assignedStudent = students.find(s => s.name === settings.studentName);
+            await worksheetService.saveWorkbook(user.id, settings, items, assignedStudent?.id);
             alert(`"${settings.title}" başarıyla arşivinize kaydedildi.`);
         } catch (error) {
             console.error("Save failed:", error);
@@ -230,7 +232,6 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         setIsPrinting(true);
         setTimeout(async () => {
             try {
-                // Use a specific selector for workbook pages to catch everything
                 await printService.generatePdf('.workbook-container .worksheet-page', settings.title || 'Kitapcik', { action });
             } catch (error) {
                 console.error("Kitapçık oluşturma hatası:", error);
@@ -249,6 +250,17 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                 setSettings(prev => ({ ...prev, logoUrl: ev.target?.result as string }));
             };
             reader.readAsDataURL(file);
+        }
+    };
+
+    const handleStudentAssign = (sid: string) => {
+        if (sid === 'anonymous') {
+            setSettings(prev => ({ ...prev, studentName: '' }));
+        } else {
+            const s = students.find(x => x.id === sid);
+            if (s) {
+                setSettings(prev => ({ ...prev, studentName: s.name, schoolName: s.learningStyle || prev.schoolName }));
+            }
         }
     };
 
@@ -324,23 +336,45 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                     <div className="w-80 md:w-96 bg-white dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700 flex flex-col z-10 shrink-0">
                         {/* Tabs */}
                         <div className="flex border-b border-zinc-200 dark:border-zinc-700">
-                            <button 
-                                onClick={() => setActiveTab('content')}
-                                className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${activeTab === 'content' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'}`}
-                            >
-                                <i className="fa-solid fa-layer-group"></i> İçerik
-                            </button>
-                            <button 
-                                onClick={() => setActiveTab('design')}
-                                className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${activeTab === 'design' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'}`}
-                            >
-                                <i className="fa-solid fa-paintbrush"></i> Tasarım
-                            </button>
+                            {[
+                                { id: 'content', icon: 'fa-layer-group', label: 'İçerik' },
+                                { id: 'design', icon: 'fa-paintbrush', label: 'Tasarım' },
+                                { id: 'assign', icon: 'fa-user-graduate', label: 'Atama' }
+                            ].map(tab => (
+                                <button 
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id as any)}
+                                    className={`flex-1 py-4 text-xs font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${activeTab === tab.id ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'}`}
+                                >
+                                    <i className={`fa-solid ${tab.icon}`}></i> {tab.label}
+                                </button>
+                            ))}
                         </div>
 
                         {/* Tab Content */}
                         <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
                             
+                            {activeTab === 'assign' && (
+                                <div className="space-y-6 animate-in fade-in">
+                                    <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30">
+                                        <h4 className="text-xs font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                            <i className="fa-solid fa-user-plus"></i> Öğrenci Atama
+                                        </h4>
+                                        <select 
+                                            value={students.find(s => s.name === settings.studentName)?.id || 'anonymous'}
+                                            onChange={(e) => handleStudentAssign(e.target.value)}
+                                            className="w-full p-3 bg-white dark:bg-zinc-800 border border-amber-200 dark:border-amber-700 rounded-xl text-sm font-bold outline-none focus:ring-2 ring-amber-500/20"
+                                        >
+                                            <option value="anonymous">Misafir / Atanmamış</option>
+                                            {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
+                                        </select>
+                                        <p className="text-[10px] text-amber-500 mt-2 italic font-medium leading-tight">
+                                            * Bir öğrenci seçtiğinizde kapak ve sayfa künyeleri otomatik güncellenir.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
                             {activeTab === 'content' && (
                                 <>
                                     <div className="space-y-4">
@@ -406,7 +440,6 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
                             {activeTab === 'design' && (
                                 <>
-                                    {/* Design Controls (Same as before) */}
                                     <div>
                                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Kapak Teması</label>
                                         <div className="grid grid-cols-2 gap-3">
@@ -529,14 +562,14 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
                     {/* Right: Live Preview */}
                     <div className="flex-1 bg-zinc-100 dark:bg-zinc-950 p-8 overflow-auto flex flex-col items-center custom-scrollbar">
-                        <div className="scale-[0.6] sm:scale-[0.7] md:scale-[0.8] origin-top transition-transform duration-300">
+                        <div className="scale-[0.6] sm:scale-[0.7] md:scale-[0.8] lg:scale-[0.9] origin-top transition-transform duration-300">
                             <Workbook items={items} settings={settings} />
                         </div>
                     </div>
                 </div>
             ) : (
                 <div className="flex-1 overflow-auto bg-zinc-200 dark:bg-zinc-950 p-8 flex flex-col items-center custom-scrollbar">
-                     <div>
+                     <div className="animate-in fade-in zoom-in-95 duration-500">
                         <Workbook items={items} settings={settings} />
                      </div>
                 </div>
@@ -566,6 +599,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                 onTogglePreview={() => {}} 
                                 isPreviewMode={false}
                                 isEditMode={false}
+                                worksheetData={[editingItem.data]}
                             />
                         </div>
                         <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-end gap-3 bg-zinc-50 dark:bg-zinc-900">
