@@ -191,8 +191,6 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
 
 export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) => {
     const gridDim = data?.gridDim || 6;
-    // Dinamik Hücre Boyutu: Sayfa genişliğine (yaklaşık 700px içerik alanı) sığması için 
-    // her bir ızgaranın maksimum genişliğini (300px civarı) hedefliyoruz.
     const cellSize = Math.min(35, Math.floor(320 / gridDim));
     const totalSize = gridDim * cellSize;
     const showCoords = data?.showCoordinates;
@@ -206,7 +204,6 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
                 </div>
                 <div className="relative p-1.5 bg-white border-[4px] border-zinc-900 shadow-xl rounded-lg">
                     <svg width={totalSize + offset} height={totalSize + offset} className="overflow-visible">
-                        {/* Grid Background */}
                         <defs>
                             <pattern id={`grid-${isTarget}`} width={cellSize} height={cellSize} patternUnits="userSpaceOnUse">
                                 <rect width={cellSize} height={cellSize} fill="none" stroke="#f1f5f9" strokeWidth="1" />
@@ -214,7 +211,6 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
                         </defs>
                         <rect x={offset} y={offset} width={totalSize} height={totalSize} fill={`url(#grid-${isTarget})`} />
 
-                        {/* Coordinates */}
                         {showCoords && (
                             <g>
                                 {Array.from({ length: gridDim + 1 }).map((_, i) => (
@@ -227,14 +223,12 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
                         )}
 
                         <g transform={`translate(${offset}, ${offset})`}>
-                            {/* Guide Dots */}
                             {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
                                 const r = Math.floor(i / (gridDim + 1));
                                 const c = i % (gridDim + 1);
                                 return <circle key={i} cx={c * cellSize} cy={r * cellSize} r={isTarget ? "2" : "1.5"} className={isTarget ? "fill-zinc-800" : "fill-zinc-200"} />
                             })}
 
-                            {/* Lines */}
                             {(lines || []).map((line, index) => (
                                 line && line.length >= 2 && (
                                     <line
@@ -308,8 +302,8 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
 
 export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ data }) => {
     const gridDim = data?.gridDim || 10;
-    // Dinamik Hücre Boyutu: Tek bir büyük ızgarayı sayfaya ortalayarak sığdırıyoruz.
-    const cellSize = Math.min(30, Math.floor(400 / gridDim));
+    // Dinamik Hücre Boyutu
+    const cellSize = Math.min(35, Math.floor(450 / gridDim));
     const totalSize = gridDim * cellSize;
     const showCoords = data?.showCoordinates;
     const axis = data?.axis || 'vertical';
@@ -321,7 +315,6 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
             
             <div className="flex-1 flex flex-col items-center justify-center py-4">
                 <EditableElement className="relative p-8 bg-[#f8fafc] rounded-[2.5rem] border-4 border-zinc-200 shadow-xl overflow-visible">
-                    {/* Klinik Etiketler */}
                     <div className="absolute -top-3 -left-3 bg-indigo-600 text-white px-4 py-1.5 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg transform -rotate-2 z-20">
                         {axis === 'vertical' ? 'DİKEY SİMETRİ' : 'YATAY SİMETRİ'}
                     </div>
@@ -337,11 +330,9 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
                                         
                                         {showCoords && (
                                             <>
-                                                {/* Yatay Harf Etiketleri (A, B, C...) */}
                                                 <text x={i * cellSize} y="-10" textAnchor="middle" fontSize="9" fontWeight="black" className="fill-zinc-400 font-mono">
                                                     {String.fromCharCode(65 + i)}
                                                 </text>
-                                                {/* Dikey Sayı Etiketleri (1, 2, 3...) */}
                                                 <text x="-10" y={i * cellSize} dominantBaseline="middle" textAnchor="end" fontSize="9" fontWeight="black" className="fill-zinc-400 font-mono">
                                                     {i + 1}
                                                 </text>
@@ -350,14 +341,14 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
                                     </React.Fragment>
                                 ))}
 
-                                {/* Simetri Kılavuz Noktaları (Tüm Grid Üzerinde) */}
+                                {/* Simetri Kılavuz Noktaları */}
                                 {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
                                     const r = Math.floor(i / (gridDim + 1));
                                     const c = i % (gridDim + 1);
                                     return <circle key={i} cx={c * cellSize} cy={r * cellSize} r="1.2" className="fill-zinc-300" />
                                 })}
 
-                                {/* Hazır Çizim Hatları (Referans Taraf) */}
+                                {/* Referans Çizimler */}
                                 {(data?.lines || []).map((l, i) => (
                                     <line 
                                         key={i} 
@@ -375,21 +366,19 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
                                     <circle key={i} cx={dot.x * cellSize} cy={dot.y * cellSize} r="4" fill={dot.color || "#4f46e5"} className="shadow-sm" />
                                 ))}
 
-                                {/* Simetri Ekseni (Kritik Vurgu) */}
+                                {/* Simetri Ekseni */}
                                 {axis === 'vertical' ? (
-                                    <line x1={totalSize / 2} y1="-10" x2={totalSize / 2} y2={totalSize + 10} stroke="#f43f5e" strokeWidth="4" strokeDasharray="8,4" className="drop-shadow-md" />
+                                    <line x1={(gridDim / 2) * cellSize} y1="-10" x2={(gridDim / 2) * cellSize} y2={totalSize + 10} stroke="#f43f5e" strokeWidth="4" strokeDasharray="8,4" className="drop-shadow-md" />
                                 ) : (
-                                    <line x1="-10" y1={totalSize / 2} x2={totalSize + 10} y2={totalSize / 2} stroke="#f43f5e" strokeWidth="4" strokeDasharray="8,4" className="drop-shadow-md" />
+                                    <line x1="-10" y1={(gridDim / 2) * cellSize} x2={totalSize + 10} y2={(gridDim / 2) * cellSize} stroke="#f43f5e" strokeWidth="4" strokeDasharray="8,4" className="drop-shadow-md" />
                                 )}
                             </g>
                         </svg>
 
-                        {/* Köşe Süsleri */}
                         <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-zinc-900 -translate-x-1.5 -translate-y-1.5"></div>
                         <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-zinc-900 translate-x-1.5 translate-y-1.5"></div>
                     </div>
 
-                    {/* Klinik Yönergeler Alt Bilgi */}
                     <div className="mt-6 flex justify-center gap-10 opacity-50">
                         <div className="flex flex-col items-center">
                             <i className="fa-solid fa-compass-drafting text-lg text-zinc-400 mb-1"></i>
@@ -406,7 +395,6 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
                     </div>
                 </EditableElement>
 
-                {/* Geri Bildirim ve Not Alanı */}
                 <div className="mt-8 grid grid-cols-2 gap-8 w-full max-w-2xl border-t border-zinc-100 pt-6">
                     <div className="space-y-3">
                         <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-widest border-b pb-1">Hata Analizi</h4>

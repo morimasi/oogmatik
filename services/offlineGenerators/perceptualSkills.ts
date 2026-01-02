@@ -30,7 +30,7 @@ const generateAbstractPath = (complexity: number) => {
     return d;
 };
 
-// --- VISUAL ODD ONE OUT (PROFESSIONAL ENHANCED) ---
+// --- VISUAL ODD ONE OUT ---
 export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { worksheetCount, itemCount, difficulty, distractionLevel, gridSize, visualType = 'geometric' } = options;
     const results: VisualOddOneOutData[] = [];
@@ -44,7 +44,6 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
             const items: VisualOddOneOutItem[] = [];
             const correctIndex = getRandomInt(0, colCount - 1);
             
-            // Base Item Generator based on visualType
             const createBaseItem = (): VisualOddOneOutItem => {
                 if (visualType === 'character') {
                     const pair = CHARACTER_PAIRS[getRandomInt(0, CHARACTER_PAIRS.length - 1)];
@@ -61,7 +60,6 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
                         ] 
                     };
                 }
-                // Default: Geometric
                 return { svgPaths: [{ d: generateProceduralPolygon(getRandomInt(3, 8)), stroke: "#1e293b", strokeWidth: 3 }] };
             };
 
@@ -70,8 +68,6 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
             for (let j = 0; j < colCount; j++) {
                 if (j === correctIndex) {
                     const oddItem = { ...JSON.parse(JSON.stringify(baseItem)) };
-                    
-                    // Apply distraction logic
                     if (visualType === 'character') {
                         const pair = CHARACTER_PAIRS.find(p => p[0] === baseItem.label);
                         oddItem.label = pair ? pair[1] : (baseItem.label === 'b' ? 'd' : 'b');
@@ -174,7 +170,6 @@ export const generateOfflineGridDrawing = async (options: GeneratorOptions): Pro
         const taskCount = itemCount || 1;
 
         for (let i = 0; i < taskCount; i++) {
-            // Generate a random path within the grid dimension
             const lines = generateConnectedPath(gridSize, complexity);
             drawings.push({
                 lines,
@@ -208,18 +203,64 @@ const getGridInstruction = (mode: string) => {
 };
 
 export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions): Promise<SymmetryDrawingData[]> => {
-    return Array.from({ length: options.worksheetCount }, () => ({
-        title: "Simetri Tamamlama",
-        instruction: "Şeklin ayna görüntüsünü sağ tarafa çizerek tamamla.",
-        pedagogicalNote: "Zihinsel döndürme (mental rotation) ve simetri algısı.",
-        gridDim: options.gridSize || 10,
-        axis: (options.visualType as any) || 'vertical',
-        showCoordinates: options.useSearch || false,
-        isMirrorImage: true,
-        lines: [
-            { x1: 2, y1: 2, x2: 5, y2: 2, color: '#000' },
-            { x1: 5, y1: 2, x2: 5, y2: 8, color: '#000' },
-            { x1: 5, y1: 8, x2: 2, y2: 8, color: '#000' }
-        ]
-    }));
+    const { worksheetCount, difficulty, visualType = 'vertical', gridSize = 10, useSearch } = options;
+    const results: SymmetryDrawingData[] = [];
+
+    const diffLevelMap: Record<string, number> = {
+        'Başlangıç': 3,
+        'Orta': 5,
+        'Zor': 8,
+        'Uzman': 12
+    };
+    const lineCount = diffLevelMap[difficulty] || 5;
+    const axis = (visualType === 'horizontal' ? 'horizontal' : 'vertical') as 'vertical' | 'horizontal';
+
+    for (let p = 0; p < worksheetCount; p++) {
+        const lines: { x1: number, y1: number, x2: number, y2: number, color: string }[] = [];
+        const dots: { x: number, y: number, color: string }[] = [];
+        
+        const dim = gridSize || 10;
+        const half = Math.floor(dim / 2);
+        
+        // Simetri merkezi/ekseni çizgisi dışında kalan alanlarda noktalar üret
+        const getPoint = () => {
+            if (axis === 'vertical') {
+                return { x: getRandomInt(0, half), y: getRandomInt(0, dim) };
+            } else {
+                return { x: getRandomInt(0, dim), y: getRandomInt(0, half) };
+            }
+        };
+
+        let lastPoint = getPoint();
+        dots.push({ ...lastPoint, color: '#4f46e5' });
+
+        for (let i = 0; i < lineCount; i++) {
+            const nextPoint = getPoint();
+            // Aynı noktaya çizgi çekme
+            if (nextPoint.x === lastPoint.x && nextPoint.y === lastPoint.y) continue;
+
+            lines.push({
+                x1: lastPoint.x,
+                y1: lastPoint.y,
+                x2: nextPoint.x,
+                y2: nextPoint.y,
+                color: '#0f172a'
+            });
+            lastPoint = nextPoint;
+        }
+
+        results.push({
+            title: "Simetri Tamamlama",
+            instruction: axis === 'vertical' ? "Şeklin dikey eksene göre ayna görüntüsünü sağ tarafa çizerek tamamla." : "Şeklin yatay eksene göre ayna görüntüsünü alt tarafa çizerek tamamla.",
+            pedagogicalNote: "Zihinsel döndürme (mental rotation), uzamsal akıl yürütme ve simetri algısı becerilerini geliştirir.",
+            gridDim: dim,
+            axis: axis,
+            showCoordinates: useSearch || false,
+            isMirrorImage: true,
+            lines,
+            dots
+        });
+    }
+
+    return results;
 };
