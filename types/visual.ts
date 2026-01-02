@@ -21,7 +21,6 @@ export interface MapInstructionData extends BaseActivityData {
     };
 }
 
-// Added VisualTrackingLineData missing from dyslexiaSupport.ts
 export interface VisualTrackingLineData extends BaseActivityData { 
     width: number; 
     height: number; 
@@ -114,7 +113,6 @@ export interface AnagramsData extends BaseActivityData { anagrams: { word: strin
 export interface WordSearchData extends BaseActivityData { grid: string[][]; words: string[]; hiddenMessage?: string; writingPrompt?: string; }
 export interface CrosswordData extends BaseActivityData { theme: string; grid: (string | null)[][]; clues: any[]; passwordPrompt: string; }
 
-// Added missing data interfaces for logicProblems.ts and dyslexiaSupport.ts
 export interface RomanNumeralConnectData extends BaseActivityData { items: any[]; }
 export interface RomanArabicMatchConnectData extends BaseActivityData { gridDim: number; points: { label: string; pairId: number; x: number; y: number }[]; prompt?: string; }
 export interface WeightConnectData extends BaseActivityData { gridDim: number; points: { label: string; pairId: number; x: number; y: number, imagePrompt: string }[]; prompt?: string; }
@@ -128,7 +126,6 @@ export interface RapidNamingData extends BaseActivityData { type: 'object' | 'co
 export interface LetterDiscriminationData extends BaseActivityData { targetLetters: string[]; rows: { letters: string[] }[]; }
 export interface MissingPartsData extends BaseActivityData { storyWithBlanks: string[]; wordBank: string[]; answers: string[]; }
 
-// Added missing members from memoryAttention generators
 export interface WordMemoryItem {
     text: string;
     imagePrompt?: string;
@@ -235,7 +232,6 @@ export interface ChaoticNumberSearchData extends BaseActivityData {
     range: { start: number; end: number };
 }
 
-// Added missing HiddenPasswordGridData
 export interface HiddenPasswordGridData extends BaseActivityData {
     settings: {
         gridSize: number;
@@ -244,7 +240,7 @@ export interface HiddenPasswordGridData extends BaseActivityData {
         letterCase: 'upper' | 'lower';
     };
     grids: {
-        targetLetter: string;
+        targetLetters: string[]; // Updated for multiple targets
         hiddenWord: string;
         grid: string[][];
     }[];

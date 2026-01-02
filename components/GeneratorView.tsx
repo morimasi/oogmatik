@@ -71,11 +71,13 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
         mode: 'fast',
         difficulty: 'Orta',
         worksheetCount: 1,
-        itemCount: 4,
+        itemCount: 6,
+        gridSize: 5,
+        case: 'upper',
+        variant: 'square',
         numberRange: '1-50',
         logicModel: 'identity',
-        showSumTarget: true,
-        gridSize: 3
+        showSumTarget: true
     });
 
     const handleChange = (key: string, value: any) => {
@@ -83,98 +85,77 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
     };
 
     const renderActivityControls = () => {
-        // --- SAYISAL MANTIK BİLMECELERİ (NUMBER LOGIC RIDDLES) ---
-        if (activity.id === ActivityType.NUMBER_LOGIC_RIDDLES) {
+        // --- GİZLİ ŞİFRE MATRİSİ (HIDDEN PASSWORD GRID) ---
+        if (activity.id === ActivityType.HIDDEN_PASSWORD_GRID) {
             return (
                 <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <CompactToggleGroup 
-                        label="Mantık Kurgusu" 
-                        selected={options.logicModel} 
-                        onChange={(v: string) => handleChange('logicModel', v)} 
-                        options={[
-                            { value: 'identity', label: 'KİMLİK' },
-                            { value: 'exclusion', label: 'ELEME' },
-                            { value: 'sequence', label: 'DİZİ' },
-                            { value: 'cryptarithmetic', label: 'ŞİFRE' }
-                        ]} 
-                    />
-                    
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                             <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Sayı Aralığı</label>
-                             <select 
-                                value={options.numberRange}
-                                onChange={e => handleChange('numberRange', e.target.value)}
-                                className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold"
-                             >
-                                 <option value="1-10">1 - 10 (Okul Öncesi)</option>
-                                 <option value="1-20">1 - 20 (Temel)</option>
-                                 <option value="1-50">1 - 50 (Standart)</option>
-                                 <option value="1-100">1 - 100 (İleri)</option>
-                                 <option value="100-999">100 - 999 (Uzman)</option>
-                             </select>
-                        </div>
                         <CompactSlider 
-                            label="Bilmeceler" 
+                            label="Izgara Boyutu" 
+                            value={options.gridSize} 
+                            onChange={(v:number) => handleChange('gridSize', v)} 
+                            min={3} max={8} step={1} icon="fa-border-all" unit="x" 
+                        />
+                        <CompactSlider 
+                            label="Kelime Sayısı" 
                             value={options.itemCount} 
                             onChange={(v:number) => handleChange('itemCount', v)} 
-                            min={2} max={9} step={1} icon="fa-list-ol" 
+                            min={1} max={12} step={1} icon="fa-list-ol" 
                         />
                     </div>
 
-                    <CompactSlider 
-                        label="İpucu Derinliği" 
-                        value={options.gridSize} 
-                        onChange={(v:number) => handleChange('gridSize', v)} 
-                        min={2} max={5} step={1} icon="fa-brain", unit=" Katman"
+                    <CompactToggleGroup 
+                        label="Harf Tipi" 
+                        selected={options.case} 
+                        onChange={(v: string) => handleChange('case', v)} 
+                        options={[
+                            { value: 'upper', label: 'BÜYÜK HARF' },
+                            { value: 'lower', label: 'küçük harf' }
+                        ]} 
                     />
 
-                    <CheckboxControl 
-                        label="Büyük Toplam Mücadelesi Ekle" 
-                        checked={options.showSumTarget} 
-                        onChange={(v: boolean) => handleChange('showSumTarget', v)} 
+                    <CompactToggleGroup 
+                        label="Görsel Stil" 
+                        selected={options.variant} 
+                        onChange={(v: string) => handleChange('variant', v)} 
+                        options={[
+                            { value: 'square', label: 'KLASİK' },
+                            { value: 'rounded', label: 'YUVARLAK' },
+                            { value: 'minimal', label: 'SADE' }
+                        ]} 
                     />
 
                     <div className="p-3 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
                         <p className="text-[10px] text-indigo-600 dark:text-indigo-400 leading-relaxed font-medium">
                             <i className="fa-solid fa-lightbulb mr-1"></i>
-                            {options.logicModel === 'identity' ? 'Sayının basamak, tek/çift ve miktar özelliklerine dair ipuçları üretilir.' : 
-                             options.logicModel === 'exclusion' ? 'Diğer sayıları eleten kurallarla doğru cevaba ulaşılır.' :
-                             'Seçilen modele göre zihinsel muhakeme tetiklenir.'}
+                            {options.difficulty === 'Uzman' ? 'Uzman modunda birbirine benzeyen (b-d, m-n) harfler çeldirici olarak seçilir.' : 
+                             'Izgara boyutunu artırmak görsel tarama yükünü artırır.'}
                         </p>
                     </div>
                 </div>
             );
         }
 
-        // --- KELİME MİMARİSİ ---
-        if (activity.id === ActivityType.MORPHOLOGICAL_ANALYSIS) {
+        // --- SAYISAL MANTIK BİLMECELERİ ---
+        if (activity.id === ActivityType.NUMBER_LOGIC_RIDDLES) {
             return (
-                <div className="space-y-5">
-                    <CompactToggleGroup 
-                        label="Görsel Stil" 
-                        selected={options.visualStyle || 'architect'} 
-                        onChange={(v: string) => handleChange('visualStyle', v)} 
-                        options={[
-                            { value: 'architect', label: 'MİMARİ' },
-                            { value: 'tree', label: 'AĞAÇ' },
-                            { value: 'blocks', label: 'BLOK' }
-                        ]} 
-                    />
-                    <CompactSlider label="Kök Sayısı" value={options.itemCount || 3} onChange={(v:number) => handleChange('itemCount', v)} min={2} max={5} step={1} icon="fa-list-ol" />
+                <div className="space-y-6">
+                    <CompactToggleGroup label="Mantık Kurgusu" selected={options.logicModel} onChange={(v: string) => handleChange('logicModel', v)} options={[{ value: 'identity', label: 'KİMLİK' }, { value: 'exclusion', label: 'ELEME' }, { value: 'sequence', label: 'DİZİ' }]} />
+                    <div className="grid grid-cols-2 gap-4">
+                         <div className="space-y-2">
+                             <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Sayı Aralığı</label>
+                             <select value={options.numberRange} onChange={e => handleChange('numberRange', e.target.value)} className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold"><option value="1-20">1-20</option><option value="1-50">1-50</option><option value="1-100">1-100</option></select>
+                        </div>
+                        <CompactSlider label="Bilmeceler" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={2} max={9} step={1} icon="fa-list-ol" />
+                    </div>
+                    <CompactSlider label="İpucu Derinliği" value={options.gridSize} onChange={(v:number) => handleChange('gridSize', v)} min={2} max={5} step={1} icon="fa-brain" />
                 </div>
             );
         }
 
-        // --- VARSAYILAN KONTROLLER ---
         return (
             <div className="space-y-5">
-                <CompactSlider 
-                    label="Öğe Adedi" 
-                    value={options.itemCount} 
-                    onChange={(v: number) => handleChange('itemCount', v)} 
-                    min={1} max={30} step={1} icon="fa-list-ol" 
-                />
+                <CompactSlider label="Öğe Adedi" value={options.itemCount} onChange={(v: number) => handleChange('itemCount', v)} min={1} max={30} step={1} icon="fa-list-ol" />
             </div>
         );
     };
@@ -190,7 +171,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
 
     return (
         <div className="flex flex-col h-full overflow-hidden bg-white dark:bg-zinc-900 animate-in slide-in-from-left-4 duration-300">
-            {/* Header */}
             <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-3">
                 <button onClick={onBack} className="w-8 h-8 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-colors flex items-center justify-center">
                     <i className="fa-solid fa-arrow-left"></i>
@@ -201,61 +181,17 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                 </div>
             </div>
 
-            {/* Controls Scroll Area */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
-                
-                <CompactToggleGroup 
-                    label="Üretim Modu" 
-                    selected={options.mode} 
-                    onChange={(v: string) => handleChange('mode', v)} 
-                    options={[
-                        { value: 'fast', label: 'HIZLI (Yerel)' },
-                        { value: 'ai', label: 'AKILLI (Yapay Zeka)' }
-                    ]} 
-                />
-
-                <CompactToggleGroup 
-                    label="Zorluk Seviyesi" 
-                    selected={options.difficulty} 
-                    onChange={(v: string) => handleChange('difficulty', v)} 
-                    options={DIFFICULTY_OPTIONS} 
-                />
-
+                <CompactToggleGroup label="Üretim Modu" selected={options.mode} onChange={(v: string) => handleChange('mode', v)} options={[{ value: 'fast', label: 'HIZLI (Yerel)' }, { value: 'ai', label: 'AKILLI (Yapay Zeka)' }]} />
+                <CompactToggleGroup label="Zorluk Seviyesi" selected={options.difficulty} onChange={(v: string) => handleChange('difficulty', v)} options={DIFFICULTY_OPTIONS} />
                 <div className="pt-4 border-t border-dashed border-zinc-100 dark:border-zinc-800">
                     {renderActivityControls()}
                 </div>
-
-                <div className="pt-4">
-                    <button 
-                        onClick={onOpenStudentModal}
-                        className={`w-full p-4 rounded-2xl border-2 border-dashed transition-all flex items-center gap-3 text-left ${studentProfile ? 'bg-indigo-50/50 border-indigo-200' : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300'}`}
-                    >
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm ${studentProfile ? 'bg-indigo-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'}`}>
-                            <i className="fa-solid fa-user-graduate"></i>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none mb-1">Hedef Öğrenci</p>
-                            <p className={`text-xs font-bold truncate ${studentProfile ? 'text-indigo-900' : 'text-zinc-500'}`}>
-                                {studentProfile?.name || 'Seçilmedi (Anonim)'}
-                            </p>
-                        </div>
-                        <i className="fa-solid fa-chevron-right text-[10px] text-zinc-300"></i>
-                    </button>
-                </div>
             </div>
 
-            {/* Generate Action */}
             <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30">
-                <button 
-                    onClick={() => onGenerate(options)}
-                    disabled={isLoading}
-                    className="w-full py-4 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black font-black rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 transform active:scale-95 disabled:opacity-50"
-                >
-                    {isLoading ? (
-                        <><i className="fa-solid fa-circle-notch fa-spin"></i><span className="uppercase tracking-widest text-xs">Oluşturuluyor...</span></>
-                    ) : (
-                        <><i className="fa-solid fa-wand-magic-sparkles"></i><span className="uppercase tracking-widest text-xs">İçeriği Üret</span></>
-                    )}
+                <button onClick={() => onGenerate(options)} disabled={isLoading} className="w-full py-4 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black font-black rounded-2xl shadow-xl transition-all transform active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3">
+                    {isLoading ? <><i className="fa-solid fa-circle-notch fa-spin"></i><span className="uppercase tracking-widest text-xs">Oluşturuluyor...</span></> : <><i className="fa-solid fa-wand-magic-sparkles"></i><span className="uppercase tracking-widest text-xs">İçeriği Üret</span></>}
                 </button>
             </div>
         </div>
