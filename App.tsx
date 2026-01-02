@@ -540,6 +540,21 @@ const AppContent: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
+                        {/* AKTİF ÖĞRENCİ ROZETİ (GLOBAL) */}
+                        {activeStudent && (
+                            <div 
+                                onClick={() => navigateTo('students')}
+                                className="hidden lg:flex items-center gap-2.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-full cursor-pointer hover:bg-amber-100 transition-all group mr-2"
+                                title="Aktif Öğrenci Profili"
+                            >
+                                <img src={activeStudent.avatar} className="w-6 h-6 rounded-full border border-amber-200" alt="" />
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-black text-amber-700 dark:text-amber-400 leading-none uppercase">{activeStudent.name}</span>
+                                    <span className="text-[8px] font-bold text-amber-600/60 dark:text-amber-500/50 uppercase tracking-tighter">{activeStudent.grade}</span>
+                                </div>
+                            </div>
+                        )}
+
                         <GlobalSearch onSelectActivity={handleSelectActivity} />
                         
                         <div className="flex items-center gap-1 border-r border-[var(--border-color)] pr-2 mx-1">
@@ -722,12 +737,14 @@ const AppContent: React.FC = () => {
     );
 };
 
+// --- EXPORTED APP WRAPPER WITH PROVIDERS ---
+// This fixes the 'App has no exported member' error and ensures context is provided.
 export const App: React.FC = () => {
-  return (
-    <AuthProvider>
-        <StudentProvider>
-          <AppContent />
-        </StudentProvider>
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <StudentProvider>
+                <AppContent />
+            </StudentProvider>
+        </AuthProvider>
+    );
 };

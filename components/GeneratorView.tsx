@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Activity, ActivityType, GeneratorOptions, StudentProfile } from '../types';
 import { DIFFICULTY_OPTIONS } from '../constants';
+import { useStudent } from '../context/StudentContext';
 
 interface GeneratorViewProps {
     activity: Activity;
@@ -116,7 +117,9 @@ const CompactCheckboxGroup = ({ label, selected, onChange, options }: any) => (
     </div>
 );
 
-export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true, onOpenStudentModal, studentProfile }) => {
+export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true, onOpenStudentModal }) => {
+    const { students, activeStudent, setActiveStudent } = useStudent();
+    
     const [options, setOptions] = useState<GeneratorOptions>({
         mode: 'fast',
         difficulty: 'Orta',
@@ -138,6 +141,15 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
         setOptions(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleStudentChange = (id: string) => {
+        if (id === 'anonymous') {
+            setActiveStudent(null);
+        } else {
+            const student = students.find(s => s.id === id);
+            if (student) setActiveStudent(student);
+        }
     };
 
     const renderActivityControls = () => {
@@ -232,7 +244,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             ]}
                             icon="fa-infinity"
                         />
-                        <CompactSlider label="İpucu (Önerme) Sayısı" value={options.gridSize || 3} onChange={(v:number) => handleChange('gridSize', v)} min={2} max={6} icon="fa-list-check" />
+                        <CompactSlider label="İpucu Sayısı" value={options.gridSize || 3} onChange={(v:number) => handleChange('gridSize', v)} min={2} max={6} icon="fa-list-check" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -406,6 +418,24 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             </div>
 
             <div className={`flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0 transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                {/* 1. KISIM: ÖĞRENCİ SEÇİMİ (ZORUNLU) */}
+                <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-[1.5rem] border border-amber-100 dark:border-amber-800/30">
+                    <h4 className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                        <i className="fa-solid fa-user-graduate"></i> Aktif Öğrenci
+                    </h4>
+                    <select 
+                        value={activeStudent?.id || "anonymous"}
+                        onChange={(e) => handleStudentChange(e.target.value)}
+                        className="w-full p-2.5 bg-white dark:bg-zinc-800 border border-amber-200 dark:border-amber-700 rounded-xl text-xs font-bold outline-none focus:ring-2 ring-amber-500/20"
+                    >
+                        <option value="anonymous">Misafir / Atanmamış</option>
+                        {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
+                    </select>
+                    <p className="text-[9px] text-amber-500 mt-2 italic font-medium leading-tight">
+                        * İçerikler öğrencinin tanısına ve gelişim ihtiyacına göre otomatik uyarlanır.
+                    </p>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3 mb-6">
                     <CompactCounter label="Sayfa" value={options.worksheetCount} onChange={(v: number) => handleChange('worksheetCount', v)} min={1} max={10} icon="fa-copy" />
                     <div className="col-span-1">
