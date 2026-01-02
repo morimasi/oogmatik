@@ -70,7 +70,7 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     "Harita Dedektifi" (Türkiye Coğrafyası ve Yönerge Takibi) etkinliği oluştur.
     
     ZORUNLU KRİTERLER:
-    - ODAK BÖLGE: ${regionDesc}. SADECE bu bölgedeki illeri veya bu bölgeyle ilişkili coğrafi özellikleri temel al.
+    - ODAK BÖLGE: ${regionDesc}. SADECE bu bölgedeki illeri veya bu bölgeyle doğrudan ilişkili (komşu vb.) coğrafi özellikleri temel al. 
     - YÖNERGE TİPLERİ: ${typesDesc} kategorilerinden karma sorular hazırla.
     - ADET: Her sayfa için tam ${itemCount || 8} adet bağımsız yönerge üret.
     - ZORLUK: ${difficulty}. 
@@ -80,6 +80,7 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     STRATEJİ:
     1. Hayali şehir uydurma, Türkiye'nin gerçek 81 ilini kullan.
     2. Disleksi dostu, kısa ve eylem odaklı cümleler kur.
+    3. Eğer bir bölge seçildiyse (Örn: Ege), tüm yönergeler Ege bölgesi şehirlerini hedef almalıdır.
     
     ÇIKTI FORMATI:
     - title: "Harita Dedektifi: ${regionDesc}"
@@ -107,8 +108,8 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     const raw = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as any[];
     
     // Şehir koordinat veritabanını offline motordan al (Tutarlılık için)
-    const { generateOfflineMapDetective } = await import('../offlineGenerators/mapDetective');
-    const base = await generateOfflineMapDetective({ ...options, worksheetCount: 1 });
+    const { generateOfflineMapInstruction } = await import('../offlineGenerators/mapDetective');
+    const base = await generateOfflineMapInstruction({ ...options, worksheetCount: 1 });
     
     return raw.map((item: any) => ({
         ...item,

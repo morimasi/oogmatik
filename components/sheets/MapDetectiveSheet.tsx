@@ -18,62 +18,71 @@ const CompassRose = () => (
     </div>
 );
 
-const MapMarker = ({ type, color = "indigo" }: { type: string, color?: string }) => {
+const MapMarker = ({ type }: { type: string }) => {
     switch (type) {
-        case 'star': return <i className="fa-solid fa-star text-indigo-600 text-[10px]"></i>;
-        case 'target': return <i className="fa-solid fa-crosshairs text-indigo-600 text-[10px]"></i>;
+        case 'star': return <i className="fa-solid fa-star text-indigo-600 text-[12px]"></i>;
+        case 'target': return <i className="fa-solid fa-crosshairs text-indigo-600 text-[12px]"></i>;
         case 'dot': return <circle r="4" fill="#000" />;
         case 'none': return null;
         default: return (
             <g>
-                <circle r="8" fill="indigo" fillOpacity="0.1" className="animate-pulse" />
-                <circle r="3" fill="#000" stroke="white" strokeWidth="1" />
+                <circle r="8" fill="indigo" fillOpacity="0.2" className="animate-pulse" />
+                <circle r="4" fill="#000" stroke="white" strokeWidth="1.5" />
             </g>
         );
     }
 };
 
 export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data }) => {
-    // Gerçekçi ve daha güvenilir Türkiye İdari Siyasi Haritası (Wikimedia standardı)
-    const REAL_ADMIN_MAP = "https://upload.wikimedia.org/wikipedia/commons/c/cf/Turkey_administrative_divisions_map.svg";
+    // Yüksek kaliteli ve idari sınırları belirgin Siyasi Türkiye Haritası
+    // Wikimedia'nın en güvenilir ve güncel SVG haritasını kullanıyoruz.
+    const COLOR_POLITICAL_MAP = "https://upload.wikimedia.org/wikipedia/commons/1/12/Turkey_provinces_blank_map.svg";
+    
+    // Eğer kısıtlı şehir varsa bölge odaklı stil uygula
+    const isRegionFocused = data.cities && data.cities.length < 50;
 
     return (
         <div className="flex flex-col h-full bg-white p-2 font-sans text-black overflow-visible">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
             
             {/* HARİTA KANVASI */}
-            <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 group min-h-[400px]">
+            <div className="relative w-full aspect-[1000/500] bg-zinc-50 border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 group min-h-[450px]">
                 
-                {/* Zemin Harita - Siyasi/İdari Katman */}
-                <div className="absolute inset-0 w-full h-full flex items-center justify-center p-6 bg-white z-10">
+                {/* Zemin Harita - Renkli Siyasi Katman */}
+                <div className="absolute inset-0 w-full h-full flex items-center justify-center p-8 bg-white z-10">
                      <img 
-                        src={REAL_ADMIN_MAP} 
-                        alt="Türkiye İdari Haritası" 
+                        src={COLOR_POLITICAL_MAP} 
+                        alt="Türkiye Siyasi Haritası" 
                         crossOrigin="anonymous"
-                        className="w-full h-full object-contain mix-blend-multiply opacity-100 transition-opacity duration-500"
+                        className={`w-full h-full object-contain mix-blend-multiply transition-all duration-700 ${isRegionFocused ? 'scale-110 opacity-70 blur-[0.5px]' : 'opacity-100'}`}
                         onLoad={(e) => {
-                            e.currentTarget.style.opacity = '1';
+                            e.currentTarget.style.opacity = isRegionFocused ? '0.7' : '1';
                         }}
                         onError={(e) => {
-                            // Fallback image in case of Wikimedia link failure
+                            // Link bozulursa fallback olarak simplemaps SVG'sini dene
                             e.currentTarget.src = "https://simplemaps.com/static/svg/tr/tr.svg";
                         }}
                     />
                 </div>
                 
                 {/* Konumsal Overlay (Şehir İşaretçileri ve İsimler) */}
-                <svg viewBox="0 0 1000 500" className="w-full h-full absolute inset-0 z-20 pointer-events-none">
+                <svg viewBox="0 0 1000 500" className="w-full h-full absolute inset-0 z-20 pointer-events-none drop-shadow-md">
                     {(data.cities || []).map((city: any) => (
                         <g key={city.id} transform={`translate(${city.x}, ${city.y})`}>
                             <MapMarker type={data.settings?.markerStyle || 'circle'} />
                             {data.settings?.showCityNames && (
                                 <text 
-                                    y="-12" 
+                                    y="-16" 
                                     textAnchor="middle" 
-                                    fontSize="10" 
+                                    fontSize="12" 
                                     fontWeight="900" 
                                     className="fill-zinc-900 font-sans tracking-tight"
-                                    style={{ paintOrder: 'stroke', stroke: 'white', strokeWidth: '4px', strokeLinejoin: 'round' }}
+                                    style={{ 
+                                        paintOrder: 'stroke', 
+                                        stroke: 'white', 
+                                        strokeWidth: '4px', 
+                                        strokeLinejoin: 'round'
+                                    }}
                                 >
                                     {city.name}
                                 </text>
@@ -81,6 +90,11 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
                         </g>
                     ))}
                 </svg>
+
+                {/* Focus Overlay - Eğer bölge seçiliyse odaklanılan alanı vurgula */}
+                {isRegionFocused && (
+                    <div className="absolute inset-0 z-15 bg-indigo-900/5 pointer-events-none ring-[60px] ring-white/60 ring-inset"></div>
+                )}
 
                 {/* Pusula & Ölçek Araçları */}
                 <div className="absolute bottom-8 right-10 flex items-end gap-10 z-30">
@@ -94,10 +108,10 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
                 </div>
 
                 {/* Lejant (Klinik Analiz İçin) */}
-                <div className="absolute top-8 right-10 bg-white/95 backdrop-blur-md p-4 rounded-2xl border-2 border-zinc-900 shadow-lg space-y-2 z-30 no-print">
+                <div className="absolute top-8 left-10 bg-white/95 backdrop-blur-md p-4 rounded-2xl border-2 border-zinc-900 shadow-lg space-y-2 z-30 no-print">
                     <div className="flex items-center gap-3">
                         <div className="w-3 h-3 rounded-full bg-red-500 shadow-sm"></div>
-                        <span className="text-[9px] font-black uppercase tracking-tight">Büyükşehir</span>
+                        <span className="text-[9px] font-black uppercase tracking-tight">İl Merkezi</span>
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="w-3 h-3 rounded-full bg-sky-400 shadow-sm"></div>
@@ -107,19 +121,19 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
             </div>
 
             {/* YÖNERGE KONTROL MERKEZİ */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 p-8 bg-zinc-50 rounded-[4.5rem] border-2 border-zinc-100 shadow-inner">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 p-8 bg-zinc-50 rounded-[4rem] border-2 border-zinc-100 shadow-inner">
                 {data.instructions.map((inst, i) => (
-                    <EditableElement key={i} className="flex items-start gap-6 p-6 bg-white rounded-[2.5rem] border border-zinc-200 shadow-sm hover:border-indigo-500 hover:shadow-indigo-100 transition-all group cursor-default">
-                        <div className="w-12 h-12 rounded-2xl bg-zinc-900 text-white flex items-center justify-center text-base font-black shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-indigo-600 transition-all">
+                    <EditableElement key={i} className="flex items-start gap-5 p-5 bg-white rounded-[2rem] border border-zinc-200 shadow-sm hover:border-indigo-500 hover:shadow-indigo-100 transition-all group cursor-default">
+                        <div className="w-10 h-10 rounded-2xl bg-zinc-900 text-white flex items-center justify-center text-sm font-black shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-indigo-600 transition-all">
                             {i + 1}
                         </div>
-                        <div className="flex-1 pt-1">
-                            <p className="text-[16px] font-bold text-zinc-800 leading-relaxed tracking-tight">
+                        <div className="flex-1 pt-0.5">
+                            <p className="text-[15px] font-bold text-zinc-800 leading-snug tracking-tight">
                                 <EditableText value={inst} tag="span" />
                             </p>
                         </div>
-                        <div className="w-10 h-10 rounded-2xl border-[3px] border-zinc-100 shrink-0 mt-1 cursor-pointer hover:bg-emerald-500 hover:border-emerald-600 transition-all shadow-inner flex items-center justify-center group/check no-print">
-                            <i className="fa-solid fa-check text-white opacity-0 group-hover/check:opacity-100 text-lg"></i>
+                        <div className="w-9 h-9 rounded-2xl border-[3px] border-zinc-100 shrink-0 mt-0.5 cursor-pointer hover:bg-emerald-500 hover:border-emerald-600 transition-all shadow-inner flex items-center justify-center group/check no-print">
+                            <i className="fa-solid fa-check text-white opacity-0 group-hover/check:opacity-100 text-base"></i>
                         </div>
                     </EditableElement>
                 ))}
@@ -130,19 +144,18 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
                 <div className="flex gap-12">
                      <div className="flex flex-col">
                         <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Kategori</span>
-                        <span className="text-[12px] font-bold text-zinc-800 uppercase">Mekansal Akıl Yürütme</span>
+                        <span className="text-[11px] font-bold text-zinc-800 uppercase">Mekansal Akıl Yürütme</span>
                      </div>
                      <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Zorluk</span>
-                        <span className="text-[12px] font-bold text-indigo-600 uppercase">{data.settings?.difficulty || 'Orta'}</span>
+                        <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Seviye</span>
+                        <span className="text-[11px] font-bold text-indigo-600 uppercase">{data.settings?.difficulty || 'Orta'}</span>
                      </div>
                 </div>
                 <div className="flex flex-col items-end">
-                    <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-[0.5em] mb-1 text-right">Bursa Disleksi AI • Uzman Serisi</p>
+                    <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em] mb-1 text-right">Bursa Disleksi AI • Uzman Serisi</p>
                     <div className="flex gap-4">
-                        <i className="fa-solid fa-brain text-zinc-200"></i>
                         <i className="fa-solid fa-map-location-dot text-zinc-200"></i>
-                        <i className="fa-solid fa-shield-halved text-zinc-200"></i>
+                        <i className="fa-solid fa-brain text-zinc-200"></i>
                     </div>
                 </div>
             </div>

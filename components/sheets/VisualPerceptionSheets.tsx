@@ -191,40 +191,50 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
 
 export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) => {
     const gridDim = data?.gridDim || 6;
-    const cellSize = gridDim > 8 ? 20 : 30;
+    // Dinamik Hücre Boyutu: Sayfa genişliğine (yaklaşık 700px içerik alanı) sığması için 
+    // her bir ızgaranın maksimum genişliğini (300px civarı) hedefliyoruz.
+    const cellSize = Math.min(35, Math.floor(320 / gridDim));
     const totalSize = gridDim * cellSize;
     const showCoords = data?.showCoordinates;
 
     const renderGrid = (lines: [number, number][][] | null, label: string, isTarget: boolean) => {
-        const offset = showCoords ? 25 : 0;
+        const offset = showCoords ? 20 : 0;
         return (
             <div className="flex flex-col items-center group/grid">
-                <span className="mb-4 font-black text-zinc-900 text-[10px] uppercase tracking-widest bg-zinc-100 px-4 py-1.5 rounded-full border border-zinc-200 shadow-sm transition-all group-hover/grid:bg-indigo-600 group-hover/grid:text-white group-hover/grid:border-indigo-700">
+                <div className={`mb-3 px-4 py-1.5 rounded-2xl border-2 font-black text-[9px] uppercase tracking-[0.1em] transition-all shadow-sm ${isTarget ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white text-zinc-500 border-zinc-200 group-hover/grid:border-indigo-400 group-hover/grid:text-indigo-600'}`}>
                     {label}
-                </span>
-                <div className="relative p-1 bg-white border-[4px] border-zinc-900 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)]">
+                </div>
+                <div className="relative p-1.5 bg-white border-[4px] border-zinc-900 shadow-xl rounded-lg">
                     <svg width={totalSize + offset} height={totalSize + offset} className="overflow-visible">
-                        {/* Koordinat Etiketleri */}
+                        {/* Grid Background */}
+                        <defs>
+                            <pattern id={`grid-${isTarget}`} width={cellSize} height={cellSize} patternUnits="userSpaceOnUse">
+                                <rect width={cellSize} height={cellSize} fill="none" stroke="#f1f5f9" strokeWidth="1" />
+                            </pattern>
+                        </defs>
+                        <rect x={offset} y={offset} width={totalSize} height={totalSize} fill={`url(#grid-${isTarget})`} />
+
+                        {/* Coordinates */}
                         {showCoords && (
                             <g>
                                 {Array.from({ length: gridDim + 1 }).map((_, i) => (
                                     <React.Fragment key={i}>
-                                        <text x={i * cellSize + offset} y={offset - 10} textAnchor="middle" fontSize="9" fontWeight="black" className="fill-zinc-400">{String.fromCharCode(65 + i)}</text>
-                                        <text x={offset - 10} y={i * cellSize + offset} dominantBaseline="middle" textAnchor="end" fontSize="9" fontWeight="black" className="fill-zinc-400">{i + 1}</text>
+                                        <text x={i * cellSize + offset} y={offset - 8} textAnchor="middle" fontSize="9" fontWeight="black" className="fill-zinc-400 font-mono">{String.fromCharCode(65 + i)}</text>
+                                        <text x={offset - 8} y={i * cellSize + offset} dominantBaseline="middle" textAnchor="end" fontSize="9" fontWeight="black" className="fill-zinc-400 font-mono">{i + 1}</text>
                                     </React.Fragment>
                                 ))}
                             </g>
                         )}
 
                         <g transform={`translate(${offset}, ${offset})`}>
-                            {/* Kılavuz Noktalar */}
+                            {/* Guide Dots */}
                             {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
                                 const r = Math.floor(i / (gridDim + 1));
                                 const c = i % (gridDim + 1);
-                                return <circle key={i} cx={c * cellSize} cy={r * cellSize} r={isTarget ? "2" : "1.5"} className={isTarget ? "fill-zinc-400" : "fill-zinc-200"} />
+                                return <circle key={i} cx={c * cellSize} cy={r * cellSize} r={isTarget ? "2" : "1.5"} className={isTarget ? "fill-zinc-800" : "fill-zinc-200"} />
                             })}
 
-                            {/* Çizim Hatları */}
+                            {/* Lines */}
                             {(lines || []).map((line, index) => (
                                 line && line.length >= 2 && (
                                     <line
@@ -232,7 +242,7 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
                                         x1={line[0][0] * cellSize} y1={line[0][1] * cellSize}
                                         x2={line[1][0] * cellSize} y2={line[1][1] * cellSize}
                                         className="stroke-zinc-900"
-                                        strokeWidth={gridDim > 8 ? "2" : "3"}
+                                        strokeWidth={Math.max(2, 4 - Math.floor(gridDim / 4))}
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                     />
@@ -247,33 +257,50 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
 
     const getTransformLabel = (mode: string) => {
         switch(mode) {
-            case 'mirror_v': return 'Dikey Ayna';
-            case 'mirror_h': return 'Yatay Ayna';
-            case 'rotate_90': return '90° Dönmüş';
-            case 'rotate_180': return '180° Ters';
-            default: return 'Kopya';
+            case 'mirror_v': return 'DİKEY AYNA';
+            case 'mirror_h': return 'YATAY AYNA';
+            case 'rotate_90': return '90° DÖNÜŞ';
+            case 'rotate_180': return '180° TERS';
+            default: return 'KOPYA MODU';
         }
     }
 
     return (
         <div className="flex flex-col h-full bg-white p-2">
             <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
-            <div className="space-y-16 mt-4 flex-1 content-start">
+            
+            <div className="flex-1 flex flex-col gap-8 py-4">
                 {(data?.drawings || []).map((drawing, index) => (
-                    <EditableElement key={index} className="flex flex-col md:flex-row gap-16 items-center justify-center p-8 bg-zinc-50 rounded-[3rem] border-2 border-zinc-100 break-inside-avoid relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none transform rotate-12"><i className="fa-solid fa-clone text-8xl"></i></div>
-                        {renderGrid(drawing.lines, "Referans Şekil", true)}
-                        <div className="flex flex-col items-center justify-center gap-3 text-zinc-300">
-                             <div className="w-12 h-12 rounded-full border-4 border-zinc-200 flex items-center justify-center text-xl font-black italic">!</div>
-                             <span className="text-[10px] font-black uppercase tracking-tighter text-zinc-400">{getTransformLabel(data.transformMode)}</span>
-                             <i className="fa-solid fa-arrow-right text-2xl animate-pulse"></i>
+                    <EditableElement key={index} className="flex flex-col md:flex-row gap-8 md:gap-12 items-center justify-center p-8 bg-[#fcfcfc] rounded-[3rem] border-2 border-zinc-100 break-inside-avoid relative overflow-hidden group shadow-inner">
+                        <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none transform rotate-12"><i className="fa-solid fa-compass-drafting text-[8rem]"></i></div>
+                        
+                        {renderGrid(drawing.lines, "REFERANS DESEN", true)}
+                        
+                        <div className="flex flex-row md:flex-col items-center justify-center gap-3 text-zinc-300">
+                             <div className="w-12 h-12 rounded-2xl border-[3px] border-zinc-200 flex items-center justify-center text-xl font-black italic shadow-sm bg-white">
+                                 <i className="fa-solid fa-wand-magic-sparkles text-indigo-500 animate-pulse"></i>
+                             </div>
+                             <div className="bg-indigo-600 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-md">
+                                 {getTransformLabel(data.transformMode)}
+                             </div>
+                             <i className="fa-solid fa-arrow-right md:rotate-0 rotate-90 text-2xl text-zinc-200"></i>
                         </div>
-                        {renderGrid(null, "Çizim Alanı", false)}
+
+                        {renderGrid(null, "ÇİZİM ALANI", false)}
                     </EditableElement>
                 ))}
             </div>
-             <div className="mt-auto pt-6 text-center border-t border-zinc-100">
-                <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Uzamsal-Motor Entegrasyon Laboratuvarı</p>
+
+            <div className="mt-auto pt-4 flex justify-between items-center px-10 border-t border-zinc-100">
+                <div className="flex flex-col">
+                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Metodoloji</span>
+                    <span className="text-[10px] font-bold text-zinc-800">CRA (Somuttan Soyuta) Model</span>
+                </div>
+                <p className="text-[7px] text-zinc-300 font-bold uppercase tracking-[0.4em]">Bursa Disleksi AI • Görsel-Uzamsal Laboratuvarı</p>
+                <div className="flex gap-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-200"></div>
+                </div>
             </div>
         </div>
     );
@@ -281,24 +308,25 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
 
 export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ data }) => {
     const gridDim = data?.gridDim || 10;
-    const cellSize = gridDim > 10 ? 20 : 30;
+    // Dinamik Hücre Boyutu: Tek bir büyük ızgarayı sayfaya ortalayarak sığdırıyoruz.
+    const cellSize = Math.min(30, Math.floor(400 / gridDim));
     const totalSize = gridDim * cellSize;
     const showCoords = data?.showCoordinates;
     const axis = data?.axis || 'vertical';
-    const offset = showCoords ? 25 : 10;
+    const offset = showCoords ? 20 : 10;
 
     return (
         <div className="flex flex-col h-full bg-white p-2 font-sans">
             <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
             
-            <div className="flex-1 flex flex-col items-center justify-center py-6">
-                <EditableElement className="relative p-10 bg-[#f8fafc] rounded-[3.5rem] border-4 border-zinc-200 shadow-xl overflow-visible">
+            <div className="flex-1 flex flex-col items-center justify-center py-4">
+                <EditableElement className="relative p-8 bg-[#f8fafc] rounded-[2.5rem] border-4 border-zinc-200 shadow-xl overflow-visible">
                     {/* Klinik Etiketler */}
-                    <div className="absolute -top-4 -left-4 bg-indigo-600 text-white px-5 py-2 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg transform -rotate-3 z-20">
+                    <div className="absolute -top-3 -left-3 bg-indigo-600 text-white px-4 py-1.5 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg transform -rotate-2 z-20">
                         {axis === 'vertical' ? 'DİKEY SİMETRİ' : 'YATAY SİMETRİ'}
                     </div>
 
-                    <div className="bg-white p-4 border-[6px] border-zinc-900 shadow-2xl relative overflow-visible rounded-xl">
+                    <div className="bg-white p-3 border-[5px] border-zinc-900 shadow-2xl relative overflow-visible rounded-lg">
                         <svg width={totalSize + offset * 2} height={totalSize + offset * 2} className="overflow-visible">
                             <g transform={`translate(${offset}, ${offset})`}>
                                 {/* Grid Arka Planı */}
@@ -310,11 +338,11 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
                                         {showCoords && (
                                             <>
                                                 {/* Yatay Harf Etiketleri (A, B, C...) */}
-                                                <text x={i * cellSize} y="-12" textAnchor="middle" fontSize="10" fontWeight="black" className="fill-zinc-400 font-mono">
+                                                <text x={i * cellSize} y="-10" textAnchor="middle" fontSize="9" fontWeight="black" className="fill-zinc-400 font-mono">
                                                     {String.fromCharCode(65 + i)}
                                                 </text>
                                                 {/* Dikey Sayı Etiketleri (1, 2, 3...) */}
-                                                <text x="-12" y={i * cellSize} dominantBaseline="middle" textAnchor="end" fontSize="10" fontWeight="black" className="fill-zinc-400 font-mono">
+                                                <text x="-10" y={i * cellSize} dominantBaseline="middle" textAnchor="end" fontSize="9" fontWeight="black" className="fill-zinc-400 font-mono">
                                                     {i + 1}
                                                 </text>
                                             </>
@@ -326,7 +354,7 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
                                 {Array.from({ length: (gridDim + 1) * (gridDim + 1) }).map((_, i) => {
                                     const r = Math.floor(i / (gridDim + 1));
                                     const c = i % (gridDim + 1);
-                                    return <circle key={i} cx={c * cellSize} cy={r * cellSize} r="1.5" className="fill-zinc-300" />
+                                    return <circle key={i} cx={c * cellSize} cy={r * cellSize} r="1.2" className="fill-zinc-300" />
                                 })}
 
                                 {/* Hazır Çizim Hatları (Referans Taraf) */}
@@ -336,7 +364,7 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
                                         x1={l.x1 * cellSize} y1={l.y1 * cellSize} 
                                         x2={l.x2 * cellSize} y2={l.y2 * cellSize} 
                                         stroke={l.color || "#0f172a"} 
-                                        strokeWidth="4" 
+                                        strokeWidth={Math.max(2, 4 - Math.floor(gridDim / 5))} 
                                         strokeLinecap="round"
                                         className="drop-shadow-sm"
                                     />
@@ -344,69 +372,67 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
 
                                 {/* Referans Noktalar */}
                                 {(data?.dots || []).map((dot, i) => (
-                                    <circle key={i} cx={dot.x * cellSize} cy={dot.y * cellSize} r="5" fill={dot.color || "#4f46e5"} className="shadow-sm" />
+                                    <circle key={i} cx={dot.x * cellSize} cy={dot.y * cellSize} r="4" fill={dot.color || "#4f46e5"} className="shadow-sm" />
                                 ))}
 
                                 {/* Simetri Ekseni (Kritik Vurgu) */}
                                 {axis === 'vertical' ? (
-                                    <line x1={totalSize / 2} y1="-15" x2={totalSize / 2} y2={totalSize + 15} stroke="#f43f5e" strokeWidth="5" strokeDasharray="10,5" className="drop-shadow-md" />
+                                    <line x1={totalSize / 2} y1="-10" x2={totalSize / 2} y2={totalSize + 10} stroke="#f43f5e" strokeWidth="4" strokeDasharray="8,4" className="drop-shadow-md" />
                                 ) : (
-                                    <line x1="-15" y1={totalSize / 2} x2={totalSize + 15} y2={totalSize / 2} stroke="#f43f5e" strokeWidth="5" strokeDasharray="10,5" className="drop-shadow-md" />
+                                    <line x1="-10" y1={totalSize / 2} x2={totalSize + 10} y2={totalSize / 2} stroke="#f43f5e" strokeWidth="4" strokeDasharray="8,4" className="drop-shadow-md" />
                                 )}
                             </g>
                         </svg>
 
                         {/* Köşe Süsleri */}
-                        <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-zinc-900 -translate-x-2 -translate-y-2"></div>
-                        <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-zinc-900 translate-x-2 translate-y-2"></div>
+                        <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-zinc-900 -translate-x-1.5 -translate-y-1.5"></div>
+                        <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-zinc-900 translate-x-1.5 translate-y-1.5"></div>
                     </div>
 
                     {/* Klinik Yönergeler Alt Bilgi */}
-                    <div className="mt-8 flex justify-center gap-12 opacity-50">
+                    <div className="mt-6 flex justify-center gap-10 opacity-50">
                         <div className="flex flex-col items-center">
-                            <i className="fa-solid fa-compass-drafting text-xl text-zinc-400 mb-1"></i>
-                            <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Denge</span>
+                            <i className="fa-solid fa-compass-drafting text-lg text-zinc-400 mb-1"></i>
+                            <span className="text-[7px] font-black uppercase tracking-widest text-zinc-500">Denge</span>
                         </div>
                         <div className="flex flex-col items-center">
-                            <i className="fa-solid fa-eye text-xl text-zinc-400 mb-1"></i>
-                            <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Odak</span>
+                            <i className="fa-solid fa-eye text-lg text-zinc-400 mb-1"></i>
+                            <span className="text-[7px] font-black uppercase tracking-widest text-zinc-500">Odak</span>
                         </div>
                         <div className="flex flex-col items-center">
-                            <i className="fa-solid fa-brain text-xl text-zinc-400 mb-1"></i>
-                            <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Biliş</span>
+                            <i className="fa-solid fa-brain text-lg text-zinc-400 mb-1"></i>
+                            <span className="text-[7px] font-black uppercase tracking-widest text-zinc-500">Biliş</span>
                         </div>
                     </div>
                 </EditableElement>
 
                 {/* Geri Bildirim ve Not Alanı */}
-                <div className="mt-10 grid grid-cols-2 gap-10 w-full max-w-3xl border-t border-zinc-100 pt-8">
-                    <div className="space-y-4">
-                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b pb-1">Hata Analizi</h4>
-                        <div className="space-y-2">
-                             <div className="flex items-center gap-3"><div className="w-4 h-4 rounded border-2 border-zinc-200"></div><span className="text-xs text-zinc-500">Yön Karıştırma (Ayna Hatası)</span></div>
-                             <div className="flex items-center gap-3"><div className="w-4 h-4 rounded border-2 border-zinc-200"></div><span className="text-xs text-zinc-500">Koordinat Kaydırma</span></div>
+                <div className="mt-8 grid grid-cols-2 gap-8 w-full max-w-2xl border-t border-zinc-100 pt-6">
+                    <div className="space-y-3">
+                        <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-widest border-b pb-1">Hata Analizi</h4>
+                        <div className="space-y-1.5">
+                             <div className="flex items-center gap-2"><div className="w-3.5 h-3.5 rounded border border-zinc-200"></div><span className="text-[11px] text-zinc-500">Yön Karıştırma (Ayna Hatası)</span></div>
+                             <div className="flex items-center gap-2"><div className="w-3.5 h-3.5 rounded border border-zinc-200"></div><span className="text-[11px] text-zinc-500">Koordinat Kaydırma</span></div>
                         </div>
                     </div>
-                    <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100">
-                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">Uzman Gözlemi</h4>
-                         <div className="h-20 border-b border-zinc-200 border-dashed"></div>
+                    <div className="bg-zinc-50 rounded-xl p-3 border border-zinc-100">
+                         <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">Uzman Gözlemi</h4>
+                         <div className="h-14 border-b border-zinc-200 border-dashed"></div>
                     </div>
                 </div>
             </div>
 
-            <div className="mt-auto pt-6 flex justify-between items-end border-t border-zinc-100 px-6">
+            <div className="mt-auto pt-4 flex justify-between items-end border-t border-zinc-100 px-6">
                 <p className="text-[7px] text-zinc-300 font-bold uppercase tracking-[0.4em]">Bursa Disleksi AI • Uzamsal-Motor Entegrasyon Laboratuvarı</p>
-                <div className="flex gap-2">
-                     <div className="w-6 h-1 bg-indigo-500 rounded-full"></div>
-                     <div className="w-6 h-1 bg-zinc-200 rounded-full"></div>
-                     <div className="w-6 h-1 bg-zinc-200 rounded-full"></div>
+                <div className="flex gap-1.5">
+                     <div className="w-4 h-1 bg-indigo-500 rounded-full"></div>
+                     <div className="w-4 h-1 bg-zinc-200 rounded-full"></div>
                 </div>
             </div>
         </div>
     );
 };
 
-/* Fix: Added ShapeMatchingSheet component export */
 export const ShapeMatchingSheet = ({ data }: { data: ShapeMatchingData }) => (
     <div className="flex flex-col h-full bg-white p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
@@ -431,7 +457,6 @@ export const ShapeMatchingSheet = ({ data }: { data: ShapeMatchingData }) => (
     </div>
 );
 
-/* Fix: Added FindIdenticalWordSheet component export */
 export const FindIdenticalWordSheet = ({ data }: { data: FindIdenticalWordData }) => (
     <div className="flex flex-col h-full bg-white p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
@@ -450,7 +475,6 @@ export const FindIdenticalWordSheet = ({ data }: { data: FindIdenticalWordData }
     </div>
 );
 
-/* Fix: Added FindDifferentStringSheet component export */
 export const FindDifferentStringSheet = ({ data }: { data: FindDifferentStringData }) => (
     <div className="flex flex-col h-full bg-white p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />

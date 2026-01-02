@@ -106,7 +106,6 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
     return results;
 };
 
-// --- REST OF FILE REMAINS UNCHANGED ---
 export const generateOfflineFindTheDifference = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
     const { worksheetCount, difficulty, findDiffType = 'linguistic', distractionLevel = 'medium', itemCount, gridSize } = options;
     const results: FindTheDifferenceData[] = [];
@@ -159,18 +158,53 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
 };
 
 export const generateOfflineGridDrawing = async (options: GeneratorOptions): Promise<GridDrawingData[]> => {
-    return Array.from({ length: options.worksheetCount }, () => ({
-        title: "Kare Kopyalama",
-        instruction: "Soldaki deseni sağdaki boş ızgaraya aynı şekilde çiz.",
-        pedagogicalNote: "Görsel-uzamsal kopyalama ve motor planlama.",
-        gridDim: options.gridSize || 6,
-        showCoordinates: options.useSearch || false,
-        transformMode: (options.concept as any) || 'copy',
-        drawings: [{
-            lines: PREDEFINED_GRID_PATTERNS.house,
-            complexityLevel: options.difficulty
-        }]
-    }));
+    const { worksheetCount, difficulty, concept, gridSize = 6, itemCount = 1, useSearch } = options;
+    const results: GridDrawingData[] = [];
+
+    const diffLevelMap: Record<string, number> = {
+        'Başlangıç': 1,
+        'Orta': 2,
+        'Zor': 3,
+        'Uzman': 4
+    };
+    const complexity = diffLevelMap[difficulty] || 2;
+
+    for (let p = 0; p < worksheetCount; p++) {
+        const drawings = [];
+        const taskCount = itemCount || 1;
+
+        for (let i = 0; i < taskCount; i++) {
+            // Generate a random path within the grid dimension
+            const lines = generateConnectedPath(gridSize, complexity);
+            drawings.push({
+                lines,
+                complexityLevel: difficulty,
+                title: `Desen ${i + 1}`
+            });
+        }
+
+        results.push({
+            title: "Kare Kopyalama & Dönüşüm",
+            instruction: getGridInstruction(concept as string || 'copy'),
+            pedagogicalNote: "Görsel-uzamsal algı, şekil-zemin ilişkisi ve el-göz koordinasyonu becerilerini destekler.",
+            gridDim: gridSize,
+            showCoordinates: useSearch || false,
+            transformMode: (concept as any) || 'copy',
+            drawings
+        });
+    }
+
+    return results;
+};
+
+const getGridInstruction = (mode: string) => {
+    switch(mode) {
+        case 'mirror_v': return "Soldaki deseni, sağdaki boş ızgaraya dikey aynadaki yansıması olacak şekilde çiz.";
+        case 'mirror_h': return "Üstteki deseni, alttaki boş ızgaraya yatay aynadaki yansıması olacak şekilde çiz.";
+        case 'rotate_90': return "Soldaki deseni, sağdaki boş ızgaraya saat yönünde 90 derece döndürerek çiz.";
+        case 'rotate_180': return "Soldaki deseni, sağdaki boş ızgaraya baş aşağı (180 derece) döndürerek çiz.";
+        default: return "Soldaki deseni sağdaki boş ızgaraya aynı şekilde kopyala.";
+    }
 };
 
 export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions): Promise<SymmetryDrawingData[]> => {

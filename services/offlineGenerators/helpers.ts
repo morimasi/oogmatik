@@ -142,19 +142,33 @@ export const generateSymmetricPattern = (rows: number, cols: number, density: nu
 
 export const generateConnectedPath = (dim: number, complexity: number): [number, number][][] => {
     const lines: [number, number][][] = [];
-    let currentX = getRandomInt(0, dim);
+    let currentX = getRandomInt(0, Math.floor(dim/2));
     let currentY = getRandomInt(0, dim);
-    const steps = Math.min(dim * 4, 6 + complexity * 4);
+    const steps = Math.min(dim * 4, 4 + complexity * 3);
+    
+    const usedPoints = new Set<string>();
+    usedPoints.add(`${currentX},${currentY}`);
+
     for(let i=0; i<steps; i++) {
-        const moves = [{dx: 1, dy: 0}, {dx: -1, dy: 0}, {dx: 0, dy: 1}, {dx: 0, dy: -1}].filter(m => {
+        const moves = [
+            {dx: 1, dy: 0}, {dx: -1, dy: 0}, {dx: 0, dy: 1}, {dx: 0, dy: -1},
+            {dx: 1, dy: 1}, {dx: -1, dy: -1}, {dx: 1, dy: -1}, {dx: -1, dy: 1}
+        ].filter(m => {
             const nx = currentX + m.dx;
             const ny = currentY + m.dy;
+            // Stay within safe bounds (usually left half of grid for copy tasks)
             return nx >= 0 && nx <= dim && ny >= 0 && ny <= dim;
         });
+        
         if(moves.length === 0) break;
         const move = moves[Math.floor(Math.random() * moves.length)];
-        lines.push([[currentX, currentY], [currentX + move.dx, currentY + move.dy]]);
-        currentX += move.dx; currentY += move.dy;
+        const nextX = currentX + move.dx;
+        const nextY = currentY + move.dy;
+        
+        lines.push([[currentX, currentY], [nextX, nextY]]);
+        currentX = nextX; 
+        currentY = nextY;
+        usedPoints.add(`${currentX},${currentY}`);
     }
     return lines;
 };
@@ -206,7 +220,6 @@ export const generateLatinSquare = (n: number): number[][] => {
     return grid[0].map((_, c) => grid.map(r => r[c]));
 };
 
-// Fixed PREDEFINED_GRID_PATTERNS to ensure correct typing of coordinates as tuples
 export const PREDEFINED_GRID_PATTERNS: Record<string, [number, number][][]> = {
     'house': [[[1,4], [1,2]], [[1,2], [3,0]], [[3,0], [5,2]], [[5,2], [5,4]], [[5,4], [1,4]], [[2,4], [2,2]], [[2,2], [4,2]], [[4,2], [4,4]]],
     'boat': [[[1,3], [5,3]], [[1,3], [2,5]], [[5,3], [4,5]], [[2,5], [4,5]], [[3,3], [3,1]], [[3,1], [4,2]], [[4,2], [3,2]]],
