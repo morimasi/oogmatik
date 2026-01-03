@@ -21,10 +21,6 @@ interface SheetRendererProps {
     data: SingleWorksheetData;
 }
 
-/**
- * KLONLANMIŞ İÇERİK RENDERER
- * OCR'dan gelen mimari taslakları görselleştirir.
- */
 const RichContentRenderer = ({ data }: { data: any }) => {
     return (
         <div className="space-y-10 w-full animate-in fade-in duration-700">
@@ -138,7 +134,6 @@ const RichContentRenderer = ({ data }: { data: any }) => {
 export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererProps) => {
     if (!data) return null;
     
-    // Zengin içerik veya OCR sonucu
     if (activityType === ActivityType.AI_WORKSHEET_CONVERTER || activityType === ActivityType.OCR_CONTENT || data.sections) {
         return <RichContentRenderer data={data} />;
     }
@@ -152,6 +147,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
     }
 
     switch (activityType) {
+        case ActivityType.READING_STROOP: return <Reading.ReadingStroopSheet data={data} />;
         case ActivityType.MAP_INSTRUCTION: return <MapDetectiveSheet data={data} />; 
         case ActivityType.HIDDEN_PASSWORD_GRID: return <WordGames.HiddenPasswordGridSheet data={data} />;
         case ActivityType.NUMBER_LOGIC_RIDDLES: return <NumberLogicRiddleSheet data={data} />;

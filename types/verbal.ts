@@ -4,6 +4,22 @@ import { WordSearchData, MissingPartsData } from './visual';
 
 export * from './core';
 
+export interface StroopItem {
+    text: string;
+    color: string;
+    semanticMatch?: boolean; // Renk-Anlam eşleşmesi (örn: "Güneş" -> Sarı)
+}
+
+export interface ReadingStroopData extends BaseActivityData {
+    grid: StroopItem[];
+    settings: {
+        cols: number;
+        fontSize: number;
+        wordType: 'colors' | 'semantic' | 'confusing' | 'shapes' | 'animals' | 'verbs' | 'mirror_chars';
+    };
+    evaluationBox: boolean;
+}
+
 export interface StoryQuestion {
     type: 'multiple-choice' | 'open-ended' | 'true-false' | 'logic' | 'vocabulary' | 'inference' | 'bloom_analysis' | 'bloom_synthesis';
     question: string;
@@ -94,7 +110,6 @@ export interface InteractiveStoryData extends BaseActivityData {
     answers?: any[];
 }
 
-// Proverb Specific Aliases/Interfaces
 export interface ProverbFillData extends MissingPartsData {}
 export interface ProverbSayingSortData extends StoryData {}
 export interface ProverbWordChainData extends StorySequencingData {}
@@ -107,12 +122,8 @@ export interface ReadingStudioConfig {
     topic: string;
     genre: string;
     tone: string;
-    
-    // Text Content Settings
     length: 'short' | 'medium' | 'long' | 'epic';
     textComplexity: 'simple' | 'moderate' | 'advanced';
-    
-    // Typography & Accessibility (Visual Settings)
     fontSettings: {
         family: 'OpenDyslexic' | 'Lexend' | 'Comic Neue' | 'Times New Roman';
         size: number;
@@ -120,37 +131,26 @@ export interface ReadingStudioConfig {
         letterSpacing: number;
         wordSpacing: number;
     };
-
     layoutDensity: 'comfortable' | 'compact';
-    
-    // Image Advanced Controls
     imageGeneration: {
         enabled: boolean;
         style: 'storybook' | 'realistic' | 'cartoon' | 'sketch' | 'watercolor' | '3d_render';
         complexity: 'simple' | 'detailed';
     };
-
-    // Legacy Image Controls (to be deprecated or mapped)
     includeImage: boolean;
     imageSize: number; 
     imagePosition: 'top' | 'left' | 'right' | 'center' | 'background';
     imageOpacity: number;
-    
-    // Bloom Taxonomy Structure
     include5N1K: boolean;
     countMultipleChoice: number;
     countTrueFalse: number;
     countFillBlanks: number;
     countLogic: number;
     countInference: number;
-    
-    // Intervention Modules
     includeWordHunt: boolean;
     includeSpellingCheck: boolean;
     focusVocabulary: boolean;
     includeCreativeTask: boolean;
-    
-    // UI Modules
     showReadingTracker: boolean;
     showSelfAssessment: boolean;
     showTeacherNotes: boolean;
@@ -159,38 +159,29 @@ export interface ReadingStudioConfig {
 
 export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'self_eval' | 'notes';
 
-// Updated for Absolute Positioning Canvas with Deep Customization
 export interface LayoutItemStyle {
-    // Positioning
     x: number;
     y: number;
     w: number;
     h: number;
     rotation?: number; 
     zIndex: number;
-    
-    // Visuals (Box Model)
     backgroundColor?: string;
     borderColor?: string;
     borderWidth?: number;
-    borderStyle?: 'solid' | 'dashed' | 'dotted' | 'double'; // New
+    borderStyle?: 'solid' | 'dashed' | 'dotted' | 'double'; 
     borderRadius?: number;
     boxShadow?: string; 
     opacity?: number;
-    
-    // Padding
     padding: number;
-    
-    // Typography override (Deep customization)
     fontSize?: number;
     fontFamily?: string;
-    fontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter'; // New
+    fontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter'; 
     color?: string;
     textAlign?: 'left' | 'center' | 'right' | 'justify';
-    lineHeight?: number; // New
-    letterSpacing?: number; // New
+    lineHeight?: number; 
+    letterSpacing?: number; 
 
-    // Advanced Image Settings
     imageSettings?: {
         enabled: boolean;
         position: 'top' | 'bottom' | 'left' | 'right' | 'background' | 'overlay';
@@ -209,11 +200,9 @@ export interface LayoutItem {
     icon: string;
     isVisible: boolean;
     style: LayoutItemStyle;
-    // New: Specific data holding for manual overrides (Data Separation)
     specificData?: any; 
 }
 
-// New Logic/Verbal Interfaces
 export interface FamilyRelationsData extends BaseActivityData {
     leftColumn: { text: string; id: number }[];
     rightColumn: { text: string; id: number }[];
@@ -229,7 +218,6 @@ export interface LogicDeductionData extends BaseActivityData {
     }[];
 }
 
-// Added missing data interfaces for dyslexiaSupport.ts and ReadingFlowSheet
 export interface ReadingFlowData extends BaseActivityData { text: { paragraphs: { sentences: { syllables: { text: string }[] }[] }[] }; }
 export interface PhonologicalAwarenessData extends BaseActivityData { exercises: { question: string; word: string }[]; }
 export interface SyllableTrainData extends BaseActivityData { trains: { syllables: string[] }[]; }

@@ -127,7 +127,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         difficulty: 'Orta',
         worksheetCount: 1,
         itemCount: 4,
-        gridSize: 3,
+        gridSize: 4,
         topic: '',
         distractionLevel: 'medium',
         visualType: 'geometric',
@@ -139,7 +139,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         emphasizedRegion: 'all',
         showCityNames: true,
         markerStyle: 'circle',
-        customInput: ''
+        customInput: '',
+        variant: 'colors'
     });
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
@@ -169,6 +170,41 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     };
 
     const renderActivityControls = () => {
+        // --- READING STROOP TEST ---
+        if (activity.id === ActivityType.READING_STROOP) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <CompactSelect 
+                        label="Kelime Tipi" 
+                        value={options.variant || 'colors'} 
+                        onChange={(v:any) => handleChange('variant', v)}
+                        options={[
+                            { value: 'colors', label: 'Renk Adları (Klasik)' },
+                            { value: 'semantic', label: 'Anlamsal (Limon, Deniz)' },
+                            { value: 'confusing', label: 'Çeldiriciler (Mavi-Mani)' },
+                            { value: 'shapes', label: 'Geometrik Şekiller' },
+                            { value: 'animals', label: 'Hayvan İsimleri' },
+                            { value: 'verbs', label: 'Eylem Fiilleri' },
+                            { value: 'mirror_chars', label: 'Ayna Harf Odaklı (b/d)' }
+                        ]}
+                        icon="fa-spell-check"
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactSlider label="Kelime Yoğunluğu" value={options.itemCount || 48} onChange={(v:number) => handleChange('itemCount', v)} min={20} max={80} icon="fa-table-cells" />
+                        <CompactSlider label="Sütun Sayısı" value={options.gridSize || 4} onChange={(v:number) => handleChange('gridSize', v)} min={2} max={6} icon="fa-grip-lines-vertical" />
+                    </div>
+
+                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+                        <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                            <i className="fa-solid fa-stopwatch"></i> Zamanlayıcı Modu
+                        </p>
+                        <p className="text-[10px] text-zinc-500 italic leading-tight">Bu çalışma klinik süre tutma kutusu ile birlikte oluşturulacaktır.</p>
+                    </div>
+                </div>
+            );
+        }
+
         // --- AI WORKSHEET CONVERTER ---
         if (activity.id === ActivityType.AI_WORKSHEET_CONVERTER) {
             return (
@@ -516,7 +552,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             </div>
 
             <div className={`flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0 transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                {/* 1. KISIM: ÖĞRENCİ SEÇİMİ (ZORUNLU) */}
                 <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-[1.5rem] border border-amber-100 dark:border-amber-800/30">
                     <h4 className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
                         <i className="fa-solid fa-user-graduate"></i> Aktif Öğrenci
@@ -524,7 +559,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     <select 
                         value={activeStudent?.id || "anonymous"}
                         onChange={(e) => handleStudentChange(e.target.value)}
-                        className="w-full p-2.5 bg-white dark:bg-zinc-800 border border-amber-200 dark:border-amber-700 rounded-xl text-xs font-bold outline-none focus:ring-2 ring-amber-500/20"
+                        className="w-full p-2.5 bg-white dark:bg-zinc-800 border border-amber-200 dark:border-amber-700 rounded-xl text-sm font-bold outline-none focus:ring-2 ring-amber-500/20"
                     >
                         <option value="anonymous">Misafir / Atanmamış</option>
                         {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
@@ -557,7 +592,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     <button 
                         onClick={() => onGenerate({ ...options, mode: 'ai' })}
                         disabled={isLoading}
-                        className="px-4 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 transform active:scale-95"
+                        className="w-full px-4 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 transform active:scale-95"
                     >
                         <i className="fa-solid fa-wand-magic-sparkles"></i> AI ile Üret (Online)
                     </button>

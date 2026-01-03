@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { 
-    StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, MissingPartsData, InteractiveStoryData
+    StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, MissingPartsData, InteractiveStoryData, ReadingStroopData
 } from '../../types';
 import { ImageDisplay, PedagogicalHeader, ReadingRuler, StoryHighlighter, QUESTION_TYPES } from './common';
 import { EditableElement, EditableText } from '../Editable';
@@ -90,6 +90,59 @@ const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, q
     );
 };
 
+export const ReadingStroopSheet: React.FC<{ data: ReadingStroopData }> = ({ data }) => {
+    const { cols, fontSize } = data.settings;
+
+    return (
+        <div className="flex flex-col h-full w-full bg-white font-lexend text-black relative">
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+            
+            <div 
+                className="flex-1 w-full grid gap-y-12 gap-x-4 mt-8 content-start"
+                style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+            >
+                {(data.grid || []).map((item, idx) => (
+                    <EditableElement key={idx} className="flex justify-center items-center">
+                        <span 
+                            className="font-black tracking-widest uppercase text-center"
+                            style={{ color: item.color, fontSize: `${fontSize}px` }}
+                        >
+                            <EditableText value={item.text} tag="span" />
+                        </span>
+                    </EditableElement>
+                ))}
+            </div>
+
+            {data.evaluationBox && (
+                <div className="mt-auto pt-8 border-t-4 border-zinc-900 break-inside-avoid">
+                    <div className="grid grid-cols-4 gap-4 mb-4">
+                        <div className="p-3 bg-zinc-50 border-2 border-zinc-200 rounded-xl">
+                            <h5 className="text-[10px] font-black text-zinc-400 uppercase mb-2 tracking-widest">SÜRE</h5>
+                            <div className="h-8 border-b border-zinc-300 border-dashed"></div>
+                        </div>
+                        <div className="p-3 bg-zinc-50 border-2 border-zinc-200 rounded-xl">
+                            <h5 className="text-[10px] font-black text-zinc-400 uppercase mb-2 tracking-widest">HATA SAYISI</h5>
+                            <div className="h-8 border-b border-zinc-300 border-dashed"></div>
+                        </div>
+                        <div className="p-3 bg-zinc-50 border-2 border-zinc-200 rounded-xl">
+                            <h5 className="text-[10px] font-black text-zinc-400 uppercase mb-2 tracking-widest">DÜZELTME</h5>
+                            <div className="h-8 border-b border-zinc-300 border-dashed"></div>
+                        </div>
+                        <div className="p-3 bg-indigo-600 text-white border-2 border-indigo-700 rounded-xl shadow-lg">
+                            <h5 className="text-[10px] font-black opacity-80 uppercase mb-2 tracking-widest">PUAN</h5>
+                            <div className="h-8 border-b border-indigo-400 border-dashed"></div>
+                        </div>
+                    </div>
+                    <div className="flex justify-between items-center text-[8px] font-black text-zinc-300 uppercase tracking-[0.4em]">
+                        <span>Bursa Disleksi AI • Bilişsel Performans Analizi</span>
+                        <span>Uzman Gözlemi Gerekir</span>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 export const StoryComprehensionSheet: React.FC<{ data: InteractiveStoryData }> = ({ data }) => {
     return (
         <div className="flex flex-col h-full bg-white relative">
@@ -160,7 +213,6 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data
     </div>
 );
 
-// Added StoryCreationPromptSheet
 export const StoryCreationPromptSheet: React.FC<{ data: StoryCreationPromptData }> = ({ data }) => (
     <div className="space-y-8">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />

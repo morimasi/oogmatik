@@ -1,11 +1,94 @@
 
-import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, MissingPartsData, StoryQuestion } from '../../types';
+import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, MissingPartsData, StoryQuestion, ReadingStroopData } from '../../types';
 import { shuffle, getRandomItems } from './helpers';
 import { COHERENT_STORY_TEMPLATES } from '../../data/sentences';
 
-// --- CORE ENGINE: Coherent Story Builder ---
+const COLORS_LIST = [
+    { name: 'KIRMIZI', hex: '#ef4444' },
+    { name: 'MAVİ', hex: '#3b82f6' },
+    { name: 'YEŞİL', hex: '#22c55e' },
+    { name: 'SARI', hex: '#eab308' },
+    { name: 'MOR', hex: '#a855f7' },
+    { name: 'TURUNCU', hex: '#f97316' },
+    { name: 'PEMBE', hex: '#ec4899' },
+    { name: 'SİYAH', hex: '#1e1e1e' }
+];
+
+const SEMANTIC_WORDS = [
+    { text: 'LİMON', color: '#eab308' },
+    { text: 'DENİZ', color: '#3b82f6' },
+    { text: 'ÇİLEK', color: '#ef4444' },
+    { text: 'ÇİMEN', color: '#22c55e' },
+    { text: 'GECE', color: '#1e1e1e' },
+    { text: 'GÜNEŞ', color: '#eab308' },
+    { text: 'GÖKYÜZÜ', color: '#3b82f6' },
+    { text: 'BULUT', color: '#94a3b8' }
+];
+
+const SHAPE_WORDS = ["KARE", "ÜÇGEN", "DAİRE", "YILDIZ", "ELİPS", "DİKDÖRTGEN", "BEŞGEN"];
+const ANIMAL_WORDS = ["ASLAN", "KEDİ", "KÖPEK", "FİL", "ZÜRAFA", "KAPLAN", "AYI", "TAVŞAN"];
+const VERB_WORDS = ["BAK", "GÖR", "KOŞ", "DUR", "AL", "VER", "OKU", "YAZ", "ZILA"];
+const MIRROR_WORDS = ["BALIK", "DALGA", "POLAT", "OLUK", "BABA", "DADA", "KASA", "MASA"];
+
+export const generateOfflineReadingStroop = async (options: GeneratorOptions): Promise<ReadingStroopData[]> => {
+    const { worksheetCount, itemCount = 48, difficulty, variant = 'colors', gridSize } = options;
+    
+    return Array.from({ length: worksheetCount }, () => {
+        const grid = Array.from({ length: itemCount }).map(() => {
+            let text = "";
+            let baseColorHex = "";
+
+            if (variant === 'semantic') {
+                const base = SEMANTIC_WORDS[Math.floor(Math.random() * SEMANTIC_WORDS.length)];
+                text = base.text;
+                baseColorHex = base.color;
+            } else if (variant === 'shapes') {
+                text = SHAPE_WORDS[Math.floor(Math.random() * SHAPE_WORDS.length)];
+                baseColorHex = "#ffffff"; 
+            } else if (variant === 'animals') {
+                text = ANIMAL_WORDS[Math.floor(Math.random() * ANIMAL_WORDS.length)];
+                baseColorHex = "#ffffff";
+            } else if (variant === 'verbs') {
+                text = VERB_WORDS[Math.floor(Math.random() * VERB_WORDS.length)];
+                baseColorHex = "#ffffff";
+            } else if (variant === 'mirror_chars') {
+                text = MIRROR_WORDS[Math.floor(Math.random() * MIRROR_WORDS.length)];
+                baseColorHex = "#ffffff";
+            } else if (variant === 'confusing') {
+                const pair = [["MAVİ", "MANİ"], ["SARI", "SARI"], ["KARA", "KASA"], ["YEŞİL", "YENİL"]];
+                const selectedPair = pair[Math.floor(Math.random() * pair.length)];
+                text = selectedPair[Math.floor(Math.random() * selectedPair.length)];
+                baseColorHex = "#ffffff";
+            } else {
+                const textObj = COLORS_LIST[Math.floor(Math.random() * COLORS_LIST.length)];
+                text = textObj.name;
+                baseColorHex = textObj.hex;
+            }
+
+            const otherColors = COLORS_LIST.filter(c => c.hex !== baseColorHex);
+            const finalColor = otherColors[Math.floor(Math.random() * otherColors.length)].hex;
+
+            return { text, color: finalColor };
+        });
+
+        return {
+            title: 'Sözel Stroop Efekti Testi',
+            instruction: 'DİKKAT: Kelimeyi okuma! Kelimenin yazıldığı RENGİ yüksek sesle söyle.',
+            pedagogicalNote: 'Dürtü kontrolü, yönetici işlevler ve sözel işlemleme hızını geliştirir.',
+            grid: shuffle(grid),
+            settings: {
+                // Öncelik gridSize, yoksa zorluk seviyesine göre default
+                cols: gridSize || (difficulty === 'Başlangıç' ? 3 : (difficulty === 'Orta' ? 4 : 5)),
+                fontSize: difficulty === 'Başlangıç' ? 32 : (difficulty === 'Orta' ? 24 : 20),
+                wordType: variant as any
+            },
+            evaluationBox: true
+        };
+    });
+};
+
+// ... rest of the file ...
 const buildBaseStory = (difficulty: string) => {
-    // Zorluk seviyesine göre şablon filtrele
     let candidates = COHERENT_STORY_TEMPLATES.filter(t => t.level === difficulty);
     if (candidates.length === 0) candidates = COHERENT_STORY_TEMPLATES;
     
@@ -30,13 +113,11 @@ const buildBaseStory = (difficulty: string) => {
     return { title, story, imagePrompt, chosenValues, template };
 };
 
-// 1. STORY COMPREHENSION (Okuma Anlama - Ana Etkinlik)
 export const generateOfflineStoryComprehension = async (options: GeneratorOptions): Promise<StoryData[]> => {
     const { worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
         const { title, story, imagePrompt, template, chosenValues } = buildBaseStory(difficulty);
         
-        // Soruları oluştur
         const questions: StoryQuestion[] = template.questions.map((qTemp: any) => {
             let qText = qTemp.q;
             Object.keys(chosenValues).forEach(key => {
@@ -59,7 +140,6 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
             };
         });
 
-        // Ekstra Sorular
         questions.push({
             type: 'true-false',
             question: `Bu hikaye ${chosenValues['place'] || 'bir yerde'} geçmektedir.`,
@@ -67,7 +147,6 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
             answer: 'Doğru'
         });
 
-        // Kelime Listesi (Template'den veya varsayılan)
         const vocabulary = template.vocabulary || [
             { word: "Merak", definition: "Bir şeyi öğrenme isteği." },
             { word: "Heyecan", definition: "Coşkulu duygu durumu." }
@@ -89,7 +168,6 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
     });
 };
 
-// 2. STORY CREATION PROMPT (Hikaye Yazma)
 export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptions): Promise<StoryCreationPromptData[]> => {
     const { worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
@@ -112,13 +190,11 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
     });
 };
 
-// 3. WORDS IN STORY (Metin Analizi / Kelime Avı)
 export const generateOfflineWordsInStory = async (options: GeneratorOptions): Promise<WordsInStoryData[]> => {
     const { worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
         const { title, story, imagePrompt, template } = buildBaseStory(difficulty);
         
-        // Template'deki kelimeleri kullan
         const vocabWork = (template.vocabulary || []).map(v => ({
             word: v.word,
             contextQuestion: `"${v.word}" kelimesi metinde ne anlama geliyor?`,
@@ -136,7 +212,6 @@ export const generateOfflineWordsInStory = async (options: GeneratorOptions): Pr
     });
 };
 
-// 4. STORY ANALYSIS (Hikaye Haritası)
 export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): Promise<StoryAnalysisData[]> => {
     const { worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
@@ -158,10 +233,8 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
     });
 };
 
-// 5. STORY SEQUENCING (Olay Sıralama)
 export const generateOfflineStorySequencing = async (options: GeneratorOptions): Promise<StorySequencingData[]> => {
     const { worksheetCount } = options;
-    // Basit sıralama senaryoları
     const sequences = [
         { title: "Tohumun Büyümesi", steps: ["Tohumu ektim.", "Suladım.", "Filizlendi.", "Çiçek açtı."], img: "Plant growth" },
         { title: "Kek Yapımı", steps: ["Malzemeleri karıştırdım.", "Kalıba döktüm.", "Fırında pişirdim.", "Dilimleyip yedim."], img: "Baking cake" },
@@ -189,20 +262,17 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
     });
 };
 
-// 6. MISSING PARTS (Boşluk Doldurma)
 export const generateOfflineMissingParts = async (options: GeneratorOptions): Promise<MissingPartsData[]> => {
     const { worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
         const { title, story, chosenValues, imagePrompt } = buildBaseStory(difficulty);
         
-        // Hikayeden bazı kelimeleri çıkar
         const words = Object.values(chosenValues);
         let maskedStory = story;
         words.forEach(w => {
             maskedStory = maskedStory.replace(w, "_______");
         });
         
-        // Basit bölme (cümle bazlı)
         const parts = maskedStory.split('.').filter(s => s.trim().length > 0).map(s => s.trim() + '.');
 
         return {
@@ -217,7 +287,6 @@ export const generateOfflineMissingParts = async (options: GeneratorOptions): Pr
     });
 };
 
-// Legacy exports for compatibility
 export const generateOfflineProverbFillInTheBlank = async (o: GeneratorOptions) => [] as any;
 export const generateOfflineProverbSayingSort = async (o: GeneratorOptions) => [] as any;
 export const generateOfflineProverbWordChain = async (o: GeneratorOptions) => [] as any;
