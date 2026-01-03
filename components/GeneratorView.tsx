@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Activity, ActivityType, GeneratorOptions, StudentProfile } from '../types';
 import { DIFFICULTY_OPTIONS } from '../constants';
 import { useStudent } from '../context/StudentContext';
@@ -119,6 +119,8 @@ const CompactCheckboxGroup = ({ label, selected, onChange, options }: any) => (
 
 export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true, onOpenStudentModal }) => {
     const { students, activeStudent, setActiveStudent } = useStudent();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploadedImage, setUploadedImage] = useState<string | null>(null);
     
     const [options, setOptions] = useState<GeneratorOptions>({
         mode: 'fast',
@@ -128,7 +130,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         gridSize: 3,
         topic: '',
         distractionLevel: 'medium',
-        visualType: 'identity',
+        visualType: 'geometric',
         logicModel: 'identity',
         numberRange: '1-50',
         findDiffType: 'linguistic',
@@ -136,11 +138,25 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         mapInstructionTypes: ['spatial_logic', 'linguistic_geo', 'attribute_search'],
         emphasizedRegion: 'all',
         showCityNames: true,
-        markerStyle: 'circle'
+        markerStyle: 'circle',
+        customInput: ''
     });
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
         setOptions(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const base64 = ev.target?.result as string;
+                setUploadedImage(base64);
+                handleChange('customInput', base64);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleStudentChange = (id: string) => {
@@ -153,10 +169,63 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     };
 
     const renderActivityControls = () => {
+        // --- AI WORKSHEET CONVERTER ---
+        if (activity.id === ActivityType.AI_WORKSHEET_CONVERTER) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <div 
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full aspect-video border-2 border-dashed border-indigo-200 dark:border-zinc-700 rounded-2xl bg-indigo-50/50 dark:bg-zinc-800/50 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 transition-all group overflow-hidden relative"
+                    >
+                        {uploadedImage ? (
+                            <>
+                                <img src={uploadedImage} className="w-full h-full object-cover opacity-60" alt="Preview" />
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i className="fa-solid fa-rotate text-white text-2xl mb-2"></i>
+                                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Görseli Değiştir</span>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <i className="fa-solid fa-camera-retro text-indigo-400 group-hover:scale-110 transition-transform text-2xl mb-3"></i>
+                                <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Görsel (JPG/PNG) Yükle</span>
+                                <p className="text-[8px] text-zinc-400 mt-2 px-6 text-center">AI bu görseldeki mimariyi analiz edip yepyeni bir varyasyon üretecek.</p>
+                            </>
+                        )}
+                        <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+                    </div>
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700">
+                         <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block">Dönüştürme Notu</label>
+                         <textarea 
+                            value={options.topic} 
+                            onChange={e => handleChange('topic', e.target.value)}
+                            placeholder="AI'ya özel talimat verin (örn: Meyve yerine hayvanları kullan)..."
+                            className="w-full h-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 text-xs outline-none focus:border-indigo-500 resize-none dark:text-zinc-200"
+                        />
+                    </div>
+                </div>
+            );
+        }
+
         // --- HARİTA DEDEKTİFİ ---
         if (activity.id === ActivityType.MAP_INSTRUCTION) {
             return (
                 <div className="space-y-5 animate-in fade-in duration-300">
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <div className="flex flex-col gap-2">
+                            <span className="text-[10px] font-bold text-zinc-500 uppercase">Gerçek Harita Kaynağı (Opsiyonel)</span>
+                            <button 
+                                onClick={() => fileInputRef.current?.click()}
+                                className={`w-full py-2 px-3 rounded-lg border-2 border-dashed text-[10px] font-bold transition-all flex items-center justify-center gap-2 ${uploadedImage ? 'bg-indigo-50 border-indigo-300 text-indigo-700' : 'bg-white border-zinc-200 text-zinc-400 hover:border-indigo-300 hover:text-indigo-500'}`}
+                            >
+                                <i className={`fa-solid ${uploadedImage ? 'fa-check-circle' : 'fa-map'}`}></i>
+                                {uploadedImage ? 'Harita Yüklendi' : 'Ekteki Haritayı Kullan'}
+                            </button>
+                            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+                        </div>
+                    </div>
+
                     <CompactSelect 
                         label="Odak Bölge" 
                         value={options.emphasizedRegion} 
@@ -208,6 +277,39 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             ]}
                             icon="fa-location-dot"
                         />
+                    </div>
+                </div>
+            );
+        }
+
+        // --- ALGORITHM GENERATOR ---
+        if (activity.id === ActivityType.ALGORITHM_GENERATOR) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <div>
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block">Problem Senaryosu</label>
+                        <input 
+                            type="text" 
+                            value={options.topic} 
+                            onChange={e => handleChange('topic', e.target.value)}
+                            placeholder="Örn: Kek yapımı, Okula hazırlık..."
+                            className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none focus:border-indigo-500 dark:text-zinc-200"
+                        />
+                    </div>
+                    
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactSlider label="Adım Sayısı" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={5} max={10} icon="fa-list-ol" />
+                        <div className="flex flex-col gap-2">
+                            <span className="text-[10px] font-bold text-zinc-500 uppercase">Görsel Kaynak (Opsiyonel)</span>
+                            <button 
+                                onClick={() => fileInputRef.current?.click()}
+                                className={`w-full py-2 px-3 rounded-lg border-2 border-dashed text-[10px] font-bold transition-all flex items-center justify-center gap-2 ${uploadedImage ? 'bg-indigo-50 border-indigo-300 text-indigo-700' : 'bg-white border-zinc-200 text-zinc-400 hover:border-indigo-300 hover:text-indigo-500'}`}
+                            >
+                                <i className={`fa-solid ${uploadedImage ? 'fa-check-circle' : 'fa-camera'}`}></i>
+                                {uploadedImage ? 'Mantık Analiz Edilecek' : 'Görselden Klonla'}
+                            </button>
+                            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+                        </div>
                     </div>
                 </div>
             );
@@ -451,8 +553,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                 <div className="mt-8 space-y-3">
                     <button 
                         onClick={() => onGenerate({ ...options, mode: 'fast' })}
-                        disabled={isLoading}
-                        className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 border border-zinc-200 dark:border-zinc-700"
+                        disabled={isLoading || (activity.id === ActivityType.AI_WORKSHEET_CONVERTER)}
+                        className={`w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 border border-zinc-200 dark:border-zinc-700 ${activity.id === ActivityType.AI_WORKSHEET_CONVERTER ? 'hidden' : ''}`}
                     >
                         <i className="fa-solid fa-bolt"></i> Hızlı Üret (Offline)
                     </button>

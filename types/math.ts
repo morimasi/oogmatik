@@ -169,18 +169,6 @@ export interface ShapeSudokuData extends BaseActivityData {
     }[];
 }
 
-export interface BasicOperationsData extends BaseActivityData {
-    isVertical?: boolean;
-    operations: {
-        num1: number;
-        num2: number;
-        num3?: number;
-        operator: string;
-        answer: number;
-        remainder?: number;
-    }[];
-}
-
 export interface RealLifeProblemData extends BaseActivityData {
     problems: {
         text: string;

@@ -93,7 +93,8 @@ export const statsService = {
                 ActivityType.FIND_THE_DIFFERENCE,
                 ActivityType.NUMBER_SEARCH,
                 ActivityType.READING_FLOW,
-                ActivityType.BASIC_OPERATIONS
+                // Fix: Changed non-existent ActivityType.BASIC_OPERATIONS to ActivityType.REAL_LIFE_MATH_PROBLEMS
+                ActivityType.REAL_LIFE_MATH_PROBLEMS
             ].filter(id => !result.find(r => r.id === id));
 
             defaults.forEach(defId => {

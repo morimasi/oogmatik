@@ -155,7 +155,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.MAP_INSTRUCTION: return <MapDetectiveSheet data={data} />; 
         case ActivityType.HIDDEN_PASSWORD_GRID: return <WordGames.HiddenPasswordGridSheet data={data} />;
         case ActivityType.NUMBER_LOGIC_RIDDLES: return <NumberLogicRiddleSheet data={data} />;
-        case ActivityType.BASIC_OPERATIONS: return <MathLogic.BasicOperationsSheet data={data} />;
         case ActivityType.REAL_LIFE_MATH_PROBLEMS: return <MathLogic.RealLifeMathProblemsSheet data={data} />;
         case ActivityType.MATH_PUZZLE: return <MathLogic.MathPuzzleSheet data={data} />;
         case ActivityType.NUMBER_PATTERN: return <MathLogic.NumberPatternSheet data={data} />;

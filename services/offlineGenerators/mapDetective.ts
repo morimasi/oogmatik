@@ -36,7 +36,7 @@ const CALIBRATED_CITIES = [
 ];
 
 export const generateOfflineMapInstruction = async (options: GeneratorOptions): Promise<MapInstructionData[]> => {
-    const { worksheetCount, difficulty, itemCount, mapInstructionTypes, showCityNames, markerStyle, emphasizedRegion } = options;
+    const { worksheetCount, difficulty, itemCount, mapInstructionTypes, showCityNames, markerStyle, emphasizedRegion, customInput } = options;
     const results: MapInstructionData[] = [];
 
     // 1. Odak Bölgeye Göre Şehir Havuzunu Filtrele
@@ -45,7 +45,6 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
         ? CALIBRATED_CITIES.filter(c => c.region === emphasizedRegion)
         : CALIBRATED_CITIES;
 
-    // Eğer filtreleme sonucu boşsa tüm listeyi kullan
     const safeCityPool = cityPool.length > 0 ? cityPool : CALIBRATED_CITIES;
 
     // 2. Aktif Yönerge Tiplerini Belirle
@@ -55,9 +54,7 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
 
     const getAdvancedRule = () => {
         const type = getRandomItems(activeTypes, 1)[0];
-        // Yönerge üretirken seçilen bölgeden bir şehir al (Bölge Ayarı İşlevi)
         const randomCity = safeCityPool[getRandomInt(0, safeCityPool.length - 1)];
-
         const isAdvanced = difficulty === 'Zor' || difficulty === 'Uzman';
 
         if (type === 'spatial_logic') {
@@ -114,7 +111,7 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
             title: `Harita Dedektifi: ${emphasizedRegion === 'all' ? 'Türkiye' : emphasizedRegion + ' Bölgesi'} Analizi`,
             instruction: `${difficulty} Seviyesi: Haritadaki şehirleri ve bölgeleri inceleyerek yönergeleri hatasız uygula.`,
             pedagogicalNote: `Bu çalışma; görsel tarama, uzamsal konumlandırma ve yönerge takip becerilerini ${difficulty} düzeyinde tetikler.`,
-            // Eğer bölge seçiliyse sadece o bölgedeki markerları göster, değilse tümünü göster
+            imageBase64: customInput, // KULLANICI GÖRSELİNİ AKTAR
             cities: isRegionFocused ? safeCityPool.map(c => ({ ...c })) : CALIBRATED_CITIES.map(c => ({ ...c })),
             instructions,
             settings: {

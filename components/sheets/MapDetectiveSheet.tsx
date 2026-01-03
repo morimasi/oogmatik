@@ -34,11 +34,10 @@ const MapMarker = ({ type }: { type: string }) => {
 };
 
 export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data }) => {
-    // Yüksek kaliteli ve idari sınırları belirgin Siyasi Türkiye Haritası
-    // Wikimedia'nın en güvenilir ve güncel SVG haritasını kullanıyoruz.
-    const COLOR_POLITICAL_MAP = "https://upload.wikimedia.org/wikipedia/commons/1/12/Turkey_provinces_blank_map.svg";
+    // Priority: Custom uploaded map image > Wikimedia fallback
+    const isCustomMap = !!data.imageBase64;
+    const COLOR_POLITICAL_MAP = data.imageBase64 || "https://upload.wikimedia.org/wikipedia/commons/1/12/Turkey_provinces_blank_map.svg";
     
-    // Eğer kısıtlı şehir varsa bölge odaklı stil uygula
     const isRegionFocused = data.cities && data.cities.length < 50;
 
     return (
@@ -46,22 +45,16 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
             
             {/* HARİTA KANVASI */}
-            <div className="relative w-full aspect-[1000/500] bg-zinc-50 border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 group min-h-[450px]">
+            <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 group min-h-[450px]">
                 
                 {/* Zemin Harita - Renkli Siyasi Katman */}
                 <div className="absolute inset-0 w-full h-full flex items-center justify-center p-8 bg-white z-10">
                      <img 
                         src={COLOR_POLITICAL_MAP} 
-                        alt="Türkiye Siyasi Haritası" 
-                        crossOrigin="anonymous"
-                        className={`w-full h-full object-contain mix-blend-multiply transition-all duration-700 ${isRegionFocused ? 'scale-110 opacity-70 blur-[0.5px]' : 'opacity-100'}`}
-                        onLoad={(e) => {
-                            e.currentTarget.style.opacity = isRegionFocused ? '0.7' : '1';
-                        }}
-                        onError={(e) => {
-                            // Link bozulursa fallback olarak simplemaps SVG'sini dene
-                            e.currentTarget.src = "https://simplemaps.com/static/svg/tr/tr.svg";
-                        }}
+                        alt="Türkiye Haritası" 
+                        // Base64 images don't need crossOrigin. URL fallbacks might.
+                        crossOrigin={isCustomMap ? undefined : "anonymous"}
+                        className={`w-full h-full object-contain mix-blend-multiply transition-all duration-700 ${isRegionFocused ? 'scale-110 opacity-80 blur-[0.3px]' : 'opacity-100'}`}
                     />
                 </div>
                 
@@ -91,7 +84,7 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
                     ))}
                 </svg>
 
-                {/* Focus Overlay - Eğer bölge seçiliyse odaklanılan alanı vurgula */}
+                {/* Focus Overlay */}
                 {isRegionFocused && (
                     <div className="absolute inset-0 z-15 bg-indigo-900/5 pointer-events-none ring-[60px] ring-white/60 ring-inset"></div>
                 )}
@@ -107,7 +100,7 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
                     </div>
                 </div>
 
-                {/* Lejant (Klinik Analiz İçin) */}
+                {/* Lejant */}
                 <div className="absolute top-8 left-10 bg-white/95 backdrop-blur-md p-4 rounded-2xl border-2 border-zinc-900 shadow-lg space-y-2 z-30 no-print">
                     <div className="flex items-center gap-3">
                         <div className="w-3 h-3 rounded-full bg-red-500 shadow-sm"></div>
@@ -122,7 +115,7 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
 
             {/* YÖNERGE KONTROL MERKEZİ */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 p-8 bg-zinc-50 rounded-[4rem] border-2 border-zinc-100 shadow-inner">
-                {data.instructions.map((inst, i) => (
+                {(data.instructions || []).map((inst, i) => (
                     <EditableElement key={i} className="flex items-start gap-5 p-5 bg-white rounded-[2rem] border border-zinc-200 shadow-sm hover:border-indigo-500 hover:shadow-indigo-100 transition-all group cursor-default">
                         <div className="w-10 h-10 rounded-2xl bg-zinc-900 text-white flex items-center justify-center text-sm font-black shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-indigo-600 transition-all">
                             {i + 1}
@@ -139,7 +132,6 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
                 ))}
             </div>
 
-            {/* PROFESYONEL ALT BİLGİ */}
             <div className="mt-auto pt-10 flex justify-between items-center px-10 border-t border-zinc-100">
                 <div className="flex gap-12">
                      <div className="flex flex-col">

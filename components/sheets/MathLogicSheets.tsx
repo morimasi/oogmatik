@@ -5,30 +5,10 @@ import {
     NumberCapsuleData, OddEvenSudokuData, RomanNumeralStarHuntData, RoundingConnectData, ArithmeticConnectData, RomanNumeralMultiplicationData,
     KendokuData, OperationSquareFillInData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, VisualNumberPatternData,
     LogicGridPuzzleData, ShapeNumberPatternData, ShapeCountingData, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData,
-    BasicOperationsData, RealLifeProblemData
+    RealLifeProblemData
 } from '../../types';
 import { CagedGridSvg, GridComponent, ImageDisplay, PedagogicalHeader } from './common';
 import { EditableElement, EditableText } from '../Editable';
-
-export const BasicOperationsSheet: React.FC<{ data: BasicOperationsData }> = ({ data }) => (
-    <div className="flex flex-col">
-        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
-        <div className="dynamic-grid mt-2">
-            {(data?.operations || []).map((op, index) => (
-                <EditableElement key={index} className="flex flex-col items-end text-xl font-mono font-bold break-inside-avoid p-4 border border-zinc-200 rounded-lg item-card bg-white shadow-sm justify-center">
-                    <div className="mr-2"><EditableText value={op?.num1} tag="span" /></div>
-                    <div className="flex items-center w-full justify-end gap-1 mr-2 relative">
-                        <span className="absolute left-0 text-lg"><EditableText value={op?.operator} tag="span" /></span>
-                        <div><EditableText value={op?.num2} tag="span" /></div>
-                    </div>
-                    {op?.num3 !== undefined && <div className="mr-2"><EditableText value={op?.num3} tag="span" /></div>}
-                    <div className="w-full border-b-2 border-black my-1"></div>
-                    <div className="h-8 w-full border border-dashed border-zinc-400 text-center text-zinc-400"><EditableText value="" tag="span" placeholder="?" /></div>
-                </EditableElement>
-            ))}
-        </div>
-    </div>
-);
 
 export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> = ({ data }) => (
     <div className="flex flex-col">

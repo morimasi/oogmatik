@@ -42,12 +42,6 @@ export const ACTIVITIES: Activity[] = [
         icon: 'fa-solid fa-brain-circuit'
     },
     {
-        id: ActivityType.BASIC_OPERATIONS,
-        title: 'Dört İşlem Alıştırması',
-        description: 'Toplama, çıkarma, çarpma ve bölme becerilerini geliştiren özelleştirilebilir alıştırmalar.',
-        icon: 'fa-solid fa-calculator'
-    },
-    {
         id: ActivityType.MATH_PUZZLE,
         title: 'Matematik Bulmacaları',
         description: 'Görsel öğelerle desteklenmiş eğlenceli matematik problemleri.',
@@ -122,7 +116,6 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         icon: 'fa-solid fa-calculator',
         activities: [
             ActivityType.NUMBER_LOGIC_RIDDLES,
-            ActivityType.BASIC_OPERATIONS, 
             ActivityType.MATH_PUZZLE, 
             ActivityType.NUMBER_PATTERN,
             ActivityType.KENDOKU,

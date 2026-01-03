@@ -5,6 +5,7 @@ export * from './core';
 
 export interface MapInstructionData extends BaseActivityData {
     mapSvg?: string;
+    imageBase64?: string; // New field for custom JPG/PNG maps
     cities: { 
         name: string; 
         x: number; 
