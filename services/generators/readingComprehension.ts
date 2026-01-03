@@ -1,13 +1,77 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, StoryData, ReadingStroopData } from '../../types';
+import { GeneratorOptions, StoryData, ReadingStroopData, SynonymAntonymMatchData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 [ROL: KIDEMLİ ÖZEL EĞİTİM UZMANI & PSİKOMETRİST]
 Amaç: Disleksik çocuklarda dürtü kontrolü, odaklanma ve sözel enterferans (karışma) direncini artırmak.
 Tasarım: Sözel Stroop Testi (Verbal Stroop) bir A4 sayfasını dolduracak yoğunlukta olmalıdır.
 `;
+
+export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOptions): Promise<SynonymAntonymMatchData[]> => {
+    const { difficulty, worksheetCount, variant = 'mixed', itemCount = 6 } = options;
+    
+    const modeDesc = variant === 'synonym' ? 'Sadece Eş Anlamlılar' : variant === 'antonym' ? 'Sadece Zıt Anlamlılar' : 'Eş ve Zıt Anlamlı Karışık';
+    
+    const prompt = `
+    [ROL: UZMAN EĞİTİM MATERYALİ TASARIMCISI]
+    GÖREV: "${difficulty}" seviyesinde, disleksi dostu bir "Eş ve Zıt Anlamlı Kelime Bulmacası" oluştur.
+    MOD: ${modeDesc}
+    ADET: ${itemCount} çift kelime ve ${Math.min(4, itemCount)} adet bağlamsal cümle.
+
+    KURALLAR:
+    1. Kelimeler somut ve disleksik bireylerin kelime dağarcığını geliştirecek nitelikte seçilmeli.
+    2. "pairs" listesi: Bir kaynak kelime ve onun hedef (eş veya zıt) anlamlısını içermeli.
+    3. Her çift için "imagePrompt" (İngilizce, sevimli illüstrasyon tarzı) ekle.
+    4. "sentences" listesi: Kelimenin cümle içindeki kullanımını ve parantez içinde bizden ne istendiğini belirt (örn: "(Zıt Anlamlısını Yaz)").
+    5. Pedagojik Not: Disleksi gelişimini nasıl desteklediğini teknik ama anlaşılır açıkla.
+
+    ÇIKTI: JSON.
+    `;
+
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                mode: { type: Type.STRING },
+                pairs: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            source: { type: Type.STRING },
+                            target: { type: Type.STRING },
+                            type: { type: Type.STRING },
+                            imagePrompt: { type: Type.STRING }
+                        },
+                        required: ['source', 'target', 'type', 'imagePrompt']
+                    }
+                },
+                sentences: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            text: { type: Type.STRING },
+                            word: { type: Type.STRING },
+                            target: { type: Type.STRING },
+                            type: { type: Type.STRING }
+                        },
+                        required: ['text', 'word', 'target', 'type']
+                    }
+                }
+            },
+            required: ['title', 'instruction', 'pairs', 'sentences']
+        }
+    };
+
+    return await generateWithSchema(prompt, schema) as Promise<SynonymAntonymMatchData[]>;
+};
 
 export const generateReadingStroopFromAI = async (options: GeneratorOptions): Promise<ReadingStroopData[]> => {
     const { difficulty, worksheetCount, itemCount = 40, variant } = options;

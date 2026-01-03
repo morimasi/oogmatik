@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { 
-    StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, MissingPartsData, InteractiveStoryData, ReadingStroopData
+    StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, MissingPartsData, InteractiveStoryData, ReadingStroopData, SynonymAntonymMatchData
 } from '../../types';
 import { ImageDisplay, PedagogicalHeader, ReadingRuler, StoryHighlighter, QUESTION_TYPES } from './common';
 import { EditableElement, EditableText } from '../Editable';
@@ -85,6 +85,77 @@ const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, q
                         )}
                     </div>
                 ))}
+            </div>
+        </div>
+    );
+};
+
+export const SynonymAntonymMatchSheet: React.FC<{ data: SynonymAntonymMatchData }> = ({ data }) => {
+    const shuffledTargets = [...data.pairs].sort(() => Math.random() - 0.5);
+
+    return (
+        <div className="flex flex-col h-full bg-white font-lexend text-black relative">
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+            
+            {/* Eşleştirme Alanı */}
+            <div className="grid grid-cols-2 gap-x-20 gap-y-6 mt-6 pb-8 border-b-2 border-zinc-100">
+                <div className="space-y-4">
+                    <h5 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-4">KELİMELER</h5>
+                    {data.pairs.map((pair, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-3 border-2 border-zinc-800 rounded-2xl bg-zinc-50 relative group">
+                            <span className="font-black text-lg uppercase"><EditableText value={pair.source} tag="span" /></span>
+                            <div className="w-4 h-4 rounded-full border-2 border-zinc-800 bg-white absolute -right-2 top-1/2 -translate-y-1/2 group-hover:bg-indigo-500 transition-colors"></div>
+                            {pair.imagePrompt && (
+                                <div className="w-8 h-8 absolute -left-4 -top-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                     <ImageDisplay prompt={pair.imagePrompt} className="w-full h-full" />
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+                <div className="space-y-4">
+                    <h5 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-4">ANLAMLAR</h5>
+                    {shuffledTargets.map((pair, idx) => (
+                        <div key={idx} className="flex items-center justify-start p-3 border-2 border-zinc-200 border-dashed rounded-2xl bg-white relative group hover:border-emerald-500 transition-all">
+                            <div className="w-4 h-4 rounded-full border-2 border-zinc-200 bg-white absolute -left-2 top-1/2 -translate-y-1/2 group-hover:bg-emerald-500 group-hover:border-emerald-500 transition-colors"></div>
+                            <span className="font-bold text-lg uppercase ml-4 text-zinc-500 group-hover:text-zinc-900"><EditableText value={pair.target} tag="span" /></span>
+                            <span className="ml-auto text-[8px] font-black text-zinc-300 uppercase">{pair.type === 'synonym' ? 'Eş' : 'Zıt'}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Cümle Tamamlama Alanı */}
+            <div className="mt-8 space-y-6">
+                <h5 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">BAĞLAMDA KULLANIM</h5>
+                {data.sentences.map((sent, idx) => (
+                    <EditableElement key={idx} className="p-4 bg-indigo-50/30 border-l-4 border-indigo-500 rounded-r-2xl">
+                         <p className="text-lg leading-relaxed italic text-zinc-800">
+                             {sent.text.split('_______').map((part, i, arr) => (
+                                 <React.Fragment key={i}>
+                                     {part}
+                                     {i < arr.length - 1 && (
+                                         <span className="inline-block min-w-[120px] border-b-2 border-dashed border-indigo-400 mx-1 px-2 text-transparent select-none bg-white/50 rounded-t">..........</span>
+                                     )}
+                                 </React.Fragment>
+                             ))}
+                         </p>
+                         <div className="mt-2 flex items-center gap-2">
+                             <span className="text-[10px] font-black bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded uppercase">
+                                 {sent.type === 'synonym' ? 'Eş Anlam' : 'Zıt Anlam'}
+                             </span>
+                             <span className="text-[10px] text-zinc-400">Hedef: {sent.word}</span>
+                         </div>
+                    </EditableElement>
+                ))}
+            </div>
+
+            <div className="mt-auto pt-8 flex justify-between items-center text-[7px] font-black text-zinc-300 uppercase tracking-[0.4em]">
+                <span>Bursa Disleksi AI • Semantik İlişkilendirme Atölyesi</span>
+                <div className="flex gap-4">
+                     <i className="fa-solid fa-spell-check"></i>
+                     <i className="fa-solid fa-brain"></i>
+                </div>
             </div>
         </div>
     );

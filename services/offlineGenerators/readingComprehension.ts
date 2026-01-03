@@ -1,7 +1,8 @@
 
-import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, MissingPartsData, StoryQuestion, ReadingStroopData } from '../../types';
+import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, MissingPartsData, StoryQuestion, ReadingStroopData, SynonymAntonymMatchData } from '../../types';
 import { shuffle, getRandomItems } from './helpers';
 import { COHERENT_STORY_TEMPLATES } from '../../data/sentences';
+import { TR_VOCAB } from './helpers';
 
 const COLORS_LIST = [
     { name: 'KIRMIZI', hex: '#ef4444' },
@@ -29,6 +30,36 @@ const SHAPE_WORDS = ["KARE", "ÜÇGEN", "DAİRE", "YILDIZ", "ELİPS", "DİKDÖRT
 const ANIMAL_WORDS = ["ASLAN", "KEDİ", "KÖPEK", "FİL", "ZÜRAFA", "KAPLAN", "AYI", "TAVŞAN"];
 const VERB_WORDS = ["BAK", "GÖR", "KOŞ", "DUR", "AL", "VER", "OKU", "YAZ", "ZILA"];
 const MIRROR_WORDS = ["BALIK", "DALGA", "POLAT", "OLUK", "BABA", "DADA", "KASA", "MASA"];
+
+export const generateOfflineSynonymAntonymMatch = async (options: GeneratorOptions): Promise<SynonymAntonymMatchData[]> => {
+    const { worksheetCount, itemCount = 6, variant = 'mixed' } = options;
+    
+    return Array.from({ length: worksheetCount }, () => {
+        const pool = variant === 'synonym' ? TR_VOCAB.synonyms : variant === 'antonym' ? TR_VOCAB.antonyms : shuffle([...TR_VOCAB.synonyms, ...TR_VOCAB.antonyms]);
+        const selection = shuffle(pool).slice(0, itemCount);
+        
+        const pairs = selection.map(item => ({
+            source: item.word,
+            target: (item as any).synonym || (item as any).antonym,
+            type: (item as any).synonym ? 'synonym' : 'antonym',
+            imagePrompt: item.word
+        }));
+
+        const sentences = [
+            { text: "Bugün hava çok _______. (Sıcak zıt anlamlısı)", word: "Sıcak", target: "Soğuk", type: "antonym" },
+            { text: "En sevdiğim _______ bugün geliyor. (Konuk eş anlamlısı)", word: "Konuk", target: "Misafir", type: "synonym" }
+        ];
+
+        return {
+            title: "Anlam Avcısı (Eş ve Zıt Anlamlar)",
+            instruction: "Kelimeleri anlamdaşları veya zıt anlamlıları ile eşleştirin, ardından cümleleri tamamlayın.",
+            pedagogicalNote: "Semantik hafıza, kelime dağarcığı ve bağlamsal akıl yürütme becerilerini destekler.",
+            mode: variant as any,
+            pairs: pairs as any,
+            sentences: sentences as any
+        };
+    });
+};
 
 export const generateOfflineReadingStroop = async (options: GeneratorOptions): Promise<ReadingStroopData[]> => {
     const { worksheetCount, itemCount = 48, difficulty, variant = 'colors', gridSize } = options;
@@ -87,7 +118,6 @@ export const generateOfflineReadingStroop = async (options: GeneratorOptions): P
     });
 };
 
-// ... rest of the file ...
 const buildBaseStory = (difficulty: string) => {
     let candidates = COHERENT_STORY_TEMPLATES.filter(t => t.level === difficulty);
     if (candidates.length === 0) candidates = COHERENT_STORY_TEMPLATES;

@@ -1,3 +1,4 @@
+
 import { BaseActivityData } from './core';
 
 export * from './core';
@@ -103,4 +104,20 @@ export interface LetterVisualMatchingData extends BaseActivityData {
         showTracing: boolean;
         gridCols: number;
     };
+}
+
+export interface SynonymAntonymMatchData extends BaseActivityData {
+    mode: 'synonym' | 'antonym' | 'mixed';
+    pairs: {
+        source: string;
+        target: string;
+        type: 'synonym' | 'antonym';
+        imagePrompt: string;
+    }[];
+    sentences: {
+        text: string;
+        word: string;
+        target: string;
+        type: 'synonym' | 'antonym';
+    }[];
 }

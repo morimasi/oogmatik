@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ActivityType, SingleWorksheetData } from '../types';
 import * as MathLogic from './sheets/MathLogicSheets';
@@ -148,6 +149,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
 
     switch (activityType) {
         case ActivityType.READING_STROOP: return <Reading.ReadingStroopSheet data={data} />;
+        case ActivityType.SYNONYM_ANTONYM_MATCH: return <Reading.SynonymAntonymMatchSheet data={data} />;
         case ActivityType.LETTER_VISUAL_MATCHING: return <Dyslexia.LetterVisualMatchingSheet data={data} />;
         case ActivityType.MAP_INSTRUCTION: return <MapDetectiveSheet data={data} />; 
         case ActivityType.HIDDEN_PASSWORD_GRID: return <WordGames.HiddenPasswordGridSheet data={data} />;

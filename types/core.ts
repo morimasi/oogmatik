@@ -1,3 +1,4 @@
+
 export enum ActivityType {
     READING_STROOP = 'READING_STROOP',
     ALGORITHM_GENERATOR = 'ALGORITHM_GENERATOR',
@@ -55,7 +56,8 @@ export enum ActivityType {
     FIND_IDENTICAL_WORD = 'FIND_IDENTICAL_WORD',
     FIND_DIFFERENT_STRING = 'FIND_DIFFERENT_STRING',
     SYLLABLE_WORD_BUILDER = 'SYLLABLE_WORD_BUILDER',
-    LETTER_VISUAL_MATCHING = 'LETTER_VISUAL_MATCHING'
+    LETTER_VISUAL_MATCHING = 'LETTER_VISUAL_MATCHING',
+    SYNONYM_ANTONYM_MATCH = 'SYNONYM_ANTONYM_MATCH'
 }
 
 export type View = 'generator' | 'admin' | 'profile' | 'messages' | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'favorites' | 'savedList' | 'workbook' | 'shared' | 'assessment';

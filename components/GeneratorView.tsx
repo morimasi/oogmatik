@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Activity, ActivityType, GeneratorOptions, StudentProfile } from '../types';
 import { DIFFICULTY_OPTIONS } from '../constants';
@@ -201,6 +202,35 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             <i className="fa-solid fa-stopwatch"></i> Zamanlayıcı Modu
                         </p>
                         <p className="text-[10px] text-zinc-500 italic leading-tight">Bu çalışma klinik süre tutma kutusu ile birlikte oluşturulacaktır.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- SYNONYM ANTONYM MATCH ---
+        if (activity.id === ActivityType.SYNONYM_ANTONYM_MATCH) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <CompactSelect 
+                        label="Çalışma Odağı" 
+                        value={options.variant || 'mixed'} 
+                        onChange={(v:any) => handleChange('variant', v)}
+                        options={[
+                            { value: 'synonym', label: 'Eş Anlamlılar' },
+                            { value: 'antonym', label: 'Zıt Anlamlılar' },
+                            { value: 'mixed', label: 'Karışık (Eş + Zıt)' }
+                        ]}
+                        icon="fa-arrows-left-right"
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactSlider label="Kelime Çifti Sayısı" value={options.itemCount || 8} onChange={(v:number) => handleChange('itemCount', v)} min={4} max={12} icon="fa-list-ol" />
+                        <CompactToggleGroup 
+                            label="Yazı Stili" 
+                            selected={options.case} 
+                            onChange={(v: string) => handleChange('case', v)} 
+                            options={[{ value: 'upper', label: 'BÜYÜK' }, { value: 'lower', label: 'küçük' }]} 
+                        />
                     </div>
                 </div>
             );
