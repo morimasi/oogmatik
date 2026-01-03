@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Activity, ActivityType, GeneratorOptions, StudentProfile } from '../types';
 import { DIFFICULTY_OPTIONS } from '../constants';

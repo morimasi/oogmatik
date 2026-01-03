@@ -1,4 +1,3 @@
-
 import { BaseActivityData } from './core';
 import { WordSearchData, MissingPartsData } from './visual';
 

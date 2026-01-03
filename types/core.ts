@@ -1,4 +1,3 @@
-
 export enum ActivityType {
     READING_STROOP = 'READING_STROOP',
     ALGORITHM_GENERATOR = 'ALGORITHM_GENERATOR',
