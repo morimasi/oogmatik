@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, HandwritingPracticeData } from '../../types';
+import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, HandwritingPracticeData, LetterVisualMatchingData } from '../../types';
 import { ImageDisplay, PedagogicalHeader, Shape, GridComponent, DyslexicText, HandwritingGuide, TracingText } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
@@ -12,7 +12,66 @@ const SimpleSheet = ({ data, children }: { data: any, children?: React.ReactNode
     </div>
 );
 
-// --- HANDWRITING PRACTICE (NEW) ---
+// --- LETTER VISUAL MATCHING (NEW) ---
+export const LetterVisualMatchingSheet: React.FC<{ data: LetterVisualMatchingData }> = ({ data }) => {
+    const { pairs, settings } = data;
+    const shuffledLetters = [...pairs].sort(() => Math.random() - 0.5);
+
+    return (
+        <div className="flex flex-col h-full bg-white p-2">
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            
+            <div className="flex-1 flex flex-col md:flex-row gap-12 mt-6">
+                {/* Visual Anchors Side */}
+                <div className="flex-1 grid gap-6" style={{ gridTemplateColumns: `repeat(${settings.gridCols || 2}, 1fr)` }}>
+                    {pairs.map((pair, i) => (
+                        <EditableElement key={i} className="flex items-center gap-4 p-4 border-2 border-zinc-200 rounded-3xl bg-zinc-50 group hover:border-indigo-400 transition-all shadow-sm">
+                            <div className="w-20 h-20 bg-white rounded-2xl p-1 border border-zinc-100 shrink-0 shadow-inner">
+                                <ImageDisplay prompt={pair.imagePrompt} description={pair.word} className="w-full h-full object-contain" />
+                            </div>
+                            <div className="flex-1">
+                                {settings.showTracing ? (
+                                    <div className="h-10 w-full"><TracingText text={pair.letter} fontSize="40px" /></div>
+                                ) : (
+                                    <div className="h-4 w-12 border-b-2 border-dashed border-zinc-300"></div>
+                                )}
+                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1 block opacity-0 group-hover:opacity-100 transition-opacity">{pair.word}</span>
+                            </div>
+                            <div className="w-4 h-4 rounded-full border-2 border-zinc-400 group-hover:bg-indigo-500 group-hover:border-indigo-500 transition-all"></div>
+                        </EditableElement>
+                    ))}
+                </div>
+
+                {/* Vertical Divider / Connection Lane */}
+                <div className="hidden md:flex flex-col items-center justify-center opacity-10">
+                    <div className="w-1 h-full bg-indigo-900 rounded-full"></div>
+                </div>
+
+                {/* Letters Target Side */}
+                <div className="w-full md:w-32 flex flex-col justify-around gap-4">
+                    {shuffledLetters.map((pair, i) => (
+                        <EditableElement key={i} className="flex items-center gap-4 justify-end p-4 border-2 border-zinc-100 rounded-2xl hover:border-indigo-300 group transition-all">
+                             <div className="w-4 h-4 rounded-full border-2 border-zinc-400 group-hover:bg-indigo-500 group-hover:border-indigo-500 transition-all"></div>
+                             <span className="text-5xl font-black text-zinc-900 group-hover:text-indigo-600 transition-colors" style={{ fontFamily: settings.fontFamily }}>
+                                 <EditableText value={pair.letter} tag="span" />
+                             </span>
+                        </EditableElement>
+                    ))}
+                </div>
+            </div>
+
+            <div className="mt-auto pt-8 border-t border-zinc-100 flex justify-between items-center px-10">
+                <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Harf-Nesne İlişkilendirme v1.0</p>
+                <div className="flex gap-4 opacity-20">
+                     <i className="fa-solid fa-eye"></i>
+                     <i className="fa-solid fa-ear-listen"></i>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// --- HANDWRITING PRACTICE ---
 export const HandwritingPracticeSheet: React.FC<{ data: HandwritingPracticeData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
@@ -255,7 +314,7 @@ export const CodeReadingSheet: React.FC<{ data: CodeReadingData }> = ({ data }) 
         <div className="space-y-8">
             {(data.codesToSolve || []).map((code, idx) => (
                 <EditableElement key={idx} className="p-4 bg-white rounded-xl border border-dashed border-zinc-300">
-                    <div className="flex flex-wrap items-center gap-2 mb-4 justify-center">
+                    <div className="flex wrap items-center gap-2 mb-4 justify-center">
                         {code.sequence.map((sym, sIdx) => (
                             <div key={sIdx} className="w-14 h-14 flex items-center justify-center bg-white border-2 rounded-lg shadow-sm">
                                 <SymbolRenderer symbol={sym} color={data.keyMap.find(k=>k.symbol===sym)?.color} />

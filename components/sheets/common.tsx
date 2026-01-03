@@ -89,7 +89,7 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
     const handleError = () => { setIsLoading(false); setHasError(true); };
 
     return (
-        <div className={`image-display-container ${className} relative overflow-hidden bg-transparent flex items-center justify-center group min-h-[100px]`}>
+        <div className={`image-display-container ${className} relative overflow-hidden bg-transparent flex items-center justify-center group`}>
             {safeDesc && (
                 <div className="absolute bottom-0 left-0 right-0 bg-white/80 p-1 text-[8px] text-center opacity-0 group-hover:opacity-100 transition-opacity z-10 edit-handle pointer-events-none">
                     <EditableText value={safeDesc} tag="span" />
@@ -120,7 +120,7 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                 if (!hasError && contentForPrompt && contentForPrompt.length > 1) {
                     // Sanitize prompt for URL
                     const cleanPrompt = contentForPrompt.substring(0, 400).replace(/[^\w\s,.-]/gi, '');
-                    const finalPrompt = `${cleanPrompt}, vector art, white background, minimalist`;
+                    const finalPrompt = `${cleanPrompt}, high quality vector illustration, educational graphic, white background`;
                     const encodedPrompt = encodeURIComponent(finalPrompt);
                     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
                     

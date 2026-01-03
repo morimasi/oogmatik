@@ -4,6 +4,21 @@ import { WordSearchData, MissingPartsData } from './visual';
 
 export * from './core';
 
+export interface LetterVisualMatchingData extends BaseActivityData {
+    pairs: {
+        letter: string;
+        imagePrompt: string;
+        imageBase64?: string;
+        word: string;
+    }[];
+    settings: {
+        fontFamily: string;
+        letterCase: 'upper' | 'lower';
+        showTracing: boolean;
+        gridCols: number;
+    };
+}
+
 export interface StroopItem {
     text: string;
     color: string;

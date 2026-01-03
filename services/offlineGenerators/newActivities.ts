@@ -4,6 +4,14 @@ import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions, FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData, MindGames56Data } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, simpleSyllabify, getWordsForDifficulty } from './helpers';
 
+// Helper for better image prompts
+const TR_EN_MAP: Record<string, string> = {
+    'kedi': 'cute cat', 'köpek': 'friendly dog', 'elma': 'red apple', 'araba': 'yellow car',
+    'uçak': 'airplane', 'güneş': 'smiling sun', 'kitap': 'open book', 'kalem': 'wooden pencil',
+    'ev': 'sweet home', 'çiçek': 'colorful flower', 'balık': 'orange fish', 'kuş': 'little bird',
+    'kaplumbağa': 'green turtle', 'aslan': 'brave lion', 'zürafa': 'tall giraffe', 'fil': 'gray elephant'
+};
+
 export const generateOfflineSyllableWordBuilder = async (options: GeneratorOptions): Promise<any[]> => {
     const { worksheetCount, itemCount, difficulty, topic } = options;
     const count = itemCount || 6;
@@ -20,7 +28,7 @@ export const generateOfflineSyllableWordBuilder = async (options: GeneratorOptio
                 id: i + 1,
                 targetWord: word.toUpperCase(),
                 syllables,
-                imagePrompt: word
+                imagePrompt: TR_EN_MAP[word.toLowerCase()] || `${word} object illustration`
             };
         });
 
@@ -152,34 +160,4 @@ export const generateNumberBoxLogicFromAI = async (options: GeneratorOptions): P
     const prompt = `Kutulu Sayı Analizi. Sayı Aralığı: ${numberRange}. ${itemCount || 2} bulmaca seti. [ROL: UZMAN PEDAGOG] Sadece JSON.`;
     const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { box1: { type: Type.ARRAY, items: { type: Type.NUMBER } }, box2: { type: Type.ARRAY, items: { type: Type.NUMBER } }, questions: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { text: { type: Type.STRING }, options: { type: Type.ARRAY, items: { type: Type.STRING } }, correctAnswer: { type: Type.STRING } }, required: ['text', 'options'] } } }, required: ['box1', 'box2', 'questions'] } } }, required: ['title', 'instruction', 'puzzles'] } };
     return generateWithSchema(prompt, schema) as Promise<NumberBoxLogicData[]>;
-};
-
-export const generateMapInstructionFromAI = async (options: GeneratorOptions): Promise<MapInstructionData[]> => {
-    const { worksheetCount, difficulty } = options;
-    const prompt = `
-    "Harita ve Yönerge Takibi" (Türkiye Haritası) etkinliği oluştur.
-    Zorluk Seviyesi: ${difficulty}. 
-    Yönergeler; yönler (Kuzey, Güney, Sağ, Sol), harf özellikleri (A ile başlayan vb.) ve coğrafi özellikler (Sahil şehri vb.) içermeli.
-    ${worksheetCount} sayfa üret. SADECE JSON döndür.
-    `;
-    const schema = {
-        type: Type.ARRAY,
-        items: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                instruction: { type: Type.STRING },
-                pedagogicalNote: { type: Type.STRING },
-                imagePrompt: { type: Type.STRING },
-                instructions: { type: Type.ARRAY, items: { type: Type.STRING } }
-            },
-            required: ['title', 'instruction', 'instructions']
-        }
-    };
-    const raw = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview') as any[];
-    return raw.map(item => ({
-        ...item,
-        cities: TR_CITIES_DB.map(c => ({...c})),
-        settings: { showCityNames: true, markerStyle: 'circle', difficulty }
-    }));
 };

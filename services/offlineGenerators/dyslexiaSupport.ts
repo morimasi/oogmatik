@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData, LetterVisualMatchingData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
 const generateComplexPaths = (count: number, width: number, height: number, difficulty: string) => {
@@ -55,6 +55,54 @@ const generateComplexPaths = (count: number, width: number, height: number, diff
     const endLabels = shuffle(Array.from({length: count}, (_, i) => String.fromCharCode(65 + i)));
     paths.forEach((p, idx) => { p.endLabel = endLabels[idx]; });
     return paths;
+};
+
+// NEW: Offline Letter Visual Matching
+export const generateOfflineLetterVisualMatching = async (options: GeneratorOptions): Promise<LetterVisualMatchingData[]> => {
+    const { worksheetCount, difficulty, itemCount, targetLetters, case: letterCase } = options;
+    const count = itemCount || 6;
+    
+    // Core data mapping for letters to objects
+    const letterMap: Record<string, {word: string, img: string}> = {
+        'A': { word: 'At', img: 'Horse' }, 'B': { word: 'Balık', img: 'Fish' }, 'C': { word: 'Civciv', img: 'Chick' },
+        'Ç': { word: 'Çilek', img: 'Strawberry' }, 'D': { word: 'Davul', img: 'Drum' }, 'E': { word: 'Elma', img: 'Apple' },
+        'F': { word: 'Fil', img: 'Elephant' }, 'G': { word: 'Güneş', img: 'Sun' }, 'H': { word: 'Havuç', img: 'Carrot' },
+        'I': { word: 'Ispanak', img: 'Spinach' }, 'İ': { word: 'İncir', img: 'Fig' }, 'J': { word: 'Jeton', img: 'Coin' },
+        'K': { word: 'Kedi', img: 'Cat' }, 'L': { word: 'Limon', img: 'Lemon' }, 'M': { word: 'Maymun', img: 'Monkey' },
+        'N': { word: 'Nar', img: 'Pomegranate' }, 'O': { word: 'Otobüs', img: 'Bus' }, 'Ö': { word: 'Ördek', img: 'Duck' },
+        'P': { word: 'Pasta', img: 'Cake' }, 'R': { word: 'Robot', img: 'Robot' }, 'S': { word: 'Saat', img: 'Clock' },
+        'Ş': { word: 'Şemsiye', img: 'Umbrella' }, 'T': { word: 'Top', img: 'Ball' }, 'U': { word: 'Uçak', img: 'Plane' },
+        'Ü': { word: 'Üzüm', img: 'Grapes' }, 'V': { word: 'Vazo', img: 'Vase' }, 'Y': { word: 'Yıldız', img: 'Star' },
+        'Z': { word: 'Zürafa', img: 'Giraffe' }
+    };
+
+    return Array.from({ length: worksheetCount }, () => {
+        let pool = targetLetters ? targetLetters.split(',').map(l => l.trim().toUpperCase()) : Object.keys(letterMap);
+        if (difficulty === 'Orta') pool = ['B', 'D', 'P', 'Q', 'M', 'N']; // Mirror Focus
+        
+        const selectedKeys = getRandomItems(pool, count);
+        const pairs = selectedKeys.map(k => {
+            const data = letterMap[k] || { word: k, img: k };
+            return {
+                letter: letterCase === 'lower' ? k.toLowerCase() : k,
+                word: data.word,
+                imagePrompt: data.img
+            };
+        });
+
+        return {
+            title: "Harf-Görsel Eşleme",
+            instruction: "Resimleri incele ve her resmin hangi harfle başladığını bulup çizgiyle birleştir.",
+            pedagogicalNote: "Fonolojik farkındalık ve harf-ses eşleştirmesi.",
+            pairs: shuffle(pairs),
+            settings: {
+                fontFamily: options.fontFamily || 'OpenDyslexic',
+                letterCase: (letterCase as any) || 'upper',
+                showTracing: difficulty === 'Başlangıç',
+                gridCols: options.gridSize || 3
+            }
+        };
+    });
 };
 
 // Fixed GeneratorOptions and other types

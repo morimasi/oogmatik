@@ -18,6 +18,12 @@ export const ACTIVITIES: Activity[] = [
         icon: 'fa-solid fa-traffic-light'
     },
     {
+        id: ActivityType.LETTER_VISUAL_MATCHING,
+        title: 'Harf-Görsel Eşleme',
+        description: 'Harflerin şekillerini ve başlangıç seslerini görsellerle ilişkilendirme.',
+        icon: 'fa-solid fa-font'
+    },
+    {
         id: ActivityType.SYLLABLE_WORD_BUILDER,
         title: 'Hece Dedektifi',
         description: 'Karışık heceleri birleştirerek görselle eşleşen kelimeyi inşa etme.',
@@ -117,7 +123,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         title: 'Okuma & Dil',
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
-        activities: [ActivityType.READING_STROOP, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
+        activities: [ActivityType.LETTER_VISUAL_MATCHING, ActivityType.READING_STROOP, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
     },
     {
         id: 'math-logic',

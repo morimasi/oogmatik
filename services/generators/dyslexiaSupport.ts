@@ -1,8 +1,56 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, LetterVisualMatchingData } from '../../types';
 import { getAttentionPrompt, getDyslexiaPrompt } from './prompts';
+
+// New: Letter Visual Matching
+export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptions): Promise<LetterVisualMatchingData[]> => {
+    const { worksheetCount, difficulty, itemCount, targetLetters, case: letterCase } = options;
+    
+    const specifics = `
+    - Hedef Harfler: ${targetLetters || 'Karışık'}.
+    - Harf Tipi: ${letterCase === 'upper' ? 'BÜYÜK HARFLER' : 'küçük harfler'}.
+    - GÖREV: Belirlenen harfleri, o harfle başlayan nesne görselleriyle eşleştir.
+    - ZORLUK: ${difficulty}. 
+    - Başlangıç seviyesi için çok belirgin nesneler (Elma-E), Zor seviye için sesli/sessiz benzerliği olanlar.
+    `;
+    
+    const prompt = getDyslexiaPrompt("Harf-Görsel Eşleme", difficulty, specifics);
+    
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            pairs: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        letter: { type: Type.STRING },
+                        word: { type: Type.STRING },
+                        imagePrompt: { type: Type.STRING }
+                    },
+                    required: ['letter', 'word', 'imagePrompt']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'pairs', 'pedagogicalNote']
+    };
+    
+    const result = await generateWithSchema(prompt, { type: Type.ARRAY, items: singleSchema }) as any[];
+    return result.map(p => ({
+        ...p,
+        settings: {
+            fontFamily: options.fontFamily || 'OpenDyslexic',
+            letterCase: letterCase || 'upper',
+            showTracing: difficulty === 'Başlangıç',
+            gridCols: options.gridSize || 3
+        }
+    }));
+};
 
 // 1. Code Reading
 export const generateCodeReadingFromAI = async (options: GeneratorOptions): Promise<CodeReadingData[]> => {

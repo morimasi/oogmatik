@@ -140,7 +140,9 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         showCityNames: true,
         markerStyle: 'circle',
         customInput: '',
-        variant: 'colors'
+        variant: 'colors',
+        case: 'upper',
+        fontFamily: 'OpenDyslexic'
     });
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
@@ -200,6 +202,50 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             <i className="fa-solid fa-stopwatch"></i> Zamanlayıcı Modu
                         </p>
                         <p className="text-[10px] text-zinc-500 italic leading-tight">Bu çalışma klinik süre tutma kutusu ile birlikte oluşturulacaktır.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- LETTER VISUAL MATCHING ---
+        if (activity.id === ActivityType.LETTER_VISUAL_MATCHING) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <div>
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block">Hedef Harfler (Virgülle ayırın)</label>
+                        <input 
+                            type="text" 
+                            value={options.targetLetters} 
+                            onChange={e => handleChange('targetLetters', e.target.value)}
+                            placeholder="Örn: B,D,P,Q"
+                            className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none focus:border-indigo-500 dark:text-zinc-200"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                         <CompactToggleGroup 
+                            label="Harf Durumu" 
+                            selected={options.case} 
+                            onChange={(v: string) => handleChange('case', v)} 
+                            options={[{ value: 'upper', label: 'BÜYÜK' }, { value: 'lower', label: 'küçük' }]} 
+                        />
+                        <CompactSelect 
+                            label="Yazı Tipi" 
+                            value={options.fontFamily} 
+                            onChange={(v:string) => handleChange('fontFamily', v)}
+                            options={[
+                                { value: 'OpenDyslexic', label: 'Disleksi' },
+                                { value: 'Comic Neue', label: 'Eğlenceli' },
+                                { value: 'Lexend', label: 'Okunaklı' },
+                                { value: 'Times New Roman', label: 'Serif' }
+                            ]}
+                            icon="fa-font"
+                        />
+                    </div>
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactSlider label="Öğe Sayısı" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={3} max={12} icon="fa-list-ol" />
+                        <CompactSlider label="Sütun Sayısı" value={options.gridSize || 2} onChange={(v:number) => handleChange('gridSize', v)} min={1} max={3} icon="fa-table-columns" />
                     </div>
                 </div>
             );
