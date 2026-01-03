@@ -1,7 +1,94 @@
 import { BaseActivityData } from './core';
-import { WordSearchData, MissingPartsData } from './visual';
 
 export * from './core';
+
+export interface StoryQuestion {
+    type: 'multiple-choice' | 'true-false' | 'open-ended' | 'who' | 'where' | 'when' | 'what' | 'why' | 'how';
+    question: string;
+    options?: string[];
+    answer: string;
+    isTrue?: boolean;
+}
+
+export interface StoryData extends BaseActivityData {
+    story: string;
+    mainIdea: string;
+    characters: string[];
+    setting: string;
+    vocabulary: { word: string; definition: string }[];
+    creativeTask: string;
+    questions: StoryQuestion[];
+    fiveW1H?: { type: 'who' | 'where' | 'when' | 'what' | 'why' | 'how'; question: string; answer: string }[];
+}
+
+export interface StoryAnalysisData extends BaseActivityData {
+    story: string;
+    storyMap: Record<string, string>;
+}
+
+export interface StoryCreationPromptData extends BaseActivityData {
+    prompt: string;
+    keywords: string[];
+    structureHints: Record<string, string>;
+}
+
+export interface WordsInStoryData extends BaseActivityData {
+    story: string;
+    vocabWork: { word: string; contextQuestion: string; type: 'meaning' | 'usage' }[];
+}
+
+export interface StorySequencingData extends BaseActivityData {
+    prompt: string;
+    panels: { id: string; description: string; order: number; imagePrompt: string }[];
+    transitionWords: string[];
+}
+
+export interface InteractiveStoryData extends StoryData {
+    fiveW1H: { type: 'who' | 'where' | 'when' | 'what' | 'why' | 'how'; question: string; answer: string }[];
+    trueFalse: StoryQuestion[];
+    fillBlanks: { sentence: string; answer: string }[];
+    logicQuestions: { question: string; answer: string; hint: string }[];
+    inferenceQuestions: { question: string; answer: string }[];
+    multipleChoice: StoryQuestion[];
+}
+
+export interface ReadingStroopData extends BaseActivityData {
+    grid: { text: string; color: string }[];
+    settings: { cols: number; fontSize: number; wordType: string };
+    evaluationBox: boolean;
+}
+
+export interface ReadingFlowData extends BaseActivityData {
+    text: { paragraphs: { sentences: { syllables: { text: string }[] }[] }[] };
+}
+
+export interface PhonologicalAwarenessData extends BaseActivityData {
+    exercises: { question: string; word: string }[];
+}
+
+export interface SyllableTrainData extends BaseActivityData {
+    trains: { syllables: string[] }[];
+}
+
+export interface BackwardSpellingData extends BaseActivityData {
+    items: { original: string; reversed: string }[];
+}
+
+export interface HandwritingPracticeData extends BaseActivityData {
+    lines: { text: string; type: 'trace' | 'copy' | 'empty'; imagePrompt?: string }[];
+    guideType: string;
+}
+
+export interface SyllableWordBuilderData extends BaseActivityData {
+    words: {
+        id: number;
+        targetWord: string;
+        syllables: string[];
+        imagePrompt: string;
+        imageBase64?: string;
+    }[];
+    syllableBank: string[];
+}
 
 export interface LetterVisualMatchingData extends BaseActivityData {
     pairs: {
@@ -17,223 +104,3 @@ export interface LetterVisualMatchingData extends BaseActivityData {
         gridCols: number;
     };
 }
-
-export interface StroopItem {
-    text: string;
-    color: string;
-    semanticMatch?: boolean; // Renk-Anlam eşleşmesi (örn: "Güneş" -> Sarı)
-}
-
-export interface ReadingStroopData extends BaseActivityData {
-    grid: StroopItem[];
-    settings: {
-        cols: number;
-        fontSize: number;
-        wordType: 'colors' | 'semantic' | 'confusing' | 'shapes' | 'animals' | 'verbs' | 'mirror_chars';
-    };
-    evaluationBox: boolean;
-}
-
-export interface StoryQuestion {
-    type: 'multiple-choice' | 'open-ended' | 'true-false' | 'logic' | 'vocabulary' | 'inference' | 'bloom_analysis' | 'bloom_synthesis';
-    question: string;
-    options?: string[]; 
-    answer?: string;
-    isTrue?: boolean;
-    difficultyLevel?: 'easy' | 'medium' | 'hard';
-    sentence?: string; // For fill in blank
-}
-
-export interface VocabularyItem {
-    word: string;
-    definition: string;
-}
-
-export interface StoryData extends BaseActivityData {
-    story: string;
-    mainIdea: string;
-    characters: string[];
-    setting: string;
-    vocabulary: VocabularyItem[];
-    creativeTask: string;
-    questions: StoryQuestion[];
-}
-
-export interface StoryAnalysisData extends BaseActivityData {
-    story: string;
-    storyMap: {
-        characters: string;
-        setting: string;
-        problem: string;
-        solution: string;
-        theme: string;
-    };
-}
-
-export interface StoryCreationPromptData extends BaseActivityData {
-    prompt: string;
-    keywords: string[];
-    structureHints: {
-        who: string;
-        where: string;
-        when: string;
-        problem: string;
-    };
-}
-
-export interface WordsInStoryData extends BaseActivityData {
-    story: string;
-    vocabWork: {
-        word: string;
-        contextQuestion: string;
-        type: 'meaning' | 'usage';
-    }[];
-}
-
-export interface StorySequencingData extends BaseActivityData {
-    prompt: string;
-    panels: {
-        id: string;
-        description: string;
-        order: number;
-        imagePrompt?: string;
-    }[];
-    transitionWords?: string[];
-}
-
-export interface InteractiveStoryData extends BaseActivityData { 
-    story: string; 
-    segments: { id: string; text: string; }[]; 
-    genre: string;
-    gradeLevel: string;
-    wordCount: number;
-    
-    // Bloom Taxonomy & Intervention Components
-    fiveW1H: { question: string; answer: string; type: string }[];
-    multipleChoice: { question: string; options: string[]; answer: string }[];
-    trueFalse: { question: string; answer: boolean }[];
-    fillBlanks: { sentence: string; answer: string }[];
-    logicQuestions: { question: string; answer: string; hint: string }[];
-    inferenceQuestions: { question: string; answer: string }[]; 
-    interventionQuestions: { question: string; type: 'word_hunt' | 'spelling' | 'visual_memory' }[];
-    
-    vocabulary: VocabularyItem[]; 
-    creativeTask: string; 
-    mainIdea: string;
-    imagePrompt: string;
-    answers?: any[];
-}
-
-export interface ProverbFillData extends MissingPartsData {}
-export interface ProverbSayingSortData extends StoryData {}
-export interface ProverbWordChainData extends StorySequencingData {}
-export interface ProverbSentenceFinderData extends StorySequencingData {}
-export interface ProverbSearchData extends WordSearchData {}
-
-export interface ReadingStudioConfig {
-    gradeLevel: string;
-    studentName: string;
-    topic: string;
-    genre: string;
-    tone: string;
-    length: 'short' | 'medium' | 'long' | 'epic';
-    textComplexity: 'simple' | 'moderate' | 'advanced';
-    fontSettings: {
-        family: 'OpenDyslexic' | 'Lexend' | 'Comic Neue' | 'Times New Roman';
-        size: number;
-        lineHeight: number;
-        letterSpacing: number;
-        wordSpacing: number;
-    };
-    layoutDensity: 'comfortable' | 'compact';
-    imageGeneration: {
-        enabled: boolean;
-        style: 'storybook' | 'realistic' | 'cartoon' | 'sketch' | 'watercolor' | '3d_render';
-        complexity: 'simple' | 'detailed';
-    };
-    includeImage: boolean;
-    imageSize: number; 
-    imagePosition: 'top' | 'left' | 'right' | 'center' | 'background';
-    imageOpacity: number;
-    include5N1K: boolean;
-    countMultipleChoice: number;
-    countTrueFalse: number;
-    countFillBlanks: number;
-    countLogic: number;
-    countInference: number;
-    includeWordHunt: boolean;
-    includeSpellingCheck: boolean;
-    focusVocabulary: boolean;
-    includeCreativeTask: boolean;
-    showReadingTracker: boolean;
-    showSelfAssessment: boolean;
-    showTeacherNotes: boolean;
-    showDateSection: boolean;
-}
-
-export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'self_eval' | 'notes';
-
-export interface LayoutItemStyle {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    rotation?: number; 
-    zIndex: number;
-    backgroundColor?: string;
-    borderColor?: string;
-    borderWidth?: number;
-    borderStyle?: 'solid' | 'dashed' | 'dotted' | 'double'; 
-    borderRadius?: number;
-    boxShadow?: string; 
-    opacity?: number;
-    padding: number;
-    fontSize?: number;
-    fontFamily?: string;
-    fontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter'; 
-    color?: string;
-    textAlign?: 'left' | 'center' | 'right' | 'justify';
-    lineHeight?: number; 
-    letterSpacing?: number; 
-
-    imageSettings?: {
-        enabled: boolean;
-        position: 'top' | 'bottom' | 'left' | 'right' | 'background' | 'overlay';
-        widthPercent: number; 
-        opacity: number; 
-        objectFit: 'cover' | 'contain';
-        borderRadius: number;
-        blendMode?: string; 
-        filter?: string; 
-    };
-}
-
-export interface LayoutItem {
-    id: LayoutSectionId;
-    label: string;
-    icon: string;
-    isVisible: boolean;
-    style: LayoutItemStyle;
-    specificData?: any; 
-}
-
-export interface FamilyRelationsData extends BaseActivityData {
-    leftColumn: { text: string; id: number }[];
-    rightColumn: { text: string; id: number }[];
-}
-
-export interface LogicDeductionData extends BaseActivityData {
-    scoringText?: string;
-    questions: {
-        riddle: string;
-        options: string[];
-        answerIndex: number;
-        correctLetter: string;
-    }[];
-}
-
-export interface ReadingFlowData extends BaseActivityData { text: { paragraphs: { sentences: { syllables: { text: string }[] }[] }[] }; }
-export interface PhonologicalAwarenessData extends BaseActivityData { exercises: { question: string; word: string }[]; }
-export interface SyllableTrainData extends BaseActivityData { trains: { syllables: string[] }[]; }
-export interface BackwardSpellingData extends BaseActivityData { items: { reversed: string }[]; }
-export interface HandwritingPracticeData extends BaseActivityData { guideType: 'standard' | 'simple'; lines: { text: string; type: 'trace' | 'copy' | 'empty'; imagePrompt?: string }[]; }

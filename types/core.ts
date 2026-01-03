@@ -208,6 +208,7 @@ export interface GeneratorOptions {
     customInput?: string;
     logicModel?: 'identity' | 'exclusion' | 'sequence' | 'cryptarithmetic';
     showSumTarget?: boolean;
+    fontFamily?: string;
     [key: string]: any;
 }
 
@@ -478,3 +479,79 @@ export type VisualMathType = 'objects' | 'ten-frame' | 'number-bond' | 'dice' | 
 
 export type SingleWorksheetData = any;
 export type WorksheetData = SingleWorksheetData[] | null;
+
+// --- READING STUDIO TYPES ---
+
+export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes';
+
+export interface LayoutItem {
+    id: LayoutSectionId;
+    label: string;
+    icon: string;
+    style: {
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+        zIndex: number;
+        rotation?: number;
+        padding?: number;
+        backgroundColor?: string;
+        borderColor?: string;
+        borderWidth?: number;
+        borderStyle?: string;
+        borderRadius?: number;
+        opacity?: number;
+        boxShadow?: string;
+        textAlign?: string;
+        color?: string;
+        fontSize?: number;
+        fontFamily?: string;
+        lineHeight?: number;
+        letterSpacing?: number;
+        fontWeight?: string;
+        imageSettings?: {
+            enabled: boolean;
+            position: 'left' | 'right' | 'center';
+            widthPercent: number;
+            opacity: number;
+            objectFit: string;
+            borderRadius: number;
+            blendMode: string;
+            filter?: string;
+        };
+    };
+    specificData?: any;
+    isVisible: boolean;
+}
+
+export interface ReadingStudioConfig {
+    gradeLevel: string;
+    studentName: string;
+    topic: string;
+    genre: string;
+    tone: string;
+    length: 'short' | 'medium' | 'long' | 'epic';
+    layoutDensity: string;
+    textComplexity: 'simple' | 'moderate' | 'advanced';
+    fontSettings: any;
+    includeImage: boolean;
+    imageSize: number;
+    imageOpacity: number;
+    imagePosition: string;
+    imageGeneration: { enabled: boolean; style: string; complexity: string };
+    include5N1K: boolean;
+    countMultipleChoice: number;
+    countTrueFalse: number;
+    countFillBlanks: number;
+    countLogic: number;
+    countInference: number;
+    focusVocabulary: boolean;
+    includeCreativeTask: boolean;
+    includeWordHunt: boolean;
+    includeSpellingCheck: boolean;
+    showReadingTracker: boolean;
+    showSelfAssessment: boolean;
+    showTeacherNotes: boolean;
+    showDateSection: boolean;
+}

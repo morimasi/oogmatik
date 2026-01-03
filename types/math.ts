@@ -1,4 +1,3 @@
-
 import { BaseActivityData, ShapeType, VisualMathType } from './core';
 
 export * from './core';
@@ -346,4 +345,14 @@ export interface MathMemoryCardsData extends BaseActivityData {
         card1: { type: 'operation' | 'visual' | 'text'; value: string; visualType?: string; num?: number };
         card2: { type: string; value: string };
     }[];
+}
+
+export interface FamilyRelationsData extends BaseActivityData {
+    members: { name: string; relation: string; imagePrompt: string }[];
+    questions: { text: string; answer: string }[];
+}
+
+export interface LogicDeductionData extends BaseActivityData {
+    premises: string[];
+    questions: { text: string; options: string[]; answer: string }[];
 }
