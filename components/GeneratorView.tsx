@@ -126,7 +126,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         mode: 'fast',
         difficulty: 'Orta',
         worksheetCount: 1,
-        itemCount: 4,
+        itemCount: 6,
         gridSize: 4,
         topic: '',
         distractionLevel: 'medium',
@@ -200,6 +200,40 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             <i className="fa-solid fa-stopwatch"></i> Zamanlayıcı Modu
                         </p>
                         <p className="text-[10px] text-zinc-500 italic leading-tight">Bu çalışma klinik süre tutma kutusu ile birlikte oluşturulacaktır.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- SYLLABLE WORD BUILDER ---
+        if (activity.id === ActivityType.SYLLABLE_WORD_BUILDER) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <CompactSelect 
+                        label="Kelime Havuzu" 
+                        value={options.topic || 'animals'} 
+                        onChange={(v:any) => handleChange('topic', v)}
+                        options={[
+                            { value: 'animals', label: 'Hayvanlar' },
+                            { value: 'fruits_veggies', label: 'Meyveler' },
+                            { value: 'items_household', label: 'Ev Eşyaları' },
+                            { value: 'jobs', label: 'Meslekler' }
+                        ]}
+                        icon="fa-box-archive"
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactCounter label="Kelime Sayısı" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={4} max={12} icon="fa-list-ol" />
+                        <CompactToggleGroup 
+                            label="Hece Bankası Zorluğu" 
+                            selected={options.distractionLevel} 
+                            onChange={(v: string) => handleChange('distractionLevel', v)} 
+                            options={[
+                                { value: 'low', label: 'KOLAY' },
+                                { value: 'medium', label: 'ORTA' },
+                                { value: 'high', label: 'ZOR' }
+                            ]} 
+                        />
                     </div>
                 </div>
             );

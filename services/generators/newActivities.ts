@@ -13,6 +13,67 @@ import {
 } from '../../types';
 import { PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE, getStudentContextPrompt } from './prompts';
 
+export const generateSyllableWordBuilderFromAI = async (options: GeneratorOptions): Promise<any[]> => {
+    const { topic, difficulty, itemCount, studentContext } = options;
+    
+    const prompt = `
+    ${PEDAGOGICAL_BASE}
+    ${getStudentContextPrompt(studentContext)}
+    
+    GÖREV: "Hece Dedektifi: Kelime İnşası" etkinliği oluştur. 
+    ZORLUK: ${difficulty}
+    ADET: ${itemCount || 6} kelime.
+    TEMA: ${topic || 'Genel Obje ve Hayvanlar'}
+    
+    TASARIM KURALLARI:
+    1. Her öğe bir kelimeyi temsil eder. 
+    2. Kelime hecelerine ayrılmalıdır (Türkçe heceleme kurallarına göre).
+    3. Her kelime için net bir "imagePrompt" yaz. 
+    4. Tüm heceleri içeren karışık bir "syllableBank" oluştur.
+    5. Disleksi dostu: Kelimeler 2-4 heceli olmalı.
+    
+    ÇIKTI (SADECE JSON):
+    {
+      "title": "Hece Dedektifi",
+      "instruction": "Resimleri incele, hece bankasından doğru parçaları bul ve kelimeyi oluştur.",
+      "pedagogicalNote": "Hece farkındalığı, fonolojik kodlama ve görsel-sözel ilişkilendirme becerisini geliştirir.",
+      "words": [
+        { "id": 1, "targetWord": "ARABA", "syllables": ["A", "RA", "BA"], "imagePrompt": "Yellow cartoon car" }
+      ],
+      "syllableBank": ["A", "RA", "BA", "KA", "PI", ...]
+    }
+    `;
+
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                words: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            id: { type: Type.NUMBER },
+                            targetWord: { type: Type.STRING },
+                            syllables: { type: Type.ARRAY, items: { type: Type.STRING } },
+                            imagePrompt: { type: Type.STRING }
+                        },
+                        required: ['targetWord', 'syllables', 'imagePrompt']
+                    }
+                },
+                syllableBank: { type: Type.ARRAY, items: { type: Type.STRING } }
+            },
+            required: ['title', 'words', 'syllableBank']
+        }
+    };
+
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+};
+
 /**
  * AI WORKSHEET CONVERTER (DESIGN CLONER)
  * Analyzes an image and generates a variation with the same architecture but fresh content.

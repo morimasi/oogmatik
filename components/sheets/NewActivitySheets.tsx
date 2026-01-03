@@ -4,6 +4,65 @@ import { FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstruc
 import { PedagogicalHeader, GridComponent, ImageDisplay } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
+// HECE DEDEKTİFİ BİLEŞENİ
+export const SyllableWordBuilderSheet: React.FC<{ data: any }> = ({ data }) => {
+    return (
+        <div className="flex flex-col h-full bg-white p-2 text-black font-lexend">
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            
+            <div className="flex-1 flex flex-col gap-10 mt-6">
+                {/* Kelime İnşa Alanları */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {(data.words || []).map((word: any, idx: number) => (
+                        <EditableElement key={idx} className="flex items-center gap-5 p-4 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm break-inside-avoid group">
+                            <div className="w-24 h-24 rounded-3xl bg-zinc-50 border border-zinc-100 shrink-0 overflow-hidden">
+                                <ImageDisplay prompt={word.imagePrompt} description={word.targetWord} className="w-full h-full object-contain" />
+                            </div>
+                            <div className="flex-1 space-y-3">
+                                <div className="flex gap-2">
+                                    {word.syllables.map((_: any, sIdx: number) => (
+                                        <div key={sIdx} className="w-14 h-12 border-b-[4px] border-dashed border-zinc-300 bg-zinc-50/50 rounded-t-lg flex items-center justify-center font-black text-xl text-zinc-200">
+                                            ?
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="h-0.5 bg-zinc-100 w-full"></div>
+                                <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">KELİME BURAYA</div>
+                            </div>
+                        </EditableElement>
+                    ))}
+                </div>
+
+                {/* Hece Bankası (Bento Box style) */}
+                <div className="mt-10 p-8 bg-zinc-900 text-white rounded-[3.5rem] shadow-2xl relative overflow-hidden break-inside-avoid border-4 border-white">
+                    <div className="absolute top-0 right-0 p-6 opacity-10 rotate-12"><i className="fa-solid fa-puzzle-piece text-9xl"></i></div>
+                    <h4 className="text-xs font-black uppercase tracking-[0.3em] text-indigo-400 mb-6 flex items-center gap-2">
+                        <i className="fa-solid fa-layer-group"></i> HECE BANKASI
+                    </h4>
+                    <div className="flex flex-wrap justify-center gap-4 relative z-10">
+                        {(data.syllableBank || []).map((syllable: string, idx: number) => (
+                            <EditableElement key={idx} className="px-6 py-3 bg-white text-zinc-900 rounded-2xl font-black text-xl shadow-lg border-2 border-transparent hover:border-indigo-500 transition-all cursor-default transform hover:scale-110 active:scale-95">
+                                <EditableText value={syllable} tag="span" />
+                            </EditableElement>
+                        ))}
+                    </div>
+                    <div className="mt-8 text-[10px] text-zinc-500 font-bold text-center uppercase tracking-widest opacity-60">
+                        Doğru heceleri bul ve yukarıdaki kutucuklara yerleştir.
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-auto pt-8 border-t border-zinc-100 flex justify-between items-center px-10">
+                <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Fonolojik Kodlama Atölyesi v2.0</p>
+                <div className="flex gap-2">
+                    <div className="w-8 h-1.5 bg-indigo-500 rounded-full"></div>
+                    <div className="w-1.5 h-1.5 bg-zinc-200 rounded-full"></div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // GELİŞMİŞ TÜRKİYE HARİTASI BİLEŞENİ
 const TurkeyMapSVG = ({ cities, showNames }: { cities: any[], showNames: boolean }) => {
     const realTurkeyPath = "M172,69 L227,53 L336,44 L460,42 L578,44 L677,53 L732,69 L752,95 L755,125 L735,150 L690,165 L630,175 L580,180 L545,215 L490,225 L440,220 L385,235 L335,245 L285,235 L245,220 L205,200 L160,185 L125,170 L95,145 L85,115 L125,95 Z";
@@ -45,7 +104,7 @@ const TurkeyMapSVG = ({ cities, showNames }: { cities: any[], showNames: boolean
 
 export const MapInstructionSheet: React.FC<{ data: MapInstructionData }> = ({ data }) => (
     <div className="flex flex-col h-full bg-white p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction || ""} note={data.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         
         <div className="flex-1 flex flex-col gap-8">
             <EditableElement>

@@ -18,6 +18,12 @@ export const ACTIVITIES: Activity[] = [
         icon: 'fa-solid fa-traffic-light'
     },
     {
+        id: ActivityType.SYLLABLE_WORD_BUILDER,
+        title: 'Hece Dedektifi',
+        description: 'Karışık heceleri birleştirerek görselle eşleşen kelimeyi inşa etme.',
+        icon: 'fa-solid fa-puzzle-piece'
+    },
+    {
         id: ActivityType.MAP_INSTRUCTION,
         title: 'Harita Dedektifi',
         description: 'Türkiye haritası üzerinde yön, konum and harf takibi yaparak yönergeleri uygulama.',
@@ -62,7 +68,7 @@ export const ACTIVITIES: Activity[] = [
     {
         id: ActivityType.MONEY_COUNTING,
         title: 'Paralarımız',
-        description: 'Madeni ve kağıt paraları tanıma, basit alışveriş hesapları.',
+        description: 'Madeni ve kağıp paraları tanıma, basit alışveriş hesapları.',
         icon: 'fa-solid fa-money-bill-wave'
     },
     {
@@ -111,7 +117,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         title: 'Okuma & Dil',
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
-        activities: [ActivityType.READING_STROOP, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
+        activities: [ActivityType.READING_STROOP, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
     },
     {
         id: 'math-logic',

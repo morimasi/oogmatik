@@ -2,7 +2,44 @@
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions, FamilyRelationsData, LogicDeductionData, NumberBoxLogicData, MapInstructionData, MindGamesData, MindGames56Data } from '../../types';
-import { shuffle, getRandomInt, getRandomItems } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, simpleSyllabify, getWordsForDifficulty } from './helpers';
+
+export const generateOfflineSyllableWordBuilder = async (options: GeneratorOptions): Promise<any[]> => {
+    const { worksheetCount, itemCount, difficulty, topic } = options;
+    const count = itemCount || 6;
+    
+    return Array.from({ length: worksheetCount }, () => {
+        const pool = getWordsForDifficulty(difficulty, topic);
+        const selectedWords = getRandomItems(pool.filter(w => w.length > 3), count);
+        
+        const allSyllables: string[] = [];
+        const words = selectedWords.map((word, i) => {
+            const syllables = simpleSyllabify(word).map(s => s.toUpperCase());
+            allSyllables.push(...syllables);
+            return {
+                id: i + 1,
+                targetWord: word.toUpperCase(),
+                syllables,
+                imagePrompt: word
+            };
+        });
+
+        // Add some distractors to bank based on difficulty
+        const distractorCount = difficulty === 'Zor' ? 10 : 4;
+        const alphabet = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ";
+        for(let k=0; k<distractorCount; k++) {
+            allSyllables.push(alphabet[getRandomInt(0, alphabet.length-1)] + alphabet[getRandomInt(0, alphabet.length-1)]);
+        }
+
+        return {
+            title: "Hece Dedektifi",
+            instruction: "Resmi incele, hece bankasındaki doğru heceleri bulup kelimeyi inşa et.",
+            pedagogicalNote: "Fonolojik işlemleme ve görsel tarama becerisi.",
+            words,
+            syllableBank: shuffle(allSyllables)
+        };
+    });
+};
 
 // TÜRKİYE İL VERİ SETİ (Pedagojik ve Coğrafi Veriler)
 const TR_CITIES_DB = [
@@ -96,7 +133,6 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
     });
 };
 
-// ... Diğer fonksiyonlar aynen korunur ...
 export const generateFamilyRelationsFromAI = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
     const { worksheetCount, itemCount, topic } = options;
     const prompt = `Akrabalık İlişkileri Eşleştirme. Konu: ${topic || 'Akrabalık'}. ${itemCount || 10} çift oluştur. [ROL: UZMAN PEDAGOG] Sadece JSON.`;

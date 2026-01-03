@@ -12,6 +12,7 @@ import * as NewActivities from './sheets/NewActivitySheets';
 import { AlgorithmSheet } from './sheets/AlgorithmSheets';
 import { MapDetectiveSheet } from './sheets/MapDetectiveSheet'; 
 import { NumberLogicRiddleSheet } from './sheets/NumberLogicRiddleSheet';
+import { SyllableWordBuilderSheet } from './sheets/NewActivitySheets';
 import { ReadingStudioContentRenderer } from './ReadingStudio/ReadingStudioContentRenderer';
 import { ImageDisplay, PedagogicalHeader } from './sheets/common';
 import { EditableText, EditableElement } from './Editable';
@@ -151,6 +152,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.MAP_INSTRUCTION: return <MapDetectiveSheet data={data} />; 
         case ActivityType.HIDDEN_PASSWORD_GRID: return <WordGames.HiddenPasswordGridSheet data={data} />;
         case ActivityType.NUMBER_LOGIC_RIDDLES: return <NumberLogicRiddleSheet data={data} />;
+        case ActivityType.SYLLABLE_WORD_BUILDER: return <SyllableWordBuilderSheet data={data} />;
         case ActivityType.REAL_LIFE_MATH_PROBLEMS: return <MathLogic.RealLifeMathProblemsSheet data={data} />;
         case ActivityType.MATH_PUZZLE: return <MathLogic.MathPuzzleSheet data={data} />;
         case ActivityType.NUMBER_PATTERN: return <MathLogic.NumberPatternSheet data={data} />;
