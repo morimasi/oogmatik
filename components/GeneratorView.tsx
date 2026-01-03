@@ -415,33 +415,29 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             { value: 'geometric', label: 'Geometrik Formlar' },
                             { value: 'abstract', label: 'Soyut Desenler' },
                             { value: 'character', label: 'Ayna Harf/Rakam' },
-                            { value: 'complex', label: 'Karmaşık Çizgiler' }
+                            { value: 'complex', label: 'Karmaşık Çizgiler' },
+                            { value: 'fractal', label: 'Fraktal / Kristal' },
+                            { value: 'glint', label: 'Minimalist Glint' }
                         ]}
                         icon="fa-shapes"
                     />
 
-                    <CompactSlider 
-                        label="Görev Sayısı (Satır)" 
-                        value={options.itemCount} 
-                        onChange={(v:number) => handleChange('itemCount', v)} 
-                        min={4} max={12} 
-                        icon="fa-list" 
-                    />
-
                     <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
                         <CompactToggleGroup 
-                            label="Fark Belirginliği" 
+                            label="Fark Belirginliği (Saliency)" 
                             selected={options.distractionLevel} 
                             onChange={(v: string) => handleChange('distractionLevel', v)} 
                             options={[
                                 { value: 'low', label: 'Belirgin' },
                                 { value: 'medium', label: 'Orta' },
                                 { value: 'high', label: 'Hassas' },
-                                { value: 'extreme', label: 'Minimal' }
+                                { value: 'extreme', label: 'Mikro (Zor)' }
                             ]} 
                         />
-                        <CompactSlider label="Satır Başı Öğe" value={options.gridSize || 4} onChange={(v:number) => handleChange('gridSize', v)} min={3} max={6} icon="fa-table-cells" />
+                        <CompactSlider label="Satır Başı Öğe" value={options.gridSize || 4} onChange={(v:number) => handleChange('gridSize', v)} min={3} max={20} icon="fa-table-cells" />
                     </div>
+
+                    <CompactCounter label="Toplam Görev (Satır)" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={1} max={15} icon="fa-list" />
                 </div>
             );
         }
@@ -561,7 +557,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     <button 
                         onClick={() => onGenerate({ ...options, mode: 'ai' })}
                         disabled={isLoading}
-                        className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 transform active:scale-95"
+                        className="px-4 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 transform active:scale-95"
                     >
                         <i className="fa-solid fa-wand-magic-sparkles"></i> AI ile Üret (Online)
                     </button>

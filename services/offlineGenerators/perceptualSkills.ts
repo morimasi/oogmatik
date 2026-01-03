@@ -30,14 +30,35 @@ const generateAbstractPath = (complexity: number) => {
     return d;
 };
 
+const generateFractalPath = (points: number) => {
+    let d = "";
+    const center = 50;
+    const outer = 45;
+    const inner = 15;
+    for (let i = 0; i < points * 2; i++) {
+        const angle = (i * Math.PI) / points;
+        const radius = i % 2 === 0 ? outer : inner;
+        const x = center + radius * Math.cos(angle);
+        const y = center + radius * Math.sin(angle);
+        d += (i === 0 ? "M " : "L ") + x + " " + y;
+    }
+    return d + " Z";
+}
+
+const generateGlintPath = () => {
+    const d1 = "M 50 10 L 50 90 M 10 50 L 90 50";
+    const d2 = "M 20 20 L 80 80 M 80 20 L 20 80";
+    return [d1, d2];
+};
+
 // --- VISUAL ODD ONE OUT ---
 export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { worksheetCount, itemCount, difficulty, distractionLevel, gridSize, visualType = 'geometric' } = options;
     const results: VisualOddOneOutData[] = [];
     
     for (let p = 0; p < worksheetCount; p++) {
-        const rowCount = itemCount || 8;
-        const colCount = gridSize || 4;
+        const rowCount = itemCount || 6;
+        const colCount = Math.min(20, gridSize || 4);
         const rows = [];
 
         for (let i = 0; i < rowCount; i++) {
@@ -50,50 +71,73 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
                     return { label: pair[0], rotation: 0 };
                 }
                 if (visualType === 'abstract') {
-                    return { svgPaths: [{ d: generateAbstractPath(3), stroke: "#1e293b", strokeWidth: 2 }] };
+                    return { svgPaths: [{ d: generateAbstractPath(4), stroke: "#1e293b", strokeWidth: 2.5 }] };
+                }
+                if (visualType === 'fractal') {
+                    return { svgPaths: [{ d: generateFractalPath(getRandomInt(5, 12)), fill: "#f1f5f9", stroke: "#0f172a", strokeWidth: 2 }] };
+                }
+                if (visualType === 'glint') {
+                    const glints = generateGlintPath();
+                    return { 
+                        svgPaths: [
+                            { d: glints[0], stroke: "#0f172a", strokeWidth: 2.5 },
+                            { d: glints[1], stroke: "#0f172a", strokeWidth: 1.5 }
+                        ] 
+                    };
                 }
                 if (visualType === 'complex') {
                     return { 
                         svgPaths: [
-                            { d: generateProceduralPolygon(6, 40), stroke: "#1e293b", strokeWidth: 2 },
-                            { d: `M 50 10 L 50 90 M 10 50 L 90 50`, stroke: "#94a3b8", strokeWidth: 1 }
+                            { d: generateProceduralPolygon(6, 42), stroke: "#1e293b", strokeWidth: 3 },
+                            { d: `M 50 10 L 50 90 M 10 50 L 90 50`, stroke: "#94a3b8", strokeWidth: 1.5 },
+                            { d: "M 30 30 L 70 70", stroke: "#000", strokeWidth: 1 }
                         ] 
                     };
                 }
-                return { svgPaths: [{ d: generateProceduralPolygon(getRandomInt(3, 8)), stroke: "#1e293b", strokeWidth: 3 }] };
+                return { svgPaths: [{ d: generateProceduralPolygon(getRandomInt(3, 8)), stroke: "#1e293b", strokeWidth: 3.5 }] };
             };
 
             const baseItem = createBaseItem();
 
             for (let j = 0; j < colCount; j++) {
                 if (j === correctIndex) {
-                    const oddItem = { ...JSON.parse(JSON.stringify(baseItem)) };
+                    const oddItem = JSON.parse(JSON.stringify(baseItem));
+                    
                     if (visualType === 'character') {
                         const pair = CHARACTER_PAIRS.find(p => p[0] === baseItem.label);
                         oddItem.label = pair ? pair[1] : (baseItem.label === 'b' ? 'd' : 'b');
-                    } else if (distractionLevel === 'low') {
-                        if (oddItem.svgPaths) oddItem.svgPaths[0].stroke = "#ef4444";
-                    } else if (distractionLevel === 'medium') {
-                        oddItem.rotation = 90;
-                    } else if (distractionLevel === 'high') {
-                        oddItem.rotation = 15;
-                        if (oddItem.svgPaths) oddItem.svgPaths[0].strokeWidth = 1.5;
                     } else {
-                        oddItem.isMirrored = true;
-                        oddItem.scale = 0.85;
+                        // Zorluk ve Fark Belirginliği Algoritması
+                        const rotRange = distractionLevel === 'extreme' ? 5 : (distractionLevel === 'high' ? 15 : 90);
+                        
+                        if (distractionLevel === 'low') {
+                            if (oddItem.svgPaths) oddItem.svgPaths[0].stroke = "#ef4444";
+                            oddItem.scale = 1.2;
+                        } else if (distractionLevel === 'medium') {
+                            oddItem.rotation = rotRange;
+                            if (oddItem.svgPaths && oddItem.svgPaths.length > 1) oddItem.svgPaths[1].stroke = "#ef4444";
+                        } else {
+                            // Mikro farklar
+                            oddItem.rotation = rotRange;
+                            if (oddItem.svgPaths) {
+                                oddItem.svgPaths[0].strokeWidth = (oddItem.svgPaths[0].strokeWidth || 3) * 0.7;
+                                if (oddItem.svgPaths.length > 1) oddItem.svgPaths.pop(); // Bir parçayı sil
+                            }
+                            oddItem.isMirrored = Math.random() > 0.5;
+                        }
                     }
                     items.push(oddItem);
                 } else {
-                    items.push({ ...JSON.parse(JSON.stringify(baseItem)) });
+                    items.push(JSON.parse(JSON.stringify(baseItem)));
                 }
             }
-            rows.push({ items, correctIndex, reason: `${visualType} farkı` });
+            rows.push({ items, correctIndex, reason: `${visualType} distality difference` });
         }
 
         results.push({
-            title: `Görsel Ayrıştırma: ${visualType === 'character' ? 'Karakterler' : 'Örüntü Takibi'}`,
-            instruction: "Satırdaki öğeleri incele. Diğerlerine benzemeyen farklı olanı bul ve işaretle.",
-            pedagogicalNote: `Bu çalışma ${visualType} mimarisi üzerinden görsel dikkat ve şekil sabitliği becerilerini geliştirir.`,
+            title: `Görsel Ayrıştırma: ${visualType.toUpperCase()} Analizi`,
+            instruction: `Satırdaki ${colCount} öğe içinden, diğerlerinden farklı olan "yabancı" öğeyi tespit et.`,
+            pedagogicalNote: `Bu çalışma ${visualType} mimarisi üzerinden yüksek yoğunluklu görsel tarama, seçici dikkat ve şekil sabitliği becerilerini geliştirir.`,
             difficultyLevel: difficulty as any || 'Orta',
             distractionLevel: distractionLevel as any || 'medium',
             rows
