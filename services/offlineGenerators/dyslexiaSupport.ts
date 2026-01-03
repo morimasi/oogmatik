@@ -1,5 +1,38 @@
+
 import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData, LetterVisualMatchingData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
+
+// Expanded keyword library for Turkish phonology to increase randomness
+const LETTER_LIBRARY: Record<string, {word: string, img: string}[]> = {
+    'A': [{word: 'Arı', img: 'Bee'}, {word: 'At', img: 'Horse'}, {word: 'Ay', img: 'Moon'}, {word: 'Aslan', img: 'Lion'}],
+    'B': [{word: 'Balık', img: 'Fish'}, {word: 'Balon', img: 'Balloon'}, {word: 'Bebek', img: 'Baby'}, {word: 'Bardak', img: 'Glass'}],
+    'C': [{word: 'Civciv', img: 'Chick'}, {word: 'Ceket', img: 'Jacket'}, {word: 'Ceviz', img: 'Walnut'}],
+    'Ç': [{word: 'Çilek', img: 'Strawberry'}, {word: 'Çanta', img: 'Bag'}, {word: 'Çiçek', img: 'Flower'}],
+    'D': [{word: 'Davul', img: 'Drum'}, {word: 'Deve', img: 'Camel'}, {word: 'Deniz', img: 'Sea'}, {word: 'Domates', img: 'Tomato'}],
+    'E': [{word: 'Elma', img: 'Apple'}, {word: 'Eldiven', img: 'Gloves'}, {word: 'Ev', img: 'House'}, {word: 'Eşek', img: 'Donkey'}],
+    'F': [{word: 'Fil', img: 'Elephant'}, {word: 'Fener', img: 'Flashlight'}, {word: 'Fare', img: 'Mouse'}],
+    'G': [{word: 'Güneş', img: 'Sun'}, {word: 'Gemi', img: 'Ship'}, {word: 'Gözlük', img: 'Glasses'}],
+    'H': [{word: 'Havuç', img: 'Carrot'}, {word: 'Horoz', img: 'Rooster'}, {word: 'Hediye', img: 'Gift'}],
+    'I': [{word: 'Ispanak', img: 'Spinach'}, {word: 'Izgara', img: 'Grill'}],
+    'İ': [{word: 'İncir', img: 'Fig'}, {word: 'İnek', img: 'Cow'}, {word: 'İtfaiye', img: 'Fire truck'}],
+    'J': [{word: 'Jeton', img: 'Coin'}, {word: 'Jilet', img: 'Razor'}],
+    'K': [{word: 'Kedi', img: 'Cat'}, {word: 'Köpek', img: 'Dog'}, {word: 'Kalem', img: 'Pencil'}, {word: 'Kapı', img: 'Door'}],
+    'L': [{word: 'Limon', img: 'Lemon'}, {word: 'Lamba', img: 'Lamp'}, {word: 'Leylek', img: 'Stork'}],
+    'M': [{word: 'Maymun', img: 'Monkey'}, {word: 'Masa', img: 'Table'}, {word: 'Makas', img: 'Scissors'}],
+    'N': [{word: 'Nar', img: 'Pomegranate'}, {word: 'Nal', img: 'Horseshoe'}],
+    'O': [{word: 'Otobüs', img: 'Bus'}, {word: 'Okul', img: 'School'}, {word: 'Oda', img: 'Room'}],
+    'Ö': [{word: 'Ördek', img: 'Duck'}, {word: 'Önlük', img: 'Apron'}, {word: 'Öğretmen', img: 'Teacher'}],
+    'P': [{word: 'Pasta', img: 'Cake'}, {word: 'Para', img: 'Money'}, {word: 'Pencere', img: 'Window'}],
+    'R': [{word: 'Robot', img: 'Robot'}, {word: 'Radyo', img: 'Radio'}, {word: 'Renk', img: 'Rainbow'}],
+    'S': [{word: 'Saat', img: 'Clock'}, {word: 'Sandalye', img: 'Chair'}, {word: 'Sincap', img: 'Squirrel'}],
+    'Ş': [{word: 'Şemsiye', img: 'Umbrella'}, {word: 'Şapka', img: 'Hat'}, {word: 'Şişe', img: 'Bottle'}],
+    'T': [{word: 'Top', img: 'Ball'}, {word: 'Tavşan', img: 'Rabbit'}, {word: 'Tarak', img: 'Comb'}],
+    'U': [{word: 'Uçak', img: 'Plane'}, {word: 'Uçurtma', img: 'Kite'}],
+    'Ü': [{word: 'Üzüm', img: 'Grapes'}, {word: 'Ütü', img: 'Iron'}],
+    'V': [{word: 'Vazo', img: 'Vase'}, {word: 'Vapur', img: 'Steamship'}],
+    'Y': [{word: 'Yıldız', img: 'Star'}, {word: 'Yüzük', img: 'Ring'}, {word: 'Yılan', img: 'Snake'}],
+    'Z': [{word: 'Zürafa', img: 'Giraffe'}, {word: 'Zil', img: 'Bell'}, {word: 'Zeytin', img: 'Olive'}]
+};
 
 const generateComplexPaths = (count: number, width: number, height: number, difficulty: string) => {
     const paths = [];
@@ -56,49 +89,51 @@ const generateComplexPaths = (count: number, width: number, height: number, diff
     return paths;
 };
 
-// NEW: Offline Letter Visual Matching
+// NEW: Enhanced Offline Letter Visual Matching
 export const generateOfflineLetterVisualMatching = async (options: GeneratorOptions): Promise<LetterVisualMatchingData[]> => {
     const { worksheetCount, difficulty, itemCount, targetLetters, case: letterCase } = options;
     const count = itemCount || 6;
     
-    // Core data mapping for letters to objects
-    const letterMap: Record<string, {word: string, img: string}> = {
-        'A': { word: 'At', img: 'Horse' }, 'B': { word: 'Balık', img: 'Fish' }, 'C': { word: 'Civciv', img: 'Chick' },
-        'Ç': { word: 'Çilek', img: 'Strawberry' }, 'D': { word: 'Davul', img: 'Drum' }, 'E': { word: 'Elma', img: 'Apple' },
-        'F': { word: 'Fil', img: 'Elephant' }, 'G': { word: 'Güneş', img: 'Sun' }, 'H': { word: 'Havuç', img: 'Carrot' },
-        'I': { word: 'Ispanak', img: 'Spinach' }, 'İ': { word: 'İncir', img: 'Fig' }, 'J': { word: 'Jeton', img: 'Coin' },
-        'K': { word: 'Kedi', img: 'Cat' }, 'L': { word: 'Limon', img: 'Lemon' }, 'M': { word: 'Maymun', img: 'Monkey' },
-        'N': { word: 'Nar', img: 'Pomegranate' }, 'O': { word: 'Otobüs', img: 'Bus' }, 'Ö': { word: 'Ördek', img: 'Duck' },
-        'P': { word: 'Pasta', img: 'Cake' }, 'R': { word: 'Robot', img: 'Robot' }, 'S': { word: 'Saat', img: 'Clock' },
-        'Ş': { word: 'Şemsiye', img: 'Umbrella' }, 'T': { word: 'Top', img: 'Ball' }, 'U': { word: 'Uçak', img: 'Plane' },
-        'Ü': { word: 'Üzüm', img: 'Grapes' }, 'V': { word: 'Vazo', img: 'Vase' }, 'Y': { word: 'Yıldız', img: 'Star' },
-        'Z': { word: 'Zürafa', img: 'Giraffe' }
+    // Style keywords based on difficulty for richer AI image generation
+    const visualStyles: Record<string, string> = {
+        'Başlangıç': 'simple minimalist flat vector icon, white background, bold outlines, no shadows',
+        'Orta': 'educational watercolor illustration, white background, clear subject',
+        'Zor': 'detailed artistic illustration, colored background, textured, high contrast',
+        'Uzman': 'stylized complex graphic art, artistic representation, abstract elements'
     };
 
     return Array.from({ length: worksheetCount }, () => {
-        let pool = targetLetters ? targetLetters.split(',').map(l => l.trim().toUpperCase()) : Object.keys(letterMap);
-        if (difficulty === 'Orta') pool = ['B', 'D', 'P', 'Q', 'M', 'N']; // Mirror Focus
+        let pool = targetLetters ? targetLetters.split(',').map(l => l.trim().toUpperCase()) : Object.keys(LETTER_LIBRARY);
         
-        const selectedKeys = getRandomItems(pool, count);
-        const pairs = selectedKeys.map(k => {
-            const data = letterMap[k] || { word: k, img: k };
+        // Pedagogical adjustment: If difficulty is medium/hard and no targets set, focus on mirror letters
+        if (difficulty !== 'Başlangıç' && !targetLetters) {
+            pool = ['B', 'D', 'P', 'Q', 'M', 'N', 'U', 'Ü', 'E', '3', '6', '9'];
+        }
+        
+        const selectedLetters = getRandomItems(pool, count);
+        const stylePrefix = visualStyles[difficulty] || visualStyles['Orta'];
+
+        const pairs = selectedLetters.map(l => {
+            const items = LETTER_LIBRARY[l] || [{word: l, img: l}];
+            const selectedItem = items[getRandomInt(0, items.length - 1)];
+            
             return {
-                letter: letterCase === 'lower' ? k.toLowerCase() : k,
-                word: data.word,
-                imagePrompt: data.img
+                letter: letterCase === 'lower' ? l.toLowerCase() : l,
+                word: selectedItem.word,
+                imagePrompt: `${selectedItem.img} ${stylePrefix}`
             };
         });
 
         return {
             title: "Harf-Görsel Eşleme",
-            instruction: "Resimleri incele ve her resmin hangi harfle başladığını bulup çizgiyle birleştir.",
-            pedagogicalNote: "Fonolojik farkındalık ve harf-ses eşleştirmesi.",
+            instruction: "Sol taraftaki resimlerin hangi harfle başladığını bul ve sağ taraftaki doğru harf ile çizgi çizerek eşleştir.",
+            pedagogicalNote: "Fonolojik farkındalık, harf-ses eşleştirmesi ve görsel tarama becerilerini destekler.",
             pairs: shuffle(pairs),
             settings: {
                 fontFamily: options.fontFamily || 'OpenDyslexic',
                 letterCase: (letterCase as any) || 'upper',
                 showTracing: difficulty === 'Başlangıç',
-                gridCols: options.gridSize || 3
+                gridCols: options.gridSize || 2
             }
         };
     });
