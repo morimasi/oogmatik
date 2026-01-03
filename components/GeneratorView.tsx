@@ -140,7 +140,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         showCityNames: true,
         markerStyle: 'circle',
         customInput: '',
-        variant: 'colors',
+        variant: 'letters',
         case: 'upper',
         fontFamily: 'OpenDyslexic'
     });
@@ -172,12 +172,52 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     };
 
     const renderActivityControls = () => {
+        // --- READING SUDOKU ---
+        if (activity.id === ActivityType.READING_SUDOKU) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <CompactSelect 
+                        label="İçerik Türü" 
+                        value={options.variant || 'letters'} 
+                        onChange={(v:any) => handleChange('variant', v)}
+                        options={[
+                            { value: 'letters', label: 'Harfler (Disleksi Odaklı)' },
+                            { value: 'words', label: 'Kelimeler (Tematik)' },
+                            { value: 'visuals', label: 'Görsel Semboller' },
+                            { value: 'numbers', label: 'Sayısal' }
+                        ]}
+                        icon="fa-shapes"
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactToggleGroup 
+                            label="Izgara Boyutu" 
+                            selected={options.gridSize?.toString() || "4"} 
+                            onChange={(v: string) => handleChange('gridSize', parseInt(v))} 
+                            options={[{ value: '4', label: '4x4 (Kolay)' }, { value: '6', label: '6x6' }, { value: '9', label: '9x9 (Zor)' }]} 
+                        />
+                        <CompactSelect 
+                            label="Yazı Tipi" 
+                            value={options.fontFamily || 'OpenDyslexic'} 
+                            onChange={(v:string) => handleChange('fontFamily', v)}
+                            options={[
+                                { value: 'OpenDyslexic', label: 'Disleksi Fontu' },
+                                { value: 'Lexend', label: 'Lexend' },
+                                { value: 'Inter', label: 'Standart' }
+                            ]}
+                            icon="fa-font"
+                        />
+                    </div>
+                </div>
+            );
+        }
+
         // --- READING STROOP TEST ---
         if (activity.id === ActivityType.READING_STROOP) {
             return (
                 <div className="space-y-5 animate-in fade-in duration-300">
                     <CompactSelect 
-                        label="Kelime Tipi" 
+                        label="Renk Kelime Tipi" 
                         value={options.variant || 'colors'} 
                         onChange={(v:any) => handleChange('variant', v)}
                         options={[
@@ -344,7 +384,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                          <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block">Dönüştürme Notu</label>
                          <textarea 
                             value={options.topic} 
-                            onChange={e => handleChange('topic', e.target.value)}
+                            onChange={e => handleChange('topic', e.target.value)} 
                             placeholder="AI'ya özel talimat verin (örn: Meyve yerine hayvanları kullan)..."
                             className="w-full h-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2 text-xs outline-none focus:border-indigo-500 resize-none dark:text-zinc-200"
                         />

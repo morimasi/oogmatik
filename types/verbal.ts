@@ -121,3 +121,14 @@ export interface SynonymAntonymMatchData extends BaseActivityData {
         type: 'synonym' | 'antonym';
     }[];
 }
+
+export interface ReadingSudokuData extends BaseActivityData {
+    grid: (string | null)[][];
+    solution: string[][];
+    symbols: { value: string; imagePrompt?: string; label?: string }[];
+    settings: {
+        size: number;
+        variant: 'letters' | 'words' | 'visuals' | 'numbers';
+        fontFamily: string;
+    };
+}

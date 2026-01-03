@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { 
-    StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, MissingPartsData, InteractiveStoryData, ReadingStroopData, SynonymAntonymMatchData
+    StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, MissingPartsData, InteractiveStoryData, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData
 } from '../../types';
 import { ImageDisplay, PedagogicalHeader, ReadingRuler, StoryHighlighter, QUESTION_TYPES } from './common';
 import { EditableElement, EditableText } from '../Editable';
@@ -85,6 +85,90 @@ const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, q
                         )}
                     </div>
                 ))}
+            </div>
+        </div>
+    );
+};
+
+export const ReadingSudokuSheet: React.FC<{ data: ReadingSudokuData }> = ({ data }) => {
+    const size = data.settings.size || 4;
+    const isBig = size > 4;
+
+    return (
+        <div className="flex flex-col h-full bg-white font-lexend text-black relative">
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+            
+            <div className="flex flex-col md:flex-row gap-10 items-center justify-center mt-10 flex-1">
+                {/* Sudoku Tablosu */}
+                <div className={`border-[4px] border-black bg-black shadow-xl rounded-lg overflow-hidden`}>
+                    <table className="border-collapse bg-white">
+                        <tbody>
+                            {data.grid.map((row, rIdx) => (
+                                <tr key={rIdx}>
+                                    {row.map((cell, cIdx) => {
+                                        const isRightEdge = (cIdx + 1) % (size === 4 ? 2 : 3) === 0 && cIdx !== size - 1;
+                                        const isBottomEdge = (rIdx + 1) % (size === 9 ? 3 : 2) === 0 && rIdx !== size - 1;
+                                        
+                                        return (
+                                            <td 
+                                                key={cIdx} 
+                                                className={`
+                                                    border border-zinc-300 text-center relative
+                                                    ${isBig ? 'w-12 h-12 text-sm' : 'w-20 h-20 text-2xl'}
+                                                    ${isRightEdge ? 'border-r-[4px] border-r-black' : ''}
+                                                    ${isBottomEdge ? 'border-b-[4px] border-b-black' : ''}
+                                                `}
+                                                style={{ fontFamily: data.settings.fontFamily }}
+                                            >
+                                                {cell ? (
+                                                    <span className="font-black text-zinc-900 drop-shadow-sm">
+                                                        <EditableText value={cell} tag="span" />
+                                                    </span>
+                                                ) : (
+                                                    <div className="absolute inset-0 bg-zinc-50/30 flex items-center justify-center opacity-20">
+                                                        <i className="fa-solid fa-pen-nib text-xs"></i>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Sembol Bankası (Kes-Yapıştır veya Referans İçin) */}
+                <div className="w-full md:w-48 space-y-6">
+                    <div className="p-4 bg-zinc-900 text-white rounded-3xl shadow-lg border-2 border-white">
+                        <h5 className="text-[10px] font-black uppercase tracking-widest mb-4 text-indigo-400 text-center">SEMBOL HAVUZU</h5>
+                        <div className={`grid ${size === 4 ? 'grid-cols-2' : 'grid-cols-3'} gap-3`}>
+                            {data.symbols.map((sym, idx) => (
+                                <div key={idx} className="aspect-square bg-white rounded-xl flex items-center justify-center border-2 border-zinc-700 shadow-inner group transition-transform hover:scale-110">
+                                    {sym.imagePrompt ? (
+                                        <div className="w-full h-full p-1"><ImageDisplay prompt={sym.imagePrompt} className="w-full h-full" /></div>
+                                    ) : (
+                                        <span className="text-zinc-900 font-black text-base">{sym.value}</span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div className="p-4 border-2 border-dashed border-zinc-200 rounded-2xl bg-zinc-50/50">
+                        <p className="text-[9px] font-bold text-zinc-400 text-center leading-tight">
+                            İPUCU: Her satırda ve sütunda tüm semboller sadece bir kez bulunmalı.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-auto pt-8 flex justify-between items-center text-[7px] font-black text-zinc-300 uppercase tracking-[0.4em]">
+                <span>Bursa Disleksi AI • Bilişsel Mantık Laboratuvarı</span>
+                <div className="flex gap-4">
+                     <i className="fa-solid fa-puzzle-piece"></i>
+                     <i className="fa-solid fa-brain"></i>
+                </div>
             </div>
         </div>
     );

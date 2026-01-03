@@ -1,13 +1,78 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, StoryData, ReadingStroopData, SynonymAntonymMatchData } from '../../types';
+import { GeneratorOptions, StoryData, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData } from '../../types';
 
 const PEDAGOGICAL_PROMPT = `
 [ROL: KIDEMLİ ÖZEL EĞİTİM UZMANI & PSİKOMETRİST]
 Amaç: Disleksik çocuklarda dürtü kontrolü, odaklanma ve sözel enterferans (karışma) direncini artırmak.
 Tasarım: Sözel Stroop Testi (Verbal Stroop) bir A4 sayfasını dolduracak yoğunlukta olmalıdır.
 `;
+
+export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Promise<ReadingSudokuData[]> => {
+    const { difficulty, worksheetCount, variant = 'letters', gridSize = 4 } = options;
+    
+    const variantDesc = {
+        'letters': 'Dislekside sık karıştırılan harf çiftleri (b-d, p-q, m-n vb.) veya sesli harfler.',
+        'words': 'Aynı temaya ait (uzay, meyveler, duygular) kısa ve somut kelimeler.',
+        'visuals': 'Semboller veya piktogramlar (yıldız, kare, üçgen vb.)',
+        'numbers': 'Sayısal veriler.'
+    }[variant as string] || 'Harfler';
+
+    const prompt = `
+    [ROL: UZMAN ÖZEL EĞİTİM MATERYALİ TASARIMCISI]
+    GÖREV: "${difficulty}" zorluk seviyesinde, ${gridSize}x${gridSize} boyutunda bir "Dil Sudokusu" üret.
+    TEMA/VARYANT: ${variantDesc}
+    
+    KURALLAR:
+    1. Sudoku kuralları geçerlidir: Her öğe her satırda, sütunda ve ${gridSize === 4 ? '2x2' : '3x2'} blokta sadece bir kez bulunmalıdır.
+    2. 'grid' alanı, başlangıçta görünen öğeleri içermeli; boş hücreler null olmalıdır.
+    3. 'solution' alanı, sudokunun tamamlanmış halini içermelidir.
+    4. 'symbols' listesi, kullanılan tüm öğeleri (harf, kelime veya görsel prompt) içermelidir.
+    5. Disleksi Dostu: Yazı tipi olarak 'OpenDyslexic' veya 'Lexend' önerilir.
+    
+    Öğrenci Profili: ${options.studentContext?.diagnosis?.join(', ') || 'Disleksi Riski'}.
+    
+    ÇIKTI: JSON formatında bir dizi.
+    `;
+
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING, nullable: true } } },
+                solution: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                symbols: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            value: { type: Type.STRING },
+                            label: { type: Type.STRING },
+                            imagePrompt: { type: Type.STRING }
+                        },
+                        required: ['value']
+                    }
+                }
+            },
+            required: ['title', 'grid', 'solution', 'symbols', 'instruction']
+        }
+    };
+
+    const result = await generateWithSchema(prompt, schema) as any[];
+    return result.map(p => ({
+        ...p,
+        settings: {
+            size: gridSize,
+            variant: variant as any,
+            fontFamily: options.fontFamily || 'OpenDyslexic'
+        }
+    }));
+};
 
 export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOptions): Promise<SynonymAntonymMatchData[]> => {
     const { difficulty, worksheetCount, variant = 'mixed', itemCount = 6 } = options;

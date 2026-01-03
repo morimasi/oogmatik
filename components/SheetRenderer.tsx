@@ -148,6 +148,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
     }
 
     switch (activityType) {
+        case ActivityType.READING_SUDOKU: return <Reading.ReadingSudokuSheet data={data} />;
         case ActivityType.READING_STROOP: return <Reading.ReadingStroopSheet data={data} />;
         case ActivityType.SYNONYM_ANTONYM_MATCH: return <Reading.SynonymAntonymMatchSheet data={data} />;
         case ActivityType.LETTER_VISUAL_MATCHING: return <Dyslexia.LetterVisualMatchingSheet data={data} />;

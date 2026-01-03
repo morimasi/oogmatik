@@ -1,6 +1,6 @@
 
-import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, MissingPartsData, StoryQuestion, ReadingStroopData, SynonymAntonymMatchData } from '../../types';
-import { shuffle, getRandomItems } from './helpers';
+import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, MissingPartsData, StoryQuestion, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData } from '../../types';
+import { shuffle, getRandomItems, generateSudokuGrid } from './helpers';
 import { COHERENT_STORY_TEMPLATES } from '../../data/sentences';
 import { TR_VOCAB } from './helpers';
 
@@ -30,6 +30,41 @@ const SHAPE_WORDS = ["KARE", "ÜÇGEN", "DAİRE", "YILDIZ", "ELİPS", "DİKDÖRT
 const ANIMAL_WORDS = ["ASLAN", "KEDİ", "KÖPEK", "FİL", "ZÜRAFA", "KAPLAN", "AYI", "TAVŞAN"];
 const VERB_WORDS = ["BAK", "GÖR", "KOŞ", "DUR", "AL", "VER", "OKU", "YAZ", "ZILA"];
 const MIRROR_WORDS = ["BALIK", "DALGA", "POLAT", "OLUK", "BABA", "DADA", "KASA", "MASA"];
+
+export const generateOfflineReadingSudoku = async (options: GeneratorOptions): Promise<ReadingSudokuData[]> => {
+    const { worksheetCount, difficulty, variant = 'letters', gridSize = 4 } = options;
+    
+    const letterPool = shuffle(['B', 'D', 'P', 'Q', 'M', 'N', 'U', 'Ü', 'A', 'E', 'I', 'İ']);
+    const wordPool = shuffle(['GÜNEŞ', 'YILDIZ', 'BULUT', 'YAĞMOR', 'KİTAP', 'KALEM', 'MASA', 'OKUL']);
+    const visualPool = ['⭐', '❤️', '🍀', '🍎', '🚗', '🐱', '⚽', '🎨'];
+    
+    const selectedSymbols = variant === 'letters' ? letterPool.slice(0, gridSize) 
+                          : variant === 'words' ? wordPool.slice(0, gridSize)
+                          : variant === 'visuals' ? visualPool.slice(0, gridSize)
+                          : Array.from({length: gridSize}, (_, i) => (i+1).toString());
+
+    return Array.from({ length: worksheetCount }, () => {
+        const rawGrid = generateSudokuGrid(gridSize, difficulty);
+        
+        // Map numbers to symbols
+        const mappedGrid = rawGrid.map(row => row.map(cell => cell ? selectedSymbols[cell - 1] : null));
+        const solution = rawGrid.map(row => row.map(cell => selectedSymbols[(cell || 1) - 1]));
+
+        return {
+            title: "Dil ve Mantık Sudokusu",
+            instruction: "Tablodaki her satır, her sütun ve her kalın çizgili bölgede semboller sadece BİR KEZ bulunmalıdır. Boşlukları doldur!",
+            pedagogicalNote: "Çalışma belleği, görsel tarama ve yönetici işlevleri (planlama, ketleme) sözel semboller üzerinden geliştirir.",
+            grid: mappedGrid,
+            solution: solution,
+            symbols: selectedSymbols.map(s => ({ value: s, label: s, imagePrompt: variant === 'visuals' ? s : undefined })),
+            settings: {
+                size: gridSize,
+                variant: variant as any,
+                fontFamily: options.fontFamily || 'OpenDyslexic'
+            }
+        };
+    });
+};
 
 export const generateOfflineSynonymAntonymMatch = async (options: GeneratorOptions): Promise<SynonymAntonymMatchData[]> => {
     const { worksheetCount, itemCount = 6, variant = 'mixed' } = options;

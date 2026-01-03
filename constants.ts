@@ -12,6 +12,13 @@ export const DIFFICULTY_OPTIONS = [
 // Activities List
 export const ACTIVITIES: Activity[] = [
     {
+        id: ActivityType.READING_SUDOKU,
+        title: 'Dil ve Mantık Sudokusu',
+        description: 'Harfler, kelimeler veya sembollerle kurgulanmış, disleksi dostu mantıksal akıl yürütme.',
+        icon: 'fa-solid fa-table-cells-large',
+        defaultStyle: { columns: 1 }
+    },
+    {
         id: ActivityType.READING_STROOP,
         title: 'Sözel Stroop Testi',
         description: 'Renk ve kelime çelişkisi üzerinden dikkat ve sözel enterferans çalışması.',
@@ -129,7 +136,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         title: 'Okuma & Dil',
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
-        activities: [ActivityType.LETTER_VISUAL_MATCHING, ActivityType.READING_STROOP, ActivityType.SYNONYM_ANTONYM_MATCH, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
+        activities: [ActivityType.READING_SUDOKU, ActivityType.LETTER_VISUAL_MATCHING, ActivityType.READING_STROOP, ActivityType.SYNONYM_ANTONYM_MATCH, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
     },
     {
         id: 'math-logic',
