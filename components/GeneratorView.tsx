@@ -126,7 +126,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         mode: 'fast',
         difficulty: 'Orta',
         worksheetCount: 1,
-        itemCount: activity.id === ActivityType.SYLLABLE_MASTER_LAB ? 24 : 12,
+        itemCount: activity.id === ActivityType.SYLLABLE_MASTER_LAB ? 24 : 16,
         gridSize: 4,
         topic: '',
         distractionLevel: 'medium',
@@ -140,10 +140,12 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         showCityNames: true,
         markerStyle: 'circle',
         customInput: '',
-        variant: 'split',
+        variant: 'op-res',
         case: 'upper',
         fontFamily: 'OpenDyslexic',
-        syllableRange: '2-3'
+        syllableRange: '2-3',
+        selectedOperations: ['add', 'sub'],
+        visualStyle: 'mixed'
     });
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
@@ -173,6 +175,56 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     };
 
     const renderActivityControls = () => {
+        // --- MATH MEMORY CARDS ---
+        if (activity.id === ActivityType.MATH_MEMORY_CARDS) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <CompactSelect 
+                        label="Eşleştirme Modu" 
+                        value={options.variant || 'op-res'} 
+                        onChange={(v:any) => handleChange('variant', v)}
+                        options={[
+                            { value: 'op-res', label: 'İşlem - Sonuç' },
+                            { value: 'vis-num', label: 'Görsel Temsil - Sayı' },
+                            { value: 'eq-eq', label: 'Denk İşlemler (Zor)' },
+                            { value: 'mixed', label: 'Karma Mod' }
+                        ]}
+                        icon="fa-clone"
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactCounter label="Kart Sayısı (Toplam)" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={8} max={32} icon="fa-layer-group" />
+                        <p className="text-[9px] text-zinc-400 italic leading-tight">* Kart sayısı çift olmalıdır. A4 sayfasını doldurmak için 24 veya 32 önerilir.</p>
+                        
+                        <CompactCheckboxGroup 
+                            label="Kullanılacak İşlemler" 
+                            selected={options.selectedOperations || ['add']}
+                            onChange={(v:string[]) => handleChange('selectedOperations', v)}
+                            options={[
+                                { value: 'add', label: 'Toplama' },
+                                { value: 'sub', label: 'Çıkarma' },
+                                { value: 'mult', label: 'Çarpma' },
+                                { value: 'div', label: 'Bölme' }
+                            ]}
+                        />
+
+                        <CompactSelect 
+                            label="Görsel Stil" 
+                            value={options.visualStyle || 'mixed'} 
+                            onChange={(v:any) => handleChange('visualStyle', v)}
+                            options={[
+                                { value: 'ten-frame', label: '10\'luk Çerçeve' },
+                                { value: 'blocks', label: 'Taban Bloklar' },
+                                { value: 'dice', label: 'Domino / Zar' },
+                                { value: 'mixed', label: 'Karışık' }
+                            ]}
+                            icon="fa-shapes"
+                        />
+                    </div>
+                </div>
+            );
+        }
+
         // --- SYLLABLE MASTER LAB ---
         if (activity.id === ActivityType.SYLLABLE_MASTER_LAB) {
             return (

@@ -20,6 +20,10 @@ const getWeight = (item: any, activityType: ActivityType): number => {
 
     // Hece Ustası: Bir sayfaya yaklaşık 32-40 tane sığmalı
     if (activityType === ActivityType.SYLLABLE_MASTER_LAB) return 1.8;
+    
+    // Hafıza Kartları: Kart sayısına göre ağırlık ver
+    // Bir sayfaya 24-32 kart sığması için ağırlığı küçültüyoruz
+    if (activityType === ActivityType.MATH_MEMORY_CARDS) return 1.8;
 
     if (item.type === 'image' || item.imagePrompt || item.imageBase64) return 15;
     if (item.type === 'table') return 10 + ((item.rows?.length || 0) * 2);
@@ -39,7 +43,8 @@ export const paginationService = {
 
         const newPages: any[] = [];
         data.forEach((originalPageData) => {
-            const listKey = originalPageData.puzzles ? 'puzzles' : (originalPageData.operations ? 'operations' : (originalPageData.steps ? 'steps' : (originalPageData.problems ? 'problems' : (originalPageData.items ? 'items' : null))));
+            // Check cards for MathMemoryCards or items for general
+            const listKey = originalPageData.cards ? 'cards' : (originalPageData.puzzles ? 'puzzles' : (originalPageData.operations ? 'operations' : (originalPageData.steps ? 'steps' : (originalPageData.problems ? 'problems' : (originalPageData.items ? 'items' : null)))));
             
             if (listKey && Array.isArray(originalPageData[listKey])) {
                 let currentItems: any[] = [];

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { NumberSenseData, VisualArithmeticData, SpatialGridData, ConceptMatchData, EstimationData, VisualMathType, ClockReadingData, MoneyCountingData, MathMemoryCardsData } from '../../types';
+import { NumberSenseData, VisualArithmeticData, SpatialGridData, ConceptMatchData, EstimationData, VisualMathType, ClockReadingData, MoneyCountingData, MathMemoryCardsData, MathMemoryCard } from '../../types';
 import { PedagogicalHeader, TenFrame, Domino, NumberBond, FractionVisual, AnalogClock, NumberLine, Shape, Base10Visualizer } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
@@ -61,6 +61,51 @@ const MoneyIcon: React.FC<{ value: number, type: 'coin' | 'note' }> = ({ value, 
     );
 };
 
+// Updated to use React.FC to better handle internal component typing and implicit JSX props like 'key'
+const MemoryCardUI: React.FC<{ card: MathMemoryCard, accent: string }> = ({ card, accent }) => {
+    return (
+        <EditableElement className="aspect-[3/4] bg-white border-[1px] border-zinc-200 rounded-lg flex flex-col items-center justify-center p-4 relative overflow-hidden group shadow-sm transition-all hover:border-indigo-400 break-inside-avoid">
+            {/* Cut guides */}
+            <div className="absolute top-0 left-0 w-full h-full border-[1.5px] border-dashed border-zinc-200 pointer-events-none"></div>
+            
+            {/* Pair Identifier (Visual Hint for teacher/parent, very subtle) */}
+            <div className="absolute top-1 left-1 text-[6px] text-zinc-100 font-mono select-none">{card.pairId.substring(0,4)}</div>
+
+            {/* Main Content */}
+            <div className="flex-1 flex items-center justify-center w-full">
+                {card.type === 'operation' && (
+                    <span className="text-2xl font-black text-zinc-800 tracking-tighter text-center leading-none">
+                        {card.content.replace('x', '×').replace('/', '÷')}
+                    </span>
+                )}
+                {card.type === 'number' && (
+                    <div className="flex flex-col items-center">
+                        <span className="text-4xl font-black text-indigo-600 drop-shadow-sm">{card.content}</span>
+                        <div className="w-6 h-1 bg-indigo-100 rounded-full mt-2"></div>
+                    </div>
+                )}
+                {card.type === 'visual' && (
+                    <div className="scale-[0.8] origin-center">
+                        {card.visualType === 'ten-frame' && <TenFrame count={card.numValue} />}
+                        {card.visualType === 'dice' && <Domino count={card.numValue} />}
+                        {card.visualType === 'blocks' && <Base10Visualizer number={card.numValue} />}
+                    </div>
+                )}
+                {card.type === 'text' && (
+                    <span className="text-sm font-bold text-center text-zinc-600 uppercase leading-tight italic">
+                        <EditableText value={card.content} tag="span" />
+                    </span>
+                )}
+            </div>
+
+            {/* Corner Icon */}
+            <div className="absolute bottom-2 right-2 opacity-10">
+                <i className={`fa-solid ${card.type === 'operation' ? 'fa-calculator' : 'fa-brain'} text-xs text-zinc-900`}></i>
+            </div>
+        </EditableElement>
+    );
+};
+
 // --- COMPONENTS ---
 
 export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = ({ data }) => (
@@ -71,7 +116,7 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
             {(data.problems || []).map((prob, idx) => {
                 const visual = prob.visualType || 'objects';
                 return (
-                    <div key={idx} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 shadow-sm flex flex-col items-center gap-4 break-inside-avoid">
+                    <div key={idx} className="p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 border-zinc-200 shadow-sm flex flex-col gap-4 break-inside-avoid">
                         <div className="flex items-center gap-4">
                             {visual === 'ten-frame' && <TenFrame count={prob.num1} />}
                             {visual === 'dice' && <Domino count={prob.num1} />}
@@ -206,34 +251,36 @@ export const MoneyCountingSheet: React.FC<{ data: MoneyCountingData }> = ({ data
     </div>
 );
 
-export const MathMemoryCardsSheet: React.FC<{ data: MathMemoryCardsData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        <div className="grid grid-cols-4 gap-4 mt-8">
-            {(shuffle((data.pairs || []).flatMap((p, i) => [
-                { id: `a-${i}`, content: p.card1 },
-                { id: `b-${i}`, content: p.card2 }
-            ])) as any[]).map((card) => (
-                <div key={card.id} className="aspect-[3/4] bg-white border-2 border-zinc-200 rounded-xl flex flex-col items-center justify-center p-2 shadow-sm hover:border-indigo-400 transition-colors">
-                    {card.content.type === 'operation' && <span className="text-xl font-bold font-mono text-indigo-700">{card.content.value}</span>}
-                    {card.content.type === 'number' && <span className="text-3xl font-black text-zinc-800">{card.content.value}</span>}
-                    {card.content.type === 'visual' && card.content.visualType === 'ten-frame' && <TenFrame count={card.content.num || 0} className="scale-75" />}
-                    {card.content.type === 'visual' && card.content.visualType === 'dice' && <Domino count={card.content.num || 0} />}
-                    {card.content.type === 'visual' && card.content.visualType === 'blocks' && <Base10Visualizer number={card.content.num || 0} className="scale-50" />}
-                </div>
-            ))}
-        </div>
-    </div>
-);
+export const MathMemoryCardsSheet: React.FC<{ data: MathMemoryCardsData }> = ({ data }) => {
+    const cols = data.settings?.gridCols || 4;
+    
+    return (
+        <div className="flex flex-col h-full font-lexend p-2">
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            
+            <div 
+                className="flex-1 grid gap-4 mt-6 content-start"
+                style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+            >
+                {(data.cards || []).map((card) => (
+                    <MemoryCardUI key={card.id} card={card} accent="#4f46e5" />
+                ))}
+            </div>
 
-function shuffle<T>(array: T[]): T[] {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
-}
+            <div className="mt-8 p-4 bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-200 flex justify-between items-center opacity-70 break-inside-avoid">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-200 flex items-center justify-center text-xs"><i className="fa-solid fa-scissors"></i></div>
+                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest leading-tight">
+                        Kesim Talimatı: Noktalı çizgilerden <br/> özenle kesin.
+                    </p>
+                </div>
+                <div className="text-right">
+                    <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.4em]">Bursa Disleksi AI • Hafıza Atölyesi v3.0</p>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) => (
     <div>
@@ -251,11 +298,11 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
                     )
                 }
                 
-                if (ex.type === 'comparison' && ex.visualType === 'ten-frame') {
+                if (ex.type === 'comparison' && (ex.visualType === 'ten-frame' || ex.visualType === 'blocks')) {
                     return (
                         <div key={idx} className="flex items-center justify-around p-6 bg-white dark:bg-zinc-700/50 rounded-xl border-2 break-inside-avoid">
                             <div className="flex flex-col items-center gap-2">
-                                <TenFrame count={ex.values[0]} />
+                                {ex.visualType === 'ten-frame' ? <TenFrame count={ex.values[0]} /> : <Base10Visualizer number={ex.values[0]} className="scale-75" />}
                                 <div className="w-10 h-10 border-2 border-dashed border-zinc-300 rounded flex items-center justify-center"><EditableText value="" tag="span" /></div>
                             </div>
                             
@@ -266,7 +313,7 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
                             </div>
 
                             <div className="flex flex-col items-center gap-2">
-                                <TenFrame count={ex.values[1]} />
+                                {ex.visualType === 'ten-frame' ? <TenFrame count={ex.values[1]} /> : <Base10Visualizer number={ex.values[1]} className="scale-75" />}
                                 <div className="w-10 h-10 border-2 border-dashed border-zinc-300 rounded flex items-center justify-center"><EditableText value="" tag="span" /></div>
                             </div>
                         </div>
@@ -275,7 +322,7 @@ export const NumberSenseSheet: React.FC<{ data: NumberSenseData }> = ({ data }) 
                 
                 if (ex.type === 'ordering') {
                     return (
-                         <div key={idx} className="p-6 bg-white border-2 rounded-xl text-center">
+                         <div key={idx} className="p-6 bg-white border-2 rounded-xl text-center break-inside-avoid">
                              <p className="font-bold mb-4">Bu nesnelerin sayısı kaçtır?</p>
                              <div className="flex flex-wrap gap-2 justify-center mb-4">
                                 {Array.from({length: ex.target}).map((_,k) => <div key={k} className="w-6 h-6 bg-indigo-500 rounded-full"></div>)}

@@ -1,3 +1,4 @@
+
 import { BaseActivityData, ShapeType, VisualMathType } from './core';
 
 export * from './core';
@@ -74,14 +75,12 @@ export interface MathPageConfig {
     title: string;
 }
 
-// Added missing AlgorithmStep missing from sheets and generators
 export interface AlgorithmStep {
     id: number;
     type: 'start' | 'process' | 'decision' | 'input' | 'output' | 'end';
     text: string;
 }
 
-// Added missing AlgorithmData missing from sheets and generators
 export interface AlgorithmData extends BaseActivityData {
     challenge: string;
     steps: AlgorithmStep[];
@@ -222,137 +221,64 @@ export interface EstimationData extends BaseActivityData {
     }[];
 }
 
-export interface NumberBoxLogicData extends BaseActivityData {
-    puzzles: {
-        box1: number[];
-        box2: number[];
-        questions: {
-            text: string;
-            options: string[];
-            correctAnswer: string;
-        }[];
-    }[];
+export interface MathMemoryCard {
+    id: string;
+    pairId: string;
+    type: 'operation' | 'number' | 'visual' | 'text';
+    content: string;
+    visualType?: VisualMathType;
+    numValue: number;
 }
 
-export interface MindGamesData extends BaseActivityData {
-    puzzles: {
-        type: string;
-        shape?: string;
-        numbers?: (number | string)[];
-        grid?: (number | string | null)[][];
-        input?: number;
-        output?: string;
-        rule?: string;
-        question?: string;
-        answer: string;
-        hint?: string;
-        imagePrompt?: string;
-        imageBase64?: string;
-        title?: string;
-    }[];
+export interface MathMemoryCardsData extends BaseActivityData {
+    cards: MathMemoryCard[];
+    settings: {
+        gridCols: number;
+        cardCount: number;
+        difficulty: string;
+        variant: 'op-res' | 'vis-num' | 'eq-eq' | 'mixed';
+    };
 }
 
-export interface MindGames56Data extends BaseActivityData {
-    puzzles: {
-        type: string;
-        title: string;
-        question: string;
-        answer: string;
-        hint?: string;
-        imagePrompt?: string;
-        imageBase64?: string;
-    }[];
-}
-
-export interface ConceptMatchData extends BaseActivityData {
-    layout: 'list' | 'visual';
-    pairs: {
-        item1: string;
-        item2: string;
-        type: string;
-        imagePrompt1?: string;
-    }[];
-}
-
-export interface LogicGridPuzzleData extends BaseActivityData {
-    prompt: string;
-    clues: string[];
-    people: string[];
-    categories: {
-        title: string;
-        items: { name: string; imageDescription: string; imagePrompt: string }[];
-    }[];
-}
-
-export interface VisualNumberPatternData extends BaseActivityData {
-    prompt: string;
-    puzzles: {
-        items: { number: number; color: string; size: number }[];
-        rule: string;
-        answer: number;
-    }[];
-}
-
-export interface RomanNumeralStarHuntData extends BaseActivityData {
-    items: any[];
-}
-
-export interface RoundingConnectData extends BaseActivityData {
-    items: any[];
-}
-
-export interface RomanNumeralMultiplicationData extends BaseActivityData {
-    items: any[];
-}
-
+// Added missing interfaces for Number Logic Riddles
 export interface NumberLogicRiddleData extends BaseActivityData {
     sumTarget: number;
     sumMessage: string;
     puzzles: {
         riddle: string;
+        visualHint?: string;
         boxes: number[][];
         options: string[];
         answer: string;
         answerValue: number;
-        visualHint?: string;
     }[];
 }
 
+// Added missing interfaces for Money Counting
+export interface MoneyCountingData extends BaseActivityData {
+    puzzles: {
+        notes?: { value: number; count: number }[];
+        coins?: { value: number; count: number }[];
+        question: string;
+        options: string[];
+        answer: string;
+    }[];
+}
+
+// Added missing interfaces for Clock Reading
 export interface ClockReadingData extends BaseActivityData {
     clocks: {
         hour: number;
         minute: number;
-        displayType: 'analog' | 'digital';
-        question?: string;
         options?: string[];
-        correctAnswer: string;
+        answer: string;
     }[];
 }
 
-export interface MoneyCountingData extends BaseActivityData {
-    puzzles: {
-        totalAmount: number;
-        coins?: { value: number; count: number }[];
-        notes?: { value: number; count: number }[];
-        question: string;
-        options: number[];
-        correctAnswer: number;
-    }[];
-}
-
-export interface MathMemoryCardsData extends BaseActivityData {
+// Added missing interfaces for Concept Matching
+export interface ConceptMatchData extends BaseActivityData {
     pairs: {
-        card1: { type: 'operation' | 'visual' | 'text'; value: string; visualType?: string; num?: number };
-        card2: { type: string; value: string };
+        item1: string;
+        item2: string;
     }[];
-}
-
-export interface FamilyRelationsData extends BaseActivityData {
-    members: { name: string; relation: string; imagePrompt: string }[];
-    questions: { text: string; answer: string }[];
-}
-
-export interface LogicDeductionData extends BaseActivityData {
-    premises: string[];
-    questions: { text: string; options: string[]; answer: string }[];
 }

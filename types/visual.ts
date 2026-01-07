@@ -251,3 +251,69 @@ export interface HiddenPasswordGridData extends BaseActivityData {
         grid: string[][];
     }[];
 }
+
+// Added missing interfaces for Logic and Visual activities
+export interface VisualNumberPatternData extends BaseActivityData {
+    puzzles: {
+        items: { number: number; color: string; size: number }[];
+        rule: string;
+        answer: number;
+    }[];
+}
+
+export interface LogicGridPuzzleData extends BaseActivityData {
+    clues: string[];
+    people: string[];
+    categories: {
+        title: string;
+        items: {
+            name: string;
+            imageDescription: string;
+            imagePrompt: string;
+        }[];
+    }[];
+}
+
+export interface RomanNumeralStarHuntData extends BaseActivityData {
+    grid: (string | null)[][];
+    targetCount: number;
+}
+
+export interface RoundingConnectData extends BaseActivityData {
+    pairs: {
+        source: string;
+        target: string;
+    }[];
+}
+
+export interface RomanNumeralMultiplicationData extends BaseActivityData {
+    problems: {
+        num1: string;
+        num2: string;
+        answer: string;
+    }[];
+}
+
+export interface FamilyRelationsData extends BaseActivityData {
+    puzzles: {
+        tree: any;
+        questions: { question: string; answer: string }[];
+    }[];
+}
+
+export interface LogicDeductionData extends BaseActivityData {
+    puzzles: {
+        premises: string[];
+        conclusion: string;
+        options: string[];
+        answer: string;
+    }[];
+}
+
+export interface NumberBoxLogicData extends BaseActivityData {
+    puzzles: {
+        grid: number[][];
+        target: number;
+        rule: string;
+    }[];
+}
