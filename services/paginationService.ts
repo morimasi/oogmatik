@@ -13,10 +13,13 @@ const getWeight = (item: any, activityType: ActivityType): number => {
     if (!item) return 0;
     
     // Sayısal Mantık Bilmeceleri için: Bir sayfada tam 4 tane (2x2) duracak şekilde ayarlandı
-    if (activityType === 'NUMBER_LOGIC_RIDDLES') return 18;
+    if (activityType === ActivityType.NUMBER_LOGIC_RIDDLES) return 18;
     
     // Algoritma Üretici: Genelde tek sayfa olması istenir ama çok adımsa böler
-    if (activityType === 'ALGORITHM_GENERATOR') return 12;
+    if (activityType === ActivityType.ALGORITHM_GENERATOR) return 12;
+
+    // Hece Ustası: Bir sayfaya yaklaşık 32-40 tane sığmalı
+    if (activityType === ActivityType.SYLLABLE_MASTER_LAB) return 1.8;
 
     if (item.type === 'image' || item.imagePrompt || item.imageBase64) return 15;
     if (item.type === 'table') return 10 + ((item.rows?.length || 0) * 2);
@@ -30,13 +33,13 @@ export const paginationService = {
         if (!data || !Array.isArray(data) || data.length === 0) return [];
         
         // Bu türler akışkan kalmalı
-        if (activityType === 'STORY_COMPREHENSION' || activityType === 'AI_WORKSHEET_CONVERTER') return data;
+        if (activityType === ActivityType.STORY_COMPREHENSION || activityType === ActivityType.AI_WORKSHEET_CONVERTER) return data;
 
         if (settings && settings.smartPagination === false) return data;
 
         const newPages: any[] = [];
         data.forEach((originalPageData) => {
-            const listKey = originalPageData.puzzles ? 'puzzles' : (originalPageData.operations ? 'operations' : (originalPageData.steps ? 'steps' : (originalPageData.problems ? 'problems' : null)));
+            const listKey = originalPageData.puzzles ? 'puzzles' : (originalPageData.operations ? 'operations' : (originalPageData.steps ? 'steps' : (originalPageData.problems ? 'problems' : (originalPageData.items ? 'items' : null))));
             
             if (listKey && Array.isArray(originalPageData[listKey])) {
                 let currentItems: any[] = [];

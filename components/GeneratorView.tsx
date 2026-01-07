@@ -126,7 +126,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         mode: 'fast',
         difficulty: 'Orta',
         worksheetCount: 1,
-        itemCount: 6,
+        itemCount: activity.id === ActivityType.SYLLABLE_MASTER_LAB ? 24 : 12,
         gridSize: 4,
         topic: '',
         distractionLevel: 'medium',
@@ -140,9 +140,10 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         showCityNames: true,
         markerStyle: 'circle',
         customInput: '',
-        variant: 'letters',
+        variant: 'split',
         case: 'upper',
-        fontFamily: 'OpenDyslexic'
+        fontFamily: 'OpenDyslexic',
+        syllableRange: '2-3'
     });
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
@@ -191,16 +192,33 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     />
 
                     <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
-                        <CompactCounter label="Kelime Sayısı" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={4} max={12} icon="fa-list-ol" />
+                        <CompactCounter label="Kelime Sayısı" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={4} max={60} icon="fa-list-ol" />
+                        <CompactSelect 
+                            label="Hece Sayısı Aralığı" 
+                            value={options.syllableRange || '2-3'} 
+                            onChange={(v:any) => handleChange('syllableRange', v)}
+                            options={[
+                                { value: '1-1', label: 'Sadece 1 Heceli' },
+                                { value: '2-2', label: 'Sadece 2 Heceli' },
+                                { value: '3-3', label: 'Sadece 3 Heceli' },
+                                { value: '1-2', label: '1 - 2 Heceli' },
+                                { value: '2-3', label: '2 - 3 Heceli' },
+                                { value: '3-4', label: '3 - 4 Heceli' },
+                                { value: '1-4', label: 'Karma (1-4 Hece)' }
+                            ]}
+                            icon="fa-layer-group"
+                        />
                         <CompactSelect 
                             label="Kelime Havuzu" 
                             value={options.topic || 'animals'} 
                             onChange={(v:any) => handleChange('topic', v)}
                             options={[
                                 { value: 'animals', label: 'Hayvanlar' },
-                                { value: 'fruits_veggies', label: 'Meyveler' },
+                                { value: 'fruits_veggies', label: 'Meyve & Sebze' },
                                 { value: 'school', label: 'Okul Eşyaları' },
-                                { value: 'abstract', label: 'Soyut Kavramlar' }
+                                { value: 'items_household', label: 'Ev Eşyaları' },
+                                { value: 'abstract', label: 'Soyut Kavramlar' },
+                                { value: 'mixed', label: 'Karma Havuz' }
                             ]}
                             icon="fa-box-archive"
                         />
