@@ -1,4 +1,3 @@
-
 export * from './algorithm';
 export * from './mathLogic';
 export * from './wordGames';
@@ -9,3 +8,5 @@ export * from './dyslexiaSupport';
 export * from './dyscalculia';
 export * from './newActivities';
 export * from './assessment';
+export * from './mapDetective';
+export * from './mathStudio';

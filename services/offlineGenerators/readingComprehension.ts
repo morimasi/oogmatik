@@ -76,8 +76,7 @@ export const generateOfflineSynonymAntonymMatch = async (options: GeneratorOptio
         const pairs = selection.map(item => ({
             source: item.word,
             target: (item as any).synonym || (item as any).antonym,
-            type: (item as any).synonym ? 'synonym' : 'antonym',
-            imagePrompt: item.word
+            type: (item as any).synonym ? 'synonym' : 'antonym'
         }));
 
         const sentences = [
@@ -160,7 +159,7 @@ const buildBaseStory = (difficulty: string) => {
     const template = getRandomItems(candidates, 1)[0];
     
     const chosenValues: Record<string, string> = {};
-    Object.keys(template.variables).forEach(key => {
+    template.variables && Object.keys(template.variables).forEach(key => {
         chosenValues[key] = getRandomItems(template.variables[key], 1)[0] as string;
     });
 

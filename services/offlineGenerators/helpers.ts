@@ -90,55 +90,39 @@ export const getWordsForDifficulty = (difficulty: string, topic?: string): strin
 };
 
 /**
- * TDK Türk Dili Kurallarına Uygun Heceleme Motoru
- * Kurallar:
- * 1. Her hecede sadece bir ünlü bulunur.
- * 2. İki ünlü arasındaki tek ünsüz sağa gider.
- * 3. İki ünlü arasındaki iki ünsüzden ilki sola, ikincisi sağa gider.
- * 4. Üç ünsüz varsa, ilk ikisi sola, üçüncüsü sağa gider.
+ * TDK Türk Dil Kurallarına Uygun Heceleme Motoru (Gelişmiş Versiyon)
+ * Kural: Bir kelime içinde iki ünlü arasındaki bir ünsüz, kendinden sonraki ünlüyle hece kurar.
+ * İki ünlü arasındaki iki ünsüzden ilki kendinden önceki ünlüyle, ikincisi kendinden sonraki ünlüyle hece kurar.
  */
 export const simpleSyllabify = (text: string): string[] => {
     if (!text) return [];
-    const word = text.toLowerCase();
+    const word = text.trim().toLowerCase();
     const vowels = "aeıioöuü";
     const syllables: string[] = [];
     
-    let currentSyllable = "";
-    let i = word.length - 1;
-
-    while (i >= 0) {
-        // Ünlü harfi bulana kadar geri git
+    let lastSplit = 0;
+    for (let i = 1; i < word.length; i++) {
         if (vowels.includes(word[i])) {
-            currentSyllable = word[i] + currentSyllable;
-            i--;
-
-            // Kelimenin başı değilse ve bir önceki karakter ünsüzse
-            if (i >= 0 && !vowels.includes(word[i])) {
-                // Önündeki karakter de ünsüz mü? (Kural 3: Üç ünsüz durumu için)
-                if (i > 0 && !vowels.includes(word[i-1]) && i-1 >= 0 && !vowels.includes(word[i-2])) {
-                    // Üç ünsüz yan yanaysa, sadece 1 tanesini sağa al, 2'sini sola bırak
-                    // Ancak Türkçede kökeni Türkçe olan kelimelerde 3 ünsüz yan yana gelmez (Batı dilleri hariç)
-                    currentSyllable = word[i] + currentSyllable;
-                    i--;
-                } else {
-                    // Tek ünsüzü sağa al (Kural 2)
-                    currentSyllable = word[i] + currentSyllable;
-                    i--;
-                }
+            // Eğer mevcut harf bir ünlü ise, split noktasını belirle
+            // Split noktası, ünlüden hemen önceki harftir (eğer o bir ünsüz ise)
+            let splitPoint = i;
+            if (i > 0 && !vowels.includes(word[i - 1])) {
+                splitPoint = i - 1;
             }
-            syllables.unshift(currentSyllable);
-            currentSyllable = "";
-        } else {
-            currentSyllable = word[i] + currentSyllable;
-            i--;
+            
+            // Eğer bu split noktası bir önceki heceden daha ilerideyse heceyi ayır
+            // Bu mantık "ilköğretim" gibi zorlu kelimeleri bile doğru ayırır: il-köğ-re-tim
+            if (splitPoint > lastSplit) {
+                syllables.push(text.substring(lastSplit, splitPoint));
+                lastSplit = splitPoint;
+            }
         }
     }
-
-    // Eğer başta kalan ünsüzler varsa, ilk heceye ekle
-    if (currentSyllable && syllables.length > 0) {
-        syllables[0] = currentSyllable + syllables[0];
-    } else if (currentSyllable) {
-        syllables.push(currentSyllable);
+    
+    // Kelimenin geri kalanını son hece olarak ekle
+    const remaining = text.substring(lastSplit);
+    if (remaining) {
+        syllables.push(remaining);
     }
 
     return syllables;
@@ -195,7 +179,6 @@ export const generateConnectedPath = (dim: number, complexity: number): [number,
         ].filter(m => {
             const nx = currentX + m.dx;
             const ny = currentY + m.dy;
-            // Stay within safe bounds (usually left half of grid for copy tasks)
             return nx >= 0 && nx <= dim && ny >= 0 && ny <= dim;
         });
         

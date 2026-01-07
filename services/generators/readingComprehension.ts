@@ -88,7 +88,7 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
     KURALLAR:
     1. Kelimeler somut ve disleksik bireylerin kelime dağarcığını geliştirecek nitelikte seçilmeli.
     2. "pairs" listesi: Bir kaynak kelime ve onun hedef (eş veya zıt) anlamlısını içermeli.
-    3. Her çift için "imagePrompt" (İngilizce, sevimli illüstrasyon tarzı) ekle.
+    3. GÖRSEL KULLANMA: Bu etkinlik sadece metin tabanlıdır, kesinlikle görsel/imagePrompt üretme.
     4. "sentences" listesi: Kelimenin cümle içindeki kullanımını ve parantez içinde bizden ne istendiğini belirt (örn: "(Zıt Anlamlısını Yaz)").
     5. Pedagojik Not: Disleksi gelişimini nasıl desteklediğini teknik ama anlaşılır açıkla.
 
@@ -111,10 +111,9 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
                         properties: {
                             source: { type: Type.STRING },
                             target: { type: Type.STRING },
-                            type: { type: Type.STRING },
-                            imagePrompt: { type: Type.STRING }
+                            type: { type: Type.STRING }
                         },
-                        required: ['source', 'target', 'type', 'imagePrompt']
+                        required: ['source', 'target', 'type']
                     }
                 },
                 sentences: {

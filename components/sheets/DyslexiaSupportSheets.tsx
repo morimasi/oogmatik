@@ -24,7 +24,7 @@ export const SyllableMasterLabSheet: React.FC<{ data: SyllableMasterLabData }> =
         const isScrambled = mode === 'scrambled';
 
         return (
-            <EditableElement key={idx} className="flex flex-col gap-1 p-2 border-[1.5px] border-zinc-900 rounded-[1.2rem] bg-white group hover:border-indigo-500 transition-all shadow-sm break-inside-avoid relative overflow-hidden">
+            <EditableElement key={idx} className="flex flex-col gap-1 p-2 border-[2px] border-zinc-900 rounded-[1.2rem] bg-white group hover:border-indigo-500 transition-all shadow-sm break-inside-avoid relative overflow-hidden">
                 <div className="flex-1">
                     {/* MODE: SPLIT */}
                     {isSplit && (
@@ -45,7 +45,7 @@ export const SyllableMasterLabSheet: React.FC<{ data: SyllableMasterLabData }> =
                         <div className="flex flex-col items-center gap-1.5">
                             <div className="flex gap-0.5 flex-wrap justify-center">
                                 {item.syllables.map((s:string, sIdx:number) => (
-                                    <div key={sIdx} className="px-1.5 py-0.5 bg-zinc-900 text-white rounded-md font-black text-[10px]">
+                                    <div key={sIdx} className="px-2 py-0.5 bg-zinc-900 text-white rounded-md font-black text-xs">
                                         <EditableText value={s} tag="span" />
                                     </div>
                                 ))}
@@ -56,11 +56,11 @@ export const SyllableMasterLabSheet: React.FC<{ data: SyllableMasterLabData }> =
 
                     {/* MODE: COMPLETE */}
                     {isComplete && (
-                        <div className="flex items-center justify-center gap-0.5 py-1">
+                        <div className="flex items-center justify-center gap-1 py-1">
                              {item.syllables.map((s:string, sIdx:number) => {
                                  const isMissing = sIdx === item.missingIndex;
                                  return (
-                                     <div key={sIdx} className={`px-1.5 py-1 rounded-md font-black text-xs border-[1.5px] ${isMissing ? 'border-dashed border-indigo-400 bg-indigo-50 text-transparent' : 'border-zinc-900 bg-white text-zinc-800'}`}>
+                                     <div key={sIdx} className={`px-2 py-1 rounded-md font-black text-sm border-[2px] ${isMissing ? 'border-dashed border-indigo-400 bg-indigo-50 text-transparent' : 'border-zinc-900 bg-white text-zinc-800'}`}>
                                          {isMissing ? '..' : <EditableText value={s} tag="span" />}
                                      </div>
                                  );
@@ -68,16 +68,31 @@ export const SyllableMasterLabSheet: React.FC<{ data: SyllableMasterLabData }> =
                         </div>
                     )}
 
-                    {/* MODE: RAINBOW */}
+                    {/* MODE: RAINBOW (Contrast Optimized) */}
                     {isRainbow && (
-                        <div className="flex items-center justify-center gap-0.5 flex-wrap py-1">
+                        <div className="flex items-center justify-center gap-1 flex-wrap py-1">
                             {item.syllables.map((s:string, sIdx:number) => {
-                                // Yüksek kontrastlı klinik renk paleti
-                                const colors = ['#e11d48', '#2563eb', '#059669', '#d97706', '#7c3aed', '#0891b2'];
-                                const color = colors[sIdx % colors.length];
+                                // Geliştirilmiş Yüksek Kontrastlı Klinik Renk Paleti (Beyaz zeminde görünürlüğü garanti eder)
+                                const highContrastColors = [
+                                    '#be123c', // Gül (Koyu)
+                                    '#1d4ed8', // Mavi (Koyu)
+                                    '#047857', // Yeşil (Zümrüt)
+                                    '#b45309', // Amber (Koyu)
+                                    '#6d28d9', // Mor (Koyu)
+                                    '#0e7490', // Cyan (Koyu)
+                                    '#c2410c'  // Turuncu (Pas)
+                                ];
+                                const color = highContrastColors[sIdx % highContrastColors.length];
                                 return (
-                                    <div key={sIdx} className="px-2 py-1 rounded-md border-[2px] shadow-sm" style={{ backgroundColor: `${color}33`, borderColor: color }}>
-                                        <span className="text-base font-black tracking-tight" style={{ color: color }}>
+                                    <div 
+                                        key={sIdx} 
+                                        className="px-2.5 py-1.5 rounded-lg border-[2.5px] shadow-sm flex items-center justify-center min-w-[30px]" 
+                                        style={{ 
+                                            backgroundColor: `${color}15`, // %8 Opasite (Yumuşak dolgu)
+                                            borderColor: color 
+                                        }}
+                                    >
+                                        <span className="text-sm font-black tracking-tight" style={{ color: color }}>
                                             <EditableText value={s} tag="span" />
                                         </span>
                                     </div>
@@ -91,14 +106,14 @@ export const SyllableMasterLabSheet: React.FC<{ data: SyllableMasterLabData }> =
                         <div className="flex flex-col gap-2">
                             <div className="flex gap-0.5 flex-wrap justify-center">
                                 {item.scrambledIndices?.map((origIdx: number) => (
-                                    <div key={origIdx} className="px-1.5 py-0.5 bg-white border border-zinc-300 rounded-full font-bold text-[9px] text-zinc-600 shadow-xs">
+                                    <div key={origIdx} className="px-2 py-1 bg-white border-2 border-zinc-300 rounded-full font-bold text-xs text-zinc-800 shadow-sm">
                                         <EditableText value={item.syllables[origIdx]} tag="span" />
                                     </div>
                                 ))}
                             </div>
-                            <div className="flex gap-0.5 px-1">
+                            <div className="flex gap-1 px-1">
                                 {item.syllables.map((_:string, i:number) => (
-                                    <div key={i} className="flex-1 h-5 border-b-[1.5px] border-zinc-900 bg-zinc-50/50"></div>
+                                    <div key={i} className="flex-1 h-6 border-b-[2px] border-zinc-900 bg-zinc-50/50"></div>
                                 ))}
                             </div>
                         </div>
@@ -111,11 +126,11 @@ export const SyllableMasterLabSheet: React.FC<{ data: SyllableMasterLabData }> =
     return (
         <div className="flex flex-col h-full bg-white font-lexend p-1">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-            <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 content-start">
+            <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 content-start">
                 {items.map((item, i) => renderItem(item, i))}
             </div>
-            <div className="mt-auto pt-2 border-t border-zinc-100 flex justify-between items-center px-4 opacity-40">
-                <p className="text-[6px] text-zinc-400 font-bold uppercase tracking-[0.4em]">Bursa Disleksi AI • Hece Laboratuvarı v4.1 (Yazım Denetimli)</p>
+            <div className="mt-auto pt-4 border-t border-zinc-100 flex justify-between items-center px-4 opacity-40">
+                <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.4em]">Bursa Disleksi AI • Hece Laboratuvarı v5.0 (TDK Uyumlu)</p>
             </div>
         </div>
     );

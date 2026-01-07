@@ -189,11 +189,6 @@ export const SynonymAntonymMatchSheet: React.FC<{ data: SynonymAntonymMatchData 
                         <div key={idx} className="flex items-center justify-between p-3 border-2 border-zinc-800 rounded-2xl bg-zinc-50 relative group">
                             <span className="font-black text-lg uppercase"><EditableText value={pair.source} tag="span" /></span>
                             <div className="w-4 h-4 rounded-full border-2 border-zinc-800 bg-white absolute -right-2 top-1/2 -translate-y-1/2 group-hover:bg-indigo-500 transition-colors"></div>
-                            {pair.imagePrompt && (
-                                <div className="w-8 h-8 absolute -left-4 -top-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                     <ImageDisplay prompt={pair.imagePrompt} className="w-full h-full" />
-                                </div>
-                            )}
                         </div>
                     ))}
                 </div>
@@ -319,7 +314,7 @@ export const StoryComprehensionSheet: React.FC<{ data: InteractiveStoryData }> =
             </div>
 
             <div className="flex gap-8 mb-10 min-h-[400px]">
-                <div className="flex-1 bg-white p-8 rounded-[2rem] border-2 border-zinc-100 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)] relative overflow-hidden">
+                <div className="flex-1 bg-white p-8 rounded-[2rem] border-2 border-zinc-100 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-2 h-full bg-indigo-600"></div>
                     <div className="prose max-w-none font-dyslexic text-xl leading-[2.2] text-zinc-800 text-justify">
                         <StoryHighlighter text={data.story} highlights={(data.fiveW1H || []).map(q => ({ text: q.answer, type: q.type }))} />
