@@ -22,17 +22,11 @@ const MoneyIcon: React.FC<{ value: number, type: 'coin' | 'note' }> = ({ value, 
     );
 };
 
-// Updated to use React.FC to better handle internal component typing and implicit JSX props like 'key'
 const MemoryCardUI: React.FC<{ card: MathMemoryCard, accent: string }> = ({ card, accent }) => {
     return (
         <EditableElement className="aspect-[3/4] bg-white border-[1px] border-zinc-200 rounded-lg flex flex-col items-center justify-center p-4 relative overflow-hidden group shadow-sm transition-all hover:border-indigo-400 break-inside-avoid">
-            {/* Cut guides */}
             <div className="absolute top-0 left-0 w-full h-full border-[1.5px] border-dashed border-zinc-200 pointer-events-none"></div>
-            
-            {/* Pair Identifier (Visual Hint for teacher/parent, very subtle) */}
             <div className="absolute top-1 left-1 text-[6px] text-zinc-100 font-mono select-none">{card.pairId.substring(0,4)}</div>
-
-            {/* Main Content */}
             <div className="flex-1 flex items-center justify-center w-full">
                 {card.type === 'operation' && (
                     <span className="text-2xl font-black text-zinc-800 tracking-tighter text-center leading-none">
@@ -58,8 +52,6 @@ const MemoryCardUI: React.FC<{ card: MathMemoryCard, accent: string }> = ({ card
                     </span>
                 )}
             </div>
-
-            {/* Corner Icon */}
             <div className="absolute bottom-2 right-2 opacity-10">
                 <i className={`fa-solid ${card.type === 'operation' ? 'fa-calculator' : 'fa-brain'} text-xs text-zinc-900`}></i>
             </div>
@@ -67,12 +59,9 @@ const MemoryCardUI: React.FC<{ card: MathMemoryCard, accent: string }> = ({ card
     );
 };
 
-// --- COMPONENTS ---
-
 export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = ({ data }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        
         <div className="dynamic-grid">
             {(data.problems || []).map((prob, idx) => {
                 const visual = prob.visualType || 'objects';
@@ -95,11 +84,9 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
                                     isAddition={prob.operator === '+'} 
                                 />
                             )}
-
                             {visual !== 'number-bond' && prob.operator !== 'group' && (
                                 <span className="text-3xl font-bold text-zinc-400"><EditableText value={prob.operator} tag="span" /></span>
                             )}
-
                             {visual !== 'number-bond' && prob.operator !== 'group' && (
                                 <>
                                     {visual === 'ten-frame' && <TenFrame count={prob.num2} />}
@@ -113,7 +100,6 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
                                 </>
                             )}
                         </div>
-
                         {visual !== 'number-bond' && (
                             <div className="flex items-center gap-2 text-2xl font-bold font-mono">
                                 {prob.operator === 'group' ? (
@@ -135,7 +121,6 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
                                 )}
                             </div>
                         )}
-                        
                         {prob.operator === 'group' && visual !== 'number-bond' && (
                             <div className="flex gap-4 mt-2">
                                 {Array.from({length: prob.num1}).map((_, gIdx) => (
@@ -156,35 +141,97 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
     </div>
 );
 
-export const ClockReadingSheet: React.FC<{ data: ClockReadingData }> = ({ data }) => (
-    <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        <div className="dynamic-grid">
-            {(data.clocks || []).map((clock, idx) => (
-                <div key={idx} className="p-6 bg-white border-2 border-zinc-100 rounded-2xl flex flex-col items-center gap-4 break-inside-avoid shadow-sm">
-                    <AnalogClock hour={clock.hour} minute={clock.minute} className="w-40 h-40" />
-                    <div className="w-full mt-4">
-                        {clock.options ? (
-                            <div className="grid grid-cols-2 gap-2">
-                                {clock.options.map((opt, i) => (
-                                    <div key={i} className="p-2 border rounded text-center font-bold hover:bg-indigo-50 cursor-pointer">
-                                        <EditableText value={opt} tag="span" />
+export const ClockReadingSheet: React.FC<{ data: ClockReadingData }> = ({ data }) => {
+    const isProblemMode = data.variant === 'elapsed-time';
+    const isVerbalMode = data.variant === 'verbal-match';
+    const showOptions = data.settings?.showOptions !== false; // Default true
+    const showHands = data.settings?.showHands !== false; // Default true
+    
+    const cols = isProblemMode ? 'grid-cols-1' : 'grid-cols-2 md:grid-cols-3';
+
+    return (
+        <div className="flex flex-col h-full bg-white font-lexend text-black relative">
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            
+            <div className={`grid ${cols} gap-8 mt-6 flex-1 content-start`}>
+                {(data.clocks || []).map((clock, idx) => (
+                    <EditableElement key={idx} className="p-6 bg-white border-[3px] border-zinc-900 rounded-[2.5rem] flex flex-col items-center gap-5 break-inside-avoid shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-300 group">
+                        
+                        {/* Analog Kadran */}
+                        <div className="relative group-hover:scale-105 transition-transform duration-500">
+                             <AnalogClock 
+                                hour={clock.hour} 
+                                minute={clock.minute} 
+                                className="w-40 h-40 drop-shadow-lg" 
+                                showNumbers={data.settings?.showNumbers}
+                                showTicks={data.settings?.showTicks}
+                                showHands={showHands}
+                             />
+                             <div className="absolute -top-3 -left-3 w-8 h-8 bg-zinc-900 text-white rounded-xl flex items-center justify-center font-black shadow-lg border-2 border-white">{idx + 1}</div>
+                        </div>
+
+                        {/* Görev Alanı */}
+                        <div className="w-full flex flex-col gap-3">
+                            {clock.problemText && (
+                                <p className="text-sm font-bold text-zinc-700 bg-indigo-50 p-3 rounded-xl border border-indigo-100 italic">
+                                    <EditableText value={clock.problemText} tag="span" />
+                                </p>
+                            )}
+
+                            {isVerbalMode && clock.verbalTime && (
+                                <div className="text-center p-2 bg-zinc-50 rounded-lg border-2 border-dashed border-zinc-200">
+                                    <span className="text-xs font-black text-indigo-600 uppercase tracking-tighter"><EditableText value={clock.verbalTime} tag="span" /></span>
+                                </div>
+                            )}
+
+                            <div className="mt-2">
+                                {(showOptions && clock.options) ? (
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {clock.options.map((opt, i) => (
+                                            <div key={i} className="p-2 border-2 border-zinc-100 rounded-xl text-center text-sm font-black hover:border-indigo-500 hover:bg-indigo-50 transition-all cursor-pointer">
+                                                <EditableText value={opt} tag="span" />
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+                                ) : (
+                                    <div className="flex flex-col items-center gap-2">
+                                        {/* Çizim modu için dijital saat kutusu (İsteğe bağlı görünürlük) */}
+                                        {!showHands && (
+                                            <div className="bg-zinc-900 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-2 shadow-lg">
+                                                {clock.timeString}
+                                            </div>
+                                        )}
+                                        <div className="flex items-center justify-center gap-3">
+                                            <div className="w-16 h-12 border-2 border-zinc-800 rounded-xl flex items-center justify-center text-xl font-mono font-black bg-zinc-50 shadow-inner">
+                                                <EditableText value="" tag="span" placeholder="00" />
+                                            </div>
+                                            <span className="font-black text-2xl animate-pulse">:</span>
+                                            <div className="w-16 h-12 border-2 border-zinc-800 rounded-xl flex items-center justify-center text-xl font-mono font-black bg-zinc-50 shadow-inner">
+                                                <EditableText value="" tag="span" placeholder="00" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            <div className="flex items-center justify-center gap-2">
-                                <div className="w-16 h-10 border-2 border-zinc-300 rounded flex items-center justify-center text-xl font-mono bg-zinc-50">...</div>
-                                <span className="font-bold">:</span>
-                                <div className="w-16 h-10 border-2 border-zinc-300 rounded flex items-center justify-center text-xl font-mono bg-zinc-50">...</div>
-                            </div>
-                        )}
+                        </div>
+                    </EditableElement>
+                ))}
+            </div>
+
+            <div className="mt-auto pt-8 flex justify-between items-end border-t border-zinc-100 px-6 opacity-40">
+                <div className="flex gap-10">
+                    <div className="flex flex-col">
+                        <span className="text-[7px] font-black uppercase tracking-widest text-zinc-400">Batarya</span>
+                        <span className="text-[10px] font-bold text-zinc-800 uppercase">Zaman Algısı v4.2</span>
                     </div>
                 </div>
-            ))}
+                <div className="text-right">
+                    <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.4em]">Bursa Disleksi AI • Uzman Modülü</p>
+                </div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 export const MoneyCountingSheet: React.FC<{ data: MoneyCountingData }> = ({ data }) => (
     <div>

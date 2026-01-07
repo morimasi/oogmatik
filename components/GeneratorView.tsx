@@ -140,12 +140,17 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         showCityNames: true,
         markerStyle: 'circle',
         customInput: '',
-        variant: 'op-res',
+        variant: 'analog-to-digital',
         case: 'upper',
         fontFamily: 'OpenDyslexic',
         syllableRange: '2-3',
         selectedOperations: ['add', 'sub'],
-        visualStyle: 'mixed'
+        visualStyle: 'mixed',
+        is24Hour: false,
+        showNumbers: true,
+        showTicks: true,
+        showOptions: true,
+        showHands: true
     });
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
@@ -175,6 +180,76 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     };
 
     const renderActivityControls = () => {
+        // --- CLOCK READING ---
+        if (activity.id === ActivityType.CLOCK_READING) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <CompactSelect 
+                        label="Çalışma Türü" 
+                        value={options.variant || 'analog-to-digital'} 
+                        onChange={(v:any) => handleChange('variant', v)}
+                        options={[
+                            { value: 'analog-to-digital', label: 'Analog -> Dijital' },
+                            { value: 'digital-to-analog', label: 'Dijital -> Analog' },
+                            { value: 'verbal-match', label: 'Sözel Eşleştirme' },
+                            { value: 'elapsed-time', label: 'Zaman Problemleri (AI)' }
+                        ]}
+                        icon="fa-clock"
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactCounter label="Saat Sayısı" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={2} max={12} icon="fa-list-ol" />
+                        
+                        <div className="grid grid-cols-2 gap-2">
+                            <CompactToggleGroup 
+                                label="Format" 
+                                selected={options.is24Hour ? '24h' : '12h'} 
+                                onChange={(v: string) => handleChange('is24Hour', v === '24h')} 
+                                options={[{ value: '12h', label: '12S' }, { value: '24h', label: '24S' }]} 
+                            />
+                            <CompactToggleGroup 
+                                label="Seçenekler" 
+                                selected={options.showOptions ? 'on' : 'off'} 
+                                onChange={(v: string) => handleChange('showOptions', v === 'on')} 
+                                options={[{ value: 'on', label: 'VAR' }, { value: 'off', label: 'YOK' }]} 
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                             <CompactToggleGroup 
+                                label="Sayılar" 
+                                selected={options.showNumbers ? 'on' : 'off'} 
+                                onChange={(v: string) => handleChange('showNumbers', v === 'on')} 
+                                options={[{ value: 'on', label: 'VAR' }, { value: 'off', label: 'YOK' }]} 
+                            />
+                             <CompactToggleGroup 
+                                label="Çizgiler" 
+                                selected={options.showTicks ? 'on' : 'off'} 
+                                onChange={(v: string) => handleChange('showTicks', v === 'on')} 
+                                options={[{ value: 'on', label: 'VAR' }, { value: 'off', label: 'YOK' }]} 
+                            />
+                        </div>
+
+                        <CompactToggleGroup 
+                            label="Akrep ve Yelkovan" 
+                            selected={options.showHands ? 'on' : 'off'} 
+                            onChange={(v: string) => handleChange('showHands', v === 'on')} 
+                            options={[{ value: 'on', label: 'GÖSTER' }, { value: 'off', label: 'GİZLE' }]} 
+                        />
+                    </div>
+                    
+                    {options.variant === 'elapsed-time' && (
+                        <div className="p-3 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+                            <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                <i className="fa-solid fa-wand-magic-sparkles"></i> AI Senaryo Desteği
+                            </p>
+                            <p className="text-[10px] text-zinc-500 italic leading-tight">Zaman aritmetiği için yapay zeka kişiselleştirilmiş hikayeler kurgulayacaktır.</p>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
         // --- MATH MEMORY CARDS ---
         if (activity.id === ActivityType.MATH_MEMORY_CARDS) {
             return (
@@ -352,7 +427,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
 
                     <div className="p-3 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
                         <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                            <i className="fa-solid fa-stopwatch"></i> Zamanlayıcı Modu
+                            <i className="fa-solid fa-wand-magic-sparkles"></i> Zamanlayıcı Modu
                         </p>
                         <p className="text-[10px] text-zinc-500 italic leading-tight">Bu çalışma klinik süre tutma kutusu ile birlikte oluşturulacaktır.</p>
                     </div>
@@ -810,7 +885,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     <button onClick={onBack} className="w-8 h-8 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-500 transition-colors"><i className="fa-solid fa-arrow-left"></i></button>
                     <h3 className="font-bold text-sm dark:text-white truncate max-w-[150px]">{activity.title}</h3>
                 </div>
-                {isLoading && <i className="fa-solid fa-circle-notch fa-spin text-indigo-500"></i>}
+                {isLoading && <i className="fa-solid fa-circle-notch fa-spin text-indigo-50"></i>}
             </div>
 
             <div className={`flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0 transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
@@ -826,9 +901,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                         <option value="anonymous">Misafir / Atanmamış</option>
                         {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
                     </select>
-                    <p className="text-[9px] text-amber-500 mt-2 italic font-medium leading-tight">
-                        * İçerikler öğrencinin tanısına ve gelişim ihtiyacına göre otomatik uyarlanır.
-                    </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 mb-6">

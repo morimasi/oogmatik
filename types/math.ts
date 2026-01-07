@@ -240,7 +240,6 @@ export interface MathMemoryCardsData extends BaseActivityData {
     };
 }
 
-// Added missing interfaces for Number Logic Riddles
 export interface NumberLogicRiddleData extends BaseActivityData {
     sumTarget: number;
     sumMessage: string;
@@ -254,7 +253,6 @@ export interface NumberLogicRiddleData extends BaseActivityData {
     }[];
 }
 
-// Added missing interfaces for Money Counting
 export interface MoneyCountingData extends BaseActivityData {
     puzzles: {
         notes?: { value: number; count: number }[];
@@ -265,17 +263,33 @@ export interface MoneyCountingData extends BaseActivityData {
     }[];
 }
 
-// Added missing interfaces for Clock Reading
 export interface ClockReadingData extends BaseActivityData {
+    variant: 'analog-to-digital' | 'digital-to-analog' | 'verbal-match' | 'elapsed-time';
     clocks: {
+        id: string;
         hour: number;
         minute: number;
+        timeString: string;
+        verbalTime?: string;
         options?: string[];
         answer: string;
+        problemText?: string;
+        imagePrompt?: string;
     }[];
+    settings: {
+        showNumbers: boolean;
+        is24Hour: boolean;
+        showTicks: boolean;
+        /**
+         * Added showOptions and showHands to settings to support generator configurations
+         * This fixes type errors in generators where these properties are assigned.
+         */
+        showOptions: boolean;
+        showHands: boolean;
+        difficulty: string;
+    };
 }
 
-// Added missing interfaces for Concept Matching
 export interface ConceptMatchData extends BaseActivityData {
     pairs: {
         item1: string;

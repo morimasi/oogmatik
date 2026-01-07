@@ -1,8 +1,83 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions } from '../../types';
+import { GeneratorOptions, ClockReadingData } from '../../types';
 import { getMathPrompt } from './prompts';
+
+export const generateClockReadingFromAI = async (options: GeneratorOptions): Promise<ClockReadingData[]> => {
+    const { difficulty, worksheetCount, itemCount = 4, variant = 'analog-to-digital', studentContext, is24Hour, showNumbers, showTicks, showOptions, showHands } = options;
+    
+    const variantDesc = {
+        'analog-to-digital': 'Analog saatten dijital saate dönüşüm.',
+        'digital-to-analog': 'Dijital saati analog kadran üzerinde çizme.',
+        'verbal-match': 'Sözel ifadeleri (çeyrek var, buçuk gibi) saatle eşleştirme.',
+        'elapsed-time': 'Zaman aritmetiği ve geçen süre problemleri.'
+    }[variant] || 'Zaman okuma';
+
+    const rule = `
+    [GÖREV]: Profesyonel Seviye Saat Okuma ve Zaman Algısı Etkinliği Üret.
+    ZORLUK SEVİYESİ: ${difficulty}
+    VARYANT: ${variantDesc}
+    ADET: Sayfa başına ${itemCount} görev.
+    
+    GÖRSEL AYARLAR:
+    - Format: ${is24Hour ? '24 Saat' : '12 Saat'}
+    - Saat Rakamları: ${showNumbers ? 'GÖRÜNÜR' : 'GİZLİ'}
+    - Dakika Çizgileri: ${showTicks ? 'GÖRÜNÜR' : 'GİZLİ'}
+    - Seçenekler (Dijital): ${showOptions ? 'GÖSTER' : 'GİZLE (Öğrenci Yazacak)'}
+    - Akrep/Yelkovan: ${showHands ? 'GÖSTER' : 'GİZLE (Öğrenci Çizecek)'}
+
+    ÖZEL TALİMATLAR:
+    1. Eğer varyant 'elapsed-time' ise: 'problemText' alanına günlük yaşamdan kısa bir hikaye yaz. 
+    2. Eğer varyant 'verbal-match' ise: 'verbalTime' alanına Türkçedeki klasik saat söyleyişini yaz.
+    `;
+
+    const prompt = getMathPrompt("Gelişmiş Zaman Atölyesi", difficulty, rule, studentContext);
+
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                variant: { type: Type.STRING },
+                clocks: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            id: { type: Type.STRING },
+                            hour: { type: Type.INTEGER },
+                            minute: { type: Type.INTEGER },
+                            timeString: { type: Type.STRING },
+                            verbalTime: { type: Type.STRING, nullable: true },
+                            options: { type: Type.ARRAY, items: { type: Type.STRING }, nullable: true },
+                            answer: { type: Type.STRING },
+                            problemText: { type: Type.STRING, nullable: true }
+                        },
+                        required: ['id', 'hour', 'minute', 'timeString', 'answer']
+                    }
+                }
+            },
+            required: ['title', 'instruction', 'clocks']
+        }
+    };
+
+    const result = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+    return result.map((page: any) => ({
+        ...page,
+        settings: {
+            showNumbers: showNumbers !== undefined ? showNumbers : true,
+            is24Hour: !!is24Hour,
+            showTicks: showTicks !== undefined ? showTicks : true,
+            showOptions: showOptions !== undefined ? showOptions : true,
+            showHands: showHands !== undefined ? showHands : true,
+            difficulty
+        }
+    }));
+};
 
 export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions): Promise<any[]> => {
     const { 

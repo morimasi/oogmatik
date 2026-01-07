@@ -5,36 +5,37 @@ import { GeneratorOptions, AlgorithmData } from '../../types';
 import { getStudentContextPrompt, PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE } from './prompts';
 
 /**
- * Generates an Algorithm Flowchart worksheet.
- * Supports Multimodal analysis using gemini-3-flash-preview.
+ * Algoritma Akış Şeması üreticisi.
+ * Multimodal analiz desteği ile (gemini-3-flash-preview) görselden mantık klonlayabilir.
  */
 export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions): Promise<AlgorithmData[]> => {
     const { topic, difficulty, worksheetCount, studentContext, customInput } = options;
     
-    // Check if we have an image to clone from (Multimodal Mode)
+    // Eğer bir görsel yüklenmişse (OCR Modu), multimodal analizi tetikle
     const sourceImage = typeof customInput === 'string' && customInput.startsWith('data:image') ? customInput : null;
 
     const prompt = `
     ${PEDAGOGICAL_BASE}
     ${getStudentContextPrompt(studentContext)}
     
-    KONU: "${topic || 'Günlük Hayat Mantığı'}"
+    KONU: "${topic || 'Günlük Yaşam Mantığı'}"
     ZORLUK: ${difficulty}
     
     ${sourceImage ? '[ÖNEMLİ]: Ekteki görseldeki mantıksal akış şemasını ve problem çözüm adımlarını analiz et. Bu mantığı kullanarak tamamen yeni verilerle disleksi dostu bir algoritma üret.' : 'Yeni bir problem senaryosu üzerinden sıralı mantık algoritması üret.'}
 
-    TASARIM KURALLARI:
-    - Bir problem senaryosu (challenge) belirle.
-    - Adım adım bir çözüm süreci tasarla (Min 5, Max 8 adım).
-    - Mutlaka bir karar noktası (decision) ekle.
+    MİMARİ KURALLAR:
+    - Bir "Challenge" (Zorluk) senaryosu belirle.
+    - Adım adım bir çözüm süreci tasarla (Min 5, Max 9 adım).
+    - Mutlaka en az 1 adet 'decision' (karar/ayrım) noktası ekle.
+    - Adımlar mantıksal olarak birbirini izlemeli.
     
     ADIM TİPLERİ:
-    - 'start': Başlangıç
-    - 'process': Eylem adımı
-    - 'decision': Koşullu ayrım (Evet/Hayır)
-    - 'input': Bilgi girişi
-    - 'output': Bilgi çıkışı
-    - 'end': Sonuç
+    - 'start': Başlangıç noktası (Yeşil tonlu).
+    - 'process': Aksiyon/Eylem adımı.
+    - 'decision': Mantıksal ayrım (Evet/Hayır dallanması).
+    - 'input': Kullanıcıdan veri girişi istenen adım.
+    - 'output': Sonucun alındığı adım.
+    - 'end': Bitiş noktası (Kırmızı tonlu).
     
     ${IMAGE_GENERATION_GUIDE}
 
@@ -64,7 +65,7 @@ export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions
                     }
                 }
             },
-            required: ['title', 'steps', 'challenge']
+            required: ['title', 'steps', 'challenge', 'instruction']
         }
     };
 

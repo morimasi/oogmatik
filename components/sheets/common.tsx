@@ -16,14 +16,12 @@ export const QUESTION_TYPES: Record<string, { label: string; color: string; bg: 
 
 // --- MISSING COMPONENTS FOR VERBAL & VISUAL SHEETS ---
 
-// Fix: Added ReadingRuler component for StoryComprehensionSheet
 export const ReadingRuler = () => (
     <div className="absolute left-0 right-0 h-12 bg-yellow-200/20 border-y border-yellow-400/30 pointer-events-none z-20 no-print" style={{ top: '50%', transform: 'translateY(-50%)' }}>
         <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-yellow-400 text-[8px] font-black px-1.5 py-0.5 rounded text-yellow-900 uppercase tracking-widest shadow-sm">Okuma Cetveli</div>
     </div>
 );
 
-// Fix: Added Matchstick component for VisualPerceptionSheets
 export const Matchstick = ({ color = "#000" }: { color?: string }) => (
     <div className="flex flex-col items-center">
         <div className="w-2 h-2 rounded-full bg-red-600 mb-[-2px] relative z-10 shadow-sm"></div>
@@ -31,12 +29,10 @@ export const Matchstick = ({ color = "#000" }: { color?: string }) => (
     </div>
 );
 
-// Fix: Added ConnectionDot component for VisualPerceptionSheets
 export const ConnectionDot = ({ color = "#6366f1" }: { color?: string }) => (
     <div className="w-3 h-3 rounded-full border-2 border-white shadow-sm ring-1 ring-zinc-200" style={{ backgroundColor: color }}></div>
 );
 
-// Fix: Added CubeStack component moved from DyscalculiaSheets for shared usage
 export const CubeStack: React.FC<{ counts: number[][] }> = ({ counts }) => {
     if (!counts || !Array.isArray(counts) || counts.length === 0) return null;
     const dim = counts.length;
@@ -139,7 +135,6 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
             )}
             
             {(() => {
-                // 1. SVG veya Base64 kontrolü
                 if (base64 && typeof base64 === 'string') {
                      if (base64.trim().startsWith('<svg') || base64.trim().startsWith('<?xml') || base64.includes('</svg>')) {
                         let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').replace(/^```svg\s*|```\s*$/g, '').trim();
@@ -154,11 +149,9 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                     }
                 }
 
-                // 2. Pollinations AI - Geliştirilmiş Prompt ve Sınırsız Üretim
                 let contentForPrompt = prompt || safeDesc;
                 if (!hasError && contentForPrompt && contentForPrompt.length > 1) {
                     const encodedPrompt = encodeURIComponent(contentForPrompt.substring(0, 500));
-                    // Flux modelini kullanarak daha kaliteli çıktılar alıyoruz
                     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
                     
                     return (
@@ -180,7 +173,6 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
                     );
                 }
 
-                // 3. Fallback Placeholder
                 return (
                     <div className="flex flex-col items-center justify-center h-full w-full border-2 border-dashed border-zinc-200 rounded-2xl text-zinc-300 bg-zinc-50/30">
                         <i className="fa-regular fa-image text-2xl mb-1 opacity-20"></i>
@@ -244,10 +236,13 @@ export const HandwritingGuide: React.FC<{ width?: string, height?: number, child
     </div>
 );
 
-export const TracingText: React.FC<{ text: string, fontSize?: string }> = ({ text, fontSize = "60px" }) => (
-    <svg height="100" width="100%" className="overflow-visible">
-         <text x="0" y="65" fontFamily="Lexend, sans-serif" fontSize={fontSize} fontWeight="normal" fill="none" stroke="#9ca3af" strokeWidth="2" strokeDasharray="4,4" letterSpacing="4">{text}</text>
-    </svg>
+export const TracingText: React.FC<{ text: string, fontSize?: string }> = ({ text, fontSize = "32px" }) => (
+    <span 
+        className="font-handwriting opacity-20 pointer-events-none select-none tracking-widest pl-2" 
+        style={{ fontSize, textDecoration: 'underline dotted', textUnderlineOffset: '8px' }}
+    >
+        {text}
+    </span>
 );
 
 export const Base10Visualizer: React.FC<{ number: number; className?: string }> = ({ number, className }) => {
@@ -297,19 +292,44 @@ export const FractionVisual: React.FC<{ num: number; den: number; type?: 'pie' |
     return <div className={`flex flex-wrap gap-1 p-1 justify-center ${className}`}>{Array.from({length: validDen}).map((_, i) => <div key={i} className={`w-4 h-4 rounded-full border border-black ${i < validNum ? 'bg-indigo-500' : 'bg-white'}`}></div>)}</div>;
 };
 
-export const AnalogClock: React.FC<{ hour: number; minute: number; showNumbers?: boolean; className?: string }> = ({ hour, minute, showNumbers = true, className = "w-32 h-32" }) => {
+export const AnalogClock: React.FC<{ hour: number; minute: number; showNumbers?: boolean; showTicks?: boolean; showHands?: boolean; className?: string }> = ({ hour, minute, showNumbers = true, showTicks = true, showHands = true, className = "w-32 h-32" }) => {
     const radius = 45; const center = 50; const minuteAngle = minute * 6; const hourAngle = ((hour % 12) + minute / 60) * 30;
+    
     return (
         <svg viewBox="0 0 100 100" className={className}>
+            {/* Clock Face */}
             <circle cx={center} cy={center} r={radius} fill="white" stroke="black" strokeWidth="3" />
+            
+            {/* Ticks (Minute marks) */}
+            {showTicks && Array.from({length: 60}).map((_, i) => {
+                const isHour = i % 5 === 0;
+                const angle = (i * 6 - 90) * (Math.PI / 180);
+                const x1 = center + (radius - (isHour ? 5 : 2)) * Math.cos(angle);
+                const y1 = center + (radius - (isHour ? 5 : 2)) * Math.sin(angle);
+                const x2 = center + (radius - 1) * Math.cos(angle);
+                const y2 = center + (radius - 1) * Math.sin(angle);
+                return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="black" strokeWidth={isHour ? 1.5 : 0.5} />;
+            })}
+
+            {/* Numbers */}
             {showNumbers && Array.from({length: 12}).map((_, i) => {
                 const num = i + 1; const angle = (num * 30 - 90) * (Math.PI / 180);
-                const x = center + (radius - 8) * Math.cos(angle); const y = center + (radius - 8) * Math.sin(angle);
-                return <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="8" fontWeight="bold" fill="black">{num}</text>
+                const x = center + (radius - 10) * Math.cos(angle); const y = center + (radius - 10) * Math.sin(angle);
+                return <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="7" fontWeight="900" fill="black" style={{fontFamily: 'Lexend, sans-serif'}}>{num}</text>
             })}
-            <line x1={center} y1={center} x2={center + (radius - 10) * Math.cos((minuteAngle - 90) * Math.PI / 180)} y2={center + (radius - 10) * Math.sin((minuteAngle - 90) * Math.PI / 180)} stroke="black" strokeWidth="2" strokeLinecap="round" />
-            <line x1={center} y1={center} x2={center + (radius - 20) * Math.cos((hourAngle - 90) * Math.PI / 180)} y2={center + (radius - 20) * Math.sin((hourAngle - 90) * Math.PI / 180)} stroke="black" strokeWidth="3" strokeLinecap="round" />
-            <circle cx={center} cy={center} r="2" fill="black" />
+
+            {/* Hands - Conditionally Rendered */}
+            {showHands && (
+                <>
+                    <line x1={center} y1={center} x2={center + (radius - 12) * Math.cos((minuteAngle - 90) * Math.PI / 180)} y2={center + (radius - 12) * Math.sin((minuteAngle - 90) * Math.PI / 180)} stroke="black" strokeWidth="2.5" strokeLinecap="round" />
+                    <line x1={center} y1={center} x2={center + (radius - 22) * Math.cos((hourAngle - 90) * Math.PI / 180)} y2={center + (radius - 22) * Math.sin((hourAngle - 90) * Math.PI / 180)} stroke="black" strokeWidth="4" strokeLinecap="round" />
+                    <circle cx={center} cy={center} r="3" fill="black" stroke="white" strokeWidth="0.5" />
+                </>
+            )}
+            
+            {!showHands && (
+                <circle cx={center} cy={center} r="2.5" fill="black" />
+            )}
         </svg>
     );
 };

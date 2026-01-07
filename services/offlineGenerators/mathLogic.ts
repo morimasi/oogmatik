@@ -2,6 +2,73 @@
 import { GeneratorOptions, NumberPatternData, NumberPyramidData, OddEvenSudokuData, KendokuData, MoneyCountingData, MathMemoryCardsData, ClockReadingData, RealLifeProblemData, MathPuzzleData, NumberLogicRiddleData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, turkishAlphabet, generateSudokuGrid, generateLatinSquare, TR_VOCAB } from './helpers';
 
+export const generateOfflineClockReading = async (options: GeneratorOptions): Promise<ClockReadingData[]> => {
+    const { worksheetCount, difficulty, itemCount = 6, variant = 'analog-to-digital', is24Hour, showNumbers, showTicks, showOptions, showHands } = options;
+    const pages: ClockReadingData[] = [];
+
+    for (let p = 0; p < worksheetCount; p++) {
+        const clocks = [];
+        for (let i = 0; i < itemCount; i++) {
+            // Hour logic: If 24h format, randomly pick afternoon hours too
+            let hour = getRandomInt(1, 12);
+            if (is24Hour && Math.random() > 0.5) {
+                hour = getRandomInt(13, 23);
+            }
+            
+            let minute = 0;
+
+            // Pedagojik Seviyeleme
+            if (difficulty === 'Başlangıç') {
+                minute = Math.random() > 0.5 ? 0 : 30;
+            } else if (difficulty === 'Orta') {
+                const step = [0, 15, 30, 45, 10, 20, 40, 50];
+                minute = step[getRandomInt(0, step.length - 1)];
+            } else {
+                minute = getRandomInt(0, 59);
+            }
+
+            const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+            
+            // Sözel okunuş (Offline basit versiyon)
+            let displayHour = hour > 12 ? hour - 12 : hour;
+            let verbalTime = `${displayHour} ${minute === 0 ? 'tam' : minute === 30 ? 'buçuk' : minute + ' geçiyor'}`;
+
+            // Problem kurgusu (Offline basit versiyon)
+            let problemText = variant === 'elapsed-time' 
+                ? `Saat tam olarak ${timeString} olduğunda, 45 dakika sonra saat kaç olur?`
+                : undefined;
+
+            clocks.push({
+                id: `clk-${p}-${i}`,
+                hour,
+                minute,
+                timeString,
+                verbalTime,
+                problemText,
+                options: shuffle([timeString, `${(hour+1)%24}:00`, `${hour}:15`, `${(hour-1+24)%24}:30`].map(t => t.padStart(5, '0'))),
+                answer: timeString
+            });
+        }
+
+        pages.push({
+            title: "Zaman Atölyesi",
+            instruction: variant === 'digital-to-analog' ? "Verilen saati analog kadran üzerinde akrep ve yelkovanla çizin." : "Saatin kaç olduğunu bulun ve doğru şekilde yazın.",
+            pedagogicalNote: "Zaman algısı, mekansal yönelim ve sayısal sembolizasyon becerilerini geliştirir.",
+            variant: variant as any,
+            clocks,
+            settings: {
+                showNumbers: showNumbers !== undefined ? showNumbers : true,
+                is24Hour: !!is24Hour,
+                showTicks: showTicks !== undefined ? showTicks : true,
+                showOptions: showOptions !== undefined ? showOptions : true,
+                showHands: showHands !== undefined ? showHands : true,
+                difficulty
+            }
+        });
+    }
+    return pages;
+};
+
 // SAYISAL MANTIK BİLMECELERİ (Gelişmiş Yerel Üretici)
 export const generateOfflineNumberLogicRiddles = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
     const { worksheetCount, numberRange, difficulty, gridSize = 3, itemCount = 4 } = options;
