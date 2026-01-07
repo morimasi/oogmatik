@@ -561,29 +561,4 @@ export interface ReadingStudioConfig {
     showDateSection: boolean;
 }
 
-export interface ClockReadingData extends BaseActivityData {
-    variant: 'analog-to-digital' | 'digital-to-analog' | 'verbal-match' | 'elapsed-time';
-    clocks: {
-        id: string;
-        hour: number;
-        minute: number;
-        timeString: string;
-        verbalTime?: string;
-        options?: string[];
-        answer: string;
-        problemText?: string;
-        imagePrompt?: string;
-    }[];
-    settings: {
-        showNumbers: boolean;
-        is24Hour: boolean;
-        showTicks: boolean;
-        /**
-         * Added showOptions and showHands to settings to support generator configurations
-         * This fixes type errors in generators where these properties are assigned.
-         */
-        showOptions: boolean;
-        showHands: boolean;
-        difficulty: string;
-    };
-}
+// ClockReadingData removed as it is correctly defined in types/math.ts
