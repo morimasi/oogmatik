@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, HandwritingPracticeData, LetterVisualMatchingData } from '../../types';
+import { ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, HandwritingPracticeData, LetterVisualMatchingData, SyllableMasterLabData } from '../../types';
 import { ImageDisplay, PedagogicalHeader, Shape, GridComponent, DyslexicText, HandwritingGuide, TracingText } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
@@ -11,6 +11,128 @@ const SimpleSheet = ({ data, children }: { data: any, children?: React.ReactNode
         {children || <div className="p-8 text-center text-zinc-500 italic">Görsel içerik oluşturuldu.</div>}
     </div>
 );
+
+// --- SYLLABLE MASTER LAB (POLYMORPHIC) ---
+export const SyllableMasterLabSheet: React.FC<{ data: SyllableMasterLabData }> = ({ data }) => {
+    const { mode, items } = data;
+
+    const renderItem = (item: any, idx: number) => {
+        const isSplit = mode === 'split';
+        const isCombine = mode === 'combine';
+        const isComplete = mode === 'complete';
+        const isRainbow = mode === 'rainbow';
+        const isScrambled = mode === 'scrambled';
+
+        return (
+            <EditableElement key={idx} className="flex items-center gap-6 p-6 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white group hover:border-indigo-500 transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,0.05)] break-inside-avoid relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-2 opacity-5 pointer-events-none"><i className="fa-solid fa-puzzle-piece text-6xl"></i></div>
+                
+                {/* Image Anchor */}
+                <div className="w-24 h-24 bg-zinc-50 rounded-3xl p-1 border border-zinc-100 shrink-0 shadow-inner overflow-hidden flex items-center justify-center">
+                    {item.imagePrompt ? (
+                        <ImageDisplay prompt={item.imagePrompt} description={item.word} className="w-full h-full object-contain" />
+                    ) : (
+                        <i className="fa-solid fa-image text-zinc-200 text-2xl"></i>
+                    )}
+                </div>
+
+                <div className="flex-1">
+                    {/* MODE: SPLIT */}
+                    {isSplit && (
+                        <div className="flex flex-col gap-4">
+                            <h4 className="text-2xl font-black tracking-widest text-zinc-800 uppercase">{item.word}</h4>
+                            <div className="flex gap-2">
+                                {item.syllables.map((_:string, sIdx:number) => (
+                                    <div key={sIdx} className="w-16 h-12 border-[3px] border-zinc-900 rounded-xl flex items-center justify-center bg-zinc-50">
+                                        <div className="w-8 h-0.5 bg-zinc-200"></div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* MODE: COMBINE */}
+                    {isCombine && (
+                        <div className="flex items-center gap-4">
+                            <div className="flex gap-2">
+                                {item.syllables.map((s:string, sIdx:number) => (
+                                    <div key={sIdx} className="px-4 py-2 bg-zinc-900 text-white rounded-xl font-black text-lg">
+                                        <EditableText value={s} tag="span" />
+                                    </div>
+                                ))}
+                            </div>
+                            <i className="fa-solid fa-arrow-right text-zinc-400"></i>
+                            <div className="flex-1 h-12 border-b-[3px] border-dashed border-zinc-300 bg-zinc-50 rounded-t-xl"></div>
+                        </div>
+                    )}
+
+                    {/* MODE: COMPLETE */}
+                    {isComplete && (
+                        <div className="flex items-center gap-2">
+                             {item.syllables.map((s:string, sIdx:number) => {
+                                 const isMissing = sIdx === item.missingIndex;
+                                 return (
+                                     <div key={sIdx} className={`px-5 py-3 rounded-2xl font-black text-2xl shadow-sm border-[3px] ${isMissing ? 'border-dashed border-indigo-400 bg-indigo-50 text-transparent' : 'border-zinc-900 bg-white text-zinc-800'}`}>
+                                         {isMissing ? '??' : <EditableText value={s} tag="span" />}
+                                     </div>
+                                 );
+                             })}
+                        </div>
+                    )}
+
+                    {/* MODE: RAINBOW */}
+                    {isRainbow && (
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                            {item.syllables.map((s:string, sIdx:number) => {
+                                const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+                                return (
+                                    <div key={sIdx} className="px-5 py-3 rounded-2xl border-[3px] border-zinc-900 shadow-sm" style={{ backgroundColor: `${colors[sIdx % colors.length]}15`, color: colors[sIdx % colors.length] }}>
+                                        <span className="text-3xl font-black tracking-tighter"><EditableText value={s} tag="span" /></span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {/* MODE: SCRAMBLED */}
+                    {isScrambled && (
+                        <div className="flex flex-col gap-6">
+                            <div className="flex gap-2 flex-wrap">
+                                {item.scrambledIndices?.map((origIdx: number) => (
+                                    <div key={origIdx} className="px-4 py-2 bg-white border-2 border-zinc-300 rounded-full font-bold text-zinc-600 shadow-sm transform hover:scale-110 transition-transform">
+                                        <EditableText value={item.syllables[origIdx]} tag="span" />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex gap-1">
+                                {item.syllables.map((_:string, i:number) => (
+                                    <div key={i} className="flex-1 h-10 border-b-[3px] border-zinc-900 bg-zinc-50/50"></div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </EditableElement>
+        );
+    };
+
+    return (
+        <div className="flex flex-col h-full bg-white font-lexend p-2">
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 content-start">
+                {items.map((item, i) => renderItem(item, i))}
+            </div>
+            <div className="mt-auto pt-8 border-t border-zinc-100 flex justify-between items-center px-6 opacity-40">
+                <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.4em]">Bursa Disleksi AI • Hece Ustası Bataryası v2.5</p>
+                <div className="flex gap-4">
+                     <i className="fa-solid fa-puzzle-piece"></i>
+                     <i className="fa-solid fa-spell-check"></i>
+                     <i className="fa-solid fa-brain"></i>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 // --- LETTER VISUAL MATCHING (REFINED) ---
 export const LetterVisualMatchingSheet: React.FC<{ data: LetterVisualMatchingData }> = ({ data }) => {

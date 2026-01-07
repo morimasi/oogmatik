@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData, LetterVisualMatchingData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData, LetterVisualMatchingData, SyllableMasterLabData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
 // Expanded keyword library for Turkish phonology to increase randomness
@@ -87,6 +87,47 @@ const generateComplexPaths = (count: number, width: number, height: number, diff
     const endLabels = shuffle(Array.from({length: count}, (_, i) => String.fromCharCode(65 + i)));
     paths.forEach((p, idx) => { p.endLabel = endLabels[idx]; });
     return paths;
+};
+
+// COMPREHENSIVE SYLLABLE MASTER LAB (OFFLINE)
+export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {
+    const { worksheetCount, difficulty, itemCount, topic, variant = 'split', case: letterCase } = options;
+    const count = itemCount || 8;
+    
+    return Array.from({ length: worksheetCount }, () => {
+        const pool = getWordsForDifficulty(difficulty, topic || 'animals');
+        const selection = getRandomItems(pool, count);
+        
+        const items = selection.map(word => {
+            const syllables = simpleSyllabify(word);
+            const processedWord = letterCase === 'upper' ? word.toLocaleUpperCase('tr') : word.toLocaleLowerCase('tr');
+            const processedSyllables = syllables.map(s => letterCase === 'upper' ? s.toLocaleUpperCase('tr') : s.toLocaleLowerCase('tr'));
+            
+            return {
+                word: processedWord,
+                syllables: processedSyllables,
+                missingIndex: variant === 'complete' ? getRandomInt(0, processedSyllables.length - 1) : undefined,
+                scrambledIndices: variant === 'scrambled' ? shuffle(Array.from({length: processedSyllables.length}, (_,i)=>i)) : undefined,
+                imagePrompt: `${word} educational illustration`
+            };
+        });
+
+        const instructions: Record<string, string> = {
+            split: "Kelimeleri örnekteki gibi hecelerine ayırıp kutucuklara yazın.",
+            combine: "Heceleri birleştirerek anlamlı kelimeler oluşturun.",
+            complete: "Eksik bırakılan heceyi bularak kelimeyi tamamlayın.",
+            rainbow: "Kelimeleri hecelerine dikkat ederek, her heceyi farklı bir tonda okuyun.",
+            scrambled: "Karışık verilen heceleri doğru sıraya dizerek kelimeyi bulun."
+        };
+
+        return {
+            title: `Hece Laboratuvarı: ${variant.toUpperCase()}`,
+            instruction: instructions[variant] || "Hece çalışmasını tamamlayın.",
+            pedagogicalNote: "Heceleri fark etme, ayırma ve sentezleme yoluyla okuma akıcılığını destekler.",
+            mode: variant as any,
+            items
+        };
+    });
 };
 
 // NEW: Enhanced Offline Letter Visual Matching

@@ -1,7 +1,57 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, LetterVisualMatchingData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, LetterVisualMatchingData, SyllableMasterLabData } from '../../types';
 import { getAttentionPrompt, getDyslexiaPrompt } from './prompts';
+
+// Comprehensive Syllable Master Lab
+export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {
+    const { worksheetCount, difficulty, itemCount, topic, variant = 'split', case: letterCase } = options;
+    
+    const specifics = `
+    - ÇALİŞMA MODU: ${variant} (split, combine, complete, rainbow, scrambled)
+    - KONU: ${topic || 'Karma'}
+    - HARF TİPİ: ${letterCase === 'upper' ? 'BÜYÜK' : 'küçük'}
+    - ADET: ${itemCount} kelime.
+    - ZORLUK: ${difficulty}.
+    
+    KURALLAR:
+    1. 'split': Kelimeyi ver, hece kutucuklarını boş bırak.
+    2. 'combine': Heceleri karışık ver, birleşimi iste.
+    3. 'complete': Bir heceyi eksik bırak.
+    4. 'rainbow': Kelimenin her hecesini farklı renkte/vurguda planla.
+    5. 'scrambled': Heceleri rastgele sırala, anlamlı kelimeyi buldur.
+    `;
+    
+    const prompt = getDyslexiaPrompt("Hece Ustası Laboratuvarı", difficulty, specifics, options.studentContext);
+    
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            mode: { type: Type.STRING },
+            items: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        syllables: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        missingIndex: { type: Type.INTEGER, nullable: true },
+                        scrambledIndices: { type: Type.ARRAY, items: { type: Type.INTEGER }, nullable: true },
+                        imagePrompt: { type: Type.STRING }
+                    },
+                    required: ['word', 'syllables']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'items', 'pedagogicalNote']
+    };
+    
+    return await generateWithSchema(prompt, { type: Type.ARRAY, items: singleSchema }) as any;
+};
 
 // New: Letter Visual Matching
 export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptions): Promise<LetterVisualMatchingData[]> => {

@@ -19,6 +19,13 @@ export const ACTIVITIES: Activity[] = [
         defaultStyle: { columns: 1 }
     },
     {
+        id: ActivityType.SYLLABLE_MASTER_LAB,
+        title: 'Hece Ustası Laboratuvarı',
+        description: 'Heceleme, birleştirme, tamamlama ve karışık hece oyunları içeren kapsamlı modül.',
+        icon: 'fa-solid fa-puzzle-piece',
+        defaultStyle: { columns: 1 }
+    },
+    {
         id: ActivityType.READING_STROOP,
         title: 'Sözel Stroop Testi',
         description: 'Renk ve kelime çelişkisi üzerinden dikkat ve sözel enterferans çalışması.',
@@ -136,7 +143,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         title: 'Okuma & Dil',
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
-        activities: [ActivityType.READING_SUDOKU, ActivityType.LETTER_VISUAL_MATCHING, ActivityType.READING_STROOP, ActivityType.SYNONYM_ANTONYM_MATCH, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
+        activities: [ActivityType.SYLLABLE_MASTER_LAB, ActivityType.READING_SUDOKU, ActivityType.LETTER_VISUAL_MATCHING, ActivityType.READING_STROOP, ActivityType.SYNONYM_ANTONYM_MATCH, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
     },
     {
         id: 'math-logic',

@@ -91,6 +91,17 @@ export interface SyllableWordBuilderData extends BaseActivityData {
     syllableBank: string[];
 }
 
+export interface SyllableMasterLabData extends BaseActivityData {
+    mode: 'split' | 'combine' | 'complete' | 'rainbow' | 'scrambled';
+    items: {
+        word: string;
+        syllables: string[];
+        missingIndex?: number;
+        scrambledIndices?: number[];
+        imagePrompt?: string;
+    }[];
+}
+
 export interface LetterVisualMatchingData extends BaseActivityData {
     pairs: {
         letter: string;

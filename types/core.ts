@@ -58,7 +58,8 @@ export enum ActivityType {
     SYLLABLE_WORD_BUILDER = 'SYLLABLE_WORD_BUILDER',
     LETTER_VISUAL_MATCHING = 'LETTER_VISUAL_MATCHING',
     SYNONYM_ANTONYM_MATCH = 'SYNONYM_ANTONYM_MATCH',
-    READING_SUDOKU = 'READING_SUDOKU'
+    READING_SUDOKU = 'READING_SUDOKU',
+    SYLLABLE_MASTER_LAB = 'SYLLABLE_MASTER_LAB'
 }
 
 export type View = 'generator' | 'admin' | 'profile' | 'messages' | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'favorites' | 'savedList' | 'workbook' | 'shared' | 'assessment';

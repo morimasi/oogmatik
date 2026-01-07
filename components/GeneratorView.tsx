@@ -172,6 +172,49 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     };
 
     const renderActivityControls = () => {
+        // --- SYLLABLE MASTER LAB ---
+        if (activity.id === ActivityType.SYLLABLE_MASTER_LAB) {
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <CompactSelect 
+                        label="Çalışma Modu" 
+                        value={options.variant || 'split'} 
+                        onChange={(v:any) => handleChange('variant', v)}
+                        options={[
+                            { value: 'split', label: 'Hecelere Ayırma' },
+                            { value: 'combine', label: 'Hece Birleştirme' },
+                            { value: 'complete', label: 'Eksik Hece Tamamlama' },
+                            { value: 'rainbow', label: 'Renkli Heceler (Akıcılık)' },
+                            { value: 'scrambled', label: 'Karışık Heceden Kelime' }
+                        ]}
+                        icon="fa-shapes"
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactCounter label="Kelime Sayısı" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={4} max={12} icon="fa-list-ol" />
+                        <CompactSelect 
+                            label="Kelime Havuzu" 
+                            value={options.topic || 'animals'} 
+                            onChange={(v:any) => handleChange('topic', v)}
+                            options={[
+                                { value: 'animals', label: 'Hayvanlar' },
+                                { value: 'fruits_veggies', label: 'Meyveler' },
+                                { value: 'school', label: 'Okul Eşyaları' },
+                                { value: 'abstract', label: 'Soyut Kavramlar' }
+                            ]}
+                            icon="fa-box-archive"
+                        />
+                         <CompactToggleGroup 
+                            label="Harf Tipi" 
+                            selected={options.case || 'upper'} 
+                            onChange={(v: string) => handleChange('case', v)} 
+                            options={[{ value: 'upper', label: 'BÜYÜK' }, { value: 'lower', label: 'küçük' }]} 
+                        />
+                    </div>
+                </div>
+            );
+        }
+
         // --- READING SUDOKU ---
         if (activity.id === ActivityType.READING_SUDOKU) {
             return (
