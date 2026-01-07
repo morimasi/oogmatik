@@ -1,47 +1,8 @@
 
 import React from 'react';
 import { NumberSenseData, VisualArithmeticData, SpatialGridData, ConceptMatchData, EstimationData, VisualMathType, ClockReadingData, MoneyCountingData, MathMemoryCardsData, MathMemoryCard } from '../../types';
-import { PedagogicalHeader, TenFrame, Domino, NumberBond, FractionVisual, AnalogClock, NumberLine, Shape, Base10Visualizer } from './common';
+import { PedagogicalHeader, TenFrame, Domino, NumberBond, FractionVisual, AnalogClock, NumberLine, Shape, Base10Visualizer, CubeStack } from './common';
 import { EditableElement, EditableText } from '../Editable';
-
-// --- 3D Cubes (Isometric) - Keeping here as it's specific to spatial ---
-const CubeStack: React.FC<{ counts: number[][] }> = ({ counts }) => {
-    if (!counts || !Array.isArray(counts) || counts.length === 0) return null;
-    const dim = counts.length;
-    const size = 30; 
-    
-    const drawCube = (gx: number, gy: number, gz: number) => {
-        const isoX = (gx - gy) * size;
-        const isoY = (gx + gy) * (size * 0.5) - (gz * size * 0.8);
-        const top = `M 0 0 L ${size} ${size*0.5} L 0 ${size} L ${-size} ${size*0.5} Z`;
-        const left = `M ${-size} ${size*0.5} L 0 ${size} L 0 ${size*2} L ${-size} ${size*1.5} Z`;
-        const right = `M 0 ${size} L ${size} ${size*0.5} L ${size} ${size*1.5} L 0 ${size*2} Z`;
-        return (
-            <g transform={`translate(${isoX + 150}, ${isoY + 100})`}>
-                <path d={left} fill="#9ca3af" stroke="black" strokeWidth="1" />
-                <path d={right} fill="#d1d5db" stroke="black" strokeWidth="1" />
-                <path d={top} fill="#f3f4f6" stroke="black" strokeWidth="1" />
-            </g>
-        );
-    };
-
-    const cubesToRender = [];
-    for (let x = 0; x < dim; x++) {
-        for (let y = 0; y < dim; y++) {
-            const h = counts[x][y] || 0;
-            for (let z = 0; z < h; z++) cubesToRender.push({x, y, z});
-        }
-    }
-    cubesToRender.sort((a, b) => (a.x + a.y) - (b.x + b.y) || a.z - b.z);
-
-    return (
-        <svg width="300" height="300" viewBox="0 0 300 300" className="overflow-visible">
-            {cubesToRender.map((c, i) => (
-                <React.Fragment key={i}>{drawCube(c.x, c.y, c.z)}</React.Fragment>
-            ))}
-        </svg>
-    );
-};
 
 // --- MONEY ICON HELPER ---
 const MoneyIcon: React.FC<{ value: number, type: 'coin' | 'note' }> = ({ value, type }) => {

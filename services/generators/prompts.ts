@@ -28,24 +28,22 @@ Lütfen içeriği bu öğrencinin ilgi alanlarına (karakter isimleri, senaryo, 
 };
 
 export const IMAGE_GENERATION_GUIDE = `
-[GÖRSEL SANAT YÖNETMENİ MODU - MULTIMODAL DESIGN]
-"imagePrompt" alanı için şu kurallara uy:
-- **Stil:** "Flat Vector Art, Educational Illustration, White Background, Minimalist, High Contrast".
-- **İçerik:** Asla soyut kalma. "Bir hayvan" deme; "Sevimli, turuncu, büyük gözlü bir tilki vektörü" de.
-- **Amaç:** Görsel, sorunun çözümüne doğrudan ipucu sağlamalıdır (Dekoratif değil, işlevsel).
+[GÖRSEL SANAT YÖNETMENİ MODU]
+"imagePrompt" alanı için şu kurallara KESİNLİKLE uy:
+- **Dil:** Mutlaka İNGİLİZCE yaz. (Görsel motorları İngilizce ile çok daha iyi çalışır).
+- **Stil:** "High-quality professional educational illustration, flat vector art, white background, minimalist, vibrant colors, clear outlines, no text inside image".
+- **İçerik:** Sadece nesnenin adını yazma. Detaylandır. (Örn: "A cute orange fox with big eyes sitting, high contrast, children book style".)
+- **Amaç:** Görsel, sorunun çözümüne doğrudan ipucu sağlamalıdır.
 `;
 
-// Added missing getMathPrompt function for math related generators
 export const getMathPrompt = (title: string, difficulty: string, rule: string, student?: Student): string => {
     return `${PEDAGOGICAL_BASE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[KURAL]: ${rule}\n${IMAGE_GENERATION_GUIDE}`;
 };
 
-// Added missing getAttentionPrompt function for attention focused generators
 export const getAttentionPrompt = (title: string, difficulty: string, specifics: string, student?: Student): string => {
     return `${PEDAGOGICAL_BASE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[DETAYLAR]: ${specifics}\n${IMAGE_GENERATION_GUIDE}`;
 };
 
-// Added missing getDyslexiaPrompt function for dyslexia specific generators
 export const getDyslexiaPrompt = (title: string, difficulty: string, specifics: string, student?: Student): string => {
     return `${PEDAGOGICAL_BASE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[DİSLEKSİ ODAKLI TALİMATLAR]: ${specifics}\n${IMAGE_GENERATION_GUIDE}`;
 };
