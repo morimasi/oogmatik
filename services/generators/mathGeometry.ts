@@ -7,67 +7,85 @@ import { MathPuzzleData, ShapeCountingData } from '../../types';
 const PEDAGOGICAL_PROMPT = `
 ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
 1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
-2.  **Çıktı:** Sadece geçerli JSON.
-3.  **"pedagogicalNote":** Bu alan veli/öğretmen içindir. Etkinliğin hangi spesifik bilişsel beceriyi (örn: sayı hissi, geometrik algı, parça-bütün ilişkisi) nasıl desteklediğini akademik ama anlaşılır bir dille açıkla.
-4.  **"instruction":** Öğrenciye hitap et. Net, motive edici ve anlaşılır ol.
-5.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
-    - **Stil:** "Flat Vector Art Style", "Educational Illustration", "Clean Lines", "Vibrant Colors".
-    - **Detay:** Asla "bir nesne" deme. "Kırmızı, parlak, tek yapraklı bir elma vektörü" de.
-    - **Amaç:** Görsel, matematiksel kavramı somutlaştırmalı.
-6.  **İçerik:**
-    - "Lorem ipsum" yasak.
-    - Gerçek, tutarlı ve çözülebilir matematiksel problemler üret.
+2.  **CRA Modeli:** Somut (nesneler) -> Temsili (denklemler) -> Soyut (sayılar) akışını izle.
+3.  **Çıktı:** Sadece geçerli JSON.
+4.  **"pedagogicalNote":** Etkinliğin diskalkuli rehabilitasyonundaki önemini teknik terimlerle açıkla.
+5.  **"imagePrompt":** SVG üretimi için: "Minimalist, flat vector, white background, high contrast, children friendly educational icon" tarzını kullan.
 `;
 
 export const generateMathPuzzleFromAI = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
   const { topic, itemCount, difficulty, worksheetCount, operationType, numberRange } = options;
   
-  let rangeDesc = numberRange || (difficulty === 'Orta' ? "1-20" : difficulty === 'Zor' ? "1-50" : "1-10");
-  let opsDesc = operationType === 'add' ? "toplama" : operationType === 'mult' ? "çarpma" : "dört işlem";
-  
   const prompt = `
-    "${difficulty}" seviyesinde, '${topic || 'Genel'}' temalı ${itemCount} adet Matematik Bulmacası.
-    Sayı Aralığı: ${rangeDesc}. İşlemler: ${opsDesc}.
-    Nesneler (Elma, Armut vb.) sayılar yerine geçsin.
-    Her nesne için **İngilizce** 'imagePrompt' oluştur. Stil: "Simple flat vector icon, colorful".
+    [GÖREV]: "${difficulty}" seviyesinde, '${topic || 'Genel'}' temalı ${itemCount} adet "Matematiksel Gizem (Sistemik Denklem)" bulmacası üret.
+    
+    KURALLAR:
+    1. Her bulmaca 3 satırlık bir denklem sistemi içermeli.
+    2. Satır 1: İki aynı nesnenin toplamı (Örn: Elma + Elma = 10 -> Elma = 5).
+    3. Satır 2: Bilinen nesne + Bilinmeyen nesne (Örn: Elma + Armut = 12 -> Armut = 7).
+    4. Satır 3 (Final): Bu nesnelerin karışımından oluşan bir soru (Örn: Armut - Elma = ?).
+    5. Sayılar TAM SAYI ve POZİTİF olmalı. ${numberRange ? `Menzil: ${numberRange}` : 'Menzil: 1-50'}.
+    6. Nesneler temaya uygun olsun.
+    
     ${PEDAGOGICAL_PROMPT}
-    ${worksheetCount} adet üret.
   `;
-    const singleSchema = {
+
+  const singleSchema = {
     type: Type.OBJECT,
     properties: {
       title: { type: Type.STRING },
       instruction: { type: Type.STRING },
       pedagogicalNote: { type: Type.STRING },
-      imagePrompt: { type: Type.STRING },
       puzzles: {
         type: Type.ARRAY,
         items: {
           type: Type.OBJECT,
           properties: {
-            problem: { type: Type.STRING },
-            question: { type: Type.STRING },
+            id: { type: Type.STRING },
+            equations: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  leftSide: { 
+                    type: Type.ARRAY, 
+                    items: { 
+                      type: Type.OBJECT, 
+                      properties: { 
+                        objectName: { type: Type.STRING }, 
+                        multiplier: { type: Type.NUMBER } 
+                      } 
+                    } 
+                  },
+                  operator: { type: Type.STRING },
+                  rightSide: { type: Type.NUMBER }
+                },
+                required: ['leftSide', 'operator', 'rightSide']
+              }
+            },
+            finalQuestion: { type: Type.STRING },
             answer: { type: Type.STRING },
             objects: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        name: { type: Type.STRING },
-                        imagePrompt: { type: Type.STRING }
-                    },
-                    required: ['name', 'imagePrompt']
-                }
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  name: { type: Type.STRING },
+                  value: { type: Type.NUMBER },
+                  imagePrompt: { type: Type.STRING }
+                },
+                required: ['name', 'value', 'imagePrompt']
+              }
             }
           },
-          required: ['problem', 'question', 'answer', 'objects']
-        },
-      },
+          required: ['equations', 'finalQuestion', 'answer', 'objects']
+        }
+      }
     },
-    required: ['title', 'puzzles', 'instruction', 'pedagogicalNote', 'imagePrompt']
+    required: ['title', 'puzzles', 'instruction']
   };
-  const schema = { type: Type.ARRAY, items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<MathPuzzleData[]>;
+
+  return await generateWithSchema(prompt, { type: Type.ARRAY, items: singleSchema }, 'gemini-3-flash-preview');
 };
 
 export const generateShapeCountingFromAI = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {

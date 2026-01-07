@@ -10,6 +10,102 @@ import {
 import { CagedGridSvg, GridComponent, ImageDisplay, PedagogicalHeader } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
+// Fix: Typed as React.FC to resolve the 'key' property error when used in map loops
+const EquationRow: React.FC<{ eq: any, objects: any[], fontSize?: string }> = ({ eq, objects, fontSize = "text-xl" }) => {
+    return (
+        <div className="flex items-center justify-center gap-4 py-3 border-b border-zinc-50 last:border-0 group-hover:bg-zinc-50/50 transition-colors rounded-xl">
+            <div className="flex items-center gap-2">
+                {eq.leftSide.map((item: any, i: number) => {
+                    const obj = objects.find(o => o.name === item.objectName);
+                    return (
+                        <React.Fragment key={i}>
+                            {i > 0 && <span className="text-zinc-400 font-bold">+</span>}
+                            <div className="flex items-center gap-1">
+                                {item.multiplier > 1 && <span className="text-sm font-black text-indigo-600 bg-indigo-50 px-1.5 rounded">{item.multiplier}x</span>}
+                                <div className="w-12 h-12 flex items-center justify-center">
+                                    <ImageDisplay prompt={obj?.imagePrompt} description={obj?.name} className="w-full h-full object-contain" />
+                                </div>
+                            </div>
+                        </React.Fragment>
+                    );
+                })}
+            </div>
+            <span className="text-2xl font-black text-zinc-900">=</span>
+            <div className={`font-mono font-black ${fontSize} bg-zinc-900 text-white px-4 py-1.5 rounded-2xl shadow-lg`}>
+                {eq.rightSide}
+            </div>
+        </div>
+    );
+};
+
+export const MathPuzzleSheet: React.FC<{ data: MathPuzzleData }> = ({ data }) => (
+    <div className="flex flex-col h-full font-lexend text-black bg-white">
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4 flex-1 content-start">
+            {(data?.puzzles || []).map((puzzle, index) => (
+                <EditableElement key={index} className="flex flex-col border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-[10px_10px_0px_0px_rgba(0,0,0,0.05)] overflow-hidden group hover:shadow-xl transition-all duration-500 break-inside-avoid">
+                    {/* Header Label */}
+                    <div className="bg-zinc-900 px-6 py-3 flex justify-between items-center text-white">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">GİZEMLİ DENKLEM #{index + 1}</span>
+                        <div className="flex gap-1">
+                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                            <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        </div>
+                    </div>
+
+                    <div className="p-8 flex-1 flex flex-col gap-4">
+                        {/* Legend Area (Optional Hint) */}
+                        <div className="flex justify-center gap-6 mb-4">
+                            {puzzle.objects.map((obj, i) => (
+                                <div key={i} className="flex flex-col items-center group/obj">
+                                    <div className="w-10 h-10 mb-1 opacity-40 group-hover/obj:opacity-100 transition-opacity">
+                                        <ImageDisplay prompt={obj.imagePrompt} className="w-full h-full object-contain" />
+                                    </div>
+                                    <span className="text-[8px] font-black text-zinc-300 uppercase tracking-tighter">{obj.name}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Equation System */}
+                        <div className="space-y-2">
+                            {puzzle.equations.map((eq, eIdx) => (
+                                <EquationRow key={eIdx} eq={eq} objects={puzzle.objects} />
+                            ))}
+                        </div>
+
+                        {/* Final Challenge Box */}
+                        <div className="mt-8 p-6 bg-indigo-50 rounded-[2rem] border-2 border-indigo-100 flex flex-col items-center gap-4 relative overflow-hidden group/final">
+                            <div className="absolute top-0 right-0 p-2 opacity-5 rotate-12"><i className="fa-solid fa-question text-6xl text-indigo-900"></i></div>
+                            <p className="text-xs font-black text-indigo-400 uppercase tracking-widest leading-none">Hedef İşlem</p>
+                            <div className="text-2xl font-black text-zinc-900 flex items-center gap-3">
+                                <EditableText value={puzzle.finalQuestion} tag="span" />
+                                <span className="text-indigo-600">=</span>
+                                <div className="w-20 h-12 border-b-4 border-indigo-600 bg-white rounded-t-xl shadow-inner flex items-center justify-center text-3xl text-transparent">
+                                    {puzzle.answer}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </EditableElement>
+            ))}
+        </div>
+
+        {/* Professional Footer Stamp */}
+        <div className="mt-auto pt-8 flex justify-between items-center px-10 opacity-30 border-t border-zinc-100">
+            <div className="flex flex-col">
+                <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400">Metodoloji</span>
+                <span className="text-[10px] font-bold text-zinc-800">CRA (Somut-Temsili-Soyut)</span>
+            </div>
+            <div className="flex items-center gap-4">
+                 <i className="fa-solid fa-brain-circuit text-xl text-indigo-500"></i>
+                 <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Bilişsel Matematik Laboratuvarı</p>
+            </div>
+        </div>
+    </div>
+);
+
 export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> = ({ data }) => (
     <div className="flex flex-col">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
@@ -31,33 +127,6 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
                         <div className="flex-1 h-32 border-2 border-zinc-200 border-dashed rounded-xl p-3 text-xs font-bold text-zinc-300 uppercase tracking-widest">Çözüm Alanı</div>
                         <div className="w-48 h-32 border-2 border-zinc-200 border-dashed rounded-xl p-3 text-xs font-bold text-zinc-300 uppercase tracking-widest text-center">Sonuç</div>
                     </div>
-                </EditableElement>
-            ))}
-        </div>
-    </div>
-);
-
-export const MathPuzzleSheet: React.FC<{ data: MathPuzzleData }> = ({ data }) => (
-    <div className="flex flex-col">
-        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
-        <div className="dynamic-grid">
-            {(data?.puzzles || []).map((puzzle, index) => (
-                <EditableElement key={index} className="border-2 border-zinc-200 p-6 rounded-3xl flex flex-col gap-4 break-inside-avoid item-card justify-center bg-white shadow-sm">
-                    {(puzzle?.objects && puzzle.objects.length > 0) && (
-                        <div className="flex justify-center gap-6 text-xs font-bold flex-wrap mb-4">
-                            {puzzle.objects.map((obj, i) => (
-                                <div key={i} className="flex flex-col items-center">
-                                    <div className="w-16 h-16 mb-2">
-                                        <ImageDisplay base64={obj.imageBase64} prompt={obj.imagePrompt} description={obj.name} className="w-full h-full object-contain" />
-                                    </div>
-                                    <span className="bg-zinc-100 px-2 py-0.5 rounded-full"><EditableText value={obj?.name} tag="span" /></span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                    <div className="font-black text-2xl text-center bg-zinc-50 p-6 rounded-2xl border border-zinc-100 shadow-inner"><EditableText value={puzzle?.problem} tag="span" /></div>
-                    <div className="text-sm text-center italic text-zinc-500 font-medium"><EditableText value={puzzle?.question} tag="span" /></div>
-                    <div className="w-24 h-12 border-b-4 border-indigo-600 mx-auto mt-4 text-center text-2xl font-black text-indigo-600 flex items-center justify-center bg-indigo-50/30 rounded-t-lg"><EditableText value="" tag="span" /></div>
                 </EditableElement>
             ))}
         </div>

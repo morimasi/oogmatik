@@ -2,6 +2,52 @@
 import { GeneratorOptions, NumberPatternData, NumberPyramidData, OddEvenSudokuData, KendokuData, MoneyCountingData, MathMemoryCardsData, ClockReadingData, RealLifeProblemData, MathPuzzleData, NumberLogicRiddleData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems, turkishAlphabet, generateSudokuGrid, generateLatinSquare, TR_VOCAB } from './helpers';
 
+export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
+    const { worksheetCount, difficulty } = options;
+    const items = [];
+    
+    for (let p = 0; p < worksheetCount; p++) {
+        const puzzles = [];
+        const count = difficulty === 'Başlangıç' ? 2 : 4;
+
+        for (let i = 0; i < count; i++) {
+            const v1 = getRandomInt(1, 10);
+            const v2 = getRandomInt(1, 10);
+            
+            const obj1 = { name: "Yıldız", value: v1, imagePrompt: "star icon" };
+            const obj2 = { name: "Kalp", value: v2, imagePrompt: "heart icon" };
+
+            puzzles.push({
+                id: `off-puz-${p}-${i}`,
+                complexity: 'systemic' as const,
+                equations: [
+                    {
+                        leftSide: [{ objectName: "Yıldız", multiplier: 1 }, { objectName: "Yıldız", multiplier: 1 }],
+                        operator: "+",
+                        rightSide: v1 + v1
+                    },
+                    {
+                        leftSide: [{ objectName: "Yıldız", multiplier: 1 }, { objectName: "Kalp", multiplier: 1 }],
+                        operator: "+",
+                        rightSide: v1 + v2
+                    }
+                ],
+                finalQuestion: "Kalp - Yıldız",
+                answer: (v2 - v1).toString(),
+                objects: [obj1, obj2]
+            });
+        }
+
+        items.push({
+            title: "Gizemli Matematik Atölyesi",
+            instruction: "Denklemleri çözerek nesnelerin değerini bul, final sorusunu yanıtla.",
+            pedagogicalNote: "Değişken kavramını somutlaştırarak cebirsel düşünme temellerini atar.",
+            puzzles
+        });
+    }
+    return items;
+};
+
 export const generateOfflineClockReading = async (options: GeneratorOptions): Promise<ClockReadingData[]> => {
     const { worksheetCount, difficulty, itemCount = 6, variant = 'analog-to-digital', is24Hour, showNumbers, showTicks, showOptions, showHands } = options;
     const pages: ClockReadingData[] = [];

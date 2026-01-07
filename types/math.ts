@@ -88,10 +88,21 @@ export interface AlgorithmData extends BaseActivityData {
 
 export interface MathPuzzleData extends BaseActivityData {
     puzzles: {
-        problem: string;
-        question: string;
+        id: string;
+        complexity: 'simple' | 'systemic' | 'logical';
+        equations: {
+            leftSide: { objectName: string, multiplier: number }[];
+            operator: string;
+            rightSide: number | string; // Sayı veya başka bir nesne
+        }[];
+        finalQuestion: string;
         answer: string;
-        objects?: { name: string; imageBase64?: string; imagePrompt?: string }[];
+        objects: { 
+            name: string; 
+            value: number;
+            imagePrompt: string; 
+            imageBase64?: string;
+        }[];
     }[];
 }
 
@@ -280,10 +291,6 @@ export interface ClockReadingData extends BaseActivityData {
         showNumbers: boolean;
         is24Hour: boolean;
         showTicks: boolean;
-        /**
-         * Added showOptions and showHands to settings to support generator configurations
-         * This fixes type errors in generators where these properties are assigned.
-         */
         showOptions: boolean;
         showHands: boolean;
         difficulty: string;
