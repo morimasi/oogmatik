@@ -89,20 +89,59 @@ export const getWordsForDifficulty = (difficulty: string, topic?: string): strin
     return [...new Set(pool)];
 };
 
+/**
+ * TDK Türk Dili Kurallarına Uygun Heceleme Motoru
+ * Kurallar:
+ * 1. Her hecede sadece bir ünlü bulunur.
+ * 2. İki ünlü arasındaki tek ünsüz sağa gider.
+ * 3. İki ünlü arasındaki iki ünsüzden ilki sola, ikincisi sağa gider.
+ * 4. Üç ünsüz varsa, ilk ikisi sola, üçüncüsü sağa gider.
+ */
 export const simpleSyllabify = (text: string): string[] => {
+    if (!text) return [];
     const word = text.toLowerCase();
-    for (const cat in KNOWLEDGE_BASE) {
-        const found = KNOWLEDGE_BASE[cat].find(w => w.text === word);
-        if (found) return found.syllables;
+    const vowels = "aeıioöuü";
+    const syllables: string[] = [];
+    
+    let currentSyllable = "";
+    let i = word.length - 1;
+
+    while (i >= 0) {
+        // Ünlü harfi bulana kadar geri git
+        if (vowels.includes(word[i])) {
+            currentSyllable = word[i] + currentSyllable;
+            i--;
+
+            // Kelimenin başı değilse ve bir önceki karakter ünsüzse
+            if (i >= 0 && !vowels.includes(word[i])) {
+                // Önündeki karakter de ünsüz mü? (Kural 3: Üç ünsüz durumu için)
+                if (i > 0 && !vowels.includes(word[i-1]) && i-1 >= 0 && !vowels.includes(word[i-2])) {
+                    // Üç ünsüz yan yanaysa, sadece 1 tanesini sağa al, 2'sini sola bırak
+                    // Ancak Türkçede kökeni Türkçe olan kelimelerde 3 ünsüz yan yana gelmez (Batı dilleri hariç)
+                    currentSyllable = word[i] + currentSyllable;
+                    i--;
+                } else {
+                    // Tek ünsüzü sağa al (Kural 2)
+                    currentSyllable = word[i] + currentSyllable;
+                    i--;
+                }
+            }
+            syllables.unshift(currentSyllable);
+            currentSyllable = "";
+        } else {
+            currentSyllable = word[i] + currentSyllable;
+            i--;
+        }
     }
-    const parts = [];
-    let i = 0;
-    while (i < text.length) {
-        const len = (Math.random() > 0.5 && i + 3 <= text.length) ? 3 : 2;
-        parts.push(text.substring(i, Math.min(i + len, text.length)));
-        i += len;
+
+    // Eğer başta kalan ünsüzler varsa, ilk heceye ekle
+    if (currentSyllable && syllables.length > 0) {
+        syllables[0] = currentSyllable + syllables[0];
+    } else if (currentSyllable) {
+        syllables.push(currentSyllable);
     }
-    return parts;
+
+    return syllables;
 };
 
 export const generateMazePath = (rows: number, cols: number) => {

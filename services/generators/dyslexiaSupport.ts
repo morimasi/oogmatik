@@ -19,11 +19,10 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
     ÖNEMLİ KURALLAR:
     1. GÖRSEL KULLANMA: Bu etkinlik sadece metin tabanlıdır, kesinlikle görsel/imagePrompt üretme.
     2. SAYFA DOLULUĞU: Bir sayfaya sığabilecek maksimum sayıda (en az ${itemCount || 32}) öğe üret.
-    3. 'split': Kelimeyi ver, hece kutucuklarını boş bırak.
-    4. 'combine': Heceleri yan yana ver, birleşimi iste.
-    5. 'complete': Bir heceyi eksik bırak (?? ile göster).
-    6. 'rainbow': Kelimenin her hecesini disleksi dostu, zıt ve canlı renklerle vurgula.
-    7. 'scrambled': Heceleri rastgele sırala, anlamlı kelimeyi buldur.
+    3. TÜRKÇE HECELEME: Kelimeleri hecelerken kesinlikle Türk Dil Kurumu (TDK) kurallarına uy. 
+       ÖRN: "ilköğretim" -> il-köğ-re-tim DEĞİL, il-kö-re-tim (yanlış), doğrusu: il-köğ-re-tim. 
+       DİKKAT: İki ünlü arasındaki tek ünsüz sağdaki heceye geçer.
+    4. RAINBOW RENKLERİ: Her hece için farklı, yüksek kontrastlı hex kodları üret.
     `;
     
     const prompt = getDyslexiaPrompt("Hece Ustası Laboratuvarı (Yüksek Yoğunluklu)", difficulty, specifics, options.studentContext);
