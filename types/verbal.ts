@@ -11,9 +11,25 @@ export interface StoryQuestion {
     isTrue?: boolean;
 }
 
+export interface FamilyLogicStatement {
+    id: string;
+    text: string;
+    isTrue: boolean;
+    complexity: 'simple' | 'indirect' | 'syllogism';
+    category: 'relation' | 'hierarchy' | 'naming';
+    hint?: string;
+}
+
+export interface FamilyLogicTestData extends BaseActivityData {
+    statements: FamilyLogicStatement[];
+    difficulty: string;
+    focusSide: 'mom' | 'dad' | 'mixed';
+    depth: 'basic' | 'extended' | 'expert';
+}
+
+// Fix: Unified InteractiveStoryData into StoryData and added missing properties
 export interface StoryData extends BaseActivityData {
     story: string;
-    // Fix: Added missing genre property for Reading Studio support
     genre?: string;
     mainIdea: string;
     characters: string[];
@@ -22,37 +38,39 @@ export interface StoryData extends BaseActivityData {
     creativeTask: string;
     questions: StoryQuestion[];
     fiveW1H?: { type: 'who' | 'where' | 'when' | 'what' | 'why' | 'how'; question: string; answer: string }[];
+    trueFalse?: StoryQuestion[];
+    fillBlanks?: { sentence: string; answer: string }[];
+    logicQuestions?: { question: string; answer: string; hint: string }[];
+    inferenceQuestions?: { question: string; answer: string }[];
+    multipleChoice?: StoryQuestion[];
 }
 
+export interface InteractiveStoryData extends StoryData {}
+
+// Added missing Story Analysis type
 export interface StoryAnalysisData extends BaseActivityData {
     story: string;
     storyMap: Record<string, string>;
 }
 
+// Added missing Story Creation type
 export interface StoryCreationPromptData extends BaseActivityData {
     prompt: string;
     keywords: string[];
     structureHints: Record<string, string>;
 }
 
+// Added missing Words In Story type
 export interface WordsInStoryData extends BaseActivityData {
     story: string;
     vocabWork: { word: string; contextQuestion: string; type: 'meaning' | 'usage' }[];
 }
 
+// Added missing Story Sequencing type
 export interface StorySequencingData extends BaseActivityData {
     prompt: string;
-    panels: { id: string; description: string; order: number; imagePrompt: string }[];
-    transitionWords: string[];
-}
-
-export interface InteractiveStoryData extends StoryData {
-    fiveW1H: { type: 'who' | 'where' | 'when' | 'what' | 'why' | 'how'; question: string; answer: string }[];
-    trueFalse: StoryQuestion[];
-    fillBlanks: { sentence: string; answer: string }[];
-    logicQuestions: { question: string; answer: string; hint: string }[];
-    inferenceQuestions: { question: string; answer: string }[];
-    multipleChoice: StoryQuestion[];
+    panels: { id: string; description: string; order: number; imagePrompt?: string }[];
+    transitionWords?: string[];
 }
 
 export interface ReadingStroopData extends BaseActivityData {
@@ -146,4 +164,17 @@ export interface ReadingSudokuData extends BaseActivityData {
         variant: 'letters' | 'words' | 'visuals' | 'numbers';
         fontFamily: string;
     };
+}
+
+export interface FamilyRelationPair {
+    definition: string;
+    label: string;
+    side: 'mom' | 'dad';
+}
+
+export interface FamilyRelationsData extends BaseActivityData {
+    pairs: FamilyRelationPair[];
+    momRelatives: string[];
+    dadRelatives: string[];
+    difficulty: string;
 }
