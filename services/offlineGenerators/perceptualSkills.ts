@@ -30,27 +30,6 @@ const generateAbstractPath = (complexity: number) => {
     return d;
 };
 
-const generateFractalPath = (points: number) => {
-    let d = "";
-    const center = 50;
-    const outer = 45;
-    const inner = 15;
-    for (let i = 0; i < points * 2; i++) {
-        const angle = (i * Math.PI) / points;
-        const radius = i % 2 === 0 ? outer : inner;
-        const x = center + radius * Math.cos(angle);
-        const y = center + radius * Math.sin(angle);
-        d += (i === 0 ? "M " : "L ") + x + " " + y;
-    }
-    return d + " Z";
-}
-
-const generateGlintPath = () => {
-    const d1 = "M 50 10 L 50 90 M 10 50 L 90 50";
-    const d2 = "M 20 20 L 80 80 M 80 20 L 20 80";
-    return [d1, d2];
-};
-
 // --- VISUAL ODD ONE OUT ---
 export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { worksheetCount, itemCount, difficulty, distractionLevel, gridSize, visualType = 'geometric' } = options;
@@ -70,30 +49,6 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
                     const pair = CHARACTER_PAIRS[getRandomInt(0, CHARACTER_PAIRS.length - 1)];
                     return { label: pair[0], rotation: 0 };
                 }
-                if (visualType === 'abstract') {
-                    return { svgPaths: [{ d: generateAbstractPath(4), stroke: "#1e293b", strokeWidth: 2.5 }] };
-                }
-                if (visualType === 'fractal') {
-                    return { svgPaths: [{ d: generateFractalPath(getRandomInt(5, 12)), fill: "#f1f5f9", stroke: "#0f172a", strokeWidth: 2 }] };
-                }
-                if (visualType === 'glint') {
-                    const glints = generateGlintPath();
-                    return { 
-                        svgPaths: [
-                            { d: glints[0], stroke: "#0f172a", strokeWidth: 2.5 },
-                            { d: glints[1], stroke: "#0f172a", strokeWidth: 1.5 }
-                        ] 
-                    };
-                }
-                if (visualType === 'complex') {
-                    return { 
-                        svgPaths: [
-                            { d: generateProceduralPolygon(6, 42), stroke: "#1e293b", strokeWidth: 3 },
-                            { d: `M 50 10 L 50 90 M 10 50 L 90 50`, stroke: "#94a3b8", strokeWidth: 1.5 },
-                            { d: "M 30 30 L 70 70", stroke: "#000", strokeWidth: 1 }
-                        ] 
-                    };
-                }
                 return { svgPaths: [{ d: generateProceduralPolygon(getRandomInt(3, 8)), stroke: "#1e293b", strokeWidth: 3.5 }] };
             };
 
@@ -102,42 +57,25 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
             for (let j = 0; j < colCount; j++) {
                 if (j === correctIndex) {
                     const oddItem = JSON.parse(JSON.stringify(baseItem));
-                    
                     if (visualType === 'character') {
                         const pair = CHARACTER_PAIRS.find(p => p[0] === baseItem.label);
                         oddItem.label = pair ? pair[1] : (baseItem.label === 'b' ? 'd' : 'b');
                     } else {
-                        // Zorluk ve Fark Belirginliği Algoritması
-                        const rotRange = distractionLevel === 'extreme' ? 5 : (distractionLevel === 'high' ? 15 : 90);
-                        
-                        if (distractionLevel === 'low') {
-                            if (oddItem.svgPaths) oddItem.svgPaths[0].stroke = "#ef4444";
-                            oddItem.scale = 1.2;
-                        } else if (distractionLevel === 'medium') {
-                            oddItem.rotation = rotRange;
-                            if (oddItem.svgPaths && oddItem.svgPaths.length > 1) oddItem.svgPaths[1].stroke = "#ef4444";
-                        } else {
-                            // Mikro farklar
-                            oddItem.rotation = rotRange;
-                            if (oddItem.svgPaths) {
-                                oddItem.svgPaths[0].strokeWidth = (oddItem.svgPaths[0].strokeWidth || 3) * 0.7;
-                                if (oddItem.svgPaths.length > 1) oddItem.svgPaths.pop(); // Bir parçayı sil
-                            }
-                            oddItem.isMirrored = Math.random() > 0.5;
-                        }
+                        oddItem.rotation = 90;
+                        oddItem.isMirrored = true;
                     }
                     items.push(oddItem);
                 } else {
                     items.push(JSON.parse(JSON.stringify(baseItem)));
                 }
             }
-            rows.push({ items, correctIndex, reason: `${visualType} distality difference` });
+            rows.push({ items, correctIndex, reason: `${visualType} difference` });
         }
 
         results.push({
-            title: `Görsel Ayrıştırma: ${visualType.toUpperCase()} Analizi`,
-            instruction: `Satırdaki ${colCount} öğe içinden, diğerlerinden farklı olan "yabancı" öğeyi tespit et.`,
-            pedagogicalNote: `Bu çalışma ${visualType} mimarisi üzerinden yüksek yoğunluklu görsel tarama, seçici dikkat ve şekil sabitliği becerilerini geliştirir.`,
+            title: `Görsel Ayrıştırma: ${visualType.toUpperCase()}`,
+            instruction: `Farklı olan öğeyi bul ve işaretle.`,
+            pedagogicalNote: `Görsel tarama ve seçici dikkat becerilerini geliştirir.`,
             difficultyLevel: difficulty as any || 'Orta',
             distractionLevel: distractionLevel as any || 'medium',
             rows
@@ -149,48 +87,25 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
 export const generateOfflineFindTheDifference = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
     const { worksheetCount, difficulty, findDiffType = 'linguistic', distractionLevel = 'medium', itemCount, gridSize } = options;
     const results: FindTheDifferenceData[] = [];
-
-    const getTitle = (type: string) => {
-        switch(type) {
-            case 'numeric': return 'Sayısal Ayrıştırma';
-            case 'semantic': return 'Kelime Dedektifi';
-            case 'pictographic': return 'Sembolik Dikkat';
-            default: return 'Harf Ayrıştırma';
-        }
-    };
-
     const CRITICAL_PAIRS: Record<string, string[][]> = {
-        linguistic: [['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'n'], ['a', 'e'], ['s', 'z'], ['t', 'f'], ['ğ', 'g'], ['ı', 'i'], ['v', 'y']],
-        numeric: [['6', '9'], ['2', '5'], ['1', '7'], ['0', '8'], ['3', '8'], ['4', '7']],
-        semantic: [['dere', 'dede'], ['baba', 'dada'], ['kasa', 'masa'], ['kale', 'lale'], ['kitap', 'katip'], ['sarı', 'darı'], ['para', 'yara'], ['kuzu', 'kutu']],
-        pictographic: [['▲', '▼'], ['◀', '▶'], ['⬈', '⬉'], ['◐', '◑'], ['◒', '◓'], ['◖', '◗']]
+        linguistic: [['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'n'], ['a', 'e']],
+        numeric: [['6', '9'], ['2', '5'], ['1', '7']],
+        semantic: [['dere', 'dede'], ['baba', 'dada'], ['kasa', 'masa']]
     };
 
     for (let p = 0; p < worksheetCount; p++) {
-        const rowCount = itemCount || (difficulty === 'Uzman' ? 10 : 8);
-        const colCount = gridSize || (difficulty === 'Uzman' ? 6 : 4);
         const rows = [];
-
-        for (let i = 0; i < rowCount; i++) {
+        for (let i = 0; i < (itemCount || 8); i++) {
             const pairPool = CRITICAL_PAIRS[findDiffType] || CRITICAL_PAIRS.linguistic;
             const pair = pairPool[getRandomInt(0, pairPool.length - 1)];
-            const baseChar = pair[0];
-            const oddChar = pair[1];
-
-            const correctIndex = getRandomInt(0, colCount - 1);
-            const items = Array.from({ length: colCount }, (_, idx) => idx === correctIndex ? oddChar : baseChar);
-
-            rows.push({
-                items,
-                correctIndex,
-                visualDistractionLevel: distractionLevel as any
-            });
+            const correctIndex = getRandomInt(0, (gridSize || 4) - 1);
+            const items = Array.from({ length: (gridSize || 4) }, (_, idx) => idx === correctIndex ? pair[1] : pair[0]);
+            rows.push({ items, correctIndex, visualDistractionLevel: distractionLevel as any });
         }
-
         results.push({
-            title: `Farkı Bul: ${getTitle(findDiffType)}`,
-            instruction: "Her satırı dikkatle inceleyin. Diğerlerinden farklı olan öğeyi bulun ve işaretleyin.",
-            pedagogicalNote: "Disleksi rehabilitasyonunda kritik olan görsel ayrıştırma, seçici dikkat ve bilişsel esneklik becerilerini güçlendirir.",
+            title: `Farkı Bul: ${findDiffType}`,
+            instruction: "Diğerlerinden farklı olan öğeyi bulun.",
+            pedagogicalNote: "Görsel ayrıştırma becerisini güçlendirir.",
             rows
         });
     }
@@ -198,108 +113,97 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
 };
 
 export const generateOfflineGridDrawing = async (options: GeneratorOptions): Promise<GridDrawingData[]> => {
-    const { worksheetCount, difficulty, concept, gridSize = 6, itemCount = 1, useSearch } = options;
+    const { worksheetCount, difficulty, concept, gridSize = 6, itemCount = 1 } = options;
     const results: GridDrawingData[] = [];
-
-    const diffLevelMap: Record<string, number> = {
-        'Başlangıç': 1,
-        'Orta': 2,
-        'Zor': 3,
-        'Uzman': 4
-    };
-    const complexity = diffLevelMap[difficulty] || 2;
-
     for (let p = 0; p < worksheetCount; p++) {
-        const drawings = [];
-        const taskCount = itemCount || 1;
-
-        for (let i = 0; i < taskCount; i++) {
-            const lines = generateConnectedPath(gridSize, complexity);
-            drawings.push({
-                lines,
-                complexityLevel: difficulty,
-                title: `Desen ${i + 1}`
-            });
-        }
-
+        const drawings = Array.from({ length: itemCount || 1 }, (_, i) => ({
+            lines: generateConnectedPath(gridSize, 3),
+            complexityLevel: difficulty,
+            title: `Desen ${i + 1}`
+        }));
         results.push({
-            title: "Kare Kopyalama & Dönüşüm",
-            instruction: getGridInstruction(concept as string || 'copy'),
-            pedagogicalNote: "Görsel-uzamsal algı, şekil-zemin ilişkisi ve el-göz koordinasyonu becerilerini destekler.",
+            title: "Kare Kopyalama",
+            instruction: "Soldaki deseni sağdaki boş ızgaraya kopyala.",
+            pedagogicalNote: "Görsel-motor entegrasyonu destekler.",
             gridDim: gridSize,
-            showCoordinates: useSearch || false,
+            showCoordinates: true,
             transformMode: (concept as any) || 'copy',
             drawings
         });
     }
-
     return results;
 };
 
-const getGridInstruction = (mode: string) => {
-    switch(mode) {
-        case 'mirror_v': return "Soldaki deseni, sağdaki boş ızgaraya dikey aynadaki yansıması olacak şekilde çiz.";
-        case 'mirror_h': return "Üstteki deseni, alttaki boş ızgaraya yatay aynadaki yansıması olacak şekilde çiz.";
-        case 'rotate_90': return "Soldaki deseni, sağdaki boş ızgaraya saat yönünde 90 derece döndürerek çiz.";
-        case 'rotate_180': return "Soldaki deseni, sağdaki boş ızgaraya baş aşağı (180 derece) döndürerek çiz.";
-        default: return "Soldaki deseni sağdaki boş ızgaraya aynı şekilde kopyala.";
-    }
-};
-
+// --- ENHANCED SYMMETRY DRAWING GENERATOR ---
 export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions): Promise<SymmetryDrawingData[]> => {
-    const { worksheetCount, difficulty, visualType = 'vertical', gridSize = 10, useSearch } = options;
+    const { worksheetCount, difficulty, visualType = 'vertical', gridSize = 10 } = options;
     const results: SymmetryDrawingData[] = [];
 
-    const diffLevelMap: Record<string, number> = {
-        'Başlangıç': 3,
-        'Orta': 5,
-        'Zor': 8,
-        'Uzman': 12
+    // Seviyeye göre nokta sayısı (Zorluk skalası)
+    const complexityMap: Record<string, number> = {
+        'Başlangıç': 4,
+        'Orta': 6,
+        'Zor': 9,
+        'Uzman': 13
     };
-    const lineCount = diffLevelMap[difficulty] || 5;
+    const nodeCount = complexityMap[difficulty] || 6;
     const axis = (visualType === 'horizontal' ? 'horizontal' : 'vertical') as 'vertical' | 'horizontal';
+    const dim = gridSize || 10;
+    const mid = Math.floor(dim / 2);
 
     for (let p = 0; p < worksheetCount; p++) {
         const lines: { x1: number, y1: number, x2: number, y2: number, color: string }[] = [];
         const dots: { x: number, y: number, color: string }[] = [];
         
-        const dim = gridSize || 10;
-        const half = Math.floor(dim / 2);
-        
-        // Simetri merkezi/ekseni çizgisi dışında kalan alanlarda noktalar üret
-        const getPoint = () => {
-            if (axis === 'vertical') {
-                return { x: getRandomInt(0, half), y: getRandomInt(0, dim) };
-            } else {
-                return { x: getRandomInt(0, dim), y: getRandomInt(0, half) };
+        // 1. Koordinat havuzu oluştur (Sadece sol veya üst taraf için)
+        // Eksen çizgisi (mid) üzerinde en az bir nokta olsun ki şekil bitişik dursun
+        let currentPos = axis === 'vertical' ? { x: mid, y: getRandomInt(1, dim - 1) } : { x: getRandomInt(1, dim - 1), y: mid };
+        dots.push({ ...currentPos, color: '#0f172a' });
+
+        for (let i = 0; i < nodeCount; i++) {
+            let nextPos;
+            let attempts = 0;
+            
+            while (attempts < 20) {
+                // Komşu noktalara hareket et (Mühendislik hissi için 45-90 derece)
+                const dx = getRandomInt(-2, 2);
+                const dy = getRandomInt(-2, 2);
+                
+                nextPos = { x: currentPos.x + dx, y: currentPos.y + dy };
+                
+                // Sınır Kontrolü
+                const inBounds = nextPos.x >= 0 && nextPos.y >= 0 && nextPos.x <= dim && nextPos.y <= dim;
+                // Taraf Kontrolü (Simetri eksenini geçmemeli)
+                const inSide = axis === 'vertical' ? nextPos.x <= mid : nextPos.y <= mid;
+                // Aynı nokta olmamalı
+                const isDifferent = nextPos.x !== currentPos.x || nextPos.y !== currentPos.y;
+
+                if (inBounds && inSide && isDifferent) break;
+                attempts++;
             }
-        };
 
-        let lastPoint = getPoint();
-        dots.push({ ...lastPoint, color: '#4f46e5' });
-
-        for (let i = 0; i < lineCount; i++) {
-            const nextPoint = getPoint();
-            // Aynı noktaya çizgi çekme
-            if (nextPoint.x === lastPoint.x && nextPoint.y === lastPoint.y) continue;
-
-            lines.push({
-                x1: lastPoint.x,
-                y1: lastPoint.y,
-                x2: nextPoint.x,
-                y2: nextPoint.y,
-                color: '#0f172a'
-            });
-            lastPoint = nextPoint;
+            if (nextPos) {
+                lines.push({
+                    x1: currentPos.x,
+                    y1: currentPos.y,
+                    x2: nextPos.x,
+                    y2: nextPos.y,
+                    color: '#0f172a'
+                });
+                dots.push({ ...nextPos, color: '#0f172a' });
+                currentPos = nextPos;
+            }
         }
 
         results.push({
-            title: "Simetri Tamamlama",
-            instruction: axis === 'vertical' ? "Şeklin dikey eksene göre ayna görüntüsünü sağ tarafa çizerek tamamla." : "Şeklin yatay eksene göre ayna görüntüsünü alt tarafa çizerek tamamla.",
-            pedagogicalNote: "Zihinsel döndürme (mental rotation), uzamsal akıl yürütme ve simetri algısı becerilerini geliştirir.",
+            title: "Simetri Tamamlama Atölyesi",
+            instruction: axis === 'vertical' 
+                ? "Şeklin dikey eksene göre ayna görüntüsünü sağ tarafa çizerek tamamla." 
+                : "Şeklin yatay eksene göre ayna görüntüsünü alt tarafa çizerek tamamla.",
+            pedagogicalNote: "Zihinsel döndürme, uzamsal konumlandırma ve şekil sabitliği becerilerini geliştirir.",
             gridDim: dim,
             axis: axis,
-            showCoordinates: useSearch || false,
+            showCoordinates: options.useSearch || false,
             isMirrorImage: true,
             lines,
             dots
