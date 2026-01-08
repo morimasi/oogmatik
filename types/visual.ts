@@ -1,4 +1,3 @@
-
 import { BaseActivityData, ShapeType } from './core';
 
 export * from './core';
@@ -294,12 +293,7 @@ export interface RomanNumeralMultiplicationData extends BaseActivityData {
     }[];
 }
 
-export interface FamilyRelationsData extends BaseActivityData {
-    puzzles: {
-        tree: any;
-        questions: { question: string; answer: string }[];
-    }[];
-}
+// REMOVED DUPLICATE FamilyRelationsData that was causing ambiguity in types.ts
 
 export interface LogicDeductionData extends BaseActivityData {
     puzzles: {

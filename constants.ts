@@ -21,7 +21,7 @@ export const ACTIVITIES: Activity[] = [
     {
         id: ActivityType.SYLLABLE_MASTER_LAB,
         title: 'Hece Ustası Laboratuvarı',
-        description: 'Heceleme, birleştirme, tamamlama ve karışık hece oyunları içeren kapsamlı modül.',
+        description: 'Heceleme, birleştirme, tamamlama and karışık hece oyunları içeren kapsamlı modül.',
         icon: 'fa-solid fa-puzzle-piece',
         defaultStyle: { columns: 1 }
     },
@@ -30,6 +30,19 @@ export const ACTIVITIES: Activity[] = [
         title: 'Sözel Stroop Testi',
         description: 'Renk ve kelime çelişkisi üzerinden dikkat ve sözel enterferans çalışması.',
         icon: 'fa-solid fa-traffic-light'
+    },
+    {
+        id: ActivityType.FAMILY_RELATIONS,
+        title: 'Akrabalık İlişkileri',
+        description: 'Aile bağlarını tanımlama, eşleştirme ve kategorize etme çalışması.',
+        icon: 'fa-solid fa-sitemap',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.FAMILY_LOGIC_TEST,
+        title: 'Akrabalık Mantık Testi',
+        description: 'Akrabalık bağları üzerinden doğru/yanlış çıkarımı ve mantıksal muhakeme.',
+        icon: 'fa-solid fa-user-group'
     },
     {
         id: ActivityType.SYNONYM_ANTONYM_MATCH,
@@ -143,7 +156,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         title: 'Okuma & Dil',
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
-        activities: [ActivityType.SYLLABLE_MASTER_LAB, ActivityType.READING_SUDOKU, ActivityType.LETTER_VISUAL_MATCHING, ActivityType.READING_STROOP, ActivityType.SYNONYM_ANTONYM_MATCH, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS]
+        activities: [ActivityType.SYLLABLE_MASTER_LAB, ActivityType.READING_SUDOKU, ActivityType.LETTER_VISUAL_MATCHING, ActivityType.READING_STROOP, ActivityType.SYNONYM_ANTONYM_MATCH, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS, ActivityType.FAMILY_RELATIONS, ActivityType.FAMILY_LOGIC_TEST]
     },
     {
         id: 'math-logic',

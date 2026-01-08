@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema, analyzeImage } from '../geminiClient';
 import { 
@@ -5,11 +6,109 @@ import {
     MapInstructionData, 
     ActivityType, 
     FamilyRelationsData, 
-    LogicDeductionData, 
-    NumberBoxLogicData, 
+    FamilyLogicTestData,
     SyllableWordBuilderData
 } from '../../types';
 import { PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE, getStudentContextPrompt } from './prompts';
+
+export const generateFamilyRelationsFromAI = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
+    const { difficulty, studentContext } = options;
+    
+    const prompt = `
+    ${PEDAGOGICAL_BASE}
+    ${getStudentContextPrompt(studentContext)}
+    
+    GÖREV: "Akrabalık İlişkileri ve Eşleştirme" etkinliği oluştur. 
+    ZORLUK: ${difficulty}
+    
+    KURALLAR:
+    1. Tanımlar disleksi dostu, kısa ve net olmalıdır.
+    2. "Başlangıç" seviyesinde temel aile üyeleri (Anne, Baba, Kardeş, Teyze, Amca, Dayı, Hala, Dede, Anneanne, Babaanne).
+    3. "Orta" seviyede kuzenler, yeğenler, yenge, enişte ekle.
+    4. "Zor/Uzman" seviyesinde görümce, elti, bacanak, kayınço gibi daha karmaşık bağlar ekle.
+    5. 'momRelatives' ve 'dadRelatives' dizilerini kategorize edilmiş şekilde doldur.
+    
+    ÇIKTI FORMATI: Sadece JSON dizi döndür.
+    `;
+
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                pairs: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            definition: { type: Type.STRING },
+                            label: { type: Type.STRING },
+                            side: { type: Type.STRING, enum: ['mom', 'dad'] }
+                        },
+                        required: ['definition', 'label', 'side']
+                    }
+                },
+                momRelatives: { type: Type.ARRAY, items: { type: Type.STRING } },
+                dadRelatives: { type: Type.ARRAY, items: { type: Type.STRING } },
+                difficulty: { type: Type.STRING }
+            },
+            required: ['title', 'pairs', 'momRelatives', 'dadRelatives']
+        }
+    };
+
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+};
+
+export const generateFamilyLogicTestFromAI = async (options: GeneratorOptions): Promise<FamilyLogicTestData[]> => {
+    const { difficulty, itemCount, studentContext } = options;
+    
+    const prompt = `
+    ${PEDAGOGICAL_BASE}
+    ${getStudentContextPrompt(studentContext)}
+    
+    GÖREV: "Akrabalık Mantık ve Çıkarım Testi" oluştur. 
+    ZORLUK: ${difficulty}
+    ADET: ${itemCount || 10} ifade.
+    
+    KURALLAR:
+    1. İfadeler mantıksal bir akrabalık bağı önermesi içermelidir.
+    2. Örn: "Halam babamın kız kardeşidir." (Doğru), "Dayım babamın kardeşidir." (Yanlış).
+    3. Bazı ifadeler şaşırtıcı ve muhakeme gerektirici olmalıdır.
+    4. Disleksi dostu: Kritik kelimelerin altı çizilebilir ya da kalın yazılabilir.
+    
+    ÇIKTI FORMATI: Sadece JSON dizi döndür.
+    `;
+
+    const schema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                statements: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            text: { type: Type.STRING },
+                            isTrue: { type: Type.BOOLEAN }
+                        },
+                        required: ['text', 'isTrue']
+                    }
+                },
+                difficulty: { type: Type.STRING }
+            },
+            required: ['title', 'statements']
+        }
+    };
+
+    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+};
 
 export const generateSyllableWordBuilderFromAI = async (options: GeneratorOptions): Promise<SyllableWordBuilderData[]> => {
     const { topic, difficulty, itemCount, studentContext } = options;
@@ -62,10 +161,6 @@ export const generateSyllableWordBuilderFromAI = async (options: GeneratorOption
     return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
 };
 
-/**
- * Generates content from a detailed rich text blueprint (often from OCR).
- * Used for material cloning and custom dynamic variation.
- */
 export const generateFromRichPrompt = async (activityType: ActivityType, blueprint: string, options: GeneratorOptions) => {
     const prompt = `
     ${PEDAGOGICAL_BASE}

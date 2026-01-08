@@ -152,12 +152,13 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.READING_SUDOKU: return <Reading.ReadingSudokuSheet data={data} />;
         case ActivityType.READING_STROOP: return <Reading.ReadingStroopSheet data={data} />;
         case ActivityType.SYNONYM_ANTONYM_MATCH: return <Reading.SynonymAntonymMatchSheet data={data} />;
-        /* Corrected reference to LetterVisualMatchingSheet in Dyslexia namespace */
         case ActivityType.LETTER_VISUAL_MATCHING: return <Dyslexia.LetterVisualMatchingSheet data={data} />;
         case ActivityType.MAP_INSTRUCTION: return <MapDetectiveSheet data={data} />; 
         case ActivityType.HIDDEN_PASSWORD_GRID: return <WordGames.HiddenPasswordGridSheet data={data} />;
         case ActivityType.NUMBER_LOGIC_RIDDLES: return <NumberLogicRiddleSheet data={data} />;
         case ActivityType.SYLLABLE_WORD_BUILDER: return <SyllableWordBuilderSheet data={data} />;
+        case ActivityType.FAMILY_RELATIONS: return <NewActivities.FamilyRelationsSheet data={data} />;
+        case ActivityType.FAMILY_LOGIC_TEST: return <NewActivities.FamilyLogicSheet data={data} />;
         case ActivityType.REAL_LIFE_MATH_PROBLEMS: return <MathLogic.RealLifeMathProblemsSheet data={data} />;
         case ActivityType.MATH_PUZZLE: return <MathLogic.MathPuzzleSheet data={data} />;
         case ActivityType.NUMBER_PATTERN: return <MathLogic.NumberPatternSheet data={data} />;
@@ -170,7 +171,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.STORY_ANALYSIS: return <Reading.StoryAnalysisSheet data={data} />;
         case ActivityType.STORY_CREATION_PROMPT: return <Reading.StoryCreationPromptSheet data={data} />;
         case ActivityType.MISSING_PARTS: return <Reading.MissingPartsSheet data={data} />;
-        /* Corrected all Dyslexia activity sheets from missing exports */
         case ActivityType.READING_FLOW: return <Dyslexia.ReadingFlowSheet data={data} />;
         case ActivityType.PHONOLOGICAL_AWARENESS: return <Dyslexia.PhonologicalAwarenessSheet data={data} />;
         case ActivityType.RAPID_NAMING: return <Dyslexia.RapidNamingSheet data={data} />;
@@ -181,7 +181,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.BACKWARD_SPELLING: return <Dyslexia.BackwardSpellingSheet data={data} />;
         case ActivityType.CODE_READING: return <Dyslexia.CodeReadingSheet data={data} />;
         case ActivityType.ATTENTION_TO_QUESTION: return <Dyslexia.AttentionToQuestionSheet data={data} />;
-        /* Pointing to Memory namespace for AttentionDevelopment and AttentionFocus as they exist there */
         case ActivityType.ATTENTION_DEVELOPMENT: return <Memory.AttentionDevelopmentSheet data={data} />;
         case ActivityType.ATTENTION_FOCUS: return <Memory.AttentionFocusSheet data={data} />;
         case ActivityType.HANDWRITING_PRACTICE: return <Dyslexia.HandwritingPracticeSheet data={data} />;

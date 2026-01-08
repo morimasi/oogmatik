@@ -1,5 +1,3 @@
-
-
 export enum ActivityType {
     READING_STROOP = 'READING_STROOP',
     ALGORITHM_GENERATOR = 'ALGORITHM_GENERATOR',
@@ -60,7 +58,9 @@ export enum ActivityType {
     LETTER_VISUAL_MATCHING = 'LETTER_VISUAL_MATCHING',
     SYNONYM_ANTONYM_MATCH = 'SYNONYM_ANTONYM_MATCH',
     READING_SUDOKU = 'READING_SUDOKU',
-    SYLLABLE_MASTER_LAB = 'SYLLABLE_MASTER_LAB'
+    SYLLABLE_MASTER_LAB = 'SYLLABLE_MASTER_LAB',
+    FAMILY_RELATIONS = 'FAMILY_RELATIONS',
+    FAMILY_LOGIC_TEST = 'FAMILY_LOGIC_TEST'
 }
 
 export type View = 'generator' | 'admin' | 'profile' | 'messages' | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'favorites' | 'savedList' | 'workbook' | 'shared' | 'assessment';
@@ -485,47 +485,51 @@ export type VisualMathType = 'objects' | 'ten-frame' | 'number-bond' | 'dice' | 
 export type SingleWorksheetData = any;
 export type WorksheetData = SingleWorksheetData[] | null;
 
-// --- READING STUDIO TYPES ---
-
+/**
+ * Added missing types for Reading Studio and layout engine
+ */
 export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes';
+
+export interface LayoutItemStyle {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    zIndex: number;
+    rotation?: number;
+    padding?: number;
+    backgroundColor?: string;
+    borderColor?: string;
+    borderWidth?: number;
+    borderStyle?: string;
+    borderRadius?: number;
+    opacity?: number;
+    boxShadow?: string;
+    textAlign?: string;
+    color?: string;
+    fontSize?: number;
+    fontFamily?: string;
+    lineHeight?: number;
+    letterSpacing?: number;
+    fontWeight?: string;
+    imageSettings?: {
+        enabled: boolean;
+        position: 'left' | 'right';
+        widthPercent: number;
+        opacity: number;
+        objectFit: 'cover' | 'contain';
+        borderRadius: number;
+        blendMode: string;
+        filter?: string;
+    };
+}
 
 export interface LayoutItem {
     id: LayoutSectionId;
     label: string;
     icon: string;
-    style: {
-        x: number;
-        y: number;
-        w: number;
-        h: number;
-        zIndex: number;
-        rotation?: number;
-        padding?: number;
-        backgroundColor?: string;
-        borderColor?: string;
-        borderWidth?: number;
-        borderStyle?: string;
-        borderRadius?: number;
-        opacity?: number;
-        boxShadow?: string;
-        textAlign?: string;
-        color?: string;
-        fontSize?: number;
-        fontFamily?: string;
-        lineHeight?: number;
-        letterSpacing?: number;
-        fontWeight?: string;
-        imageSettings?: {
-            enabled: boolean;
-            position: 'left' | 'right' | 'center';
-            widthPercent: number;
-            opacity: number;
-            objectFit: string;
-            borderRadius: number;
-            blendMode: string;
-            filter?: string;
-        };
-    };
+    description: string;
+    style: LayoutItemStyle;
     specificData?: any;
     isVisible: boolean;
 }
@@ -537,14 +541,24 @@ export interface ReadingStudioConfig {
     genre: string;
     tone: string;
     length: 'short' | 'medium' | 'long' | 'epic';
-    layoutDensity: string;
+    layoutDensity: 'compact' | 'comfortable' | 'loose';
     textComplexity: 'simple' | 'moderate' | 'advanced';
-    fontSettings: any;
+    fontSettings: {
+        family: string;
+        size: number;
+        lineHeight: number;
+        letterSpacing: number;
+        wordSpacing: number;
+    };
     includeImage: boolean;
     imageSize: number;
     imageOpacity: number;
-    imagePosition: string;
-    imageGeneration: { enabled: boolean; style: string; complexity: string };
+    imagePosition: 'left' | 'right';
+    imageGeneration: {
+        enabled: boolean;
+        style: string;
+        complexity: 'simple' | 'detailed';
+    };
     include5N1K: boolean;
     countMultipleChoice: number;
     countTrueFalse: number;
@@ -561,4 +575,27 @@ export interface ReadingStudioConfig {
     showDateSection: boolean;
 }
 
-// ClockReadingData removed as it is correctly defined in types/math.ts
+// --- FAMILY RELATIONS TYPES ---
+
+export interface FamilyRelationPair {
+    definition: string;
+    label: string;
+    side: 'mom' | 'dad';
+}
+
+export interface FamilyRelationsData extends BaseActivityData {
+    pairs: FamilyRelationPair[];
+    momRelatives: string[];
+    dadRelatives: string[];
+    difficulty: string;
+}
+
+export interface FamilyLogicStatement {
+    text: string;
+    isTrue: boolean;
+}
+
+export interface FamilyLogicTestData extends BaseActivityData {
+    statements: FamilyLogicStatement[];
+    difficulty: string;
+}
