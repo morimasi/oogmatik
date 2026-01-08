@@ -62,11 +62,25 @@ export enum ActivityType {
     SYLLABLE_MASTER_LAB = 'SYLLABLE_MASTER_LAB',
     FAMILY_RELATIONS = 'FAMILY_RELATIONS',
     FAMILY_LOGIC_TEST = 'FAMILY_LOGIC_TEST',
+    // New ActivityTypes added to fix SheetRenderer errors
+    VISUAL_ARITHMETIC = 'VISUAL_ARITHMETIC',
+    NUMBER_SENSE = 'NUMBER_SENSE',
+    SPATIAL_GRID = 'SPATIAL_GRID',
+    CONCEPT_MATCH = 'CONCEPT_MATCH',
+    ESTIMATION = 'ESTIMATION',
+    CHARACTER_MEMORY = 'CHARACTER_MEMORY',
+    COLOR_WHEEL_MEMORY = 'COLOR_WHEEL_MEMORY',
+    IMAGE_COMPREHENSION = 'IMAGE_COMPREHENSION',
+    CHAOTIC_NUMBER_SEARCH = 'CHAOTIC_NUMBER_SEARCH',
+    LETTER_GRID_TEST = 'LETTER_GRID_TEST',
+    FIND_LETTER_PAIR = 'FIND_LETTER_PAIR',
+    TARGET_SEARCH = 'TARGET_SEARCH',
     /* Fix: Adding missing properties referenced in SheetRenderer.tsx */
     FUTOSHIKI = 'FUTOSHIKI',
     SHAPE_SUDOKU = 'SHAPE_SUDOKU',
     ODD_ONE_OUT = 'ODD_ONE_OUT',
-    THEMATIC_ODD_ONE_OUT = 'THEMATIC_ODD_ONE_OUT'
+    THEMATIC_ODD_ONE_OUT = 'THEMATIC_ODD_ONE_OUT',
+    TARGET_NUMBER = 'TARGET_NUMBER'
 }
 
 export type View = 'generator' | 'admin' | 'profile' | 'messages' | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'favorites' | 'savedList' | 'workbook' | 'shared' | 'assessment';
