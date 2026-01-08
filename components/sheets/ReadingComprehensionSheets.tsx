@@ -3,7 +3,7 @@ import React from 'react';
 import { 
     StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, MissingPartsData, InteractiveStoryData, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData
 } from '../../types';
-import { ImageDisplay, PedagogicalHeader, ReadingRuler, StoryHighlighter, QUESTION_TYPES } from '../common';
+import { ImageDisplay, PedagogicalHeader, ReadingRuler, StoryHighlighter, QUESTION_TYPES } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
 const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, questions: any[], type: string, icon?: string }) => {
@@ -352,8 +352,7 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data
             <EditableText value={data.story} tag="div" />
         </div>
         <div className="grid grid-cols-2 gap-4 h-[400px]">
-            {/* Fix: Added explicit type casting to resolve 'unknown' type errors */}
-            {Object.entries(data.storyMap || {}).map(([key, value]: [string, any], i) => (
+            {Object.entries(data.storyMap || {}).map(([key, value], i) => (
                 <div key={i} className="p-5 border-2 border-zinc-200 rounded-3xl bg-white shadow-sm flex flex-col">
                     <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest mb-2">{key}</span>
                     <p className="font-bold text-zinc-700 flex-1"><EditableText value={value} tag="span" /></p>
@@ -388,8 +387,7 @@ export const StoryCreationPromptSheet: React.FC<{ data: StoryCreationPromptData 
             <div className="space-y-4">
                 <h4 className="font-black text-sm uppercase border-b-2 border-zinc-800 pb-1">Kurgu Taslağı</h4>
                 <div className="space-y-4">
-                    {/* Fix: Added explicit type casting to resolve 'unknown' type errors */}
-                    {Object.entries(data.structureHints || {}).map(([key, value]: [string, any], i) => (
+                    {Object.entries(data.structureHints || {}).map(([key, value], i) => (
                         <div key={i} className="flex items-center gap-3">
                             <span className="w-20 text-[10px] font-black uppercase text-zinc-400">{key}</span>
                             <div className="flex-1 border-b-2 border-zinc-200 py-1 font-bold italic text-zinc-600">

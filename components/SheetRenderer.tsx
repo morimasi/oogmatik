@@ -26,7 +26,6 @@ import { ReadingStroopSheet } from './sheets/verbal/ReadingStroopSheet';
 import { SynonymAntonymMatchSheet } from './sheets/verbal/SynonymAntonymMatchSheet';
 import { SyllableWordBuilderSheet } from './sheets/verbal/SyllableWordBuilderSheet';
 import { LetterVisualMatchingSheet } from './sheets/verbal/LetterVisualMatchingSheet';
-import { FamilyLogicSheet } from './sheets/verbal/FamilyLogicSheet';
 
 // Visual Category
 import { MapDetectiveSheet } from './sheets/visual/MapDetectiveSheet'; 
@@ -103,7 +102,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.HIDDEN_PASSWORD_GRID: return <WordGames.HiddenPasswordGridSheet data={data} />;
         case ActivityType.NUMBER_LOGIC_RIDDLES: return <NumberLogicRiddleSheet data={data} />;
         case ActivityType.FAMILY_RELATIONS: return <NewActivities.FamilyRelationsSheet data={data} />;
-        case ActivityType.FAMILY_LOGIC_TEST: return <FamilyLogicSheet data={data} />;
+        case ActivityType.FAMILY_LOGIC_TEST: return <NewActivities.FamilyLogicSheet data={data} />;
         case ActivityType.NUMBER_SEARCH: return <Memory.NumberSearchSheet data={data} />;
         case ActivityType.CLOCK_READING: return <Dyscalculia.ClockReadingSheet data={data} />;
         case ActivityType.MONEY_COUNTING: return <Dyscalculia.MoneyCountingSheet data={data} />;

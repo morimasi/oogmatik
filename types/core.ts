@@ -217,8 +217,7 @@ export interface GeneratorOptions {
     showCityNames?: boolean;
     markerStyle?: string;
     customInput?: string;
-    /* Fix: Expanded logicModel to match usage in newActivities.ts */
-    logicModel?: 'identity' | 'exclusion' | 'sequence' | 'cryptarithmetic' | 'simple' | 'indirect' | 'syllogism';
+    logicModel?: 'identity' | 'exclusion' | 'sequence' | 'cryptarithmetic';
     showSumTarget?: boolean;
     fontFamily?: string;
     [key: string]: any;
@@ -580,4 +579,29 @@ export interface ReadingStudioConfig {
     showSelfAssessment: boolean;
     showTeacherNotes: boolean;
     showDateSection: boolean;
+}
+
+// --- FAMILY RELATIONS TYPES ---
+
+export interface FamilyRelationPair {
+    definition: string;
+    label: string;
+    side: 'mom' | 'dad';
+}
+
+export interface FamilyRelationsData extends BaseActivityData {
+    pairs: FamilyRelationPair[];
+    momRelatives: string[];
+    dadRelatives: string[];
+    difficulty: string;
+}
+
+export interface FamilyLogicStatement {
+    text: string;
+    isTrue: boolean;
+}
+
+export interface FamilyLogicTestData extends BaseActivityData {
+    statements: FamilyLogicStatement[];
+    difficulty: string;
 }
