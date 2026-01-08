@@ -12,21 +12,31 @@ import {
 import { PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE, getStudentContextPrompt } from './prompts';
 
 export const generateFamilyRelationsFromAI = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
-    const { difficulty, studentContext } = options;
+    const { difficulty, studentContext, variant = 'mixed', familyDepth = 'extended', familyTaskType = 'matching' } = options;
     
+    const depthDesc = {
+        'basic': 'Sadece çekirdek aile ve 1. derece akrabalar (Anne, baba, kardeş, dede, nene).',
+        'extended': 'Geniş aile üyeleri (Hala, teyze, amca, dayı, kuzen, yeğen).',
+        'expert': 'Karmaşık ve nadir akrabalık bağları (Elti, bacanak, görümce, kayınbirader, üvey bağlar).'
+    }[familyDepth as string] || 'Geniş aile';
+
+    const sideDesc = variant === 'mom' ? 'Anne tarafı akrabalarına odaklan.' : variant === 'dad' ? 'Baba tarafı akrabalarına odaklan.' : 'Her iki tarafı da dengeli kullan.';
+
     const prompt = `
     ${PEDAGOGICAL_BASE}
     ${getStudentContextPrompt(studentContext)}
     
-    GÖREV: "Akrabalık İlişkileri ve Eşleştirme" etkinliği oluştur. 
+    GÖREV: "Akrabalık İlişkileri Atölyesi" oluştur. 
     ZORLUK: ${difficulty}
+    ODAK TARAF: ${sideDesc}
+    İLİŞKİ DERİNLİĞİ: ${depthDesc}
+    GÖREV TİPİ: ${familyTaskType}
     
     KURALLAR:
     1. Tanımlar disleksi dostu, kısa ve net olmalıdır.
-    2. "Başlangıç" seviyesinde temel aile üyeleri (Anne, Baba, Kardeş, Teyze, Amca, Dayı, Hala, Dede, Anneanne, Babaanne).
-    3. "Orta" seviyede kuzenler, yeğenler, yenge, enişte ekle.
-    4. "Zor/Uzman" seviyesinde görümce, elti, bacanak, kayınço gibi daha karmaşık bağlar ekle.
-    5. 'momRelatives' ve 'dadRelatives' dizilerini kategorize edilmiş şekilde doldur.
+    2. Mantıksal kurgu kusursuz olmalıdır (örn: "Annemin babası" -> "Dede/Büyükbaba").
+    3. Her bir tanım için 'pairId' oluşturarak eşleşmeyi sağla.
+    4. 'momRelatives' ve 'dadRelatives' dizilerini, bu çalışmada geçen veya konuyla ilgili olan isimlerle doldur (Öğrencinin ayırması için boş tablo verisi olarak kullanılacak).
     
     ÇIKTI FORMATI: Sadece JSON dizi döndür.
     `;
@@ -63,7 +73,7 @@ export const generateFamilyRelationsFromAI = async (options: GeneratorOptions): 
 };
 
 export const generateFamilyLogicTestFromAI = async (options: GeneratorOptions): Promise<FamilyLogicTestData[]> => {
-    const { difficulty, itemCount, studentContext } = options;
+    const { difficulty, itemCount, studentContext, familyDepth = 'extended' } = options;
     
     const prompt = `
     ${PEDAGOGICAL_BASE}
@@ -72,12 +82,13 @@ export const generateFamilyLogicTestFromAI = async (options: GeneratorOptions): 
     GÖREV: "Akrabalık Mantık ve Çıkarım Testi" oluştur. 
     ZORLUK: ${difficulty}
     ADET: ${itemCount || 10} ifade.
+    İLİŞKİ DERİNLİĞİ: ${familyDepth}
     
     KURALLAR:
     1. İfadeler mantıksal bir akrabalık bağı önermesi içermelidir.
     2. Örn: "Halam babamın kız kardeşidir." (Doğru), "Dayım babamın kardeşidir." (Yanlış).
-    3. Bazı ifadeler şaşırtıcı ve muhakeme gerektirici olmalıdır.
-    4. Disleksi dostu: Kritik kelimelerin altı çizilebilir ya da kalın yazılabilir.
+    3. Akıl yürütmeyi tetikleyen "Kimin neyi?" sorularını cümleye dök.
+    4. Bazı ifadeler şaşırtıcı olmalı ama kesinlikle bir doğruluk değeri taşımalıdır.
     
     ÇIKTI FORMATI: Sadece JSON dizi döndür.
     `;

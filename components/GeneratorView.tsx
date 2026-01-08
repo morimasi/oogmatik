@@ -126,7 +126,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         mode: 'fast',
         difficulty: 'Orta',
         worksheetCount: 1,
-        itemCount: activity.id === ActivityType.SYLLABLE_MASTER_LAB ? 24 : 16,
+        itemCount: 10,
         gridSize: 4,
         topic: '',
         distractionLevel: 'medium',
@@ -140,17 +140,11 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         showCityNames: true,
         markerStyle: 'circle',
         customInput: '',
-        variant: 'analog-to-digital',
+        variant: 'mixed', // Focus side for family relations
         case: 'upper',
         fontFamily: 'OpenDyslexic',
-        syllableRange: '2-3',
-        selectedOperations: ['add', 'sub'],
-        visualStyle: 'mixed',
-        is24Hour: false,
-        showNumbers: true,
-        showTicks: true,
-        showOptions: true,
-        showHands: true
+        familyTaskType: 'matching', // matching, tree_logic, naming
+        familyDepth: 'extended' // basic, extended, expert
     });
 
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
@@ -180,6 +174,62 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
     };
 
     const renderActivityControls = () => {
+        // --- FAMILY RELATIONS ---
+        if (activity.id === ActivityType.FAMILY_RELATIONS || activity.id === ActivityType.FAMILY_LOGIC_TEST) {
+            const isLogic = activity.id === ActivityType.FAMILY_LOGIC_TEST;
+            return (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                    <CompactToggleGroup 
+                        label="Odak Taraf" 
+                        selected={options.variant || 'mixed'} 
+                        onChange={(v: string) => handleChange('variant', v)} 
+                        options={[
+                            { value: 'mom', label: 'ANNE' }, 
+                            { value: 'dad', label: 'BABA' },
+                            { value: 'mixed', label: 'KARMA' }
+                        ]} 
+                    />
+
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700 space-y-4">
+                        <CompactSelect 
+                            label="İlişki Derinliği" 
+                            value={options.familyDepth} 
+                            onChange={(v:string) => handleChange('familyDepth', v)}
+                            options={[
+                                { value: 'basic', label: 'Temel (1. Derece)' },
+                                { value: 'extended', label: 'Geniş (Hala/Teyze...)' },
+                                { value: 'expert', label: 'Uzman (Elti/Bacanak...)' }
+                            ]}
+                            icon="fa-sitemap"
+                        />
+
+                        {!isLogic && (
+                            <CompactSelect 
+                                label="Görev Türü" 
+                                value={options.familyTaskType} 
+                                onChange={(v:string) => handleChange('familyTaskType', v)}
+                                options={[
+                                    { value: 'matching', label: 'Tanım Eşleştirme' },
+                                    { value: 'naming', label: 'İsimlendirme' },
+                                    { value: 'identification', label: 'Kimin Neyi?' }
+                                ]}
+                                icon="fa-list-check"
+                            />
+                        )}
+
+                        <CompactCounter label="Soru/İfade Sayısı" value={options.itemCount} onChange={(v:number) => handleChange('itemCount', v)} min={4} max={15} icon="fa-list-ol" />
+                    </div>
+
+                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+                        <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                            <i className="fa-solid fa-lightbulb"></i> Bilişsel İpucu
+                        </p>
+                        <p className="text-[10px] text-zinc-500 italic leading-tight">Akrabalık ilişkileri, çocukların soyut hiyerarşik yapıları anlama ve sosyal muhakeme becerilerini test eder.</p>
+                    </div>
+                </div>
+            );
+        }
+
         // --- CLOCK READING ---
         if (activity.id === ActivityType.CLOCK_READING) {
             return (
@@ -390,7 +440,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                             onChange={(v:string) => handleChange('fontFamily', v)}
                             options={[
                                 { value: 'OpenDyslexic', label: 'Disleksi Fontu' },
-                                { value: 'Lexend', label: 'Lexend' },
+                                { value: 'Lexend', label: 'Okunaklı' },
                                 { value: 'Inter', label: 'Standart' }
                             ]}
                             icon="fa-font"

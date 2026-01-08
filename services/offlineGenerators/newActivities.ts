@@ -3,27 +3,48 @@ import { getRandomInt, shuffle, getRandomItems, simpleSyllabify, getWordsForDiff
 import { SyllableWordBuilderData, FamilyRelationsData, FamilyLogicTestData, GeneratorOptions } from '../../types';
 
 export const generateOfflineFamilyRelations = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, variant = 'mixed', familyDepth = 'extended' } = options;
     
-    const baseRelations = [
+    const basic = [
+        { definition: "Beni dünyaya getiren kadındır.", label: "Anne", side: 'mom' },
+        { definition: "Beni dünyaya getiren erkektir.", label: "Baba", side: 'dad' },
+        { definition: "Aynı anne babadan olan kız kardeşim.", label: "Abla/Kız Kardeş", side: 'mixed' },
+        { definition: "Aynı anne babadan olan erkek kardeşim.", label: "Abi/Erkek Kardeş", side: 'mixed' },
+        { definition: "Babamın babasıdır.", label: "Dede", side: 'dad' },
+        { definition: "Annemin annesidir.", label: "Anneanne", side: 'mom' },
+    ];
+
+    const extended = [
         { definition: "Annemin kız kardeşidir.", label: "Teyze", side: 'mom' },
         { definition: "Babamın annesidir.", label: "Babaanne", side: 'dad' },
         { definition: "Babamın kız kardeşidir.", label: "Hala", side: 'dad' },
-        { definition: "Annemin annesidir.", label: "Anneanne", side: 'mom' },
         { definition: "Annemin erkek kardeşidir.", label: "Dayı", side: 'mom' },
         { definition: "Babamın erkek kardeşidir.", label: "Amca", side: 'dad' },
-        { definition: "Babamın babasıdır.", label: "Dede", side: 'dad' },
-        { definition: "Annemin babasıdır.", label: "Büyükbaba", side: 'mom' },
-        { definition: "Amcamın karısıdır.", label: "Yenge", side: 'dad' },
-        { definition: "Dayımın çocuğudur.", label: "Kuzen", side: 'mom' }
+        { definition: "Teyzemin veya amcamın çocuğudur.", label: "Kuzen", side: 'mixed' }
     ];
 
+    const expert = [
+        { definition: "Amcamın veya dayımın karısıdır.", label: "Yenge", side: 'mixed' },
+        { definition: "Halamın veya teyzemin kocasıdır.", label: "Enişte", side: 'mixed' },
+        { definition: "Eşimin kız kardeşidir.", label: "Görümce/Baldız", side: 'mixed' },
+        { definition: "Eşimin erkek kardeşidir.", label: "Kayınbirader", side: 'mixed' },
+        { definition: "Kardeşimin çocuğudur.", label: "Yeğen", side: 'mixed' }
+    ];
+
+    let pool = [...basic];
+    if (familyDepth === 'extended' || familyDepth === 'expert') pool = [...pool, ...extended];
+    if (familyDepth === 'expert') pool = [...pool, ...expert];
+
+    // Filter by side if not mixed
+    if (variant === 'mom') pool = pool.filter(p => p.side === 'mom' || p.side === 'mixed');
+    if (variant === 'dad') pool = pool.filter(p => p.side === 'dad' || p.side === 'mixed');
+
     return Array.from({ length: worksheetCount }, () => {
-        const selected = shuffle(baseRelations).slice(0, 10);
+        const selected = shuffle(pool).slice(0, 10);
         return {
-            title: "Akrabalık İlişkileri",
-            instruction: "Aşağıdaki tanımlarla kişileri eşleştiriniz.",
-            pedagogicalNote: "Sosyal hiyerarşi algısı, sözel tanımlama ve kategorizasyon becerilerini destekler.",
+            title: "Akrabalık İlişkileri Atölyesi",
+            instruction: "Tanımları okuyun ve yanındaki kutucuğa uygun akrabalık adını yazın.",
+            pedagogicalNote: "Hiyerarşik sınıflama, sözel çıkarım ve sosyal kavram geliştirme becerilerini destekler.",
             pairs: selected as any,
             momRelatives: selected.filter(s => s.side === 'mom').map(s => s.label),
             dadRelatives: selected.filter(s => s.side === 'dad').map(s => s.label),
@@ -33,21 +54,19 @@ export const generateOfflineFamilyRelations = async (options: GeneratorOptions):
 };
 
 export const generateOfflineFamilyLogicTest = async (options: GeneratorOptions): Promise<FamilyLogicTestData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, familyDepth = 'extended' } = options;
     
     const pool = [
         { text: "Teyzem annemin akrabasıdır.", isTrue: true },
         { text: "Dedem annemden büyüktür.", isTrue: true },
-        { text: "Anneannem annemin akrabası değildir.", isTrue: false },
-        { text: "Babaannem benden büyüktür.", isTrue: true },
-        { text: "Teyzem annemden küçük olamaz.", isTrue: false },
-        { text: "Amcam babamın abisi olabilir.", isTrue: true },
+        { text: "Anneannem annemin annesidir.", isTrue: true },
+        { text: "Babaannem babamın annesidir.", isTrue: true },
+        { text: "Amcam babamın kardeşidir.", isTrue: true },
         { text: "Dayım babamın kardeşidir.", isTrue: false },
-        { text: "Halam ile annem kardeştir.", isTrue: false },
-        { text: "Babaannem babamdan büyüktür.", isTrue: true },
-        { text: "Anneannem teyzemden büyük değildir.", isTrue: false },
-        { text: "Halam ve teyzem kardeştirler.", isTrue: false },
-        { text: "Yengem ile benim kan bağım yoktur.", isTrue: true }
+        { text: "Halam annemin kız kardeşidir.", isTrue: false },
+        { text: "Kuzenim amcamın çocuğu olabilir.", isTrue: true },
+        { text: "Yengem ile babam kardeştir.", isTrue: false },
+        { text: "Eniştem halamın eşidir.", isTrue: true }
     ];
 
     return Array.from({ length: worksheetCount }, () => ({
