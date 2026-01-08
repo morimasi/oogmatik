@@ -13,6 +13,8 @@ export interface StoryQuestion {
 
 export interface StoryData extends BaseActivityData {
     story: string;
+    // Fix: Added missing genre property for Reading Studio support
+    genre?: string;
     mainIdea: string;
     characters: string[];
     setting: string;

@@ -1,3 +1,4 @@
+
 export enum ActivityType {
     READING_STROOP = 'READING_STROOP',
     ALGORITHM_GENERATOR = 'ALGORITHM_GENERATOR',
@@ -60,7 +61,12 @@ export enum ActivityType {
     READING_SUDOKU = 'READING_SUDOKU',
     SYLLABLE_MASTER_LAB = 'SYLLABLE_MASTER_LAB',
     FAMILY_RELATIONS = 'FAMILY_RELATIONS',
-    FAMILY_LOGIC_TEST = 'FAMILY_LOGIC_TEST'
+    FAMILY_LOGIC_TEST = 'FAMILY_LOGIC_TEST',
+    /* Fix: Adding missing properties referenced in SheetRenderer.tsx */
+    FUTOSHIKI = 'FUTOSHIKI',
+    SHAPE_SUDOKU = 'SHAPE_SUDOKU',
+    ODD_ONE_OUT = 'ODD_ONE_OUT',
+    THEMATIC_ODD_ONE_OUT = 'THEMATIC_ODD_ONE_OUT'
 }
 
 export type View = 'generator' | 'admin' | 'profile' | 'messages' | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'favorites' | 'savedList' | 'workbook' | 'shared' | 'assessment';
