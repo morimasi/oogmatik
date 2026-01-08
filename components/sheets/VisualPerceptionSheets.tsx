@@ -70,7 +70,7 @@ export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ 
                             {i + 1}
                         </div>
 
-                        <div className={`flex flex-wrap items-center justify-around py-2 px-2 ${containerClass}`}>
+                        <div className={`flex items-center justify-around py-2 px-2 ${containerClass}`}>
                             {(row.items || []).map((item, j) => (
                                 <div key={j} className="flex flex-col items-center gap-2 group/item">
                                     <div className={`
@@ -120,10 +120,11 @@ export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ 
 
 export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> = ({ data }) => {
     const rows = data?.rows || [];
+    // Sayfa doluluğunu maksimize etmek için satır sayısına göre sütun belirleme
     const isSingleColumn = rows.length <= 6;
 
     return (
-        <div className="flex flex-col h-full bg-white p-2">
+        <div className="flex flex-col h-full bg-white p-2 font-sans text-black overflow-visible">
             <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} />
             
             <div className={`grid ${isSingleColumn ? 'grid-cols-1' : 'grid-cols-2'} gap-4 mt-2 flex-1 content-start`}>
@@ -136,10 +137,12 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
                             key={index} 
                             className={`flex flex-col p-6 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm hover:shadow-md transition-all break-inside-avoid relative group`}
                         >
-                            <div className="absolute -top-3 -left-2 w-10 h-10 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black shadow-lg text-sm border-4 border-white">
+                            {/* Görev Sayacı Rozeti */}
+                            <div className="absolute -top-3 -left-2 w-10 h-10 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black shadow-lg text-sm border-4 border-white z-10 transition-transform group-hover:scale-110">
                                 {index + 1}
                             </div>
 
+                            {/* Seçenekler Alanı */}
                             <div className="flex-1 flex items-center justify-around w-full gap-4 py-2">
                                 {items.map((item, itemIndex) => (
                                     <div 
@@ -157,11 +160,13 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
                                         `}>
                                             <EditableText value={item} tag="span" />
                                         </span>
+                                        {/* Seçim İndikatörü (Çizim Alanı) */}
                                         <div className="absolute -bottom-2 -right-1 w-6 h-6 rounded-full border-2 border-zinc-200 bg-white group-hover/item:border-indigo-500 transition-colors shadow-sm"></div>
                                     </div>
                                 ))}
                             </div>
 
+                            {/* Görev Alt Bilgi Şeridi */}
                             <div className="mt-4 flex items-center gap-3">
                                 <div className="h-1 flex-1 bg-zinc-100 rounded-full overflow-hidden">
                                     <div className={`h-full w-1/4 ${isHard ? 'bg-amber-400' : 'bg-indigo-400'} opacity-20`}></div>
@@ -172,19 +177,25 @@ export const FindTheDifferenceSheet: React.FC<{ data: FindTheDifferenceData }> =
                     );
                 })}
             </div>
-            <div className="mt-auto pt-6 flex justify-between items-center px-6 border-t border-zinc-100">
+
+            {/* Profesyonel Footer */}
+            <div className="mt-auto pt-6 flex justify-between items-center px-10 border-t border-zinc-100 opacity-40">
                 <div className="flex gap-8">
                      <div className="flex flex-col">
-                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Kategori</span>
-                        <span className="text-[10px] font-bold text-zinc-800 uppercase">Görsel Ayrıştırma</span>
+                        <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Kategori</span>
+                        <span className="text-[9px] font-bold text-zinc-800 uppercase">Görsel Ayrıştırma</span>
                      </div>
                      <div className="flex flex-col">
-                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Batarya</span>
-                        <span className="text-[10px] font-bold text-indigo-600 uppercase">Dikkati Sürdürme</span>
+                        <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Batarya</span>
+                        <span className="text-[9px] font-bold text-indigo-600 uppercase">Dikkati Sürdürme</span>
                      </div>
                 </div>
-                <div className="text-right">
-                    <p className="text-[8px] text-zinc-300 font-bold uppercase tracking-[0.3em]">Bursa Disleksi AI • Uzman Serisi</p>
+                <div className="flex flex-col items-end">
+                    <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.4em] mb-1">Bursa Disleksi AI • Görsel Motor Modülü</p>
+                    <div className="flex gap-3">
+                         <i className="fa-solid fa-eye"></i>
+                         <i className="fa-solid fa-microscope"></i>
+                    </div>
                 </div>
             </div>
         </div>
