@@ -11,12 +11,62 @@ export interface StoryQuestion {
     isTrue?: boolean;
 }
 
+/* Fix: Adding missing StoryAnalysisData interface */
+export interface StoryAnalysisData extends BaseActivityData {
+    story: string;
+    storyMap: Record<string, string>;
+}
+
+/* Fix: Adding missing StoryCreationPromptData interface */
+export interface StoryCreationPromptData extends BaseActivityData {
+    prompt: string;
+    keywords: string[];
+    structureHints: Record<string, string>;
+}
+
+/* Fix: Adding missing WordsInStoryData interface */
+export interface WordsInStoryData extends BaseActivityData {
+    story: string;
+    vocabWork: { word: string; contextQuestion: string; type: 'meaning' | 'usage' }[];
+}
+
+/* Fix: Adding missing StorySequencingData interface */
+export interface StorySequencingData extends BaseActivityData {
+    prompt: string;
+    panels: { id: string; description: string; order: number; imagePrompt: string }[];
+    transitionWords: string[];
+}
+
+/* Fix: Adding missing ReadingFlowData interface */
+export interface ReadingFlowData extends BaseActivityData {
+    text: { paragraphs: { sentences: { syllables: { text: string }[] }[] }[] };
+}
+
+/* Fix: Adding missing PhonologicalAwarenessData interface */
+export interface PhonologicalAwarenessData extends BaseActivityData {
+    exercises: { question: string; word: string }[];
+}
+
+/* Fix: Adding missing SyllableTrainData interface */
+export interface SyllableTrainData extends BaseActivityData {
+    trains: { syllables: string[] }[];
+}
+
+/* Fix: Adding missing BackwardSpellingData interface */
+export interface BackwardSpellingData extends BaseActivityData {
+    items: { original: string }[];
+}
+
+/* Fix: Adding missing HandwritingPracticeData interface */
+export interface HandwritingPracticeData extends BaseActivityData {
+    lines: { type: 'trace' | 'copy'; text: string; imagePrompt?: string }[];
+}
+
 export interface FamilyLogicStatement {
     id: string;
     text: string;
     isTrue: boolean;
     complexity: 'simple' | 'indirect' | 'syllogism';
-    category: 'relation' | 'hierarchy' | 'naming';
     hint?: string;
 }
 
@@ -27,7 +77,6 @@ export interface FamilyLogicTestData extends BaseActivityData {
     depth: 'basic' | 'extended' | 'expert';
 }
 
-// Fix: Unified InteractiveStoryData into StoryData and added missing properties
 export interface StoryData extends BaseActivityData {
     story: string;
     genre?: string;
@@ -38,39 +87,15 @@ export interface StoryData extends BaseActivityData {
     creativeTask: string;
     questions: StoryQuestion[];
     fiveW1H?: { type: 'who' | 'where' | 'when' | 'what' | 'why' | 'how'; question: string; answer: string }[];
-    trueFalse?: StoryQuestion[];
-    fillBlanks?: { sentence: string; answer: string }[];
-    logicQuestions?: { question: string; answer: string; hint: string }[];
-    inferenceQuestions?: { question: string; answer: string }[];
-    multipleChoice?: StoryQuestion[];
 }
 
-export interface InteractiveStoryData extends StoryData {}
-
-// Added missing Story Analysis type
-export interface StoryAnalysisData extends BaseActivityData {
-    story: string;
-    storyMap: Record<string, string>;
-}
-
-// Added missing Story Creation type
-export interface StoryCreationPromptData extends BaseActivityData {
-    prompt: string;
-    keywords: string[];
-    structureHints: Record<string, string>;
-}
-
-// Added missing Words In Story type
-export interface WordsInStoryData extends BaseActivityData {
-    story: string;
-    vocabWork: { word: string; contextQuestion: string; type: 'meaning' | 'usage' }[];
-}
-
-// Added missing Story Sequencing type
-export interface StorySequencingData extends BaseActivityData {
-    prompt: string;
-    panels: { id: string; description: string; order: number; imagePrompt?: string }[];
-    transitionWords?: string[];
+export interface InteractiveStoryData extends StoryData {
+    fiveW1H: { type: 'who' | 'where' | 'when' | 'what' | 'why' | 'how'; question: string; answer: string }[];
+    trueFalse: StoryQuestion[];
+    fillBlanks: { sentence: string; answer: string }[];
+    logicQuestions: { question: string; answer: string; hint: string }[];
+    inferenceQuestions: { question: string; answer: string }[];
+    multipleChoice: StoryQuestion[];
 }
 
 export interface ReadingStroopData extends BaseActivityData {
@@ -79,25 +104,28 @@ export interface ReadingStroopData extends BaseActivityData {
     evaluationBox: boolean;
 }
 
-export interface ReadingFlowData extends BaseActivityData {
-    text: { paragraphs: { sentences: { syllables: { text: string }[] }[] }[] };
+export interface ReadingSudokuData extends BaseActivityData {
+    grid: (string | null)[][];
+    solution: string[][];
+    symbols: { value: string; imagePrompt?: string; label?: string }[];
+    settings: {
+        size: number;
+        variant: 'letters' | 'words' | 'visuals' | 'numbers';
+        fontFamily: string;
+    };
 }
 
-export interface PhonologicalAwarenessData extends BaseActivityData {
-    exercises: { question: string; word: string }[];
+export interface FamilyRelationPair {
+    definition: string;
+    label: string;
+    side: 'mom' | 'dad';
 }
 
-export interface SyllableTrainData extends BaseActivityData {
-    trains: { syllables: string[] }[];
-}
-
-export interface BackwardSpellingData extends BaseActivityData {
-    items: { original: string; reversed: string }[];
-}
-
-export interface HandwritingPracticeData extends BaseActivityData {
-    lines: { text: string; type: 'trace' | 'copy' | 'empty'; imagePrompt?: string }[];
-    guideType: string;
+export interface FamilyRelationsData extends BaseActivityData {
+    pairs: FamilyRelationPair[];
+    momRelatives: string[];
+    dadRelatives: string[];
+    difficulty: string;
 }
 
 export interface SyllableWordBuilderData extends BaseActivityData {
@@ -153,28 +181,4 @@ export interface SynonymAntonymMatchData extends BaseActivityData {
         target: string;
         type: 'synonym' | 'antonym';
     }[];
-}
-
-export interface ReadingSudokuData extends BaseActivityData {
-    grid: (string | null)[][];
-    solution: string[][];
-    symbols: { value: string; imagePrompt?: string; label?: string }[];
-    settings: {
-        size: number;
-        variant: 'letters' | 'words' | 'visuals' | 'numbers';
-        fontFamily: string;
-    };
-}
-
-export interface FamilyRelationPair {
-    definition: string;
-    label: string;
-    side: 'mom' | 'dad';
-}
-
-export interface FamilyRelationsData extends BaseActivityData {
-    pairs: FamilyRelationPair[];
-    momRelatives: string[];
-    dadRelatives: string[];
-    difficulty: string;
 }

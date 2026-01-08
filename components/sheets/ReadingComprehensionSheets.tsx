@@ -3,7 +3,7 @@ import React from 'react';
 import { 
     StoryData, StoryAnalysisData, StoryCreationPromptData, WordsInStoryData, StorySequencingData, MissingPartsData, InteractiveStoryData, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData
 } from '../../types';
-import { ImageDisplay, PedagogicalHeader, ReadingRuler, StoryHighlighter, QUESTION_TYPES } from './common';
+import { ImageDisplay, PedagogicalHeader, ReadingRuler, StoryHighlighter, QUESTION_TYPES } from '../common';
 import { EditableElement, EditableText } from '../Editable';
 
 const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, questions: any[], type: string, icon?: string }) => {
@@ -330,15 +330,15 @@ export const StoryComprehensionSheet: React.FC<{ data: InteractiveStoryData }> =
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-8">
-                    <PrintQuestionBlock title="5N 1K Analizi" questions={data.fiveW1H || []} type="open" icon="fa-magnifying-glass" />
+                    <PrintQuestionBlock title="5N 1K Analizi" questions={data.fiveW1H} type="open" icon="fa-magnifying-glass" />
                     <PrintQuestionBlock title="Kelime Avı (Sözlükçe)" questions={data.vocabulary?.map(v => ({ question: `${v.word}: ${v.definition}` })) || []} type="list" icon="fa-spell-check" />
                     <PrintQuestionBlock title="Yaratıcı Görev" questions={data.creativeTask ? [{ question: data.creativeTask }] : []} type="logic" icon="fa-paintbrush" />
                 </div>
                 <div className="space-y-8">
-                    <PrintQuestionBlock title="Doğru mu Yanlış mı?" questions={data.trueFalse || []} type="true-false" icon="fa-check-double" />
-                    <PrintQuestionBlock title="Boşlukları Doldur" questions={data.fillBlanks || []} type="fill" icon="fa-pen-clip" />
-                    <PrintQuestionBlock title="Test Soruları" questions={data.multipleChoice || []} type="multiple-choice" icon="fa-list-ol" />
-                    <PrintQuestionBlock title="Mantık & Çıkarım" questions={[...(data.inferenceQuestions || []), ...(data.logicQuestions || []).map(q => ({...q, type: 'logic'}))]} type="logic" icon="fa-brain" />
+                    <PrintQuestionBlock title="Doğru mu Yanlış mı?" questions={data.trueFalse} type="true-false" icon="fa-check-double" />
+                    <PrintQuestionBlock title="Boşlukları Doldur" questions={data.fillBlanks} type="fill" icon="fa-pen-clip" />
+                    <PrintQuestionBlock title="Test Soruları" questions={data.multipleChoice} type="multiple-choice" icon="fa-list-ol" />
+                    <PrintQuestionBlock title="Mantık & Çıkarım" questions={[...(data.inferenceQuestions || []), ...(data.logicQuestions || [])]} type="logic" icon="fa-brain" />
                 </div>
             </div>
         </div>
@@ -352,13 +352,11 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData }> = ({ data
             <EditableText value={data.story} tag="div" />
         </div>
         <div className="grid grid-cols-2 gap-4 h-[400px]">
-            {Object.entries(data.storyMap || {}).map(([key, value], i) => (
+            {/* Fix: Added explicit type casting to resolve 'unknown' type errors */}
+            {Object.entries(data.storyMap || {}).map(([key, value]: [string, any], i) => (
                 <div key={i} className="p-5 border-2 border-zinc-200 rounded-3xl bg-white shadow-sm flex flex-col">
                     <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest mb-2">{key}</span>
-                    <p className="font-bold text-zinc-700 flex-1">
-                        {/* Fix: Explicit cast to string on line 358 */}
-                        <EditableText value={value as string} tag="span" />
-                    </p>
+                    <p className="font-bold text-zinc-700 flex-1"><EditableText value={value} tag="span" /></p>
                     <div className="h-px bg-zinc-100 mt-2"></div>
                 </div>
             ))}
@@ -390,12 +388,12 @@ export const StoryCreationPromptSheet: React.FC<{ data: StoryCreationPromptData 
             <div className="space-y-4">
                 <h4 className="font-black text-sm uppercase border-b-2 border-zinc-800 pb-1">Kurgu Taslağı</h4>
                 <div className="space-y-4">
-                    {Object.entries(data.structureHints || {}).map(([key, value], i) => (
+                    {/* Fix: Added explicit type casting to resolve 'unknown' type errors */}
+                    {Object.entries(data.structureHints || {}).map(([key, value]: [string, any], i) => (
                         <div key={i} className="flex items-center gap-3">
                             <span className="w-20 text-[10px] font-black uppercase text-zinc-400">{key}</span>
                             <div className="flex-1 border-b-2 border-zinc-200 py-1 font-bold italic text-zinc-600">
-                                {/* Fix: Explicit cast to string on line 394 */}
-                                <EditableText value={value as string} tag="span" />
+                                <EditableText value={value} tag="span" />
                             </div>
                         </div>
                     ))}

@@ -3,43 +3,114 @@ import { getRandomInt, shuffle, getRandomItems, simpleSyllabify, getWordsForDiff
 import { SyllableWordBuilderData, FamilyRelationsData, FamilyLogicTestData, GeneratorOptions } from '../../types';
 
 export const generateOfflineFamilyRelations = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
-    // ... (Keep existing basic/extended logic)
-    return [];
+    const { worksheetCount, difficulty, variant = 'mixed', familyDepth = 'extended' } = options;
+    
+    const basic = [
+        { definition: "Beni dünyaya getiren kadındır.", label: "Anne", side: 'mom' },
+        { definition: "Beni dünyaya getiren erkektir.", label: "Baba", side: 'dad' },
+        { definition: "Aynı anne babadan olan kız kardeşim.", label: "Abla/Kız Kardeş", side: 'mixed' },
+        { definition: "Aynı anne babadan olan erkek kardeşim.", label: "Abi/Erkek Kardeş", side: 'mixed' },
+        { definition: "Babamın babasıdır.", label: "Dede", side: 'dad' },
+        { definition: "Annemin annesidir.", label: "Anneanne", side: 'mom' },
+    ];
+
+    const extended = [
+        { definition: "Annemin kız kardeşidir.", label: "Teyze", side: 'mom' },
+        { definition: "Babamın annesidir.", label: "Babaanne", side: 'dad' },
+        { definition: "Babamın kız kardeşidir.", label: "Hala", side: 'dad' },
+        { definition: "Annemin erkek kardeşidir.", label: "Dayı", side: 'mom' },
+        { definition: "Babamın erkek kardeşidir.", label: "Amca", side: 'dad' },
+        { definition: "Teyzemin veya amcamın çocuğudur.", label: "Kuzen", side: 'mixed' }
+    ];
+
+    const expert = [
+        { definition: "Amcamın veya dayımın karısıdır.", label: "Yenge", side: 'mixed' },
+        { definition: "Halamın veya teyzemin kocasıdır.", label: "Enişte", side: 'mixed' },
+        { definition: "Eşimin kız kardeşidir.", label: "Görümce/Baldız", side: 'mixed' },
+        { definition: "Eşimin erkek kardeşidir.", label: "Kayınbirader", side: 'mixed' },
+        { definition: "Kardeşimin çocuğudur.", label: "Yeğen", side: 'mixed' }
+    ];
+
+    let pool = [...basic];
+    if (familyDepth === 'extended' || familyDepth === 'expert') pool = [...pool, ...extended];
+    if (familyDepth === 'expert') pool = [...pool, ...expert];
+
+    // Filter by side if not mixed
+    if (variant === 'mom') pool = pool.filter(p => p.side === 'mom' || p.side === 'mixed');
+    if (variant === 'dad') pool = pool.filter(p => p.side === 'dad' || p.side === 'mixed');
+
+    return Array.from({ length: worksheetCount }, () => {
+        const selected = shuffle(pool).slice(0, 10);
+        return {
+            title: "Akrabalık İlişkileri Atölyesi",
+            instruction: "Tanımları okuyun ve yanındaki kutucuğa uygun akrabalık adını yazın.",
+            pedagogicalNote: "Hiyerarşik sınıflama, sözel çıkarım ve sosyal kavram geliştirme becerilerini destekler.",
+            pairs: selected as any,
+            momRelatives: selected.filter(s => s.side === 'mom').map(s => s.label),
+            dadRelatives: selected.filter(s => s.side === 'dad').map(s => s.label),
+            difficulty: difficulty || 'Orta'
+        };
+    });
 };
 
 export const generateOfflineFamilyLogicTest = async (options: GeneratorOptions): Promise<FamilyLogicTestData[]> => {
-    const { worksheetCount, difficulty, variant = 'mixed', familyDepth = 'extended' } = options;
+    const { worksheetCount, difficulty, familyDepth = 'extended' } = options;
     
     const pool = [
-        { id: '1', text: "Teyzem annemin kız kardeşidir.", isTrue: true, complexity: 'simple', hint: 'Anne tarafı' },
-        { id: '2', text: "Dedem annemden daha gençtir.", isTrue: false, complexity: 'simple', hint: 'Yaş hiyerarşisi' },
-        { id: '3', text: "Halam babamın ablası veya kız kardeşidir.", isTrue: true, complexity: 'simple', hint: 'Baba tarafı' },
-        { id: '4', text: "Amcamın eşi benim yengem olur.", isTrue: true, complexity: 'indirect', hint: 'Evlilik bağı' },
-        { id: '5', text: "Dayım babamın erkek kardeşidir.", isTrue: false, complexity: 'simple', hint: 'Karıştırma' },
-        { id: '6', text: "Annemin annesi benim babaannemdir.", isTrue: false, complexity: 'simple', hint: 'Karıştırma' },
-        { id: '7', text: "Kuzenim, teyzemin veya amcamın çocuğu olabilir.", isTrue: true, complexity: 'indirect', hint: '2. Derece' },
-        { id: '8', text: "Eğer birinin bacanağı isem, eşimin kız kardeşinin kocasıyımdır.", isTrue: true, complexity: 'syllogism', hint: 'Uzman bağ' },
-        { id: '9', text: "Görümce, bir kadının kocasının kız kardeşidir.", isTrue: true, complexity: 'expert', hint: 'Gelin bağı' },
-        { id: '10', text: "Eniştem halamın eşidir.", isTrue: true, complexity: 'simple', hint: 'Baba tarafı' }
+        { text: "Teyzem annemin akrabasıdır.", isTrue: true },
+        { text: "Dedem annemden büyüktür.", isTrue: true },
+        { text: "Anneannem annemin annesidir.", isTrue: true },
+        { text: "Babaannem babamın annesidir.", isTrue: true },
+        { text: "Amcam babamın kardeşidir.", isTrue: true },
+        { text: "Dayım babamın kardeşidir.", isTrue: false },
+        { text: "Halam annemin kız kardeşidir.", isTrue: false },
+        { text: "Kuzenim amcamın çocuğu olabilir.", isTrue: true },
+        { text: "Yengem ile babam kardeştir.", isTrue: false },
+        { text: "Eniştem halamın eşidir.", isTrue: true }
     ];
-
-    let filtered = [...pool];
-    if (variant === 'mom') filtered = pool.filter(p => p.hint?.includes('Anne') || p.text.includes('teyze') || p.text.includes('dayı'));
-    if (variant === 'dad') filtered = pool.filter(p => p.hint?.includes('Baba') || p.text.includes('hala') || p.text.includes('amca'));
-    if (familyDepth === 'basic') filtered = filtered.filter(p => p.complexity === 'simple');
 
     return Array.from({ length: worksheetCount }, () => ({
         title: "Akrabalık Mantık Testi",
-        instruction: "Aşağıdaki ifadeleri dikkatle oku. Doğru ise 'D', yanlış ise 'Y' kutucuğunu işaretle.",
-        pedagogicalNote: "Hiyerarşik sınıflama, sözel çıkarım ve sosyal kavram geliştirme becerilerini destekler.",
-        statements: shuffle(filtered.length > 4 ? filtered : pool).slice(0, options.itemCount || 10) as any,
-        difficulty: difficulty || 'Orta',
-        focusSide: variant as any,
-        depth: familyDepth as any
+        instruction: "Aşağıdaki ifadeler doğru ise 'D' yanlış ise 'Y'nin bulunduğu kutucuğu işaretle.",
+        pedagogicalNote: "Mantıksal çıkarım, akraba hiyerarşisi ve dikkat becerilerini geliştirir.",
+        statements: shuffle(pool).slice(0, 10),
+        difficulty: difficulty || 'Orta'
     }));
 };
 
 export const generateOfflineSyllableWordBuilder = async (options: GeneratorOptions): Promise<SyllableWordBuilderData[]> => {
-    // ... (Keep existing)
-    return [];
+    const { worksheetCount, itemCount, difficulty, topic } = options;
+    const count = itemCount || 6;
+    
+    return Array.from({ length: worksheetCount }, () => {
+        const pool = getWordsForDifficulty(difficulty, topic);
+        const minSyllables = difficulty === 'Başlangıç' ? 2 : (difficulty === 'Orta' ? 3 : 3);
+        const filteredPool = pool.filter(w => simpleSyllabify(w).length >= minSyllables);
+        
+        const selectedWords = getRandomItems(filteredPool.length > 0 ? filteredPool : pool, count);
+        
+        const allSyllables: string[] = [];
+        const words = selectedWords.map((word, i) => {
+            const syllables = simpleSyllabify(word).map(s => s.toLocaleUpperCase('tr'));
+            allSyllables.push(...syllables);
+            return {
+                id: i + 1,
+                targetWord: word.toLocaleUpperCase('tr'),
+                syllables,
+                imagePrompt: `${word} educational illustration, white background`
+            };
+        });
+
+        const distractorCount = difficulty === 'Zor' ? 12 : (difficulty === 'Orta' ? 6 : 0);
+        const distractors = ["KA", "MA", "AL", "DE", "RE", "BA", "SU", "TA", "TE", "AN", "ER", "İZ"];
+        const chosenDistractors = getRandomItems(distractors, distractorCount);
+
+        return {
+            title: "Hece Dedektifi",
+            instruction: "Resimleri incele, aşağıdaki hece havuzundan doğru heceleri seçerek kelimeleri kutucuklara inşa et.",
+            pedagogicalNote: "Fonolojik farkındalık, hece sentezi ve görsel tarama becerilerini geliştirir.",
+            words,
+            syllableBank: shuffle([...allSyllables, ...chosenDistractors])
+        };
+    });
 };

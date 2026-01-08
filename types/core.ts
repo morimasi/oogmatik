@@ -217,8 +217,8 @@ export interface GeneratorOptions {
     showCityNames?: boolean;
     markerStyle?: string;
     customInput?: string;
-    // Fix: Expanded logicModel union to include missing variants used in generators
-    logicModel?: 'identity' | 'exclusion' | 'sequence' | 'cryptarithmetic' | 'simple' | 'indirect' | 'syllogism' | 'expert';
+    /* Fix: Expanded logicModel to match usage in newActivities.ts */
+    logicModel?: 'identity' | 'exclusion' | 'sequence' | 'cryptarithmetic' | 'simple' | 'indirect' | 'syllogism';
     showSumTarget?: boolean;
     fontFamily?: string;
     [key: string]: any;
