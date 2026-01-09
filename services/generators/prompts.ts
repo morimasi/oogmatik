@@ -28,11 +28,11 @@ Lütfen içeriği bu öğrencinin ilgi alanlarına (karakter isimleri, senaryo, 
 };
 
 export const IMAGE_GENERATION_GUIDE = `
-[GÖRSEL SANAT YÖNETMENİ MODU]
+[GÖRSEL SANAT YÖNETMENİ MODU - KRİTİK]
 "imagePrompt" alanı için şu kurallara KESİNLİKLE uy:
-- **Dil:** Mutlaka İNGİLİZCE yaz. (Görsel motorları İngilizce ile çok daha iyi çalışır).
+- **Dil:** Mutlaka İNGİLİZCE yaz. 
 - **Stil:** "High-quality professional educational illustration, flat vector art, white background, minimalist, vibrant colors, clear outlines, no text inside image".
-- **İçerik:** Sadece nesnenin adını yazma. Detaylandır. (Örn: "A cute orange fox with big eyes sitting, high contrast, children book style".)
+- **SVG MODU:** Eğer etkinlik geometrik veya sembolik ise (Farkı Bul, Eşleştirme vb.), görseli dışarıdan çağırmak yerine "imageBase64" alanına doğrudan geçerli bir <svg> kodu yazabilirsin. SVG kodu 100x100 koordinat sisteminde, yüksek kontrastlı ve basit olmalıdır.
 - **Amaç:** Görsel, sorunun çözümüne doğrudan ipucu sağlamalıdır.
 `;
 

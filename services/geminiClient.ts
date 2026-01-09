@@ -2,6 +2,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 const DEFAULT_MODEL = 'gemini-3-flash-preview';
+const IMAGE_GEN_MODEL = 'gemini-2.5-flash-image';
 
 const tryRepairJson = (jsonStr: string): any => {
     let cleaned = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*$/g, '').trim();
@@ -10,33 +11,23 @@ const tryRepairJson = (jsonStr: string): any => {
         return JSON.parse(cleaned);
     } catch (e) {
         console.warn("Primary JSON Parse failed, attempting extreme repair...");
-
-        // 1. Remove repetitive patterns that often break JSON (Hallucination fix)
         const loopMatch = cleaned.match(/(.{50,})\1{2,}/g);
         if (loopMatch) {
             cleaned = cleaned.replace(/(.{50,})\1{5,}/g, '$1'); 
         }
-
-        // 2. Fix missing commas between elements
         cleaned = cleaned.replace(/}\s*{/g, '},{').replace(/]\s*\[/g, '],[');
-        
-        // 3. Balance quotes
         let quoteCount = 0;
         for (let i = 0; i < cleaned.length; i++) {
             if (cleaned[i] === '"' && (i === 0 || cleaned[i-1] !== '\\')) quoteCount++;
         }
         if (quoteCount % 2 !== 0) cleaned += '"';
-
-        // 4. Force balance brackets/braces
         let repaired = cleaned;
         const openBraces = (repaired.match(/{/g) || []).length;
         const closeBraces = (repaired.match(/}/g) || []).length;
         const openBrackets = (repaired.match(/\[/g) || []).length;
         const closeBrackets = (repaired.match(/\]/g) || []).length;
-
         for (let i = 0; i < (openBraces - closeBraces); i++) repaired += '}';
         for (let i = 0; i < (openBrackets - closeBrackets); i++) repaired += ']';
-
         try {
             return JSON.parse(repaired);
         } catch (e2) {
@@ -55,6 +46,7 @@ Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
 Disleksi, Diskalkuli ve DEHB için materyal üretirsin.
 Kural: Sadece JSON döndür. Multimodal yeteneklerini (görsel analiz ve zengin metin üretimi) en üst seviyede kullan.
 Döngüsel metinlerden (aynı cümleyi tekrar etmek) KESİNLİKLE kaçın.
+Eğer görseller için SVG kodu istenirse, bunu imageBase64 alanına doğrudan yaz.
 `;
 
 const generateDirectly = async (params: { 
@@ -117,19 +109,44 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
     }
 };
 
-export const analyzeImage = async (base64Image: string, prompt: string, schema: any, model?: string) => {
-    const targetModel = model || DEFAULT_MODEL;
+/**
+ * Görüntü analizi için multimodal metot.
+ */
+export const analyzeImage = async (image: string, prompt: string, schema: any, model?: string) => {
+    return await generateDirectly({ 
+        prompt, 
+        schema, 
+        model: model || DEFAULT_MODEL, 
+        image 
+    });
+};
+
+/**
+ * Yeni: Gemini 2.5 Flash ile doğrudan görsel üretimi (Base64)
+ * Bu metot, dış servisler yerine Gemini'nin multimodal yeteneğini kullanır.
+ */
+export const generateNanoImage = async (prompt: string): Promise<string | null> => {
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) return null;
+
+    const ai = new GoogleGenAI({ apiKey });
     try {
-        const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
-        const response = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, schema, image: cleanBase64, mimeType: 'image/jpeg', model: targetModel }),
+        const response = await ai.models.generateContent({
+            model: IMAGE_GEN_MODEL,
+            contents: [{ parts: [{ text: prompt }] }],
+            config: {
+                imageConfig: { aspectRatio: "1:1" }
+            }
         });
-        if (!response.ok) return await generateDirectly({ prompt, schema, image: base64Image, model: targetModel });
-        const fullText = await response.text();
-        return tryRepairJson(fullText);
-    } catch (error: any) {
-        return await generateDirectly({ prompt, schema, image: base64Image, model: targetModel });
+
+        for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData) {
+                return `data:image/png;base64,${part.inlineData.data}`;
+            }
+        }
+        return null;
+    } catch (e) {
+        console.error("Nano image generation failed:", e);
+        return null;
     }
 };

@@ -1,32 +1,10 @@
+
 import React from 'react';
 import { 
-    StroopTestData, LetterGridTestData, NumberSearchData, ChaoticNumberSearchData, AttentionDevelopmentData, AttentionFocusData, FindDuplicateData, FindLetterPairData, TargetSearchData
+    LetterGridTestData, NumberSearchData, ChaoticNumberSearchData, AttentionDevelopmentData, AttentionFocusData, FindDuplicateData, FindLetterPairData, TargetSearchData
 } from '../../../types';
-import { PedagogicalHeader, ImageDisplay } from '../common';
+import { PedagogicalHeader, GridComponent } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
-
-export const StroopTestSheet: React.FC<{ data: StroopTestData }> = ({ data }) => (
-    <div className="flex flex-col h-full font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex-1 grid grid-cols-4 gap-y-10 gap-x-4 items-center content-start mt-8">
-            {(data.items || []).map((item, i) => (
-                <div key={i} className="flex justify-center">
-                    <span className="text-3xl font-black tracking-widest uppercase text-center" style={{ color: item.color }}>
-                        <EditableText value={item.text} tag="span" />
-                    </span>
-                </div>
-            ))}
-        </div>
-        <div className="mt-auto pt-8 border-t-4 border-zinc-900 grid grid-cols-4 gap-4">
-            {['SÜRE', 'HATA', 'DÜZELTME', 'PUAN'].map(l => (
-                <div key={l} className="p-3 bg-zinc-50 border-2 border-zinc-200 rounded-xl">
-                    <h5 className="text-[9px] font-black text-zinc-400 uppercase mb-2">{l}</h5>
-                    <div className="h-6 border-b border-zinc-300 border-dashed"></div>
-                </div>
-            ))}
-        </div>
-    </div>
-);
 
 export const BurdonTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }) => (
     <div className="h-full flex flex-col font-lexend p-2">
@@ -62,14 +40,6 @@ export const ChaoticNumberSearchSheet: React.FC<{ data: ChaoticNumberSearchData 
                     </EditableElement>
                 ))}
             </div>
-        </div>
-        <div className="mt-8 flex justify-center gap-10 break-inside-avoid">
-            {['BAŞLAMA', 'BİTİŞ'].map(l => (
-                <div key={l} className="p-5 bg-white border-2 border-zinc-200 rounded-2xl text-center shadow-sm w-44">
-                    <p className="font-black text-zinc-400 uppercase text-[10px] mb-3 tracking-widest">{l}</p>
-                    <div className="h-6 border-b-2 border-zinc-100 border-dashed"></div>
-                </div>
-            ))}
         </div>
     </div>
 );
@@ -152,7 +122,7 @@ export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentDat
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
             {(data.puzzles || []).map((p, i) => (
-                <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 shadow-sm break-inside-avoid group hover:border-indigo-500 transition-all">
+                <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
                     <div className="bg-zinc-900 text-white p-5 rounded-2xl mb-8 font-bold text-center italic shadow-inner">
                         <EditableText value={p.riddle} tag="p" />
                     </div>
@@ -183,7 +153,7 @@ export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ da
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
             {(data.puzzles || []).map((puzzle, i) => (
-                <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 shadow-sm break-inside-avoid flex flex-col group hover:border-indigo-500 transition-all">
+                <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 shadow-sm break-inside-avoid flex flex-col group hover:border-indigo-50 transition-all">
                     <div className="bg-amber-50 border-2 border-amber-200 p-5 rounded-2xl mb-8 text-center shadow-inner">
                         <p className="text-xl font-bold text-amber-900 font-dyslexic italic"><EditableText value={puzzle.riddle} tag="span" /></p>
                     </div>

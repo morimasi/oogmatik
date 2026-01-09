@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
 import { EMOJI_MAP, simpleSyllabify } from '../../services/offlineGenerators/helpers';
 import { EditableElement, EditableText } from '../Editable'; 
@@ -14,23 +14,10 @@ export const QUESTION_TYPES: Record<string, { label: string; color: string; bg: 
     how: { label: 'NASIL?', color: '#06b6d4', bg: '#ecfeff', border: '#a5f3fc' },
 };
 
-// --- MISSING COMPONENTS FOR VERBAL & VISUAL SHEETS ---
-
 export const ReadingRuler = () => (
     <div className="absolute left-0 right-0 h-12 bg-yellow-200/20 border-y border-yellow-400/30 pointer-events-none z-20 no-print" style={{ top: '50%', transform: 'translateY(-50%)' }}>
         <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-yellow-400 text-[8px] font-black px-1.5 py-0.5 rounded text-yellow-900 uppercase tracking-widest shadow-sm">Okuma Cetveli</div>
     </div>
-);
-
-export const Matchstick = ({ color = "#000" }: { color?: string }) => (
-    <div className="flex flex-col items-center">
-        <div className="w-2 h-2 rounded-full bg-red-600 mb-[-2px] relative z-10 shadow-sm"></div>
-        <div className="w-1.5 h-12 rounded-full shadow-sm" style={{ backgroundColor: color }}></div>
-    </div>
-);
-
-export const ConnectionDot = ({ color = "#6366f1" }: { color?: string }) => (
-    <div className="w-3 h-3 rounded-full border-2 border-white shadow-sm ring-1 ring-zinc-200" style={{ backgroundColor: color }}></div>
 );
 
 export const CubeStack: React.FC<{ counts: number[][] }> = ({ counts }) => {
@@ -71,7 +58,7 @@ export const CubeStack: React.FC<{ counts: number[][] }> = ({ counts }) => {
 
 export const StoryHighlighter = ({ text, highlights }: { text: string; highlights: { text: string; type: string }[] }) => {
     if (!text) return null;
-    if (!highlights || highlights.length === 0) return <EditableText value={text} tag="div" />;
+    if (!highlights || highlights.length === 0) return <div>{text}</div>;
     const sortedHighlights = [...highlights].sort((a, b) => b.text.length - a.text.length);
     const escapeRegExp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const pattern = new RegExp(`(${sortedHighlights.map(h => escapeRegExp(h.text)).join('|')})`, 'gi');
@@ -114,136 +101,58 @@ export const ImageDisplay = React.memo(({ base64, description, prompt, className
     const [hasError, setHasError] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     
-    const safeDesc = useMemo(() => {
-        try { return description ? String(description) : ''; } catch { return ''; }
-    }, [description]);
+    const safeDesc = useMemo(() => description ? String(description) : '', [description]);
 
-    const seed = useMemo(() => {
-        const str = prompt || safeDesc || 'bursa-disleksi';
-        return str.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + Math.floor(Math.random() * 1000);
-    }, [prompt, safeDesc]);
+    const sourceContent = useMemo(() => {
+        if (!base64 && !prompt && !description) return null;
+        if (base64) {
+            if (base64.includes('<svg') || base64.startsWith('data:image')) {
+                return base64;
+            }
+        }
+        const seed = Math.floor(Math.random() * 1000000);
+        const query = encodeURIComponent(prompt || safeDesc || 'educational icon');
+        return `https://image.pollinations.ai/prompt/${query}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
+    }, [base64, prompt, safeDesc]);
 
-    const handleLoad = () => setIsLoading(false);
-    const handleError = () => { setIsLoading(false); setHasError(true); };
+    if (!sourceContent) {
+        return (
+            <div className={`${className} bg-zinc-50 border-2 border-dashed border-zinc-200 rounded-2xl flex items-center justify-center text-zinc-300`}>
+                <i className="fa-solid fa-image text-2xl opacity-20"></i>
+            </div>
+        );
+    }
+
+    if (typeof sourceContent === 'string' && sourceContent.includes('<svg')) {
+        return (
+            <div 
+                className={`${className} flex items-center justify-center p-2`} 
+                dangerouslySetInnerHTML={{ __html: sourceContent }} 
+            />
+        );
+    }
 
     return (
-        <div className={`image-display-container ${className} relative overflow-hidden bg-transparent flex items-center justify-center group`}>
-            {safeDesc && (
-                <div className="absolute bottom-0 left-0 right-0 bg-white/90 p-1 text-[8px] text-center opacity-0 group-hover:opacity-100 transition-opacity z-10 edit-handle pointer-events-none text-zinc-600 font-bold">
-                    <EditableText value={safeDesc} tag="span" />
+        <div className={`relative overflow-hidden group ${className}`}>
+            {isLoading && !hasError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-50/50 z-10">
+                    <i className="fa-solid fa-circle-notch fa-spin text-indigo-500"></i>
                 </div>
             )}
-            
-            {(() => {
-                if (base64 && typeof base64 === 'string') {
-                     if (base64.trim().startsWith('<svg') || base64.trim().startsWith('<?xml') || base64.includes('</svg>')) {
-                        let cleanSvg = base64.replace(/^```xml\s*|```\s*$/g, '').replace(/^```svg\s*|```\s*$/g, '').trim();
-                        cleanSvg = cleanSvg.replace(/\s+width="[^"]*"/gi, '').replace(/\s+height="[^"]*"/gi, '');
-                        const finalSvg = cleanSvg.includes('style="') 
-                            ? cleanSvg.replace('style="', 'style="width:100%; height:100%; display:block; ')
-                            : cleanSvg.replace('<svg', '<svg style="width:100%; height:100%; display:block;"');
-                        return <div className="w-full h-full p-1 flex items-center justify-center" dangerouslySetInnerHTML={{ __html: finalSvg }} />;
-                    }
-                    if (base64.startsWith('data:image') || base64.length > 100) { 
-                        return <img src={base64} alt={safeDesc} className="object-contain w-full h-full" loading="lazy" />;
-                    }
-                }
-
-                let contentForPrompt = prompt || safeDesc;
-                if (!hasError && contentForPrompt && contentForPrompt.length > 1) {
-                    const encodedPrompt = encodeURIComponent(contentForPrompt.substring(0, 500));
-                    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
-                    
-                    return (
-                        <>
-                            {isLoading && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-zinc-50/50">
-                                    <i className="fa-solid fa-circle-notch fa-spin text-indigo-500 text-xl"></i>
-                                </div>
-                            )}
-                            <img 
-                                src={imageUrl} 
-                                alt={safeDesc} 
-                                className={`object-contain w-full h-full mix-blend-multiply transition-all duration-700 ${isLoading ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100 blur-0'}`} 
-                                loading="lazy"
-                                onLoad={handleLoad}
-                                onError={handleError}
-                            />
-                        </>
-                    );
-                }
-
-                return (
-                    <div className="flex flex-col items-center justify-center h-full w-full border-2 border-dashed border-zinc-200 rounded-2xl text-zinc-300 bg-zinc-50/30">
-                        <i className="fa-regular fa-image text-2xl mb-1 opacity-20"></i>
-                        <span className="text-[9px] font-black opacity-30 px-2 text-center uppercase tracking-tighter">
-                            {safeDesc || 'Görsel'}
-                        </span>
-                    </div>
-                );
-            })()}
+            <img 
+                src={sourceContent} 
+                alt={safeDesc}
+                crossOrigin="anonymous" 
+                className={`w-full h-full object-contain transition-all duration-500 ${isLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
+                onLoad={() => setIsLoading(false)}
+                onError={() => {
+                    setHasError(true);
+                    setIsLoading(false);
+                }}
+            />
         </div>
     );
 });
-
-export const DyslexicText: React.FC<{ text: string; mode?: 'standard' | 'bionic' | 'rainbow'; className?: string }> = ({ text, mode = 'standard', className = "" }) => {
-    if (!text) return null;
-    if (mode === 'standard') return <span className={className}><EditableText value={text} tag="span" /></span>;
-    const words = text.split(' ');
-    if (mode === 'bionic') {
-        return (
-            <div className={`leading-relaxed tracking-wide ${className}`}>
-                {words.map((word, i) => {
-                    const boldLen = Math.ceil(word.length / 2);
-                    return (
-                        <span key={i} className="inline-block mr-1.5">
-                            <b className="font-black text-black">{word.substring(0, boldLen)}</b>
-                            <span className="font-medium text-zinc-600">{word.substring(boldLen)}</span>
-                        </span>
-                    );
-                })}
-            </div>
-        );
-    }
-    if (mode === 'rainbow') {
-        return (
-            <div className={`leading-loose tracking-wider ${className}`}>
-                {words.map((word, i) => {
-                    const syllables = simpleSyllabify(word);
-                    return (
-                        <span key={i} className="inline-block mr-2 bg-zinc-50 px-1 rounded">
-                            {syllables.map((syl, j) => (
-                                <span key={j} className={j % 2 === 0 ? "text-blue-600 font-bold" : "text-red-500 font-bold"}>{syl}</span>
-                            ))}
-                        </span>
-                    );
-                })}
-            </div>
-        );
-    }
-    return null;
-};
-
-export const HandwritingGuide: React.FC<{ width?: string, height?: number, children?: React.ReactNode }> = ({ width = "100%", height = 100, children }) => (
-    <div className="relative" style={{ width, height }}>
-        <svg width="100%" height="100%" preserveAspectRatio="none" className="absolute inset-0 z-0">
-            <line x1="0" y1="20%" x2="100%" y2="20%" stroke="#e4e4e7" strokeWidth="2" />
-            <line x1="0" y1="45%" x2="100%" y2="45%" stroke="#a1a1aa" strokeWidth="1.5" strokeDasharray="6,4" />
-            <line x1="0" y1="70%" x2="100%" y2="70%" stroke="#3f3f46" strokeWidth="2" />
-            <line x1="0" y1="95%" x2="100%" y2="95%" stroke="#ef4444" strokeWidth="1" strokeDasharray="2,2" opacity="0.5" />
-        </svg>
-        <div className="absolute inset-0 z-10 flex items-center pl-4" style={{ paddingTop: '5%' }}>{children}</div>
-    </div>
-);
-
-export const TracingText: React.FC<{ text: string, fontSize?: string }> = ({ text, fontSize = "32px" }) => (
-    <span 
-        className="font-handwriting opacity-20 pointer-events-none select-none tracking-widest pl-2" 
-        style={{ fontSize, textDecoration: 'underline dotted', textUnderlineOffset: '8px' }}
-    >
-        {text}
-    </span>
-);
 
 export const Base10Visualizer: React.FC<{ number: number; className?: string }> = ({ number, className }) => {
     const hundreds = Math.floor(number / 100);
@@ -272,35 +181,12 @@ export const Base10Visualizer: React.FC<{ number: number; className?: string }> 
     );
 };
 
-export const FractionVisual: React.FC<{ num: number; den: number; type?: 'pie' | 'bar' | 'group'; className?: string }> = ({ num, den, type = 'pie', className = "w-24 h-24" }) => {
-    const validDen = Math.max(1, den || 1);
-    const validNum = Math.min(validDen, Math.max(0, num || 0));
-    if (type === 'pie') {
-        const radius = 40; const center = 50;
-        if (validDen === 1) return <svg viewBox="0 0 100 100" className={className + " overflow-visible"}><circle cx={center} cy={center} r={radius} fill={validNum === 1 ? '#6366f1' : '#fff'} stroke="black" strokeWidth="2" /></svg>;
-        const slices = Array.from({ length: validDen }).map((_, i) => {
-            const startAngle = (i * 360) / validDen; const endAngle = ((i + 1) * 360) / validDen;
-            const startRad = (startAngle - 90) * (Math.PI / 180); const endRad = (endAngle - 90) * (Math.PI / 180);
-            const x1 = center + radius * Math.cos(startRad); const y1 = center + radius * Math.sin(startRad);
-            const x2 = center + radius * Math.cos(endRad); const y2 = center + radius * Math.sin(endRad);
-            const largeArc = endAngle - startAngle > 180 ? 1 : 0;
-            return { d: `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`, filled: i < validNum };
-        });
-        return <svg viewBox="0 0 100 100" className={className + " overflow-visible"}>{slices.map((slice, i) => <path key={i} d={slice.d} fill={slice.filled ? '#6366f1' : '#fff'} stroke="black" strokeWidth="2" />)}</svg>;
-    } 
-    if (type === 'bar') return <div className={`flex border-2 border-black rounded overflow-hidden ${className}`} style={{height: '40px'}}>{Array.from({length: validDen}).map((_, i) => <div key={i} className={`flex-1 border-r border-black last:border-r-0 ${i < validNum ? 'bg-indigo-500' : 'bg-white'}`}></div>)}</div>;
-    return <div className={`flex flex-wrap gap-1 p-1 justify-center ${className}`}>{Array.from({length: validDen}).map((_, i) => <div key={i} className={`w-4 h-4 rounded-full border border-black ${i < validNum ? 'bg-indigo-500' : 'bg-white'}`}></div>)}</div>;
-};
-
 export const AnalogClock: React.FC<{ hour: number; minute: number; showNumbers?: boolean; showTicks?: boolean; showHands?: boolean; className?: string }> = ({ hour, minute, showNumbers = true, showTicks = true, showHands = true, className = "w-32 h-32" }) => {
     const radius = 45; const center = 50; const minuteAngle = minute * 6; const hourAngle = ((hour % 12) + minute / 60) * 30;
     
     return (
         <svg viewBox="0 0 100 100" className={className}>
-            {/* Clock Face */}
             <circle cx={center} cy={center} r={radius} fill="white" stroke="black" strokeWidth="3" />
-            
-            {/* Ticks (Minute marks) */}
             {showTicks && Array.from({length: 60}).map((_, i) => {
                 const isHour = i % 5 === 0;
                 const angle = (i * 6 - 90) * (Math.PI / 180);
@@ -310,25 +196,17 @@ export const AnalogClock: React.FC<{ hour: number; minute: number; showNumbers?:
                 const y2 = center + (radius - 1) * Math.sin(angle);
                 return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="black" strokeWidth={isHour ? 1.5 : 0.5} />;
             })}
-
-            {/* Numbers */}
             {showNumbers && Array.from({length: 12}).map((_, i) => {
                 const num = i + 1; const angle = (num * 30 - 90) * (Math.PI / 180);
                 const x = center + (radius - 10) * Math.cos(angle); const y = center + (radius - 10) * Math.sin(angle);
                 return <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="7" fontWeight="900" fill="black" style={{fontFamily: 'Lexend, sans-serif'}}>{num}</text>
             })}
-
-            {/* Hands - Conditionally Rendered */}
             {showHands && (
                 <>
                     <line x1={center} y1={center} x2={center + (radius - 12) * Math.cos((minuteAngle - 90) * Math.PI / 180)} y2={center + (radius - 12) * Math.sin((minuteAngle - 90) * Math.PI / 180)} stroke="black" strokeWidth="2.5" strokeLinecap="round" />
                     <line x1={center} y1={center} x2={center + (radius - 22) * Math.cos((hourAngle - 90) * Math.PI / 180)} y2={center + (radius - 22) * Math.sin((hourAngle - 90) * Math.PI / 180)} stroke="black" strokeWidth="4" strokeLinecap="round" />
                     <circle cx={center} cy={center} r="3" fill="black" stroke="white" strokeWidth="0.5" />
                 </>
-            )}
-            
-            {!showHands && (
-                <circle cx={center} cy={center} r="2.5" fill="black" />
             )}
         </svg>
     );
@@ -343,7 +221,7 @@ export const NumberLine: React.FC<{ start: number; end: number; step?: number; m
                 {items.map((val) => (
                     <div key={val} className="flex flex-col items-center gap-2 relative">
                         <div className="w-0.5 h-3 bg-black"></div>
-                        {missing.includes(val) ? <div className="w-8 h-8 border-2 border-indigo-600 bg-white rounded flex items-center justify-center font-bold text-indigo-600 text-sm">?</div> : <span className="font-bold text-sm"><EditableText value={val} tag="span" /></span>}
+                        {missing.includes(val) ? <div className="w-8 h-8 border-2 border-indigo-600 bg-white rounded flex items-center justify-center font-bold text-indigo-600 text-sm">?</div> : <span className="font-bold text-sm">{val}</span>}
                     </div>
                 ))}
             </div>
@@ -372,7 +250,6 @@ export const Domino: React.FC<{ count: number }> = ({ count }) => {
     else if(c === 4) { dots[0]=true; dots[2]=true; dots[6]=true; dots[8]=true; }
     else if(c === 5) { dots[0]=true; dots[2]=true; dots[4]=true; dots[6]=true; dots[8]=true; }
     else if(c === 6) { dots[0]=true; dots[2]=true; dots[3]=true; dots[5]=true; dots[6]=true; dots[8]=true; }
-    if (count > 9) return <div className="w-12 h-20 border-2 border-black rounded-lg bg-white flex items-center justify-center text-2xl font-bold"><EditableText value={count} tag="span" /></div>;
     return <div className="w-12 h-12 border-2 border-black rounded-lg bg-white grid grid-cols-3 grid-rows-3 p-1 gap-0.5 shadow-sm">{dots.map((isActive, i) => <div key={i} className="flex items-center justify-center">{isActive && <div className="w-2 h-2 bg-black rounded-full"></div>}</div>)}</div>;
 };
 
@@ -394,7 +271,9 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 <EditableElement style={{ display: 'var(--display-instruction)' }}><EditableText tag="p" value={instruction} className="text-sm font-medium text-zinc-700 leading-tight" /></EditableElement>
             </div>
             {(data?.imagePrompt || data?.imageBase64) && (
-                <EditableElement className="w-16 h-16 shrink-0 border border-zinc-200 rounded p-1" style={{ display: 'var(--display-image)' }}><ImageDisplay base64={data.imageBase64} prompt={data.imagePrompt} description={data.title} className="w-full h-full object-contain" /></EditableElement>
+                <EditableElement className="w-16 h-16 shrink-0 border border-zinc-200 rounded p-1" style={{ display: 'var(--display-image)' }}>
+                    <ImageDisplay base64={data.imageBase64} prompt={data.imagePrompt} description={data.title} className="w-full h-full object-contain" />
+                </EditableElement>
             )}
         </div>
         {note && <EditableElement style={{ display: 'var(--display-pedagogical-note)' }}><p className="text-[10px] text-zinc-500 italic"><i className="fa-solid fa-info-circle mr-1"></i><EditableText tag="span" value={note} /></p></EditableElement>}
@@ -422,20 +301,130 @@ export const GridComponent = React.memo(({ grid, cellClassName = 'w-8 h-8' }: { 
     )
 });
 
-export const SegmentDisplay = React.memo(({ segments }: { segments: boolean[] }) => (
-    <div className="grid grid-cols-3 grid-rows-3 w-8 h-8 gap-px border border-black bg-black">{segments.map((active, i) => <div key={i} className={active ? 'bg-black' : 'bg-white'}></div>)}</div>
-));
+// --- NEWLY ADDED COMPONENTS FOR COMPATIBILITY ---
 
-export const ShapeDisplay = React.memo(({ shapes }: { shapes: ShapeType[] }) => (
-    <div className="flex gap-0.5 text-black">{shapes.map((s, i) => <Shape key={i} name={s} className="w-4 h-4" />)}</div>
-));
-
-export const CagedGridSvg = React.memo(({ size, cages }: { size: number, cages: any[] }) => {
-    const cellSize = 30; const totalSize = size * cellSize;
+/**
+ * Kendoku ve Kafesli Bulmacalar için SVG ızgara bileşeni.
+ */
+export const CagedGridSvg: React.FC<{ size: number; cages?: any[] }> = ({ size, cages = [] }) => {
+    const cellSize = 200 / size;
     return (
-        <svg width={totalSize + 2} height={totalSize + 2} className="overflow-visible bg-white border border-black">
-            {Array.from({length: size+1}).map((_, i) => (<React.Fragment key={i}><line x1={0} y1={i*cellSize} x2={totalSize} y2={i*cellSize} stroke="#e5e7eb" strokeWidth="1" /><line x1={i*cellSize} y1={0} x2={i*cellSize} y2={totalSize} stroke="#e5e7eb" strokeWidth="1" /></React.Fragment>))}
-            {cages.map((cage, idx) => { const first = cage.cells[0]; return <text key={idx} x={first.col * cellSize + 2} y={first.row * cellSize + 10} fontSize="8" fontWeight="bold">{cage.target}{cage.operation}</text> })}
+        <svg width="200" height="200" viewBox="0 0 200 200" className="border-2 border-black bg-white">
+            {Array.from({length: size + 1}).map((_, i) => (
+                <React.Fragment key={i}>
+                    <line x1={i * cellSize} y1="0" x2={i * cellSize} y2="200" stroke="#e5e7eb" strokeWidth="1" />
+                    <line x1="0" y1={i * cellSize} x2="200" y2={i * cellSize} stroke="#e5e7eb" strokeWidth="1" />
+                </React.Fragment>
+            ))}
         </svg>
     );
-});
+};
+
+/**
+ * Birden fazla geometrik şekli yan yana gösteren bileşen.
+ */
+export const ShapeDisplay: React.FC<{ shapes: ShapeType[] }> = ({ shapes }) => (
+    <div className="flex gap-2 items-center justify-center">
+        {shapes.map((s, i) => <Shape key={i} name={s} className="w-6 h-6" />)}
+    </div>
+);
+
+/**
+ * 7-segment veya nokta matrisi tarzı görselleştirme.
+ */
+export const SegmentDisplay: React.FC<{ segments: boolean[] }> = ({ segments }) => (
+    <div className="grid grid-cols-3 gap-1 w-12 h-16 bg-zinc-50 p-2 border border-zinc-200 rounded">
+        {segments.map((active, i) => (
+            <div key={i} className={`w-2 h-2 rounded-full transition-colors ${active ? 'bg-indigo-600 shadow-sm' : 'bg-zinc-200'}`}></div>
+        ))}
+    </div>
+);
+
+/**
+ * Kibrit çöpü modelleri için çizgi bileşeni.
+ */
+export const Matchstick: React.FC<{ x1: number; y1: number; x2: number; y2: number; color?: string }> = ({ x1, y1, x2, y2, color }) => (
+    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color || '#8b4513'} strokeWidth="5" strokeLinecap="round" />
+);
+
+/**
+ * Bağlantı noktaları (Matching vb.) için daire bileşeni.
+ */
+export const ConnectionDot: React.FC<{ x: number; y: number; color?: string }> = ({ x, y, color }) => (
+    <circle cx={x} cy={y} r="6" fill={color || 'black'} stroke="white" strokeWidth="2" />
+);
+
+/**
+ * Disleksi dostu font ile metin gösterimi.
+ */
+export const DyslexicText: React.FC<{ text: string; className?: string }> = ({ text, className = "" }) => (
+    <span className={`font-dyslexic ${className}`}>{text}</span>
+);
+
+/**
+ * Yazı çalışmaları için kılavuz çizgiler.
+ */
+export const HandwritingGuide: React.FC<{ height: number; children?: React.ReactNode }> = ({ height, children }) => (
+    <div className="relative w-full border-t border-b border-zinc-300 bg-zinc-50/30" style={{ height }}>
+        <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+            <div className="h-px w-full bg-zinc-200"></div>
+            <div className="h-px w-full bg-zinc-200 border-dashed border-t"></div>
+            <div className="h-px w-full bg-zinc-200"></div>
+        </div>
+        <div className="relative z-10 flex items-center h-full px-4">
+            {children}
+        </div>
+    </div>
+);
+
+/**
+ * Kopya etme veya üzerinden geçme (tracing) çalışmaları için soluk metin.
+ */
+export const TracingText: React.FC<{ text: string; fontSize: string }> = ({ text, fontSize }) => (
+    <span className="font-handwriting opacity-20 select-none pointer-events-none border-b border-dashed border-zinc-300" style={{ fontSize }}>
+        {text}
+    </span>
+);
+
+/**
+ * Kesirlerin daire veya çubuk üzerinde görselleştirilmesi.
+ */
+export const FractionVisual: React.FC<{ num: number; den: number; type?: 'circle' | 'bar' }> = ({ num, den, type = 'circle' }) => {
+    if (type === 'bar') {
+        return (
+            <div className="w-16 h-4 border-2 border-black flex overflow-hidden rounded">
+                {Array.from({ length: den }).map((_, i) => (
+                    <div key={i} className={`flex-1 border-r last:border-r-0 border-black ${i < num ? 'bg-indigo-400' : 'bg-white'}`}></div>
+                ))}
+            </div>
+        );
+    }
+    return (
+        <svg width="40" height="40" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="none" stroke="black" strokeWidth="3" />
+            {Array.from({ length: den }).map((_, i) => {
+                const angle = (i * 360 / den) - 90;
+                const rad = angle * Math.PI / 180;
+                const x = 50 + 45 * Math.cos(rad);
+                const y = 50 + 45 * Math.sin(rad);
+                return <line key={i} x1="50" y1="50" x2={x} y2={y} stroke="black" strokeWidth="2" />;
+            })}
+            {Array.from({ length: num }).map((_, i) => {
+                const startAngle = (i * 360 / den) - 90;
+                const endAngle = ((i + 1) * 360 / den) - 90;
+                const x1 = 50 + 45 * Math.cos(startAngle * Math.PI / 180);
+                const y1 = 50 + 45 * Math.sin(startAngle * Math.PI / 180);
+                const x2 = 50 + 45 * Math.cos(endAngle * Math.PI / 180);
+                const y2 = 50 + 45 * Math.sin(endAngle * Math.PI / 180);
+                return (
+                    <path 
+                        key={i}
+                        d={`M 50 50 L ${x1} ${y1} A 45 45 0 0 1 ${x2} ${y2} Z`} 
+                        fill="indigo" 
+                        fillOpacity="0.3" 
+                    />
+                );
+            })}
+        </svg>
+    );
+};

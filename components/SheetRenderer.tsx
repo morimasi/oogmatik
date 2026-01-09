@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { ActivityType, SingleWorksheetData } from '../types';
 
-// New Isolated Moduled Imports
+// --- MATH & LOGIC ---
 import { MathPuzzleSheet } from './sheets/math/MathPuzzleSheet';
 import { NumberPatternSheet } from './sheets/math/NumberPatternSheet';
 import { RealLifeMathProblemsSheet } from './sheets/math/RealLifeMathProblemsSheet';
@@ -12,36 +13,34 @@ import { OddOneOutSheet } from './sheets/math/OddOneOutSheet';
 import { AlgorithmSheet } from './sheets/logic/AlgorithmSheet';
 import { NumberLogicRiddleSheet } from './sheets/math/NumberLogicRiddleSheet';
 
-import { 
-    WordMemorySheet, VisualMemorySheet, ColorWheelSheet, ImageComprehensionSheet, CharacterMemorySheet 
-} from './sheets/attention/MemorySheets';
-import { 
-    StroopTestSheet, BurdonTestSheet, NumberSearchSheet, AttentionDevelopmentSheet, ChaoticNumberSearchSheet, AttentionFocusSheet, FindDuplicateSheet, LetterGridTestSheet, FindLetterPairSheet, TargetSearchSheet 
-} from './sheets/attention/AttentionSheets';
+// --- DISCALCULIA ---
+import { VisualArithmeticSheet } from './sheets/math/VisualArithmeticSheet';
+import { ClockReadingSheet } from './sheets/math/ClockReadingSheet';
+import { NumberSenseSheet } from './sheets/math/NumberSenseSheet';
+import { MoneyCountingSheet } from './sheets/math/MoneyCountingSheet';
+import { MathMemoryCardsSheet } from './sheets/math/MathMemoryCardsSheet';
+import { SpatialGridSheet } from './sheets/math/SpatialGridSheet';
+import { ConceptMatchSheet } from './sheets/math/ConceptMatchSheet';
+import { EstimationSheet } from './sheets/math/EstimationSheet';
 
-import { 
-    ReadingFlowSheet, PhonologicalAwarenessSheet, HandwritingPracticeSheet, RapidNamingSheet, LetterDiscriminationSheet, MirrorLettersSheet, SyllableTrainSheet, VisualTrackingLinesSheet, BackwardSpellingSheet, CodeReadingSheet, AttentionToQuestionSheet 
-} from './sheets/verbal/ReadingSupportSheets';
-import { 
-    StoryComprehensionSheet 
-} from './sheets/verbal/StoryComprehensionSheet';
-import { 
-    AnagramSheet, WordSearchSheet, HiddenPasswordGridSheet, CrosswordSheet 
-} from './sheets/verbal/WordGameSheets';
-import { 
-    SyllableMasterLabSheet, ReadingSudokuSheet, ReadingStroopSheet, SynonymAntonymMatchSheet, 
-    SyllableWordBuilderSheet, LetterVisualMatchingSheet, FamilyLogicSheet, FamilyRelationsSheet 
-} from './sheets/verbal/ReadingSheets'; 
+// --- ATTENTION & MEMORY ---
+import { WordMemorySheet, VisualMemorySheet, CharacterMemorySheet, ColorWheelSheet, ImageComprehensionSheet } from './sheets/attention/MemorySheets';
+import { StroopTestSheet } from './sheets/attention/StroopTestSheet';
+import { BurdonTestSheet, NumberSearchSheet, AttentionDevelopmentSheet, ChaoticNumberSearchSheet, AttentionFocusSheet, FindDuplicateSheet, LetterGridTestSheet, FindLetterPairSheet, TargetSearchSheet } from './sheets/attention/AttentionSheets';
 
+// --- VERBAL & DYSLEXIA ---
+import { StoryComprehensionSheet } from './sheets/verbal/StoryComprehensionSheet';
+import { ReadingFlowSheet } from './sheets/verbal/ReadingFlowSheet';
+import { PhonologicalAwarenessSheet, RapidNamingSheet, LetterDiscriminationSheet, MirrorLettersSheet, SyllableTrainSheet, VisualTrackingLinesSheet, BackwardSpellingSheet, CodeReadingSheet, AttentionToQuestionSheet, HandwritingPracticeSheet } from './sheets/verbal/ReadingSupportSheets';
+import { AnagramSheet, WordSearchSheet, HiddenPasswordGridSheet, CrosswordSheet } from './sheets/verbal/WordGameSheets';
+import { SyllableMasterLabSheet, ReadingSudokuSheet, ReadingStroopSheet, SynonymAntonymMatchSheet, SyllableWordBuilderSheet, LetterVisualMatchingSheet, FamilyLogicSheet, FamilyRelationsSheet } from './sheets/verbal/ReadingSheets'; 
+
+// --- VISUAL PERCEPTION ---
 import { MapDetectiveSheet } from './sheets/visual/MapDetectiveSheet'; 
 import { FindTheDifferenceSheet } from './sheets/visual/FindTheDifferenceSheet';
 import { VisualOddOneOutSheet } from './sheets/visual/VisualOddOneOutSheet';
 import { GridDrawingSheet } from './sheets/visual/GridDrawingSheet';
 import { SymmetryDrawingSheet } from './sheets/visual/SymmetryDrawingSheet';
-
-import { 
-    VisualArithmeticSheet, ClockReadingSheet, NumberSenseSheet, MathMemoryCardsSheet, MoneyCountingSheet, SpatialGridSheet, ConceptMatchSheet, EstimationSheet 
-} from './sheets/math/DyscalculiaSheets';
 
 import { ReadingStudioContentRenderer } from './ReadingStudio/ReadingStudioContentRenderer';
 import { PedagogicalHeader } from './sheets/common';
@@ -102,7 +101,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.THEMATIC_ODD_ONE_OUT: return <OddOneOutSheet data={data} />;
         case ActivityType.NUMBER_LOGIC_RIDDLES: return <NumberLogicRiddleSheet data={data} />;
         
-        // --- DISKALKULİ GRUBU ---
+        // --- DISCALCULIA ---
         case ActivityType.VISUAL_ARITHMETIC: return <VisualArithmeticSheet data={data} />;
         case ActivityType.CLOCK_READING: return <ClockReadingSheet data={data} />;
         case ActivityType.NUMBER_SENSE: return <NumberSenseSheet data={data} />;
@@ -124,7 +123,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.CHAOTIC_NUMBER_SEARCH: return <ChaoticNumberSearchSheet data={data} />;
         case ActivityType.ATTENTION_DEVELOPMENT: return <AttentionDevelopmentSheet data={data} />;
         case ActivityType.ATTENTION_FOCUS: return <AttentionFocusSheet data={data} />;
-        case ActivityType.FIND_IDENTICAL_WORD: return <FindDuplicateSheet data={data} />; // Reused logic
+        case ActivityType.FIND_IDENTICAL_WORD: return <FindDuplicateSheet data={data} />; 
         case ActivityType.LETTER_GRID_TEST: return <LetterGridTestSheet data={data} />;
         case ActivityType.FIND_LETTER_PAIR: return <FindLetterPairSheet data={data} />;
         case ActivityType.TARGET_SEARCH: return <TargetSearchSheet data={data} />;
@@ -140,7 +139,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.FAMILY_RELATIONS: return <FamilyRelationsSheet data={data} />;
         case ActivityType.FAMILY_LOGIC_TEST: return <FamilyLogicSheet data={data} />;
         
-        // --- OKUMA DESTEK GRUBU ---
+        // --- READING SUPPORT ---
         case ActivityType.READING_FLOW: return <ReadingFlowSheet data={data} />;
         case ActivityType.PHONOLOGICAL_AWARENESS: return <PhonologicalAwarenessSheet data={data} />;
         case ActivityType.RAPID_NAMING: return <RapidNamingSheet data={data} />;
@@ -160,7 +159,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.GRID_DRAWING: return <GridDrawingSheet data={data} />;
         case ActivityType.SYMMETRY_DRAWING: return <SymmetryDrawingSheet data={data} />;
 
-        // --- KELİME OYUNLARI ---
+        // --- WORD GAMES ---
         case ActivityType.HIDDEN_PASSWORD_GRID: return <HiddenPasswordGridSheet data={data} />;
         case ActivityType.WORD_SEARCH: return <WordSearchSheet data={data} />;
         case ActivityType.ANAGRAM: return <AnagramSheet data={data} />;
