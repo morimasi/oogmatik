@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { 
-    LetterGridTestData, NumberSearchData, ChaoticNumberSearchData, AttentionDevelopmentData, AttentionFocusData, FindDuplicateData, FindLetterPairData, TargetSearchData
+    LetterGridTestData, NumberSearchData, ChaoticNumberSearchData, AttentionDevelopmentData, AttentionFocusData, FindDuplicateData, TargetSearchData
 } from '../../../types';
 import { PedagogicalHeader, GridComponent } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
@@ -49,7 +49,7 @@ export const NumberSearchSheet: React.FC<{ data: NumberSearchData }> = ({ data }
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex-1 flex flex-wrap gap-4 justify-center p-10 border-4 border-zinc-900 rounded-[3rem] bg-white shadow-xl mt-6">
             {(data.numbers || []).map((n, i) => (
-                <div key={i} className="w-12 h-12 flex items-center justify-center border-2 border-zinc-100 rounded-xl font-black text-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all cursor-default">
+                <div key={i} className="w-12 h-12 flex items-center justify-center border-2 border-zinc-100 rounded-xl font-black text-lg hover:border-indigo-50 hover:bg-indigo-50 transition-all cursor-default">
                     {n}
                 </div>
             ))}
@@ -62,7 +62,7 @@ export const FindDuplicateSheet: React.FC<{ data: FindDuplicateData }> = ({ data
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-4 mt-6">
             {(data.rows || []).map((row, i) => (
-                <EditableElement key={i} className="flex justify-between items-center p-4 border-2 border-zinc-900 rounded-2xl bg-white shadow-sm break-inside-avoid group hover:border-indigo-500 transition-all">
+                <EditableElement key={i} className="flex justify-between items-center p-4 border-2 border-zinc-900 rounded-2xl bg-white shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
                     <span className="w-8 h-8 bg-zinc-900 text-white rounded-lg flex items-center justify-center font-black text-xs mr-4 group-hover:bg-indigo-600">{i+1}</span>
                     <div className="flex-1 flex justify-between font-mono text-xl tracking-[0.5em] font-black text-zinc-800">
                         {row.map((char, j) => <span key={j} className="hover:text-indigo-600 transition-colors">{char}</span>)}
@@ -82,20 +82,6 @@ export const LetterGridTestSheet: React.FC<{ data: LetterGridTestData }> = ({ da
                     <div key={i} className="mb-2 border-b border-zinc-50 pb-1">{row.join('')}</div>
                 ))}
             </div>
-        </div>
-    </div>
-);
-
-export const FindLetterPairSheet: React.FC<{ data: FindLetterPairData }> = ({ data }) => (
-    <div className="font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="mt-8 text-center mb-6">
-            <span className="px-10 py-3 bg-zinc-900 text-white rounded-2xl font-black text-2xl shadow-xl border-4 border-white ring-4 ring-zinc-50">HEDEF: {data.targetPair}</span>
-        </div>
-        <div className="bg-white border-[3px] border-zinc-900 p-4 rounded-[2.5rem] grid gap-1 shadow-sm" style={{gridTemplateColumns: `repeat(${data.grid?.length || 10}, 1fr)`}}>
-            {(data.grid || []).flat().map((char, i) => (
-                <div key={i} className="aspect-square flex items-center justify-center border border-zinc-100 text-lg font-black text-zinc-800 hover:bg-zinc-50 transition-colors">{char}</div>
-            ))}
         </div>
     </div>
 );

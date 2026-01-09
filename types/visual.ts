@@ -1,3 +1,4 @@
+
 import { BaseActivityData, ShapeType } from './core';
 
 export * from './core';
@@ -169,9 +170,10 @@ export interface LetterGridTestData extends BaseActivityData {
     targetLetters: string[];
 }
 
+// Fix: Updated FindLetterPairData to include grids and settings as used in components and generators.
 export interface FindLetterPairData extends BaseActivityData {
-    grid: string[][];
-    targetPair: string;
+    grids: { grid: string[][]; targetPair: string }[];
+    settings: { gridSize: number; itemCount: number; difficulty: string };
 }
 
 export interface TargetSearchData extends BaseActivityData {

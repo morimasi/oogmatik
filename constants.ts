@@ -12,6 +12,13 @@ export const DIFFICULTY_OPTIONS = [
 // Activities List
 export const ACTIVITIES: Activity[] = [
     {
+        id: ActivityType.FIND_LETTER_PAIR,
+        title: 'Harf İkilisi Dedektifi',
+        description: 'Karışık harfler içinden hedef ikiliyi (heceyi) bulma ve ayırt etme çalışması.',
+        icon: 'fa-solid fa-magnifying-glass-chart',
+        defaultStyle: { columns: 1 }
+    },
+    {
         id: ActivityType.READING_SUDOKU,
         title: 'Dil ve Mantık Sudokusu',
         description: 'Harfler, kelimeler veya sembollerle kurgulanmış, disleksi dostu mantıksal akıl yürütme.',
@@ -156,7 +163,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         title: 'Okuma & Dil',
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
-        activities: [ActivityType.SYLLABLE_MASTER_LAB, ActivityType.READING_SUDOKU, ActivityType.LETTER_VISUAL_MATCHING, ActivityType.READING_STROOP, ActivityType.SYNONYM_ANTONYM_MATCH, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS, ActivityType.FAMILY_RELATIONS, ActivityType.FAMILY_LOGIC_TEST]
+        activities: [ActivityType.FIND_LETTER_PAIR, ActivityType.SYLLABLE_MASTER_LAB, ActivityType.READING_SUDOKU, ActivityType.LETTER_VISUAL_MATCHING, ActivityType.READING_STROOP, ActivityType.SYNONYM_ANTONYM_MATCH, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS, ActivityType.FAMILY_RELATIONS, ActivityType.FAMILY_LOGIC_TEST]
     },
     {
         id: 'math-logic',

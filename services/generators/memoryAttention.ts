@@ -154,24 +154,7 @@ export const generateLetterGridTestFromAI = async (options: GeneratorOptions): P
     return generateWithSchema(prompt, schema) as Promise<LetterGridTestData[]>;
 };
 
-export const generateFindLetterPairFromAI = async (options: GeneratorOptions): Promise<FindLetterPairData[]> => {
-    const { gridSize, difficulty, worksheetCount, targetPair } = options;
-    const prompt = `"${difficulty}" seviyesinde Harf İkilisini Bul (${targetPair || 'bd'}). ${PEDAGOGICAL_PROMPT}`;
-    const singleSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-            targetPair: { type: Type.STRING }
-        },
-        required: ['title', 'grid', 'targetPair', 'instruction', 'pedagogicalNote', 'imagePrompt']
-    };
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<FindLetterPairData[]>;
-};
+// Fix: Removed duplicate generateFindLetterPairFromAI as it is now centrally managed in newActivities.ts
 
 export const generateTargetSearchFromAI = async (options: GeneratorOptions): Promise<TargetSearchData[]> => {
   const { difficulty, worksheetCount } = options;
@@ -336,7 +319,6 @@ export const generateChaoticNumberSearchFromAI = async (options: GeneratorOption
          type: Type.OBJECT,
          properties: {
              title: { type: Type.STRING },
-             prompt: { type: Type.STRING },
              instruction: { type: Type.STRING },
              pedagogicalNote: { type: Type.STRING },
              imagePrompt: { type: Type.STRING },

@@ -192,37 +192,7 @@ export const generateOfflineBurdonTest = async (options: GeneratorOptions): Prom
     }));
 };
 
-
-export const generateOfflineFindLetterPair = async (options: GeneratorOptions): Promise<FindLetterPairData[]> => {
-    const { gridSize, difficulty, worksheetCount, targetPair, itemCount } = options;
-    const results: FindLetterPairData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const size = gridSize || 12;
-        const pairInput = (targetPair as string)?.replace(/[\s,]/g, '') || 'bd';
-        const pair = pairInput.substring(0, 2);
-        
-        const grid = Array.from({ length: size }, () => Array.from({ length: size }, () => getRandomItems(turkishAlphabet.split(''), 1)[0]));
-        
-        const pairCount = itemCount || 10;
-        for (let k = 0; k < pairCount; k++) {
-            const r = getRandomInt(0, size - 1);
-            const c = getRandomInt(0, size - 2);
-            grid[r][c] = pair[0];
-            grid[r][c + 1] = pair[1];
-        }
-
-        results.push({ 
-            title: 'Harf İkilisini Bul', 
-            instruction: `Tabloda yan yana gelmiş "${pair}" ikililerini bul ve daire içine al.`,
-            pedagogicalNote: "Görsel tarama ve desen tanıma.",
-            imagePrompt: 'İkili',
-            grid, 
-            targetPair: pair 
-        });
-    }
-    return results;
-};
-
+// Fix: Removed duplicate generateOfflineFindLetterPair as it is now centrally managed in newActivities.ts
 
 export const generateOfflineTargetSearch = async (options: GeneratorOptions): Promise<TargetSearchData[]> => {
     const { gridSize, difficulty, worksheetCount, targetChar, distractorChar, itemCount } = options;
@@ -352,7 +322,7 @@ export const generateOfflineStroopTest = async (options: GeneratorOptions): Prom
         { name: 'MAVİ', css: '#3b82f6' }, 
         { name: 'YEŞİL', css: '#22c55e' }, 
         { name: 'SARI', css: '#facc15' }, // Slightly darker yellow for visibility
-        { name: 'MOR', css: '#a855f7' },
+        { name: 'MOR', hex: '#a855f7' },
         { name: 'SİYAH', css: '#000000' },
         { name: 'TURUNCU', css: '#f97316' },
         { name: 'PEMBE', css: '#ec4899' }
@@ -376,7 +346,7 @@ export const generateOfflineStroopTest = async (options: GeneratorOptions): Prom
         results.push({ 
             title: 'STROOP TESTİ (Renk Söyleme)', 
             instruction: "DİKKAT: Yazılan kelimeyi okumayın! Kelimenin yazıldığı RENGİ yüksek sesle söyleyin.",
-            pedagogicalNote: "Dürtü kontrolü (inhibisyon), seçici dikkat ve bilişsel esneklik değerlendirmesi.",
+            pedagogicalNote: "Dürtü kontrolü (inhibisyon), seçici dikkat and bilişsel esneklik değerlendirmesi.",
             imagePrompt: 'Renkler',
             items 
         });
@@ -410,7 +380,7 @@ export const generateOfflineChaoticNumberSearch = async (options: GeneratorOptio
         results.push({
             title: 'Kaotik Sayı Avı',
             instruction: `1'den ${count}'a kadar olan sayıları sırasıyla bul ve daire içine al.`,
-            pedagogicalNote: "Karmaşık görsel zeminde sıralı takip, şekil-zemin ayrımı ve görsel esneklik.",
+            pedagogicalNote: "Karmaşık görsel zeminde sıralı takip, şekil-zemin ayrımı and görsel esneklik.",
             imagePrompt: 'Kaos',
             prompt: '',
             numbers,
