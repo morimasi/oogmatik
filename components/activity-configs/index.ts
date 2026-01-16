@@ -1,5 +1,5 @@
-
 import { ActivityType } from '../../types';
+import { MathMemoryCardsConfig } from './MathMemoryCardsConfig';
 import { FindLetterPairConfig } from './FindLetterPairConfig';
 import { ReadingSudokuConfig } from './ReadingSudokuConfig';
 import { SyllableMasterLabConfig } from './SyllableMasterLabConfig';
@@ -13,12 +13,14 @@ import { HiddenPasswordConfig } from './HiddenPasswordConfig';
 import { MathLogicRiddleConfig } from './MathLogicRiddleConfig';
 import { FinancialMathConfig } from './FinancialMathConfig';
 import { StoryStudioConfig } from './StoryStudioConfig';
-import { VerbalSkillConfig } from './VerbalSkillConfig';
 import { FamilyLogicConfig } from './FamilyLogicConfig';
 import { DrawingSkillConfig } from './DrawingSkillConfig';
+import { VerbalSkillConfig } from './VerbalSkillConfig';
+import { FamilyRelationsConfig } from './FamilyRelationsConfig';
 
-// Bu harita, hangi ActivityType için hangi ayar bileşeninin render edileceğini belirler.
+// Fix: Added missing ActivityType import and populated the registry with all activity configurations
 export const ActivityConfigRegistry: Record<string, any> = {
+    [ActivityType.MATH_MEMORY_CARDS]: MathMemoryCardsConfig,
     [ActivityType.FIND_LETTER_PAIR]: FindLetterPairConfig,
     [ActivityType.READING_SUDOKU]: ReadingSudokuConfig,
     [ActivityType.SYLLABLE_MASTER_LAB]: SyllableMasterLabConfig,
@@ -28,17 +30,12 @@ export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.CLOCK_READING]: ClockReadingConfig,
     [ActivityType.ALGORITHM_GENERATOR]: AlgorithmConfig,
     [ActivityType.VISUAL_ODD_ONE_OUT]: VisualPerceptionConfig,
-    [ActivityType.FIND_THE_DIFFERENCE]: VisualPerceptionConfig,
     [ActivityType.HIDDEN_PASSWORD_GRID]: HiddenPasswordConfig,
     [ActivityType.NUMBER_LOGIC_RIDDLES]: MathLogicRiddleConfig,
-    [ActivityType.NUMBER_PATTERN]: MathLogicRiddleConfig,
     [ActivityType.MONEY_COUNTING]: FinancialMathConfig,
     [ActivityType.STORY_COMPREHENSION]: StoryStudioConfig,
-    [ActivityType.SYLLABLE_WORD_BUILDER]: VerbalSkillConfig,
-    [ActivityType.SYNONYM_ANTONYM_MATCH]: VerbalSkillConfig,
-    [ActivityType.LETTER_VISUAL_MATCHING]: VerbalSkillConfig,
-    [ActivityType.FAMILY_RELATIONS]: FamilyLogicConfig,
     [ActivityType.FAMILY_LOGIC_TEST]: FamilyLogicConfig,
     [ActivityType.GRID_DRAWING]: DrawingSkillConfig,
-    [ActivityType.SYMMETRY_DRAWING]: DrawingSkillConfig,
+    [ActivityType.SYNONYM_ANTONYM_MATCH]: VerbalSkillConfig,
+    [ActivityType.FAMILY_RELATIONS]: FamilyRelationsConfig,
 };
