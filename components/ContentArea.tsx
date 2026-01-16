@@ -151,10 +151,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           )}
       </div>
 
-      {/* VIEWPORT - NO WHEEL SCROLL ALLOWED */}
+      {/* VIEWPORT - THE DESK SURFACE */}
       <div 
         ref={scrollContainerRef}
-        className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar ${zenMode ? 'bg-zinc-900' : 'bg-zinc-100'}`}
+        className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar transition-colors duration-500 ${
+            zenMode 
+            ? 'bg-[#050505]' 
+            : 'bg-[var(--bg-secondary)]'
+        }`}
       >
           {/* justify-start and items-start for fixed top anchoring */}
           <div className="w-full flex flex-col items-center justify-start min-h-full py-0">
@@ -171,7 +175,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     {!isLoading && !error && processedData.length === 0 && (
                         <div className="flex flex-col items-center justify-center py-40 w-full opacity-40">
                              <LandingText />
-                             <p className="text-zinc-500 font-medium mt-4">Bir etkinlik seçin ve farkı görün.</p>
+                             <p className="text-[var(--text-secondary)] font-medium mt-4">Bir etkinlik seçin ve farkı görün.</p>
                         </div>
                     )}
                     
@@ -189,8 +193,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             style={{ 
                                 transform: `scale(${scale})`,
                                 transformOrigin: 'top center',
-                                marginTop: '20px', // Küçük bir estetik üst boşluk (zum merkezi etkilenmez)
-                                marginBottom: '200px' // Alt tarafta nefes alma alanı
+                                marginTop: '40px', // Kağıdın tepeden başlaması için estetik boşluk
+                                marginBottom: '100px' // Alt tarafta çalışma mesafesi
                             }}
                         >
                             <Worksheet 
@@ -217,10 +221,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             )}
           </div>
 
-          {/* ZOOM INDICATOR */}
+          {/* ZOOM INDICATOR - THEMED */}
           {processedData.length > 0 && !isLoading && currentView === 'generator' && (
-              <div className="fixed bottom-10 right-10 z-50 bg-indigo-600 text-white px-5 py-2.5 rounded-2xl text-xs font-black shadow-2xl border-2 border-white/20 animate-in slide-in-from-right-4">
-                  ÖLÇEK: %{Math.round(scale * 100)}
+              <div className="fixed bottom-10 left-10 z-50 bg-[var(--bg-paper)] text-[var(--text-primary)] px-5 py-2.5 rounded-2xl text-xs font-black shadow-2xl border border-[var(--border-color)] animate-in slide-in-from-left-4 backdrop-blur-md opacity-80 hover:opacity-100 transition-opacity">
+                  BOYUT: %{Math.round(scale * 100)}
               </div>
           )}
       </div>
