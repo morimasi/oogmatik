@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react';
 import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig, ActivityType, Student } from '../../types';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
@@ -99,7 +98,6 @@ const AutoContentWrapper = ({
         const observer = new ResizeObserver(() => {
             if (!contentRef.current) return;
             const currentContentHeight = contentRef.current.scrollHeight;
-            // Eşik değeri koyarak titremeyi ve sonsuz döngüyü engelliyoruz
             if (Math.abs(currentContentHeight - lastHeight.current) > 2) {
                  lastHeight.current = currentContentHeight;
                  onSizeChange(currentContentHeight);
@@ -193,11 +191,11 @@ const TypographyControls = ({ style, onUpdate }: { style: any, onUpdate: (k: str
         <div className="flex gap-2">
             <div className="flex-1">
                 <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Satır Aralığı</label>
-                <input type="range" min="1" max="2.5" step="0.1" value={style.lineHeight} onChange={e => onUpdate('lineHeight', Number(e.target.value))} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+                <input type="range" min="1" max="2.5" step="0.1" value={style.lineHeight} onChange={onUpdate.bind(null, 'lineHeight')} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
             </div>
              <div className="flex-1">
                 <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Harf Aralığı</label>
-                <input type="range" min="0" max="10" step="0.5" value={style.letterSpacing} onChange={e => onUpdate('letterSpacing', Number(e.target.value))} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+                <input type="range" min="0" max="10" step="0.5" value={style.letterSpacing} onChange={onUpdate.bind(null, 'letterSpacing')} className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
             </div>
         </div>
          <div>
@@ -447,13 +445,15 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     const [isSaving, setIsSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    // Added isPrinting state to manage print loading state
+    const [isPrinting, setIsPrinting] = useState(false);
     
     const [storyData, setStoryData] = useState<InteractiveStoryData | null>(null);
     const [sidebarTab, setSidebarTab] = useState<'settings' | 'library' | 'templates'>('settings');
     const [layout, setLayout] = useState<ActiveComponent[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [designMode, setDesignMode] = useState(true);
-    const [smartFlow, setSmartFlow] = useState(true); // Akış Kilidi
+    const [smartFlow, setSmartFlow] = useState(true); 
     
     const [config, setConfig] = useState<ReadingStudioConfig>({
         gradeLevel: '3. Sınıf', studentName: '', topic: '', genre: 'Macera', tone: 'Eğlenceli',
@@ -473,14 +473,10 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     const [canvasScale, setCanvasScale] = useState(0.85);
-    const [canvasPos, setCanvasPos] = useState({ x: 0, y: 40 }); 
-    const [isPanning, setIsPanning] = useState(false);
-    const lastMousePos = useRef({ x: 0, y: 0 });
     const canvasRef = useRef<HTMLDivElement>(null);
 
     const [dragState, setDragState] = useState<{ mode: 'drag' | 'resize' | 'rotate'; resizeHandle?: string; startX: number; startY: number; initialX: number; initialY: number; initialW: number; initialH: number; initialR: number; centerX?: number; centerY?: number; } | null>(null);
 
-    // Added missing toggle functions
     const toggleSection = (section: keyof typeof openSections) => {
         setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
     };
@@ -505,7 +501,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         }
     }, []);
 
-    // --- SMART RE-FLOW & CASCADE PUSH ENGINE (FIXED) ---
     const handleAutoResize = useCallback((instanceId: string, newContentHeight: number) => {
         if (!smartFlow) return;
 
@@ -515,7 +510,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
             const item = prevLayout[itemIndex];
             const oldHeight = item.style.h;
-            // Round height to grid to match architecture mode logic
             const roundedNewHeight = Math.max(50, Math.ceil(newContentHeight / SNAP_GRID) * SNAP_GRID);
 
             if (Math.abs(oldHeight - roundedNewHeight) < SNAP_GRID) return prevLayout;
@@ -527,8 +521,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                 if (idx === itemIndex) {
                     return { ...l, style: { ...l.style, h: roundedNewHeight } };
                 }
-                // Şelale Etkisi: Sadece dikey olarak bu elemanın altında olanları it
-                // Tolerans ekledik (-2)
                 if (l.style.y >= (itemOriginalBottomY - 2)) {
                     return {
                         ...l,
@@ -548,9 +540,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             const viewportW = canvasRef.current.clientWidth;
             const pageWidth = A4_WIDTH_PX;
             const initialScale = Math.min(0.85, (viewportW - 100) / pageWidth); 
-            const centeredX = (viewportW - (pageWidth * initialScale)) / 2;
             setCanvasScale(initialScale);
-            setCanvasPos({ x: centeredX, y: 40 }); 
         }
         setLayout([]);
     }, []);
@@ -621,30 +611,24 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         setIsSaved(false);
     }, [storyData]);
 
-    const handleCanvasWheel = useCallback((e: React.WheelEvent) => {
-        if (e.ctrlKey) e.preventDefault();
-        const zoomSensitivity = -0.001; 
-        const delta = e.deltaY * zoomSensitivity;
-        const newScale = Math.min(Math.max(0.1, canvasScale + delta), 4);
+    const handleCanvasWheel = useCallback((e: WheelEvent) => {
+        // Prevent normal scroll only if ctrl is pressed for pure zoom, 
+        // OR always prevent if we want dedicated block-level zoom
+        e.preventDefault(); 
         
-        if (canvasRef.current) {
-            const viewportW = canvasRef.current.clientWidth;
-            const pageWidth = A4_WIDTH_PX;
-            
-            // Fixed Top-Center Zoom: Sayfanın yatayda merkezde kalmasını sağlıyoruz
-            // transform-origin: top center olduğu için sadece X'i güncellememiz yeterli
-            const newX = (viewportW - (pageWidth * newScale)) / 2;
-            
-            setCanvasScale(newScale);
-            setCanvasPos(prev => ({ x: newX, y: prev.y }));
-        }
-    }, [canvasScale]);
+        const zoomSensitivity = 0.001; 
+        const delta = -e.deltaY * zoomSensitivity;
+        setCanvasScale(prev => Math.min(Math.max(0.3, prev + delta), 3));
+    }, []);
 
-    const handleBgMouseDown = (e: React.MouseEvent) => {
-        if (!designMode) return;
-        setIsPanning(true);
-        lastMousePos.current = { x: e.clientX, y: e.clientY };
-    };
+    // Effect to attach native wheel event for reliable preventDefault
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        
+        canvas.addEventListener('wheel', handleCanvasWheel, { passive: false });
+        return () => canvas.removeEventListener('wheel', handleCanvasWheel);
+    }, [handleCanvasWheel]);
 
     const handleMouseDown = (e: React.MouseEvent, id: string, mode: 'drag' | 'resize' | 'rotate' = 'drag', handle?: string) => {
         if (!designMode) return;
@@ -666,13 +650,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
-            if (isPanning) {
-                const dx = e.clientX - lastMousePos.current.x;
-                const dy = e.clientY - lastMousePos.current.y;
-                setCanvasPos(prev => ({ x: prev.x + dx, y: prev.y + dy }));
-                lastMousePos.current = { x: e.clientX, y: e.clientY };
-                return;
-            }
             if (!dragState || !selectedId) return;
             const dx = (e.clientX - dragState.startX) / canvasScale;
             const dy = (e.clientY - dragState.startY) / canvasScale;
@@ -709,7 +686,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
                 return prev.map(l => {
                     if (l.instanceId === selectedId) return { ...l, style: newStyle };
-                    // Manuel itme
                     if (smartFlow && itemHeightDelta !== 0 && l.style.y >= (item.style.y + item.style.h - 5)) {
                         return { ...l, style: { ...l.style, y: Math.max(20, l.style.y + itemHeightDelta) } };
                     }
@@ -717,36 +693,20 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                 });
             });
         };
-        const handleMouseUp = () => { setDragState(null); setIsPanning(false); };
-        if (dragState || isPanning) { window.addEventListener('mousemove', handleMouseMove); window.addEventListener('mouseup', handleMouseUp); }
+        const handleMouseUp = () => { setDragState(null); };
+        if (dragState) { window.addEventListener('mousemove', handleMouseMove); window.addEventListener('mouseup', handleMouseUp); }
         return () => { window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('mouseup', handleMouseUp); };
-    }, [dragState, selectedId, isPanning, canvasScale, smartFlow]);
+    }, [dragState, selectedId, canvasScale, smartFlow]);
 
     const addComponent = (def: ComponentDefinition) => {
         const newId = `${def.id}-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
-        
         let nextY = 20; 
         const gap = 15; 
-
         if (layout.length > 0) {
             const maxY = Math.max(...layout.map(item => item.style.y + item.style.h));
             nextY = maxY + gap;
         }
-
-        const newItem: ActiveComponent = { 
-            ...def, 
-            instanceId: newId, 
-            style: { 
-                ...DEFAULT_STYLE_BASE, 
-                ...def.defaultStyle, 
-                x: 20, 
-                y: nextY 
-            }, 
-            isVisible: true, 
-            customTitle: def.defaultTitle, 
-            themeColor: 'black', 
-            specificData: null 
-        };
+        const newItem: ActiveComponent = { ...def, instanceId: newId, style: { ...DEFAULT_STYLE_BASE, ...def.defaultStyle, x: 20, y: nextY }, isVisible: true, customTitle: def.defaultTitle, themeColor: 'black', specificData: null };
         setLayout(prev => [...prev, newItem]);
         setSelectedId(newId);
         setIsSaved(false);
@@ -767,15 +727,12 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if(confirm("Bu bileşeni silmek istediğinize emin misiniz?")) {
             const itemToRemove = layout.find(item => item.instanceId === id);
             if (!itemToRemove) return;
-            
             const gap = 15; 
             const removedHeight = itemToRemove.style.h + gap;
             const removedY = itemToRemove.style.y;
-
             setLayout(prev => {
                 const filtered = prev.filter(item => item.instanceId !== id);
                 if (!smartFlow) return filtered;
-                
                 return filtered.map(item => {
                     if (item.style.y > removedY) {
                         return { ...item, style: { ...item.style, y: Math.max(20, item.style.y - removedHeight) } };
@@ -783,7 +740,6 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                     return item;
                 });
             });
-
             if(selectedId === id) setSelectedId(null);
             setIsSaved(false);
         }
@@ -791,12 +747,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
     const saveTemplate = () => {
         if(!templateName.trim()) return alert("Lütfen şablon adı giriniz.");
-        const newTemplate: SavedTemplate = {
-            id: crypto.randomUUID(),
-            name: templateName,
-            createdAt: new Date().toISOString(),
-            layout: layout 
-        };
+        const newTemplate: SavedTemplate = { id: crypto.randomUUID(), name: templateName, createdAt: new Date().toISOString(), layout: layout };
         const updated = [...templates, newTemplate];
         setTemplates(updated);
         localStorage.setItem('rs_templates', JSON.stringify(updated));
@@ -806,10 +757,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
     const loadTemplate = (t: SavedTemplate) => {
         if(confirm("Mevcut düzen silinecek ve şablon yüklenecek. Onaylıyor musunuz?")) {
-            const newLayout = t.layout.map((item) => ({
-                ...item,
-                instanceId: item.id + '-' + Date.now() + Math.random().toString(36).substr(2, 5)
-            }));
+            const newLayout = t.layout.map((item) => ({ ...item, instanceId: item.id + '-' + Date.now() + Math.random().toString(36).substr(2, 5) }));
             setLayout(newLayout);
             setIsSaved(false);
         }
@@ -836,40 +784,34 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         const prevSelected = selectedId;
         setDesignMode(false);
         setSelectedId(null);
+        // Added loading state for printing
+        setIsPrinting(true);
         setTimeout(async () => { 
-            await printService.generatePdf('#canvas-root', storyData?.title || 'Hikaye', { action }); 
-            setDesignMode(prevMode); 
-            setSelectedId(prevSelected); 
+            try {
+                await printService.generatePdf('#canvas-root', storyData?.title || 'Hikaye', { action }); 
+            } finally {
+                setDesignMode(prevMode); 
+                setSelectedId(prevSelected); 
+                // Reset loading state
+                setIsPrinting(false);
+            }
         }, 300);
     };
 
     const handleSaveToArchive = async () => {
         if (!user) { alert("Kaydetmek için lütfen giriş yapın."); return; }
         if (!storyData && layout.length === 0) { alert("Kaydedilecek bir içerik yok."); return; }
-        
         setIsSaving(true);
         try {
             const title = storyData?.title || (layout.find(l => l.id === 'header')?.specificData as any)?.title || 'Yeni Hikaye';
-            const studentId = activeStudent?.id;
-            
-            await worksheetService.saveWorksheet(
-                user.id, title, ActivityType.STORY_COMPREHENSION, [{ storyData, layout }], 'fa-solid fa-book-open-reader', { id: 'reading-verbal', title: 'Okuma & Dil' },
-                undefined, undefined, studentId
-            );
+            await worksheetService.saveWorksheet(user.id, title, ActivityType.STORY_COMPREHENSION, [{ storyData, layout }], 'fa-solid fa-book-open-reader', { id: 'reading-verbal', title: 'Okuma & Dil' }, undefined, undefined, activeStudent?.id);
             setIsSaved(true);
             alert("Etkinlik başarıyla arşivlendi.");
-        } catch (e) {
-            alert("Kaydetme sırasında bir hata oluştu.");
-        } finally {
-            setIsSaving(false);
-        }
+        } catch (e) { alert("Kaydetme sırasında bir hata oluştu."); } finally { setIsSaving(false); }
     };
 
     const handleAddToWorkbook = () => {
-        if (!storyData && layout.length === 0) {
-            alert("Eklenecek bir içerik bulunamadı.");
-            return;
-        }
+        if (!storyData && layout.length === 0) { alert("Eklenecek bir içerik bulunamadı."); return; }
         if (onAddToWorkbook) {
             onAddToWorkbook({ storyData, layout });
             const btn = document.getElementById('rs-workbook-btn');
@@ -877,63 +819,31 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                 const original = btn.innerHTML;
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Eklendi';
                 btn.classList.add('bg-green-600');
-                setTimeout(() => {
-                    btn.innerHTML = original;
-                    btn.classList.remove('bg-green-600');
-                }, 2000);
+                setTimeout(() => { btn.innerHTML = original; btn.classList.remove('bg-green-600'); }, 2000);
             }
         }
     };
 
     const handleShare = async (receiverId: string) => {
-        if (!user) return;
-        if (!storyData && layout.length === 0) return;
-        
+        if (!user || (!storyData && layout.length === 0)) return;
         try {
             const title = storyData?.title || (layout.find(l => l.id === 'header')?.specificData as any)?.title || 'Yeni Hikaye';
-            const mockSavedWorksheet: any = {
-                name: title,
-                activityType: ActivityType.STORY_COMPREHENSION,
-                worksheetData: [{ storyData, layout }],
-                icon: 'fa-solid fa-book-open-reader',
-                category: { id: 'reading-verbal', title: 'Okuma & Dil' }
-            };
+            const mockSavedWorksheet: any = { name: title, activityType: ActivityType.STORY_COMPREHENSION, worksheetData: [{ storyData, layout }], icon: 'fa-solid fa-book-open-reader', category: { id: 'reading-verbal', title: 'Okuma & Dil' } };
             await worksheetService.shareWorksheet(mockSavedWorksheet, user.id, user.name, receiverId);
             setIsShareModalOpen(false);
             alert("Etkinlik başarıyla paylaşıldı.");
-        } catch (e) {
-            console.error("Share error:", e);
-            alert("Paylaşım sırasında bir hata oluştu.");
-        }
+        } catch (e) { alert("Paylaşım sırasında bir hata oluştu."); }
     };
 
     const handleStudentChange = (sid: string) => {
-        if (sid === 'anonymous') {
-            setActiveStudent(null);
-        } else {
-            const s = students.find(x => x.id === sid);
-            if (s) setActiveStudent(s);
-        }
+        if (sid === 'anonymous') setActiveStudent(null);
+        else { const s = students.find(x => x.id === sid); if (s) setActiveStudent(s); }
     };
 
     const renderContent = (item: ActiveComponent) => {
         const s = item.style;
         const boxStyle = {
-            padding: `${s.padding}px`,
-            backgroundColor: s.backgroundColor,
-            borderColor: s.borderColor,
-            borderWidth: `${s.borderWidth}px`,
-            borderStyle: s.borderStyle || 'solid',
-            borderRadius: `${s.borderRadius}px`,
-            boxShadow: s.boxShadow !== 'none' ? `var(--shadow-${s.boxShadow})` : 'none',
-            opacity: s.opacity,
-            color: s.color,
-            fontFamily: s.fontFamily,
-            fontSize: `${s.fontSize}px`,
-            lineHeight: s.lineHeight,
-            textAlign: s.textAlign as any,
-            letterSpacing: `${s.letterSpacing}px`,
-            fontWeight: s.fontWeight || 'normal'
+            padding: `${s.padding}px`, backgroundColor: s.backgroundColor, borderColor: s.borderColor, borderWidth: `${s.borderWidth}px`, borderStyle: s.borderStyle || 'solid', borderRadius: `${s.borderRadius}px`, boxShadow: s.boxShadow !== 'none' ? `var(--shadow-${s.boxShadow})` : 'none', opacity: s.opacity, color: s.color, fontFamily: s.fontFamily, fontSize: `${s.fontSize}px`, lineHeight: s.lineHeight, textAlign: s.textAlign as any, letterSpacing: `${s.letterSpacing}px`, fontWeight: s.fontWeight || 'normal'
         };
 
         if (item.id === 'header') {
@@ -942,192 +852,76 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                 <AutoContentWrapper enabled={smartFlow} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
                     <div className="h-full flex flex-col justify-end" style={boxStyle}>
                         <h1 className="font-black uppercase leading-none tracking-tight" style={{fontSize: '2.5em', color: 'inherit'}}>{data.title}</h1>
-                        <div className="flex justify-between items-end mt-2 opacity-70">
-                            <span className="font-mono text-sm">{data.subtitle}</span>
-                        </div>
+                        <div className="flex justify-between items-end mt-2 opacity-70"><span className="font-mono text-sm">{data.subtitle}</span></div>
                     </div>
                 </AutoContentWrapper>
             );
         }
-        
         if (item.id === 'tracker') {
              return (
-                 <div className="h-full flex flex-col items-center justify-center" style={boxStyle}>
-                     <div className="flex gap-4">
-                         {[1, 2, 3].map(i => (
-                             <div key={i} className="flex flex-col items-center">
-                                 <div className="w-10 h-10 rounded-full border-2 border-current bg-transparent flex items-center justify-center">
-                                     <i className="fa-regular fa-star text-sm opacity-50"></i>
-                                 </div>
-                             </div>
-                         ))}
-                     </div>
-                 </div>
+                 <div className="h-full flex flex-col items-center justify-center" style={boxStyle}><div className="flex gap-4">{[1, 2, 3].map(i => (<div key={i} className="flex flex-col items-center"><div className="w-10 h-10 rounded-full border-2 border-current bg-transparent flex items-center justify-center"><i className="fa-regular fa-star text-sm opacity-50"></i></div></div>))}</div></div>
              );
         }
-
         if (item.id === 'story_block') {
             const data = item.specificData || { text: "Hikaye metni bekleniyor...", imagePrompt: "" };
             return (
                 <AutoContentWrapper enabled={smartFlow} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
                     <div className="relative overflow-hidden" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
-                         {item.style.imageSettings?.enabled && (
-                            <div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}>
-                                <ImageDisplay 
-                                    prompt={data.imagePrompt} 
-                                    description="Hikaye Görseli" 
-                                    className="w-full h-full object-contain" 
-                                />
-                            </div>
-                         )}
+                         {item.style.imageSettings?.enabled && (<div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}><ImageDisplay prompt={data.imagePrompt} description="Hikaye Görseli" className="w-full h-full object-contain" /></div>)}
                          <div dangerouslySetInnerHTML={{__html: (data.text || '').replace(/\n/g, '<br/>')}}></div>
                     </div>
                 </AutoContentWrapper>
             );
         }
-
         if (item.id === 'vocabulary') {
              const data = item.specificData || { questions: [{text: "Örnek: Açıklama"}] };
              return (
                  <AutoContentWrapper enabled={smartFlow} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
-                 <div className="flex flex-col" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
-                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2">
-                        <i className="fa-solid fa-spell-check"></i> {item.customTitle}
-                     </h4>
-                     <div className="flex-1 grid grid-cols-2 gap-4 content-start overflow-hidden">
-                         {(data.questions || []).map((q: any, i: number) => {
-                             const parts = q.text.split(':');
-                             return (
-                                 <div key={i} className="bg-white/50 p-2 rounded border border-current/20">
-                                     <span className="font-bold block text-sm">{parts[0]}</span>
-                                     <span className="text-[10px] opacity-80 leading-tight block">{parts[1] || ''}</span>
-                                 </div>
-                             );
-                         })}
-                     </div>
-                 </div>
+                 <div className="flex flex-col" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}><h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2"><i className="fa-solid fa-spell-check"></i> {item.customTitle}</h4><div className="flex-1 grid grid-cols-2 gap-4 content-start overflow-hidden">{(data.questions || []).map((q: any, i: number) => { const parts = q.text.split(':'); return (<div key={i} className="bg-white/50 p-2 rounded border border-current/20"><span className="font-bold block text-sm">{parts[0]}</span><span className="text-[10px] opacity-80 leading-tight block">{parts[1] || ''}</span></div>); })}</div></div>
                  </AutoContentWrapper>
              );
         }
-
         if (item.id === 'creative') {
              const data = item.specificData || { task: "Hikaye ile ilgili bir resim çiz." };
              return (
-                 <div className="h-full flex flex-col" style={boxStyle}>
-                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2">
-                        <i className="fa-solid fa-paintbrush"></i> {item.customTitle}
-                     </h4>
-                     <p className="text-sm font-bold mb-2">{data.task}</p>
-                     <div className="flex-1 border-2 border-dashed border-current/30 rounded-xl bg-white/20 relative">
-                         <span className="absolute bottom-2 right-2 text-[10px] opacity-50 font-bold uppercase">Çizim Alanı</span>
-                     </div>
-                 </div>
+                 <div className="h-full flex flex-col" style={boxStyle}><h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50 flex items-center gap-2"><i className="fa-solid fa-paintbrush"></i> {item.customTitle}</h4><p className="text-sm font-bold mb-2">{data.task}</p><div className="flex-1 border-2 border-dashed border-current/30 rounded-xl bg-white/20 relative"><span className="absolute bottom-2 right-2 text-[10px] opacity-50 font-bold uppercase">Çizim Alanı</span></div></div>
              );
         }
-        
         if (item.id === 'notes') {
              return (
-                 <div className="h-full flex flex-col" style={boxStyle}>
-                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
-                     <div className="flex-1" style={{backgroundImage: 'linear-gradient(transparent 95%, currentColor 95%)', backgroundSize: '100% 1.5rem', opacity: 0.3}}></div>
-                 </div>
+                 <div className="h-full flex flex-col" style={boxStyle}><h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4><div className="flex-1" style={{backgroundImage: 'linear-gradient(transparent 95%, currentColor 95%)', backgroundSize: '100% 1.5rem', opacity: 0.3}}></div></div>
              );
         }
-
         if (item.id.startsWith('questions')) {
             const data = item.specificData || { questions: [{text: "Madde 1..."}] };
             return (
                 <AutoContentWrapper enabled={smartFlow} onSizeChange={(h) => handleAutoResize(item.instanceId, h)}>
-                <div className="flex flex-col" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}>
-                    <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
-                    <div className="flex-1 space-y-2 overflow-hidden">
-                        {(data.questions || []).map((q: any, i: number) => (
-                            <div key={i} className="flex gap-2 items-start">
-                                <span className="font-bold bg-current text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0" style={{color: s.backgroundColor === 'transparent' ? 'white' : s.backgroundColor, backgroundColor: s.color}}>{i+1}</span>
-                                <p className="leading-snug pt-0.5">{q.text}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                <div className="flex flex-col" style={{ ...boxStyle, height: 'auto', minHeight: '100%' }}><h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4><div className="flex-1 space-y-2 overflow-hidden">{(data.questions || []).map((q: any, i: number) => (<div key={i} className="flex gap-2 items-start"><span className="font-bold bg-current text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0" style={{color: s.backgroundColor === 'transparent' ? 'white' : s.backgroundColor, backgroundColor: s.color}}>{i+1}</span><p className="leading-snug pt-0.5">{q.text}</p></div>))}</div></div>
                 </AutoContentWrapper>
             );
         }
-        
-        return (
-             <div className="h-full flex items-center justify-center border-2 border-dashed border-zinc-300 rounded" style={boxStyle}>
-                 <span className="opacity-50 font-bold">{item.label}</span>
-             </div>
-        );
+        return <div className="h-full flex items-center justify-center border-2 border-dashed border-zinc-300 rounded" style={boxStyle}><span className="opacity-50 font-bold">{item.label}</span></div>;
     };
 
     return (
         <div className="h-full flex flex-col bg-[#121214] font-['OpenDyslexic'] overflow-hidden text-zinc-100 absolute inset-0 z-50">
             <div className="h-16 bg-[#18181b] border-b border-zinc-800 flex justify-between items-center px-6 shrink-0 z-50">
                 <div className="flex items-center gap-4">
-                    <button onClick={onBack} className="w-10 h-10 rounded-xl hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors">
-                        <i className="fa-solid fa-arrow-left"></i>
-                    </button>
-                    <div>
-                        <h2 className="text-lg font-black text-white flex items-center gap-2 tracking-tight">
-                             <i className="fa-solid fa-book-open text-indigo-500"></i>
-                            Reading Studio
-                            <span className="bg-indigo-500/20 text-indigo-500 px-1.5 py-0.5 rounded text-[10px] border border-indigo-500/50 font-bold uppercase tracking-widest">PRO</span>
-                        </h2>
-                    </div>
+                    <button onClick={onBack} className="w-10 h-10 rounded-xl hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors"><i className="fa-solid fa-arrow-left"></i></button>
+                    <div><h2 className="text-lg font-black text-white flex items-center gap-2 tracking-tight"><i className="fa-solid fa-book-open text-indigo-500"></i> Reading Studio <span className="bg-indigo-500/20 text-indigo-500 px-1.5 py-0.5 rounded text-[10px] border border-indigo-500/50 font-bold uppercase tracking-widest">PRO</span></h2></div>
                 </div>
-                
                 <div className="flex items-center gap-3">
-                     {/* Student Assigner */}
-                     <div className="flex items-center bg-zinc-800 border border-zinc-700 rounded-xl px-2 py-1 gap-2">
-                        <i className="fa-solid fa-user-graduate text-xs text-zinc-500 ml-2"></i>
-                        <select 
-                            value={activeStudent?.id || "anonymous"}
-                            onChange={(e) => handleStudentChange(e.target.value)}
-                            className="bg-transparent border-none text-xs font-bold outline-none cursor-pointer p-1"
-                        >
-                            <option value="anonymous">Anonim (Atanmamış)</option>
-                            {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
-                        </select>
-                     </div>
-
+                     <div className="flex items-center bg-zinc-800 border border-zinc-700 rounded-xl px-2 py-1 gap-2"><i className="fa-solid fa-user-graduate text-xs text-zinc-500 ml-2"></i><select value={activeStudent?.id || "anonymous"} onChange={(e) => handleStudentChange(e.target.value)} className="bg-transparent border-none text-xs font-bold outline-none cursor-pointer p-1"><option value="anonymous">Anonim (Atanmamış)</option>{students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}</select></div>
                      <div className="h-8 w-px bg-zinc-700 mx-1"></div>
-
-                     {/* Smart Flow Toggle */}
-                     <div className="flex items-center bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 gap-3">
-                        <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Akıllı Akış</span>
-                        <div className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${smartFlow ? 'bg-indigo-600' : 'bg-zinc-600'}`} onClick={() => setSmartFlow(!smartFlow)}>
-                            <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${smartFlow ? 'left-5' : 'left-1'}`}></div>
-                        </div>
-                     </div>
-
+                     <div className="flex items-center bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 gap-3"><span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Akıllı Akış</span><div className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${smartFlow ? 'bg-indigo-600' : 'bg-zinc-600'}`} onClick={() => setSmartFlow(!smartFlow)}><div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${smartFlow ? 'left-5' : 'left-1'}`}></div></div></div>
                      <div className="h-8 w-px bg-zinc-700 mx-2"></div>
-
-                     <button onClick={() => setDesignMode(!designMode)} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors ${designMode ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'}`}>
-                         {designMode ? 'MİMARİ MOD' : 'ÖNİZLEME'}
-                     </button>
-                     
+                     <button onClick={() => setDesignMode(!designMode)} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors ${designMode ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'}`}>{designMode ? 'MİMARİ MOD' : 'ÖNİZLEME'}</button>
                      <div className="flex gap-2 ml-2">
-                         <button onClick={() => handlePrint('download')} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors" title="PDF Olarak İndir"><i className="fa-solid fa-file-pdf"></i></button>
-                         <button onClick={() => handlePrint('print')} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors" title="Yazdır"><i className="fa-solid fa-print"></i></button>
+                         <button onClick={() => handlePrint('download')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors" title="PDF İndir"><i className="fa-solid fa-file-pdf"></i></button>
+                         <button onClick={() => handlePrint('print')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors" title="Yazdır"><i className="fa-solid fa-print"></i></button>
                          <button onClick={() => setIsShareModalOpen(true)} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors" title="Paylaş"><i className="fa-solid fa-share-nodes"></i></button>
-                         
-                         <button 
-                            id="rs-workbook-btn"
-                            onClick={handleAddToWorkbook}
-                            className="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center text-white transition-colors shadow-lg shadow-emerald-500/20"
-                            title="Kitapçığa Ekle"
-                         >
-                             <i className="fa-solid fa-plus-circle"></i>
-                         </button>
-
-                         <button 
-                            onClick={handleSaveToArchive} 
-                            disabled={isSaving || isSaved}
-                            className={`px-6 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg ${isSaved ? 'bg-indigo-600 text-white cursor-default' : 'bg-white text-indigo-600 hover:bg-indigo-50'}`}
-                        >
-                            {isSaving ? <i className="fa-solid fa-circle-notch fa-spin"></i> : (isSaved ? <i className="fa-solid fa-check"></i> : <i className="fa-solid fa-save"></i>)}
-                            {isSaved ? 'Kaydedildi' : 'Kaydet'}
-                        </button>
+                         <button id="rs-workbook-btn" onClick={handleAddToWorkbook} className="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center text-white transition-colors shadow-lg shadow-emerald-500/20" title="Kitapçığa Ekle"><i className="fa-solid fa-plus-circle"></i></button>
+                         <button onClick={handleSaveToArchive} disabled={isSaving || isSaved} className={`px-6 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg ${isSaved ? 'bg-indigo-600 text-white cursor-default' : 'bg-white text-indigo-600 hover:bg-indigo-50'}`}>{isSaving ? <i className="fa-solid fa-circle-notch fa-spin"></i> : (isSaved ? <i className="fa-solid fa-check"></i> : <i className="fa-solid fa-save"></i>)}{isSaved ? 'Kaydedildi' : 'Kaydet'}</button>
                      </div>
                 </div>
             </div>
@@ -1135,143 +929,11 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             <div className="flex-1 flex overflow-hidden relative">
                 <div className={`flex-shrink-0 h-full bg-[#18181b] border-r border-zinc-800 transition-all duration-300 ease-in-out overflow-hidden z-40 ${isSidebarOpen ? 'w-80 opacity-100' : 'w-0 opacity-0 border-r-0'}`}>
                     <div className="w-80 flex flex-col h-full"> 
-                         <div className="flex border-b border-zinc-800 bg-[#18181b]">
-                             <button onClick={() => setSidebarTab('settings')} className={`flex-1 py-4 text-xs font-bold uppercase transition-colors ${sidebarTab === 'settings' ? 'text-indigo-500 border-b-2 border-indigo-500 bg-[#222226]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-[#222226]'}`}>Ayarlar</button>
-                             <button onClick={() => setSidebarTab('library')} className={`flex-1 py-4 text-xs font-bold uppercase transition-colors ${sidebarTab === 'library' ? 'text-indigo-500 border-b-2 border-indigo-500 bg-[#222226]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-[#222226]'}`}>Bileşenler</button>
-                             <button onClick={() => setSidebarTab('templates')} className={`flex-1 py-4 text-xs font-bold uppercase transition-colors ${sidebarTab === 'templates' ? 'text-indigo-500 border-b-2 border-indigo-500 bg-[#222226]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-[#222226]'}`}>Şablonlar</button>
-                         </div>
+                         <div className="flex border-b border-zinc-800 bg-[#18181b]"><button onClick={() => setSidebarTab('settings')} className={`flex-1 py-4 text-xs font-bold uppercase transition-colors ${sidebarTab === 'settings' ? 'text-indigo-500 border-b-2 border-indigo-500 bg-[#222226]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-[#222226]'}`}>Ayarlar</button><button onClick={() => setSidebarTab('library')} className={`flex-1 py-4 text-xs font-bold uppercase transition-colors ${sidebarTab === 'library' ? 'text-indigo-500 border-b-2 border-indigo-500 bg-[#222226]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-[#222226]'}`}>Bileşenler</button><button onClick={() => setSidebarTab('templates')} className={`flex-1 py-4 text-xs font-bold uppercase transition-colors ${sidebarTab === 'templates' ? 'text-indigo-500 border-b-2 border-indigo-500 bg-[#222226]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-[#222226]'}`}>Şablonlar</button></div>
                          <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#18181b]">
-                             {sidebarTab === 'library' && (
-                                 <div className="flex flex-col">
-                                     <div className="border-b border-zinc-800">
-                                         <button onClick={() => toggleSection('layers')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors">
-                                             <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-layer-group"></i> KATMANLAR <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span></h4>
-                                             <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.layers ? 'rotate-180' : ''}`}></i>
-                                         </button>
-                                         {openSections.layers && (
-                                             <div className="p-2 space-y-1 bg-[#18181b] animate-in slide-in-from-top-2 duration-200">
-                                                 {layout.map((item) => (
-                                                     <div key={item.instanceId} onClick={() => setSelectedId(item.instanceId)} className={`group flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${selectedId === item.instanceId ? 'border-indigo-500/50 bg-indigo-500/10 shadow-sm ring-1 ring-indigo-500/30' : 'border-zinc-800 hover:bg-zinc-800/80'} ${!item.isVisible ? 'opacity-60' : ''}`}>
-                                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${selectedId === item.instanceId ? 'bg-indigo-600 text-white' : 'bg-zinc-800 text-zinc-500'}`}><i className={`fa-solid ${item.icon}`}></i></div>
-                                                         <div className="flex-1 min-w-0"><p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-indigo-400' : 'text-zinc-300'}`}>{item.customTitle || item.label}</p></div>
-                                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                             <button onClick={(e) => { e.stopPropagation(); toggleVisibility(item.instanceId); }} className={`w-7 h-7 flex items-center justify-center rounded hover:bg-zinc-700 text-zinc-400 ${!item.isVisible ? 'text-zinc-600' : ''}`}><i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i></button>
-                                                             <button onClick={(e) => { e.stopPropagation(); removeComponent(item.instanceId); }} className="w-7 h-7 flex items-center justify-center rounded hover:bg-red-900/30 text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-trash"></i></button>
-                                                         </div>
-                                                     </div>
-                                                 ))}
-                                             </div>
-                                         )}
-                                     </div>
-                                     <div>
-                                         <button onClick={() => toggleSection('add')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors border-b border-zinc-800">
-                                             <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-plus-circle"></i> YENİ EKLE</h4>
-                                             <i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.add ? 'rotate-180' : ''}`}></i>
-                                         </button>
-                                         {openSections.add && (
-                                             <div className="p-4 bg-[#18181b] animate-in slide-in-from-top-2 duration-200">
-                                                 <div className="grid grid-cols-2 gap-3">
-                                                     {COMPONENT_DEFINITIONS.map(def => (
-                                                         <button key={def.id} onClick={() => addComponent(def)} className="flex flex-col items-center gap-2 p-3 bg-zinc-800 border border-zinc-700 rounded-xl hover:border-indigo-500 hover:shadow-md transition-all group">
-                                                             <i className={`fa-solid ${def.icon} text-zinc-500 group-hover:text-indigo-500 text-xl transition-colors`}></i>
-                                                             <span className="text-[10px] font-bold text-zinc-400 group-hover:text-indigo-500 text-center leading-tight">{def.label}</span>
-                                                         </button>
-                                                     ))}
-                                                 </div>
-                                             </div>
-                                         )}
-                                     </div>
-                                 </div>
-                             )}
-                             {sidebarTab === 'templates' && (
-                                 <div className="p-6 space-y-6">
-                                     <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-800">
-                                         <h4 className="text-[10px] font-bold text-zinc-400 uppercase mb-3">Şablon Kaydet</h4>
-                                         <div className="flex gap-2">
-                                             <input 
-                                                 type="text" 
-                                                 value={templateName} 
-                                                 onChange={e => setTemplateName(e.target.value)} 
-                                                 placeholder="Şablon Adı..." 
-                                                 className="flex-1 p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-xs text-white outline-none focus:border-indigo-500"
-                                             />
-                                             <button onClick={saveTemplate} className="px-3 bg-indigo-600 text-white rounded-lg font-bold text-xs hover:bg-indigo-500"><i className="fa-solid fa-save"></i></button>
-                                         </div>
-                                     </div>
-                                     <div>
-                                         <h4 className="text-[10px] font-bold text-zinc-500 uppercase mb-3 px-1">Kayıtlı Şablonlar</h4>
-                                         {templates.length === 0 ? (
-                                             <div className="text-center text-zinc-600 text-xs py-8 border-2 border-dashed border-zinc-800 rounded-xl">Henüz şablon yok.</div>
-                                         ) : (
-                                             <div className="space-y-3">
-                                                 {templates.map(t => (
-                                                     <div key={t.id} className="group bg-zinc-800 border border-zinc-700 rounded-xl p-3 hover:border-indigo-500/50 transition-colors cursor-pointer" onClick={() => loadTemplate(t)}>
-                                                         <div className="flex justify-between items-start mb-2">
-                                                             <h5 className="font-bold text-sm text-zinc-200">{t.name}</h5>
-                                                             <button onClick={(e) => {e.stopPropagation(); deleteTemplate(t.id);}} className="text-zinc-500 hover:text-red-500"><i className="fa-solid fa-trash"></i></button>
-                                                         </div>
-                                                         <div className="w-full h-24 bg-white rounded-lg overflow-hidden relative pointer-events-none opacity-50 group-hover:opacity-80 transition-opacity">
-                                                             <div className="absolute inset-0" style={{transform: 'scale(0.15)', transformOrigin: '0 0', width: '600%', height: '600%'}}>
-                                                                 {t.layout.map((item, idx) => (
-                                                                     <div key={idx} style={{
-                                                                         position: 'absolute',
-                                                                         left: item.style.x,
-                                                                         top: item.style.y,
-                                                                         width: item.style.w,
-                                                                         height: item.style.h,
-                                                                         border: '2px solid #ccc',
-                                                                         backgroundColor: item.style.backgroundColor || 'transparent'
-                                                                     }}></div>
-                                                                 ))}
-                                                             </div>
-                                                         </div>
-                                                     </div>
-                                                 ))}
-                                             </div>
-                                         )}
-                                     </div>
-                                 </div>
-                             )}
-                             {sidebarTab === 'settings' && (
-                                 <div className="p-6 space-y-8">
-                                    <div className="space-y-4">
-                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Öğrenci Profili</h4>
-                                        <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Ad Soyad</label><input type="text" value={config.studentName} onChange={e => setConfig({...config, studentName: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium" placeholder="Örn: Ali Yılmaz" /></div>
-                                        <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Sınıf</label><select value={config.gradeLevel} onChange={e => setConfig({...config, gradeLevel: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium">{['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}</select></div>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-book"></i> Hikaye Kurgusu</h4>
-                                        <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Konu</label><input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium" placeholder="Örn: Uzay Maceraları" /></div>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Tür</label><select value={config.genre} onChange={e => setConfig({...config, genre: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium">{['Macera', 'Masal', 'Bilim Kurgu', 'Günlük Yaşam', 'Fabl'].map(g => <option key={g} value={g}>{g}</option>)}</select></div>
-                                            <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Ton</label><select value={config.tone} onChange={e => setConfig({...config, tone: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium">{['Eğlenceli', 'Öğretici', 'Gizemli', 'Duygusal'].map(t => <option key={t} value={t}>{t}</option>)}</select></div>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-3">
-                                             <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Uzunluk</label><select value={config.length} onChange={e => setConfig({...config, length: e.target.value as any})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium"><option value="short">Kısa</option><option value="medium">Orta</option><option value="long">Uzun</option></select></div>
-                                            <div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Dil Seviyesi</label><select value={config.textComplexity} onChange={e => setConfig({...config, textComplexity: e.target.value as any})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium"><option value="simple">Basit</option><option value="moderate">Orta</option><option value="advanced">İleri</option></select></div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4 bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-inner">
-                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2 mb-2">
-                                            <i className="fa-solid fa-list-check text-indigo-500"></i> İçerik Bileşenleri
-                                        </h4>
-                                        <div className="space-y-1">
-                                            <ToggleControl label="5N 1K Soruları" checked={config.include5N1K} onChange={v => setConfig({...config, include5N1K: v})} icon="fa-circle-question" />
-                                            <ToggleControl label="Sözlükçe (Kelime Odaklı)" checked={config.focusVocabulary} onChange={v => setConfig({...config, focusVocabulary: v})} icon="fa-spell-check" />
-                                            <ToggleControl label="Yaratıcı Görev" checked={config.includeCreativeTask} onChange={v => setConfig({...config, includeCreativeTask: v})} icon="fa-paintbrush" />
-                                        </div>
-                                        <div className="mt-4 pt-4 border-t border-zinc-800 space-y-2">
-                                            <CounterControl label="Test Sorusu" value={config.countMultipleChoice} onChange={v => setConfig({...config, countMultipleChoice: v})} />
-                                            <CounterControl label="Doğru / Yanlış" value={config.countTrueFalse} onChange={v => setConfig({...config, countTrueFalse: v})} />
-                                            <CounterControl label="Boşluk Doldurma" value={config.countFillBlanks} onChange={v => setConfig({...config, countFillBlanks: v})} />
-                                            <CounterControl label="Mantık Sorusu" value={config.countLogic} onChange={v => setConfig({...config, countLogic: v})} />
-                                            <CounterControl label="Çıkarım Sorusu" value={config.countInference} onChange={v => setConfig({...config, countInference: v})} />
-                                        </div>
-                                    </div>
-                                    <button onClick={handleGenerate} disabled={isLoading} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-sm shadow-lg hover:shadow-indigo-500/20 transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">{isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}{isLoading ? 'Hikaye Yazılıyor...' : 'Hikayeyi Oluştur'}</button>
-                                 </div>
-                             )}
+                             {sidebarTab === 'library' && (<div className="flex flex-col"><div className="border-b border-zinc-800"><button onClick={() => toggleSection('layers')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors"><h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-layer-group"></i> KATMANLAR <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-500">{layout.length}</span></h4><i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.layers ? 'rotate-180' : ''}`}></i></button>{openSections.layers && (<div className="p-2 space-y-1 bg-[#18181b] animate-in slide-in-from-top-2 duration-200">{layout.map((item) => (<div key={item.instanceId} onClick={() => setSelectedId(item.instanceId)} className={`group flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${selectedId === item.instanceId ? 'border-indigo-500/50 bg-indigo-500/10 shadow-sm ring-1 ring-indigo-500/30' : 'border-zinc-800 hover:bg-zinc-800/80'} ${!item.isVisible ? 'opacity-60' : ''}`}><div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${selectedId === item.instanceId ? 'bg-indigo-600 text-white' : 'bg-zinc-800 text-zinc-500'}`}><i className={`fa-solid ${item.icon}`}></i></div><div className="flex-1 min-w-0"><p className={`text-xs font-bold truncate ${selectedId === item.instanceId ? 'text-indigo-400' : 'text-zinc-300'}`}>{item.customTitle || item.label}</p></div><div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={(e) => { e.stopPropagation(); toggleVisibility(item.instanceId); }} className={`w-7 h-7 flex items-center justify-center rounded hover:bg-zinc-700 text-zinc-400 ${!item.isVisible ? 'text-zinc-600' : ''}`}><i className={`fa-solid ${item.isVisible ? 'fa-eye' : 'fa-eye-slash'}`}></i></button><button onClick={(e) => { e.stopPropagation(); removeComponent(item.instanceId); }} className="w-7 h-7 flex items-center justify-center rounded hover:bg-red-900/30 text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-trash"></i></button></div></div>))}</div>)}</div><div><button onClick={() => toggleSection('add')} className="w-full flex items-center justify-between p-4 bg-[#18181b] hover:bg-zinc-800 transition-colors border-b border-zinc-800"><h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-plus-circle"></i> YENİ EKLE</h4><i className={`fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform ${openSections.add ? 'rotate-180' : ''}`}></i></button>{openSections.add && (<div className="p-4 bg-[#18181b] animate-in slide-in-from-top-2 duration-200"><div className="grid grid-cols-2 gap-3">{COMPONENT_DEFINITIONS.map(def => (<button key={def.id} onClick={() => addComponent(def)} className="flex flex-col items-center gap-2 p-3 bg-zinc-800 border border-zinc-700 rounded-xl hover:border-indigo-500 hover:shadow-md transition-all group"><i className={`fa-solid ${def.icon} text-zinc-500 group-hover:text-indigo-500 text-xl transition-colors`}></i><span className="text-[10px] font-bold text-zinc-400 group-hover:text-indigo-500 text-center leading-tight">{def.label}</span></button>))}</div></div>)}</div></div>)}
+                             {sidebarTab === 'templates' && (<div className="p-6 space-y-6"><div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-800"><h4 className="text-[10px] font-bold text-zinc-400 uppercase mb-3">Şablon Kaydet</h4><div className="flex gap-2"><input type="text" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Şablon Adı..." className="flex-1 p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-xs text-white outline-none focus:border-indigo-500" /><button onClick={saveTemplate} className="px-3 bg-indigo-600 text-white rounded-lg font-bold text-xs hover:bg-indigo-500"><i className="fa-solid fa-save"></i></button></div></div><div><h4 className="text-[10px] font-bold text-zinc-500 uppercase mb-3 px-1">Kayıtlı Şablonlar</h4>{templates.length === 0 ? (<div className="text-center text-zinc-600 text-xs py-8 border-2 border-dashed border-zinc-800 rounded-xl">Henüz şablon yok.</div>) : (<div className="space-y-3">{templates.map(t => (<div key={t.id} className="group bg-zinc-800 border border-zinc-700 rounded-xl p-3 hover:border-indigo-500/50 transition-colors cursor-pointer" onClick={() => loadTemplate(t)}><div className="flex justify-between items-start mb-2"><h5 className="font-bold text-sm text-zinc-200">{t.name}</h5><button onClick={(e) => {e.stopPropagation(); deleteTemplate(t.id);}} className="text-zinc-500 hover:text-red-500"><i className="fa-solid fa-trash"></i></button></div><div className="w-full h-24 bg-white rounded-lg overflow-hidden relative pointer-events-none opacity-50 group-hover:opacity-80 transition-opacity"><div className="absolute inset-0" style={{transform: 'scale(0.15)', transformOrigin: '0 0', width: '600%', height: '600%'}}>{t.layout.map((item, idx) => (<div key={idx} style={{position: 'absolute', left: item.style.x, top: item.style.y, width: item.style.w, height: item.style.h, border: '2px solid #ccc', backgroundColor: item.style.backgroundColor || 'transparent'}}></div>))}</div></div></div>))}</div>)}</div></div>)}
+                             {sidebarTab === 'settings' && (<div className="p-6 space-y-8"><div className="space-y-4"><h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Öğrenci Profili</h4><div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Ad Soyad</label><input type="text" value={config.studentName} onChange={e => setConfig({...config, studentName: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium" placeholder="Örn: Ali Yılmaz" /></div><div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Sınıf</label><select value={config.gradeLevel} onChange={e => setConfig({...config, gradeLevel: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium">{['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}</select></div></div><div className="space-y-4"><h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-book"></i> Hikaye Kurgusu</h4><div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Konu</label><input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium" placeholder="Örn: Uzay Maceraları" /></div><div className="grid grid-cols-2 gap-3"><div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Tür</label><select value={config.genre} onChange={e => setConfig({...config, genre: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium">{['Macera', 'Masal', 'Bilim Kurgu', 'Günlük Yaşam', 'Fabl'].map(g => <option key={g} value={g}>{g}</option>)}</select></div><div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Ton</label><select value={config.tone} onChange={e => setConfig({...config, tone: e.target.value})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium">{['Eğlenceli', 'Öğretici', 'Gizemli', 'Duygusal'].map(t => <option key={t} value={t}>{t}</option>)}</select></div></div><div className="grid grid-cols-2 gap-3"><div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Uzunluk</label><select value={config.length} onChange={e => setConfig({...config, length: e.target.value as any})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium"><option value="short">Kısa</option><option value="medium">Orta</option><option value="long">Uzun</option></select></div><div><label className="text-[10px] font-bold text-zinc-500 mb-1.5 block">Dil Seviyesi</label><select value={config.textComplexity} onChange={e => setConfig({...config, textComplexity: e.target.value as any})} className="w-full p-3 border border-zinc-700 rounded-xl text-xs bg-zinc-900 focus:ring-1 focus:ring-indigo-500 outline-none text-zinc-200 font-medium"><option value="simple">Basit</option><option value="moderate">Orta</option><option value="advanced">İleri</option></select></div></div></div><div className="space-y-4 bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-inner"><h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2 mb-2"><i className="fa-solid fa-list-check text-indigo-500"></i> İçerik Bileşenleri</h4><div className="space-y-1"><ToggleControl label="5N 1K Soruları" checked={config.include5N1K} onChange={v => setConfig({...config, include5N1K: v})} icon="fa-circle-question" /><ToggleControl label="Sözlükçe (Kelime Odaklı)" checked={config.focusVocabulary} onChange={v => setConfig({...config, focusVocabulary: v})} icon="fa-spell-check" /><ToggleControl label="Yaratıcı Görev" checked={config.includeCreativeTask} onChange={v => setConfig({...config, includeCreativeTask: v})} icon="fa-paintbrush" /></div><div className="mt-4 pt-4 border-t border-zinc-800 space-y-2"><CounterControl label="Test Sorusu" value={config.countMultipleChoice} onChange={v => setConfig({...config, countMultipleChoice: v})} /><CounterControl label="Doğru / Yanlış" value={config.countTrueFalse} onChange={v => setConfig({...config, countTrueFalse: v})} /><CounterControl label="Boşluk Doldurma" value={config.countFillBlanks} onChange={v => setConfig({...config, countFillBlanks: v})} /><CounterControl label="Mantık Sorusu" value={config.countLogic} onChange={v => setConfig({...config, countLogic: v})} /><CounterControl label="Çıkarım Sorusu" value={config.countInference} onChange={v => setConfig({...config, countInference: v})} /></div></div><button onClick={handleGenerate} disabled={isLoading} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-sm shadow-lg hover:shadow-indigo-500/20 transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">{isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}{isLoading ? 'Hikaye Yazılıyor...' : 'Hikayeyi Oluştur'}</button></div>)}
                          </div>
                     </div>
                 </div>
@@ -1286,13 +948,19 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
                 <div 
                     ref={canvasRef}
-                    className="flex-1 bg-[#121214] overflow-hidden flex items-center justify-center relative bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] cursor-grab active:cursor-grabbing"
-                    onWheel={handleCanvasWheel}
-                    onMouseDown={handleBgMouseDown}
+                    className="flex-1 bg-[#121214] overflow-y-auto overflow-x-hidden flex flex-col items-center custom-scrollbar"
                 >
+                    {/* Fixed Top Anchoring Wrapper */}
                     <div 
-                        className="origin-top transition-transform duration-75 ease-out will-change-transform"
-                        style={{ transform: `translate3d(${canvasPos.x}px, ${canvasPos.y}px, 0) scale(${canvasScale})`, transformOrigin: 'top center' }}
+                        className="transition-transform duration-100 ease-out will-change-transform"
+                        style={{ 
+                            transform: `scale(${canvasScale})`, 
+                            transformOrigin: 'top center',
+                            width: `${A4_WIDTH_PX}px`,
+                            minHeight: `${contentHeight}px`,
+                            marginTop: '40px',
+                            marginBottom: '100px'
+                        }}
                     >
                         <div id="canvas-root" className="bg-white shadow-2xl relative transition-all duration-300" style={{ width: `${A4_WIDTH_PX}px`, height: `${contentHeight}px` }}>
                             {designMode && <div className="absolute inset-0 pointer-events-none z-0" style={{backgroundImage: `radial-gradient(#e5e7eb 1px, transparent 1px)`, backgroundSize: `${SNAP_GRID * 4}px ${SNAP_GRID * 4}px`}}></div>}

@@ -19,45 +19,43 @@ export const curriculumService = {
         weaknesses: string[] = []
     ): Promise<Curriculum> => {
         
-        // Prepare activity list for AI to choose from
         const availableActivities = ACTIVITIES.map(a => `${a.id}: ${a.title}`).join('\n');
 
         const prompt = `
         [ROL: KIDEMLİ ÖZEL EĞİTİM PROGRAM GELİŞTİRİCİSİ]
 
-        GÖREV: Aşağıdaki öğrenci profili için ${durationDays} günlük, "Spiral Öğrenme Modeli"ne dayalı, kişiselleştirilmiş ve etkileşimli bir ev çalışma programı oluştur.
+        GÖREV: Aşağıdaki öğrenci profili için ${durationDays} günlük, "Spiral Öğrenme Modeli"ne dayalı, kişiselleştirilmiş bir ev çalışma programı oluştur.
         
         ÖĞRENCİ PROFİLİ:
         - İsim: ${studentName}
         - Yaş: ${age}
         - Sınıf: ${grade}
-        - Tanı/İhtiyaç: ${diagnosis}
-        - İlgi Alanları: ${interests.join(', ') || 'Genel'}
-        - Zayıf Yönler: ${weaknesses.join(', ') || 'Genel akademik destek'}
+        - Ana Odak: ${diagnosis}
+        - İLGİ ALANLARI (ÇOK ÖNEMLİ): ${interests.join(', ') || 'Genel'}
+        - ZAYIF YÖNLER (HEDEF): ${weaknesses.join(', ') || 'Genel akademik destek'}
 
-        PEDAGOJİK KURALLAR (SPIRAL LEARNING):
-        1. **Kademeli Zorluk:** İlk günlerde basit görsel/dikkat etkinlikleri, sonlara doğru karmaşık mantık/okuma etkinlikleri planla.
-        2. **Tekrar:** 1. gün öğrenilen bir beceriyi 3. gün daha zor bir versiyonla tekrar ettir.
-        3. **İlgi Odaklılık:** Öğrencinin ilgi alanlarını (örn: uzay, hayvanlar) aktivite başlıklarına veya hedeflerine yedir.
-        4. **Bilişsel Yük Dengesi:** Her gün için 1 "Zorlayıcı" (Bilişsel) ve 2 "Eğlenceli/Pekiştirici" (Algısal) aktivite seç.
+        STRATEJİK TALİMATLAR:
+        1. **İlgi Odaklı Kurgu:** Aktivite başlıklarını öğrencinin ilgi alanlarına göre uyarla (Örn: İlgi alanı "Uzay" ise, "Matematik Labirenti" yerine "Mars'ta Sayı Avı" de).
+        2. **Spiral Yapı:** İlk günler basit bilişsel hazırlık, sonraki günler zayıf yönleri hedefleyen kademeli zorlukta görevler planla.
+        3. **Çeşitlilik:** Her gün için 1 Ana Görev ve 1 Destekleyici Aktivite seç.
 
-        MEVCUT AKTİVİTE HAVUZU (Sadece bunları kullan):
+        AKTİVİTE HAVUZU:
         ${availableActivities}
 
-        ÇIKTI FORMATI (JSON):
+        ÇIKTI: Sadece JSON döndür.
         {
             "goals": ["Hedef 1", "Hedef 2", "Hedef 3"],
-            "note": "Ebeveyn için motive edici ve yönlendirici bir önsöz.",
+            "note": "Ebeveyn için rehber notu.",
             "schedule": [
                 {
                     "day": 1,
-                    "focus": "Günün Teması (örn: Görsel Dikkat ve Tarama)",
+                    "focus": "Günün Teması",
                     "activities": [
                         { 
                             "activityId": "ACTIVITY_ID", 
-                            "title": "Aktivite Başlığı (İlgi alanına göre özelleştirilebilir)", 
+                            "title": "İlgiye Göre Özelleştirilmiş Başlık", 
                             "duration": 15, 
-                            "goal": "Bu aktivitenin kazandıracağı beceri.",
+                            "goal": "Kazanılacak beceri",
                             "difficultyLevel": "Easy" 
                         }
                     ]
@@ -100,10 +98,8 @@ export const curriculumService = {
             required: ['goals', 'note', 'schedule']
         };
 
-        // Removed specific model name to allow backend to fallback
         const result = await generateWithSchema(prompt, schema);
 
-        // Post-process to add IDs and status
         const schedule = result.schedule.map((day: any) => ({
             ...day,
             isCompleted: false,
@@ -129,30 +125,14 @@ export const curriculumService = {
     },
 
     regenerateDay: async (currentDay: CurriculumDay, studentProfile: any): Promise<CurriculumDay> => {
-        // Logic to regenerate just one day
         const availableActivities = ACTIVITIES.map(a => `${a.id}: ${a.title}`).join('\n');
         
         const prompt = `
-        [ROL: EĞİTİM PROGRAMI DÜZELTİCİ]
-        
-        GÖREV: Aşağıdaki öğrenci için ${currentDay.day}. günün programını tamamen değiştir. Kullanıcı mevcut planı beğenmedi.
-        
+        GÖREV: Aşağıdaki öğrenci için ${currentDay.day}. günün programını değiştir. 
         ÖĞRENCİ: ${studentProfile.name}, ${studentProfile.grade}, İlgi: ${studentProfile.interests?.join(',')}.
-        
-        ESKİ PLAN (Bunu kullanma): ${currentDay.focus}
-        
-        KURALLAR:
-        - Farklı bir odak noktası seç.
-        - Farklı aktiviteler öner.
-        - Mevcut aktivite havuzunu kullan:
-        ${availableActivities}
-        
-        ÇIKTI (JSON - Tek Gün):
-        {
-            "day": ${currentDay.day},
-            "focus": "Yeni Odak",
-            "activities": [...]
-        }
+        ESKİ PLAN: ${currentDay.focus}
+        HAVUZ: ${availableActivities}
+        ÇIKTI: JSON (day, focus, activities).
         `;
 
         const schema = {
@@ -178,7 +158,6 @@ export const curriculumService = {
             required: ['day', 'focus', 'activities']
         };
 
-        // Removed specific model name
         const result = await generateWithSchema(prompt, schema);
         
         return {
@@ -192,8 +171,6 @@ export const curriculumService = {
         };
     },
 
-    // --- DB OPERATIONS ---
-
     saveCurriculum: async (userId: string, curriculum: Curriculum, studentId?: string): Promise<string> => {
         const payload = {
             ...curriculum,
@@ -201,10 +178,7 @@ export const curriculumService = {
             studentId: studentId || null,
             createdAt: new Date().toISOString()
         };
-        // Remove the temporary ID if it exists, let Firestore generate one or overwrite if explicitly setting
-        // Ideally we let Firestore generate ID for new docs.
         const { id, ...dataToSave } = payload; 
-        
         const docRef = await addDoc(collection(db, "saved_curriculums"), dataToSave);
         return docRef.id;
     },
@@ -225,7 +199,6 @@ export const curriculumService = {
             });
             return items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
         } catch (e) {
-            console.error("Get Curriculums Error", e);
             return [];
         }
     },
@@ -241,7 +214,6 @@ export const curriculumService = {
             });
             return items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
         } catch (e) {
-            console.error("Get Student Curriculums Error", e);
             return [];
         }
     },
@@ -260,34 +232,26 @@ export const curriculumService = {
             createdAt: new Date().toISOString()
         };
         delete (payload as any).id;
-        
         await addDoc(collection(db, "saved_curriculums"), payload);
     },
 
-    // NEW: Update specific activity status
     updateActivityStatus: async (curriculumId: string, day: number, activityId: string, status: CurriculumActivityStatus): Promise<void> => {
         try {
             const planRef = doc(db, "saved_curriculums", curriculumId);
             const planSnap = await getDoc(planRef);
-            
             if (planSnap.exists()) {
                 const planData = planSnap.data() as Curriculum;
                 const newSchedule = planData.schedule.map(d => {
                     if (d.day === day) {
-                        const newActivities = d.activities.map(a => 
-                            a.id === activityId ? { ...a, status } : a
-                        );
-                        // Check if all completed
+                        const newActivities = d.activities.map(a => a.id === activityId ? { ...a, status } : a);
                         const isDayComplete = newActivities.every(a => a.status === 'completed' || a.status === 'skipped');
                         return { ...d, activities: newActivities, isCompleted: isDayComplete };
                     }
                     return d;
                 });
-                
                 await updateDoc(planRef, { schedule: newSchedule });
             }
         } catch (e) {
-            console.error("Update activity status error", e);
             throw e;
         }
     }

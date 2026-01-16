@@ -62,7 +62,6 @@ export enum ActivityType {
     SYLLABLE_MASTER_LAB = 'SYLLABLE_MASTER_LAB',
     FAMILY_RELATIONS = 'FAMILY_RELATIONS',
     FAMILY_LOGIC_TEST = 'FAMILY_LOGIC_TEST',
-    // New ActivityTypes added to fix SheetRenderer errors
     VISUAL_ARITHMETIC = 'VISUAL_ARITHMETIC',
     NUMBER_SENSE = 'NUMBER_SENSE',
     SPATIAL_GRID = 'SPATIAL_GRID',
@@ -75,7 +74,6 @@ export enum ActivityType {
     LETTER_GRID_TEST = 'LETTER_GRID_TEST',
     FIND_LETTER_PAIR = 'FIND_LETTER_PAIR',
     TARGET_SEARCH = 'TARGET_SEARCH',
-    /* Fix: Adding missing properties referenced in SheetRenderer.tsx */
     FUTOSHIKI = 'FUTOSHIKI',
     SHAPE_SUDOKU = 'SHAPE_SUDOKU',
     ODD_ONE_OUT = 'ODD_ONE_OUT',
@@ -505,9 +503,6 @@ export type VisualMathType = 'objects' | 'ten-frame' | 'number-bond' | 'dice' | 
 export type SingleWorksheetData = any;
 export type WorksheetData = SingleWorksheetData[] | null;
 
-/**
- * Added missing types for Reading Studio and layout engine
- */
 export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes';
 
 export interface LayoutItemStyle {
@@ -595,12 +590,10 @@ export interface ReadingStudioConfig {
     showDateSection: boolean;
 }
 
-// --- FAMILY RELATIONS TYPES ---
-
 export interface FamilyRelationPair {
     definition: string;
     label: string;
-    side: 'mom' | 'dad';
+    side: 'mom' | 'dad' | 'both' | 'none';
 }
 
 export interface FamilyRelationsData extends BaseActivityData {

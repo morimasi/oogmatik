@@ -80,8 +80,6 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
     const [isSaved, setIsSaved] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
-    const [viewMode, setViewMode] = useState<'create' | 'list'>('create');
-    const [savedCurriculums, setSavedCurriculums] = useState<Curriculum[]>([]);
 
     const [formData, setFormData] = useState({
         name: '', age: 8, grade: '2. Sınıf', diagnosis: 'Disleksi (Okuma Güçlüğü)',
@@ -255,7 +253,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                                     <select 
                                         value={formData.studentId || 'new'} 
                                         onChange={e => handleStudentSelect(e.target.value)}
-                                        className="w-full p-3 bg-white dark:bg-zinc-900 border border-indigo-200 dark:border-zinc-700 rounded-xl font-bold text-sm outline-none cursor-pointer"
+                                        className="w-full p-3 bg-white dark:bg-zinc-900 border border-indigo-200 dark:border-indigo-700 rounded-xl font-bold text-sm outline-none cursor-pointer"
                                     >
                                         <option value="new">-- Yeni Öğrenci Girişi --</option>
                                         {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
@@ -430,7 +428,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                             <button onClick={() => handlePrint('download')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-500 transition-colors">{isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}</button>
                             <button onClick={() => handlePrint('print')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-500 transition-colors"><i className="fa-solid fa-print"></i></button>
                             <button onClick={handleSave} disabled={isSaved || isSaving} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-sm ${isSaved ? 'bg-green-100 text-green-700 cursor-default border border-green-200' : 'bg-zinc-900 text-white hover:bg-black dark:bg-white dark:text-black dark:hover:bg-zinc-200'}`}>
-                                {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : isSaved ? <><i className="fa-solid fa-check"></i> Kaydedildi</> : <><i className="fa-solid fa-save"></i> Kaydet</>}
+                                {isSaving ? <i className="fa-solid fa-circle-notch fa-spin"></i> : isSaved ? <><i className="fa-solid fa-check"></i> Kaydedildi</> : <><i className="fa-solid fa-save"></i> Kaydet</>}
                             </button>
                         </>
                     )}
