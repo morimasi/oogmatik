@@ -262,9 +262,13 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
             }
             
             figures.push({
+                id: `fig-${i}`,
+                type: 'nested',
                 targetShape: 'triangle',
                 correctCount,
-                svgPaths: paths
+                svgPaths: paths,
+                clues: [],
+                complexityScore: 5
             });
         }
         
@@ -272,7 +276,15 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
             title: "Şekil Sayma: Üçgenler",
             instruction: "Her şekilde kaç tane üçgen olduğunu say ve altındaki kutuya yaz.",
             pedagogicalNote: "Şekil-zemin ayrımı ve sistematik sayma stratejisi geliştirir.",
-            figures
+            // FIX: Added required 'settings' property
+            settings: {
+                difficulty: difficulty || 'Orta',
+                itemCount: count,
+                showClues: true,
+                density: 'medium',
+                variety: 'standard'
+            },
+            figures: figures as any
         });
     }
     return results;

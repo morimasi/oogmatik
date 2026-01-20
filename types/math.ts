@@ -259,3 +259,107 @@ export interface MathProblemConfig {
     problemStyle: 'simple' | 'story' | 'logic';
     complexity: '1-step' | '2-step' | 'multi-step';
 }
+
+/**
+ * FIX: Added missing types for advanced logic problems
+ */
+
+export interface LogicGridPuzzleData extends BaseActivityData {
+    clues: string[];
+    people: string[];
+    categories: {
+        title: string;
+        items: {
+            name: string;
+            imageDescription: string;
+            imagePrompt: string;
+        }[];
+    }[];
+    prompt?: string;
+}
+
+export interface ThematicOddOneOutData extends BaseActivityData {
+    theme: string;
+    rows: {
+        words: { text: string; imagePrompt: string }[];
+        oddWord: string;
+    }[];
+    sentencePrompt: string;
+    prompt?: string;
+}
+
+export interface ThematicOddOneOutSentenceData extends BaseActivityData {
+    rows: {
+        words: string[];
+        oddWord: string;
+    }[];
+    sentencePrompt: string;
+    prompt?: string;
+}
+
+export interface ColumnOddOneOutSentenceData extends BaseActivityData {
+    columns: {
+        words: string[];
+        oddWord: string;
+    }[];
+    sentencePrompt: string;
+    prompt?: string;
+}
+
+export interface PunctuationMazeData extends BaseActivityData {
+    punctuationMark: string;
+    grid: number[][];
+    rules: { id: number; text: string; isCorrect: boolean; isPath: boolean }[];
+    prompt?: string;
+    correctSentences?: string[];
+    incorrectSentences?: string[];
+}
+
+export interface PunctuationPhoneNumberData extends BaseActivityData {
+    clues: { id: number; text: string }[];
+    solution: { punctuationMark: string; number: number }[];
+    prompt?: string;
+}
+
+export interface RomanArabicMatchConnectData extends BaseActivityData {
+    gridDim: number;
+    points: { label: string; pairId: number; x: number; y: number }[];
+    prompt?: string;
+}
+
+export interface WeightConnectData extends BaseActivityData {
+    gridDim: number;
+    points: { label: string; pairId: number; x: number; y: number; imagePrompt: string }[];
+    prompt?: string;
+}
+
+export interface LengthConnectData extends BaseActivityData {
+    gridDim: number;
+    points: { label: string; pairId: number; x: number; y: number; imagePrompt: string }[];
+    prompt?: string;
+}
+
+export interface VisualNumberPatternData extends BaseActivityData {
+    puzzles: {
+        items: { number: number; color: string; size: number }[];
+        rule: string;
+        answer: number;
+    }[];
+    prompt?: string;
+}
+
+export interface OddOneOutData extends BaseActivityData {
+    groups: { words: string[] }[];
+}
+
+export interface RomanNumeralStarHuntData extends BaseActivityData {
+    items: any[];
+}
+
+export interface RoundingConnectData extends BaseActivityData {
+    items: any[];
+}
+
+export interface RomanNumeralMultiplicationData extends BaseActivityData {
+    items: any[];
+}

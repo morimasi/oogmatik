@@ -186,3 +186,199 @@ export interface ReadingPyramidData extends BaseActivityData {
     }[];
     difficulty: string;
 }
+
+/**
+ * FIX: Added missing interfaces for Verbal, Attention and Memory activities
+ */
+
+export interface WordMemoryItem {
+    text: string;
+    imagePrompt?: string;
+}
+
+export interface WordMemoryData extends BaseActivityData {
+    memorizeTitle: string;
+    testTitle: string;
+    wordsToMemorize: WordMemoryItem[];
+    testWords: WordMemoryItem[];
+}
+
+export interface VisualMemoryItem {
+    description: string;
+    imagePrompt: string;
+    imageBase64?: string;
+}
+
+export interface VisualMemoryData extends BaseActivityData {
+    memorizeTitle: string;
+    testTitle: string;
+    itemsToMemorize: VisualMemoryItem[];
+    testItems: VisualMemoryItem[];
+}
+
+export interface NumberSearchData extends BaseActivityData {
+    numbers: number[];
+    range: { start: number; end: number };
+}
+
+export interface FindDuplicateData extends BaseActivityData {
+    rows: string[][];
+}
+
+export interface LetterGridTestData extends BaseActivityData {
+    grid: string[][];
+    targetLetters: string[];
+}
+
+export interface FindLetterPairData extends BaseActivityData {
+    grids: { grid: string[][]; targetPair: string }[];
+    settings: { gridSize: number; itemCount: number; difficulty: string };
+}
+
+export interface TargetSearchData extends BaseActivityData {
+    grid: string[][];
+    target: string;
+    distractor: string;
+}
+
+export interface ColorWheelMemoryItem {
+    name: string;
+    color: string;
+    imagePrompt: string;
+}
+
+export interface ColorWheelMemoryData extends BaseActivityData {
+    memorizeTitle: string;
+    testTitle: string;
+    items: ColorWheelMemoryItem[];
+}
+
+export interface ImageComprehensionData extends BaseActivityData {
+    memorizeTitle: string;
+    testTitle: string;
+    sceneDescription: string;
+    questions: string[];
+}
+
+export interface CharacterMemoryItem {
+    description: string;
+    imagePrompt: string;
+    imageBase64?: string;
+}
+
+export interface CharacterMemoryData extends BaseActivityData {
+    memorizeTitle: string;
+    testTitle: string;
+    charactersToMemorize: CharacterMemoryItem[];
+    testCharacters: CharacterMemoryItem[];
+}
+
+export interface StroopTestData extends BaseActivityData {
+    items: { text: string; color: string }[];
+}
+
+export interface ChaoticNumberSearchItem {
+    value: number;
+    x: number;
+    y: number;
+    size: number;
+    rotation: number;
+    color: string;
+}
+
+export interface ChaoticNumberSearchData extends BaseActivityData {
+    numbers: ChaoticNumberSearchItem[];
+    range: { start: number; end: number };
+    prompt?: string;
+}
+
+export interface AttentionDevelopmentPuzzle {
+    riddle: string;
+    boxes: { label?: string; numbers: number[] }[];
+    options: string[];
+    answer: string;
+}
+
+export interface AttentionDevelopmentData extends BaseActivityData {
+    puzzles: AttentionDevelopmentPuzzle[];
+}
+
+export interface AttentionFocusPuzzle {
+    riddle: string;
+    boxes: { title?: string; items: string[] }[];
+    options: string[];
+    answer: string;
+}
+
+export interface AttentionFocusData extends BaseActivityData {
+    puzzles: AttentionFocusPuzzle[];
+}
+
+export interface MissingPartsData extends BaseActivityData {
+    storyWithBlanks: string[];
+    wordBank: string[];
+    answers: string[];
+}
+
+export interface CodeReadingData extends BaseActivityData {
+    keyMap: { symbol: string; value: string; color: string }[];
+    codesToSolve: { sequence: string[] }[];
+}
+
+export interface AttentionToQuestionData extends BaseActivityData {
+    subType: 'letter-cancellation' | 'other';
+    grid?: string[][];
+    targetChars?: string[];
+}
+
+export interface LetterDiscriminationData extends BaseActivityData {
+    targetLetters: string[];
+    rows: { letters: string[] }[];
+}
+
+export interface RapidNamingData extends BaseActivityData {
+    type: 'object' | 'color' | 'number' | 'letter';
+    grid: { items: { type: string; value: string; label?: string }[] }[];
+}
+
+export interface MirrorLettersData extends BaseActivityData {
+    targetPair: string;
+    rows: { items: { letter: string; rotation: number; isMirrored: boolean }[] }[];
+}
+
+export interface VisualTrackingLineData extends BaseActivityData {
+    paths: { id: number; d: string; color: string; strokeWidth: number; startLabel?: string }[];
+    width: number;
+    height: number;
+}
+
+export interface AnagramsData extends BaseActivityData {
+    anagrams: { scrambled: string; original: string }[];
+}
+
+export interface WordSearchData extends BaseActivityData {
+    grid: string[][];
+    words: string[];
+}
+
+export interface CrosswordData extends BaseActivityData {
+    grid: (string | null)[][];
+    clues: { id: number; text: string; direction: 'across' | 'down' }[];
+}
+
+/**
+ * FIX: Added missing HiddenPasswordGridData interface
+ */
+export interface HiddenPasswordGridData extends BaseActivityData {
+    settings?: {
+        gridSize: number;
+        itemCount: number;
+        cellStyle: string;
+        letterCase: string;
+    };
+    grids: {
+        targetLetter: string;
+        hiddenWord: string;
+        grid: string[][];
+    }[];
+}

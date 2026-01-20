@@ -251,8 +251,9 @@ export interface GeneratorOptions {
     include5N1K?: boolean;
     focusVocabulary?: boolean;
     includeCreativeTask?: boolean;
-    // Added syllableRange to GeneratorOptions to fix generator errors
+    // Added syllableRange and targetShape to GeneratorOptions to fix generator errors
     syllableRange?: string;
+    targetShape?: string;
 }
 
 export interface SavedWorksheet {
@@ -311,6 +312,7 @@ export interface WorkbookSettings {
     coverStyle: 'centered' | 'left' | 'split';
     showTOC: boolean;
     showPageNumbers: boolean;
+    showPageNumbersOnAll?: boolean;
     showWatermark: boolean;
     watermarkOpacity: number;
     showBackCover: boolean;
