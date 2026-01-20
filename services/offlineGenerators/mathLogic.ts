@@ -13,7 +13,6 @@ export const generateOfflineNumberPathLogic = async (options: GeneratorOptions):
     const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b'];
 
     for (let p = 0; p < worksheetCount; p++) {
-        // 1. Legend oluştur
         const legend = SYMBOLS.map((s, i) => ({
             symbol: s,
             operation: i % 2 === 0 ? '+' : '-',
@@ -29,8 +28,6 @@ export const generateOfflineNumberPathLogic = async (options: GeneratorOptions):
             for (let s = 0; s < codeLength; s++) {
                 const leg = legend[getRandomInt(0, legend.length - 1)];
                 const stepVal = leg.operation === '+' ? currentVal + leg.value : currentVal - leg.value;
-                
-                // Güvenlik: Sayı eksiye düşerse zorla topla
                 if (stepVal < 0) {
                     const addLeg = legend.find(l => l.operation === '+') || legend[0];
                     steps.push({ symbol: addLeg.symbol, expectedValue: currentVal + addLeg.value });
@@ -40,7 +37,6 @@ export const generateOfflineNumberPathLogic = async (options: GeneratorOptions):
                     currentVal = stepVal;
                 }
             }
-
             return { startNumber, steps };
         });
 
@@ -56,10 +52,10 @@ export const generateOfflineNumberPathLogic = async (options: GeneratorOptions):
 };
 
 /**
- * Sayısal Mantık Bilmeceleri Yerel Üretici (Hızlı Mod)
+ * Sayısal Mantık Bilmeceleri HIZLI MOD Motoru (Gelişmiş Dinamik Filtreleme)
  */
 export const generateOfflineNumberLogicRiddles = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
-    const { worksheetCount, numberRange = '1-50', itemCount = 4 } = options;
+    const { worksheetCount, numberRange = '1-50', itemCount = 6, gridSize = 3, difficulty } = options;
     const pages: NumberLogicRiddleData[] = [];
 
     let [min, max] = numberRange.split('-').map(Number);
@@ -72,13 +68,40 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
         for (let i = 0; i < itemCount; i++) {
             const target = getRandomInt(min, max);
             total += target;
-
-            const riddleParts = [
-                { text: `Ben bir ${target % 2 === 0 ? 'ÇİFT' : 'TEK'} sayıyım.`, icon: 'fa-binary' },
-                { text: target > (max / 2) ? `${max / 2}'den büyüğüm.` : `${max / 2}'den küçüğüm.`, icon: 'fa-arrows-left-right' },
-                { text: `Rakamlarımın toplamı ${String(target).split('').reduce((a,b)=>a+Number(b),0)}'dir.`, icon: 'fa-plus' }
+            
+            // --- DİNAMİK İPUCU HAVUZU ---
+            const tStr = String(target);
+            const tens = Math.floor(target / 10);
+            const units = target % 10;
+            const sum = tens + units;
+            
+            const pool = [
+                { text: `Ben bir ${target % 2 === 0 ? 'ÇİFT' : 'TEK'} sayıyım.`, icon: 'fa-binary', type: 'parity' },
+                { text: `Rakamlarımın toplamı ${sum}'dir.`, icon: 'fa-plus', type: 'digits' },
+                { text: target > 25 ? "25'ten büyüğüm." : "25'ten küçüğüm.", icon: 'fa-arrows-left-right', type: 'comparison' },
+                { text: `${target < 50 ? "50'den küçüğüm." : "50'den büyüğüm."}`, icon: 'fa-gauge-high', type: 'range' },
+                { text: `Onlar basamağım ${tens % 2 === 0 ? 'ÇİFT' : 'TEK'} bir rakamdır.`, icon: 'fa-input-numeric', type: 'digits' },
+                { text: `Birler basamağım ${units % 2 === 0 ? 'ÇİFT' : 'TEK'} bir rakamdır.`, icon: 'fa-fingerprint', type: 'digits' },
+                { text: `${target % 5 === 0 ? "5'in tam katıyım." : "5'e bölündüğümde kalanlı çıkarım."}`, icon: 'fa-divide', type: 'arithmetic' },
+                { text: `${target % 3 === 0 ? "3'ün tam katıyım." : "3'e tam bölünmem."}`, icon: 'fa-calculator', type: 'arithmetic' },
+                { text: `${tens > units ? "Onlar basamağım birler basamağımdan büyüktür." : "Birler basamağım onlar basamağımdan büyük veya eşittir."}`, icon: 'fa-up-down', type: 'comparison' },
+                { text: `Rakamlarımın çarpımı ${tens * units}'dir.`, icon: 'fa-xmark', type: 'arithmetic' },
+                { text: `${target > 10 && target < 90 ? "10 ile 90 arasındayım." : "Uç değerlere yakınım."}`, icon: 'fa-arrows-left-right', type: 'range' },
+                { text: `Birler basamağım ${units}'dir.`, icon: 'fa-hashtag', type: 'digits' },
+                { text: `İsmimde ${target >= 10 && target < 20 ? 'On' : target >= 20 && target < 30 ? 'Yirmi' : 'farklı'} kelimesi geçer.`, icon: 'fa-spell-check', type: 'linguistic' },
+                { text: `Komşu sayım ${target + 1}'dir.`, icon: 'fa-people-arrows', type: 'range' },
+                { text: `${target > 0 ? "Pozitif bir değerim." : "Nötrüm."}`, icon: 'fa-plus-minus', type: 'parity' }
             ];
 
+            // Kullanıcının istediği gridSize kadar ipucu seç (Karıştırılmış havuzdan)
+            let selectedHints = shuffle(pool).slice(0, gridSize);
+            
+            // Eğer havuz yetersizse (gridSize çok büyükse) jenerik ipucu ekle
+            while(selectedHints.length < gridSize) {
+                selectedHints.push({ text: `Ben ${target} sayısına çok yakınım.`, icon: 'fa-location-crosshairs', type: 'range' });
+            }
+
+            // Çeldirici Şıklar Üret
             const distractors = new Set<string>();
             while(distractors.size < 3) {
                 const d = getRandomInt(min, max);
@@ -86,9 +109,11 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
             }
 
             puzzles.push({
-                riddle: riddleParts.map(rp => rp.text).join(' '),
-                riddleParts: shuffle(riddleParts),
+                id: `puzzle-${i}`,
+                riddle: selectedHints.map(h => h.text).join(' '),
+                riddleParts: selectedHints,
                 boxes: Array.from({length: 4}, () => [getRandomInt(min, max), getRandomInt(min, max)]),
+                visualDistraction: Array.from({length: 6}, () => getRandomInt(min, max)),
                 options: shuffle([String(target), ...Array.from(distractors)]),
                 answer: String(target),
                 answerValue: target
@@ -96,11 +121,11 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
         }
 
         pages.push({
-            title: "Gizemli Sayılar: Dedektif Dosyası",
-            instruction: "İpuçlarını oku, şüpheli sayıları incele ve doğru cevabı bul!",
-            pedagogicalNote: "Mantıksal muhakeme ve sayı hissini güçlendirir.",
+            title: "Sayı Dedektifi: Hızlı Analiz",
+            instruction: "İpuçlarını incele, tüm şartları sağlayan tek sayıyı şıklardan bul!",
+            pedagogicalNote: "Hızlı mod algoritması ile üretilmiştir. Mantıksal eleme becerisini hedefler.",
             sumTarget: total,
-            sumMessage: "KONTROL: Bulduğun sayıları topladığında bu sonuca ulaşmalısın.",
+            sumMessage: "KONTROL: Bulduğun tüm sayıların toplamı aşağıdaki hedefe eşit olmalıdır.",
             puzzles
         });
     }

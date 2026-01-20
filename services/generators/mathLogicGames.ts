@@ -8,24 +8,22 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
     const { difficulty, itemCount = 6, gridSize = 3, studentContext } = options;
     
     const rule = `
-    [KESİN TEKNİK ZORUNLULUK]: 
-    1. Üretilecek Toplam Bilmece Sayısı: TAM OLARAK ${itemCount} ADET.
-    2. Her Bilmece İçin İpucu Sayısı: TAM OLARAK ${gridSize} ADET. (Eksik veya fazla olamaz!)
+    [KRİTİK GÖREV: YÜKSEK HASSASİYETLİ SAYISAL ANALİZ]
+    1. Üretilecek Bilmece Sayısı: TAM OLARAK ${itemCount} ADET.
+    2. İPUCU SAYISI (riddleParts): HER BİR BİLMECE İÇİNDE KESİNLİKLE VE TAM OLARAK ${gridSize} ADET BENZERSİZ İPUCU OLMALIDIR. 
+       - Eğer ${gridSize} seçildiyse, dizi uzunluğu ${gridSize} olmalıdır. Eksik veya fazla üretim kabul edilemez.
     
-    [İÇERİK STRATEJİSİ]:
-    - Bilmeceler "${difficulty}" seviyesinde olmalı.
-    - 'riddleParts' dizisi EKSİKSİZ ${gridSize} adet farklı ipucu içermelidir.
-    - İpuçlarını şu kategorilere paylaştır: 'parity' (tek/çift), 'digits' (rakam toplamı/farkı), 'comparison' (büyüklük/küçüklük), 'arithmetic' (katlar/asal durum), 'range' (onluk/yüzlük dilimi).
-    - İpucu sayısı 5'ten fazlaysa, her ipucu hedef sayıyı daraltan spesifik birer "filtre" gibi çalışmalıdır.
-    
-    [HATA KONTROLÜ]:
-    - 'sumTarget': Tüm doğru cevapların toplamını KESİNLİKLE doğru hesapla.
-    - 'visualDistraction': Sayfanın altına serpiştirilecek 5 adet "şüpheli sayı" üret.
-    
-    [DİKKAT]: Eğer ${gridSize} adet ipucu istenmişse, JSON 'riddleParts' dizisinde tam olarak ${gridSize} adet obje bulunmalıdır. Bu bir sistem kısıtlamasıdır.
+    [ZORLUK STRATEJİSİ: ${difficulty}]
+    - Başlangıç: Basit parite ve 10'luk dilimler.
+    - Orta: Bölünebilme (2, 5, 10), rakam toplamı, büyüktür/küçüktür.
+    - Zor: Asal bölenler, 3 ve 4 ile bölünebilme, basamak farkları, karesel sayılara yakınlık.
+    - Uzman: Çok katmanlı filtreleme. İpuçları öyle kurgulanmalı ki, son ipucuna kadar en az 2 şık arasında kalınmalı.
+
+    [ŞIKLAR (options)]
+    - Şıklar birbirine matematiksel olarak çok yakın olmalı. Cevap 24 ise şıklar [22, 24, 26, 28] gibi olmalıdır.
     `;
 
-    const prompt = getMathPrompt(`Gizemli Sayılar: Yüksek Hassasiyetli Analiz (Adet: ${itemCount}, İpucu: ${gridSize})`, difficulty, rule, studentContext);
+    const prompt = getMathPrompt(`Sayısal Dedektiflik Lab (Soru: ${itemCount}, İpucu: ${gridSize})`, difficulty, rule, studentContext);
 
     const schema = {
         type: Type.ARRAY,
@@ -35,34 +33,33 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
                 title: { type: Type.STRING },
                 instruction: { type: Type.STRING },
                 pedagogicalNote: { type: Type.STRING },
-                sumTarget: { type: Type.INTEGER, description: "Tüm doğru cevap değerlerinin matematiksel toplamı" },
-                sumMessage: { type: Type.STRING },
+                sumTarget: { type: Type.INTEGER },
                 puzzles: {
                     type: Type.ARRAY,
-                    description: `Tam olarak ${itemCount} adet bilmece nesnesi içermelidir.`,
+                    description: `Dizi uzunluğu tam olarak ${itemCount} olmalı.`,
                     items: {
                         type: Type.OBJECT,
                         properties: {
                             id: { type: Type.STRING },
                             riddleParts: {
                                 type: Type.ARRAY,
-                                description: `BU DİZİ TAM OLARAK ${gridSize} ADET ÖĞE İÇERMELİDİR.`,
+                                description: `BU DİZİ TAM OLARAK ${gridSize} ADET OBJE İÇERMELİDİR.`,
                                 items: {
                                     type: Type.OBJECT,
                                     properties: {
-                                        text: { type: Type.STRING, description: "Kısa ve net mantıksal ipucu cümlesi" },
-                                        icon: { type: Type.STRING, description: "FontAwesome ikon adı (örn: fa-check)" },
+                                        text: { type: Type.STRING, description: "Kısa ve eylemsel ipucu cümlesi." },
+                                        icon: { type: Type.STRING, description: "FontAwesome ikon kodu (örn: fa-microchip, fa-dna)" },
                                         type: { type: Type.STRING, enum: ['parity', 'digits', 'comparison', 'arithmetic', 'range'] }
                                     },
                                     required: ['text', 'icon', 'type']
                                 }
                             },
-                            visualDistraction: { type: Type.ARRAY, items: { type: Type.INTEGER } },
-                            options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 adet seçenek (1 doğru, 3 çeldirici)" },
-                            answer: { type: Type.STRING, description: "Doğru cevabın string hali" },
-                            answerValue: { type: Type.INTEGER, description: "Doğru cevabın sayısal değeri" }
+                            visualDistraction: { type: Type.ARRAY, items: { type: Type.INTEGER }, description: "Arka plan için 5-6 adet rastgele sayı." },
+                            options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 adet birbirine yakın seçenek." },
+                            answer: { type: Type.STRING },
+                            answerValue: { type: Type.INTEGER }
                         },
-                        required: ['riddleParts', 'options', 'answer', 'answerValue']
+                        required: ['riddleParts', 'options', 'answer', 'answerValue', 'visualDistraction']
                     }
                 }
             }
