@@ -31,30 +31,37 @@ const MathStudio = lazy(() => import('./components/MathStudio/MathStudio').then(
 const StudentDashboard = lazy(() => import('./components/Student/StudentDashboard').then(module => ({ default: module.StudentDashboard })));
 
 const initialStyleSettings: StyleSettings = {
-    fontSize: 16,
+    fontSize: 18, // Slightly larger default for dyslexia
     scale: 1, 
-    borderColor: '#d4d4d8',
+    borderColor: '#3f3f46',
     borderWidth: 1,
-    margin: 5, // Tighter print margin
+    margin: 10,
     columns: 1,
-    gap: 10,
+    gap: 15,
     orientation: 'portrait',
     themeBorder: 'simple',
-    contentAlign: 'center',
+    contentAlign: 'left', // Dyslexia-friendly default
     fontWeight: 'normal',
     fontStyle: 'normal',
     visualStyle: 'card', 
     showPedagogicalNote: false,
     showMascot: false,
-    showStudentInfo: false, // Default turned off per request
+    showStudentInfo: true,
     showTitle: true,
     showInstruction: true,
-    showImage: false,
-    showFooter: false,
+    showImage: true,
+    showFooter: true,
     smartPagination: true,
     fontFamily: 'Lexend',
-    lineHeight: 1.4,
-    letterSpacing: 0
+    lineHeight: 1.6,
+    letterSpacing: 0,
+    wordSpacing: 2, // New default
+    paragraphSpacing: 24, // New default
+    // Clinical Accessibility
+    focusMode: false,
+    rulerColor: '#6366f1',
+    rulerHeight: 80,
+    maskOpacity: 0.4
 };
 
 const initialUiSettings: UiSettings = {
@@ -76,10 +83,6 @@ interface ActiveCurriculumSession {
     activityId: string;
     activityTitle: string;
 }
-
-const toPascalCase = (str: string): string => {
-    return str.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
-};
 
 const LoadingSpinner = () => (
     <div className="flex items-center justify-center h-full w-full min-h-[200px]">
@@ -285,20 +288,17 @@ const AppContent: React.FC = () => {
     };
 
     const loadSavedWorksheet = (item: any) => {
-        // 1. Rapor mu?
         if (item.report || item.activityType === ActivityType.ASSESSMENT_REPORT) {
             setSelectedSavedReport(item as SavedAssessment);
             return;
         }
 
-        // 2. Eğitim Planı mı?
         if (item.schedule && item.durationDays) {
             setLoadedCurriculum(item as Curriculum);
             navigateTo('curriculum');
             return;
         }
 
-        // 3. Kitapçık mı?
         if (item.activityType === ActivityType.WORKBOOK || item.workbookItems) {
             if (item.workbookItems && item.workbookSettings) {
                 setWorkbookItems(item.workbookItems);
@@ -308,7 +308,6 @@ const AppContent: React.FC = () => {
             return;
         }
 
-        // 4. Standart Materyal mi? (Reading/Math Studio veya Normal)
         setSelectedActivity(item.activityType);
         setWorksheetData(item.worksheetData);
         if (item.styleSettings) setStyleSettings(item.styleSettings);
@@ -324,7 +323,7 @@ const AppContent: React.FC = () => {
             setActiveStudent(null);
         }
         navigateTo('generator');
-        setIsSidebarExpanded(true); // Ensure expanded on load
+        setIsSidebarExpanded(true); 
     };
 
     const handleSelectActivity = (activityType: ActivityType | null) => {
@@ -338,7 +337,7 @@ const AppContent: React.FC = () => {
         setError(null);
         setCurrentView('generator');
         if (isSidebarOpen) setIsSidebarOpen(false);
-        if (activityType) setIsSidebarExpanded(true); // AUTO EXPAND ON CLICK
+        if (activityType) setIsSidebarExpanded(true);
     };
 
     const handleStartCurriculumActivity = (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, studentId?: string) => {
@@ -356,7 +355,7 @@ const AppContent: React.FC = () => {
         setSelectedActivity(activityType as ActivityType);
         setWorksheetData(null); 
         navigateTo('generator');
-        setIsSidebarExpanded(true); // Ensure expanded
+        setIsSidebarExpanded(true);
     };
 
     const handleCompleteCurriculumActivity = async () => {
@@ -440,7 +439,7 @@ const AppContent: React.FC = () => {
 
             for (const roadItem of report.roadmap) {
                 const activityId = roadItem.activityId as ActivityType;
-                const pascalName = toPascalCase(activityId);
+                const pascalName = activityId.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
                 const generatorName = `generateOffline${pascalName}`;
                 // @ts-ignore 
                 const generator = offlineGenerators[generatorName];
@@ -486,7 +485,7 @@ const AppContent: React.FC = () => {
     const handleOCRResult = (result: any) => {
         alert("İçerik başarıyla tarandı!");
         navigateTo('generator');
-        setIsSidebarExpanded(true); // Show settings
+        setIsSidebarExpanded(true); 
     };
 
     const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
@@ -540,7 +539,6 @@ const AppContent: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        {/* AKTİF ÖĞRENCİ ROZETİ (GLOBAL) */}
                         {activeStudent && (
                             <div 
                                 onClick={() => navigateTo('students')}
@@ -580,7 +578,7 @@ const AppContent: React.FC = () => {
                             <i className="fa-solid fa-user-doctor"></i> Değerlendirme
                         </button>
 
-                        <div className="h-66 w-px bg-[var(--border-color)] mx-1 hidden sm:block"></div>
+                        <div className="h-6 w-px bg-[var(--border-color)] mx-1 hidden sm:block"></div>
 
                         <div className="flex items-center gap-2">
                         
@@ -659,14 +657,6 @@ const AppContent: React.FC = () => {
                         setError={setError}
                         isLoading={isLoading}
                         onAddToHistory={addToHistory}
-                        isExpanded={isSidebarExpanded}
-                        onOpenStudentModal={() => navigateTo('students')}
-                        studentProfile={studentProfile}
-                        styleSettings={styleSettings}
-                        onOpenOCR={() => navigateTo('ocr')}
-                        onOpenCurriculum={() => navigateTo('curriculum')}
-                        onOpenReadingStudio={() => navigateTo('reading-studio')}
-                        onOpenMathStudio={() => navigateTo('math-studio')}
                     />
                 </div>
                 
@@ -737,8 +727,6 @@ const AppContent: React.FC = () => {
     );
 };
 
-// --- EXPORTED APP WRAPPER WITH PROVIDERS ---
-// This fixes the 'App has no exported member' error and ensures context is provided.
 export const App: React.FC = () => {
     return (
         <AuthProvider>

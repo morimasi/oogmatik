@@ -167,6 +167,27 @@ export const ACTIVITIES: Activity[] = [
         description: 'Kök ve ekleri birleştirerek kelime türetme ve anlamlandırma çalışması.',
         icon: 'fa-solid fa-cubes-stacked',
         defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.READING_PYRAMID,
+        title: 'Akıcı Okuma Piramidi',
+        description: 'Göz takibini ve okuma hızını geliştiren genişleyen cümleler çalışması.',
+        icon: 'fa-solid fa-arrow-down-wide-short',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.NUMBER_PATH_LOGIC,
+        title: 'Sembolik İşlem Zinciri',
+        description: 'Sembollerin matematiksel değerlerini çözerek mantık zincirini tamamlama.',
+        icon: 'fa-solid fa-code-merge',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.DIRECTIONAL_TRACKING,
+        title: 'Yönsel İz Sürme (Kod Çözme)',
+        description: 'Okları takip ederek ızgaradaki gizli harfleri topla ve kelimeyi bul.',
+        icon: 'fa-solid fa-arrow-trend-up',
+        defaultStyle: { columns: 1 }
     }
 ];
 
@@ -179,6 +200,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         icon: 'fa-solid fa-eye',
         activities: [
             ActivityType.MAP_INSTRUCTION, 
+            ActivityType.DIRECTIONAL_TRACKING,
             ActivityType.FIND_THE_DIFFERENCE, 
             ActivityType.VISUAL_ODD_ONE_OUT, 
             ActivityType.GRID_DRAWING, 
@@ -193,6 +215,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
         activities: [
+            ActivityType.READING_PYRAMID,
             ActivityType.FIND_LETTER_PAIR, 
             ActivityType.SYLLABLE_MASTER_LAB, 
             ActivityType.READING_SUDOKU, 
@@ -216,6 +239,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         icon: 'fa-solid fa-calculator',
         activities: [
             ActivityType.NUMBER_LOGIC_RIDDLES,
+            ActivityType.NUMBER_PATH_LOGIC,
             ActivityType.MATH_PUZZLE, 
             ActivityType.NUMBER_PATTERN,
             ActivityType.KENDOKU,

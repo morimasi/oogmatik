@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { StyleSettings, WorksheetData } from '../types';
 import { printService } from '../utils/printService';
 import { snapshotService } from '../utils/snapshotService';
-import { StickerPicker } from './StickerPicker';
 
 interface ToolbarProps {
   settings: StyleSettings;
@@ -31,8 +30,6 @@ interface ToolbarProps {
   onCompleteCurriculumTask?: () => void;
 }
 
-// --- MICRO COMPONENTS ---
-
 const Divider = () => <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-700 mx-2 self-center"></div>;
 
 const IconButton = ({ icon, onClick, active, title, disabled, badge, colorClass, isLoading }: any) => (
@@ -46,11 +43,7 @@ const IconButton = ({ icon, onClick, active, title, disabled, badge, colorClass,
             : `text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 ${colorClass || 'hover:text-zinc-900 dark:hover:text-zinc-200'}`
         } ${(disabled || isLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
-        {isLoading ? (
-            <i className="fa-solid fa-circle-notch fa-spin"></i>
-        ) : (
-            <i className={`fa-solid ${icon}`}></i>
-        )}
+        {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className={`fa-solid ${icon}`}></i>}
         {badge > 0 && !isLoading && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900">
                 {badge}
@@ -62,6 +55,7 @@ const IconButton = ({ icon, onClick, active, title, disabled, badge, colorClass,
 const MenuButton = ({ icon, label, onClick, active, isOpen }: any) => (
     <button
         onClick={onClick}
+        data-dropdown-trigger
         className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all border select-none ${
             active || isOpen
             ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-700 dark:text-indigo-300'
@@ -76,23 +70,11 @@ const MenuButton = ({ icon, label, onClick, active, isOpen }: any) => (
 
 const NumberControl = ({ label, value, onChange, min, max, step = 1, unit = '' }: any) => (
     <div className="flex items-center justify-between py-1">
-        <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">{label}</span>
+        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tight">{label}</span>
         <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-md p-0.5">
-            <button 
-                onClick={() => onChange(Math.max(min, value - step))}
-                className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:bg-white dark:hover:bg-zinc-700 rounded shadow-sm transition-all"
-                disabled={value <= min}
-            >
-                <i className="fa-solid fa-minus text-[10px]"></i>
-            </button>
-            <span className="text-xs font-mono font-bold w-8 text-center">{Math.round(value * 100) / 100}{unit}</span>
-            <button 
-                onClick={() => onChange(Math.min(max, value + step))}
-                className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:bg-white dark:hover:bg-zinc-700 rounded shadow-sm transition-all"
-                disabled={value >= max}
-            >
-                <i className="fa-solid fa-plus text-[10px]"></i>
-            </button>
+            <button onClick={() => onChange(Math.max(min, value - step))} className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:bg-white dark:hover:bg-zinc-700 rounded shadow-sm transition-all" disabled={value <= min}><i className="fa-solid fa-minus text-[10px]"></i></button>
+            <span className="text-xs font-mono font-bold w-10 text-center">{Math.round(value * 100) / 100}{unit}</span>
+            <button onClick={() => onChange(Math.min(max, value + step))} className="w-6 h-6 flex items-center justify-center text-zinc-500 hover:bg-white dark:hover:bg-zinc-700 rounded shadow-sm transition-all" disabled={value >= max}><i className="fa-solid fa-plus text-[10px]"></i></button>
         </div>
     </div>
 );
@@ -101,23 +83,18 @@ const Toggle = ({ label, checked, onChange }: any) => (
     <div className="flex items-center justify-between py-1 cursor-pointer group" onClick={() => onChange(!checked)}>
         <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors">{label}</span>
         <div className={`w-8 h-4 rounded-full relative transition-colors ${checked ? 'bg-indigo-500' : 'bg-zinc-300 dark:bg-zinc-600'}`}>
-            <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${checked ? 'left-4.5' : 'left-0.5'}`}></div>
+            <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-all ${checked ? 'left-4.5' : 'left-0.5'}`}></div>
         </div>
     </div>
 );
 
-const DropdownPanel = ({ title, children, onClose }: any) => {
-    // Click outside handler
+const DropdownPanel = ({ title, children, onClose, className = "" }: any) => {
     const ref = useRef<HTMLDivElement>(null);
-    // Added useEffect import to line 1 and used it here to handle click outside events
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (ref.current && !ref.current.contains(event.target as Node)) {
-                // Check if click was on the trigger button (prevent closing immediately if clicking toggle)
                 const target = event.target as HTMLElement;
-                if (!target.closest('button[data-dropdown-trigger]')) {
-                    onClose();
-                }
+                if (!target.closest('button[data-dropdown-trigger]')) onClose();
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
@@ -125,14 +102,12 @@ const DropdownPanel = ({ title, children, onClose }: any) => {
     }, [onClose]);
 
     return (
-        <div ref={ref} className="absolute top-full mt-2 left-0 w-72 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-2xl z-50 p-4 animate-in fade-in zoom-in-95 origin-top-left ring-1 ring-black/5">
+        <div ref={ref} className={`absolute top-full mt-2 left-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-2xl z-50 p-4 animate-in fade-in zoom-in-95 origin-top-left ring-1 ring-black/5 ${className}`}>
             <div className="flex justify-between items-center mb-3 pb-2 border-b border-zinc-100 dark:border-zinc-800">
                 <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest">{title}</h4>
                 <button onClick={onClose} className="text-zinc-300 hover:text-zinc-500"><i className="fa-solid fa-times"></i></button>
             </div>
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                {children}
-            </div>
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">{children}</div>
         </div>
     );
 };
@@ -145,318 +120,87 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     isCurriculumMode, onCompleteCurriculumTask
 }) => {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
-    const [isStickerPickerOpen, setIsStickerPickerOpen] = useState(false);
-    const [isProcessingSnapshot, setIsProcessingSnapshot] = useState(false);
-    const [isProcessingSave, setIsProcessingSave] = useState(false);
     
-    // Derived detail level based on current settings
-    const getDetailLevel = (): 'clean' | 'standard' | 'teacher' | 'custom' => {
-        if (!settings.showTitle && !settings.showInstruction && !settings.showPedagogicalNote && !settings.showFooter) return 'clean';
-        if (settings.showTitle && settings.showInstruction && !settings.showPedagogicalNote && settings.showStudentInfo) return 'standard';
-        if (settings.showTitle && settings.showInstruction && settings.showPedagogicalNote && settings.showStudentInfo && settings.showFooter) return 'teacher';
-        return 'custom';
-    };
-
-    const setDetailLevel = (level: 'clean' | 'standard' | 'teacher') => {
-        let updates: Partial<StyleSettings> = {};
-        if (level === 'clean') {
-            updates = { showTitle: false, showInstruction: false, showPedagogicalNote: false, showStudentInfo: false, showFooter: false };
-        } else if (level === 'standard') {
-            updates = { showTitle: true, showInstruction: true, showPedagogicalNote: false, showStudentInfo: true, showFooter: true };
-        } else if (level === 'teacher') {
-            updates = { showTitle: true, showInstruction: true, showPedagogicalNote: true, showStudentInfo: true, showFooter: true };
-        }
-        onSettingsChange({ ...settings, ...updates });
-    };
-
-    const currentLevel = getDetailLevel();
-
-    const toggleMenu = (menu: string) => {
-        setActiveMenu(activeMenu === menu ? null : menu);
-        setIsStickerPickerOpen(false);
-    };
-
     const updateSetting = (key: keyof StyleSettings, value: any) => {
         onSettingsChange({ ...settings, [key]: value });
     };
 
-    const handlePrint = async () => {
-        if (!worksheetData) return;
-        // Direct print using the robust cloning engine
-        await printService.generatePdf('.worksheet-page', settings.title || 'Etkinlik', { action: 'print' });
-    };
-    
-    const handleSnapshot = async () => {
-        setIsProcessingSnapshot(true);
-        try {
-            await snapshotService.takeSnapshot('.worksheet-page', 'bursa-disleksi-etkinlik');
-        } catch (e) {
-            console.error(e);
-            alert("Görüntü oluşturulamadı.");
-        } finally {
-            setIsProcessingSnapshot(false);
-        }
-    };
-    
-    const handleSaveClick = async () => {
-        setIsProcessingSave(true);
-        try {
-            await onSave();
-        } finally {
-            setTimeout(() => setIsProcessingSave(false), 500); // Visual feedback
-        }
-    };
-
     return (
         <div className="flex items-center justify-between gap-2 h-12 select-none relative">
-            
-            {/* LEFT: SETTINGS GROUPS */}
             <div className="flex items-center gap-2">
-                
-                {/* 1. Layout Group */}
                 <div className="relative">
-                    <MenuButton 
-                        icon="fa-ruler-combined" 
-                        label="Düzen" 
-                        active={false} 
-                        isOpen={activeMenu === 'layout'}
-                        onClick={() => toggleMenu('layout')} 
-                        data-dropdown-trigger
-                    />
-                    {activeMenu === 'layout' && (
-                        <DropdownPanel title="Sayfa Düzeni" onClose={() => setActiveMenu(null)}>
-                            <div className="space-y-1">
-                                <p className="text-xs font-bold text-zinc-500 mb-2">Kağıt Yönü</p>
-                                <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
-                                    <button onClick={() => updateSetting('orientation', 'portrait')} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${settings.orientation === 'portrait' ? 'bg-white shadow-sm text-indigo-600' : 'text-zinc-500'}`}>Dikey</button>
-                                    <button onClick={() => updateSetting('orientation', 'landscape')} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${settings.orientation === 'landscape' ? 'bg-white shadow-sm text-indigo-600' : 'text-zinc-500'}`}>Yatay</button>
-                                </div>
-                            </div>
-                            
-                            <NumberControl 
-                                label="Sütun Sayısı" 
-                                value={settings.columns} 
-                                onChange={(v: number) => updateSetting('columns', v)} 
-                                min={1} max={4} 
-                            />
-                            
-                            <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                                <p className="text-xs font-bold text-indigo-500 mb-2 flex items-center gap-1">
-                                    <i className="fa-solid fa-wand-magic-sparkles"></i> Akıllı Akış
-                                </p>
-                                <NumberControl 
-                                    label="Ölçek (Zoom)" 
-                                    value={settings.scale} 
-                                    onChange={(v: number) => updateSetting('scale', v)} 
-                                    min={0.5} max={1.5} step={0.1} unit="x" 
-                                />
-                                <Toggle 
-                                    label="Oto-Sayfalama" 
-                                    checked={settings.smartPagination} 
-                                    onChange={(v: boolean) => updateSetting('smartPagination', v)} 
-                                />
-                            </div>
-                        </DropdownPanel>
-                    )}
-                </div>
-
-                {/* 2. Typography Group */}
-                <div className="relative">
-                    <MenuButton 
-                        icon="fa-font" 
-                        label="Yazı" 
-                        active={false} 
-                        isOpen={activeMenu === 'typography'}
-                        onClick={() => toggleMenu('typography')} 
-                        data-dropdown-trigger
-                    />
-                    {activeMenu === 'typography' && (
-                        <DropdownPanel title="Tipografi" onClose={() => setActiveMenu(null)}>
-                            <div className="space-y-2">
-                                <p className="text-xs font-bold text-zinc-500">Yazı Tipi</p>
-                                <select 
-                                    value={settings.fontFamily} 
-                                    onChange={(e) => updateSetting('fontFamily', e.target.value)}
-                                    className="w-full text-xs p-2 rounded-lg border border-zinc-200 bg-zinc-50 outline-none focus:ring-2 focus:ring-indigo-500"
-                                >
-                                    <option value="OpenDyslexic">OpenDyslexic (Okuma Dostu)</option>
-                                    <option value="Lexend">Lexend (Okuma Dostu)</option>
-                                    <option value="Comic Neue">Comic Neue (Eğlenceli)</option>
-                                    <option value="Inter">Inter (Standart)</option>
-                                </select>
-                            </div>
-
-                            <NumberControl label="Punto" value={settings.fontSize} onChange={(v: number) => updateSetting('fontSize', v)} min={12} max={36} unit="px" />
-                            <NumberControl label="Satır Aralığı" value={settings.lineHeight} onChange={(v: number) => updateSetting('lineHeight', v)} min={1} max={2.5} step={0.1} />
-                            <NumberControl label="Harf Boşluğu" value={settings.letterSpacing} onChange={(v: number) => updateSetting('letterSpacing', v)} min={0} max={5} unit="px" />
-                            
-                            <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                                <p className="text-xs font-bold text-zinc-400 mb-2 uppercase">Hazır Ayarlar</p>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <button 
-                                        onClick={() => {
-                                            onSettingsChange({...settings, fontFamily: 'OpenDyslexic', lineHeight: 2, letterSpacing: 2, fontSize: 18});
-                                        }}
-                                        className="px-2 py-1.5 bg-indigo-50 text-indigo-700 rounded text-[10px] font-bold hover:bg-indigo-100 border border-indigo-200"
-                                    >
-                                        Disleksi Modu
-                                    </button>
-                                    <button 
-                                        onClick={() => {
-                                            onSettingsChange({...settings, fontFamily: 'Inter', lineHeight: 1.2, letterSpacing: 0, fontSize: 14, columns: 2});
-                                        }}
-                                        className="px-2 py-1.5 bg-zinc-100 text-zinc-600 rounded text-[10px] font-bold hover:bg-zinc-200 border border-zinc-200"
-                                    >
-                                        Sıkışık Mod
-                                    </button>
-                                </div>
-                            </div>
-                        </DropdownPanel>
-                    )}
-                </div>
-
-                {/* 3. Appearance Group */}
-                <div className="relative">
-                    <MenuButton 
-                        icon="fa-sliders" 
-                        label="Detaylar" 
-                        active={false} 
-                        isOpen={activeMenu === 'appearance'}
-                        onClick={() => toggleMenu('appearance')} 
-                        data-dropdown-trigger
-                    />
-                    {activeMenu === 'appearance' && (
-                        <DropdownPanel title="Görünüm ve Detaylar" onClose={() => setActiveMenu(null)}>
-                            {/* Detail Level Selector */}
-                            <div className="bg-zinc-100 p-1 rounded-lg flex mb-4">
-                                <button onClick={() => setDetailLevel('clean')} className={`flex-1 py-1.5 text-[10px] font-bold rounded ${currentLevel === 'clean' ? 'bg-white shadow-sm text-black' : 'text-zinc-500'}`}>Sade</button>
-                                <button onClick={() => setDetailLevel('standard')} className={`flex-1 py-1.5 text-[10px] font-bold rounded ${currentLevel === 'standard' ? 'bg-white shadow-sm text-black' : 'text-zinc-500'}`}>Öğrenci</button>
-                                <button onClick={() => setDetailLevel('teacher')} className={`flex-1 py-1.5 text-[10px] font-bold rounded ${currentLevel === 'teacher' ? 'bg-white shadow-sm text-black' : 'text-zinc-500'}`}>Öğretmen</button>
-                            </div>
-
-                            <div className="space-y-1">
-                                <p className="text-xs font-bold text-zinc-500 mb-2">Kenarlık Stili</p>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {['none', 'simple', 'math', 'verbal', 'stars', 'geo'].map(b => (
-                                        <button 
-                                            key={b}
-                                            onClick={() => updateSetting('themeBorder', b)}
-                                            className={`h-8 border rounded flex items-center justify-center hover:bg-zinc-50 ${settings.themeBorder === b ? 'ring-2 ring-indigo-500 border-transparent' : 'border-zinc-200'}`}
-                                            title={b}
-                                        >
-                                            <div className={`w-4 h-4 ${b === 'none' ? 'border border-dashed border-zinc-300' : 'bg-zinc-200'}`}></div>
-                                        </button>
+                    <MenuButton icon="fa-font" label="Tipografi" isOpen={activeMenu === 'typo'} onClick={() => setActiveMenu(activeMenu === 'typo' ? null : 'typo')} />
+                    {activeMenu === 'typo' && (
+                        <DropdownPanel title="Yazı Ayarları" onClose={() => setActiveMenu(null)} className="w-80">
+                            <NumberControl label="Punto" value={settings.fontSize} onChange={(v:any) => updateSetting('fontSize', v)} min={12} max={48} />
+                            <NumberControl label="Satır Aralığı" value={settings.lineHeight} onChange={(v:any) => updateSetting('lineHeight', v)} min={1} max={3} step={0.1} />
+                            <NumberControl label="Harf Aralığı" value={settings.letterSpacing} onChange={(v:any) => updateSetting('letterSpacing', v)} min={0} max={10} step={0.5} />
+                            <NumberControl label="Kelime Aralığı" value={settings.wordSpacing || 0} onChange={(v:any) => updateSetting('wordSpacing', v)} min={0} max={20} />
+                            <NumberControl label="Paragraf Boşluğu" value={settings.paragraphSpacing || 20} onChange={(v:any) => updateSetting('paragraphSpacing', v)} min={0} max={60} />
+                            <div className="pt-2 border-t border-zinc-100">
+                                <label className="text-[10px] font-black text-zinc-400 uppercase mb-2 block">Yazı Tipi</label>
+                                <div className="grid grid-cols-2 gap-1">
+                                    {['Lexend', 'OpenDyslexic', 'Inter', 'Comic Neue'].map(f => (
+                                        <button key={f} onClick={() => updateSetting('fontFamily', f)} className={`py-1.5 text-[10px] rounded border transition-all ${settings.fontFamily === f ? 'bg-indigo-600 text-white' : 'hover:bg-zinc-100'}`} style={{ fontFamily: f }}>{f}</button>
                                     ))}
                                 </div>
                             </div>
-
-                            <NumberControl label="Kenar Boşluğu" value={settings.margin} onChange={(v: number) => updateSetting('margin', v)} min={0} max={100} unit="px" />
-                            
-                            <div className="pt-2 border-t border-zinc-100 dark:border-zinc-700">
-                                <p className="text-xs font-bold text-zinc-400 mb-2 uppercase">Özel Ayarlar</p>
-                                <Toggle label="Başlık" checked={settings.showTitle} onChange={(v: boolean) => updateSetting('showTitle', v)} />
-                                <Toggle label="Yönerge" checked={settings.showInstruction} onChange={(v: boolean) => updateSetting('showInstruction', v)} />
-                                <Toggle label="Pedagojik Not" checked={settings.showPedagogicalNote} onChange={(v: boolean) => updateSetting('showPedagogicalNote', v)} />
-                                <Toggle label="Öğrenci Bilgisi" checked={settings.showStudentInfo} onChange={(v: boolean) => updateSetting('showStudentInfo', v)} />
-                                <Toggle label="Alt Bilgi" checked={settings.showFooter} onChange={(v: boolean) => updateSetting('showFooter', v)} />
-                                <Toggle label="Görsel (Image)" checked={settings.showImage} onChange={(v: boolean) => updateSetting('showImage', v)} />
-                            </div>
                         </DropdownPanel>
                     )}
                 </div>
 
-            </div>
-
-            <Divider />
-
-            {/* MIDDLE: TOOLS */}
-            <div className="flex items-center gap-1">
-                <IconButton 
-                    icon="fa-pen-to-square" 
-                    title="Düzenle (Metin)" 
-                    active={isEditMode} 
-                    onClick={onToggleEdit} 
-                />
-                
                 <div className="relative">
-                    <IconButton 
-                        icon="fa-icons" 
-                        title="Çıkartma Ekle" 
-                        active={isStickerPickerOpen}
-                        onClick={() => setIsStickerPickerOpen(!isStickerPickerOpen)}
-                    />
-                    {isStickerPickerOpen && onAddSticker && (
-                        <StickerPicker onSelect={(url) => { onAddSticker(url); setIsStickerPickerOpen(false); }} onClose={() => setIsStickerPickerOpen(false)} />
+                    <MenuButton icon="fa-eye" label="Klinik Odak" active={settings.focusMode} isOpen={activeMenu === 'clinical'} onClick={() => setActiveMenu(activeMenu === 'clinical' ? null : 'clinical')} />
+                    {activeMenu === 'clinical' && (
+                        <DropdownPanel title="Erişilebilirlik Araçları" onClose={() => setActiveMenu(null)} className="w-72">
+                            <Toggle label="Odak Modu (Takip Cetveli)" checked={settings.focusMode} onChange={(v:any) => updateSetting('focusMode', v)} />
+                            {settings.focusMode && (
+                                <div className="space-y-4 pt-2 border-t border-zinc-100 animate-in fade-in duration-300">
+                                    <NumberControl label="Cetvel Yüksekliği" value={settings.rulerHeight || 80} onChange={(v:any) => updateSetting('rulerHeight', v)} min={40} max={200} />
+                                    <NumberControl label="Maske Opaklığı" value={settings.maskOpacity || 0.4} onChange={(v:any) => updateSetting('maskOpacity', v)} min={0.1} max={0.9} step={0.1} />
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-zinc-500 uppercase">Cetvel Rengi</label>
+                                        <div className="flex gap-2">
+                                            {['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#000000'].map(c => (
+                                                <button key={c} onClick={() => updateSetting('rulerColor', c)} className={`w-6 h-6 rounded-full border-2 transition-all ${settings.rulerColor === c ? 'border-zinc-900 scale-125' : 'border-transparent'}`} style={{ backgroundColor: c }} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </DropdownPanel>
                     )}
                 </div>
-
-                <div className="w-px h-6 bg-zinc-200 mx-1"></div>
-
-                <IconButton 
-                    icon={isSpeaking ? "fa-stop" : "fa-volume-high"} 
-                    title="Sesli Oku (TTS)" 
-                    active={isSpeaking}
-                    onClick={isSpeaking ? onStopSpeak : onSpeak} 
-                    colorClass={isSpeaking ? "text-red-500 animate-pulse" : ""}
-                />
-                <IconButton 
-                    icon="fa-qrcode" 
-                    title="QR Kod Ekle" 
-                    active={showQR} 
-                    onClick={onToggleQR} 
-                />
             </div>
 
             <Divider />
 
-            {/* RIGHT: ACTIONS */}
-            <div className="flex items-center gap-2">
-                {isCurriculumMode ? (
-                    <button 
-                        onClick={onCompleteCurriculumTask}
-                        className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors shadow-md animate-in fade-in zoom-in"
-                        title="Görevi Tamamla ve Plana Dön"
-                    >
-                        <i className="fa-solid fa-check-circle"></i>
-                        <span className="hidden lg:inline">Görevi Tamamla</span>
-                    </button>
-                ) : (
-                    <button 
-                        onClick={onAddToWorkbook}
-                        className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-200"
-                        title="Kitapçığa Ekle"
-                    >
-                        <i className="fa-solid fa-plus-circle"></i>
-                        <span className="hidden lg:inline">Kitapçık</span>
-                        <span className="bg-emerald-600 text-white px-1.5 py-0.5 rounded-full text-[10px]">{workbookItemCount}</span>
-                    </button>
-                )}
+            <div className="flex items-center gap-1">
+                <IconButton icon="fa-pen-to-square" title="Editör Modu" active={isEditMode} onClick={onToggleEdit} />
+                <IconButton icon={isSpeaking ? "fa-stop" : "fa-volume-high"} title="Sesli Oku" active={isSpeaking} onClick={isSpeaking ? onStopSpeak : onSpeak} colorClass={isSpeaking ? "text-red-500 animate-pulse" : ""} />
+            </div>
 
-                <div className="flex bg-zinc-100 p-1 rounded-lg">
-                    <IconButton 
-                        icon="fa-print" 
-                        title="Yazdır (A4)" 
-                        onClick={handlePrint}
-                    />
-                    <IconButton 
-                        icon="fa-camera" 
-                        title="Görüntü Olarak Kaydet (PNG)" 
-                        onClick={handleSnapshot}
-                        isLoading={isProcessingSnapshot}
-                    />
-                    <IconButton 
-                        icon="fa-save" 
-                        title="Kaydet" 
-                        onClick={handleSaveClick}
-                        isLoading={isProcessingSave}
-                    />
-                    <IconButton 
-                        icon="fa-share-nodes" 
-                        title="Paylaş" 
-                        onClick={onShare}
-                    />
+            <Divider />
+
+            <div className="flex items-center gap-2">
+                <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl">
+                    <IconButton icon="fa-print" title="Yazdır (PDF)" onClick={async () => await printService.generatePdf('.worksheet-page', settings.title, { action: 'print' })} />
+                    <IconButton icon="fa-camera" title="Görüntü Olarak Kaydet" onClick={() => snapshotService.takeSnapshot('.worksheet-page', 'etkinlik')} />
+                    <IconButton icon="fa-save" title="Arşive Kaydet" onClick={onSave} />
                 </div>
+                {onShare && <IconButton icon="fa-share-nodes" title="Paylaş" onClick={onShare} colorClass="bg-indigo-600 text-white hover:bg-indigo-700" />}
             </div>
         </div>
     );
 };
+
+const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
+    <div className="space-y-1">
+        <label className="text-[10px] font-bold text-zinc-500 uppercase block">{label}</label>
+        <div className="flex bg-zinc-100 p-1 rounded-lg">
+            {options.map((opt: any) => (
+                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded ${selected === opt.value ? 'bg-white shadow-sm text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>{opt.label}</button>
+            ))}
+        </div>
+    </div>
+);

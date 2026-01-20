@@ -7,32 +7,35 @@ import { ACTIVITIES } from '../constants';
 export const ocrService = {
     /**
      * MATERYAL KLONLAMA VE DİJİTAL İKİZ ÜRETİMİ
-     * Görüntüdeki etkinliğin hem görsel düzenini (layout) hem de pedagojik kurgusunu analiz eder.
+     * Gelişmiş Mod: Sayfanın hem mantığını hem de görsel iskeletini (Visual Tree) çıkarır.
      */
     processImage: async (base64Image: string, targetType: 'CONVERTER' | 'ALGORITHM'): Promise<OCRResult> => {
-        const validIds = ACTIVITIES.map(a => a.id).join(', ');
-
         const prompt = `
-        [ROL: KIDEMLİ EĞİTİM MATERYALİ MİMARI & ÖZEL ÖĞRENME PROFESÖRÜ]
-        GÖREV: Görüntüdeki çalışma sayfasının "PEDAGOJİK VE GÖRSEL DNA'SINI" analiz et ve bir üretim taslağı (blueprint) oluştur.
+        [ROL: KIDEMLİ EĞİTİM MATERYALİ MİMARI & BİLGİSAYARLI GÖRÜ UZMANI]
+        GÖREV: Görüntüdeki çalışma sayfasının hem PEDAGOJİK hem de GÖRSEL DNA'SINI analiz et.
         
-        ANALİZ KRİTERLERİ (DERİNLEMESİNE):
-        1. **Görsel Mimari:** Sayfa düzeni nasıl? (Örn: 2 sütunlu eşleştirme, 4x4 harf matrisi, alt alta dizili sorular, görsel etrafında metinler vb.)
-        2. **Mantıksal Akış:** Öğrenciden ne yapması isteniyor? (Eleme mi, toplama mı, hece ayırma mı, görsel tarama mı?)
-        3. **Veri Yapısı:** Sorularda kullanılan verilerin karakteristiği nedir? (Örn: Sadece tek basamaklı sayılar, "b" ve "d" içeren kelimeler, 3 heceli sözcükler vb.)
-        4. **İkiz Üretim Talimatı:** Bu etkinliğin BİREBİR AYNI DÜZENİNDE ama TAMAMEN FARKLI verilerle (yeni sorular, yeni kelimeler) üretilmesi için AI'ya teknik bir komut yaz.
+        ANALİZ KRİTERLERİ:
+        1. **Görsel İskelet (Visual Tree):** Sayfadaki her bir bilgi bloğunun (başlık, soru, görsel, tablo) koordinatlarını ve kapladığı alanı (%) belirle.
+        2. **Mantıksal Akış:** Öğrenciden istenen eylemin (eşleştirme, yazma, boyama) bilişsel haritasını çıkar.
+        3. **Veri Karakteristiği:** Sorulardaki sayısal veya sözel verilerin zorluk ve stilini analiz et.
         
         ÇIKTI FORMATI (SADECE JSON):
         {
             "detectedType": "En yakın ActivityType",
-            "title": "Orijinal Başlık veya Tanımlayıcı İsim",
-            "description": "Pedagojik amacın özeti",
-            "blueprint": "AI ÜRETİM KOMUTU: [Bu bölüm çok detaylı olmalı. Sayfanın mimarisini ve soru mantığını 'Şu düzende, şu kısıtlamalarla yeni veriler üret' şeklinde tarif et.]",
-            "layoutHint": {
-                "structure": "grid | list | columns | matching | maze",
-                "columns": number,
-                "hasVisuals": boolean,
-                "dataComplexity": "low | medium | high"
+            "title": "Orijinal Başlık",
+            "description": "Pedagojik Amaç",
+            "blueprint": "AI ÜRETİM KOMUTU: [Düzene ve mantığa sadık kalarak tamamen yeni verilerle içerik üretme talimatı]",
+            "layoutJSON": {
+                "structure": "grid | columns | random",
+                "blocks": [
+                    { "id": "b1", "type": "header", "relativeY": 0, "height": 10 },
+                    { "id": "b2", "type": "question-group", "relativeY": 15, "height": 60, "cols": 2 }
+                ]
+            },
+            "styleDNA": {
+                "fontWeight": "bold | normal",
+                "density": "high | medium | low",
+                "borderStyle": "dashed | solid"
             },
             "baseType": "ACTIVITY_ID"
         }
@@ -45,19 +48,36 @@ export const ocrService = {
                 title: { type: Type.STRING },
                 description: { type: Type.STRING },
                 blueprint: { type: Type.STRING },
-                layoutHint: {
+                layoutJSON: {
                     type: Type.OBJECT,
                     properties: {
                         structure: { type: Type.STRING },
-                        columns: { type: Type.NUMBER },
-                        hasVisuals: { type: Type.BOOLEAN },
-                        dataComplexity: { type: Type.STRING }
-                    },
-                    required: ['structure']
+                        blocks: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    id: { type: Type.STRING },
+                                    type: { type: Type.STRING },
+                                    relativeY: { type: Type.NUMBER },
+                                    height: { type: Type.NUMBER },
+                                    cols: { type: Type.NUMBER, nullable: true }
+                                }
+                            }
+                        }
+                    }
+                },
+                styleDNA: {
+                    type: Type.OBJECT,
+                    properties: {
+                        fontWeight: { type: Type.STRING },
+                        density: { type: Type.STRING },
+                        borderStyle: { type: Type.STRING }
+                    }
                 },
                 baseType: { type: Type.STRING }
             },
-            required: ['detectedType', 'title', 'blueprint', 'layoutHint']
+            required: ['detectedType', 'title', 'blueprint', 'layoutJSON']
         };
 
         try {
@@ -68,16 +88,17 @@ export const ocrService = {
                 detectedType: result.baseType || 'AI_WORKSHEET_CONVERTER',
                 title: result.title,
                 description: result.description,
-                generatedTemplate: result.blueprint, // AI artık buradaki mimari talimatı kullanacak
+                generatedTemplate: result.blueprint,
                 structuredData: {
-                    layoutHint: result.layoutHint,
+                    layoutHint: result.layoutJSON,
+                    styleDNA: result.styleDNA,
                     originalBlueprint: result.blueprint
                 },
                 baseType: result.baseType || 'AI_WORKSHEET_CONVERTER'
             };
         } catch (error) {
             console.error("Deep OCR Error:", error);
-            throw new Error("Görsel mimarisi çözümlenemedi. Lütfen daha net bir görsel kullanın.");
+            throw new Error("Görsel mimarisi çözümlenemedi.");
         }
     }
 };

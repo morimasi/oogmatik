@@ -15,6 +15,7 @@ const DIR_DIAG_UL = { x: -1, y: -1 };
 const DIR_DIAG_DL = { x: -1, y: 1 };
 
 export const generateOfflineHiddenPasswordGrid = async (options: GeneratorOptions): Promise<HiddenPasswordGridData[]> => {
+    // ... (HiddenPasswordGrid mantığı şimdilik aynı kalabilir, sadece kare kullanıyor olabilir, ileride güncellenebilir)
     const { topic, difficulty, worksheetCount, gridSize = 5, itemCount = 6, case: letterCase } = options;
     const results: HiddenPasswordGridData[] = [];
     
@@ -70,7 +71,12 @@ export const generateOfflineHiddenPasswordGrid = async (options: GeneratorOption
 };
 
 export const generateOfflineWordSearch = async (options: GeneratorOptions): Promise<WordSearchData[]> => {
-    const { topic, difficulty, worksheetCount, gridSize = 12, itemCount = 10, case: letterCase } = options;
+    const { topic, difficulty, worksheetCount, itemCount = 10, case: letterCase } = options;
+    
+    // Satır ve Sütun ayrımı
+    const rows = options.gridRows || options.gridSize || 12;
+    const cols = options.gridCols || options.gridSize || 12;
+
     const results: WordSearchData[] = [];
 
     // 1. Configure Directions based on Difficulty
@@ -79,14 +85,16 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions): Prom
     if (difficulty === 'Orta') {
         allowedDirections = [DIR_RIGHT, DIR_DOWN, DIR_DIAG_DR];
     } else if (difficulty === 'Zor' || difficulty === 'Uzman') {
-        // Warning: Backwards reading is hard for dyslexia, use sparingly or only in "Expert"
         allowedDirections = [DIR_RIGHT, DIR_DOWN, DIR_DIAG_DR, DIR_DIAG_UR, DIR_LEFT, DIR_UP];
     }
 
     for (let p = 0; p < worksheetCount; p++) {
         // 2. Fetch and Prepare Words
+        // Max kelime uzunluğu, grid'in en büyük boyutunu geçemez
+        const maxDim = Math.max(rows, cols);
+        
         let wordPool = getWordsForDifficulty(difficulty, topic || 'Rastgele')
-            .filter(w => w.length <= gridSize && w.length >= 3)
+            .filter(w => w.length <= maxDim && w.length >= 3)
             .map(w => letterCase === 'lower' ? w.toLocaleLowerCase('tr') : w.toLocaleUpperCase('tr'));
         
         // Ensure we have enough words
@@ -94,36 +102,33 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions): Prom
             wordPool = [...wordPool, ...getWordsForDifficulty('Orta', 'Rastgele').map(w => letterCase === 'lower' ? w.toLocaleLowerCase('tr') : w.toLocaleUpperCase('tr'))];
         }
         
-        // Select words and sort by length (Longest first is easier to pack)
         const selectedWords = getRandomItems([...new Set(wordPool)], itemCount).sort((a, b) => b.length - a.length);
         
         // 3. Grid Initialization
-        const grid: string[][] = Array.from({ length: gridSize }, () => Array(gridSize).fill(''));
+        const grid: string[][] = Array.from({ length: rows }, () => Array(cols).fill(''));
         const placedWords: string[] = [];
         
-        // 4. Word Placement Algorithm (Backtracking-ish)
+        // 4. Word Placement Algorithm
         for (const word of selectedWords) {
             let placed = false;
             let attempts = 0;
-            // Try placing word up to 100 times
-            while (!placed && attempts < 100) {
+            while (!placed && attempts < 150) {
                 const dir = allowedDirections[getRandomInt(0, allowedDirections.length - 1)];
-                const startRow = getRandomInt(0, gridSize - 1);
-                const startCol = getRandomInt(0, gridSize - 1);
+                const startRow = getRandomInt(0, rows - 1);
+                const startCol = getRandomInt(0, cols - 1);
                 
                 // Calculate end position
                 const endRow = startRow + dir.y * (word.length - 1);
                 const endCol = startCol + dir.x * (word.length - 1);
                 
                 // Check Bounds
-                if (endRow >= 0 && endRow < gridSize && endCol >= 0 && endCol < gridSize) {
+                if (endRow >= 0 && endRow < rows && endCol >= 0 && endCol < cols) {
                     let canPlace = true;
                     // Check Collisions
                     for (let i = 0; i < word.length; i++) {
                         const r = startRow + dir.y * i;
                         const c = startCol + dir.x * i;
                         const cellChar = grid[r][c];
-                        // If cell is not empty AND not matching current char, collision!
                         if (cellChar !== '' && cellChar !== word[i]) {
                             canPlace = false;
                             break;
@@ -131,7 +136,6 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions): Prom
                     }
                     
                     if (canPlace) {
-                        // Place Word
                         for (let i = 0; i < word.length; i++) {
                             grid[startRow + dir.y * i][startCol + dir.x * i] = word[i];
                         }
@@ -145,8 +149,8 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions): Prom
         
         // 5. Fill Empty Spaces with Distractors
         const alphabet = turkishAlphabet.split('').map(c => letterCase === 'lower' ? c : c.toUpperCase());
-        for (let r = 0; r < gridSize; r++) {
-            for (let c = 0; c < gridSize; c++) {
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
                 if (grid[r][c] === '') {
                     grid[r][c] = alphabet[getRandomInt(0, alphabet.length - 1)];
                 }

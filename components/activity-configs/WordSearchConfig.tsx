@@ -3,6 +3,10 @@ import React from 'react';
 import { GeneratorOptions } from '../../types';
 
 export const WordSearchConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
+    
+    const rows = options.gridRows || options.gridSize || 12;
+    const cols = options.gridCols || options.gridSize || 12;
+
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             {/* Konu ve İçerik */}
@@ -35,20 +39,36 @@ export const WordSearchConfig: React.FC<{ options: GeneratorOptions; onChange: (
 
             {/* Grid Ayarları */}
             <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-4">
-                <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-bold text-zinc-500 uppercase">Izgara Boyutu</label>
-                        <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{options.gridSize || 12}x{options.gridSize || 12}</span>
+                
+                <label className="text-[10px] font-bold text-zinc-500 uppercase mb-1 block">Bulmaca Boyutu</label>
+                <div className="grid grid-cols-2 gap-4">
+                     <div className="space-y-1">
+                        <div className="flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase">
+                            <span>Satır</span>
+                            <span className="text-indigo-600 font-black">{rows}</span>
+                        </div>
+                        <input 
+                            type="range" min={8} max={20} 
+                            value={rows} 
+                            onChange={e => onChange('gridRows', parseInt(e.target.value))} 
+                            className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
+                        />
                     </div>
-                    <input 
-                        type="range" min={8} max={16} 
-                        value={options.gridSize || 12} 
-                        onChange={e => onChange('gridSize', parseInt(e.target.value))} 
-                        className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
-                    />
+                    <div className="space-y-1">
+                        <div className="flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase">
+                            <span>Sütun</span>
+                            <span className="text-indigo-600 font-black">{cols}</span>
+                        </div>
+                        <input 
+                            type="range" min={8} max={20} 
+                            value={cols} 
+                            onChange={e => onChange('gridCols', parseInt(e.target.value))} 
+                            className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
+                        />
+                    </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 pt-2 border-t border-zinc-200 dark:border-zinc-700">
                     <div className="flex justify-between items-center">
                         <label className="text-[10px] font-bold text-zinc-500 uppercase">Gizlenecek Kelime</label>
                         <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{options.itemCount || 10}</span>
@@ -74,9 +94,6 @@ export const WordSearchConfig: React.FC<{ options: GeneratorOptions; onChange: (
                             </button>
                         ))}
                     </div>
-                    <p className="text-[8px] text-zinc-400 mt-2 italic text-center">
-                        {options.difficulty === 'Başlangıç' ? 'Sadece Sağ ve Aşağı' : options.difficulty === 'Orta' ? '+ Çapraz Yönler' : '+ Ters Yönler (Zor)'}
-                    </p>
                 </div>
             </div>
         </div>

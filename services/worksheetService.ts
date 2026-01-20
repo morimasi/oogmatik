@@ -51,7 +51,8 @@ const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
     sharedWith: docData.sharedWith,
     styleSettings: docData.styleSettings,
     studentProfile: docData.studentProfile,
-    workbookItems: docData.workbookItems ? deserializeData(docData.workbookItems) : undefined,
+    // Fixed: Cast deserialized data to CollectionItem[] to match type definition
+    workbookItems: docData.workbookItems ? (deserializeData(docData.workbookItems) as unknown as CollectionItem[]) : undefined,
     workbookSettings: docData.workbookSettings
 });
 

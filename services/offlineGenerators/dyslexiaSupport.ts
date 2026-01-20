@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData, LetterVisualMatchingData, SyllableMasterLabData, MorphologyMatrixData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData, LetterVisualMatchingData, SyllableMasterLabData, MorphologyMatrixData, ReadingPyramidData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, simpleSyllabify, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
 // COMPREHENSIVE SYLLABLE MASTER LAB (OFFLINE)
@@ -229,6 +229,53 @@ export const generateOfflineMorphologyMatrix = async (options: GeneratorOptions)
             instruction: "Kök kelimeyi uygun ekle birleştir ve yeni kelimeyi yaz.",
             pedagogicalNote: "Kelimeleri anlamlı parçalara (morfimlere) ayırarak analiz etme yeteneğini geliştirir. Dislekside okuma stratejisi olarak kritiktir.",
             items: shuffle(items),
+            difficulty
+        };
+    });
+};
+
+// READING PYRAMID (Akıcı Okuma Piramidi)
+export const generateOfflineReadingPyramid = async (options: GeneratorOptions): Promise<ReadingPyramidData[]> => {
+    const { worksheetCount, difficulty, pyramidHeight, topic } = options;
+    const height = pyramidHeight || 5;
+
+    // Hazır Cümle Setleri (Genişletilmiş)
+    const SENTENCE_SETS = [
+        ["Güneş.", "Güneş açtı.", "Bugün güneş açtı.", "Bugün parlak güneş açtı.", "Bugün gökyüzünde parlak güneş açtı."],
+        ["Kedi.", "Kedi uyuyor.", "Sarı kedi uyuyor.", "Sarı kedi koltukta uyuyor.", "Küçük sarı kedi koltukta uyuyor."],
+        ["Ağaç.", "Ağaç büyüdü.", "Yeşil ağaç büyüdü.", "Bahçedeki yeşil ağaç büyüdü.", "Bahçedeki kocaman yeşil ağaç büyüdü."],
+        ["Deniz.", "Deniz dalgalı.", "Mavi deniz dalgalı.", "Bugün mavi deniz çok dalgalı.", "Bugün masmavi deniz çok dalgalı."],
+        ["Kitap.", "Kitap okudum.", "Güzel bir kitap okudum.", "Dün akşam güzel bir kitap okudum.", "Dün akşam odamda güzel bir kitap okudum."],
+        ["Yol.", "Yol uzun.", "Bu yol çok uzun.", "Bu taşlı yol çok uzun.", "Köye giden bu taşlı yol çok uzun."],
+        ["Elma.", "Elma yedim.", "Kırmızı elma yedim.", "Tatlı kırmızı elma yedim.", "Bahçeden kopardığım tatlı kırmızı elma yedim."]
+    ];
+
+    return Array.from({ length: worksheetCount }, () => {
+        const pyramids = [];
+        // Bir sayfaya 2 piramit sığdır (Orta/Büyük boy için)
+        // Küçük boy (3-4 satır) için 4 tane sığdırılabilir.
+        const countPerPage = height <= 5 ? 4 : 2;
+        
+        const selectedSets = getRandomItems(SENTENCE_SETS, countPerPage);
+
+        for (const set of selectedSets) {
+            // İstenen yüksekliğe göre kes
+            const levels = set.slice(0, height);
+            // Eğer set yetersizse son cümleyi tekrarla (veya boş bırak)
+            while(levels.length < height) {
+                levels.push(levels[levels.length-1] + " (Tekrar)");
+            }
+            pyramids.push({
+                title: levels[0], // Başlık ilk kelime
+                levels
+            });
+        }
+
+        return {
+            title: "Akıcı Okuma Piramidi",
+            instruction: "En üstten başlayarak aşağıya doğru sesli oku. Gözlerinle satırın ortasına odaklan.",
+            pedagogicalNote: "Göz sıçramalarını (saccades) ve görsel dikkat alanını (span) genişleterek okuma akıcılığını artırır.",
+            pyramids,
             difficulty
         };
     });

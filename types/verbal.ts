@@ -13,7 +13,6 @@ export interface StoryQuestion {
 
 export interface StoryData extends BaseActivityData {
     story: string;
-    // Fix: Added missing genre property for Reading Studio support
     genre?: string;
     mainIdea: string;
     characters: string[];
@@ -148,11 +147,42 @@ export interface ReadingSudokuData extends BaseActivityData {
     };
 }
 
+export interface FamilyRelationPair {
+    definition: string;
+    label: string;
+    side: 'mom' | 'dad' | 'both' | 'none';
+}
+
+export interface FamilyRelationsData extends BaseActivityData {
+    pairs: FamilyRelationPair[];
+    momRelatives: string[];
+    dadRelatives: string[];
+    difficulty: string;
+}
+
+export interface FamilyLogicStatement {
+    text: string;
+    isTrue: boolean;
+}
+
+export interface FamilyLogicTestData extends BaseActivityData {
+    statements: FamilyLogicStatement[];
+    difficulty: string;
+}
+
 export interface MorphologyMatrixData extends BaseActivityData {
     items: {
         root: string;
         suffixes: string[];
         hint?: string;
+    }[];
+    difficulty: string;
+}
+
+export interface ReadingPyramidData extends BaseActivityData {
+    pyramids: {
+        levels: string[];
+        title: string;
     }[];
     difficulty: string;
 }

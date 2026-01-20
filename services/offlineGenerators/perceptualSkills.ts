@@ -1,12 +1,126 @@
 
 import { 
-    FindTheDifferenceData, VisualOddOneOutData, GridDrawingData, SymmetryDrawingData, ShapeCountingData,
+    FindTheDifferenceData, VisualOddOneOutData, GridDrawingData, SymmetryDrawingData, ShapeCountingData, DirectionalTrackingData,
     GeneratorOptions,
     VisualOddOneOutItem
 } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, generateConnectedPath } from './helpers';
+import { shuffle, getRandomInt, getRandomItems, generateConnectedPath, getWordsForDifficulty, turkishAlphabet } from './helpers';
 
-// --- VISUAL ODD ONE OUT ---
+// --- DIRECTIONAL TRACKING (YÖNSEL İZ SÜRME - DIKDÖRTGEN DESTEKLİ) ---
+export const generateOfflineDirectionalTracking = async (options: GeneratorOptions): Promise<DirectionalTrackingData[]> => {
+    const { worksheetCount, difficulty, itemCount = 4, topic } = options;
+    
+    // Satır ve Sütun boyutlarını al, yoksa varsayılan 5 ata
+    const rows = options.gridRows || options.gridSize || 5;
+    const cols = options.gridCols || options.gridSize || 5;
+
+    const results: DirectionalTrackingData[] = [];
+    
+    // Yönler: right, down, up, left
+    const DIRS = [
+        { name: 'right', dx: 1, dy: 0 },
+        { name: 'down', dx: 0, dy: 1 },
+        { name: 'left', dx: -1, dy: 0 },
+        { name: 'up', dx: 0, dy: -1 }
+    ];
+
+    for (let p = 0; p < worksheetCount; p++) {
+        const puzzles = [];
+        const words = getWordsForDifficulty(difficulty, topic || 'Rastgele');
+        
+        // Çeldiriciler için benzer harfler (Disleksi odağı)
+        const distractors = ['b', 'd', 'p', 'q', 'm', 'n', 'u', 'ü', 'o', 'ö', 'e', 'a'];
+
+        for (let i = 0; i < itemCount; i++) {
+            // Rastgele bir kelime seç
+            let targetWord = getRandomItems(words, 1)[0].toUpperCase();
+            
+            // Kelime çok uzunsa grid'e sığmayabilir (maksimum hücre sayısı kadar olabilir teorik olarak ama pratikte %70'i geçmemeli)
+            const maxLen = Math.floor((rows * cols) * 0.7);
+            if (targetWord.length > maxLen) targetWord = targetWord.substring(0, maxLen); 
+            
+            const grid = Array.from({length: rows}, () => Array(cols).fill(''));
+            let path: string[] = [];
+            
+            // Başlangıç noktasını rastgele seç
+            let startR = getRandomInt(0, rows - 1);
+            let startC = getRandomInt(0, cols - 1);
+            
+            // Backtracking benzeri bir yöntemle geçerli bir yol bulmaya çalış
+            // (Basitçe her adımda rastgele geçerli bir komşu seçer, sıkışırsa yeniden dener)
+            let currentR = startR;
+            let currentC = startC;
+            grid[currentR][currentC] = targetWord[0];
+            
+            let success = true;
+            
+            for (let k = 1; k < targetWord.length; k++) {
+                const validMoves = DIRS.filter(d => {
+                    const nr = currentR + d.dy;
+                    const nc = currentC + d.dx;
+                    // Sınır kontrolleri (Rows ve Cols bağımsız)
+                    return nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] === '';
+                });
+
+                if (validMoves.length === 0) {
+                    success = false; 
+                    break; 
+                }
+
+                const move = getRandomItems(validMoves, 1)[0];
+                path.push(move.name);
+                currentR += move.dy;
+                currentC += move.dx;
+                grid[currentR][currentC] = targetWord[k];
+            }
+
+            // Başarısız olursa (sıkışırsa) basit bir fallback kullan (Yatay)
+            if (!success) {
+                // Reset grid
+                for(let r=0; r<rows; r++) grid[r].fill('');
+                path = [];
+                
+                // Güvenli başlangıç
+                startR = getRandomInt(0, rows-1);
+                startC = 0;
+                
+                // Sadece sağa git (Sütun sayısı kadar sınırla)
+                const safeLen = Math.min(targetWord.length, cols);
+                
+                for(let k=0; k<safeLen; k++) {
+                    grid[startR][k] = targetWord[k];
+                    if (k > 0) path.push('right');
+                }
+            }
+
+            // Boşlukları çeldiricilerle doldur
+            for(let r=0; r<rows; r++) {
+                for(let c=0; c<cols; c++) {
+                    if (grid[r][c] === '') {
+                        grid[r][c] = getRandomItems(distractors, 1)[0].toUpperCase();
+                    }
+                }
+            }
+
+            puzzles.push({
+                grid,
+                path,
+                startPos: { r: startR, c: startC },
+                targetWord
+            });
+        }
+
+        results.push({
+            title: "Yönsel İz Sürme",
+            instruction: "Başlangıç noktasından okları takip ederek harfleri topla ve gizli kelimeyi bul.",
+            pedagogicalNote: "Görsel-mekansal yönelim (sağ/sol ayrımı), ardışık işlem takibi ve kelime sentezi.",
+            puzzles
+        });
+    }
+    return results;
+};
+
+// ... (Diğer fonksiyonlar aynen kalır veya benzer şekilde güncellenir)
 export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { worksheetCount, difficulty, distractionLevel } = options;
     const results: VisualOddOneOutData[] = [];
@@ -46,9 +160,15 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
     return results;
 };
 
-// --- GRID DRAWING ---
+// --- GRID DRAWING (UPDATED FOR RECTANGULAR GRIDS) ---
 export const generateOfflineGridDrawing = async (options: GeneratorOptions): Promise<GridDrawingData[]> => {
-    const { worksheetCount, gridSize = 6 } = options;
+    const { worksheetCount } = options;
+    const gridSize = options.gridSize || 6;
+    
+    // Grid Drawing şimdilik kare mantığına dayalı kalsa daha iyi, 
+    // ancak istenirse rows/cols parametreleri eklenebilir. 
+    // Şimdilik sadece gridSize kullanıyoruz.
+    
     const results: GridDrawingData[] = [];
 
     for (let p = 0; p < worksheetCount; p++) {
@@ -71,7 +191,6 @@ export const generateOfflineGridDrawing = async (options: GeneratorOptions): Pro
     return results;
 };
 
-// --- SYMMETRY DRAWING ---
 export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions): Promise<SymmetryDrawingData[]> => {
     const { worksheetCount, gridSize = 10 } = options;
     const results: SymmetryDrawingData[] = [];
@@ -106,7 +225,6 @@ export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions):
     return results;
 };
 
-// --- SHAPE COUNTING (TRIANGLE PUZZLE) ---
 export const generateOfflineShapeCounting = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
     const { worksheetCount, difficulty, itemCount } = options;
     const results: ShapeCountingData[] = [];
@@ -116,25 +234,17 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
         const figures = [];
         
         for (let i = 0; i < count; i++) {
-            // Algoritma: Tek tepeli üçgen bölünmesi
-            // n: Dikey bölme sayısı (tabanı bölen)
-            // h: Yatay kesik sayısı
-            // Formül: (n * (n+1) / 2) * (h + 1)
-            
             const n = getRandomInt(2, difficulty === 'Zor' ? 5 : 3); 
             const h = difficulty === 'Zor' || difficulty === 'Uzman' ? getRandomInt(1, 2) : 0; 
             const correctCount = (n * (n + 1) / 2) * (h + 1);
             
-            // SVG Koordinatları (100x100 ViewBox)
             const top = { x: 50, y: 10 };
             const left = { x: 10, y: 90 };
             const right = { x: 90, y: 90 };
             
             const paths = [];
-            // Ana Çerçeve
             paths.push({ d: `M ${top.x} ${top.y} L ${left.x} ${left.y} L ${right.x} ${right.y} Z`, fill: "none", stroke: "black", strokeWidth: 3 });
             
-            // Dikey Çizgiler (Tepeden tabana)
             for (let k = 1; k < n; k++) {
                 const ratio = k / n;
                 const bx = left.x + (right.x - left.x) * ratio;
@@ -142,7 +252,6 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
                 paths.push({ d: `M ${top.x} ${top.y} L ${bx} ${by}`, fill: "none", stroke: "black", strokeWidth: 2 });
             }
             
-            // Yatay Çizgiler (Katmanlar)
             for (let k = 1; k <= h; k++) {
                 const ratio = k / (h + 1);
                 const lx = top.x + (left.x - top.x) * ratio;
@@ -169,9 +278,8 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
     return results;
 };
 
-// --- FIND THE DIFFERENCE (ENHANCED) ---
 export const generateOfflineFindTheDifference = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
-    const { worksheetCount, difficulty, findDiffType = 'linguistic', distractionLevel = 'medium', gridSize = 4, itemCount = 6 } = options;
+    const { worksheetCount, findDiffType = 'linguistic', distractionLevel = 'medium', gridSize = 4, itemCount = 6 } = options;
     const results: FindTheDifferenceData[] = [];
     
     const PAIRS: Record<string, string[][]> = {

@@ -2,6 +2,7 @@
 import { getRandomInt, shuffle, getRandomItems, simpleSyllabify, getWordsForDifficulty, turkishAlphabet, VISUALLY_SIMILAR_CHARS } from './helpers';
 import { SyllableWordBuilderData, FamilyRelationsData, FamilyLogicTestData, GeneratorOptions, FindLetterPairData } from '../../types';
 
+// ... Family Pool definitions remain unchanged ...
 const FAMILY_POOL_BASIC = [
     { label: "Baba", definition: "Annenin kocası, senin erkek ebeveynin.", side: "none" },
     { label: "Anne", definition: "Babanın karısı, senin kadın ebeveynin.", side: "none" },
@@ -20,7 +21,11 @@ const FAMILY_POOL_EXTENDED = [
 ];
 
 export const generateOfflineFindLetterPair = async (options: GeneratorOptions): Promise<FindLetterPairData[]> => {
-    const { worksheetCount, difficulty, itemCount = 1, gridSize = 10, targetPair } = options;
+    const { worksheetCount, difficulty, itemCount = 1, targetPair } = options;
+    // Satır ve Sütun ayrımı
+    const rows = options.gridRows || options.gridSize || 10;
+    const cols = options.gridCols || options.gridSize || 10;
+
     const pages: FindLetterPairData[] = [];
 
     const getSimilars = (char: string) => {
@@ -32,25 +37,30 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
         const grids = [];
         for (let i = 0; i < itemCount; i++) {
             const pair = (targetPair || (Math.random() > 0.5 ? 'bd' : 'pq')).toLowerCase().substring(0, 2);
-            const size = gridSize || 10;
-            const matrix = Array.from({ length: size }, () => 
-                Array.from({ length: size }, () => {
+            
+            const matrix = Array.from({ length: rows }, () => 
+                Array.from({ length: cols }, () => {
                     const pool = (difficulty === 'Zor' || difficulty === 'Uzman') 
                         ? getSimilars(pair[0]) 
                         : turkishAlphabet.split('');
                     return pool[getRandomInt(0, pool.length - 1)];
                 })
             );
-            const countToPlace = Math.floor(size * 1.2);
+            
+            // HEDEF YERLEŞTİRME
+            // Hedef sayısını ızgara büyüklüğüne göre ölçekle
+            const countToPlace = Math.floor((rows * cols) * 0.12); // %12 doluluk
+            
             for (let k = 0; k < countToPlace; k++) {
-                const r = getRandomInt(0, size - 1);
-                const c = getRandomInt(0, size - 2);
+                const r = getRandomInt(0, rows - 1);
+                const c = getRandomInt(0, cols - 2); // Pair olduğu için sondan bir öncesine kadar
                 matrix[r][c] = pair[0];
                 matrix[r][c + 1] = pair[1];
             }
+
             grids.push({ 
-                grid: matrix.map(row => row.map(cell => cell.toLocaleUpperCase('tr'))), 
-                targetPair: pair.toLocaleUpperCase('tr') 
+                grid: matrix.map(row => row.map(cell => options.case === 'upper' ? cell.toLocaleUpperCase('tr') : cell)), 
+                targetPair: options.case === 'upper' ? pair.toLocaleUpperCase('tr') : pair 
             });
         }
         pages.push({
@@ -58,12 +68,17 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
             instruction: "Tabloları dikkatlice tara ve hedef ikilileri bulup daire içine al.",
             pedagogicalNote: "Görsel ayrıştırma, hızlı tarama ve fonolojik sentez kapasitesini ölçer.",
             grids,
-            settings: { gridSize: gridSize || 10, itemCount, difficulty: difficulty || 'Orta' }
+            settings: { 
+                gridSize: Math.max(rows, cols), 
+                itemCount, 
+                difficulty: difficulty || 'Orta' 
+            }
         });
     }
     return pages;
 };
 
+// ... (Other functions generateOfflineFamilyRelations, generateOfflineFamilyLogicTest, generateOfflineSyllableWordBuilder remain unchanged) ...
 export const generateOfflineFamilyRelations = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
     const { worksheetCount, difficulty, itemCount = 8 } = options;
     const pages: FamilyRelationsData[] = [];

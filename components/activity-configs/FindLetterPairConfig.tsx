@@ -2,14 +2,15 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-// Ortak kullanılan küçük bileşenler (İleride bunlar da atomik olabilir)
-const CompactSlider = ({ label, value, onChange, min, max, icon, unit = '' }: any) => (
+// Ortak kullanılan küçük bileşenler
+const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
     <div className="space-y-1">
-        <div className="flex justify-between items-center text-[10px] font-bold text-zinc-500 uppercase">
-            <span className="flex items-center gap-1">{icon && <i className={`fa-solid ${icon}`}></i>}{label}</span>
-            <span className="text-indigo-600 font-black">{value}{unit}</span>
+        <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
+        <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+            {options.map((opt: any) => (
+                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>{opt.label}</button>
+            ))}
         </div>
-        <input type="range" min={min} max={max} value={value} onChange={e => onChange(parseInt(e.target.value))} className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" />
     </div>
 );
 
@@ -24,23 +25,16 @@ const CompactCounter = ({ label, value, onChange, min, max, icon }: any) => (
     </div>
 );
 
-const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
-    <div className="space-y-1">
-        <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
-            {options.map((opt: any) => (
-                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>{opt.label}</button>
-            ))}
-        </div>
-    </div>
-);
-
 interface ConfigProps {
     options: GeneratorOptions;
     onChange: (key: keyof GeneratorOptions, value: any) => void;
 }
 
 export const FindLetterPairConfig: React.FC<ConfigProps> = ({ options, onChange }) => {
+    
+    const rows = options.gridRows || options.gridSize || 10;
+    const cols = options.gridCols || options.gridSize || 10;
+
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30 space-y-4">
@@ -62,9 +56,40 @@ export const FindLetterPairConfig: React.FC<ConfigProps> = ({ options, onChange 
             </div>
 
             <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
+                
+                {/* Grid Dimensions */}
                 <div className="grid grid-cols-2 gap-4">
-                    <CompactSlider label="Izgara (Satır)" value={options.gridSize || 10} onChange={(v:number) => onChange('gridSize', v)} min={6} max={16} icon="fa-border-all" unit="x" />
-                    <CompactCounter label="Tablo Adedi" value={options.itemCount || 1} onChange={(v:number) => onChange('itemCount', v)} min={1} max={4} icon="fa-layer-group" />
+                     <div className="space-y-1">
+                        <div className="flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase">
+                            <span>Satır</span>
+                            <span className="text-indigo-600 font-black">{rows}</span>
+                        </div>
+                        <input 
+                            type="range" min={6} max={16} 
+                            value={rows} 
+                            onChange={e => onChange('gridRows', parseInt(e.target.value))} 
+                            className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <div className="flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase">
+                            <span>Sütun</span>
+                            <span className="text-indigo-600 font-black">{cols}</span>
+                        </div>
+                        <input 
+                            type="range" min={6} max={16} 
+                            value={cols} 
+                            onChange={e => onChange('gridCols', parseInt(e.target.value))} 
+                            className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
+                        />
+                    </div>
+                </div>
+
+                <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase">Tablo Adedi</span>
+                    <div className="w-32">
+                         <CompactCounter label="" value={options.itemCount || 1} onChange={(v:number) => onChange('itemCount', v)} min={1} max={4} />
+                    </div>
                 </div>
                 
                 <CompactToggleGroup 

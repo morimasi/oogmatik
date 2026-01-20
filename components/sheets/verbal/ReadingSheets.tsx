@@ -11,3 +11,4 @@ export { LetterVisualMatchingSheet } from './LetterVisualMatchingSheet';
 export { FamilyLogicSheet, FamilyRelationsSheet } from '../NewActivitySheets';
 export { FindLetterPairSheet } from './FindLetterPairSheet';
 export { MorphologyMatrixSheet } from './MorphologyMatrixSheet';
+export { ReadingPyramidSheet } from './ReadingPyramidSheet';

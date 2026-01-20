@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 export enum ActivityType {
     READING_STROOP = 'READING_STROOP',
     ALGORITHM_GENERATOR = 'ALGORITHM_GENERATOR',
@@ -69,7 +71,7 @@ export enum ActivityType {
     ESTIMATION = 'ESTIMATION',
     CHARACTER_MEMORY = 'CHARACTER_MEMORY',
     COLOR_WHEEL_MEMORY = 'COLOR_WHEEL_MEMORY',
-    IMAGE_COMPREHENSION = 'IMAGE_COMPREHENSION',
+    IMAGE_COMPREHENSION = 'IMAGE_COMPREHRENSION',
     CHAOTIC_NUMBER_SEARCH = 'CHAOTIC_NUMBER_SEARCH',
     LETTER_GRID_TEST = 'LETTER_GRID_TEST',
     FIND_LETTER_PAIR = 'FIND_LETTER_PAIR',
@@ -80,59 +82,16 @@ export enum ActivityType {
     THEMATIC_ODD_ONE_OUT = 'THEMATIC_ODD_ONE_OUT',
     TARGET_NUMBER = 'TARGET_NUMBER',
     SHAPE_COUNTING = 'SHAPE_COUNTING',
-    MORPHOLOGY_MATRIX = 'MORPHOLOGY_MATRIX'
+    MORPHOLOGY_MATRIX = 'MORPHOLOGY_MATRIX',
+    READING_PYRAMID = 'READING_PYRAMID',
+    NUMBER_PATH_LOGIC = 'NUMBER_PATH_LOGIC',
+    DIRECTIONAL_TRACKING = 'DIRECTIONAL_TRACKING'
 }
 
 export type View = 'generator' | 'admin' | 'profile' | 'messages' | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'favorites' | 'savedList' | 'workbook' | 'shared' | 'assessment';
 
+// Added AppTheme type to fix App.tsx and SettingsModal.tsx errors
 export type AppTheme = 'light' | 'dark' | 'anthracite' | 'space' | 'nature' | 'ocean' | 'anthracite-gold' | 'anthracite-cyber';
-
-export type UserRole = 'user' | 'admin';
-export type UserStatus = 'active' | 'suspended';
-
-export interface User {
-    id: string;
-    email: string;
-    name: string;
-    role: UserRole;
-    avatar: string;
-    createdAt: string;
-    lastLogin: string;
-    worksheetCount: number;
-    status: UserStatus;
-    subscriptionPlan: string;
-    favorites: ActivityType[];
-    lastActiveActivity?: { id: string; title: string; date: string };
-}
-
-export interface Student {
-    id: string;
-    teacherId: string;
-    name: string;
-    age: number;
-    grade: string;
-    avatar: string;
-    diagnosis: string[];
-    interests: string[];
-    strengths: string[];
-    weaknesses: string[];
-    learningStyle: 'Görsel' | 'İşitsel' | 'Kinestetik' | 'Karma';
-    parentName: string;
-    contactPhone: string;
-    contactEmail: string;
-    notes: string;
-    notesHistory?: string;
-    createdAt: string;
-}
-
-export interface StudentProfile {
-    studentId?: string;
-    name: string;
-    school: string;
-    grade: string;
-    date: string;
-    notes?: string;
-}
 
 export interface StyleSettings {
     fontSize: number;
@@ -159,7 +118,14 @@ export interface StyleSettings {
     fontFamily: string;
     lineHeight: number;
     letterSpacing: number;
+    wordSpacing: number; // New
+    paragraphSpacing: number; // New
     title?: string;
+    // Clinical Accessibility
+    focusMode: boolean;
+    rulerColor: string;
+    rulerHeight: number; // New
+    maskOpacity: number;
 }
 
 export interface UiSettings {
@@ -178,14 +144,33 @@ export interface BaseActivityData {
     imageBase64?: string;
 }
 
+export type BlockType = 'text' | 'question' | 'grid' | 'image' | 'math' | 'matching' | 'custom' | 'header';
+
+export interface WorksheetBlock {
+    id: string;
+    type: BlockType;
+    content: any;
+    weight: number; 
+    style?: Partial<StyleSettings>;
+    layout?: { x: number, y: number, w: number, h: number };
+}
+
+export interface SingleWorksheetData extends BaseActivityData {
+    blocks?: WorksheetBlock[];
+    sections?: any[];
+    [key: string]: any;
+}
+
+export type WorksheetData = SingleWorksheetData[];
+
+// ... existing interfaces ...
 export interface Activity {
     id: ActivityType;
     title: string;
     description: string;
     icon: string;
-    promptId?: string;
-    isCustom?: boolean;
     defaultStyle?: Partial<StyleSettings>;
+    promptId?: string;
 }
 
 export interface ActivityCategory {
@@ -196,71 +181,105 @@ export interface ActivityCategory {
     activities: ActivityType[];
 }
 
+export interface Student {
+    id: string;
+    teacherId: string;
+    createdAt: string;
+    name: string;
+    age: number;
+    grade: string;
+    avatar: string;
+    diagnosis: string[];
+    interests: string[];
+    strengths: string[];
+    weaknesses: string[];
+    learningStyle: 'Görsel' | 'İşitsel' | 'Kinestetik' | 'Karma';
+    parentName: string;
+    contactPhone: string;
+    contactEmail: string;
+    notesHistory?: string;
+    notes: string;
+}
+
+export interface StudentProfile {
+    studentId?: string;
+    name: string;
+    school: string;
+    grade: string;
+    date: string;
+    notes?: string;
+}
+
 export interface GeneratorOptions {
     mode: 'fast' | 'ai';
     difficulty: 'Başlangıç' | 'Orta' | 'Zor' | 'Uzman';
     worksheetCount: number;
     itemCount: number;
-    gridSize?: number;
     topic?: string;
-    distractionLevel?: 'low' | 'medium' | 'high' | 'extreme';
-    visualType?: string;
-    concept?: string;
-    variant?: string;
+    gridSize?: number;
+    gridRows?: number;
+    gridCols?: number;
     case?: 'upper' | 'lower';
-    useSearch?: boolean;
-    studentContext?: Student;
-    selectedOperations?: string[];
-    allowCarry?: boolean;
-    allowBorrow?: boolean;
-    numberRange?: string;
+    targetPair?: string;
+    targetFrequency?: 'low' | 'medium' | 'high';
+    distractorStrategy?: 'random' | 'similar' | 'mirror';
+    variant?: string;
+    patternType?: string;
     operationType?: string;
-    visualStyle?: string;
-    groupSize?: number;
-    groupCount?: number;
-    symbolType?: string;
+    numberRange?: string;
     codeLength?: number;
     targetLetters?: string;
-    targetPair?: string;
+    visualType?: string;
+    distractionLevel?: 'low' | 'medium' | 'high' | 'extreme';
+    findDiffType?: string;
     targetChar?: string;
     distractorChar?: string;
     memorizeRatio?: number;
-    findDiffType?: string;
-    mapInstructionTypes?: string[];
+    fontFamily?: string;
+    pyramidHeight?: number;
     emphasizedRegion?: string;
+    mapInstructionTypes?: string[];
     showCityNames?: boolean;
     markerStyle?: string;
     customInput?: string;
-    logicModel?: 'identity' | 'exclusion' | 'sequence' | 'cryptarithmetic';
+    selectedOperations?: string[];
+    studentContext?: Student;
+    visualStyle?: string;
+    showNumbers?: boolean;
+    showVisualAid?: boolean;
     showSumTarget?: boolean;
-    fontFamily?: string;
-    [key: string]: any;
+    include5N1K?: boolean;
+    focusVocabulary?: boolean;
+    includeCreativeTask?: boolean;
+    // Added syllableRange to GeneratorOptions to fix generator errors
+    syllableRange?: string;
 }
 
 export interface SavedWorksheet {
     id: string;
     userId: string;
-    studentId?: string;
+    studentId?: string | null;
     name: string;
     activityType: ActivityType;
-    worksheetData: any[];
+    worksheetData: SingleWorksheetData[];
     createdAt: string;
     icon: string;
-    category: { id: string; title: string };
+    category: { id: string, title: string };
     sharedBy?: string;
     sharedByName?: string;
     sharedWith?: string;
     styleSettings?: StyleSettings;
     studentProfile?: StudentProfile;
-    workbookItems?: any[];
-    workbookSettings?: any;
+    workbookItems?: CollectionItem[];
+    workbookSettings?: WorkbookSettings;
+    report?: AssessmentReport;
 }
 
 export interface HistoryItem {
     id: string;
     userId: string;
     activityType: ActivityType;
-    data: any[];
+    data: SingleWorksheetData[];
     timestamp: string;
     title: string;
     category: { id: string; title: string };
@@ -269,15 +288,15 @@ export interface HistoryItem {
 export interface CollectionItem {
     id: string;
     activityType: ActivityType;
-    itemType?: 'activity' | 'divider';
     data: any;
     settings: StyleSettings;
     title: string;
+    itemType?: 'activity' | 'divider';
     overrideStyle?: Partial<StyleSettings>;
     dividerConfig?: {
         title: string;
-        subtitle?: string;
-        icon?: string;
+        subtitle: string;
+        icon: string;
     };
 }
 
@@ -298,99 +317,36 @@ export interface WorkbookSettings {
     logoUrl?: string;
 }
 
-export interface AssessmentProfile {
-    studentName: string;
-    age: number;
-    grade: string;
-    observations: string[];
-    testResults?: Record<string, { name: string; accuracy: number }>;
-    errorPatterns?: Record<string, number>;
-}
+export type UserRole = 'user' | 'admin';
+export type UserStatus = 'active' | 'suspended';
 
-export interface AssessmentReport {
-    overallSummary: string;
-    scores: Record<string, number>;
-    chartData: { label: string; value: number; fullMark: number }[];
-    analysis: {
-        strengths: string[];
-        weaknesses: string[];
-        errorAnalysis: string[];
-    };
-    roadmap: {
-        activityId: string;
-        reason: string;
-        frequency: string;
-    }[];
-    observations?: any;
-}
-
-export interface SavedAssessment {
+export interface User {
     id: string;
-    userId: string;
-    studentId?: string;
-    studentName: string;
-    gender: 'Kız' | 'Erkek';
-    age: number;
-    grade: string;
-    report: AssessmentReport;
+    email: string;
+    name: string;
+    role: UserRole;
+    avatar: string;
     createdAt: string;
-    sharedBy?: string;
-    sharedByName?: string;
-    sharedWith?: string;
+    lastLogin: string;
+    worksheetCount: number;
+    status: UserStatus;
+    subscriptionPlan: string;
+    favorites: ActivityType[];
+    lastActiveActivity?: {
+        id: string;
+        title: string;
+        date: string;
+    };
 }
 
-export interface Curriculum {
-    id: string;
-    studentId?: string;
-    studentName: string;
-    grade: string;
-    startDate: string;
-    durationDays: number;
-    goals: string[];
-    schedule: CurriculumDay[];
-    note: string;
-    interests: string[];
-    weaknesses: string[];
-    createdAt?: string;
-    userId?: string;
-    sharedBy?: string;
-    sharedByName?: string;
-    sharedWith?: string;
-}
-
-export interface CurriculumDay {
-    day: number;
-    focus: string;
-    activities: CurriculumActivity[];
-    isCompleted: boolean;
-}
-
-export interface CurriculumActivity {
-    id: string;
-    activityId: string;
-    title: string;
-    duration: number;
-    goal: string;
-    difficultyLevel: 'Easy' | 'Medium' | 'Hard';
-    status: CurriculumActivityStatus;
-}
-
-export type CurriculumActivityStatus = 'pending' | 'completed' | 'skipped';
-
-export interface OverlayItem {
-    id: string;
-    type: 'text' | 'sticker';
-    x: number;
-    y: number;
-    content: string;
-    style?: any;
-}
+export type FeedbackCategory = 'general' | 'bug' | 'feature' | 'content';
+export type FeedbackStatus = 'new' | 'read' | 'in-progress' | 'resolved' | 'replied';
 
 export interface FeedbackItem {
     id: string;
     userId?: string;
     userName: string;
-    userEmail?: string;
+    userEmail: string;
     activityType: string;
     activityTitle: string;
     rating: number;
@@ -400,9 +356,6 @@ export interface FeedbackItem {
     status: FeedbackStatus;
     adminReply?: string;
 }
-
-export type FeedbackCategory = 'general' | 'bug' | 'feature' | 'content';
-export type FeedbackStatus = 'new' | 'read' | 'in-progress' | 'replied' | 'resolved';
 
 export interface Message {
     id: string;
@@ -423,18 +376,61 @@ export interface ActivityStats {
     avgCompletionTime: number;
 }
 
-export type CognitiveDomain = 'visual_spatial_memory' | 'processing_speed' | 'selective_attention' | 'logical_reasoning' | 'phonological_loop';
+export interface OCRResult {
+    rawText: string;
+    detectedType: string;
+    title: string;
+    description: string;
+    generatedTemplate: string;
+    structuredData?: any;
+    baseType: string;
+}
 
-export interface SubTestResult {
-    testId: CognitiveDomain;
-    name: string;
-    score: number;
-    rawScore: number;
-    totalItems: number;
-    avgReactionTime: number;
-    accuracy: number;
-    status: 'completed' | 'skipped' | 'incomplete';
-    timestamp: number;
+export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'diamond' | 'pentagon' | 'octagon';
+export type VisualMathType = 'objects' | 'ten-frame' | 'dice' | 'blocks' | 'number-bond' | 'mixed';
+
+export interface OverlayItem {
+    id: string;
+    type: 'text' | 'image' | 'shape';
+    content: string;
+    x: number;
+    y: number;
+    width?: number;
+    height?: number;
+    rotation?: number;
+}
+
+export interface AssessmentReport {
+    overallSummary: string;
+    scores: Record<string, number>;
+    chartData: { label: string; value: number; fullMark: number }[];
+    analysis: { strengths: string[]; weaknesses: string[]; errorAnalysis: string[] };
+    roadmap: { activityId: string; reason: string; frequency: string }[];
+    observations?: ClinicalObservation;
+}
+
+export interface SavedAssessment {
+    id: string;
+    userId: string;
+    studentId?: string;
+    studentName: string;
+    gender: 'Kız' | 'Erkek';
+    age: number;
+    grade: string;
+    createdAt: string;
+    report: AssessmentReport;
+    sharedBy?: string;
+    sharedByName?: string;
+    sharedWith?: string;
+}
+
+export interface AssessmentProfile {
+    studentName: string;
+    age: number;
+    grade: string;
+    observations: string[];
+    testResults?: Record<string, any>;
+    errorPatterns?: Record<string, number>;
 }
 
 export interface ProfessionalAssessmentReport {
@@ -456,20 +452,36 @@ export interface ProfessionalAssessmentReport {
     roadmap: AssessmentRoadmapItem[];
 }
 
+export interface SubTestResult {
+    testId: string;
+    name: string;
+    score: number;
+    rawScore: number;
+    totalItems: number;
+    avgReactionTime: number;
+    accuracy: number;
+    status: 'completed' | 'skipped' | 'incomplete';
+    timestamp: number;
+}
+
+export type CognitiveDomain = 'visual_spatial_memory' | 'processing_speed' | 'selective_attention' | 'phonological_loop' | 'logical_reasoning';
+
 export interface ClinicalObservation {
     anxietyLevel: 'low' | 'medium' | 'high';
     attentionSpan: 'focused' | 'distracted' | 'hyperactive';
-    motorSkills: 'typical' | 'delayed';
+    motorSkills: 'typical' | 'delayed' | 'advanced';
     notes: string;
 }
 
 export interface AssessmentRoadmapItem {
-    activityId: ActivityType;
+    activityId: string;
     title: string;
     reason: string;
     frequency: string;
     priority: 'low' | 'medium' | 'high';
 }
+
+export type TestCategory = 'linguistic' | 'logical' | 'spatial' | 'musical' | 'kinesthetic' | 'naturalistic' | 'interpersonal' | 'intrapersonal' | 'attention';
 
 export interface AdaptiveQuestion {
     id: string;
@@ -482,73 +494,85 @@ export interface AdaptiveQuestion {
     errorTags: Record<string, string>;
 }
 
-export type TestCategory = 'linguistic' | 'logical' | 'spatial' | 'attention' | 'musical' | 'kinesthetic' | 'naturalistic' | 'interpersonal' | 'intrapersonal';
-
 export interface AssessmentConfig {
     selectedSkills: TestCategory[];
-    mode: 'quick' | 'standard' | 'expert';
+    mode: 'quick' | 'standard' | 'detailed';
 }
 
-export interface OCRResult {
-    rawText: string;
-    detectedType: string;
+export interface Curriculum {
+    id: string;
+    userId?: string;
+    studentId?: string;
+    studentName: string;
+    grade: string;
+    startDate: string;
+    durationDays: number;
+    goals: string[];
+    schedule: CurriculumDay[];
+    note: string;
+    interests: string[];
+    weaknesses: string[];
+    createdAt?: string;
+    sharedBy?: string;
+    sharedByName?: string;
+    sharedWith?: string;
+}
+
+export interface CurriculumDay {
+    day: number;
+    focus: string;
+    isCompleted: boolean;
+    activities: CurriculumActivity[];
+}
+
+export type CurriculumActivityStatus = 'pending' | 'completed' | 'skipped';
+
+export interface CurriculumActivity {
+    id: string;
+    activityId: string;
     title: string;
-    description: string;
-    generatedTemplate: string;
-    structuredData: any;
-    baseType: string;
+    duration: number;
+    goal: string;
+    difficultyLevel: 'Easy' | 'Medium' | 'Hard';
+    status: CurriculumActivityStatus;
 }
-
-export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'diamond' | 'pentagon' | 'octagon';
-export type VisualMathType = 'objects' | 'ten-frame' | 'number-bond' | 'dice' | 'blocks' | 'mixed';
-
-export type SingleWorksheetData = any;
-export type WorksheetData = SingleWorksheetData[] | null;
 
 export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes';
-
-export interface LayoutItemStyle {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    zIndex: number;
-    rotation?: number;
-    padding?: number;
-    backgroundColor?: string;
-    borderColor?: string;
-    borderWidth?: number;
-    borderStyle?: string;
-    borderRadius?: number;
-    opacity?: number;
-    boxShadow?: string;
-    textAlign?: string;
-    color?: string;
-    fontSize?: number;
-    fontFamily?: string;
-    lineHeight?: number;
-    letterSpacing?: number;
-    fontWeight?: string;
-    imageSettings?: {
-        enabled: boolean;
-        position: 'left' | 'right';
-        widthPercent: number;
-        opacity: number;
-        objectFit: 'cover' | 'contain';
-        borderRadius: number;
-        blendMode: string;
-        filter?: string;
-    };
-}
 
 export interface LayoutItem {
     id: LayoutSectionId;
     label: string;
     icon: string;
-    description: string;
-    style: LayoutItemStyle;
-    specificData?: any;
     isVisible: boolean;
+    style: {
+        x: number; y: number; w: number; h: number; zIndex: number; rotation: number;
+        padding: number;
+        backgroundColor: string;
+        borderColor: string;
+        borderWidth: number;
+        borderStyle: string;
+        borderRadius: number;
+        opacity: number;
+        boxShadow: string;
+        textAlign: string;
+        color: string;
+        fontSize: number;
+        fontFamily: string;
+        lineHeight: number;
+        letterSpacing: number;
+        fontWeight?: string;
+        imageSettings?: {
+            enabled: boolean;
+            position: 'left' | 'right' | 'background';
+            widthPercent: number;
+            opacity: number;
+            objectFit: 'cover' | 'contain';
+            borderRadius: number;
+            blendMode: string;
+            filter: string;
+        }
+    };
+    specificData?: any;
 }
 
 export interface ReadingStudioConfig {
@@ -558,24 +582,14 @@ export interface ReadingStudioConfig {
     genre: string;
     tone: string;
     length: 'short' | 'medium' | 'long' | 'epic';
-    layoutDensity: 'compact' | 'comfortable' | 'loose';
+    layoutDensity: 'comfortable' | 'compact' | 'sparse';
     textComplexity: 'simple' | 'moderate' | 'advanced';
-    fontSettings: {
-        family: string;
-        size: number;
-        lineHeight: number;
-        letterSpacing: number;
-        wordSpacing: number;
-    };
+    fontSettings: { family: string; size: number; lineHeight: number; letterSpacing: number; wordSpacing: number };
     includeImage: boolean;
     imageSize: number;
     imageOpacity: number;
     imagePosition: 'left' | 'right';
-    imageGeneration: {
-        enabled: boolean;
-        style: string;
-        complexity: 'simple' | 'detailed';
-    };
+    imageGeneration: { enabled: boolean; style: string; complexity: 'simple' | 'detailed' };
     include5N1K: boolean;
     countMultipleChoice: number;
     countTrueFalse: number;
@@ -590,27 +604,4 @@ export interface ReadingStudioConfig {
     showSelfAssessment: boolean;
     showTeacherNotes: boolean;
     showDateSection: boolean;
-}
-
-export interface FamilyRelationPair {
-    definition: string;
-    label: string;
-    side: 'mom' | 'dad' | 'both' | 'none';
-}
-
-export interface FamilyRelationsData extends BaseActivityData {
-    pairs: FamilyRelationPair[];
-    momRelatives: string[];
-    dadRelatives: string[];
-    difficulty: string;
-}
-
-export interface FamilyLogicStatement {
-    text: string;
-    isTrue: boolean;
-}
-
-export interface FamilyLogicTestData extends BaseActivityData {
-    statements: FamilyLogicStatement[];
-    difficulty: string;
 }

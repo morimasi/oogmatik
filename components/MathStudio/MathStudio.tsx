@@ -252,7 +252,8 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
             items: mode === 'drill' ? generatedDrills : generatedProblems,
             // Flag for SheetRenderer to identify Math Studio Data
             isMathStudio: true,
-            title: pageConfig.title
+            title: pageConfig.title,
+            instruction: "Aşağıdaki matematik problemlerini çözün." // Added mandatory instruction
         };
     };
 

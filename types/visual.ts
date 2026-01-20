@@ -253,7 +253,6 @@ export interface HiddenPasswordGridData extends BaseActivityData {
     }[];
 }
 
-// Added missing interfaces for Logic and Visual activities
 export interface VisualNumberPatternData extends BaseActivityData {
     puzzles: {
         items: { number: number; color: string; size: number }[];
@@ -295,8 +294,6 @@ export interface RomanNumeralMultiplicationData extends BaseActivityData {
     }[];
 }
 
-// REMOVED DUPLICATE FamilyRelationsData that was causing ambiguity in types.ts
-
 export interface LogicDeductionData extends BaseActivityData {
     puzzles: {
         premises: string[];
@@ -311,5 +308,14 @@ export interface NumberBoxLogicData extends BaseActivityData {
         grid: number[][];
         target: number;
         rule: string;
+    }[];
+}
+
+export interface DirectionalTrackingData extends BaseActivityData {
+    puzzles: {
+        grid: string[][];
+        path: string[];
+        startPos: { r: number, c: number };
+        targetWord: string;
     }[];
 }

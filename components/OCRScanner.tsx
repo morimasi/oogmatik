@@ -14,7 +14,15 @@ const PREVIEW_SETTINGS: StyleSettings = {
     orientation: 'portrait', themeBorder: 'simple', contentAlign: 'center', fontWeight: 'normal',
     fontStyle: 'normal', visualStyle: 'card', fontFamily: 'Lexend', lineHeight: 1.4,
     letterSpacing: 0, showPedagogicalNote: true, showMascot: false, showStudentInfo: true,
-    showTitle: true, showInstruction: true, showImage: false, showFooter: true, smartPagination: true
+    showTitle: true, showInstruction: true, showImage: false, showFooter: true, smartPagination: true,
+    // Added missing properties for StyleSettings
+    wordSpacing: 2,
+    paragraphSpacing: 24,
+    rulerHeight: 80,
+    // Clinical Accessibility
+    focusMode: false,
+    rulerColor: '#6366f1',
+    maskOpacity: 0.4
 };
 
 const resizeImage = (file: File): Promise<string> => {
@@ -171,7 +179,7 @@ export const OCRScanner: React.FC<{ onBack: () => void; onResult: (data: any) =>
                              <p className="text-zinc-400 max-w-xl mx-auto text-lg leading-relaxed font-medium">Elinizdeki herhangi bir çalışma sayfasının fotoğrafını yükleyin. AI, sayfa düzenini (Layout) analiz eder ve tamamen yeni sorularla dijital bir varyasyonunu üretir.</p>
                         </div>
 
-                        <div className="w-full max-w-3xl aspect-video border-4 border-dashed border-zinc-800 hover:border-indigo-500 rounded-[4rem] flex flex-col items-center justify-center cursor-pointer transition-all group bg-zinc-900/40 backdrop-blur-xl relative overflow-hidden shadow-2xl" onClick={() => fileInputRef.current?.click()}>
+                        <div className="w-full max-w-3xl aspect-video border-4 border-dashed border-zinc-800 hover:border-indigo-50 rounded-[4rem] flex flex-col items-center justify-center cursor-pointer transition-all group bg-zinc-900/40 backdrop-blur-xl relative overflow-hidden shadow-2xl" onClick={() => fileInputRef.current?.click()}>
                             <div className="absolute inset-0 bg-indigo-600/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             
                             <div className="relative z-10 flex flex-col items-center">

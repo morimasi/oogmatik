@@ -22,6 +22,9 @@ import { WordSearchConfig } from './WordSearchConfig';
 import { FindDifferenceConfig } from './FindDifferenceConfig';
 import { ShapeCountingConfig } from './ShapeCountingConfig';
 import { MorphologyConfig } from './MorphologyConfig';
+import { ReadingPyramidConfig } from './ReadingPyramidConfig';
+import { NumberPathLogicConfig } from './NumberPathLogicConfig';
+import { DirectionalTrackingConfig } from './DirectionalTrackingConfig';
 
 export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.MATH_MEMORY_CARDS]: MathMemoryCardsConfig,
@@ -46,4 +49,7 @@ export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.FIND_THE_DIFFERENCE]: FindDifferenceConfig,
     [ActivityType.SHAPE_COUNTING]: ShapeCountingConfig,
     [ActivityType.MORPHOLOGY_MATRIX]: MorphologyConfig,
+    [ActivityType.READING_PYRAMID]: ReadingPyramidConfig,
+    [ActivityType.NUMBER_PATH_LOGIC]: NumberPathLogicConfig,
+    [ActivityType.DIRECTIONAL_TRACKING]: DirectionalTrackingConfig,
 };

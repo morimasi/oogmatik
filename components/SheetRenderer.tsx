@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { ActivityType, SingleWorksheetData } from '../types';
+import { ActivityType, SingleWorksheetData, WorksheetBlock } from '../types';
 
-// --- MATH & LOGIC ---
+// ... existing imports ...
 import { MathPuzzleSheet } from './sheets/math/MathPuzzleSheet';
 import { NumberPatternSheet } from './sheets/math/NumberPatternSheet';
 import { RealLifeMathProblemsSheet } from './sheets/math/RealLifeMathProblemsSheet';
@@ -12,8 +12,7 @@ import { NumberPyramidSheet } from './sheets/math/NumberPyramidSheet';
 import { OddOneOutSheet } from './sheets/math/OddOneOutSheet';
 import { AlgorithmSheet } from './sheets/logic/AlgorithmSheet';
 import { NumberLogicRiddleSheet } from './sheets/math/NumberLogicRiddleSheet';
-
-// --- DISCALCULIA ---
+import { NumberPathLogicSheet } from './sheets/math/NumberPathLogicSheet';
 import { VisualArithmeticSheet } from './sheets/math/VisualArithmeticSheet';
 import { ClockReadingSheet } from './sheets/math/ClockReadingSheet';
 import { NumberSenseSheet } from './sheets/math/NumberSenseSheet';
@@ -22,27 +21,21 @@ import { MathMemoryCardsSheet } from './sheets/math/MathMemoryCardsSheet';
 import { SpatialGridSheet } from './sheets/math/SpatialGridSheet';
 import { ConceptMatchSheet } from './sheets/math/ConceptMatchSheet';
 import { EstimationSheet } from './sheets/math/EstimationSheet';
-
-// --- ATTENTION & MEMORY ---
 import { WordMemorySheet, VisualMemorySheet, CharacterMemorySheet, ColorWheelSheet, ImageComprehensionSheet } from './sheets/attention/MemorySheets';
 import { StroopTestSheet } from './sheets/attention/StroopTestSheet';
 import { BurdonTestSheet, NumberSearchSheet, AttentionDevelopmentSheet, ChaoticNumberSearchSheet, AttentionFocusSheet, FindDuplicateSheet, LetterGridTestSheet, TargetSearchSheet } from './sheets/attention/AttentionSheets';
-
-// --- VERBAL & DYSLEXIA ---
 import { StoryComprehensionSheet } from './sheets/verbal/StoryComprehensionSheet';
 import { ReadingFlowSheet } from './sheets/verbal/ReadingFlowSheet';
 import { PhonologicalAwarenessSheet, RapidNamingSheet, LetterDiscriminationSheet, MirrorLettersSheet, SyllableTrainSheet, VisualTrackingLinesSheet, BackwardSpellingSheet, CodeReadingSheet, AttentionToQuestionSheet, HandwritingPracticeSheet } from './sheets/verbal/ReadingSupportSheets';
 import { AnagramSheet, WordSearchSheet, HiddenPasswordGridSheet, CrosswordSheet } from './sheets/verbal/WordGameSheets';
-import { SyllableMasterLabSheet, ReadingSudokuSheet, ReadingStroopSheet, SynonymAntonymMatchSheet, SyllableWordBuilderSheet, LetterVisualMatchingSheet, FamilyLogicSheet, FamilyRelationsSheet, FindLetterPairSheet, MorphologyMatrixSheet } from './sheets/verbal/ReadingSheets'; 
-
-// --- VISUAL PERCEPTION ---
+import { SyllableMasterLabSheet, ReadingSudokuSheet, ReadingStroopSheet, SynonymAntonymMatchSheet, SyllableWordBuilderSheet, LetterVisualMatchingSheet, FamilyLogicSheet, FamilyRelationsSheet, FindLetterPairSheet, MorphologyMatrixSheet, ReadingPyramidSheet } from './sheets/verbal/ReadingSheets'; 
 import { MapDetectiveSheet } from './sheets/visual/MapDetectiveSheet'; 
 import { FindTheDifferenceSheet } from './sheets/visual/FindTheDifferenceSheet';
 import { VisualOddOneOutSheet } from './sheets/visual/VisualOddOneOutSheet';
 import { GridDrawingSheet } from './sheets/visual/GridDrawingSheet';
 import { SymmetryDrawingSheet } from './sheets/visual/SymmetryDrawingSheet';
 import { ShapeCountingSheet } from './sheets/visual/ShapeCountingSheet';
-
+import { DirectionalTrackingSheet } from './sheets/visual/DirectionalTrackingSheet';
 import { ReadingStudioContentRenderer } from './ReadingStudio/ReadingStudioContentRenderer';
 import { PedagogicalHeader } from './sheets/common';
 import { EditableText, EditableElement } from './Editable';
@@ -52,7 +45,43 @@ interface SheetRendererProps {
     data: SingleWorksheetData;
 }
 
-const RichContentRenderer = ({ data }: { data: any }) => {
+// Fixed: Explicitly type BlockRenderer as React.FC to resolve the 'key' property error when used in map loops
+const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
+    switch (block.type) {
+        case 'header':
+            return <h2 className="text-2xl font-black uppercase border-b-4 border-black mb-4"><EditableText value={block.content} /></h2>;
+        case 'text':
+            return <div className="text-lg leading-relaxed mb-6 text-justify font-dyslexic"><EditableText value={block.content} /></div>;
+        case 'question':
+            return (
+                <div className="p-4 bg-zinc-50 border-2 border-zinc-200 rounded-2xl mb-4 group">
+                    <p className="font-bold mb-2 flex gap-2"><span className="w-6 h-6 bg-black text-white rounded-lg flex items-center justify-center text-xs">?</span><EditableText value={block.content.text} /></p>
+                    <div className="h-10 border-b-2 border-dashed border-zinc-300"></div>
+                </div>
+            );
+        case 'grid':
+            return <div className="p-4 border-4 border-black rounded-3xl bg-white shadow-xl mx-auto w-fit mb-6">Tablo Verisi...</div>;
+        case 'image':
+            return <div className="w-full h-48 bg-zinc-100 rounded-[2rem] border-2 border-dashed border-zinc-200 mb-6 flex items-center justify-center text-zinc-300"><i className="fa-solid fa-image text-3xl"></i></div>;
+        default:
+            return <div className="p-2 border border-dashed border-zinc-200 text-[10px] text-zinc-400">Tanımlanamayan Blok</div>;
+    }
+};
+
+const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
+    // Eğer bloklar varsa (OCR veya Yeni Mimari) blok bazlı render et
+    if (data.blocks && data.blocks.length > 0) {
+        return (
+            <div className="w-full h-full flex flex-col">
+                <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+                <div className="flex-1 flex flex-col gap-4">
+                    {data.blocks.map((block) => <BlockRenderer key={block.id} block={block} />)}
+                </div>
+            </div>
+        );
+    }
+    
+    // Klasik "sections" yapısı için fallback
     return (
         <div className="space-y-10 w-full animate-in fade-in duration-700">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
@@ -78,8 +107,8 @@ const RichContentRenderer = ({ data }: { data: any }) => {
 export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererProps) => {
     if (!data) return null;
     
-    if (activityType === ActivityType.AI_WORKSHEET_CONVERTER || activityType === ActivityType.OCR_CONTENT || data.sections) {
-        return <RichContentRenderer data={data} />;
+    if (activityType === ActivityType.AI_WORKSHEET_CONVERTER || activityType === ActivityType.OCR_CONTENT || data.sections || data.blocks) {
+        return <UnifiedContentRenderer data={data} />;
     }
 
     if (activityType === ActivityType.STORY_COMPREHENSION && data.layout) {
@@ -87,7 +116,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
     }
 
     switch (activityType) {
-        // --- MATH & LOGIC ---
         case ActivityType.ALGORITHM_GENERATOR: return <AlgorithmSheet data={data} />;
         case ActivityType.MATH_PUZZLE: return <MathPuzzleSheet data={data} />;
         case ActivityType.NUMBER_PATTERN: return <NumberPatternSheet data={data} />;
@@ -101,8 +129,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.ODD_ONE_OUT:
         case ActivityType.THEMATIC_ODD_ONE_OUT: return <OddOneOutSheet data={data} />;
         case ActivityType.NUMBER_LOGIC_RIDDLES: return <NumberLogicRiddleSheet data={data} />;
-        
-        // --- DISCALCULIA ---
+        case ActivityType.NUMBER_PATH_LOGIC: return <NumberPathLogicSheet data={data} />;
         case ActivityType.VISUAL_ARITHMETIC: return <VisualArithmeticSheet data={data} />;
         case ActivityType.CLOCK_READING: return <ClockReadingSheet data={data} />;
         case ActivityType.NUMBER_SENSE: return <NumberSenseSheet data={data} />;
@@ -111,8 +138,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.SPATIAL_GRID: return <SpatialGridSheet data={data} />;
         case ActivityType.CONCEPT_MATCH: return <ConceptMatchSheet data={data} />;
         case ActivityType.ESTIMATION: return <EstimationSheet data={data} />;
-
-        // --- ATTENTION & MEMORY ---
         case ActivityType.WORD_MEMORY: return <WordMemorySheet data={data} />;
         case ActivityType.VISUAL_MEMORY: return <VisualMemorySheet data={data} />;
         case ActivityType.CHARACTER_MEMORY: return <CharacterMemorySheet data={data} />;
@@ -128,8 +153,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.LETTER_GRID_TEST: return <LetterGridTestSheet data={data} />;
         case ActivityType.FIND_LETTER_PAIR: return <FindLetterPairSheet data={data} />;
         case ActivityType.TARGET_SEARCH: return <TargetSearchSheet data={data} />;
-
-        // --- VERBAL & DYSLEXIA ---
         case ActivityType.STORY_COMPREHENSION: return <StoryComprehensionSheet data={data} />;
         case ActivityType.SYLLABLE_MASTER_LAB: return <SyllableMasterLabSheet data={data} />;
         case ActivityType.READING_SUDOKU: return <ReadingSudokuSheet data={data} />;
@@ -140,8 +163,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.FAMILY_RELATIONS: return <FamilyRelationsSheet data={data} />;
         case ActivityType.FAMILY_LOGIC_TEST: return <FamilyLogicSheet data={data} />;
         case ActivityType.MORPHOLOGY_MATRIX: return <MorphologyMatrixSheet data={data} />;
-        
-        // --- READING SUPPORT ---
+        case ActivityType.READING_PYRAMID: return <ReadingPyramidSheet data={data} />;
         case ActivityType.READING_FLOW: return <ReadingFlowSheet data={data} />;
         case ActivityType.PHONOLOGICAL_AWARENESS: return <PhonologicalAwarenessSheet data={data} />;
         case ActivityType.RAPID_NAMING: return <RapidNamingSheet data={data} />;
@@ -153,21 +175,17 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.CODE_READING: return <CodeReadingSheet data={data} />;
         case ActivityType.ATTENTION_TO_QUESTION: return <AttentionToQuestionSheet data={data} />;
         case ActivityType.HANDWRITING_PRACTICE: return <HandwritingPracticeSheet data={data} />;
-
-        // --- VISUAL PERCEPTION ---
         case ActivityType.MAP_INSTRUCTION: return <MapDetectiveSheet data={data} />; 
         case ActivityType.FIND_THE_DIFFERENCE: return <FindTheDifferenceSheet data={data} />;
         case ActivityType.VISUAL_ODD_ONE_OUT: return <VisualOddOneOutSheet data={data} />;
         case ActivityType.GRID_DRAWING: return <GridDrawingSheet data={data} />;
         case ActivityType.SYMMETRY_DRAWING: return <SymmetryDrawingSheet data={data} />;
         case ActivityType.SHAPE_COUNTING: return <ShapeCountingSheet data={data} />;
-
-        // --- WORD GAMES ---
+        case ActivityType.DIRECTIONAL_TRACKING: return <DirectionalTrackingSheet data={data} />;
         case ActivityType.HIDDEN_PASSWORD_GRID: return <HiddenPasswordGridSheet data={data} />;
         case ActivityType.WORD_SEARCH: return <WordSearchSheet data={data} />;
         case ActivityType.ANAGRAM: return <AnagramSheet data={data} />;
         case ActivityType.CROSSWORD: return <CrosswordSheet data={data} />;
-
         default: return <div className="p-12 text-center border-2 border-dashed border-zinc-200 rounded-3xl"><h3 className="font-bold text-zinc-500 uppercase">Modül: {activityType} - Henüz Görselleştirilmemiş</h3></div>;
     }
 });

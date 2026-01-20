@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react';
 import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig, ActivityType, Student } from '../../types';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
@@ -71,7 +72,7 @@ const DEFAULT_STYLE_BASE: LayoutItem['style'] = {
 const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
     { id: 'header', label: 'Başlık Künyesi', defaultTitle: 'HİKAYE KÜNYESİ', icon: 'fa-heading', description: 'Başlık, tür ve tarih alanı.', defaultStyle: { h: 120 } },
     { id: 'tracker', label: 'Okuma Takipçisi', defaultTitle: 'OKUMA TAKİBİ', icon: 'fa-eye', description: 'Okuma sayısını işaretleme alanı.', defaultStyle: { h: 60, w: 200 } },
-    { id: 'story_block', label: 'Hikaye Metni', defaultTitle: 'OKUMA METNİ', icon: 'fa-book-open', description: 'Ana metin ve görsel alanı.', defaultStyle: { h: 400, imageSettings: { enabled: true, position: 'right', widthPercent: 40, opacity: 1, objectFit: 'cover', borderRadius: 8, blendMode: 'normal' } } },
+    { id: 'story_block', label: 'Hikaye Metni', defaultTitle: 'OKUMA METNİ', icon: 'fa-book-open', description: 'Ana metin ve görsel alanı.', defaultStyle: { h: 400, imageSettings: { enabled: true, position: 'right', widthPercent: 40, opacity: 1, objectFit: 'cover', borderRadius: 8, blendMode: 'normal', filter: 'none' } } },
     { id: 'vocabulary', label: 'Sözlükçe', defaultTitle: 'SÖZLÜKÇE', icon: 'fa-spell-check', description: 'Zor kelimeler ve anlamları.', defaultStyle: { h: 150 } },
     { id: 'questions_5n1k', label: '5N 1K Analizi', defaultTitle: '5N 1K SORULARI', icon: 'fa-circle-question', description: 'Kim, Ne, Nerede soruları.', defaultStyle: { w: 754, h: 300 } },
     { id: 'questions_test', label: 'Test Soruları', defaultTitle: 'DEĞERLENDİRRE', icon: 'fa-list-check', description: 'Çoktan seçmeli sorular.', defaultStyle: { w: 754, h: 300 } },
@@ -804,7 +805,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         setIsSaving(true);
         try {
             const title = storyData?.title || (layout.find(l => l.id === 'header')?.specificData as any)?.title || 'Yeni Hikaye';
-            await worksheetService.saveWorksheet(user.id, title, ActivityType.STORY_COMPREHENSION, [{ storyData, layout }], 'fa-solid fa-book-open-reader', { id: 'reading-verbal', title: 'Okuma & Dil' }, undefined, undefined, activeStudent?.id);
+            await worksheetService.saveWorksheet(user.id, title, ActivityType.STORY_COMPREHENSION, [{ title, instruction: "Hikayeyi Okuyun", storyData, layout }], 'fa-solid fa-book-open-reader', { id: 'reading-verbal', title: 'Okuma & Dil' }, undefined, undefined, activeStudent?.id);
             setIsSaved(true);
             alert("Etkinlik başarıyla arşivlendi.");
         } catch (e) { alert("Kaydetme sırasında bir hata oluştu."); } finally { setIsSaving(false); }
@@ -813,7 +814,8 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     const handleAddToWorkbook = () => {
         if (!storyData && layout.length === 0) { alert("Eklenecek bir içerik bulunamadı."); return; }
         if (onAddToWorkbook) {
-            onAddToWorkbook({ storyData, layout });
+            const title = storyData?.title || (layout.find(l => l.id === 'header')?.specificData as any)?.title || 'Yeni Hikaye';
+            onAddToWorkbook({ title, instruction: "Hikayeyi Okuyun", storyData, layout });
             const btn = document.getElementById('rs-workbook-btn');
             if (btn) {
                 const original = btn.innerHTML;
@@ -828,7 +830,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         if (!user || (!storyData && layout.length === 0)) return;
         try {
             const title = storyData?.title || (layout.find(l => l.id === 'header')?.specificData as any)?.title || 'Yeni Hikaye';
-            const mockSavedWorksheet: any = { name: title, activityType: ActivityType.STORY_COMPREHENSION, worksheetData: [{ storyData, layout }], icon: 'fa-solid fa-book-open-reader', category: { id: 'reading-verbal', title: 'Okuma & Dil' } };
+            const mockSavedWorksheet: any = { name: title, activityType: ActivityType.STORY_COMPREHENSION, worksheetData: [{ title, instruction: "Hikayeyi Okuyun", storyData, layout }], icon: 'fa-solid fa-book-open-reader', category: { id: 'reading-verbal', title: 'Okuma & Dil' } };
             await worksheetService.shareWorksheet(mockSavedWorksheet, user.id, user.name, receiverId);
             setIsShareModalOpen(false);
             alert("Etkinlik başarıyla paylaşıldı.");

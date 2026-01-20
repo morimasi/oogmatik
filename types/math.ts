@@ -253,9 +253,13 @@ export interface MathMemoryCardsData extends BaseActivityData {
 
 export interface NumberLogicRiddleData extends BaseActivityData {
     sumTarget: number;
-    sumMessage: string;
+    sumMessage?: string;
+    showVisualAid?: boolean;
+    numberRangeStart?: number;
+    numberRangeEnd?: number;
     puzzles: {
-        riddle: string;
+        riddle?: string; // Legacy support
+        riddleParts?: { text: string; icon: string; type: 'parity'|'range'|'digits'|'operation' }[];
         visualHint?: string;
         boxes: number[][];
         options: string[];
@@ -301,5 +305,13 @@ export interface ConceptMatchData extends BaseActivityData {
     pairs: {
         item1: string;
         item2: string;
+    }[];
+}
+
+export interface NumberPathLogicData extends BaseActivityData {
+    legend: { symbol: string; operation: string; value: number; color: string }[];
+    chains: {
+        startNumber: number;
+        steps: { symbol: string; expectedValue: number | null }[];
     }[];
 }
