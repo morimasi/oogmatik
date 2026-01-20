@@ -1,29 +1,31 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, NumberPathLogicData, NumberLogicRiddleData } from '../../types';
+import { GeneratorOptions, NumberLogicRiddleData } from '../../types';
 import { getMathPrompt } from './prompts';
 
-/**
- * Sembolik İşlem Zinciri (AI Modu)
- */
-export const generateNumberPathLogicFromAI = async (options: GeneratorOptions): Promise<NumberPathLogicData[]> => {
-    const { difficulty, codeLength = 3, itemCount = 6, studentContext } = options;
+export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
+    const { difficulty, itemCount = 6, gridSize = 3, studentContext } = options;
     
     const rule = `
-    [GÖREV]: Sembolik İşlem Zinciri Üret.
-    [ZORLUK]: ${difficulty}
-    [ZİNCİR UZUNLUĞU]: ${codeLength} adım.
-    [ADET]: ${itemCount} adet bağımsız işlem zinciri.
+    [KESİN TEKNİK ZORUNLULUK]: 
+    1. Üretilecek Toplam Bilmece Sayısı: TAM OLARAK ${itemCount} ADET.
+    2. Her Bilmece İçin İpucu Sayısı: TAM OLARAK ${gridSize} ADET. (Eksik veya fazla olamaz!)
     
-    KURALLAR:
-    1. Bir 'legend' (lejant) oluştur: Her sembol (circle, square, triangle, hexagon) bir işleme (+5, -2, x3) denk gelmeli.
-    2. 'chains' dizisinde bir başlangıç sayısı (startNumber) ve bu sayıya uygulanacak sembol dizisini ver.
-    3. Her adımda sonucun tam sayı ve pozitif kalmasını sağla.
-    4. En az 4 farklı sembol-renk çifti kullan.
+    [İÇERİK STRATEJİSİ]:
+    - Bilmeceler "${difficulty}" seviyesinde olmalı.
+    - 'riddleParts' dizisi EKSİKSİZ ${gridSize} adet farklı ipucu içermelidir.
+    - İpuçlarını şu kategorilere paylaştır: 'parity' (tek/çift), 'digits' (rakam toplamı/farkı), 'comparison' (büyüklük/küçüklük), 'arithmetic' (katlar/asal durum), 'range' (onluk/yüzlük dilimi).
+    - İpucu sayısı 5'ten fazlaysa, her ipucu hedef sayıyı daraltan spesifik birer "filtre" gibi çalışmalıdır.
+    
+    [HATA KONTROLÜ]:
+    - 'sumTarget': Tüm doğru cevapların toplamını KESİNLİKLE doğru hesapla.
+    - 'visualDistraction': Sayfanın altına serpiştirilecek 5 adet "şüpheli sayı" üret.
+    
+    [DİKKAT]: Eğer ${gridSize} adet ipucu istenmişse, JSON 'riddleParts' dizisinde tam olarak ${gridSize} adet obje bulunmalıdır. Bu bir sistem kısıtlamasıdır.
     `;
 
-    const prompt = getMathPrompt("Sembolik İşlem Zinciri", difficulty, rule, studentContext);
+    const prompt = getMathPrompt(`Gizemli Sayılar: Yüksek Hassasiyetli Analiz (Adet: ${itemCount}, İpucu: ${gridSize})`, difficulty, rule, studentContext);
 
     const schema = {
         type: Type.ARRAY,
@@ -33,97 +35,34 @@ export const generateNumberPathLogicFromAI = async (options: GeneratorOptions): 
                 title: { type: Type.STRING },
                 instruction: { type: Type.STRING },
                 pedagogicalNote: { type: Type.STRING },
-                legend: {
+                sumTarget: { type: Type.INTEGER, description: "Tüm doğru cevap değerlerinin matematiksel toplamı" },
+                sumMessage: { type: Type.STRING },
+                puzzles: {
                     type: Type.ARRAY,
+                    description: `Tam olarak ${itemCount} adet bilmece nesnesi içermelidir.`,
                     items: {
                         type: Type.OBJECT,
                         properties: {
-                            symbol: { type: Type.STRING, enum: ['circle', 'square', 'triangle', 'hexagon', 'star'] },
-                            operation: { type: Type.STRING, enum: ['+', '-', 'x'] },
-                            value: { type: Type.INTEGER },
-                            color: { type: Type.STRING }
-                        },
-                        required: ['symbol', 'operation', 'value', 'color']
-                    }
-                },
-                chains: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            startNumber: { type: Type.INTEGER },
-                            steps: {
+                            id: { type: Type.STRING },
+                            riddleParts: {
                                 type: Type.ARRAY,
+                                description: `BU DİZİ TAM OLARAK ${gridSize} ADET ÖĞE İÇERMELİDİR.`,
                                 items: {
                                     type: Type.OBJECT,
                                     properties: {
-                                        symbol: { type: Type.STRING },
-                                        expectedValue: { type: Type.INTEGER, nullable: true }
+                                        text: { type: Type.STRING, description: "Kısa ve net mantıksal ipucu cümlesi" },
+                                        icon: { type: Type.STRING, description: "FontAwesome ikon adı (örn: fa-check)" },
+                                        type: { type: Type.STRING, enum: ['parity', 'digits', 'comparison', 'arithmetic', 'range'] }
                                     },
-                                    required: ['symbol']
-                                }
-                            }
-                        },
-                        required: ['startNumber', 'steps']
-                    }
-                }
-            },
-            required: ['title', 'legend', 'chains']
-        }
-    };
-
-    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
-};
-
-/**
- * Gizemli Sayılar: Dedektiflik Dosyası (AI Modu)
- */
-export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
-    const { difficulty, numberRange = '1-50', itemCount = 4, studentContext } = options;
-    
-    const rule = `
-    [GÖREV]: Sayısal Mantık Bilmeceleri.
-    [ADET]: ${itemCount} bağımsız bilmece.
-    [MENZİL]: ${numberRange}
-    
-    İPUCU KRİTERLERİ:
-    - Sayının tek/çift durumu.
-    - Basamak değerleri toplamı.
-    - Belirli sayılara olan uzaklığı/komşuluğu.
-    - Katları veya asal olma durumu (zorluk yüksekse).
-    - Çeldiriciler (options) hedefe yakın olmalı.
-    - sumTarget: Sayfadaki tüm doğru cevapların toplamı.
-    `;
-
-    const prompt = getMathPrompt("Gizemli Sayılar", difficulty, rule, studentContext);
-
-    const schema = {
-        type: Type.ARRAY,
-        items: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                instruction: { type: Type.STRING },
-                pedagogicalNote: { type: Type.STRING },
-                sumTarget: { type: Type.INTEGER },
-                puzzles: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            riddle: { type: Type.STRING },
-                            riddleParts: {
-                                type: Type.ARRAY,
-                                items: {
-                                    type: Type.OBJECT,
-                                    properties: { text: { type: Type.STRING }, icon: { type: Type.STRING } }
+                                    required: ['text', 'icon', 'type']
                                 }
                             },
-                            boxes: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } },
-                            options: { type: Type.ARRAY, items: { type: Type.STRING } },
-                            answer: { type: Type.STRING },
-                            answerValue: { type: Type.INTEGER }
-                        }
+                            visualDistraction: { type: Type.ARRAY, items: { type: Type.INTEGER } },
+                            options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 adet seçenek (1 doğru, 3 çeldirici)" },
+                            answer: { type: Type.STRING, description: "Doğru cevabın string hali" },
+                            answerValue: { type: Type.INTEGER, description: "Doğru cevabın sayısal değeri" }
+                        },
+                        required: ['riddleParts', 'options', 'answer', 'answerValue']
                     }
                 }
             }

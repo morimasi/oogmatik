@@ -100,5 +100,49 @@ export const ocrService = {
             console.error("Deep OCR Error:", error);
             throw new Error("Görsel mimarisi çözümlenemedi.");
         }
+    },
+
+    /**
+     * HARİTA ANALİZ MOTORU
+     * Özel bir harita görselini analiz eder ve yönerge üretimi için veriye dönüştürür.
+     */
+    analyzeMapImage: async (base64Image: string): Promise<any> => {
+        const prompt = `
+        [GÖREV: MULTIMODAL HARİTA ANALİZİ]
+        Ekteki harita görselini analiz et ve yönerge takibi için içindeki önemli nesneleri/noktaları belirle.
+        1. Görülen tüm metinleri ve etiketleri (şehir adları, duraklar, nesneler) çıkar.
+        2. Görsel üzerinde 0-1000 arası x ve 0-500 arası y koordinat sistemine göre bu noktaların konumlarını tahmin et.
+        3. Haritanın bağlamını belirle (Şehir haritası, oda planı, oyun haritası vb.).
+        
+        JSON Formatında Yanıt Ver:
+        {
+            "mapContext": "...",
+            "points": [
+                { "id": "p1", "name": "...", "x": number, "y": number, "isTarget": boolean }
+            ]
+        }
+        `;
+
+        const schema = {
+            type: Type.OBJECT,
+            properties: {
+                mapContext: { type: Type.STRING },
+                points: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            id: { type: Type.STRING },
+                            name: { type: Type.STRING },
+                            x: { type: Type.NUMBER },
+                            y: { type: Type.NUMBER },
+                            isTarget: { type: Type.BOOLEAN }
+                        }
+                    }
+                }
+            }
+        };
+
+        return await analyzeImage(base64Image, prompt, schema, 'gemini-3-flash-preview');
     }
 };

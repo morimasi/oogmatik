@@ -1,99 +1,106 @@
 
 import React from 'react';
 import { NumberLogicRiddleData } from '../../../types';
-import { PedagogicalHeader, NumberLine, ImageDisplay } from '../common';
+import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> = ({ data }) => {
-    const gridCols = (data.puzzles?.length || 0) <= 2 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2';
+    const itemCount = data.puzzles?.length || 0;
+    
+    // Yüksek yoğunluklu (20 soruya kadar) dinamik grid mantığı
+    // 1-4 soru: 2 sütun
+    // 5-12 soru: 3 sütun
+    // 13-20 soru: 4 sütun (Ultra Kompakt)
+    const gridCols = itemCount <= 4 ? 'grid-cols-2' : (itemCount <= 12 ? 'grid-cols-3' : 'grid-cols-4');
+    
+    // Soru sayısına göre kart içi dikey boşluk ayarı
+    const cardPadding = itemCount > 12 ? 'p-2.5' : 'p-4';
+    const gapSize = itemCount > 12 ? 'gap-2' : 'gap-3';
+    const fontSize = itemCount > 12 ? 'text-[9px]' : 'text-[11px]';
+    const iconSize = itemCount > 12 ? 'w-4 h-4 text-[8px]' : 'w-5 h-5 text-[10px]';
 
     return (
-        <div className="h-full flex flex-col text-black font-lexend p-2 overflow-visible">
+        <div className="flex flex-col h-full bg-white text-black font-lexend p-1 overflow-hidden">
             <PedagogicalHeader 
                 title={data.title || "Sayısal Mantık Bilmeceleri"} 
-                instruction={data.instruction || "İpuçlarını oku ve doğru cevabı bul."} 
+                instruction={data.instruction || "Bilmeceleri çöz, doğru olanı işaretle."} 
                 note={data.pedagogicalNote} 
             />
-
-            {data.showVisualAid && (
-                <div className="mt-4 mb-8 px-4 break-inside-avoid">
-                    <div className="bg-zinc-50 border-2 border-dashed border-zinc-200 rounded-[2rem] p-6 relative">
-                        <span className="absolute -top-3 left-6 bg-white px-3 text-[10px] font-black text-indigo-500 uppercase tracking-widest border border-indigo-100 rounded-full">NAVİGASYON ŞERİDİ</span>
-                        <NumberLine 
-                            start={data.numberRangeStart || 1} 
-                            end={Math.min((data.numberRangeStart || 1) + 20, data.numberRangeEnd || 100)} 
-                            className="w-full" 
-                        />
-                    </div>
-                </div>
-            )}
             
-            <div className={`grid ${gridCols} gap-8 mt-2 flex-1 content-start px-2`}>
-                {(data.puzzles || []).map((puzzle: any, pIdx) => (
-                    <EditableElement key={pIdx} className="flex flex-col border-[4px] border-zinc-900 rounded-[2.5rem] bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] break-inside-avoid relative overflow-hidden group hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-300">
-                        
-                        <div className="bg-zinc-900 text-white px-6 py-3 flex justify-between items-center relative z-10">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-indigo-500/40">
-                                    {pIdx + 1}
-                                </div>
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">GİZEMLİ DOSYA</span>
-                            </div>
-                            <i className="fa-solid fa-user-secret text-zinc-500"></i>
+            <div className={`grid ${gridCols} ${gapSize} mt-2 flex-1 content-start`}>
+                {(data.puzzles || []).map((puzzle, pIdx) => (
+                    <EditableElement key={pIdx} className={`flex flex-col border-[1.2px] border-zinc-900 rounded-xl ${cardPadding} bg-white shadow-sm break-inside-avoid relative group hover:border-indigo-600 transition-all`}>
+                        {/* Soru Numarası - Küçültülmüş */}
+                        <div className="absolute -top-1.5 -left-1 w-6 h-6 bg-zinc-900 text-white rounded-md flex items-center justify-center font-black text-[10px] shadow-sm border border-white z-10">
+                            {pIdx + 1}
                         </div>
-                        
-                        <div className="p-6 flex-1 flex flex-col gap-6">
-                            <div className="space-y-3 relative z-10">
-                                {(puzzle.riddleParts || []).map((hint: any, hIdx: number) => (
-                                    <div key={hIdx} className="flex gap-4 items-center bg-zinc-50 p-3 rounded-2xl border border-zinc-200 group/hint hover:bg-white hover:border-indigo-300 transition-all">
-                                        <div className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-indigo-600 shadow-sm shrink-0 group-hover/hint:scale-110 transition-transform">
-                                            <i className={`fa-solid ${hint.icon || 'fa-magnifying-glass'}`}></i>
-                                        </div>
-                                        <p className="text-sm font-bold text-zinc-800 leading-tight">
-                                            <EditableText value={hint.text} tag="span" />
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
 
-                            <div className="mt-auto">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <div className="h-px bg-zinc-200 flex-1"></div>
-                                    <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">ŞÜPHELİLERİ ELE</span>
-                                    <div className="h-px bg-zinc-200 flex-1"></div>
+                        {/* Bilmece Parçacıkları (Yüksek Yoğunluklu Liste) */}
+                        <div className="space-y-1 mb-2">
+                            {puzzle.riddleParts.map((part, hIdx) => (
+                                <div key={hIdx} className="flex items-start gap-1.5 border-b border-zinc-50 last:border-0 pb-0.5">
+                                    <div className={`${iconSize} rounded bg-zinc-50 flex items-center justify-center text-zinc-400 shrink-0 mt-0.5`}>
+                                        <i className={`fa-solid ${part.icon}`}></i>
+                                    </div>
+                                    <p className={`${fontSize} font-bold leading-tight text-zinc-800 line-clamp-2`}>
+                                        <EditableText value={part.text} tag="span" />
+                                    </p>
                                 </div>
-                                <div className="flex justify-between gap-4">
-                                    {puzzle.options.map((opt: string, oIdx: number) => (
-                                        <div key={oIdx} className="flex-1 aspect-square rounded-2xl border-[3px] border-zinc-200 flex items-center justify-center font-black text-2xl text-zinc-800 cursor-pointer hover:bg-zinc-900 hover:text-white hover:border-zinc-900 transition-all shadow-sm active:scale-90">
-                                            {opt}
-                                        </div>
-                                    ))}
+                            ))}
+                        </div>
+
+                        {/* Çeldirici Sayı Bulutu (Hücre Tabanlı) */}
+                        <div className="flex flex-wrap gap-0.5 justify-center mb-2 opacity-30 group-hover:opacity-60 transition-opacity select-none border-t border-zinc-100 pt-1.5">
+                            {(puzzle.visualDistraction || []).map((num, nIdx) => (
+                                <span key={nIdx} className="text-[7px] font-mono font-black italic px-0.5">{num}</span>
+                            ))}
+                        </div>
+
+                        {/* Şıklar - Yüksek Yoğunluk için Sıkıştırılmış */}
+                        <div className="mt-auto grid grid-cols-2 gap-1">
+                            {puzzle.options.map((opt, oIdx) => (
+                                <div key={oIdx} className="flex items-center gap-1.5 p-1 border border-zinc-100 rounded-md hover:border-zinc-900 transition-colors cursor-pointer bg-zinc-50/50">
+                                    <div className="w-3.5 h-3.5 rounded-sm border-[1px] border-zinc-300 bg-white flex items-center justify-center text-[7px] font-black shrink-0">{String.fromCharCode(65 + oIdx)}</div>
+                                    <span className="text-[10px] font-black text-zinc-900 truncate">{opt}</span>
                                 </div>
-                            </div>
+                            ))}
                         </div>
                     </EditableElement>
                 ))}
             </div>
 
+            {/* Toplam Kontrol Paneli - Daha İnce Tasarım */}
             {data.sumTarget > 0 && (
-                <div className="mt-10 mb-6 break-inside-avoid px-2">
-                    <div className="bg-zinc-900 text-white p-8 rounded-[3.5rem] shadow-2xl flex items-center justify-between border-4 border-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-5 rotate-12"><i className="fa-solid fa-shield-halved text-[10rem]"></i></div>
-                        <div className="flex items-center gap-6 relative z-10">
-                             <div className="w-16 h-16 bg-amber-400 rounded-[1.5rem] flex items-center justify-center text-zinc-900 shadow-xl text-3xl animate-pulse">
-                                 <i className="fa-solid fa-key"></i>
-                             </div>
-                             <div>
-                                <h4 className="font-black text-xl leading-none uppercase text-amber-400 tracking-tight">TOPLAM DOĞRULAMA</h4>
-                                <p className="text-[10px] text-zinc-400 font-bold mt-2 uppercase tracking-widest">Tüm bulunan cevapların toplamı bu olmalı:</p>
-                             </div>
+                <div className="mt-3 border-[1.5px] border-zinc-900 rounded-2xl p-3 bg-zinc-50 flex items-center justify-between break-inside-avoid shadow-inner">
+                    <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 bg-zinc-900 text-white rounded-lg flex items-center justify-center text-base shadow-sm"><i className="fa-solid fa-calculator"></i></div>
+                         <div>
+                            <h4 className="text-xs font-black tracking-tight uppercase leading-none">Toplam Kontrolü</h4>
+                            <p className="text-[8px] text-zinc-500 font-bold mt-0.5">Tüm doğru sonuçların toplamı.</p>
+                         </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                        <div className="text-center">
+                            <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest block">Hedef</span>
+                            <div className="text-xl font-black text-indigo-600 font-mono leading-none">{data.sumTarget}</div>
                         </div>
-                        <div className="text-right relative z-10">
-                            <div className="text-6xl font-black font-mono tracking-tighter text-white drop-shadow-lg">{data.sumTarget}</div>
+                        <div className="w-px h-6 bg-zinc-200"></div>
+                        <div className="text-center">
+                            <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest block">Sonuç</span>
+                            <div className="w-12 h-6 border-b border-dashed border-zinc-300 flex items-center justify-center font-black text-lg text-transparent">?</div>
                         </div>
                     </div>
                 </div>
             )}
+            
+            <div className="mt-2 flex justify-between items-center text-[6px] font-black text-zinc-300 uppercase tracking-[0.4em] px-2">
+                <span>Bursa Disleksi AI • Sayısal Mantık v2.2</span>
+                <div className="flex gap-3">
+                     <i className="fa-solid fa-brain-circuit"></i>
+                     <i className="fa-solid fa-print"></i>
+                </div>
+            </div>
         </div>
     );
 };

@@ -36,6 +36,14 @@ export const IMAGE_GENERATION_GUIDE = `
 - **Amaç:** Görsel, sorunun çözümüne doğrudan ipucu sağlamalıdır.
 `;
 
+export const MAP_DETECTIVE_PROMPT = `
+[GÖREV: HARİTA DEDEKTİFİ YÖNERGE ÜRETİMİ]
+Eğer kullanıcı özel bir harita yüklediyse (imageBase64 mevcutsa), yönergeleri SADECE o harita üzerindeki nesneler ve yazılar üzerinden kurgula.
+- "Kuzeydeki şehre git" yerine "Kırmızı çatılı evin yanındaki ağaca bak" gibi görsel detaylar kullan.
+- Harita bir kroki ise yönleri (sağ, sol, üst, alt) ve renkleri baz al.
+- Disleksik bireyler için "Sol üstteki mavi kare" gibi net uzamsal referanslar ver.
+`;
+
 export const getMathPrompt = (title: string, difficulty: string, rule: string, student?: Student): string => {
     return `${PEDAGOGICAL_BASE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[KURAL]: ${rule}\n${IMAGE_GENERATION_GUIDE}`;
 };

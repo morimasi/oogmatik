@@ -3,8 +3,10 @@ import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions } from '../../types';
 import {
-    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, RomanNumeralConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, WordConnectData, CoordinateCipherData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData
+    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, CoordinateCipherData, WordConnectData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData, MapInstructionData
 } from '../../types';
+import { ocrService } from '../ocrService';
+import { MAP_DETECTIVE_PROMPT, PEDAGOGICAL_BASE } from './prompts';
 
 const PEDAGOGICAL_PROMPT = `
 ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
@@ -19,6 +21,78 @@ const PEDAGOGICAL_PROMPT = `
 6.  **İçerik:**
     - İçerik dolu ve gerçekçi olmalı.
 `;
+
+export const generateMapInstructionFromAI = async (options: GeneratorOptions): Promise<MapInstructionData[]> => {
+    const { customInput, difficulty, itemCount, studentContext } = options;
+    
+    let visualContext = "";
+    let detectedPoints: any[] = [];
+
+    // Eğer kullanıcı özel bir harita yüklediyse, önce onu analiz et
+    if (customInput) {
+        try {
+            const analysis = await ocrService.analyzeMapImage(customInput);
+            visualContext = `HARİTA ANALİZİ: Bu harita bir "${analysis.mapContext}" haritasıdır. Üzerindeki önemli noktalar: ${analysis.points.map((p:any) => p.name).join(', ')}.`;
+            detectedPoints = analysis.points;
+        } catch (e) {
+            console.error("Map analysis failed, falling back to generic", e);
+        }
+    }
+
+    const prompt = `
+    ${PEDAGOGICAL_BASE}
+    ${MAP_DETECTIVE_PROMPT}
+    
+    PARAMETRELER:
+    - Zorluk: ${difficulty}
+    - Soru Sayısı: ${itemCount || 8}
+    - Görsel Bağlam: ${visualContext || "Standart Türkiye Siyasi Haritası"}
+    
+    GÖREV: Harita dedektifi yönergeleri oluştur. 
+    Eğer harita özel ise yönergeler harita üzerindeki nesneleri hedef almalı.
+    Eğer standart ise şehirler ve bölgeler üzerinden ilerle.
+    
+    ÇIKTI FORMATI:
+    {
+        "title": "Harita Dedektifi: [Harita Adı]",
+        "instruction": "...",
+        "pedagogicalNote": "...",
+        "instructions": ["Yönerge 1", "Yönerge 2", ...],
+        "cities": [ { "id": "tr-34", "name": "İstanbul", "x": 175, "y": 115 } ]
+    }
+    `;
+
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            instructions: { type: Type.ARRAY, items: { type: Type.STRING } },
+            cities: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        id: { type: Type.STRING },
+                        name: { type: Type.STRING },
+                        x: { type: Type.NUMBER },
+                        y: { type: Type.NUMBER }
+                    }
+                }
+            }
+        }
+    };
+
+    const result = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+    
+    // Yüklenen görseli veriye enjekte et
+    return [{
+        ...result,
+        imageBase64: customInput,
+        cities: customInput ? detectedPoints : result.cities // AI tarafından haritadan çıkarılan noktalar
+    }] as MapInstructionData[];
+};
 
 export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { difficulty, worksheetCount, visualType, distractionLevel, gridSize, studentContext } = options;

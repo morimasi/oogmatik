@@ -605,3 +605,17 @@ export interface ReadingStudioConfig {
     showTeacherNotes: boolean;
     showDateSection: boolean;
 }
+
+/**
+ * FIX: Added missing interfaces for Algorithm activities
+ */
+export interface AlgorithmStep {
+    id: number;
+    type: 'start' | 'process' | 'decision' | 'input' | 'output' | 'end';
+    text: string;
+}
+
+export interface AlgorithmData extends BaseActivityData {
+    challenge: string;
+    steps: AlgorithmStep[];
+}

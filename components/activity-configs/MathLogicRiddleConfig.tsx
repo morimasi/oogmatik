@@ -2,93 +2,98 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-const RangeSelector = ({ label, value, onChange, options }: any) => (
-    <div className="space-y-2">
-        <label className="text-[10px] font-bold text-zinc-500 uppercase flex justify-between">
-            <span>{label}</span>
-            <span className="text-indigo-600">{value}</span>
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-            {options.map((opt: any) => (
-                <button
-                    key={opt.value}
-                    onClick={() => onChange(opt.value)}
-                    className={`py-2 px-1 rounded-lg text-[10px] font-bold border transition-all ${value === opt.value ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300'}`}
-                >
-                    {opt.label}
-                </button>
-            ))}
-        </div>
+/**
+ * FIX: Explicitly type ConfigSection as React.FC to handle children properly in React 18
+ */
+const ConfigSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+    <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-700/50 mb-4">
+        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-3">{title}</h4>
+        <div className="space-y-4">{children}</div>
     </div>
 );
 
 export const MathLogicRiddleConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
     return (
-        <div className="space-y-6 animate-in fade-in duration-300">
-            {/* Seviye Ayarı */}
-            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[1.5rem] border border-indigo-100 dark:border-indigo-800/30">
-                <RangeSelector 
-                    label="Sayı Aralığı" 
-                    value={options.numberRange || '1-20'} 
-                    onChange={(v: string) => onChange('numberRange', v)}
-                    options={[
-                        { value: '1-20', label: '1-20 (Kolay)' },
-                        { value: '1-50', label: '1-50 (Orta)' },
-                        { value: '1-100', label: '1-100 (Zor)' }
-                    ]}
-                />
-            </div>
-
-            <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2rem] border border-zinc-100 dark:border-zinc-700 space-y-5">
-                
-                {/* İpucu Sayısı */}
-                <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] font-bold text-zinc-500 uppercase">
-                        <span>İpucu Sayısı</span>
-                        <span className="text-indigo-600">{options.gridSize || 3} Adet</span>
-                    </div>
-                    <input 
-                        type="range" 
-                        min="2" max="5" step="1"
-                        value={options.gridSize || 3} 
-                        onChange={e => onChange('gridSize', parseInt(e.target.value))} 
-                        className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
-                    />
+        <div className="space-y-4 animate-in fade-in duration-300">
+            <ConfigSection title="Zorluk Derecesi">
+                <div className="grid grid-cols-2 gap-2">
+                    {[
+                        { v: 'Başlangıç', l: '1-20 Arası' },
+                        { v: 'Orta', l: '1-100 Arası' },
+                        { v: 'Zor', l: '100-500 Arası' },
+                        { v: 'Uzman', l: '1-1000 Arası' }
+                    ].map(opt => (
+                        <button
+                            key={opt.v}
+                            onClick={() => onChange('difficulty', opt.v)}
+                            className={`py-2 px-1 rounded-xl text-[10px] font-bold border transition-all ${options.difficulty === opt.v ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg' : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}
+                        >
+                            {opt.l}
+                        </button>
+                    ))}
                 </div>
+            </ConfigSection>
 
-                {/* Görsel Destek Toggle */}
-                <label className="flex items-center justify-between cursor-pointer group p-2 border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900">
-                    <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300 group-hover:text-indigo-600 transition-colors">
-                        <i className="fa-solid fa-ruler-horizontal mr-2"></i>Sayı Doğrusu Ekle
-                    </span>
-                    <div className={`w-8 h-4 rounded-full relative transition-colors ${options.showVisualAid !== false ? 'bg-indigo-600' : 'bg-zinc-300'}`}>
+            <ConfigSection title="Soru Mimarisi">
+                <div className="space-y-6">
+                    {/* Soru Adedi - Maksimum 20 */}
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-bold text-zinc-500 uppercase">Soru Adedi</span>
+                            <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">{options.itemCount || 6} Soru</span>
+                        </div>
                         <input 
-                            type="checkbox" 
-                            checked={options.showVisualAid !== false} 
-                            onChange={e => onChange('showVisualAid', e.target.checked)} 
-                            className="hidden" 
+                            type="range" 
+                            min="1" max="20" step="1"
+                            value={options.itemCount || 6} 
+                            onChange={e => onChange('itemCount', parseInt(e.target.value))} 
+                            className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
                         />
-                        <div className={`w-3 h-3 bg-white rounded-full absolute top-0.5 transition-all ${options.showVisualAid !== false ? 'left-4.5' : 'left-0.5'}`}></div>
+                        <div className="flex justify-between text-[8px] text-zinc-400 font-bold uppercase tracking-tighter">
+                            <span>Tekil</span>
+                            <span>Standart</span>
+                            <span>Maksimum</span>
+                        </div>
                     </div>
-                </label>
-
-                {/* Toplam Kontrolü Toggle */}
-                <label className="flex items-center justify-between cursor-pointer group p-2 border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900">
-                    <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300 group-hover:text-indigo-600 transition-colors">
-                        <i className="fa-solid fa-calculator mr-2"></i>Toplam Kontrolü
-                    </span>
-                    <div className={`w-8 h-4 rounded-full relative transition-colors ${options.showSumTarget !== false ? 'bg-emerald-500' : 'bg-zinc-300'}`}>
+                    
+                    {/* İpucu Derinliği - Maksimum 10 */}
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-bold text-zinc-500 uppercase">İpucu Sayısı (Derinlik)</span>
+                            <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">{options.gridSize || 3} Katman</span>
+                        </div>
                         <input 
-                            type="checkbox" 
-                            checked={options.showSumTarget !== false} 
-                            onChange={e => onChange('showSumTarget', e.target.checked)} 
-                            className="hidden" 
+                            type="range" 
+                            min="2" max="10" step="1"
+                            value={options.gridSize || 3} 
+                            onChange={e => onChange('gridSize', parseInt(e.target.value))} 
+                            className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
                         />
-                        <div className={`w-3 h-3 bg-white rounded-full absolute top-0.5 transition-all ${options.showSumTarget !== false ? 'left-4.5' : 'left-0.5'}`}></div>
+                        <div className="flex justify-between text-[8px] text-zinc-400 font-bold uppercase tracking-tighter">
+                            <span>Basit (2)</span>
+                            <span>Detaylı (6)</span>
+                            <span>Dedektif (10)</span>
+                        </div>
                     </div>
-                </label>
+                </div>
+            </ConfigSection>
 
-            </div>
+            <ConfigSection title="Klinik Özellikler">
+                <div className="space-y-2">
+                    <label className="flex items-center justify-between p-2 rounded-xl border border-transparent hover:bg-white dark:hover:bg-zinc-700 cursor-pointer transition-all">
+                        <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300 uppercase">Toplam Kontrolü Ekle</span>
+                        <div className={`w-8 h-4 rounded-full relative transition-colors ${options.showSumTarget !== false ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => onChange('showSumTarget', options.showSumTarget === false)}>
+                            <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${options.showSumTarget !== false ? 'left-4.5' : 'left-0.5'}`}></div>
+                        </div>
+                    </label>
+                    <label className="flex items-center justify-between p-2 rounded-xl border border-transparent hover:bg-white dark:hover:bg-zinc-700 cursor-pointer transition-all">
+                        <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300 uppercase">Görsel Destek (Rakamlar)</span>
+                        <div className={`w-8 h-4 rounded-full relative transition-colors ${options.showNumbers !== false ? 'bg-indigo-600' : 'bg-zinc-300'}`} onClick={() => onChange('showNumbers', options.showNumbers === false)}>
+                            <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${options.showNumbers !== false ? 'left-4.5' : 'left-0.5'}`}></div>
+                        </div>
+                    </label>
+                </div>
+            </ConfigSection>
         </div>
     );
 };

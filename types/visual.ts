@@ -5,7 +5,7 @@ export * from './core';
 
 export interface MapInstructionData extends BaseActivityData {
     mapSvg?: string;
-    imageBase64?: string; // New field for custom JPG/PNG maps
+    imageBase64?: string; // Kullanıcının yüklediği manuel harita görseli
     cities: { 
         name: string; 
         x: number; 
@@ -22,7 +22,6 @@ export interface MapInstructionData extends BaseActivityData {
     };
 }
 
-// Added VisualTrackingLineData missing from dyslexiaSupport.ts
 export interface VisualTrackingLineData extends BaseActivityData { 
     width: number; 
     height: number; 
@@ -42,7 +41,6 @@ export interface VisualTrackingLineData extends BaseActivityData {
     }[]; 
 }
 
-// Fix: visualDistractionLevel types now include 'extreme' to match GeneratorOptions
 export interface FindTheDifferenceData extends BaseActivityData { rows: { items: string[]; correctIndex: number; visualDistractionLevel: 'low' | 'medium' | 'high' | 'extreme'; }[]; }
 export interface WordComparisonData extends BaseActivityData { box1Title: string; box2Title: string; wordList1: string[]; wordList2: string[]; correctDifferences: string[]; }
 export interface ShapeMatchingData extends BaseActivityData { leftColumn: { id: number|string; shapes?: ShapeType[]; color: string; imageBase64?: string; rotation?: number; scale?: number; }[]; rightColumn: { id: number|string; shapes?: ShapeType[]; color: string; imageBase64?: string; rotation?: number; scale?: number; }[]; complexity: number; }
@@ -115,8 +113,6 @@ export interface ShapeCountingData extends BaseActivityData { figures: { targetS
 export interface AnagramsData extends BaseActivityData { anagrams: { word: string; scrambled: string; letters: string[]; imagePrompt?: string }[]; sentencePrompt?: string; }
 export interface WordSearchData extends BaseActivityData { grid: string[][]; words: string[]; hiddenMessage?: string; writingPrompt?: string; }
 export interface CrosswordData extends BaseActivityData { theme: string; grid: (string | null)[][]; clues: any[]; passwordPrompt: string; }
-
-// Added missing data interfaces for logicProblems.ts and dyslexiaSupport.ts
 export interface RomanNumeralConnectData extends BaseActivityData { items: any[]; }
 export interface RomanArabicMatchConnectData extends BaseActivityData { gridDim: number; points: { label: string; pairId: number; x: number; y: number }[]; prompt?: string; }
 export interface WeightConnectData extends BaseActivityData { gridDim: number; points: { label: string; pairId: number; x: number; y: number, imagePrompt: string }[]; prompt?: string; }
@@ -130,7 +126,6 @@ export interface RapidNamingData extends BaseActivityData { type: 'object' | 'co
 export interface LetterDiscriminationData extends BaseActivityData { targetLetters: string[]; rows: { letters: string[] }[]; }
 export interface MissingPartsData extends BaseActivityData { storyWithBlanks: string[]; wordBank: string[]; answers: string[]; }
 
-// Added missing members from memoryAttention generators
 export interface WordMemoryItem {
     text: string;
     imagePrompt?: string;
@@ -170,7 +165,6 @@ export interface LetterGridTestData extends BaseActivityData {
     targetLetters: string[];
 }
 
-// Fix: Updated FindLetterPairData to include grids and settings as used in components and generators.
 export interface FindLetterPairData extends BaseActivityData {
     grids: { grid: string[][]; targetPair: string }[];
     settings: { gridSize: number; itemCount: number; difficulty: string };
@@ -238,7 +232,6 @@ export interface ChaoticNumberSearchData extends BaseActivityData {
     range: { start: number; end: number };
 }
 
-// Added missing HiddenPasswordGridData
 export interface HiddenPasswordGridData extends BaseActivityData {
     settings: {
         gridSize: number;
