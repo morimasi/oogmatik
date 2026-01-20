@@ -13,9 +13,9 @@ import { useStudent } from '../context/StudentContext';
 const toPascalCase = (str: string): string => {
     if (!str) return '';
     return str.toLowerCase()
-              .split('_')
+              .split(/[-_ ]+/)
               .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-              .join('');
+              .join(' ');
 };
 
 interface SidebarProps {
@@ -59,24 +59,72 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
   const { activeStudent } = useStudent();
+  
+  // "Single Source of Truth" için State
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
+  // --- GÜVENLİ VERİ BİRLEŞTİRME (SAFE MERGE) ---
   useEffect(() => {
       const loadCustomActivities = async () => {
           try {
               const customActs = await adminService.getAllActivities();
+              
+              // 1. Adım: Statik aktiviteleri bir Map'e yükle (ID bazlı indeksleme)
+              const activityMap = new Map<string, Activity>();
+              ACTIVITIES.forEach(act => activityMap.set(act.id, act));
+
+              // 2. Adım: Veritabanından gelenleri ekle (Varsa üzerine yazar - Override)
               if (customActs && Array.isArray(customActs)) {
-                  const mergedActivities = [...ACTIVITIES];
                   customActs.forEach(ca => {
                       if (!ca || !ca.id) return;
-                      const index = mergedActivities.findIndex(a => a && a.id === (ca.id as ActivityType));
-                      if (index !== -1) mergedActivities[index] = { ...mergedActivities[index], ...ca } as Activity;
-                      else mergedActivities.push(ca as unknown as Activity);
+                      if (activityMap.has(ca.id)) {
+                          const existing = activityMap.get(ca.id)!;
+                          activityMap.set(ca.id, { ...existing, ...ca } as Activity);
+                      } else {
+                          activityMap.set(ca.id, ca as unknown as Activity);
+                      }
                   });
-                  setAllActivities(mergedActivities);
               }
-          } catch (e) { console.error("Sidebar load error", e); }
+
+              // 3. Adım: Map'i tekrar diziye çevir ve State'i güncelle
+              const mergedActivities = Array.from(activityMap.values());
+              setAllActivities(mergedActivities);
+
+              // 4. Adım: Kategorileri Güncelle (Dinamik kategori desteği - 'Others' iptal edildi)
+              const updatedCategories = [...ACTIVITY_CATEGORIES]; // Klonla
+              
+              // Custom aktiviteleri yerleştir
+              customActs.forEach(act => {
+                   const actId = act.id as ActivityType;
+                   // Eğer kategori 'others' ise veya boşsa 'visual-perception'a ata, yoksa kendi kategorisine
+                   let targetCatId = (!act.category || act.category === 'others') ? 'visual-perception' : act.category;
+                   
+                   let targetCat = updatedCategories.find(c => c.id === targetCatId);
+
+                   // Eğer kategori listede yoksa, DİNAMİK OLARAK OLUŞTUR
+                   if (!targetCat) {
+                       targetCat = {
+                           id: targetCatId,
+                           title: toPascalCase(targetCatId), // ID'den başlık üret
+                           description: 'Özel Kategori',
+                           icon: 'fa-solid fa-folder-open', // Varsayılan ikon
+                           activities: []
+                       };
+                       updatedCategories.push(targetCat);
+                   }
+
+                   if (!targetCat.activities.includes(actId)) {
+                       targetCat.activities.push(actId);
+                   }
+              });
+
+              // Boş kategorileri temizle (Opsiyonel) veya Others varsa sil
+              setCategories(updatedCategories.filter(c => c.id !== 'others'));
+
+          } catch (e) { 
+              console.error("Sidebar veri yükleme hatası (Graceful Fallback):", e); 
+          }
       };
       loadCustomActivities();
   }, []);
@@ -124,7 +172,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         } 
         
         if (!result) {
-            const pascalCaseName = toPascalCase(selectedActivity);
+            const pascalCaseName = toPascalCase(selectedActivity).replace(/\s+/g, '');
             const generatorFunctionName = `generate${pascalCaseName}FromAI`;
             const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
             
@@ -233,7 +281,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         const isOpen = openCategoryId === category.id;
                         return (
                             <div key={category.id}>
-                                <button onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)} className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all duration-200 group ${!isExpanded ? 'justify-center' : ''} ${isOpen && isExpanded ? 'bg-zinc-800 text-white dark:bg-white dark:text-zinc-900' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`} title={!isExpanded ? category.title : undefined}>
+                                <button onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)} className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all duration-200 group ${!isExpanded ? 'justify-center' : ''} ${isOpen && isExpanded ? 'bg-zinc-800 text-white dark:bg-white dark:text-black' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`} title={!isExpanded ? category.title : undefined}>
                                     <div className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] transition-all shrink-0 ${isOpen && isExpanded ? 'text-white dark:text-black' : 'text-zinc-500 dark:text-zinc-500'}`}><i className={category.icon}></i></div>
                                     {isExpanded && <><span className="flex-1 text-left text-[11px] font-bold uppercase tracking-tight truncate">{category.title}</span><i className={`fa-solid fa-chevron-down text-[8px] opacity-50 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}></i></>}
                                 </button>

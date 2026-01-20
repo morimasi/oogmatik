@@ -1,3 +1,4 @@
+
 import { ActivityType } from '../../types';
 import { MathMemoryCardsConfig } from './MathMemoryCardsConfig';
 import { FindLetterPairConfig } from './FindLetterPairConfig';
@@ -17,8 +18,10 @@ import { FamilyLogicConfig } from './FamilyLogicConfig';
 import { DrawingSkillConfig } from './DrawingSkillConfig';
 import { VerbalSkillConfig } from './VerbalSkillConfig';
 import { FamilyRelationsConfig } from './FamilyRelationsConfig';
+import { WordSearchConfig } from './WordSearchConfig';
+import { FindDifferenceConfig } from './FindDifferenceConfig';
+import { ShapeCountingConfig } from './ShapeCountingConfig';
 
-// Fix: Added missing ActivityType import and populated the registry with all activity configurations
 export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.MATH_MEMORY_CARDS]: MathMemoryCardsConfig,
     [ActivityType.FIND_LETTER_PAIR]: FindLetterPairConfig,
@@ -38,4 +41,7 @@ export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.GRID_DRAWING]: DrawingSkillConfig,
     [ActivityType.SYNONYM_ANTONYM_MATCH]: VerbalSkillConfig,
     [ActivityType.FAMILY_RELATIONS]: FamilyRelationsConfig,
+    [ActivityType.WORD_SEARCH]: WordSearchConfig,
+    [ActivityType.FIND_THE_DIFFERENCE]: FindDifferenceConfig,
+    [ActivityType.SHAPE_COUNTING]: ShapeCountingConfig,
 };

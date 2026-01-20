@@ -41,6 +41,7 @@ import { FindTheDifferenceSheet } from './sheets/visual/FindTheDifferenceSheet';
 import { VisualOddOneOutSheet } from './sheets/visual/VisualOddOneOutSheet';
 import { GridDrawingSheet } from './sheets/visual/GridDrawingSheet';
 import { SymmetryDrawingSheet } from './sheets/visual/SymmetryDrawingSheet';
+import { ShapeCountingSheet } from './sheets/visual/ShapeCountingSheet';
 
 import { ReadingStudioContentRenderer } from './ReadingStudio/ReadingStudioContentRenderer';
 import { PedagogicalHeader } from './sheets/common';
@@ -158,6 +159,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.VISUAL_ODD_ONE_OUT: return <VisualOddOneOutSheet data={data} />;
         case ActivityType.GRID_DRAWING: return <GridDrawingSheet data={data} />;
         case ActivityType.SYMMETRY_DRAWING: return <SymmetryDrawingSheet data={data} />;
+        case ActivityType.SHAPE_COUNTING: return <ShapeCountingSheet data={data} />;
 
         // --- WORD GAMES ---
         case ActivityType.HIDDEN_PASSWORD_GRID: return <HiddenPasswordGridSheet data={data} />;

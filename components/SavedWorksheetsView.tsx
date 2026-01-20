@@ -1,53 +1,20 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
-import { SavedWorksheet, SavedAssessment, Curriculum, ActivityType } from '../types';
+import { SavedWorksheet, SavedAssessment, Curriculum } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { useAuth } from '../context/AuthContext';
 import { worksheetService } from '../services/worksheetService';
 import { assessmentService } from '../services/assessmentService';
 import { curriculumService } from '../services/curriculumService';
-import { ShareModal } from './ShareModal';
 
-interface SavedWorksheetsViewProps {
+interface SharedWorksheetsViewProps {
   onLoad: (worksheet: SavedWorksheet) => void;
   onBack: () => void;
   targetUserId?: string;
 }
 
-type ArchiveTab = 'materials' | 'reports' | 'plans';
+const PAGE_SIZE = 10;
 
-// --- UI COMPONENTS ---
-
-const SectionHeader = ({ title, count, icon }: { title: string, count: number, icon: string }) => (
-    <div className="flex items-center gap-3 mb-6 animate-in slide-in-from-left-4 duration-500">
-        <div className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-black flex items-center justify-center text-lg shadow-lg">
-            <i className={icon}></i>
-        </div>
-        <div>
-            <h2 className="text-xl font-black text-zinc-900 dark:text-white leading-none">{title}</h2>
-            <p className="text-xs font-bold text-zinc-500 mt-1 uppercase tracking-wider">{count} Kayıt</p>
-        </div>
-    </div>
-);
-
-const FilterButton = ({ active, label, icon, onClick, count }: any) => (
-    <button 
-        onClick={onClick}
-        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-bold text-xs mb-2 group ${active ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
-    >
-        <div className="flex items-center gap-3">
-            <i className={`${icon} w-4 text-center ${active ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-600'}`}></i>
-            <span>{label}</span>
-        </div>
-        {count !== undefined && (
-            <span className={`px-2 py-0.5 rounded-md text-[10px] ${active ? 'bg-white/20 text-white' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500'}`}>
-                {count}
-            </span>
-        )}
-    </button>
-);
-
-// --- CARDS ---
+type GroupType = { title: string; items: SavedWorksheet[] };
 
 const MaterialCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
     if (!item || !item.id) return null; // Safe check
@@ -92,6 +59,7 @@ const MaterialCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
     );
 };
 
+// ... ReportCard and PlanCard components remain same ...
 const ReportCard = ({ item, onDelete, isReadOnly }: any) => {
     if (!item || !item.id) return null; // Safe check
     
@@ -168,9 +136,38 @@ const PlanCard = ({ item, onDelete, isReadOnly }: any) => {
     );
 };
 
-export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
+const SectionHeader = ({ title, count, icon }: { title: string, count: number, icon: string }) => (
+    <div className="flex items-center gap-3 mb-6 animate-in slide-in-from-left-4 duration-500">
+        <div className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-black flex items-center justify-center text-lg shadow-lg">
+            <i className={icon}></i>
+        </div>
+        <div>
+            <h2 className="text-xl font-black text-zinc-900 dark:text-white leading-none">{title}</h2>
+            <p className="text-xs font-bold text-zinc-500 mt-1 uppercase tracking-wider">{count} Kayıt</p>
+        </div>
+    </div>
+);
+
+const FilterButton = ({ active, label, icon, onClick, count }: any) => (
+    <button 
+        onClick={onClick}
+        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-bold text-xs mb-2 group ${active ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+    >
+        <div className="flex items-center gap-3">
+            <i className={`${icon} w-4 text-center ${active ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-600'}`}></i>
+            <span>{label}</span>
+        </div>
+        {count !== undefined && (
+            <span className={`px-2 py-0.5 rounded-md text-[10px] ${active ? 'bg-white/20 text-white' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500'}`}>
+                {count}
+            </span>
+        )}
+    </button>
+);
+
+export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState<ArchiveTab>('materials');
+    const [activeTab, setActiveTab] = useState<'materials' | 'reports' | 'plans'>('materials');
     const [activeCategory, setActiveCategory] = useState<string>('all');
     
     // Data Containers
@@ -207,7 +204,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
         }
     };
 
-    const handleDelete = async (id: string, type: ArchiveTab) => {
+    const handleDelete = async (id: string, type: 'materials' | 'reports' | 'plans') => {
         if (isReadOnly || !confirm("Silmek istediğinize emin misiniz?")) return;
         
         try {
@@ -218,7 +215,6 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                 await curriculumService.deleteCurriculum(id);
                 setPlans(prev => prev.filter(i => i.id !== id));
             } else {
-                // Assessment deletion logic if available
                 alert("Rapor silme şu an desteklenmiyor.");
             }
         } catch (e) {
@@ -235,7 +231,8 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                 if (!item) return false;
                 const matchesSearch = (item.name || '').toLowerCase().includes(query);
                 const categoryDef = ACTIVITY_CATEGORIES.find(c => c.activities.includes(item.activityType));
-                const catId = categoryDef?.id || 'others';
+                // Fallback to visual-perception if category missing
+                const catId = categoryDef?.id || 'visual-perception'; 
                 
                 const matchesCategory = activeCategory === 'all' || catId === activeCategory || (item.category?.id === activeCategory);
                 return matchesSearch && matchesCategory;

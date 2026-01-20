@@ -1,53 +1,164 @@
 
-import { GeneratorOptions, HiddenPasswordGridData } from '../../types';
-import { getWordsForDifficulty, getRandomItems, turkishAlphabet } from './helpers';
+import { GeneratorOptions, HiddenPasswordGridData, WordSearchData } from '../../types';
+import { getWordsForDifficulty, getRandomItems, turkishAlphabet, getRandomInt, shuffle } from './helpers';
 
-// Added missing types and imports for HiddenPasswordGrid generator
+// Directions: [dx, dy]
+const DIR_RIGHT = { x: 1, y: 0 };
+const DIR_DOWN = { x: 0, y: 1 };
+const DIR_DIAG_DR = { x: 1, y: 1 }; // Diagonal Down-Right
+const DIR_DIAG_UR = { x: 1, y: -1 }; // Diagonal Up-Right
+
+// Backwards (Hard mode only)
+const DIR_LEFT = { x: -1, y: 0 };
+const DIR_UP = { x: 0, y: -1 };
+const DIR_DIAG_UL = { x: -1, y: -1 };
+const DIR_DIAG_DL = { x: -1, y: 1 };
+
 export const generateOfflineHiddenPasswordGrid = async (options: GeneratorOptions): Promise<HiddenPasswordGridData[]> => {
-    const { topic, difficulty, worksheetCount, gridSize = 5, itemCount = 9, case: letterCase } = options;
+    const { topic, difficulty, worksheetCount, gridSize = 5, itemCount = 6, case: letterCase } = options;
     const results: HiddenPasswordGridData[] = [];
-
-    const wordPool = getWordsForDifficulty(difficulty, topic || 'Rastgele').filter(w => w.length >= 3 && w.length <= gridSize + 2);
-
-    for (let i = 0; i < worksheetCount; i++) {
+    
+    for (let p = 0; p < worksheetCount; p++) {
         const grids = [];
-        const selectedWords = getRandomItems(wordPool, itemCount);
+        const words = getWordsForDifficulty(difficulty, topic || 'Rastgele');
+        
+        for (let i = 0; i < itemCount; i++) {
+            const word = getRandomItems(words, 1)[0];
+            let distractor = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
+            while (word.includes(distractor)) {
+                distractor = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
+            }
 
-        for (const word of selectedWords) {
-            let processedWord = letterCase === 'upper' ? word.toLocaleUpperCase('tr') : word.toLocaleLowerCase('tr');
+            const grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(distractor));
+            const positions = new Set<number>();
+            while (positions.size < word.length) {
+                positions.add(getRandomInt(0, gridSize * gridSize - 1));
+            }
+            const sortedPos = Array.from(positions).sort((a, b) => a - b);
             
-            const alphabet = turkishAlphabet.toLocaleUpperCase('tr').split('');
-            const potentialTargets = alphabet.filter(l => !processedWord.toUpperCase().includes(l));
-            let targetLetter = getRandomItems(potentialTargets, 1)[0];
-            if (letterCase === 'lower') targetLetter = targetLetter.toLocaleLowerCase('tr');
-
-            const totalCells = gridSize * gridSize;
-            const matrix = Array.from({ length: gridSize }, () => Array(gridSize).fill(targetLetter));
-            
-            // Random but ordered positions
-            const availablePositions = Array.from({ length: totalCells }, (_, i) => i);
-            const wordPositions = getRandomItems(availablePositions, processedWord.length).sort((a, b) => a - b);
-            
-            wordPositions.forEach((pos, idx) => {
+            sortedPos.forEach((pos, idx) => {
                 const r = Math.floor(pos / gridSize);
                 const c = pos % gridSize;
-                matrix[r][c] = processedWord[idx];
+                grid[r][c] = word[idx];
             });
 
-            grids.push({ targetLetter, hiddenWord: processedWord, grid: matrix });
+            const finalGrid = grid.map(row => row.map(char => letterCase === 'lower' ? char.toLocaleLowerCase('tr') : char.toLocaleUpperCase('tr')));
+            const finalTarget = letterCase === 'lower' ? distractor.toLocaleLowerCase('tr') : distractor.toLocaleUpperCase('tr');
+            const finalWord = letterCase === 'lower' ? word.toLocaleLowerCase('tr') : word.toLocaleUpperCase('tr');
+
+            grids.push({
+                targetLetter: finalTarget,
+                hiddenWord: finalWord,
+                grid: finalGrid
+            });
         }
 
         results.push({
-            title: 'Gizli Şifre Matrisi',
-            instruction: 'Daire içindeki harfleri kutularda karalayınız. Kalan harfleri sırasıyla yazıp şifreyi bulun.',
-            pedagogicalNote: 'Görsel tarama ve seçici dikkat becerilerini geliştirir.',
-            settings: { 
-                gridSize, 
-                itemCount, 
-                cellStyle: options.variant as any || 'square', 
-                letterCase: letterCase as any || 'upper' 
+            title: "Gizli Şifre Matrisi",
+            instruction: "Kutuların içindeki farklı harfleri sırasıyla bularak gizli kelimeyi oluştur.",
+            pedagogicalNote: "Seçici dikkat ve görsel tarama becerisi.",
+            settings: {
+                gridSize,
+                itemCount,
+                cellStyle: (options.variant as 'square' | 'minimal' | 'rounded') || 'square',
+                letterCase: letterCase || 'upper'
             },
             grids
+        });
+    }
+    return results;
+};
+
+export const generateOfflineWordSearch = async (options: GeneratorOptions): Promise<WordSearchData[]> => {
+    const { topic, difficulty, worksheetCount, gridSize = 12, itemCount = 10, case: letterCase } = options;
+    const results: WordSearchData[] = [];
+
+    // 1. Configure Directions based on Difficulty
+    let allowedDirections = [DIR_RIGHT, DIR_DOWN]; // Başlangıç
+    
+    if (difficulty === 'Orta') {
+        allowedDirections = [DIR_RIGHT, DIR_DOWN, DIR_DIAG_DR];
+    } else if (difficulty === 'Zor' || difficulty === 'Uzman') {
+        // Warning: Backwards reading is hard for dyslexia, use sparingly or only in "Expert"
+        allowedDirections = [DIR_RIGHT, DIR_DOWN, DIR_DIAG_DR, DIR_DIAG_UR, DIR_LEFT, DIR_UP];
+    }
+
+    for (let p = 0; p < worksheetCount; p++) {
+        // 2. Fetch and Prepare Words
+        let wordPool = getWordsForDifficulty(difficulty, topic || 'Rastgele')
+            .filter(w => w.length <= gridSize && w.length >= 3)
+            .map(w => letterCase === 'lower' ? w.toLocaleLowerCase('tr') : w.toLocaleUpperCase('tr'));
+        
+        // Ensure we have enough words
+        if (wordPool.length < itemCount) {
+            wordPool = [...wordPool, ...getWordsForDifficulty('Orta', 'Rastgele').map(w => letterCase === 'lower' ? w.toLocaleLowerCase('tr') : w.toLocaleUpperCase('tr'))];
+        }
+        
+        // Select words and sort by length (Longest first is easier to pack)
+        const selectedWords = getRandomItems([...new Set(wordPool)], itemCount).sort((a, b) => b.length - a.length);
+        
+        // 3. Grid Initialization
+        const grid: string[][] = Array.from({ length: gridSize }, () => Array(gridSize).fill(''));
+        const placedWords: string[] = [];
+        
+        // 4. Word Placement Algorithm (Backtracking-ish)
+        for (const word of selectedWords) {
+            let placed = false;
+            let attempts = 0;
+            // Try placing word up to 100 times
+            while (!placed && attempts < 100) {
+                const dir = allowedDirections[getRandomInt(0, allowedDirections.length - 1)];
+                const startRow = getRandomInt(0, gridSize - 1);
+                const startCol = getRandomInt(0, gridSize - 1);
+                
+                // Calculate end position
+                const endRow = startRow + dir.y * (word.length - 1);
+                const endCol = startCol + dir.x * (word.length - 1);
+                
+                // Check Bounds
+                if (endRow >= 0 && endRow < gridSize && endCol >= 0 && endCol < gridSize) {
+                    let canPlace = true;
+                    // Check Collisions
+                    for (let i = 0; i < word.length; i++) {
+                        const r = startRow + dir.y * i;
+                        const c = startCol + dir.x * i;
+                        const cellChar = grid[r][c];
+                        // If cell is not empty AND not matching current char, collision!
+                        if (cellChar !== '' && cellChar !== word[i]) {
+                            canPlace = false;
+                            break;
+                        }
+                    }
+                    
+                    if (canPlace) {
+                        // Place Word
+                        for (let i = 0; i < word.length; i++) {
+                            grid[startRow + dir.y * i][startCol + dir.x * i] = word[i];
+                        }
+                        placedWords.push(word);
+                        placed = true;
+                    }
+                }
+                attempts++;
+            }
+        }
+        
+        // 5. Fill Empty Spaces with Distractors
+        const alphabet = turkishAlphabet.split('').map(c => letterCase === 'lower' ? c : c.toUpperCase());
+        for (let r = 0; r < gridSize; r++) {
+            for (let c = 0; c < gridSize; c++) {
+                if (grid[r][c] === '') {
+                    grid[r][c] = alphabet[getRandomInt(0, alphabet.length - 1)];
+                }
+            }
+        }
+
+        results.push({
+            title: `Kelime Avı: ${topic || 'Karışık'}`,
+            instruction: "Listelenen kelimeleri bulmaca içinde bularak üzerini çiz.",
+            pedagogicalNote: "Görsel tarama, şekil-zemin algısı ve kelime tanıma.",
+            grid,
+            words: placedWords
         });
     }
     return results;

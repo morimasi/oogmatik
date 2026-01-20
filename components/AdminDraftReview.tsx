@@ -21,7 +21,7 @@ export const AdminDraftReview: React.FC = () => {
         title: '',
         description: '',
         icon: 'fa-wand-magic-sparkles',
-        category: 'others',
+        category: 'visual-perception', // Changed default from 'others'
         isNewCategory: false,
         newCategoryName: '',
         newCategoryIcon: 'fa-folder-open'
@@ -45,7 +45,7 @@ export const AdminDraftReview: React.FC = () => {
             title: draft.title,
             description: draft.description,
             icon: 'fa-wand-magic-sparkles',
-            category: 'others',
+            category: 'visual-perception', // Default fallback
             isNewCategory: false,
             newCategoryName: '',
             newCategoryIcon: 'fa-folder-open'
@@ -67,16 +67,6 @@ export const AdminDraftReview: React.FC = () => {
             const finalCategory = pubConfig.isNewCategory 
                 ? pubConfig.newCategoryName.toLowerCase().replace(/\s+/g, '-') 
                 : pubConfig.category;
-
-            // If it's a new category, we might want to store metadata somewhere, 
-            // but for now, we rely on the activity holding the category ID and Icon logic.
-            // The Sidebar will group by this ID. 
-            
-            // Note: In a relational DB we'd create a Category record. 
-            // Here, we embed the logic into the activity or handle via Sidebar grouping.
-            // To make the Sidebar show the correct Title and Icon for a dynamic category,
-            // we will format the category ID specially or rely on the first activity's metadata.
-            // Simple approach: Category ID matches.
 
             await adminService.publishDraft(selectedDraft, {
                 title: pubConfig.title,
@@ -198,7 +188,6 @@ export const AdminDraftReview: React.FC = () => {
                                 {!pubConfig.isNewCategory ? (
                                     <select value={pubConfig.category} onChange={e => setPubConfig({...pubConfig, category: e.target.value})} className="w-full p-3 border rounded-xl bg-white dark:bg-zinc-800 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none">
                                         {ACTIVITY_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
-                                        <option value="others">Diğerleri (Özel)</option>
                                     </select>
                                 ) : (
                                     <div className="space-y-4 animate-in fade-in slide-in-from-top-2">

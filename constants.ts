@@ -146,6 +146,20 @@ export const ACTIVITIES: Activity[] = [
         title: 'Simetri Tamamlama',
         description: 'Görselin aynadaki yansımasını çizerek tamamlama çalışması.',
         icon: 'fa-solid fa-mirror'
+    },
+    {
+        id: ActivityType.WORD_SEARCH,
+        title: 'Kelime Bulmaca',
+        description: 'Karışık harfler arasına gizlenmiş kelimeleri bulma etkinliği.',
+        icon: 'fa-solid fa-table-cells',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.SHAPE_COUNTING,
+        title: 'Kaç Tane Üçgen Var?',
+        description: 'İç içe geçmiş geometrik şekilleri sayarak görsel algıyı güçlendirme.',
+        icon: 'fa-solid fa-shapes',
+        defaultStyle: { columns: 1 }
     }
 ];
 
@@ -156,14 +170,36 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         title: 'Görsel & Mekansal',
         description: 'Görsel tarama, uzamsal algı ve yön tayini çalışmaları.',
         icon: 'fa-solid fa-eye',
-        activities: [ActivityType.MAP_INSTRUCTION, ActivityType.FIND_THE_DIFFERENCE, ActivityType.VISUAL_ODD_ONE_OUT, ActivityType.GRID_DRAWING, ActivityType.SYMMETRY_DRAWING]
+        activities: [
+            ActivityType.MAP_INSTRUCTION, 
+            ActivityType.FIND_THE_DIFFERENCE, 
+            ActivityType.VISUAL_ODD_ONE_OUT, 
+            ActivityType.GRID_DRAWING, 
+            ActivityType.SYMMETRY_DRAWING,
+            ActivityType.SHAPE_COUNTING,
+            ActivityType.WORD_SEARCH // Moved here for better categorization
+        ]
     },
     {
         id: 'reading-verbal',
         title: 'Okuma & Dil',
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
-        activities: [ActivityType.FIND_LETTER_PAIR, ActivityType.SYLLABLE_MASTER_LAB, ActivityType.READING_SUDOKU, ActivityType.LETTER_VISUAL_MATCHING, ActivityType.READING_STROOP, ActivityType.SYNONYM_ANTONYM_MATCH, ActivityType.SYLLABLE_WORD_BUILDER, ActivityType.STORY_COMPREHENSION, ActivityType.HIDDEN_PASSWORD_GRID, ActivityType.STORY_ANALYSIS, ActivityType.MISSING_PARTS, ActivityType.FAMILY_RELATIONS, ActivityType.FAMILY_LOGIC_TEST]
+        activities: [
+            ActivityType.FIND_LETTER_PAIR, 
+            ActivityType.SYLLABLE_MASTER_LAB, 
+            ActivityType.READING_SUDOKU, 
+            ActivityType.LETTER_VISUAL_MATCHING, 
+            ActivityType.READING_STROOP, 
+            ActivityType.SYNONYM_ANTONYM_MATCH, 
+            ActivityType.SYLLABLE_WORD_BUILDER, 
+            ActivityType.STORY_COMPREHENSION, 
+            ActivityType.HIDDEN_PASSWORD_GRID,
+            ActivityType.STORY_ANALYSIS, 
+            ActivityType.MISSING_PARTS, 
+            ActivityType.FAMILY_RELATIONS, 
+            ActivityType.FAMILY_LOGIC_TEST
+        ]
     },
     {
         id: 'math-logic',

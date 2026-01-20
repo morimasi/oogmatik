@@ -146,7 +146,7 @@ export const AdminActivityManager: React.FC = () => {
                             title: 'Yeni Etkinlik',
                             description: 'Açıklama giriniz.',
                             icon: 'fa-star',
-                            category: 'general',
+                            category: 'visual-perception', // Changed default from 'general' to 'visual-perception' for better UX
                             isActive: false,
                             isPremium: false
                         });

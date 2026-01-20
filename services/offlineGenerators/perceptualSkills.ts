@@ -1,214 +1,209 @@
 
 import { 
-    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, CoordinateCipherData, WordConnectData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeCountingData, ShapeType,
+    FindTheDifferenceData, VisualOddOneOutData, GridDrawingData, SymmetryDrawingData, ShapeCountingData,
     GeneratorOptions,
-    RomanNumeralConnectData,
-    WeightConnectData,
-    LengthConnectData,
     VisualOddOneOutItem
 } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, SHAPE_TYPES, TR_VOCAB, generateConnectedPath, generateSymmetricPattern, PREDEFINED_GRID_PATTERNS } from './helpers';
-
-const CHARACTER_PAIRS = [['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'n'], ['6', '9'], ['2', '5'], ['s', 'z'], ['E', '3']];
-
-const generateProceduralPolygon = (points: number, size = 40) => {
-    let d = `M 50 ${50 - size}`;
-    for (let i = 1; i < points; i++) {
-        const angle = (i * 360 / points) * Math.PI / 180;
-        const x = 50 + size * Math.sin(angle);
-        const y = 50 - size * Math.cos(angle);
-        d += ` L ${x} ${y}`;
-    }
-    return d + " Z";
-};
-
-const generateAbstractPath = (complexity: number) => {
-    let d = `M ${getRandomInt(20, 80)} ${getRandomInt(20, 80)}`;
-    for (let i = 0; i < complexity; i++) {
-        d += ` L ${getRandomInt(10, 90)} ${getRandomInt(10, 90)}`;
-    }
-    return d;
-};
+import { shuffle, getRandomInt, getRandomItems, generateConnectedPath } from './helpers';
 
 // --- VISUAL ODD ONE OUT ---
 export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
-    const { worksheetCount, itemCount, difficulty, distractionLevel, gridSize, visualType = 'geometric' } = options;
+    const { worksheetCount, difficulty, distractionLevel } = options;
     const results: VisualOddOneOutData[] = [];
     
-    for (let p = 0; p < worksheetCount; p++) {
-        const rowCount = itemCount || 6;
-        const colCount = Math.min(20, gridSize || 4);
-        const rows = [];
-
-        for (let i = 0; i < rowCount; i++) {
-            const items: VisualOddOneOutItem[] = [];
-            const correctIndex = getRandomInt(0, colCount - 1);
+    for(let i=0; i<worksheetCount; i++) {
+        const rows = Array.from({length: 5}, () => {
+            const isRotation = Math.random() > 0.5;
+            const correctIndex = getRandomInt(0, 3);
             
-            const createBaseItem = (): VisualOddOneOutItem => {
-                if (visualType === 'character') {
-                    const pair = CHARACTER_PAIRS[getRandomInt(0, CHARACTER_PAIRS.length - 1)];
-                    return { label: pair[0], rotation: 0 };
+            const items = Array.from({length: 4}, (_, idx) => {
+                if (idx === correctIndex) {
+                    return { 
+                        rotation: isRotation ? 45 : 0, 
+                        scale: isRotation ? 1 : 0.8,
+                        label: "★" 
+                    };
                 }
-                return { svgPaths: [{ d: generateProceduralPolygon(getRandomInt(3, 8)), stroke: "#1e293b", strokeWidth: 3.5 }] };
+                return { rotation: 0, scale: 1, label: "★" };
+            });
+
+            return {
+                items,
+                correctIndex,
+                reason: isRotation ? "Dönmüş" : "Küçük"
             };
-
-            const baseItem = createBaseItem();
-
-            for (let j = 0; j < colCount; j++) {
-                if (j === correctIndex) {
-                    const oddItem = JSON.parse(JSON.stringify(baseItem));
-                    if (visualType === 'character') {
-                        const pair = CHARACTER_PAIRS.find(p => p[0] === baseItem.label);
-                        oddItem.label = pair ? pair[1] : (baseItem.label === 'b' ? 'd' : 'b');
-                    } else {
-                        oddItem.rotation = 90;
-                        oddItem.isMirrored = true;
-                    }
-                    items.push(oddItem);
-                } else {
-                    items.push(JSON.parse(JSON.stringify(baseItem)));
-                }
-            }
-            rows.push({ items, correctIndex, reason: `${visualType} difference` });
-        }
+        });
 
         results.push({
-            title: `Görsel Ayrıştırma: ${visualType.toUpperCase()}`,
-            instruction: `Farklı olan öğeyi bul ve işaretle.`,
-            pedagogicalNote: `Görsel tarama ve seçici dikkat becerilerini geliştirir.`,
-            difficultyLevel: difficulty as any || 'Orta',
-            distractionLevel: distractionLevel as any || 'medium',
+            title: "Görsel Farklıyı Bul",
+            instruction: "Her satırda diğerlerinden farklı olan şekli bul.",
+            pedagogicalNote: "Görsel ayrımlaştırma.",
+            difficultyLevel: difficulty as any,
+            distractionLevel: distractionLevel || 'medium',
             rows
         });
     }
     return results;
 };
 
-export const generateOfflineFindTheDifference = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
-    const { worksheetCount, difficulty, findDiffType = 'linguistic', distractionLevel = 'medium', itemCount, gridSize } = options;
-    const results: FindTheDifferenceData[] = [];
-    const CRITICAL_PAIRS: Record<string, string[][]> = {
-        linguistic: [['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'n'], ['a', 'e']],
-        numeric: [['6', '9'], ['2', '5'], ['1', '7']],
-        semantic: [['dere', 'dede'], ['baba', 'dada'], ['kasa', 'masa']]
-    };
-
-    for (let p = 0; p < worksheetCount; p++) {
-        const rows = [];
-        for (let i = 0; i < (itemCount || 8); i++) {
-            const pairPool = CRITICAL_PAIRS[findDiffType] || CRITICAL_PAIRS.linguistic;
-            const pair = pairPool[getRandomInt(0, pairPool.length - 1)];
-            const correctIndex = getRandomInt(0, (gridSize || 4) - 1);
-            const items = Array.from({ length: (gridSize || 4) }, (_, idx) => idx === correctIndex ? pair[1] : pair[0]);
-            rows.push({ items, correctIndex, visualDistractionLevel: distractionLevel as any });
-        }
-        results.push({
-            title: `Farkı Bul: ${findDiffType}`,
-            instruction: "Diğerlerinden farklı olan öğeyi bulun.",
-            pedagogicalNote: "Görsel ayrıştırma becerisini güçlendirir.",
-            rows
-        });
-    }
-    return results;
-};
-
+// --- GRID DRAWING ---
 export const generateOfflineGridDrawing = async (options: GeneratorOptions): Promise<GridDrawingData[]> => {
-    const { worksheetCount, difficulty, concept, gridSize = 6, itemCount = 1 } = options;
+    const { worksheetCount, gridSize = 6 } = options;
     const results: GridDrawingData[] = [];
+
     for (let p = 0; p < worksheetCount; p++) {
-        const drawings = Array.from({ length: itemCount || 1 }, (_, i) => ({
-            lines: generateConnectedPath(gridSize, 3),
-            complexityLevel: difficulty,
-            title: `Desen ${i + 1}`
-        }));
+        const lines = generateConnectedPath(gridSize, 5); 
+        
         results.push({
             title: "Kare Kopyalama",
-            instruction: "Soldaki deseni sağdaki boş ızgaraya kopyala.",
-            pedagogicalNote: "Görsel-motor entegrasyonu destekler.",
+            instruction: "Soldaki deseni sağdaki boş alana aynen çiz.",
+            pedagogicalNote: "Görsel-mekansal kopyalama ve ince motor becerisi.",
             gridDim: gridSize,
             showCoordinates: true,
-            transformMode: (concept as any) || 'copy',
-            drawings
+            transformMode: 'copy',
+            drawings: [{
+                lines: lines,
+                complexityLevel: 'Orta',
+                title: 'Desen 1'
+            }]
         });
     }
     return results;
 };
 
-// --- ENHANCED SYMMETRY DRAWING GENERATOR ---
+// --- SYMMETRY DRAWING ---
 export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions): Promise<SymmetryDrawingData[]> => {
-    const { worksheetCount, difficulty, visualType = 'vertical', gridSize = 10 } = options;
+    const { worksheetCount, gridSize = 10 } = options;
     const results: SymmetryDrawingData[] = [];
 
-    // Seviyeye göre nokta sayısı (Zorluk skalası)
-    const complexityMap: Record<string, number> = {
-        'Başlangıç': 4,
-        'Orta': 6,
-        'Zor': 9,
-        'Uzman': 13
-    };
-    const nodeCount = complexityMap[difficulty] || 6;
-    const axis = (visualType === 'horizontal' ? 'horizontal' : 'vertical') as 'vertical' | 'horizontal';
-    const dim = gridSize || 10;
-    const mid = Math.floor(dim / 2);
-
     for (let p = 0; p < worksheetCount; p++) {
-        const lines: { x1: number, y1: number, x2: number, y2: number, color: string }[] = [];
-        const dots: { x: number, y: number, color: string }[] = [];
+        const halfGrid = Math.floor(gridSize / 2);
+        const lines: {x1:number, y1:number, x2:number, y2:number, color: string}[] = [];
         
-        // 1. Koordinat havuzu oluştur (Sadece sol veya üst taraf için)
-        // Eksen çizgisi (mid) üzerinde en az bir nokta olsun ki şekil bitişik dursun
-        let currentPos = axis === 'vertical' ? { x: mid, y: getRandomInt(1, dim - 1) } : { x: getRandomInt(1, dim - 1), y: mid };
-        dots.push({ ...currentPos, color: '#0f172a' });
-
-        for (let i = 0; i < nodeCount; i++) {
-            let nextPos;
-            let attempts = 0;
-            
-            while (attempts < 20) {
-                // Komşu noktalara hareket et (Mühendislik hissi için 45-90 derece)
-                const dx = getRandomInt(-2, 2);
-                const dy = getRandomInt(-2, 2);
-                
-                nextPos = { x: currentPos.x + dx, y: currentPos.y + dy };
-                
-                // Sınır Kontrolü
-                const inBounds = nextPos.x >= 0 && nextPos.y >= 0 && nextPos.x <= dim && nextPos.y <= dim;
-                // Taraf Kontrolü (Simetri eksenini geçmemeli)
-                const inSide = axis === 'vertical' ? nextPos.x <= mid : nextPos.y <= mid;
-                // Aynı nokta olmamalı
-                const isDifferent = nextPos.x !== currentPos.x || nextPos.y !== currentPos.y;
-
-                if (inBounds && inSide && isDifferent) break;
-                attempts++;
-            }
-
-            if (nextPos) {
-                lines.push({
-                    x1: currentPos.x,
-                    y1: currentPos.y,
-                    x2: nextPos.x,
-                    y2: nextPos.y,
-                    color: '#0f172a'
-                });
-                dots.push({ ...nextPos, color: '#0f172a' });
-                currentPos = nextPos;
-            }
+        let cx = getRandomInt(0, halfGrid - 1);
+        let cy = getRandomInt(0, gridSize);
+        
+        for(let k=0; k<6; k++) {
+            const nx = getRandomInt(0, halfGrid - 1);
+            const ny = getRandomInt(0, gridSize);
+            lines.push({ x1: cx, y1: cy, x2: nx, y2: ny, color: '#000' });
+            cx = nx;
+            cy = ny;
         }
 
         results.push({
-            title: "Simetri Tamamlama Atölyesi",
-            instruction: axis === 'vertical' 
-                ? "Şeklin dikey eksene göre ayna görüntüsünü sağ tarafa çizerek tamamla." 
-                : "Şeklin yatay eksene göre ayna görüntüsünü alt tarafa çizerek tamamla.",
-            pedagogicalNote: "Zihinsel döndürme, uzamsal konumlandırma ve şekil sabitliği becerilerini geliştirir.",
-            gridDim: dim,
-            axis: axis,
-            showCoordinates: options.useSearch || false,
+            title: "Simetri Tamamlama",
+            instruction: "Şeklin diğer yarısını simetri eksenine göre tamamla.",
+            pedagogicalNote: "Simetri algısı ve uzamsal ilişkilendirme.",
+            gridDim: gridSize,
+            axis: 'vertical',
+            showCoordinates: true,
             isMirrorImage: true,
             lines,
-            dots
+            dots: []
         });
     }
+    return results;
+};
 
+// --- SHAPE COUNTING (TRIANGLE PUZZLE) ---
+export const generateOfflineShapeCounting = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
+    const { worksheetCount, difficulty, itemCount } = options;
+    const results: ShapeCountingData[] = [];
+    const count = itemCount || (difficulty === 'Başlangıç' ? 2 : 4);
+
+    for (let p = 0; p < worksheetCount; p++) {
+        const figures = [];
+        
+        for (let i = 0; i < count; i++) {
+            // Algoritma: Tek tepeli üçgen bölünmesi
+            // n: Dikey bölme sayısı (tabanı bölen)
+            // h: Yatay kesik sayısı
+            // Formül: (n * (n+1) / 2) * (h + 1)
+            
+            const n = getRandomInt(2, difficulty === 'Zor' ? 5 : 3); 
+            const h = difficulty === 'Zor' || difficulty === 'Uzman' ? getRandomInt(1, 2) : 0; 
+            const correctCount = (n * (n + 1) / 2) * (h + 1);
+            
+            // SVG Koordinatları (100x100 ViewBox)
+            const top = { x: 50, y: 10 };
+            const left = { x: 10, y: 90 };
+            const right = { x: 90, y: 90 };
+            
+            const paths = [];
+            // Ana Çerçeve
+            paths.push({ d: `M ${top.x} ${top.y} L ${left.x} ${left.y} L ${right.x} ${right.y} Z`, fill: "none", stroke: "black", strokeWidth: 3 });
+            
+            // Dikey Çizgiler (Tepeden tabana)
+            for (let k = 1; k < n; k++) {
+                const ratio = k / n;
+                const bx = left.x + (right.x - left.x) * ratio;
+                const by = left.y;
+                paths.push({ d: `M ${top.x} ${top.y} L ${bx} ${by}`, fill: "none", stroke: "black", strokeWidth: 2 });
+            }
+            
+            // Yatay Çizgiler (Katmanlar)
+            for (let k = 1; k <= h; k++) {
+                const ratio = k / (h + 1);
+                const lx = top.x + (left.x - top.x) * ratio;
+                const ly = top.y + (left.y - top.y) * ratio;
+                const rx = top.x + (right.x - top.x) * ratio;
+                const ry = top.y + (right.y - top.y) * ratio;
+                paths.push({ d: `M ${lx} ${ly} L ${rx} ${ry}`, fill: "none", stroke: "black", strokeWidth: 2 });
+            }
+            
+            figures.push({
+                targetShape: 'triangle',
+                correctCount,
+                svgPaths: paths
+            });
+        }
+        
+        results.push({
+            title: "Şekil Sayma: Üçgenler",
+            instruction: "Her şekilde kaç tane üçgen olduğunu say ve altındaki kutuya yaz.",
+            pedagogicalNote: "Şekil-zemin ayrımı ve sistematik sayma stratejisi geliştirir.",
+            figures
+        });
+    }
+    return results;
+};
+
+// --- FIND THE DIFFERENCE (ENHANCED) ---
+export const generateOfflineFindTheDifference = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
+    const { worksheetCount, difficulty, findDiffType = 'linguistic', distractionLevel = 'medium', gridSize = 4, itemCount = 6 } = options;
+    const results: FindTheDifferenceData[] = [];
+    
+    const PAIRS: Record<string, string[][]> = {
+        linguistic: [['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'ü'], ['a', 'e'], ['K', 'H'], ['E', 'F'], ['M', 'W']],
+        numeric: [['6', '9'], ['2', '5'], ['1', '7'], ['3', '8'], ['0', '8'], ['5', 'S']],
+        semantic: [['Elma', 'Armut'], ['Kedi', 'Köpek'], ['Masa', 'Sandalye'], ['Göz', 'Gözlük']],
+        shape: [['△', '▲'], ['□', '■'], ['○', '●'], ['★', '☆']]
+    };
+
+    for (let p = 0; p < worksheetCount; p++) {
+        const rows = [];
+        for (let i = 0; i < itemCount; i++) {
+            const pairPool = PAIRS[findDiffType] || PAIRS.linguistic;
+            const pair = pairPool[getRandomInt(0, pairPool.length - 1)];
+            const base = pair[0];
+            const target = pair[1];
+            const correctIndex = getRandomInt(0, gridSize - 1);
+            const items = Array.from({ length: gridSize }, (_, idx) => idx === correctIndex ? target : base);
+            
+            rows.push({ 
+                items, 
+                correctIndex, 
+                visualDistractionLevel: distractionLevel as any 
+            });
+        }
+        
+        results.push({
+            title: `Farkı Bul: ${findDiffType === 'linguistic' ? 'Harfler' : findDiffType === 'numeric' ? 'Rakamlar' : 'Şekiller'}`,
+            instruction: "Her satırda diğerlerinden farklı olanı bul ve daire içine al.",
+            pedagogicalNote: "Görsel ayrımlaştırma (Visual Discrimination) ve dikkat.",
+            rows
+        });
+    }
     return results;
 };
