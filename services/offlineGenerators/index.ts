@@ -1,6 +1,6 @@
 
 export * from './algorithm';
-export * from './mathLogic'; // Contains generateOfflineNumberLogicRiddles
+export * from './mathLogic';
 export * from './wordGames';
 export * from './memoryAttention';
 export * from './perceptualSkills';
