@@ -160,6 +160,13 @@ export const ACTIVITIES: Activity[] = [
         description: 'İç içe geçmiş geometrik şekilleri sayarak görsel algıyı güçlendirme.',
         icon: 'fa-solid fa-shapes',
         defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.MORPHOLOGY_MATRIX,
+        title: 'Morfolojik Kelime İnşaatı',
+        description: 'Kök ve ekleri birleştirerek kelime türetme ve anlamlandırma çalışması.',
+        icon: 'fa-solid fa-cubes-stacked',
+        defaultStyle: { columns: 1 }
     }
 ];
 
@@ -177,7 +184,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
             ActivityType.GRID_DRAWING, 
             ActivityType.SYMMETRY_DRAWING,
             ActivityType.SHAPE_COUNTING,
-            ActivityType.WORD_SEARCH // Moved here for better categorization
+            ActivityType.WORD_SEARCH 
         ]
     },
     {
@@ -193,6 +200,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
             ActivityType.READING_STROOP, 
             ActivityType.SYNONYM_ANTONYM_MATCH, 
             ActivityType.SYLLABLE_WORD_BUILDER, 
+            ActivityType.MORPHOLOGY_MATRIX,
             ActivityType.STORY_COMPREHENSION, 
             ActivityType.HIDDEN_PASSWORD_GRID,
             ActivityType.STORY_ANALYSIS, 

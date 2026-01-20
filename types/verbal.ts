@@ -147,3 +147,12 @@ export interface ReadingSudokuData extends BaseActivityData {
         fontFamily: string;
     };
 }
+
+export interface MorphologyMatrixData extends BaseActivityData {
+    items: {
+        root: string;
+        suffixes: string[];
+        hint?: string;
+    }[];
+    difficulty: string;
+}

@@ -21,6 +21,7 @@ import { FamilyRelationsConfig } from './FamilyRelationsConfig';
 import { WordSearchConfig } from './WordSearchConfig';
 import { FindDifferenceConfig } from './FindDifferenceConfig';
 import { ShapeCountingConfig } from './ShapeCountingConfig';
+import { MorphologyConfig } from './MorphologyConfig';
 
 export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.MATH_MEMORY_CARDS]: MathMemoryCardsConfig,
@@ -44,4 +45,5 @@ export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.WORD_SEARCH]: WordSearchConfig,
     [ActivityType.FIND_THE_DIFFERENCE]: FindDifferenceConfig,
     [ActivityType.SHAPE_COUNTING]: ShapeCountingConfig,
+    [ActivityType.MORPHOLOGY_MATRIX]: MorphologyConfig,
 };

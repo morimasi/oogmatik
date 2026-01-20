@@ -33,7 +33,7 @@ import { StoryComprehensionSheet } from './sheets/verbal/StoryComprehensionSheet
 import { ReadingFlowSheet } from './sheets/verbal/ReadingFlowSheet';
 import { PhonologicalAwarenessSheet, RapidNamingSheet, LetterDiscriminationSheet, MirrorLettersSheet, SyllableTrainSheet, VisualTrackingLinesSheet, BackwardSpellingSheet, CodeReadingSheet, AttentionToQuestionSheet, HandwritingPracticeSheet } from './sheets/verbal/ReadingSupportSheets';
 import { AnagramSheet, WordSearchSheet, HiddenPasswordGridSheet, CrosswordSheet } from './sheets/verbal/WordGameSheets';
-import { SyllableMasterLabSheet, ReadingSudokuSheet, ReadingStroopSheet, SynonymAntonymMatchSheet, SyllableWordBuilderSheet, LetterVisualMatchingSheet, FamilyLogicSheet, FamilyRelationsSheet, FindLetterPairSheet } from './sheets/verbal/ReadingSheets'; 
+import { SyllableMasterLabSheet, ReadingSudokuSheet, ReadingStroopSheet, SynonymAntonymMatchSheet, SyllableWordBuilderSheet, LetterVisualMatchingSheet, FamilyLogicSheet, FamilyRelationsSheet, FindLetterPairSheet, MorphologyMatrixSheet } from './sheets/verbal/ReadingSheets'; 
 
 // --- VISUAL PERCEPTION ---
 import { MapDetectiveSheet } from './sheets/visual/MapDetectiveSheet'; 
@@ -139,6 +139,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.LETTER_VISUAL_MATCHING: return <LetterVisualMatchingSheet data={data} />;
         case ActivityType.FAMILY_RELATIONS: return <FamilyRelationsSheet data={data} />;
         case ActivityType.FAMILY_LOGIC_TEST: return <FamilyLogicSheet data={data} />;
+        case ActivityType.MORPHOLOGY_MATRIX: return <MorphologyMatrixSheet data={data} />;
         
         // --- READING SUPPORT ---
         case ActivityType.READING_FLOW: return <ReadingFlowSheet data={data} />;

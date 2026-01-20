@@ -79,7 +79,8 @@ export enum ActivityType {
     ODD_ONE_OUT = 'ODD_ONE_OUT',
     THEMATIC_ODD_ONE_OUT = 'THEMATIC_ODD_ONE_OUT',
     TARGET_NUMBER = 'TARGET_NUMBER',
-    SHAPE_COUNTING = 'SHAPE_COUNTING'
+    SHAPE_COUNTING = 'SHAPE_COUNTING',
+    MORPHOLOGY_MATRIX = 'MORPHOLOGY_MATRIX'
 }
 
 export type View = 'generator' | 'admin' | 'profile' | 'messages' | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'favorites' | 'savedList' | 'workbook' | 'shared' | 'assessment';

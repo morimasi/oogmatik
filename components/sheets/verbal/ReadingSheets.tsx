@@ -10,3 +10,4 @@ export { SyllableWordBuilderSheet } from './SyllableWordBuilderSheet';
 export { LetterVisualMatchingSheet } from './LetterVisualMatchingSheet';
 export { FamilyLogicSheet, FamilyRelationsSheet } from '../NewActivitySheets';
 export { FindLetterPairSheet } from './FindLetterPairSheet';
+export { MorphologyMatrixSheet } from './MorphologyMatrixSheet';
