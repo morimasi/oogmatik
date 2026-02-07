@@ -1,102 +1,84 @@
 
 import { 
     FindTheDifferenceData, VisualOddOneOutData, GridDrawingData, SymmetryDrawingData, ShapeCountingData, DirectionalTrackingData,
-    GeneratorOptions
+    GeneratorOptions, SearchFieldItem
 } from '../../types';
-import { getRandomInt, shuffle, getRandomItems, generateConnectedPath, getWordsForDifficulty } from './helpers';
+import { getRandomInt, shuffle, getRandomItems, generateConnectedPath, SHAPE_TYPES } from './helpers';
 
-// --- HELPERS FOR SHAPE COUNTING (NESTED GEOMETRY) ---
-
-const generateNestedTrianglePaths = (complexity: number) => {
-    const paths = [];
-    const top = { x: 50, y: 10 };
-    const left = { x: 10, y: 90 };
-    const right = { x: 90, y: 90 };
-
-    // Base Triangle
-    paths.push({ d: `M ${top.x} ${top.y} L ${left.x} ${left.y} L ${right.x} ${right.y} Z`, fill: "none", stroke: "black", strokeWidth: 3 });
-
-    // Complexity 1: Vertical splits from top
-    const n = complexity + 1; 
-    for (let k = 1; k < n; k++) {
-        const ratio = k / n;
-        const bx = left.x + (right.x - left.x) * ratio;
-        const by = left.y;
-        paths.push({ d: `M ${top.x} ${top.y} L ${bx} ${by}`, fill: "none", stroke: "black", strokeWidth: 2 });
-    }
-
-    // Complexity 2: Horizontal layers
-    if (complexity > 2) {
-        const h = Math.floor(complexity / 2);
-        for (let k = 1; k <= h; k++) {
-            const ratio = k / (h + 1);
-            const lx = top.x + (left.x - top.x) * ratio;
-            const ly = top.y + (left.y - top.y) * ratio;
-            const rx = top.x + (right.x - top.x) * ratio;
-            const ry = top.y + (right.y - top.y) * ratio;
-            paths.push({ d: `M ${lx} ${ly} L ${rx} ${ry}`, fill: "none", stroke: "black", strokeWidth: 2 });
-        }
-    }
-
-    // Calculate correct count mathematically for nested triangles
-    // (n * (n + 1) / 2) * (h + 1)
-    const n_splits = n;
-    const h_layers = complexity > 2 ? Math.floor(complexity / 2) : 0;
-    const count = (n_splits * (n_splits + 1) / 2) * (h_layers + 1);
-
-    return { paths, count };
+// --- GEOMETRIC PATH CONSTANTS ---
+const SHAPE_PATHS: Record<string, string> = {
+    triangle: "M 50 15 L 85 85 L 15 85 Z",
+    circle: "M 50 50 m -35 0 a 35 35 0 1 0 70 0 a 35 35 0 1 0 -70 0",
+    square: "M 20 20 L 80 20 L 80 80 L 20 80 Z",
+    star: "M 50 10 L 61 35 L 88 35 L 66 52 L 75 78 L 50 62 L 25 78 L 34 52 L 12 35 L 39 35 Z",
+    hexagon: "M 50 10 L 85 30 L 85 70 L 50 90 L 15 70 L 15 30 Z",
+    pentagon: "M 50 10 L 90 40 L 75 85 L 25 85 L 10 40 Z",
+    diamond: "M 50 10 L 85 50 L 50 90 L 15 50 Z"
 };
 
 export const generateOfflineShapeCounting = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
-    const { worksheetCount, difficulty, itemCount = 4 } = options;
+    const { worksheetCount, difficulty, itemCount = 30 } = options;
     const results: ShapeCountingData[] = [];
 
-    const difficultyMap: Record<string, number> = {
-        'Başlangıç': 2,
-        'Orta': 3,
-        'Zor': 4,
-        'Uzman': 6
-    };
-
-    const complexity = difficultyMap[difficulty] || 3;
+    // Zorluk seviyesine göre hedef/çeldirici oranı
+    const config = {
+        'Başlangıç': { targetRatio: 0.4, types: ['circle', 'square', 'triangle'] },
+        'Orta': { targetRatio: 0.3, types: ['circle', 'square', 'triangle', 'star', 'hexagon'] },
+        'Zor': { targetRatio: 0.2, types: SHAPE_TYPES },
+        'Uzman': { targetRatio: 0.15, types: SHAPE_TYPES }
+    }[difficulty] || { targetRatio: 0.3, types: ['circle', 'square', 'triangle', 'star'] };
 
     for (let p = 0; p < worksheetCount; p++) {
-        const searchField: any[] = [];
-        let totalTrianglesOnPage = 0;
+        // A4 sayfasında 4 ana bölge (Puzzle) oluştur
+        const puzzles: any[] = [];
+        
+        for (let section = 0; section < 4; section++) {
+            const searchField: any[] = [];
+            let targetCount = 0;
+            const currentItemCount = itemCount + (section * 5); // Her bölgede yoğunluk biraz artar
 
-        for (let i = 0; i < itemCount; i++) {
-            // Her soru için hafif farklı karmaşıklık
-            const variantComplexity = Math.max(1, complexity + (i % 2 === 0 ? 0 : -1));
-            const { paths, count } = generateNestedTrianglePaths(variantComplexity);
-            
-            searchField.push({
-                id: `fig-${i}`,
-                type: 'nested', // Custom rendering indicator
-                targetShape: 'triangle',
-                correctCount: count,
-                svgPaths: paths, // Geometrik datayı buraya gömüyoruz
-                complexityScore: variantComplexity
+            for (let i = 0; i < currentItemCount; i++) {
+                const isTarget = Math.random() < config.targetRatio;
+                const type = isTarget ? 'triangle' : getRandomItems(config.types.filter(t => t !== 'triangle'), 1)[0];
+                
+                if (type === 'triangle') targetCount++;
+
+                searchField.push({
+                    id: `s-${section}-${i}`,
+                    type: type as any,
+                    x: getRandomInt(5, 90),
+                    y: getRandomInt(5, 90),
+                    rotation: getRandomInt(0, 359),
+                    size: getRandomInt(15, 35) / 10, // 1.5 - 3.5 scale
+                    color: 'black'
+                });
+            }
+
+            puzzles.push({
+                id: `section-${section}`,
+                searchField: shuffle(searchField),
+                correctCount: targetCount,
+                difficultyScore: section + 1
             });
-            totalTrianglesOnPage += count;
         }
 
         results.push({
-            title: "Geometrik Analiz: Üçgen Sayma",
-            instruction: "Aşağıdaki karmaşık şekilleri incele. Her bir görselin içinde kaç tane üçgen olduğunu dikkatlice say ve altındaki kutuya yaz.",
-            pedagogicalNote: "Şekil-zemin algısı, görsel analiz ve çalışma belleği kapasitesini geliştirir.",
+            title: "Görsel Tarama: Üçgen Avı",
+            instruction: "Aşağıdaki kutuların içindeki TÜM ÜÇGENLERİ bul ve sayısını altındaki kutucuğa yaz. Dikkat et, bazıları dönmüş veya gizlenmiş olabilir!",
+            pedagogicalNote: "Şekil-zemin algısı (figure-ground) ve görsel sabitlik (visual constancy) becerilerini geliştiren klinik dikkat çalışması.",
             settings: { 
                 difficulty: difficulty || 'Orta', 
                 itemCount: itemCount, 
                 targetShape: 'triangle', 
                 colorComplexity: 'monochrome', 
-                layoutType: 'grid' 
+                layoutType: 'chaotic' 
             },
-            searchField: searchField,
-            correctCount: totalTrianglesOnPage,
-            clues: ["İpucu: Sadece en küçük parçaları değil, birleşerek oluşan büyük üçgenleri de saymayı unutma!"]
+            searchField: puzzles as any, // Taşınan yeni yapı
+            correctCount: puzzles.reduce((acc, curr) => acc + curr.correctCount, 0),
+            clues: ["İpucu: Gözlerinle satır satır tarama yaparak ilerlemek hata payını azaltır."]
         });
     }
     return results;
 };
 
-// ... remaining perceptual generators ...
+// ... remaining generators ...
