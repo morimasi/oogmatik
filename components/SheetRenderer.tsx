@@ -46,49 +46,53 @@ interface SheetRendererProps {
 }
 
 const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
-    const style = block.style || {};
-    
     switch (block.type) {
         case 'header':
-            return <h2 className="text-3xl font-black uppercase border-b-8 border-zinc-900 mb-6 pb-2 leading-none"><EditableText value={block.content} /></h2>;
+            return <h2 className="text-4xl font-black uppercase border-b-8 border-zinc-900 mb-8 pb-3 leading-none tracking-tighter"><EditableText value={block.content} /></h2>;
         case 'text':
-            return <div className="text-xl leading-relaxed mb-8 text-justify font-dyslexic text-zinc-800"><EditableText value={block.content} /></div>;
+            return <div className="text-2xl leading-relaxed mb-10 text-justify font-dyslexic text-zinc-800"><EditableText value={block.content} /></div>;
         case 'question':
             return (
-                <div className="p-6 bg-zinc-50 border-[3px] border-zinc-900 rounded-[2rem] mb-6 shadow-sm group hover:border-indigo-500 transition-all">
-                    <p className="text-lg font-black mb-4 flex gap-4">
-                        <span className="w-8 h-8 bg-zinc-900 text-white rounded-xl flex items-center justify-center text-sm shrink-0">?</span>
-                        <EditableText value={block.content.text} />
+                <div className="p-8 bg-zinc-50 border-[4px] border-zinc-900 rounded-[3rem] mb-8 shadow-sm group hover:border-indigo-500 transition-all relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-zinc-900 group-hover:bg-indigo-500 transition-colors"></div>
+                    <p className="text-xl font-black mb-6 flex gap-5 items-start">
+                        <span className="w-10 h-10 bg-zinc-900 text-white rounded-2xl flex items-center justify-center text-sm shrink-0 shadow-lg group-hover:bg-indigo-600 transition-colors">?</span>
+                        <span className="pt-1"><EditableText value={block.content.text} /></span>
                     </p>
-                    <div className="h-12 border-b-2 border-dashed border-zinc-300 w-full opacity-50"></div>
+                    <div className="h-16 border-b-2 border-dashed border-zinc-300 w-full opacity-50"></div>
                 </div>
             );
         case 'math':
             return (
-                <div className="flex flex-col items-center gap-4 mb-8 p-6 bg-white border-2 border-zinc-100 rounded-3xl shadow-inner">
-                    <div className="flex items-center gap-8 text-4xl font-black font-mono">
-                         <span>{block.content.num1}</span>
-                         <span className="text-zinc-300">{block.content.operator}</span>
-                         <span>{block.content.num2}</span>
+                <div className="flex flex-col items-center gap-8 mb-12 p-10 bg-white border-[3px] border-zinc-100 rounded-[4rem] shadow-inner relative group">
+                    <div className="flex items-center gap-10 text-5xl font-black font-mono">
+                         <div className="flex flex-col items-center gap-2">
+                            <span>{block.content.num1}</span>
+                            {block.content.showVisual && <TenFrame count={block.content.num1} color="#6366f1" />}
+                         </div>
+                         <span className="text-zinc-300 group-hover:text-indigo-500 transition-colors">{block.content.operator}</span>
+                         <div className="flex flex-col items-center gap-2">
+                            <span>{block.content.num2}</span>
+                            {block.content.showVisual && <TenFrame count={block.content.num2} color="#f43f5e" />}
+                         </div>
                          <span className="text-zinc-300">=</span>
-                         <div className="w-24 h-16 border-4 border-indigo-600 rounded-2xl bg-indigo-50/50"></div>
+                         <div className="w-32 h-20 border-[6px] border-indigo-600 rounded-3xl bg-indigo-50/50 shadow-2xl animate-pulse"></div>
                     </div>
-                    {block.content.showVisual && <TenFrame count={block.content.num1} />}
                 </div>
             );
         case 'image':
-            return <ImageDisplay prompt={block.content.prompt} className="w-full h-64 mb-8 shadow-xl border-4 border-white" />;
+            return <ImageDisplay prompt={block.content.prompt} className="w-full h-80 mb-10 shadow-2xl border-8 border-white rounded-[3.5rem]" />;
         default:
-            return <div className="p-4 border-2 border-dashed border-zinc-200 rounded-2xl text-zinc-400 italic text-center mb-4">Blok içeriği ayrıştırılıyor...</div>;
+            return <div className="p-6 border-4 border-dashed border-zinc-100 rounded-[3rem] text-zinc-400 italic text-center mb-6">Blok verisi işleniyor...</div>;
     }
 };
 
 const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
     if (data.blocks && data.blocks.length > 0) {
         return (
-            <div className="w-full h-full flex flex-col animate-in fade-in duration-1000">
+            <div className="w-full h-full flex flex-col animate-in fade-in zoom-in-95 duration-1000">
                 <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-                <div className="flex-1 flex flex-col mt-4">
+                <div className="flex-1 flex flex-col mt-6">
                     {data.blocks.map((block) => <BlockRenderer key={block.id} block={block} />)}
                 </div>
             </div>
@@ -98,15 +102,16 @@ const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
     return (
         <div className="w-full h-full flex flex-col animate-in fade-in duration-700">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-            <div className="flex flex-col gap-6 mt-4">
+            <div className="flex flex-col gap-8 mt-6">
                 {(data.sections || []).map((section: any, idx: number) => (
-                    <EditableElement key={idx} className="bg-white rounded-[3rem] border-[3px] border-zinc-900 shadow-sm w-full p-8 group hover:border-indigo-600 transition-all">
-                        {section.title && <h4 className="text-xs font-black text-indigo-600 uppercase tracking-[0.3em] mb-4 border-b border-indigo-50 pb-2 flex items-center gap-2"><i className="fa-solid fa-star"></i> <EditableText value={section.title} tag="span" /></h4>}
-                        {section.type === 'text' && <div className="prose max-w-none text-zinc-800 leading-relaxed font-dyslexic text-xl text-justify"><EditableText value={section.content} tag="div" /></div>}
+                    <EditableElement key={idx} className="bg-white rounded-[4rem] border-[4px] border-zinc-900 shadow-sm w-full p-10 group hover:border-indigo-600 transition-all relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-zinc-50 rounded-bl-full -mr-10 -mt-10 opacity-50"></div>
+                        {section.title && <h4 className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.4em] mb-6 border-b border-indigo-50 pb-3 flex items-center gap-3"><i className="fa-solid fa-star animate-pulse"></i> <EditableText value={section.title} tag="span" /></h4>}
+                        {section.type === 'text' && <div className="prose max-w-none text-zinc-800 leading-relaxed font-dyslexic text-2xl text-justify"><EditableText value={section.content} tag="div" /></div>}
                         {section.type === 'list' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {(section.items || []).map((item: string, i: number) => (
-                                    <div key={i} className="flex gap-5 items-start p-5 bg-zinc-50 rounded-3xl border-2 border-zinc-100 group-hover:bg-white transition-all"><div className="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-lg">{i+1}</div><div className="flex-1 font-bold text-zinc-800 text-lg leading-snug"><EditableText value={item} tag="span" /></div></div>
+                                    <div key={i} className="flex gap-6 items-start p-6 bg-zinc-50 rounded-[2.5rem] border-2 border-zinc-100 group-hover:bg-white transition-all shadow-sm hover:shadow-md"><div className="w-10 h-10 rounded-2xl bg-zinc-900 text-white flex items-center justify-center text-sm font-black shrink-0 shadow-lg">{i+1}</div><div className="flex-1 font-bold text-zinc-800 text-xl leading-snug tracking-tight"><EditableText value={item} tag="span" /></div></div>
                                 ))}
                             </div>
                         )}
