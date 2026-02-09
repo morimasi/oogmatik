@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { curriculumService } from '../services/curriculumService';
-import { Curriculum, CurriculumDay, CurriculumActivity, Student } from '../types';
+import { Curriculum, CurriculumDay, CurriculumActivity, Student, ActivityType } from '../types';
 import { ACTIVITIES } from '../constants';
 import { printService } from '../utils/printService';
 import { useAuth } from '../context/AuthContext';
@@ -17,56 +17,62 @@ interface CurriculumViewProps {
 
 const DayCard: React.FC<{ 
     day: CurriculumDay, 
+    isActiveDay: boolean,
     onToggleActivity: (day: number, actId: string) => void, 
     onStartActivity: (actId: string, actType: string, title: string) => void,
     onSaveNote: (day: number, note: string) => void
-}> = ({ day, onToggleActivity, onStartActivity, onSaveNote }) => {
+}> = ({ day, isActiveDay, onToggleActivity, onStartActivity, onSaveNote }) => {
     const isAllCompleted = day.activities.every(a => a.status === 'completed');
-    const [note, setNote] = useState(day.focus || '');
     
     return (
-        <div className={`group relative bg-white dark:bg-zinc-800 rounded-3xl border-2 transition-all duration-300 hover:shadow-xl ${isAllCompleted ? 'border-emerald-400 dark:border-emerald-600 ring-4 ring-emerald-50 dark:ring-emerald-900/20' : 'border-zinc-100 dark:border-zinc-700'} break-inside-avoid page-break-inside-avoid print:border-zinc-300 print:shadow-none`}>
-            <div className={`p-5 rounded-t-[1.3rem] flex justify-between items-center ${isAllCompleted ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-zinc-50 dark:bg-zinc-900/50'} print:bg-gray-100 border-b border-zinc-100 dark:border-zinc-700`}>
-                <div>
-                    <h4 className="font-black text-xl text-zinc-800 dark:text-white flex items-center gap-2 print:text-black">
-                        {day.day}. Gün
-                        {isAllCompleted && <i className="fa-solid fa-check-circle text-emerald-500 print:hidden"></i>}
-                    </h4>
-                    <p className="text-xs font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider mt-1 print:text-black">{day.focus}</p>
+        <div className={`group relative bg-white dark:bg-zinc-800 rounded-3xl border-2 transition-all duration-500 hover:shadow-2xl ${isActiveDay ? 'ring-4 ring-indigo-500/20 border-indigo-500 scale-[1.02] z-10' : 'border-zinc-100 dark:border-zinc-700'} ${isAllCompleted ? 'opacity-80 grayscale-[0.5]' : ''} break-inside-avoid page-break-inside-avoid print:border-zinc-300 print:shadow-none`}>
+            {isActiveDay && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg animate-bounce">
+                    ŞU AN BURADAYIZ
                 </div>
-                <div className="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-700 flex items-center justify-center shadow-sm border border-zinc-100 dark:border-zinc-600">
-                    <i className="fa-solid fa-calendar-day text-zinc-400"></i>
+            )}
+
+            <div className={`p-5 rounded-t-[1.3rem] flex justify-between items-center ${isActiveDay ? 'bg-indigo-50 dark:bg-indigo-900/20' : 'bg-zinc-50 dark:bg-zinc-900/50'} border-b border-zinc-100 dark:border-zinc-700`}>
+                <div>
+                    <h4 className="font-black text-xl text-zinc-800 dark:text-white flex items-center gap-2">
+                        {day.day}. Gün
+                        {isAllCompleted && <i className="fa-solid fa-circle-check text-emerald-500"></i>}
+                    </h4>
+                    <p className="text-xs font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider mt-1">{day.focus}</p>
+                </div>
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm border ${isActiveDay ? 'bg-white dark:bg-zinc-700 border-indigo-200' : 'bg-white dark:bg-zinc-700 border-zinc-100'}`}>
+                    <i className={`fa-solid ${isAllCompleted ? 'fa-star text-amber-500' : 'fa-calendar-day text-zinc-400'}`}></i>
                 </div>
             </div>
 
             <div className="p-5 space-y-4">
                 {day.activities.map((act) => (
-                    <div key={act.id} className={`relative pl-4 border-l-2 transition-all ${act.status === 'completed' ? 'border-emerald-400 opacity-60' : 'border-zinc-200 dark:border-zinc-700 hover:border-indigo-400'} print:border-l-4 print:border-gray-300 print:opacity-100`}>
-                        <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                                <h5 className={`font-bold text-sm ${act.status === 'completed' ? 'line-through text-zinc-400' : 'text-zinc-800 dark:text-zinc-200'} print:text-black print:no-underline`}>{act.title}</h5>
+                    <div key={act.id} className={`relative pl-4 border-l-4 transition-all ${act.status === 'completed' ? 'border-emerald-400' : 'border-zinc-200 dark:border-zinc-700 hover:border-indigo-400'}`}>
+                        <div className="flex justify-between items-start gap-4">
+                            <div className="flex-1 min-w-0">
+                                <h5 className={`font-bold text-sm truncate ${act.status === 'completed' ? 'line-through text-zinc-400' : 'text-zinc-800 dark:text-zinc-200'}`}>{act.title}</h5>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-[10px] bg-zinc-100 dark:bg-zinc-700 px-2 py-0.5 rounded text-zinc-500 dark:text-zinc-400 font-mono print:border print:border-gray-300">{act.duration} dk</span>
-                                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${act.difficultyLevel === 'Hard' ? 'bg-red-50 text-red-600' : act.difficultyLevel === 'Medium' ? 'bg-orange-50 text-orange-600' : 'bg-green-50 text-green-600'}`}>
+                                    <span className="text-[9px] bg-zinc-100 dark:bg-zinc-700 px-1.5 py-0.5 rounded text-zinc-500 dark:text-zinc-400 font-mono">{act.duration} dk</span>
+                                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-black uppercase ${act.difficultyLevel === 'Hard' ? 'text-rose-600 bg-rose-50' : 'text-indigo-600 bg-indigo-50'}`}>
                                         {act.difficultyLevel === 'Hard' ? 'Zor' : act.difficultyLevel === 'Medium' ? 'Orta' : 'Kolay'}
                                     </span>
                                 </div>
-                                <p className="text-[10px] text-zinc-500 mt-1 italic print:text-gray-600 leading-tight">{act.goal}</p>
+                                <p className="text-[10px] text-zinc-500 mt-1 italic line-clamp-2 leading-tight">{act.goal}</p>
                             </div>
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-2 shrink-0">
                                 <button 
                                     onClick={() => onToggleActivity(day.day, act.id)}
-                                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all print:hidden ${act.status === 'completed' ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-zinc-200 dark:border-zinc-600 hover:border-indigo-500 text-transparent hover:text-indigo-500'}`}
+                                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${act.status === 'completed' ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-zinc-200 dark:border-zinc-600 hover:border-emerald-500 text-transparent hover:text-emerald-500'}`}
                                 >
                                     <i className="fa-solid fa-check text-xs"></i>
                                 </button>
                                 {act.status !== 'completed' && (
                                     <button 
                                         onClick={() => onStartActivity(act.activityId, act.activityId, act.title)}
-                                        className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition-colors shadow-sm"
+                                        className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 active:scale-90"
                                         title="Uygulamayı Başlat"
                                     >
-                                        <i className="fa-solid fa-play text-[10px]"></i>
+                                        <i className="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
                                     </button>
                                 )}
                             </div>
@@ -74,12 +80,11 @@ const DayCard: React.FC<{
                     </div>
                 ))}
                 
-                {/* Daily Note Area */}
                 <div className="pt-4 mt-2 border-t border-dashed border-zinc-100 dark:border-zinc-700 print:hidden">
-                    <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 block">Gözlem Notu</label>
+                    <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1.5 block">Gözlem Notu</label>
                     <textarea 
-                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-700 rounded-xl text-[11px] resize-none focus:border-indigo-300 outline-none transition-all"
-                        placeholder="Öğrencinin bugünkü tepkisi..."
+                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-700 rounded-xl text-[11px] resize-none focus:border-indigo-300 outline-none transition-all placeholder:text-zinc-300"
+                        placeholder="Öğrencinin bugünkü tepkisi, odak süresi..."
                         rows={2}
                         onBlur={(e) => onSaveNote(day.day, e.target.value)}
                     ></textarea>
@@ -91,7 +96,7 @@ const DayCard: React.FC<{
 
 export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelectActivity, onStartCurriculumActivity, initialPlan }) => {
     const { user } = useAuth();
-    const { students, activeStudent, setActiveStudent } = useStudent();
+    const { students, setActiveStudent } = useStudent();
     
     const [step, setStep] = useState(0); 
     const [loading, setLoading] = useState(false);
@@ -100,11 +105,24 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
     const [isSaved, setIsSaved] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [connectionBlocked, setConnectionBlocked] = useState(false);
 
     const [formData, setFormData] = useState<Partial<Student>>({
         name: '', age: 8, grade: '2. Sınıf', diagnosis: [], interests: [], weaknesses: []
     });
     const [planDuration, setPlanDuration] = useState(7);
+
+    // Bağlantı kontrolü (AdBlocker tespiti için dolaylı yöntem)
+    useEffect(() => {
+        const checkConnection = async () => {
+            try {
+                const response = await fetch('https://firestore.googleapis.com', { mode: 'no-cors' });
+            } catch (e) {
+                setConnectionBlocked(true);
+            }
+        };
+        checkConnection();
+    }, []);
 
     useEffect(() => {
         if (initialPlan) {
@@ -144,7 +162,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             setStep(4);
             setIsSaved(false);
         } catch (e) {
-            alert("Plan oluşturulurken bir hata oluştu.");
+            alert("Plan oluşturulurken bir hata oluştu. AI motoru şu an meşgul olabilir.");
         } finally {
             setLoading(false);
         }
@@ -158,7 +176,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             setCurriculum({ ...curriculum, id });
             setIsSaved(true);
         } catch (e) {
-            alert("Kaydetme hatası.");
+            alert("Kaydetme hatası. Lütfen internet bağlantınızı kontrol edin.");
         } finally {
             setIsSaving(false);
         }
@@ -197,7 +215,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                     })
                 };
             });
-        } catch (e) { alert("Güncellenemedi."); }
+        } catch (e) { alert("Durum güncellenemedi."); }
     };
 
     const handleSaveDayNote = async (dayNum: number, note: string) => {
@@ -218,8 +236,8 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                             <i className="fa-solid fa-wand-magic-sparkles text-3xl"></i>
                         </div>
                     </div>
-                    <h3 className="text-2xl font-black text-zinc-800 dark:text-white mb-2">Program Hazırlanıyor...</h3>
-                    <p className="text-zinc-500 text-center max-w-sm">Yapay zeka öğrencinin akademik ve klinik profilini analiz ederek haftalık rotayı oluşturuyor.</p>
+                    <h3 className="text-2xl font-black text-zinc-800 dark:text-white mb-2 text-center">Nöro-Pedagogik Analiz Yapılıyor...</h3>
+                    <p className="text-zinc-500 text-center max-w-sm">AI, öğrencinin zayıf yönlerini sarmal öğrenme modeliyle 7 günlük bir rotaya dönüştürüyor.</p>
                 </div>
             );
         }
@@ -228,6 +246,14 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             case 0:
                 return (
                     <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4">
+                        {connectionBlocked && (
+                            <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+                                <i className="fa-solid fa-triangle-exclamation text-amber-600 mt-1"></i>
+                                <p className="text-xs text-amber-800 leading-tight">
+                                    <span className="font-bold">Bağlantı Uyarısı:</span> Bazı servisler bir eklenti (AdBlocker) tarafından engelleniyor. Uygulamanın tam performans çalışması için bu siteye izin vermeniz önerilir.
+                                </p>
+                            </div>
+                        )}
                         <div className="text-center">
                             <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg shadow-indigo-500/20">
                                 <i className="fa-solid fa-graduation-cap"></i>
@@ -285,7 +311,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                                 </div>
                             </div>
 
-                            <button onClick={() => setStep(1)} disabled={!formData.name} className="w-full py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-black rounded-2xl shadow-lg transition-all active:scale-95 disabled:opacity-50">PROFİLİ ONAYLA <i className="fa-solid fa-arrow-right ml-2"></i></button>
+                            <button onClick={() => setStep(1)} disabled={!formData.name} className="w-full py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-black rounded-2xl shadow-lg transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest">DEVAM ET <i className="fa-solid fa-chevron-right ml-2"></i></button>
                         </div>
                     </div>
                 );
@@ -294,12 +320,12 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                     <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4">
                         <div className="text-center">
                             <h2 className="text-3xl font-black text-zinc-900 dark:text-white">Akademik Profil Özeti</h2>
-                            <p className="text-zinc-500">Öğrencinin kayıtlı verileri aşağıdadır. Plan için özelleştirebilirsiniz.</p>
+                            <p className="text-zinc-500">Bu veriler AI'nın her güne özel zorluk seviyesi belirlemesi için kullanılacaktır.</p>
                         </div>
                         
                         <div className="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-700 shadow-xl space-y-6">
                             <div>
-                                <label className="block text-xs font-black text-zinc-400 uppercase tracking-widest mb-3">İlgi Alanları</label>
+                                <label className="block text-xs font-black text-zinc-400 uppercase tracking-widest mb-3">Öğrencinin İlgi Alanları (AI Teması)</label>
                                 <div className="flex flex-wrap gap-2">
                                     {['Uzay', 'Dinozorlar', 'Hayvanlar', 'Doğa', 'Spor', 'Müzik', 'Robotlar', 'Denizler'].map(tag => (
                                         <button 
@@ -314,7 +340,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                             </div>
 
                             <div>
-                                <label className="block text-xs font-black text-zinc-400 uppercase tracking-widest mb-3">Klinik Öncelikler (Zayıf Yönler)</label>
+                                <label className="block text-xs font-black text-zinc-400 uppercase tracking-widest mb-3">Klinik Hedefler (Zayıf Yönler)</label>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     {['Harf Karıştırma', 'Yavaş Okuma', 'Sayı Hissi', 'Dikkat Dağınıklığı', 'Sıralama Sorunları', 'Ters Yazma'].map(item => (
                                         <label key={item} className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer ${formData.weaknesses?.includes(item) ? 'bg-rose-50 border-rose-400 dark:bg-rose-900/20' : 'bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700'}`}>
@@ -328,7 +354,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
 
                             <div className="flex justify-between items-center pt-4">
                                 <button onClick={() => setStep(0)} className="text-sm font-bold text-zinc-400 hover:text-zinc-600"><i className="fa-solid fa-arrow-left mr-2"></i> Geri Dön</button>
-                                <button onClick={handleGenerate} className="px-10 py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-xl hover:scale-105 transition-all">PROGRAMI OLUŞTUR <i className="fa-solid fa-wand-magic-sparkles ml-2"></i></button>
+                                <button onClick={handleGenerate} className="px-10 py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-xl hover:scale-105 transition-all">PROGRAMI İNŞA ET <i className="fa-solid fa-wand-magic-sparkles ml-2"></i></button>
                             </div>
                         </div>
                     </div>
@@ -341,20 +367,20 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                                 <div className="bg-white dark:bg-zinc-800 rounded-[2.5rem] p-10 border border-zinc-200 dark:border-zinc-700 shadow-xl relative overflow-hidden print:border-none print:shadow-none">
                                     <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 print:hidden"></div>
                                     <div className="relative z-10">
-                                        <div className="flex justify-between items-start mb-8">
+                                        <div className="flex flex-col md:flex-row justify-between items-start mb-8 gap-6">
                                             <div className="flex gap-6 items-center">
                                                 <div className="w-20 h-20 rounded-[2rem] bg-indigo-600 text-white flex items-center justify-center text-3xl shadow-xl border-4 border-white dark:border-zinc-700">
                                                     <i className="fa-solid fa-graduation-cap"></i>
                                                 </div>
                                                 <div>
-                                                    <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-200 dark:border-indigo-800">Kişiselleştirilmiş Eğitim Rotası</span>
+                                                    <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-200 dark:border-indigo-800">Bireysel Gelişim Rotası</span>
                                                     <h1 className="text-4xl font-black text-zinc-900 dark:text-white mt-2 tracking-tight">{curriculum.studentName}</h1>
                                                     <p className="text-zinc-500 font-bold mt-1 uppercase text-xs tracking-widest">{curriculum.grade} • {curriculum.durationDays} GÜNLÜK AKIŞ</p>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Başlangıç</p>
-                                                <p className="text-lg font-black text-zinc-800 dark:text-zinc-200 font-mono">{new Date(curriculum.startDate).toLocaleDateString('tr-TR')}</p>
+                                            <div className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 flex flex-col items-center">
+                                                <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">GENEL İLERLEME</p>
+                                                <span className="text-2xl font-black text-indigo-600">%{Math.round((curriculum.schedule.filter(d => d.isCompleted).length / curriculum.schedule.length) * 100)}</span>
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -374,11 +400,12 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                                         </div>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {curriculum.schedule.map((day) => (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {curriculum.schedule.map((day, idx) => (
                                         <DayCard 
                                             key={day.day} 
                                             day={day} 
+                                            isActiveDay={!day.isCompleted && (idx === 0 || curriculum.schedule[idx-1].isCompleted)}
                                             onToggleActivity={handleToggleActivity} 
                                             onStartActivity={(id, type, title) => onStartCurriculumActivity(curriculum.id, day.day, id, type, curriculum.studentName, title, curriculum.studentId || undefined)} 
                                             onSaveNote={handleSaveDayNote}
