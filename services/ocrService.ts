@@ -4,34 +4,19 @@ import { analyzeImage } from './geminiClient';
 import { OCRResult } from '../types';
 
 export const ocrService = {
-    /**
-     * MATERYAL KLONLAMA VE DİJİTAL İKİZ ÜRETİMİ
-     * Modelin görseli analiz ederken "sohbet" etmesini engelleyen sıkılaştırılmış prompt.
-     */
     processImage: async (base64Image: string, targetType: 'CONVERTER' | 'ALGORITHM'): Promise<OCRResult> => {
         const prompt = `
-        [ROL: KIDEMLİ EĞİTİM MATERYALİ MİMARI]
-        GÖREV: Görüntüdeki çalışma sayfasının mimarisini çöz ve dijital bir blueprint oluştur.
+        [GÖREV: EĞİTİM MATERYALİ DNA ANALİZİ]
+        Görüntüdeki materyalin pedagojik mantığını ve görsel hiyerarşisini çöz. 
         
-        KESİN KURALLAR:
-        1. Sadece belirtilen JSON şemasında yanıt ver.
-        2. Görsel kalitesi düşükse veya metin okunmuyorsa bile ASLA açıklama yapma, 'title' alanına "Analiz Edilemedi" yazarak şemayı doldur.
-        3. 'blueprint' alanı, bu sayfanın aynısını (farklı verilerle) üretmek için başka bir AI modeline verilecek teknik talimatları içermelidir.
+        KULLANIM AMACI: ${targetType === 'ALGORITHM' ? 'Bu materyal bir mantıksal sıralama algoritmasına dönüştürülecek.' : 'Bu materyal bir çalışma sayfasına dönüştürülecek.'}
+
+        TALİMATLAR:
+        1. 'blueprint' alanı: Bu materyalin aynısını (veya varyasyonunu) üretmek için bir yapay zekaya verilecek EN DETAYLI teknik yönergeyi yaz.
+        2. 'detectedType': Materyalin ana türünü belirle (Örn: Sözel Mantık, Görsel Dikkat, Matematik).
+        3. 'baseType': ${targetType === 'ALGORITHM' ? 'ALGORITHM_GENERATOR' : 'AI_WORKSHEET_CONVERTER'}.
         
-        ÇIKTI FORMATI:
-        {
-            "detectedType": "Bileşen Tipi",
-            "title": "Sayfa Başlığı",
-            "description": "Pedagojik Amaç",
-            "blueprint": "Teknik üretim algoritması...",
-            "layoutJSON": {
-                "structure": "grid | columns | random",
-                "blocks": [
-                    { "id": "b1", "type": "header", "relativeY": 0, "height": 10 }
-                ]
-            },
-            "baseType": "ACTIVITY_ID"
-        }
+        KESİN KURAL: SADECE JSON. Açıklama yapma.
         `;
 
         const schema = {
@@ -45,19 +30,8 @@ export const ocrService = {
                     type: Type.OBJECT,
                     properties: {
                         structure: { type: Type.STRING },
-                        blocks: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    id: { type: Type.STRING },
-                                    type: { type: Type.STRING },
-                                    relativeY: { type: Type.NUMBER },
-                                    height: { type: Type.NUMBER },
-                                    cols: { type: Type.NUMBER, nullable: true }
-                                }
-                            }
-                        }
+                        hasVisuals: { type: Type.BOOLEAN },
+                        complexity: { type: Type.STRING }
                     }
                 },
                 baseType: { type: Type.STRING }
@@ -78,43 +52,11 @@ export const ocrService = {
                     layoutHint: result.layoutJSON,
                     originalBlueprint: result.blueprint
                 },
-                baseType: result.baseType || 'AI_WORKSHEET_CONVERTER'
+                baseType: targetType === 'ALGORITHM' ? 'ALGORITHM_GENERATOR' : (result.baseType || 'AI_WORKSHEET_CONVERTER')
             };
         } catch (error) {
             console.error("Deep OCR Error Core:", error);
             throw error;
         }
-    },
-
-    /**
-     * HARİTA ANALİZ MOTORU
-     */
-    analyzeMapImage: async (base64Image: string): Promise<any> => {
-        const prompt = `
-        Görseldeki harita üzerindeki önemli noktaları koordinatlarıyla çıkar. 
-        Sadece JSON döndür.
-        `;
-
-        const schema = {
-            type: Type.OBJECT,
-            properties: {
-                mapContext: { type: Type.STRING },
-                points: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            id: { type: Type.STRING },
-                            name: { type: Type.STRING },
-                            x: { type: Type.NUMBER },
-                            y: { type: Type.NUMBER },
-                            isTarget: { type: Type.BOOLEAN }
-                        }
-                    }
-                }
-            }
-        };
-
-        return await analyzeImage(base64Image, prompt, schema);
     }
 };
