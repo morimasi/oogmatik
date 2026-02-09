@@ -31,7 +31,7 @@ const MathStudio = lazy(() => import('./components/MathStudio/MathStudio').then(
 const StudentDashboard = lazy(() => import('./components/Student/StudentDashboard').then(module => ({ default: module.StudentDashboard })));
 
 const initialStyleSettings: StyleSettings = {
-    fontSize: 18, // Slightly larger default for dyslexia
+    fontSize: 18,
     scale: 1, 
     borderColor: '#3f3f46',
     borderWidth: 1,
@@ -40,7 +40,7 @@ const initialStyleSettings: StyleSettings = {
     gap: 15,
     orientation: 'portrait',
     themeBorder: 'simple',
-    contentAlign: 'left', // Dyslexia-friendly default
+    contentAlign: 'left',
     fontWeight: 'normal',
     fontStyle: 'normal',
     visualStyle: 'card', 
@@ -55,9 +55,8 @@ const initialStyleSettings: StyleSettings = {
     fontFamily: 'Lexend',
     lineHeight: 1.6,
     letterSpacing: 0,
-    wordSpacing: 2, // New default
-    paragraphSpacing: 24, // New default
-    // Clinical Accessibility
+    wordSpacing: 2,
+    paragraphSpacing: 24,
     focusMode: false,
     rulerColor: '#6366f1',
     rulerHeight: 80,
@@ -147,7 +146,6 @@ const AppContent: React.FC = () => {
     const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
     const [selectedSavedReport, setSelectedSavedReport] = useState<SavedAssessment | null>(null);
 
-    // Sync studentProfile with activeStudent from Context
     useEffect(() => {
         if (activeStudent) {
             setStudentProfile({
@@ -657,6 +655,11 @@ const AppContent: React.FC = () => {
                         setError={setError}
                         isLoading={isLoading}
                         onAddToHistory={addToHistory}
+                        onOpenOCR={() => navigateTo('ocr')}
+                        onOpenCurriculum={() => navigateTo('curriculum')}
+                        onOpenReadingStudio={() => navigateTo('reading-studio')}
+                        onOpenMathStudio={() => navigateTo('math-studio')}
+                        onOpenStudentModal={() => navigateTo('students')}
                     />
                 </div>
                 
