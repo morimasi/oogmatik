@@ -2,7 +2,7 @@
 import React from 'react';
 import { ActivityType, SingleWorksheetData, WorksheetBlock } from '../types';
 
-// ... existing imports ...
+// Sheets
 import { MathPuzzleSheet } from './sheets/math/MathPuzzleSheet';
 import { NumberPatternSheet } from './sheets/math/NumberPatternSheet';
 import { RealLifeMathProblemsSheet } from './sheets/math/RealLifeMathProblemsSheet';
@@ -37,7 +37,7 @@ import { SymmetryDrawingSheet } from './sheets/visual/SymmetryDrawingSheet';
 import { ShapeCountingSheet } from './sheets/visual/ShapeCountingSheet';
 import { DirectionalTrackingSheet } from './sheets/visual/DirectionalTrackingSheet';
 import { ReadingStudioContentRenderer } from './ReadingStudio/ReadingStudioContentRenderer';
-import { PedagogicalHeader } from './sheets/common';
+import { PedagogicalHeader, ImageDisplay, TenFrame } from './sheets/common';
 import { EditableText, EditableElement } from './Editable';
 
 interface SheetRendererProps {
@@ -45,55 +45,68 @@ interface SheetRendererProps {
     data: SingleWorksheetData;
 }
 
-// Fixed: Explicitly type BlockRenderer as React.FC to resolve the 'key' property error when used in map loops
 const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
+    const style = block.style || {};
+    
     switch (block.type) {
         case 'header':
-            return <h2 className="text-2xl font-black uppercase border-b-4 border-black mb-4"><EditableText value={block.content} /></h2>;
+            return <h2 className="text-3xl font-black uppercase border-b-8 border-zinc-900 mb-6 pb-2 leading-none"><EditableText value={block.content} /></h2>;
         case 'text':
-            return <div className="text-lg leading-relaxed mb-6 text-justify font-dyslexic"><EditableText value={block.content} /></div>;
+            return <div className="text-xl leading-relaxed mb-8 text-justify font-dyslexic text-zinc-800"><EditableText value={block.content} /></div>;
         case 'question':
             return (
-                <div className="p-4 bg-zinc-50 border-2 border-zinc-200 rounded-2xl mb-4 group">
-                    <p className="font-bold mb-2 flex gap-2"><span className="w-6 h-6 bg-black text-white rounded-lg flex items-center justify-center text-xs">?</span><EditableText value={block.content.text} /></p>
-                    <div className="h-10 border-b-2 border-dashed border-zinc-300"></div>
+                <div className="p-6 bg-zinc-50 border-[3px] border-zinc-900 rounded-[2rem] mb-6 shadow-sm group hover:border-indigo-500 transition-all">
+                    <p className="text-lg font-black mb-4 flex gap-4">
+                        <span className="w-8 h-8 bg-zinc-900 text-white rounded-xl flex items-center justify-center text-sm shrink-0">?</span>
+                        <EditableText value={block.content.text} />
+                    </p>
+                    <div className="h-12 border-b-2 border-dashed border-zinc-300 w-full opacity-50"></div>
                 </div>
             );
-        case 'grid':
-            return <div className="p-4 border-4 border-black rounded-3xl bg-white shadow-xl mx-auto w-fit mb-6">Tablo Verisi...</div>;
+        case 'math':
+            return (
+                <div className="flex flex-col items-center gap-4 mb-8 p-6 bg-white border-2 border-zinc-100 rounded-3xl shadow-inner">
+                    <div className="flex items-center gap-8 text-4xl font-black font-mono">
+                         <span>{block.content.num1}</span>
+                         <span className="text-zinc-300">{block.content.operator}</span>
+                         <span>{block.content.num2}</span>
+                         <span className="text-zinc-300">=</span>
+                         <div className="w-24 h-16 border-4 border-indigo-600 rounded-2xl bg-indigo-50/50"></div>
+                    </div>
+                    {block.content.showVisual && <TenFrame count={block.content.num1} />}
+                </div>
+            );
         case 'image':
-            return <div className="w-full h-48 bg-zinc-100 rounded-[2rem] border-2 border-dashed border-zinc-200 mb-6 flex items-center justify-center text-zinc-300"><i className="fa-solid fa-image text-3xl"></i></div>;
+            return <ImageDisplay prompt={block.content.prompt} className="w-full h-64 mb-8 shadow-xl border-4 border-white" />;
         default:
-            return <div className="p-2 border border-dashed border-zinc-200 text-[10px] text-zinc-400">Tanımlanamayan Blok</div>;
+            return <div className="p-4 border-2 border-dashed border-zinc-200 rounded-2xl text-zinc-400 italic text-center mb-4">Blok içeriği ayrıştırılıyor...</div>;
     }
 };
 
 const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
-    // Eğer bloklar varsa (OCR veya Yeni Mimari) blok bazlı render et
     if (data.blocks && data.blocks.length > 0) {
         return (
-            <div className="w-full h-full flex flex-col">
-                <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-                <div className="flex-1 flex flex-col gap-4">
+            <div className="w-full h-full flex flex-col animate-in fade-in duration-1000">
+                <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+                <div className="flex-1 flex flex-col mt-4">
                     {data.blocks.map((block) => <BlockRenderer key={block.id} block={block} />)}
                 </div>
             </div>
         );
     }
     
-    // Klasik "sections" yapısı için fallback
     return (
-        <div className="space-y-10 w-full animate-in fade-in duration-700">
+        <div className="w-full h-full flex flex-col animate-in fade-in duration-700">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-6 mt-4">
                 {(data.sections || []).map((section: any, idx: number) => (
-                    <EditableElement key={idx} className="bg-white rounded-[2.5rem] border-2 border-zinc-100 shadow-sm w-full p-6 group hover:border-indigo-200 transition-all">
-                        {section.title && <h4 className="text-xs font-black text-indigo-500 uppercase tracking-widest mb-4 border-b border-indigo-50 pb-2"><EditableText value={section.title} tag="span" /></h4>}
-                        {section.type === 'text' && <div className="prose max-w-none text-zinc-800 leading-relaxed font-dyslexic text-lg text-justify"><EditableText value={section.content} tag="div" /></div>}
+                    <EditableElement key={idx} className="bg-white rounded-[3rem] border-[3px] border-zinc-900 shadow-sm w-full p-8 group hover:border-indigo-600 transition-all">
+                        {section.title && <h4 className="text-xs font-black text-indigo-600 uppercase tracking-[0.3em] mb-4 border-b border-indigo-50 pb-2 flex items-center gap-2"><i className="fa-solid fa-star"></i> <EditableText value={section.title} tag="span" /></h4>}
+                        {section.type === 'text' && <div className="prose max-w-none text-zinc-800 leading-relaxed font-dyslexic text-xl text-justify"><EditableText value={section.content} tag="div" /></div>}
                         {section.type === 'list' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {(section.items || []).map((item: string, i: number) => (
-                                    <div key={i} className="flex gap-4 items-start p-4 bg-zinc-50 rounded-2xl border border-zinc-100"><div className="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-[10px] font-black shrink-0">{i+1}</div><div className="flex-1 font-medium text-zinc-800"><EditableText value={item} tag="span" /></div></div>
+                                    <div key={i} className="flex gap-5 items-start p-5 bg-zinc-50 rounded-3xl border-2 border-zinc-100 group-hover:bg-white transition-all"><div className="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-lg">{i+1}</div><div className="flex-1 font-bold text-zinc-800 text-lg leading-snug"><EditableText value={item} tag="span" /></div></div>
                                 ))}
                             </div>
                         )}
@@ -186,6 +199,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.WORD_SEARCH: return <WordSearchSheet data={data} />;
         case ActivityType.ANAGRAM: return <AnagramSheet data={data} />;
         case ActivityType.CROSSWORD: return <CrosswordSheet data={data} />;
-        default: return <div className="p-12 text-center border-2 border-dashed border-zinc-200 rounded-3xl"><h3 className="font-bold text-zinc-500 uppercase">Modül: {activityType} - Henüz Görselleştirilmemiş</h3></div>;
+        default: return <div className="p-12 text-center border-4 border-dashed border-zinc-100 rounded-[3rem]"><h3 className="font-black text-zinc-300 uppercase tracking-widest text-2xl">Modül: {activityType}</h3><p className="text-zinc-400 mt-2 font-bold">Görsel motor henüz bu tip için optimize edilmedi.</p></div>;
     }
 });

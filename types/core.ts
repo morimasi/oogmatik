@@ -88,9 +88,22 @@ export enum ActivityType {
     DIRECTIONAL_TRACKING = 'DIRECTIONAL_TRACKING'
 }
 
+// Yeni: Klinik Hata Türleri
+export type CognitiveErrorTag = 
+    | 'visual_reversal' // b/d karıştırma
+    | 'visual_inversion' // p/d karıştırma
+    | 'phonological_substitution' // ses değiştirme
+    | 'sequencing_error' // harf/sayı sırası bozma
+    | 'figure_ground_confusion' // şekil-zemin karışıklığı
+    | 'attention_lapse' // dikkat kopması
+    | 'impulsivity_error' // düşünmeden işaretleme
+    | 'working_memory_overflow' // bellek kapasite aşımı
+    // Fix: Added missing tags to support clinical priorities in registry and prompts
+    | 'visual_discrimination'
+    | 'logical_reasoning'; 
+
 export type View = 'generator' | 'admin' | 'profile' | 'messages' | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'favorites' | 'savedList' | 'workbook' | 'shared' | 'assessment';
 
-// Added AppTheme type to fix App.tsx and SettingsModal.tsx errors
 export type AppTheme = 'light' | 'dark' | 'anthracite' | 'space' | 'nature' | 'ocean' | 'anthracite-gold' | 'anthracite-cyber';
 
 export interface StyleSettings {
@@ -118,13 +131,12 @@ export interface StyleSettings {
     fontFamily: string;
     lineHeight: number;
     letterSpacing: number;
-    wordSpacing: number; // New
-    paragraphSpacing: number; // New
+    wordSpacing: number;
+    paragraphSpacing: number;
     title?: string;
-    // Clinical Accessibility
     focusMode: boolean;
     rulerColor: string;
-    rulerHeight: number; // New
+    rulerHeight: number;
     maskOpacity: number;
 }
 
@@ -142,6 +154,9 @@ export interface BaseActivityData {
     pedagogicalNote?: string;
     imagePrompt?: string;
     imageBase64?: string;
+    // Yeni: Tanısal veri katmanı
+    cognitiveGoal?: string;
+    targetedErrors?: CognitiveErrorTag[];
 }
 
 export type BlockType = 'text' | 'question' | 'grid' | 'image' | 'math' | 'matching' | 'custom' | 'header';
@@ -163,7 +178,6 @@ export interface SingleWorksheetData extends BaseActivityData {
 
 export type WorksheetData = SingleWorksheetData[];
 
-// ... existing interfaces ...
 export interface Activity {
     id: ActivityType;
     title: string;
@@ -251,7 +265,6 @@ export interface GeneratorOptions {
     include5N1K?: boolean;
     focusVocabulary?: boolean;
     includeCreativeTask?: boolean;
-    // Added syllableRange and targetShape to GeneratorOptions to fix generator errors
     syllableRange?: string;
     targetShape?: string;
 }
@@ -608,9 +621,6 @@ export interface ReadingStudioConfig {
     showDateSection: boolean;
 }
 
-/**
- * FIX: Added missing interfaces for Algorithm activities
- */
 export interface AlgorithmStep {
     id: number;
     type: 'start' | 'process' | 'decision' | 'input' | 'output' | 'end';

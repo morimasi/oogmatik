@@ -1,38 +1,44 @@
 
-import { ActivityType, GeneratorOptions } from './types';
+import { ActivityType, GeneratorOptions, CognitiveErrorTag } from './types';
 import { ActivityConfigRegistry } from './components/activity-configs';
 
-// Varsayılan Ayarlar Şablonu
-const DEFAULT_OPTIONS: GeneratorOptions = {
-    mode: 'fast',
-    difficulty: 'Orta',
-    worksheetCount: 1,
-    itemCount: 10,
-    gridSize: 10,
-    case: 'lower',
-    targetPair: '',
-    targetFrequency: 'medium',
-    distractorStrategy: 'similar'
+// Her aktivitenin hedeflediği ana klinik alanlar
+export const CLINICAL_PRIORITIES: Record<ActivityType | string, CognitiveErrorTag[]> = {
+    [ActivityType.FIND_LETTER_PAIR]: ['visual_discrimination', 'attention_lapse'],
+    [ActivityType.READING_STROOP]: ['impulsivity_error', 'attention_lapse'],
+    [ActivityType.SYLLABLE_MASTER_LAB]: ['phonological_substitution', 'sequencing_error'],
+    [ActivityType.MIRROR_LETTERS]: ['visual_reversal', 'visual_inversion'],
+    // Fix: Removed 'as any' since 'logical_reasoning' is now added to CognitiveErrorTag
+    [ActivityType.NUMBER_LOGIC_RIDDLES]: ['logical_reasoning', 'working_memory_overflow'],
 };
 
 /**
- * Aktiviteye özel ayar bileşenini (Config Component) güvenli bir şekilde getirir.
- * Eğer özel bir ayar dosyası yoksa, undefined döner (GeneratorView varsayılanı kullanır).
+ * Aktiviteye özel ayar bileşenini getirir.
  */
 export const getActivityConfigComponent = (activityId: ActivityType | string) => {
-    // ID'ye göre registry'den bak, yoksa null dön.
-    // Bu sayede GeneratorView "DefaultConfig"e düşeceğini bilir.
     return ActivityConfigRegistry[activityId as string];
 };
 
 /**
- * Bir aktivite için varsayılan ayarları getirir.
- * İleride her aktivite için özel defaultlar buraya eklenebilir.
+ * Bir aktivite için varsayılan akıllı ayarları getirir.
  */
 export const getDefaultOptionsForActivity = (activityId: ActivityType | string): GeneratorOptions => {
-    // Özel mantık eklenebilir:
-    // if (activityId === ActivityType.FIND_LETTER_PAIR) return { ...DEFAULT_OPTIONS, itemCount: 1 };
-    
-    // Şu an için genel varsayılanları döndürüyoruz.
-    return { ...DEFAULT_OPTIONS };
+    const base: GeneratorOptions = {
+        mode: 'fast',
+        difficulty: 'Orta',
+        worksheetCount: 1,
+        itemCount: 10,
+    };
+
+    // Aktiviteye özel default overrides
+    switch(activityId) {
+        case ActivityType.FIND_LETTER_PAIR:
+            return { ...base, itemCount: 1, gridSize: 10 };
+        case ActivityType.SYLLABLE_MASTER_LAB:
+            return { ...base, itemCount: 24, variant: 'split' };
+        case ActivityType.NUMBER_LOGIC_RIDDLES:
+            return { ...base, itemCount: 6, gridSize: 3 };
+        default:
+            return base;
+    }
 };

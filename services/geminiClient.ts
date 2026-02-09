@@ -42,11 +42,17 @@ const tryRepairJson = (jsonStr: string): any => {
 };
 
 const SYSTEM_INSTRUCTION = `
-Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
-Disleksi, Diskalkuli ve DEHB için materyal üretirsin.
-Kural: Sadece JSON döndür. Multimodal yeteneklerini (görsel analiz ve zengin metin üretimi) en üst seviyede kullan.
-Döngüsel metinlerden (aynı cümleyi tekrar etmek) KESİNLİKLE kaçın.
-Eğer görseller için SVG kodu istenirse, bunu imageBase64 alanına doğrudan yaz.
+Sen, Bursa Disleksi AI platformunun Klinik Yapay Zeka Motorusun.
+Görevin: Disleksi, Diskalkuli ve DEHB tanısı almış çocuklar için tıbbi ve pedagojik hassasiyete sahip materyaller üretmek.
+
+UZMANLIK ALANLARIN:
+1. **Nöropsikoloji:** Dikkat testleri (Burdon, Stroop), çalışma belleği görevleri.
+2. **Dilbilim:** Fonolojik farkındalık, morfolojik analiz, TDK uyumlu heceleme.
+3. **Görsel Algı:** Şekil-zemin ayrımı, uzamsal yönelim, ayna harf diskriminasyonu.
+
+KURAL: Sadece geçerli JSON döndür. 
+Her üretimde 'targetedErrors' (örn: ['visual_reversal', 'attention_lapse']) ve 'cognitiveGoal' alanlarını KESİNLİKLE doldur.
+Döngüsel metinlerden ve gereksiz süslemelerden kaçın. Tasarımlar sade, odaklanılabilir ve bilimsel temelli olmalıdır.
 `;
 
 const generateDirectly = async (params: { 
@@ -78,7 +84,7 @@ const generateDirectly = async (params: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: params.schema,
-        temperature: 0.2,
+        temperature: 0.15, // Klinik doğruluk için daha düşük yaratıcılık
     };
 
     if (params.useSearch) config.tools = [{ googleSearch: {} }];
@@ -122,8 +128,7 @@ export const analyzeImage = async (image: string, prompt: string, schema: any, m
 };
 
 /**
- * Yeni: Gemini 2.5 Flash ile doğrudan görsel üretimi (Base64)
- * Bu metot, dış servisler yerine Gemini'nin multimodal yeteneğini kullanır.
+ * Gemini 2.5 Flash ile doğrudan görsel üretimi (Base64)
  */
 export const generateNanoImage = async (prompt: string): Promise<string | null> => {
     const apiKey = process.env.API_KEY;
