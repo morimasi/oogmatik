@@ -5,35 +5,25 @@ const DEFAULT_MODEL = 'gemini-3-flash-preview';
 const IMAGE_GEN_MODEL = 'gemini-2.5-flash-image';
 
 const tryRepairJson = (jsonStr: string): any => {
-    // 1. Markdown bloklarını ve gereksiz boşlukları temizle
+    // 1. Temel temizlik
     let cleaned = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*$/g, '').trim();
 
     try {
         return JSON.parse(cleaned);
     } catch (e) {
-        console.warn("Primary JSON Parse failed, attempting robust extraction...");
+        console.warn("Primary JSON Parse failed, attempting regex-based extraction...");
         
-        // 2. Metin içindeki ilk { veya [ ile son } veya ] arasını bul
-        const firstBrace = cleaned.indexOf('{');
-        const firstBracket = cleaned.indexOf('[');
-        let startIdx = -1;
-        let endIdx = -1;
-
-        if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
-            startIdx = firstBrace;
-            endIdx = cleaned.lastIndexOf('}');
-        } else if (firstBracket !== -1) {
-            startIdx = firstBracket;
-            endIdx = cleaned.lastIndexOf(']');
-        }
-
-        if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
-            const extracted = cleaned.substring(startIdx, endIdx + 1);
+        // 2. Regex ile en geniş kapsamlı {} veya [] bloğunu bul
+        // Bu, AI'nın JSON öncesi veya sonrası yaptığı sohbetleri temizler
+        const jsonMatch = cleaned.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+        
+        if (jsonMatch) {
+            const extracted = jsonMatch[0];
             try {
                 return JSON.parse(extracted);
             } catch (e2) {
-                console.warn("Extraction failed, attempting structural repair...");
-                // 3. Eksik parantezleri kapatma (Basit yapısal onarım)
+                console.warn("Regex extraction failed, attempting structural repair...");
+                // 3. Eksik parantezleri kapatma (Stratejik onarım)
                 let repaired = extracted;
                 const openBraces = (repaired.match(/{/g) || []).length;
                 const closeBraces = (repaired.match(/}/g) || []).length;
@@ -47,11 +37,11 @@ const tryRepairJson = (jsonStr: string): any => {
                     return JSON.parse(repaired);
                 } catch (e3) {
                     console.error("Structural repair failed completely.");
-                    throw new Error("Yapay zeka yanıtı geçerli bir veri yapısına sahip değil.");
+                    throw new Error("Yapay zeka yanıtı geçerli bir veri yapısına sahip değil: " + cleaned.substring(0, 100) + "...");
                 }
             }
         }
-        throw new Error("Yanıt içinde JSON bloğu bulunamadı.");
+        throw new Error("Yanıt içinde JSON bloğu bulunamadı. AI Yanıtı: " + cleaned.substring(0, 100));
     }
 };
 
@@ -64,9 +54,8 @@ UZMANLIK ALANLARIN:
 2. **Dilbilim:** Fonolojik farkındalık, morfolojik analiz, TDK uyumlu heceleme.
 3. **Görsel Algı:** Şekil-zemin ayrımı, uzamsal yönelim, ayna harf diskriminasyonu.
 
-KURAL: Sadece geçerli JSON döndür. 
+KURAL: Sadece geçerli JSON döndür. Konuşma, açıklama yapma.
 Her üretimde 'targetedErrors' (örn: ['visual_reversal', 'attention_lapse']) ve 'cognitiveGoal' alanlarını KESİNLİKLE doldur.
-Döngüsel metinlerden ve gereksiz süslemelerden kaçın. Tasarımlar sade, odaklanılabilir ve bilimsel temelli olmalıdır.
 `;
 
 const generateDirectly = async (params: { 
@@ -75,12 +64,13 @@ const generateDirectly = async (params: {
     model?: string, 
     image?: string, 
     mimeType?: string,
-    useSearch?: boolean 
+    useSearch?: boolean,
+    isOcr?: boolean
 }) => {
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) throw new Error("API Anahtarı eksik.");
-
-    const ai = new GoogleGenAI({ apiKey });
+    // Fix: Initialization using process.env.API_KEY directly as per guidelines
+    if (!process.env.API_KEY) throw new Error("API Anahtarı eksik.");
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
     const modelName = params.model || DEFAULT_MODEL;
     
     let parts: any[] = [];
@@ -98,37 +88,32 @@ const generateDirectly = async (params: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: params.schema,
-        temperature: 0.15,
-        // Gemini 3 serisi için thinking bütçesini 0 yaparak anlık JSON üretimini garantiye al
-        thinkingConfig: { thinkingBudget: 0 } 
+        temperature: 0.1, // Daha tutarlı JSON için sıcaklığı düşürdüm
     };
+
+    // OCR görevlerinde düşünme bütçesini kapatmıyoruz, modelin görseli "anlaması" gerek.
+    // Sadece standart metin görevlerinde 0 yapıyoruz.
+    if (!params.isOcr) {
+        config.thinkingConfig = { thinkingBudget: 0 };
+    }
 
     if (params.useSearch) config.tools = [{ googleSearch: {} }];
 
+    // Fix: Updated contents structure to object format
     const response = await ai.models.generateContent({
         model: modelName,
-        contents: [{ role: 'user', parts }],
+        contents: { parts },
         config: config
     });
     
+    // Fix: Use text property directly (not calling it)
     if (response.text) return tryRepairJson(response.text);
     throw new Error("Boş yanıt alındı.");
 };
 
 export const generateWithSchema = async (prompt: string, schema: any, model?: string, useSearch?: boolean) => {
     const targetModel = model || DEFAULT_MODEL;
-    try {
-        const response = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, schema, model: targetModel, useSearch: useSearch || false }),
-        });
-        if (!response.ok) return await generateDirectly({ prompt, schema, model: targetModel, useSearch });
-        const fullText = await response.text();
-        return tryRepairJson(fullText);
-    } catch (error: any) {
-        return await generateDirectly({ prompt, schema, model: targetModel, useSearch });
-    }
+    return await generateDirectly({ prompt, schema, model: targetModel, useSearch, isOcr: false });
 };
 
 export const analyzeImage = async (image: string, prompt: string, schema: any, model?: string) => {
@@ -136,32 +121,16 @@ export const analyzeImage = async (image: string, prompt: string, schema: any, m
         prompt, 
         schema, 
         model: model || DEFAULT_MODEL, 
-        image 
+        image,
+        isOcr: true 
     });
 };
 
 export const generateNanoImage = async (prompt: string): Promise<string | null> => {
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) return null;
-
-    const ai = new GoogleGenAI({ apiKey });
+    // Fix: Initialization using process.env.API_KEY directly as per guidelines
+    if (!process.env.API_KEY) return null;
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
     try {
-        const response = await ai.models.generateContent({
-            model: IMAGE_GEN_MODEL,
-            contents: [{ parts: [{ text: prompt }] }],
-            config: {
-                imageConfig: { aspectRatio: "1:1" }
-            }
-        });
-
-        for (const part of response.candidates[0].content.parts) {
-            if (part.inlineData) {
-                return `data:image/png;base64,${part.inlineData.data}`;
-            }
-        }
-        return null;
-    } catch (e) {
-        console.error("Nano image generation failed:", e);
-        return null;
-    }
-};
+        // Fix: Updated contents structure
+        const response = await ai.models

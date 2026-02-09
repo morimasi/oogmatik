@@ -2,40 +2,33 @@
 import { Type } from "@google/genai";
 import { analyzeImage } from './geminiClient';
 import { OCRResult } from '../types';
-import { ACTIVITIES } from '../constants';
 
 export const ocrService = {
     /**
      * MATERYAL KLONLAMA VE DİJİTAL İKİZ ÜRETİMİ
-     * Gelişmiş Mod: Sayfanın hem mantığını hem de görsel iskeletini (Visual Tree) çıkarır.
+     * Modelin görseli analiz ederken "sohbet" etmesini engelleyen sıkılaştırılmış prompt.
      */
     processImage: async (base64Image: string, targetType: 'CONVERTER' | 'ALGORITHM'): Promise<OCRResult> => {
         const prompt = `
-        [ROL: KIDEMLİ EĞİTİM MATERYALİ MİMARI & BİLGİSAYARLI GÖRÜ UZMANI]
-        GÖREV: Görüntüdeki çalışma sayfasının hem PEDAGOJİK hem de GÖRSEL DNA'SINI analiz et.
+        [ROL: KIDEMLİ EĞİTİM MATERYALİ MİMARI]
+        GÖREV: Görüntüdeki çalışma sayfasının mimarisini çöz ve dijital bir blueprint oluştur.
         
-        ANALİZ KRİTERLERİ:
-        1. **Görsel İskelet (Visual Tree):** Sayfadaki her bir bilgi bloğunun (başlık, soru, görsel, tablo) koordinatlarını ve kapladığı alanı (%) belirle.
-        2. **Mantıksal Akış:** Öğrenciden istenen eylemin (eşleştirme, yazma, boyama) bilişsel haritasını çıkar.
-        3. **Veri Karakteristiği:** Sorulardaki sayısal veya sözel verilerin zorluk ve stilini analiz et.
+        KESİN KURALLAR:
+        1. Sadece belirtilen JSON şemasında yanıt ver.
+        2. Görsel kalitesi düşükse veya metin okunmuyorsa bile ASLA açıklama yapma, 'title' alanına "Analiz Edilemedi" yazarak şemayı doldur.
+        3. 'blueprint' alanı, bu sayfanın aynısını (farklı verilerle) üretmek için başka bir AI modeline verilecek teknik talimatları içermelidir.
         
-        ÇIKTI FORMATI (SADECE JSON):
+        ÇIKTI FORMATI:
         {
-            "detectedType": "En yakın ActivityType",
-            "title": "Orijinal Başlık",
+            "detectedType": "Bileşen Tipi",
+            "title": "Sayfa Başlığı",
             "description": "Pedagojik Amaç",
-            "blueprint": "AI ÜRETİM KOMUTU: [Düzene ve mantığa sadık kalarak tamamen yeni verilerle içerik üretme talimatı]",
+            "blueprint": "Teknik üretim algoritması...",
             "layoutJSON": {
                 "structure": "grid | columns | random",
                 "blocks": [
-                    { "id": "b1", "type": "header", "relativeY": 0, "height": 10 },
-                    { "id": "b2", "type": "question-group", "relativeY": 15, "height": 60, "cols": 2 }
+                    { "id": "b1", "type": "header", "relativeY": 0, "height": 10 }
                 ]
-            },
-            "styleDNA": {
-                "fontWeight": "bold | normal",
-                "density": "high | medium | low",
-                "borderStyle": "dashed | solid"
             },
             "baseType": "ACTIVITY_ID"
         }
@@ -67,60 +60,39 @@ export const ocrService = {
                         }
                     }
                 },
-                styleDNA: {
-                    type: Type.OBJECT,
-                    properties: {
-                        fontWeight: { type: Type.STRING },
-                        density: { type: Type.STRING },
-                        borderStyle: { type: Type.STRING }
-                    }
-                },
                 baseType: { type: Type.STRING }
             },
             required: ['detectedType', 'title', 'blueprint', 'layoutJSON']
         };
 
         try {
-            const result = await analyzeImage(base64Image, prompt, schema, 'gemini-3-flash-preview');
+            const result = await analyzeImage(base64Image, prompt, schema);
             
             return {
                 rawText: '', 
-                detectedType: result.baseType || 'AI_WORKSHEET_CONVERTER',
+                detectedType: result.detectedType,
                 title: result.title,
                 description: result.description,
                 generatedTemplate: result.blueprint,
                 structuredData: {
                     layoutHint: result.layoutJSON,
-                    styleDNA: result.styleDNA,
                     originalBlueprint: result.blueprint
                 },
                 baseType: result.baseType || 'AI_WORKSHEET_CONVERTER'
             };
         } catch (error) {
-            console.error("Deep OCR Error:", error);
-            throw new Error("Görsel mimarisi çözümlenemedi.");
+            console.error("Deep OCR Error Core:", error);
+            throw error;
         }
     },
 
     /**
      * HARİTA ANALİZ MOTORU
-     * Özel bir harita görselini analiz eder ve yönerge üretimi için veriye dönüştürür.
      */
     analyzeMapImage: async (base64Image: string): Promise<any> => {
         const prompt = `
-        [GÖREV: MULTIMODAL HARİTA ANALİZİ]
-        Ekteki harita görselini analiz et ve yönerge takibi için içindeki önemli nesneleri/noktaları belirle.
-        1. Görülen tüm metinleri ve etiketleri (şehir adları, duraklar, nesneler) çıkar.
-        2. Görsel üzerinde 0-1000 arası x ve 0-500 arası y koordinat sistemine göre bu noktaların konumlarını tahmin et.
-        3. Haritanın bağlamını belirle (Şehir haritası, oda planı, oyun haritası vb.).
-        
-        JSON Formatında Yanıt Ver:
-        {
-            "mapContext": "...",
-            "points": [
-                { "id": "p1", "name": "...", "x": number, "y": number, "isTarget": boolean }
-            ]
-        }
+        Görseldeki harita üzerindeki önemli noktaları koordinatlarıyla çıkar. 
+        Sadece JSON döndür.
         `;
 
         const schema = {
@@ -143,6 +115,6 @@ export const ocrService = {
             }
         };
 
-        return await analyzeImage(base64Image, prompt, schema, 'gemini-3-flash-preview');
+        return await analyzeImage(base64Image, prompt, schema);
     }
 };
