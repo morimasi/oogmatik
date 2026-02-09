@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { ActivityType, WorksheetData, Activity, GeneratorOptions, ActivityCategory } from '../types';
+import { ActivityType, WorksheetData, Activity, GeneratorOptions, ActivityCategory, ActiveCurriculumSession } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
@@ -9,7 +9,6 @@ import { statsService } from '../services/statsService';
 import { adminService } from '../services/adminService';
 import { useStudent } from '../context/StudentContext';
 
-// Fix: Improved toPascalCase to handle UPPERCASE strings correctly
 const toPascalCase = (str: string): string => {
     if (!str) return '';
     return str.toLowerCase()
@@ -36,6 +35,7 @@ interface SidebarProps {
   onOpenCurriculum?: () => void;
   onOpenReadingStudio?: () => void;
   onOpenMathStudio?: () => void;
+  activeCurriculumSession?: ActiveCurriculumSession | null;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -55,26 +55,20 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenOCR,
   onOpenCurriculum,
   onOpenReadingStudio,
-  onOpenMathStudio
+  onOpenMathStudio,
+  activeCurriculumSession
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
   const { activeStudent } = useStudent();
-  
-  // "Single Source of Truth" için State
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
-  // --- GÜVENLİ VERİ BİRLEŞTİRME (SAFE MERGE) ---
   useEffect(() => {
       const loadCustomActivities = async () => {
           try {
               const customActs = await adminService.getAllActivities();
-              
-              // 1. Adım: Statik aktiviteleri bir Map'e yükle (ID bazlı indeksleme)
               const activityMap = new Map<string, Activity>();
               ACTIVITIES.forEach(act => activityMap.set(act.id, act));
-
-              // 2. Adım: Veritabanından gelenleri ekle (Varsa üzerine yazar - Override)
               if (customActs && Array.isArray(customActs)) {
                   customActs.forEach(ca => {
                       if (!ca || !ca.id) return;
@@ -86,44 +80,30 @@ const Sidebar: React.FC<SidebarProps> = ({
                       }
                   });
               }
-
-              // 3. Adım: Map'i tekrar diziye çevir ve State'i güncelle
               const mergedActivities = Array.from(activityMap.values());
               setAllActivities(mergedActivities);
-
-              // 4. Adım: Kategorileri Güncelle (Dinamik kategori desteği - 'Others' iptal edildi)
-              const updatedCategories = [...ACTIVITY_CATEGORIES]; // Klonla
-              
-              // Custom aktiviteleri yerleştir
+              const updatedCategories = [...ACTIVITY_CATEGORIES]; 
               customActs.forEach(act => {
                    const actId = act.id as ActivityType;
-                   // Eğer kategori 'others' ise veya boşsa 'visual-perception'a ata, yoksa kendi kategorisine
                    let targetCatId = (!act.category || act.category === 'others') ? 'visual-perception' : act.category;
-                   
                    let targetCat = updatedCategories.find(c => c.id === targetCatId);
-
-                   // Eğer kategori listede yoksa, DİNAMİK OLARAK OLUŞTUR
                    if (!targetCat) {
                        targetCat = {
                            id: targetCatId,
-                           title: toPascalCase(targetCatId), // ID'den başlık üret
+                           title: toPascalCase(targetCatId), 
                            description: 'Özel Kategori',
-                           icon: 'fa-solid fa-folder-open', // Varsayılan ikon
+                           icon: 'fa-solid fa-folder-open', 
                            activities: []
                        };
                        updatedCategories.push(targetCat);
                    }
-
                    if (!targetCat.activities.includes(actId)) {
                        targetCat.activities.push(actId);
                    }
               });
-
-              // Boş kategorileri temizle (Opsiyonel) veya Others varsa sil
               setCategories(updatedCategories.filter(c => c.id !== 'others'));
-
           } catch (e) { 
-              console.error("Sidebar veri yükleme hatası (Graceful Fallback):", e); 
+              console.error("Sidebar veri yükleme hatası:", e); 
           }
       };
       loadCustomActivities();
@@ -146,14 +126,11 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     const currentAct = getActivityById(selectedActivity);
-    
-    // Fix: Force bypass AI if mode is fast, regardless of database promptId
     const useAI = options.mode === 'ai';
     const promptId = useAI ? currentAct?.promptId : null;
 
     try {
         let result: WorksheetData | null = null;
-        
         if (promptId) {
              const promptTemplate = await adminService.getPromptTemplate(promptId);
              if (promptTemplate) {
@@ -170,18 +147,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                  else result = [aiResult];
              }
         } 
-        
         if (!result) {
             const pascalCaseName = toPascalCase(selectedActivity).replace(/\s+/g, '');
             const generatorFunctionName = `generate${pascalCaseName}FromAI`;
             const offlineGeneratorFunctionName = `generateOffline${pascalCaseName}`;
-            
             const runOfflineGenerator = async () => {
                  const offlineGenerator = (offlineGenerators as any)[offlineGeneratorFunctionName];
                  if (offlineGenerator) return await offlineGenerator(enrichedOptions);
                  throw new Error(`"${currentAct?.title}" yerel üretim motoru bulunamadı.`);
             };
-
             if (options.mode === 'ai') {
                 const onlineGenerator = (generators as any)[generatorFunctionName];
                 if (onlineGenerator) {
@@ -192,7 +166,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                 result = await runOfflineGenerator();
             }
         }
-
         if (result) {
             const labeledResult = result.map((page: any) => ({ ...page, title: page.title || currentAct?.title || 'Etkinlik' }));
             setWorksheetData(labeledResult);
@@ -227,6 +200,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     isExpanded={isExpanded} 
                     onOpenStudentModal={onOpenStudentModal} 
                     studentProfile={studentProfile} 
+                    activeCurriculumSession={activeCurriculumSession}
                 />
             ) : (
                 <>
@@ -260,9 +234,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 <i className="fa-solid fa-camera text-zinc-400 group-hover:text-indigo-500 transition-colors text-xs"></i>
                                 <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Tarayıcı</span>
                             </button>
-                            <button onClick={onOpenCurriculum} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-emerald-300 transition-all flex flex-col items-center gap-1 group">
-                                <i className="fa-solid fa-calendar-check text-zinc-400 group-hover:text-emerald-500 transition-colors text-xs"></i>
-                                <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Planlama</span>
+                            <button onClick={onOpenCurriculum} className={`p-3 rounded-2xl border transition-all flex flex-col items-center gap-1 group ${activeCurriculumSession ? 'bg-indigo-600 border-indigo-500' : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 hover:border-emerald-300'}`}>
+                                <i className={`fa-solid fa-calendar-check ${activeCurriculumSession ? 'text-white' : 'text-zinc-400 group-hover:text-emerald-500'} transition-colors text-xs`}></i>
+                                <span className={`text-[9px] font-bold uppercase ${activeCurriculumSession ? 'text-white' : 'text-zinc-500 dark:text-zinc-400'}`}>Planlama</span>
                             </button>
                             <button onClick={onOpenReadingStudio} className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-blue-400 transition-all flex flex-col items-center gap-1 group">
                                 <i className="fa-solid fa-book-open-reader text-zinc-400 group-hover:text-blue-500 transition-colors text-xs"></i>
@@ -287,7 +261,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </button>
                                 {isExpanded && isOpen && (
                                     <div className="overflow-hidden animate-in slide-in-from-left-1 duration-200">
-                                        <div className="pl-3 ml-[11px] border-l border-zinc-200 dark:border-zinc-800 mt-0.5 space-y-0.5">
+                                        <div className="pl-3 ml-[11px] border-l border-zinc-200 dark:border-zinc-700 mt-0.5 space-y-0.5">
                                             {category.items.map(activity => (
                                                 <button key={activity.id} onClick={() => { onSelectActivity(activity.id); if(window.innerWidth < 768) closeSidebar(); }} className={`w-full text-left px-3 py-1 rounded-md text-[10px] font-medium transition-all flex items-center gap-1.5 relative ${selectedActivity === activity.id ? 'bg-indigo-50/50 dark:bg-indigo-900/10 text-indigo-700 dark:text-indigo-300 font-bold' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'}`}>
                                                     <span className={`w-1 h-1 rounded-full ${selectedActivity === activity.id ? 'bg-indigo-500' : 'bg-transparent border border-zinc-300'}`}></span>

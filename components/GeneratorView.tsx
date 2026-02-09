@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Activity, ActivityType, GeneratorOptions, StudentProfile } from '../types';
+import React, { useEffect } from 'react';
+import { Activity, ActivityType, GeneratorOptions, StudentProfile, ActiveCurriculumSession } from '../types';
 import { DIFFICULTY_OPTIONS } from '../constants';
 import { useStudent } from '../context/StudentContext';
 import { useActivitySettings } from '../hooks/useActivitySettings';
@@ -14,9 +14,9 @@ interface GeneratorViewProps {
     isExpanded?: boolean;
     onOpenStudentModal?: () => void;
     studentProfile?: StudentProfile | null;
+    activeCurriculumSession?: ActiveCurriculumSession | null;
 }
 
-// Varsayılan / Yedek Ayarlar (Eğer özel ayar dosyası yoksa veya yüklenemezse)
 const DefaultActivityConfig = ({ options, onChange }: any) => (
     <div className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 space-y-4 shadow-inner animate-in fade-in">
         <div className="space-y-1">
@@ -31,17 +31,42 @@ const DefaultActivityConfig = ({ options, onChange }: any) => (
     </div>
 );
 
-export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenerate, onBack, isLoading, isExpanded = true }) => {
+export const GeneratorView: React.FC<GeneratorViewProps> = ({ 
+    activity, 
+    onGenerate, 
+    onBack, 
+    isLoading, 
+    isExpanded = true,
+    activeCurriculumSession
+}) => {
     const { students, activeStudent, setActiveStudent } = useStudent();
-    
-    // YENİ: Ayarları LocalStorage'dan çeken Hook'u kullan
     const { options, updateOption } = useActivitySettings(activity.id);
 
+    // MÜFREDAT SEANSI AKTİFSE PARAMETRELERİ OTOMATİK AYARLA
+    useEffect(() => {
+        if (activeCurriculumSession) {
+            // Müfredat zorluk seviyesini eşleştir
+            const diffMap: Record<string, any> = {
+                'Easy': 'Başlangıç',
+                'Medium': 'Orta',
+                'Hard': 'Zor'
+            };
+            updateOption('difficulty', diffMap[activeCurriculumSession.difficulty] || 'Orta');
+            
+            // Eğer spesifik bir konu/hedef varsa topic olarak ata
+            if (activeCurriculumSession.goal) {
+                updateOption('topic', activeCurriculumSession.goal);
+            }
+        }
+    }, [activeCurriculumSession]);
+
     const handleChange = (key: keyof GeneratorOptions, value: any) => {
+        if (activeCurriculumSession && (key === 'difficulty' || key === 'topic')) return; // Müfredat modunda kilitli
         updateOption(key, value);
     };
 
     const handleStudentChange = (id: string) => {
+        if (activeCurriculumSession) return; // Müfredat modunda kilitli
         if (id === 'anonymous') setActiveStudent(null);
         else {
             const student = students.find(s => s.id === id);
@@ -49,7 +74,6 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
         }
     };
 
-    // YENİ: Registry üzerinden güvenli bileşen seçimi
     const ConfigComponent = getActivityConfigComponent(activity.id) || DefaultActivityConfig;
 
     return (
@@ -64,13 +88,31 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
             </div>
 
             <div className={`flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0 transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                
+                {/* Curriculum Session Alert */}
+                {activeCurriculumSession && (
+                    <div className="mb-6 p-4 bg-indigo-600 rounded-2xl text-white shadow-lg animate-in zoom-in-95 duration-300">
+                        <div className="flex items-center gap-3 mb-2">
+                            <i className="fa-solid fa-calendar-check text-indigo-200"></i>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Planlı Aktivite Aktif</span>
+                        </div>
+                        <p className="text-xs font-bold leading-snug">
+                            {activeCurriculumSession.studentName} için {activeCurriculumSession.day}. gün hedefi doğrultusunda üretim yapılacaktır.
+                        </p>
+                        <div className="mt-2 text-[9px] opacity-70 bg-black/20 p-2 rounded-lg italic">
+                            Zorluk ve Konu otomatik kilitlenmiştir.
+                        </div>
+                    </div>
+                )}
+
                 {/* Global Settings (Öğrenci) */}
-                <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-[1.5rem] border border-amber-100 dark:border-amber-800/30">
-                    <h4 className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-2"><i className="fa-solid fa-user-graduate"></i> Aktif Öğrenci</h4>
+                <div className={`mb-6 p-4 rounded-[1.5rem] border ${activeCurriculumSession ? 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 opacity-70' : 'bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-800/30'}`}>
+                    <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-3 flex items-center gap-2 ${activeCurriculumSession ? 'text-zinc-500' : 'text-amber-600 dark:text-amber-500'}`}><i className="fa-solid fa-user-graduate"></i> Aktif Öğrenci</h4>
                     <select 
+                        disabled={!!activeCurriculumSession}
                         value={activeStudent?.id || "anonymous"}
                         onChange={(e) => handleStudentChange(e.target.value)}
-                        className="w-full p-2.5 bg-white dark:bg-zinc-800 border border-amber-200 dark:border-amber-700 rounded-xl text-sm font-bold outline-none cursor-pointer"
+                        className="w-full p-2.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-bold outline-none cursor-pointer disabled:cursor-not-allowed"
                     >
                         <option value="anonymous">Misafir / Atanmamış</option>
                         {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
@@ -85,7 +127,12 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                     </div>
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold text-zinc-500 uppercase block">Zorluk Seviyesi</label>
-                        <select value={options.difficulty} onChange={e => handleChange('difficulty', e.target.value)} className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none focus:border-indigo-500 cursor-pointer">
+                        <select 
+                            disabled={!!activeCurriculumSession}
+                            value={options.difficulty} 
+                            onChange={e => handleChange('difficulty', e.target.value)} 
+                            className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none focus:border-indigo-500 cursor-pointer disabled:opacity-50"
+                        >
                             {DIFFICULTY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                         </select>
                     </div>
@@ -110,7 +157,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({ activity, onGenera
                         className="w-full px-4 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs shadow-lg shadow-indigo-200 dark:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-70 active:scale-95"
                     >
                         {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
-                        AI ile Üret
+                        {activeCurriculumSession ? 'Plandaki Hedefe Göre Üret' : 'AI ile Üret'}
                     </button>
                 </div>
             </div>

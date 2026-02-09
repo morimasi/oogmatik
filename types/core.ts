@@ -88,17 +88,15 @@ export enum ActivityType {
     DIRECTIONAL_TRACKING = 'DIRECTIONAL_TRACKING'
 }
 
-// Yeni: Klinik Hata Türleri
 export type CognitiveErrorTag = 
-    | 'visual_reversal' // b/d karıştırma
-    | 'visual_inversion' // p/d karıştırma
-    | 'phonological_substitution' // ses değiştirme
-    | 'sequencing_error' // harf/sayı sırası bozma
-    | 'figure_ground_confusion' // şekil-zemin karışıklığı
-    | 'attention_lapse' // dikkat kopması
-    | 'impulsivity_error' // düşünmeden işaretleme
-    | 'working_memory_overflow' // bellek kapasite aşımı
-    // Fix: Added missing tags to support clinical priorities in registry and prompts
+    | 'visual_reversal' 
+    | 'visual_inversion' 
+    | 'phonological_substitution' 
+    | 'sequencing_error' 
+    | 'figure_ground_confusion' 
+    | 'attention_lapse' 
+    | 'impulsivity_error' 
+    | 'working_memory_overflow' 
     | 'visual_discrimination'
     | 'logical_reasoning'; 
 
@@ -140,6 +138,17 @@ export interface StyleSettings {
     maskOpacity: number;
 }
 
+export interface ActiveCurriculumSession {
+    planId: string;
+    studentId?: string;
+    studentName: string;
+    day: number;
+    activityId: string;
+    activityTitle: string;
+    difficulty: 'Easy' | 'Medium' | 'Hard';
+    goal: string;
+}
+
 export interface UiSettings {
     fontFamily: string;
     fontSizeScale: number;
@@ -154,7 +163,6 @@ export interface BaseActivityData {
     pedagogicalNote?: string;
     imagePrompt?: string;
     imageBase64?: string;
-    // Yeni: Tanısal veri katmanı
     cognitiveGoal?: string;
     targetedErrors?: CognitiveErrorTag[];
 }

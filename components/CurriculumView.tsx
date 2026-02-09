@@ -11,7 +11,7 @@ import { ShareModal } from './ShareModal';
 interface CurriculumViewProps {
     onBack: () => void;
     onSelectActivity: (id: string) => void;
-    onStartCurriculumActivity: (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, studentId?: string) => void;
+    onStartCurriculumActivity: (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, difficulty: 'Easy' | 'Medium' | 'Hard', goal: string, studentId?: string) => void;
     initialPlan?: Curriculum | null;
 }
 
@@ -19,15 +19,15 @@ const DayCard: React.FC<{
     day: CurriculumDay, 
     isActiveDay: boolean,
     onToggleActivity: (day: number, actId: string) => void, 
-    onStartActivity: (actId: string, actType: string, title: string) => void,
+    onStartActivity: (actId: string, actType: string, title: string, difficulty: 'Easy' | 'Medium' | 'Hard', goal: string) => void,
     onSaveNote: (day: number, note: string) => void
 }> = ({ day, isActiveDay, onToggleActivity, onStartActivity, onSaveNote }) => {
     const isAllCompleted = day.activities.every(a => a.status === 'completed');
     
     return (
-        <div className={`group relative bg-white dark:bg-zinc-800 rounded-3xl border-2 transition-all duration-500 hover:shadow-2xl ${isActiveDay ? 'ring-4 ring-indigo-500/20 border-indigo-500 scale-[1.02] z-10' : 'border-zinc-100 dark:border-zinc-700'} ${isAllCompleted ? 'opacity-80 grayscale-[0.5]' : ''} break-inside-avoid page-break-inside-avoid print:border-zinc-300 print:shadow-none`}>
+        <div className={`group relative bg-white dark:bg-zinc-800 rounded-3xl border-2 transition-all duration-500 hover:shadow-2xl ${isActiveDay ? 'ring-4 ring-indigo-500/20 border-indigo-500 scale-[1.02] z-10 shadow-xl' : 'border-zinc-100 dark:border-zinc-700'} ${isAllCompleted ? 'opacity-80 grayscale-[0.3]' : ''} break-inside-avoid page-break-inside-avoid print:border-zinc-300 print:shadow-none`}>
             {isActiveDay && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg animate-bounce">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg animate-bounce z-20">
                     ŞU AN BURADAYIZ
                 </div>
             )}
@@ -38,7 +38,7 @@ const DayCard: React.FC<{
                         {day.day}. Gün
                         {isAllCompleted && <i className="fa-solid fa-circle-check text-emerald-500"></i>}
                     </h4>
-                    <p className="text-xs font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider mt-1">{day.focus}</p>
+                    <p className="text-xs font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider mt-1 line-clamp-1">{day.focus}</p>
                 </div>
                 <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm border ${isActiveDay ? 'bg-white dark:bg-zinc-700 border-indigo-200' : 'bg-white dark:bg-zinc-700 border-zinc-100'}`}>
                     <i className={`fa-solid ${isAllCompleted ? 'fa-star text-amber-500' : 'fa-calendar-day text-zinc-400'}`}></i>
@@ -53,7 +53,7 @@ const DayCard: React.FC<{
                                 <h5 className={`font-bold text-sm truncate ${act.status === 'completed' ? 'line-through text-zinc-400' : 'text-zinc-800 dark:text-zinc-200'}`}>{act.title}</h5>
                                 <div className="flex items-center gap-2 mt-1">
                                     <span className="text-[9px] bg-zinc-100 dark:bg-zinc-700 px-1.5 py-0.5 rounded text-zinc-500 dark:text-zinc-400 font-mono">{act.duration} dk</span>
-                                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-black uppercase ${act.difficultyLevel === 'Hard' ? 'text-rose-600 bg-rose-50' : 'text-indigo-600 bg-indigo-50'}`}>
+                                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-black uppercase ${act.difficultyLevel === 'Hard' ? 'text-rose-600 bg-rose-50' : act.difficultyLevel === 'Medium' ? 'text-amber-600 bg-amber-50' : 'text-emerald-600 bg-emerald-50'}`}>
                                         {act.difficultyLevel === 'Hard' ? 'Zor' : act.difficultyLevel === 'Medium' ? 'Orta' : 'Kolay'}
                                     </span>
                                 </div>
@@ -68,7 +68,7 @@ const DayCard: React.FC<{
                                 </button>
                                 {act.status !== 'completed' && (
                                     <button 
-                                        onClick={() => onStartActivity(act.activityId, act.activityId, act.title)}
+                                        onClick={() => onStartActivity(act.activityId, act.activityId, act.title, act.difficultyLevel, act.goal)}
                                         className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 active:scale-90"
                                         title="Uygulamayı Başlat"
                                     >
@@ -86,6 +86,7 @@ const DayCard: React.FC<{
                         className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-700 rounded-xl text-[11px] resize-none focus:border-indigo-300 outline-none transition-all placeholder:text-zinc-300"
                         placeholder="Öğrencinin bugünkü tepkisi, odak süresi..."
                         rows={2}
+                        defaultValue={day.focus === day.focus ? day.focus : ''}
                         onBlur={(e) => onSaveNote(day.day, e.target.value)}
                     ></textarea>
                 </div>
@@ -112,11 +113,10 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
     });
     const [planDuration, setPlanDuration] = useState(7);
 
-    // Bağlantı kontrolü (AdBlocker tespiti için dolaylı yöntem)
     useEffect(() => {
         const checkConnection = async () => {
             try {
-                const response = await fetch('https://firestore.googleapis.com', { mode: 'no-cors' });
+                await fetch('https://firestore.googleapis.com', { mode: 'no-cors' });
             } catch (e) {
                 setConnectionBlocked(true);
             }
@@ -162,7 +162,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             setStep(4);
             setIsSaved(false);
         } catch (e) {
-            alert("Plan oluşturulurken bir hata oluştu. AI motoru şu an meşgul olabilir.");
+            alert("Plan oluşturulurken bir hata oluştu.");
         } finally {
             setLoading(false);
         }
@@ -176,9 +176,26 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             setCurriculum({ ...curriculum, id });
             setIsSaved(true);
         } catch (e) {
-            alert("Kaydetme hatası. Lütfen internet bağlantınızı kontrol edin.");
+            alert("Kaydetme hatası.");
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleDeletePlan = async () => {
+        if (!curriculum?.id || !isSaved) return;
+        if (confirm("Bu eğitim planını kalıcı olarak silmek istediğinize emin misiniz?")) {
+            setLoading(true);
+            try {
+                await curriculumService.deleteCurriculum(curriculum.id);
+                setCurriculum(null);
+                setStep(0);
+                alert("Plan silindi.");
+            } catch (e) {
+                alert("Silme hatası.");
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
@@ -197,7 +214,8 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
 
     const handleToggleActivity = async (day: number, actId: string) => {
         if (!curriculum) return;
-        const currentStatus = curriculum.schedule.find(d => d.day === day)?.activities.find(a => a.id === actId)?.status;
+        const dayData = curriculum.schedule.find(d => d.day === day);
+        const currentStatus = dayData?.activities.find(a => a.id === actId)?.status;
         const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
         
         try {
@@ -237,7 +255,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                         </div>
                     </div>
                     <h3 className="text-2xl font-black text-zinc-800 dark:text-white mb-2 text-center">Nöro-Pedagogik Analiz Yapılıyor...</h3>
-                    <p className="text-zinc-500 text-center max-w-sm">AI, öğrencinin zayıf yönlerini sarmal öğrenme modeliyle 7 günlük bir rotaya dönüştürüyor.</p>
+                    <p className="text-zinc-500 text-center max-w-sm">AI, öğrencinin zayıf yönlerini sarmal öğrenme modeliyle {planDuration} günlük bir rotaya dönüştürüyor.</p>
                 </div>
             );
         }
@@ -378,9 +396,16 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                                                     <p className="text-zinc-500 font-bold mt-1 uppercase text-xs tracking-widest">{curriculum.grade} • {curriculum.durationDays} GÜNLÜK AKIŞ</p>
                                                 </div>
                                             </div>
-                                            <div className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 flex flex-col items-center">
-                                                <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">GENEL İLERLEME</p>
-                                                <span className="text-2xl font-black text-indigo-600">%{Math.round((curriculum.schedule.filter(d => d.isCompleted).length / curriculum.schedule.length) * 100)}</span>
+                                            <div className="flex flex-col items-end gap-3">
+                                                <div className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 flex flex-col items-center">
+                                                    <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">GENEL İLERLEME</p>
+                                                    <span className="text-2xl font-black text-indigo-600">%{Math.round((curriculum.schedule.filter(d => d.isCompleted).length / curriculum.schedule.length) * 100)}</span>
+                                                </div>
+                                                {isSaved && (
+                                                    <button onClick={handleDeletePlan} className="text-xs font-bold text-red-400 hover:text-red-500 transition-colors uppercase tracking-widest flex items-center gap-2 px-2">
+                                                        <i className="fa-solid fa-trash-can"></i> Planı Sil
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -401,16 +426,19 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                    {curriculum.schedule.map((day, idx) => (
-                                        <DayCard 
-                                            key={day.day} 
-                                            day={day} 
-                                            isActiveDay={!day.isCompleted && (idx === 0 || curriculum.schedule[idx-1].isCompleted)}
-                                            onToggleActivity={handleToggleActivity} 
-                                            onStartActivity={(id, type, title) => onStartCurriculumActivity(curriculum.id, day.day, id, type, curriculum.studentName, title, curriculum.studentId || undefined)} 
-                                            onSaveNote={handleSaveDayNote}
-                                        />
-                                    ))}
+                                    {curriculum.schedule.map((day, idx) => {
+                                        const isFirstIncomplete = !day.isCompleted && (idx === 0 || curriculum.schedule[idx-1].isCompleted);
+                                        return (
+                                            <DayCard 
+                                                key={day.day} 
+                                                day={day} 
+                                                isActiveDay={isFirstIncomplete}
+                                                onToggleActivity={handleToggleActivity} 
+                                                onStartActivity={(id, type, title, diff, goal) => onStartCurriculumActivity(curriculum.id, day.day, id, type, curriculum.studentName, title, diff, goal, curriculum.studentId || undefined)} 
+                                                onSaveNote={handleSaveDayNote}
+                                            />
+                                        );
+                                    })}
                                 </div>
                             </>
                         )}

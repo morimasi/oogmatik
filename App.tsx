@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
-import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions, SavedAssessment, Curriculum } from './types';
+import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions, SavedAssessment, Curriculum, ActiveCurriculumSession } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
@@ -73,15 +73,6 @@ const initialUiSettings: UiSettings = {
 
 type ModalType = 'settings' | 'history' | 'about' | 'developer';
 type ExtendedView = View | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students';
-
-interface ActiveCurriculumSession {
-    planId: string;
-    studentId?: string;
-    studentName: string;
-    day: number;
-    activityId: string;
-    activityTitle: string;
-}
 
 const LoadingSpinner = () => (
     <div className="flex items-center justify-center h-full w-full min-h-[200px]">
@@ -338,9 +329,10 @@ const AppContent: React.FC = () => {
         if (activityType) setIsSidebarExpanded(true);
     };
 
-    const handleStartCurriculumActivity = (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, studentId?: string) => {
+    const handleStartCurriculumActivity = (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, difficulty: 'Easy' | 'Medium' | 'Hard', goal: string, studentId?: string) => {
         setActiveCurriculumSession({
-            planId, day, activityId, studentName, activityTitle: title, studentId
+            planId, day, activityId, studentName, activityTitle: title, studentId,
+            difficulty, goal
         });
         
         if (studentId) {
@@ -660,6 +652,7 @@ const AppContent: React.FC = () => {
                         onOpenReadingStudio={() => navigateTo('reading-studio')}
                         onOpenMathStudio={() => navigateTo('math-studio')}
                         onOpenStudentModal={() => navigateTo('students')}
+                        activeCurriculumSession={activeCurriculumSession}
                     />
                 </div>
                 
