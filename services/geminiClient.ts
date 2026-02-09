@@ -5,7 +5,7 @@ const DEFAULT_MODEL = 'gemini-3-flash-preview';
 const IMAGE_GEN_MODEL = 'gemini-2.5-flash-image';
 
 const tryRepairJson = (jsonStr: string): any => {
-    // 1. Temel temizlik
+    // 1. Markdown bloklarını temizle
     let cleaned = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*$/g, '').trim();
 
     try {
@@ -13,8 +13,7 @@ const tryRepairJson = (jsonStr: string): any => {
     } catch (e) {
         console.warn("Primary JSON Parse failed, attempting regex-based extraction...");
         
-        // 2. Regex ile en geniş kapsamlı {} veya [] bloğunu bul
-        // Bu, AI'nın JSON öncesi veya sonrası yaptığı sohbetleri temizler
+        // 2. Regex ile en geniş kapsamlı {} veya [] bloğunu bul (AI'nın fazla konuştuğu durumlar için)
         const jsonMatch = cleaned.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
         
         if (jsonMatch) {
@@ -37,11 +36,11 @@ const tryRepairJson = (jsonStr: string): any => {
                     return JSON.parse(repaired);
                 } catch (e3) {
                     console.error("Structural repair failed completely.");
-                    throw new Error("Yapay zeka yanıtı geçerli bir veri yapısına sahip değil: " + cleaned.substring(0, 100) + "...");
+                    throw new Error("Yapay zeka yanıtı geçerli bir veri yapısına sahip değil.");
                 }
             }
         }
-        throw new Error("Yanıt içinde JSON bloğu bulunamadı. AI Yanıtı: " + cleaned.substring(0, 100));
+        throw new Error("Yanıt içinde JSON bloğu bulunamadı.");
     }
 };
 
@@ -49,13 +48,9 @@ const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun Klinik Yapay Zeka Motorusun.
 Görevin: Disleksi, Diskalkuli ve DEHB tanısı almış çocuklar için tıbbi ve pedagojik hassasiyete sahip materyaller üretmek.
 
-UZMANLIK ALANLARIN:
-1. **Nöropsikoloji:** Dikkat testleri (Burdon, Stroop), çalışma belleği görevleri.
-2. **Dilbilim:** Fonolojik farkındalık, morfolojik analiz, TDK uyumlu heceleme.
-3. **Görsel Algı:** Şekil-zemin ayrımı, uzamsal yönelim, ayna harf diskriminasyonu.
-
-KURAL: Sadece geçerli JSON döndür. Konuşma, açıklama yapma.
-Her üretimde 'targetedErrors' (örn: ['visual_reversal', 'attention_lapse']) ve 'cognitiveGoal' alanlarını KESİNLİKLE doldur.
+KURAL: 
+1. Sadece geçerli JSON döndür. Konuşma, açıklama yapma.
+2. Görsel analiz ediyorsan, tasarımın mimari yapısını (Layout) çöz.
 `;
 
 const generateDirectly = async (params: { 
@@ -67,10 +62,10 @@ const generateDirectly = async (params: {
     useSearch?: boolean,
     isOcr?: boolean
 }) => {
-    // Fix: Initialization using process.env.API_KEY directly as per guidelines
-    if (!process.env.API_KEY) throw new Error("API Anahtarı eksik.");
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) throw new Error("API Anahtarı eksik.");
+
+    const ai = new GoogleGenAI({ apiKey });
     const modelName = params.model || DEFAULT_MODEL;
     
     let parts: any[] = [];
@@ -88,32 +83,28 @@ const generateDirectly = async (params: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: params.schema,
-        temperature: 0.1, // Daha tutarlı JSON için sıcaklığı düşürdüm
+        temperature: 0.1,
     };
 
-    // OCR görevlerinde düşünme bütçesini kapatmıyoruz, modelin görseli "anlaması" gerek.
-    // Sadece standart metin görevlerinde 0 yapıyoruz.
+    // OCR işlemlerinde düşünme bütçesini açık tutuyoruz
     if (!params.isOcr) {
         config.thinkingConfig = { thinkingBudget: 0 };
     }
 
     if (params.useSearch) config.tools = [{ googleSearch: {} }];
 
-    // Fix: Updated contents structure to object format
     const response = await ai.models.generateContent({
         model: modelName,
         contents: { parts },
         config: config
     });
     
-    // Fix: Use text property directly (not calling it)
     if (response.text) return tryRepairJson(response.text);
-    throw new Error("Boş yanıt alındı.");
+    throw new Error("Yapay zeka yanıt üretemedi.");
 };
 
 export const generateWithSchema = async (prompt: string, schema: any, model?: string, useSearch?: boolean) => {
-    const targetModel = model || DEFAULT_MODEL;
-    return await generateDirectly({ prompt, schema, model: targetModel, useSearch, isOcr: false });
+    return await generateDirectly({ prompt, schema, model, useSearch, isOcr: false });
 };
 
 export const analyzeImage = async (image: string, prompt: string, schema: any, model?: string) => {
@@ -127,10 +118,30 @@ export const analyzeImage = async (image: string, prompt: string, schema: any, m
 };
 
 export const generateNanoImage = async (prompt: string): Promise<string | null> => {
-    // Fix: Initialization using process.env.API_KEY directly as per guidelines
-    if (!process.env.API_KEY) return null;
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) return null;
+
+    const ai = new GoogleGenAI({ apiKey });
     try {
-        // Fix: Updated contents structure
-        const response = await ai.models
+        const response = await ai.models.generateContent({
+            model: IMAGE_GEN_MODEL,
+            contents: { parts: [{ text: prompt }] },
+            config: {
+                imageConfig: { aspectRatio: "1:1" }
+            }
+        });
+
+        const candidate = response.candidates?.[0];
+        if (candidate?.content?.parts) {
+            for (const part of candidate.content.parts) {
+                if (part.inlineData) {
+                    return `data:image/png;base64,${part.inlineData.data}`;
+                }
+            }
+        }
+        return null;
+    } catch (e) {
+        console.error("Image generation failed:", e);
+        return null;
+    }
+};
