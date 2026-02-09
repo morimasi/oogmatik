@@ -28,13 +28,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const ai = new GoogleGenAI({ apiKey });
         const selectedModel = model || DEFAULT_MODEL;
 
-        const generationConfig = {
+        const generationConfig: any = {
             systemInstruction: SYSTEM_INSTRUCTION,
             responseMimeType: "application/json",
             responseSchema: schema,
             temperature: 0.2, 
             topP: 0.8,
             topK: 40,
+            // Gemini 3 modelleri için akıl yürütme bütçesini sınırla
+            thinkingConfig: { thinkingBudget: 0 },
             safetySettings: [
                 { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
                 { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
@@ -43,7 +45,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ]
         };
 
-        if (useSearch) (generationConfig as any).tools = [{ googleSearch: {} }];
+        if (useSearch) generationConfig.tools = [{ googleSearch: {} }];
 
         let parts: any[] = [];
         if (image) {
@@ -61,7 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             res.setHeader('Content-Type', 'application/json; charset=utf-8');
             return res.status(200).send(result.text);
         }
-        throw new Error("AI yanıt üretemedi.");
+        throw new Error("AI yanıt üretemedi veya boş bir cevap döndü.");
     } catch (error: any) {
         console.error("API Handler Error:", error);
         return res.status(500).json({ error: error.message });

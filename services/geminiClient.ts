@@ -5,39 +5,53 @@ const DEFAULT_MODEL = 'gemini-3-flash-preview';
 const IMAGE_GEN_MODEL = 'gemini-2.5-flash-image';
 
 const tryRepairJson = (jsonStr: string): any => {
+    // 1. Temel temizlik (Markdown kod bloklarını temizle)
     let cleaned = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*$/g, '').trim();
 
     try {
         return JSON.parse(cleaned);
     } catch (e) {
-        console.warn("Primary JSON Parse failed, attempting extreme repair...");
-        const loopMatch = cleaned.match(/(.{50,})\1{2,}/g);
-        if (loopMatch) {
-            cleaned = cleaned.replace(/(.{50,})\1{5,}/g, '$1'); 
+        console.warn("Primary JSON Parse failed, attempting robust extraction...");
+        
+        // 2. Metin içindeki ilk { veya [ ile son } veya ] arasını bul
+        const firstBrace = cleaned.indexOf('{');
+        const firstBracket = cleaned.indexOf('[');
+        let startIdx = -1;
+        let endIdx = -1;
+
+        if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+            startIdx = firstBrace;
+            endIdx = cleaned.lastIndexOf('}');
+        } else if (firstBracket !== -1) {
+            startIdx = firstBracket;
+            endIdx = cleaned.lastIndexOf(']');
         }
-        cleaned = cleaned.replace(/}\s*{/g, '},{').replace(/]\s*\[/g, '],[');
-        let quoteCount = 0;
-        for (let i = 0; i < cleaned.length; i++) {
-            if (cleaned[i] === '"' && (i === 0 || cleaned[i-1] !== '\\')) quoteCount++;
+
+        if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+            const extracted = cleaned.substring(startIdx, endIdx + 1);
+            try {
+                return JSON.parse(extracted);
+            } catch (e2) {
+                console.warn("Extraction failed, attempting structural repair...");
+                // 3. Eksik parantezleri kapatma (Basit onarım)
+                let repaired = extracted;
+                const openBraces = (repaired.match(/{/g) || []).length;
+                const closeBraces = (repaired.match(/}/g) || []).length;
+                const openBrackets = (repaired.match(/\[/g) || []).length;
+                const closeBrackets = (repaired.match(/\]/g) || []).length;
+
+                for (let i = 0; i < (openBraces - closeBraces); i++) repaired += '}';
+                for (let i = 0; i < (openBrackets - closeBrackets); i++) repaired += ']';
+                
+                try {
+                    return JSON.parse(repaired);
+                } catch (e3) {
+                    console.error("Structural repair failed completely.");
+                    throw new Error("Yapay zeka yanıtı geçerli bir veri yapısına sahip değil.");
+                }
+            }
         }
-        if (quoteCount % 2 !== 0) cleaned += '"';
-        let repaired = cleaned;
-        const openBraces = (repaired.match(/{/g) || []).length;
-        const closeBraces = (repaired.match(/}/g) || []).length;
-        const openBrackets = (repaired.match(/\[/g) || []).length;
-        const closeBrackets = (repaired.match(/\]/g) || []).length;
-        for (let i = 0; i < (openBraces - closeBraces); i++) repaired += '}';
-        for (let i = 0; i < (openBrackets - closeBrackets); i++) repaired += ']';
-        try {
-            return JSON.parse(repaired);
-        } catch (e2) {
-             const lastGoodIndex = Math.max(repaired.lastIndexOf('}'), repaired.lastIndexOf(']'));
-             if (lastGoodIndex > 0) {
-                 const truncated = repaired.substring(0, lastGoodIndex + 1);
-                 try { return JSON.parse(truncated); } catch (e3) {}
-             }
-             throw new Error("Yapay zeka yanıtı onarılamayacak kadar bozuk.");
-        }
+        throw new Error("Yanıt içinde JSON bloğu bulunamadı.");
     }
 };
 
@@ -84,7 +98,9 @@ const generateDirectly = async (params: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: params.schema,
-        temperature: 0.15, // Klinik doğruluk için daha düşük yaratıcılık
+        temperature: 0.15,
+        // Gemini 3 serisi için akıl yürütme bütçesi ekle
+        thinkingConfig: { thinkingBudget: 0 } 
     };
 
     if (params.useSearch) config.tools = [{ googleSearch: {} }];
@@ -115,9 +131,6 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
     }
 };
 
-/**
- * Görüntü analizi için multimodal metot.
- */
 export const analyzeImage = async (image: string, prompt: string, schema: any, model?: string) => {
     return await generateDirectly({ 
         prompt, 
@@ -127,9 +140,6 @@ export const analyzeImage = async (image: string, prompt: string, schema: any, m
     });
 };
 
-/**
- * Gemini 2.5 Flash ile doğrudan görsel üretimi (Base64)
- */
 export const generateNanoImage = async (prompt: string): Promise<string | null> => {
     const apiKey = process.env.API_KEY;
     if (!apiKey) return null;
