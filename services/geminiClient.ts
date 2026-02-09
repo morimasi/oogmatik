@@ -5,7 +5,7 @@ const DEFAULT_MODEL = 'gemini-3-flash-preview';
 const IMAGE_GEN_MODEL = 'gemini-2.5-flash-image';
 
 const tryRepairJson = (jsonStr: string): any => {
-    // 1. Temel temizlik (Markdown kod bloklarını temizle)
+    // 1. Markdown bloklarını ve gereksiz boşlukları temizle
     let cleaned = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*$/g, '').trim();
 
     try {
@@ -33,7 +33,7 @@ const tryRepairJson = (jsonStr: string): any => {
                 return JSON.parse(extracted);
             } catch (e2) {
                 console.warn("Extraction failed, attempting structural repair...");
-                // 3. Eksik parantezleri kapatma (Basit onarım)
+                // 3. Eksik parantezleri kapatma (Basit yapısal onarım)
                 let repaired = extracted;
                 const openBraces = (repaired.match(/{/g) || []).length;
                 const closeBraces = (repaired.match(/}/g) || []).length;
@@ -99,7 +99,7 @@ const generateDirectly = async (params: {
         responseMimeType: "application/json",
         responseSchema: params.schema,
         temperature: 0.15,
-        // Gemini 3 serisi için akıl yürütme bütçesi ekle
+        // Gemini 3 serisi için thinking bütçesini 0 yaparak anlık JSON üretimini garantiye al
         thinkingConfig: { thinkingBudget: 0 } 
     };
 

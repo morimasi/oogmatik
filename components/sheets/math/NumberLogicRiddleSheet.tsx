@@ -28,7 +28,7 @@ export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> =
             
             <div className={`grid ${gridCols} ${gapSize} mt-1 flex-1 content-start`}>
                 {(data.puzzles || []).map((puzzle, pIdx) => {
-                    // Güvenli split: riddle yoksa riddleParts'tan metin birleştir veya boş liste dön
+                    // GÜVENLİ PARSE: riddle yoksa riddleParts'tan metin oluştur
                     const rawRiddle = puzzle.riddle || (puzzle.riddleParts?.map(rp => rp.text).join('. ') || '');
                     const hintList = rawRiddle ? rawRiddle.split(/(?<=[.?!])\s+/) : [];
 

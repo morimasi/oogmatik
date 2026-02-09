@@ -35,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             temperature: 0.2, 
             topP: 0.8,
             topK: 40,
-            // Gemini 3 modelleri için akıl yürütme bütçesini sınırla
+            // Gemini 3 modelleri için akıl yürütme bütçesini kapatarak token tasarrufu ve hız sağla
             thinkingConfig: { thinkingBudget: 0 },
             safetySettings: [
                 { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
