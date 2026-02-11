@@ -10,34 +10,35 @@ export const ocrService = {
      */
     processImage: async (base64Image: string): Promise<OCRResult> => {
         const prompt = `
-        [GÖREV: EĞİTİM MATERYALİ DNA ANALİZİ]
-        Görüntüdeki materyalin yapısını, amacını ve içindeki bilişsel mekanizmayı çöz. 
+        [GÖREV: EĞİTİM MATERYALİ DNA ANALİZİ - VİZYON MOTORU]
+        Görüntüdeki materyalin (Fiziksel çalışma kağıdı) yapısını, içindeki verileri ve bilişsel mekanizmayı tam isabetle çöz. 
         
-        ANALİZ KRİTERLERİ (İKİ AYRI ÜRETİM KANALI İÇİN):
-        1. KANAL (İÇERİK VARYASYONU): Bu materyalin görsel düzenini (tablo, kutu, liste) koruyarak, aynı zorluk seviyesinde yepyeni, özgün sorular nasıl üretilir? (Klavuz oluştur).
-        2. KANAL (MANTIKSAL ALGORİTMA): Bu materyaldeki çözüm sürecini veya konuyu adım adım bir "Problem Çözme Algoritmasına" nasıl dönüştürebiliriz? (Akış Şeması yönergesi oluştur).
+        ANALİZ KRİTERLERİ:
+        1. MATERYAL TİPİ: Bu bir bulmaca mı (Futoshiki, Sudoku vb.), okuma parçası mı yoksa işlem kağıdı mı?
+        2. MANTIKSAL AKIŞ: Bir öğrenci bu kağıdı çözerken hangi adımları izlemeli? (Örn: Önce sembolleri tanı, sonra büyüktür/küçüktür işaretlerine bak vb.)
         
-        BLUEPRINT TALİMATI:
-        İçerik üreticisi AI'ya yönelik, bu görseldeki pedagojik mantığı klonlamasını sağlayacak TEKNİK ve YÖNERGE ODAKLI bir blueprint yaz.
+        BLUEPRINT ÜRETİMİ:
+        - worksheetBlueprint: Benzer yapıda yepyeni sorular üretmek için yönerge.
+        - algorithmBlueprint: Bu bulmacanın ÇÖZÜM SÜRECİNİ veya içindeki KONUYU bir akış şemasına (Flowchart) dönüştürmek için gereken mantıksal basamaklar.
         
-        DİKKAT: Yanıtın KESİNLİKLE JSON objesi olmalıdır. Gereksiz metin ekleme.
+        DİKKAT: Futoshiki gibi oyunlarda 'algorithmBlueprint' mutlaka eşitsizlik işaretlerinin ve sayı yerleştirme kurallarının çözüm adımlarını içermelidir.
         `;
 
         const schema = {
             type: Type.OBJECT,
             properties: {
-                detectedType: { type: Type.STRING, description: "Örn: Görsel Dikkat, Sözel Muhakeme, Matematik Labirenti vb." },
-                title: { type: Type.STRING, description: "Görselden çıkarılan veya atanan başlık" },
-                description: { type: Type.STRING, description: "Materyalin eğitsel hedefi ve disleksi/diskalkuli için önemi" },
-                worksheetBlueprint: { type: Type.STRING, description: "Yeni çalışma sayfası üretmek için teknik talimatlar" },
-                algorithmBlueprint: { type: Type.STRING, description: "Adım adım algoritma akışı oluşturmak için mantıksal yönergeler" },
+                detectedType: { type: Type.STRING, description: "Örn: Futoshiki, Görsel Dikkat vb." },
+                title: { type: Type.STRING, description: "Görselden çıkarılan başlık" },
+                description: { type: Type.STRING, description: "Materyalin eğitsel hedefi" },
+                worksheetBlueprint: { type: Type.STRING, description: "İçerik üretimi için teknik talimatlar" },
+                algorithmBlueprint: { type: Type.STRING, description: "Mantıksal algoritma üretimi için çözüm basamakları yönergesi" },
                 baseType: { type: Type.STRING, description: "OCR_CONTENT" }
             },
             required: ['detectedType', 'title', 'worksheetBlueprint', 'algorithmBlueprint']
         };
 
         try {
-            // Gemini 3 Thinking Mode ile derin analiz
+            // Gemini 3'ün derin analiz gücünü (4000 token thinking) kullanarak görseli okuyoruz.
             const result = await analyzeImage(base64Image, prompt, schema);
             
             return {
@@ -45,8 +46,8 @@ export const ocrService = {
                 detectedType: result.detectedType,
                 title: result.title,
                 description: result.description,
-                generatedTemplate: result.worksheetBlueprint, // Eski sistem uyumluluğu için
-                structuredData: result, // Tüm zengin veri (ikiz blueprintler dahil)
+                generatedTemplate: result.worksheetBlueprint,
+                structuredData: result,
                 baseType: 'OCR_CONTENT'
             };
         } catch (error) {
