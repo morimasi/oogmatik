@@ -66,6 +66,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     // Scroller container ref
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+    // Auto-activate edit mode when OCR content arrives
+    useEffect(() => {
+        if (activityType === ActivityType.OCR_CONTENT && worksheetData) {
+            setIsEditMode(true);
+        }
+    }, [activityType, worksheetData]);
+
     useEffect(() => {
         if (!worksheetData) {
             setProcessedData([]);

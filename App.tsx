@@ -472,8 +472,10 @@ const AppContent: React.FC = () => {
         setWorkbookItems(prev => [...prev, newItem]);
     };
     
+    // FIX: OCR Sonucu işlendiğinde veriyi state'e al ve navigasyonu tamamla
     const handleOCRResult = (result: any) => {
-        alert("İçerik başarıyla tarandı!");
+        setSelectedActivity(ActivityType.OCR_CONTENT);
+        setWorksheetData(result);
         navigateTo('generator');
         setIsSidebarExpanded(true); 
     };
