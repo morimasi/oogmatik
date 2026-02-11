@@ -6,7 +6,7 @@ import Worksheet from './Worksheet';
 import { useAuth } from '../context/AuthContext';
 import { generateFromRichPrompt } from '../services/generators/newActivities';
 import { generateAlgorithmGeneratorFromAI } from '../services/generators/algorithm';
-import { CreativeStudio } from './CreativeStudio';
+import { CreativeStudio } from './CreativeStudio/index'; // Updated import
 
 const PREVIEW_SETTINGS: StyleSettings = {
     fontSize: 16, scale: 0.65, borderColor: '#d4d4d8', borderWidth: 1, margin: 5, columns: 1, gap: 10,

@@ -115,6 +115,8 @@ export interface StyleSettings {
     orientation: 'portrait' | 'landscape';
     themeBorder: string;
     contentAlign: string;
+    /** Fix: Added textAlign to resolve property access errors in components/SheetRenderer.tsx */
+    textAlign?: string;
     fontWeight: string;
     fontStyle: string;
     visualStyle: string;
