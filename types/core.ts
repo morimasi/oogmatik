@@ -167,7 +167,8 @@ export interface BaseActivityData {
     targetedErrors?: CognitiveErrorTag[];
 }
 
-export type BlockType = 'text' | 'question' | 'grid' | 'image' | 'math' | 'matching' | 'custom' | 'header';
+/* Fix: Added missing types used in SheetRenderer: table, dual_column, svg_shape */
+export type BlockType = 'text' | 'question' | 'grid' | 'image' | 'math' | 'matching' | 'custom' | 'header' | 'table' | 'dual_column' | 'svg_shape';
 
 export interface WorksheetBlock {
     id: string;

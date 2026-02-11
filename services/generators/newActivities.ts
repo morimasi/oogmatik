@@ -94,9 +94,58 @@ export const generateFindLetterPairFromAI = async (options: GeneratorOptions): P
     return result.map((page: any) => ({ ...page, settings: { gridSize, itemCount, difficulty } }));
 };
 
+/**
+ * generateFromRichPrompt: Mimari Klonlama Motoru
+ * AI'dan gelen yapısal mimariyi kullanarak yepyeni veri varyasyonları üretir.
+ */
 export const generateFromRichPrompt = async (activityType: ActivityType, instructions: string, options: GeneratorOptions): Promise<any> => {
-    const { difficulty, itemCount, topic } = options;
-    const prompt = `${PEDAGOGICAL_BASE} GÖREV: Aşağıdaki teknik blueprint'i kullanarak içerik üret. BLUEPRINT: ${instructions} ZORLUK: ${difficulty} ADET: ${itemCount} KONU: ${topic}`;
-    const schema = { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, sections: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, type: { type: Type.STRING }, content: { type: Type.STRING }, items: { type: Type.ARRAY, items: { type: Type.STRING } } } } } } };
+    const { difficulty, itemCount, topic, studentContext } = options;
+    
+    const prompt = `
+    ${PEDAGOGICAL_BASE}
+    ${getStudentContextPrompt(studentContext)}
+    
+    GÖREV: Aşağıdaki TEKNİK BLUEPRINT'i kullanarak yepyeni bir eğitim sayfası üret.
+    
+    BLUEPRINT (MİMARİ):
+    ${instructions}
+    
+    YENİ İÇERİK KRİTERLERİ:
+    - Konu: ${topic || 'Orijinal görsel ile aynı konu'}
+    - Zorluk: ${difficulty}
+    - Sayfa Başı Madde: ${itemCount}
+    
+    TALİMAT: Mimariyi (tablo yapısı, grid boyutu, dual column düzeni) KESİNLİKLE KORU ama içindeki verileri (sayılar, kelimeler, sorular) tamamen değiştir ve özgünleştir. 
+    
+    ÇIKTI: 'layoutArchitecture' yapısına sadık kalarak 'blocks' dizisini içeren tam JSON döndür.
+    `;
+
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            layoutArchitecture: {
+                type: Type.OBJECT,
+                properties: {
+                    blocks: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                type: { type: Type.STRING },
+                                content: { type: Type.OBJECT },
+                                style: { type: Type.OBJECT }
+                            },
+                            required: ['type', 'content']
+                        }
+                    }
+                }
+            }
+        },
+        required: ['title', 'instruction', 'layoutArchitecture']
+    };
+
     return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
 };
