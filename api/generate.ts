@@ -7,6 +7,7 @@ const DEFAULT_MODEL = "gemini-3-flash-preview";
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
 Görevin: Disleksi, Diskalkuli ve DEHB tanısı almış çocuklar için bilimsel temelli eğitim materyali üretmek.
+MODEL MODU: Thinking & Multimodal Enabled.
 
 KURAL: 
 1. Yanıtın SADECE geçerli bir JSON olmalıdır. 
@@ -23,12 +24,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
 
     try {
-        const { prompt, schema, image, mimeType, useSearch, model } = req.body;
+        const { prompt, schema, image, mimeType, useSearch } = req.body;
         const apiKey = process.env.API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'API anahtarı eksik.' });
 
         const ai = new GoogleGenAI({ apiKey });
-        const selectedModel = model || DEFAULT_MODEL;
+        const selectedModel = DEFAULT_MODEL;
 
         const config: any = {
             systemInstruction: SYSTEM_INSTRUCTION,
@@ -40,12 +41,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
                 { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
                 { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
-            ]
+            ],
+            // Flash-Thinking Entegrasyonu
+            thinkingConfig: { thinkingBudget: 16000 }
         };
-
-        if (!image) {
-            config.thinkingConfig = { thinkingBudget: 0 };
-        }
 
         if (useSearch) config.tools = [{ googleSearch: {} }];
 

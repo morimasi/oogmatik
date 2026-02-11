@@ -5,7 +5,6 @@ import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
 
 /**
  * refinePromptWithAI: Kullanıcının promptunu profesyonel seviyeye taşır.
- * 'mode' parametresi ile promptu genişletir veya daraltır (optimize eder).
  */
 export const refinePromptWithAI = async (userPrompt: string, mode: 'expand' | 'narrow' | 'clinical'): Promise<string> => {
     const instruction = mode === 'expand' 
@@ -24,8 +23,15 @@ export const refinePromptWithAI = async (userPrompt: string, mode: 'expand' | 'n
     Sadece zenginleştirilmiş metni döndür.
     `;
 
-    const schema = { type: Type.OBJECT, properties: { refined: { type: Type.STRING } }, required: ['refined'] };
-    const result = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+    const schema = { 
+        type: Type.OBJECT, 
+        properties: { 
+            refined: { type: Type.STRING } 
+        }, 
+        required: ['refined'] 
+    };
+    // Model parametresi kaldırıldı, geminiClient varsayılan Thinking-Flash kullanacak
+    const result = await generateWithSchema(prompt, schema);
     return result.refined;
 };
 
@@ -84,11 +90,13 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
                             required: ['type', 'content']
                         }
                     }
-                }
+                },
+                required: ['blocks']
             }
         },
         required: ['title', 'instruction', 'layoutArchitecture']
     };
 
-    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
+    // Artık varsayılan olarak gemini-3-flash-preview (Thinking) kullanılacak
+    return await generateWithSchema(prompt, schema);
 };
