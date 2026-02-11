@@ -103,6 +103,7 @@ export const adminService = {
 
     // Added method to publish a draft as a dynamic activity
     publishDraft: async (draft: ActivityDraft, config: { title: string, description: string, icon: string, category: string }) => {
+        // Fix: Added missing properties 'order', 'targetSkills', and 'updatedAt' to satisfy the DynamicActivity interface
         const newActivity: DynamicActivity = {
             id: draft.id,
             title: config.title,
@@ -111,7 +112,10 @@ export const adminService = {
             category: config.category,
             isActive: true,
             isPremium: false,
-            promptId: `prompt_${draft.id.toLowerCase()}`
+            promptId: `prompt_${draft.id.toLowerCase()}`,
+            order: 0,
+            targetSkills: [],
+            updatedAt: new Date().toISOString()
         };
         await setDoc(doc(db, "config_activities", newActivity.id), newActivity);
         await deleteDoc(doc(db, "activity_drafts", draft.id));

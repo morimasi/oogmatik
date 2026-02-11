@@ -14,7 +14,7 @@ import { AdminPromptStudio } from './AdminPromptStudio';
 import { AdminFeedback } from './AdminFeedback';
 import { AdminStaticContent } from './AdminStaticContent';
 import { AdminUserManagement } from './AdminUserManagement';
-import { AdminDraftReview } from './AdminDraftReview'; // New Import
+import { AdminDraftReview } from './AdminDraftReview'; 
 
 interface AdminDashboardProps {
     onBack: () => void;
@@ -51,7 +51,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     const [loading, setLoading] = useState(true);
     const [usersCount, setUsersCount] = useState(0);
 
-    // Inspector Mode (Can be triggered from User Management)
+    // Inspector Mode 
     const [inspectingUser, setInspectingUser] = useState<User | null>(null);
     const [inspectView, setInspectView] = useState<'profile' | 'archive' | 'favorites'>('profile');
 
@@ -100,7 +100,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                     </div>
                 </div>
                 <div className="flex-1 overflow-hidden relative">
-                    {/* Fix: Added missing onLoadSaved prop and dummy select activity handler */}
                     {inspectView === 'profile' && <ProfileView onBack={() => setInspectingUser(null)} onSelectActivity={() => {}} onLoadSaved={() => {}} targetUser={inspectingUser} />}
                     {inspectView === 'archive' && <div className="h-full p-4 overflow-y-auto"><SavedWorksheetsView onLoad={() => {}} onBack={() => setInspectView('profile')} targetUserId={inspectingUser.id} /></div>}
                     {inspectView === 'favorites' && <div className="h-full p-4 overflow-y-auto"><FavoritesSection onSelectActivity={() => {}} targetUserId={inspectingUser.id} /></div>}
@@ -129,7 +128,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                     <NavButton active={activeTab === 'users'} label="Kullanıcılar" icon="fa-users" onClick={() => setActiveTab('users')} />
                     
                     <p className="px-4 mt-6 mb-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">İçerik Motoru</p>
-                    <NavButton active={activeTab === 'activities'} label="Aktiviteler" icon="fa-layer-group" onClick={() => setActiveTab('activities')} />
+                    <NavButton active={activeTab === 'activities'} label="Aktivite Yöneticisi" icon="fa-layer-group" onClick={() => setActiveTab('activities')} />
                     <NavButton active={activeTab === 'prompts'} label="Prompt Stüdyosu" icon="fa-terminal" onClick={() => setActiveTab('prompts')} />
                     <NavButton active={activeTab === 'drafts'} label="OCR Taslakları" icon="fa-camera-rotate" onClick={() => setActiveTab('drafts')} />
                     <NavButton active={activeTab === 'static_content'} label="Veri Kaynakları" icon="fa-database" onClick={() => setActiveTab('static_content')} />

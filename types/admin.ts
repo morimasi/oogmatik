@@ -12,7 +12,10 @@ export interface DynamicActivity {
     isPremium: boolean;
     promptId?: string; 
     defaultParams?: Record<string, any>; 
-    order?: number; 
+    order: number; // Menüdeki sıralama ağırlığı
+    themeColor?: string; // Aktiviteye özel marka rengi (Hex)
+    targetSkills: string[]; // Hedeflenen bilişsel beceriler
+    updatedAt: string;
 }
 
 export interface PromptVersion {
@@ -40,7 +43,7 @@ export interface PromptTemplate {
         temperature?: number;
         topP?: number;
         modelName?: string;
-        thinkingBudget?: number; // Gemini 3 specialized
+        thinkingBudget?: number; 
     };
 }
 
@@ -85,7 +88,6 @@ export interface AdminStatCard {
     chartData?: number[]; 
 }
 
-// Added UserFilter interface
 export interface UserFilter {
     search: string;
     role: UserRole | 'all';
