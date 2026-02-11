@@ -1,74 +1,80 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const DEFAULT_MODEL = 'gemini-3-pro-preview'; // Karmaşık analizler için Pro modeline geçiş
+const DEFAULT_MODEL = 'gemini-3-pro-preview'; 
 const FLASH_MODEL = 'gemini-3-flash-preview';
 
 /**
- * tryRepairJson: AI'dan gelen ham metni atomik seviyede JSON'a dönüştürür.
+ * balanceBraces: Yarıda kesilmiş JSON yanıtlarını parantezleri sayarak kapatır.
+ */
+const balanceBraces = (str: string): string => {
+    let openBraces = (str.match(/\{/g) || []).length;
+    let closeBraces = (str.match(/\}/g) || []).length;
+    let openBrackets = (str.match(/\[/g) || []).length;
+    let closeBrackets = (str.match(/\]/g) || []).length;
+
+    while (openBrackets > closeBrackets) { str += ']'; closeBrackets++; }
+    while (openBraces > closeBraces) { str += '}'; closeBraces++; }
+    return str;
+};
+
+/**
+ * tryRepairJson: AI'dan gelen ham metni temizler ve JSON'a dönüştürür.
  */
 const tryRepairJson = (jsonStr: string): any => {
     if (!jsonStr) throw new Error("AI boş yanıt döndürdü.");
 
-    // Unicode ve gizli karakterleri temizle
+    // 1. Temel Temizlik (Markdown ve Unicode)
     let cleaned = jsonStr.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
-    
-    // Markdown bloklarını temizle
     cleaned = cleaned.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+
+    // 2. Hallüsinasyon Temizliği (Hatalı uzun sayı dizilerini düzeltme)
+    // viewBox: "0 0 100 5000000000000..." gibi hataları yakalar
+    cleaned = cleaned.replace(/(\d{10,})/g, (match) => match.substring(0, 3));
+
+    // 3. JSON Bloğunu Yakala
+    const firstBrace = cleaned.indexOf('{');
+    const firstBracket = cleaned.indexOf('[');
+    let startIndex = -1;
+    if (firstBrace !== -1 && firstBracket !== -1) startIndex = Math.min(firstBrace, firstBracket);
+    else if (firstBrace !== -1) startIndex = firstBrace;
+    else if (firstBracket !== -1) startIndex = firstBracket;
+
+    if (startIndex !== -1) {
+        cleaned = cleaned.substring(startIndex);
+    }
+
+    // 4. Parantez Dengeleme (Yarıda kesilme ihtimaline karşı)
+    cleaned = balanceBraces(cleaned);
 
     try {
         return JSON.parse(cleaned);
     } catch (e) {
-        // En dıştaki { veya [ karakterini bul ve sonrasını yakala (Prefix metinleri temizlemek için)
-        const firstBrace = cleaned.indexOf('{');
-        const firstBracket = cleaned.indexOf('[');
-        let startIndex = -1;
-
-        if (firstBrace !== -1 && firstBracket !== -1) startIndex = Math.min(firstBrace, firstBracket);
-        else if (firstBrace !== -1) startIndex = firstBrace;
-        else if (firstBracket !== -1) startIndex = firstBracket;
-
-        if (startIndex !== -1) {
-            cleaned = cleaned.substring(startIndex);
-            // Sondaki fazlalıkları temizle
-            const lastBrace = cleaned.lastIndexOf('}');
-            const lastBracket = cleaned.lastIndexOf(']');
-            const endIndex = Math.max(lastBrace, lastBracket);
-            if (endIndex !== -1) {
-                cleaned = cleaned.substring(0, endIndex + 1);
-            }
-        }
-
+        // Son çare: Virgül hatalarını ve kaçış karakterlerini temizle
+        let fragment = cleaned
+            .replace(/,\s*([\}\]])/g, '$1') 
+            .replace(/\\n/g, ' ');
         try {
-            return JSON.parse(cleaned);
+            return JSON.parse(fragment);
         } catch (e2) {
-            // Manuel tırnak ve kaçış karakteri düzeltmeleri
-            let fragment = cleaned
-                .replace(/,\s*([\}\]])/g, '$1') // Sondaki virgülleri temizle
-                .replace(/\\n/g, ' ')
-                .replace(/([^\\])"/g, '$1\"'); // Kaçırılmamış tırnakları kontrol et (deneysel)
-
-            try {
-                return JSON.parse(fragment);
-            } catch (e3) {
-                console.error("JSON Repair Failed. Raw Response:", jsonStr);
-                throw new Error("AI yanıtı JSON formatına dönüştürülemedi. Lütfen tekrar deneyin.");
-            }
+            console.error("JSON Tamiri Başarısız. Ham Veri:", jsonStr);
+            throw new Error("AI verisi işlenemedi. Lütfen tekrar deneyin.");
         }
     }
 };
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun "Nöro-Mimari" motorusun. 
-GÖREVİN: Disleksi/diskalkuli odaklı eğitim blueprintleri üretmek.
-MULTIMODAL YETENEK: Ekte dosya (PDF veya Görsel) varsa, bu dosyaların yapısını, soru stilini ve pedagojik yaklaşımını analiz et.
-ÜRETİM KURALI: Yeni üreteceğin içerik, ekteki dosyaların mizanpajı ve kalitesiyle uyumlu olmalı.
-KURAL: SADECE SAF JSON DÖN. Asla açıklama metni ekleme.
-MODEL MODU: Thinking & Multimodal Reasoning Aktif.
+GÖREVİN: Disleksi/diskalkuli odaklı, görsel hiyerarşisi güçlü eğitim materyalleri üretmek.
+ÖNEMLİ KURALLAR:
+1. SADECE SAF JSON DÖN.
+2. Sayısal değerlerde asla 10 basamaktan uzun sayı kullanma.
+3. viewBox her zaman "0 0 100 100" olmalıdır.
+4. Karmaşık koordinatlar yerine 0-100 arası tamsayıları tercih et.
 `;
 
 export interface MultimodalFile {
-    data: string; // base64
+    data: string; 
     mimeType: string;
 }
 
@@ -82,31 +88,23 @@ export const generateCreativeMultimodal = async (params: {
     if (!apiKey) throw new Error("API Anahtarı eksik.");
 
     const ai = new GoogleGenAI({ apiKey });
-    
     let parts: any[] = [];
     
-    // Dosyaları parçalara ekle (Base64 temizliği ile)
     if (params.files && params.files.length > 0) {
         params.files.forEach(file => {
             const base64Data = file.data.split(',')[1] || file.data;
-            parts.push({ 
-                inlineData: { 
-                    mimeType: file.mimeType, 
-                    data: base64Data.trim()
-                } 
-            });
+            parts.push({ inlineData: { mimeType: file.mimeType, data: base64Data.trim() } });
         });
     }
 
-    // Promptu en son ekle
     parts.push({ text: params.prompt });
 
     const config: any = {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: params.schema,
-        temperature: 0.1, // Daha tutarlı JSON için düşürüldü
-        thinkingConfig: { thinkingBudget: params.useFlash ? 0 : 16000 } // Pro için bütçe artırıldı
+        temperature: 0.1, 
+        thinkingConfig: { thinkingBudget: params.useFlash ? 0 : 8000 } 
     };
 
     const response = await ai.models.generateContent({
@@ -125,9 +123,7 @@ export const generateWithSchema = async (prompt: string, schema: any, model?: st
 
 export const analyzeImage = async (image: string, prompt: string, schema: any, model?: string) => {
     return await generateCreativeMultimodal({ 
-        prompt, 
-        schema, 
-        files: [{ data: image, mimeType: 'image/jpeg' }],
+        prompt, schema, files: [{ data: image, mimeType: 'image/jpeg' }],
         useFlash: model?.includes('flash')
     });
 };

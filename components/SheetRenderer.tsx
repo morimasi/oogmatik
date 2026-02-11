@@ -43,22 +43,11 @@ import { ShapeCountingSheet } from './sheets/visual/ShapeCountingSheet';
 import { DirectionalTrackingSheet } from './sheets/visual/DirectionalTrackingSheet';
 import { ReadingStudioContentRenderer } from './ReadingStudio/ReadingStudioContentRenderer';
 import { PedagogicalHeader, ImageDisplay } from './sheets/common';
-import { EditableText, EditableElement } from './Editable';
-
-interface SheetRendererProps {
-    activityType: ActivityType;
-    data: SingleWorksheetData;
-}
+import { EditableText } from './Editable';
 
 const recursiveSafeText = (val: any): string => {
     if (val === null || val === undefined) return "";
     if (typeof val === 'string') return val;
-    if (typeof val === 'number') return String(val);
-    if (typeof val === 'object') {
-        if (val.text) return recursiveSafeText(val.text);
-        if (val.value) return recursiveSafeText(val.value);
-        return JSON.stringify(val);
-    }
     return String(val);
 };
 
@@ -66,175 +55,86 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
     const content: any = block.content;
     if (!content) return null;
     
-    const blockStyle = {
-        textAlign: block.style?.textAlign as any || 'left',
-        fontWeight: block.style?.fontWeight as any || 'normal',
-        fontSize: block.style?.fontSize ? `${block.style.fontSize}px` : undefined,
-        backgroundColor: block.style?.backgroundColor || 'transparent',
-        borderRadius: block.style?.borderRadius ? `${block.style.borderRadius}px` : undefined
-    };
-
     switch (block.type) {
         case 'header':
-            return (
-                <div className="mb-6 border-b-4 border-zinc-900 pb-2 text-center" style={blockStyle}>
-                    <h2 className="text-3xl font-black uppercase tracking-tighter">
-                        <EditableText value={recursiveSafeText(content.text || content)} tag="span" />
-                    </h2>
-                </div>
-            );
-        
+            return <h2 className="text-3xl font-black uppercase text-center mb-6 border-b-4 border-black pb-2"><EditableText value={recursiveSafeText(content.text || content)} tag="span" /></h2>;
         case 'text':
-            return (
-                <div className="text-lg leading-relaxed mb-6 font-dyslexic text-zinc-800 p-2" style={blockStyle}>
-                    <EditableText value={recursiveSafeText(content.text || content)} tag="div" />
-                </div>
-            );
-        
+            return <div className="text-lg leading-relaxed mb-6 font-dyslexic"><EditableText value={recursiveSafeText(content.text || content)} tag="div" /></div>;
         case 'grid':
             return (
                 <div className="flex justify-center mb-8">
-                    <div 
-                        className="grid gap-2 border-[3px] border-zinc-900 p-4 bg-white rounded-2xl shadow-md"
-                        style={{ gridTemplateColumns: `repeat(${content.cols || 4}, 1fr)` }}
-                    >
+                    <div className="grid gap-2 border-4 border-black p-4 bg-zinc-50 rounded-2xl" style={{ gridTemplateColumns: `repeat(${content.cols || 4}, 1fr)` }}>
                         {(content.cells || []).map((cell: any, i: number) => (
-                            <div key={i} className="w-12 h-12 border-2 border-zinc-100 bg-zinc-50 rounded-lg flex items-center justify-center font-black text-xl text-zinc-900 hover:bg-white transition-colors">
-                                <EditableText value={recursiveSafeText(cell)} tag="span" />
-                            </div>
+                            <div key={i} className="w-12 h-12 border-2 border-zinc-300 bg-white rounded-lg flex items-center justify-center font-black text-xl"><EditableText value={recursiveSafeText(cell)} tag="span" /></div>
                         ))}
                     </div>
                 </div>
             );
-
         case 'table':
             return (
-                <div className="overflow-hidden border-[2px] border-zinc-900 rounded-2xl mb-8 bg-white shadow-sm mx-auto max-w-full">
+                <div className="overflow-hidden border-4 border-black rounded-2xl mb-8 bg-white mx-auto max-w-full">
                     <table className="w-full border-collapse">
                         {content.headers && (
-                            <thead className="bg-zinc-100 text-zinc-900">
-                                <tr>
-                                    {content.headers.map((h: string, i: number) => (
-                                        <th key={i} className="p-3 text-[10px] font-black uppercase tracking-widest border-r border-zinc-200 last:border-0">{h}</th>
-                                    ))}
-                                </tr>
+                            <thead className="bg-zinc-100">
+                                <tr>{content.headers.map((h: string, i: number) => <th key={i} className="p-3 text-xs font-black uppercase border-r border-black last:border-0">{h}</th>)}</tr>
                             </thead>
                         )}
                         <tbody>
                             {(content.data || []).map((row: any[], i: number) => (
-                                <tr key={i} className="border-b border-zinc-100 last:border-0 hover:bg-zinc-50 transition-colors">
-                                    {row.map((cell, j) => (
-                                        <td key={j} className="p-3 text-center font-bold text-sm text-zinc-800 border-r border-zinc-100 last:border-0">
-                                            <EditableText value={recursiveSafeText(cell)} tag="span" />
-                                        </td>
-                                    ))}
+                                <tr key={i} className="border-t border-zinc-200">
+                                    {row.map((cell, j) => <td key={j} className="p-3 text-center font-bold text-sm border-r border-zinc-100 last:border-0"><EditableText value={recursiveSafeText(cell)} tag="span" /></td>)}
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
             );
-
-        case 'dual_column':
-            return (
-                <div className="grid grid-cols-2 gap-12 mb-8 px-4">
-                    <div className="space-y-3">
-                        {(content.left || []).map((item: any, i: number) => (
-                            <div key={i} className="p-3 border-2 border-zinc-800 rounded-xl bg-zinc-50 font-black text-sm flex items-center justify-between">
-                                <EditableText value={recursiveSafeText(item)} tag="span" />
-                                <div className="w-3 h-3 rounded-full border-2 border-zinc-300 bg-white"></div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="space-y-3">
-                        {(content.right || []).map((item: any, i: number) => (
-                            <div key={i} className="p-3 border-2 border-zinc-200 border-dashed rounded-xl bg-white font-bold text-sm flex items-center gap-4 text-zinc-400">
-                                <div className="w-3 h-3 rounded-full border-2 border-zinc-300 bg-white"></div>
-                                <EditableText value={recursiveSafeText(item)} tag="span" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            );
-
         case 'svg_shape':
             return (
-                <div className="flex justify-center mb-8 group">
-                    <div className="w-40 h-40 p-2 bg-white rounded-3xl border-2 border-zinc-100 shadow-sm flex items-center justify-center overflow-hidden hover:border-indigo-400 transition-colors">
-                        <svg viewBox={content.viewBox || "0 0 100 100"} className="w-full h-full text-zinc-900 drop-shadow-md">
-                            {(content.paths || []).map((p: string, i: number) => (
-                                <path key={i} d={p} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                            ))}
+                <div className="flex justify-center mb-8">
+                    <div className="w-32 h-32 p-2 border-2 border-zinc-100 rounded-2xl">
+                        <svg viewBox={content.viewBox || "0 0 100 100"} className="w-full h-full text-black">
+                            {(content.paths || []).map((p: string, i: number) => <path key={i} d={p} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />)}
                         </svg>
                     </div>
                 </div>
             );
-
         case 'image':
-            return (
-                <div className="mb-8 flex justify-center">
-                    <ImageDisplay prompt={content.prompt} className="w-full h-56 rounded-[2.5rem] border-4 border-zinc-50 shadow-md" />
-                </div>
-            );
-        
-        default:
-            return null;
+            return <div className="mb-8"><ImageDisplay prompt={content.prompt} className="w-full h-56 rounded-3xl" /></div>;
+        default: return null;
     }
 };
 
 const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
-    const blocks = data.layoutArchitecture?.blocks || data.blocks;
-
-    if (blocks && blocks.length > 0) {
-        return (
-            <div className="w-full h-full flex flex-col animate-in fade-in zoom-in-95 duration-700">
-                <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-                <div className="flex-1 flex flex-col mt-4">
-                    {blocks.map((block: WorksheetBlock, idx: number) => (
-                        <BlockRenderer key={idx} block={block} />
-                    ))}
-                </div>
-                <div className="mt-auto pt-6 border-t border-zinc-100 flex justify-between items-center opacity-30 px-2">
-                     <p className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.4em]">Bursa Disleksi AI • Görsel Mimari Klonlayıcı v5.1</p>
-                     <div className="flex gap-2"><i className="fa-solid fa-microchip"></i><i className="fa-solid fa-bezier-curve"></i></div>
-                </div>
-            </div>
-        );
-    }
-    
+    const blocks = data.layoutArchitecture?.blocks || data.blocks || [];
     return (
-        <div className="w-full h-full flex flex-col items-center justify-center opacity-40 italic">
-            Veri yapısı uyumsuz. Lütfen yeniden üretin.
+        <div className="w-full h-full flex flex-col animate-in fade-in duration-500">
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            <div className="flex-1 mt-4">{blocks.map((block: WorksheetBlock, idx: number) => <BlockRenderer key={idx} block={block} />)}</div>
         </div>
     );
 };
 
+// Fix: Defined SheetRendererProps interface to resolve the missing name error
+interface SheetRendererProps {
+    activityType: ActivityType | null;
+    data: SingleWorksheetData;
+}
+
 export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererProps) => {
     if (!data) return null;
-    
-    // Mimari Klonlayıcı veya Birleştirilmiş Bloklar (Zengin Görsel Çıktı)
-    if (activityType === ActivityType.OCR_CONTENT || data.layoutArchitecture || data.blocks) {
-        return <UnifiedContentRenderer data={data} />;
-    }
+    if (data.layoutArchitecture || data.blocks) return <UnifiedContentRenderer data={data} />;
+    if (activityType === ActivityType.STORY_COMPREHENSION && data.layout) return <ReadingStudioContentRenderer layout={data.layout} storyData={data.storyData} />;
 
-    if (activityType === ActivityType.STORY_COMPREHENSION && data.layout) {
-        return <ReadingStudioContentRenderer layout={data.layout} storyData={data.storyData} />;
-    }
-
-    // Fallback switch for specific activities
     switch (activityType) {
         case ActivityType.ALGORITHM_GENERATOR: return <AlgorithmSheet data={data as unknown as AlgorithmData} />;
         case ActivityType.MATH_PUZZLE: return <MathPuzzleSheet data={data as unknown as MathPuzzleData} />;
         case ActivityType.NUMBER_PATTERN: return <NumberPatternSheet data={data as unknown as NumberPatternData} />;
         case ActivityType.REAL_LIFE_MATH_PROBLEMS: return <RealLifeMathProblemsSheet data={data as unknown as RealLifeProblemData} />;
         case ActivityType.LOGIC_GRID_PUZZLE: return <LogicGridPuzzleSheet data={data as unknown as LogicGridPuzzleData} />;
-        case ActivityType.FUTOSHIKI:
-        case ActivityType.KENDOKU:
-        case ActivityType.SHAPE_SUDOKU:
-        case ActivityType.ODD_EVEN_SUDOKU: return <FutoshikiSheet data={data as unknown as FutoshikiData} />;
+        case ActivityType.FUTOSHIKI: return <FutoshikiSheet data={data as unknown as FutoshikiData} />;
         case ActivityType.NUMBER_PYRAMID: return <NumberPyramidSheet data={data as unknown as NumberPyramidData} />;
-        case ActivityType.ODD_ONE_OUT:
-        case ActivityType.THEMATIC_ODD_ONE_OUT: return <OddOneOutSheet data={data as unknown as OddOneOutData} />;
+        case ActivityType.ODD_ONE_OUT: return <OddOneOutSheet data={data as unknown as OddOneOutData} />;
         case ActivityType.NUMBER_LOGIC_RIDDLES: return <NumberLogicRiddleSheet data={data as unknown as NumberLogicRiddleData} />;
         case ActivityType.NUMBER_PATH_LOGIC: return <NumberPathLogicSheet data={data as unknown as NumberPathLogicData} />;
         case ActivityType.VISUAL_ARITHMETIC: return <VisualArithmeticSheet data={data as unknown as VisualArithmeticData} />;
@@ -253,6 +153,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.STROOP_TEST: return <StroopTestSheet data={data as unknown as StroopTestData} />;
         case ActivityType.BURDON_TEST: return <BurdonTestSheet data={data as unknown as LetterGridTestData} />;
         case ActivityType.NUMBER_SEARCH: return <NumberSearchSheet data={data as unknown as NumberSearchData} />;
+        // Fix: Fixed typo ChoticNumberSearchSheet to ChaoticNumberSearchSheet
         case ActivityType.CHAOTIC_NUMBER_SEARCH: return <ChaoticNumberSearchSheet data={data as unknown as ChaoticNumberSearchData} />;
         case ActivityType.ATTENTION_DEVELOPMENT: return <AttentionDevelopmentSheet data={data as unknown as AttentionDevelopmentData} />;
         case ActivityType.ATTENTION_FOCUS: return <AttentionFocusSheet data={data as unknown as AttentionFocusData} />;

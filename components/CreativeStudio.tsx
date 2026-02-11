@@ -117,7 +117,8 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         }
     };
 
-    const handleRefine = async (mode: 'expand' | 'narrow' | 'clinical') => {
+    // Fix: Updated handleRefine to remove 'narrow' and match refinePromptWithAI service signature
+    const handleRefine = async (mode: 'expand' | 'clinical') => {
         if (!prompt.trim()) return;
         setIsProcessing(true);
         try {
@@ -394,7 +395,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                                             <textarea value={newSnippet.value || ''} onChange={e => setNewSnippet({...newSnippet, value: e.target.value})} className="w-full h-32 p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 resize-none" placeholder="Butona basıldığında mevcut promta eklenecek olan AI talimatı..." />
                                         </div>
                                     </div>
-                                    <button onClick={handleAddSnippet} className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl transition-all">İŞLEVİ EKLE</button>
+                                    <button onClick={handleAddSnippet} className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase text-[10px] rounded-2xl shadow-xl transition-all">İŞLEVİ EKLE</button>
                                 </>
                             )}
                         </div>
