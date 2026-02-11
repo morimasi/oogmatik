@@ -38,66 +38,58 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     const [activeTab, setActiveTab] = useState<'editor' | 'library'>('editor');
     const [librarySearch, setLibrarySearch] = useState("");
     
+    // Custom Library State
+    const [localLibrary, setLocalLibrary] = useState<ActivityLibraryItem[]>([]);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [newMethodology, setNewMethodology] = useState<Partial<ActivityLibraryItem>>({
+        methodology: 'Orton-Gillingham',
+        category: 'Phonological'
+    });
+
+    // Tooltip State
+    const [hoveredItem, setHoveredItem] = useState<ActivityLibraryItem | null>(null);
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
     // Multimodal States
     const [attachedFiles, setAttachedFiles] = useState<MultimodalFile[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Dinamik durum mesajları döngüsü
+    // Initial Load for Library
+    useEffect(() => {
+        const saved = localStorage.getItem('custom_pedagogical_lib');
+        const customItems = saved ? JSON.parse(saved) : [];
+        setLocalLibrary([...PEDAGOGICAL_LIBRARY, ...customItems]);
+    }, []);
+
     useEffect(() => {
         let interval: any;
         if (isProcessing || isAnalyzingFile) {
             interval = setInterval(() => {
                 setStatusIndex(prev => (prev + 1) % THINKING_MESSAGES.length);
             }, 4000);
-        } else {
-            setStatusIndex(0);
         }
         return () => clearInterval(interval);
     }, [isProcessing, isAnalyzingFile]);
 
-    // Helper: Dosyayı Base64'e çeviren Promise
-    const readFileAsBase64 = (file: File): Promise<MultimodalFile> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve({
-                data: reader.result as string,
-                mimeType: file.type
-            });
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    };
-
     const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files || files.length === 0) return;
-
         setIsAnalyzingFile(true);
         setStatus("Dosyalar okunuyor...");
-
         try {
-            const filePromises = Array.from(files).map(async (file: File) => {
-                if (file.size > 10 * 1024 * 1024) { // 10MB Limit
-                    throw new Error(`${file.name} çok büyük. Maksimum 10MB yükleyebilirsiniz.`);
-                }
-                return await readFileAsBase64(file);
+            const reader = (file: File): Promise<MultimodalFile> => new Promise((res, rej) => {
+                const r = new FileReader();
+                r.onload = () => res({ data: r.result as string, mimeType: file.type });
+                r.onerror = rej;
+                r.readAsDataURL(file);
             });
-
-            const newLoadedFiles = await Promise.all(filePromises);
-            const combinedFiles = [...attachedFiles, ...newLoadedFiles];
-            
-            setAttachedFiles(combinedFiles);
-            
-            // Dosya input'unu hemen sıfırla ki aynı dosya tekrar yüklenebilsin
+            const newFiles = await Promise.all(Array.from(files).map(reader));
+            const combined = [...attachedFiles, ...newFiles];
+            setAttachedFiles(combined);
             if (fileInputRef.current) fileInputRef.current.value = "";
-
-            // Analizi başlat
-            await triggerFileAnalysis(combinedFiles);
-
-        } catch (err: any) {
-            alert(err.message || "Dosya yükleme hatası.");
+            await triggerFileAnalysis(combined);
+        } catch (err) {
             setStatus("Hata oluştu.");
-            if (fileInputRef.current) fileInputRef.current.value = "";
         } finally {
             setIsAnalyzingFile(false);
         }
@@ -106,157 +98,116 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     const triggerFileAnalysis = async (files: MultimodalFile[]) => {
         if (files.length === 0) return;
         setIsAnalyzingFile(true);
-        setStatus("Dosyalar AI tarafından analiz ediliyor...");
         try {
-            // Analiz için mevcut prompt'u referans olarak gönderiyoruz
             const analysisResult = await analyzeReferenceFiles(files, prompt);
-            
-            // Mevcut prompt'un sonuna ekle
-            setPrompt(prev => {
-                const separator = prev.trim() ? "\n\n---\n\n" : "";
-                return `${prev}${separator}${analysisResult}`;
-            });
-            
+            setPrompt(prev => prev.trim() ? `${prev}\n\n---\n\n${analysisResult}` : analysisResult);
             setStatus("Analiz tamamlandı.");
         } catch (e) {
-            console.error(e);
-            setStatus("Dosya analizi başarısız oldu.");
+            setStatus("Analiz başarısız.");
         } finally {
             setIsAnalyzingFile(false);
         }
     };
 
-    const removeFile = (index: number) => {
-        setAttachedFiles(prev => prev.filter((_, i) => i !== index));
-        setStatus("Dosya kaldırıldı.");
-    };
-
-    const handleRefine = async (mode: 'expand' | 'narrow' | 'clinical') => {
-        if (!prompt.trim()) return;
-        setIsProcessing(true);
-        setStatus(`Prompt ${mode === 'expand' ? 'zenginleştiriliyor' : 'optimize ediliyor'}...`);
-        try {
-            const refined = await refinePromptWithAI(prompt, mode);
-            setPrompt(refined);
-            setStatus("Prompt başarıyla güncellendi.");
-        } catch (e) {
-            setStatus("İşlem sırasında hata oluştu.");
-        } finally {
-            setIsProcessing(false);
+    const handleAddCustomActivity = () => {
+        if (!newMethodology.title || !newMethodology.basePrompt) {
+            alert("Lütfen başlık ve AI prompt alanlarını doldurun.");
+            return;
         }
-    };
-
-    const handleSelectFromLibrary = (item: ActivityLibraryItem) => {
-        setPrompt(item.basePrompt);
-        setActiveTab('editor');
-        setStatus(`"${item.title}" şablonu yüklendi.`);
+        const item: ActivityLibraryItem = {
+            id: `custom-${Date.now()}`,
+            title: newMethodology.title!,
+            methodology: newMethodology.methodology as any,
+            category: newMethodology.category as any,
+            description: newMethodology.description || 'Kullanıcı tanımlı metodoloji.',
+            basePrompt: newMethodology.basePrompt!
+        };
+        const updated = [...localLibrary, item];
+        setLocalLibrary(updated);
+        
+        // Save only custom ones to storage
+        const saved = localStorage.getItem('custom_pedagogical_lib');
+        const currentCustoms = saved ? JSON.parse(saved) : [];
+        localStorage.setItem('custom_pedagogical_lib', JSON.stringify([...currentCustoms, item]));
+        
+        setShowAddModal(false);
+        setNewMethodology({ methodology: 'Orton-Gillingham', category: 'Phonological' });
     };
 
     const handleGenerate = async () => {
-        if (!prompt.trim() && attachedFiles.length === 0) {
-            alert("Lütfen bir prompt yazın veya referans dosya ekleyin.");
-            return;
-        }
+        if (!prompt.trim() && attachedFiles.length === 0) return;
         setIsProcessing(true);
-        setStatus("Üretim Başladı...");
         try {
             const result = await generateCreativeStudioActivity(prompt, { difficulty, itemCount }, attachedFiles);
             onResult(Array.isArray(result) ? result : [result]);
         } catch (e) {
-            setStatus("Üretim başarısız oldu. Lütfen tekrar deneyin.");
+            setStatus("Hata oluştu.");
         } finally {
             setIsProcessing(false);
         }
     };
 
-    const filteredLibrary = PEDAGOGICAL_LIBRARY.filter(item => 
+    const filteredLibrary = localLibrary.filter(item => 
         item.title.toLowerCase().includes(librarySearch.toLowerCase()) ||
-        item.methodology.toLowerCase().includes(librarySearch.toLowerCase()) ||
-        item.category.toLowerCase().includes(librarySearch.toLowerCase())
+        item.methodology.toLowerCase().includes(librarySearch.toLowerCase())
     );
 
     return (
-        <div className="max-w-7xl mx-auto w-full animate-in fade-in zoom-in-95 duration-500 font-['Lexend']">
+        <div className="max-w-7xl mx-auto w-full animate-in fade-in zoom-in-95 duration-500 font-['Lexend'] relative">
+            
+            {/* HOVER POPUP (TOOLTIP) */}
+            {hoveredItem && (
+                <div 
+                    className="fixed z-[100] w-80 bg-zinc-900 border border-indigo-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-5 rounded-2xl pointer-events-none animate-in fade-in zoom-in-95 duration-200"
+                    style={{ left: mousePos.x + 20, top: mousePos.y - 40 }}
+                >
+                    <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Klinik Detaylar</span>
+                    </div>
+                    <h5 className="text-white font-bold text-sm mb-2">{hoveredItem.title}</h5>
+                    <p className="text-zinc-400 text-xs leading-relaxed mb-4">{hoveredItem.description}</p>
+                    <div className="bg-black/40 p-3 rounded-lg border border-white/5">
+                        <p className="text-[9px] font-bold text-zinc-500 uppercase mb-1">AI Mantığı (Prompt):</p>
+                        <p className="text-[10px] text-zinc-300 italic line-clamp-4">"{hoveredItem.basePrompt}"</p>
+                    </div>
+                </div>
+            )}
+
             {/* STUDIO HEADER */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 px-4">
                 <div>
                     <h2 className="text-4xl font-black tracking-tighter text-white flex items-center gap-3">
                         <i className="fa-solid fa-wand-sparkles text-indigo-500"></i> AI Creative Studio
                     </h2>
-                    <p className="text-zinc-500 text-xs mt-1 uppercase tracking-widest font-black">Multimodal Analiz Motoru Aktif</p>
+                    <p className="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-bold">Klinik Materyal Tasarım Merkezi</p>
                 </div>
-                <div className="flex bg-zinc-900 border border-white/10 p-1 rounded-2xl">
-                    <button onClick={() => setActiveTab('editor')} className={`px-6 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'editor' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>TASARIMCI</button>
-                    <button onClick={() => setActiveTab('library')} className={`px-6 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'library' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>KÜRESEL KÜTÜPHANE</button>
+                <div className="flex bg-zinc-900 border border-white/10 p-1.5 rounded-2xl">
+                    <button onClick={() => setActiveTab('editor')} className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'editor' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>TASARIMCI</button>
+                    <button onClick={() => setActiveTab('library')} className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'library' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>METODOLOJİ BANKASI</button>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-4">
                 
-                {/* SOL PANEL: EDITOR */}
-                <div className="lg:col-span-8 flex flex-col gap-6 h-[700px]">
+                {/* SOL PANEL */}
+                <div className="lg:col-span-8 flex flex-col gap-6 h-[750px]">
                     {activeTab === 'editor' ? (
                         <div className="bg-zinc-900/50 rounded-[3rem] border border-white/10 p-8 shadow-2xl relative overflow-hidden flex flex-col h-full">
-                            <div className="flex justify-between items-center mb-6">
-                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">Komut ve Analiz Sahası</span>
-                                <div className="flex gap-2">
-                                    <button onClick={() => handleRefine('expand')} disabled={isProcessing || isAnalyzingFile || !prompt} className="px-3 py-1.5 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg text-[9px] font-black uppercase hover:bg-indigo-600 hover:text-white transition-all">Genişlet</button>
-                                    <button onClick={() => handleRefine('clinical')} disabled={isProcessing || isAnalyzingFile || !prompt} className="px-3 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-lg text-[9px] font-black uppercase hover:bg-rose-600 hover:text-white transition-all">Klinik Tanı Ekle</button>
-                                </div>
-                            </div>
-
                             <textarea 
                                 value={prompt}
                                 onChange={(e) => setPrompt(e.target.value)}
-                                className={`flex-1 w-full p-8 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm leading-relaxed text-zinc-300 outline-none focus:border-indigo-500 transition-all font-mono resize-none shadow-inner ${isAnalyzingFile ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
-                                placeholder="Fikrinizi buraya yazın veya dosya yükleyerek AI'nın teknik taslak çıkarmasını bekleyin..."
+                                className={`flex-1 w-full p-8 bg-black/40 border border-white/5 rounded-[2.5rem] text-lg leading-relaxed text-zinc-200 outline-none focus:border-indigo-500 transition-all font-mono resize-none shadow-inner ${isAnalyzingFile ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
+                                placeholder="Buraya bir fikir yazın veya dosya yükleyerek analiz ettirin..."
                             ></textarea>
 
-                            {/* ATTACHED FILES LIST */}
-                            {attachedFiles.length > 0 && (
-                                <div className="mt-4 flex flex-wrap gap-3 p-4 bg-black/20 rounded-2xl border border-white/5">
-                                    {attachedFiles.map((file, idx) => (
-                                        <div key={idx} className="group relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 bg-zinc-800">
-                                            {file.mimeType.startsWith('image/') ? (
-                                                <img src={file.data} className="w-full h-full object-cover" alt="Preview" />
-                                            ) : (
-                                                <div className="w-full h-full flex flex-col items-center justify-center text-rose-500">
-                                                    <i className="fa-solid fa-file-pdf text-xl"></i>
-                                                    <span className="text-[8px] font-black mt-1">PDF</span>
-                                                </div>
-                                            )}
-                                            <button 
-                                                onClick={() => removeFile(idx)}
-                                                className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                <i className="fa-solid fa-times text-[10px] text-white"></i>
-                                            </button>
-                                        </div>
-                                    ))}
-                                    <button 
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="w-16 h-16 rounded-xl border-2 border-dashed border-white/10 flex items-center justify-center text-zinc-600 hover:text-white hover:border-white/30 transition-all"
-                                    >
-                                        <i className="fa-solid fa-plus"></i>
-                                    </button>
-                                </div>
-                            )}
-
-                            <div className="mt-6 flex flex-wrap gap-2 items-center">
-                                <button 
-                                    onClick={() => fileInputRef.current?.click()}
-                                    disabled={isAnalyzingFile}
-                                    className="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-indigo-50 transition-all flex items-center gap-2 disabled:opacity-50"
-                                >
-                                    {isAnalyzingFile ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-paperclip"></i>}
-                                    REFERANS DOSYA EKLE (PDF/GÖRSEL)
+                            <div className="mt-6 flex flex-wrap gap-3 items-center">
+                                <button onClick={() => fileInputRef.current?.click()} className="px-6 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-indigo-500 transition-all flex items-center gap-2">
+                                    <i className="fa-solid fa-paperclip"></i> DOSYA EKLE
                                 </button>
                                 <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*,application/pdf" multiple />
-                                
-                                <div className="h-6 w-px bg-white/10 mx-2"></div>
-
                                 {SNIPPETS.map(s => (
-                                    <button key={s.label} onClick={() => setPrompt(prev => prev + "\n" + s.value)} className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all">
+                                    <button key={s.label} onClick={() => setPrompt(prev => prev + "\n" + s.value)} className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-[11px] font-black uppercase transition-all">
                                         + {s.label}
                                     </button>
                                 ))}
@@ -264,31 +215,45 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                         </div>
                     ) : (
                         <div className="bg-zinc-900/50 rounded-[3rem] border border-white/10 p-8 shadow-2xl relative overflow-hidden flex flex-col h-full">
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-black text-white">Pedagojik Metodoloji Bankası</h3>
-                                <div className="relative w-64">
-                                    <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"></i>
+                            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                                <div className="relative w-full md:w-96">
+                                    <i className="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"></i>
                                     <input 
                                         type="text" value={librarySearch} onChange={e => setLibrarySearch(e.target.value)}
-                                        placeholder="Ara..."
-                                        className="w-full pl-9 pr-4 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white outline-none focus:border-indigo-500"
+                                        placeholder="Metot, Kuram veya Teknik ara..."
+                                        className="w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-sm text-white outline-none focus:border-indigo-500"
                                     />
                                 </div>
+                                <button 
+                                    onClick={() => setShowAddModal(true)}
+                                    className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition-all shadow-lg"
+                                >
+                                    <i className="fa-solid fa-plus-circle"></i> KENDİ METODUNU EKLE
+                                </button>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-4 grid grid-cols-1 md:grid-cols-2 gap-5">
                                 {filteredLibrary.map(item => (
                                     <div 
                                         key={item.id} 
-                                        onClick={() => handleSelectFromLibrary(item)}
-                                        className="group p-5 bg-white/5 border border-white/5 rounded-[2rem] hover:border-indigo-500/50 hover:bg-white/10 transition-all cursor-pointer relative overflow-hidden"
+                                        onClick={() => { setPrompt(item.basePrompt); setActiveTab('editor'); }}
+                                        onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
+                                        onMouseEnter={() => setHoveredItem(item)}
+                                        onMouseLeave={() => setHoveredItem(null)}
+                                        className="group p-6 bg-white/5 border border-white/5 rounded-[2.5rem] hover:border-indigo-500/50 hover:bg-white/10 transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between"
                                     >
-                                        <div className="flex justify-between items-start mb-3">
-                                            <span className="px-2 py-0.5 bg-indigo-600/20 text-indigo-400 rounded text-[8px] font-black uppercase tracking-widest">{item.methodology}</span>
-                                            <i className="fa-solid fa-arrow-up-right-from-square text-zinc-700 group-hover:text-indigo-500 transition-colors"></i>
+                                        <div>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <span className="px-3 py-1 bg-indigo-600/20 text-indigo-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-500/20">{item.methodology}</span>
+                                                <i className="fa-solid fa-arrow-right text-zinc-700 group-hover:text-indigo-500 transition-colors"></i>
+                                            </div>
+                                            <h4 className="font-black text-lg text-zinc-100 mb-2 leading-tight">{item.title}</h4>
+                                            <p className="text-sm text-zinc-500 leading-relaxed line-clamp-2">{item.description}</p>
                                         </div>
-                                        <h4 className="font-black text-sm text-zinc-200 mb-2">{item.title}</h4>
-                                        <p className="text-[10px] text-zinc-500 leading-relaxed line-clamp-2">{item.description}</p>
+                                        <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-2">
+                                            <i className="fa-solid fa-tag text-[10px] text-zinc-600"></i>
+                                            <span className="text-[10px] font-bold text-zinc-600 uppercase">{item.category}</span>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -296,37 +261,30 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     )}
                 </div>
 
-                {/* SAĞ PANEL: KONTROLLER */}
+                {/* SAĞ PANEL */}
                 <div className="lg:col-span-4 flex flex-col gap-6">
                     <div className="bg-white/5 rounded-[3rem] border border-white/5 p-8 flex flex-col shadow-xl">
-                        <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] mb-8">ÜRETİM PARAMETRELERİ</h4>
-                        
+                        <h4 className="text-xs font-black text-zinc-500 uppercase tracking-[0.4em] mb-8">ÜRETİM KRİTERLERİ</h4>
                         <div className="space-y-8">
-                            <div className="space-y-3">
-                                <label className="text-xs font-bold text-zinc-400 flex items-center gap-2"><i className="fa-solid fa-layer-group text-indigo-500"></i> Zorluk Seviyesi</label>
+                            <div className="space-y-4">
+                                <label className="text-sm font-bold text-zinc-400 flex items-center gap-2"><i className="fa-solid fa-layer-group text-indigo-500"></i> Zorluk Seviyesi</label>
                                 <div className="grid grid-cols-2 gap-2">
                                     {['Başlangıç', 'Orta', 'Zor', 'Uzman'].map(l => (
-                                        <button 
-                                            key={l} onClick={() => setDifficulty(l)}
-                                            className={`py-2 rounded-xl text-[10px] font-black border transition-all ${difficulty === l ? 'bg-white text-black border-white' : 'bg-transparent text-zinc-500 border-white/10 hover:border-white/30'}`}
-                                        >
-                                            {l}
-                                        </button>
+                                        <button key={l} onClick={() => setDifficulty(l)} className={`py-3 rounded-xl text-xs font-black border transition-all ${difficulty === l ? 'bg-white text-black border-white shadow-lg' : 'bg-transparent text-zinc-500 border-white/10 hover:border-white/30'}`}>{l}</button>
                                     ))}
                                 </div>
                             </div>
-
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center text-[10px] font-bold text-zinc-400 uppercase">
-                                    <span>Öğe Adedi</span>
-                                    <span className="text-indigo-400 font-black">{itemCount}</span>
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center text-xs font-bold text-zinc-400 uppercase">
+                                    <span>Öğe / Soru Adedi</span>
+                                    <span className="text-indigo-400 font-black text-base">{itemCount}</span>
                                 </div>
-                                <input type="range" min={2} max={30} value={itemCount} onChange={e => setItemCount(Number(e.target.value))} className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+                                <input type="range" min={2} max={30} value={itemCount} onChange={e => setItemCount(Number(e.target.value))} className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
                             </div>
                         </div>
 
                         <div className="mt-12 space-y-4">
-                            <div className="h-14 flex flex-col items-center justify-center">
+                            <div className="h-16 flex flex-col items-center justify-center">
                                 {(isProcessing || isAnalyzingFile) && (
                                     <div className="flex flex-col items-center gap-2 animate-in fade-in">
                                         <div className="flex items-center gap-2">
@@ -334,28 +292,86 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                                             <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></div>
                                             <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></div>
                                         </div>
-                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest text-center px-4 leading-tight">
+                                        <p className="text-[11px] font-black text-indigo-400 uppercase tracking-[0.2em] text-center px-4 leading-tight">
                                             {isAnalyzingFile ? "REFERANS ANALİZ EDİLİYOR..." : THINKING_MESSAGES[statusIndex]}
                                         </p>
                                     </div>
                                 )}
-                                {!isProcessing && !isAnalyzingFile && status && (
-                                     <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{status}</p>
-                                )}
+                                {!isProcessing && !isAnalyzingFile && status && <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">{status}</p>}
                             </div>
-                            <button 
-                                onClick={handleGenerate}
-                                disabled={isProcessing || isAnalyzingFile || (!prompt && attachedFiles.length === 0)}
-                                className="w-full py-5 bg-white text-indigo-950 font-black rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-2xl flex items-center justify-center gap-3 text-sm disabled:opacity-50"
-                            >
+                            <button onClick={handleGenerate} disabled={isProcessing || isAnalyzingFile || (!prompt && attachedFiles.length === 0)} className="w-full py-6 bg-white text-indigo-950 font-black rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-2xl flex items-center justify-center gap-3 text-base disabled:opacity-50">
                                 {isProcessing ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-rocket"></i>}
-                                ÜRETİMİ BAŞLAT
+                                TASARIMI BAŞLAT
                             </button>
-                            <button onClick={onCancel} className="w-full py-3 text-zinc-600 hover:text-zinc-400 text-xs font-bold transition-colors">Vazgeç</button>
+                            <button onClick={onCancel} className="w-full py-3 text-zinc-600 hover:text-zinc-400 text-sm font-bold transition-colors">Vazgeç</button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* ADD METHODOLOGY MODAL */}
+            {showAddModal && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+                    <div className="bg-zinc-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col">
+                        <div className="p-8 border-b border-white/5 flex justify-between items-center bg-black/20">
+                            <h3 className="text-2xl font-black text-white tracking-tight">Yeni Metodoloji Tanımla</h3>
+                            <button onClick={() => setShowAddModal(false)} className="text-zinc-500 hover:text-white"><i className="fa-solid fa-times text-xl"></i></button>
+                        </div>
+                        <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar max-h-[70vh]">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Aktivite Başlığı</label>
+                                    <input 
+                                        type="text" value={newMethodology.title || ''} 
+                                        onChange={e => setNewMethodology({...newMethodology, title: e.target.value})}
+                                        className="w-full p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 transition-all"
+                                        placeholder="Örn: Multisensoriyel Hece Lab"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Ana Metot</label>
+                                    <select 
+                                        value={newMethodology.methodology}
+                                        onChange={e => setNewMethodology({...newMethodology, methodology: e.target.value as any})}
+                                        className="w-full p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 transition-all appearance-none"
+                                    >
+                                        <option value="Orton-Gillingham">Orton-Gillingham</option>
+                                        <option value="Feuerstein">Feuerstein (Bilişsel)</option>
+                                        <option value="Lindamood-Bell">Lindamood-Bell</option>
+                                        <option value="Wilson">Wilson Reading</option>
+                                        <option value="Sensory-Integration">Duyu Bütünleme</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Kısa Bilgi (Pop-up için)</label>
+                                <textarea 
+                                    value={newMethodology.description || ''}
+                                    onChange={e => setNewMethodology({...newMethodology, description: e.target.value})}
+                                    className="w-full h-24 p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 transition-all resize-none"
+                                    placeholder="Bu metodun klinik amacını kısaca açıklayın..."
+                                />
+                            </div>
+                            <div className="p-6 bg-indigo-500/5 rounded-3xl border border-indigo-500/20">
+                                <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 block flex items-center gap-2">
+                                    <i className="fa-solid fa-microchip"></i> AI MOTOR TALİMATI (BASE PROMPT)
+                                </label>
+                                <textarea 
+                                    value={newMethodology.basePrompt || ''}
+                                    onChange={e => setNewMethodology({...newMethodology, basePrompt: e.target.value})}
+                                    className="w-full h-40 p-4 bg-black/60 border border-white/10 rounded-2xl text-zinc-200 font-mono text-sm outline-none focus:border-indigo-500 transition-all"
+                                    placeholder="AI'nın nasıl bir içerik üretmesi gerektiğini teknik olarak anlatın..."
+                                />
+                                <p className="text-[9px] text-zinc-500 mt-2 italic">* Bu metin doğrudan yapay zeka modeline 'system context' olarak gönderilir.</p>
+                            </div>
+                        </div>
+                        <div className="p-8 border-t border-white/5 flex gap-4">
+                            <button onClick={() => setShowAddModal(false)} className="flex-1 py-4 text-zinc-500 font-bold hover:text-white transition-colors">Vazgeç</button>
+                            <button onClick={handleAddCustomActivity} className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl transition-all">KAYDET VE BANKAYA EKLE</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
