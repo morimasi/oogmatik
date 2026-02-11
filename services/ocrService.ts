@@ -6,7 +6,6 @@ import { OCRResult } from '../types';
 export const ocrService = {
     /**
      * Görseli analiz eder ve "Vektörel Mimari Blueprint" çıkarır.
-     * Bu aşamada sadece veriyi değil, görselin "MİMARİ DNA"sını yakalarız.
      */
     processImage: async (base64Image: string): Promise<OCRResult> => {
         const prompt = `
@@ -18,7 +17,7 @@ export const ocrService = {
         1. Blok Tespiti: Görseldeki her ana bölümü (Header, Table, Grid, Text Area) 'blocks' dizisine ekle.
         2. Vektörel Veri: Tablo varsa 'cols' ve 'rows' değerlerini, içindeki metinleri 'cells' dizisine KESİN olarak yaz.
         3. Stil Yakalama: Metinlerin hizalamasını (textAlign) ve ağırlığını (fontWeight) tespit et.
-        4. Algoritma Çıkarımı: Bu çalışmanın mantığını 'algorithmBlueprint' alanında açıkla.
+        4. Algoritma Çıkarımı: Bu çalışmanın çözüm mantığını teknik bir dille özetle.
 
         KRİTİK: 'layoutArchitecture' altındaki 'blocks' yapısı Frontend'in 'BlockRenderer' bileşeniyle %100 uyumlu olmalıdır.
         `;
@@ -29,8 +28,7 @@ export const ocrService = {
                 detectedType: { type: Type.STRING },
                 title: { type: Type.STRING },
                 description: { type: Type.STRING },
-                worksheetBlueprint: { type: Type.STRING, description: "Görselin mimari yapısını anlatan teknik JSON şablonu" },
-                algorithmBlueprint: { type: Type.STRING, description: "Çözüm mantığı" },
+                algorithmBlueprint: { type: Type.STRING },
                 layoutArchitecture: {
                     type: Type.OBJECT,
                     properties: {
@@ -73,11 +71,13 @@ export const ocrService = {
                     required: ['blocks']
                 }
             },
-            required: ['detectedType', 'title', 'layoutArchitecture', 'worksheetBlueprint', 'algorithmBlueprint']
+            required: ['detectedType', 'title', 'layoutArchitecture', 'algorithmBlueprint']
         };
 
         try {
-            const result = await analyzeImage(base64Image, prompt, schema);
+            // OCR için Gemini 3 Pro kullanıyoruz çünkü görselden layout çıkarmak yüksek mantıksal kapasite gerektirir.
+            const result = await analyzeImage(base64Image, prompt, schema, 'gemini-3-pro-preview');
+            
             return {
                 rawText: result.description,
                 detectedType: result.detectedType,

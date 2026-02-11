@@ -18,7 +18,7 @@ const SNIPPETS = [
 ];
 
 const THINKING_MESSAGES = [
-    "Gemini 3.0 Thinking Modu Aktif...",
+    "Gemini 3.0 Pro Motoru Hazırlanıyor...",
     "Dosya mimarisi analiz ediliyor...",
     "Pedagojik metodoloji sentezleniyor...",
     "Nöro-mimari düzen tasarlanıyor...",
@@ -76,7 +76,6 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         setStatus("Dosyalar okunuyor...");
 
         try {
-            // Fix: Added explicit type 'File' to resolve 'unknown' property access errors (size, name)
             const filePromises = Array.from(files).map(async (file: File) => {
                 if (file.size > 10 * 1024 * 1024) { // 10MB Limit
                     throw new Error(`${file.name} çok büyük. Maksimum 10MB yükleyebilirsiniz.`);
@@ -89,14 +88,17 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
             
             setAttachedFiles(combinedFiles);
             
-            // State güncellemesini beklemeden doğrudan yeni listeyle analizi başlat
+            // Dosya input'unu hemen sıfırla ki aynı dosya tekrar yüklenebilsin
+            if (fileInputRef.current) fileInputRef.current.value = "";
+
+            // Analizi başlat
             await triggerFileAnalysis(combinedFiles);
 
         } catch (err: any) {
             alert(err.message || "Dosya yükleme hatası.");
             setStatus("Hata oluştu.");
-        } finally {
             if (fileInputRef.current) fileInputRef.current.value = "";
+        } finally {
             setIsAnalyzingFile(false);
         }
     };
@@ -106,13 +108,13 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         setIsAnalyzingFile(true);
         setStatus("Dosyalar AI tarafından analiz ediliyor...");
         try {
-            // Mevcut prompt ile birlikte analizi yap
-            const analysisPrompt = await analyzeReferenceFiles(files, prompt);
+            // Analiz için mevcut prompt'u referans olarak gönderiyoruz
+            const analysisResult = await analyzeReferenceFiles(files, prompt);
             
-            // Temizleme: Eğer AI "Bu materyalin yapısını analiz ettim" diyorsa başına ekle
+            // Mevcut prompt'un sonuna ekle
             setPrompt(prev => {
-                const separator = prev ? "\n\n---\n\n" : "";
-                return `${prev}${separator}${analysisPrompt}`;
+                const separator = prev.trim() ? "\n\n---\n\n" : "";
+                return `${prev}${separator}${analysisResult}`;
             });
             
             setStatus("Analiz tamamlandı.");
@@ -207,7 +209,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                                 value={prompt}
                                 onChange={(e) => setPrompt(e.target.value)}
                                 className={`flex-1 w-full p-8 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm leading-relaxed text-zinc-300 outline-none focus:border-indigo-500 transition-all font-mono resize-none shadow-inner ${isAnalyzingFile ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
-                                placeholder="Buraya bir fikir yazın veya dosya yükleyerek analiz ettirin..."
+                                placeholder="Fikrinizi buraya yazın veya dosya yükleyerek AI'nın teknik taslak çıkarmasını bekleyin..."
                             ></textarea>
 
                             {/* ATTACHED FILES LIST */}
@@ -247,7 +249,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                                     className="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-indigo-50 transition-all flex items-center gap-2 disabled:opacity-50"
                                 >
                                     {isAnalyzingFile ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-paperclip"></i>}
-                                    DOSYA EKLE (PDF/GÖRSEL)
+                                    REFERANS DOSYA EKLE (PDF/GÖRSEL)
                                 </button>
                                 <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*,application/pdf" multiple />
                                 
@@ -263,7 +265,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     ) : (
                         <div className="bg-zinc-900/50 rounded-[3rem] border border-white/10 p-8 shadow-2xl relative overflow-hidden flex flex-col h-full">
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-black text-white">Metodoloji Bankası</h3>
+                                <h3 className="text-xl font-black text-white">Pedagojik Metodoloji Bankası</h3>
                                 <div className="relative w-64">
                                     <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"></i>
                                     <input 
@@ -316,7 +318,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
 
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center text-[10px] font-bold text-zinc-400 uppercase">
-                                    <span>Soru Adedi</span>
+                                    <span>Öğe Adedi</span>
                                     <span className="text-indigo-400 font-black">{itemCount}</span>
                                 </div>
                                 <input type="range" min={2} max={30} value={itemCount} onChange={e => setItemCount(Number(e.target.value))} className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
