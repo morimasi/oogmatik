@@ -5,58 +5,58 @@ const DEFAULT_MODEL = 'gemini-3-flash-preview';
 const IMAGE_GEN_MODEL = 'gemini-2.5-flash-image';
 
 /**
- * AI yanıtı içinden JSON bloğunu cımbızla çeker ve yapısal bozuklukları onarır.
+ * tryRepairJson: AI'dan gelen ham metni atomik seviyede JSON'a dönüştürür.
+ * 1. Markdown bloklarını ayıklar.
+ * 2. En büyük {} veya [] bloğunu bulur.
+ * 3. Kesik yanıtlar için parantez sayacı ile otomatik kapatma yapar.
+ * 4. Geçersiz kaçış karakterlerini normalize eder.
  */
 const tryRepairJson = (jsonStr: string): any => {
-    // 1. Görünmez karakter temizliği
+    // Görünmez karakterleri ve Markdown bloklarını temizle
     let cleaned = jsonStr.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
-    
-    // 2. Markdown bloklarını kaldır (Hem json hem düz bloklar)
     cleaned = cleaned.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
 
     try {
         return JSON.parse(cleaned);
     } catch (e) {
-        console.warn("Standart JSON parse başarısız, derin ayıklama (RegEx Extraction) deneniyor...");
+        console.warn("Standart JSON parse başarısız, derin onarım motoru (Deep Fix) devreye giriyor...");
         
-        // 3. En geniş kapsamlı {} veya [] bloğunu bul (İç içe yapılar için optimize edildi)
+        // 1. Regex ile ana bloğu cımbızla çek
         const jsonMatch = cleaned.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+        let fragment = jsonMatch ? jsonMatch[0] : cleaned;
         
-        if (jsonMatch) {
-            let fragment = jsonMatch[0];
-            
-            // 4. Auto-Repair: Eksik parantezleri tamamla
-            const openBraces = (fragment.match(/\{/g) || []).length;
-            const closeBraces = (fragment.match(/\}/g) || []).length;
-            const openBrackets = (fragment.match(/\[/g) || []).length;
-            const closeBrackets = (fragment.match(/\]/g) || []).length;
-            
-            if (openBraces > closeBraces) fragment += '}'.repeat(openBraces - closeBraces);
-            if (openBrackets > closeBrackets) fragment += ']'.repeat(openBrackets - closeBrackets);
-            
+        // 2. Kaçış karakterlerini ve trailing commas'ları temizle
+        fragment = fragment
+            .replace(/,\s*([\}\]])/g, '$1') // Trailing commas
+            .replace(/\\n/g, ' ')           // Newlines in strings
+            .replace(/\\"/g, '"');         // Escaped quotes
+
+        // 3. Auto-Closure: Eksik parantezleri matematiksel olarak tamamla
+        const braceCount = (fragment.match(/\{/g) || []).length - (fragment.match(/\}/g) || []).length;
+        const bracketCount = (fragment.match(/\[/g) || []).length - (fragment.match(/\]/g) || []).length;
+        
+        if (braceCount > 0) fragment += '}'.repeat(braceCount);
+        if (bracketCount > 0) fragment += ']'.repeat(bracketCount);
+        
+        try {
+            return JSON.parse(fragment);
+        } catch (e2) {
+            // Son Çare: Manuel string temizliği ve tekrar deneme
             try {
-                return JSON.parse(fragment);
-            } catch (e2) {
-                // Son çare: String içindeki kaçış karakterlerini temizle
-                try {
-                    const superCleaned = fragment.replace(/\\n/g, " ").replace(/\\/g, "");
-                    return JSON.parse(superCleaned);
-                } catch (e3) {
-                    throw new Error("AI yanıtı geçerli bir JSON yapısına dönüştürülemedi.");
-                }
+                const superCleaned = fragment.substring(0, fragment.lastIndexOf('}') + 1);
+                return JSON.parse(superCleaned);
+            } catch (e3) {
+                console.error("JSON DNA Onarılamaz Durumda:", fragment);
+                throw new Error("AI yanıtı geçerli bir JSON bloğuna dönüştürülemedi.");
             }
         }
-        throw new Error("Yanıt içinde geçerli bir JSON bloğu tespit edilemedi.");
     }
 };
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun "Nöro-Mimari" motorusun. 
-GÖREVİN: Disleksi, Diskalkuli ve DEHB tanılı çocuklar için bilimsel temelli JSON veri yapıları üretmek. 
-KESİN KURALLAR:
-1. SADECE saf JSON dön. Asla açıklama yapma.
-2. Görsel analiz ediyorsan pedagojik mantığı blueprint olarak çıkar.
-3. Türkçe karakterleri JSON içinde doğru şekilde kaçır (escape).
+GÖREVİN: Gelen görseli analiz edip disleksi/diskalkuli odaklı eğitim blueprintleri üretmek.
+KURAL: SADECE SAF JSON DÖN. Açıklama yapma.
 `;
 
 const generateDirectly = async (params: { 
@@ -65,7 +65,6 @@ const generateDirectly = async (params: {
     model?: string, 
     image?: string, 
     mimeType?: string,
-    useSearch?: boolean,
     isOcr?: boolean
 }) => {
     const apiKey = process.env.API_KEY;
@@ -76,10 +75,12 @@ const generateDirectly = async (params: {
     
     let parts: any[] = [];
     if (params.image) {
+        // Base64 temizliği
+        const base64Data = params.image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "").trim();
         parts.push({ 
             inlineData: { 
                 mimeType: params.mimeType || 'image/jpeg', 
-                data: params.image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "") 
+                data: base64Data
             } 
         });
     }
@@ -92,9 +93,7 @@ const generateDirectly = async (params: {
         temperature: 0.1,
     };
 
-    // Thinking config is only for Gemini 3 / 2.5
     if (modelName.includes('gemini-3') || modelName.includes('gemini-2.5')) {
-        // OCR veya karmaşık analizlerde thinkingBudget artırılır
         config.thinkingConfig = { thinkingBudget: params.isOcr ? 4000 : 0 };
     }
 
@@ -108,8 +107,8 @@ const generateDirectly = async (params: {
     throw new Error("AI yanıt üretmedi.");
 };
 
-export const generateWithSchema = async (prompt: string, schema: any, model?: string, useSearch?: boolean) => {
-    return await generateDirectly({ prompt, schema, model, useSearch, isOcr: false });
+export const generateWithSchema = async (prompt: string, schema: any, model?: string) => {
+    return await generateDirectly({ prompt, schema, model, isOcr: false });
 };
 
 export const analyzeImage = async (image: string, prompt: string, schema: any, model?: string) => {
@@ -120,26 +119,4 @@ export const analyzeImage = async (image: string, prompt: string, schema: any, m
         image,
         isOcr: true 
     });
-};
-
-export const generateNanoImage = async (prompt: string): Promise<string | null> => {
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) return null;
-    const ai = new GoogleGenAI({ apiKey });
-    try {
-        const response = await ai.models.generateContent({
-            model: IMAGE_GEN_MODEL,
-            contents: { parts: [{ text: prompt }] },
-            config: { imageConfig: { aspectRatio: "1:1" } }
-        });
-        const candidate = response.candidates?.[0];
-        if (candidate?.content?.parts) {
-            for (const part of candidate.content.parts) {
-                if (part.inlineData) return `data:image/png;base64,${part.inlineData.data}`;
-            }
-        }
-        return null;
-    } catch (e) {
-        return null;
-    }
 };
