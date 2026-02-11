@@ -4,21 +4,17 @@ import { analyzeImage } from './geminiClient';
 import { OCRResult } from '../types';
 
 export const ocrService = {
-    /**
-     * processImage: Görselden mimari şema çıkarır.
-     */
     processImage: async (base64Image: string): Promise<OCRResult> => {
         const prompt = `
-        [MİMARİ KLONLAMA MOTORU]
-        Bu çalışma sayfasını analiz et ve 'BLUEPRINT' yapısını çıkar.
+        [MİMARİ KLONLAMA MOTORU - GOD MODE]
+        Bu çalışma sayfasını derinlemesine analiz et ve 'BLUEPRINT_V1.0' formatında mimari DNA'sını çıkar.
         
-        SADECE metni okuma; şu yapıları tespit et:
-        - logic_card (Mantık soruları)
-        - grid (Izgaralar)
-        - table (Tablolar)
-        - dual_column (Eşleştirme)
-        
-        Amacımız: Bu düzenin (layout) aynısını kullanarak, içindeki verileri (sayıları/kelimeleri) değiştirmektir.
+        SADECE metni okuma; şu mimari katmanları çöz:
+        - ROOT_CONTAINER (Layout tipi)
+        - LOGIC_MODULES (Soru bloklarının teknik yapısı)
+        - DATA_TABLE (Blok içindeki sayı/kelime dizilimleri)
+        - SOLUTION_LOGIC (Cevaba nasıl gidiliyor?)
+        - FOOTER_VALIDATION (Kontrol mekanizması)
         `;
 
         const schema = {
@@ -26,16 +22,7 @@ export const ocrService = {
             properties: {
                 title: { type: Type.STRING },
                 detectedType: { type: Type.STRING },
-                description: { type: Type.STRING },
-                worksheetBlueprint: { type: Type.STRING, description: "Teknik mimari açıklama" },
-                structuredData: {
-                    type: Type.OBJECT,
-                    properties: {
-                        title: { type: Type.STRING },
-                        detectedType: { type: Type.STRING },
-                        worksheetBlueprint: { type: Type.STRING }
-                    }
-                }
+                worksheetBlueprint: { type: Type.STRING, description: "BLUEPRINT_V1.0 formatında teknik mimari DNA" }
             },
             required: ['title', 'worksheetBlueprint']
         };
@@ -44,20 +31,16 @@ export const ocrService = {
             const result = await analyzeImage(base64Image, prompt, schema, 'gemini-3-pro-preview');
             
             return {
-                rawText: result.description || result.worksheetBlueprint,
-                detectedType: result.detectedType || 'Custom Activity',
+                rawText: result.worksheetBlueprint,
+                detectedType: result.detectedType || 'ARCH_CLONE',
                 title: result.title,
-                description: result.description || '',
+                description: "Mimari DNA başarıyla analiz edildi. Klonlama için hazır.",
                 generatedTemplate: result.worksheetBlueprint,
-                structuredData: {
-                    ...result,
-                    // God Mode: Blueprint'i doğrudan prompt olarak kullanıma hazırla
-                    worksheetBlueprint: `Bu tasarımı klonla: ${result.worksheetBlueprint}`
-                },
+                structuredData: result,
                 baseType: 'OCR_CONTENT'
             };
         } catch (error) {
-            console.error("Deep OCR Error:", error);
+            console.error("Deep Arch Analysis Error:", error);
             throw error;
         }
     }

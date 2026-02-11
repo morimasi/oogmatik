@@ -1,69 +1,74 @@
+
 import { Type } from "@google/genai";
 import { generateCreativeMultimodal, generateWithSchema, MultimodalFile } from '../geminiClient';
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
 
 /**
- * refinePromptWithAI: Prompt mühendisliği asistanı.
- * FIX: Added missing exported member 'refinePromptWithAI'.
+ * refinePromptWithAI: Kullanıcı istemini klinik ve teknik bir master prompta dönüştürür.
  */
 export const refinePromptWithAI = async (currentPrompt: string, mode: 'expand' | 'clinical'): Promise<string> => {
     const prompt = `
     ${PEDAGOGICAL_BASE}
+    GÖREV: Kullanıcı istemini, Bursa Disleksi AI'nın "Neuro-Arch Engine" motoru için teknik bir blueprint üretim komutuna dönüştür.
+    İSTEM: "${currentPrompt}"
+    MOD: ${mode}
+    ÇIKTI: Sadece 'refined' anahtarlı JSON.
+    `;
+    const result = await generateWithSchema(prompt, { type: Type.OBJECT, properties: { refined: { type: Type.STRING } }, required: ['refined'] });
+    return result.refined;
+};
+
+/**
+ * analyzeReferenceFiles: GOD MODE - GÖRSELİN DNA'SINI ÇIKARIR
+ */
+export const analyzeReferenceFiles = async (files: MultimodalFile[], currentPrompt: string): Promise<string> => {
+    const prompt = `
+    [GÖREV: NEURO-ARCHITECTURAL REVERSE ENGINEERING]
+    Bu görseli bir AI Mühendisi ve Özel Eğitim Uzmanı olarak analiz et. 
+    Görselin "MİMARİ DNA"sını çıkarman gerekiyor.
     
-    MEVCUT KOMUT: "${currentPrompt}"
-    MOD: ${mode === 'expand' ? 'DETAYLANDIRMA (Metodolojik derinlik ekle)' : 'KLİNİK ANALİZ (Disleksi odaklı kısıtlamalar ekle)'}
+    ANALİZ PROTOKOLÜ:
+    1. ROOT_CONTAINER: Sayfa akış yapısı (Vertical_Stack, Grid_2x2, vb.)
+    2. LOGIC_MODULES: Her bir kutunun tipi, içindeki metin, veri tablosu yapısı ve seçenek algoritması.
+    3. CLINICAL_PATTERN: Çeldiricilerin mantığı (Ayna harfler mi, sayısal yakınlık mı?)
+    4. FOOTER_VALIDATION: Sayfa sonu doğrulama mekanizması var mı?
     
-    GÖREV: Yukarıdaki komutu, Gemini modelinin daha iyi anlayacağı ve daha kaliteli 'layoutArchitecture' üreteceği teknik bir yapıya dönüştür.
-    
-    KURALLAR:
-    1. Orijinal fikri koru ama üzerine pedagojik derinlik ekle.
-    2. Sadece yeni, geliştirilmiş prompt metnini dön.
-    3. JSON formatında 'refinedPrompt' anahtarı ile yanıt ver.
+    [ÇIKTI FORMATI: BLUEPRINT_V1.0]
+    Aşağıdaki yapıda teknik bir analiz metni yaz (Bunu diğer Gemini modeli okuyacak):
+    BLUEPRINT_V1.0 :: NEURO_ARCH_ENGINE
+    ROOT_CONTAINER: ...
+    PAGE_1_BLUEPRINT:
+      LAYOUT: ...
+      BLOCK_X: { TYPE, TEXT, DATA_TABLE, OPTIONS, SOLUTION_LOGIC }
+    FOOTER_VALIDATION: ...
     `;
 
     const schema = {
         type: Type.OBJECT,
         properties: {
-            refinedPrompt: { type: Type.STRING }
+            analysis: { type: Type.STRING },
+            detectedLogic: { type: Type.STRING }
         },
-        required: ['refinedPrompt']
+        required: ['analysis']
     };
 
-    const result = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
-    return result.refinedPrompt;
+    const result = await generateCreativeMultimodal({ prompt, schema, files, useFlash: false });
+    return result.analysis;
 };
 
-/**
- * generateCreativeStudioActivity: 
- * Üretim motoru, analizden gelen blueprint'i kullanarak içerik üretir.
- */
 export const generateCreativeStudioActivity = async (enrichedPrompt: string, options: any, files?: MultimodalFile[]) => {
-    
-    const visualFrameworkDirectives = `
-    [MİMARİ YETENEK SETİ - ZORUNLU KURAL]
-    Senin çıktın bir "layoutArchitecture" içermelidir. Eğer kullanıcı bir 'BLUEPRINT' veya 'DNA' verisi sağladıysa, o yapıya KESİNLİKLE sadık kal.
-    
-    BİLEŞENLER (blocks):
-    1. 'logic_card': Karmaşık mantık soruları için (ipucu + tablo + seçenekler).
-    2. 'grid': Harf/Sayı matrisleri için.
-    3. 'table': Veri listeleri için.
-    4. 'svg_shape': Geometrik çizimler için.
-    5. 'dual_column': Eşleştirme görevleri için.
-    6. 'footer_validation': Sayfa sonu kontrol kutusu.
-    
-    [ÖNEMLİ] Veriler orijinal görselden FARKLI, ama yapı AYNI olmalıdır.
-    `;
-
     const prompt = `
     ${PEDAGOGICAL_BASE}
-    ${visualFrameworkDirectives}
     ${CLINICAL_DIAGNOSTIC_GUIDE}
+    GÖREV: Aşağıdaki BLUEPRINT veya Komutu kullanarak BİREBİR AYNI MİMARİDE yeni bir çalışma sayfası üret.
     
-    [GÖREV]
-    Kullanıcı Komutu/Blueprint: "${enrichedPrompt}"
-    Zorluk Seviyesi: ${options.difficulty}
-    Öğe Sayısı: ${options.itemCount}
-    Çeldirici Stratejisi: ${options.distractionLevel}
+    [BLUEPRINT / KOMUT]:
+    ${enrichedPrompt}
+    
+    KRİTİK TALİMAT:
+    1. Eğer girdi bir 'BLUEPRINT_V1.0' ise, 'layoutArchitecture.blocks' yapısını birebir koru.
+    2. Tüm içerikleri (sayılar, kelimeler) orijinalden FARKLI ama aynı mantıksal zorlukta üret.
+    3. 'logic_card' tipini kompleks mantık blokları için kullan.
     `;
 
     const schema = {
@@ -81,10 +86,8 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
                         items: {
                             type: Type.OBJECT,
                             properties: {
-                                type: { type: Type.STRING },
-                                content: { type: Type.OBJECT },
-                                style: { type: Type.OBJECT },
-                                weight: { type: Type.INTEGER }
+                                type: { type: Type.STRING, enum: ['header', 'text', 'grid', 'table', 'logic_card', 'footer_validation', 'image'] },
+                                content: { type: Type.OBJECT }
                             },
                             required: ['type', 'content']
                         }
@@ -97,43 +100,4 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
     };
 
     return await generateCreativeMultimodal({ prompt, schema, files });
-};
-
-/**
- * analyzeReferenceFiles: GOD MODE DNA ANALİZİ
- * Yüklenen görseli parçalarına ayırır ve klonlama için teknik bir "Üretim Promptu" yazar.
- */
-export const analyzeReferenceFiles = async (files: MultimodalFile[], currentPrompt: string): Promise<string> => {
-    const prompt = `
-    [GÖREV: REVERSE ENGINEERING & ARCHITECTURAL DNA EXTRACTION]
-    Bu görseli bir yapay zeka mühendisi ve özel eğitim uzmanı olarak analiz et. 
-    
-    ANALİZ KRİTERLERİ:
-    1. **Layout Yapısı:** Sayfa kaç sütun? Blokların sırası nedir? (Örn: Üstte 2 ipucu kutusu, altta 4x4 tablo).
-    2. **Pedagogik Mantık:** Öğrenci ne yapmaya çalışıyor? (Eleyerek doğruyu bulma, ayna harf ayırt etme, örüntü tamamlama).
-    3. **Soru Algoritması:** Yeni sorular üretilirken hangi kısıtlamalar uygulanmalı? (Örn: "Sadece 2 basamaklı tek sayılar kullanılmalı", "Çeldiriciler mutlaka b-d harfleri olmalı").
-    4. **Görsel Stil:** Fontlar büyük mü? Çizgiler kesikli mi? Arka planda dikkat dağıtıcı öğeler var mı?
-
-    [ÇIKTI TALEBİ]
-    Bu analizi kullanarak, Gemini'ye "Bu etkinliğin birebir aynısını ama şu farklı verilerle üret" diyecek olan ÇOK DERİN VE TEKNİK BİR MASTER PROMPT yaz. 
-    Bu prompt, 'layoutArchitecture' yapısını mükemmel şekilde tarif etmeli.
-    `;
-
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            blueprintPrompt: { 
-                type: Type.STRING, 
-                description: "Orijinal yapıyı klonlamak için AI'nın kullanacağı teknik 'God Mode' promptu." 
-            },
-            detectedLogic: { type: Type.STRING },
-            visualComplexity: { type: Type.STRING }
-        },
-        required: ['blueprintPrompt', 'detectedLogic']
-    };
-
-    const result = await generateCreativeMultimodal({ prompt, schema, files, useFlash: false }); // Pro model ile derin analiz
-    
-    // AI'ya kendi yazdığı promptu iade ediyoruz
-    return `[MİMARİ DNA ANALİZİ TAMAMLANDI]\n\n${result.blueprintPrompt}\n\n[EK KLİNİK NOTLAR]: ${result.detectedLogic}`;
 };

@@ -1,36 +1,27 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { 
-    GeneratorOptions, 
-    ActivityType
-} from '../../types';
-import { PEDAGOGICAL_BASE, getStudentContextPrompt } from './prompts';
+import { GeneratorOptions, ActivityType } from '../../types';
+import { PEDAGOGICAL_BASE } from './prompts';
 
-/**
- * generateFromRichPrompt: MİMARİ KLONLAMA MOTORU (GOD MODE)
- * AI'dan gelen yapısal mimariyi (layoutArchitecture) kullanarak BİREBİR klon üretir.
- */
 export const generateFromRichPrompt = async (activityType: ActivityType, blueprint: string, options: GeneratorOptions): Promise<any> => {
-    const { difficulty, topic, studentContext } = options;
-    
     const prompt = `
     ${PEDAGOGICAL_BASE}
-    ${getStudentContextPrompt(studentContext)}
+    [ROLE: REMATERIALIZATION ENGINE]
     
-    GÖREV: Aşağıdaki TEKNİK BLUEPRINT'i kullanarak BİREBİR AYNI MİMARİDE yeni bir sayfa üret.
+    GÖREV: Aşağıdaki TEKNİK BLUEPRINT'i (MİMARİ DNA) al ve onu BİREBİR AYNI DÜZENDE ama 100% YENİ VERİLERLE inşa et.
     
-    BLUEPRINT (MİMARİ DNA):
+    MİMARİ DNA:
     ${blueprint}
     
-    TALİMATLAR:
-    1. 'layoutArchitecture' objesi içindeki blok sıralamasını ve tiplerini KESİNLİKLE DEĞİŞTİRME.
-    2. Sadece 'content' alanlarındaki verileri (metinler, sayılar, hücre içerikleri) klonla veya güncelle.
-    3. Konu: ${topic || 'Orijinal içerik ile aynı'}
-    4. Zorluk Seviyesi: ${difficulty}
+    KURALLAR:
+    1. Görseldeki tablo yapılarını, satır/sütun sayılarını ve blok sıralamasını ASLA DEĞİŞTİRME.
+    2. Metinleri ve sayıları blueprint'teki 'SOLUTION_LOGIC' kurallarına uyarak yeniden yaz.
+    3. Eğer blueprint 2x2 grid diyorsa, 'layoutArchitecture.cols: 2' ayarını yap.
+    4. Tüm mantık sorularını 'logic_card' blokları olarak çıktıla.
+    5. Cevapların tutarlı olduğundan ve 'FOOTER_VALIDATION' kuralına uyduğundan emin ol.
     
-    ÖNEMLİ: Tüm metinler 'string' olmalı. Kesinlikle nested object ({text: '...'}) döndürme.
-    Çıktı mutlaka 'layoutArchitecture' anahtarını içermelidir.
+    Zorluk: ${options.difficulty}
     `;
 
     const schema = {
@@ -42,26 +33,14 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
             layoutArchitecture: {
                 type: Type.OBJECT,
                 properties: {
+                    cols: { type: Type.INTEGER },
                     blocks: {
                         type: Type.ARRAY,
                         items: {
                             type: Type.OBJECT,
                             properties: {
                                 type: { type: Type.STRING },
-                                content: { type: Type.OBJECT, properties: {
-                                    text: { type: Type.STRING },
-                                    cols: { type: Type.INTEGER },
-                                    rows: { type: Type.INTEGER },
-                                    cells: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                    headers: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                    data: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-                                    left: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                    right: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                    prompt: { type: Type.STRING },
-                                    viewBox: { type: Type.STRING },
-                                    paths: { type: Type.ARRAY, items: { type: Type.STRING } }
-                                }},
-                                style: { type: Type.OBJECT, properties: { textAlign: { type: Type.STRING }, fontWeight: { type: Type.STRING } } }
+                                content: { type: Type.OBJECT }
                             },
                             required: ['type', 'content']
                         }
@@ -73,5 +52,5 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
         required: ['title', 'instruction', 'layoutArchitecture']
     };
 
-    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
 };
