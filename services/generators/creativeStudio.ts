@@ -4,6 +4,40 @@ import { generateCreativeMultimodal, MultimodalFile } from '../geminiClient';
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
 
 /**
+ * analyzeReferenceFiles: Yüklenen dosyaları analiz eder ve teknik bir üretim promptu oluşturur.
+ */
+export const analyzeReferenceFiles = async (files: MultimodalFile[], currentPrompt: string): Promise<string> => {
+    const prompt = `
+    [GÖREV: PEDAGOJİK MİMARİ ANALİST]
+    Ekteki dosyaları (PDF/Görsel) teknik olarak analiz et. 
+    Bu dosyaların:
+    1. Sayfa düzenini (Layout)
+    2. Soru sorma stilini (Matching, Grid, Multiple Choice vb.)
+    3. Kullanılan görsel hiyerarşiyi tanımla.
+    
+    KULLANICI TERCİHİ: "${currentPrompt}"
+    
+    GÖREVİN: Bu dosyaları referans alarak, Bursa Disleksi AI motorunun BİREBİR AYNI KALİTEDE VE YAPIDA bir çıktı üretmesi için gereken DETAYLI TEKNİK PROMPTU OLUŞTUR.
+    
+    ÇIKTI KURALI:
+    - Sonuç "Bu materyalin yapısını analiz ettim. İşte üretim için teknik plan:" cümlesiyle başlamalı.
+    - İçerisinde [MİMARİ], [İÇERİK PLANI], [PEDAGOJİK HEDEF] başlıkları olmalı.
+    - SADECE METİN DÖNDÜR.
+    `;
+
+    const schema = { 
+        type: Type.OBJECT, 
+        properties: { 
+            analysisPrompt: { type: Type.STRING } 
+        }, 
+        required: ['analysisPrompt'] 
+    };
+
+    const result = await generateCreativeMultimodal({ prompt, schema, files });
+    return result.analysisPrompt;
+};
+
+/**
  * refinePromptWithAI: Kullanıcının promptunu profesyonel seviyeye taşır.
  */
 export const refinePromptWithAI = async (userPrompt: string, mode: 'expand' | 'narrow' | 'clinical'): Promise<string> => {
