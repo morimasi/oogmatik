@@ -1,48 +1,34 @@
 
 import { Type } from "@google/genai";
-import { generateCreativeMultimodal, MultimodalFile } from '../geminiClient';
+import { generateCreativeMultimodal, generateWithSchema, MultimodalFile } from '../geminiClient';
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
 
-// ... other functions ...
-
 /**
- * generateCreativeStudioActivity: Zenginleştirilmiş prompt ve profesyonel parametrelerle üretim.
+ * generateCreativeStudioActivity: 
+ * JSON Repair hatasını önlemek için Type.INTEGER kullanımı ve viewBox kısıtlaması.
  */
 export const generateCreativeStudioActivity = async (enrichedPrompt: string, options: any, files?: MultimodalFile[]) => {
     
-    // Parametreleri AI için talimata dönüştür
     const clinicalDirectives = `
     [KLİNİK PARAMETRELER - KRİTİK]
-    1. ZORLUK SEVİYESİ: ${options.difficulty}. 
-       - 'Başlangıç' ise: Somut, tek aşamalı görevler.
-       - 'Zor' ise: Soyut, 3+ aşamalı mantık zincirleri.
+    1. ZORLUK SEVİYESİ: ${options.difficulty}. Basitlik ve aşama sayısını buna göre ayarla.
+    2. ÇELDİRİCİ YOĞUNLUĞU: ${options.distractionLevel}. 'high' ise benzer harf/şekil (b-d, m-n) kullan.
+    3. TİPOGRAFİK ÖLÇEK: ${options.fontSizePreference}. 'large' ise metin boyutlarını artır.
     
-    2. ÇELDİRİCİ YOĞUNLUĞU: ${options.distractionLevel}.
-       - 'low' ise: Yanlış şıklar belirgin şekilde farklı olsun.
-       - 'high' ise: Yanlış şıklar hedefe fonemik veya görsel olarak (b-d gibi) çok yakın olsun.
-    
-    3. TİPOGRAFİK ÖLÇEK: ${options.fontSizePreference}.
-       - 'large' ise: Metin blokları için "fontSize: 24-28" ve geniş satır aralığı kullan.
-       - 'small' ise: "fontSize: 14-16" kullan.
+    KRİTİK GÖRSEL KURALI: 
+    - 'viewBox' her zaman "0 0 100 100" olmalıdır. 
+    - ASLA büyük rakamlar (1000000...) kullanma.
     `;
 
     const prompt = `
     ${PEDAGOGICAL_BASE}
     ${CLINICAL_DIAGNOSTIC_GUIDE}
     ${clinicalDirectives}
-    
     GÖREV: PROFESYONEL EĞİTİM MATERYALİ SENTEZİ
-    
-    TALİMAT:
-    ${enrichedPrompt}
+    TALİMAT: ${enrichedPrompt}
     
     PARAMETRELER:
     - Hedef Öğe Sayısı: ${options.itemCount}
-    
-    TEKNİK ŞARTLAR:
-    1. 'layoutArchitecture' formatında 'blocks' dizisi döndür.
-    2. 'viewBox' her zaman "0 0 100 100" olmalıdır.
-    3. Metinlerin 'style' alanına 'fontSize' değerini parametreye uygun enjekte et.
     `;
 
     const schema = {
@@ -59,7 +45,8 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
                         items: {
                             type: Type.OBJECT,
                             properties: {
-                                type: { type: Type.STRING, enum: ['header', 'text', 'grid', 'table', 'svg_shape', 'dual_column', 'image'] },
+                                // Fix: Added 'question' to allowed block types enum
+                                type: { type: Type.STRING, enum: ['header', 'text', 'grid', 'table', 'svg_shape', 'dual_column', 'image', 'question'] },
                                 content: { 
                                     type: Type.OBJECT,
                                     properties: {
@@ -97,4 +84,42 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
     };
 
     return await generateCreativeMultimodal({ prompt, schema, files });
+};
+
+/* Fix: Implemented missing prompt refinement utility with 'narrow' mode support */
+export const refinePromptWithAI = async (prompt: string, mode: 'expand' | 'narrow' | 'clinical'): Promise<string> => {
+    const instruction = mode === 'expand' 
+        ? "Bu promptu pedagojik derinlik katarak, disleksi dostu materyal üretim kurallarıyla zenginleştir."
+        : mode === 'narrow'
+            ? "Bu promptu daha spesifik, odaklanmış ve kısa bir görev haline getir."
+            : "Bu prompta klinik tanı kriterleri ekle (reversal errors, phonological gaps vb.).";
+
+    const aiPrompt = `[GÖREV: PROMPT MİMARI]\nHAM PROMPT: "${prompt}"\nTALİMAT: ${instruction}\nSADECE zenginleştirilmiş metni döndür.`;
+    
+    const schema = { 
+        type: Type.OBJECT, 
+        properties: { refined: { type: Type.STRING } }, 
+        required: ['refined'] 
+    };
+    const result = await generateWithSchema(aiPrompt, schema, 'gemini-3-flash-preview');
+    return result.refined;
+};
+
+/* Fix: Implemented missing file analysis utility */
+export const analyzeReferenceFiles = async (files: MultimodalFile[], currentPrompt: string): Promise<string> => {
+    const prompt = `
+    [GÖREV: PEDAGOJİK MİMARİ ANALİST]
+    Ekteki dosyaları teknik olarak analiz et. 
+    KULLANICI TERCİHİ: "${currentPrompt}"
+    
+    GÖREVİN: Bu dosyaları referans alarak, Bursa Disleksi AI motorunun BİREBİR AYNI KALİTEDE VE YAPIDA bir çıktı üretmesi için gereken DETAYLI TEKNİK PROMPTU OLUŞTUR.
+    İçerisinde [MİMARİ], [İÇERİK PLANI] başlıkları olmalı.
+    `;
+    const schema = { 
+        type: Type.OBJECT, 
+        properties: { analysis: { type: Type.STRING } }, 
+        required: ['analysis'] 
+    };
+    const result = await generateCreativeMultimodal({ prompt, schema, files, useFlash: true });
+    return result.analysis;
 };

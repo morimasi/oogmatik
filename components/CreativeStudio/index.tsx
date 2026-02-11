@@ -9,6 +9,7 @@ import { ControlPane } from './ControlPane';
 import { SmartTooltip } from './components/SmartTooltip';
 import { SnippetManagerModal } from './components/SnippetManagerModal';
 import { AISnippet, PROFESSIONAL_SNIPPETS } from '../../services/generators/snippetLibrary';
+import { ActivityPublisher } from './components/ActivityPublisher';
 
 interface CreativeStudioProps {
     onResult: (data: any) => void;
@@ -31,9 +32,9 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     const [difficulty, setDifficulty] = useState("Orta");
     const [itemCount, setItemCount] = useState(8);
     
-    // --- NEW PROFESSIONAL STATES ---
-    const [distractionLevel, setDistractionLevel] = useState("medium"); // low, medium, high
-    const [fontSizePreference, setFontSizePreference] = useState("medium"); // small, medium, large
+    // --- PROFESSIONAL STATES ---
+    const [distractionLevel, setDistractionLevel] = useState("medium"); 
+    const [fontSizePreference, setFontSizePreference] = useState("medium"); 
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [isAnalyzingFile, setIsAnalyzingFile] = useState(false);
@@ -41,9 +42,12 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     const [statusIndex, setStatusIndex] = useState(0);
     const [activeTab, setActiveTab] = useState<'editor' | 'library'>('editor');
     
+    // Custom Data States
     const [localLibrary, setLocalLibrary] = useState<ActivityLibraryItem[]>([]);
     const [customSnippets, setCustomSnippets] = useState<AISnippet[]>([]);
     const [showSnippetModal, setShowSnippetModal] = useState(false);
+    const [lastResult, setLastResult] = useState<any>(null);
+    const [showPublishModal, setShowPublishModal] = useState(false);
     
     const [hoveredItem, setHoveredItem] = useState<ActivityLibraryItem | null>(null);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -106,6 +110,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                 distractionLevel,
                 fontSizePreference
             }, attachedFiles);
+            setLastResult(result);
             onResult(Array.isArray(result) ? result : [result]);
         } catch (e) {
             setStatus("Üretim durduruldu.");
@@ -143,6 +148,14 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                 />
             )}
 
+            {showPublishModal && lastResult && (
+                <ActivityPublisher 
+                    blueprint={lastResult} 
+                    onClose={() => setShowPublishModal(false)} 
+                    onSuccess={() => { setShowPublishModal(false); alert("Modül başarıyla sisteme enjekte edildi!"); }}
+                />
+            )}
+
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 px-4">
                 <div>
                     <h2 className="text-4xl font-black tracking-tighter text-white flex items-center gap-3">
@@ -150,9 +163,19 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     </h2>
                     <p className="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-bold opacity-60">Professional Clinical Content Designer</p>
                 </div>
-                <div className="flex bg-zinc-900 border border-white/10 p-1.5 rounded-2xl shadow-inner">
-                    <button onClick={() => setActiveTab('editor')} className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'editor' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>TASARIMCI</button>
-                    <button onClick={() => setActiveTab('library')} className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'library' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>KÜTÜPHANE</button>
+                <div className="flex items-center gap-3">
+                    {lastResult && (
+                        <button 
+                            onClick={() => setShowPublishModal(true)}
+                            className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-lg"
+                        >
+                            <i className="fa-solid fa-cloud-arrow-up"></i> MENÜYE EKLE
+                        </button>
+                    )}
+                    <div className="flex bg-zinc-900 border border-white/10 p-1.5 rounded-2xl shadow-inner">
+                        <button onClick={() => setActiveTab('editor')} className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'editor' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>TASARIMCI</button>
+                        <button onClick={() => setActiveTab('library')} className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'library' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>KÜTÜPHANE</button>
+                    </div>
                 </div>
             </div>
 

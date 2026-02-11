@@ -81,7 +81,13 @@ export enum ActivityType {
     ESTIMATION = 'ESTIMATION',
     SPATIAL_GRID = 'SPATIAL_GRID',
     ODD_EVEN_SUDOKU = 'ODD_EVEN_SUDOKU',
-    PUNCTUATION_MAZE = 'PUNCTUATION_MAZE'
+    PUNCTUATION_MAZE = 'PUNCTUATION_MAZE',
+    // Fix: Added missing ActivityType members
+    LOGIC_GRID_PUZZLE = 'LOGIC_GRID_PUZZLE',
+    DOT_PAINTING = 'DOT_PAINTING',
+    SHAPE_SUDOKU = 'SHAPE_SUDOKU',
+    VISUAL_ARITHMETIC = 'VISUAL_ARITHMETIC',
+    NUMBER_SENSE = 'NUMBER_SENSE'
 }
 
 export type UserRole = 'user' | 'admin';
@@ -346,7 +352,8 @@ export interface WorkbookSettings {
 }
 
 export interface WorksheetBlock {
-    type: 'header' | 'text' | 'grid' | 'table' | 'svg_shape' | 'dual_column' | 'image';
+    // Fix: Added 'question' to allowed block types for pagination support
+    type: 'header' | 'text' | 'grid' | 'table' | 'svg_shape' | 'dual_column' | 'image' | 'question';
     content: any;
     style?: {
         textAlign?: string;
