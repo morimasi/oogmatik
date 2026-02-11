@@ -21,7 +21,7 @@ export const ocrService = {
 
         ÇIKTI (JSON BLOCKS):
         Yanıtın içindeki 'blocks' dizisi şu yapıları içerebilir:
-        - { "type": "header", "content": "..." }
+        - { "type": "header", "content": { "text": "..." } }
         - { "type": "grid", "content": { "rows": 4, "cols": 4, "cells": [...] } }
         - { "type": "table", "content": { "headers": [], "data": [][] } }
         - { "type": "svg_shape", "content": { "paths": ["d=..."], "viewBox": "..." } }
@@ -45,8 +45,30 @@ export const ocrService = {
                                 type: Type.OBJECT,
                                 properties: {
                                     type: { type: Type.STRING, enum: ['header', 'text', 'grid', 'table', 'svg_shape', 'dual_column'] },
-                                    content: { type: Type.OBJECT },
-                                    style: { type: Type.OBJECT }
+                                    content: { 
+                                        type: Type.OBJECT,
+                                        properties: {
+                                            text: { type: Type.STRING },
+                                            cols: { type: Type.INTEGER },
+                                            rows: { type: Type.INTEGER },
+                                            cells: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                            headers: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                            data: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                                            paths: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                            viewBox: { type: Type.STRING },
+                                            left: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                            right: { type: Type.ARRAY, items: { type: Type.STRING } }
+                                        }
+                                    },
+                                    style: { 
+                                        type: Type.OBJECT,
+                                        properties: {
+                                            fontSize: { type: Type.INTEGER },
+                                            fontWeight: { type: Type.STRING },
+                                            textAlign: { type: Type.STRING },
+                                            color: { type: Type.STRING }
+                                        }
+                                    }
                                 },
                                 required: ['type', 'content']
                             }
@@ -59,7 +81,6 @@ export const ocrService = {
         };
 
         try {
-            // Gemini 3 Pro Image (yoksa Flash) ile 16K Thinking Budget
             const result = await analyzeImage(base64Image, prompt, schema);
             
             return {
@@ -68,7 +89,7 @@ export const ocrService = {
                 title: result.title,
                 description: result.description,
                 generatedTemplate: result.variationBlueprint,
-                structuredData: result, // Mimari burada saklanıyor
+                structuredData: result,
                 baseType: 'OCR_CONTENT'
             };
         } catch (error) {

@@ -135,8 +135,30 @@ export const generateFromRichPrompt = async (activityType: ActivityType, instruc
                             type: Type.OBJECT,
                             properties: {
                                 type: { type: Type.STRING },
-                                content: { type: Type.OBJECT },
-                                style: { type: Type.OBJECT }
+                                content: { 
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        text: { type: Type.STRING },
+                                        cols: { type: Type.INTEGER },
+                                        rows: { type: Type.INTEGER },
+                                        cells: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        headers: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        data: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                                        paths: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        viewBox: { type: Type.STRING },
+                                        left: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        right: { type: Type.ARRAY, items: { type: Type.STRING } }
+                                    }
+                                },
+                                style: { 
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        fontSize: { type: Type.INTEGER },
+                                        fontWeight: { type: Type.STRING },
+                                        textAlign: { type: Type.STRING },
+                                        color: { type: Type.STRING }
+                                    }
+                                }
                             },
                             required: ['type', 'content']
                         }
