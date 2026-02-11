@@ -35,13 +35,13 @@ interface SidebarProps {
   activeCurriculumSession?: ActiveCurriculumSession | null;
 }
 
-const ToolCircle = ({ icon, label, onClick, color, isExpanded }: any) => (
+const ToolIcon = ({ icon, label, onClick, color, isExpanded }: any) => (
     <button 
         onClick={onClick}
         className="group flex flex-col items-center gap-1.5 transition-all outline-none"
         title={label}
     >
-        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-sm shadow-sm transition-all group-hover:scale-110 group-hover:-rotate-6 border border-white/10 ${color}`}>
+        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-base shadow-sm transition-all group-hover:scale-110 group-hover:-rotate-6 border border-white/10 ${color}`}>
             <i className={`fa-solid ${icon}`}></i>
         </div>
         {isExpanded && <span className="text-[9px] font-black text-zinc-500 uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{label}</span>}
@@ -121,7 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [allActivities, categories]);
 
   return (
-    <aside className={`fixed inset-y-0 left-0 z-30 bg-white/95 dark:bg-[#0d0d0f]/95 backdrop-blur-xl border-r border-zinc-200 dark:border-zinc-800 transition-all duration-500 ease-in-out flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} ${isExpanded ? 'w-[260px]' : 'w-[70px]'}`}>
+    <aside className={`fixed inset-y-0 left-0 z-30 bg-white/95 dark:bg-[#0d0d0f]/95 backdrop-blur-xl border-r border-zinc-200 dark:border-zinc-800 transition-all duration-500 ease-in-out flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} ${isExpanded ? 'w-[260px]' : 'w-[75px]'}`}>
         <div className="flex h-full flex-col overflow-hidden">
             {selectedActivity ? (
                 <GeneratorView 
@@ -132,39 +132,39 @@ const Sidebar: React.FC<SidebarProps> = ({
                     activeCurriculumSession={activeCurriculumSession}
                 />
             ) : (
-                <nav className="flex-1 overflow-y-auto px-3 py-6 space-y-6 custom-scrollbar">
+                <nav className="flex-1 overflow-y-auto px-3 py-6 space-y-8 custom-scrollbar">
                     
-                    {/* TOOLS BELT - COMPACT ROW */}
-                    <div className="flex flex-col items-center">
-                        {isExpanded && <span className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-4 self-start ml-2">Araçlar</span>}
-                        <div className="flex flex-wrap justify-start gap-3 px-2">
-                            <ToolCircle icon="fa-camera-viewfinder" label="Klon" onClick={onOpenOCR} color="bg-indigo-500 text-white" isExpanded={isExpanded} />
-                            <ToolCircle icon="fa-calendar-check" label="Plan" onClick={onOpenCurriculum} color="bg-emerald-500 text-white" isExpanded={isExpanded} />
-                            <ToolCircle icon="fa-book-open" label="Oku" onClick={onOpenReadingStudio} color="bg-rose-500 text-white" isExpanded={isExpanded} />
-                            <ToolCircle icon="fa-calculator" label="Mat" onClick={onOpenMathStudio} color="bg-blue-500 text-white" isExpanded={isExpanded} />
+                    {/* TOP TOOLS - COMPACT ICON STRIP */}
+                    <div className="flex flex-col">
+                        {isExpanded && <span className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-4 ml-2">Stüdyolar</span>}
+                        <div className="flex flex-wrap justify-center md:justify-start gap-3 px-1">
+                            <ToolIcon icon="fa-camera-viewfinder" label="Klon" onClick={onOpenOCR} color="bg-indigo-500 text-white" isExpanded={isExpanded} />
+                            <ToolIcon icon="fa-calendar-check" label="Plan" onClick={onOpenCurriculum} color="bg-emerald-500 text-white" isExpanded={isExpanded} />
+                            <ToolIcon icon="fa-book-open" label="Oku" onClick={onOpenReadingStudio} color="bg-rose-500 text-white" isExpanded={isExpanded} />
+                            <ToolIcon icon="fa-calculator" label="Mat" onClick={onOpenMathStudio} color="bg-blue-500 text-white" isExpanded={isExpanded} />
                         </div>
                     </div>
 
                     <div className="h-px bg-zinc-100 dark:bg-zinc-800/50 mx-2"></div>
 
-                    {/* CATEGORIES LIST - SLIM STYLE */}
+                    {/* CATEGORIES - MINIMAL ACCORDIONS */}
                     <div className="space-y-1">
                         {isExpanded && <span className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-4 block ml-2">Etkinlikler</span>}
                         {categorizedActivities.map((category) => {
                             const isOpen = openCategoryId === category.id;
                             const colors: any = {
-                                'visual-perception': 'text-violet-500',
-                                'reading-verbal': 'text-teal-500',
-                                'math-logic': 'text-amber-500'
+                                'visual-perception': 'text-violet-500 bg-violet-50',
+                                'reading-verbal': 'text-teal-500 bg-teal-50',
+                                'math-logic': 'text-amber-500 bg-amber-50'
                             };
                             return (
                                 <div key={category.id} className="relative">
                                     <button 
                                         onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)} 
-                                        className={`w-full flex items-center gap-3 px-2.5 py-2.5 rounded-xl transition-all duration-300 group ${isOpen && isExpanded ? 'bg-zinc-900 text-white dark:bg-white dark:text-black shadow-lg' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400'}`}
+                                        className={`w-full flex items-center gap-3 px-2 py-2.5 rounded-xl transition-all duration-300 group ${isOpen && isExpanded ? 'bg-zinc-900 text-white dark:bg-white dark:text-black shadow-lg' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400'}`}
                                     >
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-colors ${isOpen && isExpanded ? 'bg-white/10' : 'bg-zinc-100 dark:bg-zinc-800'}`}>
-                                            <i className={`${category.icon} ${!isOpen && colors[category.id]}`}></i>
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-colors ${isOpen && isExpanded ? 'bg-white/10' : (colors[category.id] || 'bg-zinc-100')}`}>
+                                            <i className={category.icon}></i>
                                         </div>
                                         {isExpanded && (
                                             <>
@@ -179,7 +179,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                 <button 
                                                     key={activity.id} 
                                                     onClick={() => onSelectActivity(activity.id)} 
-                                                    className={`w-full text-left py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all ${selectedActivity === activity.id ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'}`}
+                                                    className={`w-full text-left py-2 px-2 rounded-lg text-[10px] font-bold transition-all ${selectedActivity === activity.id ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'}`}
                                                 >
                                                     {activity.title}
                                                 </button>

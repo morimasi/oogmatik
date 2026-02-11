@@ -119,7 +119,7 @@ const HeaderDropdown: React.FC<{
         <div className="relative group" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
             <button className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 font-bold text-xs uppercase tracking-wider ${colorClass}`}>
                 <i className={`fa-solid ${icon}`}></i>
-                <span className="hidden lg:inline">{label}</span>
+                <span className="hidden xl:inline">{label}</span>
                 <i className="fa-solid fa-chevron-down text-[8px] opacity-50"></i>
             </button>
             {isOpen && (
@@ -270,7 +270,6 @@ const AppContent: React.FC = () => {
             <header className={`relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-50 transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}>
                 <div className="w-full px-6 py-4 flex justify-between items-center gap-6">
                     
-                    {/* LEFT: LOGO & MOBILE TOGGLE */}
                     <div className="flex items-center gap-4">
                         <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-400 p-2 hover:text-zinc-900 transition-colors"><i className="fa-solid fa-bars-staggered fa-lg"></i></button>
                         <button id="tour-logo" onClick={() => { navigateTo('generator'); setSelectedActivity(null); setWorksheetData(null); setActiveCurriculumSession(null); }} className="flex items-center gap-3">
@@ -278,14 +277,11 @@ const AppContent: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* CENTER: SEARCH (INTELLIGENT) */}
                     <div className="flex-1 max-w-xl hidden md:block">
                         <GlobalSearch onSelectActivity={handleSelectActivity} />
                     </div>
 
-                    {/* RIGHT: SMART GROUPS */}
                     <div className="flex items-center gap-2">
-                        
                         <button 
                             onClick={() => navigateTo('assessment')} 
                             className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-indigo-200 dark:shadow-none transition-all active:scale-95"
@@ -295,7 +291,6 @@ const AppContent: React.FC = () => {
 
                         <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-2"></div>
 
-                        {/* WORKBOOK & MESSAGES (PROMINENT TOOLS) */}
                         <div className="flex items-center gap-1">
                             <button onClick={() => navigateTo('workbook')} className="relative p-2.5 text-zinc-400 hover:text-emerald-500 transition-all rounded-xl hover:bg-emerald-50" title="Kitapçık">
                                 <i className="fa-solid fa-book-medical fa-lg"></i>
@@ -307,32 +302,30 @@ const AppContent: React.FC = () => {
                             </button>
                         </div>
 
-                        {/* LIBRARY GROUP */}
                         <HeaderDropdown label="Kitaplığım" icon="fa-bookmark" colorClass="text-emerald-600 dark:text-emerald-400">
-                            <DropdownItem icon="fa-heart" label="Atölyem (Favoriler)" onClick={() => navigateTo('favorites')} />
+                            <DropdownItem icon="fa-heart" label="Favoriler" onClick={() => navigateTo('favorites')} />
                             <DropdownItem icon="fa-box-archive" label="Arşiv" onClick={() => navigateTo('savedList')} />
                             <DropdownItem icon="fa-share-nodes" label="Paylaşılanlar" onClick={() => navigateTo('shared')} />
                             <DropdownItem icon="fa-clock-rotate-left" label="İşlem Geçmişi" onClick={() => setOpenModal('history')} />
                         </HeaderDropdown>
 
-                        {/* SUPPORT GROUP */}
                         <HeaderDropdown label="Destek" icon="fa-circle-info">
-                            <DropdownItem icon="fa-circle-play" label="Nasıl Kullanılır?" onClick={() => setIsTourOpen(true)} />
-                            <DropdownItem icon="fa-headset" label="İletişim & Hata Bildir" onClick={() => setIsFeedbackOpen(true)} />
+                            <DropdownItem icon="fa-circle-play" label="Tur Başlat" onClick={() => setIsTourOpen(true)} />
+                            <DropdownItem icon="fa-headset" label="Yardım Masası" onClick={() => setIsFeedbackOpen(true)} />
                             <DropdownItem icon="fa-circle-question" label="Hakkımızda" onClick={() => setOpenModal('about')} />
                             <DropdownItem icon="fa-laptop-code" label="Geliştirici" onClick={() => setOpenModal('developer')} />
                         </HeaderDropdown>
 
                         <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-2"></div>
 
-                        {/* USER PROFILE GROUP */}
                         {user ? (
                             <HeaderDropdown label={user.name.split(' ')[0]} icon="fa-user-circle" colorClass="text-zinc-900 dark:text-white">
-                                {user.role === 'admin' && <DropdownItem icon="fa-shield-halved" label="Admin Paneli" onClick={() => navigateTo('admin')} />}
                                 <DropdownItem icon="fa-user-gear" label="Profil Ayarları" onClick={() => navigateTo('profile')} />
-                                <DropdownItem icon="fa-sliders" label="Arayüz Ayarları" onClick={() => setOpenModal('settings')} />
+                                <DropdownItem icon="fa-sliders" label="Görünüm Ayarları" onClick={() => setOpenModal('settings')} />
+                                {user.role === 'admin' && <div className="h-px bg-zinc-100 dark:bg-zinc-800 my-1"></div>}
+                                {user.role === 'admin' && <DropdownItem icon="fa-shield-halved" label="Admin Paneli" onClick={() => navigateTo('admin')} />}
                                 <div className="h-px bg-zinc-100 dark:bg-zinc-800 my-1"></div>
-                                <DropdownItem icon="fa-arrow-right-from-bracket" label="Oturumu Kapat" onClick={logout} />
+                                <DropdownItem icon="fa-arrow-right-from-bracket" label="Çıkış Yap" onClick={logout} />
                             </HeaderDropdown>
                         ) : (
                             <button onClick={() => setIsAuthModalOpen(true)} className="px-6 py-2.5 bg-zinc-900 text-white dark:bg-white dark:text-black rounded-2xl text-xs font-black shadow-lg transition-all active:scale-95">GİRİŞ YAP</button>
