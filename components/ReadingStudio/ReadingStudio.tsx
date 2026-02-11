@@ -27,13 +27,11 @@ interface ComponentDefinition {
     defaultStyle: Partial<LayoutItem['style']>;
 }
 
-/* Fix: Added icon to ActiveComponent as it's used in the layer list */
 interface ActiveComponent extends LayoutItem {
     customTitle?: string;
     customIcon?: string;
     themeColor?: string;
     instanceId: string;
-    icon: string;
 }
 
 interface SavedTemplate {

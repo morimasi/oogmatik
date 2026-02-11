@@ -1,30 +1,89 @@
 
-import { ActivityType, UserRole, UserStatus } from './core';
+import { ActivityType } from './core';
+import { UserRole, UserStatus } from './core';
 
 export interface DynamicActivity {
-    id: string;
+    id: string; 
     title: string;
     description: string;
     icon: string;
     category: string;
     isActive: boolean;
     isPremium: boolean;
-    promptId?: string;
-    updatedAt: string;
-    order?: number;
-    themeColor: string;
-    secondaryColor?: string;
-    targetSkills?: string[];
-    // Üretim Motoru Ayarları
-    engineConfig: {
-        mode: 'ai_only' | 'hybrid' | 'logic_only';
-        baseBlueprint?: string; // Creative Studio'dan gelen mimari DNA
-        parameters: {
-            allowDifficulty: boolean;
-            allowDistraction: boolean;
-            allowFontSize: boolean;
-        };
+    promptId?: string; 
+    defaultParams?: Record<string, any>; 
+    order: number; 
+    themeColor: string; 
+    secondaryColor?: string; // Gradient için
+    animationType?: 'fade' | 'slide' | 'scale' | 'none';
+    targetSkills: string[]; 
+    cognitiveWeights?: {
+        attention: number;
+        memory: number;
+        logic: number;
+        verbal: number;
     };
+    updatedAt: string;
+}
+
+export interface PromptVersion {
+    version: number;
+    template: string;
+    systemInstruction?: string;
+    updatedAt: string;
+    changeLog?: string;
+    author?: string;
+}
+
+export interface PromptTemplate {
+    id: string; 
+    name: string;
+    description: string;
+    category: string; 
+    systemInstruction: string; 
+    template: string; 
+    variables: string[]; 
+    tags: string[]; 
+    updatedAt: string;
+    version: number;
+    history?: PromptVersion[]; 
+    modelConfig?: {
+        temperature?: number;
+        topP?: number;
+        modelName?: string;
+        thinkingBudget?: number; 
+    };
+}
+
+export interface PromptSnippet {
+    id: string;
+    label: string;
+    value: string;
+    category?: string;
+    updatedAt?: string;
+}
+
+export interface ActivityDraft {
+    id: string;
+    title: string;
+    description: string;
+    baseType: string;
+    customInstructions: string;
+    defaultParams: {
+        topic: string;
+        difficulty: string;
+        itemCount: number;
+    };
+    createdAt: string;
+    createdBy: string;
+}
+
+export interface StaticContentItem {
+    id: string;
+    title: string;
+    type: 'list' | 'json';
+    data: string[] | any;
+    updatedAt: string;
 }
 
 export interface AdminStatCard {
@@ -34,63 +93,12 @@ export interface AdminStatCard {
     trendUp?: boolean;
     icon: string;
     color: string;
-    chartData?: number[];
-}
-
-export interface PromptVersion {
-    version: number;
-    updatedAt: string;
-    template: string;
-    systemInstruction: string;
-    changeLog: string;
-}
-
-export interface PromptTemplate {
-    id: string;
-    name: string;
-    description: string;
-    category: string;
-    systemInstruction: string;
-    template: string;
-    variables: string[];
-    tags: string[];
-    updatedAt: string;
-    version: number;
-    history: PromptVersion[];
-    modelConfig: {
-        temperature: number;
-        modelName: string;
-        thinkingBudget: number;
-    };
-}
-
-export interface PromptSnippet {
-    id: string;
-    label: string;
-    value: string;
-}
-
-export interface StaticContentItem {
-    id: string;
-    title: string;
-    type: 'list' | 'json';
-    data: any;
-    updatedAt: string;
+    chartData?: number[]; 
 }
 
 export interface UserFilter {
     search: string;
-    role: 'all' | UserRole;
-    status: 'all' | UserStatus;
+    role: UserRole | 'all';
+    status: UserStatus | 'all';
     sortBy: 'newest' | 'oldest' | 'name' | 'activity';
-}
-
-export interface ActivityDraft {
-    id: string;
-    title: string;
-    description: string;
-    baseType: string;
-    createdBy: string;
-    createdAt: string;
-    customInstructions: string;
 }
