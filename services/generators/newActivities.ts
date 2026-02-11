@@ -3,44 +3,34 @@ import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { 
     GeneratorOptions, 
-    FindLetterPairData,
-    ActivityType,
-    FamilyRelationsData,
-    FamilyLogicTestData
+    ActivityType
 } from '../../types';
 import { PEDAGOGICAL_BASE, getStudentContextPrompt } from './prompts';
 
-// ... (Diğer fonksiyonlar aynı kalıyor) ...
-
 /**
- * generateFromRichPrompt: Mimari Klonlama Motoru
- * AI'dan gelen yapısal mimariyi (layoutArchitecture) kullanarak yepyeni veri varyasyonları üretir.
- * [OBJECT OBJECT] ve [BLOK AYRIŞTIRILAMADI] hatalarını önlemek için veri tiplerini zorlar.
+ * generateFromRichPrompt: MİMARİ KLONLAMA MOTORU (GOD MODE)
+ * AI'dan gelen yapısal mimariyi (layoutArchitecture) kullanarak BİREBİR klon üretir.
  */
 export const generateFromRichPrompt = async (activityType: ActivityType, blueprint: string, options: GeneratorOptions): Promise<any> => {
-    const { difficulty, topic, studentContext, itemCount } = options;
+    const { difficulty, topic, studentContext } = options;
     
     const prompt = `
     ${PEDAGOGICAL_BASE}
     ${getStudentContextPrompt(studentContext)}
     
-    GÖREV: Aşağıdaki BLUEPRINT (MİMARİ) yapısını kullanarak yepyeni bir çalışma sayfası üret.
+    GÖREV: Aşağıdaki TEKNİK BLUEPRINT'i kullanarak BİREBİR AYNI MİMARİDE yeni bir sayfa üret.
     
-    MİMARİ İSKELET:
+    BLUEPRINT (MİMARİ DNA):
     ${blueprint}
     
-    YENİ İÇERİK KRİTERLERİ:
-    - Konu: ${topic || 'Orijinal içerik ile aynı tema'}
-    - Zorluk Seviyesi: ${difficulty}
-    - Madde Sayısı: ${itemCount || 8}
+    TALİMATLAR:
+    1. 'layoutArchitecture' objesi içindeki blok sıralamasını ve tiplerini KESİNLİKLE DEĞİŞTİRME.
+    2. Sadece 'content' alanlarındaki verileri (metinler, sayılar, hücre içerikleri) klonla veya güncelle.
+    3. Konu: ${topic || 'Orijinal içerik ile aynı'}
+    4. Zorluk Seviyesi: ${difficulty}
     
-    KRİTİK TALİMATLAR:
-    1. Mimariyi KESİNLİKLE KORU. 'layoutArchitecture' içindeki blok yapısını, tiplerini ve sıralamasını bozma.
-    2. Sadece içerikleri (text, cells, data) değiştir ve özgünleştir.
-    3. Tüm metin alanları 'string' tipinde olmalıdır. Nesne döndürme.
-    4. 'dual_column' tipinde 'left' ve 'right' dizilerini mutlaka eşit uzunlukta doldur.
-    
-    ÇIKTI: 'layoutArchitecture' objesi içeren tam JSON döndür.
+    ÖNEMLİ: Tüm metinler 'string' olmalı. Kesinlikle nested object ({text: '...'}) döndürme.
+    Çıktı mutlaka 'layoutArchitecture' anahtarını içermelidir.
     `;
 
     const schema = {
@@ -57,22 +47,21 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                         items: {
                             type: Type.OBJECT,
                             properties: {
-                                type: { type: Type.STRING, enum: ['header', 'text', 'grid', 'table', 'svg_shape', 'dual_column'] },
-                                content: { 
-                                    type: Type.OBJECT,
-                                    properties: {
-                                        text: { type: Type.STRING },
-                                        cols: { type: Type.INTEGER },
-                                        rows: { type: Type.INTEGER },
-                                        cells: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                        headers: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                        data: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-                                        left: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                        right: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                        paths: { type: Type.ARRAY, items: { type: Type.STRING } }
-                                    }
-                                },
-                                weight: { type: Type.INTEGER }
+                                type: { type: Type.STRING },
+                                content: { type: Type.OBJECT, properties: {
+                                    text: { type: Type.STRING },
+                                    cols: { type: Type.INTEGER },
+                                    rows: { type: Type.INTEGER },
+                                    cells: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                    headers: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                    data: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                                    left: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                    right: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                    prompt: { type: Type.STRING },
+                                    viewBox: { type: Type.STRING },
+                                    paths: { type: Type.ARRAY, items: { type: Type.STRING } }
+                                }},
+                                style: { type: Type.OBJECT, properties: { textAlign: { type: Type.STRING }, fontWeight: { type: Type.STRING } } }
                             },
                             required: ['type', 'content']
                         }
