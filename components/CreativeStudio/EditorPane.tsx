@@ -1,6 +1,7 @@
 
 import React, { useRef } from 'react';
 import { MultimodalFile } from '../../services/geminiClient';
+import { AISnippet } from '../../services/generators/snippetLibrary';
 
 interface EditorPaneProps {
     prompt: string;
@@ -9,7 +10,7 @@ interface EditorPaneProps {
     onFilesSelect: (files: FileList) => void;
     onRemoveFile: (index: number) => void;
     onRefine: (mode: 'expand' | 'clinical') => void;
-    snippets: any[];
+    snippets: AISnippet[];
     isAnalyzing: boolean;
     onAddSnippet: () => void;
 }
@@ -61,9 +62,11 @@ export const EditorPane: React.FC<EditorPaneProps> = ({
             )}
 
             <div className="mt-6">
-                <div className="flex justify-between items-center mb-3">
-                    <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Hızlı Ek İşlevler</h4>
-                    <button onClick={onAddSnippet} className="text-[10px] font-bold text-indigo-500 hover:underline">+ Yeni İşlev Ekle</button>
+                <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Hızlı Direktifler</h4>
+                    <button onClick={onAddSnippet} className="text-[10px] font-black text-indigo-500 hover:text-indigo-400 transition-colors flex items-center gap-1">
+                        <i className="fa-solid fa-grid-2-plus"></i> TÜM KÜTÜPHANEYİ AÇ
+                    </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <button onClick={() => fileInputRef.current?.click()} className="px-6 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-indigo-500 transition-all flex items-center gap-2 shadow-lg">
@@ -72,8 +75,14 @@ export const EditorPane: React.FC<EditorPaneProps> = ({
                     <input type="file" ref={fileInputRef} onChange={(e) => e.target.files && onFilesSelect(e.target.files)} className="hidden" accept="image/*,application/pdf" multiple />
                     
                     {snippets.map(s => (
-                        <button key={s.id} onClick={() => setPrompt(prompt + "\n" + s.value)} className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-[11px] font-black uppercase transition-all">
-                            + {s.label}
+                        <button 
+                            key={s.id} 
+                            onClick={() => setPrompt(prompt + "\n\n" + s.value)} 
+                            title={s.description}
+                            className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-white/5 rounded-xl text-[11px] font-black uppercase transition-all flex items-center gap-2"
+                        >
+                            <i className={`fa-solid ${s.icon} text-[10px] text-indigo-400`}></i>
+                            {s.label}
                         </button>
                     ))}
                 </div>

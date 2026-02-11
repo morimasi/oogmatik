@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+// Fix: Added useMemo to the react imports
+import React, { useState, useEffect, useMemo } from 'react';
 import { refinePromptWithAI, generateCreativeStudioActivity, analyzeReferenceFiles } from '../../services/generators/creativeStudio';
 import { PEDAGOGICAL_LIBRARY, ActivityLibraryItem } from '../../services/generators/promptLibrary';
 import { MultimodalFile } from '../../services/geminiClient';
@@ -7,6 +8,8 @@ import { EditorPane } from './EditorPane';
 import { LibraryPane } from './LibraryPane';
 import { ControlPane } from './ControlPane';
 import { SmartTooltip } from './components/SmartTooltip';
+import { SnippetManagerModal } from './components/SnippetManagerModal';
+import { AISnippet, PROFESSIONAL_SNIPPETS } from '../../services/generators/snippetLibrary';
 
 interface CreativeStudioProps {
     onResult: (data: any) => void;
@@ -36,7 +39,9 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     
     // Custom Data States
     const [localLibrary, setLocalLibrary] = useState<ActivityLibraryItem[]>([]);
-    const [snippets, setSnippets] = useState<any[]>([]);
+    const [customSnippets, setCustomSnippets] = useState<AISnippet[]>([]);
+    const [showSnippetModal, setShowSnippetModal] = useState(false);
+    
     const [hoveredItem, setHoveredItem] = useState<ActivityLibraryItem | null>(null);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [attachedFiles, setAttachedFiles] = useState<MultimodalFile[]>([]);
@@ -45,8 +50,9 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     useEffect(() => {
         const savedLib = localStorage.getItem('custom_pedagogical_lib');
         setLocalLibrary([...PEDAGOGICAL_LIBRARY, ...(savedLib ? JSON.parse(savedLib) : [])]);
-        const savedSnippets = localStorage.getItem('custom_ai_snippets');
-        if (savedSnippets) setSnippets(JSON.parse(savedSnippets));
+        
+        const savedSnippets = localStorage.getItem('custom_ai_snippets_v2');
+        if (savedSnippets) setCustomSnippets(JSON.parse(savedSnippets));
     }, []);
 
     // Thinking Loop
@@ -89,6 +95,18 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         } finally { setIsProcessing(false); }
     };
 
+    const handleSaveCustomSnippet = (snippet: AISnippet) => {
+        const updated = [...customSnippets, snippet];
+        setCustomSnippets(updated);
+        localStorage.setItem('custom_ai_snippets_v2', JSON.stringify(updated));
+    };
+
+    const handleDeleteCustomSnippet = (id: string) => {
+        const updated = customSnippets.filter(s => s.id !== id);
+        setCustomSnippets(updated);
+        localStorage.setItem('custom_ai_snippets_v2', JSON.stringify(updated));
+    };
+
     const handleGenerate = async () => {
         if (!prompt.trim() && attachedFiles.length === 0) return;
         setIsProcessing(true);
@@ -102,9 +120,27 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         }
     };
 
+    // Current Snippets for Editor (Merging System + Custom)
+    const activeSnippets = useMemo(() => {
+        return [...PROFESSIONAL_SNIPPETS, ...customSnippets].slice(0, 8); // Editor shortcuts limit
+    }, [customSnippets]);
+
     return (
         <div className="max-w-7xl mx-auto w-full font-['Lexend'] relative">
             <SmartTooltip item={hoveredItem} pos={mousePos} />
+
+            {showSnippetModal && (
+                <SnippetManagerModal 
+                    onClose={() => setShowSnippetModal(false)}
+                    customSnippets={customSnippets}
+                    onSaveCustom={handleSaveCustomSnippet}
+                    onDeleteCustom={handleDeleteCustomSnippet}
+                    onSelect={(s) => {
+                        setPrompt(prev => prev + "\n\n" + s.value);
+                        setShowSnippetModal(false);
+                    }}
+                />
+            )}
 
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 px-4">
                 <div>
@@ -125,8 +161,8 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                         <EditorPane 
                             prompt={prompt} setPrompt={setPrompt} attachedFiles={attachedFiles}
                             onFilesSelect={handleFilesSelect} onRemoveFile={(idx) => setAttachedFiles(f => f.filter((_, i) => i !== idx))}
-                            onRefine={handleRefine} snippets={snippets} isAnalyzing={isAnalyzingFile}
-                            onAddSnippet={() => {}} // Modal trigger logic here
+                            onRefine={handleRefine} snippets={activeSnippets} isAnalyzing={isAnalyzingFile}
+                            onAddSnippet={() => setShowSnippetModal(true)}
                         />
                     ) : (
                         <LibraryPane 
