@@ -1,30 +1,32 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { ReadingStudioConfig } from '../../types';
+import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
 
 /**
- * enrichUserPrompt: Kullanıcının kısa fikrini pedagojik bir blueprint'e dönüştürür.
+ * refinePromptWithAI: Kullanıcının promptunu profesyonel seviyeye taşır.
+ * 'mode' parametresi ile promptu genişletir veya daraltır (optimize eder).
  */
-export const enrichUserPrompt = async (userIdea: string): Promise<string> => {
+export const refinePromptWithAI = async (userPrompt: string, mode: 'expand' | 'narrow' | 'clinical'): Promise<string> => {
+    const instruction = mode === 'expand' 
+        ? "Bu promptu pedagojik derinlik katarak, disleksi dostu materyal üretim kurallarıyla zenginleştir."
+        : mode === 'narrow'
+        ? "Bu promptu sadeleştir, sadece en temel klinik hedefe odaklan ve netleştir."
+        : "Bu prompta klinik tanı kriterleri ekle (reversal errors, phonological gaps vb.).";
+
     const prompt = `
-    [GÖREV: PROFESYONEL EĞİTİM PROMPT YAZARI]
-    Kullanıcının şu ham fikrini al: "${userIdea}"
+    [GÖREV: PROMPT MİMARI]
+    HAM PROMPT: "${userPrompt}"
+    TALİMAT: ${instruction}
     
-    Bu fikri, Gemini 3.0 modelinin en yüksek performansta (Multimodal Thinking) çalışabilmesi için 
-    ultra detaylı, pedagojik kısıtlamaları olan ve disleksi dostu bir MİMARİ TALİMAT'a dönüştür.
-    
-    TALİMAT ŞUNLARI İÇERMELİ:
-    1. Bilişsel Hedefler (Görsel dikkat, fonolojik farkındalık vb.)
-    2. Grafik Düzeni (Kaç blok, hangi tablolar, hangi SVG şekilleri kullanılmalı)
-    3. Dil Seviyesi (TDK kuralları, heceleme hassasiyeti)
-    
-    Sadece zenginleştirilmiş prompt metnini döndür.
+    KURAL: Sonuç doğrudan bir yapay zeka modeline talimat olarak gönderilecektir. 
+    İçeriğinde "Şunu yap", "Şu formatta olsun" gibi net emirler barındırmalıdır.
+    Sadece zenginleştirilmiş metni döndür.
     `;
 
-    const schema = { type: Type.OBJECT, properties: { enrichedPrompt: { type: Type.STRING } }, required: ['enrichedPrompt'] };
+    const schema = { type: Type.OBJECT, properties: { refined: { type: Type.STRING } }, required: ['refined'] };
     const result = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
-    return result.enrichedPrompt;
+    return result.refined;
 };
 
 /**
@@ -32,7 +34,10 @@ export const enrichUserPrompt = async (userIdea: string): Promise<string> => {
  */
 export const generateCreativeStudioActivity = async (enrichedPrompt: string, options: any) => {
     const prompt = `
-    [GÖREV: NÖRO-MİMARİ ÜRETİM MOTORU v5.0]
+    ${PEDAGOGICAL_BASE}
+    ${CLINICAL_DIAGNOSTIC_GUIDE}
+    
+    GÖREV: NÖRO-MİMARİ ÜRETİM
     
     TALİMAT:
     ${enrichedPrompt}
@@ -85,6 +90,5 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
         required: ['title', 'instruction', 'layoutArchitecture']
     };
 
-    // Thinking Budget bu aşamada kritik.
     return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
 };
