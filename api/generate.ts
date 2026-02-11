@@ -4,17 +4,11 @@ import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 
 const MASTER_MODEL = "gemini-3-flash-preview";
 
-// Fix: Escaped backticks in the SYSTEM_INSTRUCTION string to prevent early termination of the template literal.
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
-Görevin: Disleksi, Diskalkuli ve DEHB tanısı almış çocuklar için bilimsel temelli eğitim materyali üretmek.
-MODEL MODU: Thinking & Multimodal Enabled.
-
-KURAL: 
-1. Yanıtın SADECE geçerli bir JSON olmalıdır. 
-2. Görsel analiz ediyorsan, görselle ilgili yorum yapma, doğrudan JSON dön.
-3. Asla Markdown (\`\`\`json) bloğu dışında metin ekleme.
-4. Üretimden önce pedagojik hiyerarşiyi derinlemesine düşün.
+MODEL: Gemini 3 Flash (Thinking & Multimodal Enabled).
+Görevin: Klinik hassasiyetle eğitim materyali üretmek.
+KURAL: Yanıtın SADECE geçerli bir JSON olmalıdır. Üretimden önce mimari DNA'yı ve pedagojik hedefleri derinlemesine düşün.
 `;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -23,7 +17,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
-    // Fix: Ensured the 405 response is correctly formatted within the handler function.
     if (req.method !== 'POST') return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
 
     try {
@@ -44,8 +37,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
                 { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
             ],
-            // GEMINI 3 FLASH THINKING CONFIG
-            maxOutputTokens: 10000,
+            // GEMINI 3 THINKING CONFIGURATION
+            maxOutputTokens: 12000,
             thinkingConfig: { thinkingBudget: 4000 }
         };
 

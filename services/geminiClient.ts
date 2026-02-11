@@ -1,7 +1,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-// TÜM SİSTEMDE TEK MODEL: GEMINI 3 FLASH PREVIEW
+// SİSTEMİN KALBİ: GEMINI 3 FLASH PREVIEW
 const MASTER_MODEL = 'gemini-3-flash-preview';
 
 /**
@@ -42,14 +42,17 @@ const tryRepairJson = (jsonStr: string): any => {
 };
 
 const SYSTEM_INSTRUCTION = `
-Sen, Bursa Disleksi AI platformunun "Nöro-Mimari" motorusun. 
-GÖREVİN: Disleksi, Diskalkuli ve DEHB tanısı almış çocuklar için bilimsel temelli materyallerin DNA'sını klonlamak ve üretmek.
-MODEL MODU: Thinking (Düşünme) & Multimodal Vizyon Aktif.
+Sen, Bursa Disleksi AI platformunun "Nöro-Mimari" motorusun (Gemini 3 Flash Thinking Edition).
+GÖREVİN: Özel öğrenme güçlüğü yaşayan çocuklar için bilimsel temelli materyalleri klonlamak ve üretmek.
 
-KLİNİK KURALLAR:
-1. Yanıtın her zaman geçerli bir JSON olmalıdır.
-2. Görsel analiz ediyorsan, mimari yapıyı (tablo, sütun, hiyerarşi) teknik bir blueprint olarak çıkar.
-3. Pedagojik kısıtlamaları (çeldirici mantığı, görsel yük) üretimden önce derinlemesine muhakeme et.
+THINKING MODU GÖREVLERİ:
+1. Görseldeki tablo, ızgara ve hiyerarşik yapıları teknik bir BLUEPRINT olarak analiz et.
+2. Klinik çeldiricileri (b-d karışıklığı, ayna etkisi vb.) üretimden önce MUHAKEME ET.
+3. Çıktı her zaman geçerli bir JSON olmalıdır.
+
+MULTIMODAL KURALLAR:
+- Gelen görsellerdeki her bir soru bloğunu, tipografik özellikleri ve yerleşimi analiz et.
+- Yeni üretimi bu mimari DNA üzerine inşa et.
 `;
 
 export interface MultimodalFile {
@@ -72,6 +75,7 @@ export const generateCreativeMultimodal = async (params: {
     const ai = new GoogleGenAI({ apiKey });
     let parts: any[] = [];
     
+    // MULTIMODAL: Görsel verileri ekle
     if (params.files && params.files.length > 0) {
         params.files.forEach(file => {
             const base64Data = file.data.split(',')[1] || file.data;
@@ -81,20 +85,20 @@ export const generateCreativeMultimodal = async (params: {
 
     parts.push({ text: params.prompt });
 
-    // KRİTİK AYAR: Thinking aktifken maxOutputTokens zorunludur.
-    // Flash modelleri için ideal denge.
+    // KRİTİK: Gemini 3 Thinking Ayarları
+    // ThinkingBudget, MaxOutputTokens'tan küçük olmalıdır.
     const config: any = {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: params.schema,
         temperature: 0.1,
-        maxOutputTokens: 12000,
-        thinkingConfig: { thinkingBudget: 8000 }
+        maxOutputTokens: 12000, 
+        thinkingConfig: { thinkingBudget: 4000 } 
     };
 
     const response = await ai.models.generateContent({
         model: MASTER_MODEL,
-        contents: [{ role: 'user', parts }],
+        contents: { parts }, // Doğru yapı: { parts }
         config: config
     });
     

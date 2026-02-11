@@ -1,25 +1,32 @@
 
 import { Type } from "@google/genai";
-import { generateWithSchema } from '../geminiClient';
+import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions, ActivityType } from '../../types';
 import { PEDAGOGICAL_BASE } from './prompts';
 
+/**
+ * generateFromRichPrompt:
+ * Gemini 3 Flash 'Thinking' motoruyla bir görselin mimari DNA'sından 
+ * tamamen yeni ama aynı düzende bir içerik üretir.
+ */
 export const generateFromRichPrompt = async (activityType: ActivityType, blueprint: string, options: GeneratorOptions): Promise<any> => {
     const prompt = `
     ${PEDAGOGICAL_BASE}
-    [ROLE: REMATERIALIZATION ENGINE - GEMINI 3 FLASH THINKING]
+    [ROL: REMATERIALIZATION ENGINE - GEMINI 3 FLASH THINKING]
     
     GÖREV: Aşağıdaki TEKNİK BLUEPRINT'i (MİMARİ DNA) al ve onu BİREBİR AYNI DÜZENDE ama 100% YENİ VERİLERLE inşa et.
     
-    MİMARİ DNA:
+    MİMARİ DNA (Görselden Çıkarılan):
     ${blueprint}
     
-    KURALLAR:
-    1. Görseldeki tablo yapılarını ve blok sıralamasını ASLA DEĞİŞTİRME.
-    2. Metinleri 'SOLUTION_LOGIC' kurallarına uyarak yeniden yaz.
-    3. Zorluk Seviyesi: ${options.difficulty}
+    PARAMETRELER:
+    - Zorluk Seviyesi: ${options.difficulty}
+    - Sayfa Başı Öğe: ${options.itemCount}
     
-    Üretimden önce disleksi dostu hiyerarşiyi derinlemesine düşün.
+    MİMARİ KURALLAR:
+    1. Orijinal yapıdaki 'grid' (ızgara) ve 'table' (tablo) yerleşimlerini asla bozma.
+    2. Mevcut çeldirici mantığını (reversal, omission vb.) yeni verilere uyarla.
+    3. Üretimden önce mimarinin pedagojik bütünlüğünü 4000 token bütçesiyle düşün.
     `;
 
     const schema = {
@@ -37,8 +44,9 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                         items: {
                             type: Type.OBJECT,
                             properties: {
-                                type: { type: Type.STRING },
-                                content: { type: Type.OBJECT }
+                                type: { type: Type.STRING, enum: ['header', 'text', 'grid', 'table', 'logic_card', 'image', 'footer_validation'] },
+                                content: { type: Type.OBJECT },
+                                weight: { type: Type.INTEGER }
                             },
                             required: ['type', 'content']
                         }
@@ -50,5 +58,6 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
         required: ['title', 'instruction', 'layoutArchitecture']
     };
 
-    return await generateWithSchema(prompt, schema);
+    // geminiClient zaten MASTER_MODEL ve Thinking bütçesini kullanacak şekilde ayarlandı.
+    return await generateCreativeMultimodal({ prompt, schema });
 };
