@@ -42,7 +42,7 @@ import { SymmetryDrawingSheet } from './sheets/visual/SymmetryDrawingSheet';
 import { ShapeCountingSheet } from './sheets/visual/ShapeCountingSheet';
 import { DirectionalTrackingSheet } from './sheets/visual/DirectionalTrackingSheet';
 import { ReadingStudioContentRenderer } from './ReadingStudio/ReadingStudioContentRenderer';
-import { PedagogicalHeader, ImageDisplay, TenFrame } from './sheets/common';
+import { PedagogicalHeader, ImageDisplay } from './sheets/common';
 import { EditableText, EditableElement } from './Editable';
 
 interface SheetRendererProps {
@@ -50,26 +50,47 @@ interface SheetRendererProps {
     data: SingleWorksheetData;
 }
 
+/**
+ * [OBJECT OBJECT] Hatasını önleyen Güvenli Metin Temizleyici
+ */
+const safeText = (val: any): string => {
+    if (val === null || val === undefined) return "";
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object' && val.text) return String(val.text);
+    return JSON.stringify(val);
+};
+
 const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
     const content: any = block.content;
+    if (!content) return null;
     
     switch (block.type) {
         case 'header':
-            return <h2 className="text-3xl font-black uppercase border-b-8 border-zinc-900 mb-8 pb-3 leading-none"><EditableText value={content} /></h2>;
+            return (
+                <div className="mb-10 text-center">
+                    <h2 className="text-4xl font-black uppercase border-b-8 border-zinc-900 pb-4 leading-none tracking-tighter">
+                        <EditableText value={safeText(content.text || content)} tag="span" />
+                    </h2>
+                </div>
+            );
         
         case 'text':
-            return <div className="text-xl leading-relaxed mb-8 text-justify font-dyslexic text-zinc-800"><EditableText value={content} /></div>;
+            return (
+                <div className="text-xl leading-relaxed mb-8 text-justify font-dyslexic text-zinc-800 bg-zinc-50/50 p-4 rounded-xl border border-zinc-100">
+                    <EditableText value={safeText(content.text || content)} tag="div" />
+                </div>
+            );
         
         case 'grid':
             return (
-                <div className="flex justify-center mb-10">
+                <div className="flex justify-center mb-12">
                     <div 
-                        className="grid gap-2 border-[4px] border-zinc-900 p-3 bg-white shadow-xl rounded-[2rem]"
+                        className="grid gap-2 border-[5px] border-zinc-900 p-4 bg-white shadow-2xl rounded-[2.5rem]"
                         style={{ gridTemplateColumns: `repeat(${content.cols || 4}, 1fr)` }}
                     >
                         {(content.cells || []).map((cell: any, i: number) => (
-                            <div key={i} className="w-14 h-14 border-2 border-zinc-100 bg-zinc-50 rounded-xl flex items-center justify-center font-black text-2xl text-zinc-800 shadow-inner">
-                                <EditableText value={cell || ''} tag="span" />
+                            <div key={i} className="w-16 h-16 border-2 border-zinc-100 bg-zinc-50 rounded-2xl flex items-center justify-center font-black text-3xl text-zinc-900 shadow-inner hover:bg-white transition-colors">
+                                <EditableText value={safeText(cell)} tag="span" />
                             </div>
                         ))}
                     </div>
@@ -78,23 +99,23 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
 
         case 'table':
             return (
-                <div className="overflow-hidden border-[3px] border-zinc-900 rounded-[2.5rem] mb-10 shadow-lg bg-white">
+                <div className="overflow-hidden border-[4px] border-zinc-900 rounded-[3rem] mb-12 shadow-2xl bg-white">
                     <table className="w-full border-collapse">
                         {content.headers && (
                             <thead className="bg-zinc-900 text-white">
                                 <tr>
                                     {content.headers.map((h: string, i: number) => (
-                                        <th key={i} className="p-4 text-xs font-black uppercase tracking-widest border-r border-white/10 last:border-0">{h}</th>
+                                        <th key={i} className="p-5 text-sm font-black uppercase tracking-widest border-r border-white/10 last:border-0">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
                         )}
                         <tbody>
-                            {(content.data || []).map((row: string[], i: number) => (
-                                <tr key={i} className="border-b border-zinc-100 last:border-0">
+                            {(content.data || []).map((row: any[], i: number) => (
+                                <tr key={i} className="border-b-2 border-zinc-100 last:border-0 hover:bg-zinc-50 transition-colors">
                                     {row.map((cell, j) => (
-                                        <td key={j} className="p-4 text-center font-bold text-zinc-700 border-r border-zinc-100 last:border-0">
-                                            <EditableText value={cell} tag="span" />
+                                        <td key={j} className="p-5 text-center font-black text-xl text-zinc-800 border-r-2 border-zinc-100 last:border-0">
+                                            <EditableText value={safeText(cell)} tag="span" />
                                         </td>
                                     ))}
                                 </tr>
@@ -106,20 +127,20 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
 
         case 'dual_column':
             return (
-                <div className="grid grid-cols-2 gap-20 mb-10 px-6">
-                    <div className="space-y-4">
-                        {(content.left || []).map((item: string, i: number) => (
-                            <div key={i} className="p-4 border-2 border-zinc-800 rounded-2xl bg-zinc-50 font-black text-lg relative group">
-                                <EditableText value={item} tag="span" />
-                                <div className="absolute -right-12 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-zinc-300"></div>
+                <div className="grid grid-cols-2 gap-24 mb-12 px-10">
+                    <div className="space-y-6">
+                        {(content.left || []).map((item: any, i: number) => (
+                            <div key={i} className="p-5 border-[3px] border-zinc-900 rounded-2xl bg-zinc-50 font-black text-xl relative group shadow-sm">
+                                <EditableText value={safeText(item)} tag="span" />
+                                <div className="absolute -right-14 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-[3px] border-zinc-300 bg-white"></div>
                             </div>
                         ))}
                     </div>
-                    <div className="space-y-4">
-                        {(content.right || []).map((item: string, i: number) => (
-                            <div key={i} className="p-4 border-2 border-zinc-300 border-dashed rounded-2xl bg-white font-bold text-lg relative text-zinc-500">
-                                <EditableText value={item} tag="span" />
-                                <div className="absolute -left-12 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-zinc-300"></div>
+                    <div className="space-y-6">
+                        {(content.right || []).map((item: any, i: number) => (
+                            <div key={i} className="p-5 border-[3px] border-zinc-200 border-dashed rounded-2xl bg-white font-bold text-xl relative text-zinc-500 hover:border-indigo-400 transition-all">
+                                <EditableText value={safeText(item)} tag="span" />
+                                <div className="absolute -left-14 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-[3px] border-zinc-300 bg-white"></div>
                             </div>
                         ))}
                     </div>
@@ -128,11 +149,11 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
 
         case 'svg_shape':
             return (
-                <div className="flex justify-center mb-10">
-                    <div className="w-48 h-48 p-4 bg-zinc-50 rounded-[3rem] border-2 border-zinc-100 shadow-inner flex items-center justify-center overflow-hidden">
-                        <svg viewBox={content.viewBox || "0 0 100 100"} className="w-full h-full">
+                <div className="flex justify-center mb-12">
+                    <div className="w-56 h-56 p-6 bg-white rounded-[4rem] border-[4px] border-zinc-900 shadow-xl flex items-center justify-center overflow-hidden transform hover:rotate-3 transition-transform">
+                        <svg viewBox={content.viewBox || "0 0 100 100"} className="w-full h-full text-zinc-900">
                             {(content.paths || []).map((p: string, i: number) => (
-                                <path key={i} d={p} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                <path key={i} d={p} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
                             ))}
                         </svg>
                     </div>
@@ -140,43 +161,59 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
             );
 
         case 'image':
-            return <ImageDisplay prompt={content.prompt} className="w-full h-64 mb-10 shadow-2xl rounded-[3rem] border-8 border-white" />;
+            return (
+                <div className="mb-12 group">
+                    <ImageDisplay prompt={content.prompt} className="w-full h-72 shadow-2xl rounded-[3.5rem] border-[10px] border-white ring-1 ring-zinc-200 transform group-hover:scale-[1.01] transition-transform duration-700" />
+                </div>
+            );
         
         default:
-            return <div className="p-4 border-2 border-dashed border-zinc-200 rounded-2xl text-zinc-400 italic text-center mb-4">Blok ayrıştırılamadı.</div>;
+            return (
+                <div className="p-8 border-4 border-dashed border-zinc-100 rounded-[3rem] text-zinc-300 font-bold italic text-center mb-6 flex flex-col items-center gap-2">
+                    <i className="fa-solid fa-triangle-exclamation text-2xl"></i>
+                    <span>Blok ayrıştırılamadı ({block.type})</span>
+                </div>
+            );
     }
 };
 
 const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
-    // Mimari Klonlayıcı (OCR) verisi layoutArchitecture içinde bloklar halinde gelir
-    const ocrBlocks = data.layoutArchitecture?.blocks || data.blocks;
+    // OCR veya Zengin içerik blokları
+    const blocks = data.layoutArchitecture?.blocks || data.blocks;
 
-    if (ocrBlocks && ocrBlocks.length > 0) {
+    if (blocks && blocks.length > 0) {
         return (
             <div className="w-full h-full flex flex-col animate-in fade-in zoom-in-95 duration-1000">
                 <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-                <div className="flex-1 flex flex-col mt-6">
-                    {ocrBlocks.map((block: WorksheetBlock, idx: number) => (
+                <div className="flex-1 flex flex-col mt-8">
+                    {blocks.map((block: WorksheetBlock, idx: number) => (
                         <BlockRenderer key={idx} block={block} />
                     ))}
+                </div>
+                <div className="mt-auto pt-10 border-t-2 border-zinc-100 flex justify-between items-center opacity-30 px-4">
+                     <p className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.5em]">Bursa Disleksi AI • Mimari Klonlayıcı Engine v5.0</p>
+                     <div className="flex gap-4"><i className="fa-solid fa-microchip"></i><i className="fa-solid fa-dna"></i></div>
                 </div>
             </div>
         );
     }
     
-    // Eski/Standart render mantığı
+    // Standart/Eski render mantığı (Fallback)
     return (
         <div className="w-full h-full flex flex-col animate-in fade-in duration-700">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-            <div className="flex flex-col gap-6 mt-4">
+            <div className="flex flex-col gap-8 mt-6">
                 {(data.sections || []).map((section: any, idx: number) => (
-                    <EditableElement key={idx} className="bg-white rounded-[3rem] border-[3px] border-zinc-900 shadow-sm w-full p-8 group hover:border-indigo-600 transition-all">
-                        {section.title && <h4 className="text-xs font-black text-indigo-600 uppercase tracking-[0.3em] mb-4 border-b border-indigo-50 pb-2 flex items-center gap-2"><i className="fa-solid fa-star"></i> <EditableText value={section.title} tag="span" /></h4>}
-                        {section.type === 'text' && <div className="prose max-w-none text-zinc-800 leading-relaxed font-dyslexic text-xl text-justify"><EditableText value={section.content} tag="div" /></div>}
+                    <EditableElement key={idx} className="bg-white rounded-[3rem] border-[4px] border-zinc-900 shadow-sm w-full p-10 group hover:border-indigo-600 transition-all">
+                        {section.title && <h4 className="text-xs font-black text-indigo-600 uppercase tracking-[0.4em] mb-6 border-b-2 border-indigo-50 pb-3 flex items-center gap-3"><i className="fa-solid fa-star-of-life"></i> <EditableText value={safeText(section.title)} tag="span" /></h4>}
+                        {section.type === 'text' && <div className="prose max-w-none text-zinc-800 leading-relaxed font-dyslexic text-2xl text-justify"><EditableText value={safeText(section.content)} tag="div" /></div>}
                         {section.type === 'list' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {(section.items || []).map((item: string, i: number) => (
-                                    <div key={i} className="flex gap-5 items-start p-5 bg-zinc-50 rounded-3xl border-2 border-zinc-100 group-hover:bg-white transition-all"><div className="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-lg">{i+1}</div><div className="flex-1 font-bold text-zinc-800 text-lg leading-snug"><EditableText value={item} tag="span" /></div></div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {(section.items || []).map((item: any, i: number) => (
+                                    <div key={i} className="flex gap-6 items-start p-6 bg-zinc-50 rounded-[2rem] border-2 border-zinc-100 group-hover:bg-white group-hover:border-indigo-100 transition-all">
+                                        <div className="w-10 h-10 rounded-2xl bg-zinc-900 text-white flex items-center justify-center text-sm font-black shrink-0 shadow-lg">{i+1}</div>
+                                        <div className="flex-1 font-bold text-zinc-800 text-xl leading-snug"><EditableText value={safeText(item)} tag="span" /></div>
+                                    </div>
                                 ))}
                             </div>
                         )}
@@ -199,6 +236,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         return <ReadingStudioContentRenderer layout={data.layout} storyData={data.storyData} />;
     }
 
+    // ... (Case Switch bloğu aynı kalıyor)
     switch (activityType) {
         case ActivityType.ALGORITHM_GENERATOR: return <AlgorithmSheet data={data as unknown as AlgorithmData} />;
         case ActivityType.MATH_PUZZLE: return <MathPuzzleSheet data={data as unknown as MathPuzzleData} />;
@@ -270,6 +308,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.WORD_SEARCH: return <WordSearchSheet data={data as unknown as WordSearchData} />;
         case ActivityType.ANAGRAM: return <AnagramSheet data={data as unknown as AnagramsData} />;
         case ActivityType.CROSSWORD: return <CrosswordSheet data={data as unknown as CrosswordData} />;
-        default: return <div className="p-12 text-center border-4 border-dashed border-zinc-100 rounded-[3rem]"><h3 className="font-black text-zinc-300 uppercase tracking-widest text-2xl">Modül: {activityType}</h3><p className="text-zinc-400 mt-2 font-bold">Görsel motor henüz bu tip için optimize edilmedi.</p></div>;
+        default: return <div className="p-12 text-center border-4 border-dashed border-zinc-100 rounded-[3rem]"><h3 className="font-black text-zinc-300 uppercase tracking-widest text-2xl">Modül: {activityType}</h3><p className="text-zinc-400 mt-2 font-bold">Bu aktivite tipi için özel bir sayfa yapısı tanımlanmamış.</p></div>;
     }
 });

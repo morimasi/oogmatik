@@ -6,28 +6,20 @@ import { OCRResult } from '../types';
 export const ocrService = {
     /**
      * Görseli analiz eder ve "Vektörel Mimari Blueprint" çıkarır.
-     * Artık sadece metin değil, tablo yapıları ve SVG koordinatlarını da yakalar.
+     * Bu aşamada sadece veriyi değil, görselin "MİMARİ DNA"sını yakalarız.
      */
     processImage: async (base64Image: string): Promise<OCRResult> => {
         const prompt = `
-        [GÖREV: MİMARİ KLONLAYICI - GRAFİK ANALİZ VE RE-DESIGN]
-        Görüntüdeki materyali bir yazılım mimarı ve grafik tasarımcı gözüyle analiz et.
+        [GÖREV: MİMARİ ANALİZ - PEDAGOJİK DİJİTALLEŞTİRME]
+        Görüntüdeki materyali bir grafik tasarımcı ve özel eğitim uzmanı gözüyle teknik olarak parçala.
         
-        ANALİZ ADIMLARI (THINKING):
-        1. Uzamsal Düzen: Kağıtta kaç ana blok var? (Başlık, Tablo, Yan Sütun, Görsel Alan vb.)
-        2. Veri Yapısı: Eğer bir bulmaca (Futoshiki, Sudoku) varsa, tam grid boyutunu (3x3, 4x4) ve hücre içeriğini tespit et.
-        3. Vektörel Öğeler: Şekiller (üçgen, kare) veya özel grafikler varsa, bunları <path> d parametrelerine veya temel geometrik objelere dönüştür.
-        4. Varyasyon Stratejisi: Yapıyı (iskeleti) koruyarak, içindeki sayıları/kelimeleri nasıl değiştirebileceğini planla.
-
-        ÇIKTI (JSON BLOCKS):
-        Yanıtın içindeki 'blocks' dizisi şu yapıları içerebilir:
-        - { "type": "header", "content": { "text": "..." } }
-        - { "type": "grid", "content": { "rows": 4, "cols": 4, "cells": [...] } }
-        - { "type": "table", "content": { "headers": [], "data": [][] } }
-        - { "type": "svg_shape", "content": { "paths": ["d=..."], "viewBox": "..." } }
-        - { "type": "dual_column", "content": { "left": [], "right": [] } }
-
-        DİKKAT: Sadece açıklama üretme. Görseldeki tabloyu bir 'grid' veya 'table' objesi olarak KODLA.
+        ANALİZ KRİTERLERİ:
+        1. Blok Tipi Tespit Et: (header, text, grid, table, dual_column, svg_shape)
+        2. Görsel Hiyerarşi: Başlık nerede? Sorular nasıl dizilmiş? 
+        3. Matematiksel Yapı: Eğer bir tablo veya grid varsa, satır/sütun sayısını KESİN olarak belirle.
+        
+        ÖNEMLİ: Çıktıdaki 'blocks' dizisi, frontend'in 'BlockRenderer' bileşeniyle tam uyumlu olmalıdır.
+        İçerikleri 'content' objesi içinde, tipleri 'type' stringi olarak döndür.
         `;
 
         const schema = {
@@ -36,6 +28,14 @@ export const ocrService = {
                 detectedType: { type: Type.STRING },
                 title: { type: Type.STRING },
                 description: { type: Type.STRING },
+                worksheetBlueprint: { 
+                    type: Type.STRING, 
+                    description: "Bu görselin teknik mimarisini anlatan, yeni üretim için kullanılacak detaylı JSON iskeleti açıklaması." 
+                },
+                algorithmBlueprint: {
+                    type: Type.STRING,
+                    description: "Bu çalışmanın mantığını anlatan adım adım çözüm yolu açıklaması."
+                },
                 layoutArchitecture: {
                     type: Type.OBJECT,
                     properties: {
@@ -54,30 +54,20 @@ export const ocrService = {
                                             cells: { type: Type.ARRAY, items: { type: Type.STRING } },
                                             headers: { type: Type.ARRAY, items: { type: Type.STRING } },
                                             data: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-                                            paths: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                            viewBox: { type: Type.STRING },
                                             left: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                            right: { type: Type.ARRAY, items: { type: Type.STRING } }
+                                            right: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                            paths: { type: Type.ARRAY, items: { type: Type.STRING } }
                                         }
                                     },
-                                    style: { 
-                                        type: Type.OBJECT,
-                                        properties: {
-                                            fontSize: { type: Type.INTEGER },
-                                            fontWeight: { type: Type.STRING },
-                                            textAlign: { type: Type.STRING },
-                                            color: { type: Type.STRING }
-                                        }
-                                    }
+                                    weight: { type: Type.INTEGER }
                                 },
                                 required: ['type', 'content']
                             }
                         }
                     }
-                },
-                variationBlueprint: { type: Type.STRING, description: "Yeni verilerle üretim için AI yönergesi" }
+                }
             },
-            required: ['detectedType', 'title', 'layoutArchitecture', 'variationBlueprint']
+            required: ['detectedType', 'title', 'layoutArchitecture', 'worksheetBlueprint', 'algorithmBlueprint']
         };
 
         try {
@@ -88,12 +78,12 @@ export const ocrService = {
                 detectedType: result.detectedType,
                 title: result.title,
                 description: result.description,
-                generatedTemplate: result.variationBlueprint,
+                generatedTemplate: result.worksheetBlueprint,
                 structuredData: result,
                 baseType: 'OCR_CONTENT'
             };
         } catch (error) {
-            console.error("Advanced Vision OCR Error:", error);
+            console.error("Advanced OCR Analysis Error:", error);
             throw error;
         }
     }
