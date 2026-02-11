@@ -12,9 +12,17 @@ export interface DynamicActivity {
     isPremium: boolean;
     promptId?: string; 
     defaultParams?: Record<string, any>; 
-    order: number; // Menüdeki sıralama ağırlığı
-    themeColor?: string; // Aktiviteye özel marka rengi (Hex)
-    targetSkills: string[]; // Hedeflenen bilişsel beceriler
+    order: number; 
+    themeColor: string; 
+    secondaryColor?: string; // Gradient için
+    animationType?: 'fade' | 'slide' | 'scale' | 'none';
+    targetSkills: string[]; 
+    cognitiveWeights?: {
+        attention: number;
+        memory: number;
+        logic: number;
+        verbal: number;
+    };
     updatedAt: string;
 }
 
