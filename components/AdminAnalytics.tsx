@@ -1,6 +1,7 @@
+
 import React, { useMemo } from 'react';
 import { ActivityStats } from '../types';
-import { AdminStatCard, AnalyticsDataPoint } from '../types/admin';
+import { AdminStatCard } from '../types/admin';
 
 interface AdminAnalyticsProps {
     stats: ActivityStats[];

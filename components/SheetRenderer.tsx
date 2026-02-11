@@ -162,7 +162,8 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.VISUAL_MEMORY: return <VisualMemorySheet data={data as unknown as VisualMemoryData} />;
         case ActivityType.CHARACTER_MEMORY: return <CharacterMemorySheet data={data as unknown as CharacterMemoryData} />;
         case ActivityType.COLOR_WHEEL_MEMORY: return <ColorWheelSheet data={data as unknown as ColorWheelMemoryData} />;
-        case ActivityType.IMAGE_COMPREHENSION: return <ImageComprehensionSheet data={data as unknown as ImageComprehensionData} />;
+        // Corrected ActivityType.IMAGE_COMPREHENSION to IMAGE_COMPREHRENSION to match its definition in types/core.ts.
+        case ActivityType.IMAGE_COMPREHRENSION: return <ImageComprehensionSheet data={data as unknown as ImageComprehensionData} />;
         case ActivityType.STROOP_TEST: return <StroopTestSheet data={data as unknown as StroopTestData} />;
         case ActivityType.BURDON_TEST: return <BurdonTestSheet data={data as unknown as LetterGridTestData} />;
         case ActivityType.NUMBER_SEARCH: return <NumberSearchSheet data={data as unknown as NumberSearchData} />;

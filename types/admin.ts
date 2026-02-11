@@ -3,31 +3,16 @@ import { ActivityType } from './core';
 import { UserRole, UserStatus } from './core';
 
 export interface DynamicActivity {
-    id: string; // matches ActivityType
+    id: string; 
     title: string;
     description: string;
     icon: string;
     category: string;
     isActive: boolean;
     isPremium: boolean;
-    promptId?: string; // Linked prompt template ID
-    defaultParams?: Record<string, any>; // Default values for prompt variables
-    order?: number; // Sorting order
-}
-
-export interface ActivityDraft {
-    id: string;
-    title: string;
-    description: string;
-    baseType: string; // The underlying ActivityType (e.g. BASIC_OPERATIONS)
-    customInstructions: string; // The OCR derived instructions
-    defaultParams: {
-        topic: string;
-        difficulty: string;
-        itemCount: number;
-    };
-    createdAt: string;
-    createdBy: string;
+    promptId?: string; 
+    defaultParams?: Record<string, any>; 
+    order?: number; 
 }
 
 export interface PromptVersion {
@@ -40,21 +25,22 @@ export interface PromptVersion {
 }
 
 export interface PromptTemplate {
-    id: string; // e.g. 'math_base', 'story_structure'
+    id: string; 
     name: string;
     description: string;
-    category: string; // 'math', 'verbal', 'logic', 'system'
-    systemInstruction: string; // The "Persona" of the AI
-    template: string; // The user prompt template
-    variables: string[]; // e.g. ['difficulty', 'topic']
-    tags: string[]; // e.g. ['math', 'logic']
+    category: string; 
+    systemInstruction: string; 
+    template: string; 
+    variables: string[]; 
+    tags: string[]; 
     updatedAt: string;
     version: number;
-    history?: PromptVersion[]; // Version history
+    history?: PromptVersion[]; 
     modelConfig?: {
         temperature?: number;
         topP?: number;
         modelName?: string;
+        thinkingBudget?: number; // Gemini 3 specialized
     };
 }
 
@@ -66,8 +52,23 @@ export interface PromptSnippet {
     updatedAt?: string;
 }
 
+export interface ActivityDraft {
+    id: string;
+    title: string;
+    description: string;
+    baseType: string;
+    customInstructions: string;
+    defaultParams: {
+        topic: string;
+        difficulty: string;
+        itemCount: number;
+    };
+    createdAt: string;
+    createdBy: string;
+}
+
 export interface StaticContentItem {
-    id: string; // e.g., 'proverbs_tr', 'word_list_animals'
+    id: string;
     title: string;
     type: 'list' | 'json';
     data: string[] | any;
@@ -81,15 +82,10 @@ export interface AdminStatCard {
     trendUp?: boolean;
     icon: string;
     color: string;
-    chartData?: number[]; // Mini sparkline data
+    chartData?: number[]; 
 }
 
-export interface AnalyticsDataPoint {
-    date: string;
-    value: number;
-    category?: string;
-}
-
+// Added UserFilter interface
 export interface UserFilter {
     search: string;
     role: UserRole | 'all';

@@ -1,68 +1,48 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { PromptTemplate, PromptSnippet } from '../types/admin';
+import { PromptTemplate, PromptSnippet, PromptVersion } from '../types/admin';
 import { adminService } from '../services/adminService';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import { ActivityType } from '../types';
 
-// --- DEFAULT SNIPPETS (FALLBACK) ---
-const DEFAULT_SNIPPETS = [
-    { label: 'Rol: Pedagog', value: '[ROL: UZMAN PEDAGOG VE ÖZEL EĞİTİM UZMANI]\nSen çocuk psikolojisi ve öğrenme güçlükleri konusunda uzmansın.' },
-    { label: 'Rol: Matematikçi', value: '[ROL: MATEMATİK ÖĞRETİM TASARIMCISI]\nSoyut kavramları somutlaştırma konusunda ustasın.' },
-    { label: 'JSON Kuralı', value: 'KESİN KURAL: Sadece geçerli JSON formatında yanıt ver. Markdown, açıklama veya ek metin kullanma.' },
-    { label: 'Görsel Prompt', value: '"imagePrompt" alanı için: "Flat Vector Art, Educational, Minimalist, White Background" stilinde İngilizce betimleme yaz.' },
-    { label: 'Disleksi Kuralı', value: 'Disleksik bireyler için: Kısa cümleler, devrik olmayan yapı ve somut kelimeler kullan.' }
-];
+// --- STYLED COMPONENTS ---
 
-// --- COMPONENTS ---
-
-const CodeEditor = ({ value, onChange, placeholder, readOnly = false }: { value: string, onChange?: (val: string) => void, placeholder?: string, readOnly?: boolean }) => {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+const CodeEditor = ({ value, onChange, readOnly = false }: { value: string, onChange?: (v: string) => void, readOnly?: boolean }) => {
     const preRef = useRef<HTMLPreElement>(null);
+    const textRef = useRef<HTMLTextAreaElement>(null);
 
-    const handleScroll = () => {
-        if (preRef.current && textareaRef.current) {
-            preRef.current.scrollTop = textareaRef.current.scrollTop;
-            preRef.current.scrollLeft = textareaRef.current.scrollLeft;
+    const highlight = (code: string) => {
+        return code
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/(\{\{)(.*?)(\}\})/g, '<span class="text-amber-400 font-bold bg-amber-500/10 px-1 rounded">$1$2$3</span>')
+            .replace(/\[(.*?)\]/g, '<span class="text-emerald-400 font-black">[$1]</span>')
+            .replace(/(GÖREV:|ROL:|KURALLAR:|ÇIKTI:)/g, '<span class="text-rose-400 font-black border-b border-rose-500/20">$1</span>')
+            .replace(/"(.*?)"/g, '<span class="text-sky-300">"$1"</span>');
+    };
+
+    const syncScroll = () => {
+        if (preRef.current && textRef.current) {
+            preRef.current.scrollTop = textRef.current.scrollTop;
+            preRef.current.scrollLeft = textRef.current.scrollLeft;
         }
     };
 
-    const highlightCode = (code: string) => {
-        if (!code) return <br />; 
-        let escaped = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        // Variables {{...}}
-        escaped = escaped.replace(/(\{\{)(.*?)(\}\})/g, '<span class="text-amber-400 font-bold bg-amber-500/10 rounded px-0.5">$1$2$3</span>');
-        // JSON Keys
-        escaped = escaped.replace(/"(.*?)":/g, '<span class="text-sky-300">"$1":</span>');
-        // Roles/Tags
-        escaped = escaped.replace(/\[(.*?)\]/g, '<span class="text-emerald-400 font-bold">[$1]</span>');
-        // Keywords
-        escaped = escaped.replace(/(GÖREV:|ROL:|ZORLUK:|KURALLAR:|ÇIKTI FORMATI:)/g, '<span class="text-rose-400 font-bold border-b border-rose-400/30">$1</span>');
-        
-        return <span dangerouslySetInnerHTML={{ __html: escaped }} />;
-    };
-
     return (
-        <div className="relative w-full h-full font-mono text-sm group bg-[#1e1e1e] text-[#d4d4d4] overflow-hidden rounded-md border border-[#333]">
-            <div className="absolute left-0 top-0 bottom-0 w-10 bg-[#252526] border-r border-[#333] flex flex-col items-end pt-4 pr-2 text-[#6e7681] select-none text-xs leading-[1.6]">
-                {value.split('\n').map((_, i) => <div key={i}>{i + 1}</div>)}
+        <div className="relative w-full h-full bg-[#0d0d0f] rounded-2xl border border-zinc-800 overflow-hidden font-mono text-sm shadow-2xl group">
+            <div className="absolute left-0 top-0 bottom-0 w-12 bg-[#121214] border-r border-zinc-800 flex flex-col items-center pt-5 text-zinc-600 select-none text-[10px]">
+                {value.split('\n').map((_, i) => <div key={i} className="h-6">{i + 1}</div>)}
             </div>
-            <pre
-                ref={preRef}
-                className="absolute inset-0 left-10 m-0 p-4 pointer-events-none whitespace-pre-wrap break-words overflow-hidden leading-[1.6]"
-                aria-hidden="true"
-            >
-                <code className="text-[#d4d4d4]">{highlightCode(value)}</code>
+            <pre ref={preRef} className="absolute inset-0 left-12 p-5 m-0 pointer-events-none whitespace-pre-wrap break-words leading-6 overflow-hidden">
+                <code dangerouslySetInnerHTML={{ __html: highlight(value) }} />
             </pre>
             <textarea
-                ref={textareaRef}
+                ref={textRef}
                 value={value}
-                onChange={(e) => onChange && onChange(e.target.value)}
-                onScroll={handleScroll}
+                onChange={e => onChange?.(e.target.value)}
+                onScroll={syncScroll}
                 readOnly={readOnly}
-                className="absolute inset-0 left-10 w-[calc(100%-2.5rem)] h-full m-0 p-4 bg-transparent text-transparent caret-white border-none resize-none focus:ring-0 outline-none whitespace-pre-wrap break-words leading-[1.6] selection:bg-indigo-500/30"
-                placeholder={placeholder}
                 spellCheck={false}
+                className="absolute inset-0 left-12 w-[calc(100%-48px)] p-5 m-0 bg-transparent text-transparent caret-white outline-none resize-none leading-6 whitespace-pre-wrap break-words selection:bg-indigo-500/30"
             />
         </div>
     );
@@ -70,546 +50,248 @@ const CodeEditor = ({ value, onChange, placeholder, readOnly = false }: { value:
 
 export const AdminPromptStudio: React.FC = () => {
     const [prompts, setPrompts] = useState<PromptTemplate[]>([]);
-    const [selectedPrompt, setSelectedPrompt] = useState<PromptTemplate | null>(null);
-    const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
-    
-    // UI State
-    const [isSaving, setIsSaving] = useState(false);
-    const [activeTab, setActiveTab] = useState<'editor' | 'config' | 'history'>('editor');
-    const [rightPanel, setRightPanel] = useState<'test' | 'snippets'>('test');
-    
-    // Snippet Management State
+    const [selected, setSelected] = useState<PromptTemplate | null>(null);
     const [snippets, setSnippets] = useState<PromptSnippet[]>([]);
-    const [snippetMode, setSnippetMode] = useState<'list' | 'edit'>('list');
-    const [editingSnippet, setEditingSnippet] = useState<PromptSnippet | null>(null);
-    const [snippetForm, setSnippetForm] = useState<PromptSnippet>({ id: '', label: '', value: '' });
-
-    // Simulation State
-    const [testVariables, setTestVariables] = useState<Record<string, string>>({});
-    const [simulationResult, setSimulationResult] = useState<string>('');
+    const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [testVars, setTestVars] = useState<Record<string, string>>({});
+    const [activeTab, setActiveTab] = useState<'editor' | 'history' | 'test'>('editor');
+    const [simResult, setSimResult] = useState<string>('');
     const [isSimulating, setIsSimulating] = useState(false);
-    const [modelConfig, setModelConfig] = useState({ temperature: 0.7, topP: 0.95 });
 
-    useEffect(() => {
-        loadPrompts();
-        loadSnippets();
-    }, []);
+    useEffect(() => { loadData(); }, []);
 
-    const loadPrompts = async () => {
-        const data = await adminService.getAllPrompts();
-        setPrompts(data);
+    const loadData = async () => {
+        setLoading(true);
+        const [p, s] = await Promise.all([adminService.getAllPrompts(), adminService.getAllSnippets()]);
+        setPrompts(p);
+        setSnippets(s);
+        setLoading(false);
     };
 
-    const loadSnippets = async () => {
-        const data = await adminService.getAllSnippets();
-        if (data.length === 0) {
-             // Convert defaults to proper type with IDs
-             const defaultsWithIds = DEFAULT_SNIPPETS.map((s, i) => ({...s, id: `def_${i}`}));
-             setSnippets(defaultsWithIds);
-        } else {
-             setSnippets(data);
-        }
-    };
+    const variables = useMemo(() => {
+        if (!selected) return [];
+        const matches = selected.template.match(/\{\{(.*?)\}\}/g);
+        return matches ? [...new Set(matches.map(m => m.replace(/\{|\}/g, '')))] : [];
+    }, [selected?.template]);
 
-    const handleSelectActivity = async (activityId: string, title: string, categoryId: string) => {
-        const promptId = `prompt_${activityId.toLowerCase()}`;
-        const existing = prompts.find(p => p.id === promptId);
-
-        if (existing) {
-            setSelectedPrompt(existing);
-            setModelConfig({
-                temperature: existing.modelConfig?.temperature ?? 0.7,
-                topP: existing.modelConfig?.topP ?? 0.95
-            });
-        } else {
-            const generatedTemplate = adminService.getInitialPromptForActivity(activityId as ActivityType);
-            const newDraft: PromptTemplate = {
-                id: promptId,
-                name: `${title} Promptu`,
-                description: `${title} etkinliği için üretim şablonu.`,
-                category: categoryId,
-                systemInstruction: 'Sen uzman bir özel eğitim pedagogusun.',
-                template: generatedTemplate,
-                variables: ['difficulty', 'topic', 'worksheetCount'],
-                tags: [categoryId, activityId],
-                updatedAt: new Date().toISOString(),
-                version: 1,
-                history: []
+    const handleSelect = async (act: any) => {
+        const id = `prompt_${act.id.toLowerCase()}`;
+        let p = prompts.find(x => x.id === id);
+        if (!p) {
+            p = {
+                id, name: `${act.title} Prompt`, description: '', category: 'custom',
+                systemInstruction: 'Sen bir özel eğitim uzmanısın.',
+                template: adminService.getInitialPromptForActivity(act.id),
+                variables: [], tags: [], updatedAt: new Date().toISOString(), version: 1, history: [],
+                modelConfig: { temperature: 0.1, modelName: 'gemini-3-flash-preview', thinkingBudget: 0 }
             };
-            setSelectedPrompt(newDraft);
         }
-        setSimulationResult('');
+        setSelected(p);
+        setSimResult('');
+        setActiveTab('editor');
     };
-
-    const toggleCategory = (catId: string) => {
-        setOpenCategories(prev => ({ ...prev, [catId]: !prev[catId] }));
-    };
-
-    // Auto-detect variables from template text
-    const detectedVariables = useMemo(() => {
-        if (!selectedPrompt) return [];
-        const regex = /\{\{(.*?)\}\}/g;
-        const matches = Array.from(selectedPrompt.template.matchAll(regex)).map(m => m[1]);
-        return [...new Set(matches)];
-    }, [selectedPrompt?.template]);
-
-    // Sync variables to input fields
-    useEffect(() => {
-        if (detectedVariables.length > 0) {
-            setTestVariables(prev => {
-                const newState = { ...prev };
-                detectedVariables.forEach(v => {
-                    if (!newState[v]) {
-                        if (v.includes('difficulty')) newState[v] = 'Orta';
-                        else if (v.includes('Count')) newState[v] = '5';
-                        else if (v.includes('topic')) newState[v] = 'Uzay';
-                        else newState[v] = `[${v}]`; 
-                    }
-                });
-                return newState;
-            });
-        }
-    }, [detectedVariables]);
 
     const handleSave = async () => {
-        if (!selectedPrompt) return;
-        const note = prompt("Değişiklik notu (Opsiyonel):", "Güncelleme");
+        if (!selected) return;
+        const note = prompt("Değişiklik özeti:", "Optimizasyon yapıldı.");
         if (note === null) return;
-
         setIsSaving(true);
-        const updated = { 
-            ...selectedPrompt, 
-            variables: detectedVariables,
-            modelConfig: modelConfig
-        };
-        const saved = await adminService.savePrompt(updated, note);
-        
-        setPrompts(prev => {
-            const exists = prev.find(p => p.id === saved.id);
-            if (exists) return prev.map(p => p.id === saved.id ? saved : p);
-            return [...prev, saved];
-        });
-        
-        setSelectedPrompt(saved);
-        setIsSaving(false);
+        try {
+            const saved = await adminService.savePrompt({ ...selected, variables }, note);
+            setPrompts(prev => prev.map(p => p.id === saved.id ? saved : p));
+            setSelected(saved);
+            alert("Mimarideki değişiklikler yayına alındı.");
+        } finally { setIsSaving(false); }
     };
 
     const handleSimulate = async () => {
-        if (!selectedPrompt) return;
+        if (!selected) return;
         setIsSimulating(true);
-        setSimulationResult(''); 
-        
+        setSimResult('');
         try {
-            const promptWithConfig = { ...selectedPrompt, modelConfig };
-            const result = await adminService.testPrompt(promptWithConfig, testVariables);
-            
-            if (typeof result === 'string') {
-                 setSimulationResult(result);
-            } else {
-                 setSimulationResult(JSON.stringify(result, null, 2));
-            }
+            const result = await adminService.testPrompt(selected, testVars);
+            setSimResult(JSON.stringify(result, null, 2));
         } catch (e: any) {
-            setSimulationResult(`⚠️ SİSTEM HATASI:\n${e.message}\n\nLütfen Prompt'un JSON yapısını ve değişkenleri kontrol edin.`);
-        } finally {
-            setIsSimulating(false);
-        }
-    };
-
-    const insertSnippet = (val: string) => {
-        if (!selectedPrompt) return;
-        setSelectedPrompt({
-            ...selectedPrompt,
-            template: selectedPrompt.template + "\n" + val
-        });
-    };
-
-    // --- SNIPPET MANAGEMENT ---
-    const handleAddSnippet = () => {
-        setSnippetForm({ id: `snip_${Date.now()}`, label: '', value: '' });
-        setEditingSnippet(null);
-        setSnippetMode('edit');
-    };
-
-    const handleEditSnippet = (snippet: PromptSnippet, e: React.MouseEvent) => {
-        e.stopPropagation();
-        setSnippetForm(snippet);
-        setEditingSnippet(snippet);
-        setSnippetMode('edit');
-    };
-
-    const handleSaveSnippet = async () => {
-        if (!snippetForm.label || !snippetForm.value) return;
-        
-        // Optimistic UI update
-        setSnippets(prev => {
-            if (editingSnippet) {
-                return prev.map(s => s.id === snippetForm.id ? snippetForm : s);
-            } else {
-                return [...prev, snippetForm];
-            }
-        });
-
-        // Async save to DB
-        await adminService.saveSnippet(snippetForm);
-        setSnippetMode('list');
-    };
-
-    const handleDeleteSnippet = async (id: string) => {
-        if(confirm("Bu parçacığı silmek istediğinize emin misiniz?")) {
-            setSnippets(prev => prev.filter(s => s.id !== id));
-            await adminService.deleteSnippet(id);
-        }
+            setSimResult(`HATA: ${e.message}`);
+        } finally { setIsSimulating(false); }
     };
 
     return (
-        <div className="h-[calc(100vh-80px)] flex bg-[#121212] text-zinc-300 font-sans overflow-hidden">
-            
-            {/* 1. LEFT SIDEBAR: EXPLORER */}
-            <div className="w-64 bg-[#18181b] border-r border-[#27272a] flex flex-col shrink-0">
-                <div className="h-12 flex items-center px-4 bg-[#202023] border-b border-[#27272a] justify-between">
-                    <span className="text-xs font-black text-zinc-400 uppercase tracking-widest">AKTİVİTELER</span>
-                    <span className="text-[10px] bg-zinc-700 px-1.5 py-0.5 rounded text-zinc-300">{ACTIVITIES.length}</span>
+        <div className="h-[calc(100vh-140px)] flex bg-[#09090b] rounded-3xl border border-zinc-800 overflow-hidden shadow-2xl font-lexend">
+            {/* 1. EXPLORER (LEFT) */}
+            <div className="w-64 border-r border-zinc-800 bg-[#0d0d0f] flex flex-col shrink-0">
+                <div className="p-4 border-b border-zinc-800 bg-black/20 flex justify-between items-center">
+                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Kütüphane</span>
+                    <i className="fa-solid fa-folder-tree text-zinc-700"></i>
                 </div>
-                
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
-                    {ACTIVITY_CATEGORIES.map((cat) => {
-                        const isOpen = openCategories[cat.id];
-                        const catActivities = ACTIVITIES.filter(a => cat.activities.includes(a.id));
-                        if (catActivities.length === 0) return null;
-
-                        return (
-                            <div key={cat.id}>
-                                <button 
-                                    onClick={() => toggleCategory(cat.id)}
-                                    className={`w-full flex items-center gap-2 px-2 py-2 text-xs font-bold rounded-lg cursor-pointer transition-colors ${isOpen ? 'text-white bg-white/5' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
-                                >
-                                    <i className={`fa-solid fa-chevron-right text-[9px] transition-transform w-3 ${isOpen ? 'rotate-90' : ''}`}></i>
-                                    <i className={`${cat.icon} text-[10px] w-4 text-center opacity-70`}></i>
-                                    <span className="truncate">{cat.title}</span>
-                                </button>
-                                
-                                {isOpen && (
-                                    <div className="ml-2 pl-2 border-l border-zinc-700 mt-1 space-y-0.5 animate-in slide-in-from-left-2 duration-150">
-                                        {catActivities.map(act => {
-                                            const isActive = selectedPrompt?.id === `prompt_${act.id.toLowerCase()}`;
-                                            return (
-                                                <button
-                                                    key={act.id}
-                                                    onClick={() => handleSelectActivity(act.id, act.title, cat.id)}
-                                                    className={`w-full text-left px-3 py-1.5 text-[11px] truncate rounded-md flex items-center gap-2 ${isActive ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
-                                                >
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-indigo-400' : 'bg-zinc-600'}`}></div>
-                                                    {act.title}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                )}
+                    {ACTIVITY_CATEGORIES.map(cat => (
+                        <div key={cat.id} className="mb-2">
+                            <div className="px-3 py-1.5 text-[9px] font-black text-zinc-600 uppercase tracking-tighter flex items-center gap-2">
+                                <i className={cat.icon}></i> {cat.title}
                             </div>
-                        );
-                    })}
+                            {ACTIVITIES.filter(a => cat.activities.includes(a.id)).map(act => (
+                                <button
+                                    key={act.id}
+                                    onClick={() => handleSelect(act)}
+                                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${selected?.id === `prompt_${act.id.toLowerCase()}` ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/40' : 'text-zinc-500 hover:bg-zinc-800/50'}`}
+                                >
+                                    <div className={`w-1.5 h-1.5 rounded-full ${selected?.id === `prompt_${act.id.toLowerCase()}` ? 'bg-white animate-pulse' : 'bg-zinc-700'}`}></div>
+                                    <span className="truncate">{act.title}</span>
+                                </button>
+                            ))}
+                        </div>
+                    ))}
                 </div>
             </div>
 
-            {/* 2. MAIN EDITOR AREA */}
-            <div className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e] relative">
-                {selectedPrompt ? (
+            {/* 2. EDITOR (CENTER) */}
+            <div className="flex-1 flex flex-col min-w-0 bg-[#0d0d0f] relative">
+                {selected ? (
                     <>
-                        {/* Tab Bar */}
-                        <div className="h-12 bg-[#252526] flex items-center px-4 gap-4 border-b border-[#333]">
-                            <div className="flex items-center gap-2 text-sm font-bold text-zinc-100">
-                                <i className="fa-solid fa-file-code text-indigo-500"></i>
-                                {selectedPrompt.name}
+                        <div className="h-14 border-b border-zinc-800 flex items-center justify-between px-6 bg-[#121214] shrink-0">
+                            <div className="flex items-center gap-4">
+                                <h3 className="font-black text-sm text-zinc-100 uppercase tracking-widest">{selected.name}</h3>
+                                <span className="px-2 py-0.5 bg-zinc-800 rounded text-[9px] font-mono text-indigo-400">v{selected.version}</span>
                             </div>
-                            <div className="h-4 w-px bg-[#444]"></div>
-                            
-                            <div className="flex bg-[#18181b] rounded-lg p-0.5 border border-[#333]">
-                                {['editor', 'config', 'history'].map((tab) => (
-                                    <button
-                                        key={tab}
-                                        onClick={() => setActiveTab(tab as any)}
-                                        className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${activeTab === tab ? 'bg-indigo-600 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                            <div className="flex gap-2">
+                                {['editor', 'history', 'test'].map(t => (
+                                    <button 
+                                        key={t}
+                                        onClick={() => setActiveTab(t as any)}
+                                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${activeTab === t ? 'bg-zinc-700 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
                                     >
-                                        {tab === 'editor' ? 'Kod' : tab === 'config' ? 'Ayarlar' : 'Geçmiş'}
+                                        {t === 'editor' ? 'Mimari' : t === 'history' ? 'Geçmiş' : 'Simülasyon'}
                                     </button>
                                 ))}
                             </div>
-                            
-                            <div className="flex-1"></div>
-                            
-                            <button 
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className="px-4 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-bold rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-floppy-disk"></i>}
-                                <span>Kaydet</span>
-                            </button>
                         </div>
 
-                        {/* Editor Content */}
-                        <div className="flex-1 relative">
+                        <div className="flex-1 p-6 relative overflow-hidden">
                             {activeTab === 'editor' && (
-                                <div className="absolute inset-0 p-4">
-                                    <CodeEditor 
-                                        value={selectedPrompt.template} 
-                                        onChange={(val) => setSelectedPrompt({...selectedPrompt, template: val})} 
-                                        placeholder="// Prompt şablonunu buraya yazın..."
-                                    />
-                                </div>
-                            )}
-
-                            {activeTab === 'config' && (
-                                <div className="p-8 max-w-2xl mx-auto space-y-6">
-                                    <div className="bg-[#252526] p-6 rounded-xl border border-[#333]">
-                                        <h3 className="text-sm font-bold text-white mb-4 border-b border-[#333] pb-2">Model Yapılandırması</h3>
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="flex justify-between text-xs font-bold text-zinc-400 mb-1">
-                                                    Yaratıcılık (Temperature): {modelConfig.temperature}
-                                                </label>
-                                                <input 
-                                                    type="range" min="0" max="1" step="0.1"
-                                                    value={modelConfig.temperature}
-                                                    onChange={e => setModelConfig({...modelConfig, temperature: parseFloat(e.target.value)})}
-                                                    className="w-full accent-indigo-500"
-                                                />
-                                                <div className="flex justify-between text-[10px] text-zinc-600">
-                                                    <span>Tutarli (0.0)</span>
-                                                    <span>Dengeli (0.7)</span>
-                                                    <span>Rastgele (1.0)</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-[#252526] p-6 rounded-xl border border-[#333]">
-                                        <h3 className="text-sm font-bold text-white mb-4 border-b border-[#333] pb-2">Sistem Rolü (Persona)</h3>
+                                <div className="h-full flex flex-col gap-6">
+                                    <div className="h-2/3"><CodeEditor value={selected.template} onChange={v => setSelected({...selected, template: v})} /></div>
+                                    <div className="h-1/3 bg-zinc-900/30 rounded-2xl border border-zinc-800 p-5 overflow-y-auto">
+                                        <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">Sistem Yönergesi (System Persona)</h4>
                                         <textarea 
-                                            value={selectedPrompt.systemInstruction} 
-                                            onChange={e => setSelectedPrompt({...selectedPrompt, systemInstruction: e.target.value})} 
-                                            className="w-full h-32 bg-[#1e1e1e] border border-[#333] rounded-lg p-3 text-xs text-zinc-300 focus:border-indigo-500 outline-none resize-none font-mono"
-                                            placeholder="AI sistem rolü..."
+                                            value={selected.systemInstruction} 
+                                            onChange={e => setSelected({...selected, systemInstruction: e.target.value})}
+                                            className="w-full h-24 bg-black/40 border border-zinc-800 rounded-xl p-3 text-xs font-mono text-zinc-400 outline-none focus:border-indigo-500 resize-none"
                                         />
                                     </div>
                                 </div>
                             )}
 
                             {activeTab === 'history' && (
-                                <div className="p-8 max-w-4xl mx-auto">
-                                    <div className="bg-[#252526] rounded-xl border border-[#333] overflow-hidden">
-                                        <table className="w-full text-left text-xs text-zinc-400">
-                                            <thead className="bg-[#333] text-zinc-200">
-                                                <tr>
-                                                    <th className="p-3">Versiyon</th>
-                                                    <th className="p-3">Tarih</th>
-                                                    <th className="p-3">Değişiklik Notu</th>
-                                                    <th className="p-3 text-right">Eylem</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {[...(selectedPrompt.history || [])].reverse().map((h, i) => (
-                                                    <tr key={i} className="border-b border-[#333] hover:bg-[#2a2d2e]">
-                                                        <td className="p-3 font-mono text-indigo-400">v{h.version}</td>
-                                                        <td className="p-3">{new Date(h.updatedAt).toLocaleDateString()} {new Date(h.updatedAt).toLocaleTimeString()}</td>
-                                                        <td className="p-3 text-white">{h.changeLog}</td>
-                                                        <td className="p-3 text-right">
-                                                            <button 
-                                                                onClick={() => {
-                                                                    if(confirm('Bu versiyona geri dönülsün mü?')) {
-                                                                        setSelectedPrompt({...selectedPrompt, template: h.template, systemInstruction: h.systemInstruction || selectedPrompt.systemInstruction});
-                                                                        setActiveTab('editor');
-                                                                    }
-                                                                }}
-                                                                className="text-indigo-400 hover:text-white hover:underline"
-                                                            >
-                                                                Geri Yükle
-                                                            </button>
-                                                        </td>
-                                                    </tr>
+                                <div className="h-full space-y-3 overflow-y-auto custom-scrollbar pr-2">
+                                    {[...(selected.history || [])].reverse().map((h, i) => (
+                                        <div key={i} className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl flex justify-between items-center group hover:border-indigo-500/50 transition-all">
+                                            <div>
+                                                <div className="flex items-center gap-3 mb-1">
+                                                    <span className="text-xs font-black text-indigo-400">Versiyon {h.version}</span>
+                                                    <span className="text-[10px] text-zinc-600 font-mono">{new Date(h.updatedAt).toLocaleString()}</span>
+                                                </div>
+                                                <p className="text-xs text-zinc-400 italic">"{h.changeLog}"</p>
+                                            </div>
+                                            <button 
+                                                onClick={() => { if(confirm('Eski sürüme dönülsün mü?')) setSelected({...selected, template: h.template, systemInstruction: h.systemInstruction || selected.systemInstruction }); }}
+                                                className="px-4 py-1.5 bg-zinc-800 hover:bg-indigo-600 text-white text-[10px] font-black rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                                            >GERİ YÜKLE</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {activeTab === 'test' && (
+                                <div className="h-full flex flex-col gap-6">
+                                    <div className="grid grid-cols-2 gap-6 shrink-0">
+                                        <div className="p-5 bg-zinc-900/50 rounded-2xl border border-zinc-800">
+                                            <h4 className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-4">Değişken Enjeksiyonu</h4>
+                                            <div className="space-y-3">
+                                                {variables.map(v => (
+                                                    <div key={v} className="flex flex-col gap-1">
+                                                        <label className="text-[9px] font-bold text-zinc-500 uppercase">{v}</label>
+                                                        <input 
+                                                            type="text" value={testVars[v] || ''} 
+                                                            onChange={e => setTestVars({...testVars, [v]: e.target.value})}
+                                                            className="bg-black border border-zinc-800 rounded-lg p-2 text-xs text-zinc-200 outline-none focus:border-amber-500"
+                                                        />
+                                                    </div>
                                                 ))}
-                                            </tbody>
-                                        </table>
-                                        {(!selectedPrompt.history || selectedPrompt.history.length === 0) && (
-                                            <div className="p-8 text-center text-zinc-500">Geçmiş kaydı bulunamadı.</div>
-                                        )}
+                                                {variables.length === 0 && <p className="text-xs text-zinc-600 italic">Değişken tespit edilmedi.</p>}
+                                            </div>
+                                        </div>
+                                        <div className="p-5 bg-indigo-900/10 rounded-2xl border border-indigo-900/30 flex flex-col justify-between">
+                                            <div>
+                                                <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">Model Parametreleri</h4>
+                                                <div className="space-y-4">
+                                                     <div>
+                                                        <label className="flex justify-between text-[9px] font-bold text-zinc-500 mb-1 uppercase">Yaratıcılık (Temp): {selected.modelConfig?.temperature}</label>
+                                                        <input type="range" min="0" max="1" step="0.1" value={selected.modelConfig?.temperature || 0.1} onChange={e => setSelected({...selected, modelConfig: {...selected.modelConfig, temperature: parseFloat(e.target.value)}})} className="w-full h-1 bg-zinc-800 appearance-none accent-indigo-500 rounded" />
+                                                     </div>
+                                                     <div>
+                                                        <label className="flex justify-between text-[9px] font-bold text-zinc-500 mb-1 uppercase">Thinking Budget: {selected.modelConfig?.thinkingBudget || 0}</label>
+                                                        <select value={selected.modelConfig?.thinkingBudget || 0} onChange={e => setSelected({...selected, modelConfig: {...selected.modelConfig, thinkingBudget: Number(e.target.value)}})} className="w-full bg-black border border-zinc-800 rounded p-1.5 text-xs text-zinc-400">
+                                                            <option value={0}>Devre Dışı</option>
+                                                            <option value={4000}>Standart (4K)</option>
+                                                            <option value={16000}>Derin Analiz (16K)</option>
+                                                            <option value={32000}>Ultra Derin (32K)</option>
+                                                        </select>
+                                                     </div>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                onClick={handleSimulate} 
+                                                disabled={isSimulating}
+                                                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs shadow-xl transition-all disabled:opacity-50"
+                                            >
+                                                {isSimulating ? <i className="fa-solid fa-circle-notch fa-spin mr-2"></i> : <i className="fa-solid fa-play mr-2"></i>}
+                                                SİMÜLASYONU BAŞLAT
+                                            </button>
+                                        </div>
                                     </div>
+                                    <div className="flex-1 bg-black rounded-2xl border border-zinc-800 overflow-hidden"><CodeEditor value={simResult} readOnly /></div>
                                 </div>
                             )}
                         </div>
+
+                        <div className="h-16 border-t border-zinc-800 bg-[#121214] flex items-center px-6 justify-between shrink-0">
+                            <p className="text-[10px] text-zinc-500 font-medium">Son Güncelleme: {new Date(selected.updatedAt).toLocaleString()}</p>
+                            <button 
+                                onClick={handleSave} 
+                                disabled={isSaving}
+                                className="px-8 py-2.5 bg-green-600 hover:bg-green-500 text-white font-black rounded-xl text-xs shadow-lg transition-all transform active:scale-95 disabled:opacity-50"
+                            >
+                                {isSaving ? 'SİSTEME İŞLENİYOR...' : 'DEĞİŞİKLİKLERİ YAYINLA'}
+                            </button>
+                        </div>
                     </>
                 ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-zinc-500">
-                        <i className="fa-solid fa-code-branch text-6xl mb-4 opacity-20"></i>
-                        <p>Düzenlemek için sol menüden bir aktivite seçin.</p>
+                    <div className="flex-1 flex flex-col items-center justify-center text-zinc-700 p-20 text-center">
+                        <div className="w-24 h-24 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-3xl mb-6 shadow-inner"><i className="fa-solid fa-terminal animate-pulse"></i></div>
+                        <h3 className="text-2xl font-black text-zinc-300 mb-2 uppercase tracking-tighter">AI Mimari Stüdyosu</h3>
+                        <p className="max-w-xs text-sm leading-relaxed">Etkinliklerin üretim mantığını ve yapay zeka parametrelerini yönetmek için sol menüden bir modül seçin.</p>
                     </div>
                 )}
             </div>
 
-            {/* 3. RIGHT SIDEBAR: TOOLS & TEST */}
-            <div className="w-96 bg-[#18181b] border-l border-[#27272a] flex flex-col shrink-0">
-                {/* Tools Header */}
-                <div className="h-12 flex items-center px-2 bg-[#202023] border-b border-[#27272a] gap-1">
-                    <button 
-                        onClick={() => setRightPanel('test')}
-                        className={`flex-1 py-1.5 text-[10px] font-bold uppercase rounded transition-colors ${rightPanel === 'test' ? 'bg-[#333] text-white' : 'text-zinc-500 hover:bg-[#2a2d2e]'}`}
-                    >
-                        <i className="fa-solid fa-flask mr-2"></i> Test
-                    </button>
-                    <button 
-                        onClick={() => setRightPanel('snippets')}
-                        className={`flex-1 py-1.5 text-[10px] font-bold uppercase rounded transition-colors ${rightPanel === 'snippets' ? 'bg-[#333] text-white' : 'text-zinc-500 hover:bg-[#2a2d2e]'}`}
-                    >
-                        <i className="fa-solid fa-book-bookmark mr-2"></i> Kütüphane
-                    </button>
+            {/* 3. SNIPPET BOX (RIGHT) */}
+            <div className="w-80 border-l border-zinc-800 bg-[#0d0d0f] flex flex-col shrink-0">
+                <div className="p-4 border-b border-zinc-800 bg-black/20 flex justify-between items-center">
+                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Pedagojik Snippetlar</span>
+                    <button onClick={() => setSnippets([...snippets, { id: `new_${Date.now()}`, label: 'Yeni Parça', value: '...' }])} className="text-indigo-500 hover:text-white transition-colors"><i className="fa-solid fa-plus-circle"></i></button>
                 </div>
-
-                {/* Content */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col">
-                    
-                    {rightPanel === 'test' && (
-                        <>
-                            <div className="mb-6">
-                                <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 border-b border-indigo-500/20 pb-1">
-                                    Değişkenler
-                                </h4>
-                                {detectedVariables.length === 0 ? (
-                                    <div className="p-3 rounded border border-dashed border-[#333] text-xs text-zinc-500 text-center">
-                                        Değişken yok. (Örn: {'{{topic}}'})
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3">
-                                        {detectedVariables.map(v => (
-                                            <div key={v}>
-                                                <label className="text-[10px] text-zinc-400 font-bold block mb-1 uppercase">{v}</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={testVariables[v] || ''} 
-                                                    onChange={e => setTestVariables({...testVariables, [v]: e.target.value})}
-                                                    className="w-full bg-[#252526] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none"
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            <button 
-                                onClick={handleSimulate} 
-                                disabled={isSimulating || !selectedPrompt}
-                                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mb-4"
-                            >
-                                {isSimulating ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-play"></i>}
-                                {isSimulating ? 'AI Üretiyor...' : 'Testi Çalıştır'}
-                            </button>
-
-                            <div className="flex-1 flex flex-col min-h-0">
-                                <h4 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2 border-b border-emerald-500/20 pb-1">
-                                    Çıktı (Response)
-                                </h4>
-                                <div className="flex-1 relative bg-[#252526] rounded border border-[#333] overflow-hidden">
-                                    <CodeEditor 
-                                        value={simulationResult} 
-                                        readOnly 
-                                        placeholder="Sonuç burada görünecek..." 
-                                    />
-                                </div>
-                            </div>
-                        </>
-                    )}
-
-                    {rightPanel === 'snippets' && (
-                        <div className="flex-1 flex flex-col">
-                            {snippetMode === 'list' ? (
-                                <>
-                                    <div className="flex justify-between items-center mb-3">
-                                        <p className="text-[10px] text-zinc-500">Kayıtlı Parçacıklar</p>
-                                        <button 
-                                            onClick={handleAddSnippet}
-                                            className="text-[10px] font-bold bg-indigo-600 px-2 py-1 rounded hover:bg-indigo-500 text-white transition-colors"
-                                        >
-                                            + Ekle
-                                        </button>
-                                    </div>
-                                    <div className="space-y-3 flex-1 overflow-y-auto">
-                                        {snippets.map((snip, i) => (
-                                            <div 
-                                                key={i} 
-                                                className="group w-full text-left p-3 bg-[#252526] hover:bg-[#2a2d2e] border border-[#333] rounded-lg transition-colors relative"
-                                            >
-                                                {/* Content Click -> Insert */}
-                                                <div onClick={() => insertSnippet(snip.value)} className="cursor-pointer">
-                                                    <div className="font-bold text-xs text-zinc-300 group-hover:text-white mb-1 pr-6">{snip.label}</div>
-                                                    <div className="text-[10px] text-zinc-500 line-clamp-2 font-mono">{snip.value}</div>
-                                                </div>
-
-                                                {/* Actions */}
-                                                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button 
-                                                        onClick={(e) => handleEditSnippet(snip, e)}
-                                                        className="p-1 hover:text-indigo-400 text-zinc-500"
-                                                        title="Düzenle"
-                                                    >
-                                                        <i className="fa-solid fa-pen text-[10px]"></i>
-                                                    </button>
-                                                    <button 
-                                                        onClick={(e) => { e.stopPropagation(); handleDeleteSnippet(snip.id); }}
-                                                        className="p-1 hover:text-red-400 text-zinc-500"
-                                                        title="Sil"
-                                                    >
-                                                        <i className="fa-solid fa-trash text-[10px]"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-center border-b border-[#333] pb-2">
-                                        <h4 className="text-xs font-bold text-white">
-                                            {editingSnippet ? 'Parçacık Düzenle' : 'Yeni Parçacık'}
-                                        </h4>
-                                        <button onClick={() => setSnippetMode('list')} className="text-zinc-500 hover:text-white">
-                                            <i className="fa-solid fa-times"></i>
-                                        </button>
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="text-[10px] text-zinc-400 block mb-1 uppercase">Başlık (Etiket)</label>
-                                        <input 
-                                            type="text" 
-                                            value={snippetForm.label}
-                                            onChange={e => setSnippetForm({...snippetForm, label: e.target.value})}
-                                            className="w-full bg-[#252526] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none"
-                                            placeholder="Örn: Rol Tanımı"
-                                        />
-                                    </div>
-
-                                    <div className="flex-1 flex flex-col">
-                                        <label className="text-[10px] text-zinc-400 block mb-1 uppercase">İçerik</label>
-                                        <textarea
-                                            value={snippetForm.value}
-                                            onChange={e => setSnippetForm({...snippetForm, value: e.target.value})}
-                                            className="w-full h-40 bg-[#252526] border border-[#333] rounded p-2 text-xs text-white focus:border-indigo-500 outline-none resize-none font-mono"
-                                            placeholder="Eklenecek metni buraya yazın..."
-                                        />
-                                    </div>
-
-                                    <button 
-                                        onClick={handleSaveSnippet}
-                                        disabled={!snippetForm.label || !snippetForm.value}
-                                        className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold text-xs disabled:opacity-50"
-                                    >
-                                        Kaydet
-                                    </button>
-                                </div>
-                            )}
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
+                    {snippets.map(s => (
+                        <div key={s.id} className="group p-3 bg-zinc-900/50 border border-zinc-800 rounded-xl relative hover:border-indigo-500/50 transition-all cursor-copy" onClick={() => selected && setSelected({...selected, template: selected.template + "\n\n" + s.value })}>
+                            <h5 className="text-[10px] font-black text-zinc-400 mb-1 uppercase truncate pr-4">{s.label}</h5>
+                            <p className="text-[9px] text-zinc-600 line-clamp-2 italic">"{s.value.substring(0, 100)}..."</p>
+                            <button onClick={(e) => { e.stopPropagation(); const val = prompt("Yönerge:", s.value); if(val) adminService.saveSnippet({...s, value: val}); }} className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-white transition-all"><i className="fa-solid fa-pen text-[9px]"></i></button>
                         </div>
-                    )}
+                    ))}
                 </div>
             </div>
-
         </div>
     );
 };
