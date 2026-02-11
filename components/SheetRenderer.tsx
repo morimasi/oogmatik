@@ -50,9 +50,6 @@ interface SheetRendererProps {
     data: SingleWorksheetData;
 }
 
-/**
- * recursiveSafeText: Gelen veriyi her derinlikte kontrol eder ve [Object Object] hatasını engeller.
- */
 const recursiveSafeText = (val: any): string => {
     if (val === null || val === undefined) return "";
     if (typeof val === 'string') return val;
@@ -60,8 +57,6 @@ const recursiveSafeText = (val: any): string => {
     if (typeof val === 'object') {
         if (val.text) return recursiveSafeText(val.text);
         if (val.value) return recursiveSafeText(val.value);
-        if (val.content) return recursiveSafeText(val.content);
-        // Fallback: Eğer hala nesne ise ve anlamlı bir key yoksa stringleştir
         return JSON.stringify(val);
     }
     return String(val);
@@ -71,18 +66,19 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
     const content: any = block.content;
     if (!content) return null;
     
-    // Blok tipi bazlı stil enjeksiyonu
     const blockStyle = {
         textAlign: block.style?.textAlign as any || 'left',
         fontWeight: block.style?.fontWeight as any || 'normal',
-        fontSize: block.style?.fontSize ? `${block.style.fontSize}px` : undefined
+        fontSize: block.style?.fontSize ? `${block.style.fontSize}px` : undefined,
+        backgroundColor: block.style?.backgroundColor || 'transparent',
+        borderRadius: block.style?.borderRadius ? `${block.style.borderRadius}px` : undefined
     };
 
     switch (block.type) {
         case 'header':
             return (
-                <div className="mb-8 border-b-4 border-zinc-900 pb-4 text-center">
-                    <h2 className="text-4xl font-black uppercase leading-none tracking-tighter" style={blockStyle}>
+                <div className="mb-6 border-b-4 border-zinc-900 pb-2 text-center" style={blockStyle}>
+                    <h2 className="text-3xl font-black uppercase tracking-tighter">
                         <EditableText value={recursiveSafeText(content.text || content)} tag="span" />
                     </h2>
                 </div>
@@ -90,20 +86,20 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
         
         case 'text':
             return (
-                <div className="text-xl leading-relaxed mb-6 font-dyslexic text-zinc-800" style={blockStyle}>
+                <div className="text-lg leading-relaxed mb-6 font-dyslexic text-zinc-800 p-2" style={blockStyle}>
                     <EditableText value={recursiveSafeText(content.text || content)} tag="div" />
                 </div>
             );
         
         case 'grid':
             return (
-                <div className="flex justify-center mb-10">
+                <div className="flex justify-center mb-8">
                     <div 
-                        className="grid gap-2 border-[4px] border-zinc-900 p-3 bg-white rounded-3xl shadow-lg"
+                        className="grid gap-2 border-[3px] border-zinc-900 p-4 bg-white rounded-2xl shadow-md"
                         style={{ gridTemplateColumns: `repeat(${content.cols || 4}, 1fr)` }}
                     >
                         {(content.cells || []).map((cell: any, i: number) => (
-                            <div key={i} className="w-14 h-14 border-2 border-zinc-100 bg-zinc-50 rounded-xl flex items-center justify-center font-black text-2xl text-zinc-900 shadow-inner">
+                            <div key={i} className="w-12 h-12 border-2 border-zinc-100 bg-zinc-50 rounded-lg flex items-center justify-center font-black text-xl text-zinc-900 hover:bg-white transition-colors">
                                 <EditableText value={recursiveSafeText(cell)} tag="span" />
                             </div>
                         ))}
@@ -113,22 +109,22 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
 
         case 'table':
             return (
-                <div className="overflow-hidden border-[3px] border-zinc-900 rounded-3xl mb-10 bg-white shadow-md">
+                <div className="overflow-hidden border-[2px] border-zinc-900 rounded-2xl mb-8 bg-white shadow-sm mx-auto max-w-full">
                     <table className="w-full border-collapse">
                         {content.headers && (
-                            <thead className="bg-zinc-900 text-white">
+                            <thead className="bg-zinc-100 text-zinc-900">
                                 <tr>
                                     {content.headers.map((h: string, i: number) => (
-                                        <th key={i} className="p-3 text-[10px] font-black uppercase tracking-widest border-r border-white/10 last:border-0">{h}</th>
+                                        <th key={i} className="p-3 text-[10px] font-black uppercase tracking-widest border-r border-zinc-200 last:border-0">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
                         )}
                         <tbody>
                             {(content.data || []).map((row: any[], i: number) => (
-                                <tr key={i} className="border-b border-zinc-100 last:border-0">
+                                <tr key={i} className="border-b border-zinc-100 last:border-0 hover:bg-zinc-50 transition-colors">
                                     {row.map((cell, j) => (
-                                        <td key={j} className="p-4 text-center font-bold text-lg text-zinc-800 border-r border-zinc-100 last:border-0">
+                                        <td key={j} className="p-3 text-center font-bold text-sm text-zinc-800 border-r border-zinc-100 last:border-0">
                                             <EditableText value={recursiveSafeText(cell)} tag="span" />
                                         </td>
                                     ))}
@@ -141,20 +137,20 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
 
         case 'dual_column':
             return (
-                <div className="grid grid-cols-2 gap-16 mb-10 px-6">
-                    <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-12 mb-8 px-4">
+                    <div className="space-y-3">
                         {(content.left || []).map((item: any, i: number) => (
-                            <div key={i} className="p-4 border-2 border-zinc-900 rounded-2xl bg-zinc-50 font-bold text-lg relative">
+                            <div key={i} className="p-3 border-2 border-zinc-800 rounded-xl bg-zinc-50 font-black text-sm flex items-center justify-between">
                                 <EditableText value={recursiveSafeText(item)} tag="span" />
-                                <div className="absolute -right-10 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-zinc-300 bg-white"></div>
+                                <div className="w-3 h-3 rounded-full border-2 border-zinc-300 bg-white"></div>
                             </div>
                         ))}
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {(content.right || []).map((item: any, i: number) => (
-                            <div key={i} className="p-4 border-2 border-zinc-200 border-dashed rounded-2xl bg-white font-medium text-lg relative text-zinc-400">
+                            <div key={i} className="p-3 border-2 border-zinc-200 border-dashed rounded-xl bg-white font-bold text-sm flex items-center gap-4 text-zinc-400">
+                                <div className="w-3 h-3 rounded-full border-2 border-zinc-300 bg-white"></div>
                                 <EditableText value={recursiveSafeText(item)} tag="span" />
-                                <div className="absolute -left-10 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-zinc-300 bg-white"></div>
                             </div>
                         ))}
                     </div>
@@ -163,11 +159,11 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
 
         case 'svg_shape':
             return (
-                <div className="flex justify-center mb-10">
-                    <div className="w-48 h-48 p-4 bg-white rounded-[3rem] border-[3px] border-zinc-900 shadow-sm flex items-center justify-center overflow-hidden">
-                        <svg viewBox={content.viewBox || "0 0 100 100"} className="w-full h-full text-zinc-900">
+                <div className="flex justify-center mb-8 group">
+                    <div className="w-40 h-40 p-2 bg-white rounded-3xl border-2 border-zinc-100 shadow-sm flex items-center justify-center overflow-hidden hover:border-indigo-400 transition-colors">
+                        <svg viewBox={content.viewBox || "0 0 100 100"} className="w-full h-full text-zinc-900 drop-shadow-md">
                             {(content.paths || []).map((p: string, i: number) => (
-                                <path key={i} d={p} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                <path key={i} d={p} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                             ))}
                         </svg>
                     </div>
@@ -176,64 +172,39 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
 
         case 'image':
             return (
-                <div className="mb-10 flex justify-center">
-                    <ImageDisplay prompt={content.prompt} className="w-full h-64 rounded-[3rem] border-8 border-white shadow-xl" />
+                <div className="mb-8 flex justify-center">
+                    <ImageDisplay prompt={content.prompt} className="w-full h-56 rounded-[2.5rem] border-4 border-zinc-50 shadow-md" />
                 </div>
             );
         
         default:
-            return (
-                <div className="p-6 border-2 border-dashed border-zinc-100 rounded-3xl text-zinc-300 font-bold italic text-center mb-6">
-                    <i className="fa-solid fa-triangle-exclamation mr-2"></i>
-                    Bileşen Render Edilemedi ({block.type})
-                </div>
-            );
+            return null;
     }
 };
 
 const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
-    // OCR veya Zengin içerik blokları
     const blocks = data.layoutArchitecture?.blocks || data.blocks;
 
     if (blocks && blocks.length > 0) {
         return (
-            <div className="w-full h-full flex flex-col animate-in fade-in zoom-in-95 duration-1000">
+            <div className="w-full h-full flex flex-col animate-in fade-in zoom-in-95 duration-700">
                 <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-                <div className="flex-1 flex flex-col mt-6">
+                <div className="flex-1 flex flex-col mt-4">
                     {blocks.map((block: WorksheetBlock, idx: number) => (
                         <BlockRenderer key={idx} block={block} />
                     ))}
                 </div>
-                <div className="mt-auto pt-8 border-t border-zinc-100 flex justify-between items-center opacity-30 px-4">
-                     <p className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.4em]">Bursa Disleksi AI • Nöro-Mimari Klonlayıcı</p>
-                     <div className="flex gap-3"><i className="fa-solid fa-microchip"></i><i className="fa-solid fa-dna"></i></div>
+                <div className="mt-auto pt-6 border-t border-zinc-100 flex justify-between items-center opacity-30 px-2">
+                     <p className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.4em]">Bursa Disleksi AI • Görsel Mimari Klonlayıcı v5.1</p>
+                     <div className="flex gap-2"><i className="fa-solid fa-microchip"></i><i className="fa-solid fa-bezier-curve"></i></div>
                 </div>
             </div>
         );
     }
     
-    // Standart/Eski render mantığı (Fallback)
     return (
-        <div className="w-full h-full flex flex-col animate-in fade-in duration-700">
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-            <div className="flex flex-col gap-8 mt-6">
-                {(data.sections || []).map((section: any, idx: number) => (
-                    <EditableElement key={idx} className="bg-white rounded-[3rem] border-[3px] border-zinc-900 shadow-sm w-full p-8 group hover:border-indigo-600 transition-all">
-                        {section.title && <h4 className="text-xs font-black text-indigo-600 uppercase tracking-[0.3em] mb-4 border-b border-indigo-50 pb-2"><i className="fa-solid fa-star-of-life mr-2"></i> <EditableText value={recursiveSafeText(section.title)} tag="span" /></h4>}
-                        {section.type === 'text' && <div className="prose max-w-none text-zinc-800 leading-relaxed font-dyslexic text-xl text-justify"><EditableText value={recursiveSafeText(section.content)} tag="div" /></div>}
-                        {section.type === 'list' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {(section.items || []).map((item: any, i: number) => (
-                                    <div key={i} className="flex gap-4 items-start p-4 bg-zinc-50 rounded-2xl border border-zinc-100 transition-all">
-                                        <div className="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-[10px] font-black shrink-0 shadow-md">{i+1}</div>
-                                        <div className="flex-1 font-bold text-zinc-800 text-lg leading-snug"><EditableText value={recursiveSafeText(item)} tag="span" /></div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </EditableElement>
-                ))}
-            </div>
+        <div className="w-full h-full flex flex-col items-center justify-center opacity-40 italic">
+            Veri yapısı uyumsuz. Lütfen yeniden üretin.
         </div>
     );
 };
@@ -241,7 +212,7 @@ const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
 export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererProps) => {
     if (!data) return null;
     
-    // Mimari Klonlayıcı veya Birleştirilmiş Bloklar
+    // Mimari Klonlayıcı veya Birleştirilmiş Bloklar (Zengin Görsel Çıktı)
     if (activityType === ActivityType.OCR_CONTENT || data.layoutArchitecture || data.blocks) {
         return <UnifiedContentRenderer data={data} />;
     }
@@ -250,7 +221,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         return <ReadingStudioContentRenderer layout={data.layout} storyData={data.storyData} />;
     }
 
-    // ... (Case Switch bloğu aynı kalıyor)
+    // Fallback switch for specific activities
     switch (activityType) {
         case ActivityType.ALGORITHM_GENERATOR: return <AlgorithmSheet data={data as unknown as AlgorithmData} />;
         case ActivityType.MATH_PUZZLE: return <MathPuzzleSheet data={data as unknown as MathPuzzleData} />;
@@ -322,6 +293,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.WORD_SEARCH: return <WordSearchSheet data={data as unknown as WordSearchData} />;
         case ActivityType.ANAGRAM: return <AnagramSheet data={data as unknown as AnagramsData} />;
         case ActivityType.CROSSWORD: return <CrosswordSheet data={data as unknown as CrosswordData} />;
-        default: return <div className="p-12 text-center border-4 border-dashed border-zinc-100 rounded-[3rem]"><h3 className="font-black text-zinc-300 uppercase tracking-widest text-2xl">Modül: {activityType}</h3><p className="text-zinc-400 mt-2 font-bold">Bu aktivite tipi için özel bir sayfa yapısı tanımlanmamış.</p></div>;
+        default: return <UnifiedContentRenderer data={data} />;
     }
 });
