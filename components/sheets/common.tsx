@@ -211,10 +211,10 @@ export const AnalogClock: React.FC<{ hour: number; minute: number; className?: s
 export const NumberLine: React.FC<{ start: number; end: number; step: number; missing?: number[] }> = ({ start, end, step, missing = [] }) => (
     <div className="w-full h-12 flex items-center px-4">
         <div className="w-full h-0.5 bg-black relative">
-            {Array.from({ length: (end - start) / step + 1 }).map((_, i) => {
+            {Array.from({ length: Math.round((end - start) / step) + 1 }).map((_, i) => {
                 const val = start + i * step;
                 return (
-                    <div key={val} className="absolute top-0 h-3 w-0.5 bg-black" style={{ left: `${(i / ((end - start) / step)) * 100}%` }}>
+                    <div key={val} className="absolute top-0 h-3 w-0.5 bg-black" style={{ left: `${(i / Math.round((end - start) / step)) * 100}%` }}>
                         <span className="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] font-bold">
                             {missing.includes(val) ? '?' : val}
                         </span>
@@ -264,15 +264,16 @@ export const FlowArrow = () => (
     </div>
 );
 
-export const ImageDisplay = React.memo(({ prompt, className = "w-full h-24", description = "image" }: { prompt?: string; className?: string; description?: string }) => {
-    const [isLoading, setIsLoading] = useState(true);
+/* Fix: Added optional base64 property to ImageDisplay to handle direct data buffers */
+export const ImageDisplay = React.memo(({ prompt, base64, className = "w-full h-24", description = "image" }: { prompt?: string; base64?: string; className?: string; description?: string }) => {
+    const [isLoading, setIsLoading] = useState(!base64);
     const query = encodeURIComponent(prompt || 'educational illustration');
-    const url = `https://image.pollinations.ai/prompt/${query}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
+    const url = base64 || `https://image.pollinations.ai/prompt/${query}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
 
     return (
         <div className={`relative overflow-hidden rounded-2xl bg-zinc-50 ${className}`}>
-            {isLoading && <div className="absolute inset-0 flex items-center justify-center"><i className="fa-solid fa-circle-notch fa-spin text-indigo-500"></i></div>}
-            <img src={url} alt={description} className={`w-full h-full object-contain transition-opacity duration-700 ${isLoading ? 'opacity-0' : 'opacity-100'}`} onLoad={() => setIsLoading(false)} />
+            {isLoading && !base64 && <div className="absolute inset-0 flex items-center justify-center"><i className="fa-solid fa-circle-notch fa-spin text-indigo-500"></i></div>}
+            <img src={url} alt={description} className={`w-full h-full object-contain transition-opacity duration-700 ${isLoading && !base64 ? 'opacity-0' : 'opacity-100'}`} onLoad={() => !base64 && setIsLoading(false)} />
         </div>
     );
 });

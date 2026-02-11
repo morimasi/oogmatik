@@ -4,59 +4,56 @@ import { GoogleGenAI } from "@google/genai";
 const DEFAULT_MODEL = 'gemini-3-flash-preview';
 const IMAGE_GEN_MODEL = 'gemini-2.5-flash-image';
 
+/**
+ * AI yanıtı içinden JSON bloğunu cımbızla çeker.
+ * Markdown bloklarını (```json) ve çevreleyici metinleri temizler.
+ */
 const tryRepairJson = (jsonStr: string): any => {
-    // 1. Markdown bloklarını ve görünmez karakterleri temizle
-    let cleaned = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*$/g, '').replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+    // 1. Temel temizlik
+    let cleaned = jsonStr.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+    
+    // 2. Markdown bloklarını kaldır
+    cleaned = cleaned.replace(/```json\s*/gi, '').replace(/```\s*$/g, '').trim();
 
     try {
         return JSON.parse(cleaned);
     } catch (e) {
-        console.warn("Primary JSON Parse failed, attempting deep regex extraction...");
+        console.warn("Standart JSON parse başarısız, derin ayıklama deneniyor...");
         
-        // 2. En geniş kapsamlı {} veya [] bloğunu bul (Cerrahi müdahale)
-        const firstOpenBrace = cleaned.indexOf('{');
-        const firstOpenBracket = cleaned.indexOf('[');
-        let startIdx = -1;
-        let char = '';
-
-        if (firstOpenBrace !== -1 && (firstOpenBracket === -1 || firstOpenBrace < firstOpenBracket)) {
-            startIdx = firstOpenBrace;
-            char = '}';
-        } else if (firstOpenBracket !== -1) {
-            startIdx = firstOpenBracket;
-            char = ']';
-        }
-
-        if (startIdx !== -1) {
-            const lastIdx = cleaned.lastIndexOf(char);
-            if (lastIdx !== -1) {
-                const extracted = cleaned.substring(startIdx, lastIdx + 1);
+        // 3. Regex ile en geniş kapsamlı {} veya [] bloğunu bul
+        const jsonMatch = cleaned.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+        
+        if (jsonMatch) {
+            try {
+                return JSON.parse(jsonMatch[0]);
+            } catch (e2) {
+                // 4. Parantez eşleşmesi bozuksa manuel düzeltme denemesi (Acil durum)
+                let fragment = jsonMatch[0];
+                const openBraces = (fragment.match(/\{/g) || []).length;
+                const closeBraces = (fragment.match(/\}/g) || []).length;
+                
+                if (openBraces > closeBraces) {
+                    fragment += '}'.repeat(openBraces - closeBraces);
+                }
+                
                 try {
-                    return JSON.parse(extracted);
-                } catch (e2) {
-                    // 3. Eksik parantezleri otomatik tamamlama denemesi
-                    let repaired = extracted;
-                    const openBraces = (repaired.match(/{/g) || []).length;
-                    const closeBraces = (repaired.match(/}/g) || []).length;
-                    for (let i = 0; i < (openBraces - closeBraces); i++) repaired += '}';
-                    
-                    try {
-                        return JSON.parse(repaired);
-                    } catch (e3) {
-                        throw new Error("AI yanıtı geçerli bir JSON yapısına sahip değil.");
-                    }
+                    return JSON.parse(fragment);
+                } catch (e3) {
+                    throw new Error("AI yanıtı geçerli bir JSON yapısında değil.");
                 }
             }
         }
-        throw new Error("Yanıt içinde geçerli bir veri bloğu bulunamadı.");
+        throw new Error("Yanıt içinde geçerli bir JSON bloğu tespit edilemedi.");
     }
 };
 
 const SYSTEM_INSTRUCTION = `
-Sen, Bursa Disleksi AI platformunun Klinik Yapay Zeka Motorusun.
-Görevin: Özel öğrenme güçlüğü olan çocuklar için materyal üretmek.
-KESİN KURAL: Asla açıklama yapma. Sadece geçerli JSON döndür. 
-Görsel analiz ediyorsan sadece teknik blueprint ve yapısal veriye odaklan.
+Sen, Bursa Disleksi AI platformunun "Nöro-Mimari" motorusun. 
+GÖREVİN: Sadece saf JSON veri yapıları üretmek. 
+KESİN KURALLAR:
+1. Asla açıklama yapma.
+2. Markdown ( \`\`\`json ) bloklarını kullanabilirsin ama dışında metin bırakma.
+3. Görsel analiz ediyorsan nesnelerin pozisyonlarını ve pedagojik mantığını blueprint olarak çıkar.
 `;
 
 const generateDirectly = async (params: { 
@@ -102,9 +99,8 @@ const generateDirectly = async (params: {
         config: config
     });
     
-    const text = response.text;
-    if (text) return tryRepairJson(text);
-    throw new Error("Yapay zeka yanıt üretemedi.");
+    if (response.text) return tryRepairJson(response.text);
+    throw new Error("AI yanıt üretmedi.");
 };
 
 export const generateWithSchema = async (prompt: string, schema: any, model?: string, useSearch?: boolean) => {

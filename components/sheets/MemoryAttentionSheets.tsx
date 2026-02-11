@@ -91,6 +91,7 @@ export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }
                     <div className="grid grid-cols-3 md:grid-cols-4 gap-6 w-full max-w-3xl">
                         {(data.itemsToMemorize || []).map((item, index) => (
                             <EditableElement key={index} className="aspect-square bg-white border-2 border-black rounded-xl p-2 flex flex-col items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                {/* Fix: Use base64 prop for direct buffer support */}
                                 {item.imageBase64 ? (
                                     <ImageDisplay base64={item.imageBase64} description={item.description} className="w-full h-full object-contain" />
                                 ) : (
@@ -111,6 +112,7 @@ export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }
                         {(data.testItems || []).map((item, index) => (
                             <div key={index} className="aspect-square bg-white border-2 border-zinc-300 rounded-lg p-2 flex flex-col items-center justify-center relative group">
                                 <div className="absolute top-1 right-1 w-5 h-5 border-2 border-black rounded bg-white"></div>
+                                {/* Fix: Use base64 prop for direct buffer support */}
                                 {item.imageBase64 ? (
                                     <ImageDisplay base64={item.imageBase64} description={item.description} className="w-3/4 h-3/4 object-contain opacity-50 grayscale" />
                                 ) : (
@@ -136,7 +138,8 @@ export const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ 
                 <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 items-center justify-center p-4">
                     {(data.charactersToMemorize || []).map((char, index) => (
                         <EditableElement key={index} className="flex flex-col items-center bg-white border-2 border-black p-4 rounded-3xl aspect-square justify-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-                            <ImageDisplay base64={char.imageBase64} description={char.description} className="w-32 h-32 rounded-full object-cover border-4 border-black mb-4" />
+                            {/* Fix: Use base64 prop for direct buffer support or prompt if available */}
+                            <ImageDisplay base64={char.imageBase64} prompt={char.imagePrompt} description={char.description} className="w-32 h-32 rounded-full object-cover border-4 border-black mb-4" />
                             <p className="text-sm font-bold text-center bg-black text-white px-4 py-1 rounded-full"><EditableText value={char.description} tag="span" /></p>
                         </EditableElement>
                     ))}
@@ -153,7 +156,8 @@ export const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ 
                             <div className="w-full flex justify-end mb-2">
                                 <div className="w-6 h-6 border-2 border-black rounded bg-white"></div>
                             </div>
-                            <ImageDisplay base64={char.imageBase64} description={char.description} className="w-24 h-24 rounded-full object-cover filter grayscale opacity-80" />
+                            {/* Fix: Use base64 prop for direct buffer support or prompt if available */}
+                            <ImageDisplay base64={char.imageBase64} prompt={char.imagePrompt} description={char.description} className="w-24 h-24 rounded-full object-cover filter grayscale opacity-80" />
                         </div>
                     ))}
                 </div>
@@ -461,18 +465,24 @@ export const LetterGridTestSheet: React.FC<{ data: LetterGridTestData }> = ({ da
     </StandardSheet>
 );
 
-export const FindLetterPairSheet: React.FC<{ data: FindLetterPairData }> = ({ data }) => (
-    <StandardSheet data={data}>
-        <div className="bg-white border-4 border-black p-4 rounded-xl grid gap-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{gridTemplateColumns: `repeat(${data.grid?.length || 10}, 1fr)`}}>
-            {(data.grid || []).flat().map((char, i) => (
-                <div key={i} className="aspect-square flex items-center justify-center border border-zinc-100 text-lg font-bold text-black hover:bg-zinc-100">{char}</div>
-            ))}
-        </div>
-        <div className="mt-4 text-center">
-            <span className="font-bold border-2 border-black px-4 py-2 rounded-full shadow-sm bg-white">Hedef İkili: {data.targetPair}</span>
-        </div>
-    </StandardSheet>
-);
+export const FindLetterPairSheet: React.FC<{ data: FindLetterPairData }> = ({ data }) => {
+    /* Fix: FindLetterPairData has a grids array. Use the first grid for single-page display. */
+    const grid = data.grids[0]?.grid || [];
+    const targetPair = data.grids[0]?.targetPair || '';
+
+    return (
+        <StandardSheet data={data}>
+            <div className="bg-white border-4 border-black p-4 rounded-xl grid gap-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{gridTemplateColumns: `repeat(${grid.length || 10}, 1fr)`}}>
+                {(grid || []).flat().map((char, i) => (
+                    <div key={i} className="aspect-square flex items-center justify-center border border-zinc-100 text-lg font-bold text-black hover:bg-zinc-100">{char}</div>
+                ))}
+            </div>
+            <div className="mt-4 text-center">
+                <span className="font-bold border-2 border-black px-4 py-2 rounded-full shadow-sm bg-white">Hedef İkili: {targetPair}</span>
+            </div>
+        </StandardSheet>
+    );
+};
 
 export const TargetSearchSheet: React.FC<{ data: TargetSearchData }> = ({ data }) => (
     <StandardSheet data={data}>

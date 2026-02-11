@@ -22,14 +22,15 @@ export const auth = getAuth(app);
 
 /**
  * Modern Firestore Initialization
- * 'experimentalForceLongPolling' ayarı 400 Bad Request/Streaming hatalarını önlemek için eklendi.
+ * WebChannel streaming (400 Bad Request) hatalarını önlemek için yapılandırıldı.
  */
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager()
   }),
-  // FIX: WebChannel streaming hatalarını önlemek için uzun yoklama zorlanır
-  experimentalForceLongPolling: true 
+  // ÖNEMLİ: Proxy veya reklam engelleyicilerin Listen akışını bozmasını önler
+  experimentalForceLongPolling: true,
+  experimentalAutoDetectLongPolling: false
 });
 
 export const checkDbConnection = async () => {

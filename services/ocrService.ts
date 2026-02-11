@@ -4,19 +4,20 @@ import { analyzeImage } from './geminiClient';
 import { OCRResult } from '../types';
 
 export const ocrService = {
-    processImage: async (base64Image: string, targetType: 'CONVERTER' | 'ALGORITHM'): Promise<OCRResult> => {
+    /**
+     * Görseli analiz eder ve "Pedagojik Blueprint" (DNA) çıkarır.
+     */
+    processImage: async (base64Image: string): Promise<OCRResult> => {
         const prompt = `
         [GÖREV: EĞİTİM MATERYALİ DNA ANALİZİ]
-        Görüntüdeki materyalin pedagojik mantığını ve görsel hiyerarşisini çöz. 
+        Görüntüdeki materyalin yapısını, amacını ve içindeki bilgileri çöz. 
         
-        KULLANIM AMACI: ${targetType === 'ALGORITHM' ? 'Bu materyal bir mantıksal sıralama algoritmasına dönüştürülecek.' : 'Bu materyal bir çalışma sayfasına dönüştürülecek.'}
-
-        TALİMATLAR:
-        1. 'blueprint' alanı: Bu materyalin aynısını (veya varyasyonunu) üretmek için bir yapay zekaya verilecek EN DETAYLI teknik yönergeyi yaz.
-        2. 'detectedType': Materyalin ana türünü belirle (Örn: Sözel Mantık, Görsel Dikkat, Matematik).
-        3. 'baseType': ${targetType === 'ALGORITHM' ? 'ALGORITHM_GENERATOR' : 'AI_WORKSHEET_CONVERTER'}.
+        ANALİZ KRİTERLERİ:
+        1. Bu materyalin ana türü nedir? (Sayısal, Sözel, Görsel Dikkat vb.)
+        2. Materyal hangi mantıkla çalışıyor? (Örn: Eşleştirme, Sıralama, Boşluk Doldurma)
+        3. Blueprint: Bu materyalin bir "Yapay Zeka" tarafından benzerinin üretilmesi için gerekli EN DETAYLI teknik talimat setini yaz.
         
-        KESİN KURAL: SADECE JSON. Açıklama yapma.
+        DİKKAT: Sadece blueprint odaklı teknik veri döndür.
         `;
 
         const schema = {
@@ -25,34 +26,32 @@ export const ocrService = {
                 detectedType: { type: Type.STRING },
                 title: { type: Type.STRING },
                 description: { type: Type.STRING },
-                blueprint: { type: Type.STRING },
-                layoutJSON: {
-                    type: Type.OBJECT,
-                    properties: {
-                        structure: { type: Type.STRING },
-                        hasVisuals: { type: Type.BOOLEAN },
-                        complexity: { type: Type.STRING }
+                blueprint: { type: Type.STRING, description: "Detailed AI generation instructions" },
+                elements: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            type: { type: Type.STRING },
+                            content: { type: Type.STRING }
+                        }
                     }
-                },
-                baseType: { type: Type.STRING }
+                }
             },
-            required: ['detectedType', 'title', 'blueprint', 'layoutJSON']
+            required: ['detectedType', 'title', 'blueprint']
         };
 
         try {
             const result = await analyzeImage(base64Image, prompt, schema);
             
             return {
-                rawText: '', 
+                rawText: result.description,
                 detectedType: result.detectedType,
                 title: result.title,
                 description: result.description,
-                generatedTemplate: result.blueprint,
-                structuredData: {
-                    layoutHint: result.layoutJSON,
-                    originalBlueprint: result.blueprint
-                },
-                baseType: targetType === 'ALGORITHM' ? 'ALGORITHM_GENERATOR' : (result.baseType || 'AI_WORKSHEET_CONVERTER')
+                generatedTemplate: result.blueprint, // Bu artık üretim motoru için girdi olacak
+                structuredData: result,
+                baseType: 'OCR_CONTENT'
             };
         } catch (error) {
             console.error("Deep OCR Error Core:", error);

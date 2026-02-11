@@ -71,7 +71,7 @@ export enum ActivityType {
     ESTIMATION = 'ESTIMATION',
     CHARACTER_MEMORY = 'CHARACTER_MEMORY',
     COLOR_WHEEL_MEMORY = 'COLOR_WHEEL_MEMORY',
-    IMAGE_COMPREHENSION = 'IMAGE_COMPREHRENSION',
+    IMAGE_COMPREHRENSION = 'IMAGE_COMPREHRENSION',
     CHAOTIC_NUMBER_SEARCH = 'CHAOTIC_NUMBER_SEARCH',
     LETTER_GRID_TEST = 'LETTER_GRID_TEST',
     FIND_LETTER_PAIR = 'FIND_LETTER_PAIR',
@@ -275,6 +275,12 @@ export interface GeneratorOptions {
     includeCreativeTask?: boolean;
     syllableRange?: string;
     targetShape?: string;
+    // Fix: Added missing properties used in config components
+    genre?: string;
+    tone?: string;
+    showCoordinates?: boolean;
+    concept?: string;
+    showImage?: boolean;
 }
 
 export interface SavedWorksheet {
