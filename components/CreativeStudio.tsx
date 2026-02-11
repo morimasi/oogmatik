@@ -1,7 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { refinePromptWithAI, generateCreativeStudioActivity } from '../services/generators/creativeStudio';
 import { PEDAGOGICAL_LIBRARY, ActivityLibraryItem } from '../services/generators/promptLibrary';
+import { MultimodalFile } from '../services/geminiClient';
 
 interface CreativeStudioProps {
     onResult: (data: any) => void;
@@ -18,11 +19,11 @@ const SNIPPETS = [
 
 const THINKING_MESSAGES = [
     "Gemini 3.0 Thinking Modu Aktif...",
-    "Pedagojik metodoloji analiz ediliyor...",
+    "Dosya mimarisi analiz ediliyor...",
+    "Pedagojik metodoloji sentezleniyor...",
     "Nöro-mimari düzen tasarlanıyor...",
     "Klinik çeldiriciler kurgulanıyor...",
     "Görsel hiyerarşi optimize ediliyor...",
-    "Çıktı disleksi standartlarına uyarlanıyor...",
     "Hemen hemen hazır, son kontroller yapılıyor..."
 ];
 
@@ -35,6 +36,10 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     const [statusIndex, setStatusIndex] = useState(0);
     const [activeTab, setActiveTab] = useState<'editor' | 'library'>('editor');
     const [librarySearch, setLibrarySearch] = useState("");
+    
+    // Multimodal States
+    const [attachedFiles, setAttachedFiles] = useState<MultimodalFile[]>([]);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Dinamik durum mesajları döngüsü
     useEffect(() => {
@@ -48,6 +53,37 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         }
         return () => clearInterval(interval);
     }, [isProcessing]);
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files) return;
+
+        // FIX: Explicitly type 'file' as 'File' to avoid 'unknown' type errors in .forEach from FileList conversion
+        Array.from(files).forEach((file: File) => {
+            // FIX: Accessing .size on typed File
+            if (file.size > 5 * 1024 * 1024) {
+                // FIX: Accessing .name on typed File
+                alert(`${file.name} çok büyük. Lütfen 5MB altı dosyalar seçin.`);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const base64 = event.target?.result as string;
+                // FIX: Accessing .type on typed File
+                setAttachedFiles(prev => [...prev, { data: base64, mimeType: file.type }]);
+            };
+            // FIX: Passing typed File to readAsDataURL which expects a Blob
+            reader.readAsDataURL(file);
+        });
+        
+        // Reset input
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    const removeFile = (index: number) => {
+        setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+    };
 
     const handleRefine = async (mode: 'expand' | 'narrow' | 'clinical') => {
         if (!prompt.trim()) return;
@@ -71,11 +107,19 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     };
 
     const handleGenerate = async () => {
-        if (!prompt.trim()) return;
+        if (!prompt.trim() && attachedFiles.length === 0) {
+            alert("Lütfen bir prompt yazın veya referans dosya ekleyin.");
+            return;
+        }
         setIsProcessing(true);
         setStatus("Üretim Başladı...");
         try {
-            const result = await generateCreativeStudioActivity(prompt, { difficulty, itemCount });
+            // Ekte dosya varsa promptu AI'ya bu durumu bildirecek şekilde güncelliyoruz
+            const enrichedPrompt = attachedFiles.length > 0 
+                ? `[MULTIMODAL REFERANS AKTİF]\nEkteki dosyaların yapısını ve kalitesini analiz et. Bu dosyaları temel alarak şu yönergeyi uygula: ${prompt}`
+                : prompt;
+
+            const result = await generateCreativeStudioActivity(enrichedPrompt, { difficulty, itemCount }, attachedFiles);
             onResult(Array.isArray(result) ? result : [result]);
         } catch (e) {
             setStatus("Üretim başarısız oldu. Lütfen tekrar deneyin.");
@@ -98,7 +142,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     <h2 className="text-4xl font-black tracking-tighter text-white flex items-center gap-3">
                         <i className="fa-solid fa-wand-sparkles text-indigo-500"></i> AI Creative Studio
                     </h2>
-                    <p className="text-zinc-500 text-xs mt-1 uppercase tracking-widest font-black">Küresel Pedagojik Standartlarda Üretim</p>
+                    <p className="text-zinc-500 text-xs mt-1 uppercase tracking-widest font-black">Multimodal & Thinking Motoru Aktif</p>
                 </div>
                 <div className="flex bg-zinc-900 border border-white/10 p-1 rounded-2xl">
                     <button onClick={() => setActiveTab('editor')} className={`px-6 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'editor' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>TASARIMCI</button>
@@ -113,10 +157,9 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     {activeTab === 'editor' ? (
                         <div className="bg-zinc-900/50 rounded-[3rem] border border-white/10 p-8 shadow-2xl relative overflow-hidden flex flex-col h-full">
                             <div className="flex justify-between items-center mb-6">
-                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">Prompt Mühendisliği Sahası</span>
+                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">Bilişsel Komut Merkezi</span>
                                 <div className="flex gap-2">
                                     <button onClick={() => handleRefine('expand')} disabled={isProcessing || !prompt} className="px-3 py-1.5 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg text-[9px] font-black uppercase hover:bg-indigo-600 hover:text-white transition-all">Genişlet</button>
-                                    <button onClick={() => handleRefine('narrow')} disabled={isProcessing || !prompt} className="px-3 py-1.5 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-lg text-[9px] font-black uppercase hover:bg-zinc-700 hover:text-white transition-all">Daralt</button>
                                     <button onClick={() => handleRefine('clinical')} disabled={isProcessing || !prompt} className="px-3 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-lg text-[9px] font-black uppercase hover:bg-rose-600 hover:text-white transition-all">Klinik Tanı Ekle</button>
                                 </div>
                             </div>
@@ -125,10 +168,44 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                                 value={prompt}
                                 onChange={(e) => setPrompt(e.target.value)}
                                 className="flex-1 w-full p-8 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm leading-relaxed text-zinc-300 outline-none focus:border-indigo-500 transition-all font-mono resize-none shadow-inner"
-                                placeholder="Buraya bir fikir yazın veya kütüphaneden bir metodoloji seçin..."
+                                placeholder="Fikrinizi buraya yazın veya referans dosya yükleyerek 'Bu yapıda, [Konu] hakkında bir sayfa üret' deyin..."
                             ></textarea>
 
-                            <div className="mt-6 flex flex-wrap gap-2">
+                            {/* ATTACHED FILES LIST */}
+                            {attachedFiles.length > 0 && (
+                                <div className="mt-4 flex flex-wrap gap-3 p-4 bg-black/20 rounded-2xl border border-white/5">
+                                    {attachedFiles.map((file, idx) => (
+                                        <div key={idx} className="group relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 bg-zinc-800">
+                                            {file.mimeType.startsWith('image/') ? (
+                                                <img src={file.data} className="w-full h-full object-cover" alt="Preview" />
+                                            ) : (
+                                                <div className="w-full h-full flex flex-col items-center justify-center text-rose-500">
+                                                    <i className="fa-solid fa-file-pdf text-xl"></i>
+                                                    <span className="text-[8px] font-black mt-1">PDF</span>
+                                                </div>
+                                            )}
+                                            <button 
+                                                onClick={() => removeFile(idx)}
+                                                className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <i className="fa-solid fa-times text-[10px] text-white"></i>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="mt-6 flex flex-wrap gap-2 items-center">
+                                <button 
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-indigo-500 transition-all flex items-center gap-2"
+                                >
+                                    <i className="fa-solid fa-paperclip"></i> DOSYA EKLE (PDF/GÖRSEL)
+                                </button>
+                                <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*,application/pdf" multiple />
+                                
+                                <div className="h-6 w-px bg-white/10 mx-2"></div>
+
                                 {SNIPPETS.map(s => (
                                     <button key={s.label} onClick={() => setPrompt(prev => prev + "\n" + s.value)} className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all">
                                         + {s.label}
@@ -219,7 +296,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                             </div>
                             <button 
                                 onClick={handleGenerate}
-                                disabled={isProcessing || !prompt}
+                                disabled={isProcessing || (!prompt && attachedFiles.length === 0)}
                                 className="w-full py-5 bg-white text-indigo-950 font-black rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-2xl flex items-center justify-center gap-3 text-sm disabled:opacity-50"
                             >
                                 {isProcessing ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-rocket"></i>}
@@ -231,9 +308,9 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
 
                     {/* Klinik Bilgi Kartı */}
                     <div className="p-6 bg-indigo-900/10 rounded-[2.5rem] border border-indigo-500/20">
-                        <h5 className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i className="fa-solid fa-circle-info"></i> Klinik İpucu</h5>
+                        <h5 className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i className="fa-solid fa-circle-info"></i> Multimodal Sentez</h5>
                         <p className="text-[10px] text-zinc-500 leading-relaxed italic">
-                            Gemini 3.0 Thinking motoru, sadece görsel üretmez; pedagojik bir strateji kurar. Bu süreç 30-60 saniye sürebilir, ancak sonuç klinik açıdan çok daha değerlidir.
+                            Gemini 3.0 Multimodal motoru, yüklediğiniz PDF veya görsellerdeki pedagojik yapıyı otomatik analiz ederek komutunuzla birleştirir. Bu sayede sevdiğiniz bir materyalin farklı versiyonlarını anında üretebilirsiniz.
                         </p>
                     </div>
                 </div>

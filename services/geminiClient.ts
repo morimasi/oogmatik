@@ -46,47 +46,55 @@ const tryRepairJson = (jsonStr: string): any => {
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun "Nöro-Mimari" motorusun. 
 GÖREVİN: Disleksi/diskalkuli odaklı eğitim blueprintleri üretmek.
+MULTIMODAL YETENEK: Ekte dosya (PDF veya Görsel) varsa, bu dosyaların yapısını, soru stilini ve pedagojik yaklaşımını analiz et.
+ÜRETİM KURALI: Yeni üreteceğin içerik, ekteki dosyaların mizanpajı ve kalitesiyle uyumlu olmalı, ancak kullanıcının promptundaki yeni konuyu/hedefleri içermelidir.
 KURAL: SADECE SAF JSON DÖN. Açıklama yapma.
 MODEL MODU: Thinking & Multimodal Reasoning Aktif.
 `;
 
-const generateDirectly = async (params: { 
+export interface MultimodalFile {
+    data: string; // base64
+    mimeType: string;
+}
+
+export const generateCreativeMultimodal = async (params: { 
     prompt: string, 
     schema: any, 
-    model?: string, 
-    image?: string, 
-    mimeType?: string,
-    isOcr?: boolean
+    files?: MultimodalFile[] 
 }) => {
     const apiKey = process.env.API_KEY;
     if (!apiKey) throw new Error("API Anahtarı eksik.");
 
     const ai = new GoogleGenAI({ apiKey });
-    const modelName = DEFAULT_MODEL;
     
     let parts: any[] = [];
-    if (params.image) {
-        const base64Data = params.image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "").trim();
-        parts.push({ 
-            inlineData: { 
-                mimeType: params.mimeType || 'image/jpeg', 
-                data: base64Data
-            } 
+    
+    // Dosyaları parçalara ekle
+    if (params.files && params.files.length > 0) {
+        params.files.forEach(file => {
+            const base64Data = file.data.replace(/^data:.*?;base64,/, "").trim();
+            parts.push({ 
+                inlineData: { 
+                    mimeType: file.mimeType, 
+                    data: base64Data
+                } 
+            });
         });
     }
+
+    // Promptu en son ekle
     parts.push({ text: params.prompt });
 
     const config: any = {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: params.schema,
-        temperature: 0.1,
-        // OPTIMIZATION: 16K -> 8K (Hız için muhakeme bütçesi düşürüldü)
+        temperature: 0.2,
         thinkingConfig: { thinkingBudget: 8000 }
     };
 
     const response = await ai.models.generateContent({
-        model: modelName,
+        model: DEFAULT_MODEL,
         contents: { parts },
         config: config
     });
@@ -96,15 +104,13 @@ const generateDirectly = async (params: {
 };
 
 export const generateWithSchema = async (prompt: string, schema: any, model?: string) => {
-    return await generateDirectly({ prompt, schema, model, isOcr: false });
+    return await generateCreativeMultimodal({ prompt, schema });
 };
 
 export const analyzeImage = async (image: string, prompt: string, schema: any, model?: string) => {
-    return await generateDirectly({ 
+    return await generateCreativeMultimodal({ 
         prompt, 
         schema, 
-        model: DEFAULT_MODEL, 
-        image,
-        isOcr: true 
+        files: [{ data: image, mimeType: 'image/jpeg' }]
     });
 };

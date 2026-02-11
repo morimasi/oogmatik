@@ -1,6 +1,6 @@
 
 import { Type } from "@google/genai";
-import { generateWithSchema } from '../geminiClient';
+import { generateCreativeMultimodal, MultimodalFile } from '../geminiClient';
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
 
 /**
@@ -30,23 +30,27 @@ export const refinePromptWithAI = async (userPrompt: string, mode: 'expand' | 'n
         }, 
         required: ['refined'] 
     };
-    // Model parametresi kaldırıldı, geminiClient varsayılan Thinking-Flash kullanacak
-    const result = await generateWithSchema(prompt, schema);
+    const result = await generateCreativeMultimodal({ prompt, schema });
     return result.refined;
 };
 
 /**
- * generateCreativeStudioActivity: Zenginleştirilmiş prompt ile tam layout üretir.
+ * generateCreativeStudioActivity: Zenginleştirilmiş prompt ve dosyalarla tam layout üretir.
  */
-export const generateCreativeStudioActivity = async (enrichedPrompt: string, options: any) => {
+export const generateCreativeStudioActivity = async (enrichedPrompt: string, options: any, files?: MultimodalFile[]) => {
     const prompt = `
     ${PEDAGOGICAL_BASE}
     ${CLINICAL_DIAGNOSTIC_GUIDE}
     
-    GÖREV: NÖRO-MİMARİ ÜRETİM
+    GÖREV: NÖRO-MİMARİ ÜRETİM VE KLONLAMA SENTEZİ
     
     TALİMAT:
     ${enrichedPrompt}
+    
+    ANALİZ VE ÜRETİM KRİTERİ:
+    1. Ekte PDF veya Görsel varsa; bu dosyaların eğitimsel yaklaşımını, mizanpajını ve zorluk seviyesini referans al.
+    2. Yeni üretilecek içerik bu dosyaların kalitesinde ancak tamamen özgün sorularla inşa edilmelidir.
+    3. Eğer dosya yoksa, sadece talimata göre en iyi tasarımı yap.
     
     PARAMETRELER:
     - Zorluk: ${options.difficulty}
@@ -97,6 +101,5 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
         required: ['title', 'instruction', 'layoutArchitecture']
     };
 
-    // Artık varsayılan olarak gemini-3-flash-preview (Thinking) kullanılacak
-    return await generateWithSchema(prompt, schema);
+    return await generateCreativeMultimodal({ prompt, schema, files });
 };
