@@ -55,35 +55,50 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         return () => clearInterval(interval);
     }, [isProcessing, isAnalyzingFile]);
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (!files) return;
-
-        const newFiles: MultimodalFile[] = [];
-        let loadedCount = 0;
-
-        Array.from(files).forEach((file: File) => {
-            if (file.size > 5 * 1024 * 1024) {
-                alert(`${file.name} çok büyük. Lütfen 5MB altı dosyalar seçin.`);
-                return;
-            }
-
+    // Helper: Dosyayı Base64'e çeviren Promise
+    const readFileAsBase64 = (file: File): Promise<MultimodalFile> => {
+        return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = (event) => {
-                const base64 = event.target?.result as string;
-                newFiles.push({ data: base64, mimeType: file.type });
-                loadedCount++;
-
-                if (loadedCount === files.length) {
-                    setAttachedFiles(prev => [...prev, ...newFiles]);
-                    // Dosyalar yüklendikten sonra otomatik analizi tetikle
-                    triggerFileAnalysis([...attachedFiles, ...newFiles]);
-                }
-            };
+            reader.onload = () => resolve({
+                data: reader.result as string,
+                mimeType: file.type
+            });
+            reader.onerror = reject;
             reader.readAsDataURL(file);
         });
-        
-        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        setIsAnalyzingFile(true);
+        setStatus("Dosyalar okunuyor...");
+
+        try {
+            // Fix: Added explicit type 'File' to resolve 'unknown' property access errors (size, name)
+            const filePromises = Array.from(files).map(async (file: File) => {
+                if (file.size > 10 * 1024 * 1024) { // 10MB Limit
+                    throw new Error(`${file.name} çok büyük. Maksimum 10MB yükleyebilirsiniz.`);
+                }
+                return await readFileAsBase64(file);
+            });
+
+            const newLoadedFiles = await Promise.all(filePromises);
+            const combinedFiles = [...attachedFiles, ...newLoadedFiles];
+            
+            setAttachedFiles(combinedFiles);
+            
+            // State güncellemesini beklemeden doğrudan yeni listeyle analizi başlat
+            await triggerFileAnalysis(combinedFiles);
+
+        } catch (err: any) {
+            alert(err.message || "Dosya yükleme hatası.");
+            setStatus("Hata oluştu.");
+        } finally {
+            if (fileInputRef.current) fileInputRef.current.value = "";
+            setIsAnalyzingFile(false);
+        }
     };
 
     const triggerFileAnalysis = async (files: MultimodalFile[]) => {
@@ -91,10 +106,16 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         setIsAnalyzingFile(true);
         setStatus("Dosyalar AI tarafından analiz ediliyor...");
         try {
+            // Mevcut prompt ile birlikte analizi yap
             const analysisPrompt = await analyzeReferenceFiles(files, prompt);
-            // Mevcut promptun üzerine ekle veya boşsa doğrudan set et
-            setPrompt(prev => prev ? `${prev}\n\n${analysisPrompt}` : analysisPrompt);
-            setStatus("Analiz tamamlandı. Taslağınızı düzenleyebilirsiniz.");
+            
+            // Temizleme: Eğer AI "Bu materyalin yapısını analiz ettim" diyorsa başına ekle
+            setPrompt(prev => {
+                const separator = prev ? "\n\n---\n\n" : "";
+                return `${prev}${separator}${analysisPrompt}`;
+            });
+            
+            setStatus("Analiz tamamlandı.");
         } catch (e) {
             console.error(e);
             setStatus("Dosya analizi başarısız oldu.");
@@ -105,6 +126,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
 
     const removeFile = (index: number) => {
         setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+        setStatus("Dosya kaldırıldı.");
     };
 
     const handleRefine = async (mode: 'expand' | 'narrow' | 'clinical') => {
@@ -136,11 +158,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         setIsProcessing(true);
         setStatus("Üretim Başladı...");
         try {
-            const enrichedPrompt = attachedFiles.length > 0 
-                ? `[MULTIMODAL REFERANS AKTİF]\nEkteki dosyaların yapısını ve kalitesini analiz et. Bu dosyaları temel alarak şu yönergeyi uygula: ${prompt}`
-                : prompt;
-
-            const result = await generateCreativeStudioActivity(enrichedPrompt, { difficulty, itemCount }, attachedFiles);
+            const result = await generateCreativeStudioActivity(prompt, { difficulty, itemCount }, attachedFiles);
             onResult(Array.isArray(result) ? result : [result]);
         } catch (e) {
             setStatus("Üretim başarısız oldu. Lütfen tekrar deneyin.");
@@ -163,7 +181,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     <h2 className="text-4xl font-black tracking-tighter text-white flex items-center gap-3">
                         <i className="fa-solid fa-wand-sparkles text-indigo-500"></i> AI Creative Studio
                     </h2>
-                    <p className="text-zinc-500 text-xs mt-1 uppercase tracking-widest font-black">Referans Dosya Analizi Aktif</p>
+                    <p className="text-zinc-500 text-xs mt-1 uppercase tracking-widest font-black">Multimodal Analiz Motoru Aktif</p>
                 </div>
                 <div className="flex bg-zinc-900 border border-white/10 p-1 rounded-2xl">
                     <button onClick={() => setActiveTab('editor')} className={`px-6 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'editor' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>TASARIMCI</button>
@@ -173,28 +191,23 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-4">
                 
-                {/* SOL PANEL: EDITOR VEYA KÜTÜPHANE */}
+                {/* SOL PANEL: EDITOR */}
                 <div className="lg:col-span-8 flex flex-col gap-6 h-[700px]">
                     {activeTab === 'editor' ? (
                         <div className="bg-zinc-900/50 rounded-[3rem] border border-white/10 p-8 shadow-2xl relative overflow-hidden flex flex-col h-full">
                             <div className="flex justify-between items-center mb-6">
-                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">Bilişsel Komut Merkezi</span>
+                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">Komut ve Analiz Sahası</span>
                                 <div className="flex gap-2">
-                                    {isAnalyzingFile && (
-                                        <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/20 rounded-lg text-[9px] font-black text-indigo-400 border border-indigo-500/30">
-                                            <i className="fa-solid fa-circle-notch fa-spin"></i> DOSYA ANALİZ EDİLİYOR...
-                                        </div>
-                                    )}
-                                    <button onClick={() => handleRefine('expand')} disabled={isProcessing || !prompt} className="px-3 py-1.5 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg text-[9px] font-black uppercase hover:bg-indigo-600 hover:text-white transition-all">Genişlet</button>
-                                    <button onClick={() => handleRefine('clinical')} disabled={isProcessing || !prompt} className="px-3 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-lg text-[9px] font-black uppercase hover:bg-rose-600 hover:text-white transition-all">Klinik Tanı Ekle</button>
+                                    <button onClick={() => handleRefine('expand')} disabled={isProcessing || isAnalyzingFile || !prompt} className="px-3 py-1.5 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg text-[9px] font-black uppercase hover:bg-indigo-600 hover:text-white transition-all">Genişlet</button>
+                                    <button onClick={() => handleRefine('clinical')} disabled={isProcessing || isAnalyzingFile || !prompt} className="px-3 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-lg text-[9px] font-black uppercase hover:bg-rose-600 hover:text-white transition-all">Klinik Tanı Ekle</button>
                                 </div>
                             </div>
 
                             <textarea 
                                 value={prompt}
                                 onChange={(e) => setPrompt(e.target.value)}
-                                className={`flex-1 w-full p-8 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm leading-relaxed text-zinc-300 outline-none focus:border-indigo-500 transition-all font-mono resize-none shadow-inner ${isAnalyzingFile ? 'opacity-50' : 'opacity-100'}`}
-                                placeholder="Bir materyal yüklediğinizde AI sizin için teknik taslağı buraya yazacaktır..."
+                                className={`flex-1 w-full p-8 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm leading-relaxed text-zinc-300 outline-none focus:border-indigo-500 transition-all font-mono resize-none shadow-inner ${isAnalyzingFile ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
+                                placeholder="Buraya bir fikir yazın veya dosya yükleyerek analiz ettirin..."
                             ></textarea>
 
                             {/* ATTACHED FILES LIST */}
@@ -228,14 +241,14 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                             )}
 
                             <div className="mt-6 flex flex-wrap gap-2 items-center">
-                                {attachedFiles.length === 0 && (
-                                    <button 
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-indigo-500 transition-all flex items-center gap-2"
-                                    >
-                                        <i className="fa-solid fa-paperclip"></i> REFERANS DOSYA EKLE
-                                    </button>
-                                )}
+                                <button 
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={isAnalyzingFile}
+                                    className="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-indigo-50 transition-all flex items-center gap-2 disabled:opacity-50"
+                                >
+                                    {isAnalyzingFile ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-paperclip"></i>}
+                                    DOSYA EKLE (PDF/GÖRSEL)
+                                </button>
                                 <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*,application/pdf" multiple />
                                 
                                 <div className="h-6 w-px bg-white/10 mx-2"></div>
@@ -250,12 +263,12 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     ) : (
                         <div className="bg-zinc-900/50 rounded-[3rem] border border-white/10 p-8 shadow-2xl relative overflow-hidden flex flex-col h-full">
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-black text-white">Pedagojik Metodoloji Bankası</h3>
+                                <h3 className="text-xl font-black text-white">Metodoloji Bankası</h3>
                                 <div className="relative w-64">
                                     <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"></i>
                                     <input 
                                         type="text" value={librarySearch} onChange={e => setLibrarySearch(e.target.value)}
-                                        placeholder="Metot veya kategori ara..."
+                                        placeholder="Ara..."
                                         className="w-full pl-9 pr-4 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white outline-none focus:border-indigo-500"
                                     />
                                 </div>
@@ -284,7 +297,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                 {/* SAĞ PANEL: KONTROLLER */}
                 <div className="lg:col-span-4 flex flex-col gap-6">
                     <div className="bg-white/5 rounded-[3rem] border border-white/5 p-8 flex flex-col shadow-xl">
-                        <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] mb-8">ÜRETİM KRİTERLERİ</h4>
+                        <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] mb-8">ÜRETİM PARAMETRELERİ</h4>
                         
                         <div className="space-y-8">
                             <div className="space-y-3">
@@ -303,7 +316,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
 
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center text-[10px] font-bold text-zinc-400 uppercase">
-                                    <span>Öğe Adedi</span>
+                                    <span>Soru Adedi</span>
                                     <span className="text-indigo-400 font-black">{itemCount}</span>
                                 </div>
                                 <input type="range" min={2} max={30} value={itemCount} onChange={e => setItemCount(Number(e.target.value))} className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
@@ -334,17 +347,10 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                                 className="w-full py-5 bg-white text-indigo-950 font-black rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-2xl flex items-center justify-center gap-3 text-sm disabled:opacity-50"
                             >
                                 {isProcessing ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-rocket"></i>}
-                                TASARIMI BAŞLAT
+                                ÜRETİMİ BAŞLAT
                             </button>
                             <button onClick={onCancel} className="w-full py-3 text-zinc-600 hover:text-zinc-400 text-xs font-bold transition-colors">Vazgeç</button>
                         </div>
-                    </div>
-
-                    <div className="p-6 bg-indigo-900/10 rounded-[2.5rem] border border-indigo-500/20">
-                        <h5 className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i className="fa-solid fa-wand-magic"></i> Akıllı Analiz</h5>
-                        <p className="text-[10px] text-zinc-500 leading-relaxed italic">
-                            Bir dosya yüklediğinizde, AI onu saniyeler içinde analiz ederek teknik bir üretim planı oluşturur. Bu planı metin alanında görebilir ve üzerinde istediğiniz değişiklikleri yapabilirsiniz.
-                        </p>
                     </div>
                 </div>
             </div>
