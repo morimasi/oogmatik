@@ -30,7 +30,10 @@ const tryRepairJson = (jsonStr: string): any => {
 
     // 2. Hallüsinasyon Temizliği (Hatalı uzun sayı dizilerini düzeltme)
     // viewBox: "0 0 100 5000000000000..." gibi hataları yakalar
-    cleaned = cleaned.replace(/(\d{10,})/g, (match) => match.substring(0, 3));
+    // Tüm 10 basamaktan büyük sayıları 100 ile değiştir (Koordinat/boyut sistemimiz 100 tabanlı olduğu için mantıklı bir fallback)
+    cleaned = cleaned.replace(/: ?"?(\d{10,})"?/g, ': 100');
+    // Eğer tırnak içindeyse ve çok uzunsa temizle
+    cleaned = cleaned.replace(/"(\d{10,})"/g, '"100"');
 
     // 3. JSON Bloğunu Yakala
     const firstBrace = cleaned.indexOf('{');
@@ -71,6 +74,7 @@ GÖREVİN: Disleksi/diskalkuli odaklı, görsel hiyerarşisi güçlü eğitim ma
 2. Sayısal değerlerde asla 10 basamaktan uzun sayı kullanma.
 3. viewBox her zaman "0 0 100 100" olmalıdır.
 4. Karmaşık koordinatlar yerine 0-100 arası tamsayıları tercih et.
+5. JSON çıktısında 'layoutArchitecture' anahtarını mutlaka kullan ve sayfayı 'blocks' olarak kurgula.
 `;
 
 export interface MultimodalFile {

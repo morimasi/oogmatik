@@ -55,11 +55,22 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
     const content: any = block.content;
     if (!content) return null;
     
+    const blockStyle = {
+        textAlign: block.style?.textAlign as any || 'left',
+        fontWeight: block.style?.fontWeight as any || 'normal',
+        fontSize: block.style?.fontSize ? `${block.style.fontSize}px` : undefined,
+        backgroundColor: block.style?.backgroundColor || 'transparent',
+        borderRadius: block.style?.borderRadius ? `${block.style.borderRadius}px` : undefined,
+        color: block.style?.color || 'inherit'
+    };
+
     switch (block.type) {
         case 'header':
-            return <h2 className="text-3xl font-black uppercase text-center mb-6 border-b-4 border-black pb-2"><EditableText value={recursiveSafeText(content.text || content)} tag="span" /></h2>;
+            return <h2 className="text-3xl font-black uppercase text-center mb-6 border-b-4 border-black pb-2" style={blockStyle}><EditableText value={recursiveSafeText(content.text || content)} tag="span" /></h2>;
+        
         case 'text':
-            return <div className="text-lg leading-relaxed mb-6 font-dyslexic"><EditableText value={recursiveSafeText(content.text || content)} tag="div" /></div>;
+            return <div className="text-lg leading-relaxed mb-6 font-dyslexic" style={blockStyle}><EditableText value={recursiveSafeText(content.text || content)} tag="div" /></div>;
+        
         case 'grid':
             return (
                 <div className="flex justify-center mb-8">
@@ -70,13 +81,14 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
                     </div>
                 </div>
             );
+
         case 'table':
             return (
-                <div className="overflow-hidden border-4 border-black rounded-2xl mb-8 bg-white mx-auto max-w-full">
+                <div className="overflow-hidden border-4 border-black rounded-2xl mb-8 bg-white mx-auto max-w-full shadow-sm">
                     <table className="w-full border-collapse">
                         {content.headers && (
                             <thead className="bg-zinc-100">
-                                <tr>{content.headers.map((h: string, i: number) => <th key={i} className="p-3 text-xs font-black uppercase border-r border-black last:border-0">{h}</th>)}</tr>
+                                <tr>{content.headers.map((h: string, i: number) => <th key={i} className="p-3 text-[10px] font-black uppercase border-r border-black last:border-0">{h}</th>)}</tr>
                             </thead>
                         )}
                         <tbody>
@@ -89,33 +101,115 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
                     </table>
                 </div>
             );
+
+        case 'logic_card':
+            return (
+                <div className="p-6 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm flex flex-col gap-4 mb-4 break-inside-avoid hover:border-indigo-500 transition-all">
+                    <div className="bg-zinc-900 text-white p-4 rounded-2xl text-center text-sm font-bold italic mb-2">
+                        <EditableText value={recursiveSafeText(content.text)} tag="p" />
+                    </div>
+                    {content.data && (
+                        <div className="flex justify-center gap-4">
+                            {content.data.map((box: string[], bIdx: number) => (
+                                <div key={bIdx} className="border-2 border-zinc-800 p-2 rounded-xl bg-zinc-50 flex flex-wrap justify-center gap-2 min-w-[80px]">
+                                    {box.map((num, nIdx) => <span key={nIdx} className="font-mono font-black text-lg">{num}</span>)}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    <div className="flex justify-around pt-4 border-t-2 border-dashed border-zinc-100 mt-2">
+                        {(content.options || []).map((opt: string, oIdx: number) => (
+                            <div key={oIdx} className="flex flex-col items-center gap-1 group/opt">
+                                <div className="w-10 h-10 rounded-xl border-2 border-zinc-200 flex items-center justify-center font-black text-sm group-hover/opt:bg-zinc-900 group-hover/opt:text-white transition-all cursor-pointer shadow-sm">{opt}</div>
+                                <span className="text-[8px] font-black text-zinc-300 uppercase">{String.fromCharCode(65+oIdx)}</span>
+                            </div>
+                        ))}
+                    </div>
+                    {content.logic && (
+                        <div className="absolute top-1 right-2 opacity-0 hover:opacity-10 rotate-180 text-[8px] font-black pointer-events-none transition-opacity">
+                            LOGIC: {content.logic}
+                        </div>
+                    )}
+                </div>
+            );
+
+        case 'footer_validation':
+            return (
+                <div className="mt-8 p-10 bg-zinc-900 text-white rounded-[4rem] border-4 border-white shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 break-inside-avoid">
+                    <div className="flex-1">
+                        <h4 className="text-2xl font-black tracking-tight mb-2 uppercase">KONTROL VE DOĞRULAMA</h4>
+                        <p className="text-sm text-zinc-400 font-medium leading-relaxed italic"><EditableText value={recursiveSafeText(content.text)} tag="span" /></p>
+                    </div>
+                    <div className="flex items-center gap-8 bg-white/10 p-6 rounded-[2.5rem] border border-white/20">
+                        <div className="text-center">
+                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block mb-2">HEDEF SONUÇ</span>
+                            <div className="text-4xl font-black text-amber-400 font-mono">{content.targetValue}</div>
+                        </div>
+                        <div className="w-px h-12 bg-white/20"></div>
+                        <div className="text-center">
+                             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">SENİN SONUCUN</span>
+                             <div className="w-20 h-10 border-b-4 border-dashed border-zinc-700"></div>
+                        </div>
+                    </div>
+                </div>
+            );
+
         case 'svg_shape':
             return (
                 <div className="flex justify-center mb-8">
-                    <div className="w-32 h-32 p-2 border-2 border-zinc-100 rounded-2xl">
+                    <div className="w-32 h-32 p-2 border-2 border-zinc-100 rounded-2xl bg-white shadow-sm">
                         <svg viewBox={content.viewBox || "0 0 100 100"} className="w-full h-full text-black">
                             {(content.paths || []).map((p: string, i: number) => <path key={i} d={p} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />)}
                         </svg>
                     </div>
                 </div>
             );
+        
         case 'image':
-            return <div className="mb-8"><ImageDisplay prompt={content.prompt} className="w-full h-56 rounded-3xl" /></div>;
+            return <div className="mb-8 flex justify-center"><ImageDisplay prompt={content.prompt} className="w-full h-64 rounded-[3rem] shadow-md border-4 border-white" /></div>;
+        
         default: return null;
     }
 };
 
 const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
-    const blocks = data.layoutArchitecture?.blocks || data.blocks || [];
+    const architecture = data.layoutArchitecture;
+    const blocks = architecture?.blocks || data.blocks || [];
+    const cols = architecture?.cols || 1;
+
     return (
-        <div className="w-full h-full flex flex-col animate-in fade-in duration-500">
+        <div className="w-full h-full flex flex-col animate-in fade-in duration-500 font-lexend">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-            <div className="flex-1 mt-4">{blocks.map((block: WorksheetBlock, idx: number) => <BlockRenderer key={idx} block={block} />)}</div>
+            
+            {cols > 1 ? (
+                <div 
+                    className="grid gap-6 mt-4 items-start" 
+                    style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+                >
+                    {blocks.map((block: WorksheetBlock, idx: number) => (
+                        <BlockRenderer key={idx} block={block} />
+                    ))}
+                </div>
+            ) : (
+                <div className="flex-1 mt-4">
+                    {blocks.map((block: WorksheetBlock, idx: number) => (
+                        <BlockRenderer key={idx} block={block} />
+                    ))}
+                </div>
+            )}
+            
+            <div className="mt-auto pt-6 opacity-20 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.5em] text-zinc-400">
+                <span>Bursa Disleksi AI • Nöro-Mimari Motoru v6.0</span>
+                <div className="flex gap-4">
+                    <i className="fa-solid fa-microchip"></i>
+                    <i className="fa-solid fa-brain"></i>
+                    <i className="fa-solid fa-bezier-curve"></i>
+                </div>
+            </div>
         </div>
     );
 };
 
-// Fix: Defined SheetRendererProps interface to resolve the missing name error
 interface SheetRendererProps {
     activityType: ActivityType | null;
     data: SingleWorksheetData;
@@ -153,7 +247,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.STROOP_TEST: return <StroopTestSheet data={data as unknown as StroopTestData} />;
         case ActivityType.BURDON_TEST: return <BurdonTestSheet data={data as unknown as LetterGridTestData} />;
         case ActivityType.NUMBER_SEARCH: return <NumberSearchSheet data={data as unknown as NumberSearchData} />;
-        // Fix: Fixed typo ChoticNumberSearchSheet to ChaoticNumberSearchSheet
         case ActivityType.CHAOTIC_NUMBER_SEARCH: return <ChaoticNumberSearchSheet data={data as unknown as ChaoticNumberSearchData} />;
         case ActivityType.ATTENTION_DEVELOPMENT: return <AttentionDevelopmentSheet data={data as unknown as AttentionDevelopmentData} />;
         case ActivityType.ATTENTION_FOCUS: return <AttentionFocusSheet data={data as unknown as AttentionFocusData} />;

@@ -82,7 +82,6 @@ export enum ActivityType {
     SPATIAL_GRID = 'SPATIAL_GRID',
     ODD_EVEN_SUDOKU = 'ODD_EVEN_SUDOKU',
     PUNCTUATION_MAZE = 'PUNCTUATION_MAZE',
-    // Fix: Added missing ActivityType members
     LOGIC_GRID_PUZZLE = 'LOGIC_GRID_PUZZLE',
     DOT_PAINTING = 'DOT_PAINTING',
     SHAPE_SUDOKU = 'SHAPE_SUDOKU',
@@ -139,6 +138,11 @@ export interface BaseActivityData {
     imagePrompt?: string;
     imageBase64?: string;
     targetedErrors?: string[];
+    layoutArchitecture?: {
+        cols?: number;
+        gap?: number;
+        blocks: WorksheetBlock[];
+    };
 }
 
 export type SingleWorksheetData = BaseActivityData & Record<string, any>;
@@ -352,13 +356,15 @@ export interface WorkbookSettings {
 }
 
 export interface WorksheetBlock {
-    // Fix: Added 'question' to allowed block types for pagination support
-    type: 'header' | 'text' | 'grid' | 'table' | 'svg_shape' | 'dual_column' | 'image' | 'question';
+    type: 'header' | 'text' | 'grid' | 'table' | 'svg_shape' | 'dual_column' | 'image' | 'question' | 'logic_card' | 'footer_validation';
     content: any;
     style?: {
         textAlign?: string;
         fontWeight?: string;
         fontSize?: number;
+        backgroundColor?: string;
+        borderRadius?: number;
+        color?: string;
     };
     weight?: number;
 }
