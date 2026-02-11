@@ -62,7 +62,6 @@ const generateDirectly = async (params: {
     if (!apiKey) throw new Error("API Anahtarı eksik.");
 
     const ai = new GoogleGenAI({ apiKey });
-    // GOD MODE: Her zaman en gelişmiş Flash modelini kullan
     const modelName = DEFAULT_MODEL;
     
     let parts: any[] = [];
@@ -82,8 +81,8 @@ const generateDirectly = async (params: {
         responseMimeType: "application/json",
         responseSchema: params.schema,
         temperature: 0.1,
-        // Gemini 3.0 Flash için yüksek muhakeme bütçesi (Thinking Multimodal)
-        thinkingConfig: { thinkingBudget: 16000 }
+        // OPTIMIZATION: 16K -> 8K (Hız için muhakeme bütçesi düşürüldü)
+        thinkingConfig: { thinkingBudget: 8000 }
     };
 
     const response = await ai.models.generateContent({

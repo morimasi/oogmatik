@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { refinePromptWithAI, generateCreativeStudioActivity } from '../services/generators/creativeStudio';
 import { PEDAGOGICAL_LIBRARY, ActivityLibraryItem } from '../services/generators/promptLibrary';
 
@@ -16,14 +16,38 @@ const SNIPPETS = [
     { label: "Klinik Çeldirici", value: "Yanlış şıkları ayna harfler (b-d, p-q) üzerinden kurgula." }
 ];
 
+const THINKING_MESSAGES = [
+    "Gemini 3.0 Thinking Modu Aktif...",
+    "Pedagojik metodoloji analiz ediliyor...",
+    "Nöro-mimari düzen tasarlanıyor...",
+    "Klinik çeldiriciler kurgulanıyor...",
+    "Görsel hiyerarşi optimize ediliyor...",
+    "Çıktı disleksi standartlarına uyarlanıyor...",
+    "Hemen hemen hazır, son kontroller yapılıyor..."
+];
+
 export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCancel }) => {
     const [prompt, setPrompt] = useState("");
     const [difficulty, setDifficulty] = useState("Orta");
     const [itemCount, setItemCount] = useState(8);
     const [isProcessing, setIsProcessing] = useState(false);
     const [status, setStatus] = useState("");
+    const [statusIndex, setStatusIndex] = useState(0);
     const [activeTab, setActiveTab] = useState<'editor' | 'library'>('editor');
     const [librarySearch, setLibrarySearch] = useState("");
+
+    // Dinamik durum mesajları döngüsü
+    useEffect(() => {
+        let interval: any;
+        if (isProcessing) {
+            interval = setInterval(() => {
+                setStatusIndex(prev => (prev + 1) % THINKING_MESSAGES.length);
+            }, 4000);
+        } else {
+            setStatusIndex(0);
+        }
+        return () => clearInterval(interval);
+    }, [isProcessing]);
 
     const handleRefine = async (mode: 'expand' | 'narrow' | 'clinical') => {
         if (!prompt.trim()) return;
@@ -49,12 +73,12 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     const handleGenerate = async () => {
         if (!prompt.trim()) return;
         setIsProcessing(true);
-        setStatus("Gemini 3.0 Multimodal Thinking Modu Aktif...");
+        setStatus("Üretim Başladı...");
         try {
             const result = await generateCreativeStudioActivity(prompt, { difficulty, itemCount });
             onResult(Array.isArray(result) ? result : [result]);
         } catch (e) {
-            setStatus("Üretim başarısız oldu.");
+            setStatus("Üretim başarısız oldu. Lütfen tekrar deneyin.");
         } finally {
             setIsProcessing(false);
         }
@@ -176,12 +200,21 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                         </div>
 
                         <div className="mt-12 space-y-4">
-                            <div className="h-10 flex items-center justify-center">
-                                {status && (
-                                    <div className="flex items-center gap-3 animate-in fade-in">
-                                        <div className="w-2 h-2 bg-indigo-500 rounded-full animate-ping"></div>
-                                        <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">{status}</p>
+                            <div className="h-14 flex flex-col items-center justify-center">
+                                {isProcessing && (
+                                    <div className="flex flex-col items-center gap-2 animate-in fade-in">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></div>
+                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></div>
+                                        </div>
+                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest text-center px-4 leading-tight">
+                                            {THINKING_MESSAGES[statusIndex]}
+                                        </p>
                                     </div>
+                                )}
+                                {!isProcessing && status && (
+                                     <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{status}</p>
                                 )}
                             </div>
                             <button 
@@ -200,7 +233,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     <div className="p-6 bg-indigo-900/10 rounded-[2.5rem] border border-indigo-500/20">
                         <h5 className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i className="fa-solid fa-circle-info"></i> Klinik İpucu</h5>
                         <p className="text-[10px] text-zinc-500 leading-relaxed italic">
-                            Uluslararası kütüphaneden seçtiğiniz her metot, Gemini 3.0'ın bilişsel akıl yürütme katmanı tarafından analiz edilerek Bursa Disleksi standartlarına uyarlanır.
+                            Gemini 3.0 Thinking motoru, sadece görsel üretmez; pedagojik bir strateji kurar. Bu süreç 30-60 saniye sürebilir, ancak sonuç klinik açıdan çok daha değerlidir.
                         </p>
                     </div>
                 </div>

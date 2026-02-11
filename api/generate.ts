@@ -42,8 +42,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
                 { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
             ],
-            // Flash-Thinking Entegrasyonu
-            thinkingConfig: { thinkingBudget: 16000 }
+            // Hız için bütçe 16K'dan 8K'ya çekildi.
+            thinkingConfig: { thinkingBudget: 8000 }
         };
 
         if (useSearch) config.tools = [{ googleSearch: {} }];
