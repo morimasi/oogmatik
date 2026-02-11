@@ -1,5 +1,5 @@
 
-import { BaseActivityData, ShapeType, VisualMathType, ActivityType } from './core';
+import { BaseActivityData, ShapeType, VisualMathType, ActivityType, Student } from './core';
 
 export * from './core';
 
@@ -11,7 +11,7 @@ export interface NumberLogicRiddleData extends BaseActivityData {
     numberRangeEnd?: number;
     puzzles: {
         id: string;
-        riddleParts: { text: string; icon: string; type: 'parity' | 'digits' | 'comparison' | 'arithmetic' }[];
+        riddleParts: { text: string; icon: string; type: 'parity' | 'digits' | 'comparison' | 'arithmetic' | 'range' }[];
         visualDistraction: number[]; // Arka plandaki şüpheli sayılar
         options: string[];
         answer: string;
@@ -22,10 +22,6 @@ export interface NumberLogicRiddleData extends BaseActivityData {
         visualHint?: string;
     }[];
 }
-
-/**
- * FIX: Added missing interfaces for various Math/Logic activities
- */
 
 export interface MathPuzzleData extends BaseActivityData {
     puzzles: {
@@ -195,10 +191,10 @@ export interface ClockReadingData extends BaseActivityData {
         showTicks?: boolean;
         showHands?: boolean;
         showOptions?: boolean;
+        difficulty?: string;
     };
 }
 
-// Math Studio types
 export type MathMode = 'drill' | 'problem_ai';
 
 export interface MathDrillConfig {
@@ -259,10 +255,6 @@ export interface MathProblemConfig {
     problemStyle: 'simple' | 'story' | 'logic';
     complexity: '1-step' | '2-step' | 'multi-step';
 }
-
-/**
- * FIX: Added missing types for advanced logic problems
- */
 
 export interface LogicGridPuzzleData extends BaseActivityData {
     clues: string[];
@@ -361,5 +353,13 @@ export interface RoundingConnectData extends BaseActivityData {
 }
 
 export interface RomanNumeralMultiplicationData extends BaseActivityData {
+    items: any[];
+}
+
+export interface RomanNumeralConnectData extends BaseActivityData {
+    items: any[];
+}
+
+export interface OperationSquareData extends BaseActivityData {
     items: any[];
 }

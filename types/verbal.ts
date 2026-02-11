@@ -1,5 +1,5 @@
 
-import { BaseActivityData } from './core';
+import { BaseActivityData, ActivityType, Student } from './core';
 
 export * from './core';
 
@@ -9,6 +9,7 @@ export interface StoryQuestion {
     options?: string[];
     answer: string;
     isTrue?: boolean;
+    hint?: string;
 }
 
 export interface StoryData extends BaseActivityData {
@@ -79,6 +80,7 @@ export interface BackwardSpellingData extends BaseActivityData {
 export interface HandwritingPracticeData extends BaseActivityData {
     lines: { text: string; type: 'trace' | 'copy' | 'empty'; imagePrompt?: string }[];
     guideType: string;
+    settings?: any;
 }
 
 export interface SyllableWordBuilderData extends BaseActivityData {
@@ -126,7 +128,7 @@ export interface SynonymAntonymMatchData extends BaseActivityData {
         source: string;
         target: string;
         type: 'synonym' | 'antonym';
-        imagePrompt: string;
+        imagePrompt?: string;
     }[];
     sentences: {
         text: string;
@@ -186,10 +188,6 @@ export interface ReadingPyramidData extends BaseActivityData {
     }[];
     difficulty: string;
 }
-
-/**
- * FIX: Added missing interfaces for Verbal, Attention and Memory activities
- */
 
 export interface WordMemoryItem {
     text: string;
@@ -366,9 +364,6 @@ export interface CrosswordData extends BaseActivityData {
     clues: { id: number; text: string; direction: 'across' | 'down' }[];
 }
 
-/**
- * FIX: Added missing HiddenPasswordGridData interface
- */
 export interface HiddenPasswordGridData extends BaseActivityData {
     settings?: {
         gridSize: number;

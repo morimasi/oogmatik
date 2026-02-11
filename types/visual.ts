@@ -1,5 +1,5 @@
 
-import { BaseActivityData, ShapeType } from './core';
+import { BaseActivityData, ShapeType, ActivityType } from './core';
 
 export * from './core';
 
@@ -20,7 +20,6 @@ export interface ShapeCountingData extends BaseActivityData {
         targetShape: ShapeType;
         colorComplexity: 'monochrome' | 'simple' | 'full';
         layoutType: 'grid' | 'chaotic';
-        // Fix: Added missing properties used in offline generator
         showClues?: boolean;
         density?: string;
         variety?: string;
@@ -29,10 +28,6 @@ export interface ShapeCountingData extends BaseActivityData {
     correctCount: number; // Hedef şeklin toplam sayısı
     clues: string[];
 }
-
-/**
- * FIX: Added missing visual perception data interfaces
- */
 
 export interface FindTheDifferenceData extends BaseActivityData {
     rows: {
@@ -72,7 +67,7 @@ export interface VisualOddOneOutItem {
 }
 
 export interface VisualOddOneOutData extends BaseActivityData {
-    difficultyLevel: string;
+    difficultyLevel?: string;
     distractionLevel: 'low' | 'medium' | 'high' | 'extreme';
     rows: {
         items: VisualOddOneOutItem[];
@@ -84,10 +79,10 @@ export interface VisualOddOneOutData extends BaseActivityData {
 export interface GridDrawingData extends BaseActivityData {
     gridDim: number;
     showCoordinates: boolean;
-    transformMode: 'copy' | 'mirror_v' | 'mirror_h' | 'rotate_90';
+    transformMode?: 'copy' | 'mirror_v' | 'mirror_h' | 'rotate_90';
     drawings: {
         lines: [number, number][][];
-        complexityLevel: string;
+        complexityLevel?: string;
         title: string;
     }[];
 }
@@ -96,7 +91,7 @@ export interface SymmetryDrawingData extends BaseActivityData {
     gridDim: number;
     axis: 'vertical' | 'horizontal';
     showCoordinates: boolean;
-    isMirrorImage: boolean;
+    isMirrorImage?: boolean;
     lines: { x1: number; y1: number; x2: number; y2: number; color: string }[];
     dots: { x: number; y: number; color: string }[];
 }
@@ -176,4 +171,15 @@ export interface SynonymAntonymColoringData extends BaseActivityData {
 export interface StarHuntData extends BaseActivityData {
     grid: string[][];
     target: string;
+}
+
+export interface AlgorithmStep {
+    id: number;
+    type: 'start' | 'process' | 'decision' | 'input' | 'output' | 'end';
+    text: string;
+}
+
+export interface AlgorithmData extends BaseActivityData {
+    challenge: string;
+    steps: AlgorithmStep[];
 }

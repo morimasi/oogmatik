@@ -17,26 +17,30 @@ interface CreativeStudioProps {
 
 const THINKING_MESSAGES = [
     "Gemini 3.0 Pro Motoru Hazırlanıyor...",
-    "Dosya mimarisi analiz ediliyor...",
+    "Bilişsel kısıtlamalar yükleniyor...",
+    "Görsel çeldiriciler optimize ediliyor...",
+    "Tipografik düzen ayarlanıyor...",
     "Pedagojik metodoloji sentezleniyor...",
     "Nöro-mimari düzen tasarlanıyor...",
-    "Klinik çeldiriciler kurgulanıyor...",
-    "Görsel hiyerarşi optimize ediliyor...",
-    "Hemen hemen hazır, son kontroller yapılıyor..."
+    "Klinik analizler tamamlanıyor..."
 ];
 
 export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCancel }) => {
-    // Shared State
+    // Basic States
     const [prompt, setPrompt] = useState("");
     const [difficulty, setDifficulty] = useState("Orta");
     const [itemCount, setItemCount] = useState(8);
+    
+    // --- NEW PROFESSIONAL STATES ---
+    const [distractionLevel, setDistractionLevel] = useState("medium"); // low, medium, high
+    const [fontSizePreference, setFontSizePreference] = useState("medium"); // small, medium, large
+
     const [isProcessing, setIsProcessing] = useState(false);
     const [isAnalyzingFile, setIsAnalyzingFile] = useState(false);
     const [status, setStatus] = useState("");
     const [statusIndex, setStatusIndex] = useState(0);
     const [activeTab, setActiveTab] = useState<'editor' | 'library'>('editor');
     
-    // Custom Data States
     const [localLibrary, setLocalLibrary] = useState<ActivityLibraryItem[]>([]);
     const [customSnippets, setCustomSnippets] = useState<AISnippet[]>([]);
     const [showSnippetModal, setShowSnippetModal] = useState(false);
@@ -45,7 +49,6 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [attachedFiles, setAttachedFiles] = useState<MultimodalFile[]>([]);
 
-    // Initial Load
     useEffect(() => {
         const savedLib = localStorage.getItem('custom_pedagogical_lib');
         setLocalLibrary([...PEDAGOGICAL_LIBRARY, ...(savedLib ? JSON.parse(savedLib) : [])]);
@@ -54,18 +57,17 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         if (savedSnippets) setCustomSnippets(JSON.parse(savedSnippets));
     }, []);
 
-    // Thinking Loop
     useEffect(() => {
         let interval: any;
         if (isProcessing) {
-            interval = setInterval(() => setStatusIndex(prev => (prev + 1) % THINKING_MESSAGES.length), 4000);
+            interval = setInterval(() => setStatusIndex(prev => (prev + 1) % THINKING_MESSAGES.length), 3500);
         }
         return () => clearInterval(interval);
     }, [isProcessing]);
 
     const handleFilesSelect = async (files: FileList) => {
         setIsAnalyzingFile(true);
-        setStatus("Dosyalar okunuyor...");
+        setStatus("Mimari analiz başlıyor...");
         try {
             const reader = (file: File): Promise<MultimodalFile> => new Promise((res, rej) => {
                 const r = new FileReader();
@@ -78,9 +80,9 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
             setAttachedFiles(combined);
             const analysisResult = await analyzeReferenceFiles(combined, prompt);
             setPrompt(prev => prev.trim() ? `${prev}\n\n---\n\n${analysisResult}` : analysisResult);
-            setStatus("Analiz tamamlandı.");
+            setStatus("Analiz başarılı.");
         } catch (e) {
-            setStatus("Analiz başarısız.");
+            setStatus("Hata oluştu.");
         } finally {
             setIsAnalyzingFile(false);
         }
@@ -94,34 +96,26 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         } finally { setIsProcessing(false); }
     };
 
-    const handleSaveCustomSnippet = (snippet: AISnippet) => {
-        const updated = [...customSnippets, snippet];
-        setCustomSnippets(updated);
-        localStorage.setItem('custom_ai_snippets_v2', JSON.stringify(updated));
-    };
-
-    const handleDeleteCustomSnippet = (id: string) => {
-        const updated = customSnippets.filter(s => s.id !== id);
-        setCustomSnippets(updated);
-        localStorage.setItem('custom_ai_snippets_v2', JSON.stringify(updated));
-    };
-
     const handleGenerate = async () => {
         if (!prompt.trim() && attachedFiles.length === 0) return;
         setIsProcessing(true);
         try {
-            const result = await generateCreativeStudioActivity(prompt, { difficulty, itemCount }, attachedFiles);
+            const result = await generateCreativeStudioActivity(prompt, { 
+                difficulty, 
+                itemCount,
+                distractionLevel,
+                fontSizePreference
+            }, attachedFiles);
             onResult(Array.isArray(result) ? result : [result]);
         } catch (e) {
-            setStatus("Hata oluştu.");
+            setStatus("Üretim durduruldu.");
         } finally {
             setIsProcessing(false);
         }
     };
 
-    // Current Snippets for Editor (Merging System + Custom)
     const activeSnippets = useMemo(() => {
-        return [...PROFESSIONAL_SNIPPETS, ...customSnippets].slice(0, 8); // Editor shortcuts limit
+        return [...PROFESSIONAL_SNIPPETS, ...customSnippets].slice(0, 8);
     }, [customSnippets]);
 
     return (
@@ -132,8 +126,16 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                 <SnippetManagerModal 
                     onClose={() => setShowSnippetModal(false)}
                     customSnippets={customSnippets}
-                    onSaveCustom={handleSaveCustomSnippet}
-                    onDeleteCustom={handleDeleteCustomSnippet}
+                    onSaveCustom={(s) => {
+                        const updated = [...customSnippets, s];
+                        setCustomSnippets(updated);
+                        localStorage.setItem('custom_ai_snippets_v2', JSON.stringify(updated));
+                    }}
+                    onDeleteCustom={(id) => {
+                        const updated = customSnippets.filter(s => s.id !== id);
+                        setCustomSnippets(updated);
+                        localStorage.setItem('custom_ai_snippets_v2', JSON.stringify(updated));
+                    }}
                     onSelect={(s) => {
                         setPrompt(prev => prev + "\n\n" + s.value);
                         setShowSnippetModal(false);
@@ -146,15 +148,15 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     <h2 className="text-4xl font-black tracking-tighter text-white flex items-center gap-3">
                         <i className="fa-solid fa-wand-magic-sparkles text-indigo-500"></i> AI Creative Studio
                     </h2>
-                    <p className="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-bold">Klinik Tasarım ve Mimari Klonlama</p>
+                    <p className="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-bold opacity-60">Professional Clinical Content Designer</p>
                 </div>
                 <div className="flex bg-zinc-900 border border-white/10 p-1.5 rounded-2xl shadow-inner">
                     <button onClick={() => setActiveTab('editor')} className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'editor' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>TASARIMCI</button>
-                    <button onClick={() => setActiveTab('library')} className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'library' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>METODOLOJİ BANKASI</button>
+                    <button onClick={() => setActiveTab('library')} className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'library' ? 'bg-white text-black shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}>KÜTÜPHANE</button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-4 pb-20">
                 <div className="lg:col-span-8 flex flex-col gap-6 h-[750px]">
                     {activeTab === 'editor' ? (
                         <EditorPane 
@@ -176,6 +178,8 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     <ControlPane 
                         difficulty={difficulty} setDifficulty={setDifficulty}
                         itemCount={itemCount} setItemCount={setItemCount}
+                        distractionLevel={distractionLevel} setDistractionLevel={setDistractionLevel}
+                        fontSizePreference={fontSizePreference} setFontSizePreference={setFontSizePreference}
                         onGenerate={handleGenerate} onCancel={onCancel}
                         isProcessing={isProcessing} isAnalyzing={isAnalyzingFile}
                         status={status} statusMessage={THINKING_MESSAGES[statusIndex]}

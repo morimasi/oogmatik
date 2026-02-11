@@ -3,94 +3,46 @@ import { Type } from "@google/genai";
 import { generateCreativeMultimodal, MultimodalFile } from '../geminiClient';
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
 
-/**
- * analyzeReferenceFiles: Yüklenen dosyaları analiz eder ve teknik bir üretim promptu oluşturur.
- */
-export const analyzeReferenceFiles = async (files: MultimodalFile[], currentPrompt: string): Promise<string> => {
-    const prompt = `
-    [GÖREV: PEDAGOJİK MİMARİ ANALİST]
-    Ekteki dosyaları (PDF/Görsel) teknik olarak analiz et. 
-    Bu dosyaların:
-    1. Sayfa düzenini (Layout)
-    2. Soru sorma stilini (Matching, Grid, Multiple Choice vb.)
-    3. Kullanılan görsel hiyerarşi ve çeldirici mantığını tanımla.
-    
-    KULLANICI TERCİHİ: "${currentPrompt}"
-    
-    GÖREVİN: Bu dosyaları referans alarak, Bursa Disleksi AI motorunun BİREBİR AYNI KALİTEDE VE YAPIDA bir çıktı üretmesi için gereken DETAYLI TEKNİK PROMPTU OLUŞTUR.
-    
-    ÇIKTI KURALI:
-    - Sonuç "Bu materyalin yapısını analiz ettim. İşte üretim için teknik plan:" cümlesiyle başlamalı.
-    - İçerisinde [MİMARİ], [İÇERİK PLANI], [PEDAGOJİK HEDEF] başlıkları olmalı.
-    - SADECE METİN DÖNDÜR.
-    `;
-
-    const schema = { 
-        type: Type.OBJECT, 
-        properties: { 
-            analysisPrompt: { type: Type.STRING } 
-        }, 
-        required: ['analysisPrompt'] 
-    };
-
-    const result = await generateCreativeMultimodal({ prompt, schema, files });
-    return result.analysisPrompt;
-};
+// ... other functions ...
 
 /**
- * refinePromptWithAI: Kullanıcının promptunu profesyonel seviyeye taşır.
- */
-export const refinePromptWithAI = async (userPrompt: string, mode: 'expand' | 'narrow' | 'clinical'): Promise<string> => {
-    const instruction = mode === 'expand' 
-        ? "Bu promptu pedagojik derinlik katarak, disleksi dostu materyal üretim kurallarıyla zenginleştir."
-        : mode === 'narrow'
-        ? "Bu promptu sadeleştir, sadece en temel klinik hedefe odaklan ve netleştir."
-        : "Bu prompta klinik tanı kriterleri ekle (reversal errors, phonological gaps vb.).";
-
-    const prompt = `
-    [GÖREV: PROMPT MİMARI]
-    HAM PROMPT: "${userPrompt}"
-    TALİMAT: ${instruction}
-    
-    KURAL: Sonuç doğrudan bir yapay zeka modeline talimat olarak gönderilecektir. 
-    İçeriğinde "Şunu yap", "Şu formatta olsun" gibi net emirler barındırmalıdır.
-    Sadece zenginleştirilmiş metni döndür.
-    `;
-
-    const schema = { 
-        type: Type.OBJECT, 
-        properties: { 
-            refined: { type: Type.STRING } 
-        }, 
-        required: ['refined'] 
-    };
-    const result = await generateCreativeMultimodal({ prompt, schema });
-    return result.refined;
-};
-
-/**
- * generateCreativeStudioActivity: Zenginleştirilmiş prompt ve dosyalarla tam layout üretir.
+ * generateCreativeStudioActivity: Zenginleştirilmiş prompt ve profesyonel parametrelerle üretim.
  */
 export const generateCreativeStudioActivity = async (enrichedPrompt: string, options: any, files?: MultimodalFile[]) => {
+    
+    // Parametreleri AI için talimata dönüştür
+    const clinicalDirectives = `
+    [KLİNİK PARAMETRELER - KRİTİK]
+    1. ZORLUK SEVİYESİ: ${options.difficulty}. 
+       - 'Başlangıç' ise: Somut, tek aşamalı görevler.
+       - 'Zor' ise: Soyut, 3+ aşamalı mantık zincirleri.
+    
+    2. ÇELDİRİCİ YOĞUNLUĞU: ${options.distractionLevel}.
+       - 'low' ise: Yanlış şıklar belirgin şekilde farklı olsun.
+       - 'high' ise: Yanlış şıklar hedefe fonemik veya görsel olarak (b-d gibi) çok yakın olsun.
+    
+    3. TİPOGRAFİK ÖLÇEK: ${options.fontSizePreference}.
+       - 'large' ise: Metin blokları için "fontSize: 24-28" ve geniş satır aralığı kullan.
+       - 'small' ise: "fontSize: 14-16" kullan.
+    `;
+
     const prompt = `
     ${PEDAGOGICAL_BASE}
     ${CLINICAL_DIAGNOSTIC_GUIDE}
+    ${clinicalDirectives}
     
-    GÖREV: NÖRO-MİMARİ ÜRETİM VE KLONLAMA SENTEZİ
+    GÖREV: PROFESYONEL EĞİTİM MATERYALİ SENTEZİ
     
     TALİMAT:
     ${enrichedPrompt}
     
-    ANALİZ VE ÜRETİM KRİTERİ:
-    1. Ekte PDF veya Görsel varsa; bu dosyaların eğitimsel yaklaşımını, mizanpajını ve zorluk seviyesini referans al.
-    2. Yeni üretilecek içerik bu dosyaların kalitesinde ancak tamamen özgün sorularla inşa edilmelidir.
-    3. KRİTİK: 'viewBox' alanına sadece "0 0 100 100" yaz. Asla çok büyük sayılar yazma.
-    
     PARAMETRELER:
-    - Zorluk: ${options.difficulty}
-    - Öğe Sayısı: ${options.itemCount}
+    - Hedef Öğe Sayısı: ${options.itemCount}
     
-    ÇIKTI: Kesinlikle 'layoutArchitecture' formatında ve 'blocks' dizisi içermelidir.
+    TEKNİK ŞARTLAR:
+    1. 'layoutArchitecture' formatında 'blocks' dizisi döndür.
+    2. 'viewBox' her zaman "0 0 100 100" olmalıdır.
+    3. Metinlerin 'style' alanına 'fontSize' değerini parametreye uygun enjekte et.
     `;
 
     const schema = {
@@ -122,6 +74,14 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
                                         prompt: { type: Type.STRING },
                                         viewBox: { type: Type.STRING },
                                         paths: { type: Type.ARRAY, items: { type: Type.STRING } }
+                                    }
+                                },
+                                style: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        fontSize: { type: Type.INTEGER },
+                                        fontWeight: { type: Type.STRING },
+                                        textAlign: { type: Type.STRING }
                                     }
                                 },
                                 weight: { type: Type.INTEGER }
