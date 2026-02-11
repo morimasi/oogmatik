@@ -29,10 +29,7 @@ const tryRepairJson = (jsonStr: string): any => {
     cleaned = cleaned.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
 
     // 2. Hallüsinasyon Temizliği (Hatalı uzun sayı dizilerini düzeltme)
-    // viewBox: "0 0 100 5000000000000..." gibi hataları yakalar
-    // Tüm 10 basamaktan büyük sayıları 100 ile değiştir (Koordinat/boyut sistemimiz 100 tabanlı olduğu için mantıklı bir fallback)
     cleaned = cleaned.replace(/: ?"?(\d{10,})"?/g, ': 100');
-    // Eğer tırnak içindeyse ve çok uzunsa temizle
     cleaned = cleaned.replace(/"(\d{10,})"/g, '"100"');
 
     // 3. JSON Bloğunu Yakala
@@ -47,13 +44,12 @@ const tryRepairJson = (jsonStr: string): any => {
         cleaned = cleaned.substring(startIndex);
     }
 
-    // 4. Parantez Dengeleme (Yarıda kesilme ihtimaline karşı)
+    // 4. Parantez Dengeleme
     cleaned = balanceBraces(cleaned);
 
     try {
         return JSON.parse(cleaned);
     } catch (e) {
-        // Son çare: Virgül hatalarını ve kaçış karakterlerini temizle
         let fragment = cleaned
             .replace(/,\s*([\}\]])/g, '$1') 
             .replace(/\\n/g, ' ');
@@ -103,13 +99,19 @@ export const generateCreativeMultimodal = async (params: {
 
     parts.push({ text: params.prompt });
 
+    // HATA DÜZELTMESİ: maxOutputTokens ve thinkingBudget beraber ayarlandı.
     const config: any = {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: params.schema,
-        temperature: 0.1, 
-        thinkingConfig: { thinkingBudget: params.useFlash ? 0 : 8000 } 
+        temperature: 0.1,
     };
+
+    if (!params.useFlash) {
+        // gemini-3-pro-preview için düşünme bütçesi ve toplam limit senkronizasyonu
+        config.maxOutputTokens = 12000;
+        config.thinkingConfig = { thinkingBudget: 8000 };
+    }
 
     const response = await ai.models.generateContent({
         model: params.useFlash ? FLASH_MODEL : DEFAULT_MODEL,

@@ -42,8 +42,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
                 { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
             ],
-            // Hız için bütçe 16K'dan 8K'ya çekildi.
-            thinkingConfig: { thinkingBudget: 8000 }
+            // HATA DÜZELTMESİ: maxOutputTokens ve thinkingBudget beraber ayarlandı.
+            maxOutputTokens: 10000,
+            thinkingConfig: { thinkingBudget: 4000 }
         };
 
         if (useSearch) config.tools = [{ googleSearch: {} }];
