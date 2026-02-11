@@ -29,7 +29,7 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
     - **Adet:** ${config.count} tane problem.
     - **Konu/Tema:** ${config.topic || 'Günlük Yaşam'}.
     - **Öğrenci Adı:** ${config.studentName || 'Öğrenci'}.
-    - **Kullanılacak İşlemler:** SADECE ${selectedOpsText}. (Başka işlem kullanma!)
+    - **Konu Başlıkları:** SADECE ${selectedOpsText}. (Başka işlem kullanma!)
     - **Sayı Aralığı:** ${config.numberRange} (Sonuçlar ve ara işlemler bu aralıkta kalmalı).
     - **Problem Yapısı:** ${complexityDesc}.
     - **Tarz:** ${config.problemStyle === 'story' ? 'Hikayeleştirilmiş, uzun betimlemeli' : config.problemStyle === 'logic' ? 'Mantık bulmacası tarzında' : 'Kısa, net ve anlaşılır'}.
@@ -71,5 +71,6 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
         required: ['problems']
     };
 
-    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+    return await generateWithSchema(prompt, schema);
 };

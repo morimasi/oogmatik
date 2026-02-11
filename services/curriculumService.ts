@@ -17,54 +17,45 @@ export const curriculumService = {
         const availableActivities = ACTIVITIES.map(a => `${a.id}: ${a.title}`).join('\n');
 
         const prompt = `
-        [ROL: KIDEMLİ NÖRO-PSİKOLOG VE BEP TASARIMCISI]
+        [ROL: KIDEMLİ NÖRO-PSİKOLOG VE BEP TASARIMCISI - GEMINI 3 FLASH THINKING]
 
-        GÖREV: Aşağıdaki detaylı öğrenci profili için ${durationDays} günlük, "Sarmal Öğrenme Modeli"ne dayalı bir Bireysel Eğitim Planı (BEP) oluştur.
+        GÖREV: ${durationDays} günlük Bireysel Eğitim Planı (BEP) oluştur.
         
-        ÖĞRENCİ PROFİLİ:
-        - İsim: ${student.name}
-        - Yaş: ${student.age}
-        - Sınıf: ${student.grade}
-        - Tanılar: ${student.diagnosis?.join(', ') || 'Genel Gelişim'}
-        - İLGİ ALANLARI: ${student.interests?.join(', ') || 'Karışık'}
-        - ZAYIF YÖNLER (ÖNCELİKLİ HEDEF): ${student.weaknesses?.join(', ') || 'Genel Akademik'}
+        ÖĞRENCİ: ${student.name}, ${student.age} yaş, ${student.grade}.
+        İLGİ ALANLARI: ${student.interests?.join(', ')}.
+        ZAYIF YÖNLER: ${student.weaknesses?.join(', ')}.
 
-        SARMAL ÖĞRENME ALGORİTMASI:
-        1. **1-2. Gün (Tanışma & Özgüven):** Öğrencinin ilgi alanlarını merkeze alan, başarı hissi yüksek kolay görevler.
-        2. **3-5. Gün (Yoğun Müdahale):** Zayıf yönleri doğrudan hedefleyen, çapraz beceri gerektiren orta-zor görevler.
-        3. **6. Gün (Transfer):** Öğrenilen beceriyi farklı bir tema içinde kullanma.
-        4. **7. Gün (Değerlendirme & Pekiştirme):** Genel tekrar.
+        THINKING PROTOKOLÜ:
+        1. Öğrencinin ilgi alanlarını her aktiviteye "tema" olarak nasıl yedireceğini düşün.
+        2. Zorluk artışını (spiral öğrenme) 7 güne nasıl yayacağını planla.
 
-        ÖNEMLİ: Aktivite başlıklarını öğrencinin ilgi alanına göre "YENİDEN ADLANDIR". 
-        Örn: İlgi alanı "Dinozor" ise "Harf Avı" -> "T-Rex'in Kayıp Harfleri" olsun.
-
-        AKTİVİTE HAVUZU (Sadece buradaki ID'leri kullan):
+        AKTİVİTELER:
         ${availableActivities}
 
-        ÇIKTI: Sadece JSON döndür.
+        Sadece JSON döndür.
         `;
 
         const schema = {
             type: Type.OBJECT,
             properties: {
-                goals: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Haftalık klinik hedefler" },
-                note: { type: Type.STRING, description: "Eğitmen için pedagojik not" },
+                goals: { type: Type.ARRAY, items: { type: Type.STRING } },
+                note: { type: Type.STRING },
                 schedule: {
                     type: Type.ARRAY,
                     items: {
                         type: Type.OBJECT,
                         properties: {
                             day: { type: Type.INTEGER },
-                            focus: { type: Type.STRING, description: "Günün bilişsel odak noktası" },
+                            focus: { type: Type.STRING },
                             activities: {
                                 type: Type.ARRAY,
                                 items: {
                                     type: Type.OBJECT,
                                     properties: {
                                         activityId: { type: Type.STRING },
-                                        title: { type: Type.STRING, description: "İlgi alanına uyarlanmış başlık" },
+                                        title: { type: Type.STRING },
                                         duration: { type: Type.INTEGER },
-                                        goal: { type: Type.STRING, description: "Klinik gerekçe" },
+                                        goal: { type: Type.STRING },
                                         difficultyLevel: { type: Type.STRING, enum: ['Easy', 'Medium', 'Hard'] }
                                     },
                                     required: ['activityId', 'title', 'duration', 'goal', 'difficultyLevel']

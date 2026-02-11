@@ -7,7 +7,7 @@ import { PEDAGOGICAL_BASE } from './prompts';
 export const generateFromRichPrompt = async (activityType: ActivityType, blueprint: string, options: GeneratorOptions): Promise<any> => {
     const prompt = `
     ${PEDAGOGICAL_BASE}
-    [ROLE: REMATERIALIZATION ENGINE]
+    [ROLE: REMATERIALIZATION ENGINE - GEMINI 3 FLASH THINKING]
     
     GÖREV: Aşağıdaki TEKNİK BLUEPRINT'i (MİMARİ DNA) al ve onu BİREBİR AYNI DÜZENDE ama 100% YENİ VERİLERLE inşa et.
     
@@ -15,13 +15,11 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
     ${blueprint}
     
     KURALLAR:
-    1. Görseldeki tablo yapılarını, satır/sütun sayılarını ve blok sıralamasını ASLA DEĞİŞTİRME.
-    2. Metinleri ve sayıları blueprint'teki 'SOLUTION_LOGIC' kurallarına uyarak yeniden yaz.
-    3. Eğer blueprint 2x2 grid diyorsa, 'layoutArchitecture.cols: 2' ayarını yap.
-    4. Tüm mantık sorularını 'logic_card' blokları olarak çıktıla.
-    5. Cevapların tutarlı olduğundan ve 'FOOTER_VALIDATION' kuralına uyduğundan emin ol.
+    1. Görseldeki tablo yapılarını ve blok sıralamasını ASLA DEĞİŞTİRME.
+    2. Metinleri 'SOLUTION_LOGIC' kurallarına uyarak yeniden yaz.
+    3. Zorluk Seviyesi: ${options.difficulty}
     
-    Zorluk: ${options.difficulty}
+    Üretimden önce disleksi dostu hiyerarşiyi derinlemesine düşün.
     `;
 
     const schema = {
@@ -52,5 +50,5 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
         required: ['title', 'instruction', 'layoutArchitecture']
     };
 
-    return await generateWithSchema(prompt, schema, 'gemini-3-pro-preview');
+    return await generateWithSchema(prompt, schema);
 };

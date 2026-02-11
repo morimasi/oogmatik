@@ -1,11 +1,11 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const DEFAULT_MODEL = 'gemini-3-pro-preview'; 
-const FLASH_MODEL = 'gemini-3-flash-preview';
+// TÜM SİSTEMDE TEK MODEL: GEMINI 3 FLASH PREVIEW
+const MASTER_MODEL = 'gemini-3-flash-preview';
 
 /**
- * balanceBraces: Yarıda kesilmiş JSON yanıtlarını parantezleri sayarak kapatır.
+ * balanceBraces: JSON yanıtlarını güvenli hale getirir.
  */
 const balanceBraces = (str: string): string => {
     let openBraces = (str.match(/\{/g) || []).length;
@@ -18,21 +18,11 @@ const balanceBraces = (str: string): string => {
     return str;
 };
 
-/**
- * tryRepairJson: AI'dan gelen ham metni temizler ve JSON'a dönüştürür.
- */
 const tryRepairJson = (jsonStr: string): any => {
-    if (!jsonStr) throw new Error("AI boş yanıt döndürdü.");
-
-    // 1. Temel Temizlik (Markdown ve Unicode)
+    if (!jsonStr) throw new Error("AI yanıt dönmedi.");
     let cleaned = jsonStr.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
     cleaned = cleaned.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-
-    // 2. Hallüsinasyon Temizliği (Hatalı uzun sayı dizilerini düzeltme)
-    cleaned = cleaned.replace(/: ?"?(\d{10,})"?/g, ': 100');
-    cleaned = cleaned.replace(/"(\d{10,})"/g, '"100"');
-
-    // 3. JSON Bloğunu Yakala
+    
     const firstBrace = cleaned.indexOf('{');
     const firstBracket = cleaned.indexOf('[');
     let startIndex = -1;
@@ -40,37 +30,26 @@ const tryRepairJson = (jsonStr: string): any => {
     else if (firstBrace !== -1) startIndex = firstBrace;
     else if (firstBracket !== -1) startIndex = firstBracket;
 
-    if (startIndex !== -1) {
-        cleaned = cleaned.substring(startIndex);
-    }
-
-    // 4. Parantez Dengeleme
+    if (startIndex !== -1) cleaned = cleaned.substring(startIndex);
     cleaned = balanceBraces(cleaned);
 
     try {
         return JSON.parse(cleaned);
     } catch (e) {
-        let fragment = cleaned
-            .replace(/,\s*([\}\]])/g, '$1') 
-            .replace(/\\n/g, ' ');
-        try {
-            return JSON.parse(fragment);
-        } catch (e2) {
-            console.error("JSON Tamiri Başarısız. Ham Veri:", jsonStr);
-            throw new Error("AI verisi işlenemedi. Lütfen tekrar deneyin.");
-        }
+        console.error("JSON Parse Error:", cleaned);
+        throw new Error("AI verisi işlenemedi.");
     }
 };
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun "Nöro-Mimari" motorusun. 
-GÖREVİN: Disleksi/diskalkuli odaklı, görsel hiyerarşisi güçlü eğitim materyalleri üretmek.
-ÖNEMLİ KURALLAR:
-1. SADECE SAF JSON DÖN.
-2. Sayısal değerlerde asla 10 basamaktan uzun sayı kullanma.
-3. viewBox her zaman "0 0 100 100" olmalıdır.
-4. Karmaşık koordinatlar yerine 0-100 arası tamsayıları tercih et.
-5. JSON çıktısında 'layoutArchitecture' anahtarını mutlaka kullan ve sayfayı 'blocks' olarak kurgula.
+GÖREVİN: Disleksi, Diskalkuli ve DEHB tanısı almış çocuklar için bilimsel temelli materyallerin DNA'sını klonlamak ve üretmek.
+MODEL MODU: Thinking (Düşünme) & Multimodal Vizyon Aktif.
+
+KLİNİK KURALLAR:
+1. Yanıtın her zaman geçerli bir JSON olmalıdır.
+2. Görsel analiz ediyorsan, mimari yapıyı (tablo, sütun, hiyerarşi) teknik bir blueprint olarak çıkar.
+3. Pedagojik kısıtlamaları (çeldirici mantığı, görsel yük) üretimden önce derinlemesine muhakeme et.
 `;
 
 export interface MultimodalFile {
@@ -78,11 +57,14 @@ export interface MultimodalFile {
     mimeType: string;
 }
 
+/**
+ * generateCreativeMultimodal: 
+ * Gemini 3 Flash Preview kullanarak 'Thinking' kapasitesiyle üretim yapar.
+ */
 export const generateCreativeMultimodal = async (params: { 
     prompt: string, 
     schema: any, 
-    files?: MultimodalFile[],
-    useFlash?: boolean
+    files?: MultimodalFile[]
 }) => {
     const apiKey = process.env.API_KEY;
     if (!apiKey) throw new Error("API Anahtarı eksik.");
@@ -99,22 +81,19 @@ export const generateCreativeMultimodal = async (params: {
 
     parts.push({ text: params.prompt });
 
-    // HATA DÜZELTMESİ: maxOutputTokens ve thinkingBudget beraber ayarlandı.
+    // KRİTİK AYAR: Thinking aktifken maxOutputTokens zorunludur.
+    // Flash modelleri için ideal denge.
     const config: any = {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: params.schema,
         temperature: 0.1,
+        maxOutputTokens: 12000,
+        thinkingConfig: { thinkingBudget: 8000 }
     };
 
-    if (!params.useFlash) {
-        // gemini-3-pro-preview için düşünme bütçesi ve toplam limit senkronizasyonu
-        config.maxOutputTokens = 12000;
-        config.thinkingConfig = { thinkingBudget: 8000 };
-    }
-
     const response = await ai.models.generateContent({
-        model: params.useFlash ? FLASH_MODEL : DEFAULT_MODEL,
+        model: MASTER_MODEL,
         contents: [{ role: 'user', parts }],
         config: config
     });
@@ -123,13 +102,14 @@ export const generateCreativeMultimodal = async (params: {
     throw new Error("AI yanıt üretmedi.");
 };
 
-export const generateWithSchema = async (prompt: string, schema: any, model?: string) => {
-    return await generateCreativeMultimodal({ prompt, schema, useFlash: model?.includes('flash') });
+export const generateWithSchema = async (prompt: string, schema: any) => {
+    return await generateCreativeMultimodal({ prompt, schema });
 };
 
-export const analyzeImage = async (image: string, prompt: string, schema: any, model?: string) => {
+export const analyzeImage = async (image: string, prompt: string, schema: any) => {
     return await generateCreativeMultimodal({ 
-        prompt, schema, files: [{ data: image, mimeType: 'image/jpeg' }],
-        useFlash: model?.includes('flash')
+        prompt, 
+        schema, 
+        files: [{ data: image, mimeType: 'image/jpeg' }]
     });
 };

@@ -4,71 +4,54 @@ import { generateCreativeMultimodal, generateWithSchema, MultimodalFile } from '
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
 
 /**
- * refinePromptWithAI: Kullanıcı istemini klinik ve teknik bir master prompta dönüştürür.
- */
-export const refinePromptWithAI = async (currentPrompt: string, mode: 'expand' | 'clinical'): Promise<string> => {
-    const prompt = `
-    ${PEDAGOGICAL_BASE}
-    GÖREV: Kullanıcı istemini, Bursa Disleksi AI'nın "Neuro-Arch Engine" motoru için teknik bir blueprint üretim komutuna dönüştür.
-    İSTEM: "${currentPrompt}"
-    MOD: ${mode}
-    ÇIKTI: Sadece 'refined' anahtarlı JSON.
-    `;
-    const result = await generateWithSchema(prompt, { type: Type.OBJECT, properties: { refined: { type: Type.STRING } }, required: ['refined'] });
-    return result.refined;
-};
-
-/**
- * analyzeReferenceFiles: GOD MODE - GÖRSELİN DNA'SINI ÇIKARIR
+ * analyzeReferenceFiles: GÖRSELİN MİMARİ DNA'SINI ÇIKARIR (Thinking Mode)
  */
 export const analyzeReferenceFiles = async (files: MultimodalFile[], currentPrompt: string): Promise<string> => {
     const prompt = `
     [GÖREV: NEURO-ARCHITECTURAL REVERSE ENGINEERING]
-    Bu görseli bir AI Mühendisi ve Özel Eğitim Uzmanı olarak analiz et. 
+    Bu görseli bir AI Mühendisi ve Özel Eğitim Uzmanı olarak "Thinking" modunda analiz et. 
     Görselin "MİMARİ DNA"sını çıkarman gerekiyor.
     
-    ANALİZ PROTOKOLÜ:
-    1. ROOT_CONTAINER: Sayfa akış yapısı (Vertical_Stack, Grid_2x2, vb.)
-    2. LOGIC_MODULES: Her bir kutunun tipi, içindeki metin, veri tablosu yapısı ve seçenek algoritması.
-    3. CLINICAL_PATTERN: Çeldiricilerin mantığı (Ayna harfler mi, sayısal yakınlık mı?)
-    4. FOOTER_VALIDATION: Sayfa sonu doğrulama mekanizması var mı?
+    ANALİZ ADIMLARI:
+    1. TABLO YAPISI: Görseldeki her bir tabloyu 'grid' veya 'table' bloğu olarak tanımla.
+    2. SORU MANTIĞI: Sorular nasıl kurgulanmış? (Örn: 'B' harfini 'D' harfinden ayırt etme).
+    3. HATA ANALİZİ: Bu etkinlikteki çeldirici stratejisi nedir? (Ayna etkisi mi, ardışıklık mı?)
     
     [ÇIKTI FORMATI: BLUEPRINT_V1.0]
-    Aşağıdaki yapıda teknik bir analiz metni yaz (Bunu diğer Gemini modeli okuyacak):
-    BLUEPRINT_V1.0 :: NEURO_ARCH_ENGINE
-    ROOT_CONTAINER: ...
-    PAGE_1_BLUEPRINT:
-      LAYOUT: ...
-      BLOCK_X: { TYPE, TEXT, DATA_TABLE, OPTIONS, SOLUTION_LOGIC }
-    FOOTER_VALIDATION: ...
+    Yeni bir Gemini isteği için MASTER PROMPT oluştur. Bu prompt, 'layoutArchitecture' yapısını mükemmel şekilde tarif etmeli.
     `;
 
     const schema = {
         type: Type.OBJECT,
         properties: {
             analysis: { type: Type.STRING },
-            detectedLogic: { type: Type.STRING }
+            blueprintPrompt: { type: Type.STRING }
         },
-        required: ['analysis']
+        required: ['analysis', 'blueprintPrompt']
     };
 
-    const result = await generateCreativeMultimodal({ prompt, schema, files, useFlash: false });
-    return result.analysis;
+    // Fix: Removed 'useFlash' property from the generateCreativeMultimodal call as it is not part of the defined type
+    const result = await generateCreativeMultimodal({ prompt, schema, files });
+    return `[BLUEPRINT_V1.0]\n${result.blueprintPrompt}\n\n[ANALİZ]: ${result.analysis}`;
 };
 
 export const generateCreativeStudioActivity = async (enrichedPrompt: string, options: any, files?: MultimodalFile[]) => {
     const prompt = `
     ${PEDAGOGICAL_BASE}
     ${CLINICAL_DIAGNOSTIC_GUIDE}
-    GÖREV: Aşağıdaki BLUEPRINT veya Komutu kullanarak BİREBİR AYNI MİMARİDE yeni bir çalışma sayfası üret.
+    GÖREV: Aşağıdaki BLUEPRINT'i kullanarak BİREBİR AYNI MİMARİDE YENİ BİR ÇALIŞMA SAYFASI üret.
     
-    [BLUEPRINT / KOMUT]:
+    [GİRDİ BLUEPRINT]:
     ${enrichedPrompt}
     
-    KRİTİK TALİMAT:
-    1. Eğer girdi bir 'BLUEPRINT_V1.0' ise, 'layoutArchitecture.blocks' yapısını birebir koru.
-    2. Tüm içerikleri (sayılar, kelimeler) orijinalden FARKLI ama aynı mantıksal zorlukta üret.
-    3. 'logic_card' tipini kompleks mantık blokları için kullan.
+    PARAMETRELER:
+    - Zorluk: ${options.difficulty}
+    - Sayfa Başı Öğe: ${options.itemCount}
+    
+    TEKNİK ZORUNLULUKLAR:
+    - Orijinal yapıdaki 'grid' ve 'table' düzenlerini asla bozma.
+    - İçindeki verileri (kelime, sayı, görsel) %100 değiştir.
+    - 'logic_card' yapısını algoritma gerektiren bölümlerde kullan.
     `;
 
     const schema = {
@@ -87,7 +70,8 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
                             type: Type.OBJECT,
                             properties: {
                                 type: { type: Type.STRING, enum: ['header', 'text', 'grid', 'table', 'logic_card', 'footer_validation', 'image'] },
-                                content: { type: Type.OBJECT }
+                                content: { type: Type.OBJECT },
+                                weight: { type: Type.INTEGER }
                             },
                             required: ['type', 'content']
                         }
@@ -99,5 +83,19 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
         required: ['title', 'instruction', 'layoutArchitecture']
     };
 
+    // Fix: Removed 'useFlash' property from the generateCreativeMultimodal call as it is not part of the defined type
     return await generateCreativeMultimodal({ prompt, schema, files });
+};
+
+/**
+ * refinePromptWithAI: Prompt mühendisliği asistanı.
+ */
+export const refinePromptWithAI = async (currentPrompt: string, mode: 'expand' | 'clinical'): Promise<string> => {
+    const prompt = `
+    GÖREV: Bu kullanıcı komutunu Gemini 3 Pro "Thinking" motoru için teknik bir blueprint üretim talimatına dönüştür.
+    İSTEM: "${currentPrompt}"
+    MOD: ${mode}
+    `;
+    const result = await generateWithSchema(prompt, { type: Type.OBJECT, properties: { refined: { type: Type.STRING } }, required: ['refined'] });
+    return result.refined;
 };

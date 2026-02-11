@@ -6,15 +6,15 @@ import { OCRResult } from '../types';
 export const ocrService = {
     processImage: async (base64Image: string): Promise<OCRResult> => {
         const prompt = `
-        [MİMARİ KLONLAMA MOTORU - GOD MODE]
+        [MİMARİ KLONLAMA MOTORU - GEMINI 3 FLASH THINKING]
         Bu çalışma sayfasını derinlemesine analiz et ve 'BLUEPRINT_V1.0' formatında mimari DNA'sını çıkar.
         
-        SADECE metni okuma; şu mimari katmanları çöz:
-        - ROOT_CONTAINER (Layout tipi)
-        - LOGIC_MODULES (Soru bloklarının teknik yapısı)
-        - DATA_TABLE (Blok içindeki sayı/kelime dizilimleri)
-        - SOLUTION_LOGIC (Cevaba nasıl gidiliyor?)
-        - FOOTER_VALIDATION (Kontrol mekanizması)
+        ANALİZ PROTOKOLÜ (Thinking):
+        1. ROOT_CONTAINER: Sayfa genel yerleşimi.
+        2. LOGIC_MODULES: Soru bloklarının teknik yapısı.
+        3. SOLUTION_LOGIC: Cevaba giden mantıksal yol.
+        
+        SADECE metni okuma; sayfa hiyerarşisini çöz.
         `;
 
         const schema = {
@@ -28,7 +28,8 @@ export const ocrService = {
         };
 
         try {
-            const result = await analyzeImage(base64Image, prompt, schema, 'gemini-3-pro-preview');
+            // geminiClient zaten MASTER_MODEL (Flash) kullanacak şekilde güncellendi
+            const result = await analyzeImage(base64Image, prompt, schema);
             
             return {
                 rawText: result.worksheetBlueprint,

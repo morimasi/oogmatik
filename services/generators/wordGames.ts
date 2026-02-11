@@ -1,3 +1,4 @@
+
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
 import { GeneratorOptions, HiddenPasswordGridData } from '../../types';
@@ -64,7 +65,8 @@ export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions
         }
     };
 
-    const result = await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+    const result = await generateWithSchema(prompt, schema);
     return result.map((page: any) => ({
         ...page,
         settings: {

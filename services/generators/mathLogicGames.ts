@@ -8,7 +8,7 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
     const { difficulty, itemCount = 6, gridSize = 3, studentContext } = options;
     
     const rule = `
-    [KRİTİK GÖREV: YÜKSEK HASSASİYETLİ SAYISAL ANALİZ]
+    [KRİTİK GÖREV: YÜKSEK HASSASİYETLİ SAYİSAL ANALİZ]
     1. Üretilecek Bilmece Sayısı: TAM OLARAK ${itemCount} ADET.
     2. İPUCU SAYISI (riddleParts): HER BİR BİLMECE İÇİNDE KESİNLİKLE VE TAM OLARAK ${gridSize} ADET BENZERSİZ İPUCU OLMALIDIR. 
        - Eğer ${gridSize} seçildiyse, dizi uzunluğu ${gridSize} olmalıdır. Eksik veya fazla üretim kabul edilemez.
@@ -66,5 +66,6 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
         }
     };
 
-    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+    return await generateWithSchema(prompt, schema);
 };

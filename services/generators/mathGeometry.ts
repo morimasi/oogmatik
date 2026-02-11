@@ -16,7 +16,7 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
     const prompt = `
     ${PEDAGOGICAL_BASE}
     
-    GÖREV: [GÖRSEL TARAMA & AYRIŞTIRMA ETKİNLİĞİ] - "Hedef Şekli Bul"
+    GÖREV: [GÖRSEL TARAMA & AYRIŞTIRMA ETKİNLİĞİ] - "Hedef ŞEKİLİ Bul"
     ZORLUK SEVİYESİ: ${difficulty}
     HEDEF ŞEKİL: ${targetShape} (Öğrenci bu şekli sayacak).
     TOPLAM NESNE ADEDİ: ${itemCount}
@@ -72,5 +72,6 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
         }
     };
 
-    return await generateWithSchema(prompt, schema, 'gemini-3-flash-preview');
+    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+    return await generateWithSchema(prompt, schema);
 };

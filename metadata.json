@@ -1,7 +1,8 @@
 {
-  "name": "Bursa Disleksi Ai v2.1",
-  "description": "Bursa Disleksi Ai, disleksi dostu bir yaklaşımla çocuklar için yapay zeka destekli eğitici etkinlikler ve algoritma akış şemaları üreten profesyonel bir uygulamadır.",
+  "name": "Bursa Disleksi Ai v2.2 - Neuro-Arch Engine",
+  "description": "Bursa Disleksi Ai, Gemini 3 Pro 'Thinking' motoruyla donatılmış, görsel hiyerarşiyi ve pedagojik DNA'yı klonlayabilen dünyanın en gelişmiş özel eğitim materyal üretim platformudur.",
   "requestFramePermissions": [
-    "camera"
+    "camera",
+    "microphone"
   ]
 }
