@@ -1,5 +1,4 @@
 
-// Fix: Added useMemo to the react imports
 import React, { useState, useEffect, useMemo } from 'react';
 import { refinePromptWithAI, generateCreativeStudioActivity, analyzeReferenceFiles } from '../../services/generators/creativeStudio';
 import { PEDAGOGICAL_LIBRARY, ActivityLibraryItem } from '../../services/generators/promptLibrary';

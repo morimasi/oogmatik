@@ -13,7 +13,7 @@ export const analyzeReferenceFiles = async (files: MultimodalFile[], currentProm
     Bu dosyaların:
     1. Sayfa düzenini (Layout)
     2. Soru sorma stilini (Matching, Grid, Multiple Choice vb.)
-    3. Kullanılan görsel hiyerarşiyi tanımla.
+    3. Kullanılan görsel hiyerarşi ve çeldirici mantığını tanımla.
     
     KULLANICI TERCİHİ: "${currentPrompt}"
     
@@ -84,13 +84,13 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
     ANALİZ VE ÜRETİM KRİTERİ:
     1. Ekte PDF veya Görsel varsa; bu dosyaların eğitimsel yaklaşımını, mizanpajını ve zorluk seviyesini referans al.
     2. Yeni üretilecek içerik bu dosyaların kalitesinde ancak tamamen özgün sorularla inşa edilmelidir.
-    3. Eğer dosya yoksa, sadece talimata göre en iyi tasarımı yap.
+    3. KRİTİK: 'viewBox' alanına sadece "0 0 100 100" yaz. Asla çok büyük sayılar yazma.
     
     PARAMETRELER:
     - Zorluk: ${options.difficulty}
     - Öğe Sayısı: ${options.itemCount}
     
-    KRİTİK: Çıktı mutlaka 'layoutArchitecture' formatında ve 'blocks' dizisi içermelidir.
+    ÇIKTI: Kesinlikle 'layoutArchitecture' formatında ve 'blocks' dizisi içermelidir.
     `;
 
     const schema = {
@@ -123,7 +123,8 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
                                         viewBox: { type: Type.STRING },
                                         paths: { type: Type.ARRAY, items: { type: Type.STRING } }
                                     }
-                                }
+                                },
+                                weight: { type: Type.INTEGER }
                             },
                             required: ['type', 'content']
                         }
