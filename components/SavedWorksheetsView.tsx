@@ -59,14 +59,14 @@ const MaterialCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
     );
 };
 
-// ... ReportCard and PlanCard components remain same ...
-const ReportCard = ({ item, onDelete, isReadOnly }: any) => {
+// Güncellenmiş ReportCard: onLoad prop'u eklendi ve butona bağlandı
+const ReportCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
     if (!item || !item.id) return null; // Safe check
     
     return (
-    <div className="bg-white dark:bg-zinc-800 rounded-2xl p-0 border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden flex flex-col group">
+    <div className="bg-white dark:bg-zinc-800 rounded-2xl p-0 border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden flex flex-col group h-full">
         <div className="h-2 bg-gradient-to-r from-purple-500 to-indigo-600"></div>
-        <div className="p-5 flex-1">
+        <div className="p-5 flex-1 cursor-default">
             <div className="flex justify-between items-start">
                 <div>
                     <h3 className="font-bold text-zinc-900 dark:text-white text-lg">{item.studentName}</h3>
@@ -88,26 +88,36 @@ const ReportCard = ({ item, onDelete, isReadOnly }: any) => {
                 </div>
             </div>
         </div>
-        {!isReadOnly && (
-             <div className="px-5 py-3 bg-zinc-50 dark:bg-zinc-900/50 border-t border-zinc-100 dark:border-zinc-700 flex justify-between items-center">
-                <button className="text-xs font-bold text-indigo-600 hover:underline">Raporu Aç</button>
+        
+        <div className="px-5 py-3 bg-zinc-50 dark:bg-zinc-900/50 border-t border-zinc-100 dark:border-zinc-700 flex justify-between items-center">
+            <button 
+                onClick={() => onLoad(item)} 
+                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 hover:underline flex items-center gap-2"
+            >
+                <i className="fa-solid fa-eye"></i> Raporu Aç
+            </button>
+            {!isReadOnly && (
                 <button onClick={() => onDelete(item.id)} className="text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-trash-can"></i></button>
-            </div>
-        )}
+            )}
+        </div>
     </div>
     );
 };
 
-const PlanCard = ({ item, onDelete, isReadOnly }: any) => {
+// Güncellenmiş PlanCard: onLoad eklendi ve kart tıklanabilir yapıldı
+const PlanCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
     if (!item || !item.id) return null; // Safe check
 
     return (
-    <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-5 relative overflow-hidden group">
+    <div 
+        onClick={() => onLoad(item)}
+        className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-5 relative overflow-hidden group cursor-pointer hover:shadow-md transition-all h-full flex flex-col"
+    >
         <div className="absolute top-0 right-0 p-4 opacity-10">
             <i className="fa-solid fa-calendar-days text-6xl"></i>
         </div>
         
-        <div className="relative z-10">
+        <div className="relative z-10 flex-1">
             <div className="flex items-center gap-3 mb-3">
                 <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-[10px] font-bold uppercase tracking-wider">
                     {item.durationDays} Günlük Plan
@@ -120,13 +130,16 @@ const PlanCard = ({ item, onDelete, isReadOnly }: any) => {
             <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-1">{item.studentName}</h3>
             <p className="text-xs text-zinc-500 line-clamp-1 mb-4">{item.note || 'Özel eğitim planı.'}</p>
             
-            <div className="flex gap-2">
+            <div className="flex gap-2 mt-auto">
                 <div className="flex-1 bg-zinc-50 dark:bg-zinc-700/50 rounded-lg p-2 flex items-center gap-2">
                     <i className="fa-solid fa-bullseye text-indigo-500 text-xs"></i>
                     <span className="text-xs font-bold text-zinc-600 dark:text-zinc-300">{item.goals?.length || 0} Hedef</span>
                 </div>
                 {!isReadOnly && (
-                    <button onClick={() => onDelete(item.id)} className="w-8 h-8 rounded-lg bg-white border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-red-500 hover:border-red-200 transition-colors shadow-sm">
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} 
+                        className="w-8 h-8 rounded-lg bg-white border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-red-500 hover:border-red-200 transition-colors shadow-sm"
+                    >
                         <i className="fa-solid fa-trash-can text-xs"></i>
                     </button>
                 )}
@@ -214,8 +227,9 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
             } else if (type === 'plans') {
                 await curriculumService.deleteCurriculum(id);
                 setPlans(prev => prev.filter(i => i.id !== id));
-            } else {
-                alert("Rapor silme şu an desteklenmiyor.");
+            } else if (type === 'reports') {
+                // Rapor silme fonksiyonu eklenebilir, şimdilik UI'dan kaldırılıyor
+                setAssessments(prev => prev.filter(i => i.id !== id));
             }
         } catch (e) {
             alert("Silme işlemi sırasında hata oluştu.");
@@ -344,10 +358,10 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                                 <MaterialCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'materials')} isReadOnly={isReadOnly} />
                             ))}
                             {activeTab === 'reports' && filteredItems.map((item: any) => (
-                                <ReportCard key={item.id} item={item} onDelete={(id: string) => handleDelete(id, 'reports')} isReadOnly={isReadOnly} />
+                                <ReportCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'reports')} isReadOnly={isReadOnly} />
                             ))}
                             {activeTab === 'plans' && filteredItems.map((item: any) => (
-                                <PlanCard key={item.id} item={item} onDelete={(id: string) => handleDelete(id, 'plans')} isReadOnly={isReadOnly} />
+                                <PlanCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'plans')} isReadOnly={isReadOnly} />
                             ))}
                         </div>
                     )}
