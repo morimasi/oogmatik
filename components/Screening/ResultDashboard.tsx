@@ -15,10 +15,11 @@ interface Props {
     result: ScreeningResult;
     onRestart: () => void;
     onSelectActivity?: (id: any) => void;
-    onAddToWorkbook?: (item: any) => void; // New Prop
+    onAddToWorkbook?: (item: any) => void;
+    onGeneratePlan?: (studentName: string, age: number, weaknesses: string[]) => void; // New Prop
 }
 
-export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectActivity, onAddToWorkbook }) => {
+export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectActivity, onAddToWorkbook, onGeneratePlan }) => {
     const { user } = useAuth();
     const [aiAnalysis, setAiAnalysis] = useState<any>(null);
     const [loadingAi, setLoadingAi] = useState(false);
@@ -172,6 +173,20 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
         }
     };
 
+    const handleCreateSmartPlan = () => {
+        if (onGeneratePlan) {
+            // Identify high risk areas as weaknesses
+            const weaknesses: string[] = [];
+            Object.entries(result.categoryScores).forEach(([key, val]: [string, any]) => {
+                if (val.riskLevel === 'high' || val.riskLevel === 'moderate') {
+                    weaknesses.push(CATEGORY_LABELS[key] || key);
+                }
+            });
+            // Approximate age (default 7 if not gathered in intro)
+            onGeneratePlan(result.studentName, 7, weaknesses);
+        }
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500 pb-20">
             {/* Header / Toolbar */}
@@ -187,6 +202,9 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
                 </div>
                 
                 <div className="flex flex-wrap gap-2 justify-end">
+                    <button onClick={handleCreateSmartPlan} className="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/30">
+                        <i className="fa-solid fa-wand-magic-sparkles"></i> AI Plan Oluştur
+                    </button>
                     <button onClick={handlePrint} className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-xl font-bold text-xs flex items-center gap-2 transition-all">
                         <i className="fa-solid fa-print"></i> Yazdır
                     </button>

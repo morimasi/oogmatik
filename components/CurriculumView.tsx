@@ -13,6 +13,7 @@ interface CurriculumViewProps {
     onSelectActivity: (id: string) => void;
     onStartCurriculumActivity: (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, difficulty: 'Easy' | 'Medium' | 'Hard', goal: string, studentId?: string) => void;
     initialPlan?: Curriculum | null;
+    preFillData?: { name: string; age: number; weaknesses: string[] } | null;
 }
 
 const DayCard: React.FC<{ 
@@ -95,7 +96,7 @@ const DayCard: React.FC<{
     );
 };
 
-export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelectActivity, onStartCurriculumActivity, initialPlan }) => {
+export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelectActivity, onStartCurriculumActivity, initialPlan, preFillData }) => {
     const { user } = useAuth();
     const { students, setActiveStudent } = useStudent();
     
@@ -137,8 +138,18 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                 weaknesses: initialPlan.weaknesses
             });
             setPlanDuration(initialPlan.durationDays);
+        } else if (preFillData) {
+            // TARAMADAN GELEN VERİ
+            setFormData({
+                name: preFillData.name,
+                age: preFillData.age,
+                grade: '1. Sınıf', // Varsayılan veya taramadan gelebilir
+                weaknesses: preFillData.weaknesses,
+                interests: [] // Kullanıcıya tamamlat
+            });
+            setStep(1); // Doğrudan detay ekranına git
         }
-    }, [initialPlan]);
+    }, [initialPlan, preFillData]);
 
     const handleStudentSelect = (sid: string) => {
         if (sid === 'new') {
@@ -360,7 +371,12 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                             <div>
                                 <label className="block text-xs font-black text-zinc-400 uppercase tracking-widest mb-3">Klinik Hedefler (Zayıf Yönler)</label>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    {['Harf Karıştırma', 'Yavaş Okuma', 'Sayı Hissi', 'Dikkat Dağınıklığı', 'Sıralama Sorunları', 'Ters Yazma'].map(item => (
+                                    {/* Pre-fill logic might already populate some, allow user to add more */}
+                                    {[
+                                        'Harf Karıştırma', 'Yavaş Okuma', 'Sayı Hissi', 'Dikkat Dağınıklığı', 'Sıralama Sorunları', 'Ters Yazma',
+                                        // Dynamic entries from screening if not in static list
+                                        ...(formData.weaknesses || []).filter(w => !['Harf Karıştırma', 'Yavaş Okuma', 'Sayı Hissi', 'Dikkat Dağınıklığı', 'Sıralama Sorunları', 'Ters Yazma'].includes(w))
+                                    ].map(item => (
                                         <label key={item} className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer ${formData.weaknesses?.includes(item) ? 'bg-rose-50 border-rose-400 dark:bg-rose-900/20' : 'bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700'}`}>
                                             <input type="checkbox" checked={formData.weaknesses?.includes(item)} onChange={() => setFormData(prev => ({ ...prev, weaknesses: prev.weaknesses?.includes(item) ? prev.weaknesses.filter(t => t !== item) : [...(prev.weaknesses || []), item] }))} className="hidden" />
                                             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.weaknesses?.includes(item) ? 'bg-rose-500 border-rose-500 text-white' : 'border-zinc-300'}`}><i className="fa-solid fa-check text-[10px]"></i></div>

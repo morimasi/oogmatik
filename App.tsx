@@ -29,6 +29,9 @@ const CurriculumView = lazy(() => import('./components/CurriculumView').then(mod
 const ReadingStudio = lazy(() => import('./components/ReadingStudio/ReadingStudio').then(module => ({ default: module.ReadingStudio })));
 const MathStudio = lazy(() => import('./components/MathStudio/MathStudio').then(module => ({ default: module.MathStudio })));
 const StudentDashboard = lazy(() => import('./components/Student/StudentDashboard').then(module => ({ default: module.StudentDashboard })));
+const ScreeningModule = lazy(() => import('./components/Screening/ScreeningModule').then(module => ({ default: module.ScreeningModule })));
+const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
+
 
 const initialStyleSettings: StyleSettings = {
     fontSize: 18,
@@ -72,7 +75,7 @@ const initialUiSettings: UiSettings = {
 };
 
 type ModalType = 'settings' | 'history' | 'about' | 'developer';
-type ExtendedView = View | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students';
+type ExtendedView = View | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'assessment' | 'screening';
 
 const LoadingSpinner = () => (
     <div className="flex items-center justify-center h-full w-full min-h-[200px]">
@@ -171,6 +174,10 @@ const AppContent: React.FC = () => {
         teacherNote: '', theme: 'modern', accentColor: '#4f46e5', coverStyle: 'centered',
         showTOC: true, showPageNumbers: true, showWatermark: false, watermarkOpacity: 0.05, showBackCover: true
     });
+    
+    // Screening to Plan Bridge
+    const [screeningPlanData, setScreeningPlanData] = useState<{name: string, age: number, weaknesses: string[]} | null>(null);
+
     const [theme, setTheme] = useState<AppTheme>(() => {
         try { const storedTheme = localStorage.getItem('app-theme'); return (storedTheme as AppTheme) || 'anthracite'; } catch (e) { return 'anthracite'; }
     });
@@ -186,6 +193,19 @@ const AppContent: React.FC = () => {
     const handleGoBack = () => {
         if (currentView === 'generator' && activeCurriculumSession) { setActiveCurriculumSession(null); navigateTo('curriculum'); return; }
         if (viewHistory.length > 0) { const newHistory = [...viewHistory]; const prevView = newHistory.pop(); setViewHistory(newHistory); if (prevView) setCurrentView(prevView); } else { setCurrentView('generator'); }
+    };
+
+    // --- NAVIGATION HELPERS (Resets state before switching view) ---
+    const handleOpenStudio = (viewName: ExtendedView) => {
+        setSelectedActivity(null); 
+        setWorksheetData(null);
+        setActiveCurriculumSession(null);
+        navigateTo(viewName);
+    };
+
+    const handleGeneratePlanFromScreening = (studentName: string, age: number, weaknesses: string[]) => {
+        setScreeningPlanData({ name: studentName, age, weaknesses });
+        handleOpenStudio('curriculum');
     };
 
     useEffect(() => { localStorage.setItem('user_history', JSON.stringify(historyItems)); }, [historyItems]);
@@ -277,7 +297,7 @@ const AppContent: React.FC = () => {
 
                     <div className="flex items-center gap-2">
                         <button 
-                            onClick={() => navigateTo('assessment')} 
+                            onClick={() => handleOpenStudio('assessment')} 
                             className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-indigo-200 dark:shadow-none transition-all active:scale-95"
                         >
                             <i className="fa-solid fa-user-doctor"></i> DEĞERLENDİRME
@@ -335,9 +355,11 @@ const AppContent: React.FC = () => {
                         isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} selectedActivity={selectedActivity}
                         onSelectActivity={handleSelectActivity} setWorksheetData={setWorksheetData} setIsLoading={setIsLoading}
                         setError={setError} isLoading={isLoading} onAddToHistory={addToHistory}
-                        onOpenOCR={() => navigateTo('ocr')} onOpenCurriculum={() => navigateTo('curriculum')}
-                        onOpenReadingStudio={() => navigateTo('reading-studio')} onOpenMathStudio={() => navigateTo('math-studio')}
-                        onOpenScreening={() => navigateTo('screening')}
+                        onOpenOCR={() => handleOpenStudio('ocr')} 
+                        onOpenCurriculum={() => handleOpenStudio('curriculum')}
+                        onOpenReadingStudio={() => handleOpenStudio('reading-studio')} 
+                        onOpenMathStudio={() => handleOpenStudio('math-studio')}
+                        onOpenScreening={() => handleOpenStudio('screening')}
                         activeCurriculumSession={activeCurriculumSession} isExpanded={isSidebarExpanded}
                     />
                 </div>
@@ -356,6 +378,72 @@ const AppContent: React.FC = () => {
                     />
                 </div>
             </div>
+
+            {/* SPECIAL RENDER FOR STUDIOS WHEN IN THAT VIEW */}
+            {currentView === 'curriculum' && (
+                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+                    <React.Suspense fallback={<LoadingSpinner />}>
+                        <CurriculumView 
+                            onBack={handleGoBack} 
+                            onSelectActivity={handleSelectActivity as any} 
+                            onStartCurriculumActivity={handleStartCurriculumActivity} 
+                            initialPlan={loadedCurriculum}
+                            preFillData={screeningPlanData}
+                        />
+                    </React.Suspense>
+                </div>
+            )}
+            
+            {currentView === 'reading-studio' && (
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+                    <React.Suspense fallback={<LoadingSpinner />}>
+                        <ReadingStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                    </React.Suspense>
+                </div>
+            )}
+
+            {currentView === 'math-studio' && (
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+                    <React.Suspense fallback={<LoadingSpinner />}>
+                        <MathStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                    </React.Suspense>
+                </div>
+            )}
+            
+            {currentView === 'ocr' && (
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+                     <React.Suspense fallback={<LoadingSpinner />}>
+                        <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
+                    </React.Suspense>
+                </div>
+            )}
+            
+            {currentView === 'students' && (
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+                    <React.Suspense fallback={<LoadingSpinner />}>
+                        <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
+                    </React.Suspense>
+                </div>
+            )}
+
+            {currentView === 'messages' && (
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+                    <React.Suspense fallback={<LoadingSpinner />}>
+                        <MessagesView onBack={handleGoBack} />
+                    </React.Suspense>
+                </div>
+            )}
+            
+            {/* Admin view is special, keeps its own context */}
+            {currentView === 'admin' && (
+                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[70] overflow-hidden">
+                    <React.Suspense fallback={<LoadingSpinner />}>
+                        <AdminDashboard onBack={handleGoBack} />
+                    </React.Suspense>
+                </div>
+            )}
+            
+            {/* Assessment and Screening run inside ContentArea via currentView prop, but need special handling in ContentArea */}
 
             <TourGuide steps={tourSteps} isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
             <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} activityType={selectedActivity} activityTitle={selectedActivity ? ACTIVITIES.find(a => a.id === selectedActivity)?.title : undefined} />
