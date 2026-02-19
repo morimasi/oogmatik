@@ -13,7 +13,7 @@ interface CurriculumViewProps {
     onSelectActivity: (id: string) => void;
     onStartCurriculumActivity: (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, difficulty: 'Easy' | 'Medium' | 'Hard', goal: string, studentId?: string) => void;
     initialPlan?: Curriculum | null;
-    preFillData?: { name: string; age: number; weaknesses: string[] } | null;
+    preFillData?: { name: string; age: number; weaknesses: string[], diagnosisContext?: string } | null;
 }
 
 const DayCard: React.FC<{ 
@@ -113,6 +113,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
         name: '', age: 8, grade: '2. Sınıf', diagnosis: [], interests: [], weaknesses: []
     });
     const [planDuration, setPlanDuration] = useState(7);
+    const [diagnosisContext, setDiagnosisContext] = useState<string>('');
 
     useEffect(() => {
         const checkConnection = async () => {
@@ -147,6 +148,9 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                 weaknesses: preFillData.weaknesses,
                 interests: [] // Kullanıcıya tamamlat
             });
+            if (preFillData.diagnosisContext) {
+                setDiagnosisContext(preFillData.diagnosisContext);
+            }
             setStep(1); // Doğrudan detay ekranına git
         }
     }, [initialPlan, preFillData]);
@@ -168,7 +172,13 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
         if (!formData.name) return;
         setLoading(true);
         try {
-            const plan = await curriculumService.generatePlan(formData, planDuration);
+            // Context varsa onu da gönderiyoruz
+            const studentData = { ...formData };
+            if (diagnosisContext) {
+                studentData.notes = `KLİNİK TANI BAĞLAMI:\n${diagnosisContext}\n\n${studentData.notes || ''}`;
+            }
+
+            const plan = await curriculumService.generatePlan(studentData, planDuration);
             setCurriculum(plan);
             setStep(4);
             setIsSaved(false);
@@ -351,6 +361,18 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                             <h2 className="text-3xl font-black text-zinc-900 dark:text-white">Akademik Profil Özeti</h2>
                             <p className="text-zinc-500">Bu veriler AI'nın her güne özel zorluk seviyesi belirlemesi için kullanılacaktır.</p>
                         </div>
+
+                        {/* DIAGNOSIS CONTEXT DISPLAY */}
+                        {diagnosisContext && (
+                            <div className="bg-indigo-50 dark:bg-indigo-900/10 p-6 rounded-2xl border border-indigo-100 dark:border-indigo-800">
+                                <h4 className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <i className="fa-solid fa-clipboard-check"></i> KLİNİK TARAMA BULGULARI
+                                </h4>
+                                <p className="text-sm text-zinc-700 dark:text-zinc-300 italic leading-relaxed whitespace-pre-line">
+                                    {diagnosisContext}
+                                </p>
+                            </div>
+                        )}
                         
                         <div className="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-700 shadow-xl space-y-6">
                             <div>

@@ -16,7 +16,7 @@ interface Props {
     onRestart: () => void;
     onSelectActivity?: (id: any) => void;
     onAddToWorkbook?: (item: any) => void;
-    onGeneratePlan?: (studentName: string, age: number, weaknesses: string[]) => void; // New Prop
+    onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
 }
 
 export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectActivity, onAddToWorkbook, onGeneratePlan }) => {
@@ -175,15 +175,31 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
 
     const handleCreateSmartPlan = () => {
         if (onGeneratePlan) {
-            // Identify high risk areas as weaknesses
+            // Identify high risk areas and SPECIFIC FINDINGS
             const weaknesses: string[] = [];
+            const diagnosisDetails: string[] = [];
+
             Object.entries(result.categoryScores).forEach(([key, val]: [string, any]) => {
+                // Sadece yüksek ve orta riskli alanları al
                 if (val.riskLevel === 'high' || val.riskLevel === 'moderate') {
+                    // Kategori ismini ekle
                     weaknesses.push(CATEGORY_LABELS[key] || key);
+                    
+                    // Spesifik bulguları (symptoms) ekle - BU ÇOK ÖNEMLİ
+                    // Örn: "d-b harflerini karıştırır"
+                    if (val.findings && val.findings.length > 0) {
+                        diagnosisDetails.push(`${CATEGORY_LABELS[key]}: ${val.findings.join(', ')}`);
+                        // Findingleri de weakness olarak ekle ki AI bunu işlesin
+                        weaknesses.push(...val.findings);
+                    }
                 }
             });
+
             // Approximate age (default 7 if not gathered in intro)
-            onGeneratePlan(result.studentName, 7, weaknesses);
+            // Detaylı tanı metnini context olarak gönderiyoruz
+            const diagnosisContext = diagnosisDetails.join('\n');
+            
+            onGeneratePlan(result.studentName, 7, weaknesses, diagnosisContext);
         }
     };
 
@@ -202,8 +218,12 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
                 </div>
                 
                 <div className="flex flex-wrap gap-2 justify-end">
-                    <button onClick={handleCreateSmartPlan} className="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/30">
-                        <i className="fa-solid fa-wand-magic-sparkles"></i> AI Plan Oluştur
+                    <button onClick={handleCreateSmartPlan} className="group relative px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-2xl font-black text-xs flex items-center gap-3 transition-all shadow-xl shadow-zinc-500/20 hover:scale-105 active:scale-95 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <span className="relative flex items-center gap-2">
+                            <i className="fa-solid fa-wand-magic-sparkles"></i> 
+                            Kişisel Eğitim Planı Oluştur
+                        </span>
                     </button>
                     <button onClick={handlePrint} className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-xl font-bold text-xs flex items-center gap-2 transition-all">
                         <i className="fa-solid fa-print"></i> Yazdır

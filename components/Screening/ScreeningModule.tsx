@@ -9,7 +9,7 @@ interface ScreeningModuleProps {
     onBack: () => void;
     onSelectActivity?: (id: any) => void;
     onAddToWorkbook?: (item: any) => void; 
-    onGeneratePlan?: (studentName: string, age: number, weaknesses: string[]) => void; // Added Prop
+    onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void; 
 }
 
 export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook, onGeneratePlan }) => {

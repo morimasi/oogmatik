@@ -176,7 +176,7 @@ const AppContent: React.FC = () => {
     });
     
     // Screening to Plan Bridge
-    const [screeningPlanData, setScreeningPlanData] = useState<{name: string, age: number, weaknesses: string[]} | null>(null);
+    const [screeningPlanData, setScreeningPlanData] = useState<{name: string, age: number, weaknesses: string[], diagnosisContext?: string} | null>(null);
 
     const [theme, setTheme] = useState<AppTheme>(() => {
         try { const storedTheme = localStorage.getItem('app-theme'); return (storedTheme as AppTheme) || 'anthracite'; } catch (e) { return 'anthracite'; }
@@ -203,8 +203,8 @@ const AppContent: React.FC = () => {
         navigateTo(viewName);
     };
 
-    const handleGeneratePlanFromScreening = (studentName: string, age: number, weaknesses: string[]) => {
-        setScreeningPlanData({ name: studentName, age, weaknesses });
+    const handleGeneratePlanFromScreening = (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => {
+        setScreeningPlanData({ name: studentName, age, weaknesses, diagnosisContext });
         handleOpenStudio('curriculum');
     };
 
@@ -450,7 +450,7 @@ const AppContent: React.FC = () => {
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
             <StudentInfoModal isOpen={isStudentModalOpen} onClose={() => setIsStudentModalOpen(false)} currentProfile={studentProfile} onSave={(p) => setStudentProfile(p)} onClear={() => setStudentProfile(null)} />
             <SettingsModal isOpen={openModal === 'settings'} onClose={() => setOpenModal(null)} uiSettings={uiSettings} onUpdateUiSettings={setUiSettings} theme={theme} onUpdateTheme={setTheme} />
-            <AssessmentReportViewer assessment={selectedSavedReport} onClose={() => setSelectedSavedReport(null)} user={user} onSelectActivity={handleSelectActivity} />
+            <AssessmentReportViewer assessment={selectedSavedReport} onClose={() => setSelectedSavedReport(null)} user={user} onSelectActivity={handleSelectActivity} onGeneratePlan={(name, age, weaknesses, context) => handleGeneratePlanFromScreening(name, age, weaknesses, context)} />
             <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="İşlem Geçmişi"><HistoryView historyItems={historyItems} onRestore={handleRestoreFromHistory} onSaveToArchive={handleSaveHistoryItem} onDelete={deleteHistoryItem} onClearAll={clearHistory} onClose={() => setOpenModal(null)} /></Modal>
             <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda"><div className="text-center space-y-6"><DyslexiaLogo className="h-16 w-auto mx-auto" /><div className="space-y-4 text-zinc-600 dark:text-zinc-300"><p className="leading-relaxed">Bursa Disleksi AI, özel öğrenme güçlüğü yaşayan bireylerin eğitim süreçlerini desteklemek, eğitmen ve ailelere kişiselleştirilmiş, bilimsel temelli materyaller sunmak amacıyla geliştirilmiş yeni nesil bir yapay zeka platformudur.</p></div></div></Modal>
         </div>
