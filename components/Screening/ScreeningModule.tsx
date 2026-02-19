@@ -8,9 +8,10 @@ import { ResultDashboard } from './ResultDashboard';
 interface ScreeningModuleProps {
     onBack: () => void;
     onSelectActivity?: (id: any) => void;
+    onAddToWorkbook?: (item: any) => void; // Added Prop
 }
 
-export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSelectActivity }) => {
+export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook }) => {
     const [view, setView] = useState<'intro' | 'form' | 'result'>('intro');
     const [profile, setProfile] = useState<ScreeningProfile | null>(null);
     const [results, setResults] = useState<ScreeningResult | null>(null);
@@ -66,6 +67,7 @@ export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSele
                         result={results} 
                         onRestart={() => setView('intro')}
                         onSelectActivity={onSelectActivity}
+                        onAddToWorkbook={onAddToWorkbook}
                     />
                 )}
             </div>

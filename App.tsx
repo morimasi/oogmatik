@@ -230,10 +230,15 @@ const AppContent: React.FC = () => {
             const newItems: CollectionItem[] = dataArray.map((sheet: any) => ({ id: crypto.randomUUID(), activityType: activityType, data: sheet, settings: { ...styleSettings }, title: sheet.title || ACTIVITIES.find(a => a.id === activityType)?.title || 'Etkinlik' }));
             setWorkbookItems(prev => [...prev, ...newItems]);
             const btn = document.getElementById('add-to-wb-btn');
-            if(btn) { btn.classList.add('scale-125', 'bg-green-500', 'text-white'); setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300); } else { alert("Kitapçığa eklendi!"); }
+            if(btn) { btn.classList.add('scale-125', 'bg-green-500', 'text-white'); setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300); }
         }
     };
     const handleAddToWorkbook = () => { if (selectedActivity && worksheetData) handleAddToWorkbookGeneral(selectedActivity, worksheetData); };
+    const handleAddDirectToWorkbook = (item: any) => {
+        const newItems: CollectionItem[] = [{ id: crypto.randomUUID(), activityType: item.activityType, data: item.data, settings: { ...styleSettings, ...item.settings }, title: item.title }];
+        setWorkbookItems(prev => [...prev, ...newItems]);
+    };
+
     const handleOCRResult = (result: any) => { setSelectedActivity(ActivityType.OCR_CONTENT); setWorksheetData(result); navigateTo('generator'); setIsSidebarExpanded(true); };
     const handleAutoGenerateWorkbook = async (report: AssessmentReport) => {
         setIsLoading(true); navigateTo('workbook'); const newItems: CollectionItem[] = [];
@@ -347,6 +352,7 @@ const AppContent: React.FC = () => {
                         onAutoGenerateWorkbook={handleAutoGenerateWorkbook} studentProfile={studentProfile} zenMode={zenMode}
                         toggleZenMode={() => setZenMode(!zenMode)} activeCurriculumSession={activeCurriculumSession}
                         onCompleteCurriculumActivity={handleCompleteCurriculumActivity}
+                        onAddDirectToWorkbook={handleAddDirectToWorkbook}
                     />
                 </div>
             </div>

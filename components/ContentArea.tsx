@@ -32,13 +32,15 @@ interface ContentAreaProps {
   setWorkbookItems: React.Dispatch<React.SetStateAction<CollectionItem[]>>;
   workbookSettings: WorkbookSettings;
   setWorkbookSettings: React.Dispatch<React.SetStateAction<WorkbookSettings>>;
-  onAddToWorkbook: () => void;
+  onAddToWorkbook: () => void; // This is the general trigger
   onAutoGenerateWorkbook?: (report: AssessmentReport) => void;
   studentProfile?: StudentProfile | null;
   zenMode: boolean;
   toggleZenMode: () => void;
   activeCurriculumSession?: { planId: string, day: number, activityId: string, activityTitle: string, studentName: string } | null;
   onCompleteCurriculumActivity?: () => void;
+  // New handler for direct item addition (like from reports)
+  onAddDirectToWorkbook?: (item: any) => void; 
 }
 
 const LandingText = memo(() => {
@@ -55,7 +57,7 @@ const LandingText = memo(() => {
 });
 
 const ContentArea: React.FC<ContentAreaProps> = ({
-  currentView, onBackToGenerator, activityType, worksheetData, isLoading, error, styleSettings, onStyleChange, onSave, onLoadSaved, onFeedback, onOpenAuth, onSelectActivity, workbookItems, setWorkbookItems, workbookSettings, setWorkbookSettings, onAddToWorkbook, onAutoGenerateWorkbook, studentProfile, zenMode, toggleZenMode, activeCurriculumSession, onCompleteCurriculumActivity
+  currentView, onBackToGenerator, activityType, worksheetData, isLoading, error, styleSettings, onStyleChange, onSave, onLoadSaved, onFeedback, onOpenAuth, onSelectActivity, workbookItems, setWorkbookItems, workbookSettings, setWorkbookSettings, onAddToWorkbook, onAutoGenerateWorkbook, studentProfile, zenMode, toggleZenMode, activeCurriculumSession, onCompleteCurriculumActivity, onAddDirectToWorkbook
 }) => {
     const { user } = useAuth();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -243,7 +245,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {currentView === 'assessment' && (
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
             <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-4xl text-indigo-500"></i></div>}>
-                <AssessmentModule onBack={onBackToGenerator} onSelectActivity={onSelectActivity!} onAddToWorkbook={onAddToWorkbook} onAutoGenerateWorkbook={onAutoGenerateWorkbook} />
+                <AssessmentModule onBack={onBackToGenerator} onSelectActivity={onSelectActivity!} onAddToWorkbook={onAddDirectToWorkbook} onAutoGenerateWorkbook={onAutoGenerateWorkbook} />
             </React.Suspense>
         </div>
       )}
@@ -251,7 +253,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       {currentView === 'screening' && (
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
             <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-4xl text-purple-500"></i></div>}>
-                <ScreeningModule onBack={onBackToGenerator} onSelectActivity={onSelectActivity} />
+                <ScreeningModule onBack={onBackToGenerator} onSelectActivity={onSelectActivity} onAddToWorkbook={onAddDirectToWorkbook} />
             </React.Suspense>
         </div>
       )}
