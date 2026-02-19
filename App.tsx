@@ -444,6 +444,18 @@ const AppContent: React.FC = () => {
             )}
             
             {/* Assessment and Screening run inside ContentArea via currentView prop, but need special handling in ContentArea */}
+            {currentView === 'screening' && (
+                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+                    <React.Suspense fallback={<LoadingSpinner />}>
+                        <ScreeningModule 
+                            onBack={handleGoBack} 
+                            onSelectActivity={handleSelectActivity} 
+                            onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                            onGeneratePlan={(n, a, w, c) => handleGeneratePlanFromScreening(n, a, w, c)}
+                        />
+                    </React.Suspense>
+                </div>
+            )}
 
             <TourGuide steps={tourSteps} isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
             <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} activityType={selectedActivity} activityTitle={selectedActivity ? ACTIVITIES.find(a => a.id === selectedActivity)?.title : undefined} />
