@@ -107,24 +107,12 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
     const [isSaved, setIsSaved] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
-    const [connectionBlocked, setConnectionBlocked] = useState(false);
 
     const [formData, setFormData] = useState<Partial<Student>>({
         name: '', age: 8, grade: '2. Sınıf', diagnosis: [], interests: [], weaknesses: []
     });
     const [planDuration, setPlanDuration] = useState(7);
     const [diagnosisContext, setDiagnosisContext] = useState<string>('');
-
-    useEffect(() => {
-        const checkConnection = async () => {
-            try {
-                await fetch('https://firestore.googleapis.com', { mode: 'no-cors' });
-            } catch (e) {
-                setConnectionBlocked(true);
-            }
-        };
-        checkConnection();
-    }, []);
 
     useEffect(() => {
         if (initialPlan) {
@@ -285,14 +273,6 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             case 0:
                 return (
                     <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4">
-                        {connectionBlocked && (
-                            <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
-                                <i className="fa-solid fa-triangle-exclamation text-amber-600 mt-1"></i>
-                                <p className="text-xs text-amber-800 leading-tight">
-                                    <span className="font-bold">Bağlantı Uyarısı:</span> Bazı servisler bir eklenti (AdBlocker) tarafından engelleniyor. Uygulamanın tam performans çalışması için bu siteye izin vermeniz önerilir.
-                                </p>
-                            </div>
-                        )}
                         <div className="text-center">
                             <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg shadow-indigo-500/20">
                                 <i className="fa-solid fa-graduation-cap"></i>
