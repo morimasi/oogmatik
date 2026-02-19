@@ -118,6 +118,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const breadcrumbs = currentView === 'savedList' ? ['Ana Sayfa', 'Arşivim'] : 
                       currentView === 'workbook' ? ['Ana Sayfa', 'Kitapçık'] :
                       currentView === 'favorites' ? ['Ana Sayfa', 'Atölyem'] : ['Ana Sayfa'];
+    
+    // Lazy imports for large modules
+    const AssessmentModule = React.lazy(() => import('./AssessmentModule').then(module => ({ default: module.AssessmentModule })));
+    const ScreeningModule = React.lazy(() => import('./Screening/ScreeningModule').then(module => ({ default: module.ScreeningModule })));
 
   return (
     <EditableContext.Provider value={{ isEditMode, zoom: scale }}>
@@ -214,7 +218,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     )}
                 </>
             ) : (
-                <div className="p-8 w-full max-w-7xl">
+                <div className="p-8 w-full max-w-7xl h-full">
                     {currentView === 'savedList' ? (
                         <SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
                     ) : currentView === 'workbook' ? (
@@ -235,6 +239,22 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               </div>
           )}
       </div>
+
+      {currentView === 'assessment' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+            <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-4xl text-indigo-500"></i></div>}>
+                <AssessmentModule onBack={onBackToGenerator} onSelectActivity={onSelectActivity!} onAddToWorkbook={onAddToWorkbook} onAutoGenerateWorkbook={onAutoGenerateWorkbook} />
+            </React.Suspense>
+        </div>
+      )}
+
+      {currentView === 'screening' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+            <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-4xl text-purple-500"></i></div>}>
+                <ScreeningModule onBack={onBackToGenerator} onSelectActivity={onSelectActivity} />
+            </React.Suspense>
+        </div>
+      )}
 
       <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={() => {}} />
     </main>

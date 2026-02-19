@@ -32,6 +32,7 @@ interface SidebarProps {
   onOpenCurriculum?: () => void;
   onOpenReadingStudio?: () => void;
   onOpenMathStudio?: () => void;
+  onOpenScreening?: () => void; // Added Prop
   activeCurriculumSession?: ActiveCurriculumSession | null;
 }
 
@@ -50,7 +51,7 @@ const ToolIcon = ({ icon, label, onClick, color, isExpanded }: any) => (
 
 const Sidebar: React.FC<SidebarProps> = ({
   isSidebarOpen, closeSidebar, selectedActivity, onSelectActivity, setWorksheetData, setIsLoading, setError, isLoading, onAddToHistory, isExpanded = true,
-  onOpenOCR, onOpenCurriculum, onOpenReadingStudio, onOpenMathStudio, activeCurriculumSession
+  onOpenOCR, onOpenCurriculum, onOpenReadingStudio, onOpenMathStudio, onOpenScreening, activeCurriculumSession
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
@@ -142,6 +143,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <ToolIcon icon="fa-calendar-check" label="Plan" onClick={onOpenCurriculum} color="bg-emerald-500 text-white" isExpanded={isExpanded} />
                             <ToolIcon icon="fa-book-open" label="Oku" onClick={onOpenReadingStudio} color="bg-rose-500 text-white" isExpanded={isExpanded} />
                             <ToolIcon icon="fa-calculator" label="Mat" onClick={onOpenMathStudio} color="bg-blue-500 text-white" isExpanded={isExpanded} />
+                            <ToolIcon icon="fa-clipboard-question" label="Tarama" onClick={onOpenScreening} color="bg-purple-500 text-white" isExpanded={isExpanded} />
                         </div>
                     </div>
 

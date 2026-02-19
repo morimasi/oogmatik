@@ -254,17 +254,6 @@ const AppContent: React.FC = () => {
         } catch (e) { alert("Otomatik kitapçık oluşturulurken bir hata meydana geldi."); } finally { setIsLoading(false); }
     };
 
-    const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
-
-    if (currentView === 'admin') return <Suspense fallback={<LoadingSpinner />}><AdminDashboard onBack={handleGoBack} /></Suspense>;
-    if (currentView === 'profile') return <Suspense fallback={<LoadingSpinner />}><ProfileView onBack={handleGoBack} onSelectActivity={handleSelectActivity} onLoadSaved={loadSavedWorksheet} /></Suspense>;
-    if (currentView === 'messages') return <Suspense fallback={<LoadingSpinner />}><MessagesView onBack={handleGoBack} onRefreshNotifications={() => {}} /></Suspense>;
-    if (currentView === 'ocr') return <Suspense fallback={<LoadingSpinner />}><OCRScanner onBack={handleGoBack} onResult={handleOCRResult} /></Suspense>;
-    if (currentView === 'students') return <Suspense fallback={<LoadingSpinner />}><StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} /></Suspense>;
-    if (currentView === 'reading-studio') return <Suspense fallback={<LoadingSpinner />}><ReadingStudio onBack={handleGoBack} onAddToWorkbook={(data: any) => handleAddToWorkbookGeneral(ActivityType.STORY_COMPREHENSION, data)} /></Suspense>;
-    if (currentView === 'math-studio') return <Suspense fallback={<LoadingSpinner />}><MathStudio onBack={handleGoBack} onAddToWorkbook={(data: any) => handleAddToWorkbookGeneral(ActivityType.MATH_STUDIO, data)} /></Suspense>;
-    if (currentView === 'curriculum') return <Suspense fallback={<LoadingSpinner />}><CurriculumView onBack={handleGoBack} onSelectActivity={handleSelectActivity} onStartCurriculumActivity={handleStartCurriculumActivity} initialPlan={loadedCurriculum} /></Suspense>;
-
     return (
         <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
             <header className={`relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-50 transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}>
@@ -343,6 +332,7 @@ const AppContent: React.FC = () => {
                         setError={setError} isLoading={isLoading} onAddToHistory={addToHistory}
                         onOpenOCR={() => navigateTo('ocr')} onOpenCurriculum={() => navigateTo('curriculum')}
                         onOpenReadingStudio={() => navigateTo('reading-studio')} onOpenMathStudio={() => navigateTo('math-studio')}
+                        onOpenScreening={() => navigateTo('screening')}
                         activeCurriculumSession={activeCurriculumSession} isExpanded={isSidebarExpanded}
                     />
                 </div>
@@ -358,11 +348,6 @@ const AppContent: React.FC = () => {
                         toggleZenMode={() => setZenMode(!zenMode)} activeCurriculumSession={activeCurriculumSession}
                         onCompleteCurriculumActivity={handleCompleteCurriculumActivity}
                     />
-                    {currentView === 'assessment' && (
-                        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
-                            <Suspense fallback={<LoadingSpinner />}><AssessmentModule onBack={handleGoBack} onSelectActivity={handleSelectActivity} onAddToWorkbook={handleAddToWorkbook} onAutoGenerateWorkbook={handleAutoGenerateWorkbook} /></Suspense>
-                        </div>
-                    )}
                 </div>
             </div>
 

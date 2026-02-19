@@ -313,7 +313,7 @@ export interface HistoryItem {
     category: { id: string; title: string };
 }
 
-export type View = 'generator' | 'savedList' | 'workbook' | 'favorites' | 'shared' | 'admin' | 'profile' | 'messages' | 'assessment';
+export type View = 'generator' | 'savedList' | 'workbook' | 'favorites' | 'shared' | 'admin' | 'profile' | 'messages' | 'assessment' | 'screening';
 
 export interface UiSettings {
     fontFamily: string;
