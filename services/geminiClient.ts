@@ -1,8 +1,8 @@
 import { Type } from "@google/genai";
 
-// Model Seçimi: Google'ın en yeni "Thinking" modeli (Gemini 2.0 Flash Thinking)
-// Bu model, karmaşık mantık ve planlama (Chain of Thought) yeteneklerine sahiptir.
-const MASTER_MODEL = 'gemini-2.0-flash-thinking-exp-01-21';
+// Model Seçimi: Kararlı ve hızlı olan Gemini 1.5 Flash kullanıyoruz.
+// "Thinking" (exp) modelleri sürekli değiştiği için 404 hatasına sebep olabiliyor.
+const MASTER_MODEL = 'gemini-1.5-flash';
 
 // JSON Dengeleyici
 const balanceBraces = (str: string): string => {
