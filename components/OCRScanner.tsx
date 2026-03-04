@@ -1,5 +1,3 @@
-/** @jsx React.createElement */
-/** @jsxFrag React.Fragment */
 import React from 'react';
 import { ocrService } from '../services/ocrService';
 import { ActivityType, WorksheetData, StyleSettings, GeneratorOptions, Student } from '../types';

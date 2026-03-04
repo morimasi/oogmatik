@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PromptTemplate } from '../types/admin';
 import { adminService } from '../services/adminService';
 import { WorksheetData, ActivityType } from '../types/core'; // types/core olarak güncellendi
-import SheetRenderer from './SheetRenderer';
+import { SheetRenderer } from './SheetRenderer';
 
 // Basit aktivite tipi tahminleyicisi
 const detectActivityType = (promptId: string): ActivityType => {
