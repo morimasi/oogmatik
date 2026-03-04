@@ -1,8 +1,7 @@
 import { Type } from "@google/genai";
 
-// Model Seçimi: Kararlı ve hızlı olan Gemini 1.5 Flash kullanıyoruz.
-// "Thinking" (exp) modelleri sürekli değiştiği için 404 hatasına sebep olabiliyor.
-const MASTER_MODEL = 'gemini-1.5-flash';
+// Model Seçimi: Uygulamanın tüm yapısında Gemini 3 Flash Preview (Thinking Enabled) kullanılacak
+const MASTER_MODEL = 'gemini-3-flash-preview';
 
 // JSON Dengeleyici
 const balanceBraces = (str: string): string => {
@@ -107,7 +106,7 @@ export const evaluateContent = async (content: any) => {
     const apiKey = getApiKey();
     if (!apiKey) throw new Error("API Key eksik");
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`; // Denetim için hızlı model yeterli
+    const url = `https://generativelanguage.googleapis.com/v1alpha/models/gemini-3-flash-preview:generateContent?key=${apiKey}`; // Denetim için de aynı model
 
 
     const prompt = `
@@ -152,7 +151,7 @@ export const generateCreativeMultimodal = async (params: {
         throw new Error("API Anahtarı bulunamadı. Lütfen .env dosyasında VITE_GOOGLE_API_KEY tanımlayın veya ayarlardan ekleyin.");
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MASTER_MODEL}:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1alpha/models/${MASTER_MODEL}:generateContent?key=${apiKey}`;
 
     const contents = [];
     
@@ -176,9 +175,12 @@ export const generateCreativeMultimodal = async (params: {
     const body: any = {
         contents,
         generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 8192,
-            responseMimeType: "application/json"
+            temperature: 0.1, // Düşük tutulmalı (Thinking)
+            maxOutputTokens: 16000,
+            responseMimeType: "application/json",
+            thinkingConfig: {
+                thinkingBudget: 4000 // Multimodal thinking bütçesi
+            }
         },
         systemInstruction: {
             parts: [{ text: SYSTEM_INSTRUCTION }]
