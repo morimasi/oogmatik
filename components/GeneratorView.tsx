@@ -39,6 +39,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
     isExpanded = true,
     activeCurriculumSession
 }) => {
+    if (!activity) return null;
+
     const { students, activeStudent, setActiveStudent } = useStudent();
     const { options, updateOption } = useActivitySettings(activity.id);
 

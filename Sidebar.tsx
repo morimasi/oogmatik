@@ -96,12 +96,16 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
+  const selectedActivityData = useMemo(() => {
+      return ACTIVITIES.find(a => a.id === selectedActivity);
+  }, [selectedActivity]);
+
   return (
     <aside className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700 transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex h-full flex-col">
-            {selectedActivity ? (
+            {selectedActivityData ? (
                 <GeneratorView 
-                    activity={ACTIVITIES.find(a => a.id === selectedActivity)!} 
+                    activity={selectedActivityData} 
                     onGenerate={handleGenerate} 
                     onBack={() => onSelectActivity(null)} 
                     isLoading={isLoading} 

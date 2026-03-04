@@ -188,6 +188,49 @@ export const ACTIVITIES: Activity[] = [
         description: 'Okları takip ederek ızgaradaki gizli harfleri topla ve kelimeyi bul.',
         icon: 'fa-solid fa-arrow-trend-up',
         defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.STORY_COMPREHENSION,
+        title: 'Hikaye Anlama',
+        description: 'Okuma anlama becerilerini geliştiren, 5N1K ve çıkarım soruları içeren metin çalışması.',
+        icon: 'fa-solid fa-file-lines',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.STORY_ANALYSIS,
+        title: 'Hikaye Analizi',
+        description: 'Metnin yapısını, karakterleri ve olay örgüsünü derinlemesine inceleme çalışması.',
+        icon: 'fa-solid fa-magnifying-glass'
+    },
+    {
+        id: ActivityType.MISSING_PARTS,
+        title: 'Eksik Parçayı Bul',
+        description: 'Bütün-parça ilişkisini kurma ve görsel bütünlüğü tamamlama çalışması.',
+        icon: 'fa-solid fa-puzzle-piece'
+    },
+    {
+        id: ActivityType.NUMBER_PATTERN,
+        title: 'Sayı Örüntüleri',
+        description: 'Sayılar arasındaki kuralı keşfetme ve diziyi devam ettirme mantık çalışması.',
+        icon: 'fa-solid fa-arrow-up-9-1'
+    },
+    {
+        id: ActivityType.KENDOKU,
+        title: 'Kendoku',
+        description: 'Aritmetik işlemler ve mantık yürütmeyi birleştiren sayı bulmacası.',
+        icon: 'fa-solid fa-table-list'
+    },
+    {
+        id: ActivityType.NUMBER_PYRAMID,
+        title: 'Sayı Piramidi',
+        description: 'Alt kutulardaki sayıların toplamı ile üst kutuları bulma stratejisi.',
+        icon: 'fa-solid fa-pyramid'
+    },
+    {
+        id: ActivityType.REAL_LIFE_MATH_PROBLEMS,
+        title: 'Yaşamdan Matematik',
+        description: 'Günlük hayatta karşılaşılan durumlar üzerinden kurgulanmış problem çözme.',
+        icon: 'fa-solid fa-cart-shopping'
     }
 ];
 
