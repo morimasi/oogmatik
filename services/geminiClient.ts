@@ -79,14 +79,36 @@ export interface MultimodalFile {
     mimeType: string;
 }
 
+declare var process: any;
+
+const getApiKey = () => {
+    // 1. Vercel / Build Environment variables (via vite.config.ts define)
+    try {
+        if (process.env.API_KEY) return process.env.API_KEY;
+    } catch (e) {}
+    
+    // 2. Vite Env Variables
+    try {
+        if ((import.meta as any).env?.VITE_GOOGLE_API_KEY) return (import.meta as any).env.VITE_GOOGLE_API_KEY;
+    } catch (e) {}
+
+    // 3. Local Storage fallback
+    try {
+        return localStorage.getItem('gemini_api_key');
+    } catch (e) {}
+
+    return null;
+};
+
 /**
  * AI PEDAGOG: İçerik Denetimi Yapar
  */
 export const evaluateContent = async (content: any) => {
-    const apiKey = (import.meta as any).env.VITE_GOOGLE_API_KEY || localStorage.getItem('gemini_api_key');
+    const apiKey = getApiKey();
     if (!apiKey) throw new Error("API Key eksik");
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`; // Denetim için hızlı model yeterli
+
 
     const prompt = `
     [ANALİZ EDİLECEK İÇERİK]
@@ -124,8 +146,7 @@ export const generateCreativeMultimodal = async (params: {
     schema?: any, // Schema opsiyonel yapıldı
     files?: MultimodalFile[]
 }) => {
-    // API Key Önceliği: Environment Variable -> LocalStorage -> Hata
-    const apiKey = (import.meta as any).env.VITE_GOOGLE_API_KEY || localStorage.getItem('gemini_api_key');
+    const apiKey = getApiKey();
     
     if (!apiKey) {
         throw new Error("API Anahtarı bulunamadı. Lütfen .env dosyasında VITE_GOOGLE_API_KEY tanımlayın veya ayarlardan ekleyin.");
