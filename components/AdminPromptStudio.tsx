@@ -280,7 +280,7 @@ export const AdminPromptStudio = () => {
                                         <div className="flex items-center gap-3 overflow-x-auto custom-scrollbar pb-1">
                                             {variables.length > 0 ? variables.map((v: string) => (
                                                 <div key={v} className="flex items-center gap-2 bg-black border border-zinc-800 rounded-lg px-3 py-1.5 shrink-0 group hover:border-amber-500/50 transition-colors">
-                                                    <span className="text-[9px] font-bold text-zinc-500 group-hover:text-amber-500 transition-colors">{{ v }}:</span>
+                                                    <span className="text-[9px] font-bold text-zinc-500 group-hover:text-amber-500 transition-colors">{`{{${v}}}`}:</span>
                                                     <input type="text" value={testVars[v] || ''} onChange={(e: any) => setTestVars({ ...testVars, [v]: e.target.value })} className="bg-transparent w-28 text-xs font-mono text-zinc-200 outline-none" placeholder="Örnek veri..." />
                                                 </div>
                                             )) : <span className="text-[10px] text-zinc-600 font-mono italic px-2">{"{ Bu mutasyonda dinamik değişken bulunmamaktadır }"}</span>}
