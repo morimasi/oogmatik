@@ -4,6 +4,8 @@ import { adminService } from '../services/adminService';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import { ActivityType } from '../types';
 
+import { PromptSimulator } from './PromptSimulator';
+
 // --- ULTRA-MINIMALIST CODE EDITOR (Lexical Highlighting) ---
 const CodeEditor = ({ value, onChange, readOnly = false }: { value: string, onChange?: (v: string) => void, readOnly?: boolean }) => {
     const preRef = (React as any).useRef(null as HTMLPreElement | null);
@@ -203,7 +205,7 @@ export const AdminPromptStudio = () => {
                             <div className="flex bg-zinc-900/50 p-1.5 rounded-xl border border-zinc-800/50">
                                 {[
                                     { id: 'editor', label: 'Mimarİ', icon: 'fa-layer-group' },
-                                    { id: 'simulation', label: 'A/B Test Laboratuvar', icon: 'fa-vial' },
+                                    { id: 'simulation', label: 'CANLI SİMÜLASYON', icon: 'fa-flask' },
                                     { id: 'history', label: 'Evrİm Geçmİşİ', icon: 'fa-dna' }
                                 ].map(t => (
                                     <button
@@ -272,62 +274,10 @@ export const AdminPromptStudio = () => {
                                 </div>
                             )}
 
-                            {/* TAB 2: A/B SIMULATION */}
+                            {/* TAB 2: LIVE SIMULATION */}
                             {activeTab === 'simulation' && (
-                                <div className="flex-1 flex flex-col gap-6 min-h-0">
-                                    <div className="p-4 bg-[#0a0a0a] rounded-2xl border border-zinc-800/50 shrink-0 shadow-lg flex flex-col gap-2">
-                                        <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest"><i className="fa-solid fa-syringe mr-2"></i>Kök Hücre Enjeksiyonu (Test Değişkenleri):</span>
-                                        <div className="flex items-center gap-3 overflow-x-auto custom-scrollbar pb-1">
-                                            {variables.length > 0 ? variables.map((v: string) => (
-                                                <div key={v} className="flex items-center gap-2 bg-black border border-zinc-800 rounded-lg px-3 py-1.5 shrink-0 group hover:border-amber-500/50 transition-colors">
-                                                    <span className="text-[9px] font-bold text-zinc-500 group-hover:text-amber-500 transition-colors">{`{{${v}}}`}:</span>
-                                                    <input type="text" value={testVars[v] || ''} onChange={(e: any) => setTestVars({ ...testVars, [v]: e.target.value })} className="bg-transparent w-28 text-xs font-mono text-zinc-200 outline-none" placeholder="Örnek veri..." />
-                                                </div>
-                                            )) : <span className="text-[10px] text-zinc-600 font-mono italic px-2">{"{ Bu mutasyonda dinamik değişken bulunmamaktadır }"}</span>}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex-1 flex gap-6 min-h-0">
-                                        {/* A Variant (Control) */}
-                                        <div className="flex-1 flex flex-col bg-[#0a0a0a] rounded-2xl border border-zinc-800/50 overflow-hidden shadow-2xl relative">
-                                            <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/5 blur-3xl pointer-events-none"></div>
-                                            <div className="p-4 border-b border-zinc-800/50 flex flex-col gap-3 bg-black/40 z-10">
-                                                <div className="flex justify-between items-center">
-                                                    <h4 className="flex items-center gap-2 text-[10px] font-black text-zinc-300 uppercase tracking-widest"><i className="fa-solid fa-cube text-sky-500"></i> Kontrol (A) Grubu</h4>
-                                                    <span className="text-[9px] text-zinc-500 font-bold bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded">T P-{simA.temp}</span>
-                                                </div>
-                                                <div className="flex items-center justify-between gap-4">
-                                                    <input type="range" min="0" max="1" step="0.1" value={simA.temp} onChange={(e: any) => setSimA((p: any) => ({ ...p, temp: parseFloat(e.target.value) }))} className="flex-1 h-1 bg-zinc-800 rounded appearance-none cursor-pointer accent-sky-500" />
-                                                    <button onClick={() => runSimulation('A')} disabled={simA.loading} className="px-5 py-2 bg-zinc-800 hover:bg-sky-600 text-white text-[9px] font-black rounded-lg flex items-center gap-2 transition-all transform active:scale-95 shadow-lg">
-                                                        {simA.loading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-play"></i>} TEST ET
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div className="flex-1 relative bg-black/50 z-10">
-                                                {simA.result ? <CodeEditor value={simA.result} readOnly /> : <div className="absolute inset-0 flex items-center justify-center text-zinc-800 text-[10px] font-black uppercase tracking-widest"><i className="fa-solid fa-bolt mr-2"></i>Ağ tetiklemesi bekleniyor</div>}
-                                            </div>
-                                        </div>
-
-                                        {/* B Variant (Experiment) */}
-                                        <div className="flex-1 flex flex-col bg-[#0a0a0a] rounded-2xl border border-amber-900/30 overflow-hidden shadow-2xl relative">
-                                            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl pointer-events-none"></div>
-                                            <div className="p-4 border-b border-amber-900/30 flex flex-col gap-3 bg-amber-500/5 z-10">
-                                                <div className="flex justify-between items-center">
-                                                    <h4 className="flex items-center gap-2 text-[10px] font-black text-amber-500 uppercase tracking-widest"><i className="fa-solid fa-flask text-amber-500"></i> Deney (B) Grubu</h4>
-                                                    <span className="text-[9px] text-amber-600 font-bold bg-amber-950 border border-amber-900 px-2 py-0.5 rounded">T P-{simB.temp}</span>
-                                                </div>
-                                                <div className="flex items-center justify-between gap-4">
-                                                    <input type="range" min="0" max="1" step="0.1" value={simB.temp} onChange={(e: any) => setSimB((p: any) => ({ ...p, temp: parseFloat(e.target.value) }))} className="flex-1 h-1 bg-zinc-800 rounded appearance-none cursor-pointer accent-amber-500" />
-                                                    <button onClick={() => runSimulation('B')} disabled={simB.loading} className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white text-[9px] font-black rounded-lg flex items-center gap-2 transition-all transform active:scale-95 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-                                                        {simB.loading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-play"></i>} TEST ET
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div className="flex-1 relative bg-black/50 z-10">
-                                                {simB.result ? <CodeEditor value={simB.result} readOnly /> : <div className="absolute inset-0 flex items-center justify-center text-zinc-800 text-[10px] font-black uppercase tracking-widest"><i className="fa-solid fa-bolt mr-2"></i>Ağ tetiklemesi bekleniyor</div>}
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div className="flex-1 min-h-0 animate-in fade-in duration-300">
+                                    <PromptSimulator prompt={selected} />
                                 </div>
                             )}
 

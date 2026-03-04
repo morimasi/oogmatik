@@ -3,7 +3,7 @@ import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { DynamicActivity, PromptTemplate, PromptSnippet, StaticContentItem, ActivityDraft, PromptVersion } from '../types/admin';
 import { UserRole, UserStatus } from '../types/core';
-import { generateWithSchema } from './geminiClient';
+import { generateWithSchema, evaluateContent } from './geminiClient';
 import { Type } from "@google/genai";
 
 const { collection, doc, getDocs, setDoc, query, where, updateDoc, deleteDoc, getDoc } = firestore;
@@ -80,6 +80,10 @@ export const adminService = {
 
         // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
         return await generateWithSchema(appliedTemplate, { type: Type.OBJECT });
+    },
+
+    auditActivity: async (content: any) => {
+        return await evaluateContent(content);
     },
 
     // --- SNIPPETS ---
