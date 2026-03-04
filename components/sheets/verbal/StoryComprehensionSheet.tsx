@@ -96,7 +96,7 @@ export const StoryComprehensionSheet: React.FC<{ data: InteractiveStoryData }> =
             <div className="flex-1 bg-white p-8 rounded-[2rem] border-2 border-zinc-100 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-2 h-full bg-indigo-600"></div>
                 <div className="prose max-w-none font-dyslexic text-xl leading-[2.2] text-zinc-800 text-justify">
-                    <StoryHighlighter text={data.story} highlights={(data.fiveW1H || []).map(q => ({ text: q.answer, type: q.type }))} />
+                    <StoryHighlighter text={data.story} highlights={(data.fiveW1H || []).filter(q => !!q && !!q.answer).map(q => ({ text: q.answer, type: q.type }))} />
                 </div>
             </div>
             {data.imagePrompt && (

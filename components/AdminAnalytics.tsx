@@ -129,11 +129,13 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
         [...stats].sort((a, b) => b.generationCount - a.generationCount).slice(0, 7)
     , [stats]);
 
-    const chartData = topActivities.map((act, i) => ({
-        label: act.title,
-        value: act.generationCount,
-        color: i % 2 === 0 ? 'bg-indigo-500' : 'bg-purple-500'
-    }));
+    const chartData = topActivities
+        .filter(act => !!act && !!act.title)
+        .map((act, i) => ({
+            label: act.title,
+            value: act.generationCount,
+            color: i % 2 === 0 ? 'bg-indigo-500' : 'bg-purple-500'
+        }));
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">

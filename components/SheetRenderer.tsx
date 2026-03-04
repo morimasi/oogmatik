@@ -186,13 +186,13 @@ const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
                     className="grid gap-6 mt-4 items-start" 
                     style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
                 >
-                    {blocks.map((block: WorksheetBlock, idx: number) => (
+                    {blocks.filter(b => !!b).map((block: WorksheetBlock, idx: number) => (
                         <BlockRenderer key={idx} block={block} />
                     ))}
                 </div>
             ) : (
                 <div className="flex-1 mt-4">
-                    {blocks.map((block: WorksheetBlock, idx: number) => (
+                    {blocks.filter(b => !!b).map((block: WorksheetBlock, idx: number) => (
                         <BlockRenderer key={idx} block={block} />
                     ))}
                 </div>

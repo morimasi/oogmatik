@@ -11,6 +11,7 @@ export const ReadingStudioContentRenderer: React.FC<ReadingStudioContentRenderer
     if (!layout || !Array.isArray(layout)) return null;
 
     const renderItemContent = (item: any) => {
+        if (!item || !item.style) return null;
         const s = item.style;
         const boxStyle = {
             padding: `${s.padding}px`,
