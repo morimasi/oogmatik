@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UiSettings, AppTheme } from '../types';
 
 interface SettingsModalProps {
@@ -14,211 +13,320 @@ interface SettingsModalProps {
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, uiSettings, onUpdateUiSettings, theme, onUpdateTheme }) => {
     const [activeTab, setActiveTab] = useState<'appearance' | 'typography' | 'accessibility'>('appearance');
 
+    // Esc tuşu ile kapatma
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
     if (!isOpen) return null;
 
-    const themes: { id: AppTheme; name: string; color: string }[] = [
-        { id: 'light', name: 'Açık', color: '#fafafa' },
-        { id: 'dark', name: 'Koyu', color: '#18181b' },
-        { id: 'anthracite', name: 'Antrasit', color: '#222226' },
-        { id: 'space', name: 'Uzay', color: '#0b0d17' },
-        { id: 'nature', name: 'Doğa', color: '#f0fdf4' },
-        { id: 'ocean', name: 'Okyanus', color: '#ecfeff' },
-        { id: 'anthracite-gold', name: 'Altın', color: '#1f1f22' },
-        { id: 'anthracite-cyber', name: 'Cyber', color: '#000000' },
+    const themes: { id: AppTheme; name: string; color: string; desc: string; accent: string }[] = [
+        { id: 'light', name: 'Aydınlık', color: '#ffffff', accent: '#4f46e5', desc: 'Klasik ferah görünüm' },
+        { id: 'dark', name: 'Karanlık', color: '#18181b', accent: '#818cf8', desc: 'Göz yormayan gece modu' },
+        { id: 'anthracite', name: 'Antrasit', color: '#222226', accent: '#6366f1', desc: 'Yumuşak kontrastlı koyu' },
+        { id: 'space', name: 'Uzay', color: '#0b0d17', accent: '#38bdf8', desc: 'Derin mavi ve siyah tonlar' },
+        { id: 'nature', name: 'Doğa', color: '#f0fdf4', accent: '#22c55e', desc: 'Sakinleştirici yeşil tonlar' },
+        { id: 'ocean', name: 'Okyanus', color: '#ecfeff', accent: '#06b6d4', desc: 'Ferah açık mavi tonlar' },
+        { id: 'anthracite-gold', name: 'Premium Altın', color: '#1f1f22', accent: '#fbbf24', desc: 'Siyah ve altın uyumu' },
+        { id: 'anthracite-cyber', name: 'Siberpunk', color: '#000000', accent: '#ec4899', desc: 'Yüksek kontrastlı neon' },
     ];
 
-    const fonts: { id: UiSettings['fontFamily']; name: string }[] = [
-        { id: 'OpenDyslexic', name: 'OpenDyslexic (Varsayılan)' },
-        { id: 'Lexend', name: 'Lexend (Okuma Dostu)' },
-        { id: 'Inter', name: 'Inter (Modern)' },
-        { id: 'Comic Neue', name: 'Comic Sans (Samimi)' },
-        { id: 'Lora', name: 'Serif (Kitap)' }
+    const fonts: { id: UiSettings['fontFamily']; name: string; desc: string }[] = [
+        { id: 'OpenDyslexic', name: 'OpenDyslexic', desc: 'Disleksi için özel tasarlanmış (Varsayılan)' },
+        { id: 'Lexend', name: 'Lexend', desc: 'Okuma akıcılığını artıran modern yapı' },
+        { id: 'Inter', name: 'Inter', desc: 'Temiz, net ve profesyonel sans-serif' },
+        { id: 'Comic Neue', name: 'Comic Neue', desc: 'Çocuklar için samimi ve el yazısına yakın' },
+        { id: 'Lora', name: 'Lora', desc: 'Uzun okuma metinleri için klasik serif' }
     ];
+
+    const tabs = [
+        { id: 'appearance', label: 'Tema ve Renkler', icon: 'fa-palette', desc: 'Görsel kimlik ve renk paletleri' },
+        { id: 'typography', label: 'Tipografi', icon: 'fa-font', desc: 'Yazı tipleri ve okuma ayarları' },
+        { id: 'accessibility', label: 'Erişilebilirlik', icon: 'fa-universal-access', desc: 'Özel gereksinim optimizasyonları' }
+    ] as const;
 
     const handleReset = () => {
-        onUpdateUiSettings({
-            fontFamily: 'OpenDyslexic',
-            fontSizeScale: 1,
-            letterSpacing: 'normal',
-            lineHeight: 1.6,
-            saturation: 100
-        });
-        onUpdateTheme('anthracite');
+        if(confirm('Tüm görünüm ayarları varsayılana döndürülecek. Emin misiniz?')) {
+            onUpdateUiSettings({
+                fontFamily: 'OpenDyslexic',
+                fontSizeScale: 1,
+                letterSpacing: 'normal',
+                lineHeight: 1.6,
+                saturation: 100
+            });
+            onUpdateTheme('anthracite');
+        }
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden max-h-[90vh]">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+            <div className="bg-white dark:bg-[#121214] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.3)] w-full max-w-5xl flex flex-col md:flex-row overflow-hidden max-h-[90vh] border border-zinc-200 dark:border-zinc-800/60 transform transition-all">
                 
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900">
-                    <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
-                        <i className="fa-solid fa-sliders text-indigo-600 dark:text-indigo-400"></i> Görünüm Ayarları
-                    </h2>
-                    <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
-                        <i className="fa-solid fa-times text-zinc-500"></i>
-                    </button>
-                </div>
-
-                {/* Tabs */}
-                <div className="flex border-b border-zinc-200 dark:border-zinc-700">
-                    <button 
-                        onClick={() => setActiveTab('appearance')}
-                        className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'appearance' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'}`}
-                    >
-                        <i className="fa-solid fa-palette mr-2"></i> Tema
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('typography')}
-                        className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'typography' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'}`}
-                    >
-                        <i className="fa-solid fa-font mr-2"></i> Yazı Tipi
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('accessibility')}
-                        className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'accessibility' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'}`}
-                    >
-                        <i className="fa-solid fa-universal-access mr-2"></i> Erişilebilirlik
-                    </button>
-                </div>
-
-                {/* Content */}
-                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
-                    
-                    {/* Live Preview Box */}
-                    <div className={`mb-8 p-4 rounded-xl border-2 transition-all duration-300 ${theme === 'light' ? '' : (theme === 'dark' ? 'theme-dark' : `theme-${theme}`)}`}
-                         style={{
-                             fontFamily: uiSettings.fontFamily,
-                             lineHeight: uiSettings.lineHeight,
-                             letterSpacing: uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal',
-                             filter: `saturate(${uiSettings.saturation}%)`,
-                             backgroundColor: 'var(--bg-primary)',
-                             color: 'var(--text-primary)',
-                             borderColor: 'var(--border-color)',
-                             backgroundImage: 'var(--pattern-image)',
-                             backgroundSize: '550px 550px'
-                         }}>
-                        <p className="text-xs opacity-70 uppercase font-bold mb-2">Önizleme</p>
-                        <h3 className="text-xl font-bold mb-2">Bursa Disleksi AI</h3>
-                        <p className="text-base">
-                            Yapay zeka destekli eğitim materyalleri ile öğrenme sürecini kişiselleştirin. 
-                            Okuma, yazma ve matematik becerilerini geliştirmek için tasarlandı.
-                        </p>
+                {/* SOL PANEL: Navigasyon */}
+                <div className="w-full md:w-72 bg-zinc-50 dark:bg-[#0a0a0c] border-r border-zinc-200 dark:border-zinc-800/60 flex flex-col shrink-0">
+                    <div className="p-6 border-b border-zinc-200 dark:border-zinc-800/60">
+                        <h2 className="text-xl font-black text-zinc-800 dark:text-zinc-100 flex items-center gap-3 tracking-tight">
+                            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                <i className="fa-solid fa-sliders"></i>
+                            </div>
+                            Sistem Görünümü
+                        </h2>
+                        <p className="text-xs text-zinc-500 mt-2 font-medium">Bursa Disleksi AI platformunun görsel deneyimini kişiselleştirin.</p>
                     </div>
 
-                    {activeTab === 'appearance' && (
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                            {themes.map(t => (
-                                <button
-                                    key={t.id}
-                                    onClick={() => onUpdateTheme(t.id)}
-                                    className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-2 group ${theme === t.id ? 'border-indigo-500 ring-2 ring-indigo-200 dark:ring-indigo-900' : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300'}`}
-                                >
-                                    <div className="w-full aspect-video rounded-lg shadow-sm border border-zinc-200/20" style={{ backgroundColor: t.color }}></div>
-                                    <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">{t.name}</span>
-                                </button>
-                            ))}
-                        </div>
-                    )}
-
-                    {activeTab === 'typography' && (
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-3">Yazı Tipi Ailesi</label>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {fonts.map(f => (
-                                        <button
-                                            key={f.id}
-                                            onClick={() => onUpdateUiSettings({...uiSettings, fontFamily: f.id})}
-                                            className={`p-4 text-left border-2 rounded-xl transition-all ${uiSettings.fontFamily === f.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700' : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-400'}`}
-                                        >
-                                            <span className="block text-lg" style={{ fontFamily: f.id }}>Aa Bb Cc</span>
-                                            <span className="text-xs text-zinc-500">{f.name}</span>
-                                        </button>
-                                    ))}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                        {tabs.map(tab => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`w-full text-left p-4 rounded-2xl transition-all duration-200 flex items-start gap-4 group relative overflow-hidden ${activeTab === tab.id ? 'bg-white dark:bg-zinc-800/80 shadow-md border border-zinc-200/50 dark:border-zinc-700/50' : 'hover:bg-zinc-200/50 dark:hover:bg-zinc-800/40 border border-transparent'}`}
+                            >
+                                {activeTab === tab.id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 rounded-l-2xl"></div>}
+                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${activeTab === tab.id ? 'bg-indigo-500 text-white' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300'}`}>
+                                    <i className={`fa-solid ${tab.icon}`}></i>
                                 </div>
-                            </div>
-
-                            <div>
-                                <div className="flex justify-between mb-2">
-                                    <label className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Satır Yüksekliği</label>
-                                    <span className="text-xs font-mono bg-zinc-100 dark:bg-zinc-700 px-2 rounded">{uiSettings.lineHeight}</span>
-                                </div>
-                                <input 
-                                    type="range" min="1.0" max="2.5" step="0.1"
-                                    value={uiSettings.lineHeight}
-                                    onChange={(e) => onUpdateUiSettings({...uiSettings, lineHeight: parseFloat(e.target.value)})}
-                                    className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                                />
-                                <div className="flex justify-between text-xs text-zinc-400 mt-1">
-                                    <span>Sıkışık</span>
-                                    <span>Geniş</span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'accessibility' && (
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/30 rounded-xl border border-zinc-200 dark:border-zinc-700">
                                 <div>
-                                    <p className="font-bold text-zinc-800 dark:text-zinc-200">Geniş Harf Aralığı</p>
-                                    <p className="text-xs text-zinc-500">Harflerin birbirine karışmasını önler.</p>
+                                    <h3 className={`text-sm font-bold ${activeTab === tab.id ? 'text-zinc-900 dark:text-white' : 'text-zinc-600 dark:text-zinc-400'}`}>{tab.label}</h3>
+                                    <p className="text-[10px] text-zinc-500 mt-0.5 leading-snug">{tab.desc}</p>
                                 </div>
-                                <div className="relative inline-block w-12 align-middle select-none">
-                                    <input type="checkbox" 
-                                        checked={uiSettings.letterSpacing === 'wide'}
-                                        onChange={(e) => onUpdateUiSettings({...uiSettings, letterSpacing: e.target.checked ? 'wide' : 'normal'})}
-                                        className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-indigo-600"/>
-                                    <label className="toggle-label block overflow-hidden h-6 rounded-full bg-zinc-300 cursor-pointer"></label>
-                                </div>
-                            </div>
+                            </button>
+                        ))}
+                    </div>
 
-                            <div>
-                                <div className="flex justify-between mb-2">
-                                    <label className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Arayüz Ölçeği</label>
-                                    <span className="text-xs font-mono bg-zinc-100 dark:bg-zinc-700 px-2 rounded">{Math.round(uiSettings.fontSizeScale * 100)}%</span>
-                                </div>
-                                <input 
-                                    type="range" min="0.8" max="1.5" step="0.05"
-                                    value={uiSettings.fontSizeScale}
-                                    onChange={(e) => onUpdateUiSettings({...uiSettings, fontSizeScale: parseFloat(e.target.value)})}
-                                    className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                                />
-                                <div className="flex justify-between text-xs text-zinc-400 mt-1">
-                                    <span>Küçük</span>
-                                    <span>Büyük</span>
-                                </div>
-                            </div>
-
-                            <div>
-                                <div className="flex justify-between mb-2">
-                                    <label className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Renk Doygunluğu</label>
-                                    <span className="text-xs font-mono bg-zinc-100 dark:bg-zinc-700 px-2 rounded">{uiSettings.saturation}%</span>
-                                </div>
-                                <input 
-                                    type="range" min="0" max="100" step="10"
-                                    value={uiSettings.saturation}
-                                    onChange={(e) => onUpdateUiSettings({...uiSettings, saturation: parseFloat(e.target.value)})}
-                                    className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                                />
-                                <div className="flex justify-between text-xs text-zinc-400 mt-1">
-                                    <span>Siyah Beyaz</span>
-                                    <span>Canlı</span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <div className="p-4 border-t border-zinc-200 dark:border-zinc-800/60 bg-zinc-100/50 dark:bg-zinc-900/20">
+                        <button onClick={handleReset} className="w-full py-3 px-4 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 border border-transparent hover:border-red-200 dark:hover:border-red-500/20 transition-all flex items-center justify-center gap-2">
+                            <i className="fa-solid fa-rotate-left"></i> Fabrika Ayarlarına Dön
+                        </button>
+                    </div>
                 </div>
 
-                {/* Footer */}
-                <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-700 flex justify-between items-center">
-                    <button onClick={handleReset} className="text-sm text-red-500 hover:text-red-700 font-medium">
-                        Varsayılanlara Dön
-                    </button>
-                    <button onClick={onClose} className="px-6 py-2 bg-zinc-800 hover:bg-zinc-900 text-white text-sm font-bold rounded-lg transition-colors">
-                        Tamam
-                    </button>
+                {/* SAĞ PANEL: İçerik */}
+                <div className="flex-1 flex flex-col bg-white dark:bg-[#121214] min-w-0 relative">
+                    
+                    {/* Header (Mobil Kapatma) */}
+                    <div className="absolute top-4 right-4 z-10">
+                        <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-500 transition-all transform hover:scale-105 active:scale-95 shadow-sm border border-zinc-200 dark:border-zinc-700">
+                            <i className="fa-solid fa-times text-lg"></i>
+                        </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10">
+                        
+                        {/* CANLI ÖNİZLEME KUTUSU (Her sekmede görünür) */}
+                        <div className="mb-10">
+                            <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <i className="fa-solid fa-eye text-indigo-500"></i> Canlı Önizleme
+                            </h3>
+                            <div className={`p-8 rounded-3xl border transition-all duration-500 shadow-inner overflow-hidden relative ${theme === 'light' ? 'bg-zinc-50 border-zinc-200' : (theme === 'dark' ? 'theme-dark border-zinc-800' : `theme-${theme} border-white/5`)}`}
+                                style={{
+                                    fontFamily: uiSettings.fontFamily,
+                                    lineHeight: uiSettings.lineHeight,
+                                    letterSpacing: uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal',
+                                    filter: `saturate(${uiSettings.saturation}%)`,
+                                    backgroundColor: 'var(--bg-primary)',
+                                    color: 'var(--text-primary)',
+                                }}>
+                                {/* Desen (Theme CSS değişkenlerinden besleniyor gibi davranır) */}
+                                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+                                
+                                <div className="relative z-10 max-w-lg">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold mb-4 uppercase tracking-wider" style={{ backgroundColor: 'var(--bg-secondary, rgba(128,128,128,0.1))', color: 'var(--accent-color, #6366f1)' }}>
+                                        <i className="fa-solid fa-bolt"></i> Simülasyon Aktif
+                                    </div>
+                                    <h4 className="text-2xl font-black mb-3" style={{ fontSize: `${24 * uiSettings.fontSizeScale}px` }}>
+                                        Disleksi Dostu Tasarım
+                                    </h4>
+                                    <p className="opacity-80 font-medium" style={{ fontSize: `${16 * uiSettings.fontSizeScale}px` }}>
+                                        Eğitim materyallerinin çocukların bilişsel yükünü azaltacak şekilde, doğru renk, kontrast ve tipografi ile sunulması öğrenme hızını <strong style={{ color: 'var(--accent-color, #6366f1)' }}>%40'a kadar</strong> artırabilir.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* SEKME İÇERİKLERİ */}
+                        <div className="animate-in slide-in-from-right-8 fade-in duration-300">
+                            
+                            {/* TEMA SEKME */}
+                            {activeTab === 'appearance' && (
+                                <div className="space-y-6">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-zinc-800 dark:text-white mb-1">Renk Paleti</h3>
+                                        <p className="text-sm text-zinc-500 mb-6">Uygulamanın genel renk şemasını seçin. Koyu temalar göz yorgunluğunu azaltır.</p>
+                                        
+                                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                            {themes.map(t => (
+                                                <button
+                                                    key={t.id}
+                                                    onClick={() => onUpdateTheme(t.id)}
+                                                    className={`group relative p-1 rounded-2xl transition-all duration-300 focus:outline-none ${theme === t.id ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-white dark:ring-offset-[#121214]' : 'hover:scale-[1.02]'}`}
+                                                >
+                                                    <div className={`w-full aspect-[4/3] rounded-xl shadow-sm border overflow-hidden flex flex-col relative ${theme === t.id ? 'border-indigo-500' : 'border-zinc-200 dark:border-zinc-800'}`} style={{ backgroundColor: t.color }}>
+                                                        {/* Mini Mockup */}
+                                                        <div className="h-6 border-b flex items-center px-2 gap-1.5" style={{ borderColor: 'rgba(128,128,128,0.1)', backgroundColor: 'rgba(128,128,128,0.05)' }}>
+                                                            <div className="w-2 h-2 rounded-full opacity-30 bg-current"></div>
+                                                            <div className="w-2 h-2 rounded-full opacity-30 bg-current"></div>
+                                                        </div>
+                                                        <div className="flex-1 p-3 flex gap-2">
+                                                            <div className="w-1/3 h-full rounded opacity-10 bg-current"></div>
+                                                            <div className="w-2/3 flex flex-col gap-2">
+                                                                <div className="w-full h-3 rounded" style={{ backgroundColor: t.accent }}></div>
+                                                                <div className="w-2/3 h-2 rounded opacity-20 bg-current"></div>
+                                                                <div className="w-4/5 h-2 rounded opacity-20 bg-current"></div>
+                                                            </div>
+                                                        </div>
+                                                        {theme === t.id && (
+                                                            <div className="absolute inset-0 bg-indigo-500/10 flex items-center justify-center backdrop-blur-[1px]">
+                                                                <div className="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center shadow-lg animate-in zoom-in">
+                                                                    <i className="fa-solid fa-check"></i>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="mt-3 text-center">
+                                                        <p className={`text-sm font-bold ${theme === t.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-700 dark:text-zinc-300'}`}>{t.name}</p>
+                                                        <p className="text-[10px] text-zinc-500 line-clamp-1">{t.desc}</p>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* TİPOGRAFİ SEKME */}
+                            {activeTab === 'typography' && (
+                                <div className="space-y-8">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-zinc-800 dark:text-white mb-1">Yazı Tipi (Font)</h3>
+                                        <p className="text-sm text-zinc-500 mb-6">Disleksi ve özel öğrenme güçlüğü için optimize edilmiş fontlar.</p>
+                                        
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {fonts.map(f => (
+                                                <button
+                                                    key={f.id}
+                                                    onClick={() => onUpdateUiSettings({...uiSettings, fontFamily: f.id})}
+                                                    className={`p-5 text-left border-2 rounded-2xl transition-all duration-200 relative overflow-hidden group ${uiSettings.fontFamily === f.id ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10' : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600'}`}
+                                                >
+                                                    {uiSettings.fontFamily === f.id && <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-500/10 rounded-bl-full"></div>}
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <span className={`text-2xl ${uiSettings.fontFamily === f.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-800 dark:text-zinc-200'}`} style={{ fontFamily: f.id }}>Aa Bb Cc</span>
+                                                        {uiSettings.fontFamily === f.id && <i className="fa-solid fa-circle-check text-indigo-500 text-lg"></i>}
+                                                    </div>
+                                                    <h4 className="font-bold text-zinc-900 dark:text-white text-sm">{f.name}</h4>
+                                                    <p className="text-xs text-zinc-500 mt-1">{f.desc}</p>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div>
+                                                <h4 className="font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                                                    <i className="fa-solid fa-arrows-up-down text-indigo-500"></i> Satır Yüksekliği
+                                                </h4>
+                                                <p className="text-xs text-zinc-500 mt-0.5">Satırlar arası boşluğu artırarak okumayı kolaylaştırır.</p>
+                                            </div>
+                                            <div className="px-3 py-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 shadow-sm">
+                                                {uiSettings.lineHeight.toFixed(1)}x
+                                            </div>
+                                        </div>
+                                        <div className="relative pt-2">
+                                            <input 
+                                                type="range" min="1.0" max="2.5" step="0.1"
+                                                value={uiSettings.lineHeight}
+                                                onChange={(e) => onUpdateUiSettings({...uiSettings, lineHeight: parseFloat(e.target.value)})}
+                                                className="w-full h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                            />
+                                            <div className="flex justify-between text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-wider">
+                                                <span>Sıkışık</span>
+                                                <span>Dengeli</span>
+                                                <span>Çok Geniş</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ERİŞİLEBİLİRLİK SEKME */}
+                            {activeTab === 'accessibility' && (
+                                <div className="space-y-6">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-zinc-800 dark:text-white mb-1">Erişilebilirlik ve Odak</h3>
+                                        <p className="text-sm text-zinc-500 mb-6">Öğrenme güçlüğü çeken bireyler için bilişsel yükü azaltan ayarlar.</p>
+                                    </div>
+
+                                    <div className="grid gap-6">
+                                        {/* Arayüz Ölçeği */}
+                                        <div className="p-6 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div>
+                                                    <h4 className="font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                                                        <i className="fa-solid fa-magnifying-glass-plus text-indigo-500"></i> Arayüz Ölçeği
+                                                    </h4>
+                                                    <p className="text-xs text-zinc-500 mt-0.5">Tüm metin ve elementlerin boyutunu büyütün.</p>
+                                                </div>
+                                                <div className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                                                    {Math.round(uiSettings.fontSizeScale * 100)}%
+                                                </div>
+                                            </div>
+                                            <input 
+                                                type="range" min="0.8" max="1.5" step="0.05"
+                                                value={uiSettings.fontSizeScale}
+                                                onChange={(e) => onUpdateUiSettings({...uiSettings, fontSizeScale: parseFloat(e.target.value)})}
+                                                className="w-full h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                            />
+                                        </div>
+
+                                        {/* Harf Aralığı Toggle */}
+                                        <div className="p-6 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center justify-between group hover:border-indigo-300 transition-colors">
+                                            <div>
+                                                <h4 className="font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                                                    <i className="fa-solid fa-text-width text-indigo-500"></i> Geniş Harf Aralığı
+                                                </h4>
+                                                <p className="text-xs text-zinc-500 mt-1 max-w-md">Harflerin birbirine yapışmasını ve "dans etmesini" (kalabalık etkisini) önlemek için harf aralarını açar.</p>
+                                            </div>
+                                            <div className="relative inline-block w-14 align-middle select-none shrink-0">
+                                                <input type="checkbox" 
+                                                    checked={uiSettings.letterSpacing === 'wide'}
+                                                    onChange={(e) => onUpdateUiSettings({...uiSettings, letterSpacing: e.target.checked ? 'wide' : 'normal'})}
+                                                    className="toggle-checkbox absolute block w-7 h-7 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-300 ease-in-out z-10 checked:translate-x-7 checked:border-indigo-500"
+                                                    style={{ borderColor: uiSettings.letterSpacing === 'wide' ? '#6366f1' : '#e4e4e7' }}
+                                                />
+                                                <label className={`toggle-label block overflow-hidden h-7 rounded-full cursor-pointer transition-colors duration-300 ${uiSettings.letterSpacing === 'wide' ? 'bg-indigo-500/20' : 'bg-zinc-200 dark:bg-zinc-700'}`}></label>
+                                            </div>
+                                        </div>
+
+                                        {/* Renk Doygunluğu */}
+                                        <div className="p-6 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div>
+                                                    <h4 className="font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                                                        <i className="fa-solid fa-droplet text-indigo-500"></i> Renk Doygunluğu
+                                                    </h4>
+                                                    <p className="text-xs text-zinc-500 mt-0.5">Dikkat dağınıklığını önlemek için renkleri soluklaştırın (Gri tonlamaya kadar).</p>
+                                                </div>
+                                                <div className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                                                    {uiSettings.saturation}%
+                                                </div>
+                                            </div>
+                                            <input 
+                                                type="range" min="0" max="100" step="5"
+                                                value={uiSettings.saturation}
+                                                onChange={(e) => onUpdateUiSettings({...uiSettings, saturation: parseFloat(e.target.value)})}
+                                                className="w-full h-2 bg-gradient-to-r from-zinc-400 to-indigo-500 rounded-lg appearance-none cursor-pointer"
+                                                style={{ accentColor: '#6366f1' }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
