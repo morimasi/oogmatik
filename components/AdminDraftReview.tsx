@@ -55,11 +55,11 @@ export const AdminDraftReview = () => {
     };
 
     const handlePublish = async () => {
-        if (!selectedDraft) return;
+        if (!selectedDraft || !selectedDraft.id) return;
         setIsPublishing(true);
         try {
             await adminService.publishDraft(selectedDraft, refinedData);
-            setDrafts((prev: ActivityDraft[]) => prev.filter((d: ActivityDraft) => d.id !== selectedDraft.id));
+            setDrafts((prev: ActivityDraft[]) => prev.filter((d: ActivityDraft) => !!d && d.id !== selectedDraft.id));
             setSelectedDraft(null);
         } finally { setIsPublishing(false); }
     };
@@ -94,7 +94,7 @@ export const AdminDraftReview = () => {
                             <p className="text-[10px] font-black uppercase tracking-tight">TASLAK BULUNAMADI</p>
                         </div>
                     ) : (
-                        drafts.map((item: ActivityDraft) => (
+                        drafts.filter(d => !!d && !!d.id).map((item: ActivityDraft) => (
                             <div
                                 key={item.id}
                                 onClick={() => handleSelectDraft(item)}

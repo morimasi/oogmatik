@@ -45,15 +45,16 @@ export const AdminActivityManager: React.FC = () => {
 
     const handleSave = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
-        if (!editingActivity) return;
+        if (!editingActivity || !editingActivity.id) return;
         setIsSaving(true);
         try {
             const payload = { ...editingActivity, updatedAt: new Date().toISOString() };
             await adminService.saveActivity(payload);
             setActivities(prev => {
-                const exists = prev.find(a => a.id === payload.id);
-                const updated = exists ? prev.map(a => a.id === payload.id ? payload : a) : [...prev, payload];
-                return updated.sort((a, b) => a.order - b.order);
+                const filteredPrev = prev.filter(a => !!a && !!a.id);
+                const exists = filteredPrev.find(a => a.id === payload.id);
+                const updated = exists ? filteredPrev.map(a => a.id === payload.id ? payload : a) : [...filteredPrev, payload];
+                return updated.sort((a, b) => (a.order || 0) - (b.order || 0));
             });
             setEditingActivity(null);
         } finally { setIsSaving(false); }
@@ -87,6 +88,7 @@ export const AdminActivityManager: React.FC = () => {
 
     const filtered = useMemo(() => {
         return activities.filter(a => {
+            if (!a || !a.id || !a.title) return false;
             const matchSearch = a.title.toLowerCase().includes(search.toLowerCase()) || a.id.toLowerCase().includes(search.toLowerCase());
             const matchCategory = activeCategory === 'all' || a.category === activeCategory;
             return matchSearch && matchCategory;

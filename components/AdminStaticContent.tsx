@@ -18,11 +18,12 @@ export const AdminStaticContent = () => {
         try {
             const data = await adminService.getAllStaticContent();
             setContents(data);
-            if (data.length > 0) selectItem(data[0]);
+            if (data && data.length > 0 && data[0]) selectItem(data[0]);
         } finally { setLoading(false); }
     };
 
     const selectItem = (item: StaticContentItem) => {
+        if (!item) return;
         setSelectedContent(item);
         if (Array.isArray(item.data)) {
             setEditData(item.data.join('\n'));
@@ -98,7 +99,7 @@ export const AdminStaticContent = () => {
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2 custom-scrollbar-minimal">
-                    {contents.map(item => (
+                    {contents.filter(i => !!i && !!i.id).map(item => (
                         <button
                             key={item.id}
                             onClick={() => selectItem(item)}

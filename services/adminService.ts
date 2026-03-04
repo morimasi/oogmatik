@@ -13,7 +13,13 @@ export const adminService = {
     getAllActivities: async (): Promise<DynamicActivity[]> => {
         try {
             const snapshot = await getDocs(collection(db, "config_activities"));
-            return snapshot.docs.map(d => d.data() as DynamicActivity);
+            return snapshot.docs
+                .map(d => {
+                    const data = d.data();
+                    if (!data) return null;
+                    return { ...data, id: d.id } as DynamicActivity;
+                })
+                .filter((a): a is DynamicActivity => !!a && !!a.id);
         } catch (e) {
             console.error("Dinamik aktiviteler yüklenemedi", e);
             return [];
@@ -41,7 +47,13 @@ export const adminService = {
     // --- PROMPT MANAGEMENT ---
     getAllPrompts: async (): Promise<PromptTemplate[]> => {
         const snapshot = await getDocs(collection(db, "config_prompts"));
-        return snapshot.docs.map(d => d.data() as PromptTemplate);
+        return snapshot.docs
+            .map(d => {
+                const data = d.data();
+                if (!data) return null;
+                return { ...data, id: d.id } as PromptTemplate;
+            })
+            .filter((p): p is PromptTemplate => !!p && !!p.id);
     },
 
     getPromptTemplate: async (id: string): Promise<PromptTemplate | null> => {
@@ -100,10 +112,17 @@ export const adminService = {
     // --- STATIC CONTENT (CMS) ---
     getAllStaticContent: async (): Promise<StaticContentItem[]> => {
         const snapshot = await getDocs(collection(db, "config_static_content"));
-        return snapshot.docs.map(d => d.data() as StaticContentItem);
+        return snapshot.docs
+            .map(d => {
+                const data = d.data();
+                if (!data) return null;
+                return { ...data, id: d.id } as StaticContentItem;
+            })
+            .filter((i): i is StaticContentItem => !!i && !!i.id);
     },
 
     saveStaticContent: async (item: StaticContentItem, note?: string) => {
+        if (!item || !item.id) throw new Error("Gecersiz veri.");
         const oldDoc = await getDoc(doc(db, "config_static_content", item.id));
         const history = item.history || [];
 
@@ -125,17 +144,25 @@ export const adminService = {
 
     // --- USER MANAGEMENT ---
     updateUserRole: async (userId: string, newRole: UserRole) => {
+        if (!userId) return;
         await updateDoc(doc(db, "users", userId), { role: newRole });
     },
 
     updateUserStatus: async (userId: string, newStatus: UserStatus) => {
+        if (!userId) return;
         await updateDoc(doc(db, "users", userId), { status: newStatus });
     },
 
     // --- DRAFTS (OCR) ---
     getAllDrafts: async (): Promise<ActivityDraft[]> => {
         const snapshot = await getDocs(collection(db, "activity_drafts"));
-        return snapshot.docs.map(d => d.data() as ActivityDraft);
+        return snapshot.docs
+            .map(d => {
+                const data = d.data();
+                if (!data) return null;
+                return { ...data, id: d.id } as ActivityDraft;
+            })
+            .filter((d): d is ActivityDraft => !!d && !!d.id);
     },
 
     publishDraft: async (draft: ActivityDraft, config: any) => {
