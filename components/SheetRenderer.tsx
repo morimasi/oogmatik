@@ -305,33 +305,79 @@ const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any }) => 
     }
 };
 
+const getBlockWeight = (block: WorksheetBlock): number => {
+    const type = block.type;
+    const content: any = block.content;
+    if (!content) return 0;
+
+    switch (type) {
+        case 'header': return 100;
+        case 'text': {
+            const text = recursiveSafeText(content.text || content);
+            return 40 + (Math.ceil(text.length / 100) * 25);
+        }
+        case 'grid': {
+            const rows = Math.ceil((content.cells?.length || 0) / (content.cols || 4));
+            return 80 + (rows * 60);
+        }
+        case 'table': {
+            const rows = content.rows?.length || 0;
+            return 100 + (rows * 50);
+        }
+        case 'image': return 400;
+        case 'cloze_test': return 150 + (content.text?.length || 0) / 2;
+        case 'categorical_sorting': return 100 + (content.categories?.length || 0) * 80;
+        case 'match_columns': return 100 + (content.left?.length || 0) * 50;
+        case 'visual_clue_card': return 150;
+        case 'neuro_marker': return 70;
+        case 'logic_card': return 200;
+        default: return 100;
+    }
+};
+
 const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
     const architecture = data.layoutArchitecture;
-    const blocks = architecture?.blocks || data.blocks || [];
+    const allBlocks = architecture?.blocks || data.blocks || [];
     const cols = architecture?.cols || 1;
 
-    return (
-        <div className="w-full h-full flex flex-col animate-in fade-in duration-500 font-lexend">
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+    // PAGINATION LOGIC
+    const PAGE_MAX_WEIGHT = 1000; // Approximate A4 capacity in internal units
+    const pages: WorksheetBlock[][] = [[]];
+    let currentWeight = 0;
 
-            {cols > 1 ? (
-                <div
-                    className="grid gap-6 mt-4 items-start"
-                    style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
-                >
-                    {blocks.map((block: WorksheetBlock, idx: number) => (
-                        <BlockRenderer key={idx} block={block} />
-                    ))}
-                </div>
-            ) : (
-                <div className="flex-1 mt-4">
-                    {blocks.map((block: WorksheetBlock, idx: number) => (
-                        <BlockRenderer key={idx} block={block} />
-                    ))}
-                </div>
-            )}
+    allBlocks.forEach((block: WorksheetBlock) => {
+        const weight = getBlockWeight(block);
+        if (currentWeight + weight > PAGE_MAX_WEIGHT && pages[pages.length - 1].length > 0) {
+            pages.push([block]);
+            currentWeight = weight;
+        } else {
+            pages[pages.length - 1].push(block);
+            currentWeight += weight;
+        }
+    });
 
-            <div className="mt-auto pt-6 opacity-20 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.5em] text-zinc-400">
+    const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => (
+        <div key={pageIdx} className="worksheet-page ultra-print-page print-page mb-20 shadow-2xl relative">
+            <PedagogicalHeader
+                title={pageIdx === 0 ? data.title : `${data.title} (Sayfa ${pageIdx + 1})`}
+                instruction={pageIdx === 0 ? data.instruction : "Çalışmaya devam et."}
+                note={pageIdx === 0 ? data.pedagogicalNote : ""}
+                data={data}
+            />
+
+            <div className={`print-content-area flex-1 mt-6 ${cols > 1 ? 'grid gap-6' : 'flex flex-col'}`} style={cols > 1 ? { gridTemplateColumns: `repeat(${cols}, 1fr)` } : {}}>
+                {pageBlocks.map((block, idx) => (
+                    <BlockRenderer key={idx} block={block} />
+                ))}
+            </div>
+
+            {/* Print Only Footer */}
+            <div className="print-footer hidden print:flex">
+                <span>Oogmatik | Nöro-Mimari Motoru v6.0</span>
+                <span>Sayfa {pageIdx + 1} / {pages.length}</span>
+            </div>
+
+            <div className="mt-auto pt-6 opacity-20 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.5em] text-zinc-400 no-print">
                 <span>Bursa Disleksi AI • Nöro-Mimari Motoru v6.0</span>
                 <div className="flex gap-4">
                     <i className="fa-solid fa-microchip"></i>
@@ -339,6 +385,12 @@ const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
                     <i className="fa-solid fa-bezier-curve"></i>
                 </div>
             </div>
+        </div>
+    );
+
+    return (
+        <div className="w-full flex flex-col items-center gap-12 animate-in fade-in duration-500 font-lexend no-scrollbar" id="print-container-v2">
+            {pages.map((p, i) => renderPage(p, i))}
         </div>
     );
 };
