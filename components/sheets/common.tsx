@@ -68,7 +68,7 @@ export const TenFrame = ({ count, color = '#4f46e5' }: { count: number; color?: 
     </div>
 );
 
-export const Shape = ({ name, className = "w-8 h-8", color = "currentColor" }: { name: ShapeType; className?: string; color?: string }) => (
+export const Shape = ({ name, className = "w-8 h-8", color = "currentColor" }: { name: ShapeType; className?: string; color?: string; key?: any }) => (
     <svg viewBox="0 0 100 100" className={className} fill={color}>
         <path d={SHAPE_PATHS[name] || SHAPE_PATHS.circle} />
     </svg>
@@ -130,7 +130,7 @@ export const DyslexicText = ({ text }: { text: string }) => (
     <p className="font-dyslexic text-lg leading-relaxed">{text}</p>
 );
 
-export const HandwritingGuide = ({ height, children }: { height: number; children?: React.ReactNode }) => (
+export const HandwritingGuide = ({ height, children }: { height: number; children?: any }) => (
     <div className="relative w-full border-b border-zinc-200" style={{ height: `${height}px`, backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px)', backgroundSize: `100% ${height / 4}px` }}>
         {children}
     </div>
@@ -213,7 +213,7 @@ export const Base10Visualizer = ({ number, className }: { number: number; classN
 );
 
 export const StoryHighlighter = ({ text, highlights }: { text: string; highlights: { text: string; type: string }[] }) => {
-    let result: (string | React.ReactElement)[] = [text];
+    let result: any[] = [text];
 
     highlights.forEach((h: { text: string; type: string }) => {
         if (!h.text) return;
@@ -222,7 +222,7 @@ export const StoryHighlighter = ({ text, highlights }: { text: string; highlight
         result = result.flatMap(part => {
             if (typeof part !== 'string') return part;
             const pieces = part.split(h.text);
-            return pieces.reduce((acc: (string | React.ReactElement)[], piece, i) => {
+            return pieces.reduce((acc: any[], piece, i) => {
                 acc.push(piece);
                 if (i < pieces.length - 1) {
                     acc.push(<span key={`${h.text}-${i}`} className="bg-yellow-200 rounded px-1" style={{ backgroundColor: `${color}33` }}>{h.text}</span>);
