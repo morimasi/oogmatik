@@ -48,6 +48,22 @@ import { EditableText } from './Editable';
 const recursiveSafeText = (val: any): string => {
     if (val === null || val === undefined) return "";
     if (typeof val === 'string') return val;
+    if (typeof val === 'object') {
+        // If it's an array, join its safe elements
+        if (Array.isArray(val)) return val.map(recursiveSafeText).join(" ");
+        // If it has common text-like properties, use them
+        if (val.text) return recursiveSafeText(val.text);
+        if (val.char) return recursiveSafeText(val.char);
+        if (val.value) return recursiveSafeText(val.value);
+        if (val.label) return recursiveSafeText(val.label);
+        if (val.clue) return recursiveSafeText(val.clue);
+        // Fallback to JSON stringify for debugging if it's a small object, or nothing
+        try {
+            return JSON.stringify(val);
+        } catch (e) {
+            return "";
+        }
+    }
     return String(val);
 };
 
@@ -195,7 +211,7 @@ const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any }) => 
                                 {(content.items || []).filter((item: any) => item.category === cat || (!item.category && i === 0)).map((item: any, j: number) => (
                                     <div key={j} className="p-3 bg-white border border-zinc-200 rounded-xl shadow-sm text-sm font-bold flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-zinc-300"></div>
-                                        {item.text}
+                                        {recursiveSafeText(item)}
                                     </div>
                                 ))}
                             </div>
@@ -208,9 +224,9 @@ const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any }) => 
             return (
                 <div className="mb-8 flex justify-between gap-12 relative p-6 bg-white border-2 border-zinc-100 rounded-[3rem] shadow-sm">
                     <div className="flex-1 flex flex-col gap-4">
-                        {(content.left || []).map((item: string, i: number) => (
+                        {(content.left || []).map((item: any, i: number) => (
                             <div key={i} className="relative p-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-black flex items-center justify-between group">
-                                <span>{item}</span>
+                                <span>{recursiveSafeText(item)}</span>
                                 <div className="w-3 h-3 rounded-full border-2 border-zinc-900 bg-white group-hover:bg-zinc-900 transition-all ml-2"></div>
                             </div>
                         ))}
@@ -221,10 +237,10 @@ const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any }) => 
                         </div>
                     </div>
                     <div className="flex-1 flex flex-col gap-4">
-                        {(content.right || []).map((item: string, i: number) => (
+                        {(content.right || []).map((item: any, i: number) => (
                             <div key={i} className="relative p-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-black flex items-center group">
                                 <div className="w-3 h-3 rounded-full border-2 border-zinc-900 bg-white group-hover:bg-zinc-900 transition-all mr-2"></div>
-                                <span>{item}</span>
+                                <span>{recursiveSafeText(item)}</span>
                             </div>
                         ))}
                     </div>
@@ -254,9 +270,20 @@ const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any }) => 
                             {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-2 h-2 rounded-full bg-zinc-900"></div>)}
                         </div>
                     )}
-                    {content.neuroType === 'focus' && (
-                        <div className="px-6 py-1 bg-zinc-900 text-white text-[8px] font-black rounded-full uppercase tracking-[0.3em]">
-                            ODAK NOKTASI
+                    {content.neuroType === 'saccadic' && (
+                        <div className="w-full flex justify-between px-10 relative h-12 items-center">
+                            <div className="absolute inset-x-10 h-0.5 bg-zinc-100 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-zinc-200"></div>
+                            <div className="w-8 h-12 border-2 border-zinc-900 rounded-full flex items-center justify-center bg-white z-10 shadow-sm relative">
+                                <div className="w-3 h-3 bg-zinc-900 rounded-full animate-pulse"></div>
+                                <div className="absolute -bottom-6 text-[6px] font-black text-zinc-400 uppercase tracking-tighter">BAŞLA</div>
+                            </div>
+                            <div className="w-12 h-6 border-2 border-zinc-300 rounded-xl bg-zinc-50 z-10"></div>
+                            <div className="w-8 h-12 border-2 border-zinc-900 rounded-full flex items-center justify-center bg-white z-10 shadow-sm relative">
+                                <div className="w-4 h-4 border-2 border-zinc-900 rounded-full flex items-center justify-center">
+                                    <div className="w-1 h-1 bg-zinc-900 rounded-full"></div>
+                                </div>
+                                <div className="absolute -bottom-6 text-[6px] font-black text-zinc-400 uppercase tracking-tighter">BİTİR</div>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -265,7 +292,12 @@ const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any }) => 
         case 'image':
             return <div className="mb-8 flex justify-center"><ImageDisplay prompt={content.prompt} className="w-full h-64 rounded-[3rem] shadow-md border-4 border-white" /></div>;
 
-        default: return null;
+        default:
+            return (
+                <div className="p-4 border-2 border-amber-100 bg-amber-50 rounded-2xl text-[9px] font-mono text-amber-700 opacity-50">
+                    [Bilinmeyen Blok: {block.type}] - Veri: {JSON.stringify(content).slice(0, 50)}...
+                </div>
+            );
     }
 };
 

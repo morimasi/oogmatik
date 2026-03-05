@@ -47,21 +47,21 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
     ${enrichedPrompt}
     
     [ÜRETİM STANDARTLARI]:
-    1. İÇERİK YOĞUNLUĞU: Sayfayı sığ bırakma. Her blok, öğrencinin bilişsel becerilerini (dikkat, bellek, muhakeme) zorlayacak gerçek içeriklerle dolu olmalıdır.
-    2. KLİNİK ÇELDİRİCİLER: Disleksi/Diskalkuli profiline uygun ayna harfler (b-d, p-q), fonolojik karmaşalar ve mantıksal tuzaklar ekle.
-    3. BENTO-GRID MİMARİSİ: Sayfayı görsel olarak dengeli ama zengin bloklarla (grid, table, data_card vb.) böl.
+    1. İÇERİK YOĞUNLUĞU: Sayfayı sığ bırakma. Her blok, en az ${options.itemCount} adet alt öğe içermelidir. Grid blokları tam dolmalı, tablolar zengin veri barındırmalıdır.
+    2. KLİNİK YOĞUNLUK (%${options.clinicalIntensity}): Çeldirmelerin karmaşıklık düzeyini bu orana göre ayarla. Fonolojik ve görsel diskriminasyon hatalarını maksimize et.
+    3. BİLİŞSEL YÜK (%${options.visualLoad}): Sayfa düzenindeki görsel kalabalığı ve uyaran yoğunluğunu bu orana göre kurgula. Bento-grid bloklarını sayfa içine dengeli ama sıkıştırılmış şekilde yay.
     
     [PARAMETRELER]:
-    - Zorluk: ${options.difficulty}
-    - Sayfa Başı Öğe (Blok İçi): ${options.itemCount}
+    - Zorluk Seviyesi: ${options.difficulty}
+    - Blok Başı Minimum Veri: ${options.itemCount}
     
     [TEKNİK BLOK REHBERİ - BU TİPLERİ KULLAN]:
-    - 'cloze_test': Metin içinde [hedef_kelime] yapısını kullan.
-    - 'categorical_sorting': 'categories' ve 'items' (text, category) nesnelerini içermeli.
-    - 'match_columns': 'left' ve 'right' dizilerini içermeli.
-    - 'visual_clue_card': 'title' ve 'clue' (klinik ipucu) içermeli.
-    - 'neuro_marker': 'neuroType' ('tracking' | 'focus') ve 'position' içermeli.
-    - 'logic_card': Algoritma ve mantık yürütme gerektiren durumlar için.
+    - 'cloze_test': Metin yoğun olmalı, en az 100 kelime ve içinde en az 10 adet [hedef] boşluk bulunmalı.
+    - 'categorical_sorting': En az 3-4 kategori ve her kategoride en az 5-6 öğe bulunmalı.
+    - 'match_columns': En az 8-10 adet karşılıklı eşleşen öğe (text) içermeli.
+    - 'visual_clue_card': Profesyonel nöro-pedagojik tavsiyeler içermeli.
+    - 'neuro_marker': 'neuroType' ('tracking' | 'focus' | 'saccadic') ve 'position' içermeli. 'saccadic' tipi için dikey sıçrama noktaları kurgula.
+    - 'grid': Harf veya rakam matrisleri için. Tam doluluk şart.
     `;
 
     const schema = {
