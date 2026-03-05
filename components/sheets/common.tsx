@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
 
 // --- KLİNİK RENK PALETİ ---
@@ -33,7 +33,6 @@ const SHAPE_PATHS: Record<string, string> = {
 
 // --- COMPONENTS ---
 
-/* Fix: Component to handle focus mode visualization in print/preview */
 export const ReadingRuler = () => null;
 
 export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => (
@@ -59,8 +58,7 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
     </div>
 ));
 
-/* Fix: Ten-Frame for number sense */
-export const TenFrame: React.FC<{ count: number; color?: string }> = ({ count, color = '#4f46e5' }) => (
+export const TenFrame = ({ count, color = '#4f46e5' }: { count: number; color?: string }) => (
     <div className="grid grid-cols-5 grid-rows-2 gap-1 p-1 bg-white border-2 border-black w-32 h-14 rounded-md shadow-sm">
         {Array.from({ length: 10 }).map((_, i) => (
             <div key={i} className="border border-zinc-200 rounded-sm flex items-center justify-center">
@@ -70,19 +68,17 @@ export const TenFrame: React.FC<{ count: number; color?: string }> = ({ count, c
     </div>
 );
 
-/* Fix: Basic Shape renderer */
-export const Shape: React.FC<{ name: ShapeType; className?: string; color?: string }> = ({ name, className = "w-8 h-8", color = "currentColor" }) => (
+export const Shape = ({ name, className = "w-8 h-8", color = "currentColor" }: { name: ShapeType; className?: string; color?: string }) => (
     <svg viewBox="0 0 100 100" className={className} fill={color}>
         <path d={SHAPE_PATHS[name] || SHAPE_PATHS.circle} />
     </svg>
 );
 
-/* Fix: Grid renderer for various activities */
-export const GridComponent: React.FC<{ grid: string[][]; cellClassName?: string }> = ({ grid, cellClassName = "w-10 h-10 border" }) => (
+export const GridComponent = ({ grid, cellClassName = "w-10 h-10 border" }: { grid: string[][]; cellClassName?: string }) => (
     <div className="inline-block border-2 border-zinc-900 bg-white">
-        {grid.map((row, r) => (
+        {grid.map((row: string[], r: number) => (
             <div key={r} className="flex">
-                {row.map((cell, c) => (
+                {row.map((cell: string, c: number) => (
                     <div key={c} className={`flex items-center justify-center font-bold ${cellClassName}`}>
                         {cell}
                     </div>
@@ -92,44 +88,36 @@ export const GridComponent: React.FC<{ grid: string[][]; cellClassName?: string 
     </div>
 );
 
-/* Fix: Caged Grid for Kendoku-like puzzles */
 export const CagedGridSvg = () => null;
 
-/* Fix: Display for multiple shapes */
-export const ShapeDisplay: React.FC<{ shapes: ShapeType[] }> = ({ shapes }) => (
+export const ShapeDisplay = ({ shapes }: { shapes: ShapeType[] }) => (
     <div className="flex gap-1">
-        {shapes.map((s, i) => <Shape key={i} name={s} className="w-4 h-4" />)}
+        {shapes.map((s: ShapeType, i: number) => <Shape key={i} name={s} className="w-4 h-4" />)}
     </div>
 );
 
-/* Fix: Segment display for logical tasks */
-export const SegmentDisplay: React.FC<{ segments?: boolean[]; color?: string }> = ({ segments = [], color = "black" }) => (
+export const SegmentDisplay = ({ segments = [], color = "black" }: { segments?: boolean[]; color?: string }) => (
     <div className="w-12 h-20 relative">
-        {/* Simplified 7-segment visualization */}
-        <div className="absolute inset-0 border-2 border-zinc-100 opacity-20"></div>
-        {segments.map((active, i) => active && <div key={i} className="absolute bg-current" style={{ opacity: 0.8 }}></div>)}
+        <div className="absolute inset-0 border-2 border-zinc-100 opacity-20" style={{ borderColor: color }}></div>
+        {segments.map((active, i) => active && <div key={i} className="absolute bg-current" style={{ opacity: 0.8, color }}></div>)}
     </div>
 );
 
-/* Fix: Matchstick visualization */
-export const Matchstick: React.FC<{ x1: number; y1: number; x2: number; y2: number }> = ({ x1, y1, x2, y2 }) => (
+export const Matchstick = ({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) => (
     <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" />
 );
 
-/* Fix: Connection dots for ABC activities */
-export const ConnectionDot: React.FC<{ x: number; y: number; label?: string }> = ({ x, y, label }) => (
+export const ConnectionDot = ({ x, y, label }: { x: number; y: number; label?: string }) => (
     <g transform={`translate(${x}, ${y})`}>
         <circle r="4" fill="black" />
         {label && <text y="15" textAnchor="middle" fontSize="10" fontWeight="bold">{label}</text>}
     </g>
 );
 
-/* Fix: 3D cube stack counter */
-export const CubeStack: React.FC<{ counts: number[][] }> = ({ counts }) => (
+export const CubeStack = ({ counts }: { counts: number[][] }) => (
     <div className="flex flex-col items-center">
-        {/* Isometric representation is complex, this is a simplified plan-view or placeholder */}
         <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${counts[0]?.length || 0}, 30px)` }}>
-            {counts.map((row, r) => row.map((count, c) => (
+            {counts.map((row: number[], r: number) => row.map((count: number, c: number) => (
                 <div key={`${r}-${c}`} className="w-[30px] h-[30px] border-2 border-zinc-800 bg-zinc-100 flex items-center justify-center font-bold text-xs">
                     {count}
                 </div>
@@ -138,25 +126,21 @@ export const CubeStack: React.FC<{ counts: number[][] }> = ({ counts }) => (
     </div>
 );
 
-/* Fix: Dyslexia-friendly text block */
-export const DyslexicText: React.FC<{ text: string }> = ({ text }) => (
+export const DyslexicText = ({ text }: { text: string }) => (
     <p className="font-dyslexic text-lg leading-relaxed">{text}</p>
 );
 
-/* Fix: Guide lines for handwriting */
-export const HandwritingGuide: React.FC<{ height: number; children?: React.ReactNode }> = ({ height, children }) => (
+export const HandwritingGuide = ({ height, children }: { height: number; children?: React.ReactNode }) => (
     <div className="relative w-full border-b border-zinc-200" style={{ height: `${height}px`, backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px)', backgroundSize: `100% ${height / 4}px` }}>
         {children}
     </div>
 );
 
-/* Fix: Tracing text (dotted font) */
-export const TracingText: React.FC<{ text: string; fontSize?: string }> = ({ text, fontSize = "32px" }) => (
+export const TracingText = ({ text, fontSize = "32px" }: { text: string; fontSize?: string }) => (
     <span className="font-tracing opacity-40 select-none" style={{ fontSize }}>{text}</span>
 );
 
-/* Fix: Domino/Dice visualizer */
-export const Domino: React.FC<{ count: number }> = ({ count }) => (
+export const Domino = ({ count }: { count: number }) => (
     <div className="w-12 h-12 border-2 border-black rounded-lg flex items-center justify-center bg-white">
         <div className="grid grid-cols-3 gap-1">
             {Array.from({ length: 9 }).map((_, i) => (
@@ -166,8 +150,7 @@ export const Domino: React.FC<{ count: number }> = ({ count }) => (
     </div>
 );
 
-/* Fix: Number bond visualization */
-export const NumberBond: React.FC<{ whole: number; part1: number; part2: number; isAddition: boolean }> = ({ whole, part1, part2 }) => (
+export const NumberBond = ({ whole, part1, part2 }: { whole: number; part1: number; part2: number; isAddition?: boolean }) => (
     <div className="flex flex-col items-center gap-2">
         <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center font-bold">{whole}</div>
         <div className="flex gap-4">
@@ -177,8 +160,7 @@ export const NumberBond: React.FC<{ whole: number; part1: number; part2: number;
     </div>
 );
 
-/* Fix: Fraction visualization */
-export const FractionVisual: React.FC<{ num: number; den: number }> = ({ num, den }) => (
+export const FractionVisual = ({ num, den }: { num: number; den: number }) => (
     <div className="w-12 h-12 rounded-full border-2 border-black relative overflow-hidden">
         {Array.from({ length: den }).map((_, i) => (
             <div
@@ -193,8 +175,7 @@ export const FractionVisual: React.FC<{ num: number; den: number }> = ({ num, de
     </div>
 );
 
-/* Fix: Analog clock component */
-export const AnalogClock: React.FC<{ hour: number; minute: number; className?: string; showNumbers?: boolean; showTicks?: boolean; showHands?: boolean }> = ({ hour, minute, className, showHands = true }) => (
+export const AnalogClock = ({ hour, minute, className, showHands = true }: { hour: number; minute: number; className?: string; showNumbers?: boolean; showTicks?: boolean; showHands?: boolean }) => (
     <svg viewBox="0 0 100 100" className={className}>
         <circle cx="50" cy="50" r="48" fill="none" stroke="black" strokeWidth="2" />
         {showHands && (
@@ -207,8 +188,7 @@ export const AnalogClock: React.FC<{ hour: number; minute: number; className?: s
     </svg>
 );
 
-/* Fix: Number line visualization */
-export const NumberLine: React.FC<{ start: number; end: number; step: number; missing?: number[] }> = ({ start, end, step, missing = [] }) => (
+export const NumberLine = ({ start, end, step, missing = [] }: { start: number; end: number; step: number; missing?: number[] }) => (
     <div className="w-full h-12 flex items-center px-4">
         <div className="w-full h-0.5 bg-black relative">
             {Array.from({ length: Math.round((end - start) / step) + 1 }).map((_, i) => {
@@ -225,19 +205,17 @@ export const NumberLine: React.FC<{ start: number; end: number; step: number; mi
     </div>
 );
 
-/* Fix: Place value blocks */
-export const Base10Visualizer: React.FC<{ number: number; className?: string }> = ({ number, className }) => (
+export const Base10Visualizer = ({ number, className }: { number: number; className?: string }) => (
     <div className={`flex gap-2 ${className}`}>
-        {Array.from({ length: Math.floor(number / 10) }).map((_, i) => <div key={i} className="w-2 h-10 bg-indigo-200 border border-indigo-400"></div>)}
-        {Array.from({ length: number % 10 }).map((_, i) => <div key={i} className="w-2 h-2 bg-indigo-500 border border-indigo-700"></div>)}
+        {Array.from({ length: Math.floor(number / 10) }).map((_, i: number) => <div key={i} className="w-2 h-10 bg-indigo-200 border border-indigo-400"></div>)}
+        {Array.from({ length: number % 10 }).map((_, i: number) => <div key={i} className="w-2 h-2 bg-indigo-500 border border-indigo-700"></div>)}
     </div>
 );
 
-/* Fix: Story text highlighter - JSX namespace fixed by using React.ReactElement */
-export const StoryHighlighter: React.FC<{ text: string; highlights: { text: string; type: string }[] }> = ({ text, highlights }) => {
+export const StoryHighlighter = ({ text, highlights }: { text: string; highlights: { text: string; type: string }[] }) => {
     let result: (string | React.ReactElement)[] = [text];
 
-    highlights.forEach(h => {
+    highlights.forEach((h: { text: string; type: string }) => {
         if (!h.text) return;
         const color = QUESTION_TYPES[h.type]?.color || '#fef08a';
 
@@ -264,7 +242,6 @@ export const FlowArrow = () => (
     </div>
 );
 
-/* Fix: Added optional base64 property to ImageDisplay to handle direct data buffers */
 export const ImageDisplay = React.memo(({ prompt, base64, className = "w-full h-24", description = "image" }: { prompt?: string; base64?: string; className?: string; description?: string }) => {
     const [isLoading, setIsLoading] = useState(!base64);
     const query = encodeURIComponent(prompt || 'educational illustration');
