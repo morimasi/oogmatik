@@ -34,18 +34,18 @@ const SHAPE_PATHS: Record<string, string> = {
 // --- COMPONENTS ---
 
 /* Fix: Component to handle focus mode visualization in print/preview */
-export const ReadingRuler = () => null; 
+export const ReadingRuler = () => null;
 
 export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => (
     <div className="mb-6 w-full break-inside-avoid border-b-4 border-zinc-900 pb-4">
         <div className="flex items-start justify-between gap-6">
             <div className="flex-1">
-                <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-none mb-2">{title}</h3>
-                <p className="text-base font-bold text-zinc-700 leading-tight italic">{instruction}</p>
+                <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-3">{title}</h3>
+                <p className="text-base font-bold text-zinc-700 leading-normal italic">{instruction}</p>
             </div>
             {data?.targetedErrors && (
                 <div className="flex flex-wrap gap-1 justify-end max-w-[200px] no-print">
-                    {data.targetedErrors.map(tag => (
+                    {data.targetedErrors.map((tag: string) => (
                         <span key={tag} className="text-[7px] font-black bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded border border-zinc-200 uppercase tracking-widest">
                             {tag.replace('_', ' ')}
                         </span>
@@ -93,7 +93,7 @@ export const GridComponent: React.FC<{ grid: string[][]; cellClassName?: string 
 );
 
 /* Fix: Caged Grid for Kendoku-like puzzles */
-export const CagedGridSvg = () => null; 
+export const CagedGridSvg = () => null;
 
 /* Fix: Display for multiple shapes */
 export const ShapeDisplay: React.FC<{ shapes: ShapeType[] }> = ({ shapes }) => (
@@ -181,10 +181,10 @@ export const NumberBond: React.FC<{ whole: number; part1: number; part2: number;
 export const FractionVisual: React.FC<{ num: number; den: number }> = ({ num, den }) => (
     <div className="w-12 h-12 rounded-full border-2 border-black relative overflow-hidden">
         {Array.from({ length: den }).map((_, i) => (
-            <div 
-                key={i} 
+            <div
+                key={i}
                 className={`absolute inset-0 ${i < num ? 'bg-indigo-500' : 'bg-transparent'}`}
-                style={{ 
+                style={{
                     clipPath: `conic-gradient(from ${i * (360 / den)}deg, #000 ${360 / den}deg, transparent 0)`,
                     transform: `rotate(${i * (360 / den)}deg)`
                 }}
@@ -199,7 +199,7 @@ export const AnalogClock: React.FC<{ hour: number; minute: number; className?: s
         <circle cx="50" cy="50" r="48" fill="none" stroke="black" strokeWidth="2" />
         {showHands && (
             <>
-                <line x1="50" y1="50" x2={50 + 25 * Math.sin((hour + minute / 60) * Math.PI / 6) } y2={50 - 25 * Math.cos((hour + minute / 60) * Math.PI / 6)} stroke="black" strokeWidth="3" strokeLinecap="round" />
+                <line x1="50" y1="50" x2={50 + 25 * Math.sin((hour + minute / 60) * Math.PI / 6)} y2={50 - 25 * Math.cos((hour + minute / 60) * Math.PI / 6)} stroke="black" strokeWidth="3" strokeLinecap="round" />
                 <line x1="50" y1="50" x2={50 + 35 * Math.sin(minute * Math.PI / 30)} y2={50 - 35 * Math.cos(minute * Math.PI / 30)} stroke="black" strokeWidth="2" strokeLinecap="round" />
             </>
         )}
@@ -236,11 +236,11 @@ export const Base10Visualizer: React.FC<{ number: number; className?: string }> 
 /* Fix: Story text highlighter - JSX namespace fixed by using React.ReactElement */
 export const StoryHighlighter: React.FC<{ text: string; highlights: { text: string; type: string }[] }> = ({ text, highlights }) => {
     let result: (string | React.ReactElement)[] = [text];
-    
+
     highlights.forEach(h => {
         if (!h.text) return;
         const color = QUESTION_TYPES[h.type]?.color || '#fef08a';
-        
+
         result = result.flatMap(part => {
             if (typeof part !== 'string') return part;
             const pieces = part.split(h.text);
@@ -268,7 +268,7 @@ export const FlowArrow = () => (
 export const ImageDisplay = React.memo(({ prompt, base64, className = "w-full h-24", description = "image" }: { prompt?: string; base64?: string; className?: string; description?: string }) => {
     const [isLoading, setIsLoading] = useState(!base64);
     const query = encodeURIComponent(prompt || 'educational illustration');
-    const url = base64 || `https://image.pollinations.ai/prompt/${query}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
+    const url = base64 || `https://image.pollinations.ai/prompt/${query}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
 
     return (
         <div className={`relative overflow-hidden rounded-2xl bg-zinc-50 ${className}`}>

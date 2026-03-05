@@ -49,15 +49,19 @@ const recursiveSafeText = (val: any): string => {
     if (val === null || val === undefined) return "";
     if (typeof val === 'string') return val;
     if (typeof val === 'object') {
-        // If it's an array, join its safe elements
-        if (Array.isArray(val)) return val.map(recursiveSafeText).join(" ");
-        // If it has common text-like properties, use them
-        if (val.text) return recursiveSafeText(val.text);
-        if (val.char) return recursiveSafeText(val.char);
-        if (val.value) return recursiveSafeText(val.value);
-        if (val.label) return recursiveSafeText(val.label);
-        if (val.clue) return recursiveSafeText(val.clue);
-        // Fallback to JSON stringify for debugging if it's a small object, or nothing
+        if (Array.isArray(val)) return val.map(recursiveSafeText).join(", ");
+
+        // Priority keys
+        const keys = ['text', 'char', 'value', 'label', 'clue', 'title', 'word', 'name'];
+        for (const key of keys) {
+            if (val[key] !== undefined) return recursiveSafeText(val[key]);
+        }
+
+        // If no priority keys, try any string property
+        for (const key in val) {
+            if (typeof val[key] === 'string') return val[key];
+        }
+
         try {
             return JSON.stringify(val);
         } catch (e) {
