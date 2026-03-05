@@ -39,19 +39,29 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
     const prompt = `
     ${PEDAGOGICAL_BASE}
     ${CLINICAL_DIAGNOSTIC_GUIDE}
-    GÖREV: Aşağıdaki BLUEPRINT'i kullanarak BİREBİR AYNI MİMARİDE YENİ BİR ÇALIŞMA SAYFASI üret.
+    
+    [ULTRA-CREATIVE MISSION: NEURO-ARCHITECTURAL GENERATION]
+    GÖREV: Aşağıdaki BLUEPRINT'i kullanarak, klinik derinliği maksimize edilmiş, BENTO-GRID düzeninde profesyonel bir çalışma sayfası üret.
     
     [GİRDİ BLUEPRINT]:
     ${enrichedPrompt}
     
-    PARAMETRELER:
-    - Zorluk: ${options.difficulty}
-    - Sayfa Başı Öğe: ${options.itemCount}
+    [ÜRETİM STANDARTLARI]:
+    1. İÇERİK YOĞUNLUĞU: Sayfayı sığ bırakma. Her blok, öğrencinin bilişsel becerilerini (dikkat, bellek, muhakeme) zorlayacak gerçek içeriklerle dolu olmalıdır.
+    2. KLİNİK ÇELDİRİCİLER: Disleksi/Diskalkuli profiline uygun ayna harfler (b-d, p-q), fonolojik karmaşalar ve mantıksal tuzaklar ekle.
+    3. BENTO-GRID MİMARİSİ: Sayfayı görsel olarak dengeli ama zengin bloklarla (grid, table, data_card vb.) böl.
     
-    TEKNİK ZORUNLULUKLAR:
-    - Orijinal yapıdaki 'grid' ve 'table' düzenlerini asla bozma.
-    - İçindeki verileri (kelime, sayı, görsel) %100 değiştir.
-    - 'logic_card' yapısını algoritma gerektiren bölümlerde kullan.
+    [PARAMETRELER]:
+    - Zorluk: ${options.difficulty}
+    - Sayfa Başı Öğe (Blok İçi): ${options.itemCount}
+    
+    [TEKNİK BLOK REHBERİ - BU TİPLERİ KULLAN]:
+    - 'cloze_test': Metin içinde [hedef_kelime] yapısını kullan.
+    - 'categorical_sorting': 'categories' ve 'items' (text, category) nesnelerini içermeli.
+    - 'match_columns': 'left' ve 'right' dizilerini içermeli.
+    - 'visual_clue_card': 'title' ve 'clue' (klinik ipucu) içermeli.
+    - 'neuro_marker': 'neuroType' ('tracking' | 'focus') ve 'position' içermeli.
+    - 'logic_card': Algoritma ve mantık yürütme gerektiren durumlar için.
     `;
 
     const schema = {
@@ -69,7 +79,15 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
                         items: {
                             type: Type.OBJECT,
                             properties: {
-                                type: { type: Type.STRING, enum: ['header', 'text', 'grid', 'table', 'logic_card', 'footer_validation', 'image'] },
+                                type: {
+                                    type: Type.STRING,
+                                    enum: [
+                                        'header', 'text', 'grid', 'table', 'logic_card',
+                                        'footer_validation', 'image', 'cloze_test',
+                                        'categorical_sorting', 'match_columns',
+                                        'visual_clue_card', 'neuro_marker'
+                                    ]
+                                },
                                 content: { type: Type.OBJECT },
                                 weight: { type: Type.INTEGER }
                             },
@@ -83,7 +101,6 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
         required: ['title', 'instruction', 'layoutArchitecture']
     };
 
-    // Fix: Removed 'useFlash' property from the generateCreativeMultimodal call as it is not part of the defined type
     return await generateCreativeMultimodal({ prompt, schema, files });
 };
 

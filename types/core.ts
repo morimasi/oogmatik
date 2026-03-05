@@ -362,7 +362,7 @@ export interface WorkbookSettings {
 }
 
 export interface WorksheetBlock {
-    type: 'header' | 'text' | 'grid' | 'table' | 'svg_shape' | 'dual_column' | 'image' | 'question' | 'logic_card' | 'footer_validation';
+    type: 'header' | 'text' | 'grid' | 'table' | 'svg_shape' | 'dual_column' | 'image' | 'question' | 'logic_card' | 'footer_validation' | 'cloze_test' | 'categorical_sorting' | 'match_columns' | 'visual_clue_card' | 'neuro_marker';
     content: any;
     style?: {
         textAlign?: string;

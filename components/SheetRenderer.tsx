@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { 
+import {
     ActivityType, SingleWorksheetData, WorksheetBlock,
-    AlgorithmData, MathPuzzleData, NumberPatternData, RealLifeProblemData, LogicGridPuzzleData, FutoshikiData, NumberPyramidData, OddOneOutData, NumberLogicRiddleData, NumberPathLogicData, VisualArithmeticData, ClockReadingData, NumberSenseData, MoneyCountingData, MathMemoryCardsData, SpatialGridData, ConceptMatchData, EstimationData, 
+    AlgorithmData, MathPuzzleData, NumberPatternData, RealLifeProblemData, LogicGridPuzzleData, FutoshikiData, NumberPyramidData, OddOneOutData, NumberLogicRiddleData, NumberPathLogicData, VisualArithmeticData, ClockReadingData, NumberSenseData, MoneyCountingData, MathMemoryCardsData, SpatialGridData, ConceptMatchData, EstimationData,
     WordMemoryData, VisualMemoryData, CharacterMemoryData, ColorWheelMemoryData, ImageComprehensionData, StroopTestData, LetterGridTestData, NumberSearchData, ChaoticNumberSearchData, AttentionDevelopmentData, AttentionFocusData, FindDuplicateData, FindLetterPairData, TargetSearchData,
     InteractiveStoryData, SyllableMasterLabData, ReadingSudokuData, ReadingStroopData, SynonymAntonymMatchData, SyllableWordBuilderData, LetterVisualMatchingData, FamilyRelationsData, FamilyLogicTestData, MorphologyMatrixData, ReadingPyramidData, ReadingFlowData, PhonologicalAwarenessData, RapidNamingData, LetterDiscriminationData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, HandwritingPracticeData,
     MapInstructionData, FindTheDifferenceData, VisualOddOneOutData, GridDrawingData, SymmetryDrawingData, ShapeCountingData, DirectionalTrackingData, HiddenPasswordGridData, WordSearchData, AnagramsData, CrosswordData
@@ -33,8 +33,8 @@ import { StoryComprehensionSheet } from './sheets/verbal/StoryComprehensionSheet
 import { ReadingFlowSheet } from './sheets/verbal/ReadingFlowSheet';
 import { PhonologicalAwarenessSheet, RapidNamingSheet, LetterDiscriminationSheet, MirrorLettersSheet, SyllableTrainSheet, VisualTrackingLinesSheet, BackwardSpellingSheet, CodeReadingSheet, AttentionToQuestionSheet, HandwritingPracticeSheet } from './sheets/verbal/ReadingSupportSheets';
 import { AnagramSheet, WordSearchSheet, HiddenPasswordGridSheet, CrosswordSheet } from './sheets/verbal/WordGameSheets';
-import { SyllableMasterLabSheet, ReadingSudokuSheet, ReadingStroopSheet, SynonymAntonymMatchSheet, SyllableWordBuilderSheet, LetterVisualMatchingSheet, FamilyLogicSheet, FamilyRelationsSheet, FindLetterPairSheet, MorphologyMatrixSheet, ReadingPyramidSheet } from './sheets/verbal/ReadingSheets'; 
-import { MapDetectiveSheet } from './sheets/visual/MapDetectiveSheet'; 
+import { SyllableMasterLabSheet, ReadingSudokuSheet, ReadingStroopSheet, SynonymAntonymMatchSheet, SyllableWordBuilderSheet, LetterVisualMatchingSheet, FamilyLogicSheet, FamilyRelationsSheet, FindLetterPairSheet, MorphologyMatrixSheet, ReadingPyramidSheet } from './sheets/verbal/ReadingSheets';
+import { MapDetectiveSheet } from './sheets/visual/MapDetectiveSheet';
 import { FindTheDifferenceSheet } from './sheets/visual/FindTheDifferenceSheet';
 import { VisualOddOneOutSheet } from './sheets/visual/VisualOddOneOutSheet';
 import { GridDrawingSheet } from './sheets/visual/GridDrawingSheet';
@@ -51,10 +51,10 @@ const recursiveSafeText = (val: any): string => {
     return String(val);
 };
 
-const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
+const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any }) => {
     const content: any = block.content;
     if (!content) return null;
-    
+
     const blockStyle = {
         textAlign: block.style?.textAlign as any || 'left',
         fontWeight: block.style?.fontWeight as any || 'normal',
@@ -67,10 +67,10 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
     switch (block.type) {
         case 'header':
             return <h2 className="text-3xl font-black uppercase text-center mb-6 border-b-4 border-black pb-2" style={blockStyle}><EditableText value={recursiveSafeText(content.text || content)} tag="span" /></h2>;
-        
+
         case 'text':
             return <div className="text-lg leading-relaxed mb-6 font-dyslexic" style={blockStyle}><EditableText value={recursiveSafeText(content.text || content)} tag="div" /></div>;
-        
+
         case 'grid':
             return (
                 <div className="flex justify-center mb-8">
@@ -121,7 +121,7 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
                         {(content.options || []).map((opt: string, oIdx: number) => (
                             <div key={oIdx} className="flex flex-col items-center gap-1 group/opt">
                                 <div className="w-10 h-10 rounded-xl border-2 border-zinc-200 flex items-center justify-center font-black text-sm group-hover/opt:bg-zinc-900 group-hover/opt:text-white transition-all cursor-pointer shadow-sm">{opt}</div>
-                                <span className="text-[8px] font-black text-zinc-300 uppercase">{String.fromCharCode(65+oIdx)}</span>
+                                <span className="text-[8px] font-black text-zinc-300 uppercase">{String.fromCharCode(65 + oIdx)}</span>
                             </div>
                         ))}
                     </div>
@@ -147,8 +147,8 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
                         </div>
                         <div className="w-px h-12 bg-white/20"></div>
                         <div className="text-center">
-                             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">SENİN SONUCUN</span>
-                             <div className="w-20 h-10 border-b-4 border-dashed border-zinc-700"></div>
+                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">SENİN SONUCUN</span>
+                            <div className="w-20 h-10 border-b-4 border-dashed border-zinc-700"></div>
                         </div>
                     </div>
                 </div>
@@ -164,10 +164,107 @@ const BlockRenderer: React.FC<{ block: WorksheetBlock }> = ({ block }) => {
                     </div>
                 </div>
             );
-        
+
+        case 'cloze_test':
+            return (
+                <div className="p-8 bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-[2.5rem] mb-6 leading-[2.5] text-xl font-dyslexic relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-5">
+                        <i className="fa-solid fa-pen-nib text-4xl"></i>
+                    </div>
+                    {recursiveSafeText(content.text).split(/(\[.*?\])/g).map((part, i) => (
+                        part.startsWith('[') && part.endsWith(']') ? (
+                            <span key={i} className="inline-block min-w-[120px] border-b-2 border-zinc-900 mx-2 text-transparent select-none">
+                                {part.slice(1, -1)}
+                            </span>
+                        ) : (
+                            <EditableText key={i} value={part} tag="span" />
+                        )
+                    ))}
+                </div>
+            );
+
+        case 'categorical_sorting':
+            return (
+                <div className="mb-8 grid gap-4" style={{ gridTemplateColumns: `repeat(${content.categories?.length || 2}, 1fr)` }}>
+                    {(content.categories || []).map((cat: string, i: number) => (
+                        <div key={i} className="flex flex-col gap-3">
+                            <div className="bg-zinc-900 text-white p-3 rounded-2xl text-xs font-black uppercase tracking-widest text-center shadow-lg">
+                                {cat}
+                            </div>
+                            <div className="flex-1 min-h-[200px] border-2 border-zinc-200 border-dashed rounded-[2rem] p-4 flex flex-col gap-2 bg-white/50">
+                                {(content.items || []).filter((item: any) => item.category === cat || (!item.category && i === 0)).map((item: any, j: number) => (
+                                    <div key={j} className="p-3 bg-white border border-zinc-200 rounded-xl shadow-sm text-sm font-bold flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-300"></div>
+                                        {item.text}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+
+        case 'match_columns':
+            return (
+                <div className="mb-8 flex justify-between gap-12 relative p-6 bg-white border-2 border-zinc-100 rounded-[3rem] shadow-sm">
+                    <div className="flex-1 flex flex-col gap-4">
+                        {(content.left || []).map((item: string, i: number) => (
+                            <div key={i} className="relative p-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-black flex items-center justify-between group">
+                                <span>{item}</span>
+                                <div className="w-3 h-3 rounded-full border-2 border-zinc-900 bg-white group-hover:bg-zinc-900 transition-all ml-2"></div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="w-px bg-zinc-100 relative">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-2">
+                            <i className="fa-solid fa-link text-zinc-300"></i>
+                        </div>
+                    </div>
+                    <div className="flex-1 flex flex-col gap-4">
+                        {(content.right || []).map((item: string, i: number) => (
+                            <div key={i} className="relative p-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-black flex items-center group">
+                                <div className="w-3 h-3 rounded-full border-2 border-zinc-900 bg-white group-hover:bg-zinc-900 transition-all mr-2"></div>
+                                <span>{item}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+
+        case 'visual_clue_card':
+            return (
+                <div className="p-6 bg-gradient-to-br from-indigo-50 to-white border-2 border-indigo-100 rounded-[2.5rem] mb-6 flex items-start gap-4 shadow-sm border-l-8 border-l-indigo-500">
+                    <div className="w-12 h-12 bg-indigo-500 text-white rounded-2xl flex items-center justify-center text-xl shadow-lg">
+                        <i className={`fa-solid ${content.icon || 'fa-lightbulb'}`}></i>
+                    </div>
+                    <div>
+                        <h5 className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-1">{content.title || 'KLİNİK İPUCU'}</h5>
+                        <p className="text-sm font-bold text-zinc-700 leading-relaxed italic">{content.clue}</p>
+                    </div>
+                </div>
+            );
+
+        case 'neuro_marker':
+            return (
+                <div className={`my-4 flex ${content.position === 'center' ? 'justify-center' : 'justify-start'}`}>
+                    {content.neuroType === 'tracking' && (
+                        <div className="flex gap-2 items-center opacity-30">
+                            {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-2 h-2 rounded-full bg-zinc-900"></div>)}
+                            <i className="fa-solid fa-eye text-[10px]"></i>
+                            {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-2 h-2 rounded-full bg-zinc-900"></div>)}
+                        </div>
+                    )}
+                    {content.neuroType === 'focus' && (
+                        <div className="px-6 py-1 bg-zinc-900 text-white text-[8px] font-black rounded-full uppercase tracking-[0.3em]">
+                            ODAK NOKTASI
+                        </div>
+                    )}
+                </div>
+            );
+
         case 'image':
             return <div className="mb-8 flex justify-center"><ImageDisplay prompt={content.prompt} className="w-full h-64 rounded-[3rem] shadow-md border-4 border-white" /></div>;
-        
+
         default: return null;
     }
 };
@@ -180,10 +277,10 @@ const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
     return (
         <div className="w-full h-full flex flex-col animate-in fade-in duration-500 font-lexend">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-            
+
             {cols > 1 ? (
-                <div 
-                    className="grid gap-6 mt-4 items-start" 
+                <div
+                    className="grid gap-6 mt-4 items-start"
                     style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
                 >
                     {blocks.map((block: WorksheetBlock, idx: number) => (
@@ -197,7 +294,7 @@ const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
                     ))}
                 </div>
             )}
-            
+
             <div className="mt-auto pt-6 opacity-20 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.5em] text-zinc-400">
                 <span>Bursa Disleksi AI • Nöro-Mimari Motoru v6.0</span>
                 <div className="flex gap-4">
@@ -250,7 +347,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.CHAOTIC_NUMBER_SEARCH: return <ChaoticNumberSearchSheet data={data as unknown as ChaoticNumberSearchData} />;
         case ActivityType.ATTENTION_DEVELOPMENT: return <AttentionDevelopmentSheet data={data as unknown as AttentionDevelopmentData} />;
         case ActivityType.ATTENTION_FOCUS: return <AttentionFocusSheet data={data as unknown as AttentionFocusData} />;
-        case ActivityType.FIND_IDENTICAL_WORD: return <FindDuplicateSheet data={data as unknown as FindDuplicateData} />; 
+        case ActivityType.FIND_IDENTICAL_WORD: return <FindDuplicateSheet data={data as unknown as FindDuplicateData} />;
         case ActivityType.LETTER_GRID_TEST: return <LetterGridTestSheet data={data as unknown as LetterGridTestData} />;
         case ActivityType.FIND_LETTER_PAIR: return <FindLetterPairSheet data={data as unknown as FindLetterPairData} />;
         case ActivityType.TARGET_SEARCH: return <TargetSearchSheet data={data as unknown as TargetSearchData} />;
@@ -276,7 +373,7 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.CODE_READING: return <CodeReadingSheet data={data as unknown as CodeReadingData} />;
         case ActivityType.ATTENTION_TO_QUESTION: return <AttentionToQuestionSheet data={data as unknown as AttentionToQuestionData} />;
         case ActivityType.HANDWRITING_PRACTICE: return <HandwritingPracticeSheet data={data as unknown as HandwritingPracticeData} />;
-        case ActivityType.MAP_INSTRUCTION: return <MapDetectiveSheet data={data as unknown as MapInstructionData} />; 
+        case ActivityType.MAP_INSTRUCTION: return <MapDetectiveSheet data={data as unknown as MapInstructionData} />;
         case ActivityType.FIND_THE_DIFFERENCE: return <FindTheDifferenceSheet data={data as unknown as FindTheDifferenceData} />;
         case ActivityType.VISUAL_ODD_ONE_OUT: return <VisualOddOneOutSheet data={data as unknown as VisualOddOneOutData} />;
         case ActivityType.GRID_DRAWING: return <GridDrawingSheet data={data as unknown as GridDrawingData} />;

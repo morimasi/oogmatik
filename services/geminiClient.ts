@@ -19,14 +19,14 @@ const balanceBraces = (str: string): string => {
 const tryRepairJson = (jsonStr: string): any => {
     if (!jsonStr) throw new Error("AI yanıt dönmedi.");
     let cleaned = jsonStr.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
-    
+
     // Markdown temizliği
     cleaned = cleaned.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```$/, '').trim();
 
     const firstBrace = cleaned.indexOf('{');
     const firstBracket = cleaned.indexOf('[');
     let startIndex = -1;
-    
+
     if (firstBrace !== -1 && firstBracket !== -1) startIndex = Math.min(firstBrace, firstBracket);
     else if (firstBrace !== -1) startIndex = firstBrace;
     else if (firstBracket !== -1) startIndex = firstBracket;
@@ -84,17 +84,17 @@ const getApiKey = () => {
     // 1. Vercel / Build Environment variables (via vite.config.ts define)
     try {
         if (process.env.API_KEY) return process.env.API_KEY;
-    } catch (e) {}
-    
+    } catch (e) { }
+
     // 2. Vite Env Variables
     try {
         if ((import.meta as any).env?.VITE_GOOGLE_API_KEY) return (import.meta as any).env.VITE_GOOGLE_API_KEY;
-    } catch (e) {}
+    } catch (e) { }
 
     // 3. Local Storage fallback
     try {
         return localStorage.getItem('gemini_api_key');
-    } catch (e) {}
+    } catch (e) { }
 
     return null;
 };
@@ -146,7 +146,7 @@ export const generateCreativeMultimodal = async (params: {
     files?: MultimodalFile[]
 }) => {
     const apiKey = getApiKey();
-    
+
     if (!apiKey) {
         throw new Error("API Anahtarı bulunamadı. Lütfen .env dosyasında VITE_GOOGLE_API_KEY tanımlayın veya ayarlardan ekleyin.");
     }
@@ -154,7 +154,7 @@ export const generateCreativeMultimodal = async (params: {
     const url = `https://generativelanguage.googleapis.com/v1alpha/models/${MASTER_MODEL}:generateContent?key=${apiKey}`;
 
     const contents = [];
-    
+
     // Multimodal veri hazırlığı
     const parts = [];
     if (params.files && params.files.length > 0) {
@@ -175,11 +175,11 @@ export const generateCreativeMultimodal = async (params: {
     const body: any = {
         contents,
         generationConfig: {
-            temperature: 0.1, // Düşük tutulmalı (Thinking)
+            temperature: 0, // Klinik üretim için deterministik olmalı
             maxOutputTokens: 16000,
             responseMimeType: "application/json",
             thinkingConfig: {
-                thinkingBudget: 4000 // Multimodal thinking bütçesi
+                thinkingBudget: 8000 // Karmaşık içerikler için bütçeyi artırdık
             }
         },
         systemInstruction: {
@@ -205,7 +205,7 @@ export const generateCreativeMultimodal = async (params: {
         }
 
         const data = await response.json();
-        
+
         if (!data.candidates || data.candidates.length === 0) {
             throw new Error("AI geçerli bir aday (candidate) üretmedi.");
         }
@@ -235,7 +235,7 @@ export const detectMimeType = (base64: string): 'image/jpeg' | 'image/png' | 'im
         if (b0 === 0x89 && b1 === 0x50) return 'image/png';
         if (b0 === 0x52 && b1 === 0x49) return 'image/webp';
         if (b0 === 0x47 && b1 === 0x49) return 'image/gif';
-    } catch { 
+    } catch {
         if (base64.includes('image/png')) return 'image/png';
     }
     return 'image/jpeg';

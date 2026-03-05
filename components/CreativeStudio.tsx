@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { ChangeEvent, FormEvent } from 'react';
 import { refinePromptWithAI, generateCreativeStudioActivity, analyzeReferenceFiles } from '../services/generators/creativeStudio';
 import { PEDAGOGICAL_LIBRARY, ActivityLibraryItem } from '../services/generators/promptLibrary';
 import { MultimodalFile } from '../services/geminiClient';
@@ -34,7 +35,7 @@ const THINKING_MESSAGES = [
     "Hemen hemen hazır, son kontroller yapılıyor..."
 ];
 
-export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCancel }) => {
+export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
     const [prompt, setPrompt] = useState("");
     const [difficulty, setDifficulty] = useState("Orta");
     const [itemCount, setItemCount] = useState(8);
@@ -44,7 +45,12 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     const [statusIndex, setStatusIndex] = useState(0);
     const [activeTab, setActiveTab] = useState<'editor' | 'library'>('editor');
     const [librarySearch, setLibrarySearch] = useState("");
-    
+
+    // ULTRA Settings
+    const [clinicalIntensity, setClinicalIntensity] = useState(70);
+    const [visualLoad, setVisualLoad] = useState(50);
+    const [thinkingLevel, setThinkingLevel] = useState(3); // 1-5
+
     // Dynamic Storage States
     const [localLibrary, setLocalLibrary] = useState<ActivityLibraryItem[]>([]);
     const [snippets, setSnippets] = useState<CustomAction[]>([]);
@@ -91,7 +97,8 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                 r.onerror = rej;
                 r.readAsDataURL(file);
             });
-            const newFiles = await Promise.all(Array.from(files).map(reader));
+            const fileList = Array.from(files);
+            const newFiles = await Promise.all(fileList.map(f => reader(f)));
             const combined = [...attachedFiles, ...newFiles];
             setAttachedFiles(combined);
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -168,7 +175,13 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         if (!prompt.trim() && attachedFiles.length === 0) return;
         setIsProcessing(true);
         try {
-            const result = await generateCreativeStudioActivity(prompt, { difficulty, itemCount }, attachedFiles);
+            const result = await generateCreativeStudioActivity(prompt, {
+                difficulty,
+                itemCount,
+                clinicalIntensity,
+                visualLoad,
+                thinkingBudget: thinkingLevel * 2000
+            }, attachedFiles);
             onResult(Array.isArray(result) ? result : [result]);
         } catch (e) {
             setStatus("Üretim başarısız.");
@@ -179,10 +192,10 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
 
     return (
         <div className="max-w-7xl mx-auto w-full animate-in fade-in zoom-in-95 duration-500 font-['Lexend'] relative">
-            
+
             {/* SMART POPUP TOOLTIP */}
             {hoveredItem && (
-                <div 
+                <div
                     className="fixed z-[110] w-80 bg-zinc-900 border border-indigo-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-5 rounded-3xl pointer-events-none animate-in fade-in zoom-in-95 duration-200 backdrop-blur-xl"
                     style={{ left: Math.min(window.innerWidth - 340, mousePos.x + 20), top: mousePos.y - 120 }}
                 >
@@ -214,7 +227,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-4">
-                
+
                 {/* LEFT PANEL */}
                 <div className="lg:col-span-8 flex flex-col gap-6 h-[750px]">
                     {activeTab === 'editor' ? (
@@ -227,7 +240,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                                 </div>
                             </div>
 
-                            <textarea 
+                            <textarea
                                 value={prompt}
                                 onChange={(e) => setPrompt(e.target.value)}
                                 className={`flex-1 w-full p-8 bg-black/40 border border-white/5 rounded-[2.5rem] text-lg leading-relaxed text-zinc-200 outline-none focus:border-indigo-500 transition-all font-mono resize-none shadow-inner ${isAnalyzingFile ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
@@ -245,7 +258,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                                         <i className="fa-solid fa-paperclip"></i> DOSYA EKLE
                                     </button>
                                     <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*,application/pdf" multiple />
-                                    
+
                                     {snippets.map(s => (
                                         <button key={s.id} onClick={() => setPrompt(prev => prev + "\n" + s.value)} className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-[11px] font-black uppercase transition-all">
                                             + {s.label}
@@ -259,13 +272,13 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                                 <div className="relative w-full md:w-96">
                                     <i className="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"></i>
-                                    <input 
+                                    <input
                                         type="text" value={librarySearch} onChange={e => setLibrarySearch(e.target.value)}
                                         placeholder="Kuram veya metot ara..."
                                         className="w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-sm text-white outline-none focus:border-indigo-500"
                                     />
                                 </div>
-                                <button 
+                                <button
                                     onClick={() => setShowAddModal('methodology')}
                                     className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition-all"
                                 >
@@ -275,8 +288,8 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
 
                             <div className="flex-1 overflow-y-auto custom-scrollbar pr-4 grid grid-cols-1 md:grid-cols-2 gap-5">
                                 {localLibrary.filter(item => item.title.toLowerCase().includes(librarySearch.toLowerCase())).map(item => (
-                                    <div 
-                                        key={item.id} 
+                                    <div
+                                        key={item.id}
                                         onClick={() => { setPrompt(item.basePrompt); setActiveTab('editor'); }}
                                         onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
                                         onMouseEnter={() => setHoveredItem(item)}
@@ -298,49 +311,105 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     )}
                 </div>
 
-                {/* RIGHT PANEL */}
-                <div className="lg:col-span-4 flex flex-col gap-6">
-                    <div className="bg-white/5 rounded-[3rem] border border-white/5 p-8 flex flex-col shadow-xl">
-                        <h4 className="text-xs font-black text-zinc-500 uppercase tracking-[0.4em] mb-8">ÜRETİM PARAMETRELERİ</h4>
-                        <div className="space-y-8">
-                            <div className="space-y-4">
-                                <label className="text-sm font-bold text-zinc-400 flex items-center gap-2"><i className="fa-solid fa-layer-group text-indigo-500"></i> Zorluk Seviyesi</label>
-                                <div className="grid grid-cols-2 gap-2">
+                {/* RIGHT PANEL (ULTRA CONTROLS) */}
+                <div className="lg:col-span-4 flex flex-col gap-6 h-full">
+                    <div className="bg-zinc-900/80 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-10 flex flex-col shadow-[0_30px_100px_rgba(0,0,0,0.4)] h-full overflow-y-auto custom-scrollbar-minimal">
+                        <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.5em] mb-10 flex items-center gap-3">
+                            <div className="w-10 h-0.5 bg-indigo-500/30"></div>
+                            ULTRA PARAMETRELER
+                        </h4>
+
+                        <div className="space-y-12">
+                            {/* Ana Ayarlar Grid */}
+                            <div className="space-y-6">
+                                <label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                                    <i className="fa-solid fa-gauge-high text-indigo-500"></i> Zorluk Seviyesi
+                                </label>
+                                <div className="grid grid-cols-2 gap-3">
                                     {['Başlangıç', 'Orta', 'Zor', 'Uzman'].map(l => (
-                                        <button key={l} onClick={() => setDifficulty(l)} className={`py-3 rounded-xl text-xs font-black border transition-all ${difficulty === l ? 'bg-white text-black border-white shadow-lg' : 'bg-transparent text-zinc-500 border-white/10 hover:border-white/30'}`}>{l}</button>
+                                        <button key={l} onClick={() => setDifficulty(l)} className={`py-4 rounded-2xl text-[10px] font-black uppercase transition-all border-2 ${difficulty === l ? 'bg-white text-black border-white shadow-[0_10px_20px_rgba(255,255,255,0.1)] scale-105' : 'bg-black/20 text-zinc-500 border-white/5 hover:border-white/20'}`}>{l}</button>
                                     ))}
                                 </div>
                             </div>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center text-xs font-bold text-zinc-400 uppercase">
-                                    <span>Öğe Adedi</span>
-                                    <span className="text-indigo-400 font-black text-lg">{itemCount}</span>
+
+                            {/* Ultra Sliders */}
+                            <div className="space-y-8 p-6 bg-black/30 rounded-[2.5rem] border border-white/5 shadow-inner">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                                            <i className="fa-solid fa-flask-vial text-rose-500"></i> Klinik Yoğunluk
+                                        </span>
+                                        <span className="text-rose-500 font-bold">%{clinicalIntensity}</span>
+                                    </div>
+                                    <input type="range" min={0} max={100} value={clinicalIntensity} onChange={e => setClinicalIntensity(Number(e.target.value))} className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-rose-500" />
                                 </div>
-                                <input type="range" min={2} max={30} value={itemCount} onChange={e => setItemCount(Number(e.target.value))} className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                                            <i className="fa-solid fa-eye text-emerald-500"></i> Bilişsel Yük
+                                        </span>
+                                        <span className="text-emerald-500 font-bold">%{visualLoad}</span>
+                                    </div>
+                                    <input type="range" min={0} max={100} value={visualLoad} onChange={e => setVisualLoad(Number(e.target.value))} className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                                            <i className="fa-solid fa-microchip text-indigo-500"></i> Muhakeme Düzeyi (AI)
+                                        </span>
+                                        <span className="text-indigo-500 font-bold">Lvl {thinkingLevel}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        {[1, 2, 3, 4, 5].map(v => (
+                                            <button key={v} onClick={() => setThinkingLevel(v)} className={`flex-1 h-2 rounded-full transition-all ${thinkingLevel >= v ? 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]' : 'bg-zinc-800'}`}></button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Öğe Adedi */}
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-end">
+                                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">İçerik Yoğunluğu (Blok Sayısı)</span>
+                                    <span className="text-white font-black text-2xl tracking-tighter">{itemCount}</span>
+                                </div>
+                                <input type="range" min={4} max={40} value={itemCount} onChange={e => setItemCount(Number(e.target.value))} className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500 shadow-lg" />
                             </div>
                         </div>
 
-                        <div className="mt-12 space-y-4">
-                            <div className="h-16 flex flex-col items-center justify-center">
+                        <div className="mt-auto pt-10 space-y-4">
+                            <div className="min-h-[80px] flex flex-col items-center justify-center bg-black/20 rounded-3xl p-4 border border-white/5">
                                 {(isProcessing || isAnalyzingFile) && (
-                                    <div className="flex flex-col items-center gap-2 animate-in fade-in">
+                                    <div className="flex flex-col items-center gap-3 animate-in fade-in">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></div>
-                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></div>
+                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(99,102,241,0.8)]"></div>
+                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(99,102,241,0.8)] delay-100"></div>
+                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(99,102,241,0.8)] delay-200"></div>
                                         </div>
-                                        <p className="text-[11px] font-black text-indigo-400 uppercase tracking-[0.2em] text-center px-4 leading-tight">
-                                            {isAnalyzingFile ? "REFERANS ANALİZ EDİLİYOR..." : THINKING_MESSAGES[statusIndex]}
+                                        <p className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.3em] text-center px-4 leading-[1.6]">
+                                            {isAnalyzingFile ? "NÖRO-MİMARİ DNA ANALİZİ..." : THINKING_MESSAGES[statusIndex]}
                                         </p>
                                     </div>
                                 )}
-                                {!isProcessing && !isAnalyzingFile && status && <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">{status}</p>}
+                                {!isProcessing && !isAnalyzingFile && status && (
+                                    <div className="flex items-center gap-2 text-emerald-400 animate-in slide-in-from-bottom-2">
+                                        <i className="fa-solid fa-check-circle"></i>
+                                        <p className="text-[10px] font-black uppercase tracking-widest">{status}</p>
+                                    </div>
+                                )}
                             </div>
-                            <button onClick={handleGenerate} disabled={isProcessing || isAnalyzingFile || (!prompt && attachedFiles.length === 0)} className="w-full py-6 bg-white text-indigo-950 font-black rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-2xl flex items-center justify-center gap-3 text-base disabled:opacity-50">
-                                {isProcessing ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-rocket"></i>}
-                                TASARIMI BAŞLAT
+
+                            <button
+                                onClick={handleGenerate}
+                                disabled={isProcessing || isAnalyzingFile || (!prompt && attachedFiles.length === 0)}
+                                className="w-full py-6 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-black rounded-3xl hover:shadow-[0_20px_40px_rgba(79,70,229,0.3)] hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-4 text-sm disabled:opacity-30 group"
+                            >
+                                {isProcessing ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-bolt-lightning group-hover:animate-bounce"></i>}
+                                PROFESYONEL ÜRETİMİ BAŞLAT
                             </button>
-                            <button onClick={onCancel} className="w-full py-3 text-zinc-600 hover:text-zinc-400 text-sm font-bold transition-colors">Vazgeç</button>
+                            <button onClick={onCancel} className="w-full py-4 text-zinc-600 hover:text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] transition-colors">Vazgeç</button>
                         </div>
                     </div>
                 </div>
@@ -360,11 +429,11 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Başlık</label>
-                                            <input type="text" value={newMethodology.title || ''} onChange={e => setNewMethodology({...newMethodology, title: e.target.value})} className="w-full p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 transition-all" placeholder="Örn: Multisensoriyel Hece Lab" />
+                                            <input type="text" value={newMethodology.title || ''} onChange={e => setNewMethodology({ ...newMethodology, title: e.target.value })} className="w-full p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 transition-all" placeholder="Örn: Multisensoriyel Hece Lab" />
                                         </div>
                                         <div>
                                             <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Kuramsal Temel</label>
-                                            <select value={newMethodology.methodology} onChange={e => setNewMethodology({...newMethodology, methodology: e.target.value as any})} className="w-full p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 appearance-none transition-all">
+                                            <select value={newMethodology.methodology} onChange={e => setNewMethodology({ ...newMethodology, methodology: e.target.value as any })} className="w-full p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 appearance-none transition-all">
                                                 <option value="Orton-Gillingham">Orton-Gillingham</option>
                                                 <option value="Feuerstein">Feuerstein</option>
                                                 <option value="Lindamood-Bell">Lindamood-Bell</option>
@@ -375,11 +444,11 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                                     </div>
                                     <div>
                                         <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Pedagojik Açıklama (Pop-up)</label>
-                                        <textarea value={newMethodology.description || ''} onChange={e => setNewMethodology({...newMethodology, description: e.target.value})} className="w-full h-24 p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 resize-none" placeholder="Bu metodun amacını kısaca açıklayın..." />
+                                        <textarea value={newMethodology.description || ''} onChange={e => setNewMethodology({ ...newMethodology, description: e.target.value })} className="w-full h-24 p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 resize-none" placeholder="Bu metodun amacını kısaca açıklayın..." />
                                     </div>
                                     <div className="p-6 bg-indigo-500/5 rounded-3xl border border-indigo-500/20">
                                         <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 block flex items-center gap-2"><i className="fa-solid fa-microchip"></i> AI MOTOR BLUEPRINT</label>
-                                        <textarea value={newMethodology.basePrompt || ''} onChange={e => setNewMethodology({...newMethodology, basePrompt: e.target.value})} className="w-full h-32 p-4 bg-black/60 border border-white/10 rounded-2xl text-zinc-200 font-mono text-xs outline-none focus:border-indigo-500" placeholder="AI'nın nasıl bir içerik üretmesi gerektiğini teknik olarak anlatın..." />
+                                        <textarea value={newMethodology.basePrompt || ''} onChange={e => setNewMethodology({ ...newMethodology, basePrompt: e.target.value })} className="w-full h-32 p-4 bg-black/60 border border-white/10 rounded-2xl text-zinc-200 font-mono text-xs outline-none focus:border-indigo-500" placeholder="AI'nın nasıl bir içerik üretmesi gerektiğini teknik olarak anlatın..." />
                                     </div>
                                     <button onClick={handleAddMethodology} className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl transition-all">KÜTÜPHANEYE KAYDET</button>
                                 </>
@@ -388,11 +457,11 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                                     <div className="space-y-4">
                                         <div>
                                             <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Buton Etiketi</label>
-                                            <input type="text" value={newSnippet.label || ''} onChange={e => setNewSnippet({...newSnippet, label: e.target.value})} className="w-full p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500" placeholder="Örn: Emojili Metin" />
+                                            <input type="text" value={newSnippet.label || ''} onChange={e => setNewSnippet({ ...newSnippet, label: e.target.value })} className="w-full p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500" placeholder="Örn: Emojili Metin" />
                                         </div>
                                         <div>
                                             <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">AI Talimatı (Prompt Parçası)</label>
-                                            <textarea value={newSnippet.value || ''} onChange={e => setNewSnippet({...newSnippet, value: e.target.value})} className="w-full h-32 p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 resize-none" placeholder="Butona basıldığında mevcut promta eklenecek olan AI talimatı..." />
+                                            <textarea value={newSnippet.value || ''} onChange={e => setNewSnippet({ ...newSnippet, value: e.target.value })} className="w-full h-32 p-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500 resize-none" placeholder="Butona basıldığında mevcut promta eklenecek olan AI talimatı..." />
                                         </div>
                                     </div>
                                     <button onClick={handleAddSnippet} className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase text-[10px] rounded-2xl shadow-xl transition-all">İŞLEVİ EKLE</button>
