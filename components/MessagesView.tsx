@@ -25,7 +25,7 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
 
     const loadInitialData = async () => {
         if (!user) return;
-        
+
         const [allUsers, allMsgs] = await Promise.all([
             authService.getContacts(user.id),
             messagingService.getMessagesForUser(user.id)
@@ -36,10 +36,10 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
             if (b.role === 'admin' && a.role !== 'admin') return 1;
             return a.name.localeCompare(b.name);
         });
-        
+
         setContacts(sortedContacts);
         setMessages(allMsgs);
-        
+
         const admin = sortedContacts.find(u => u.role === 'admin');
         if (!selectedContact && admin) {
             setSelectedContact(admin);
@@ -85,15 +85,16 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
     }, [messages, selectedContact]);
 
     const handleContactSelect = async (contact: User) => {
+        if (!contact?.id || !user?.id) return;
         setSelectedContact(contact);
-        const unreadMessages = messages.filter(m => m.senderId === contact.id && m.receiverId === user?.id && !m.isRead);
+        const unreadMessages = messages.filter(m => m.senderId === contact.id && m.receiverId === user.id && !m.isRead);
         if (unreadMessages.length > 0) {
             // 1. Optimistic Update for UI responsiveness
             setMessages(prev => prev.map(m => unreadMessages.find(um => um.id === m.id) ? { ...m, isRead: true } : m));
-            
+
             // 2. Perform DB Updates and wait for completion
             await Promise.all(unreadMessages.map(m => messagingService.markAsRead(m.id)));
-            
+
             // 3. Trigger global refresh to update notification badge
             if (onRefreshNotifications) {
                 onRefreshNotifications();
@@ -104,10 +105,10 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim() || !user || !selectedContact) return;
-        
+
         setSending(true);
         const contentToSend = newMessage;
-        setNewMessage(''); 
+        setNewMessage('');
 
         try {
             const sentMessage = await messagingService.sendMessage({
@@ -120,7 +121,7 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
             setMessages(prev => [...prev, sentMessage]);
         } catch (err) {
             console.error("Mesaj gönderme hatası:", err);
-            setNewMessage(contentToSend); 
+            setNewMessage(contentToSend);
         } finally {
             setSending(false);
         }
@@ -128,10 +129,10 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
 
     const handleDeleteMessage = async (messageId: string) => {
         if (!confirm('Bu mesajı silmek istediğinize emin misiniz?')) return;
-        
+
         // Optimistic UI update
         setMessages(prev => prev.filter(m => m.id !== messageId));
-        
+
         try {
             await messagingService.deleteMessage(messageId);
         } catch (err) {
@@ -142,15 +143,15 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
     };
 
     const handleClearChat = async () => {
-        if (!user || !selectedContact) return;
+        if (!user?.id || !selectedContact?.id) return;
         if (!confirm('Bu kişiyle olan TÜM sohbet geçmişini silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')) return;
 
         const contactId = selectedContact.id;
-        
+
         // Optimistic UI Update
-        setMessages(prev => prev.filter(m => 
-            !((m.senderId === user.id && m.receiverId === contactId) || 
-              (m.senderId === contactId && m.receiverId === user.id))
+        setMessages(prev => prev.filter(m =>
+            !((m.senderId === user.id && m.receiverId === contactId) ||
+                (m.senderId === contactId && m.receiverId === user.id))
         ));
 
         try {
@@ -164,13 +165,13 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
 
     const currentConversation = useMemo(() => {
         if (!selectedContact || !user) return [];
-        return messages.filter(m => 
-            (m.senderId === user.id && m.receiverId === selectedContact.id) || 
+        return messages.filter(m =>
+            (m.senderId === user.id && m.receiverId === selectedContact.id) ||
             (m.senderId === selectedContact.id && m.receiverId === user.id)
-        ).sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        ).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     }, [messages, selectedContact, user]);
 
-    const filteredContacts = contacts.filter(c => 
+    const filteredContacts = contacts.filter(c =>
         c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (c.role === 'admin' && 'yönetici'.includes(searchQuery.toLowerCase()))
     );
@@ -185,7 +186,7 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
     return (
         <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900">
             <div className="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 p-3 flex items-center shadow-sm shrink-0 z-20">
-                <button 
+                <button
                     onClick={onBack}
                     className="flex items-center gap-2 px-4 py-2 bg-white border border-zinc-200 hover:bg-zinc-50 dark:bg-zinc-700 dark:border-zinc-600 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200 rounded-lg font-bold text-sm transition-all shadow-sm active:scale-95"
                 >
@@ -197,7 +198,7 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
 
             <div className="flex-1 overflow-hidden p-2 md:p-6">
                 <div className="max-w-6xl mx-auto w-full h-full flex bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden">
-                    
+
                     <div className={`w-full md:w-80 flex flex-col border-r border-zinc-200 dark:border-zinc-700 ${selectedContact ? 'hidden md:flex' : 'flex'}`}>
                         <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
                             <div className="flex items-center justify-between mb-4">
@@ -205,9 +206,9 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
                             </div>
                             <div className="relative">
                                 <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
-                                <input 
-                                    type="text" 
-                                    placeholder="Kişi ara..." 
+                                <input
+                                    type="text"
+                                    placeholder="Kişi ara..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full pl-10 pr-4 py-2 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
@@ -275,7 +276,7 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
                                         </div>
                                     </div>
                                     {/* DELETE CHAT BUTTON */}
-                                    <button 
+                                    <button
                                         onClick={handleClearChat}
                                         className="text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"
                                         title="Sohbeti Temizle"
@@ -298,20 +299,19 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
                                             const isMe = msg.senderId === user.id;
                                             return (
                                                 <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} group`}>
-                                                    <div className={`max-w-[85%] md:max-w-[70%] p-3 rounded-2xl shadow-sm relative group ${
-                                                        isMe 
-                                                        ? 'bg-indigo-600 text-white rounded-br-none' 
-                                                        : 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-bl-none border border-zinc-200 dark:border-zinc-600'
-                                                    }`}>
+                                                    <div className={`max-w-[85%] md:max-w-[70%] p-3 rounded-2xl shadow-sm relative group ${isMe
+                                                            ? 'bg-indigo-600 text-white rounded-br-none'
+                                                            : 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-bl-none border border-zinc-200 dark:border-zinc-600'
+                                                        }`}>
                                                         <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
                                                         <div className={`text-[10px] flex items-center justify-end gap-1 mt-1 ${isMe ? 'text-indigo-200' : 'text-zinc-400'}`}>
-                                                            <span>{new Date(msg.timestamp).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})}</span>
+                                                            <span>{new Date(msg.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
                                                             {isMe && (
                                                                 <i className={`fa-solid fa-check-double ${msg.isRead ? 'text-blue-300' : 'opacity-50'}`}></i>
                                                             )}
                                                         </div>
                                                         {/* DELETE MESSAGE BUTTON - VISIBLE ON HOVER */}
-                                                        <button 
+                                                        <button
                                                             onClick={(e) => { e.stopPropagation(); handleDeleteMessage(msg.id); }}
                                                             className={`absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 hover:bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center ${isMe ? 'right-auto left-1' : ''}`}
                                                             title="Mesajı Sil"
@@ -340,10 +340,10 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
                                             placeholder="Bir mesaj yazın..."
                                             rows={1}
                                             className="flex-1 p-3 bg-zinc-100 dark:bg-zinc-700/50 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none max-h-32 placeholder:text-zinc-500"
-                                            style={{minHeight: '48px'}}
+                                            style={{ minHeight: '48px' }}
                                         />
-                                        <button 
-                                            type="submit" 
+                                        <button
+                                            type="submit"
                                             disabled={sending || !newMessage.trim()}
                                             className="bg-indigo-600 hover:bg-indigo-700 text-white w-12 h-12 rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shrink-0"
                                         >

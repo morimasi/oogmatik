@@ -35,7 +35,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
     const { students, activeStudent, setActiveStudent, addStudent, deleteStudent, updateStudent, isLoading: contextLoading } = useStudent();
     const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<TabType>('overview');
-    
+
     // UI State
     const [groupingMode, setGroupingMode] = useState<GroupingMode>('all');
     const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
@@ -44,7 +44,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
     const [showAddForm, setShowAddForm] = useState(false);
     const [formTab, setFormTab] = useState<FormTab>('identity');
     const [formData, setFormData] = useState<Partial<Student>>({
-        name: '', age: 8, grade: '2. Sınıf', diagnosis: [], interests: [], notes: '', 
+        name: '', age: 8, grade: '2. Sınıf', diagnosis: [], interests: [], notes: '',
         learningStyle: 'Görsel', parentName: '', contactPhone: '', contactEmail: '',
         strengths: [], weaknesses: []
     });
@@ -67,10 +67,10 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
 
     // Initial Load Logic
     useEffect(() => {
-        if (activeStudent && !selectedStudentId) {
+        if (activeStudent?.id && !selectedStudentId) {
             setSelectedStudentId(activeStudent.id);
         }
-    }, [activeStudent]);
+    }, [activeStudent?.id]);
 
     // Load Student Specific Data when selected
     useEffect(() => {
@@ -82,7 +82,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
     const loadStudentData = async (id: string) => {
         setLoadingDetails(true);
         try {
-            const currentStudent = students.find(s=>s.id===id);
+            const currentStudent = students.find(s => s.id === id);
             if (!currentStudent) return;
 
             const [ws, as, cr] = await Promise.all([
@@ -90,11 +90,11 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                 assessmentService.getAssessmentsByStudent(id),
                 curriculumService.getCurriculumsByStudent(id)
             ]);
-            
+
             setStudentWorksheets(ws);
             setStudentAssessments(as);
             setStudentCurriculums(cr);
-            
+
         } catch (e) {
             console.error("Student data load error", e);
         } finally {
@@ -108,7 +108,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
             alert("Lütfen öğrenci adını giriniz.");
             return;
         }
-        
+
         try {
             if (formData.id) {
                 // Update
@@ -121,20 +121,21 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                 });
             }
             setShowAddForm(false);
-            setFormData({ name: '', age: 8, grade: '2. Sınıf', diagnosis: [], interests: [], notes: '', learningStyle: 'Görsel', strengths:[], weaknesses:[] });
+            setFormData({ name: '', age: 8, grade: '2. Sınıf', diagnosis: [], interests: [], notes: '', learningStyle: 'Görsel', strengths: [], weaknesses: [] });
         } catch (e: any) {
             alert(`Kayıt hatası: ${e.message}`);
         }
     };
 
     const handleDelete = async (id: string) => {
-        if(confirm("Bu öğrenciyi ve tüm verilerini silmek istediğinize emin misiniz?")) {
+        if (!id) return;
+        if (confirm("Bu öğrenciyi ve tüm verilerini silmek istediğinize emin misiniz?")) {
             await deleteStudent(id);
-            if(selectedStudentId === id) setSelectedStudentId(null);
+            if (selectedStudentId === id) setSelectedStudentId(null);
         }
     };
 
-    const handleAddTag = (field: 'interests' | 'strengths' | 'weaknesses', value: string, setter: (s:string)=>void) => {
+    const handleAddTag = (field: 'interests' | 'strengths' | 'weaknesses', value: string, setter: (s: string) => void) => {
         if (!value.trim()) return;
         setFormData(prev => ({
             ...prev,
@@ -153,9 +154,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
     // --- Grouping Logic ---
     const groupedStudents = useMemo(() => {
         const filtered = students.filter(s => (s.name || '').toLowerCase().includes(searchQuery.toLowerCase()));
-        
+
         if (groupingMode === 'all') return { 'Tüm Öğrenciler': filtered };
-        
+
         return filtered.reduce((acc, student) => {
             const key = groupingMode === 'grade' ? student.grade : `${student.age} Yaş`;
             if (!acc[key]) acc[key] = [];
@@ -193,28 +194,28 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                 </div>
                 <div className="relative mb-3">
                     <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
-                    <input 
-                        type="text" 
-                        placeholder="Öğrenci ara..." 
+                    <input
+                        type="text"
+                        placeholder="Öğrenci ara..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-9 pr-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:border-amber-500 transition-all"
                     />
                 </div>
-                
+
                 {/* Grouping Toggles */}
                 <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
-                    <button onClick={() => setGroupingMode('all')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${groupingMode==='all' ? 'bg-white dark:bg-zinc-600 shadow text-black dark:text-white' : 'text-zinc-500'}`}>Tümü</button>
-                    <button onClick={() => setGroupingMode('grade')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${groupingMode==='grade' ? 'bg-white dark:bg-zinc-600 shadow text-black dark:text-white' : 'text-zinc-500'}`}>Sınıf</button>
-                    <button onClick={() => setGroupingMode('age')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${groupingMode==='age' ? 'bg-white dark:bg-zinc-600 shadow text-black dark:text-white' : 'text-zinc-500'}`}>Yaş</button>
+                    <button onClick={() => setGroupingMode('all')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${groupingMode === 'all' ? 'bg-white dark:bg-zinc-600 shadow text-black dark:text-white' : 'text-zinc-500'}`}>Tümü</button>
+                    <button onClick={() => setGroupingMode('grade')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${groupingMode === 'grade' ? 'bg-white dark:bg-zinc-600 shadow text-black dark:text-white' : 'text-zinc-500'}`}>Sınıf</button>
+                    <button onClick={() => setGroupingMode('age')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${groupingMode === 'age' ? 'bg-white dark:bg-zinc-600 shadow text-black dark:text-white' : 'text-zinc-500'}`}>Yaş</button>
                 </div>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2">
                 {sortedGroupKeys.map(groupKey => (
                     <div key={groupKey}>
                         {groupingMode !== 'all' && (
-                            <button 
+                            <button
                                 onClick={() => toggleGroup(groupKey)}
                                 className="w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-zinc-500 uppercase tracking-wider hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg mb-1"
                             >
@@ -222,33 +223,34 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                                 <i className={`fa-solid fa-chevron-down transition-transform ${openGroups[groupKey] ? 'rotate-180' : ''}`}></i>
                             </button>
                         )}
-                        
+
                         {(groupingMode === 'all' || openGroups[groupKey]) && (
                             <div className="space-y-1">
                                 {groupedStudents[groupKey].map(s => {
                                     if (!s || !s.id) return null;
-                                    
+
                                     return (
-                                    <button
-                                        key={s.id}
-                                        onClick={() => setSelectedStudentId(s.id)}
-                                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group ${selectedStudentId === s.id ? 'bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 shadow-sm' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800 border-l-4 border-transparent'}`}
-                                    >
-                                        <img src={s.avatar} className="w-10 h-10 rounded-full bg-white border" alt={s.name} />
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className={`font-bold text-sm truncate ${selectedStudentId === s.id ? 'text-amber-900 dark:text-amber-100' : 'text-zinc-700 dark:text-zinc-300'}`}>{s.name}</h4>
-                                            <p className="text-[10px] text-zinc-500 truncate flex gap-2">
-                                                <span>{s.grade}</span> • <span>{s.age} Yaş</span>
-                                            </p>
-                                        </div>
-                                        {activeStudent?.id === s.id && <div className="w-2 h-2 rounded-full bg-green-500 shrink-0"></div>}
-                                    </button>
-                                )})}
+                                        <button
+                                            key={s.id}
+                                            onClick={() => setSelectedStudentId(s.id)}
+                                            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group ${selectedStudentId === s.id ? 'bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 shadow-sm' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800 border-l-4 border-transparent'}`}
+                                        >
+                                            <img src={s.avatar} className="w-10 h-10 rounded-full bg-white border" alt={s.name} />
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className={`font-bold text-sm truncate ${selectedStudentId === s.id ? 'text-amber-900 dark:text-amber-100' : 'text-zinc-700 dark:text-zinc-300'}`}>{s.name}</h4>
+                                                <p className="text-[10px] text-zinc-500 truncate flex gap-2">
+                                                    <span>{s.grade}</span> • <span>{s.age} Yaş</span>
+                                                </p>
+                                            </div>
+                                            {activeStudent?.id === s.id && <div className="w-2 h-2 rounded-full bg-green-500 shrink-0"></div>}
+                                        </button>
+                                    )
+                                })}
                             </div>
                         )}
                     </div>
                 ))}
-                
+
                 {students.length === 0 && (
                     <div className="text-center py-8 text-zinc-400 text-sm">
                         Henüz öğrenci eklenmedi.
@@ -290,7 +292,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className="flex gap-2">
                         <button onClick={() => { setFormData(selectedStudent); setShowAddForm(true); }} className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-xl font-bold text-sm transition-colors flex items-center gap-2">
                             <i className="fa-solid fa-pen"></i> Düzenle
@@ -326,7 +328,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                         <div className="flex items-center justify-center h-64"><i className="fa-solid fa-circle-notch fa-spin text-2xl text-amber-500"></i></div>
                     ) : (
                         <div className="max-w-6xl mx-auto space-y-8 pb-20">
-                            
+
                             {activeTab === 'overview' && (
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                     {/* Stats Cards */}
@@ -381,7 +383,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     {/* Notes Preview */}
                                     <div className="bg-amber-50 dark:bg-amber-900/10 p-6 rounded-2xl border border-amber-100 dark:border-amber-800/30">
                                         <h3 className="font-bold text-lg text-amber-800 dark:text-amber-50 mb-4">Önemli Notlar</h3>
@@ -406,7 +408,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                                                         <p className="text-xs text-zinc-500">{new Date(ws.createdAt).toLocaleDateString('tr-TR')} • {ws.category.title}</p>
                                                     </div>
                                                 </div>
-                                                <button 
+                                                <button
                                                     onClick={() => onLoadMaterial?.(ws)}
                                                     className="px-4 py-2 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded-lg text-xs font-bold transition-colors"
                                                 >
@@ -429,16 +431,16 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                                             <div className="bg-white dark:bg-zinc-800 p-8 rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
                                                 <h3 className="font-bold text-lg mb-6">Gelişim Grafiği (Son 6 Ay)</h3>
                                                 <div className="h-64">
-                                                    <LineChart 
+                                                    <LineChart
                                                         data={studentAssessments.map(a => ({
                                                             date: a.createdAt,
                                                             attention: a.report.scores.attention,
                                                             spatial: a.report.scores.spatial
-                                                        }))} 
+                                                        }))}
                                                         lines={[
                                                             { key: 'attention', color: '#ef4444', label: 'Dikkat' },
                                                             { key: 'spatial', color: '#3b82f6', label: 'Görsel Algı' }
-                                                        ]} 
+                                                        ]}
                                                     />
                                                 </div>
                                             </div>
@@ -472,7 +474,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                                                     % {Math.round((plan.schedule.filter(d => d.isCompleted).length / plan.schedule.length) * 100)} Tamamlandı
                                                 </div>
                                             </div>
-                                            
+
                                             <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2 mb-4">
                                                 <div className="bg-amber-600 h-2 rounded-full transition-all" style={{ width: `${(plan.schedule.filter(d => d.isCompleted).length / plan.schedule.length) * 100}%` }}></div>
                                             </div>
@@ -487,11 +489,11 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
 
                             {activeTab === 'notes' && (
                                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                     <textarea 
+                                    <textarea
                                         className="w-full h-96 p-6 bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-200 dark:border-amber-800 rounded-2xl resize-none outline-none focus:border-amber-400 text-amber-900 dark:text-amber-100 leading-relaxed shadow-inner"
                                         placeholder="Öğrenci hakkında gözlem notları, hatırlatmalar..."
                                         value={formData.notes || selectedStudent.notes}
-                                        onChange={e => setFormData({...formData, notes: e.target.value})}
+                                        onChange={e => setFormData({ ...formData, notes: e.target.value })}
                                         onBlur={() => updateStudent(selectedStudent.id, { notes: formData.notes })}
                                     ></textarea>
                                 </div>
@@ -508,7 +510,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
     const renderAddEditModal = () => (
         <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="bg-white dark:bg-zinc-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                
+
                 {/* Header */}
                 <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900">
                     <h3 className="text-xl font-black text-zinc-900 dark:text-white flex items-center gap-2">
@@ -521,19 +523,19 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
 
                 {/* Tabs */}
                 <div className="flex border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-                    <button 
+                    <button
                         onClick={() => setFormTab('identity')}
                         className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'identity' ? 'border-amber-600 text-amber-600 dark:text-amber-400 bg-amber-50/10' : 'border-transparent text-zinc-500 hover:text-zinc-800'}`}
                     >
                         <i className="fa-solid fa-id-card"></i> Temel Bilgiler
                     </button>
-                    <button 
+                    <button
                         onClick={() => setFormTab('academic')}
                         className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'academic' ? 'border-amber-600 text-amber-600 dark:text-amber-400 bg-amber-50/10' : 'border-transparent text-zinc-500 hover:text-zinc-800'}`}
                     >
                         <i className="fa-solid fa-brain"></i> Akademik Profil
                     </button>
-                    <button 
+                    <button
                         onClick={() => setFormTab('parent')}
                         className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'parent' ? 'border-amber-600 text-amber-600 dark:text-amber-400 bg-amber-50/10' : 'border-transparent text-zinc-500 hover:text-zinc-800'}`}
                     >
@@ -544,22 +546,22 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
                     <form id="student-form" onSubmit={handleSaveStudent} className="space-y-6">
-                        
+
                         {/* TAB 1: IDENTITY */}
                         {formTab === 'identity' && (
                             <div className="space-y-4 animate-in slide-in-from-left-4 duration-300">
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Ad Soyad <span className="text-red-500">*</span></label>
-                                    <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none font-bold" placeholder="Örn: Ayşe Yılmaz" />
+                                    <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none font-bold" placeholder="Örn: Ayşe Yılmaz" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Yaş</label>
-                                        <input type="number" value={formData.age} onChange={e => setFormData({...formData, age: Number(e.target.value)})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none" />
+                                        <input type="number" value={formData.age} onChange={e => setFormData({ ...formData, age: Number(e.target.value) })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Sınıf</label>
-                                        <select value={formData.grade} onChange={e => setFormData({...formData, grade: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none cursor-pointer">
+                                        <select value={formData.grade} onChange={e => setFormData({ ...formData, grade: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none cursor-pointer">
                                             {grades.map(g => <option key={g} value={g}>{g}</option>)}
                                         </select>
                                     </div>
@@ -571,7 +573,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                                             <button
                                                 key={style}
                                                 type="button"
-                                                onClick={() => setFormData({...formData, learningStyle: style as any})}
+                                                onClick={() => setFormData({ ...formData, learningStyle: style as any })}
                                                 className={`p-3 rounded-xl border-2 text-[10px] font-bold transition-all ${formData.learningStyle === style ? 'border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300' : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:border-zinc-300'}`}
                                             >
                                                 {style}
@@ -590,15 +592,15 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                                     <div className="flex flex-wrap gap-2 mb-3">
                                         {formData.diagnosis?.map((d, i) => (
                                             <span key={i} className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold flex items-center gap-2">
-                                                {d} 
-                                                <button type="button" onClick={() => setFormData({...formData, diagnosis: formData.diagnosis?.filter((_, idx) => idx !== i)})} className="hover:text-amber-900">×</button>
+                                                {d}
+                                                <button type="button" onClick={() => setFormData({ ...formData, diagnosis: formData.diagnosis?.filter((_, idx) => idx !== i) })} className="hover:text-amber-900">×</button>
                                             </span>
                                         ))}
                                     </div>
-                                    <select 
+                                    <select
                                         onChange={(e) => {
                                             if (e.target.value && !formData.diagnosis?.includes(e.target.value)) {
-                                                setFormData({...formData, diagnosis: [...(formData.diagnosis || []), e.target.value]});
+                                                setFormData({ ...formData, diagnosis: [...(formData.diagnosis || []), e.target.value] });
                                             }
                                         }}
                                         className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none"
@@ -635,7 +637,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Destek İhtiyaçları (Zayıf Yönler)</label>
                                     <div className="flex gap-2">
@@ -658,26 +660,26 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Veli Adı Soyadı</label>
                                     <div className="relative">
                                         <i className="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
-                                        <input type="text" value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})} className="w-full pl-9 p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none" placeholder="Veli Adı" />
+                                        <input type="text" value={formData.parentName} onChange={e => setFormData({ ...formData, parentName: e.target.value })} className="w-full pl-9 p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none" placeholder="Veli Adı" />
                                     </div>
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">İletişim Telefonu</label>
                                     <div className="relative">
                                         <i className="fa-solid fa-phone absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
-                                        <input type="tel" value={formData.contactPhone} onChange={e => setFormData({...formData, contactPhone: e.target.value})} className="w-full pl-9 p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none" placeholder="05XX XXX XX XX" />
+                                        <input type="tel" value={formData.contactPhone} onChange={e => setFormData({ ...formData, contactPhone: e.target.value })} className="w-full pl-9 p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none" placeholder="05XX XXX XX XX" />
                                     </div>
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">E-posta Adresi</label>
                                     <div className="relative">
                                         <i className="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
-                                        <input type="email" value={formData.contactEmail} onChange={e => setFormData({...formData, contactEmail: e.target.value})} className="w-full pl-9 p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none" placeholder="veli@email.com" />
+                                        <input type="email" value={formData.contactEmail} onChange={e => setFormData({ ...formData, contactEmail: e.target.value })} className="w-full pl-9 p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none" placeholder="veli@email.com" />
                                     </div>
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Özel Notlar</label>
-                                    <textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none h-24 resize-none" placeholder="Eklemek istedikleriniz..." />
+                                    <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none h-24 resize-none" placeholder="Eklemek istedikleriniz..." />
                                 </div>
                             </div>
                         )}
@@ -691,9 +693,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     </div>
                     <div className="flex gap-3">
                         <button onClick={() => setShowAddForm(false)} className="px-6 py-2.5 text-zinc-500 font-bold hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-xl transition-colors">Vazgeç</button>
-                        <button 
-                            type="submit" 
-                            form="student-form" 
+                        <button
+                            type="submit"
+                            form="student-form"
                             className="px-8 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg transition-all transform active:scale-95 flex items-center gap-2"
                         >
                             <i className="fa-solid fa-save"></i> Kaydet
@@ -712,7 +714,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                 <h1 className="font-bold text-lg">Öğrenci Yönetimi</h1>
                 <button onClick={onBack} className="p-2 bg-zinc-100 rounded-full"><i className="fa-solid fa-times"></i></button>
             </div>
-            
+
             {/* Layout */}
             <div className="hidden md:flex w-16 bg-zinc-900 flex-col items-center py-6 gap-6 shrink-0 z-20">
                 <button onClick={onBack} className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors mb-4" title="Ana Menü"><i className="fa-solid fa-house"></i></button>

@@ -21,25 +21,36 @@ const DefaultActivityConfig = ({ options, onChange }: any) => (
     <div className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 space-y-4 shadow-inner animate-in fade-in">
         <div className="space-y-1">
             <label className="text-[10px] font-bold text-zinc-500 uppercase block">Öğe Sayısı</label>
-            <input 
-                type="number" value={options.itemCount || 10} 
+            <input
+                type="number" value={options.itemCount || 10}
                 onChange={e => onChange('itemCount', parseInt(e.target.value))}
-                className="w-full p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none focus:border-indigo-500" 
+                className="w-full p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none focus:border-indigo-500"
             />
         </div>
         <p className="text-[10px] text-zinc-400 italic">Bu etkinlik standart parametreler kullanıyor.</p>
     </div>
 );
 
-export const GeneratorView: React.FC<GeneratorViewProps> = ({ 
-    activity, 
-    onGenerate, 
-    onBack, 
-    isLoading, 
+export const GeneratorView: React.FC<GeneratorViewProps> = ({
+    activity,
+    onGenerate,
+    onBack,
+    isLoading,
     isExpanded = true,
     activeCurriculumSession
 }) => {
     const { students, activeStudent, setActiveStudent } = useStudent();
+
+    // activity null/undefined kontrolü
+    if (!activity) {
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-zinc-50 dark:bg-zinc-900/50">
+                <i className="fa-solid fa-circle-notch fa-spin text-2xl text-indigo-500 mb-4"></i>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Etkinlik Verileri Yükleniyor...</p>
+            </div>
+        );
+    }
+
     const { options, updateOption } = useActivitySettings(activity.id);
 
     // MÜFREDAT SEANSI AKTİFSE PARAMETRELERİ OTOMATİK AYARLA
@@ -52,7 +63,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                 'Hard': 'Zor'
             };
             updateOption('difficulty', diffMap[activeCurriculumSession.difficulty] || 'Orta');
-            
+
             // Eğer spesifik bir konu/hedef varsa topic olarak ata
             if (activeCurriculumSession.goal) {
                 updateOption('topic', activeCurriculumSession.goal);
@@ -88,7 +99,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
             </div>
 
             <div className={`flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0 transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                
+
                 {/* Curriculum Session Alert */}
                 {activeCurriculumSession && (
                     <div className="mb-6 p-4 bg-indigo-600 rounded-2xl text-white shadow-lg animate-in zoom-in-95 duration-300">
@@ -108,7 +119,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                 {/* Global Settings (Öğrenci) */}
                 <div className={`mb-6 p-4 rounded-[1.5rem] border ${activeCurriculumSession ? 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 opacity-70' : 'bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-800/30'}`}>
                     <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] mb-3 flex items-center gap-2 ${activeCurriculumSession ? 'text-zinc-500' : 'text-amber-600 dark:text-amber-500'}`}><i className="fa-solid fa-user-graduate"></i> Aktif Öğrenci</h4>
-                    <select 
+                    <select
                         disabled={!!activeCurriculumSession}
                         value={activeStudent?.id || "anonymous"}
                         onChange={(e) => handleStudentChange(e.target.value)}
@@ -127,10 +138,10 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                     </div>
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold text-zinc-500 uppercase block">Zorluk Seviyesi</label>
-                        <select 
+                        <select
                             disabled={!!activeCurriculumSession}
-                            value={options.difficulty} 
-                            onChange={e => handleChange('difficulty', e.target.value)} 
+                            value={options.difficulty}
+                            onChange={e => handleChange('difficulty', e.target.value)}
                             className="w-full p-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none focus:border-indigo-500 cursor-pointer disabled:opacity-50"
                         >
                             {DIFFICULTY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -142,16 +153,16 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-4">Etkinliğe Özel Ayarlar</h4>
                     <ConfigComponent options={options} onChange={handleChange} />
                 </div>
-                
+
                 <div className="mt-8 space-y-3 pb-8">
-                    <button 
+                    <button
                         onClick={() => onGenerate({ ...options, mode: 'fast' })}
                         disabled={isLoading}
                         className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 border border-zinc-200 dark:border-zinc-700 disabled:opacity-50 active:scale-95"
                     >
                         <i className="fa-solid fa-bolt"></i> Hızlı Üret (Algoritma)
                     </button>
-                    <button 
+                    <button
                         onClick={() => onGenerate({ ...options, mode: 'ai' })}
                         disabled={isLoading}
                         className="w-full px-4 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs shadow-lg shadow-indigo-200 dark:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-70 active:scale-95"
