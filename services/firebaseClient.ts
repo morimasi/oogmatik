@@ -27,10 +27,7 @@ export const auth = getAuth(app);
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager()
-  }),
-  // ÖNEMLİ: Proxy veya reklam engelleyicilerin Listen akışını bozmasını önler
-  experimentalForceLongPolling: true,
-  experimentalAutoDetectLongPolling: false
+  })
 });
 
 export const checkDbConnection = async () => {
