@@ -389,7 +389,7 @@ const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
     );
 
     return (
-        <div className="w-full flex flex-col items-center gap-12 animate-in fade-in duration-500 font-lexend no-scrollbar" id="print-container-v2">
+        <div className="w-full flex flex-col items-center gap-12 animate-in fade-in duration-500 font-lexend no-scrollbar" id="print-container">
             {pages.map((p, i) => renderPage(p, i))}
         </div>
     );
