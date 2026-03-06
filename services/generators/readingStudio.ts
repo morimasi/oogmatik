@@ -18,47 +18,54 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
         'advanced': 'Zengin kelime dağarcığı, edebi sanatlar, 3. kademe üstü dil seviyesi.'
     };
 
+    const profile = config.studentProfile || {};
+    const diagnosisStr = profile.diagnosis?.join(', ') || 'Belirtilmemiş';
+    const interestsStr = profile.interests?.join(', ') || 'Belirtilmemiş';
+
     let tasksInstruction = `HİKAYE İÇERİĞİNE %100 UYUMLU şu interaktif bileşenleri üret:`;
-    if (config.include5N1K) tasksInstruction += "\n- 5N 1K Analizi: Metindeki gerçek verilere dayalı 6 soru-cevap çifti.";
-    if (config.countMultipleChoice > 0) tasksInstruction += `\n- Çoktan Seçmeli Test: ${config.countMultipleChoice} adet (Çeldiriciler mantıklı olmalı).`;
+    if (config.include5N1K) tasksInstruction += "\n- 5N 1K Analizi: Metindeki gerçek verilere dayalı 6 soru-cevap çifti (Kim, Ne, Nerede, Ne Zaman, Nasıl, Neden).";
+    if (config.countMultipleChoice > 0) tasksInstruction += `\n- Çoktan Seçmeli Test: ${config.countMultipleChoice} adet.`;
     if (config.countTrueFalse > 0) tasksInstruction += `\n- Doğru/Yanlış Sorgusu: ${config.countTrueFalse} adet.`;
     if (config.countFillBlanks > 0) tasksInstruction += `\n- Boşluk Doldurma: ${config.countFillBlanks} adet (Metindeki kilit kavramlar seçilmeli).`;
-    if (config.countLogic > 0) tasksInstruction += `\n- Mantık/Muhakeme: ${config.countLogic} adet (Hikaye evreninde geçen, ${config.logicDifficulty || 'Medium'} zorlukta bir problem).`;
-    if (config.countInference > 0) tasksInstruction += `\n- Çıkarım Yapma: ${config.countInference} adet (Satır aralarını okuma soruları).`;
+    if (config.countLogic > 0) tasksInstruction += `\n- Mantık/Muhakeme: ${config.countLogic} adet (${config.logicDifficulty || 'Medium'} zorlukta, metinle bağlantılı gizem veya problem).`;
+    if (config.countInference > 0) tasksInstruction += `\n- Çıkarım Yapma: ${config.countInference} adet (Yazarın amacını veya karakter duygu durumunu sorgulayan).`;
 
     if (config.phonemeFocus) {
-        tasksInstruction += `\n- ÖNEMLİ: Hikaye metninde ve sorularda özellikle "${config.phonemeFocus}" ses/harf gruplarına yoğunlaş (Disleksi müdahale odağı).`;
+        tasksInstruction += `\n- KRİTİK ODAK: Hikayede ve sorularda özellikle "${config.phonemeFocus}" seslerini içeren kelimeleri (Özellikle karıştırılan çiftlerse) sıkça ve vurgulu kullan.`;
     }
     if (config.syllableFocus) {
         tasksInstruction += `\n- TEKNİK: Kelimeleri hece yapılarına göre analiz edilebilir netlikte tut.`;
     }
 
     const prompt = `
-    [ROL: DİSLEKSİ UZMANI, ÇOCUK EDEBİYATI YAZARI VE EĞİTİM TEKNOLOĞU]
+    [ROL: DİSLEKSİ VE ÖZEL EĞİTİM UZMANI, ÖDÜLLÜ ÇOCUK EDEBİYATI YAZARI]
     
-    Aşağıdaki parametrelerle %100 özgün ve disleksi dostu bir eğitim materyali tasarla:
+    Aşağıdaki öğrenci profiline ve parametrelere göre %100 özgün, pedagojik değeri yüksek bir eğitim materyali tasarla.
     
-    PARAMETRELER:
-    1. KONU/TEMA: "${config.topic}"
-    2. TÜR: ${config.genre}
-    3. ANLATIM TONU: ${config.tone}
-    4. HEDEF KİTLE: ${config.gradeLevel} seviyesi. (ÖĞRENCİ: ${config.studentName || 'Anonim'})
-    5. ANA KARAKTER: İSİM: "${config.characterName || config.studentName || 'Öğrenci'}", ÖZELLİKLER: "${config.characterTraits || 'Meraklı ve cesur'}"
-    6. DİL KARMAŞIKLIĞI: ${complexityMap[config.textComplexity || 'moderate']}
-    7. METİN UZUNLUĞU: ${lengthMap[config.length || 'medium']}
+    ÖĞRENCİ PROFİLİ:
+    - İsim: "${config.studentName || 'Öğrenci'}"
+    - Seviye: ${config.gradeLevel}
+    - Tanı/Durum: ${diagnosisStr}
+    - İlgi Alanları: ${interestsStr}
     
-    ÖZEL TALİMATLAR:
-    - Hikaye metni kısa paragraflar halinde, net ve akıcı olmalıdır.
-    - Metin içerisinde öğrencinin okumakta zorlanabileceği "fonolojik kavis" içeren kelimeleri seçip "vocabulary" kısmına anlamlarıyla ekle.
-    - "creativeTask" alanı öğrenciyi çizim yapmaya veya kendi sonunu yazmaya teşvik etmelidir.
-    - "pedagogicalNote" kısmında bu metnin hangi bilişsel beceriyi (örn: görsel bellek, işitsel ayırt etme) desteklediğini belirt.
-
-    GÖRSEL ÜRETİM TALİMATI (imagePrompt):
-    - Stil: ${config.imageGeneration.style || 'storybook'} tarzında.
-    - Detay: ${config.imageGeneration.complexity === 'detailed' ? 'Zengin dokulu' : 'Net ve sade'}.
-    - İçerik: "${config.characterName || 'Karakter'}" karakterini "${config.topic}" temasıyla betimleyen bir sahne.
+    YAZIM PARAMETRELERİ:
+    - TEMA: "${config.topic}"
+    - TÜR: ${config.genre}
+    - TON: ${config.tone}
+    - DİL: ${complexityMap[config.textComplexity || 'moderate']}
+    - UZUNLUK: ${lengthMap[config.length || 'medium']}
+    - ANA KARAKTER: "${config.characterName || config.studentName || 'Kahraman'}" (${config.characterTraits || 'Cesur ve meraklı'})
     
-    EĞİTSEL GÖREVLER:
+    KLİNİK TALİMATLAR:
+    1. Okunabilirlik: Kısa paragraflar, net punto odaklı temiz cümleler kullan.
+    2. Motivasyon: Karakterin zorluklarla başa çıkma şekli üzerinden öğrenciye özgüven aşıla.
+    3. Kelime Çalışması: Fonolojik olarak zorlayıcı kelimeleri (vocabulary) anlamlarıyla seç.
+    
+    GÖRSEL TASARIM (imagePrompt):
+    - Stil: ${config.imageGeneration.style || 'storybook'} tarzında, ${config.imageGeneration.complexity === 'detailed' ? 'detaylı' : 'net hatlı'} çizim.
+    - İçerik: "${config.topic}" dünyasında "${config.characterName || 'Karakter'}" karakterinin en etkileyici anı.
+    
+    ÜRETİLECEK BİLEŞENLER:
     ${tasksInstruction}
     
     DİKKAT: Sadece JSON döndür.
@@ -71,8 +78,8 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
             story: { type: Type.STRING },
             genre: { type: Type.STRING },
             gradeLevel: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING, description: "Detailed visual prompt for the main scene" },
+            pedagogicalNote: { type: Type.STRING, description: "Hangi bilişsel becerinin hedeflendiği (Disleksi uzmanı bakışıyla)" },
+            imagePrompt: { type: Type.STRING },
             vocabulary: {
                 type: Type.ARRAY,
                 items: {

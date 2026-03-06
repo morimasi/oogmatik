@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ReadingStudioProvider, useReadingStudio } from '../../context/ReadingStudioContext';
 import { printService } from '../../utils/printService';
@@ -7,16 +6,22 @@ import { ReadingStudioContentRenderer } from './ReadingStudioContentRenderer';
 import { StudentSelector } from './Editor/StudentSelector';
 import { AIProductionPanel } from './Editor/AIProductionPanel';
 import { ComponentLibrary } from './Editor/ComponentLibrary';
+import { LayoutItem } from '../../types'; // Added LayoutItem import
 
 // --- CONFIGURATION CONSTANTS ---
 const A4_WIDTH_PX = 794;
 const A4_HEIGHT_PX = 1123;
 
-const ReadingStudioInner = ({ onBack }: { onBack: () => void }) => {
+interface ReadingStudioInnerProps {
+    onBack: () => void;
+    onAddToWorkbook: () => void;
+}
+
+const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps) => {
     const {
         config, setStoryData, layout, setLayout,
         isLoading, setIsLoading, designMode, setDesignMode,
-        storyData
+        storyData, setSelectedId
     } = useReadingStudio();
 
     const [sidebarTab, setSidebarTab] = useState('production' as 'production' | 'library' | 'styling');
@@ -43,22 +48,63 @@ const ReadingStudioInner = ({ onBack }: { onBack: () => void }) => {
     const handleGenerate = async () => {
         setIsLoading(true);
         try {
-            const data = await generateInteractiveStory(config);
-            setStoryData(data);
+            const result = await generateInteractiveStory(config);
+            setStoryData(result);
 
-            // Auto-populate layout with generated data
-            setLayout((prev: any[]) => prev.map((item: any) => {
-                const updatedItem = { ...item };
-                if (item.id === 'header') updatedItem.specificData = { title: data.title, subtitle: `${data.genre} | ${data.gradeLevel}` };
-                if (item.id === 'story_block') updatedItem.specificData = { text: data.story, imagePrompt: data.imagePrompt };
-                if (item.id === 'vocabulary') updatedItem.specificData = { questions: data.vocabulary?.map(v => ({ text: `${v.word}: ${v.definition}` })) };
-                if (item.id === 'questions_5n1k') updatedItem.specificData = { questions: data.fiveW1H?.map(q => ({ text: q.question })) };
-                if (item.id === 'questions_test') updatedItem.specificData = { questions: data.multipleChoice?.map(q => ({ text: q.question })) };
-                if (item.id === 'creative') updatedItem.specificData = { task: data.creativeTask };
-                if (item.id === 'pedagogical_note') updatedItem.specificData = { text: data.pedagogicalNote };
-                if (item.id === 'logic_problem') updatedItem.specificData = { questions: data.logicQuestions?.map(q => ({ text: q.question, hint: q.hint })) };
-                return updatedItem;
-            }));
+            // Create initial layout based on result
+            let newLayout: LayoutItem[] = [
+                {
+                    id: 'header', label: 'Başlık Künyesi', instanceId: `header_${Date.now()}`, isVisible: true,
+                    specificData: { title: result.title, subtitle: `${config.genre} - ${config.gradeLevel}` },
+                    style: { x: 20, y: 20, w: 754, h: 120, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                },
+                {
+                    id: 'story_block', label: 'Hikaye Metni', instanceId: `story_${Date.now()}`, isVisible: true,
+                    specificData: { text: result.story },
+                    style: { x: 20, y: 160, w: 754, h: 450, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 16, fontFamily: 'OpenDyslexic', lineHeight: 1.8 }
+                }
+            ];
+
+            let lastY = 630;
+
+            if (result.vocabulary && result.vocabulary.length > 0) {
+                newLayout.push({
+                    id: 'vocabulary', label: 'Kelime Dağarcığı', instanceId: `voc_${Date.now()}`, isVisible: true,
+                    specificData: { words: result.vocabulary },
+                    style: { x: 20, y: lastY, w: 754, h: 150, zIndex: 1, rotation: 0, padding: 15, backgroundColor: '#f8fafc', borderColor: '#e2e8f0', borderWidth: 1, borderStyle: 'solid', borderRadius: 12, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                });
+                lastY += 170;
+            }
+
+            if (result.fiveW1H && result.fiveW1H.length > 0) {
+                newLayout.push({
+                    id: '5n1k', label: '5N1K Çalışması', instanceId: `q5n1k_${Date.now()}`, isVisible: true,
+                    specificData: { questions: result.fiveW1H },
+                    style: { x: 20, y: lastY, w: 754, h: 400, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                });
+                lastY += 420;
+            }
+
+            if (result.logicQuestions && result.logicQuestions.length > 0) {
+                newLayout.push({
+                    id: 'logic_problem', label: 'Mantık Bulmacası', instanceId: `logic_${Date.now()}`, isVisible: true,
+                    specificData: { puzzle: result.logicQuestions[0] },
+                    style: { x: 20, y: lastY, w: 754, h: 200, zIndex: 1, rotation: 0, padding: 20, backgroundColor: '#fef3c7', borderColor: '#f59e0b', borderWidth: 1, borderStyle: 'dashed', borderRadius: 16, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                });
+                lastY += 220;
+            }
+
+            if (result.inferenceQuestions && result.inferenceQuestions.length > 0) {
+                newLayout.push({
+                    id: 'questions', label: 'Çıkarım Soruları', instanceId: `inf_${Date.now()}`, isVisible: true,
+                    specificData: { questions: result.inferenceQuestions.map((q: any) => ({ question: q.question, type: 'open' })) },
+                    style: { x: 20, y: lastY, w: 754, h: 250, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                });
+                lastY += 270;
+            }
+
+            setLayout(newLayout);
+            setSelectedId(null);
             setDesignMode(false);
         } catch (e) {
             alert("Hata oluştu. Lütfen tekrar deneyin.");
@@ -160,8 +206,10 @@ const ReadingStudioInner = ({ onBack }: { onBack: () => void }) => {
     );
 };
 
-export const ReadingStudio = (props: { onBack: () => void }) => (
-    <ReadingStudioProvider>
-        <ReadingStudioInner {...props} />
-    </ReadingStudioProvider>
-);
+export const ReadingStudio = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps) => {
+    return (
+        <ReadingStudioProvider>
+            <ReadingStudioInner onBack={onBack} onAddToWorkbook={onAddToWorkbook} />
+        </ReadingStudioProvider>
+    );
+};

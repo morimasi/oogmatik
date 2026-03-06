@@ -16,11 +16,17 @@ export const StudentSelector = () => {
                 studentId: student.id,
                 studentName: student.name,
                 gradeLevel: student.grade || config.gradeLevel,
-                characterName: student.name.split(' ')[0]
+                characterName: student.name.split(' ')[0],
+                studentProfile: {
+                    diagnosis: student.diagnosis,
+                    interests: student.interests,
+                    strengths: student.strengths,
+                    weaknesses: student.weaknesses
+                }
             });
         } else {
             setActiveStudent(null);
-            setConfig({ ...config, studentId: undefined, studentName: '' });
+            setConfig({ ...config, studentId: undefined, studentName: '', studentProfile: undefined });
         }
     };
 
@@ -34,7 +40,7 @@ export const StudentSelector = () => {
                     className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white appearance-none cursor-pointer hover:border-indigo-500/50 transition-colors focus:ring-2 focus:ring-indigo-500/20"
                 >
                     <option value="">Serbest Çalışma</option>
-                    {students.map(s => (
+                    {students.map((s: any) => (
                         <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>
                     ))}
                 </select>

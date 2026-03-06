@@ -272,6 +272,29 @@ export interface StudentProfile {
     notes?: string;
 }
 
+export interface InteractiveStoryData {
+    title: string;
+    story: string;
+    genre: string;
+    gradeLevel: string;
+    pedagogicalNote?: string;
+    imagePrompt: string;
+    vocabulary?: { word: string; definition: string }[];
+    creativeTask?: string;
+    fiveW1H?: { type: string; question: string; answer: string }[];
+    multipleChoice?: { question: string; options: string[]; answer: string }[];
+    logicQuestions?: {
+        question: string;
+        answer: string;
+        hint: string;
+    }[];
+    inferenceQuestions?: {
+        question: string;
+        answer: string;
+    }[];
+    storyPoints?: string[]; // Key events for visualization
+}
+
 export interface OverlayItem {
     id: string;
     type: 'sticker' | 'text' | 'drawing';
@@ -592,6 +615,12 @@ export interface ReadingStudioConfig {
     gradeLevel: string;
     studentId?: string;
     studentName: string;
+    studentProfile?: {
+        diagnosis?: string[];
+        interests?: string[];
+        strengths?: string[];
+        weaknesses?: string[];
+    };
     characterName?: string;
     characterTraits?: string;
     topic: string;
@@ -636,7 +665,7 @@ export interface ReadingStudioConfig {
     showDateSection: boolean;
 }
 
-export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'pedagogical_note' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes' | 'logic_problem' | 'syllable_train';
+export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'pedagogical_note' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes' | 'logic_problem' | 'syllable_train' | '5n1k' | 'questions';
 
 export interface LayoutItem {
     id: LayoutSectionId;
