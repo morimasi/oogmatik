@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 import { LayoutItem } from '../types';
 
 interface UniversalStudioContextType {
@@ -25,20 +25,20 @@ interface UniversalStudioContextType {
 
 const UniversalStudioContext = createContext<UniversalStudioContextType | undefined>(undefined);
 
-export function UniversalStudioProvider({ children }: { children: any }) {
+export function UniversalStudioProvider({ children }: { children: ReactNode }) {
     const [layout, setLayout] = useState<LayoutItem[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
-    const [designMode, setDesignMode] = useState(false);
+    const [designMode, setDesignMode] = useState<boolean>(false);
     const [lockedItems, setLockedItems] = useState<string[]>([]);
     const [groupedItems, setGroupedItems] = useState<Record<string, string[]>>({});
 
     const updateComponent = useCallback((instanceId: string, updates: Partial<LayoutItem>) => {
-        setLayout((prev: LayoutItem[]) => prev.map(item => item.instanceId === instanceId ? { ...item, ...updates } : item));
+        setLayout((prev: LayoutItem[]) => prev.map((item: LayoutItem) => item.instanceId === instanceId ? { ...item, ...updates } : item));
     }, []);
 
     const updateMultipleComponents = useCallback((instanceIds: string[], updates: Partial<LayoutItem>) => {
-        setLayout((prev: LayoutItem[]) => prev.map(item => instanceIds.includes(item.instanceId) ? { ...item, ...updates } : item));
+        setLayout((prev: LayoutItem[]) => prev.map((item: LayoutItem) => instanceIds.includes(item.instanceId) ? { ...item, ...updates } : item));
     }, []);
 
     const clearSelection = useCallback(() => {
@@ -48,9 +48,9 @@ export function UniversalStudioProvider({ children }: { children: any }) {
 
     const toggleSelection = useCallback((instanceId: string, isCtrlKey: boolean) => {
         if (isCtrlKey) {
-            setSelectedIds(prev => {
+            setSelectedIds((prev: string[]) => {
                 if (prev.includes(instanceId)) {
-                    return prev.filter(id => id !== instanceId);
+                    return prev.filter((id: string) => id !== instanceId);
                 }
                 return [...prev, instanceId];
             });
@@ -66,20 +66,20 @@ export function UniversalStudioProvider({ children }: { children: any }) {
         if (itemsToGroup.length < 2) return;
         
         const groupId = `group_${Date.now()}`;
-        setLayout(prev => prev.map(item => itemsToGroup.includes(item.instanceId) ? { ...item, groupId } : item));
-        setGroupedItems(prev => ({ ...prev, [groupId]: itemsToGroup }));
+        setLayout((prev: LayoutItem[]) => prev.map((item: LayoutItem) => itemsToGroup.includes(item.instanceId) ? { ...item, groupId } : item));
+        setGroupedItems((prev: Record<string, string[]>) => ({ ...prev, [groupId]: itemsToGroup }));
     }, [selectedIds, selectedId]);
 
     const ungroupSelected = useCallback(() => {
         const itemId = selectedId || selectedIds[0];
         if (!itemId) return;
         
-        const item = layout.find(l => l.instanceId === itemId);
+        const item = layout.find((l: LayoutItem) => l.instanceId === itemId);
         if (!item?.groupId) return;
         
         const groupId = item.groupId;
-        setLayout(prev => prev.map(l => l.groupId === groupId ? { ...l, groupId: undefined } : l));
-        setGroupedItems(prev => {
+        setLayout((prev: LayoutItem[]) => prev.map((l: LayoutItem) => l.groupId === groupId ? { ...l, groupId: undefined } : l));
+        setGroupedItems((prev: Record<string, string[]>) => {
             const newGroups = { ...prev };
             delete newGroups[groupId];
             return newGroups;
@@ -88,17 +88,17 @@ export function UniversalStudioProvider({ children }: { children: any }) {
 
     const lockSelected = useCallback(() => {
         const itemsToLock = selectedIds.length > 0 ? selectedIds : (selectedId ? [selectedId] : []);
-        setLockedItems(prev => [...new Set([...prev, ...itemsToLock])]);
+        setLockedItems((prev: string[]) => [...new Set([...prev, ...itemsToLock])]);
     }, [selectedIds, selectedId]);
 
     const unlockSelected = useCallback(() => {
         const itemsToUnlock = selectedIds.length > 0 ? selectedIds : (selectedId ? [selectedId] : []);
-        setLockedItems(prev => prev.filter(id => !itemsToUnlock.includes(id)));
+        setLockedItems((prev: string[]) => prev.filter((id: string) => !itemsToUnlock.includes(id)));
     }, [selectedIds, selectedId]);
 
     const deleteSelected = useCallback(() => {
         const itemsToDelete = selectedIds.length > 0 ? selectedIds : (selectedId ? [selectedId] : []);
-        setLayout(prev => prev.map(item => itemsToDelete.includes(item.instanceId) ? { ...item, isVisible: false } : item));
+        setLayout((prev: LayoutItem[]) => prev.map((item: LayoutItem) => itemsToDelete.includes(item.instanceId) ? { ...item, isVisible: false } : item));
         clearSelection();
     }, [selectedIds, selectedId, clearSelection]);
 

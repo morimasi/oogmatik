@@ -3,7 +3,7 @@ import { LayoutItem } from '../../types';
 import { useUniversalStudio } from '../../context/UniversalStudioContext';
 import { BlockRenderer, SheetRenderer } from '../SheetRenderer';
 
-const DraggableItem = ({ item, children }: { item: LayoutItem, children: any }) => {
+const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.ReactNode }) => {
     const { 
         designMode, updateComponent, setSelectedId, selectedId, layout, setLayout, 
         selectedIds, toggleSelection, lockedItems, groupedItems 
@@ -17,7 +17,7 @@ const DraggableItem = ({ item, children }: { item: LayoutItem, children: any }) 
     const isInGroup = !!item.groupId;
     const groupColor = isInGroup ? getGroupColor(item.groupId!, groupedItems) : null;
 
-    const handleMouseDown = (e: any) => {
+    const handleMouseDown = (e: React.MouseEvent) => {
         if (isLocked) return;
         
         const isCtrlKey = e.ctrlKey || e.metaKey;
@@ -27,9 +27,10 @@ const DraggableItem = ({ item, children }: { item: LayoutItem, children: any }) 
             return;
         }
 
-        const isResizeHandle = e.target.closest('.resize-handle');
-        const isLockButton = e.target.closest('.lock-button');
-        const isActionButton = e.target.closest('.action-button');
+        const target = e.target as HTMLElement;
+        const isResizeHandle = target.closest('.resize-handle');
+        const isLockButton = target.closest('.lock-button');
+        const isActionButton = target.closest('.action-button');
         
         if (isLockButton || isActionButton) return;
 
@@ -40,7 +41,7 @@ const DraggableItem = ({ item, children }: { item: LayoutItem, children: any }) 
         const initialStyle = { ...item.style };
         toggleSelection(item.instanceId, isCtrlKey);
 
-        const onMouseMove = (moveEvent: MouseEvent) => {
+        const onMouseMove = (moveEvent: globalThis.MouseEvent) => {
             if (!isDragging.current) return;
 
             const dx = moveEvent.clientX - startPos.current.x;
@@ -51,7 +52,7 @@ const DraggableItem = ({ item, children }: { item: LayoutItem, children: any }) 
                 const newH = Math.max(30, Math.round((initialStyle.h + dy) / 8) * 8);
                 const heightDiff = newH - initialStyle.h;
 
-                setLayout(initialLayout.current.map(l => {
+                setLayout(initialLayout.current.map((l: LayoutItem) => {
                     if (l.instanceId === item.instanceId) {
                         return { ...l, style: { ...l.style, w: newW, h: newH } };
                     }
@@ -75,9 +76,9 @@ const DraggableItem = ({ item, children }: { item: LayoutItem, children: any }) 
                 const deltaX = newX - initialStyle.x;
                 const deltaY = newY - initialStyle.y;
 
-                setLayout(initialLayout.current.map(l => {
+                setLayout(initialLayout.current.map((l: LayoutItem) => {
                     if (l.instanceId === item.instanceId || (item.groupId && l.groupId === item.groupId)) {
-                        const originalL = initialLayout.current.find(orig => orig.instanceId === l.instanceId) || l;
+                        const originalL = initialLayout.current.find((orig: LayoutItem) => orig.instanceId === l.instanceId) || l;
                         return { ...l, style: { ...l.style, x: originalL.style.x + deltaX, y: originalL.style.y + deltaY } };
                     }
                     return l;
@@ -131,7 +132,7 @@ const DraggableItem = ({ item, children }: { item: LayoutItem, children: any }) 
                         )}
                         <div className="w-px h-3 bg-white/20 mx-1"></div>
                         <button 
-                            onClick={(e: any) => { e.stopPropagation(); updateComponent(item.instanceId, { isVisible: false }); }} 
+                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); updateComponent(item.instanceId, { isVisible: false }); }} 
                             className="action-button hover:text-red-300 transition-colors"
                             title="Sil"
                         >
@@ -181,7 +182,7 @@ function getGroupColor(groupId: string, groupedItems: Record<string, string[]>):
 }
 
 export const UniversalCanvas = () => {
-    const { layout, designMode, selectedIds, clearSelection } = useUniversalStudio();
+    const { layout, designMode, clearSelection } = useUniversalStudio();
     const canvasRef = useRef<HTMLDivElement>(null);
     const [isMarqueeSelecting, setIsMarqueeSelecting] = useState(false);
     const [marqueeStart, setMarqueeStart] = useState({ x: 0, y: 0 });
@@ -223,20 +224,6 @@ export const UniversalCanvas = () => {
 
     const handleCanvasMouseUp = () => {
         if (!isMarqueeSelecting) return;
-        
-        const minX = Math.min(marqueeStart.x, marqueeEnd.x);
-        const maxX = Math.max(marqueeStart.x, marqueeEnd.x);
-        const minY = Math.min(marqueeStart.y, marqueeEnd.y);
-        const maxY = Math.max(marqueeStart.y, marqueeEnd.y);
-        
-        const selectedInMarquee = layout.filter(item => {
-            const itemRight = item.style.x + item.style.w;
-            const itemBottom = item.style.y + item.style.h;
-            return item.style.x < maxX && itemRight > minX && item.style.y < maxY && itemBottom > minY;
-        }).map(item => item.instanceId);
-        
-        // TODO: Update selection with marquee items
-        
         setIsMarqueeSelecting(false);
     };
 
@@ -291,13 +278,13 @@ export const UniversalCanvas = () => {
                 }
             `}</style>
             
-            {Array.from({ length: Math.max(1, ...layout.map(l => (l.pageIndex || 0) + 1)) }).map((_, pageIndex) => {
-                const pageItems = layout.filter(l => l.isVisible && (l.pageIndex || 0) === pageIndex);
+            {Array.from({ length: Math.max(1, ...layout.map((l: LayoutItem) => (l.pageIndex || 0) + 1)) }).map((_, pageIndex) => {
+                const pageItems = layout.filter((l: LayoutItem) => l.isVisible && (l.pageIndex || 0) === pageIndex);
                 
                 return (
                     <div
                         key={pageIndex}
-                        ref={canvasRef}
+                        ref={pageIndex === 0 ? canvasRef : null}
                         className={`worksheet-page print-page relative bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid' : ''}`}
                         style={{ width: 794, minHeight: 1123, padding: 0 }}
                         onMouseDown={handleCanvasMouseDown}
