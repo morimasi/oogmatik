@@ -14,14 +14,14 @@ const SHAPE_PATHS: Record<string, string> = {
     diamond: "M 50 10 L 85 50 L 50 90 L 15 50 Z"
 };
 
-export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data }) => {
+export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
     // searchField artık bölümlerden (sections) oluşan bir dizi
-    const sections = (data.searchField as any) || [];
+    const sections = (data.searchField as unknown as any[]) || [];
 
     return (
         <div className="flex flex-col h-full bg-white font-lexend text-black p-1 overflow-hidden select-none">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            
+
             {/* Hedef Hatırlatıcı */}
             <div className="flex justify-center mb-4">
                 <div className="bg-zinc-900 text-white px-6 py-2 rounded-full flex items-center gap-4 shadow-lg border-4 border-white ring-2 ring-zinc-100">
@@ -34,9 +34,9 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
             </div>
 
             <div className="grid grid-cols-2 gap-6 flex-1 content-start mt-2">
-                {sections.map((section: any, idx: number) => (
-                    <EditableElement 
-                        key={idx} 
+                {sections.map((section, idx) => (
+                    <EditableElement
+                        key={idx}
                         className="flex flex-col border-[2.5px] border-zinc-900 rounded-[2.5rem] bg-white group hover:border-indigo-600 transition-all p-4 relative overflow-hidden break-inside-avoid shadow-sm"
                     >
                         {/* Sayı Rozeti */}
@@ -46,9 +46,9 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
 
                         {/* Kaotik Arama Alanı (Chaos Canvas) */}
                         <div className="flex-1 relative min-h-[300px] border-2 border-dashed border-zinc-100 rounded-[2rem] bg-zinc-50/30 overflow-hidden">
-                             <svg viewBox="0 0 100 100" className="w-full h-full">
+                            <svg viewBox="0 0 100 100" className="w-full h-full">
                                 {section.searchField.map((item: any) => (
-                                    <path 
+                                    <path
                                         key={item.id}
                                         d={SHAPE_PATHS[item.type] || SHAPE_PATHS.triangle}
                                         fill="none"
@@ -62,7 +62,7 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
                                         className="transition-colors group-hover:stroke-zinc-400"
                                     />
                                 ))}
-                             </svg>
+                            </svg>
                         </div>
 
                         {/* Cevap Giriş Alanı */}
@@ -86,16 +86,16 @@ export const ShapeCountingSheet: React.FC<{ data: ShapeCountingData }> = ({ data
             {/* Performance Tracker / Footer */}
             <div className="mt-4 pt-4 border-t-2 border-zinc-900 flex justify-between items-end px-6 opacity-40">
                 <div className="flex gap-10">
-                     <div className="flex flex-col">
+                    <div className="flex flex-col">
                         <span className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.2em]">Kategori</span>
                         <span className="text-[9px] font-bold text-zinc-800 uppercase leading-none">Görsel-Uzamsal Seçicilik</span>
-                     </div>
+                    </div>
                 </div>
                 <div className="flex flex-col items-end">
                     <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.4em] mb-1">Bursa Disleksi AI • Figure-Ground Testing</p>
                     <div className="flex gap-3">
-                         <i className="fa-solid fa-shapes"></i>
-                         <i className="fa-solid fa-eye-low-vision"></i>
+                        <i className="fa-solid fa-shapes"></i>
+                        <i className="fa-solid fa-eye-low-vision"></i>
                     </div>
                 </div>
             </div>

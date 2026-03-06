@@ -4,7 +4,7 @@ import { InteractiveStoryData } from '../../../types';
 import { ImageDisplay, PedagogicalHeader, ReadingRuler, StoryHighlighter, QUESTION_TYPES } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, questions: any[], type: string, icon?: string }) => {
+const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, questions: any[] | undefined, type: string, icon?: string }) => {
     if (!questions || questions.length === 0) return null;
     return (
         <div className="mb-8 break-inside-avoid">
@@ -73,7 +73,7 @@ const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, q
     );
 };
 
-export const StoryComprehensionSheet: React.FC<{ data: InteractiveStoryData }> = ({ data }) => (
+export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }) => (
     <div className="flex flex-col h-full bg-white relative font-lexend">
         <ReadingRuler />
         <div className="shrink-0 mb-6 flex justify-between items-start border-b-4 border-zinc-900 pb-4">

@@ -4,14 +4,14 @@ import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 // Fix: Typed as React.FC to handle React-specific props like 'key' in maps
-const ArrowIcon: React.FC<{ dir: string }> = ({ dir }) => {
+const ArrowIcon = ({ dir }: { dir: string }) => {
     const rotations: Record<string, number> = {
         'right': 0,
         'down': 90,
         'left': 180,
         'up': 270
     };
-    
+
     return (
         <div className="w-6 h-6 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/30 rounded-md border border-indigo-100 dark:border-indigo-800 shadow-xs">
             <i className="fa-solid fa-arrow-right text-indigo-600 text-[10px]" style={{ transform: `rotate(${rotations[dir] || 0}deg)` }}></i>
@@ -19,10 +19,10 @@ const ArrowIcon: React.FC<{ dir: string }> = ({ dir }) => {
     );
 };
 
-export const DirectionalTrackingSheet: React.FC<{ data: DirectionalTrackingData }> = ({ data }) => {
+export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingData }) => {
     const puzzles = data.puzzles || [];
     const count = puzzles.length;
-    
+
     // A4 Doluluk Optimizasyonu
     const gridCols = count <= 2 ? 'grid-cols-1' : (count <= 4 ? 'grid-cols-2' : 'grid-cols-2');
     const cardPadding = count > 4 ? 'p-4' : 'p-6';
@@ -30,11 +30,11 @@ export const DirectionalTrackingSheet: React.FC<{ data: DirectionalTrackingData 
     return (
         <div className="flex flex-col h-full bg-white font-lexend text-black p-1 overflow-hidden select-none">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            
+
             <div className={`grid ${gridCols} gap-4 mt-2 flex-1 content-start`}>
                 {puzzles.map((puzzle, idx) => (
-                    <EditableElement 
-                        key={idx} 
+                    <EditableElement
+                        key={idx}
                         className={`flex flex-col border-[2px] border-zinc-900 rounded-[2rem] bg-white group hover:border-indigo-50 transition-all shadow-sm break-inside-avoid relative overflow-hidden ${cardPadding}`}
                     >
                         {/* Sayı Rozeti */}
@@ -65,7 +65,7 @@ export const DirectionalTrackingSheet: React.FC<{ data: DirectionalTrackingData 
                                             {puzzle.grid.flatMap((row, r) => row.map((cell, c) => {
                                                 const isStart = r === puzzle.startPos.r && c === puzzle.startPos.c;
                                                 return (
-                                                    <div 
+                                                    <div
                                                         key={`${r}-${c}`}
                                                         className={`w-6 h-6 border-[0.5px] border-zinc-200 flex items-center justify-center text-[11px] font-black transition-colors ${isStart ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'text-zinc-800'}`}
                                                     >

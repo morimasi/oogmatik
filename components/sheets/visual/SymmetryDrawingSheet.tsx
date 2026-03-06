@@ -4,9 +4,9 @@ import { SymmetryDrawingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ data }) => {
+export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) => {
     const gridDim = data?.gridDim || 10;
-    
+
     // A4 Alan hesaplaması
     const maxAvailableWidth = 650;
     const cellSize = Math.min(45, Math.floor(maxAvailableWidth / gridDim));
@@ -17,12 +17,12 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
 
     // Pedagojik referans noktaları (Ghost Points)
     // Sadece başlangıç ve orta seviyede yardımcı noktalar gösterilir
-    const showGhostPoints = true; 
+    const showGhostPoints = true;
 
     return (
         <div className="flex flex-col h-full bg-white p-2 font-lexend text-black">
             <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
-            
+
             <div className="flex-1 flex flex-col items-center justify-center py-10 relative">
                 {/* Teknik Çizim Etiketi */}
                 <div className="absolute top-4 left-10 flex gap-4 opacity-40 select-none no-print">
@@ -44,7 +44,7 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
                                     <React.Fragment key={i}>
                                         <line x1={i * cellSize} y1="0" x2={i * cellSize} y2={totalSize} stroke="#f1f5f9" strokeWidth="1" />
                                         <line x1="0" y1={i * cellSize} x2={totalSize} y2={i * cellSize} stroke="#f1f5f9" strokeWidth="1" />
-                                        
+
                                         {showCoords && (
                                             <>
                                                 <text x={i * cellSize} y="-15" textAnchor="middle" fontSize="10" fontWeight="900" className="fill-zinc-300 font-mono">
@@ -70,23 +70,23 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
                                     const mirroredX = axis === 'vertical' ? (gridDim - dot.x) : dot.x;
                                     const mirroredY = axis === 'vertical' ? dot.y : (gridDim - dot.y);
                                     return (
-                                        <circle 
-                                            key={`ghost-${i}`} 
-                                            cx={mirroredX * cellSize} cy={mirroredY * cellSize} 
-                                            r="4" 
-                                            className="fill-indigo-50 stroke-indigo-100 stroke-1" 
+                                        <circle
+                                            key={`ghost-${i}`}
+                                            cx={mirroredX * cellSize} cy={mirroredY * cellSize}
+                                            r="4"
+                                            className="fill-indigo-50 stroke-indigo-100 stroke-1"
                                         />
                                     );
                                 })}
 
                                 {/* SOL/ÜST TARAF (Orijinal Şekil) */}
                                 {(data?.lines || []).map((l, i) => (
-                                    <line 
-                                        key={i} 
-                                        x1={l.x1 * cellSize} y1={l.y1 * cellSize} 
-                                        x2={l.x2 * cellSize} y2={l.y2 * cellSize} 
-                                        stroke="#0f172a" 
-                                        strokeWidth="5" 
+                                    <line
+                                        key={i}
+                                        x1={l.x1 * cellSize} y1={l.y1 * cellSize}
+                                        x2={l.x2 * cellSize} y2={l.y2 * cellSize}
+                                        stroke="#0f172a"
+                                        strokeWidth="5"
                                         strokeLinecap="round"
                                         fill="none"
                                     />
@@ -116,24 +116,24 @@ export const SymmetryDrawingSheet: React.FC<{ data: SymmetryDrawingData }> = ({ 
 
                     {/* Klinik Hata Analiz Paneli (Uzmanlar İçin) */}
                     <div className="mt-12 grid grid-cols-3 gap-6 w-full opacity-60 hover:opacity-100 transition-opacity no-print">
-                         <div className="flex flex-col gap-2 p-3 bg-white border border-zinc-200 rounded-xl">
-                             <span className="text-[8px] font-black uppercase text-zinc-400">Motor Kontrol</span>
-                             <div className="flex gap-1">
-                                 {[1,2,3,4,5].map(i => <div key={i} className="w-3 h-3 border border-zinc-300 rounded-sm"></div>)}
-                             </div>
-                         </div>
-                         <div className="flex flex-col gap-2 p-3 bg-white border border-zinc-200 rounded-xl">
-                             <span className="text-[8px] font-black uppercase text-zinc-400">Zihinsel Döndürme</span>
-                             <div className="flex gap-1">
-                                 {[1,2,3,4,5].map(i => <div key={i} className="w-3 h-3 border border-zinc-300 rounded-sm"></div>)}
-                             </div>
-                         </div>
-                         <div className="flex flex-col gap-2 p-3 bg-white border border-zinc-200 rounded-xl">
-                             <span className="text-[8px] font-black uppercase text-zinc-400">Koordinat Takibi</span>
-                             <div className="flex gap-1">
-                                 {[1,2,3,4,5].map(i => <div key={i} className="w-3 h-3 border border-zinc-300 rounded-sm"></div>)}
-                             </div>
-                         </div>
+                        <div className="flex flex-col gap-2 p-3 bg-white border border-zinc-200 rounded-xl">
+                            <span className="text-[8px] font-black uppercase text-zinc-400">Motor Kontrol</span>
+                            <div className="flex gap-1">
+                                {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-3 h-3 border border-zinc-300 rounded-sm"></div>)}
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2 p-3 bg-white border border-zinc-200 rounded-xl">
+                            <span className="text-[8px] font-black uppercase text-zinc-400">Zihinsel Döndürme</span>
+                            <div className="flex gap-1">
+                                {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-3 h-3 border border-zinc-300 rounded-sm"></div>)}
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2 p-3 bg-white border border-zinc-200 rounded-xl">
+                            <span className="text-[8px] font-black uppercase text-zinc-400">Koordinat Takibi</span>
+                            <div className="flex gap-1">
+                                {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-3 h-3 border border-zinc-300 rounded-sm"></div>)}
+                            </div>
+                        </div>
                     </div>
                 </EditableElement>
             </div>

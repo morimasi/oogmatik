@@ -4,13 +4,13 @@ import { SynonymAntonymMatchData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const SynonymAntonymMatchSheet: React.FC<{ data: SynonymAntonymMatchData }> = ({ data }) => {
+export const SynonymAntonymMatchSheet = ({ data }: { data: SynonymAntonymMatchData }) => {
     const shuffledTargets = [...data.pairs].sort(() => Math.random() - 0.5);
 
     return (
         <div className="flex flex-col h-full bg-white font-lexend text-black p-2">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            
+
             <div className="grid grid-cols-2 gap-x-20 gap-y-6 mt-10 pb-10 border-b-2 border-zinc-100">
                 <div className="space-y-4">
                     <h5 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-4">KELİMELER</h5>
@@ -36,16 +36,16 @@ export const SynonymAntonymMatchSheet: React.FC<{ data: SynonymAntonymMatchData 
                 <h5 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">BAĞLAMSAL KULLANIM</h5>
                 {data.sentences.map((sent, idx) => (
                     <EditableElement key={idx} className="p-5 bg-indigo-50/30 border-l-8 border-indigo-500 rounded-r-3xl">
-                         <p className="text-xl leading-relaxed italic text-zinc-800">
-                             {sent.text.split('_______').map((part, i, arr) => (
-                                 <React.Fragment key={i}>
-                                     {part}
-                                     {i < arr.length - 1 && (
-                                         <span className="inline-block min-w-[140px] border-b-2 border-dashed border-indigo-400 mx-2 text-transparent">..........</span>
-                                     )}
-                                 </React.Fragment>
-                             ))}
-                         </p>
+                        <p className="text-xl leading-relaxed italic text-zinc-800">
+                            {sent.text.split('_______').map((part, i, arr) => (
+                                <React.Fragment key={i}>
+                                    {part}
+                                    {i < arr.length - 1 && (
+                                        <span className="inline-block min-w-[140px] border-b-2 border-dashed border-indigo-400 mx-2 text-transparent">..........</span>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </p>
                     </EditableElement>
                 ))}
             </div>

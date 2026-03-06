@@ -4,7 +4,7 @@ import { SyllableMasterLabData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const SyllableMasterLabSheet: React.FC<{ data: SyllableMasterLabData }> = ({ data }) => {
+export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }) => {
     const { mode, items } = data;
 
     const renderItem = (item: any, idx: number) => {
@@ -84,7 +84,7 @@ export const SyllableMasterLabSheet: React.FC<{ data: SyllableMasterLabData }> =
         <div className="flex flex-col h-full bg-white font-lexend p-1">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
             <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 content-start">
-                {items.map((item: any, i: number) => renderItem(item, i))}
+                {items.map((item, i) => renderItem(item, i))}
             </div>
             <div className="mt-10 pt-6 border-t border-zinc-100 flex justify-between items-center opacity-40">
                 <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Bilişsel Dil Laboratuvarı</p>

@@ -273,28 +273,6 @@ export interface StudentProfile {
     notes?: string;
 }
 
-export interface InteractiveStoryData {
-    title: string;
-    story: string;
-    genre: string;
-    gradeLevel: string;
-    pedagogicalNote?: string;
-    imagePrompt: string;
-    vocabulary?: { word: string; definition: string }[];
-    creativeTask?: string;
-    fiveW1H?: { type: string; question: string; answer: string }[];
-    multipleChoice?: { question: string; options: string[]; answer: string }[];
-    logicQuestions?: {
-        question: string;
-        answer: string;
-        hint: string;
-    }[];
-    inferenceQuestions?: {
-        question: string;
-        answer: string;
-    }[];
-    storyPoints?: string[]; // Key events for visualization
-}
 
 export interface OverlayItem {
     id: string;

@@ -4,13 +4,13 @@ import { ReadingStroopData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const ReadingStroopSheet: React.FC<{ data: ReadingStroopData }> = ({ data }) => {
+export const ReadingStroopSheet = ({ data }: { data: ReadingStroopData }) => {
     const { cols, fontSize } = data.settings;
 
     return (
         <div className="flex flex-col h-full w-full bg-white font-lexend text-black relative p-2">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            
+
             <div className="flex-1 w-full grid gap-y-12 gap-x-4 mt-12 content-start" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
                 {(data.grid || []).map((item, idx) => (
                     <EditableElement key={idx} className="flex justify-center items-center">

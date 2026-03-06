@@ -33,47 +33,47 @@ const MapMarker = ({ type }: { type: string }) => {
     }
 };
 
-export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data }) => {
+export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
     // Öncelik: Kullanıcı tarafından yüklenen harita görseli > Wikimedia Fallback
     const isCustomMap = !!data.imageBase64;
     const mapSource = data.imageBase64 || "https://upload.wikimedia.org/wikipedia/commons/1/12/Turkey_provinces_blank_map.svg";
-    
+
     // Eğer özel bir harita ise koordinatları orantılamak gerekebilir (0-1000 range varsayılıyor)
     const isRegionFocused = data.cities && data.cities.length < 50;
 
     return (
         <div className="flex flex-col h-full bg-white p-2 font-sans text-black overflow-visible">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            
+
             {/* HARİTA KANVASI */}
             <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 group min-h-[450px]">
-                
+
                 {/* Zemin Harita Katmanı */}
                 <div className="absolute inset-0 w-full h-full flex items-center justify-center p-4 bg-white z-10">
-                     <img 
-                        src={mapSource} 
-                        alt="Türkiye Haritası" 
+                    <img
+                        src={mapSource}
+                        alt="Türkiye Haritası"
                         crossOrigin={isCustomMap ? undefined : "anonymous"}
                         className={`w-full h-full object-contain ${isCustomMap ? '' : 'mix-blend-multiply'} transition-all duration-700 ${isRegionFocused ? 'scale-110 opacity-80' : 'opacity-100'}`}
                     />
                 </div>
-                
+
                 {/* Konumsal Overlay (Dinamik AI İşaretçileri) */}
                 <svg viewBox="0 0 1000 500" className="w-full h-full absolute inset-0 z-20 pointer-events-none drop-shadow-md">
-                    {(data.cities || []).map((city: any) => (
+                    {(data.cities || []).map((city) => (
                         <g key={city.id} transform={`translate(${city.x}, ${city.y})`}>
                             <MapMarker type={data.settings?.markerStyle || 'circle'} />
                             {data.settings?.showCityNames !== false && (
-                                <text 
-                                    y="-16" 
-                                    textAnchor="middle" 
-                                    fontSize="12" 
-                                    fontWeight="900" 
+                                <text
+                                    y="-16"
+                                    textAnchor="middle"
+                                    fontSize="12"
+                                    fontWeight="900"
                                     className="fill-zinc-900 font-sans tracking-tight"
-                                    style={{ 
-                                        paintOrder: 'stroke', 
-                                        stroke: 'white', 
-                                        strokeWidth: '4px', 
+                                    style={{
+                                        paintOrder: 'stroke',
+                                        stroke: 'white',
+                                        strokeWidth: '4px',
                                         strokeLinejoin: 'round'
                                     }}
                                 >
@@ -118,14 +118,14 @@ export const MapDetectiveSheet: React.FC<{ data: MapInstructionData }> = ({ data
 
             <div className="mt-auto pt-10 flex justify-between items-center px-10 border-t border-zinc-100 opacity-30">
                 <div className="flex gap-12">
-                     <div className="flex flex-col">
+                    <div className="flex flex-col">
                         <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Sistem</span>
                         <span className="text-[11px] font-bold text-zinc-800 uppercase">Manuel Görsel Entegrasyonu</span>
-                     </div>
-                     <div className="flex flex-col">
+                    </div>
+                    <div className="flex flex-col">
                         <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Motor</span>
                         <span className="text-[11px] font-bold text-indigo-600 uppercase">Multimodal AI Vizyon</span>
-                     </div>
+                    </div>
                 </div>
                 <div className="flex flex-col items-end">
                     <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em] mb-1 text-right">Bursa Disleksi AI • Uzman Serisi</p>

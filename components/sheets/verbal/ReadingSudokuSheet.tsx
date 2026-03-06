@@ -4,14 +4,14 @@ import { ReadingSudokuData } from '../../../types';
 import { PedagogicalHeader, ImageDisplay } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const ReadingSudokuSheet: React.FC<{ data: ReadingSudokuData }> = ({ data }) => {
+export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
     const size = data.settings.size || 4;
     const isBig = size > 4;
 
     return (
         <div className="flex flex-col h-full bg-white font-lexend text-black relative">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            
+
             <div className="flex flex-col md:flex-row gap-12 items-center justify-center mt-12 flex-1">
                 <div className="border-[4px] border-black bg-black shadow-2xl rounded-lg overflow-hidden shrink-0">
                     <table className="border-collapse bg-white">
@@ -21,10 +21,10 @@ export const ReadingSudokuSheet: React.FC<{ data: ReadingSudokuData }> = ({ data
                                     {row.map((cell, cIdx) => {
                                         const isRightEdge = (cIdx + 1) % (size === 4 ? 2 : 3) === 0 && cIdx !== size - 1;
                                         const isBottomEdge = (rIdx + 1) % (size === 9 ? 3 : 2) === 0 && rIdx !== size - 1;
-                                        
+
                                         return (
-                                            <td 
-                                                key={cIdx} 
+                                            <td
+                                                key={cIdx}
                                                 className={`
                                                     border border-zinc-300 text-center relative
                                                     ${isBig ? 'w-14 h-14 text-lg' : 'w-24 h-24 text-3xl'}

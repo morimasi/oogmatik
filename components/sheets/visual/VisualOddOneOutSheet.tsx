@@ -6,11 +6,11 @@ import { EditableElement, EditableText } from '../../Editable';
 
 const ComplexShapeRenderer = ({ item, size = 80 }: { item: VisualOddOneOutItem, size?: number }) => {
     if (!item) return null;
-    
+
     return (
-        <div 
+        <div
             className="transition-all duration-300 flex items-center justify-center"
-            style={{ 
+            style={{
                 transform: `rotate(${item.rotation || 0}deg) scale(${item.scale || 1}) ${item.isMirrored ? 'scaleX(-1)' : ''}`,
                 width: size,
                 height: size
@@ -23,14 +23,14 @@ const ComplexShapeRenderer = ({ item, size = 80 }: { item: VisualOddOneOutItem, 
             ) : item.svgPaths ? (
                 <svg viewBox="0 0 100 100" className="w-full h-full">
                     {item.svgPaths.map((p, i) => (
-                        <path 
-                            key={i} 
-                            d={p.d} 
-                            fill={p.fill || "none"} 
-                            stroke={p.stroke || "#0f172a"} 
-                            strokeWidth={p.strokeWidth || 3} 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
+                        <path
+                            key={i}
+                            d={p.d}
+                            fill={p.fill || "none"}
+                            stroke={p.stroke || "#0f172a"}
+                            strokeWidth={p.strokeWidth || 3}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         />
                     ))}
                 </svg>
@@ -43,10 +43,10 @@ const ComplexShapeRenderer = ({ item, size = 80 }: { item: VisualOddOneOutItem, 
     );
 };
 
-export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ data }) => {
+export const VisualOddOneOutSheet = ({ data }: { data: VisualOddOneOutData }) => {
     const isExtreme = data.distractionLevel === 'extreme';
     const itemsPerRow = data.rows?.[0]?.items?.length || 4;
-    
+
     const containerClass = itemsPerRow > 12 ? 'gap-1' : (itemsPerRow > 6 ? 'gap-3' : 'gap-6');
     const itemBoxSize = itemsPerRow > 15 ? 'w-8 h-8' : (itemsPerRow > 10 ? 'w-12 h-12' : 'w-24 h-24');
     const rendererSize = itemsPerRow > 15 ? 24 : (itemsPerRow > 10 ? 40 : 80);
@@ -54,11 +54,11 @@ export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ 
     return (
         <div className="flex flex-col h-full bg-white p-2 font-sans text-black overflow-visible">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            
+
             <div className="flex-1 space-y-4 mt-2 content-start">
                 {(data.rows || []).map((row, i) => (
-                    <EditableElement 
-                        key={i} 
+                    <EditableElement
+                        key={i}
                         className={`flex flex-col p-4 border-[2px] border-zinc-900 rounded-[2.5rem] bg-white relative overflow-visible transition-all hover:bg-zinc-50 hover:border-indigo-600 group break-inside-avoid shadow-sm`}
                     >
                         <div className="absolute -top-3 -left-3 bg-zinc-900 text-white w-8 h-8 flex items-center justify-center font-black text-xs rounded-xl shadow-lg border-2 border-white z-10">
@@ -80,7 +80,7 @@ export const VisualOddOneOutSheet: React.FC<{ data: VisualOddOneOutData }> = ({ 
                                 </div>
                             ))}
                         </div>
-                        
+
                         {isExtreme && (
                             <div className="absolute top-2 right-4">
                                 <span className="text-[7px] font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">Klinik Zorluk</span>

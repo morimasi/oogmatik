@@ -4,13 +4,13 @@ import { GridDrawingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement } from '../../Editable';
 
-export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) => {
+export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     const gridDim = data?.gridDim || 6;
     const isStackView = gridDim > 7;
     const targetCellSize = gridDim > 10 ? 30 : 45;
     const maxSafeWidth = 750;
-    
-    const cellSize = isStackView 
+
+    const cellSize = isStackView
         ? Math.min(targetCellSize, Math.floor(650 / gridDim))
         : Math.min(targetCellSize, Math.floor((maxSafeWidth - 100) / (gridDim * 2)));
 
@@ -20,7 +20,7 @@ export const GridDrawingSheet: React.FC<{ data: GridDrawingData }> = ({ data }) 
 
     const renderGrid = (lines: [number, number][][] | null, label: string, isReference: boolean) => {
         const sanitizedId = `pattern-${isReference}-${label.replace(/[^a-z0-9]/gi, '-')}`;
-        
+
         return (
             <div className="flex flex-col items-center">
                 <div className={`mb-3 px-5 py-1.5 rounded-2xl border-2 font-black text-[9px] uppercase tracking-widest transition-all shadow-sm ${isReference ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-zinc-50 text-zinc-500 border-zinc-200'}`}>

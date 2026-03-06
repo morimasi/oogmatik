@@ -3,10 +3,10 @@ import { HiddenPasswordGridData, AnagramsData, WordSearchData, CrosswordData } f
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const HiddenPasswordGridSheet: React.FC<{ data: HiddenPasswordGridData }> = ({ data }) => {
+export const HiddenPasswordGridSheet = ({ data }: { data: HiddenPasswordGridData }) => {
     const { gridSize = 5, itemCount = 9, cellStyle = 'square' } = data.settings || {};
     const gridColsClass = itemCount <= 3 ? "grid-cols-1" : itemCount <= 6 ? "grid-cols-2" : "grid-cols-3";
-    
+
     return (
         <div className="w-full h-full flex flex-col bg-white p-2 font-lexend">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
@@ -42,7 +42,7 @@ export const HiddenPasswordGridSheet: React.FC<{ data: HiddenPasswordGridData }>
     );
 };
 
-export const AnagramSheet: React.FC<{ data: AnagramsData }> = ({ data }) => (
+export const AnagramSheet = ({ data }: { data: AnagramsData }) => (
     <div className="flex flex-col h-full bg-white font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mt-10 flex-1 content-start">
@@ -58,7 +58,7 @@ export const AnagramSheet: React.FC<{ data: AnagramsData }> = ({ data }) => (
     </div>
 );
 
-export const WordSearchSheet: React.FC<{ data: WordSearchData }> = ({ data }) => (
+export const WordSearchSheet = ({ data }: { data: WordSearchData }) => (
     <div className="flex flex-col h-full font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex flex-col md:flex-row gap-12 mt-10 items-start flex-1">
@@ -87,7 +87,7 @@ export const WordSearchSheet: React.FC<{ data: WordSearchData }> = ({ data }) =>
     </div>
 );
 
-export const CrosswordSheet: React.FC<{ data: CrosswordData }> = ({ data }) => (
+export const CrosswordSheet = ({ data }: { data: CrosswordData }) => (
     <div className="flex flex-col h-full bg-white font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex flex-col gap-10 mt-8">

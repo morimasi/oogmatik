@@ -4,10 +4,10 @@ import { SyllableWordBuilderData } from '../../../types';
 import { PedagogicalHeader, ImageDisplay } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const SyllableWordBuilderSheet: React.FC<{ data: SyllableWordBuilderData }> = ({ data }) => (
+export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderData }) => (
     <div className="flex flex-col h-full bg-white p-2 text-black font-lexend">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        
+
         <div className="flex-1 flex flex-col gap-10 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {(data.words || []).map((word, idx) => (

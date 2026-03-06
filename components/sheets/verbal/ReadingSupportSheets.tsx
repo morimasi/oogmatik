@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
+import {
     ReadingFlowData, PhonologicalAwarenessData, SyllableTrainData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, HandwritingPracticeData, LetterDiscriminationData, RapidNamingData, MirrorLettersData, VisualTrackingLineData
 } from '../../../types';
 import { PedagogicalHeader, HandwritingGuide, TracingText, ImageDisplay, GridComponent } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const ReadingFlowSheet: React.FC<{ data: ReadingFlowData }> = ({ data }) => (
+export const ReadingFlowSheet = ({ data }: { data: ReadingFlowData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction="Metni önce heceleyerek, sonra akıcı bir şekilde oku." note={data.pedagogicalNote} />
         <div className="mt-10 p-12 bg-zinc-50 border-4 border-zinc-100 rounded-[3.5rem] shadow-inner flex-1 flex flex-col justify-center">
@@ -13,7 +13,7 @@ export const ReadingFlowSheet: React.FC<{ data: ReadingFlowData }> = ({ data }) 
                 <div key={pIdx} className="mb-8 last:mb-0">
                     {(p.sentences || []).map((s, sIdx) => (
                         <p key={sIdx} className="text-3xl leading-[2.5] font-dyslexic text-zinc-800 text-justify tracking-wide mb-6">
-                            {(s.syllables || []).map((syl, sylIdx) => (
+                            {(s.syllables || []).map((syl: { text: string }, sylIdx: number) => (
                                 <span key={sylIdx} className="hover:bg-yellow-100 px-1 rounded transition-colors cursor-help border-b-2 border-zinc-200">{syl.text}</span>
                             ))}
                         </p>
@@ -24,7 +24,7 @@ export const ReadingFlowSheet: React.FC<{ data: ReadingFlowData }> = ({ data }) 
     </div>
 );
 
-export const PhonologicalAwarenessSheet: React.FC<{ data: PhonologicalAwarenessData }> = ({ data }) => (
+export const PhonologicalAwarenessSheet = ({ data }: { data: PhonologicalAwarenessData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-6 mt-8">
@@ -41,7 +41,7 @@ export const PhonologicalAwarenessSheet: React.FC<{ data: PhonologicalAwarenessD
     </div>
 );
 
-export const RapidNamingSheet: React.FC<{ data: RapidNamingData }> = ({ data }) => (
+export const RapidNamingSheet = ({ data }: { data: RapidNamingData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 gap-8 mt-10 flex-1 content-start">
@@ -66,7 +66,7 @@ export const RapidNamingSheet: React.FC<{ data: RapidNamingData }> = ({ data }) 
     </div>
 );
 
-export const LetterDiscriminationSheet: React.FC<{ data: LetterDiscriminationData }> = ({ data }) => (
+export const LetterDiscriminationSheet = ({ data }: { data: LetterDiscriminationData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="mt-6 text-center mb-8">
@@ -85,7 +85,7 @@ export const LetterDiscriminationSheet: React.FC<{ data: LetterDiscriminationDat
     </div>
 );
 
-export const MirrorLettersSheet: React.FC<{ data: MirrorLettersData }> = ({ data }) => (
+export const MirrorLettersSheet = ({ data }: { data: MirrorLettersData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="mt-6 text-center mb-10">
@@ -95,7 +95,7 @@ export const MirrorLettersSheet: React.FC<{ data: MirrorLettersData }> = ({ data
             {(data.rows || []).map((row, i) => (
                 <div key={i} className="flex justify-around items-center p-8 border-[3px] border-zinc-900 rounded-[3rem] bg-white group hover:shadow-xl transition-all shadow-sm break-inside-avoid">
                     {row.items.map((item, j) => (
-                        <div key={j} className="text-6xl font-black text-zinc-900 transition-transform duration-500 group-hover:scale-110" 
+                        <div key={j} className="text-6xl font-black text-zinc-900 transition-transform duration-500 group-hover:scale-110"
                             style={{ transform: `rotate(${item.rotation}deg) ${item.isMirrored ? 'scaleX(-1)' : ''}` }}>
                             {item.letter}
                         </div>
@@ -106,7 +106,7 @@ export const MirrorLettersSheet: React.FC<{ data: MirrorLettersData }> = ({ data
     </div>
 );
 
-export const SyllableTrainSheet: React.FC<{ data: SyllableTrainData }> = ({ data }) => (
+export const SyllableTrainSheet = ({ data }: { data: SyllableTrainData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction="Heceleri birleştirerek lokomotifin arkasındaki vagonları tamamla." note={data.pedagogicalNote} />
         <div className="space-y-12 mt-10 flex-1 content-start">
@@ -130,11 +130,11 @@ export const SyllableTrainSheet: React.FC<{ data: SyllableTrainData }> = ({ data
     </div>
 );
 
-export const VisualTrackingLinesSheet: React.FC<{ data: VisualTrackingLineData }> = ({ data }) => (
+export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineData }) => (
     <div className="flex flex-col font-lexend p-2 h-full">
         <PedagogicalHeader title={data.title} instruction="Çizgileri gözünle takip et ve harfleri eşleştir." note={data.pedagogicalNote} />
         <div className="mt-6 flex-1 relative bg-white border-4 border-zinc-900 rounded-[4rem] p-10 shadow-2xl overflow-hidden group">
-            <div className="absolute inset-0 opacity-5 pointer-events-none" style={{backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '30px 30px'}}></div>
+            <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
             <svg viewBox={`0 0 ${data.width} ${data.height}`} className="w-full h-full overflow-visible drop-shadow-sm">
                 {(data.paths || []).map((path) => (
                     <g key={path.id}>
@@ -149,7 +149,7 @@ export const VisualTrackingLinesSheet: React.FC<{ data: VisualTrackingLineData }
     </div>
 );
 
-export const BackwardSpellingSheet: React.FC<{ data: BackwardSpellingData }> = ({ data }) => (
+export const BackwardSpellingSheet = ({ data }: { data: BackwardSpellingData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction="Kelimeleri son harfinden başlayarak geriye doğru yaz." note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 flex-1 content-start">
@@ -165,7 +165,7 @@ export const BackwardSpellingSheet: React.FC<{ data: BackwardSpellingData }> = (
     </div>
 );
 
-export const CodeReadingSheet: React.FC<{ data: CodeReadingData }> = ({ data }) => (
+export const CodeReadingSheet = ({ data }: { data: CodeReadingData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction="Sembollerin karşılığı olan harfleri kullanarak şifreli kelimeleri çöz." note={data.pedagogicalNote} />
         <div className="bg-zinc-900 p-8 rounded-[3.5rem] border-4 border-white shadow-2xl mb-12 mt-6 relative overflow-hidden">
@@ -197,7 +197,7 @@ export const CodeReadingSheet: React.FC<{ data: CodeReadingData }> = ({ data }) 
     </div>
 );
 
-export const AttentionToQuestionSheet: React.FC<{ data: AttentionToQuestionData }> = ({ data }) => (
+export const AttentionToQuestionSheet = ({ data }: { data: AttentionToQuestionData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex-1 mt-6 flex flex-col justify-center">
@@ -216,14 +216,14 @@ export const AttentionToQuestionSheet: React.FC<{ data: AttentionToQuestionData 
     </div>
 );
 
-export const HandwritingPracticeSheet: React.FC<{ data: HandwritingPracticeData }> = ({ data }) => (
+export const HandwritingPracticeSheet = ({ data }: { data: HandwritingPracticeData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-16 mt-12 flex-1">
             {(data.lines || []).map((line, i) => (
                 <div key={i} className="flex gap-8 items-start break-inside-avoid group">
                     <div className="w-24 h-24 bg-zinc-900 rounded-[2rem] flex items-center justify-center overflow-hidden shadow-2xl shrink-0 group-hover:rotate-6 transition-transform">
-                         {line.imagePrompt ? <ImageDisplay prompt={line.imagePrompt} className="w-full h-full object-cover opacity-80" /> : <i className="fa-solid fa-feather-pointed text-white text-3xl"></i>}
+                        {line.imagePrompt ? <ImageDisplay prompt={line.imagePrompt} className="w-full h-full object-cover opacity-80" /> : <i className="fa-solid fa-feather-pointed text-white text-3xl"></i>}
                     </div>
                     <div className="flex-1 space-y-8">
                         <HandwritingGuide height={100}>
