@@ -351,16 +351,43 @@ export interface LetterDiscriminationData extends BaseActivityData {
 }
 
 export interface RapidNamingData extends BaseActivityData {
-    type: 'object' | 'color' | 'number' | 'letter';
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        category: 'letters' | 'numbers' | 'colors' | 'objects' | 'mixed';
+        layout: 'grid' | 'rows';
+        isProfessionalMode: boolean;
+        showClinicalNotes?: boolean;
+    };
     grid: { items: { type: string; value: string; label?: string }[] }[];
+    clinicalMeta?: {
+        targetSpeed?: number;
+        interferenceFactor?: number;
+    };
 }
 
 export interface MirrorLettersData extends BaseActivityData {
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        layout: 'single' | 'compact';
+        isProfessionalMode: boolean;
+        showClinicalNotes?: boolean;
+    };
     targetPair: string;
     rows: { items: { letter: string; rotation: number; isMirrored: boolean }[] }[];
+    clinicalMeta?: {
+        reversalProbability: number;
+        discriminationComplexity: number;
+    };
 }
 
 export interface VisualTrackingLineData extends BaseActivityData {
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        layout: 'single' | 'compact';
+        pathComplexity: number;
+        isProfessionalMode: boolean;
+        showClinicalNotes?: boolean;
+    };
     paths: {
         id: number;
         d: string;
@@ -373,6 +400,10 @@ export interface VisualTrackingLineData extends BaseActivityData {
     }[];
     width: number;
     height: number;
+    clinicalMeta?: {
+        perceptualLoad: number;
+        visualSearchEfficiency: number;
+    };
 }
 
 export interface AnagramsData extends BaseActivityData {

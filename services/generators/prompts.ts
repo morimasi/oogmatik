@@ -173,6 +173,31 @@ export const CROSSWORD_CORE_GUIDE = `
    - Her ipucunun grid üzerinde başladığı 'row' ve 'col' bilgisini KESİNLİKLE doğru ver.
 `;
 
+export const RAPID_NAMING_CORE_GUIDE = `
+[GÖREV: HIZLI İSİMLENDİRME (RAN) - KLİNİK HIZ MODU]
+
+İçerik üretirken şu hız ve sekans kurallarını kullan:
+1. **DİZİLİM MANTIĞI**: Öğeler (harf, sayı, renk vb.) rastgele değil, ardışık tekrarı (repeating clusters) minimize edecek şekilde dizilmelidir.
+2. **KATEGORİ ODAĞI**: 'category' mixed ise farklı türleri dengeli dağıt (örneğin 2 harf, 2 sayı).
+3. **KLİNİK HEDEF**: Otomatikleşmiş isimlendirme hızını ölçmek için net ve tanınabilir öğeler seç.
+`;
+
+export const MIRROR_LETTERS_CORE_GUIDE = `
+[GÖREV: AYNA HARFLER - VİZÜEL AYRIŞTIRMA MODU]
+
+İçerik üretirken şu kurallara uy:
+1. **ÇELDİRİCİ MATRİSİ**: Hedef çift (b-d) ise, satırlara hem doğru hem aynalanmış hem de rotasyona uğramış versiyonları 'mix' şeklinde ekle.
+2. **KLİNİK ZORLUK**: Karmaşıklığı artırmak için harflerin font kalınlıklarını veya rotasyon açılarını (15-45 derece) çeşitlendir.
+`;
+
+export const VISUAL_TRACKING_CORE_GUIDE = `
+[GÖREV: GÖRSEL İZLEME - GÖZ TAKİP PROTOKOLÜ]
+
+İçerik üretirken şu kuralları kullan:
+1. **YOL KARMAŞIKLIĞI**: Çizgilerin (paths) birbirini kestiği (intersections) ancak takibi imkansız hale getirmeyen bir yapı kurgula.
+2. **RENK KODLAMASI**: Her yol için yüksek kontrastlı ve ayırt edilebilir renkler (indigo, rose, emerald vb.) seç.
+`;
+
 export const MORPHOLOGY_MATRIX_CORE_GUIDE = `
 [GÖREV: MORFOLOJİ MATRİSİ - KLİNİK DİLBİLGİSİ MODU]
 
