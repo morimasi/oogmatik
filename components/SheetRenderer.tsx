@@ -134,23 +134,24 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any
 
         case 'logic_card':
             return (
-                <div className="block-logic-card p-4 border-2 border-zinc-900 rounded-[1.8rem] bg-white shadow-sm flex flex-col gap-2 mb-2 break-inside-avoid">
-                    <div className="logic-text-box bg-zinc-900 text-white p-2.5 rounded-xl text-center text-[10px] font-bold italic">
+                <div className="block-logic-card p-5 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm flex flex-col gap-3 mb-3 break-inside-avoid">
+                    <div className="logic-text-box bg-zinc-900 text-white p-3 rounded-2xl text-center text-sm font-bold italic mb-1">
                         <EditableText value={recursiveSafeText(content.text)} tag="p" />
                     </div>
                     {content.data && (
-                        <div className="flex justify-center gap-2">
-                            {(content.data || []).map((box: any, bIdx: number) => (
-                                <div key={bIdx} className="border border-zinc-200 p-1.5 rounded-lg bg-zinc-50 flex flex-wrap justify-center gap-1 min-w-[50px]">
-                                    {(Array.isArray(box) ? box : [box]).map((num: any, nIdx: number) => <span key={nIdx} className="font-mono font-black text-xs leading-none">{recursiveSafeText(num)}</span>)}
+                        <div className="flex justify-center gap-3">
+                            {content.data.map((box: string[], bIdx: number) => (
+                                <div key={bIdx} className="border-2 border-zinc-800 p-2 rounded-xl bg-zinc-50 flex flex-wrap justify-center gap-1 min-w-[60px]">
+                                    {box.map((num, nIdx) => <span key={nIdx} className="font-mono font-black text-base">{num}</span>)}
                                 </div>
                             ))}
                         </div>
                     )}
-                    <div className="flex justify-around pt-1 border-t border-dashed border-zinc-100">
+                    <div className="flex justify-around pt-2 border-t-2 border-dashed border-zinc-100">
                         {(content.options || []).map((opt: string, oIdx: number) => (
                             <div key={oIdx} className="flex flex-col items-center gap-1">
-                                <div className="logic-option-btn w-7 h-7 rounded-lg border border-zinc-200 flex items-center justify-center font-black text-[10px]">{opt}</div>
+                                <div className="logic-option-btn w-9 h-9 rounded-xl border-2 border-zinc-200 flex items-center justify-center font-black text-sm">{opt}</div>
+                                <span className="text-[8px] font-black text-zinc-300 uppercase">{String.fromCharCode(65 + oIdx)}</span>
                             </div>
                         ))}
                     </div>
@@ -565,129 +566,88 @@ interface SheetRendererProps {
 export const SheetRenderer = React.memo(({ activityType, data, studentProfile, settings }: SheetRendererProps) => {
     if (!data) return null;
 
-    // ══════════════════════════════════════════════
-    // EVRENSEL BLOK ADAPTÖRÜ (v8.0)
-    // Her türlü veriyi UnifiedRenderer'ın anlayacağı bloklara dönüştürür.
-    // ══════════════════════════════════════════════
-    const getUniversalBlocks = (): WorksheetBlock[] => {
-        // Zaten blok yapısı varsa (Klon modülü gibi) doğrudan döndür
-        if (data.layoutArchitecture?.blocks) return data.layoutArchitecture.blocks;
-        if (data.blocks) return data.blocks;
-
-        const legacyBlocks: WorksheetBlock[] = [];
-
-        // Başlık ve Yönerge (Legacy veriden çıkar)
-        // Not: UnifiedContentRenderer bunları PedagogicalHeader'dan basıyor, 
-        // buraya blok olarak eklemeye gerek yok.
-
-        // Tip odaklı veri dönüştürme
-        switch (activityType) {
-            case ActivityType.NUMBER_LOGIC_RIDDLES: {
-                const d = data as any;
-                (d.puzzles || []).forEach((p: any) => {
-                    legacyBlocks.push({
-                        type: 'logic_card',
-                        content: {
-                            text: p.riddle || p.riddleParts?.map((rp: any) => rp.text).join('. '),
-                            options: p.options,
-                            data: p.boxes || p.data
-                        }
-                    });
-                });
-                if (d.sumTarget > 0) {
-                    legacyBlocks.push({
-                        type: 'footer_validation',
-                        content: { text: "TÜM SONUÇLARI TOPLA", targetValue: d.sumTarget }
-                    });
-                }
-                break;
-            }
-            case ActivityType.ALGORITHM_GENERATOR: {
-                const d = data as any;
-                (d.steps || []).forEach((step: any) => {
-                    legacyBlocks.push({
-                        type: 'text',
-                        content: { text: step.instruction || step.text }
-                    });
-                });
-                break;
-            }
-            case ActivityType.MATH_PUZZLE: {
-                const d = data as any;
-                (d.grids || d.puzzles || []).forEach((g: any) => {
-                    legacyBlocks.push({
-                        type: 'grid',
-                        content: {
-                            cells: g.cells || g.data,
-                            cols: g.cols || 4
-                        }
-                    });
-                });
-                break;
-            }
-            default:
-                break;
-        }
-
-        return legacyBlocks;
-    };
-
-    const universalBlocks = getUniversalBlocks();
-
-    // Eğer veri Blok sistemine başarıyla dönüştürüldüyse (Klon veya Adaptör)
-    if (universalBlocks.length > 0) {
-        return <UnifiedContentRenderer
-            data={{ ...data, blocks: universalBlocks }}
-            studentProfile={studentProfile}
-            settings={settings}
-        />;
+    // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
+    if (data.layoutArchitecture || data.blocks) {
+        return <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />;
     }
 
-    // Blok dönüşümü yapılamayan özel durumlar için son çare (Geleneksel Render)
-    // Ancak her sayfayı her halükarda profesyonel sayfa sarmalayıcısına alıyoruz.
-    const renderLegacyWithLayout = (component: JSX.Element) => (
-        <div id="print-container" className="w-full flex flex-col items-center gap-10 no-scrollbar">
-            <div className="worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden">
-                {settings?.showStudentInfo && (
-                    /* Öğrenci Bilgi Şeridi - Manuel Entegrasyon */
-                    <div className="w-full px-6 py-4 flex justify-between items-end border-b-2 border-zinc-900 mb-6 font-lexend no-print-fix">
-                        <div className="flex gap-12">
-                            <div className="flex flex-col">
-                                <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">Öğrenci Adı Soyadı</span>
-                                <div className="h-6 border-b border-zinc-200 min-w-[180px] font-black text-sm uppercase text-black">
-                                    {studentProfile?.name || "...................................."}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-end">
-                            <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">Çalışma Tarihi</span>
-                            <div className="h-6 border-b border-zinc-200 min-w-[80px] font-black text-sm text-right text-black">
-                                {new Date().toLocaleDateString('tr-TR')}
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {component}
-                <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.4em] text-zinc-400">
-                    <span>Bursa Disleksi AI • Nöro-Mimari Motoru v8.0</span>
-                    <span>PROFESYONEL ÇIKTI</span>
-                </div>
-            </div>
-        </div>
-    );
+    // Özel modül renderları (Story Comprehension vb.)
+    if (activityType === ActivityType.STORY_COMPREHENSION && data.layout) {
+        return <ReadingStudioContentRenderer layout={data.layout} storyData={data.storyData} />;
+    }
 
+    // Geleneksel modül renderları
     switch (activityType) {
-        case ActivityType.ALGORITHM_GENERATOR: return renderLegacyWithLayout(<AlgorithmSheet data={data as unknown as AlgorithmData} />);
-        case ActivityType.MATH_PUZZLE: return renderLegacyWithLayout(<MathPuzzleSheet data={data as unknown as MathPuzzleData} />);
-        case ActivityType.NUMBER_PATTERN: return renderLegacyWithLayout(<NumberPatternSheet data={data as unknown as NumberPatternData} />);
-        case ActivityType.LOGIC_GRID_PUZZLE: return renderLegacyWithLayout(<LogicGridPuzzleSheet data={data as unknown as LogicGridPuzzleData} />);
-        case ActivityType.NUMBER_PYRAMID: return renderLegacyWithLayout(<NumberPyramidSheet data={data as unknown as NumberPyramidData} />);
-        case ActivityType.FUTOSHIKI: return renderLegacyWithLayout(<FutoshikiSheet data={data as unknown as FutoshikiData} />);
-        case ActivityType.STORY_COMPREHENSION:
-            if (data.layout) return <ReadingStudioContentRenderer layout={data.layout} storyData={data.storyData} />;
-            return renderLegacyWithLayout(<StoryComprehensionSheet data={data as unknown as InteractiveStoryData} />);
-        default:
-            return <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />;
+        case ActivityType.ALGORITHM_GENERATOR: return <AlgorithmSheet data={data as unknown as AlgorithmData} />;
+        case ActivityType.MATH_PUZZLE: return <MathPuzzleSheet data={data as unknown as MathPuzzleData} />;
+        case ActivityType.NUMBER_PATTERN: return <NumberPatternSheet data={data as unknown as NumberPatternData} />;
+        case ActivityType.REAL_LIFE_MATH_PROBLEMS: return <RealLifeMathProblemsSheet data={data as unknown as RealLifeProblemData} />;
+        case ActivityType.LOGIC_GRID_PUZZLE: return <LogicGridPuzzleSheet data={data as unknown as LogicGridPuzzleData} />;
+        case ActivityType.FUTOSHIKI: return <FutoshikiSheet data={data as unknown as FutoshikiData} />;
+        case ActivityType.NUMBER_PYRAMID: return <NumberPyramidSheet data={data as unknown as NumberPyramidData} />;
+        case ActivityType.ODD_ONE_OUT: return <OddOneOutSheet data={data as unknown as OddOneOutData} />;
+        case ActivityType.NUMBER_LOGIC_RIDDLES: return <NumberLogicRiddleSheet data={data as unknown as NumberLogicRiddleData} />;
+        case ActivityType.NUMBER_PATH_LOGIC: return <NumberPathLogicSheet data={data as unknown as NumberPathLogicData} />;
+        case ActivityType.VISUAL_ARITHMETIC: return <VisualArithmeticSheet data={data as unknown as VisualArithmeticData} />;
+        case ActivityType.CLOCK_READING: return <ClockReadingSheet data={data as unknown as ClockReadingData} />;
+        case ActivityType.NUMBER_SENSE: return <NumberSenseSheet data={data as unknown as NumberSenseData} />;
+        case ActivityType.MONEY_COUNTING: return <MoneyCountingSheet data={data as unknown as MoneyCountingData} />;
+        case ActivityType.MATH_MEMORY_CARDS: return <MathMemoryCardsSheet data={data as unknown as MathMemoryCardsData} />;
+        case ActivityType.SPATIAL_GRID: return <SpatialGridSheet data={data as unknown as SpatialGridData} />;
+        case ActivityType.CONCEPT_MATCH: return <ConceptMatchSheet data={data as unknown as ConceptMatchData} />;
+        case ActivityType.ESTIMATION: return <EstimationSheet data={data as unknown as EstimationData} />;
+        case ActivityType.ABC_CONNECT: return <AbcConnectSheet data={data as unknown as AbcConnectData} />;
+        case ActivityType.ODD_EVEN_SUDOKU: return <OddEvenSudokuSheet data={data as unknown as OddEvenSudokuData} />;
+        case ActivityType.MAGIC_PYRAMID: return <MagicPyramidSheet data={data as unknown as MagicPyramidData} />;
+        case ActivityType.CAPSULE_GAME: return <CapsuleGameSheet data={data as unknown as NumberCapsuleData} />;
+        case ActivityType.WORD_MEMORY: return <WordMemorySheet data={data as unknown as WordMemoryData} />;
+        case ActivityType.VISUAL_MEMORY: return <VisualMemorySheet data={data as unknown as VisualMemoryData} />;
+        case ActivityType.CHARACTER_MEMORY: return <CharacterMemorySheet data={data as unknown as CharacterMemoryData} />;
+        case ActivityType.COLOR_WHEEL_MEMORY: return <ColorWheelSheet data={data as unknown as ColorWheelMemoryData} />;
+        case ActivityType.IMAGE_COMPREHRENSION: return <ImageComprehensionSheet data={data as unknown as ImageComprehensionData} />;
+        case ActivityType.STROOP_TEST: return <StroopTestSheet data={data as unknown as StroopTestData} />;
+        case ActivityType.BURDON_TEST: return <BurdonTestSheet data={data as unknown as LetterGridTestData} />;
+        case ActivityType.NUMBER_SEARCH: return <NumberSearchSheet data={data as unknown as NumberSearchData} />;
+        case ActivityType.CHAOTIC_NUMBER_SEARCH: return <ChaoticNumberSearchSheet data={data as unknown as ChaoticNumberSearchData} />;
+        case ActivityType.ATTENTION_DEVELOPMENT: return <AttentionDevelopmentSheet data={data as unknown as AttentionDevelopmentData} />;
+        case ActivityType.ATTENTION_FOCUS: return <AttentionFocusSheet data={data as unknown as AttentionFocusData} />;
+        case ActivityType.FIND_IDENTICAL_WORD: return <FindDuplicateSheet data={data as unknown as FindDuplicateData} />;
+        case ActivityType.LETTER_GRID_TEST: return <LetterGridTestSheet data={data as unknown as LetterGridTestData} />;
+        case ActivityType.FIND_LETTER_PAIR: return <FindLetterPairSheet data={data as unknown as FindLetterPairData} />;
+        case ActivityType.TARGET_SEARCH: return <TargetSearchSheet data={data as unknown as TargetSearchData} />;
+        case ActivityType.STORY_COMPREHENSION: return <StoryComprehensionSheet data={data as unknown as InteractiveStoryData} />;
+        case ActivityType.SYLLABLE_MASTER_LAB: return <SyllableMasterLabSheet data={data as unknown as SyllableMasterLabData} />;
+        case ActivityType.READING_SUDOKU: return <ReadingSudokuSheet data={data as unknown as ReadingSudokuData} />;
+        case ActivityType.READING_STROOP: return <ReadingStroopSheet data={data as unknown as ReadingStroopData} />;
+        case ActivityType.SYNONYM_ANTONYM_MATCH: return <SynonymAntonymMatchSheet data={data as unknown as SynonymAntonymMatchData} />;
+        case ActivityType.SYLLABLE_WORD_BUILDER: return <SyllableWordBuilderSheet data={data as unknown as SyllableWordBuilderData} />;
+        case ActivityType.LETTER_VISUAL_MATCHING: return <LetterVisualMatchingSheet data={data as unknown as LetterVisualMatchingData} />;
+        case ActivityType.FAMILY_RELATIONS: return <FamilyRelationsSheet data={data as unknown as FamilyRelationsData} />;
+        case ActivityType.FAMILY_LOGIC_TEST: return <FamilyLogicSheet data={data as unknown as FamilyLogicTestData} />;
+        case ActivityType.MORPHOLOGY_MATRIX: return <MorphologyMatrixSheet data={data as unknown as MorphologyMatrixData} />;
+        case ActivityType.READING_PYRAMID: return <ReadingPyramidSheet data={data as unknown as ReadingPyramidData} />;
+        case ActivityType.READING_FLOW: return <ReadingFlowSheet data={data as unknown as ReadingFlowData} />;
+        case ActivityType.PHONOLOGICAL_AWARENESS: return <PhonologicalAwarenessSheet data={data as unknown as PhonologicalAwarenessData} />;
+        case ActivityType.RAPID_NAMING: return <RapidNamingSheet data={data as unknown as RapidNamingData} />;
+        case ActivityType.LETTER_DISCRIMINATION: return <LetterDiscriminationSheet data={data as unknown as LetterDiscriminationData} />;
+        case ActivityType.MIRROR_LETTERS: return <MirrorLettersSheet data={data as unknown as MirrorLettersData} />;
+        case ActivityType.SYLLABLE_TRAIN: return <SyllableTrainSheet data={data as unknown as SyllableTrainData} />;
+        case ActivityType.VISUAL_TRACKING_LINES: return <VisualTrackingLinesSheet data={data as unknown as VisualTrackingLineData} />;
+        case ActivityType.BACKWARD_SPELLING: return <BackwardSpellingSheet data={data as unknown as BackwardSpellingData} />;
+        case ActivityType.CODE_READING: return <CodeReadingSheet data={data as unknown as CodeReadingData} />;
+        case ActivityType.ATTENTION_TO_QUESTION: return <AttentionToQuestionSheet data={data as unknown as AttentionToQuestionData} />;
+        case ActivityType.HANDWRITING_PRACTICE: return <HandwritingPracticeSheet data={data as unknown as HandwritingPracticeData} />;
+        case ActivityType.MAP_INSTRUCTION: return <MapDetectiveSheet data={data as unknown as MapInstructionData} />;
+        case ActivityType.FIND_THE_DIFFERENCE: return <FindTheDifferenceSheet data={data as unknown as FindTheDifferenceData} />;
+        case ActivityType.VISUAL_ODD_ONE_OUT: return <VisualOddOneOutSheet data={data as unknown as VisualOddOneOutData} />;
+        case ActivityType.GRID_DRAWING: return <GridDrawingSheet data={data as unknown as GridDrawingData} />;
+        case ActivityType.SYMMETRY_DRAWING: return <SymmetryDrawingSheet data={data as unknown as SymmetryDrawingData} />;
+        case ActivityType.SHAPE_COUNTING: return <ShapeCountingSheet data={data as unknown as ShapeCountingData} />;
+        case ActivityType.DIRECTIONAL_TRACKING: return <DirectionalTrackingSheet data={data as unknown as DirectionalTrackingData} />;
+        case ActivityType.HIDDEN_PASSWORD_GRID: return <HiddenPasswordGridSheet data={data as unknown as HiddenPasswordGridData} />;
+        case ActivityType.WORD_SEARCH: return <WordSearchSheet data={data as unknown as WordSearchData} />;
+        case ActivityType.ANAGRAM: return <AnagramSheet data={data as unknown as AnagramsData} />;
+        case ActivityType.CROSSWORD: return <CrosswordSheet data={data as unknown as CrosswordData} />;
+        default: return <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />;
     }
 });
-
