@@ -105,6 +105,32 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                         gridDim: { type: Type.INTEGER },
                                         grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
                                         words: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        sections: {
+                                            type: Type.ARRAY,
+                                            items: {
+                                                type: Type.OBJECT,
+                                                properties: {
+                                                    searchField: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.STRING }, type: { type: Type.STRING }, color: { type: Type.STRING }, rotation: { type: Type.NUMBER }, size: { type: Type.NUMBER }, x: { type: Type.NUMBER }, y: { type: Type.NUMBER } } } },
+                                                    correctCount: { type: Type.INTEGER },
+                                                    title: { type: Type.STRING },
+                                                    clinicalMeta: { type: Type.OBJECT, properties: { figureGroundComplexity: { type: Type.NUMBER }, overlappingRatio: { type: Type.NUMBER } } }
+                                                }
+                                            }
+                                        },
+                                        puzzles: {
+                                            type: Type.ARRAY,
+                                            items: {
+                                                type: Type.OBJECT,
+                                                properties: {
+                                                    grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                                                    path: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                                    startPos: { type: Type.OBJECT, properties: { r: { type: Type.INTEGER }, c: { type: Type.INTEGER } } },
+                                                    targetWord: { type: Type.STRING },
+                                                    title: { type: Type.STRING },
+                                                    clinicalMeta: { type: Type.OBJECT, properties: { perceptualLoad: { type: Type.NUMBER }, attentionShiftCount: { type: Type.INTEGER } } }
+                                                }
+                                            }
+                                        },
                                         drawings: {
                                             type: Type.ARRAY,
                                             items: {
@@ -121,9 +147,13 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                             type: Type.OBJECT,
                                             properties: {
                                                 difficulty: { type: Type.STRING, enum: ['beginner', 'intermediate', 'expert', 'clinical'] },
-                                                layout: { type: Type.STRING, enum: ['classic', 'compact', 'ultra_dense', 'single', 'grid_2x1', 'grid_2x2', 'side_by_side', 'stacked'] },
+                                                layout: { type: Type.STRING, enum: ['classic', 'compact', 'ultra_dense', 'single', 'grid_2x1', 'grid_2x2', 'side_by_side', 'stacked', 'grid_compact'] },
                                                 gridType: { type: Type.STRING, enum: ['dots', 'squares', 'crosses'] },
                                                 axis: { type: Type.STRING, enum: ['vertical', 'horizontal', 'diagonal'] },
+                                                targetShape: { type: Type.STRING },
+                                                overlapping: { type: Type.BOOLEAN },
+                                                rotationEnabled: { type: Type.BOOLEAN },
+                                                pathComplexity: { type: Type.NUMBER },
                                                 directions: { type: Type.ARRAY, items: { type: Type.STRING } },
                                                 gridSize: { type: Type.INTEGER },
                                                 showGhostPoints: { type: Type.BOOLEAN },

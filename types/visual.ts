@@ -14,19 +14,23 @@ export interface SearchFieldItem {
 }
 
 export interface ShapeCountingData extends BaseActivityData {
-    settings: {
-        difficulty: string;
-        itemCount: number; // Toplam nesne sayısı
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        layout: 'single' | 'grid_2x1' | 'grid_2x2';
         targetShape: ShapeType;
-        colorComplexity: 'monochrome' | 'simple' | 'full';
-        layoutType: 'grid' | 'chaotic';
-        showClues?: boolean;
-        density?: string;
-        variety?: string;
+        overlapping: boolean; // Şekillerin iç içe geçme durumu
+        isProfessionalMode: boolean;
+        showClinicalNotes?: boolean;
     };
-    searchField: SearchFieldItem[];
-    correctCount: number; // Hedef şeklin toplam sayısı
-    clues: string[];
+    sections: {
+        searchField: SearchFieldItem[];
+        correctCount: number;
+        title: string;
+        clinicalMeta?: {
+            figureGroundComplexity: number;
+            overlappingRatio: number;
+        };
+    }[];
 }
 
 export interface FindTheDifferenceData extends BaseActivityData {
@@ -149,11 +153,24 @@ export interface SymmetryDrawingData extends BaseActivityData {
 }
 
 export interface DirectionalTrackingData extends BaseActivityData {
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        layout: 'single' | 'grid_2x1' | 'grid_compact';
+        rotationEnabled: boolean;
+        pathComplexity: number;
+        isProfessionalMode: boolean;
+        showClinicalNotes?: boolean;
+    };
     puzzles: {
         grid: string[][];
         path: string[];
         startPos: { r: number; c: number };
         targetWord: string;
+        title: string;
+        clinicalMeta?: {
+            perceptualLoad: number;
+            attentionShiftCount: number;
+        };
     }[];
 }
 

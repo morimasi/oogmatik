@@ -15,88 +15,99 @@ const SHAPE_PATHS: Record<string, string> = {
 };
 
 export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
-    // searchField artık bölümlerden (sections) oluşan bir dizi
-    const sections = (data.searchField as unknown as any[]) || [];
+    const settings = data?.settings;
+    const sections = data?.sections || [];
+    const layout = settings?.layout || 'single';
+    const isProfessionalMode = settings?.isProfessionalMode;
+
+    const gridCols = layout === 'grid_2x1' ? 'grid-cols-2' : (layout === 'grid_2x2' ? 'grid-cols-2' : 'grid-cols-1');
 
     return (
-        <div className="flex flex-col h-full bg-white font-lexend text-black p-1 overflow-hidden select-none">
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+            <PedagogicalHeader title={data.title || "ŞEKİL SAYMA & GÖRSEL SEÇİCİLİK"} instruction={data.instruction} note={data.pedagogicalNote} />
 
-            {/* Hedef Hatırlatıcı */}
-            <div className="flex justify-center mb-4">
-                <div className="bg-zinc-900 text-white px-6 py-2 rounded-full flex items-center gap-4 shadow-lg border-4 border-white ring-2 ring-zinc-100">
-                    <span className="text-[10px] font-black uppercase tracking-widest">ARANAN HEDEF:</span>
-                    <svg viewBox="0 0 100 100" className="w-6 h-6 fill-amber-400">
-                        <path d={SHAPE_PATHS.triangle} />
-                    </svg>
-                    <span className="text-sm font-black uppercase tracking-tighter">ÜÇGEN</span>
+            {/* Hedef Hatırlatıcı Panel */}
+            <div className="flex justify-center my-4">
+                <div className="bg-zinc-900 text-white px-8 py-3 rounded-2xl flex items-center gap-6 shadow-xl border-2 border-zinc-800 ring-4 ring-zinc-50">
+                    <div className="flex flex-col">
+                        <span className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-400">Aranan Hedef</span>
+                        <span className="text-sm font-black uppercase tracking-tighter">{settings?.targetShape === 'triangle' ? 'ÜÇGEN' : settings?.targetShape}</span>
+                    </div>
+                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center p-1.5">
+                        <svg viewBox="0 0 100 100" className="w-full h-full fill-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]">
+                            <path d={SHAPE_PATHS[settings?.targetShape || 'triangle']} />
+                        </svg>
+                    </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 flex-1 content-start mt-2">
+            <div className={`grid ${gridCols} gap-6 mt-4 flex-1 content-start items-start`}>
                 {sections.map((section, idx) => (
                     <EditableElement
                         key={idx}
-                        className="flex flex-col border-[2.5px] border-zinc-900 rounded-[2.5rem] bg-white group hover:border-indigo-600 transition-all p-4 relative overflow-hidden break-inside-avoid shadow-sm"
+                        className="flex flex-col border-2 border-zinc-900 rounded-[2.5rem] bg-white group p-5 relative overflow-visible shadow-sm break-inside-avoid"
                     >
-                        {/* Sayı Rozeti */}
-                        <div className="absolute top-0 left-0 bg-zinc-900 text-white px-4 py-1.5 rounded-br-2xl font-black text-xs z-10">
-                            SAHA {idx + 1}
+                        {/* Bölüm Başlığı */}
+                        <div className="absolute -top-3 left-8 px-4 py-1 bg-zinc-900 text-white rounded-lg font-black text-[9px] uppercase tracking-widest z-10 shadow-lg">
+                            {section.title || `SAHA ${idx + 1}`}
                         </div>
 
-                        {/* Kaotik Arama Alanı (Chaos Canvas) */}
-                        <div className="flex-1 relative min-h-[300px] border-2 border-dashed border-zinc-100 rounded-[2rem] bg-zinc-50/30 overflow-hidden">
+                        {/* Arama Alanı */}
+                        <div className="relative aspect-video border-2 border-zinc-100 rounded-3xl bg-zinc-50/50 overflow-hidden mb-4">
                             <svg viewBox="0 0 100 100" className="w-full h-full">
                                 {section.searchField.map((item: any) => (
                                     <path
                                         key={item.id}
                                         d={SHAPE_PATHS[item.type] || SHAPE_PATHS.triangle}
-                                        fill="none"
+                                        fill={settings?.overlapping ? "rgba(0,0,0,0.05)" : "none"}
                                         stroke="black"
-                                        strokeWidth={1.5}
+                                        strokeWidth={1.2}
                                         style={{
-                                            transform: `translate(${item.x}px, ${item.y}px) rotate(${item.rotation}deg) scale(${item.size / 5})`,
+                                            transform: `translate(${item.x}%, ${item.y}%) rotate(${item.rotation}deg) scale(${item.size / 8})`,
                                             transformOrigin: 'center',
                                             transformBox: 'fill-box'
                                         }}
-                                        className="transition-colors group-hover:stroke-zinc-400"
+                                        className="mix-blend-multiply"
                                     />
                                 ))}
                             </svg>
                         </div>
 
-                        {/* Cevap Giriş Alanı */}
-                        <div className="mt-4 pt-4 border-t-2 border-dashed border-zinc-100 flex items-center justify-between">
-                            <div className="flex flex-col">
-                                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest leading-none">Kaç Üçgen Var?</span>
+                        {/* Cevap & Klinik Bilgi */}
+                        <div className="flex items-end justify-between px-2">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Cevap Alanı</span>
+                                <div className="w-24 h-12 border-b-4 border-zinc-900 bg-zinc-100/50 rounded-t-xl flex items-center justify-center">
+                                    <EditableText value="" tag="div" placeholder="?" className="font-black text-2xl text-zinc-900" />
+                                </div>
                             </div>
-                            <div className="w-20 h-10 border-b-[3px] border-zinc-900 bg-zinc-100 rounded-t-xl flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
-                                <EditableText value="" tag="div" placeholder="?" className="font-black text-xl text-indigo-600" />
-                            </div>
+
+                            {settings?.showClinicalNotes && section.clinicalMeta && (
+                                <div className="text-right flex flex-col items-end opacity-40">
+                                    <span className="text-[6px] font-black uppercase text-zinc-500 tracking-tighter">Figür-Zemin Karmaşası: {section.clinicalMeta.figureGroundComplexity}</span>
+                                    <span className="text-[6px] font-black uppercase text-zinc-500 tracking-tighter">İç İçe Geçme: %{Math.round(section.clinicalMeta.overlappingRatio * 100)}</span>
+                                </div>
+                            )}
                         </div>
 
-                        {/* Gizli İpucu (Ters Yazı) */}
-                        <div className="absolute top-2 right-4 opacity-0 group-hover:opacity-10 transition-opacity rotate-180 text-[9px] font-black select-none pointer-events-none">
-                            ANS: {section.correctCount}
+                        {/* Hidden Solution */}
+                        <div className="absolute bottom-2 right-6 opacity-0 group-hover:opacity-5 transition-opacity rotate-180 text-[7px] font-black select-none pointer-events-none">
+                            ÇİS: {section.correctCount}
                         </div>
                     </EditableElement>
                 ))}
             </div>
 
-            {/* Performance Tracker / Footer */}
-            <div className="mt-4 pt-4 border-t-2 border-zinc-900 flex justify-between items-end px-6 opacity-40">
-                <div className="flex gap-10">
-                    <div className="flex flex-col">
-                        <span className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.2em]">Kategori</span>
-                        <span className="text-[9px] font-bold text-zinc-800 uppercase leading-none">Görsel-Uzamsal Seçicilik</span>
-                    </div>
+            {/* Footer / Tracker */}
+            <div className="mt-8 pt-4 border-t-2 border-zinc-900/10 flex justify-between items-end opacity-30 no-print">
+                <div className="flex flex-col gap-1">
+                    <span className="text-[6px] font-black text-zinc-400 uppercase tracking-[0.4em]">Bursa Disleksi AI • Nöro-Görsel Modül</span>
+                    <span className="text-[8px] font-bold">Görsel Seçicilik & Ketleme Testi v4.2</span>
                 </div>
-                <div className="flex flex-col items-end">
-                    <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.4em] mb-1">Bursa Disleksi AI • Figure-Ground Testing</p>
-                    <div className="flex gap-3">
-                        <i className="fa-solid fa-shapes"></i>
-                        <i className="fa-solid fa-eye-low-vision"></i>
-                    </div>
+                <div className="flex gap-4 items-center">
+                    <div className="w-2 h-2 rounded-full bg-zinc-900"></div>
+                    <div className="w-2 h-2 rounded-full bg-zinc-400"></div>
+                    <div className="w-2 h-2 rounded-full bg-zinc-200"></div>
                 </div>
             </div>
         </div>

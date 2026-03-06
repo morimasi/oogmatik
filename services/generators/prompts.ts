@@ -135,6 +135,30 @@ export const WORD_SEARCH_CORE_GUIDE = `
    - Kelime listesini gridin hemen yanında profesyonel bir panelde sun.
 `;
 
+export const SHAPE_COUNTING_CORE_GUIDE = `
+[GÖREV: ŞEKİL SAYMA (HİGÜRE-GROUND) - KLİNİK DERİNLİK MODU]
+
+İçerik üretirken şu görsel-algı kurallarını kullan:
+1. **ŞEKİL İLİŞKİLERİ**:
+   - 'overlapping': Şekillerin birbirinin üzerine binmesi (figure-ground separation). Klinik modda bu zorunludur.
+2. **KARMASA (CHAOS)**:
+   - Şekillerin rotasyonlarını ve boyutlarını dramatik şekilde değiştirerek görsel tarama yükünü artır.
+3. **KLİNİK ÇELDİRİCİLER**:
+   - Hedef şekle benzeyen (örneğin üçgen aranıyorsa elmas veya pentagon) çeldiriciler ekle.
+`;
+
+export const DIRECTIONAL_TRACKING_CORE_GUIDE = `
+[GÖREV: YÖNSEL İZ SÜRME - KLİNİK DERİNLİK MODU]
+
+İçerik üretirken şu görsel-dikkat kurallarını kullan:
+1. **YÖNSEL İPUÇLARI (MENTAL ROTATION)**:
+   - Ok işaretleri veya yön belirten karakterler kullanarak öğrencinin zihinsel döndürme yapmasını sağla.
+2. **DİKKAT KAYMASI (ATTENTION SHIFT)**:
+   - Gridi görsel olarak kalabalık tut, ancak takip edilecek 'path' net bir mantık silsilesine (kodlama/algoritma) sahip olsun.
+3. **KLİNİK HEDEF**:
+   - Disleksi ve dikkat eksikliği olan bireylerde 'satır takibi' ve 'görsel odaklanma' becerilerini ölç.
+`;
+
 export const getMathPrompt = (title: string, difficulty: string, rule: string, student?: Student): string => {
    return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[KURAL]: ${rule}\n${IMAGE_GENERATION_GUIDE}`;
 };
