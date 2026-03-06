@@ -8,17 +8,17 @@ import DyslexiaLogo from './components/DyslexiaLogo';
 import GlobalSearch from './components/GlobalSearch';
 import { FeedbackModal } from './components/FeedbackModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { StudentProvider, useStudent } from './context/StudentContext'; 
+import { StudentProvider, useStudent } from './context/StudentContext';
 import { AuthModal } from './components/AuthModal';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
-import { curriculumService } from './services/curriculumService'; 
+import { curriculumService } from './services/curriculumService';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
 import { StudentInfoModal } from './components/StudentInfoModal';
-import { HistoryView } from './components/HistoryView'; 
+import { HistoryView } from './components/HistoryView';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
-import * as offlineGenerators from './services/offlineGenerators'; 
+import * as offlineGenerators from './services/offlineGenerators';
 
 // Lazy Loaded Components
 const ProfileView = lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
@@ -35,7 +35,7 @@ const AssessmentModule = lazy(() => import('./components/AssessmentModule').then
 
 const initialStyleSettings: StyleSettings = {
     fontSize: 18,
-    scale: 1, 
+    scale: 1,
     borderColor: '#3f3f46',
     borderWidth: 1,
     margin: 10,
@@ -46,7 +46,7 @@ const initialStyleSettings: StyleSettings = {
     contentAlign: 'left',
     fontWeight: 'normal',
     fontStyle: 'normal',
-    visualStyle: 'card', 
+    visualStyle: 'card',
     showPedagogicalNote: false,
     showMascot: false,
     showStudentInfo: true,
@@ -111,11 +111,11 @@ const tourSteps: TourStep[] = [
     { targetId: 'tour-history-btn', title: 'Geçmiş', content: 'Daha önce oluşturduğunuz etkinliklere buradan ulaşabilirsiniz.', position: 'bottom' },
 ];
 
-const HeaderDropdown: React.FC<{ 
-    label: string, 
-    icon: string, 
-    children: React.ReactNode, 
-    colorClass?: string 
+const HeaderDropdown: React.FC<{
+    label: string,
+    icon: string,
+    children: React.ReactNode,
+    colorClass?: string
 }> = ({ label, icon, children, colorClass = "text-zinc-500" }) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
@@ -150,7 +150,7 @@ const AppContent: React.FC = () => {
     const { user, logout } = useAuth();
     const { activeStudent, setActiveStudent, students } = useStudent();
     const [currentView, setCurrentView] = useState<ExtendedView>('generator');
-    const [viewHistory, setViewHistory] = useState<ExtendedView[]>([]); 
+    const [viewHistory, setViewHistory] = useState<ExtendedView[]>([]);
     const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(null);
     const [worksheetData, setWorksheetData] = useState<WorksheetData>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -174,9 +174,9 @@ const AppContent: React.FC = () => {
         teacherNote: '', theme: 'modern', accentColor: '#4f46e5', coverStyle: 'centered',
         showTOC: true, showPageNumbers: true, showWatermark: false, watermarkOpacity: 0.05, showBackCover: true
     });
-    
+
     // Screening to Plan Bridge
-    const [screeningPlanData, setScreeningPlanData] = useState<{name: string, age: number, weaknesses: string[], diagnosisContext?: string} | null>(null);
+    const [screeningPlanData, setScreeningPlanData] = useState<{ name: string, age: number, weaknesses: string[], diagnosisContext?: string } | null>(null);
 
     const [theme, setTheme] = useState<AppTheme>(() => {
         try { const storedTheme = localStorage.getItem('app-theme'); return (storedTheme as AppTheme) || 'anthracite'; } catch (e) { return 'anthracite'; }
@@ -197,7 +197,7 @@ const AppContent: React.FC = () => {
 
     // --- NAVIGATION HELPERS (Resets state before switching view) ---
     const handleOpenStudio = (viewName: ExtendedView) => {
-        setSelectedActivity(null); 
+        setSelectedActivity(null);
         setWorksheetData(null);
         setActiveCurriculumSession(null);
         navigateTo(viewName);
@@ -234,7 +234,7 @@ const AppContent: React.FC = () => {
         if (item.activityType === ActivityType.WORKBOOK || item.workbookItems) { if (item.workbookItems && item.workbookSettings) { setWorkbookItems(item.workbookItems); setWorkbookSettings(item.workbookSettings); navigateTo('workbook'); } return; }
         setSelectedActivity(item.activityType); setWorksheetData(item.worksheetData); if (item.styleSettings) setStyleSettings(item.styleSettings);
         if (item.studentProfile) { setStudentProfile(item.studentProfile); if (item.studentId) { const s = students.find(x => x.id === item.studentId); if (s) setActiveStudent(s); } } else { setStudentProfile(null); setActiveStudent(null); }
-        navigateTo('generator'); setIsSidebarExpanded(true); 
+        navigateTo('generator'); setIsSidebarExpanded(true);
     };
 
     const handleSelectActivity = (activityType: ActivityType | null) => { if (currentView !== 'generator') navigateTo('generator'); setActiveCurriculumSession(null); setSelectedActivity(activityType); setWorksheetData(null); setError(null); setCurrentView('generator'); if (isSidebarOpen) setIsSidebarOpen(false); if (activityType) setIsSidebarExpanded(true); };
@@ -250,7 +250,7 @@ const AppContent: React.FC = () => {
             const newItems: CollectionItem[] = dataArray.map((sheet: any) => ({ id: crypto.randomUUID(), activityType: activityType, data: sheet, settings: { ...styleSettings }, title: sheet.title || ACTIVITIES.find(a => a.id === activityType)?.title || 'Etkinlik' }));
             setWorkbookItems(prev => [...prev, ...newItems]);
             const btn = document.getElementById('add-to-wb-btn');
-            if(btn) { btn.classList.add('scale-125', 'bg-green-500', 'text-white'); setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300); }
+            if (btn) { btn.classList.add('scale-125', 'bg-green-500', 'text-white'); setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300); }
         }
     };
     const handleAddToWorkbook = () => { if (selectedActivity && worksheetData) handleAddToWorkbookGeneral(selectedActivity, worksheetData); };
@@ -283,7 +283,7 @@ const AppContent: React.FC = () => {
         <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
             <header className={`relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-50 transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}>
                 <div className="w-full px-6 py-4 flex justify-between items-center gap-6">
-                    
+
                     <div className="flex items-center gap-4">
                         <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-400 p-2 hover:text-zinc-900 transition-colors"><i className="fa-solid fa-bars-staggered fa-lg"></i></button>
                         <button id="tour-logo" onClick={() => { navigateTo('generator'); setSelectedActivity(null); setWorksheetData(null); setActiveCurriculumSession(null); }} className="flex items-center gap-3">
@@ -296,8 +296,8 @@ const AppContent: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <button 
-                            onClick={() => handleOpenStudio('assessment')} 
+                        <button
+                            onClick={() => handleOpenStudio('assessment')}
                             className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-indigo-200 dark:shadow-none transition-all active:scale-95"
                         >
                             <i className="fa-solid fa-user-doctor"></i> DEĞERLENDİRME
@@ -350,22 +350,22 @@ const AppContent: React.FC = () => {
 
             <div className="flex flex-1 overflow-hidden">
                 {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
-                <div onMouseEnter={() => setIsSidebarExpanded(true)} className={`transition-all duration-500 ease-in-out h-full ${zenMode ? '-ml-80 w-0 opacity-0 overflow-hidden' : ''}`}>
+                <div className={`transition-all duration-500 ease-in-out h-full ${zenMode ? '-ml-80 w-0 opacity-0 overflow-hidden' : ''}`}>
                     <Sidebar
                         isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} selectedActivity={selectedActivity}
                         onSelectActivity={handleSelectActivity} setWorksheetData={setWorksheetData} setIsLoading={setIsLoading}
                         setError={setError} isLoading={isLoading} onAddToHistory={addToHistory}
-                        onOpenOCR={() => handleOpenStudio('ocr')} 
+                        onOpenOCR={() => handleOpenStudio('ocr')}
                         onOpenCurriculum={() => handleOpenStudio('curriculum')}
-                        onOpenReadingStudio={() => handleOpenStudio('reading-studio')} 
+                        onOpenReadingStudio={() => handleOpenStudio('reading-studio')}
                         onOpenMathStudio={() => handleOpenStudio('math-studio')}
                         onOpenScreening={() => handleOpenStudio('screening')}
                         activeCurriculumSession={activeCurriculumSession} isExpanded={isSidebarExpanded}
                     />
                 </div>
-                <div className="flex-1 flex flex-col overflow-hidden" onMouseEnter={() => setIsSidebarExpanded(false)}>
+                <div className="flex-1 flex flex-col overflow-hidden">
                     <ContentArea
-                        currentView={currentView as View} onBackToGenerator={() => { if(currentView !== 'generator') handleGoBack(); else { setSelectedActivity(null); setWorksheetData(null); setActiveCurriculumSession(null); } }}
+                        currentView={currentView as View} onBackToGenerator={() => { if (currentView !== 'generator') handleGoBack(); else { setSelectedActivity(null); setWorksheetData(null); setActiveCurriculumSession(null); } }}
                         activityType={selectedActivity} worksheetData={worksheetData} isLoading={isLoading} error={error}
                         styleSettings={styleSettings} onStyleChange={setStyleSettings} onSave={addSavedWorksheet}
                         onLoadSaved={loadSavedWorksheet} onFeedback={() => setIsFeedbackOpen(true)} onOpenAuth={() => setIsAuthModalOpen(true)}
@@ -381,19 +381,19 @@ const AppContent: React.FC = () => {
 
             {/* SPECIAL RENDER FOR STUDIOS WHEN IN THAT VIEW */}
             {currentView === 'curriculum' && (
-                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
                     <React.Suspense fallback={<LoadingSpinner />}>
-                        <CurriculumView 
-                            onBack={handleGoBack} 
-                            onSelectActivity={handleSelectActivity as any} 
-                            onStartCurriculumActivity={handleStartCurriculumActivity} 
+                        <CurriculumView
+                            onBack={handleGoBack}
+                            onSelectActivity={handleSelectActivity as any}
+                            onStartCurriculumActivity={handleStartCurriculumActivity}
                             initialPlan={loadedCurriculum}
                             preFillData={screeningPlanData}
                         />
                     </React.Suspense>
                 </div>
             )}
-            
+
             {currentView === 'reading-studio' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
                     <React.Suspense fallback={<LoadingSpinner />}>
@@ -409,15 +409,15 @@ const AppContent: React.FC = () => {
                     </React.Suspense>
                 </div>
             )}
-            
+
             {currentView === 'ocr' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-                     <React.Suspense fallback={<LoadingSpinner />}>
+                    <React.Suspense fallback={<LoadingSpinner />}>
                         <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
                     </React.Suspense>
                 </div>
             )}
-            
+
             {currentView === 'students' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
                     <React.Suspense fallback={<LoadingSpinner />}>
@@ -433,23 +433,23 @@ const AppContent: React.FC = () => {
                     </React.Suspense>
                 </div>
             )}
-            
+
             {/* Admin view is special, keeps its own context */}
             {currentView === 'admin' && (
-                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[70] overflow-hidden">
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[70] overflow-hidden">
                     <React.Suspense fallback={<LoadingSpinner />}>
                         <AdminDashboard onBack={handleGoBack} />
                     </React.Suspense>
                 </div>
             )}
-            
+
             {/* Assessment and Screening run inside ContentArea via currentView prop, but need special handling in ContentArea */}
             {currentView === 'screening' && (
-                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
                     <React.Suspense fallback={<LoadingSpinner />}>
-                        <ScreeningModule 
-                            onBack={handleGoBack} 
-                            onSelectActivity={handleSelectActivity} 
+                        <ScreeningModule
+                            onBack={handleGoBack}
+                            onSelectActivity={handleSelectActivity}
                             onAddToWorkbook={handleAddToWorkbookGeneral as any}
                             onGeneratePlan={(n, a, w, c) => handleGeneratePlanFromScreening(n, a, w, c)}
                         />

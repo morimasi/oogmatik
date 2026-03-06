@@ -34,25 +34,25 @@ export const ReadingStudioContentRenderer: React.FC<ReadingStudioContentRenderer
             const data = item.specificData || { title: "HİKAYE", subtitle: "" };
             return (
                 <div className="h-full flex flex-col justify-end" style={boxStyle}>
-                    <h1 className="font-black uppercase leading-none" style={{fontSize: '2em', color: 'inherit'}}>{data.title}</h1>
+                    <h1 className="font-black uppercase leading-none" style={{ fontSize: '2em', color: 'inherit' }}>{data.title}</h1>
                     <span className="font-mono text-xs opacity-70 mt-1">{data.subtitle}</span>
                 </div>
             );
         }
-        
+
         if (item.id === 'story_block') {
             const data = item.specificData || { text: "" };
             return (
                 <div className="relative" style={boxStyle}>
-                     {item.style.imageSettings?.enabled && (
+                    {item.style.imageSettings?.enabled && (
                         <div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}>
-                            <ImageDisplay 
-                                prompt={data.imagePrompt} 
-                                className="w-full h-full object-contain" 
+                            <ImageDisplay
+                                prompt={data.imagePrompt}
+                                className="w-full h-full object-contain"
                             />
                         </div>
-                     )}
-                     <div dangerouslySetInnerHTML={{__html: (data.text || '').replace(/\n/g, '<br/>')}}></div>
+                    )}
+                    <div dangerouslySetInnerHTML={{ __html: (data.text || '').replace(/\n/g, '<br/>') }}></div>
                 </div>
             );
         }
@@ -65,7 +65,7 @@ export const ReadingStudioContentRenderer: React.FC<ReadingStudioContentRenderer
                     <div className="flex-1 space-y-2">
                         {(data.questions || []).map((q: any, i: number) => (
                             <div key={i} className="flex gap-2 items-start text-sm">
-                                <span className="font-bold bg-current text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0" style={{backgroundColor: s.color}}>{i+1}</span>
+                                <span className="font-bold bg-current text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0" style={{ backgroundColor: s.color }}>{i + 1}</span>
                                 <p>{q.text}</p>
                             </div>
                         ))}
@@ -75,14 +75,27 @@ export const ReadingStudioContentRenderer: React.FC<ReadingStudioContentRenderer
         }
 
         if (item.id === 'creative') {
-             const data = item.specificData || { task: "" };
-             return (
-                 <div className="h-full flex flex-col" style={boxStyle}>
-                     <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
-                     <p className="text-sm font-bold mb-2">{data.task}</p>
-                     <div className="flex-1 border-2 border-dashed border-current/30 rounded-xl min-h-[100px]"></div>
-                 </div>
-             );
+            const data = item.specificData || { task: "" };
+            return (
+                <div className="h-full flex flex-col" style={boxStyle}>
+                    <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
+                    <p className="text-sm font-bold mb-2">{data.task}</p>
+                    <div className="flex-1 border-2 border-dashed border-current/30 rounded-xl min-h-[100px]"></div>
+                </div>
+            );
+        }
+
+        if (item.id === 'pedagogical_note') {
+            const data = item.specificData || { text: "" };
+            return (
+                <div className="h-full flex flex-col" style={boxStyle}>
+                    <h4 className="font-black text-[10px] uppercase mb-1 opacity-50 flex items-center gap-2">
+                        <i className="fa-solid fa-graduation-cap"></i>
+                        {item.customTitle}
+                    </h4>
+                    <p className="text-[11px] leading-relaxed italic opacity-80">{data.text || "Pedagojik analiz bekleniyor..."}</p>
+                </div>
+            );
         }
 
         return <div style={boxStyle}>{item.label}</div>;
@@ -91,16 +104,16 @@ export const ReadingStudioContentRenderer: React.FC<ReadingStudioContentRenderer
     return (
         <div className="relative w-full h-full min-h-[800px] bg-white text-black">
             {layout.filter(l => l.isVisible).map((item: any) => (
-                <div 
-                    key={item.instanceId} 
-                    className="absolute" 
-                    style={{ 
-                        left: item.style.x, 
-                        top: item.style.y, 
-                        width: item.style.w, 
-                        height: item.style.h, 
-                        transform: `rotate(${item.style.rotation || 0}deg)`, 
-                        zIndex: item.style.zIndex 
+                <div
+                    key={item.instanceId}
+                    className="absolute"
+                    style={{
+                        left: item.style.x,
+                        top: item.style.y,
+                        width: item.style.w,
+                        height: item.style.h,
+                        transform: `rotate(${item.style.rotation || 0}deg)`,
+                        zIndex: item.style.zIndex
                     }}
                 >
                     {renderItemContent(item)}

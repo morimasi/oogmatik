@@ -4,7 +4,7 @@ import { generateWithSchema } from '../geminiClient';
 import { InteractiveStoryData, ReadingStudioConfig } from '../../types';
 
 export const generateInteractiveStory = async (config: ReadingStudioConfig): Promise<InteractiveStoryData> => {
-    
+
     const lengthMap = {
         'short': 'Kısa ve öz (80-120 kelime).',
         'medium': 'Orta uzunlukta (180-250 kelime).',
@@ -22,32 +22,39 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     if (config.include5N1K) tasksInstruction += "\n- 5N 1K Analizi: Metindeki gerçek verilere dayalı 6 soru-cevap çifti.";
     if (config.countMultipleChoice > 0) tasksInstruction += `\n- Çoktan Seçmeli Test: ${config.countMultipleChoice} adet (Çeldiriciler mantıklı olmalı).`;
     if (config.countTrueFalse > 0) tasksInstruction += `\n- Doğru/Yanlış Sorgusu: ${config.countTrueFalse} adet.`;
-    if (config.countFillBlanks > 0) tasksInstruction += `\n- Boşluk Doldurma: ${config.countFillBlanks} adet (Önemli kavramlar metinden seçilip maskelenmeli).`;
+    if (config.countFillBlanks > 0) tasksInstruction += `\n- Boşluk Doldurma: ${config.countFillBlanks} adet (Metindeki kilit kavramlar seçilmeli).`;
     if (config.countLogic > 0) tasksInstruction += `\n- Mantık/Muhakeme: ${config.countLogic} adet (Hikaye evreninde geçen bir problem).`;
     if (config.countInference > 0) tasksInstruction += `\n- Çıkarım Yapma: ${config.countInference} adet (Satır aralarını okuma soruları).`;
 
     const prompt = `
-    [ROL: PROFESYONEL ÇOCUK EDEBİYATI YAZARI VE EĞİTİM TEKNOLOĞU]
+    [ROL: DİSLEKSİ UZMANI, ÇOCUK EDEBİYATI YAZARI VE EĞİTİM TEKNOLOĞU]
     
-    Aşağıdaki parametrelerin TAMAMINI kullanarak eşsiz bir eğitim materyali tasarla:
+    Aşağıdaki parametrelerle %100 özgün ve disleksi dostu bir eğitim materyali tasarla:
     
+    PARAMETRELER:
     1. KONU/TEMA: "${config.topic}"
-    2. TÜR: ${config.genre} (Bu türün anlatım tekniklerini kullan)
-    3. ANLATIM TONU: ${config.tone} (Örn: Eğlenceli ise mizah kat, Öğretici ise bilgi vurgula)
-    4. HEDEF KİTLE: ${config.gradeLevel} seviyesindeki bir çocuk.
-    5. DİL KARMAŞIKLIĞI: ${complexityMap[config.textComplexity]}
-    6. METİN UZUNLUĞU: ${lengthMap[config.length]}
+    2. TÜR: ${config.genre}
+    3. ANLATIM TONU: ${config.tone}
+    4. HEDEF KİTLE: ${config.gradeLevel} seviyesi.
+    5. ANA KARAKTER: İSİM: "${config.characterName || 'Öğrenci'}", ÖZELLİKLER: "${config.characterTraits || 'Meraklı ve cesur'}"
+    6. DİL KARMAŞIKLIĞI: ${complexityMap[config.textComplexity || 'moderate']}
+    7. METİN UZUNLUĞU: ${lengthMap[config.length || 'medium']}
     
+    ÖZEL TALİMATLAR:
+    - Hikaye metni kısa paragraflar halinde, net ve akıcı olmalıdır.
+    - Metin içerisinde öğrencinin okumakta zorlanabileceği "fonolojik kavis" içeren kelimeleri seçip "vocabulary" kısmına anlamlarıyla ekle.
+    - "creativeTask" alanı öğrenciyi çizim yapmaya veya kendi sonunu yazmaya teşvik etmelidir.
+    - "pedagogicalNote" kısmında bu metnin hangi bilişsel beceriyi (örn: görsel bellek, işitsel ayırt etme) desteklediğini belirt.
+
     GÖRSEL ÜRETİM TALİMATI (imagePrompt):
-    - Hikayenin ana olayını veya en can alıcı sahnesini betimleyen profesyonel bir görsel promptu yaz.
-    - Stil: ${config.imageGeneration.style} tarzında.
-    - Detay Seviyesi: ${config.imageGeneration.complexity === 'detailed' ? 'Yüksek detaylı, dokulu ve zengin' : 'Minimalist, net hatlı ve temiz'}.
-    - Şart: Görselde hikayedeki ana karakter ve çevre mutlaka hikayedeki anlatıma uygun yer almalı.
+    - Stil: ${config.imageGeneration.style || 'storybook'} tarzında.
+    - Detay: ${config.imageGeneration.complexity === 'detailed' ? 'Zengin dokulu' : 'Net ve sade'}.
+    - İçerik: "${config.characterName || 'Karakter'}" karakterini "${config.topic}" temasıyla betimleyen bir sahne.
     
     EĞİTSEL GÖREVLER:
     ${tasksInstruction}
     
-    DİKKAT: Sadece JSON formatında, metin dışına çıkmadan yanıt ver. Hikaye disleksi dostu (dyslexia-friendly) yapıda, kısa paragraflar ve net bir akışla yazılmalıdır.
+    DİKKAT: Sadece JSON döndür.
     `;
 
     const schema = {
@@ -72,7 +79,7 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
                 type: Type.ARRAY,
                 items: {
                     type: Type.OBJECT,
-                    properties: { 
+                    properties: {
                         type: { type: Type.STRING, enum: ['who', 'where', 'when', 'what', 'why', 'how'] },
                         question: { type: Type.STRING },
                         answer: { type: Type.STRING }

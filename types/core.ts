@@ -591,6 +591,8 @@ export interface OCRResult {
 export interface ReadingStudioConfig {
     gradeLevel: string;
     studentName: string;
+    characterName?: string;
+    characterTraits?: string;
     topic: string;
     genre: string;
     tone: string;

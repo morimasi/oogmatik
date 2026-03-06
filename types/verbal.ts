@@ -15,6 +15,7 @@ export interface StoryQuestion {
 export interface StoryData extends BaseActivityData {
     story: string;
     genre?: string;
+    gradeLevel?: string;
     mainIdea: string;
     characters: string[];
     setting: string;
@@ -48,7 +49,7 @@ export interface StorySequencingData extends BaseActivityData {
 
 export interface InteractiveStoryData extends StoryData {
     fiveW1H: { type: 'who' | 'where' | 'when' | 'what' | 'why' | 'how'; question: string; answer: string }[];
-    trueFalse: StoryQuestion[];
+    trueFalse: { question: string; answer: boolean }[];
     fillBlanks: { sentence: string; answer: string }[];
     logicQuestions: { question: string; answer: string; hint: string }[];
     inferenceQuestions: { question: string; answer: string }[];

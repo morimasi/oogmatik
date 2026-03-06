@@ -9,12 +9,13 @@ import { worksheetService } from '../../services/worksheetService';
 import { ImageDisplay, QUESTION_TYPES, StoryHighlighter } from '../sheets/common';
 import { EditableText } from '../Editable';
 import { ShareModal } from '../ShareModal';
+import { ReadingStudioContentRenderer } from './ReadingStudioContentRenderer';
 
 // --- CONFIGURATION CONSTANTS ---
-const SNAP_GRID = 5; 
-const A4_WIDTH_PX = 794; 
-const A4_HEIGHT_PX = 1123; 
-const PAGE_BOTTOM_PADDING = 100; 
+const SNAP_GRID = 5;
+const A4_WIDTH_PX = 794;
+const A4_HEIGHT_PX = 1123;
+const PAGE_BOTTOM_PADDING = 100;
 
 // --- DEFINITIONS & DEFAULTS ---
 
@@ -75,6 +76,7 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
     { id: 'tracker', label: 'Okuma Takipçisi', defaultTitle: 'OKUMA TAKİBİ', icon: 'fa-eye', description: 'Okuma sayısını işaretleme alanı.', defaultStyle: { h: 60, w: 200 } },
     { id: 'story_block', label: 'Hikaye Metni', defaultTitle: 'OKUMA METNİ', icon: 'fa-book-open', description: 'Ana metin ve görsel alanı.', defaultStyle: { h: 400 } },
     { id: 'vocabulary', label: 'Sözlükçe', defaultTitle: 'SÖZLÜKÇE', icon: 'fa-spell-check', description: 'Zor kelimeler ve anlamları.', defaultStyle: { h: 150 } },
+    { id: 'pedagogical_note', label: 'Pedagojik Not', defaultTitle: 'EĞİTMEN NOTU', icon: 'fa-user-graduate', description: 'Metnin bilişsel hedefleri ve kazanımları.', defaultStyle: { h: 100, backgroundColor: '#f0f9ff', borderColor: '#bae6fd' } },
     { id: 'questions_5n1k', label: '5N 1K Analizi', defaultTitle: '5N 1K SORULARI', icon: 'fa-circle-question', description: 'Kim, Ne, Nerede soruları.', defaultStyle: { w: 754, h: 300 } },
     { id: 'questions_test', label: 'Test Soruları', defaultTitle: 'DEĞERLENDİRME', icon: 'fa-list-check', description: 'Çoktan seçmeli sorular.', defaultStyle: { w: 754, h: 300 } },
     { id: 'questions_inference', label: 'Derin Analiz', defaultTitle: 'DERİN ANALİZ', icon: 'fa-brain', description: 'Çıkarım ve yorum soruları.', defaultStyle: { h: 150 } },
@@ -92,8 +94,8 @@ const AutoContentWrapper = ({ children, onSizeChange, enabled }: { children?: Re
             if (!contentRef.current) return;
             const currentContentHeight = contentRef.current.scrollHeight;
             if (Math.abs(currentContentHeight - lastHeight.current) > 2) {
-                 lastHeight.current = currentContentHeight;
-                 onSizeChange(currentContentHeight);
+                lastHeight.current = currentContentHeight;
+                onSizeChange(currentContentHeight);
             }
         });
         observer.observe(contentRef.current);
@@ -117,21 +119,21 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     const [isSaved, setIsSaved] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
-    
+
     const [storyData, setStoryData] = useState<InteractiveStoryData | null>(null);
     const [sidebarTab, setSidebarTab] = useState<'settings' | 'library' | 'templates'>('settings');
     const [layout, setLayout] = useState<ActiveComponent[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [designMode, setDesignMode] = useState(true);
-    const [smartFlow, setSmartFlow] = useState(true); 
-    
+    const [smartFlow, setSmartFlow] = useState(true);
+
     const [config, setConfig] = useState<ReadingStudioConfig>({
         gradeLevel: '3. Sınıf', studentName: '', topic: '', genre: 'Macera', tone: 'Eğlenceli',
         length: 'medium', layoutDensity: 'comfortable', textComplexity: 'moderate',
         fontSettings: { family: 'OpenDyslexic', size: 16, lineHeight: 1.8, letterSpacing: 1, wordSpacing: 2 },
         includeImage: true, imageSize: 40, imageOpacity: 100, imagePosition: 'right',
         imageGeneration: { enabled: true, style: 'storybook', complexity: 'simple' },
-        include5N1K: true, countMultipleChoice: 3, countTrueFalse: 2, countFillBlanks: 2, countLogic: 1, countInference: 1, 
+        include5N1K: true, countMultipleChoice: 3, countTrueFalse: 2, countFillBlanks: 2, countLogic: 1, countInference: 1,
         focusVocabulary: true, includeCreativeTask: true, includeWordHunt: false, includeSpellingCheck: false,
         showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
     });
@@ -141,12 +143,51 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     const [canvasScale, setCanvasScale] = useState(0.85);
     const canvasRef = useRef<HTMLDivElement>(null);
 
+    // Initial layout setup
+    useEffect(() => {
+        if (layout.length === 0) {
+            const initialComponents: ActiveComponent[] = [
+                { ...COMPONENT_DEFINITIONS[0], instanceId: 'init_header', isVisible: true, specificData: { title: "YENİ HİKAYE", subtitle: "Okuma ve Anlama Çalışması" }, style: { ...DEFAULT_STYLE_BASE, ...COMPONENT_DEFINITIONS[0].defaultStyle } },
+                { ...COMPONENT_DEFINITIONS[2], instanceId: 'init_story', isVisible: true, specificData: { text: "Buraya AI ile üretilen hikaye gelecek..." }, style: { ...DEFAULT_STYLE_BASE, ...COMPONENT_DEFINITIONS[2].defaultStyle, y: 150 } }
+            ];
+            setLayout(initialComponents);
+        }
+    }, []);
+
     const handleGenerate = async () => {
         setIsLoading(true);
         try {
             const data = await generateInteractiveStory(config);
             setStoryData(data);
+
+            // Auto-populate layout with generated data
+            const newLayout = layout.map(item => {
+                const updatedItem = { ...item };
+                if (item.id === 'header') updatedItem.specificData = { title: data.title, subtitle: `${data.genre} | ${data.gradeLevel}` };
+                if (item.id === 'story_block') updatedItem.specificData = { text: data.story, imagePrompt: data.imagePrompt };
+                if (item.id === 'vocabulary') updatedItem.specificData = { questions: data.vocabulary?.map(v => ({ text: `${v.word}: ${v.definition}` })) };
+                if (item.id === 'questions_5n1k') updatedItem.specificData = { questions: data.fiveW1H?.map(q => ({ text: q.question })) };
+                if (item.id === 'questions_test') updatedItem.specificData = { questions: data.multipleChoice?.map(q => ({ text: q.question })) };
+                if (item.id === 'creative') updatedItem.specificData = { task: data.creativeTask };
+                if (item.id === 'pedagogical_note') updatedItem.specificData = { text: data.pedagogicalNote };
+                return updatedItem;
+            });
+            setLayout(newLayout);
+            setDesignMode(false);
         } catch (e) { alert("Hata oluştu."); } finally { setIsLoading(false); }
+    };
+
+    const addComponent = (def: ComponentDefinition) => {
+        const lastY = layout.length > 0 ? Math.max(...layout.map(l => (l.style.y || 0) + (l.style.h || 0))) : 0;
+        const newComp: ActiveComponent = {
+            ...def,
+            instanceId: `inst_${Date.now()}`,
+            isVisible: true,
+            style: { ...DEFAULT_STYLE_BASE, ...def.defaultStyle, y: lastY + 20 },
+            specificData: {}
+        };
+        setLayout([...layout, newComp]);
+        setSelectedId(newComp.instanceId);
     };
 
     const handleAutoResize = useCallback((instanceId: string, h: number) => {
@@ -175,52 +216,105 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             </div>
 
             <div className="flex-1 flex overflow-hidden">
-                <aside className="w-80 bg-[#18181b] border-r border-zinc-800 p-6 overflow-y-auto">
-                    <div className="space-y-6">
-                        <h4 className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Hikaye Ayarları</h4>
-                        <div>
-                            <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Tema / Konu</label>
-                            <input type="text" value={config.topic} onChange={e => setConfig({...config, topic: e.target.value})} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" />
-                        </div>
-                        <div>
-                            <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Sınıf Seviyesi</label>
-                            <select value={config.gradeLevel} onChange={e => setConfig({...config, gradeLevel: e.target.value})} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
-                                {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}
-                            </select>
-                        </div>
+                <aside className="w-80 bg-[#18181b] border-r border-zinc-800 flex flex-col overflow-hidden">
+                    <div className="flex border-b border-zinc-800 shrink-0">
+                        <button onClick={() => setSidebarTab('settings')} className={`flex-1 p-4 text-[10px] font-black uppercase tracking-widest transition-colors ${sidebarTab === 'settings' ? 'text-indigo-500 bg-zinc-800/50' : 'text-zinc-500 hover:text-zinc-300'}`}>Üretim</button>
+                        <button onClick={() => setSidebarTab('templates')} className={`flex-1 p-4 text-[10px] font-black uppercase tracking-widest transition-colors ${sidebarTab === 'templates' ? 'text-emerald-500 bg-zinc-800/50' : 'text-zinc-500 hover:text-zinc-300'}`}>Bileşenler</button>
                     </div>
-                </aside>
 
-                <main className="flex-1 bg-black/40 overflow-auto p-12 custom-scrollbar flex justify-center">
-                    <div id="canvas-root" className="bg-white text-black shadow-2xl origin-top transition-transform" style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: '20mm' }}>
-                        {storyData ? (
-                            <div className="space-y-8">
-                                <h1 className="text-4xl font-black uppercase border-b-4 border-black pb-4">{storyData.title}</h1>
-                                <div className="prose max-w-none text-xl leading-relaxed text-justify font-dyslexic">
-                                    {storyData.story.split('\n').map((p, i) => <p key={i} className="mb-4">{p}</p>)}
+                    <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                        {sidebarTab === 'settings' && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
+                                <h4 className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Hikaye Ayarları</h4>
+                                <div>
+                                    <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Tema / Konu</label>
+                                    <input type="text" value={config.topic} onChange={e => setConfig({ ...config, topic: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Uzay Macerası" />
                                 </div>
-                                <div className="grid grid-cols-2 gap-8 pt-8 border-t-2 border-dashed">
+                                <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <h3 className="font-bold mb-4 uppercase">5N 1K Analizi</h3>
-                                        {storyData.fiveW1H.map((q, i) => (
-                                            <div key={i} className="mb-4">
-                                                <p className="font-bold text-sm">{q.question}</p>
-                                                <div className="h-6 border-b border-dashed border-zinc-300"></div>
-                                            </div>
-                                        ))}
+                                        <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Kahraman Adı</label>
+                                        <input type="text" value={config.characterName} onChange={e => setConfig({ ...config, characterName: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Mert" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold mb-4 uppercase">Kelime Dağarcığı</h3>
-                                        {storyData.vocabulary?.map((v, i) => (
-                                            <p key={i} className="text-sm mb-2"><strong>{v.word}:</strong> {v.definition}</p>
-                                        ))}
+                                        <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Sınıf</label>
+                                        <select value={config.gradeLevel} onChange={e => setConfig({ ...config, gradeLevel: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
+                                            {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Karakter Özellikleri</label>
+                                    <input type="text" value={config.characterTraits} onChange={e => setConfig({ ...config, characterTraits: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Cesur, hayvansever" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Tür</label>
+                                        <select value={config.genre} onChange={e => setConfig({ ...config, genre: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
+                                            {['Macera', 'Masal', 'Gizem', 'Bilim Kurgu', 'Fabl', 'Sosyal Öykü'].map(g => <option key={g} value={g}>{g}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Uzunluk</label>
+                                        <select value={config.length} onChange={e => setConfig({ ...config, length: e.target.value as any })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
+                                            <option value="short">Kısa</option>
+                                            <option value="medium">Orta</option>
+                                            <option value="long">Uzun</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
-                        ) : (
-                            <div className="h-full flex flex-col items-center justify-center text-zinc-300 opacity-20 py-40">
-                                <i className="fa-solid fa-book-open text-8xl mb-6"></i>
-                                <p className="text-xl font-bold uppercase tracking-widest">İçerik bekleniyor...</p>
+                        )}
+
+                        {sidebarTab === 'templates' && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                                <h4 className="text-[10px] font-black uppercase text-zinc-500 tracking-widest mb-4">Bileşen Kütüphanesi</h4>
+                                <div className="grid grid-cols-1 gap-2">
+                                    {COMPONENT_DEFINITIONS.map(def => (
+                                        <button key={def.id} onClick={() => addComponent(def)} className="group flex items-center gap-3 w-full p-4 bg-zinc-900/50 hover:bg-zinc-800 border border-zinc-800 hover:border-indigo-500/50 rounded-2xl transition-all text-left">
+                                            <div className="w-10 h-10 rounded-xl bg-zinc-800 group-hover:bg-indigo-600/20 flex items-center justify-center text-zinc-500 group-hover:text-indigo-500 transition-colors shrink-0">
+                                                <i className={`fa-solid ${def.icon}`}></i>
+                                            </div>
+                                            <div className="overflow-hidden">
+                                                <p className="text-xs font-black text-zinc-200 truncate">{def.label}</p>
+                                                <p className="text-[10px] text-zinc-500 truncate">{def.description}</p>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </aside>
+
+                <main className="flex-1 bg-black/40 overflow-auto p-12 custom-scrollbar flex flex-col items-center">
+                    <div className="flex gap-4 mb-8 bg-[#18181b] p-2 rounded-2xl border border-zinc-800 scale-90 sm:scale-100">
+                        <button onClick={() => setDesignMode(!designMode)} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${designMode ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:bg-zinc-800'}`}>
+                            <i className={`fa-solid ${designMode ? 'fa-pen-ruler' : 'fa-eye'} mr-2`}></i>
+                            {designMode ? 'Tasarım Modu' : 'İzleme Modu'}
+                        </button>
+                        <div className="w-px h-8 bg-zinc-800 mx-2"></div>
+                        <div className="flex items-center gap-4 px-4">
+                            <input type="range" min="0.5" max="1.5" step="0.05" value={canvasScale} onChange={e => setCanvasScale(parseFloat(e.target.value))} className="w-32 accent-indigo-500" />
+                            <span className="text-[10px] font-black text-zinc-500 min-w-[40px]">% {Math.round(canvasScale * 100)}</span>
+                        </div>
+                    </div>
+
+                    <div
+                        id="canvas-root"
+                        className="bg-white text-black shadow-2xl origin-top transition-transform relative select-none"
+                        style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: '20mm', transform: `scale(${canvasScale})` }}
+                    >
+                        <ReadingStudioContentRenderer
+                            layout={layout}
+                            storyData={storyData}
+                        />
+
+                        {/* Empty State Overlay */}
+                        {!storyData && !layout.some(l => l.specificData?.text) && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-200 pointer-events-none opacity-40">
+                                <i className="fa-solid fa-magic-wand-sparkles text-8xl mb-6"></i>
+                                <p className="text-xl font-black uppercase tracking-[0.2em]">Sihrinizi Bekliyor</p>
+                                <p className="text-sm mt-2 font-medium">Sol panelden bir konu belirleyip üretmeye başlayın.</p>
                             </div>
                         )}
                     </div>
