@@ -375,48 +375,76 @@ const getBlockWeight = (block: WorksheetBlock): number => {
     if (!content) return 0;
 
     switch (type) {
-        case 'header': return 40;  // 60 -> 40
+        case 'header': return 40;
         case 'text': {
             const text = recursiveSafeText(content.text || content);
-            return 20 + (Math.ceil(text.length / 150) * 12); // Daha hafif
+            // Her satır ~80 karakter varsayımıyla (11pt font, 15mm padding)
+            const lines = Math.ceil(text.length / 85);
+            return 15 + (lines * 22);
         }
         case 'grid': {
             const rows = Math.ceil((content.cells?.length || 0) / (content.cols || 4));
-            return 40 + (rows * 28); // 50+38 -> 40+28
+            return 35 + (rows * 32);
         }
         case 'table': {
             const rows = (content.rows || content.data || []).length;
-            return 45 + (rows * 24); // 60+32 -> 45+24
+            return 40 + (rows * 28);
         }
-        case 'image': return 250;
-        case 'cloze_test': return 80 + (content.text?.length || 0) / 4;
-        case 'categorical_sorting': return 70 + (content.categories?.length || 0) * 40;
+        case 'image': return content.height || 260; // Dinamik yükseklik desteği
+        case 'cloze_test': {
+            const text = recursiveSafeText(content.text || '');
+            const lines = Math.ceil(text.length / 80);
+            return 60 + (lines * 24);
+        }
+        case 'categorical_sorting': return 60 + (content.categories?.length || 0) * 45;
         case 'match_columns': {
             const leftLen = (content.leftColumn || content.left || []).length;
-            return 60 + leftLen * 28;
+            return 50 + leftLen * 35;
         }
-        case 'visual_clue_card': return 70;
-        case 'neuro_marker': return 35;
-        case 'logic_card': return 120;
-        case 'footer_validation': return 90;
-        case 'svg_shape': return 80;
+        case 'visual_clue_card': return 80;
+        case 'neuro_marker': return 45;
+        case 'logic_card': return 140;
+        case 'footer_validation': return 100;
+        case 'svg_shape': return content.height || 100;
         default: return 60;
     }
 };
 
 // ════════════════════════════════════════════
-// SPLIT LARGE BLOCK — Sayfa sınırında böl
+// SPLIT LARGE BLOCK — Sayfa sınırında profesyonel bölme
 // ════════════════════════════════════════════
 const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlock[] => {
     const content: any = block.content;
     const weight = getBlockWeight(block);
     if (weight <= maxWeight) return [block];
 
+    // TEXT BLOKLARINI CÜMLE/PARAGRAF BAZLI BÖL
+    if (block.type === 'text') {
+        const text = recursiveSafeText(content.text || '');
+        // Nokta sonrası veya yeni satır sonrası böl
+        const paragraphs = text.split(/\n+/);
+        if (paragraphs.length > 1) {
+            const mid = Math.ceil(paragraphs.length / 2);
+            return [
+                { ...block, content: { ...content, text: paragraphs.slice(0, mid).join('\n').trim() } },
+                { ...block, content: { ...content, text: paragraphs.slice(mid).join('\n').trim(), isContinuation: true } }
+            ];
+        }
+        // Tek paragraf ise cümle bazlı böl
+        const sentences = text.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) || [text];
+        if (sentences.length >= 2) {
+            const mid = Math.ceil(sentences.length / 2);
+            return [
+                { ...block, content: { ...content, text: sentences.slice(0, mid).join(' ').trim() } },
+                { ...block, content: { ...content, text: sentences.slice(mid).join(' ').trim(), isContinuation: true } }
+            ];
+        }
+    }
+
     if (block.type === 'match_columns') {
         const left: any[] = content.leftColumn || content.left || [];
         const right: any[] = content.rightColumn || content.right || [];
-        // Her sayfada ~6 satır sığdır
-        const chunkSize = 6;
+        const chunkSize = Math.max(1, Math.floor((maxWeight - 50) / 35));
         const chunks: WorksheetBlock[] = [];
         for (let i = 0; i < left.length; i += chunkSize) {
             chunks.push({
@@ -431,30 +459,31 @@ const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlo
                 }
             });
         }
-        return chunks.length > 0 ? chunks : [block];
+        return chunks;
     }
 
     if (block.type === 'cloze_test') {
         const text = recursiveSafeText(content.text || '');
-        // Nokta/virgül sonrasından böl
-        const sentences = text.match(/[^.!?،\.]+[.!?،\.]+(?:\s|$)|[^.!?،\.]+$/g) || [text];
-        if (sentences.length < 2) return [block];
-        const mid = Math.ceil(sentences.length / 2);
-        return [
-            { ...block, content: { ...content, text: sentences.slice(0, mid).join(' ').trim() } },
-            { ...block, content: { ...content, text: sentences.slice(mid).join(' ').trim(), isContinuation: true } }
-        ];
+        const sentences = text.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) || [text];
+        if (sentences.length >= 2) {
+            const mid = Math.ceil(sentences.length / 2);
+            return [
+                { ...block, content: { ...content, text: sentences.slice(0, mid).join(' ').trim() } },
+                { ...block, content: { ...content, text: sentences.slice(mid).join(' ').trim(), isContinuation: true } }
+            ];
+        }
     }
 
     if (block.type === 'categorical_sorting') {
         const cats: string[] = content.categories || [];
-        if (cats.length <= 2) return [block];
-        const mid = Math.ceil(cats.length / 2);
         const items: any[] = content.items || [];
-        return [
-            { ...block, content: { ...content, categories: cats.slice(0, mid), items } },
-            { ...block, content: { ...content, categories: cats.slice(mid), items, isContinuation: true } }
-        ];
+        if (cats.length > 2) {
+            const mid = Math.ceil(cats.length / 2);
+            return [
+                { ...block, content: { ...content, categories: cats.slice(0, mid), items } },
+                { ...block, content: { ...content, categories: cats.slice(mid), items, isContinuation: true } }
+            ];
+        }
     }
 
     return [block];
@@ -468,13 +497,22 @@ const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: Sing
     // ══════════════════════════════════════════════
     // AKILLI SAYFALAMA — Bölme + Ağırlık Sistemi
     // ══════════════════════════════════════════════
-    const PAGE_MAX_WEIGHT = 980;  // Kapasite artırıldı (920 -> 980)
-    const HEADER_RESERVE = 120;   // Rezerv azaltıldı (150 -> 120)
+    // ══════════════════════════════════════════════
+    // AKILLI SAYFALAMA — Bölme + Ağırlık Sistemi
+    // ══════════════════════════════════════════════
+    const PAGE_MAX_WEIGHT = 1050; // Yeni 11pt font ve 15mm padding ile kapasite ayarlandı
+    const HEADER_RESERVE = 100;
 
-    // 1. Önce çok büyük blokları böl
-    const allBlocks: WorksheetBlock[] = rawBlocks.flatMap((block) =>
-        splitLargeBlock(block, PAGE_MAX_WEIGHT - HEADER_RESERVE)
-    );
+    // 1. Önce çok büyük blokları böl (Recursive bölme gerekebilir, şimdilik tek seviye)
+    let allBlocks: WorksheetBlock[] = [];
+    rawBlocks.forEach(block => {
+        const weight = getBlockWeight(block);
+        if (weight > PAGE_MAX_WEIGHT - HEADER_RESERVE) {
+            allBlocks.push(...splitLargeBlock(block, PAGE_MAX_WEIGHT - HEADER_RESERVE));
+        } else {
+            allBlocks.push(block);
+        }
+    });
 
     // 2. Sayfalara dağıt
     const pages: WorksheetBlock[][] = [[]];
@@ -482,6 +520,7 @@ const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: Sing
 
     allBlocks.forEach((block: WorksheetBlock) => {
         const weight = getBlockWeight(block);
+        // Eğer block mevcut sayfaya sığmıyorsa ve sayfa boş değilse yeni sayfaya geç
         if (currentWeight + weight > PAGE_MAX_WEIGHT && pages[pages.length - 1].length > 0) {
             pages.push([block]);
             currentWeight = HEADER_RESERVE + weight;
