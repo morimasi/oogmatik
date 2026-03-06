@@ -93,8 +93,9 @@ export interface VisualOddOneOutItem {
 export interface VisualOddOneOutData extends BaseActivityData {
     settings?: {
         difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
-        layout: 'single' | 'grid_compact' | 'ultra_dense';
-        itemType: 'svg' | 'text' | 'image';
+        layout: 'single' | 'grid_compact' | 'ultra_dense' | 'protocol';
+        itemType: 'svg' | 'text' | 'image' | 'character';
+        subType?: 'character_discrimination' | 'symbolic_logic' | 'object_recognition';
         isProfessionalMode: boolean;
         showClinicalNotes?: boolean;
     };
@@ -102,6 +103,11 @@ export interface VisualOddOneOutData extends BaseActivityData {
         items: VisualOddOneOutItem[];
         correctIndex: number;
         reason?: string;
+        clinicalMeta?: {
+            discriminationFactor: number; // 0-1
+            isMirrorTask: boolean;
+            targetCognitiveSkill: string;
+        };
     }[];
 }
 
