@@ -286,7 +286,7 @@ export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
                             </div>
 
                             <div className="flex-1 overflow-y-auto custom-scrollbar pr-4 grid grid-cols-1 md:grid-cols-2 gap-5">
-                                {localLibrary.filter(item => item.title.toLowerCase().includes(librarySearch.toLowerCase())).map(item => (
+                                {localLibrary.filter((item: ActivityLibraryItem) => item.title.toLowerCase().includes(librarySearch.toLowerCase())).map((item: ActivityLibraryItem) => (
                                     <div
                                         key={item.id}
                                         onClick={() => { setPrompt(item.basePrompt); setActiveTab('editor'); }}
