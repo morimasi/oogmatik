@@ -12,14 +12,19 @@ import { PEDAGOGICAL_BASE } from './prompts';
 export const generateFromRichPrompt = async (activityType: ActivityType, blueprint: string, options: GeneratorOptions & { isExactClone?: boolean }): Promise<any> => {
     const cloneInstructions = options.isExactClone
         ? `
-        [!!! KRİTİK ZORUNLULUK: 1:1 BİREBİR KLONLAMA (EXACT CLONE) !!!]
-        MİMARİ DNA'da (Blueprint) yer alan HİÇBİR metni, soruyu, şıkkı, tablo içeriğini veya yönergeyi DEĞİŞTİRME!
-        Senin tek görevin, oradaki dağınık yapıyı aşağıdaki JSON (WorksheetBlock) şemasına tam uyacak şekilde "dijitalleştirmektir".
-        Yeni bir konu, farklı bir soru veya çeldirici ASLA üretme. Orijinal materyaldeki tüm kelimeler harfi harfine aynı olmalı.
+        [!!! KRİTİK ZORUNLULUK: 1:1 MEKANİK DİJİTALLEŞTİRME !!!]
+        MİMARİ DNA'da (Blueprint) yer alan HİÇBİR metni, soruyu, şıkkı, tablo içeriğini veya yönergeyi DEĞİŞTİRME, ATLATMA, ÖZETLEME!
+        Senin görevin bir "OCR-to-Layout" motoru gibi davranmaktır.
+        - Eğer bir tablo varsa, tüm satır ve sütunlarını 'table' bloğu olarak aktar.
+        - Eğer bir grid varsa, tüm hücrelerini 'grid' bloğu olarak aktar.
+        - Hiçbir 'content' objesini boş bırakma. ({}) dönmek KESİNLİKLE YASAKTIR.
+        - Orijinal materyaldeki tüm kelimeler harfi harfine aynı olmalı.
+        - Sayfa düzeni (sütun sayısı vb.) birebir aynı olmalı.
         `
         : `
         [ROL: REMATERIALIZATION ENGINE - GEMINI 3 FLASH THINKING]
         GÖREV: Aşağıdaki TEKNİK BLUEPRINT'i (MİMARİ DNA) al ve onu BİREBİR AYNI DÜZENDE ama 100% YENİ VERİLERLE (farklı sorularla) inşa et.
+        - Yapısal sadakat (Structural Integrity) %100 korunmalı.
         `;
 
     const prompt = `
@@ -31,13 +36,14 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
     ${blueprint}
     
     PARAMETRELER:
-    - Zorluk Seviyesi: ${options.difficulty}
+    - Zorluk Seviyesi: ${options.difficulty} (Sadece yeni içerik üretiminde geçerli)
     - Sayfa Başı Öğe: ${options.itemCount}
     
     MİMARİ KURALLAR:
     1. Orijinal yapıdaki 'grid' (ızgara) ve 'table' (tablo) yerleşimlerini asla bozma.
-    ${options.isExactClone ? "2. ORİJİNAL VERİLERİN, KELİMELERİN VE SAYILARIN TAMAMINI KORU." : "2. Mevcut çeldirici mantığını (reversal, omission vb.) yeni verilere uyarla."}
+    ${options.isExactClone ? "2. ORİJİNAL VERİLERİN, KELİMELERİN VE SAYILARIN TAMAMINI KESİNTİSİZ KORU. 'content' OBJELERİNİ EKSİKSİZ DOLDUR." : "2. Mevcut çeldirici mantığını (reversal, omission vb.) yeni verilere uyarla."}
     3. Üretimden önce mimarinin yapısal bütünlüğünü 4000 token bütçesiyle düşün.
+    4. layoutArchitecture.cols değerini orijinal sayfa düzenine göre belirle (1 veya 2).
     `;
 
     const schema = {
@@ -65,14 +71,38 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                 },
                                 content: {
                                     type: Type.OBJECT,
-                                    description: "Blok içeriği. Kurallar: " +
-                                        "grid: {cells: string[], cols: number}; " +
-                                        "table: {headers: string[], rows: string[][]}; " +
-                                        "text/header/cloze_test: {text: string}; " +
-                                        "match_columns: {left: string[], right: string[]}; " +
-                                        "categorical_sorting: {categories: string[], items: {label: string, category: string}[]}; " +
-                                        "logic_card: {text: string, data: string[][], options: string[]}; " +
-                                        "footer_validation: {text: string, targetValue: string};"
+                                    properties: {
+                                        // Grid/Table
+                                        cells: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        cols: { type: Type.INTEGER },
+                                        headers: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        rows: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                                        // Text/Header
+                                        text: { type: Type.STRING },
+                                        // Match/Sorting
+                                        left: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        right: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        categories: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        items: {
+                                            type: Type.ARRAY,
+                                            items: {
+                                                type: Type.OBJECT,
+                                                properties: {
+                                                    label: { type: Type.STRING },
+                                                    category: { type: Type.STRING }
+                                                }
+                                            }
+                                        },
+                                        // Logic Card
+                                        data: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        // Footer/Clue
+                                        targetValue: { type: Type.STRING },
+                                        clue: { type: Type.STRING },
+                                        title: { type: Type.STRING },
+                                        icon: { type: Type.STRING }
+                                    },
+                                    description: "Blok içeriği. Seçilen 'type'a uygun alanları KESİNLİKLE doldurmalısın."
                                 },
                                 weight: { type: Type.INTEGER }
                             },

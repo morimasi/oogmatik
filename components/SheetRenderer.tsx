@@ -56,9 +56,9 @@ const recursiveSafeText = (val: any): string => {
         if (Array.isArray(val)) return val.map(recursiveSafeText).join(", ");
 
         // Priority keys
-        const keys = ['text', 'char', 'value', 'label', 'clue', 'title', 'word', 'name'];
+        const keys = ['text', 'char', 'value', 'label', 'clue', 'title', 'word', 'name', 'content', 'data', 'val'];
         for (const key of keys) {
-            if (val[key] !== undefined) return recursiveSafeText(val[key]);
+            if (val[key] !== undefined && val[key] !== null) return recursiveSafeText(val[key]);
         }
 
         // If no priority keys, try any string property
@@ -109,25 +109,28 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any
             );
         }
 
-        case 'table':
+        case 'table': {
+            const headers: string[] = content.headers || content.columns || [];
+            const rows: any[][] = content.rows || content.data || content.items || [];
             return (
                 <div className="block-table-container overflow-hidden border-4 border-black rounded-2xl mb-4 bg-white mx-auto max-w-full shadow-sm">
                     <table className="w-full border-collapse">
-                        {content.headers && (
+                        {headers.length > 0 && (
                             <thead className="bg-zinc-100">
-                                <tr>{content.headers.map((h: string, i: number) => <th key={i} className="p-3 text-[10px] font-black uppercase border-r border-black last:border-0">{h}</th>)}</tr>
+                                <tr>{headers.map((h: string, i: number) => <th key={i} className="p-3 text-[10px] font-black uppercase border-r border-black last:border-0">{recursiveSafeText(h)}</th>)}</tr>
                             </thead>
                         )}
                         <tbody>
-                            {(content.data || content.rows || []).map((row: any[], i: number) => (
+                            {rows.map((row: any[], i: number) => (
                                 <tr key={i} className="border-t border-zinc-200">
-                                    {row.map((cell, j) => <td key={j} className="p-3 text-center font-bold text-sm border-r border-zinc-100 last:border-0"><EditableText value={recursiveSafeText(cell)} tag="span" /></td>)}
+                                    {(Array.isArray(row) ? row : Object.values(row)).map((cell, j) => <td key={j} className="p-3 text-center font-bold text-sm border-r border-zinc-100 last:border-0"><EditableText value={recursiveSafeText(cell)} tag="span" /></td>)}
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
             );
+        }
 
         case 'logic_card':
             return (
