@@ -4,9 +4,10 @@ import { InteractiveStoryData, LayoutItem } from '../../types';
 import { useReadingStudio } from '../../context/ReadingStudioContext';
 
 const DraggableItem = ({ item, children }: { item: any, children: any }) => {
-    const { designMode, updateComponent, setSelectedId, selectedId } = useReadingStudio();
+    const { designMode, updateComponent, setSelectedId, selectedId, layout, setLayout } = useReadingStudio();
     const isDragging = useRef(false);
     const startPos = useRef({ x: 0, y: 0 });
+    const initialLayout = useRef<LayoutItem[]>([]);
 
     const handleMouseDown = (e: any) => {
         if (!designMode) return;
@@ -14,6 +15,7 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
         const isResizeHandle = e.target.closest('.resize-handle');
         isDragging.current = true;
         startPos.current = { x: e.clientX, y: e.clientY };
+        initialLayout.current = [...layout]; // Store the exact layout at drag start
 
         const initialStyle = { ...item.style };
         setSelectedId(item.instanceId);
@@ -25,13 +27,24 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
             const dy = moveEvent.clientY - startPos.current.y;
 
             if (isResizeHandle) {
-                updateComponent(item.instanceId, {
-                    style: {
-                        ...item.style,
-                        w: Math.max(50, Math.round((initialStyle.w + dx) / 8) * 8),
-                        h: Math.max(30, Math.round((initialStyle.h + dy) / 8) * 8)
+                const newW = Math.max(50, Math.round((initialStyle.w + dx) / 8) * 8);
+                const newH = Math.max(30, Math.round((initialStyle.h + dy) / 8) * 8);
+                const heightDiff = newH - initialStyle.h;
+
+                setLayout(initialLayout.current.map(l => {
+                    if (l.instanceId === item.instanceId) {
+                        return { ...l, style: { ...l.style, w: newW, h: newH } };
                     }
-                });
+                    
+                    // Akıllı Boşluk Doldurma: Boyutu değişen öğenin BİR ALTINDA kalan tüm öğeleri kaydır
+                    if (l.pageIndex === item.pageIndex && l.style.y >= (initialStyle.y + initialStyle.h - 10)) {
+                        return {
+                            ...l,
+                            style: { ...l.style, y: l.style.y + heightDiff }
+                        };
+                    }
+                    return l;
+                }));
             } else {
                 let newX = Math.round((initialStyle.x + dx) / 8) * 8;
                 let newY = Math.round((initialStyle.y + dy) / 8) * 8;
@@ -49,13 +62,12 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
                 // Snap to Right Margin
                 if (Math.abs((newX + initialStyle.w) - 774) < 15) newX = 774 - initialStyle.w;
 
-                updateComponent(item.instanceId, {
-                    style: {
-                        ...item.style,
-                        x: newX,
-                        y: newY
+                setLayout(initialLayout.current.map(l => {
+                    if (l.instanceId === item.instanceId) {
+                        return { ...l, style: { ...l.style, x: newX, y: newY } };
                     }
-                });
+                    return l;
+                }));
             }
         };
 
