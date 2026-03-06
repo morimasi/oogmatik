@@ -52,6 +52,23 @@ Eğer kullanıcı özel bir harita yüklediyse (imageBase64 mevcutsa), yönergel
 - Disleksik bireyler için "Sol üstteki mavi kare" gibi net uzamsal referanslar ver.
 `;
 
+export const FIND_THE_DIFFERENCE_CORE_GUIDE = `
+[GÖREV: FARKLI OLANI BUL - KLİNİK DERİNLİK MODU]
+
+İçerik üretirken şu çeldirici matrisini ve kuralları kullan:
+1. **DİSLEKSİ ÇELDİRİCİ MATRİSİ**:
+   - Karakter bazlı ise: b-d, p-q, m-n, u-n, 6-9, 2-5, s-z, E-3, 7-f.
+   - Morfolojik ise: 'çanta-çatna', 'salata-salata', 'kitap-kipat' gibi harf yer değiştirmeleri.
+2. **MODLAR**:
+   - 'beginner': Renk veya boyut farkı gibi çok belirgin farklar.
+   - 'clinical': Mikro farklar (15 derece rotasyon, minik bir çizgi eksikliği, ayna görüntüsü).
+3. **MİMARİ**:
+   - 'isProfessionalMode' true ise öğeleri 'grid_compact' veya 'ultra_dense' yerleştir.
+   - Her 'row' için 'correctIndex' belirle ve bu indeksteki öğeye 'clinicalMeta' (rotation, mirroring vb.) uygula.
+4. **SVG ÜRETİMİ**:
+   - Eğer 'itemType' svg ise, öğeleri karmaşık geometrik şekiller (iç içe geçmiş kareler, kesişen daireler) olarak 'imageBase64' yerine 'svg' stringi olarak üret.
+`;
+
 export const getMathPrompt = (title: string, difficulty: string, rule: string, student?: Student): string => {
     return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[KURAL]: ${rule}\n${IMAGE_GENERATION_GUIDE}`;
 };

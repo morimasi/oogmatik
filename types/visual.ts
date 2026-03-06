@@ -30,10 +30,24 @@ export interface ShapeCountingData extends BaseActivityData {
 }
 
 export interface FindTheDifferenceData extends BaseActivityData {
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        differenceType: 'visual' | 'character' | 'morphological' | 'symbolic';
+        itemType: 'svg' | 'text' | 'image' | 'character';
+        layout: 'single' | 'grid_compact' | 'ultra_dense';
+        isProfessionalMode: boolean;
+        showClinicalNotes?: boolean;
+    };
     rows: {
-        items: string[];
+        items: any[]; // Supports strings, SVG objects, or references
         correctIndex: number;
         visualDistractionLevel: 'low' | 'medium' | 'high' | 'extreme';
+        clinicalMeta?: {
+            errorType?: string;
+            rotationAngle?: number;
+            isMirrored?: boolean;
+            strokeDifference?: string;
+        };
     }[];
 }
 

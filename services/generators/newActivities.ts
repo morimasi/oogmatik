@@ -100,7 +100,27 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                         targetValue: { type: Type.STRING },
                                         clue: { type: Type.STRING },
                                         title: { type: Type.STRING },
-                                        icon: { type: Type.STRING }
+                                        icon: { type: Type.STRING },
+                                        // Visual Specialist Settings
+                                        settings: {
+                                            type: Type.OBJECT,
+                                            properties: {
+                                                difficulty: { type: Type.STRING, enum: ['beginner', 'intermediate', 'expert', 'clinical'] },
+                                                differenceType: { type: Type.STRING },
+                                                itemType: { type: Type.STRING },
+                                                layout: { type: Type.STRING, enum: ['single', 'grid_compact', 'ultra_dense'] },
+                                                isProfessionalMode: { type: Type.BOOLEAN }
+                                            }
+                                        },
+                                        clinicalMeta: {
+                                            type: Type.OBJECT,
+                                            properties: {
+                                                errorType: { type: Type.STRING },
+                                                rotationAngle: { type: Type.INTEGER },
+                                                isMirrored: { type: Type.BOOLEAN },
+                                                strokeDifference: { type: Type.STRING }
+                                            }
+                                        }
                                     },
                                     description: "Blok içeriği. Seçilen 'type'a uygun alanları KESİNLİKLE doldurmalısın."
                                 },
