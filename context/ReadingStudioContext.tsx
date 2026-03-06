@@ -16,8 +16,12 @@ interface ReadingStudioContextType {
     setActiveStudent: (student: Student | null) => void;
     isLoading: boolean;
     setIsLoading: (val: boolean) => void;
-    updateComponent: (instanceId: string, updates: Partial<LayoutItem>) => void;
+    updateComponent: (instanceId: string, updates: Partial<LayoutItem>, saveToHistory?: boolean) => void;
     addComponent: (def: any) => void;
+    undo: () => void;
+    redo: () => void;
+    canUndo: boolean;
+    canRedo: boolean;
 }
 
 const ReadingStudioContext = createContext<ReadingStudioContextType | undefined>(undefined);
@@ -41,12 +45,43 @@ export function ReadingStudioProvider({ children }: { children: any }) {
     const [activeStudent, setActiveStudentState] = useState<Student | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    const updateComponent = useCallback((instanceId: string, updates: Partial<LayoutItem>) => {
-        setLayout(prev => prev.map(item => item.instanceId === instanceId ? { ...item, ...updates } : item));
+    // Undo/Redo stacks
+    const [past, setPast] = useState<LayoutItem[][]>([]);
+    const [future, setFuture] = useState<LayoutItem[][]>([]);
+
+    const saveHistory = useCallback((currentLayout: LayoutItem[]) => {
+        setPast((prev: LayoutItem[][]) => [...prev.slice(-19), currentLayout]); // Keep last 20 steps
+        setFuture([]);
     }, []);
 
+    const undo = useCallback(() => {
+        if (past.length === 0) return;
+        const previous = past[past.length - 1];
+        const newPast = past.slice(0, past.length - 1);
+        setFuture((prev: LayoutItem[][]) => [layout, ...prev]);
+        setLayout(previous);
+        setPast(newPast);
+    }, [past, layout]);
+
+    const redo = useCallback(() => {
+        if (future.length === 0) return;
+        const next = future[0];
+        const newFuture = future.slice(1);
+        setPast((prev: LayoutItem[][]) => [...prev, layout]);
+        setLayout(next);
+        setFuture(newFuture);
+    }, [future, layout]);
+
+    const updateComponent = useCallback((instanceId: string, updates: Partial<LayoutItem>, saveToHistory = false) => {
+        if (saveToHistory) {
+            saveHistory(layout);
+        }
+        setLayout((prev: LayoutItem[]) => prev.map(item => item.instanceId === instanceId ? { ...item, ...updates } : item));
+    }, [layout, saveHistory]);
+
     const addComponent = useCallback((def: any) => {
-        const lastY = layout.length > 0 ? Math.max(...layout.map(l => (l.style.y || 0) + (l.style.h || 0))) : 0;
+        saveHistory(layout);
+        const lastY = layout.length > 0 ? Math.max(...layout.map((l: LayoutItem) => (l.style.y || 0) + (l.style.h || 0))) : 0;
         const newComp: LayoutItem = {
             ...def,
             instanceId: `inst_${Date.now()}`,
@@ -60,16 +95,17 @@ export function ReadingStudioProvider({ children }: { children: any }) {
             },
             specificData: {}
         };
-        setLayout(prev => [...prev, newComp]);
+        setLayout((prev: LayoutItem[]) => [...prev, newComp]);
         setSelectedId(newComp.instanceId);
-    }, [layout]);
+    }, [layout, saveHistory]);
 
     const value = useMemo(() => ({
         config, setConfig, storyData, setStoryData, layout, setLayout,
         selectedId, setSelectedId, designMode, setDesignMode,
         activeStudent, setActiveStudent: setActiveStudentState, isLoading, setIsLoading,
-        updateComponent, addComponent
-    }), [config, storyData, layout, selectedId, designMode, activeStudent, isLoading, updateComponent, addComponent]);
+        updateComponent, addComponent,
+        undo, redo, canUndo: past.length > 0, canRedo: future.length > 0
+    }), [config, storyData, layout, selectedId, designMode, activeStudent, isLoading, updateComponent, addComponent, undo, redo, past.length, future.length]);
 
     return <ReadingStudioContext.Provider value={value}>{children}</ReadingStudioContext.Provider>;
 };

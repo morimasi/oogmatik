@@ -12,6 +12,8 @@ import { LayoutItem } from '../../types'; // Added LayoutItem import
 const A4_WIDTH_PX = 794;
 const A4_HEIGHT_PX = 1123;
 
+import { StylePanel } from './Editor/StylePanel';
+
 interface ReadingStudioInnerProps {
     onBack: () => void;
     onAddToWorkbook: () => void;
@@ -21,7 +23,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     const {
         config, setStoryData, layout, setLayout,
         isLoading, setIsLoading, designMode, setDesignMode,
-        storyData, setSelectedId
+        storyData, setSelectedId, undo, redo, canUndo, canRedo
     } = useReadingStudio();
 
     const [sidebarTab, setSidebarTab] = useState('production' as 'production' | 'library' | 'styling');
@@ -133,6 +135,23 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
+                    <div className="flex bg-zinc-800 rounded-xl p-0.5 border border-zinc-700/50">
+                        <button
+                            disabled={!canUndo}
+                            onClick={undo}
+                            className="w-10 h-10 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 disabled:opacity-20 transition-all font-bold"
+                        >
+                            <i className="fa-solid fa-rotate-left"></i>
+                        </button>
+                        <button
+                            disabled={!canRedo}
+                            onClick={redo}
+                            className="w-10 h-10 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 disabled:opacity-20 transition-all font-bold"
+                        >
+                            <i className="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                    <div className="w-px h-6 bg-zinc-800 mx-1"></div>
                     <button
                         onClick={handleGenerate}
                         disabled={isLoading}
@@ -162,11 +181,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
                     <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-8">
                         {sidebarTab === 'production' && <AIProductionPanel />}
                         {sidebarTab === 'library' && <ComponentLibrary />}
-                        {sidebarTab === 'styling' && (
-                            <div className="text-center py-12 text-zinc-600 italic text-xs">
-                                Stil ayarları yakında eklenecek...
-                            </div>
-                        )}
+                        {sidebarTab === 'styling' && <StylePanel />}
                     </div>
                 </aside>
 
@@ -187,7 +202,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
 
                     <div
                         id="canvas-root"
-                        className="bg-white text-black shadow-[0_0_100px_rgba(0,0,0,0.5)] origin-top transition-all relative"
+                        className={`bg-white text-black shadow-[0_0_100px_rgba(0,0,0,0.5)] origin-top transition-all relative ${designMode ? 'design-grid' : ''}`}
                         style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: '20mm', transform: `scale(${canvasScale})` }}
                     >
                         <ReadingStudioContentRenderer layout={layout} storyData={storyData} />

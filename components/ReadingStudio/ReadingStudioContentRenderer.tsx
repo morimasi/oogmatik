@@ -10,22 +10,44 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
 
     const handleMouseDown = (e: any) => {
         if (!designMode) return;
+
+        const isResizeHandle = e.target.closest('.resize-handle');
         isDragging.current = true;
-        startPos.current = { x: e.clientX - (item.style.x || 0), y: e.clientY - (item.style.y || 0) };
+        startPos.current = { x: e.clientX, y: e.clientY };
+
+        const initialStyle = { ...item.style };
         setSelectedId(item.instanceId);
 
         const onMouseMove = (moveEvent: MouseEvent) => {
             if (!isDragging.current) return;
-            updateComponent(item.instanceId, {
-                style: {
-                    ...item.style,
-                    x: Math.round((moveEvent.clientX - startPos.current.x) / 5) * 5,
-                    y: Math.round((moveEvent.clientY - startPos.current.y) / 5) * 5
-                }
-            });
+
+            const dx = moveEvent.clientX - startPos.current.x;
+            const dy = moveEvent.clientY - startPos.current.y;
+
+            if (isResizeHandle) {
+                updateComponent(item.instanceId, {
+                    style: {
+                        ...item.style,
+                        w: Math.max(50, Math.round((initialStyle.w + dx) / 8) * 8),
+                        h: Math.max(30, Math.round((initialStyle.h + dy) / 8) * 8)
+                    }
+                });
+            } else {
+                updateComponent(item.instanceId, {
+                    style: {
+                        ...item.style,
+                        x: Math.round((initialStyle.x + dx) / 8) * 8,
+                        y: Math.round((initialStyle.y + dy) / 8) * 8
+                    }
+                });
+            }
         };
 
         const onMouseUp = () => {
+            if (isDragging.current) {
+                // Save to history only if there was actual movement/resizing
+                updateComponent(item.instanceId, {}, true);
+            }
             isDragging.current = false;
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('mouseup', onMouseUp);
@@ -51,12 +73,20 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
             onMouseDown={handleMouseDown}
         >
             {designMode && isSelected && (
-                <div className="absolute -top-10 left-0 bg-indigo-600 text-white text-[8px] font-black px-3 py-1.5 rounded-lg shadow-xl uppercase tracking-widest flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-2">
-                    <i className="fa-solid fa-arrows-up-down-left-right"></i>
-                    {item.label}
-                    <div className="w-px h-3 bg-white/20 mx-1"></div>
-                    <button onClick={(e: any) => { e.stopPropagation(); updateComponent(item.instanceId, { isVisible: false }); }} className="hover:text-red-300"><i className="fa-solid fa-trash"></i></button>
-                </div>
+                <>
+                    <div className="absolute -top-10 left-0 bg-indigo-600 text-white text-[8px] font-black px-3 py-1.5 rounded-lg shadow-xl uppercase tracking-widest flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-2">
+                        <i className="fa-solid fa-arrows-up-down-left-right"></i>
+                        {item.label}
+                        <div className="w-px h-3 bg-white/20 mx-1"></div>
+                        <button onClick={(e: any) => { e.stopPropagation(); updateComponent(item.instanceId, { isVisible: false }, true); }} className="hover:text-red-300"><i className="fa-solid fa-trash"></i></button>
+                    </div>
+                    {/* Resize Handle */}
+                    <div className="resize-handle absolute -right-1.5 -bottom-1.5 w-4 h-4 bg-white border-2 border-indigo-600 rounded-md shadow-lg cursor-nwse-resize z-50 flex items-center justify-center">
+                        <div className="w-1 h-1 bg-indigo-600 rounded-full"></div>
+                    </div>
+                    {/* Selection Frame */}
+                    <div className="absolute inset-0 ring-2 ring-indigo-500 ring-offset-2 pointer-events-none"></div>
+                </>
             )}
             {children}
         </div>
@@ -113,16 +143,55 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
             );
         }
 
-        if (item.id.startsWith('questions') || item.id === 'vocabulary') {
+        if (item.id === 'vocabulary') {
+            const data = item.specificData || { words: [] };
+            return (
+                <div className="flex flex-col" style={boxStyle}>
+                    <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">Kelime Hazinesi</h4>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                        {(data.words || []).map((v: any, i: number) => (
+                            <div key={i} className="text-sm">
+                                <span className="font-bold border-b-2 border-indigo-200">{v.word}:</span>
+                                <span className="ml-1 opacity-80">{v.definition}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        if (item.id === '5n1k') {
+            const data = item.specificData || { questions: [] };
+            const typeMap: any = { who: 'KİM?', where: 'NEREDE?', when: 'NE ZAMAN?', what: 'NE?', why: 'NEDEN?', how: 'NASIL?' };
+            return (
+                <div className="flex flex-col" style={boxStyle}>
+                    <h4 className="font-black text-xs uppercase mb-3 border-b-2 border-zinc-900 pb-1">5N 1K Çalışması</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                        {(data.questions || []).map((q: any, i: number) => (
+                            <div key={i} className="flex flex-col gap-1">
+                                <span className="text-[10px] font-black text-indigo-600 uppercase">{typeMap[q.type] || 'SORU'}</span>
+                                <p className="text-sm font-bold">{q.question}</p>
+                                <div className="h-6 border-b border-zinc-200 border-dashed"></div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        if (item.id === 'questions' || item.id === 'questions_test') {
             const data = item.specificData || { questions: [] };
             return (
                 <div className="flex flex-col" style={boxStyle}>
-                    <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.customTitle}</h4>
-                    <div className="flex-1 space-y-2">
+                    <h4 className="font-black text-xs uppercase mb-2 border-b pb-1 opacity-50">{item.label}</h4>
+                    <div className="flex-1 space-y-3">
                         {(data.questions || []).map((q: any, i: number) => (
                             <div key={i} className="flex gap-2 items-start text-sm">
                                 <span className="font-bold bg-current text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0" style={{ backgroundColor: s.color }}>{i + 1}</span>
-                                <p>{q.text}</p>
+                                <div className="flex-1">
+                                    <p className="font-bold">{q.question || q.text}</p>
+                                    <div className="h-6 border-b border-zinc-200 border-dashed mt-1"></div>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -155,21 +224,28 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
         }
 
         if (item.id === 'logic_problem') {
-            const data = item.specificData || { questions: [] };
+            const data = item.specificData || { puzzle: null, questions: [] };
+            const puzzle = data.puzzle || (data.questions && data.questions[0]);
             return (
-                <div className="h-full flex flex-col bg-emerald-50/30" style={boxStyle}>
+                <div className="h-full flex flex-col" style={boxStyle}>
                     <h4 className="font-black text-xs uppercase mb-3 flex items-center gap-2">
-                        <i className="fa-solid fa-brain-circuit text-emerald-600"></i>
+                        <i className="fa-solid fa-brain-circuit text-indigo-600"></i>
                         Mantıksal Akıl Yürütme
                     </h4>
-                    <div className="flex-1 space-y-4">
-                        {(data.questions || []).map((q: any, i: number) => (
-                            <div key={i} className="bg-white/80 p-3 rounded-xl border border-emerald-100 shadow-sm">
-                                <p className="text-sm font-bold text-zinc-900 mb-2">{q.text}</p>
-                                <div className="h-8 border-b border-zinc-200 border-dashed opacity-50"></div>
-                            </div>
-                        ))}
-                    </div>
+                    {puzzle ? (
+                        <div className="bg-white/80 p-4 rounded-xl border-2 border-indigo-100 shadow-sm flex-1">
+                            <p className="text-sm font-bold text-zinc-900 mb-2">{puzzle.question || puzzle.text}</p>
+                            <div className="h-12 border-b-2 border-zinc-200 border-dashed opacity-50"></div>
+                            {puzzle.hint && (
+                                <p className="mt-3 text-[11px] italic text-indigo-500 flex items-center gap-1">
+                                    <i className="fa-solid fa-lightbulb"></i>
+                                    İpucu: {puzzle.hint}
+                                </p>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="text-xs italic opacity-50 uppercase tracking-widest text-center py-4">Soru üretilmedi</div>
+                    )}
                 </div>
             );
         }
@@ -208,6 +284,12 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
 
     return (
         <div className="relative w-full h-full min-h-[800px] bg-white text-black">
+            <style>{`
+                .design-grid {
+                    background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+                    background-size: 8px 8px;
+                }
+            `}</style>
             {layout.filter((l: any) => l.isVisible).map((item: any) => (
                 <DraggableItem key={item.instanceId} item={item}>
                     {renderItemContent(item)}
