@@ -1,4 +1,4 @@
-import { FutoshikiData, GeneratorOptions } from '../types';
+import { FutoshikiData, GeneratorOptions } from '../../types';
 
 export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promise<FutoshikiData[]> => {
     const { difficulty, worksheetCount } = options;

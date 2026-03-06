@@ -1,4 +1,4 @@
-import { NumberCapsuleData, GeneratorOptions } from '../types';
+import { NumberCapsuleData, GeneratorOptions } from '../../types';
 
 export const generateOfflineCapsuleGame = async (options: GeneratorOptions): Promise<NumberCapsuleData[]> => {
     const { difficulty, worksheetCount } = options;

@@ -1,4 +1,4 @@
-import { MagicPyramidData, GeneratorOptions } from '../types';
+import { MagicPyramidData, GeneratorOptions } from '../../types';
 
 export const generateOfflineMagicPyramid = async (options: GeneratorOptions): Promise<MagicPyramidData[]> => {
     const { difficulty, worksheetCount } = options;

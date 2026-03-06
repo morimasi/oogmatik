@@ -1,4 +1,4 @@
-import { OddEvenSudokuData, GeneratorOptions } from '../types';
+import { OddEvenSudokuData, GeneratorOptions } from '../../types';
 
 export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): Promise<OddEvenSudokuData[]> => {
     const { difficulty, worksheetCount } = options;

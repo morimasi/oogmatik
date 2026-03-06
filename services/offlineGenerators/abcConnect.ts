@@ -1,4 +1,4 @@
-import { AbcConnectData, GeneratorOptions } from '../types';
+import { AbcConnectData, GeneratorOptions } from '../../types';
 
 export const generateOfflineAbcConnect = async (options: GeneratorOptions): Promise<AbcConnectData[]> => {
     const { difficulty, worksheetCount } = options;
