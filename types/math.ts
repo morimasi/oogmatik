@@ -47,11 +47,11 @@ export interface NumberPatternData extends BaseActivityData {
 }
 
 export interface ShapeNumberPatternData extends BaseActivityData {
-    patterns: { 
-        shapes: { 
-            type: 'triangle'; 
-            numbers: string[] 
-        }[] 
+    patterns: {
+        shapes: {
+            type: 'triangle';
+            numbers: string[]
+        }[]
     }[];
 }
 
@@ -64,11 +64,18 @@ export interface NumberPyramidData extends BaseActivityData {
 }
 
 export interface NumberCapsuleData extends BaseActivityData {
-    items: any[];
+    capsules: {
+        id: string;
+        target: number;
+        cells: { x: number; y: number }[];
+    }[];
+    grid: (number | null)[][];
+    rowTargets?: number[];
+    colTargets?: number[];
 }
 
 export interface OddEvenSudokuData extends BaseActivityData {
-    puzzles: any[];
+    puzzles: { size: number; grid: (number | null)[][]; oddEvenMask: ('odd' | 'even' | null)[][] }[];
 }
 
 export interface ArithmeticConnectData extends BaseActivityData {
@@ -362,4 +369,15 @@ export interface RomanNumeralConnectData extends BaseActivityData {
 
 export interface OperationSquareData extends BaseActivityData {
     items: any[];
+}
+
+export interface AbcConnectData extends BaseActivityData {
+    gridDim: number;
+    paths: { start: { x: number; y: number }, end: { x: number; y: number }, value: string | number, matchValue: string | number }[];
+    prompt?: string;
+}
+
+export interface MagicPyramidData extends BaseActivityData {
+    pyramids: { layers: number; apex: number; step: number; grid: number[][]; correctPath: number[] }[];
+    instructionPrefix?: string;
 }

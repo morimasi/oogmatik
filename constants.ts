@@ -188,6 +188,41 @@ export const ACTIVITIES: Activity[] = [
         description: 'Okları takip ederek ızgaradaki gizli harfleri topla ve kelimeyi bul.',
         icon: 'fa-solid fa-arrow-trend-up',
         defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.ABC_CONNECT,
+        title: 'ABC Bağlama (Romenler)',
+        description: 'Romen rakamları ile doğal sayıları ızgara üzerinde yolları kesiştirmeden birleştirin.',
+        icon: 'fa-solid fa-draw-polygon',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.ODD_EVEN_SUDOKU,
+        title: 'Tek ve Çift Sudoku',
+        description: 'Renk kurallarına uygun olarak tek ve çift sayı kısıtlamalı Sudoku mantığı.',
+        icon: 'fa-solid fa-table-cells',
+        defaultStyle: { columns: 2 }
+    },
+    {
+        id: ActivityType.FUTOSHIKI,
+        title: 'Futoşhiki',
+        description: 'Büyüktür ve küçüktür (> <) sembollerini dikkate alarak ızgarayı sayılarla doldurun.',
+        icon: 'fa-solid fa-less-than-equal',
+        defaultStyle: { columns: 2 }
+    },
+    {
+        id: ActivityType.MAGIC_PYRAMID,
+        title: 'Sihirli Piramit',
+        description: 'Tepeden başlayarak ritmik sayma kurallarına göre tabana kadar kesintisiz bir yol bulun.',
+        icon: 'fa-solid fa-pyramid',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.CAPSULE_GAME,
+        title: 'Kapsül Oyunu',
+        description: 'Izgara dışındaki hedef sayılara ulaşmak için içerdeki kapsülleri doğru rakamlarla doldurun.',
+        icon: 'fa-solid fa-capsules',
+        defaultStyle: { columns: 1 }
     }
 ];
 
@@ -199,14 +234,14 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         description: 'Görsel tarama, uzamsal algı ve yön tayini çalışmaları.',
         icon: 'fa-solid fa-eye',
         activities: [
-            ActivityType.MAP_INSTRUCTION, 
+            ActivityType.MAP_INSTRUCTION,
             ActivityType.DIRECTIONAL_TRACKING,
-            ActivityType.FIND_THE_DIFFERENCE, 
-            ActivityType.VISUAL_ODD_ONE_OUT, 
-            ActivityType.GRID_DRAWING, 
+            ActivityType.FIND_THE_DIFFERENCE,
+            ActivityType.VISUAL_ODD_ONE_OUT,
+            ActivityType.GRID_DRAWING,
             ActivityType.SYMMETRY_DRAWING,
             ActivityType.SHAPE_COUNTING,
-            ActivityType.WORD_SEARCH 
+            ActivityType.WORD_SEARCH
         ]
     },
     {
@@ -216,19 +251,19 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         icon: 'fa-solid fa-book-open',
         activities: [
             ActivityType.READING_PYRAMID,
-            ActivityType.FIND_LETTER_PAIR, 
-            ActivityType.SYLLABLE_MASTER_LAB, 
-            ActivityType.READING_SUDOKU, 
-            ActivityType.LETTER_VISUAL_MATCHING, 
-            ActivityType.READING_STROOP, 
-            ActivityType.SYNONYM_ANTONYM_MATCH, 
-            ActivityType.SYLLABLE_WORD_BUILDER, 
+            ActivityType.FIND_LETTER_PAIR,
+            ActivityType.SYLLABLE_MASTER_LAB,
+            ActivityType.READING_SUDOKU,
+            ActivityType.LETTER_VISUAL_MATCHING,
+            ActivityType.READING_STROOP,
+            ActivityType.SYNONYM_ANTONYM_MATCH,
+            ActivityType.SYLLABLE_WORD_BUILDER,
             ActivityType.MORPHOLOGY_MATRIX,
-            ActivityType.STORY_COMPREHENSION, 
+            ActivityType.STORY_COMPREHENSION,
             ActivityType.HIDDEN_PASSWORD_GRID,
-            ActivityType.STORY_ANALYSIS, 
-            ActivityType.MISSING_PARTS, 
-            ActivityType.FAMILY_RELATIONS, 
+            ActivityType.STORY_ANALYSIS,
+            ActivityType.MISSING_PARTS,
+            ActivityType.FAMILY_RELATIONS,
             ActivityType.FAMILY_LOGIC_TEST
         ]
     },
@@ -240,14 +275,19 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         activities: [
             ActivityType.NUMBER_LOGIC_RIDDLES,
             ActivityType.NUMBER_PATH_LOGIC,
-            ActivityType.MATH_PUZZLE, 
+            ActivityType.MATH_PUZZLE,
             ActivityType.NUMBER_PATTERN,
             ActivityType.KENDOKU,
             ActivityType.NUMBER_PYRAMID,
             ActivityType.REAL_LIFE_MATH_PROBLEMS,
             ActivityType.CLOCK_READING,
             ActivityType.MONEY_COUNTING,
-            ActivityType.MATH_MEMORY_CARDS
+            ActivityType.MATH_MEMORY_CARDS,
+            ActivityType.ABC_CONNECT,
+            ActivityType.ODD_EVEN_SUDOKU,
+            ActivityType.FUTOSHIKI,
+            ActivityType.MAGIC_PYRAMID,
+            ActivityType.CAPSULE_GAME
         ]
     }
 ];
