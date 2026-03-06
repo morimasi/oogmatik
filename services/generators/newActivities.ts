@@ -101,44 +101,19 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                         clue: { type: Type.STRING },
                                         title: { type: Type.STRING },
                                         icon: { type: Type.STRING },
-                                        // Visual Specialist Settings
+                                        // Visual & Verbal Specialist Settings
                                         gridDim: { type: Type.INTEGER },
+                                        grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                                        words: { type: Type.ARRAY, items: { type: Type.STRING } },
                                         drawings: {
                                             type: Type.ARRAY,
                                             items: {
                                                 type: Type.OBJECT,
                                                 properties: {
-                                                    lines: {
-                                                        type: Type.ARRAY,
-                                                        items: {
-                                                            type: Type.OBJECT,
-                                                            properties: {
-                                                                x1: { type: Type.NUMBER },
-                                                                y1: { type: Type.NUMBER },
-                                                                x2: { type: Type.NUMBER },
-                                                                y2: { type: Type.NUMBER }
-                                                            }
-                                                        }
-                                                    },
-                                                    dots: {
-                                                        type: Type.ARRAY,
-                                                        items: {
-                                                            type: Type.OBJECT,
-                                                            properties: {
-                                                                x: { type: Type.NUMBER },
-                                                                y: { type: Type.NUMBER }
-                                                            }
-                                                        }
-                                                    },
+                                                    lines: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { x1: { type: Type.NUMBER }, y1: { type: Type.NUMBER }, x2: { type: Type.NUMBER }, y2: { type: Type.NUMBER } } } },
+                                                    dots: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { x: { type: Type.NUMBER }, y: { type: Type.NUMBER } } } },
                                                     title: { type: Type.STRING },
-                                                    clinicalMeta: {
-                                                        type: Type.OBJECT,
-                                                        properties: {
-                                                            asymmetryIndex: { type: Type.NUMBER },
-                                                            complexity: { type: Type.NUMBER },
-                                                            targetCognitiveSkill: { type: Type.STRING }
-                                                        }
-                                                    }
+                                                    clinicalMeta: { type: Type.OBJECT, properties: { asymmetryIndex: { type: Type.NUMBER }, complexity: { type: Type.NUMBER }, targetCognitiveSkill: { type: Type.STRING } } }
                                                 }
                                             }
                                         },
@@ -146,12 +121,25 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                             type: Type.OBJECT,
                                             properties: {
                                                 difficulty: { type: Type.STRING, enum: ['beginner', 'intermediate', 'expert', 'clinical'] },
-                                                axis: { type: Type.STRING, enum: ['vertical', 'horizontal', 'diagonal'] },
+                                                layout: { type: Type.STRING, enum: ['classic', 'compact', 'ultra_dense', 'single', 'grid_2x1', 'grid_2x2', 'side_by_side', 'stacked'] },
                                                 gridType: { type: Type.STRING, enum: ['dots', 'squares', 'crosses'] },
-                                                layout: { type: Type.STRING, enum: ['single', 'grid_2x1', 'grid_2x2'] },
+                                                axis: { type: Type.STRING, enum: ['vertical', 'horizontal', 'diagonal'] },
+                                                directions: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                                gridSize: { type: Type.INTEGER },
                                                 showGhostPoints: { type: Type.BOOLEAN },
                                                 showCoordinates: { type: Type.BOOLEAN },
+                                                showClinicalNotes: { type: Type.BOOLEAN },
                                                 isProfessionalMode: { type: Type.BOOLEAN }
+                                            }
+                                        },
+                                        clinicalMeta: {
+                                            type: Type.OBJECT,
+                                            properties: {
+                                                intersections: { type: Type.INTEGER },
+                                                reversals: { type: Type.INTEGER },
+                                                density: { type: Type.NUMBER },
+                                                crossingPoints: { type: Type.INTEGER },
+                                                isSymmetric: { type: Type.BOOLEAN }
                                             }
                                         }
                                     },

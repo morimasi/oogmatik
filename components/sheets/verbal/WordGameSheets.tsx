@@ -58,34 +58,78 @@ export const AnagramSheet = ({ data }: { data: AnagramsData }) => (
     </div>
 );
 
-export const WordSearchSheet = ({ data }: { data: WordSearchData }) => (
-    <div className="flex flex-col h-full font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex flex-col md:flex-row gap-12 mt-10 items-start flex-1">
-            <div className="border-[6px] border-zinc-900 bg-white p-2 rounded-2xl shadow-2xl shrink-0">
-                <table className="border-collapse mx-auto font-mono">
-                    <tbody>
-                        {data.grid.map((row, r) => (
-                            <tr key={r}>
-                                {row.map((cell, c) => (
-                                    <td key={c} className="w-10 h-10 border border-zinc-200 text-center font-black text-2xl uppercase text-zinc-900 hover:bg-indigo-50 transition-colors cursor-default select-none">{cell}</td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            <div className="flex-1 bg-zinc-900 text-white p-8 rounded-[3rem] border-4 border-white shadow-xl">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-6 flex items-center gap-2"><i className="fa-solid fa-list-ul"></i> KELİME LİSTESİ</h4>
-                <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-                    {data.words.map((w, i) => (
-                        <div key={i} className="text-base font-black uppercase tracking-widest border-b border-white/10 pb-1 hover:text-indigo-300 transition-colors cursor-help">{w}</div>
-                    ))}
+export const WordSearchSheet = ({ data }: { data: WordSearchData }) => {
+    const settings = data?.settings;
+    const isUltraDense = settings?.layout === 'ultra_dense';
+    const isCompact = settings?.layout === 'compact' || isUltraDense;
+
+    // Grid Boyutu Dinamik Hesaplama
+    const gridLen = data.grid.length;
+    const cellSize = isUltraDense ? Math.min(32, Math.floor(450 / gridLen)) : Math.min(42, Math.floor(550 / gridLen));
+
+    return (
+        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+
+            <div className={`flex flex-col md:flex-row gap-8 mt-6 items-start flex-1`}>
+                {/* Bulmaca Alanı */}
+                <div className="border-[4px] border-zinc-900 bg-white p-1 rounded-xl shadow-sm shrink-0">
+                    <table className="border-collapse mx-auto font-mono">
+                        <tbody>
+                            {data.grid.map((row, r) => (
+                                <tr key={r}>
+                                    {row.map((cell, c) => (
+                                        <td
+                                            key={c}
+                                            style={{ width: cellSize, height: cellSize }}
+                                            className="border border-zinc-100 text-center font-black text-xl uppercase text-zinc-900 cursor-default select-none hover:bg-zinc-50 transition-colors"
+                                        >
+                                            {cell}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Yan Panel: Kelime Listesi */}
+                <div className="flex-1 w-full md:max-w-xs flex flex-col gap-4">
+                    <div className="bg-zinc-900 text-white p-6 rounded-[2rem] border-2 border-zinc-900 shadow-md">
+                        <h4 className="text-[9px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-4 flex items-center gap-2">
+                            <i className="fa-solid fa-list-check"></i> KELİME LİSTESİ
+                        </h4>
+                        <div className={`grid ${data.words.length > 10 ? 'grid-cols-2' : 'grid-cols-1'} gap-x-4 gap-y-2`}>
+                            {data.words.map((w, i) => (
+                                <div key={i} className="text-sm font-black uppercase tracking-tight border-b border-white/5 pb-1 flex items-center gap-2 group cursor-help">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 group-hover:scale-150 transition-transform"></div>
+                                    <span className="group-hover:text-indigo-300 transition-colors">{w}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {settings?.showClinicalNotes && data.clinicalMeta && (
+                        <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100 text-[8px] font-bold text-zinc-400 uppercase tracking-widest leading-relaxed">
+                            <div className="flex justify-between border-b border-zinc-200 pb-1 mb-1">
+                                <span>Kesişim Oranı:</span>
+                                <span className="text-zinc-900">{data.clinicalMeta.intersections}</span>
+                            </div>
+                            <div className="flex justify-between border-b border-zinc-200 pb-1 mb-1">
+                                <span>Ters Kelime:</span>
+                                <span className="text-zinc-900">{data.clinicalMeta.reversals}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span>Yoğunluk:</span>
+                                <span className="text-zinc-900">%{Math.round(data.clinicalMeta.density * 100)}</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 export const CrosswordSheet = ({ data }: { data: CrosswordData }) => (
     <div className="flex flex-col h-full bg-white font-lexend p-2">

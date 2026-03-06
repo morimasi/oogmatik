@@ -370,8 +370,21 @@ export interface AnagramsData extends BaseActivityData {
 }
 
 export interface WordSearchData extends BaseActivityData {
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        layout: 'classic' | 'compact' | 'ultra_dense';
+        gridSize: number;
+        directions: ('horizontal' | 'vertical' | 'diagonal' | 'reverse')[];
+        showClinicalNotes?: boolean;
+        isProfessionalMode: boolean;
+    };
     grid: string[][];
     words: string[];
+    clinicalMeta?: {
+        intersections: number;
+        reversals: number;
+        density: number;
+    };
 }
 
 export interface CrosswordData extends BaseActivityData {

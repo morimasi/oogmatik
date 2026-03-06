@@ -120,6 +120,21 @@ export const SYMMETRY_CORE_GUIDE = `
    - 'gridType': Kareli (squares), noktalı (dots) veya artı (crosses). Noktalı ızgara görsel algı yükünü artırır.
 `;
 
+export const WORD_SEARCH_CORE_GUIDE = `
+[GÖREV: KELİME BULMACA - KLİNİK DERİNLİK MODU]
+
+İçerik üretirken şu görsel-sözel algı kurallarını kullan:
+1. **YÖNLER VE ZORLUK**:
+   - 'beginner': Sadece soldan sağa ve yukarıdan aşağı.
+   - 'clinical': Çapraz (diagonal) ve ters (reverse - sağdan sola/aşağıdan yukarı) yönler. Bu, disleksi rehabilitasyonunda görsel tarama için kritiktir.
+2. **IZGARA YOĞUNLUĞU**:
+   - 'ultra_dense': Izgara boşluklarını minimuma indir, kelime kesişimlerini (intersections) artır.
+3. **KLİNİK ÇELDİRİCİLER**:
+   - Kelime listesindeki kelimelere benzer ama yanlış harflerle biten "yancı" kelimeler ekleyerek görsel ayrıştırma yükünü artır.
+4. **MİMARİ**:
+   - Kelime listesini gridin hemen yanında profesyonel bir panelde sun.
+`;
+
 export const getMathPrompt = (title: string, difficulty: string, rule: string, student?: Student): string => {
    return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[KURAL]: ${rule}\n${IMAGE_GENERATION_GUIDE}`;
 };
