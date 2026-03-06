@@ -1,13 +1,5 @@
-@echo off
-echo Git islemleri baslatiliyor...
-
 git add .
-echo Degisiklikler toplandi.
 
-git commit -m "Son guncellemeler"
-echo Degisiklikler paketlendi.
+git commit -m "feat(ai): Creative Studio AI optimizasyonları ve kognitif JSON şablonları eklendi"
 
-git push origin master
-echo Paket GitHub'a gonderildi!
-
-pause
+git push
