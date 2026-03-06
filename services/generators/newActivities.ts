@@ -89,7 +89,10 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                                 type: Type.OBJECT,
                                                 properties: {
                                                     label: { type: Type.STRING },
-                                                    category: { type: Type.STRING }
+                                                    category: { type: Type.STRING },
+                                                    root: { type: Type.STRING },
+                                                    suffixes: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                                    hint: { type: Type.STRING }
                                                 }
                                             }
                                         },
@@ -105,6 +108,19 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                         gridDim: { type: Type.INTEGER },
                                         grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
                                         words: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        clues: {
+                                            type: Type.ARRAY,
+                                            items: {
+                                                type: Type.OBJECT,
+                                                properties: {
+                                                    id: { type: Type.INTEGER },
+                                                    text: { type: Type.STRING },
+                                                    direction: { type: Type.STRING, enum: ['across', 'down'] },
+                                                    row: { type: Type.INTEGER },
+                                                    col: { type: Type.INTEGER }
+                                                }
+                                            }
+                                        },
                                         sections: {
                                             type: Type.ARRAY,
                                             items: {
@@ -151,11 +167,13 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                                 gridType: { type: Type.STRING, enum: ['dots', 'squares', 'crosses'] },
                                                 axis: { type: Type.STRING, enum: ['vertical', 'horizontal', 'diagonal'] },
                                                 targetShape: { type: Type.STRING },
+                                                theme: { type: Type.STRING, enum: ['classic', 'modern', 'minimal'] },
                                                 overlapping: { type: Type.BOOLEAN },
                                                 rotationEnabled: { type: Type.BOOLEAN },
                                                 pathComplexity: { type: Type.NUMBER },
                                                 directions: { type: Type.ARRAY, items: { type: Type.STRING } },
                                                 gridSize: { type: Type.INTEGER },
+                                                fontScale: { type: Type.NUMBER },
                                                 showGhostPoints: { type: Type.BOOLEAN },
                                                 showCoordinates: { type: Type.BOOLEAN },
                                                 showClinicalNotes: { type: Type.BOOLEAN },
@@ -169,7 +187,12 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                                 reversals: { type: Type.INTEGER },
                                                 density: { type: Type.NUMBER },
                                                 crossingPoints: { type: Type.INTEGER },
-                                                isSymmetric: { type: Type.BOOLEAN }
+                                                isSymmetric: { type: Type.BOOLEAN },
+                                                connectivityIndex: { type: Type.NUMBER },
+                                                clueComplexity: { type: Type.NUMBER },
+                                                vocabularyLevel: { type: Type.STRING },
+                                                morphologicalComplexity: { type: Type.NUMBER },
+                                                derivationalVariety: { type: Type.NUMBER }
                                             }
                                         }
                                     },

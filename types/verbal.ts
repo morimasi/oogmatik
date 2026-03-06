@@ -179,12 +179,22 @@ export interface FamilyLogicTestData extends BaseActivityData {
 }
 
 export interface MorphologyMatrixData extends BaseActivityData {
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        layout: 'single' | 'grid_2x1';
+        fontScale: number;
+        isProfessionalMode: boolean;
+        showClinicalNotes?: boolean;
+    };
     items: {
         root: string;
         suffixes: string[];
         hint?: string;
     }[];
-    difficulty: string;
+    clinicalMeta?: {
+        morphologicalComplexity: number;
+        derivationalVariety: number;
+    };
 }
 
 export interface ReadingPyramidData extends BaseActivityData {
@@ -388,8 +398,20 @@ export interface WordSearchData extends BaseActivityData {
 }
 
 export interface CrosswordData extends BaseActivityData {
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        layout: 'single' | 'compact';
+        theme: 'classic' | 'modern' | 'minimal';
+        isProfessionalMode: boolean;
+        showClinicalNotes?: boolean;
+    };
     grid: (string | null)[][];
-    clues: { id: number; text: string; direction: 'across' | 'down' }[];
+    clues: { id: number; text: string; direction: 'across' | 'down'; row: number; col: number }[];
+    clinicalMeta?: {
+        connectivityIndex: number; // 0-1
+        clueComplexity: number;
+        vocabularyLevel: string;
+    };
 }
 
 export interface HiddenPasswordGridData extends BaseActivityData {

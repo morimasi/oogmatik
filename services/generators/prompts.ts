@@ -159,6 +159,31 @@ export const DIRECTIONAL_TRACKING_CORE_GUIDE = `
    - Disleksi ve dikkat eksikliği olan bireylerde 'satır takibi' ve 'görsel odaklanma' becerilerini ölç.
 `;
 
+export const CROSSWORD_CORE_GUIDE = `
+[GÖREV: ÇENGEL BULMACA - KLİNİK DERİNLİK MODU]
+
+İçerik üretirken şu kurallara uy:
+1. **IZGARA MANTIĞI**:
+   - 'grid' dizisindeki boş kareleri 'null', harf olan kareleri ise harfin kendisiyle doldur.
+   - İpuçları (clues) 'across' (soldan sağa) ve 'down' (yukarıdan aşağı) yönlerinde olmalı.
+2. **KLİNİK İPUÇLARI**:
+   - İpuçları sadece tanımlayıcı değil, eş anlamlı veya zıt anlamlı kelime becerilerini de ölçmeli.
+3. **PROFESYONEL YERLEŞİM**:
+   - Her ipucunun grid üzerinde başladığı 'row' ve 'col' bilgisini KESİNLİKLE doğru ver.
+`;
+
+export const MORPHOLOGY_MATRIX_CORE_GUIDE = `
+[GÖREV: MORFOLOJİ MATRİSİ - KLİNİK DİLBİLGİSİ MODU]
+
+İçerik üretirken şu dilbilimsel kuralları kullan:
+1. **MORFOLOJİK FARKINDALIK**:
+   - Kök (root) ve ek (suffix) ilişkilerini net ve yapılandırılmış şekilde kurgula.
+2. **KURAL DİZİLİMİ**:
+   - Aynı kökten türemiş farklı anlamdaki kelimelerin (yapım ekleri) mantığını vurgula.
+3. **HEDEFLENEN YETİ**:
+   - Okuma güçlüğü çeken bireylerde kelime kökü takibi ve ek ayrıştırma becerisini geliştir.
+`;
+
 export const getMathPrompt = (title: string, difficulty: string, rule: string, student?: Student): string => {
    return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[KURAL]: ${rule}\n${IMAGE_GENERATION_GUIDE}`;
 };
