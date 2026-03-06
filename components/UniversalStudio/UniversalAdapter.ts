@@ -1,53 +1,138 @@
 import { ActivityType, SingleWorksheetData, LayoutItem, WorksheetBlock } from '../../types';
 
+interface Rect { x: number; y: number; w: number; h: number; }
+
+// Tetris/Masonry benzeri yerleşim bulucu (Bin Packing)
+class LayoutEngine {
+    private canvasWidth = 794;
+    private canvasHeight = 1123;
+    private padding = 20; // A4 margins
+    private gap = 15; // Öğeler arası mesafe
+    
+    private occupiedSpaces: { page: number; rect: Rect }[] = [];
+
+    // Bir bileşen için olabilecek en üst ve en sol boşluğu bulur
+    findSpace(w: number, h: number): { page: number; x: number; y: number } {
+        let currentPage = 0;
+        
+        while (true) {
+            let bestY = this.padding;
+            let bestX = this.padding;
+            let found = false;
+
+            // Yukarıdan aşağıya (10px adımlarla) ve Soldan sağa (10px adımlarla) tara
+            for (let y = this.padding; y <= this.canvasHeight - this.padding - h; y += 10) {
+                for (let x = this.padding; x <= this.canvasWidth - this.padding - w; x += 10) {
+                    const candidate: Rect = { x, y, w, h };
+                    
+                    const isOccupied = this.occupiedSpaces
+                        .filter(s => s.page === currentPage)
+                        .some(s => this.isOverlapping(candidate, s.rect));
+                    
+                    if (!isOccupied) {
+                        bestX = x;
+                        bestY = y;
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+
+            if (found) {
+                this.occupiedSpaces.push({ page: currentPage, rect: { x: bestX, y: bestY, w, h } });
+                return { page: currentPage, x: bestX, y: bestY };
+            } else {
+                // Bu sayfada yer yoksa bir sonraki sayfaya geç
+                currentPage++;
+            }
+        }
+    }
+
+    // Basit çakışma (AABB) kontrolü
+    private isOverlapping(r1: Rect, r2: Rect): boolean {
+        // Gap eklenmiş alanlarla hesapla ki öğeler birbirine yapışmasın
+        return !(
+            r1.x + r1.w + this.gap <= r2.x ||
+            r1.x >= r2.x + r2.w + this.gap ||
+            r1.y + r1.h + this.gap <= r2.y ||
+            r1.y >= r2.y + r2.h + this.gap
+        );
+    }
+}
+
 export const convertToLayoutItems = (activityType: ActivityType | null, worksheetData: SingleWorksheetData[]): LayoutItem[] => {
     let layout: LayoutItem[] = [];
-    let currentY = 20;
-    let pageIndex = 0;
     
     if (!worksheetData || worksheetData.length === 0) return layout;
+
+    const engine = new LayoutEngine();
 
     worksheetData.forEach((pageData, pIdx) => {
         const blocks = pageData.layoutArchitecture?.blocks || pageData.blocks;
 
-        // Common Header for the page
+        // Başlık
         if (pageData.title) {
+            const w = 754;
+            const h = 60;
+            const pos = engine.findSpace(w, h);
+            
             layout.push({
                 id: 'header',
                 label: 'Başlık',
                 instanceId: `univ_header_${Date.now()}_${pIdx}`,
                 isVisible: true,
-                pageIndex: pageIndex,
-                style: { x: 20, y: currentY, w: 754, h: 60, zIndex: 1, padding: 10, textAlign: 'center', fontWeight: 'bold', fontSize: 24, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#000000', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                pageIndex: pos.page,
+                style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, textAlign: 'center', fontWeight: 'bold', fontSize: 24, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#000000', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
                 specificData: { title: pageData.title }
             });
-            currentY += 80;
         }
 
         if (blocks && blocks.length > 0) {
-            // New Architecture (Atomized)
+            // New Architecture (Atomized & Compact Layout)
             blocks.forEach((block: WorksheetBlock, bIdx: number) => {
-                let h = 100; // estimated
-                if (block.type === 'text' || block.type === 'instruction') h = 60;
-                if (block.type === 'image') h = 250;
-                if (block.type === 'grid') h = 200;
-                if (block.type === 'table') h = 300;
-                if (block.type === 'logic_card') h = 250;
-                if (block.type === 'categorical_sorting') h = 300;
-                
-                if (currentY + h > 1100) {
-                    pageIndex++;
-                    currentY = 20;
+                let w = 754; // default full width
+                let h = 100; // estimated default height
+
+                // Tahmini boyutlandırma (Dinamik)
+                if (block.type === 'text' || block.type === 'instruction') {
+                    const textLen = JSON.stringify(block.content).length;
+                    w = textLen < 50 ? 360 : 754; // Kısa metinleri yan yana koyabilmek için daralt
+                    h = Math.max(60, Math.ceil(textLen / 80) * 30); // 80 karakterde 1 satır atlar varsayımı
                 }
+                else if (block.type === 'svg_shape') {
+                    w = 150; h = 150; // SVG'ler küçük kutulardır, yan yana dizilebilirler
+                }
+                else if (block.type === 'image') {
+                    w = 360; h = 250; // Yarı genişlik resim
+                }
+                else if (block.type === 'grid') {
+                    const content: any = block.content;
+                    w = Math.min(754, (content.cols || 4) * 60 + 40); // Sütun sayısına göre dinamik genişlik
+                    const rows = Math.ceil((content.cells?.length || 0) / (content.cols || 4));
+                    h = Math.min(500, rows * 60 + 40);
+                }
+                else if (block.type === 'logic_card') {
+                    w = 360; h = 200; // Mantık kartları yarı genişliktedir
+                }
+                else if (block.type === 'table') {
+                    w = 754; h = 300;
+                }
+                else if (block.type === 'categorical_sorting') {
+                    w = 754; h = 300;
+                }
+
+                // Tetris motorundan en iyi boşluğu bul
+                const pos = engine.findSpace(w, h);
 
                 layout.push({
                     id: block.type as any,
                     label: block.type.toUpperCase(),
                     instanceId: `univ_block_${Date.now()}_${pIdx}_${bIdx}`,
                     isVisible: true,
-                    pageIndex: pageIndex,
+                    pageIndex: pos.page,
                     style: {
-                        x: 20, y: currentY, w: 754, h, zIndex: 1, padding: 10,
+                        x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10,
                         backgroundColor: block.style?.backgroundColor || 'transparent',
                         borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: block.style?.borderRadius || 0,
                         textAlign: block.style?.textAlign || 'left', color: block.style?.color || '#000000',
@@ -55,34 +140,35 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                     },
                     specificData: { content: block.content }
                 });
-                currentY += h + 20;
             });
         } else {
-            // Deep Extraction Engine for Legacy Monolithic Activities
+            // Legacy Architecture - Deep Extraction Engine
             if (pageData.instruction) {
+                const w = 754; const h = 60;
+                const pos = engine.findSpace(w, h);
                 layout.push({
                     id: 'text',
                     label: 'Yönerge',
                     instanceId: `univ_inst_${Date.now()}_${pIdx}`,
                     isVisible: true,
-                    pageIndex: pageIndex,
-                    style: { x: 20, y: currentY, w: 754, h: 60, zIndex: 1, padding: 10, textAlign: 'left', fontWeight: 'normal', fontSize: 14, fontStyle: 'italic', backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#666666', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                    pageIndex: pos.page,
+                    style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, textAlign: 'left', fontWeight: 'normal', fontSize: 14, fontStyle: 'italic', backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#666666', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
                     specificData: { content: pageData.instruction }
                 });
-                currentY += 80;
             }
 
             if (pageData.imagePrompt) {
+                const w = 360; const h = 250;
+                const pos = engine.findSpace(w, h);
                 layout.push({
                     id: 'image',
                     label: 'Görsel',
                     instanceId: `univ_img_${Date.now()}_${pIdx}`,
                     isVisible: true,
-                    pageIndex: pageIndex,
-                    style: { x: 20, y: currentY, w: 754, h: 250, zIndex: 1, padding: 10, textAlign: 'center', backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#000000', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                    pageIndex: pos.page,
+                    style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, textAlign: 'center', backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#000000', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
                     specificData: { content: { prompt: pageData.imagePrompt } }
                 });
-                currentY += 270;
             }
 
             // Find main data array to split (e.g. puzzles, questions, words)
@@ -93,26 +179,27 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                 const items = pageData[mainKey];
                 
                 items.forEach((item: any, i: number) => {
-                    if (currentY + 250 > 1100) {
-                        pageIndex++;
-                        currentY = 20;
-                    }
-
                     const groupId = `group_${Date.now()}_${pIdx}_${i}`;
+                    
+                    // Alt elemanlar için mantıklı genişlik/yükseklik
+                    const w = 360; // 2 sütunlu dizecek şekilde 360px
+                    const h = 250;
+                    
+                    // Grup için tek bir yer ara
+                    const pos = engine.findSpace(w + 50, h); // 50px numaratör payı
 
-                    // Etkinliğe bağlı ek başlık veya numara
+                    // Numaratör
                     layout.push({
                         id: 'text',
                         label: 'Numaratör',
                         instanceId: `univ_num_${Date.now()}_${pIdx}_${i}`,
                         isVisible: true,
-                        pageIndex: pageIndex,
+                        pageIndex: pos.page,
                         groupId: groupId,
-                        style: { x: 20, y: currentY, w: 40, h: 40, zIndex: 1, padding: 5, textAlign: 'center', fontWeight: 'black', fontSize: 18, backgroundColor: '#18181b', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', color: '#ffffff', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                        style: { x: pos.x, y: pos.y, w: 40, h: 40, zIndex: 1, padding: 5, textAlign: 'center', fontWeight: 'black', fontSize: 18, backgroundColor: '#18181b', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', color: '#ffffff', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
                         specificData: { content: `${i + 1}` }
                     });
 
-                    // Create a pseudo pageData containing only this specific item
                     const singleItemData = { ...pageData, [mainKey]: [item], title: undefined, instruction: undefined, pedagogicalNote: undefined, imagePrompt: undefined };
                     
                     layout.push({
@@ -120,36 +207,27 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                         label: `${mainKey.toUpperCase()} #${i + 1}`,
                         instanceId: `univ_act_split_${Date.now()}_${pIdx}_${i}`,
                         isVisible: true,
-                        pageIndex: pageIndex,
+                        pageIndex: pos.page,
                         groupId: groupId,
-                        style: { x: 70, y: currentY, w: 704, h: 250, zIndex: 1, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, textAlign: 'left', color: '#000000', fontSize: 16, opacity: 1, boxShadow: 'none', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                        style: { x: pos.x + 50, y: pos.y, w, h, zIndex: 1, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, textAlign: 'left', color: '#000000', fontSize: 16, opacity: 1, boxShadow: 'none', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
                         specificData: { activityType, data: singleItemData }
                     });
-                    currentY += 270;
                 });
             } else {
-                // Absolute fallback if no array could be extracted
-                let h = 800;
-                if (currentY + h > 1100) {
-                    pageIndex++;
-                    currentY = 20;
-                }
+                // Absolute fallback
+                const w = 754; const h = 800;
+                const pos = engine.findSpace(w, h);
                 layout.push({
                     id: 'activity_component',
                     label: 'Etkinlik Gövdesi',
                     instanceId: `univ_act_full_${Date.now()}_${pIdx}`,
                     isVisible: true,
-                    pageIndex: pageIndex,
-                    style: { x: 20, y: currentY, w: 754, h, zIndex: 1, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, textAlign: 'left', color: '#000000', fontSize: 16, opacity: 1, boxShadow: 'none', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                    pageIndex: pos.page,
+                    style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, textAlign: 'left', color: '#000000', fontSize: 16, opacity: 1, boxShadow: 'none', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
                     specificData: { activityType, data: { ...pageData, title: undefined, instruction: undefined } }
                 });
-                currentY += h + 20;
             }
         }
-
-        // New page for next array item
-        pageIndex++;
-        currentY = 20;
     });
 
     return layout;
