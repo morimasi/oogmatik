@@ -189,71 +189,141 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any
                 </div>
             );
 
-        case 'cloze_test':
+        case 'cloze_test': {
+            const rawText = recursiveSafeText(content.text || content);
+            const parts = rawText.split(/(\[.*?\])/g);
             return (
-                <div className="p-8 bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-[2.5rem] mb-6 leading-[2.5] text-xl font-dyslexic relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-5">
-                        <i className="fa-solid fa-pen-nib text-4xl"></i>
+                <div className="p-6 bg-zinc-50 border-2 border-zinc-200 rounded-[2.5rem] mb-6 relative overflow-hidden break-inside-avoid">
+                    {/* Header badge */}
+                    <div className="flex items-center gap-2 mb-4">
+                        <span className="px-3 py-1 bg-zinc-900 text-white text-[9px] font-black uppercase tracking-widest rounded-full">
+                            <i className="fa-solid fa-pen-nib mr-1"></i>Boşluk Doldur
+                        </span>
+                        {content.blanks && (
+                            <span className="text-[9px] text-zinc-400 font-bold">{content.blanks.length} boşluk</span>
+                        )}
                     </div>
-                    {recursiveSafeText(content.text).split(/(\[.*?\])/g).map((part, i) => (
-                        part.startsWith('[') && part.endsWith(']') ? (
-                            <span key={i} className="inline-block min-w-[120px] border-b-2 border-zinc-900 mx-2 text-transparent select-none">
-                                {part.slice(1, -1)}
-                            </span>
-                        ) : (
-                            <EditableText key={i} value={part} tag="span" />
-                        )
-                    ))}
+                    <div className="text-base leading-[2.8] font-dyslexic text-zinc-800">
+                        {parts.map((part: string, i: number) =>
+                            part.startsWith('[') && part.endsWith(']') ? (
+                                <span key={i} className="inline-flex flex-col items-center mx-1 align-bottom">
+                                    <span className="inline-block min-w-[100px] border-b-[3px] border-zinc-800 text-transparent select-none text-sm leading-none pb-0.5">
+                                        {part.slice(1, -1)}
+                                    </span>
+                                    <span className="text-[7px] text-zinc-300 font-bold tracking-widest mt-0.5">YAZ</span>
+                                </span>
+                            ) : (
+                                <EditableText key={i} value={part} tag="span" />
+                            )
+                        )}
+                    </div>
                 </div>
             );
+        }
 
-        case 'categorical_sorting':
+        case 'categorical_sorting': {
+            const CAT_COLORS = [
+                { bg: 'bg-indigo-900', text: 'text-white', badge: 'bg-indigo-100 text-indigo-800 border-indigo-200', dot: 'bg-indigo-400', border: 'border-indigo-200' },
+                { bg: 'bg-emerald-900', text: 'text-white', badge: 'bg-emerald-100 text-emerald-800 border-emerald-200', dot: 'bg-emerald-400', border: 'border-emerald-200' },
+                { bg: 'bg-rose-900', text: 'text-white', badge: 'bg-rose-100 text-rose-800 border-rose-200', dot: 'bg-rose-400', border: 'border-rose-200' },
+                { bg: 'bg-amber-800', text: 'text-white', badge: 'bg-amber-100 text-amber-800 border-amber-200', dot: 'bg-amber-400', border: 'border-amber-200' },
+                { bg: 'bg-violet-900', text: 'text-white', badge: 'bg-violet-100 text-violet-800 border-violet-200', dot: 'bg-violet-400', border: 'border-violet-200' },
+            ];
+            const cats: string[] = content.categories || [];
+            const items: any[] = content.items || [];
+            const colCount = Math.min(cats.length, 3);
             return (
-                <div className="mb-8 grid gap-4" style={{ gridTemplateColumns: `repeat(${content.categories?.length || 2}, 1fr)` }}>
-                    {(content.categories || []).map((cat: string, i: number) => (
-                        <div key={i} className="flex flex-col gap-3">
-                            <div className="bg-zinc-900 text-white p-3 rounded-2xl text-xs font-black uppercase tracking-widest text-center shadow-lg">
-                                {cat}
-                            </div>
-                            <div className="flex-1 min-h-[200px] border-2 border-zinc-200 border-dashed rounded-[2rem] p-4 flex flex-col gap-2 bg-white/50">
-                                {(content.items || []).filter((item: any) => item.category === cat || (!item.category && i === 0)).map((item: any, j: number) => (
-                                    <div key={j} className="p-3 bg-white border border-zinc-200 rounded-xl shadow-sm text-sm font-bold flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-300"></div>
-                                        {recursiveSafeText(item)}
-                                    </div>
+                <div className="mb-8 break-inside-avoid">
+                    {/* Item Bank (unassigned items shown at top) */}
+                    {items.some((it: any) => !it.category) && (
+                        <div className="mb-4 p-4 bg-white border-2 border-zinc-100 rounded-2xl">
+                            <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-3">Sırala →</p>
+                            <div className="flex flex-wrap gap-2">
+                                {items.filter((it: any) => !it.category).map((item: any, j: number) => (
+                                    <span key={j} className="px-3 py-1.5 bg-zinc-100 border border-zinc-200 rounded-xl text-xs font-black text-zinc-700">
+                                        {recursiveSafeText(item.label || item)}
+                                    </span>
                                 ))}
                             </div>
                         </div>
-                    ))}
+                    )}
+                    <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${colCount}, 1fr)` }}>
+                        {cats.map((cat: string, i: number) => {
+                            const c = CAT_COLORS[i % CAT_COLORS.length];
+                            const catItems = items.filter((item: any) => item.category === cat);
+                            return (
+                                <div key={i} className="flex flex-col gap-2">
+                                    {/* Category Header */}
+                                    <div className={`${c.bg} ${c.text} p-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center shadow-md`}>
+                                        {cat}
+                                    </div>
+                                    {/* Items */}
+                                    <div className={`flex-1 min-h-[120px] border-2 ${c.border} border-dashed rounded-[1.5rem] p-3 flex flex-col gap-1.5 bg-white`}>
+                                        {catItems.map((item: any, j: number) => (
+                                            <div key={j} className={`px-3 py-2 ${c.badge} border rounded-xl text-[11px] font-bold flex items-center gap-2`}>
+                                                <div className={`w-1.5 h-1.5 rounded-full ${c.dot} flex-shrink-0`}></div>
+                                                {recursiveSafeText(item.label || item)}
+                                            </div>
+                                        ))}
+                                        {catItems.length === 0 && (
+                                            <div className="flex-1 flex items-center justify-center">
+                                                <p className="text-[9px] text-zinc-300 font-bold uppercase tracking-widest">Boş Bırak</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             );
+        }
 
-        case 'match_columns':
+        case 'match_columns': {
+            // Support both leftColumn/rightColumn (AI output) and left/right (legacy)
+            const leftItems: any[] = content.leftColumn || content.left || [];
+            const rightItems: any[] = content.rightColumn || content.right || [];
+            const CIRCLED = ['\u2460', '\u2461', '\u2462', '\u2463', '\u2464', '\u2465', '\u2466', '\u2467', '\u2468', '\u2469'];
             return (
-                <div className="mb-8 flex justify-between gap-12 relative p-6 bg-white border-2 border-zinc-100 rounded-[3rem] shadow-sm">
-                    <div className="flex-1 flex flex-col gap-4">
-                        {(content.left || []).map((item: any, i: number) => (
-                            <div key={i} className="relative p-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-black flex items-center justify-between group">
-                                <span>{recursiveSafeText(item)}</span>
-                                <div className="w-3 h-3 rounded-full border-2 border-zinc-900 bg-white group-hover:bg-zinc-900 transition-all ml-2"></div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="w-px bg-zinc-100 relative">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-2">
-                            <i className="fa-solid fa-link text-zinc-300"></i>
+                <div className="mb-8 break-inside-avoid p-5 bg-white border-2 border-zinc-100 rounded-[2.5rem] shadow-sm">
+                    <div className="flex gap-4">
+                        {/* Left Column */}
+                        <div className="flex-1 flex flex-col gap-2">
+                            <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 text-center">Kavram</p>
+                            {leftItems.map((item: any, i: number) => (
+                                <div key={i} className="flex items-center gap-2 p-3 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-bold">
+                                    <span className="text-indigo-500 font-black text-base flex-shrink-0">{CIRCLED[i] || (i + 1)}</span>
+                                    <span className="flex-1">{recursiveSafeText(item.text || item)}</span>
+                                    <div className="w-3 h-3 rounded-full border-2 border-zinc-400 bg-white flex-shrink-0"></div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Bridge Column */}
+                        <div className="flex flex-col items-center justify-center gap-2 w-8">
+                            {leftItems.map((_: any, i: number) => (
+                                <div key={i} className="flex-1 flex items-center">
+                                    <div className="w-6 border-t-2 border-dashed border-zinc-200"></div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Right Column */}
+                        <div className="flex-1 flex flex-col gap-2">
+                            <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 text-center">Eşleşim</p>
+                            {rightItems.map((item: any, i: number) => (
+                                <div key={i} className="flex items-center gap-2 p-3 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-bold">
+                                    <div className="w-3 h-3 rounded-full border-2 border-zinc-400 bg-white flex-shrink-0"></div>
+                                    <span className="flex-1">{recursiveSafeText(item.text || item)}</span>
+                                    {/* Answer line */}
+                                    <span className="w-6 border-b-2 border-zinc-400 inline-block flex-shrink-0"></span>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                    <div className="flex-1 flex flex-col gap-4">
-                        {(content.right || []).map((item: any, i: number) => (
-                            <div key={i} className="relative p-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-black flex items-center group">
-                                <div className="w-3 h-3 rounded-full border-2 border-zinc-900 bg-white group-hover:bg-zinc-900 transition-all mr-2"></div>
-                                <span>{recursiveSafeText(item)}</span>
-                            </div>
-                        ))}
-                    </div>
                 </div>
             );
+        }
 
         case 'visual_clue_card':
             return (

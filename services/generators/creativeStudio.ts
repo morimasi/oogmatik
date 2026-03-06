@@ -3,143 +3,201 @@ import { Type } from "@google/genai";
 import { generateCreativeMultimodal, generateWithSchema, MultimodalFile } from '../geminiClient';
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
 
+// ============================================================
+// PHASE 1: NEURO-ENGINE v2.0 — Style & Vibe DNA + Recursive Fill
+// ============================================================
+
 /**
- * analyzeReferenceFiles: GÖRSELİN MİMARİ DNA'SINI ÇIKARIR (Thinking Mode)
+ * analyzeReferenceFiles: GÖRSELİN MİMARİ + STİL DNA'SINI ÇIKARIR (Thinking Mode v2)
+ * - Tablo/grid yapısı (Mimari DNA)
+ * - Renk paleti, font boyutu, boşluk yoğunluğu (Style & Vibe DNA)
+ * - Klinik çeldirici stratejisi
  */
 export const analyzeReferenceFiles = async (files: MultimodalFile[], currentPrompt: string): Promise<string> => {
-    const prompt = `
-    [GÖREV: NEURO-ARCHITECTURAL REVERSE ENGINEERING]
-    Bu görseli bir AI Mühendisi ve Özel Eğitim Uzmanı olarak "Thinking" modunda analiz et. 
-    Görselin "MİMARİ DNA"sını çıkarman gerekiyor.
-    
+  const prompt = `
+    [GÖREV: NEURO-ARCHITECTURAL + STYLE & VIBE REVERSE ENGINEERING — v2.0]
+    Bu görseli aynı anda iki uzman rolüyle analiz et:
+    (A) Özel Eğitim Mimarı: Pedagojik yapıyı, soru mantığını ve klinik çeldirici stratejilerini çöz.
+    (B) Grafik Tasarımcı / UX Analisti: Görsel düzeni, renk paletini, yazı tipi boyutlarını ve boşluk yoğunluğunu tespit et.
+
     ANALİZ ADIMLARI:
-    1. TABLO YAPISI: Görseldeki her bir tabloyu 'grid' veya 'table' bloğu olarak tanımla.
-    2. SORU MANTIĞI: Sorular nasıl kurgulanmış? (Örn: 'B' harfini 'D' harfinden ayırt etme).
-    3. HATA ANALİZİ: Bu etkinlikteki çeldirici stratejisi nedir? (Ayna etkisi mi, ardışıklık mı?)
-    
-    [ÇIKTI FORMATI: BLUEPRINT_V1.0]
-    Yeni bir Gemini isteği için MASTER PROMPT oluştur. Bu prompt, 'layoutArchitecture' yapısını mükemmel şekilde tarif etmeli.
+    1. MİMARİ DNA:
+       - Görseldeki her bir tabloyu 'grid' veya 'table' bloğu olarak tanımla (satır x sütun).
+       - Soru tiplerini belirle (Örn: ayna harfler, ses ayrıştırma, kelime tamamlama).
+       - Çeldirici strateji: Ayna etkisi mi? Fonetik benzerlik mi? Ardışıklık mı?
+    2. STİL & VİBE DNA:
+       - Baskın renk paleti: en fazla 3 renk hex kodu.
+       - Tahmini font büyüklükleri: başlık / soru / seçenek için ayrı ayrı.
+       - Boşluk yoğunluğu: Sıkışık / Dengeli / Geniş (birini seç).
+       - Genel estetik ton: Oyunsu / Klinik / Minimalist (birini seç).
+    3. BLUEPRINT OLUŞTUR:
+       Yeni bir üretim isteği için eksiksiz Master Prompt oluştur. 'layoutArchitecture' yapısını,
+       tespit ettiğin mimari ve stil verilerini kullanarak detaylıca tarif et.
+       Üretilecek içerik: "${currentPrompt || 'Genel pedagojik çalışma sayfası'}"
     `;
 
-    const schema = {
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      architectureDNA: { type: Type.STRING },
+      styleVibeDNA: {
         type: Type.OBJECT,
         properties: {
-            analysis: { type: Type.STRING },
-            blueprintPrompt: { type: Type.STRING }
+          dominantColors: { type: Type.ARRAY, items: { type: Type.STRING } },
+          spacingDensity: { type: Type.STRING },
+          aestheticTone: { type: Type.STRING },
         },
-        required: ['analysis', 'blueprintPrompt']
-    };
+        required: ['dominantColors', 'spacingDensity', 'aestheticTone']
+      },
+      blueprintPrompt: { type: Type.STRING }
+    },
+    required: ['architectureDNA', 'styleVibeDNA', 'blueprintPrompt']
+  };
 
-    // Fix: Removed 'useFlash' property from the generateCreativeMultimodal call as it is not part of the defined type
-    const result = await generateCreativeMultimodal({ prompt, schema, files });
-    return `[BLUEPRINT_V1.0]\n${result.blueprintPrompt}\n\n[ANALİZ]: ${result.analysis}`;
-};
-
-export const generateCreativeStudioActivity = async (enrichedPrompt: string, options: any, files?: MultimodalFile[]) => {
-    const prompt = `
-    ${PEDAGOGICAL_BASE}
-    ${CLINICAL_DIAGNOSTIC_GUIDE}
-    
-    [ULTRA-CREATIVE MISSION: NEURO-ARCHITECTURAL GENERATION]
-    GÖREV: Aşağıdaki BLUEPRINT'i kullanarak, klinik derinliği maksimize edilmiş, BENTO-GRID düzeninde profesyonel bir çalışma sayfası üret.
-    
-    [GİRDİ BLUEPRINT]:
-    ${enrichedPrompt}
-    
-    [ÜRETİM STANDARTLARI]:
-    1. İÇERİK YOĞUNLUĞU: Sayfayı sığ bırakma. Her blok, en az ${options.itemCount} adet alt öğe içermelidir. Grid blokları tam dolmalı, tablolar zengin veri barındırmalıdır.
-    2. KLİNİK YOĞUNLUK (%${options.clinicalIntensity}): Çeldirmelerin karmaşıklık düzeyini bu orana göre ayarla. Fonolojik ve görsel diskriminasyon hatalarını maksimize et.
-    3. BİLİŞSEL YÜK (%${options.visualLoad}): Sayfa düzenindeki görsel kalabalığı ve uyaran yoğunluğunu bu orana göre kurgula. Bento-grid bloklarını sayfa içine dengeli ama sıkıştırılmış şekilde yay.
-    
-    [PARAMETRELER]:
-    - Zorluk Seviyesi: ${options.difficulty}
-    - Blok Başı Minimum Veri: ${options.itemCount}
-    
-    [TEKNİK BLOK REHBERİ VE ÖRNEK JSON İÇERİKLERİ YAKLAŞIMI]:
-    Aşağıda her bir blok tipi için 'content' objesinin tam olarak nasıl dolması gerektiğine dair katı bir referans şablon mevcuttur. Çıktılarını buna göre şekillendir!
-
-    - 'cloze_test': Metin yoğun olmalı, en az 100 kelime ve içinde en az 10 adet [hedef] boşluk bulunmalı.
-      ÖRNEK CONTENT: {"text": "Ali bugün [okul] bahçesinde oynarken [kırmızı] topunu kaybetti...", "blanks": ["okul", "kırmızı"]}
-
-    - 'categorical_sorting': En az 3-4 kategori ve her kategoride en az 5-6 öğe bulunmalı.
-      ÖRNEK CONTENT: {"categories": ["Meyveler", "Sebzeler"], "items": [{"label": "Elma", "category": "Meyveler"}, {"label": "Pırasa", "category": "Sebzeler"}]}
-
-    - 'match_columns': En az 8-10 adet karşılıklı eşleşen öğe (text) içermeli.
-      ÖRNEK CONTENT: {"leftColumn": [{"id": "1", "text": "Kedi"}], "rightColumn": [{"id": "a", "text": "Miyav", "matchId": "1"}]}
-
-    - 'visual_clue_card': Profesyonel nöro-pedagojik tavsiyeler içermeli.
-      ÖRNEK CONTENT: {"icon": "fa-brain", "title": "İpucu", "description": "Harfleri okurken parmağınızla takip edin."}
-
-    - 'neuro_marker': 'neuroType' ('tracking' | 'focus' | 'saccadic') ve 'position' içermeli.
-      ÖRNEK CONTENT: {"neuroType": "saccadic", "position": "top-right", "label": "Göz Sıçrama Noktası"}
-
-    - 'grid': Harf veya rakam matrisleri için. Tam doluluk şart.
-      ÖRNEK CONTENT: {"rows": 3, "cols": 3, "cells": [{"row":0, "col":0, "value":"A"}, {"row":0, "col":1, "value":"B"}]}
-      
-    - 'table': Veri tabloları için.
-      ÖRNEK CONTENT: {"headers": ["Kelime", "Hecesi"], "rows": [["Kalem", "Ka-lem"]]}
-
-    - 'text': Basit yönergeler veya metinler için.
-      ÖRNEK CONTENT: {"text": "Aşağıdaki kelimeleri okuyun.", "style": "bold"}
-      
-    DİKKAT: content objesini asla boş bırakma. Seçtiğin 'type' değerine uygun örnek içeriği çoğaltıp detaylandırarak üret.
-    `;
-
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            layoutArchitecture: {
-                type: Type.OBJECT,
-                properties: {
-                    cols: { type: Type.INTEGER },
-                    blocks: {
-                        type: Type.ARRAY,
-                        items: {
-                            type: Type.OBJECT,
-                            properties: {
-                                type: {
-                                    type: Type.STRING,
-                                    enum: [
-                                        'header', 'text', 'grid', 'table', 'logic_card',
-                                        'footer_validation', 'image', 'cloze_test',
-                                        'categorical_sorting', 'match_columns',
-                                        'visual_clue_card', 'neuro_marker'
-                                    ]
-                                },
-                                content: { type: Type.OBJECT },
-                                weight: { type: Type.INTEGER }
-                            },
-                            required: ['type', 'content']
-                        }
-                    }
-                },
-                required: ['blocks']
-            }
-        },
-        required: ['title', 'instruction', 'layoutArchitecture']
-    };
-
-    return await generateCreativeMultimodal({
-        prompt,
-        schema,
-        files,
-        temperature: 0.7,
-        thinkingBudget: 4000
-    });
+  const result = await generateCreativeMultimodal({ prompt, schema, files, thinkingBudget: 3000 });
+  const styleNote = `[STİL DNA] Ton: ${result.styleVibeDNA.aestheticTone} | Boşluk: ${result.styleVibeDNA.spacingDensity} | Renkler: ${result.styleVibeDNA.dominantColors.join(', ')}`;
+  return `[BLUEPRINT_V2.0]\n${result.blueprintPrompt}\n\n[MİMARİ ANALİZ]: ${result.architectureDNA}\n\n${styleNote}`;
 };
 
 /**
- * refinePromptWithAI: Prompt mühendisliği asistanı.
+ * generateCreativeStudioActivity: Multi-stage üretim motoru.
+ * - RECURSIVE FILL direktifi: Hiçbir blok boş bırakılamaz.
+ * - Dinamik thinkingBudget: options.thinkingBudget'e göre.
+ */
+export const generateCreativeStudioActivity = async (enrichedPrompt: string, options: any, files?: MultimodalFile[]) => {
+  const thinkingBudget = Math.min(Math.max(options.thinkingBudget ?? 4000, 1000), 16000);
+
+  const prompt = `
+    ${PEDAGOGICAL_BASE}
+    ${CLINICAL_DIAGNOSTIC_GUIDE}
+
+    [ULTRA-CREATIVE MISSION: NEURO-ARCHITECTURAL GENERATION v2.0]
+    GÖREV: Aşağıdaki BLUEPRINT'i kullanarak, klinik derinliği maksimize edilmiş,
+    BENTO-GRID düzeninde eksiksiz ve profesyonel bir çalışma sayfası üret.
+
+    [GİRDİ BLUEPRINT]:
+    ${enrichedPrompt}
+
+    ══════════════════════════════════════════
+    [ÜRETİM STANDARTLARI — ZORUNLU]
+    ══════════════════════════════════════════
+    1. İÇERİK YOĞUNLUĞU: Her blok minimum ${options.itemCount} alt öğe içermeli. Grid tam dolmalı.
+    2. KLİNİK YOĞUNLUK (%${options.clinicalIntensity}): Yüksekse ayna harfler, fonetik tuzaklar ve çeldirici seçenekler ekle.
+    3. BİLİŞSEL YÜK (%${options.visualLoad}): Görsel uyaran yoğunluğunu buna göre kalibre et.
+    4. ZORLUK: ${options.difficulty}
+
+    ══════════════════════════════════════════
+    [🔴 RECURSIVE FILL PROTOKOLÜ — MUTLAK KURAL]
+    ══════════════════════════════════════════
+    Hiçbir blokun 'content' alanı boş veya eksik OLAMAZ.
+    Üretim sonunda kendi çıktını gözden geçir:
+    - Boş kalan 'content' var mı? → Doldur.
+    - 'items', 'cells', 'rows', 'leftColumn', 'rightColumn' listesi boş mu? → Veri ekle.
+    - 'text' alanı boş mu? → Anlamlı içerik yaz.
+    Bu adımı ZORUNLU olarak uygula ve sıfır boş alan bırak.
+
+    ══════════════════════════════════════════
+    [TEKNİK BLOK REHBERİ]
+    ══════════════════════════════════════════
+    - 'cloze_test': Min 100 kelime, min 10 [hedef] boşluk.
+      İÇERİK: {"text": "Ali bugün [okul] bahçesinde...", "blanks": ["okul"]}
+
+    - 'categorical_sorting': Min 3 kategori, her kategoride min 5 öğe.
+      İÇERİK: {"categories": ["Meyveler","Sebzeler"], "items": [{"label":"Elma","category":"Meyveler"}]}
+
+    - 'match_columns': Min 8 karşılıklı çift.
+      İÇERİK: {"leftColumn":[{"id":"1","text":"Kedi"}], "rightColumn":[{"id":"a","text":"Miyav","matchId":"1"}]}
+
+    - 'visual_clue_card': Nöro-pedagojik ipucu.
+      İÇERİK: {"icon":"fa-brain","title":"İpucu","description":"Parmağınla takip et."}
+
+    - 'neuro_marker': {"neuroType":"saccadic","position":"top-right","label":"Göz Noktası"}
+
+    - 'grid': Tam dolu hücre matrisi.
+      İÇERİK: {"rows":4,"cols":4,"cells":[{"row":0,"col":0,"value":"A"}]}
+
+    - 'table': {"headers":["Kelime","Hecesi"],"rows":[["Kalem","Ka-lem"]]}
+
+    - 'text': {"text":"Aşağıdaki kelimeleri okuyun.","style":"bold"}
+
+    Son üretimde tüm bloklar dolu ve eksiksiz olmalı.
+    `;
+
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      instruction: { type: Type.STRING },
+      pedagogicalNote: { type: Type.STRING },
+      layoutArchitecture: {
+        type: Type.OBJECT,
+        properties: {
+          cols: { type: Type.INTEGER },
+          blocks: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                type: {
+                  type: Type.STRING,
+                  enum: [
+                    'header', 'text', 'grid', 'table', 'logic_card',
+                    'footer_validation', 'image', 'cloze_test',
+                    'categorical_sorting', 'match_columns',
+                    'visual_clue_card', 'neuro_marker'
+                  ]
+                },
+                content: { type: Type.OBJECT },
+                weight: { type: Type.INTEGER }
+              },
+              required: ['type', 'content']
+            }
+          }
+        },
+        required: ['blocks']
+      }
+    },
+    required: ['title', 'instruction', 'layoutArchitecture']
+  };
+
+  return await generateCreativeMultimodal({
+    prompt,
+    schema,
+    files,
+    temperature: 0.75,
+    thinkingBudget
+  });
+};
+
+/**
+ * refinePromptWithAI: Güçlendirilmiş prompt mühendisliği asistanı.
+ * Pedagojik çıktı formatını zorunlu kılar.
  */
 export const refinePromptWithAI = async (currentPrompt: string, mode: 'expand' | 'clinical'): Promise<string> => {
-    const prompt = `
-    GÖREV: Bu kullanıcı komutunu Gemini 3 Pro "Thinking" motoru için teknik bir blueprint üretim talimatına dönüştür.
-    İSTEM: "${currentPrompt}"
-    MOD: ${mode}
+  const modeInstructions = mode === 'expand'
+    ? `GENIŞLET: Konuyu pedagojik açıdan derinleştir. Öğrenme hedefleri, kullanılacak blok tipleri ve klinik stratejiler ekle. Bloom Taksonomisi basamaklarına göre zorluğu artır.`
+    : `KLİNİK TANI EKLE: Öğrencinin olası hata paternlerini (disleksi, disgrafisi, dikkat eksikliği) tespit et. Çeldirici stratejileri (ayna harfler, fonetik tuzaklar, ardışıklık hataları) özelleştir ve prompt'a entegre et.`;
+
+  const systemPrompt = `
+    [GÖREV: ULTRA-PROMPT MÜHENDİSİ]
+    Sen, Özel Eğitim AI'ı için prompt mühendisliği yapan uzman bir sistemsin.
+    Kullanıcı isteğini alıp, Gemini Thinking motorunun maksimum verim çıkaracağı
+    teknik bir blueprint talimatına dönüştüreceksin.
+
+    [KULLANICI İSTEMİ]: "${currentPrompt}"
+    [MOD]: ${modeInstructions}
+
+    [ÇIKTI KURALLARI]:
+    1. Çıktı mutlaka Türkçe olmalı.
+    2. Üretilecek blok tiplerini açıkça belirt (grid, table, cloze_test vb.).
+    3. Hedef yaş grubu, öğrenme güçlüğü türü ve pedagojik metodoloji belirt.
+    4. Min 120 kelime, net ve teknik bir talimat yaz.
     `;
-    const result = await generateWithSchema(prompt, { type: Type.OBJECT, properties: { refined: { type: Type.STRING } }, required: ['refined'] });
-    return result.refined;
+
+  const result = await generateWithSchema(systemPrompt, {
+    type: Type.OBJECT,
+    properties: { refined: { type: Type.STRING } },
+    required: ['refined']
+  });
+  return result.refined;
 };

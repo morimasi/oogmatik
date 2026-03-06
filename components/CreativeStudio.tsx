@@ -35,6 +35,14 @@ const THINKING_MESSAGES = [
     "Hemen hemen hazır, son kontroller yapılıyor..."
 ];
 
+const INSIGHT_TIPS = [
+    { icon: 'fa-brain', text: 'Disleksi destekli çalışmalar için ayna harf çiftlerini (b/d, p/q) çeldirici olarak ekleyin.' },
+    { icon: 'fa-eye', text: 'Saccadic tracking markerları, göz hareketlerini düzenleyerek okuma hızını artırır.' },
+    { icon: 'fa-graduation-cap', text: 'Orton-Gillingham yöntemi multisensoriyel yaklaşımı destekler; görsel + dokunsal birleştirin.' },
+    { icon: 'fa-layer-group', text: 'Bento-Grid yapısı bilişsel yükü dengeler; her blok tek bir öğrenme hedefine odaklanmalıdır.' },
+    { icon: 'fa-flask-vial', text: 'Klinik yoğunluğu %70+ ayarladığınızda AI otomatik olarak fonetik tuzaklar üretir.' },
+];
+
 export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
     const [prompt, setPrompt] = useState("");
     const [difficulty, setDifficulty] = useState("Orta");
@@ -45,6 +53,8 @@ export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
     const [statusIndex, setStatusIndex] = useState(0);
     const [activeTab, setActiveTab] = useState<'editor' | 'library'>('editor');
     const [librarySearch, setLibrarySearch] = useState("");
+    const [lastPedagogicalNote, setLastPedagogicalNote] = useState<string | null>(null);
+    const [insightTipIndex] = useState(() => Math.floor(Math.random() * INSIGHT_TIPS.length));
 
     // ULTRA Settings
     const [clinicalIntensity, setClinicalIntensity] = useState(70);
@@ -182,6 +192,7 @@ export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
                 visualLoad,
                 thinkingBudget: thinkingLevel * 2000
             }, attachedFiles);
+            if (result?.pedagogicalNote) setLastPedagogicalNote(result.pedagogicalNote);
             onResult(Array.isArray(result) ? result : [result]);
         } catch (e) {
             setStatus("Üretim başarısız.");
@@ -192,6 +203,13 @@ export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
 
     return (
         <div className="max-w-7xl mx-auto w-full animate-in fade-in zoom-in-95 duration-500 font-['Lexend'] relative">
+
+            {/* AURORA ANIMATED BACKGROUND */}
+            <div className="pointer-events-none select-none absolute inset-0 -z-10 overflow-hidden rounded-[3rem]" aria-hidden="true">
+                <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-indigo-600/10 blur-[120px] animate-[spin_20s_linear_infinite]" />
+                <div className="absolute -bottom-32 -right-32 w-[400px] h-[400px] rounded-full bg-violet-600/10 blur-[100px] animate-[spin_28s_linear_infinite_reverse]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-rose-600/5 blur-[80px] animate-[spin_15s_linear_infinite]" />
+            </div>
 
             {/* SMART POPUP TOOLTIP */}
             {hoveredItem && (
@@ -380,15 +398,44 @@ export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
                         </div>
 
                         <div className="mt-auto pt-10 space-y-4">
-                            <div className="min-h-[80px] flex flex-col items-center justify-center bg-black/20 rounded-3xl p-4 border border-white/5">
-                                {(isProcessing || isAnalyzingFile) && (
-                                    <div className="flex flex-col items-center gap-3 animate-in fade-in">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(99,102,241,0.8)]"></div>
-                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(99,102,241,0.8)] delay-100"></div>
-                                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(99,102,241,0.8)] delay-200"></div>
+
+                            {/* AI INSIGHT SIDEBAR */}
+                            <div className="p-5 bg-black/30 rounded-3xl border border-white/5 space-y-2">
+                                <p className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-3 flex items-center gap-2">
+                                    <i className="fa-solid fa-lightbulb"></i> AI INSIGHT
+                                </p>
+                                {lastPedagogicalNote ? (
+                                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                        <div className="flex items-start gap-2">
+                                            <i className="fa-solid fa-graduation-cap text-emerald-400 mt-0.5 text-xs"></i>
+                                            <p className="text-[10px] text-zinc-300 leading-relaxed">{lastPedagogicalNote}</p>
                                         </div>
-                                        <p className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.3em] text-center px-4 leading-[1.6]">
+                                    </div>
+                                ) : (
+                                    <div className="flex items-start gap-2">
+                                        <i className={`fa-solid ${INSIGHT_TIPS[insightTipIndex].icon} text-indigo-400 mt-0.5 text-xs`}></i>
+                                        <p className="text-[10px] text-zinc-400 leading-relaxed">{INSIGHT_TIPS[insightTipIndex].text}</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* MULTI-STEP PROGRESS */}
+                            <div className="min-h-[72px] flex flex-col justify-center bg-black/20 rounded-3xl p-4 border border-white/5">
+                                {(isProcessing || isAnalyzingFile) && (
+                                    <div className="animate-in fade-in">
+                                        {/* Step dots row */}
+                                        <div className="flex items-center gap-1 mb-2">
+                                            {THINKING_MESSAGES.map((_, i) => (
+                                                <div
+                                                    key={i}
+                                                    className={`h-1 flex-1 rounded-full transition-all duration-700 ${i < statusIndex ? 'bg-indigo-500'
+                                                            : i === statusIndex ? 'bg-indigo-400 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]'
+                                                                : 'bg-zinc-800'
+                                                        }`}
+                                                />
+                                            ))}
+                                        </div>
+                                        <p className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.25em] text-center leading-[1.6]">
                                             {isAnalyzingFile ? "NÖRO-MİMARİ DNA ANALİZİ..." : THINKING_MESSAGES[statusIndex]}
                                         </p>
                                     </div>
@@ -398,6 +445,9 @@ export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
                                         <i className="fa-solid fa-check-circle"></i>
                                         <p className="text-[10px] font-black uppercase tracking-widest">{status}</p>
                                     </div>
+                                )}
+                                {!isProcessing && !isAnalyzingFile && !status && (
+                                    <p className="text-[9px] text-zinc-700 uppercase tracking-widest text-center">Üretime hazır</p>
                                 )}
                             </div>
 
