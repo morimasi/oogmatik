@@ -9,10 +9,7 @@ import { ComponentLibrary } from './Editor/ComponentLibrary';
 import { ContentPanel } from './Editor/ContentPanel';
 import { ArchivePanel } from './Editor/ArchivePanel';
 import { LayoutItem } from '../../types'; // Added LayoutItem import
-
-// --- CONFIGURATION CONSTANTS ---
-const A4_WIDTH_PX = 794;
-const A4_HEIGHT_PX = 1123;
+import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 
 import { StylePanel } from './Editor/StylePanel';
 

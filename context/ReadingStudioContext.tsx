@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { InteractiveStoryData, ReadingStudioConfig, LayoutItem, Student } from '../types';
+import { A4_HEIGHT_PX } from '../utils/layoutConstants';
 
 interface ReadingStudioContextType {
     config: ReadingStudioConfig;
@@ -86,7 +87,7 @@ export function ReadingStudioProvider({ children }: { children: any }) {
         let lastY = itemsOnLastPage.length > 0 ? Math.max(...itemsOnLastPage.map(l => (l.style.y || 0) + (l.style.h || 0))) : 0;
         
         let newPageIndex = lastPage;
-        if (lastY + 100 > 1123 - 40) { // A4_HEIGHT_PX = 1123
+        if (lastY + 100 > A4_HEIGHT_PX - 40) {
             newPageIndex++;
             lastY = 0;
         }

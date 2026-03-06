@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { ImageDisplay, QUESTION_TYPES } from '../sheets/common';
 import { InteractiveStoryData, LayoutItem } from '../../types';
 import { useReadingStudio } from '../../context/ReadingStudioContext';
+import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 
 const DraggableItem = ({ item, children }: { item: any, children: any }) => {
     const { designMode, updateComponent, setSelectedId, selectedId, layout, setLayout } = useReadingStudio();
@@ -50,7 +51,7 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
                 let newY = Math.round((initialStyle.y + dy) / 8) * 8;
                 
                 // Magnetic Snap to common alignments (Grid, Center, Margins)
-                const centerX = 794 / 2;
+                const centerX = A4_WIDTH_PX / 2;
                 const itemCenterX = newX + (initialStyle.w / 2);
                 
                 // Snap to Center X
@@ -59,8 +60,10 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
                 }
                 // Snap to Left Margin (20px)
                 if (Math.abs(newX - 20) < 15) newX = 20;
-                // Snap to Right Margin
-                if (Math.abs((newX + initialStyle.w) - 774) < 15) newX = 774 - initialStyle.w;
+                // Snap to Right Margin (taking default 20px margin into account)
+                if (Math.abs((newX + initialStyle.w) - (A4_WIDTH_PX - 20)) < 15) {
+                    newX = (A4_WIDTH_PX - 20) - initialStyle.w;
+                }
 
                 setLayout(initialLayout.current.map(l => {
                     if (l.instanceId === item.instanceId) {
@@ -327,7 +330,7 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
                     <div
                         key={pageIndex}
                         className={`a4-page relative bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid' : ''}`}
-                        style={{ width: 794, minHeight: 1123, padding: 0 }}
+                        style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: 0 }}
                     >
                         {pageItems.map((item: any) => (
                             <DraggableItem key={item.instanceId} item={item}>

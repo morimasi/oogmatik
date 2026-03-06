@@ -1,12 +1,13 @@
 import { ActivityType, SingleWorksheetData, LayoutItem, WorksheetBlock } from '../../types';
+import { A4_WIDTH_PX, A4_HEIGHT_PX, A4_DEFAULT_MARGIN_PX } from '../../utils/layoutConstants';
 
 interface Rect { x: number; y: number; w: number; h: number; }
 
 // Tetris/Masonry benzeri yerleşim bulucu (Bin Packing)
 class LayoutEngine {
-    private canvasWidth = 794;
-    private canvasHeight = 1123;
-    private padding = 20; // A4 margins
+    private canvasWidth = A4_WIDTH_PX;
+    private canvasHeight = A4_HEIGHT_PX;
+    private padding = A4_DEFAULT_MARGIN_PX; // A4 margins
     private gap = 15; // Öğeler arası mesafe
     
     private occupiedSpaces: { page: number; rect: Rect }[] = [];
