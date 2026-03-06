@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+import * as React from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions, SavedAssessment, Curriculum, ActiveCurriculumSession } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
@@ -21,16 +20,16 @@ import { AssessmentReportViewer } from './components/AssessmentReportViewer';
 import * as offlineGenerators from './services/offlineGenerators';
 
 // Lazy Loaded Components
-const ProfileView = lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
-const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
-const MessagesView = lazy(() => import('./components/MessagesView').then(module => ({ default: module.MessagesView })));
-const OCRScanner = lazy(() => import('./components/OCRScanner').then(module => ({ default: module.OCRScanner })));
-const CurriculumView = lazy(() => import('./components/CurriculumView').then(module => ({ default: module.CurriculumView })));
-const ReadingStudio = lazy(() => import('./components/ReadingStudio/ReadingStudio').then(module => ({ default: module.ReadingStudio })));
-const MathStudio = lazy(() => import('./components/MathStudio/MathStudio').then(module => ({ default: module.MathStudio })));
-const StudentDashboard = lazy(() => import('./components/Student/StudentDashboard').then(module => ({ default: module.StudentDashboard })));
-const ScreeningModule = lazy(() => import('./components/Screening/ScreeningModule').then(module => ({ default: module.ScreeningModule })));
-const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
+const ProfileView = React.lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
+const AdminDashboard = React.lazy(() => import('./components/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
+const MessagesView = React.lazy(() => import('./components/MessagesView').then(module => ({ default: module.MessagesView })));
+const OCRScanner = React.lazy(() => import('./components/OCRScanner').then(module => ({ default: module.OCRScanner })));
+const CurriculumView = React.lazy(() => import('./components/CurriculumView').then(module => ({ default: module.CurriculumView })));
+const ReadingStudio = React.lazy(() => import('./components/ReadingStudio/ReadingStudio').then(module => ({ default: module.ReadingStudio })));
+const MathStudio = React.lazy(() => import('./components/MathStudio/MathStudio').then(module => ({ default: module.MathStudio })));
+const StudentDashboard = React.lazy(() => import('./components/Student/StudentDashboard').then(module => ({ default: module.StudentDashboard })));
+const ScreeningModule = React.lazy(() => import('./components/Screening/ScreeningModule').then(module => ({ default: module.ScreeningModule })));
+const AssessmentModule = React.lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
 
 
 const initialStyleSettings: StyleSettings = {
@@ -83,11 +82,11 @@ const LoadingSpinner = () => (
     </div>
 );
 
-const Modal: React.FC<{ isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }> = ({ isOpen, onClose, title, children }) => {
+const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children?: any }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={onClose}>
-            <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+            <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[85vh]" onClick={(e: any) => e.stopPropagation()}>
                 <div className="flex justify-between items-center p-5 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 rounded-t-2xl">
                     <h3 className="text-xl font-bold text-zinc-900 dark:text-white">{title}</h3>
                     <button onClick={onClose} className="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
@@ -111,13 +110,13 @@ const tourSteps: TourStep[] = [
     { targetId: 'tour-history-btn', title: 'Geçmiş', content: 'Daha önce oluşturduğunuz etkinliklere buradan ulaşabilirsiniz.', position: 'bottom' },
 ];
 
-const HeaderDropdown: React.FC<{
+const HeaderDropdown = ({ label, icon, children, colorClass = "text-zinc-500" }: {
     label: string,
     icon: string,
-    children: React.ReactNode,
+    children?: any,
     colorClass?: string
-}> = ({ label, icon, children, colorClass = "text-zinc-500" }) => {
-    const [isOpen, setIsOpen] = useState(false);
+}) => {
+    const [isOpen, setIsOpen] = React.useState(false);
     return (
         <div className="relative group" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
             <button className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 font-bold text-xs uppercase tracking-wider ${colorClass}`}>
@@ -136,7 +135,7 @@ const HeaderDropdown: React.FC<{
     );
 };
 
-const DropdownItem: React.FC<{ icon: string, label: string, onClick: () => void, badge?: number }> = ({ icon, label, onClick, badge }) => (
+const DropdownItem = ({ icon, label, onClick, badge }: { icon: string, label: string, onClick: () => void, badge?: number }) => (
     <button onClick={onClick} className="w-full flex items-center justify-between px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl transition-colors group">
         <div className="flex items-center gap-3">
             <i className={`fa-solid ${icon} w-4 text-center text-zinc-400 group-hover:text-indigo-500 transition-colors`}></i>
@@ -146,50 +145,50 @@ const DropdownItem: React.FC<{ icon: string, label: string, onClick: () => void,
     </button>
 );
 
-const AppContent: React.FC = () => {
+const AppContent = () => {
     const { user, logout } = useAuth();
     const { activeStudent, setActiveStudent, students } = useStudent();
-    const [currentView, setCurrentView] = useState<ExtendedView>('generator');
-    const [viewHistory, setViewHistory] = useState<ExtendedView[]>([]);
-    const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(null);
-    const [worksheetData, setWorksheetData] = useState<WorksheetData>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
-    const [activeCurriculumSession, setActiveCurriculumSession] = useState<ActiveCurriculumSession | null>(null);
-    const [loadedCurriculum, setLoadedCurriculum] = useState<Curriculum | null>(null);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
-    const [zenMode, setZenMode] = useState(false);
-    const [openModal, setOpenModal] = useState<ModalType | null>(null);
-    const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [unreadCount, setUnreadCount] = useState(0);
-    const [isTourOpen, setIsTourOpen] = useState(false);
-    const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
-    const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
-    const [selectedSavedReport, setSelectedSavedReport] = useState<SavedAssessment | null>(null);
-    const [workbookItems, setWorkbookItems] = useState<CollectionItem[]>([]);
-    const [workbookSettings, setWorkbookSettings] = useState<WorkbookSettings>({
+    const [currentView, setCurrentView] = React.useState<ExtendedView>('generator');
+    const [viewHistory, setViewHistory] = React.useState<ExtendedView[]>([]);
+    const [selectedActivity, setSelectedActivity] = React.useState<ActivityType | null>(null);
+    const [worksheetData, setWorksheetData] = React.useState<WorksheetData>(null);
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [error, setError] = React.useState<string | null>(null);
+    const [activeCurriculumSession, setActiveCurriculumSession] = React.useState<ActiveCurriculumSession | null>(null);
+    const [loadedCurriculum, setLoadedCurriculum] = React.useState<Curriculum | null>(null);
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+    const [isSidebarExpanded, setIsSidebarExpanded] = React.useState(true);
+    const [zenMode, setZenMode] = React.useState(false);
+    const [openModal, setOpenModal] = React.useState<ModalType | null>(null);
+    const [isFeedbackOpen, setIsFeedbackOpen] = React.useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = React.useState(false);
+    const [unreadCount, setUnreadCount] = React.useState(0);
+    const [isTourOpen, setIsTourOpen] = React.useState(false);
+    const [studentProfile, setStudentProfile] = React.useState<StudentProfile | null>(null);
+    const [isStudentModalOpen, setIsStudentModalOpen] = React.useState(false);
+    const [selectedSavedReport, setSelectedSavedReport] = React.useState<SavedAssessment | null>(null);
+    const [workbookItems, setWorkbookItems] = React.useState<CollectionItem[]>([]);
+    const [workbookSettings, setWorkbookSettings] = React.useState<WorkbookSettings>({
         title: 'Çalışma Kitapçığı', studentName: '', schoolName: '', year: new Date().getFullYear().toString(),
         teacherNote: '', theme: 'modern', accentColor: '#4f46e5', coverStyle: 'centered',
         showTOC: true, showPageNumbers: true, showWatermark: false, watermarkOpacity: 0.05, showBackCover: true
     });
 
     // Screening to Plan Bridge
-    const [screeningPlanData, setScreeningPlanData] = useState<{ name: string, age: number, weaknesses: string[], diagnosisContext?: string } | null>(null);
+    const [screeningPlanData, setScreeningPlanData] = React.useState<{ name: string, age: number, weaknesses: string[], diagnosisContext?: string } | null>(null);
 
-    const [theme, setTheme] = useState<AppTheme>(() => {
+    const [theme, setTheme] = React.useState<AppTheme>(() => {
         try { const storedTheme = localStorage.getItem('app-theme'); return (storedTheme as AppTheme) || 'anthracite'; } catch (e) { return 'anthracite'; }
     });
-    const [uiSettings, setUiSettings] = useState<UiSettings>(() => {
+    const [uiSettings, setUiSettings] = React.useState<UiSettings>(() => {
         try { const stored = localStorage.getItem('app-ui-settings'); return stored ? { ...initialUiSettings, ...JSON.parse(stored) } : initialUiSettings; } catch (e) { return initialUiSettings; }
     });
-    const [styleSettings, setStyleSettings] = useState<StyleSettings>(initialStyleSettings);
-    const [historyItems, setHistoryItems] = useState<HistoryItem[]>(() => {
+    const [styleSettings, setStyleSettings] = React.useState<StyleSettings>(initialStyleSettings);
+    const [historyItems, setHistoryItems] = React.useState<HistoryItem[]>(() => {
         try { const stored = localStorage.getItem('user_history'); return stored ? JSON.parse(stored) : []; } catch { return []; }
     });
 
-    const navigateTo = (view: ExtendedView) => { if (currentView === view) return; setViewHistory(prev => [...prev, currentView]); setCurrentView(view); };
+    const navigateTo = (view: ExtendedView) => { if (currentView === view) return; setViewHistory((prev: ExtendedView[]) => [...prev, currentView]); setCurrentView(view); };
     const handleGoBack = () => {
         if (currentView === 'generator' && activeCurriculumSession) { setActiveCurriculumSession(null); navigateTo('curriculum'); return; }
         if (viewHistory.length > 0) { const newHistory = [...viewHistory]; const prevView = newHistory.pop(); setViewHistory(newHistory); if (prevView) setCurrentView(prevView); } else { setCurrentView('generator'); }
@@ -208,16 +207,16 @@ const AppContent: React.FC = () => {
         handleOpenStudio('curriculum');
     };
 
-    useEffect(() => { localStorage.setItem('user_history', JSON.stringify(historyItems)); }, [historyItems]);
+    React.useEffect(() => { localStorage.setItem('user_history', JSON.stringify(historyItems)); }, [historyItems]);
     const addToHistory = (activityType: ActivityType, data: SingleWorksheetData[]) => {
         const activity = ACTIVITIES.find(a => a.id === activityType);
         const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
         if (!activity || !category) return;
         const newItem: HistoryItem = { id: Date.now().toString() + Math.random(), userId: user?.id || 'guest', activityType, data, timestamp: new Date().toISOString(), title: activity.title, category: { id: category.id, title: category.title } };
-        setHistoryItems(prev => [newItem, ...prev].slice(0, 100));
+        setHistoryItems((prev: HistoryItem[]) => [newItem, ...prev].slice(0, 100));
     };
     const clearHistory = () => { setHistoryItems([]); };
-    const deleteHistoryItem = (id: string) => { setHistoryItems(prev => prev.filter(i => i.id !== id)); };
+    const deleteHistoryItem = (id: string) => { setHistoryItems((prev: HistoryItem[]) => prev.filter((i: HistoryItem) => i.id !== id)); };
     const handleRestoreFromHistory = (item: HistoryItem) => { loadSavedWorksheet({ id: item.id, userId: item.userId, name: item.title, activityType: item.activityType, worksheetData: item.data, createdAt: item.timestamp, icon: ACTIVITIES.find(a => a.id === item.activityType)?.icon || 'fa-file', category: item.category }); setOpenModal(null); };
     const handleSaveHistoryItem = (item: HistoryItem) => { if (!user) { setIsAuthModalOpen(true); return; } addSavedWorksheet(`${item.title} (Geçmiş)`, item.activityType, item.data); };
     const addSavedWorksheet = async (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => {
@@ -233,12 +232,12 @@ const AppContent: React.FC = () => {
         if (item.schedule && item.durationDays) { setLoadedCurriculum(item as Curriculum); navigateTo('curriculum'); return; }
         if (item.activityType === ActivityType.WORKBOOK || item.workbookItems) { if (item.workbookItems && item.workbookSettings) { setWorkbookItems(item.workbookItems); setWorkbookSettings(item.workbookSettings); navigateTo('workbook'); } return; }
         setSelectedActivity(item.activityType); setWorksheetData(item.worksheetData); if (item.styleSettings) setStyleSettings(item.styleSettings);
-        if (item.studentProfile) { setStudentProfile(item.studentProfile); if (item.studentId) { const s = students.find(x => x.id === item.studentId); if (s) setActiveStudent(s); } } else { setStudentProfile(null); setActiveStudent(null); }
+        if (item.studentProfile) { setStudentProfile(item.studentProfile); if (item.studentId) { const s = students.find((x: any) => x.id === item.studentId); if (s) setActiveStudent(s); } } else { setStudentProfile(null); setActiveStudent(null); }
         navigateTo('generator'); setIsSidebarExpanded(true);
     };
 
     const handleSelectActivity = (activityType: ActivityType | null) => { if (currentView !== 'generator') navigateTo('generator'); setActiveCurriculumSession(null); setSelectedActivity(activityType); setWorksheetData(null); setError(null); setCurrentView('generator'); if (isSidebarOpen) setIsSidebarOpen(false); if (activityType) setIsSidebarExpanded(true); };
-    const handleStartCurriculumActivity = (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, difficulty: 'Easy' | 'Medium' | 'Hard', goal: string, studentId?: string) => { setActiveCurriculumSession({ planId, day, activityId, studentName, activityTitle: title, studentId, difficulty, goal }); if (studentId) { const s = students.find(x => x.id === studentId); if (s) setActiveStudent(s); } else { setStudentProfile({ name: studentName, school: '', grade: '', date: new Date().toLocaleDateString('tr-TR') }); } setSelectedActivity(activityType as ActivityType); setWorksheetData(null); navigateTo('generator'); setIsSidebarExpanded(true); };
+    const handleStartCurriculumActivity = (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, difficulty: 'Easy' | 'Medium' | 'Hard', goal: string, studentId?: string) => { setActiveCurriculumSession({ planId, day, activityId, studentName, activityTitle: title, studentId, difficulty, goal }); if (studentId) { const s = students.find((x: any) => x.id === studentId); if (s) setActiveStudent(s); } else { setStudentProfile({ name: studentName, school: '', grade: '', date: new Date().toLocaleDateString('tr-TR') }); } setSelectedActivity(activityType as ActivityType); setWorksheetData(null); navigateTo('generator'); setIsSidebarExpanded(true); };
     const handleCompleteCurriculumActivity = async () => {
         if (!activeCurriculumSession || !user) return; setIsLoading(true);
         try { if (worksheetData) await addSavedWorksheet(`${activeCurriculumSession.studentName} - ${activeCurriculumSession.activityTitle}`, selectedActivity!, worksheetData); await curriculumService.updateActivityStatus(activeCurriculumSession.planId, activeCurriculumSession.day, activeCurriculumSession.activityId, 'completed'); setActiveCurriculumSession(null); navigateTo('curriculum'); alert("Harika! Aktivite tamamlandı ve plana işlendi."); } catch (e) { alert("Bir hata oluştu."); } finally { setIsLoading(false); }
@@ -248,15 +247,15 @@ const AppContent: React.FC = () => {
         if (activityType && data) {
             const dataArray = Array.isArray(data) ? data : [data];
             const newItems: CollectionItem[] = dataArray.map((sheet: any) => ({ id: crypto.randomUUID(), activityType: activityType, data: sheet, settings: { ...styleSettings }, title: sheet.title || ACTIVITIES.find(a => a.id === activityType)?.title || 'Etkinlik' }));
-            setWorkbookItems(prev => [...prev, ...newItems]);
+            setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
             const btn = document.getElementById('add-to-wb-btn');
             if (btn) { btn.classList.add('scale-125', 'bg-green-500', 'text-white'); setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300); }
         }
     };
     const handleAddToWorkbook = () => { if (selectedActivity && worksheetData) handleAddToWorkbookGeneral(selectedActivity, worksheetData); };
-    const handleAddDirectToWorkbook = (item: any) => {
+    const handleAddDirectToWorkbook = (item: CollectionItem) => {
         const newItems: CollectionItem[] = [{ id: crypto.randomUUID(), activityType: item.activityType, data: item.data, settings: { ...styleSettings, ...item.settings }, title: item.title }];
-        setWorkbookItems(prev => [...prev, ...newItems]);
+        setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
     };
 
     const handleOCRResult = (result: any) => { setSelectedActivity(ActivityType.OCR_CONTENT); setWorksheetData(result); navigateTo('generator'); setIsSidebarExpanded(true); };
@@ -275,7 +274,7 @@ const AppContent: React.FC = () => {
                     try { const generatedData = await generator(defaultOptions); generatedData.forEach((sheet: any) => { newItems.push({ id: crypto.randomUUID(), activityType: activityId, data: sheet, settings: { ...styleSettings }, title: ACTIVITIES.find(a => a.id === activityId)?.title || activityId }); }); } catch (genErr) { console.error(`Failed to auto-generate ${activityId}`, genErr); }
                 }
             }
-            setWorkbookItems(newItems); setWorkbookSettings(prev => ({ ...prev, title: `Kişisel Gelişim Planı`, studentName: studentProfile?.name || '', teacherNote: "Bu kitapçık, yapılan değerlendirme sonucunda belirlenen ihtiyaçlara yönelik olarak yapay zeka tarafından otomatik oluşturulmuştur." }));
+            setWorkbookItems(newItems); setWorkbookSettings((prev: WorkbookSettings) => ({ ...prev, title: `Kişisel Gelişim Planı`, studentName: studentProfile?.name || '', teacherNote: "Bu kitapçık, yapılan değerlendirme sonucunda belirlenen ihtiyaçlara yönelik olarak yapay zeka tarafından otomatik oluşturulmuştur." }));
         } catch (e) { alert("Otomatik kitapçık oluşturulurken bir hata meydana geldi."); } finally { setIsLoading(false); }
     };
 
@@ -451,7 +450,7 @@ const AppContent: React.FC = () => {
                             onBack={handleGoBack}
                             onSelectActivity={handleSelectActivity}
                             onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                            onGeneratePlan={(n, a, w, c) => handleGeneratePlanFromScreening(n, a, w, c)}
+                            onGeneratePlan={(n: string, a: number, w: string[], c?: string) => handleGeneratePlanFromScreening(n, a, w, c)}
                         />
                     </React.Suspense>
                 </div>
@@ -460,16 +459,16 @@ const AppContent: React.FC = () => {
             <TourGuide steps={tourSteps} isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
             <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} activityType={selectedActivity} activityTitle={selectedActivity ? ACTIVITIES.find(a => a.id === selectedActivity)?.title : undefined} />
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-            <StudentInfoModal isOpen={isStudentModalOpen} onClose={() => setIsStudentModalOpen(false)} currentProfile={studentProfile} onSave={(p) => setStudentProfile(p)} onClear={() => setStudentProfile(null)} />
+            <StudentInfoModal isOpen={isStudentModalOpen} onClose={() => setIsStudentModalOpen(false)} currentProfile={studentProfile} onSave={(p: StudentProfile) => setStudentProfile(p)} onClear={() => setStudentProfile(null)} />
             <SettingsModal isOpen={openModal === 'settings'} onClose={() => setOpenModal(null)} uiSettings={uiSettings} onUpdateUiSettings={setUiSettings} theme={theme} onUpdateTheme={setTheme} />
-            <AssessmentReportViewer assessment={selectedSavedReport} onClose={() => setSelectedSavedReport(null)} user={user} onSelectActivity={handleSelectActivity} onGeneratePlan={(name, age, weaknesses, context) => handleGeneratePlanFromScreening(name, age, weaknesses, context)} />
+            <AssessmentReportViewer assessment={selectedSavedReport} onClose={() => setSelectedSavedReport(null)} user={user} onSelectActivity={handleSelectActivity} onGeneratePlan={(name: string, age: number, weaknesses: string[], context?: string) => handleGeneratePlanFromScreening(name, age, weaknesses, context)} />
             <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="İşlem Geçmişi"><HistoryView historyItems={historyItems} onRestore={handleRestoreFromHistory} onSaveToArchive={handleSaveHistoryItem} onDelete={deleteHistoryItem} onClearAll={clearHistory} onClose={() => setOpenModal(null)} /></Modal>
             <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda"><div className="text-center space-y-6"><DyslexiaLogo className="h-16 w-auto mx-auto" /><div className="space-y-4 text-zinc-600 dark:text-zinc-300"><p className="leading-relaxed">Bursa Disleksi AI, özel öğrenme güçlüğü yaşayan bireylerin eğitim süreçlerini desteklemek, eğitmen ve ailelere kişiselleştirilmiş, bilimsel temelli materyaller sunmak amacıyla geliştirilmiş yeni nesil bir yapay zeka platformudur.</p></div></div></Modal>
         </div>
     );
 };
 
-export const App: React.FC = () => {
+export const App = () => {
     return (
         <AuthProvider>
             <StudentProvider>
