@@ -4,19 +4,19 @@ import { MorphologyMatrixData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const MorphologyMatrixSheet: React.FC<{ data: MorphologyMatrixData }> = ({ data }) => {
+export const MorphologyMatrixSheet = ({ data }: { data: MorphologyMatrixData }) => {
     return (
         <div className="flex flex-col h-full bg-white p-2 font-lexend text-black overflow-visible">
-            <PedagogicalHeader 
-                title={data.title} 
-                instruction={data.instruction} 
-                note={data.pedagogicalNote} 
+            <PedagogicalHeader
+                title={data.title}
+                instruction={data.instruction}
+                note={data.pedagogicalNote}
             />
-            
+
             <div className="flex-1 flex flex-col gap-6 mt-6 content-start">
                 {(data.items || []).map((item, idx) => (
                     <EditableElement key={idx} className="flex items-center gap-4 p-4 border-[3px] border-zinc-900 rounded-[1.5rem] bg-white shadow-sm break-inside-avoid group hover:border-indigo-500 transition-all">
-                        
+
                         {/* KÖK KELİME */}
                         <div className="w-32 bg-zinc-900 text-white p-3 rounded-xl text-center shadow-lg relative shrink-0">
                             <span className="text-[10px] font-black absolute top-1 left-2 opacity-50 uppercase tracking-widest">KÖK</span>

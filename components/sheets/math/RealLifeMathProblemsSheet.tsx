@@ -4,7 +4,7 @@ import { RealLifeProblemData } from '../../../types';
 import { PedagogicalHeader, ImageDisplay } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> = ({ data }) => (
+export const RealLifeMathProblemsSheet = ({ data }: { data: RealLifeProblemData }) => (
     <div className="flex flex-col font-lexend">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
         <div className="space-y-10 mt-6">
@@ -15,14 +15,14 @@ export const RealLifeMathProblemsSheet: React.FC<{ data: RealLifeProblemData }> 
                             {index + 1}
                         </div>
                         <div className="flex-1">
-                             <div className="text-xl font-bold text-zinc-800 leading-relaxed text-justify mb-6">
-                                 <EditableText value={problem?.text} tag="p" />
-                             </div>
-                             {problem.imagePrompt && (
-                                 <div className="w-full h-56 bg-zinc-50 rounded-[2.5rem] border-2 border-zinc-100 mb-6 overflow-hidden shadow-inner">
-                                     <ImageDisplay prompt={problem.imagePrompt} description={problem.text.substring(0,30)} className="w-full h-full object-contain mix-blend-multiply" />
-                                 </div>
-                             )}
+                            <div className="text-xl font-bold text-zinc-800 leading-relaxed text-justify mb-6">
+                                <EditableText value={problem?.text} tag="p" />
+                            </div>
+                            {problem.imagePrompt && (
+                                <div className="w-full h-56 bg-zinc-50 rounded-[2.5rem] border-2 border-zinc-100 mb-6 overflow-hidden shadow-inner">
+                                    <ImageDisplay prompt={problem.imagePrompt} description={problem.text.substring(0, 30)} className="w-full h-full object-contain mix-blend-multiply" />
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row gap-6 ml-16">

@@ -4,12 +4,12 @@ import { MathMemoryCardsData, MathMemoryCard } from '../../../types';
 import { PedagogicalHeader, TenFrame, Domino, Base10Visualizer } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-const MemoryCardUI: React.FC<{ card: MathMemoryCard, showCheckCode: boolean }> = ({ card, showCheckCode }) => {
+const MemoryCardUI = ({ card, showCheckCode }: { card: MathMemoryCard, showCheckCode: boolean }) => {
     return (
         <EditableElement className="aspect-[3/4] bg-white border-[1px] border-zinc-300 rounded-lg flex flex-col items-center justify-center p-4 relative overflow-hidden group shadow-sm transition-all hover:border-indigo-400 break-inside-avoid">
             {/* Kesim Kılavuzu (İç Çerçeve) */}
             <div className="absolute inset-0 border-[1px] border-dashed border-zinc-100 pointer-events-none"></div>
-            
+
             {/* Kontrol Kodu (Ebeveyn Doğrulama Sistemi) */}
             {showCheckCode && (
                 <div className="absolute top-1 left-1.5 text-[7px] font-black text-zinc-200 select-none tracking-tighter opacity-50 group-hover:opacity-100 transition-opacity">
@@ -51,23 +51,23 @@ const MemoryCardUI: React.FC<{ card: MathMemoryCard, showCheckCode: boolean }> =
     );
 };
 
-export const MathMemoryCardsSheet: React.FC<{ data: MathMemoryCardsData }> = ({ data }) => {
+export const MathMemoryCardsSheet = ({ data }: { data: MathMemoryCardsData }) => {
     const cardCount = data.cards?.length || 0;
     // Sayfa doluluğuna göre kolon sayısını belirle
     const cols = cardCount > 24 ? 'grid-cols-6' : (cardCount > 12 ? 'grid-cols-4' : 'grid-cols-3');
-    
+
     return (
         <div className="flex flex-col h-full font-lexend p-1 bg-white">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-            
-            <div 
+
+            <div
                 className={`flex-1 grid ${cols} gap-3 mt-4 content-start`}
             >
                 {(data.cards || []).map((card) => (
-                    <MemoryCardUI 
-                        key={card.id} 
-                        card={card} 
-                        showCheckCode={data.settings?.showNumbers !== false} 
+                    <MemoryCardUI
+                        key={card.id}
+                        card={card}
+                        showCheckCode={data.settings?.showNumbers !== false}
                     />
                 ))}
             </div>

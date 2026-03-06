@@ -4,7 +4,7 @@ import { SpatialGridData } from '../../../types';
 import { PedagogicalHeader, CubeStack } from '../common';
 import { EditableText } from '../../Editable';
 
-export const SpatialGridSheet: React.FC<{ data: SpatialGridData }> = ({ data }) => (
+export const SpatialGridSheet = ({ data }: { data: SpatialGridData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 gap-12 mt-10 justify-items-center">

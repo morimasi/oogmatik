@@ -5,7 +5,7 @@ import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
 import { useAuth } from '../context/AuthContext';
 import { printService } from '../utils/printService';
-import { Toolbar } from './Toolbar'; 
+import { Toolbar } from './Toolbar';
 import { useStudent } from '../context/StudentContext';
 
 interface WorkbookViewProps {
@@ -19,19 +19,19 @@ interface WorkbookViewProps {
 const COLORS = ['#4f46e5', '#ef4444', '#f59e0b', '#10b981', '#ec4899', '#8b5cf6', '#06b6d4', '#1f2937'];
 
 // Memoized Item Component
-const SortablePageItem = React.memo(({ 
-    item, 
-    index, 
-    isDragging, 
-    onDragStart, 
-    onDragOver, 
-    onDragEnd, 
+const SortablePageItem = React.memo(({
+    item,
+    index,
+    isDragging,
+    onDragStart,
+    onDragOver,
+    onDragEnd,
     onRemove,
     onEditStyle,
     onDuplicate
-}: { 
-    item: CollectionItem, 
-    index: number, 
+}: {
+    item: CollectionItem,
+    index: number,
     isDragging: boolean,
     onDragStart: (idx: number) => void,
     onDragOver: (e: React.DragEvent, idx: number) => void,
@@ -43,7 +43,7 @@ const SortablePageItem = React.memo(({
     const isDivider = item.itemType === 'divider';
 
     return (
-        <div 
+        <div
             draggable
             onDragStart={() => onDragStart(index)}
             onDragOver={(e) => onDragOver(e, index)}
@@ -53,7 +53,7 @@ const SortablePageItem = React.memo(({
             <div className="w-6 h-6 flex items-center justify-center text-zinc-400">
                 <i className="fa-solid fa-grip-vertical"></i>
             </div>
-            
+
             {isDivider ? (
                 <div className="w-8 h-8 rounded-lg bg-indigo-200 dark:bg-indigo-700 flex items-center justify-center font-bold text-indigo-800 dark:text-indigo-200 text-xs shrink-0">
                     <i className={item.dividerConfig?.icon || 'fa-solid fa-bookmark'}></i>
@@ -75,7 +75,7 @@ const SortablePageItem = React.memo(({
                     {item.overrideStyle && !isDivider && <span className="text-[8px] bg-amber-100 text-amber-700 px-1 rounded">Özel Stil</span>}
                 </div>
             </div>
-            
+
             <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                 <button onClick={() => onDuplicate(item)} className="text-zinc-400 hover:text-green-500 p-2 transition-colors" title="Kopyala">
                     <i className="fa-solid fa-copy"></i>
@@ -91,29 +91,29 @@ const SortablePageItem = React.memo(({
     );
 });
 
-export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, settings, setSettings, onBack }) => {
+export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }: WorkbookViewProps) => {
     const { user } = useAuth();
     const { students } = useStudent();
     const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
     const [activeTab, setActiveTab] = useState<'content' | 'design' | 'assign'>('content');
     const [isSaving, setIsSaving] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
-    
+
     // Style Override State (Activity)
     const [editingItemId, setEditingItemId] = useState<string | null>(null);
-    const editingItem = items.find(i => i.id === editingItemId);
+    const editingItem = items.find((i: CollectionItem) => i.id === editingItemId);
 
     // Divider Edit State
     const [editingDividerId, setEditingDividerId] = useState<string | null>(null);
-    const editingDivider = items.find(i => i.id === editingDividerId);
+    const editingDivider = items.find((i: CollectionItem) => i.id === editingDividerId);
 
     // Drag & Drop State
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleRemoveItem = useCallback((id: string) => {
-        if(confirm('Bu sayfayı kitapçıktan çıkarmak istediğinize emin misiniz?')) {
-            setItems(prev => prev.filter(i => i.id !== id));
+        if (confirm('Bu sayfayı kitapçıktan çıkarmak istediğinize emin misiniz?')) {
+            setItems((prev: CollectionItem[]) => prev.filter((i: CollectionItem) => i.id !== id));
         }
     }, [setItems]);
 
@@ -125,12 +125,12 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         e.preventDefault();
         setItems(prevItems => {
             if (draggedItemIndex === null || draggedItemIndex === index) return prevItems;
-            
+
             const newItems = [...prevItems];
             const draggedItem = newItems[draggedItemIndex];
             newItems.splice(draggedItemIndex, 1);
             newItems.splice(index, 0, draggedItem);
-            setDraggedItemIndex(index); 
+            setDraggedItemIndex(index);
             return newItems;
         });
     }, [draggedItemIndex, setItems]);
@@ -145,7 +145,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
             id: crypto.randomUUID(),
             title: `${item.title} (Kopyası)`
         };
-        setItems(prev => [...prev, newItem]);
+        setItems((prev: CollectionItem[]) => [...prev, newItem]);
     }, [setItems]);
 
     const handleAddDivider = () => {
@@ -162,7 +162,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
             data: [], // Empty data
             settings: { ...items[0]?.settings } // inherit some defaults
         };
-        setItems(prev => [...prev, newDivider]);
+        setItems((prev: CollectionItem[]) => [...prev, newDivider]);
         setEditingDividerId(newDivider.id);
     };
 
@@ -182,7 +182,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
     const handleStyleUpdate = (newSettings: StyleSettings) => {
         if (!editingItemId) return;
-        setItems(prev => prev.map(item => {
+        setItems((prev: CollectionItem[]) => prev.map((item: CollectionItem) => {
             if (item.id === editingItemId) {
                 return { ...item, overrideStyle: newSettings };
             }
@@ -192,7 +192,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
     const handleDividerUpdate = (field: string, value: string) => {
         if (!editingDividerId) return;
-        setItems(prev => prev.map(item => {
+        setItems((prev: CollectionItem[]) => prev.map((item: CollectionItem) => {
             if (item.id === editingDividerId && item.dividerConfig) {
                 return {
                     ...item,
@@ -217,7 +217,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         setIsSaving(true);
         try {
             // Find student ID if assigned
-            const assignedStudent = students.find(s => s.name === settings.studentName);
+            const assignedStudent = students.find((s: any) => s.name === settings.studentName);
             await worksheetService.saveWorkbook(user.id, settings, items, assignedStudent?.id);
             alert(`"${settings.title}" başarıyla arşivinize kaydedildi.`);
         } catch (error) {
@@ -247,7 +247,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
         if (file) {
             const reader = new FileReader();
             reader.onload = (ev) => {
-                setSettings(prev => ({ ...prev, logoUrl: ev.target?.result as string }));
+                setSettings((prev: WorkbookSettings) => ({ ...prev, logoUrl: ev.target?.result as string }));
             };
             reader.readAsDataURL(file);
         }
@@ -255,11 +255,11 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
     const handleStudentAssign = (sid: string) => {
         if (sid === 'anonymous') {
-            setSettings(prev => ({ ...prev, studentName: '' }));
+            setSettings((prev: WorkbookSettings) => ({ ...prev, studentName: '' }));
         } else {
-            const s = students.find(x => x.id === sid);
+            const s = students.find((x: any) => x.id === sid);
             if (s) {
-                setSettings(prev => ({ ...prev, studentName: s.name, schoolName: s.learningStyle || prev.schoolName }));
+                setSettings((prev: WorkbookSettings) => ({ ...prev, studentName: s.name, schoolName: s.learningStyle || prev.schoolName }));
             }
         }
     };
@@ -286,13 +286,13 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
                 <div className="flex gap-3">
                     <div className="bg-zinc-100 dark:bg-zinc-700 p-1 rounded-lg flex">
-                        <button 
+                        <button
                             onClick={() => setViewMode('edit')}
                             className={`px-4 py-2 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${viewMode === 'edit' ? 'bg-white dark:bg-zinc-600 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'}`}
                         >
                             <i className="fa-solid fa-pen-ruler"></i> Düzenle
                         </button>
-                        <button 
+                        <button
                             onClick={() => setViewMode('preview')}
                             className={`px-4 py-2 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${viewMode === 'preview' ? 'bg-white dark:bg-zinc-600 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'}`}
                         >
@@ -301,7 +301,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                     </div>
                     {viewMode === 'preview' && (
                         <>
-                            <button 
+                            <button
                                 onClick={() => handleAction('download')}
                                 disabled={isPrinting}
                                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
@@ -309,19 +309,19 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                 {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
                                 PDF İndir
                             </button>
-                            <button 
+                            <button
                                 onClick={() => handleAction('print')}
                                 disabled={isPrinting}
                                 className="px-4 py-2 bg-zinc-800 hover:bg-zinc-900 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
                             >
                                 <i className="fa-solid fa-print"></i> Yazdır
                             </button>
-                            <button 
-                                onClick={handleSave} 
+                            <button
+                                onClick={handleSave}
                                 disabled={isSaving}
                                 className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>} 
+                                {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
                                 Kaydet
                             </button>
                         </>
@@ -341,7 +341,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                 { id: 'design', icon: 'fa-paintbrush', label: 'Tasarım' },
                                 { id: 'assign', icon: 'fa-user-graduate', label: 'Atama' }
                             ].map(tab => (
-                                <button 
+                                <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id as any)}
                                     className={`flex-1 py-4 text-xs font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${activeTab === tab.id ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'}`}
@@ -353,14 +353,14 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
 
                         {/* Tab Content */}
                         <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
-                            
+
                             {activeTab === 'assign' && (
                                 <div className="space-y-6 animate-in fade-in">
                                     <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30">
                                         <h4 className="text-xs font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                                             <i className="fa-solid fa-user-plus"></i> Öğrenci Atama
                                         </h4>
-                                        <select 
+                                        <select
                                             value={students.find(s => s.name === settings.studentName)?.id || 'anonymous'}
                                             onChange={(e) => handleStudentAssign(e.target.value)}
                                             className="w-full p-3 bg-white dark:bg-zinc-800 border border-amber-200 dark:border-amber-700 rounded-xl text-sm font-bold outline-none focus:ring-2 ring-amber-500/20"
@@ -380,21 +380,21 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                     <div className="space-y-4">
                                         <div>
                                             <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Kitapçık Başlığı</label>
-                                            <input type="text" value={settings.title} onChange={e => setSettings(s => ({...s, title: e.target.value}))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Örn: Tatil Kitabım" />
+                                            <input type="text" value={settings.title} onChange={e => setSettings((s: WorkbookSettings) => ({ ...s, title: e.target.value }))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Örn: Tatil Kitabım" />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Öğrenci</label>
-                                                <input type="text" value={settings.studentName} onChange={e => setSettings(s => ({...s, studentName: e.target.value}))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ad Soyad" />
+                                                <input type="text" value={settings.studentName} onChange={e => setSettings(s => ({ ...s, studentName: e.target.value }))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ad Soyad" />
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Yıl / Dönem</label>
-                                                <input type="text" value={settings.year} onChange={e => setSettings(s => ({...s, year: e.target.value}))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="2024-2025" />
+                                                <input type="text" value={settings.year} onChange={e => setSettings(s => ({ ...s, year: e.target.value }))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="2024-2025" />
                                             </div>
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Eğitmen Notu</label>
-                                            <textarea value={settings.teacherNote} onChange={e => setSettings(s => ({...s, teacherNote: e.target.value}))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none" placeholder="Öğrenciye bir not bırakın..." />
+                                            <textarea value={settings.teacherNote} onChange={e => setSettings(s => ({ ...s, teacherNote: e.target.value }))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none" placeholder="Öğrenciye bir not bırakın..." />
                                         </div>
                                     </div>
 
@@ -403,9 +403,9 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                             <h3 className="font-bold text-zinc-700 dark:text-zinc-200 text-sm">Sayfalar ({items.length})</h3>
                                             <button onClick={handleClearAll} className="text-xs text-red-500 hover:underline">Hepsini Sil</button>
                                         </div>
-                                        
+
                                         <div className="mb-4">
-                                            <button 
+                                            <button
                                                 onClick={handleAddDivider}
                                                 className="w-full py-2 border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all"
                                             >
@@ -444,9 +444,9 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Kapak Teması</label>
                                         <div className="grid grid-cols-2 gap-3">
                                             {['modern', 'classic', 'fun', 'minimal', 'academic', 'artistic', 'space', 'nature', 'geometric'].map(t => (
-                                                <button 
-                                                    key={t} 
-                                                    onClick={() => setSettings(s => ({...s, theme: t as any}))}
+                                                <button
+                                                    key={t}
+                                                    onClick={() => setSettings((s: WorkbookSettings) => ({ ...s, theme: t as any }))}
                                                     className={`p-3 rounded-xl border-2 text-sm font-bold capitalize transition-all text-left flex items-center gap-2 ${settings.theme === t ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300' : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-700 text-zinc-600 hover:border-zinc-300'}`}
                                                 >
                                                     <div className={`w-3 h-3 rounded-full ${settings.theme === t ? 'bg-indigo-500' : 'bg-zinc-300'}`}></div>
@@ -461,9 +461,9 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Vurgu Rengi</label>
                                         <div className="flex flex-wrap gap-3">
                                             {COLORS.map(c => (
-                                                <button 
+                                                <button
                                                     key={c}
-                                                    onClick={() => setSettings(s => ({...s, accentColor: c}))}
+                                                    onClick={() => setSettings(s => ({ ...s, accentColor: c }))}
                                                     className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110 ${settings.accentColor === c ? 'border-zinc-900 dark:border-white ring-2 ring-offset-2 ring-zinc-300' : 'border-transparent'}`}
                                                     style={{ backgroundColor: c }}
                                                 >
@@ -471,7 +471,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                                 </button>
                                             ))}
                                             <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-zinc-200 cursor-pointer">
-                                                <input type="color" value={settings.accentColor} onChange={e => setSettings(s => ({...s, accentColor: e.target.value}))} className="absolute -top-2 -left-2 w-12 h-12 p-0 border-0 cursor-pointer" />
+                                                <input type="color" value={settings.accentColor} onChange={e => setSettings(s => ({ ...s, accentColor: e.target.value }))} className="absolute -top-2 -left-2 w-12 h-12 p-0 border-0 cursor-pointer" />
                                             </div>
                                         </div>
                                     </div>
@@ -487,7 +487,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                                 Logo Seç
                                             </button>
                                             <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" accept="image/*" />
-                                            {settings.logoUrl && <button onClick={() => setSettings(s => ({...s, logoUrl: undefined}))} className="text-red-500 text-sm hover:underline">Kaldır</button>}
+                                            {settings.logoUrl && <button onClick={() => setSettings(s => ({ ...s, logoUrl: undefined }))} className="text-red-500 text-sm hover:underline">Kaldır</button>}
                                         </div>
                                     </div>
 
@@ -498,7 +498,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                             {['centered', 'left', 'split'].map(layout => (
                                                 <button
                                                     key={layout}
-                                                    onClick={() => setSettings(s => ({...s, coverStyle: layout as any}))}
+                                                    onClick={() => setSettings(s => ({ ...s, coverStyle: layout as any }))}
                                                     className={`flex-1 py-2 text-xs font-bold uppercase rounded-md transition-all ${settings.coverStyle === layout ? 'bg-white shadow-sm text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'}`}
                                                 >
                                                     {layout}
@@ -512,21 +512,21 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                         <label className="flex items-center justify-between cursor-pointer group">
                                             <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">İçindekiler Tablosu</span>
                                             <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showTOC ? 'bg-green-500' : 'bg-zinc-300'}`}>
-                                                <input type="checkbox" checked={settings.showTOC} onChange={e => setSettings(s => ({...s, showTOC: e.target.checked}))} className="hidden" />
+                                                <input type="checkbox" checked={settings.showTOC} onChange={e => setSettings(s => ({ ...s, showTOC: e.target.checked }))} className="hidden" />
                                                 <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showTOC ? 'left-6' : 'left-1'}`}></div>
                                             </div>
                                         </label>
                                         <label className="flex items-center justify-between cursor-pointer group">
                                             <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Sayfa Numaraları</span>
                                             <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showPageNumbers ? 'bg-green-500' : 'bg-zinc-300'}`}>
-                                                <input type="checkbox" checked={settings.showPageNumbers} onChange={e => setSettings(s => ({...s, showPageNumbers: e.target.checked}))} className="hidden" />
+                                                <input type="checkbox" checked={settings.showPageNumbers} onChange={e => setSettings(s => ({ ...s, showPageNumbers: e.target.checked }))} className="hidden" />
                                                 <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showPageNumbers ? 'left-6' : 'left-1'}`}></div>
                                             </div>
                                         </label>
                                         <label className="flex items-center justify-between cursor-pointer group">
                                             <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Arka Kapak</span>
                                             <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showBackCover ? 'bg-green-500' : 'bg-zinc-300'}`}>
-                                                <input type="checkbox" checked={settings.showBackCover} onChange={e => setSettings(s => ({...s, showBackCover: e.target.checked}))} className="hidden" />
+                                                <input type="checkbox" checked={settings.showBackCover} onChange={e => setSettings(s => ({ ...s, showBackCover: e.target.checked }))} className="hidden" />
                                                 <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showBackCover ? 'left-6' : 'left-1'}`}></div>
                                             </div>
                                         </label>
@@ -534,7 +534,7 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                             <label className="flex items-center justify-between cursor-pointer group">
                                                 <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Filigran (Logo)</span>
                                                 <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showWatermark ? 'bg-green-500' : 'bg-zinc-300'}`}>
-                                                    <input type="checkbox" checked={settings.showWatermark} onChange={e => setSettings(s => ({...s, showWatermark: e.target.checked}))} className="hidden" />
+                                                    <input type="checkbox" checked={settings.showWatermark} onChange={e => setSettings(s => ({ ...s, showWatermark: e.target.checked }))} className="hidden" />
                                                     <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showWatermark ? 'left-6' : 'left-1'}`}></div>
                                                 </div>
                                             </label>
@@ -544,11 +544,11 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                                         <span className="text-xs font-bold text-zinc-500">Opaklık</span>
                                                         <span className="text-xs font-mono text-zinc-500">{Math.round((settings.watermarkOpacity || 0.05) * 100)}%</span>
                                                     </div>
-                                                    <input 
-                                                        type="range" 
-                                                        min="0.01" max="0.2" step="0.01" 
-                                                        value={settings.watermarkOpacity || 0.05} 
-                                                        onChange={(e) => setSettings(s => ({...s, watermarkOpacity: parseFloat(e.target.value)}))}
+                                                    <input
+                                                        type="range"
+                                                        min="0.01" max="0.2" step="0.01"
+                                                        value={settings.watermarkOpacity || 0.05}
+                                                        onChange={(e) => setSettings(s => ({ ...s, watermarkOpacity: parseFloat(e.target.value) }))}
                                                         className="w-full h-1 bg-zinc-300 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                                                     />
                                                 </div>
@@ -569,9 +569,9 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                 </div>
             ) : (
                 <div className="flex-1 overflow-auto bg-zinc-200 dark:bg-zinc-950 p-8 flex flex-col items-center custom-scrollbar">
-                     <div className="animate-in fade-in zoom-in-95 duration-500">
+                    <div className="animate-in fade-in zoom-in-95 duration-500">
                         <Workbook items={items} settings={settings} />
-                     </div>
+                    </div>
                 </div>
             )}
 
@@ -592,11 +592,11 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                                 <i className="fa-solid fa-circle-info mr-2"></i>
                                 Burada yapılan değişiklikler sadece bu sayfa için geçerli olacaktır.
                             </div>
-                            <Toolbar 
+                            <Toolbar
                                 settings={editingItem.overrideStyle ? { ...editingItem.settings, ...editingItem.overrideStyle } : editingItem.settings}
                                 onSettingsChange={handleStyleUpdate}
-                                onSave={() => {}} 
-                                onTogglePreview={() => {}} 
+                                onSave={() => { }}
+                                onTogglePreview={() => { }}
                                 isPreviewMode={false}
                                 isEditMode={false}
                                 worksheetData={[editingItem.data]}
@@ -621,28 +621,28 @@ export const WorkbookView: React.FC<WorkbookViewProps> = ({ items, setItems, set
                         <div className="p-6 space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Bölüm Başlığı</label>
-                                <input 
-                                    type="text" 
-                                    value={editingDivider.dividerConfig?.title || ''} 
-                                    onChange={(e) => handleDividerUpdate('title', e.target.value)} 
+                                <input
+                                    type="text"
+                                    value={editingDivider.dividerConfig?.title || ''}
+                                    onChange={(e) => handleDividerUpdate('title', e.target.value)}
                                     className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 outline-none"
                                 />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Alt Başlık / Açıklama</label>
-                                <input 
-                                    type="text" 
-                                    value={editingDivider.dividerConfig?.subtitle || ''} 
-                                    onChange={(e) => handleDividerUpdate('subtitle', e.target.value)} 
+                                <input
+                                    type="text"
+                                    value={editingDivider.dividerConfig?.subtitle || ''}
+                                    onChange={(e) => handleDividerUpdate('subtitle', e.target.value)}
                                     className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 outline-none"
                                 />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">İkon (FontAwesome)</label>
-                                <input 
-                                    type="text" 
-                                    value={editingDivider.dividerConfig?.icon || ''} 
-                                    onChange={(e) => handleDividerUpdate('icon', e.target.value)} 
+                                <input
+                                    type="text"
+                                    value={editingDivider.dividerConfig?.icon || ''}
+                                    onChange={(e) => handleDividerUpdate('icon', e.target.value)}
                                     className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 outline-none"
                                     placeholder="fa-solid fa-bookmark"
                                 />

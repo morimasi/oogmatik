@@ -4,7 +4,7 @@ import { VisualArithmeticData } from '../../../types';
 import { PedagogicalHeader, TenFrame, Domino, Base10Visualizer, NumberBond } from '../common';
 import { EditableText } from '../../Editable';
 
-export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = ({ data }) => (
+export const VisualArithmeticSheet = ({ data }: { data: VisualArithmeticData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 content-start flex-1">
@@ -17,11 +17,11 @@ export const VisualArithmeticSheet: React.FC<{ data: VisualArithmeticData }> = (
                             {visual === 'dice' && <Domino count={prob.num1} />}
                             {visual === 'blocks' && <Base10Visualizer number={prob.num1} className="scale-75" />}
                             {visual === 'number-bond' && (
-                                <NumberBond 
-                                    whole={prob.operator === '+' ? prob.answer : prob.num1} 
-                                    part1={prob.operator === '+' ? prob.num1 : prob.num2} 
-                                    part2={prob.operator === '+' ? prob.num2 : prob.answer} 
-                                    isAddition={prob.operator === '+'} 
+                                <NumberBond
+                                    whole={prob.operator === '+' ? prob.answer : prob.num1}
+                                    part1={prob.operator === '+' ? prob.num1 : prob.num2}
+                                    part2={prob.operator === '+' ? prob.num2 : prob.answer}
+                                    isAddition={prob.operator === '+'}
                                 />
                             )}
                             {visual !== 'number-bond' && <span className="text-4xl font-black text-zinc-300">{prob.operator}</span>}

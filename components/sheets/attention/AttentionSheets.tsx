@@ -1,18 +1,18 @@
 
 import React from 'react';
-import { 
+import {
     LetterGridTestData, NumberSearchData, ChaoticNumberSearchData, AttentionDevelopmentData, AttentionFocusData, FindDuplicateData, TargetSearchData
 } from '../../../types';
 import { PedagogicalHeader, GridComponent } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const BurdonTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }) => (
+export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (
     <div className="h-full flex flex-col font-lexend p-2">
         <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex-1 bg-white border-2 border-zinc-100 rounded-3xl p-8 font-mono text-xl leading-[3rem] tracking-[0.5em] text-justify select-none shadow-inner mt-4">
             {(data.grid || []).map((row, i) => (
                 <div key={i} className="flex items-center border-b border-zinc-50 pb-1">
-                    <span className="w-10 text-[10px] font-black text-zinc-300 pr-2 border-r mr-4">{i+1}</span>
+                    <span className="w-10 text-[10px] font-black text-zinc-300 pr-2 border-r mr-4">{i + 1}</span>
                     <div className="flex-1 text-center font-bold text-zinc-800">{row.join('')}</div>
                 </div>
             ))}
@@ -20,7 +20,7 @@ export const BurdonTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }
     </div>
 );
 
-export const ChaoticNumberSearchSheet: React.FC<{ data: ChaoticNumberSearchData }> = ({ data }) => (
+export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchData }) => (
     <div className="relative h-full flex flex-col w-full font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="flex-1 relative border-4 border-zinc-900 rounded-[3rem] overflow-hidden bg-white min-h-[600px] shadow-2xl mt-4">
@@ -44,7 +44,7 @@ export const ChaoticNumberSearchSheet: React.FC<{ data: ChaoticNumberSearchData 
     </div>
 );
 
-export const NumberSearchSheet: React.FC<{ data: NumberSearchData }> = ({ data }) => (
+export const NumberSearchSheet = ({ data }: { data: NumberSearchData }) => (
     <div className="h-full flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex-1 flex flex-wrap gap-4 justify-center p-10 border-4 border-zinc-900 rounded-[3rem] bg-white shadow-xl mt-6">
@@ -57,13 +57,13 @@ export const NumberSearchSheet: React.FC<{ data: NumberSearchData }> = ({ data }
     </div>
 );
 
-export const FindDuplicateSheet: React.FC<{ data: FindDuplicateData }> = ({ data }) => (
+export const FindDuplicateSheet = ({ data }: { data: FindDuplicateData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-4 mt-6">
             {(data.rows || []).map((row, i) => (
                 <EditableElement key={i} className="flex justify-between items-center p-4 border-2 border-zinc-900 rounded-2xl bg-white shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
-                    <span className="w-8 h-8 bg-zinc-900 text-white rounded-lg flex items-center justify-center font-black text-xs mr-4 group-hover:bg-indigo-600">{i+1}</span>
+                    <span className="w-8 h-8 bg-zinc-900 text-white rounded-lg flex items-center justify-center font-black text-xs mr-4 group-hover:bg-indigo-600">{i + 1}</span>
                     <div className="flex-1 flex justify-between font-mono text-xl tracking-[0.5em] font-black text-zinc-800">
                         {row.map((char, j) => <span key={j} className="hover:text-indigo-600 transition-colors">{char}</span>)}
                     </div>
@@ -73,7 +73,7 @@ export const FindDuplicateSheet: React.FC<{ data: FindDuplicateData }> = ({ data
     </div>
 );
 
-export const LetterGridTestSheet: React.FC<{ data: LetterGridTestData }> = ({ data }) => (
+export const LetterGridTestSheet = ({ data }: { data: LetterGridTestData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="bg-white border-[3px] border-zinc-900 p-8 rounded-[2.5rem] shadow-sm mt-6">
@@ -86,7 +86,7 @@ export const LetterGridTestSheet: React.FC<{ data: LetterGridTestData }> = ({ da
     </div>
 );
 
-export const TargetSearchSheet: React.FC<{ data: TargetSearchData }> = ({ data }) => (
+export const TargetSearchSheet = ({ data }: { data: TargetSearchData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="bg-white border-[3px] border-zinc-900 p-10 rounded-[3rem] text-zinc-900 font-mono text-2xl tracking-[1em] text-center leading-[3.5rem] shadow-sm mt-6">
@@ -103,7 +103,7 @@ export const TargetSearchSheet: React.FC<{ data: TargetSearchData }> = ({ data }
     </div>
 );
 
-export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentData }> = ({ data }) => (
+export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopmentData }) => (
     <div className="space-y-8 font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
@@ -123,7 +123,7 @@ export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentDat
                     <div className="flex justify-around border-t pt-6">
                         {p.options.map((o, oi) => (
                             <div key={oi} className="flex flex-col items-center gap-2 cursor-pointer group/opt">
-                                <div className="w-10 h-10 rounded-2xl border-2 border-zinc-200 flex items-center justify-center font-black text-zinc-400 group-hover/opt:border-indigo-500 group-hover/opt:text-indigo-600 transition-all">{String.fromCharCode(65+oi)}</div>
+                                <div className="w-10 h-10 rounded-2xl border-2 border-zinc-200 flex items-center justify-center font-black text-zinc-400 group-hover/opt:border-indigo-500 group-hover/opt:text-indigo-600 transition-all">{String.fromCharCode(65 + oi)}</div>
                                 <span className="font-black text-zinc-700">{o}</span>
                             </div>
                         ))}
@@ -134,7 +134,7 @@ export const AttentionDevelopmentSheet: React.FC<{ data: AttentionDevelopmentDat
     </div>
 );
 
-export const AttentionFocusSheet: React.FC<{ data: AttentionFocusData }> = ({ data }) => (
+export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">

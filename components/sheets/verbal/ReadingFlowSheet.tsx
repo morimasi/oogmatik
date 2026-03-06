@@ -4,7 +4,7 @@ import { ReadingFlowData } from '../../../types';
 import { PedagogicalHeader, ReadingRuler } from '../common';
 import { EditableText } from '../../Editable';
 
-export const ReadingFlowSheet: React.FC<{ data: ReadingFlowData }> = ({ data }) => (
+export const ReadingFlowSheet = ({ data }: { data: ReadingFlowData }) => (
     <div className="flex flex-col font-lexend p-2 relative h-full">
         <ReadingRuler />
         <PedagogicalHeader title={data.title} instruction="Metni önce heceleyerek, sonra akıcı bir şekilde oku." note={data.pedagogicalNote} />

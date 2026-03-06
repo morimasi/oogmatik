@@ -4,21 +4,21 @@ import { NumberLogicRiddleData } from '../../types';
 import { PedagogicalHeader, ImageDisplay } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
-export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> = ({ data }) => {
+export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }) => {
     const itemCount = data.puzzles?.length || 0;
-    
+
     // Bento Grid Layout Logic: Daha düzenli ve profesyonel görünüm
     const gridCols = itemCount <= 2 ? 'grid-cols-1' : (itemCount <= 4 ? 'grid-cols-2' : 'grid-cols-3');
     const cardSize = itemCount > 6 ? 'min-h-[200px]' : 'min-h-[280px]';
 
     return (
         <div className="h-full flex flex-col text-black font-lexend">
-            <PedagogicalHeader 
-                title={data.title || "Sayısal Mantık Bilmeceleri"} 
-                instruction={data.instruction || "Bilmeceleri çöz, doğru şıkkı işaretle ve sonuçları topla!"} 
-                note={data.pedagogicalNote} 
+            <PedagogicalHeader
+                title={data.title || "Sayısal Mantık Bilmeceleri"}
+                instruction={data.instruction || "Bilmeceleri çöz, doğru şıkkı işaretle ve sonuçları topla!"}
+                note={data.pedagogicalNote}
             />
-            
+
             <div className={`grid ${gridCols} gap-x-6 gap-y-8 mt-2 flex-1 content-start`}>
                 {(data.puzzles || []).map((puzzle: any, pIdx) => {
                     // İpuçlarını cümlelere bölerek liste şeklinde göstermek okumayı kolaylaştırır (Disleksi dostu)
@@ -30,7 +30,7 @@ export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> =
                             <div className="absolute -top-4 -left-2 w-12 h-12 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black shadow-xl text-lg border-4 border-white transition-transform group-hover:scale-110">
                                 {pIdx + 1}
                             </div>
-                            
+
                             {/* Görsel İpucu - Fix: Cast to any or ensure visualHint in type */}
                             {puzzle.visualHint && (
                                 <div className="h-24 w-full mb-4 rounded-2xl bg-zinc-50 border border-zinc-100 overflow-hidden shadow-inner">
@@ -44,7 +44,7 @@ export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> =
                                     <i className="fa-solid fa-magnifying-glass"></i> İPUÇLARI
                                 </h5>
                                 <div className="space-y-2">
-                                    {hintList.map((hint, hIdx) => (
+                                    {hintList.map((hint: string, hIdx: number) => (
                                         <div key={hIdx} className="flex gap-2 items-start bg-zinc-50/50 p-2 rounded-lg border border-zinc-100">
                                             <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></div>
                                             <p className="text-[13px] font-bold leading-snug text-zinc-800">
@@ -88,14 +88,14 @@ export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> =
             <div className="mt-10 mb-6 break-inside-avoid shrink-0">
                 <EditableElement className="bg-zinc-900 text-white p-8 rounded-[3.5rem] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 border-4 border-white relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-                    
+
                     <div className="flex-1 text-center md:text-left relative z-10">
                         <div className="flex items-center gap-4 mb-3 justify-center md:justify-start">
-                             <div className="w-12 h-12 bg-amber-400 rounded-2xl flex items-center justify-center text-black shadow-lg text-xl"><i className="fa-solid fa-calculator"></i></div>
-                             <div>
+                            <div className="w-12 h-12 bg-amber-400 rounded-2xl flex items-center justify-center text-black shadow-lg text-xl"><i className="fa-solid fa-calculator"></i></div>
+                            <div>
                                 <h4 className="text-2xl font-black tracking-tight leading-none uppercase">TOPLAM KONTROLÜ</h4>
                                 <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.3em]">Yönetici İşlev Desteği</span>
-                             </div>
+                            </div>
                         </div>
                         <p className="text-sm text-zinc-400 font-medium leading-relaxed max-w-md">
                             {data.sumMessage || "Bilmecelerin cevaplarını topladığında aşağıdaki hedefe ulaşıyor musun? Kontrol et!"}
@@ -119,7 +119,7 @@ export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> =
                     </div>
                 </EditableElement>
             </div>
-            
+
             <div className="flex justify-between items-center px-10 pt-4 border-t border-zinc-100">
                 <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Sayısal Mantık Atölyesi v2.0</p>
                 <div className="flex gap-2">

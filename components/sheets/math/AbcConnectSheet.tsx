@@ -65,8 +65,8 @@ export const AbcConnectSheet = ({ data }: { data: AbcConnectData }) => {
                         const x = index % gridDim;
                         const y = Math.floor(index / gridDim);
 
-                        const startPath = paths.find((p: any) => p.start.x === x && p.start.y === y);
-                        const endPath = paths.find((p: any) => p.start.x === x && p.start.y === y);
+                        const startPath = paths.find((p) => p.start.x === x && p.start.y === y);
+                        const endPath = paths.find((p) => p.end.x === x && p.end.y === y);
 
                         const isStart = !!startPath;
                         const isEnd = !!endPath;

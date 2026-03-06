@@ -3,7 +3,7 @@ import { OddEvenSudokuData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';
 
-export const OddEvenSudokuSheet: React.FC<{ data: OddEvenSudokuData }> = ({ data }) => {
+export const OddEvenSudokuSheet = ({ data }: { data: OddEvenSudokuData }) => {
     return (
         <div className="w-full flex flex-col gap-6 p-4">
             <PedagogicalHeader

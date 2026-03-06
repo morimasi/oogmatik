@@ -4,7 +4,7 @@ import { LetterVisualMatchingData } from '../../../types';
 import { PedagogicalHeader, ImageDisplay, HandwritingGuide, TracingText } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const LetterVisualMatchingSheet: React.FC<{ data: LetterVisualMatchingData }> = ({ data }) => (
+export const LetterVisualMatchingSheet = ({ data }: { data: LetterVisualMatchingData }) => (
     <div className="flex flex-col h-full bg-white font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-2 gap-6 mt-8">

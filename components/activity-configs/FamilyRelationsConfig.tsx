@@ -23,34 +23,34 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
     </div>
 );
 
-export const FamilyRelationsConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
+export const FamilyRelationsConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: any) => void }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30 space-y-4">
-                <CompactToggleGroup 
-                    label="İlişki Kapsamı" 
-                    selected={options.difficulty || 'Orta'} 
-                    onChange={(v: string) => onChange('difficulty', v)} 
+                <CompactToggleGroup
+                    label="İlişki Kapsamı"
+                    selected={options.difficulty || 'Orta'}
+                    onChange={(v: string) => onChange('difficulty', v)}
                     options={[
                         { value: 'Başlangıç', label: 'Çekirdek' },
                         { value: 'Orta', label: 'Geniş' },
                         { value: 'Zor', label: 'Karmaşık' }
-                    ]} 
+                    ]}
                 />
             </div>
 
             <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
-                <CompactSlider 
-                    label="Soru Sayısı" 
-                    value={options.itemCount || 8} 
-                    onChange={(v:number) => onChange('itemCount', v)} 
-                    min={4} max={12} icon="fa-list-ol" 
+                <CompactSlider
+                    label="Soru Sayısı"
+                    value={options.itemCount || 8}
+                    onChange={(v: number) => onChange('itemCount', v)}
+                    min={4} max={12} icon="fa-list-ol"
                 />
 
                 <div className="space-y-1">
                     <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">Alt Bölüm Düzeni</label>
-                    <select 
-                        value={options.variant || 'categorize'} 
+                    <select
+                        value={options.variant || 'categorize'}
                         onChange={e => onChange('variant', e.target.value)}
                         className="w-full p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none focus:border-indigo-500 dark:text-zinc-200"
                     >

@@ -31,18 +31,18 @@ const DOMAIN_ACTIVITY_MAP: Record<CognitiveDomain, ActivityType[]> = {
     logical_reasoning: [ActivityType.LOGIC_GRID_PUZZLE, ActivityType.NUMBER_PATTERN]
 };
 
-export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook, onAutoGenerateWorkbook }) => {
+export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, onAutoGenerateWorkbook }: AssessmentModuleProps) => {
     const { user } = useAuth();
     const { students, activeStudent, setActiveStudent } = useStudent();
-    
+
     const [view, setView] = useState<'setup' | 'running' | 'report'>('setup');
     const [activeTestIndex, setActiveTestIndex] = useState(0);
-    
+
     const [studentName, setStudentName] = useState('');
     const [studentAge, setStudentAge] = useState(8);
     const [studentId, setStudentId] = useState<string | undefined>(undefined);
     const [selectedDomains, setSelectedDomains] = useState<CognitiveDomain[]>(['visual_spatial_memory', 'selective_attention', 'processing_speed', 'logical_reasoning']);
-    
+
     const [results, setResults] = useState<SubTestResult[]>([]);
     const [observations, setObservations] = useState<ClinicalObservation>({
         anxietyLevel: 'low',
@@ -63,7 +63,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
     }, [activeStudent, view]);
 
     const handleSelectExisting = (sid: string) => {
-        const s = students.find(x => x.id === sid);
+        const s = students.find((x: any) => x.id === sid);
         if (s) {
             setStudentId(s.id);
             setStudentName(s.name);
@@ -89,14 +89,14 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
         const newResults = [...results, result];
         setResults(newResults);
         if (activeTestIndex < selectedDomains.length - 1) {
-            setActiveTestIndex(prev => prev + 1);
+            setActiveTestIndex((prev: number) => prev + 1);
         } else {
             generateFinalReport(newResults);
         }
     };
 
     const generateFinalReport = async (completedResults: SubTestResult[]) => {
-        const totalScore = completedResults.reduce((acc, r) => acc + r.score, 0) / completedResults.length;
+        const totalScore = completedResults.reduce((acc: number, r: SubTestResult) => acc + r.score, 0) / completedResults.length;
         const attentionScore = completedResults.find(r => r.testId === 'selective_attention')?.score || 100;
         const memoryScore = completedResults.find(r => r.testId === 'visual_spatial_memory')?.score || 100;
         const logicResult = completedResults.find(r => r.testId === 'logical_reasoning');
@@ -119,7 +119,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             studentName,
             examinerId: user?.id || 'guest',
             date: new Date().toISOString(),
-            duration: 0, 
+            duration: 0,
             subTests: completedResults,
             observations: observations,
             overallRiskAnalysis: {
@@ -140,7 +140,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             analysis: {
                 strengths: completedResults.filter(r => r.score > 75).map(r => `${r.name} alanında güçlü.`),
                 weaknesses: completedResults.filter(r => r.score < 55).map(r => `${r.name} alanında desteğe ihtiyacı var.`),
-                errorAnalysis: [`Ortalama Reaksiyon Süresi: ${Math.round(completedResults.reduce((a,b)=>a+b.avgReactionTime,0)/completedResults.length)}ms`]
+                errorAnalysis: [`Ortalama Reaksiyon Süresi: ${Math.round(completedResults.reduce((a: number, b: SubTestResult) => a + b.avgReactionTime, 0) / completedResults.length)}ms`]
             },
             roadmap: roadmap.map(r => ({ activityId: r.activityId, reason: r.reason, frequency: r.frequency })),
             observations: observations
@@ -152,7 +152,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
             studentId: studentId,
             studentName,
             age: studentAge,
-            gender: 'Erkek', 
+            gender: 'Erkek',
             grade: activeStudent?.grade || '1. Sınıf',
             report: fullReport,
             createdAt: new Date().toISOString()
@@ -188,7 +188,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                             {students.length > 0 && (
                                 <div className="mb-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
                                     <label className="block text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase mb-2">Kayıtlı Öğrencilerim</label>
-                                    <select 
+                                    <select
                                         value={studentId || ""}
                                         onChange={(e) => handleSelectExisting(e.target.value)}
                                         className="w-full p-3 bg-white dark:bg-zinc-800 border border-indigo-200 dark:border-indigo-700 rounded-xl text-sm font-bold outline-none cursor-pointer shadow-sm"
@@ -201,8 +201,8 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Ad Soyad</label>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         value={studentName}
                                         onChange={(e) => { setStudentName(e.target.value); setStudentId(undefined); }}
                                         className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold"
@@ -211,8 +211,8 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Yaş</label>
-                                    <input 
-                                        type="number" 
+                                    <input
+                                        type="number"
                                         value={studentAge}
                                         onChange={(e) => setStudentAge(Number(e.target.value))}
                                         className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold"
@@ -229,9 +229,9 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                                 {DOMAINS.map(domain => {
                                     const isSelected = selectedDomains.includes(domain.id);
                                     return (
-                                        <div 
+                                        <div
                                             key={domain.id}
-                                            onClick={() => setSelectedDomains(prev => prev.includes(domain.id) ? prev.filter(d => d !== domain.id) : [...prev, domain.id])}
+                                            onClick={() => setSelectedDomains((prev: CognitiveDomain[]) => prev.includes(domain.id) ? prev.filter((d: CognitiveDomain) => d !== domain.id) : [...prev, domain.id])}
                                             className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${isSelected ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-zinc-200 dark:border-zinc-700 opacity-60 hover:opacity-100'}`}
                                         >
                                             <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-xl mr-4 ${isSelected ? 'bg-indigo-100 text-indigo-600' : 'bg-zinc-100 text-zinc-400'}`}>
@@ -296,7 +296,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700 font-bold uppercase tracking-widest"><i className="fa-solid fa-user-graduate"></i> {studentName}</div>
-                        <button onClick={() => { if(confirm('Testi iptal etmek istediğinize emin misiniz?')) setView('setup'); }} className="text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-times text-xl"></i></button>
+                        <button onClick={() => { if (confirm('Testi iptal etmek istediğinize emin misiniz?')) setView('setup'); }} className="text-zinc-400 hover:text-red-500 transition-colors"><i className="fa-solid fa-times text-xl"></i></button>
                     </div>
                 </div>
                 <div className="flex-1 flex overflow-hidden">
@@ -306,9 +306,9 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
                     <div className="w-80 bg-white dark:bg-zinc-800 border-l border-zinc-200 dark:border-zinc-700 p-6 flex flex-col overflow-y-auto">
                         <h4 className="font-black text-zinc-400 uppercase tracking-widest text-xs mb-6">Uzman Gözlem Paneli</h4>
                         <div className="space-y-6">
-                            <div><label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Kaygı Düzeyi</label><div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1">{['low', 'medium', 'high'].map(l => (<button key={l} onClick={() => setObservations({...observations, anxietyLevel: l as any})} className={`flex-1 py-2 text-[10px] font-black uppercase rounded transition-colors ${observations.anxietyLevel === l ? 'bg-white dark:bg-zinc-600 shadow-sm text-black dark:text-white' : 'text-zinc-400'}`}>{l === 'low' ? 'Düşük' : l === 'medium' ? 'Orta' : 'Yüksek'}</button>))}</div></div>
-                            <div><label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Dikkat Süresi</label><select value={observations.attentionSpan} onChange={(e) => setObservations({...observations, attentionSpan: e.target.value as any})} className="w-full p-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-bold text-zinc-700 dark:text-zinc-200 outline-none"><option value="focused">Odaklanmış</option><option value="distracted">Çabuk Dağılan</option><option value="hyperactive">Dürtüsel</option></select></div>
-                            <div><label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Klinik Notlar</label><textarea value={observations.notes} onChange={(e) => setObservations({...observations, notes: e.target.value})} className="w-full h-32 p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm resize-none focus:ring-2 focus:ring-indigo-500 outline-none text-zinc-700 dark:text-zinc-200" placeholder="Öğrencinin tepkileri..."></textarea></div>
+                            <div><label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Kaygı Düzeyi</label><div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1">{['low', 'medium', 'high'].map(l => (<button key={l} onClick={() => setObservations({ ...observations, anxietyLevel: l as any })} className={`flex-1 py-2 text-[10px] font-black uppercase rounded transition-colors ${observations.anxietyLevel === l ? 'bg-white dark:bg-zinc-600 shadow-sm text-black dark:text-white' : 'text-zinc-400'}`}>{l === 'low' ? 'Düşük' : l === 'medium' ? 'Orta' : 'Yüksek'}</button>))}</div></div>
+                            <div><label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Dikkat Süresi</label><select value={observations.attentionSpan} onChange={(e) => setObservations({ ...observations, attentionSpan: e.target.value as any })} className="w-full p-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-bold text-zinc-700 dark:text-zinc-200 outline-none"><option value="focused">Odaklanmış</option><option value="distracted">Çabuk Dağılan</option><option value="hyperactive">Dürtüsel</option></select></div>
+                            <div><label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Klinik Notlar</label><textarea value={observations.notes} onChange={(e) => setObservations({ ...observations, notes: e.target.value })} className="w-full h-32 p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm resize-none focus:ring-2 focus:ring-indigo-500 outline-none text-zinc-700 dark:text-zinc-200" placeholder="Öğrencinin tepkileri..."></textarea></div>
                         </div>
                     </div>
                 </div>
@@ -318,7 +318,7 @@ export const AssessmentModule: React.FC<AssessmentModuleProps> = ({ onBack, onSe
 
     if (view === 'report' && finalReport) {
         return (
-            <AssessmentReportViewer 
+            <AssessmentReportViewer
                 assessment={finalReport}
                 onClose={() => { setView('setup'); onBack(); }}
                 user={user}

@@ -3,7 +3,7 @@ import { NumberCapsuleData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';
 
-export const CapsuleGameSheet: React.FC<{ data: NumberCapsuleData }> = ({ data }) => {
+export const CapsuleGameSheet = ({ data }: { data: NumberCapsuleData }) => {
     return (
         <div className="flex flex-col font-lexend mt-8">
             <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
@@ -31,7 +31,7 @@ export const CapsuleGameSheet: React.FC<{ data: NumberCapsuleData }> = ({ data }
                             <React.Fragment key={rIndex}>
                                 {row.map((_, cIndex) => {
                                     // Find if this cell is part of a capsule
-                                    const capsule = data.capsules?.find((cap: any) => cap.cells.some((c: any) => c.y === rIndex && c.x === cIndex));
+                                    const capsule = data.capsules?.find((cap) => cap.cells.some((c) => c.y === rIndex && c.x === cIndex));
                                     const isFirstInCapsule = capsule?.cells[0].y === rIndex && capsule?.cells[0].x === cIndex;
 
                                     // Determine capsule shape logic (horizontal or vertical merge visuals loosely mapped via CSS)

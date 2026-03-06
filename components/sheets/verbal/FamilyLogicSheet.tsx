@@ -10,7 +10,7 @@ export const FamilyLogicSheet = ({ data }: { data: FamilyLogicTestData }) => {
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
 
             <div className="flex-1 flex flex-col gap-4 mt-6 content-start max-w-4xl mx-auto w-full">
-                {(data.statements || []).map((st: any, idx: number) => (
+                {(data.statements || []).map((st, idx) => (
                     <EditableElement key={idx} className="flex items-center gap-8 p-5 border-2 border-zinc-100 bg-white rounded-[2rem] hover:bg-zinc-50 hover:border-indigo-200 transition-all group break-inside-avoid shadow-sm">
                         <div className="flex gap-3 shrink-0">
                             <div className="flex flex-col items-center">

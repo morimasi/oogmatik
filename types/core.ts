@@ -218,6 +218,7 @@ export interface GeneratorOptions {
     selectedOperations?: string[];
     visualStyle?: string;
     showNumbers?: boolean;
+    showImage?: boolean;
     targetPair?: string;
     mapInstructionTypes?: string[];
     showCityNames?: boolean;

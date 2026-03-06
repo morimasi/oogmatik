@@ -4,7 +4,7 @@ import { LogicGridPuzzleData } from '../../../types';
 import { PedagogicalHeader, ImageDisplay } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ data }) => (
+export const LogicGridPuzzleSheet = ({ data }: { data: LogicGridPuzzleData }) => (
     <div className="flex flex-col font-lexend">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
         <div className="flex flex-col gap-10 mt-4">
@@ -21,7 +21,7 @@ export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ 
                     ))}
                 </ul>
             </EditableElement>
-            
+
             <div className="overflow-x-auto p-2">
                 <table className="w-full border-collapse border-[4px] border-zinc-900 text-xs bg-white shadow-2xl rounded-[2rem] overflow-hidden">
                     <thead>
@@ -43,9 +43,9 @@ export const LogicGridPuzzleSheet: React.FC<{ data: LogicGridPuzzleData }> = ({ 
                                 <td className="border-2 border-zinc-900 p-6 font-black bg-zinc-100 uppercase text-zinc-700 text-sm"><EditableText value={person} tag="span" /></td>
                                 {data?.categories?.flatMap(c => (c?.items || []).map(item => (
                                     <td key={item?.name} className="border-2 border-zinc-900 h-16 hover:bg-indigo-50 cursor-pointer transition-colors relative group">
-                                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 text-indigo-200">
-                                             <i className="fa-solid fa-xmark text-2xl"></i>
-                                         </div>
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 text-indigo-200">
+                                            <i className="fa-solid fa-xmark text-2xl"></i>
+                                        </div>
                                     </td>
                                 )))}
                             </tr>

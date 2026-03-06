@@ -4,7 +4,7 @@ import { MathPuzzleData } from '../../../types';
 import { ImageDisplay, PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-const EquationRow: React.FC<{ eq: any, objects: any[], fontSize?: string }> = ({ eq, objects, fontSize = "text-xl" }) => {
+const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: any, objects: any[], fontSize?: string }) => {
     return (
         <div className="flex items-center justify-center gap-4 py-3 border-b border-zinc-50 last:border-0 group-hover:bg-zinc-50/50 transition-colors rounded-xl">
             <div className="flex items-center gap-2">
@@ -31,7 +31,7 @@ const EquationRow: React.FC<{ eq: any, objects: any[], fontSize?: string }> = ({
     );
 };
 
-export const MathPuzzleSheet: React.FC<{ data: MathPuzzleData }> = ({ data }) => (
+export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
     <div className="flex flex-col h-full font-lexend text-black bg-white">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4 flex-1 content-start">

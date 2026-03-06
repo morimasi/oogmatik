@@ -4,7 +4,7 @@ import { ConceptMatchData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';
 
-export const ConceptMatchSheet: React.FC<{ data: ConceptMatchData }> = ({ data }) => (
+export const ConceptMatchSheet = ({ data }: { data: ConceptMatchData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-6 mt-10 max-w-4xl mx-auto">

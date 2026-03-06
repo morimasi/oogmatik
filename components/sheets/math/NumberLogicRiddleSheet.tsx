@@ -4,13 +4,13 @@ import { NumberLogicRiddleData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> = ({ data }) => {
+export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }) => {
     const itemCount = data.puzzles?.length || 0;
     const hintCount = data.puzzles?.[0]?.riddleParts?.length || 0;
-    
+
     // Yoğunluk Analizi: A4'ü en verimli kullanacak grid yapısı
     const gridCols = itemCount <= 4 ? 'grid-cols-2' : (itemCount <= 12 ? 'grid-cols-3' : 'grid-cols-4');
-    
+
     // İpucu sayısına göre font ve boşluk optimizasyonu (Klinik Sıkıştırma)
     const isUltraDense = hintCount > 5 || itemCount > 12;
     const fontSize = hintCount > 7 ? 'text-[8px]' : (hintCount > 4 ? 'text-[9px]' : 'text-[11px]');
@@ -20,12 +20,12 @@ export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> =
 
     return (
         <div className="flex flex-col h-full bg-white text-black font-lexend p-1 overflow-hidden select-none">
-            <PedagogicalHeader 
-                title={data.title || "Sayısal Mantık Bilmeceleri"} 
-                instruction={data.instruction || "İpuçlarını dikkatle analiz et ve doğru sayıyı bul."} 
-                note={data.pedagogicalNote} 
+            <PedagogicalHeader
+                title={data.title || "Sayısal Mantık Bilmeceleri"}
+                instruction={data.instruction || "İpuçlarını dikkatle analiz et ve doğru sayıyı bul."}
+                note={data.pedagogicalNote}
             />
-            
+
             <div className={`grid ${gridCols} ${gapSize} mt-1 flex-1 content-start`}>
                 {(data.puzzles || []).map((puzzle, pIdx) => {
                     // GÜVENLİ PARSE: riddle yoksa riddleParts'tan metin oluştur
@@ -78,18 +78,18 @@ export const NumberLogicRiddleSheet: React.FC<{ data: NumberLogicRiddleData }> =
             {data.sumTarget > 0 && (
                 <div className="mt-2 border-[1.5px] border-zinc-900 rounded-2xl p-2.5 bg-zinc-50 flex items-center justify-between break-inside-avoid shadow-inner">
                     <div className="flex items-center gap-3">
-                         <div className="w-7 h-7 bg-zinc-900 text-white rounded-lg flex items-center justify-center text-xs shadow-sm"><i className="fa-solid fa-calculator"></i></div>
-                         <div>
+                        <div className="w-7 h-7 bg-zinc-900 text-white rounded-lg flex items-center justify-center text-xs shadow-sm"><i className="fa-solid fa-calculator"></i></div>
+                        <div>
                             <h4 className="text-[10px] font-black uppercase tracking-tight leading-none">Toplam Hedef</h4>
                             <p className="text-[7px] text-zinc-400 font-bold uppercase mt-0.5 tracking-widest">Tüm sonuçları topla</p>
-                         </div>
-                         <div className="text-xl font-black text-indigo-600 font-mono ml-4 drop-shadow-sm">
+                        </div>
+                        <div className="text-xl font-black text-indigo-600 font-mono ml-4 drop-shadow-sm">
                             {data.sumTarget}
-                         </div>
+                        </div>
                     </div>
                 </div>
             )}
-            
+
             <div className="mt-1 flex justify-between items-center text-[5.5px] font-black text-zinc-300 uppercase tracking-[0.4em] px-2">
                 <span>Bursa Disleksi AI • Sayısal Muhakeme Laboratuvarı v2.5</span>
             </div>

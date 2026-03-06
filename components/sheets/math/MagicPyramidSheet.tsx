@@ -3,7 +3,7 @@ import { MagicPyramidData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';
 
-export const MagicPyramidSheet: React.FC<{ data: MagicPyramidData }> = ({ data }) => {
+export const MagicPyramidSheet = ({ data }: { data: MagicPyramidData }) => {
     return (
         <div className="w-full flex flex-col gap-8 p-4">
             <PedagogicalHeader

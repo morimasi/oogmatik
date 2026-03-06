@@ -4,16 +4,16 @@ import { FindLetterPairData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const FindLetterPairSheet: React.FC<{ data: FindLetterPairData }> = ({ data }) => {
+export const FindLetterPairSheet = ({ data }: { data: FindLetterPairData }) => {
     const { grids, settings } = data;
-    
+
     // Grid yerleşimi: Öğe sayısına göre sütun belirleme
     const gridColsClass = grids.length === 1 ? 'grid-cols-1' : (grids.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-2');
 
     return (
         <div className="flex flex-col h-full bg-white p-2 font-lexend text-black overflow-visible">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            
+
             <div className={`grid ${gridColsClass} gap-x-12 gap-y-16 mt-8 flex-1 content-start`}>
                 {(grids || []).map((item, idx) => (
                     <div key={idx} className="flex flex-col items-center break-inside-avoid group">
@@ -32,8 +32,8 @@ export const FindLetterPairSheet: React.FC<{ data: FindLetterPairData }> = ({ da
                                     {item.grid.map((row, rIdx) => (
                                         <tr key={rIdx}>
                                             {row.map((cell, cIdx) => (
-                                                <td 
-                                                    key={cIdx} 
+                                                <td
+                                                    key={cIdx}
                                                     className={`
                                                         border border-zinc-100 text-center font-black transition-all hover:bg-indigo-50 cursor-default select-none text-zinc-900
                                                         ${settings.gridSize > 12 ? 'w-8 h-8 text-sm' : (settings.gridSize > 8 ? 'w-11 h-11 text-xl' : 'w-14 h-14 text-2xl')}

@@ -4,16 +4,16 @@ import { NumberPathLogicData } from '../../../types';
 import { PedagogicalHeader, Shape } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const NumberPathLogicSheet: React.FC<{ data: NumberPathLogicData }> = ({ data }) => {
+export const NumberPathLogicSheet = ({ data }: { data: NumberPathLogicData }) => {
     return (
         <div className="flex flex-col h-full font-lexend p-2 text-black bg-white overflow-visible">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-            
+
             {/* LEJANT (Legend) - Premium Card Style */}
             <div className="mt-4 mb-10 bg-zinc-900 text-white p-8 rounded-[3rem] shadow-2xl border-4 border-white flex justify-around items-center break-inside-avoid relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12"><i className="fa-solid fa-code-branch text-[10rem]"></i></div>
                 <div className="absolute -left-10 bottom-0 w-24 h-24 bg-indigo-500/20 rounded-full blur-2xl"></div>
-                
+
                 {data.legend.map((item, idx) => (
                     <div key={idx} className="flex flex-col items-center gap-3 group cursor-default relative z-10">
                         <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg border-[3px] transition-transform group-hover:scale-110" style={{ color: item.color, borderColor: item.color }}>
@@ -30,7 +30,7 @@ export const NumberPathLogicSheet: React.FC<{ data: NumberPathLogicData }> = ({ 
             <div className="flex-1 flex flex-col gap-8 w-full content-start">
                 {(data.chains || []).map((chain, idx) => (
                     <EditableElement key={idx} className="flex items-center p-5 border-[3px] border-zinc-100 rounded-[2.5rem] bg-white shadow-sm break-inside-avoid group hover:border-indigo-500 transition-all overflow-x-auto no-scrollbar">
-                        
+
                         {/* BAŞLANGIÇ */}
                         <div className="flex flex-col items-center gap-2 shrink-0 mr-4">
                             <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">GİRİŞ</span>
@@ -43,7 +43,7 @@ export const NumberPathLogicSheet: React.FC<{ data: NumberPathLogicData }> = ({ 
                         {chain.steps.map((step, sIdx) => {
                             const lgItem = data.legend.find(l => l.symbol === step.symbol);
                             const color = lgItem?.color || '#000';
-                            
+
                             return (
                                 <React.Fragment key={sIdx}>
                                     {/* OK VE SEMBOL */}
@@ -68,7 +68,7 @@ export const NumberPathLogicSheet: React.FC<{ data: NumberPathLogicData }> = ({ 
                                 </React.Fragment>
                             );
                         })}
-                        
+
                         <div className="ml-8 opacity-10 group-hover:opacity-50 transition-all group-hover:scale-110">
                             <i className="fa-solid fa-flag-checkered text-3xl text-zinc-900"></i>
                         </div>

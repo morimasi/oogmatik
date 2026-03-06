@@ -15,7 +15,7 @@ export const FamilyRelationsSheet = ({ data }: { data: FamilyRelationsData }) =>
                 <div className="flex justify-between gap-16 items-start">
                     <div className="flex-1 space-y-6">
                         <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2 border-b-2 border-indigo-50 pb-1">TANIMLAR</h4>
-                        {(data.pairs || []).map((pair: any, idx: number) => (
+                        {(data.pairs || []).map((pair, idx) => (
                             <div key={idx} className="flex items-center gap-4 group">
                                 <div className="w-10 h-10 rounded-2xl bg-zinc-900 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-lg">
                                     {idx + 1}
@@ -30,7 +30,7 @@ export const FamilyRelationsSheet = ({ data }: { data: FamilyRelationsData }) =>
 
                     <div className="w-56 space-y-6">
                         <h4 className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-2 border-b-2 border-rose-50 pb-1">AKRABALIK ADI</h4>
-                        {(shuffledLabels || []).map((pair: any, idx: number) => (
+                        {(shuffledLabels || []).map((pair, idx) => (
                             <div key={idx} className="flex items-center gap-4 group justify-end">
                                 <div className="w-6 h-6 rounded-full border-2 border-zinc-300 group-hover:bg-rose-500 transition-all shrink-0 shadow-inner"></div>
                                 <div className="w-full p-4 bg-white border-[3px] border-zinc-900 rounded-2xl text-center font-black text-rose-600 uppercase tracking-wider text-base shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:scale-105 transition-transform">

@@ -13,7 +13,7 @@ const CompactSlider = ({ label, value, onChange, min, max, icon, unit = '' }: an
 );
 
 const CheckboxTile = ({ label, checked, onChange, icon }: any) => (
-    <button 
+    <button
         onClick={() => onChange(!checked)}
         className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${checked ? 'bg-indigo-50 border-indigo-600 text-indigo-600 dark:bg-indigo-900/20' : 'bg-white border-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:border-zinc-700'}`}
     >
@@ -22,10 +22,10 @@ const CheckboxTile = ({ label, checked, onChange, icon }: any) => (
     </button>
 );
 
-export const MathMemoryCardsConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
+export const MathMemoryCardsConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: any) => void }) => {
     const toggleOp = (op: string) => {
         const current = options.selectedOperations || [];
-        const next = current.includes(op) ? current.filter((o:string) => o !== op) : [...current, op];
+        const next = current.includes(op) ? current.filter((o: string) => o !== op) : [...current, op];
         onChange('selectedOperations', next.length > 0 ? next : ['add']);
     };
 
@@ -36,11 +36,11 @@ export const MathMemoryCardsConfig: React.FC<{ options: GeneratorOptions; onChan
                 <label className="text-[10px] font-black text-indigo-600 uppercase mb-3 block text-center">Eşleştirme Mantığı</label>
                 <div className="grid grid-cols-1 gap-2">
                     {[
-                        {v: 'op-res', l: 'İşlem - Sonuç (Klasik)', icon: 'fa-equals'},
-                        {v: 'vis-num', l: 'Görsel Miktar - Rakam', icon: 'fa-eye'},
-                        {v: 'eq-eq', l: 'Denk İşlemler (Zor)', icon: 'fa-scale-balanced'}
+                        { v: 'op-res', l: 'İşlem - Sonuç (Klasik)', icon: 'fa-equals' },
+                        { v: 'vis-num', l: 'Görsel Miktar - Rakam', icon: 'fa-eye' },
+                        { v: 'eq-eq', l: 'Denk İşlemler (Zor)', icon: 'fa-scale-balanced' }
                     ].map(t => (
-                        <button 
+                        <button
                             key={t.v}
                             onClick={() => onChange('variant', t.v)}
                             className={`flex items-center gap-3 p-3 rounded-xl text-[11px] font-black border transition-all ${options.variant === t.v ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white dark:bg-zinc-800 text-zinc-400 border-zinc-200 dark:border-zinc-700'}`}
@@ -65,10 +65,10 @@ export const MathMemoryCardsConfig: React.FC<{ options: GeneratorOptions; onChan
 
             {/* Kart & Görsel Ayarları */}
             <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
-                <CompactSlider 
-                    label="Kart Sayısı" 
-                    value={options.itemCount || 16} 
-                    onChange={(v:number) => onChange('itemCount', v)} 
+                <CompactSlider
+                    label="Kart Sayısı"
+                    value={options.itemCount || 16}
+                    onChange={(v: number) => onChange('itemCount', v)}
                     min={8} max={32} icon="fa-clone" unit=" Kart"
                 />
 
@@ -76,7 +76,7 @@ export const MathMemoryCardsConfig: React.FC<{ options: GeneratorOptions; onChan
                     <label className="text-[10px] font-bold text-zinc-500 uppercase">Somutlaştırma Stili</label>
                     <div className="grid grid-cols-3 gap-2">
                         {['ten-frame', 'dice', 'blocks'].map(style => (
-                            <button 
+                            <button
                                 key={style}
                                 onClick={() => onChange('visualStyle', style)}
                                 className={`py-2 rounded-lg text-[9px] font-black border transition-all ${options.visualStyle === style ? 'bg-zinc-900 text-white border-zinc-900' : 'bg-white dark:bg-zinc-700 text-zinc-400 border-zinc-200'}`}

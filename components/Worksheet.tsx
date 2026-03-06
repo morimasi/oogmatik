@@ -26,7 +26,7 @@ const ReadingRuler = ({ settings }: { settings: StyleSettings }) => {
             if (worksheet) {
                 const rect = worksheet.getBoundingClientRect();
                 const relativeY = e.clientY - rect.top;
-                
+
                 // Lerp benzeri yumuşak geçiş için doğrudan set edebiliriz veya CSS transition kullanabiliriz
                 setY(relativeY);
                 setIsHovering(true);
@@ -49,22 +49,22 @@ const ReadingRuler = ({ settings }: { settings: StyleSettings }) => {
     return (
         <div className={`absolute inset-0 pointer-events-none z-[100] no-print transition-opacity duration-300 ${isHovering ? 'opacity-100' : 'opacity-0'}`}>
             {/* Top Mask */}
-            <div 
+            <div
                 className="absolute top-0 left-0 w-full bg-black transition-all duration-150 ease-out"
                 style={{ height: `${y - (rulerHeight / 2)}px`, opacity: settings.maskOpacity || 0.4 }}
             />
             {/* The Ruler - Spotlight Effect */}
-            <div 
+            <div
                 className="absolute left-0 w-full border-y-2 transition-all duration-150 ease-out flex items-center justify-center"
-                style={{ 
-                    top: `${y - (rulerHeight / 2)}px`, 
+                style={{
+                    top: `${y - (rulerHeight / 2)}px`,
                     height: `${rulerHeight}px`,
                     borderColor: settings.rulerColor || '#6366f1',
                     backgroundColor: `${settings.rulerColor || '#6366f1'}10`,
                     boxShadow: `0 0 40px ${settings.rulerColor || '#6366f1'}20`
                 }}
             >
-                <div 
+                <div
                     className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-white shadow-lg"
                     style={{ backgroundColor: settings.rulerColor || '#6366f1' }}
                 >
@@ -72,7 +72,7 @@ const ReadingRuler = ({ settings }: { settings: StyleSettings }) => {
                 </div>
             </div>
             {/* Bottom Mask */}
-            <div 
+            <div
                 className="absolute bottom-0 left-0 w-full bg-black transition-all duration-150 ease-out"
                 style={{ top: `${y + (rulerHeight / 2)}px`, opacity: settings.maskOpacity || 0.4 }}
             />
@@ -80,19 +80,19 @@ const ReadingRuler = ({ settings }: { settings: StyleSettings }) => {
     );
 };
 
-const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, studentProfile, showQR }) => {
+const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: WorksheetProps) => {
     const { isEditMode } = useEditable();
 
     const variableStyle = useMemo(() => {
         const userCols = Math.max(1, settings.columns || 1);
         const baseFontSize = settings.fontSize || 16;
-        
+
         return {
             '--worksheet-font-size': `${baseFontSize}px`,
             '--worksheet-border-color': settings.borderColor,
             '--worksheet-border-width': `${settings.borderWidth}px`,
             '--worksheet-margin': `${settings.margin}px`,
-            '--worksheet-gap': `${Math.max(2, settings.gap)}px`, 
+            '--worksheet-gap': `${Math.max(2, settings.gap)}px`,
             '--worksheet-font-family': settings.fontFamily || 'Lexend',
             '--worksheet-line-height': settings.lineHeight || 1.4,
             '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
@@ -128,9 +128,9 @@ const Worksheet: React.FC<WorksheetProps> = ({ activityType, data, settings, stu
 
     return (
         <div className="flex flex-col items-center w-full" style={variableStyle}>
-            {data.map((pageData, index) => (
+            {data.map((pageData: any, index: number) => (
                 <div key={index} id={`page-${index}`} className="worksheet-page print-page group" style={pageStyle}>
-                    
+
                     {/* Klinik Odak Katmanı */}
                     <ReadingRuler settings={settings} />
 

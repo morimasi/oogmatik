@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FeedbackItem, FeedbackStatus } from '../types';
 import { messagingService } from '../services/messagingService';
 
-export const AdminFeedback: React.FC = () => {
+export const AdminFeedback = () => {
     const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
     const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null);
     const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ export const AdminFeedback: React.FC = () => {
 
     const handleStatusUpdate = async (id: string, status: FeedbackStatus) => {
         // Optimistic
-        setFeedbacks(prev => prev.map(f => f.id === id ? { ...f, status } : f));
+        setFeedbacks((prev: FeedbackItem[]) => prev.map((f: FeedbackItem) => f.id === id ? { ...f, status } : f));
         if (selectedFeedback && selectedFeedback.id === id) {
             setSelectedFeedback({ ...selectedFeedback, status });
         }
@@ -32,15 +32,15 @@ export const AdminFeedback: React.FC = () => {
 
     const handleDelete = async (id: string) => {
         if (!confirm('Silmek istediğinize emin misiniz?')) return;
-        setFeedbacks(prev => prev.filter(f => f.id !== id));
+        setFeedbacks((prev: FeedbackItem[]) => prev.filter((f: FeedbackItem) => f.id !== id));
         if (selectedFeedback?.id === id) setSelectedFeedback(null);
         await messagingService.deleteFeedback(id);
     };
 
-    const filtered = feedbacks.filter(f => filterStatus === 'all' || f.status === filterStatus);
+    const filtered = feedbacks.filter((f: FeedbackItem) => filterStatus === 'all' || f.status === filterStatus);
 
     const getStatusColor = (status: string) => {
-        switch(status) {
+        switch (status) {
             case 'new': return 'bg-blue-100 text-blue-700';
             case 'read': return 'bg-zinc-100 text-zinc-700';
             case 'in-progress': return 'bg-amber-100 text-amber-700';
@@ -50,7 +50,7 @@ export const AdminFeedback: React.FC = () => {
     };
 
     const getCategoryIcon = (cat: string) => {
-        switch(cat) {
+        switch (cat) {
             case 'bug': return 'fa-bug text-red-500';
             case 'feature': return 'fa-lightbulb text-yellow-500';
             case 'content': return 'fa-file-lines text-blue-500';
@@ -66,7 +66,7 @@ export const AdminFeedback: React.FC = () => {
                     <h3 className="font-bold text-zinc-800 dark:text-zinc-100 mb-4">Gelen Kutusu</h3>
                     <div className="flex gap-2">
                         {['all', 'new', 'resolved'].map(s => (
-                            <button 
+                            <button
                                 key={s}
                                 onClick={() => setFilterStatus(s as any)}
                                 className={`flex-1 py-1.5 text-xs font-bold rounded-lg capitalize transition-colors ${filterStatus === s ? 'bg-white dark:bg-zinc-700 shadow-sm text-black dark:text-white' : 'text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800'}`}
@@ -76,13 +76,13 @@ export const AdminFeedback: React.FC = () => {
                         ))}
                     </div>
                 </div>
-                
+
                 <div className="flex-1 overflow-y-auto">
                     {loading ? <div className="p-4 text-center text-zinc-400">Yükleniyor...</div> : (
-                        filtered.map(item => (
-                            <div 
+                        filtered.map((item: FeedbackItem) => (
+                            <div
                                 key={item.id}
-                                onClick={() => { setSelectedFeedback(item); if(item.status === 'new') handleStatusUpdate(item.id, 'read'); }}
+                                onClick={() => { setSelectedFeedback(item); if (item.status === 'new') handleStatusUpdate(item.id, 'read'); }}
                                 className={`p-4 border-b border-zinc-100 dark:border-zinc-800 cursor-pointer transition-colors hover:bg-white dark:hover:bg-zinc-800 group ${selectedFeedback?.id === item.id ? 'bg-white dark:bg-zinc-800 border-l-4 border-l-indigo-500 shadow-sm' : 'border-l-4 border-l-transparent'}`}
                             >
                                 <div className="flex justify-between items-start mb-1">
@@ -116,7 +116,7 @@ export const AdminFeedback: React.FC = () => {
                             </div>
                             <div className="flex gap-2">
                                 <button onClick={() => handleDelete(selectedFeedback.id)} className="p-2 text-zinc-400 hover:text-red-600 transition-colors" title="Sil"><i className="fa-solid fa-trash"></i></button>
-                                <select 
+                                <select
                                     value={selectedFeedback.status}
                                     onChange={(e) => handleStatusUpdate(selectedFeedback.id, e.target.value as any)}
                                     className="bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-bold px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
@@ -139,7 +139,7 @@ export const AdminFeedback: React.FC = () => {
                                 <div className="mb-8">
                                     <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest block mb-2">Puanlama</span>
                                     <div className="flex gap-1">
-                                        {Array.from({length: 5}).map((_, i) => (
+                                        {Array.from({ length: 5 }).map((_, i) => (
                                             <i key={i} className={`fa-solid fa-star text-lg ${i < selectedFeedback.rating ? 'text-yellow-400' : 'text-zinc-200 dark:text-zinc-700'}`}></i>
                                         ))}
                                     </div>
@@ -159,7 +159,7 @@ export const AdminFeedback: React.FC = () => {
 
                         {/* Reply Box (Mock for now) */}
                         <div className="p-6 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black">
-                            <textarea 
+                            <textarea
                                 className="w-full p-4 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white dark:bg-zinc-900 text-sm resize-none h-24 mb-3"
                                 placeholder="Yanıt yaz..."
                                 value={replyText}

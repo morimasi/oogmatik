@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { 
+import {
     WordMemoryData, VisualMemoryData, CharacterMemoryData, ColorWheelMemoryData, ImageComprehensionData
 } from '../../../types';
 import { ImageDisplay, PedagogicalHeader } from '../common';
@@ -11,16 +11,16 @@ const ScoreTable = ({ rows = 1 }: { rows?: number }) => (
         <div className="grid grid-cols-4 bg-zinc-100 border-b-2 border-black font-bold p-2 text-center">
             <span>Bölüm</span><span>Doğru</span><span>Yanlış</span><span>Net</span>
         </div>
-        {Array.from({length: rows}).map((_, i) => (
+        {Array.from({ length: rows }).map((_, i) => (
             <div key={i} className="grid grid-cols-4 border-b border-zinc-300 last:border-b-0 p-2 h-8">
-                <span className="font-bold text-center border-r border-zinc-200">{i+1}. Bölüm</span>
+                <span className="font-bold text-center border-r border-zinc-200">{i + 1}. Bölüm</span>
                 <span className="border-r border-zinc-200"></span><span className="border-r border-zinc-200"></span><span></span>
             </div>
         ))}
     </div>
 );
 
-export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) => (
+export const WordMemorySheet = ({ data }: { data: WordMemoryData }) => (
     <div className="w-full font-lexend">
         <div className="min-h-[500px] flex flex-col">
             <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Kelimeleri ezberle." note={data.pedagogicalNote} data={data} />
@@ -49,7 +49,7 @@ export const WordMemorySheet: React.FC<{ data: WordMemoryData }> = ({ data }) =>
     </div>
 );
 
-export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }) => (
+export const VisualMemorySheet = ({ data }: { data: VisualMemoryData }) => (
     <div className="w-full font-lexend">
         <div className="min-h-[500px] flex flex-col">
             <PedagogicalHeader title={data.title} instruction="Görselleri ve yerlerini ezberle." note={data.pedagogicalNote} data={data} />
@@ -76,7 +76,7 @@ export const VisualMemorySheet: React.FC<{ data: VisualMemoryData }> = ({ data }
     </div>
 );
 
-export const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ data }) => (
+export const CharacterMemorySheet = ({ data }: { data: CharacterMemoryData }) => (
     <div className="w-full font-lexend">
         <div className="min-h-[500px] flex flex-col">
             <PedagogicalHeader title={data.title} instruction="Bu karakterleri ve özelliklerini iyi ezberle." note={data.pedagogicalNote} data={data} />
@@ -104,7 +104,7 @@ export const CharacterMemorySheet: React.FC<{ data: CharacterMemoryData }> = ({ 
     </div>
 );
 
-export const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data }) => {
+export const ColorWheelSheet = ({ data }: { data: ColorWheelMemoryData }) => {
     const items = data.items || [];
     const radius = 110; const center = 150;
     return (
@@ -122,7 +122,7 @@ export const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data
                         return (
                             <g key={i}>
                                 <path d={`M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`} fill={item.color} stroke="white" strokeWidth="3" />
-                                <text x={center + (radius * 0.7) * Math.cos(((angle + (360/items.length)/2) - 90) * Math.PI / 180)} y={center + (radius * 0.7) * Math.sin(((angle + (360/items.length)/2) - 90) * Math.PI / 180)} textAnchor="middle" fontSize="20" fill="white" stroke="black" strokeWidth="0.5" fontWeight="bold">{item.imagePrompt?.substring(0,2)}</text>
+                                <text x={center + (radius * 0.7) * Math.cos(((angle + (360 / items.length) / 2) - 90) * Math.PI / 180)} y={center + (radius * 0.7) * Math.sin(((angle + (360 / items.length) / 2) - 90) * Math.PI / 180)} textAnchor="middle" fontSize="20" fill="white" stroke="black" strokeWidth="0.5" fontWeight="bold">{item.imagePrompt?.substring(0, 2)}</text>
                             </g>
                         );
                     })}
@@ -133,7 +133,7 @@ export const ColorWheelSheet: React.FC<{ data: ColorWheelMemoryData }> = ({ data
     );
 };
 
-export const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }> = ({ data }) => (
+export const ImageComprehensionSheet = ({ data }: { data: ImageComprehensionData }) => (
     <div className="w-full font-lexend">
         <PedagogicalHeader title={data.title} instruction="Metni oku ve sahneyi zihninde canlandır." note={data.pedagogicalNote} data={data} />
         <div className="p-10 bg-indigo-50/30 border-2 border-indigo-100 rounded-[3rem] text-2xl font-medium leading-relaxed font-dyslexic text-zinc-800 text-center my-12 italic">
@@ -142,7 +142,7 @@ export const ImageComprehensionSheet: React.FC<{ data: ImageComprehensionData }>
         <div className="space-y-6 mt-12 pt-12 border-t-2 border-dashed border-zinc-100">
             {(data.questions || []).map((q, i) => (
                 <div key={i} className="p-6 border-2 border-zinc-900 rounded-3xl bg-white shadow-sm">
-                    <p className="font-black text-lg mb-4 flex gap-3"><span className="bg-zinc-900 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">{i+1}</span> {q}</p>
+                    <p className="font-black text-lg mb-4 flex gap-3"><span className="bg-zinc-900 text-white w-7 h-7 rounded-lg flex items-center justify-center text-sm">{i + 1}</span> {q}</p>
                     <div className="h-8 border-b-2 border-dashed border-zinc-200"></div>
                 </div>
             ))}

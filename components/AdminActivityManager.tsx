@@ -19,7 +19,7 @@ const CURRICULUM_NODES = [
     { id: 'math.logic', label: 'Matematik & Mantık' }
 ];
 
-export const AdminActivityManager: React.FC = () => {
+export const AdminActivityManager = () => {
     const [activities, setActivities] = useState<DynamicActivity[]>([]);
     const [prompts, setPrompts] = useState<PromptTemplate[]>([]);
     const [loading, setLoading] = useState(true);
@@ -43,18 +43,18 @@ export const AdminActivityManager: React.FC = () => {
         } finally { setLoading(false); }
     };
 
-    const handleSave = async (e?: React.FormEvent) => {
+    const handleSave = async (e?: any) => {
         if (e) e.preventDefault();
         if (!editingActivity || !editingActivity.id) return;
         setIsSaving(true);
         try {
             const payload = { ...editingActivity, updatedAt: new Date().toISOString() };
             await adminService.saveActivity(payload);
-            setActivities(prev => {
-                const filteredPrev = prev.filter(a => !!a && !!a.id);
-                const exists = filteredPrev.find(a => a.id === payload.id);
-                const updated = exists ? filteredPrev.map(a => a.id === payload.id ? payload : a) : [...filteredPrev, payload];
-                return updated.sort((a, b) => (a.order || 0) - (b.order || 0));
+            setActivities((prev: DynamicActivity[]) => {
+                const filteredPrev = prev.filter((a: DynamicActivity) => !!a && !!a.id);
+                const exists = filteredPrev.find((a: DynamicActivity) => a.id === payload.id);
+                const updated = exists ? filteredPrev.map((a: DynamicActivity) => a.id === payload.id ? payload : a) : [...filteredPrev, payload];
+                return updated.sort((a: DynamicActivity, b: DynamicActivity) => (a.order || 0) - (b.order || 0));
             });
             setEditingActivity(null);
         } finally { setIsSaving(false); }
@@ -62,7 +62,7 @@ export const AdminActivityManager: React.FC = () => {
 
     // Drag and Drop Logic
     const handleDragStart = (index: number) => setDraggedIndex(index);
-    const handleDragOver = (e: React.DragEvent, index: number) => {
+    const handleDragOver = (e: any, index: number) => {
         e.preventDefault();
         if (draggedIndex === null || draggedIndex === index) return;
 
@@ -87,7 +87,7 @@ export const AdminActivityManager: React.FC = () => {
     };
 
     const filtered = useMemo(() => {
-        return activities.filter(a => {
+        return activities.filter((a: DynamicActivity) => {
             if (!a || !a.id || !a.title) return false;
             const matchSearch = a.title.toLowerCase().includes(search.toLowerCase()) || a.id.toLowerCase().includes(search.toLowerCase());
             const matchCategory = activeCategory === 'all' || a.category === activeCategory;
@@ -135,7 +135,7 @@ export const AdminActivityManager: React.FC = () => {
 
             {/* BENTO GRID WITH DRAG & DROP */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-32">
-                {filtered.map((act, idx) => (
+                {filtered.map((act: DynamicActivity, idx: number) => (
                     <div
                         key={act.id}
                         draggable
@@ -172,7 +172,7 @@ export const AdminActivityManager: React.FC = () => {
 
                         <div className="pt-5 border-t border-zinc-100 dark:border-zinc-800 flex justify-between items-center group/meta">
                             <div className="flex gap-2">
-                                {act.targetSkills?.slice(0, 2).map(skill => (
+                                {act.targetSkills?.slice(0, 2).map((skill: string) => (
                                     <span key={skill} className="text-[8px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded-md">{skill}</span>
                                 ))}
                             </div>
@@ -261,10 +261,10 @@ export const AdminActivityManager: React.FC = () => {
                                                         />
                                                     </div>
                                                     <div className="flex flex-wrap gap-2 mt-3">
-                                                        {(editingActivity.learningObjectives || []).map((obj, i) => (
+                                                        {(editingActivity.learningObjectives || []).map((obj: string, i: number) => (
                                                             <span key={i} className="px-3 py-1.5 bg-white dark:bg-zinc-800 border dark:border-zinc-700 rounded-xl text-[10px] font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-2 shadow-sm">
                                                                 {obj}
-                                                                <button onClick={() => setEditingActivity({ ...editingActivity, learningObjectives: editingActivity.learningObjectives?.filter((_, idx) => idx !== i) })} className="hover:text-red-500"><i className="fa-solid fa-times"></i></button>
+                                                                <button onClick={() => setEditingActivity({ ...editingActivity, learningObjectives: editingActivity.learningObjectives?.filter((_: any, idx: number) => idx !== i) })} className="hover:text-red-500"><i className="fa-solid fa-times"></i></button>
                                                             </span>
                                                         ))}
                                                     </div>
@@ -334,7 +334,7 @@ export const AdminActivityManager: React.FC = () => {
                                     <div className="space-y-4">
                                         <select value={editingActivity.promptId || ''} onChange={e => setEditingActivity({ ...editingActivity, promptId: e.target.value })} className="w-full p-4 bg-white dark:bg-zinc-900 border-2 border-zinc-100 dark:border-zinc-800 rounded-2xl text-xs font-black text-zinc-700 dark:text-zinc-200 outline-none focus:border-indigo-500 transition-all">
                                             <option value="">Prompt Seçilmedi</option>
-                                            {prompts.map(p => <option key={p.id} value={p.id}>{p.name} (v{p.version})</option>)}
+                                            {prompts.map((p: PromptTemplate) => <option key={p.id} value={p.id}>{p.name} (v{p.version})</option>)}
                                         </select>
                                         <div className="p-5 bg-white dark:bg-zinc-900 rounded-[2rem] border dark:border-zinc-800 text-center space-y-3 shadow-xl">
                                             <div className="w-12 h-12 bg-indigo-500/10 text-indigo-500 rounded-2xl flex items-center justify-center mx-auto text-xl"><i className="fa-solid fa-microchip"></i></div>
