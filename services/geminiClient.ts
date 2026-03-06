@@ -201,8 +201,10 @@ export const evaluateContent = async (content: any) => {
  */
 export const generateCreativeMultimodal = async (params: {
     prompt: string,
-    schema?: any, // Schema opsiyonel yapıldı
-    files?: MultimodalFile[]
+    schema?: any,
+    files?: MultimodalFile[],
+    temperature?: number,
+    thinkingBudget?: number
 }) => {
     const apiKey = getApiKey();
 
@@ -238,11 +240,11 @@ export const generateCreativeMultimodal = async (params: {
     const body: any = {
         contents,
         generationConfig: {
-            temperature: 0,
-            maxOutputTokens: 32000,       // ✅ Artırıldı
+            temperature: params.temperature ?? 0,
+            maxOutputTokens: 32000,
             responseMimeType: "application/json",
             thinkingConfig: {
-                thinkingBudget: 2000      // ✅ Azaltıldı (yapısal JSON için yeterli)
+                thinkingBudget: params.thinkingBudget ?? 2000
             }
         },
         systemInstruction: {

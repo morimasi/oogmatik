@@ -55,13 +55,34 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
     - Zorluk Seviyesi: ${options.difficulty}
     - Blok Başı Minimum Veri: ${options.itemCount}
     
-    [TEKNİK BLOK REHBERİ - BU TİPLERİ KULLAN]:
+    [TEKNİK BLOK REHBERİ VE ÖRNEK JSON İÇERİKLERİ YAKLAŞIMI]:
+    Aşağıda her bir blok tipi için 'content' objesinin tam olarak nasıl dolması gerektiğine dair katı bir referans şablon mevcuttur. Çıktılarını buna göre şekillendir!
+
     - 'cloze_test': Metin yoğun olmalı, en az 100 kelime ve içinde en az 10 adet [hedef] boşluk bulunmalı.
+      ÖRNEK CONTENT: {"text": "Ali bugün [okul] bahçesinde oynarken [kırmızı] topunu kaybetti...", "blanks": ["okul", "kırmızı"]}
+
     - 'categorical_sorting': En az 3-4 kategori ve her kategoride en az 5-6 öğe bulunmalı.
+      ÖRNEK CONTENT: {"categories": ["Meyveler", "Sebzeler"], "items": [{"label": "Elma", "category": "Meyveler"}, {"label": "Pırasa", "category": "Sebzeler"}]}
+
     - 'match_columns': En az 8-10 adet karşılıklı eşleşen öğe (text) içermeli.
+      ÖRNEK CONTENT: {"leftColumn": [{"id": "1", "text": "Kedi"}], "rightColumn": [{"id": "a", "text": "Miyav", "matchId": "1"}]}
+
     - 'visual_clue_card': Profesyonel nöro-pedagojik tavsiyeler içermeli.
-    - 'neuro_marker': 'neuroType' ('tracking' | 'focus' | 'saccadic') ve 'position' içermeli. 'saccadic' tipi için dikey sıçrama noktaları kurgula.
+      ÖRNEK CONTENT: {"icon": "fa-brain", "title": "İpucu", "description": "Harfleri okurken parmağınızla takip edin."}
+
+    - 'neuro_marker': 'neuroType' ('tracking' | 'focus' | 'saccadic') ve 'position' içermeli.
+      ÖRNEK CONTENT: {"neuroType": "saccadic", "position": "top-right", "label": "Göz Sıçrama Noktası"}
+
     - 'grid': Harf veya rakam matrisleri için. Tam doluluk şart.
+      ÖRNEK CONTENT: {"rows": 3, "cols": 3, "cells": [{"row":0, "col":0, "value":"A"}, {"row":0, "col":1, "value":"B"}]}
+      
+    - 'table': Veri tabloları için.
+      ÖRNEK CONTENT: {"headers": ["Kelime", "Hecesi"], "rows": [["Kalem", "Ka-lem"]]}
+
+    - 'text': Basit yönergeler veya metinler için.
+      ÖRNEK CONTENT: {"text": "Aşağıdaki kelimeleri okuyun.", "style": "bold"}
+      
+    DİKKAT: content objesini asla boş bırakma. Seçtiğin 'type' değerine uygun örnek içeriği çoğaltıp detaylandırarak üret.
     `;
 
     const schema = {
@@ -101,7 +122,13 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
         required: ['title', 'instruction', 'layoutArchitecture']
     };
 
-    return await generateCreativeMultimodal({ prompt, schema, files });
+    return await generateCreativeMultimodal({
+        prompt,
+        schema,
+        files,
+        temperature: 0.7,
+        thinkingBudget: 4000
+    });
 };
 
 /**
