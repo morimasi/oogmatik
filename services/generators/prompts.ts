@@ -24,8 +24,8 @@ export const CLINICAL_DIAGNOSTIC_GUIDE = `
 `;
 
 export const getStudentContextPrompt = (student?: Student): string => {
-    if (!student) return "";
-    return `
+   if (!student) return "";
+   return `
 [ÖĞRENCİ PROFİLİNE GÖRE KİŞİSELLEŞTİRME]:
 - Öğrenci Adı: ${student.name}
 - Tanı/Zayıf Yönler: ${student.diagnosis?.join(', ')} / ${student.weaknesses?.join(', ')}
@@ -84,14 +84,33 @@ export const VISUAL_ODD_ONE_OUT_CORE_GUIDE = `
    - 'itemType' svg ise, yüksek kontrastlı ve basit geometrik desenler üret. Farklı olan öğeyi 'clinicalMeta' içinde 'isModified: true' olarak işaretle.
 `;
 
+export const GRID_DRAWING_CORE_GUIDE = `
+[GÖREV: KARE KOPYALAMA - KLİNİK DERİNLİK MODU]
+
+İçerik üretirken şu görsel-uzamsal kuralları kullan:
+1. **TRANSFORMASYON MODLARI**:
+   - 'copy': Şekli olduğu gibi kopyalat.
+   - 'mirror_v/h': Dikey veya yatay aynalama (uzamsal algı için kritik).
+   - 'rotate_90/180': Şekli döndürerek kopyalat (üst düzey bilişsel beceri).
+2. **IZGARA (GRID) TİPLERİ**:
+   - 'dots': Noktalı ızgara (referans noktaları daha az, daha zor).
+   - 'squares': Kareli ızgara (çizgi takibi kolay, başlangıç düzeyi).
+3. **ZORLUK SEVİYESİ**:
+   - 'beginner': Düz çizgiler, basit geometrik şekiller (kare, üçgen).
+   - 'clinical': Kesişen çizgiler, eğik (diagonal) hatlar, kapalı olmayan karmaşık figürler.
+4. **MİMARİ**:
+   - 'isProfessionalMode' true ise öğeleri yan yana (side_by_side) veya karmaşıklık yüksekse üst üste (stacked) yerleştir.
+   - 'gridDim' değerini zorluğa göre 5 ile 12 arasında seç.
+`;
+
 export const getMathPrompt = (title: string, difficulty: string, rule: string, student?: Student): string => {
-    return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[KURAL]: ${rule}\n${IMAGE_GENERATION_GUIDE}`;
+   return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[KURAL]: ${rule}\n${IMAGE_GENERATION_GUIDE}`;
 };
 
 export const getAttentionPrompt = (title: string, difficulty: string, specifics: string, student?: Student): string => {
-    return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[DETAYLAR]: ${specifics}\n${IMAGE_GENERATION_GUIDE}`;
+   return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[DETAYLAR]: ${specifics}\n${IMAGE_GENERATION_GUIDE}`;
 };
 
 export const getDyslexiaPrompt = (title: string, difficulty: string, specifics: string, student?: Student): string => {
-    return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[DİSLEKSİ ODAKLI TALİMATLAR]: ${specifics}\n${IMAGE_GENERATION_GUIDE}`;
+   return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[DİSLEKSİ ODAKLI TALİMATLAR]: ${specifics}\n${IMAGE_GENERATION_GUIDE}`;
 };

@@ -102,13 +102,27 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                         title: { type: Type.STRING },
                                         icon: { type: Type.STRING },
                                         // Visual Specialist Settings
+                                        gridDim: { type: Type.INTEGER },
+                                        drawings: {
+                                            type: Type.ARRAY,
+                                            items: {
+                                                type: Type.OBJECT,
+                                                properties: {
+                                                    lines: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.NUMBER } } } },
+                                                    title: { type: Type.STRING }
+                                                }
+                                            }
+                                        },
                                         settings: {
                                             type: Type.OBJECT,
                                             properties: {
                                                 difficulty: { type: Type.STRING, enum: ['beginner', 'intermediate', 'expert', 'clinical'] },
                                                 differenceType: { type: Type.STRING },
                                                 itemType: { type: Type.STRING },
-                                                layout: { type: Type.STRING, enum: ['single', 'grid_compact', 'ultra_dense'] },
+                                                layout: { type: Type.STRING, enum: ['single', 'grid_compact', 'ultra_dense', 'side_by_side', 'stacked'] },
+                                                gridType: { type: Type.STRING, enum: ['dots', 'squares', 'crosses'] },
+                                                transformMode: { type: Type.STRING },
+                                                showCoordinates: { type: Type.BOOLEAN },
                                                 isProfessionalMode: { type: Type.BOOLEAN }
                                             }
                                         },
@@ -118,7 +132,9 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                                 errorType: { type: Type.STRING },
                                                 rotationAngle: { type: Type.INTEGER },
                                                 isMirrored: { type: Type.BOOLEAN },
-                                                strokeDifference: { type: Type.STRING }
+                                                strokeDifference: { type: Type.STRING },
+                                                crossingPoints: { type: Type.INTEGER },
+                                                isSymmetric: { type: Type.BOOLEAN }
                                             }
                                         }
                                     },

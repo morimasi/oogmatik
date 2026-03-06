@@ -102,13 +102,25 @@ export interface VisualOddOneOutData extends BaseActivityData {
 }
 
 export interface GridDrawingData extends BaseActivityData {
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        layout: 'side_by_side' | 'stacked';
+        gridType: 'dots' | 'squares' | 'crosses';
+        transformMode: 'copy' | 'mirror_v' | 'mirror_h' | 'rotate_90' | 'rotate_180';
+        showCoordinates: boolean;
+        isProfessionalMode: boolean;
+        showClinicalNotes?: boolean;
+    };
     gridDim: number;
-    showCoordinates: boolean;
-    transformMode?: 'copy' | 'mirror_v' | 'mirror_h' | 'rotate_90';
     drawings: {
         lines: [number, number][][];
         complexityLevel?: string;
         title: string;
+        clinicalMeta?: {
+            crossingPoints: number;
+            angleTypes: string[];
+            isSymmetric: boolean;
+        };
     }[];
 }
 
