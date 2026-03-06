@@ -36,11 +36,11 @@ const SHAPE_PATHS: Record<string, string> = {
 export const ReadingRuler = () => null;
 
 export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => (
-    <div className="mb-6 w-full break-inside-avoid border-b-4 border-zinc-900 pb-4">
+    <div className="pedagogical-header mb-6 w-full break-inside-avoid border-b-4 border-zinc-900 pb-4">
         <div className="flex items-start justify-between gap-6">
             <div className="flex-1">
                 <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-3">{title}</h3>
-                <p className="text-base font-bold text-zinc-700 leading-normal italic">{instruction}</p>
+                <p className="instruction text-base font-bold text-zinc-700 leading-normal italic">{instruction}</p>
             </div>
             {data?.targetedErrors && (
                 <div className="flex flex-wrap gap-1 justify-end max-w-[200px] no-print">
@@ -52,11 +52,12 @@ export const PedagogicalHeader = React.memo(({ title, instruction, note, data }:
                 </div>
             )}
         </div>
-        {note && <p className="mt-3 text-[10px] text-zinc-500 font-medium leading-relaxed max-w-3xl">
+        {note && <p className="note mt-3 text-[10px] text-zinc-500 font-medium leading-relaxed max-w-3xl">
             <i className="fa-solid fa-graduation-cap mr-2"></i>{note}
         </p>}
     </div>
 ));
+
 
 export const TenFrame = ({ count, color = '#4f46e5' }: { count: number; color?: string }) => (
     <div className="grid grid-cols-5 grid-rows-2 gap-1 p-1 bg-white border-2 border-black w-32 h-14 rounded-md shadow-sm">

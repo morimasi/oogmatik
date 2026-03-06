@@ -121,7 +121,7 @@
       page-break-inside: avoid !important;
     }
 
-    /* --- ULTRA PROFESSIONAL PRINT ENGINE V2 --- */
+    /* --- ULTRA PROFESSIONAL PRINT ENGINE V3 — A4 KOMPAKT SİSTEM --- */
     @media print {
       @page {
         size: A4 portrait;
@@ -149,16 +149,20 @@
         z-index: 9999999 !important;
       }
 
+      /* ═══════════════════════════════════════════
+         SAYFA KONTEYNER — A4 Piksel Mühendisliği
+         A4 = 210mm x 297mm @ 96dpi = 794px x 1123px
+         Kullanılabilir alan: -12mm*2 padding = 272.8mm ≈ 1031px
+      ═══════════════════════════════════════════ */
       .ultra-print-page,
       .worksheet-page {
         visibility: visible !important;
         display: flex !important;
         flex-direction: column !important;
         width: 210mm !important;
-        height: 296.8mm !important;
-        /* Total A4 height */
-        padding: 12mm !important;
-        /* Professional safe margin */
+        min-height: 296.8mm !important;
+        max-height: 296.8mm !important;
+        padding: 10mm 12mm 14mm 12mm !important;
         margin: 0 !important;
         overflow: hidden !important;
         page-break-after: always !important;
@@ -170,36 +174,381 @@
         position: relative !important;
       }
 
+      /* ═══════════════════════════════════════════
+         İÇERİK ALANI — Kompakt + Yoğun
+      ═══════════════════════════════════════════ */
       .print-content-area {
         flex: 1 !important;
         display: flex !important;
         flex-direction: column !important;
-        gap: 8px !important;
-        /* Compact gap */
+        gap: 5px !important;
         width: 100% !important;
+        overflow: hidden !important;
       }
 
-      /* Hide UI elements */
+      /* 2 sütunlu grid ise gap küçült */
+      .print-content-area.grid {
+        gap: 4px !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         PEDAGOJİK HEADER — Kompakt
+      ═══════════════════════════════════════════ */
+      .pedagogical-header {
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+        border-bottom-width: 2px !important;
+      }
+
+      .pedagogical-header h3 {
+        font-size: 15px !important;
+        line-height: 1.2 !important;
+        margin-bottom: 2px !important;
+      }
+
+      .pedagogical-header p.instruction {
+        font-size: 9px !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+      }
+
+      .pedagogical-header p.note {
+        font-size: 8px !important;
+        margin-top: 2px !important;
+        line-height: 1.2 !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         BLOK TİPİ BAZLI KOMPAKT KURALLAR
+      ═══════════════════════════════════════════ */
+
+      /* --- HEADER BLOK --- */
+      .block-header {
+        font-size: 14px !important;
+        padding-bottom: 3px !important;
+        margin-bottom: 4px !important;
+        border-bottom-width: 2px !important;
+      }
+
+      /* --- TEXT BLOK --- */
+      .block-text {
+        font-size: 10px !important;
+        line-height: 1.5 !important;
+        margin-bottom: 4px !important;
+        padding: 0 !important;
+      }
+
+      /* --- GRID BLOK --- */
+      .block-grid-container {
+        margin-bottom: 4px !important;
+        padding: 4px !important;
+        border-width: 2px !important;
+        border-radius: 8px !important;
+        gap: 2px !important;
+      }
+
+      .block-grid-cell {
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 12px !important;
+        border-width: 1px !important;
+        border-radius: 3px !important;
+      }
+
+      /* --- TABLE BLOK --- */
+      .block-table-container {
+        margin-bottom: 4px !important;
+        border-width: 2px !important;
+        border-radius: 6px !important;
+      }
+
+      .block-table-container table th {
+        padding: 3px 5px !important;
+        font-size: 8px !important;
+      }
+
+      .block-table-container table td {
+        padding: 2px 5px !important;
+        font-size: 9px !important;
+      }
+
+      /* --- CLOZE TEST BLOK --- */
+      .block-cloze {
+        padding: 5px 8px !important;
+        font-size: 10px !important;
+        line-height: 2.0 !important;
+        margin-bottom: 4px !important;
+        border-width: 1px !important;
+        border-radius: 8px !important;
+        border-style: dashed !important;
+      }
+
+      .block-cloze .cloze-blank {
+        min-width: 60px !important;
+        margin: 0 2px !important;
+      }
+
+      .block-cloze .cloze-label {
+        font-size: 6px !important;
+      }
+
+      /* --- CATEGORICAL SORTING BLOK --- */
+      .block-categorical {
+        margin-bottom: 4px !important;
+        gap: 3px !important;
+      }
+
+      .block-cat-header {
+        padding: 3px 5px !important;
+        font-size: 8px !important;
+        border-radius: 6px !important;
+      }
+
+      .block-cat-body {
+        min-height: 60px !important;
+        padding: 3px !important;
+        border-radius: 6px !important;
+        gap: 2px !important;
+      }
+
+      .block-cat-item {
+        padding: 2px 5px !important;
+        font-size: 8px !important;
+        border-radius: 4px !important;
+      }
+
+      .block-cat-bank {
+        padding: 4px !important;
+        margin-bottom: 3px !important;
+        gap: 2px !important;
+      }
+
+      /* --- MATCH COLUMNS BLOK --- */
+      .block-match {
+        padding: 5px !important;
+        margin-bottom: 4px !important;
+        border-radius: 8px !important;
+        gap: 4px !important;
+      }
+
+      .block-match-label {
+        font-size: 7px !important;
+        margin-bottom: 1px !important;
+      }
+
+      .block-match-item {
+        padding: 3px 6px !important;
+        font-size: 9px !important;
+        border-radius: 5px !important;
+        gap: 3px !important;
+      }
+
+      .block-match-circled {
+        font-size: 10px !important;
+      }
+
+      /* --- LOGIC CARD BLOK --- */
+      .block-logic-card {
+        padding: 5px !important;
+        margin-bottom: 4px !important;
+        border-radius: 8px !important;
+        border-width: 2px !important;
+        gap: 3px !important;
+      }
+
+      .block-logic-card .logic-text-box {
+        padding: 3px 6px !important;
+        font-size: 9px !important;
+        border-radius: 6px !important;
+        margin-bottom: 2px !important;
+      }
+
+      .block-logic-card .logic-option-btn {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 10px !important;
+        border-radius: 5px !important;
+        border-width: 1px !important;
+      }
+
+      /* --- VISUAL CLUE CARD BLOK --- */
+      .block-clue-card {
+        padding: 5px 8px !important;
+        margin-bottom: 4px !important;
+        border-radius: 8px !important;
+        border-left-width: 4px !important;
+        gap: 6px !important;
+      }
+
+      .block-clue-card .clue-icon {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
+        border-radius: 6px !important;
+        flex-shrink: 0 !important;
+      }
+
+      .block-clue-card h5 {
+        font-size: 7px !important;
+        margin-bottom: 1px !important;
+      }
+
+      .block-clue-card p {
+        font-size: 9px !important;
+        line-height: 1.3 !important;
+      }
+
+      /* --- NEURO MARKER BLOK --- */
+      .block-neuro {
+        margin: 3px 0 !important;
+      }
+
+      .block-neuro .neuro-dot {
+        width: 5px !important;
+        height: 5px !important;
+      }
+
+      /* --- SVG SHAPE BLOK --- */
+      .block-svg-shape {
+        margin-bottom: 4px !important;
+      }
+
+      .block-svg-shape .svg-container {
+        width: 56px !important;
+        height: 56px !important;
+        padding: 3px !important;
+        border-radius: 6px !important;
+        border-width: 1px !important;
+      }
+
+      /* --- FOOTER VALIDATION BLOK --- */
+      .block-footer-val {
+        padding: 6px 10px !important;
+        margin-top: 4px !important;
+        border-radius: 10px !important;
+        border-width: 2px !important;
+        gap: 4px !important;
+      }
+
+      .block-footer-val h4 {
+        font-size: 10px !important;
+        margin-bottom: 1px !important;
+      }
+
+      .block-footer-val p {
+        font-size: 8px !important;
+      }
+
+      .block-footer-val .target-value {
+        font-size: 18px !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         GENEL KOMPAKT OVERRIDES
+      ═══════════════════════════════════════════ */
+
+      /* Tüm mb-* değerlerini sıfırla */
+      .worksheet-page [class*="mb-"] {
+        margin-bottom: 3px !important;
+      }
+
+      /* Tüm mt-* değerlerini sıfırla */
+      .worksheet-page [class*="mt-"] {
+        margin-top: 2px !important;
+      }
+
+      /* padding kompakt */
+      .worksheet-page [class*="p-8"],
+      .worksheet-page [class*="p-10"] {
+        padding: 5px !important;
+      }
+
+      .worksheet-page [class*="p-6"] {
+        padding: 4px !important;
+      }
+
+      .worksheet-page [class*="p-4"] {
+        padding: 3px !important;
+      }
+
+      /* Yuvarlak köşeleri küçült */
+      .worksheet-page [class*="rounded-["] {
+        border-radius: 8px !important;
+      }
+
+      .worksheet-page [class*="rounded-[2"] {
+        border-radius: 6px !important;
+      }
+
+      .worksheet-page [class*="rounded-[3"] {
+        border-radius: 8px !important;
+      }
+
+      .worksheet-page [class*="rounded-[4"] {
+        border-radius: 10px !important;
+      }
+
+      /* shadow kaldır (print'te gereksiz) */
+      .worksheet-page [class*="shadow"] {
+        box-shadow: none !important;
+      }
+
+      /* gap küçült */
+      .worksheet-page [class*="gap-6"],
+      .worksheet-page [class*="gap-8"],
+      .worksheet-page [class*="gap-12"] {
+        gap: 4px !important;
+      }
+
+      .worksheet-page [class*="gap-4"] {
+        gap: 3px !important;
+      }
+
+      /* min-h sıfırla */
+      .worksheet-page [class*="min-h-[200px]"] {
+        min-height: 50px !important;
+      }
+
+      .worksheet-page [class*="min-h-[120px]"] {
+        min-height: 40px !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         GİZLE / GÖSTER
+      ═══════════════════════════════════════════ */
       .no-print,
       .edit-handle,
       button,
-      .ui-panel {
+      .ui-panel,
+      [class*="animate-"],
+      [class*="hover:"],
+      [class*="blur-"],
+      [class*="backdrop-"] {
         display: none !important;
       }
 
-      /* Footer pagination */
+      /* edit overlay gizle */
+      [contenteditable="true"] {
+        outline: none !important;
+        border: none !important;
+        cursor: default !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         SAYFA ALT BİLGİSİ
+      ═══════════════════════════════════════════ */
       .print-footer {
         position: absolute !important;
-        bottom: 8mm !important;
+        bottom: 6mm !important;
         left: 12mm !important;
         right: 12mm !important;
         display: flex !important;
         justify-content: space-between !important;
-        font-size: 8px !important;
+        font-size: 7px !important;
         font-weight: bold !important;
         color: #a1a1aa !important;
-        border-top: 1px solid #f4f4f5 !important;
-        padding-top: 2mm !important;
+        border-top: 0.5px solid #e4e4e7 !important;
+        padding-top: 1.5mm !important;
       }
     }
   </style>
