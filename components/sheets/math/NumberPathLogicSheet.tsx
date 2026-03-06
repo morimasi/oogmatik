@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { NumberPathLogicData } from '../../../types';
+import { NumberPathLogicData, AbcConnectData } from '../../../types';
 import { PedagogicalHeader, Shape } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 

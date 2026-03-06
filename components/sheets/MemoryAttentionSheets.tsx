@@ -415,7 +415,7 @@ export const StroopTestSheet = ({ data }: { data: StroopTestData }) => (
 );
 
 // Standard sheets reuse common layouts but with StudentInfoStrip added
-const StandardSheet = ({ data, children }: any) => (
+const StandardSheet = ({ data, children }: { data: any, children: any }) => (
     <div>
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         {children}

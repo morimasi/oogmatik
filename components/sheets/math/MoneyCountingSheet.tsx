@@ -4,7 +4,7 @@ import { MoneyCountingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';
 
-const MoneyIcon: React.FC<{ value: number, type: 'coin' | 'note' }> = ({ value, type }) => (
+const MoneyIcon = ({ value, type }: { value: number, type: 'coin' | 'note' }) => (
     <div className={`flex items-center justify-center font-bold shadow-sm relative ${type === 'coin' ? 'w-14 h-14 rounded-full bg-amber-400 border-4 border-amber-600 text-amber-900' : 'w-24 h-12 bg-emerald-100 border-2 border-emerald-600 text-emerald-800 rounded'}`}>
         {value} {type === 'coin' ? '' : 'TL'}
         {type === 'coin' && <span className="absolute bottom-1.5 text-[8px] font-black uppercase">TL</span>}

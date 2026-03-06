@@ -8,7 +8,7 @@ export const StroopTestSheet = ({ data }: { data: StroopTestData }) => (
     <div className="flex flex-col h-full font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex-1 grid grid-cols-4 gap-y-10 gap-x-4 items-center content-start mt-8">
-            {(data.items || []).map((item: any, i: number) => (
+            {(data.items || []).map((item: { text: string, color: string }, i: number) => (
                 <div key={i} className="flex justify-center break-inside-avoid">
                     <span className="text-3xl font-black tracking-widest uppercase text-center" style={{ color: item.color }}>
                         <EditableText value={item.text} tag="span" />

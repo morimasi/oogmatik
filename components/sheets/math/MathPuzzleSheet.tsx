@@ -4,7 +4,7 @@ import { MathPuzzleData } from '../../../types';
 import { ImageDisplay, PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: any, objects: any[], fontSize?: string }) => {
+const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: any[], rightSide: number | string }, objects: any[], fontSize?: string }) => {
     return (
         <div className="flex items-center justify-center gap-4 py-3 border-b border-zinc-50 last:border-0 group-hover:bg-zinc-50/50 transition-colors rounded-xl">
             <div className="flex items-center gap-2">

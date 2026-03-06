@@ -11,7 +11,7 @@ import { CagedGridSvg, GridComponent, ImageDisplay, PedagogicalHeader } from './
 import { EditableElement, EditableText } from '../Editable';
 
 // Fix: Typed as React.FC to resolve the 'key' property error when used in map loops
-const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: any, objects: any[], fontSize?: string }) => {
+const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: any[], rightSide: number | string }, objects: any[], fontSize?: string }) => {
     return (
         <div className="flex items-center justify-center gap-4 py-3 border-b border-zinc-50 last:border-0 group-hover:bg-zinc-50/50 transition-colors rounded-xl">
             <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export const LogicGridPuzzleSheet = ({ data }: { data: LogicGridPuzzleData }) =>
     </div>
 );
 
-const SimpleVisualList = ({ items, title }: any) => (
+const SimpleVisualList = ({ items, title }: { items: any[], title: string }) => (
     <div className="space-y-4">
         {(items || []).map((item: any, i: number) => (
             <EditableElement key={i} className="border-2 border-zinc-100 bg-white rounded-2xl p-4 flex justify-between items-center break-inside-avoid item-card h-20 shadow-sm">
