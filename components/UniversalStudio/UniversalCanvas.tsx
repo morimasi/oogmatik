@@ -38,6 +38,10 @@ const DraggableItem = ({ item, children }: { item: LayoutItem, children: any }) 
                     if (l.instanceId === item.instanceId) {
                         return { ...l, style: { ...l.style, w: newW, h: newH } };
                     }
+                    
+                    // Akıllı Boşluk Doldurma ve Domino Etkisi
+                    // Eğer bu öğe, boyutu değişen öğenin altında yer alıyorsa, onu da kaydır.
+                    // Tolerans: 10px (Öğenin tam altında olup olmadığını anlamak için)
                     if (l.pageIndex === item.pageIndex && l.style.y >= (initialStyle.y + initialStyle.h - 10)) {
                         return { ...l, style: { ...l.style, y: l.style.y + heightDiff } };
                     }
@@ -54,9 +58,14 @@ const DraggableItem = ({ item, children }: { item: LayoutItem, children: any }) 
                 if (Math.abs(newX - 20) < 15) newX = 20;
                 if (Math.abs((newX + initialStyle.w) - 774) < 15) newX = 774 - initialStyle.w;
 
+                const deltaX = newX - initialStyle.x;
+                const deltaY = newY - initialStyle.y;
+
                 setLayout(initialLayout.current.map(l => {
-                    if (l.instanceId === item.instanceId) {
-                        return { ...l, style: { ...l.style, x: newX, y: newY } };
+                    // Eğer sürüklenen öğeyse VEYA aynı gruptalarsa birlikte hareket ettir
+                    if (l.instanceId === item.instanceId || (item.groupId && l.groupId === item.groupId)) {
+                        const originalL = initialLayout.current.find(orig => orig.instanceId === l.instanceId) || l;
+                        return { ...l, style: { ...l.style, x: originalL.style.x + deltaX, y: originalL.style.y + deltaY } };
                     }
                     return l;
                 }));

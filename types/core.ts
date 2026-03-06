@@ -673,6 +673,7 @@ export interface LayoutItem {
     instanceId: string;
     isVisible: boolean;
     pageIndex?: number;
+    groupId?: string;
     style: {
         x: number;
         y: number;
