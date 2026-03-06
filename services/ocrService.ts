@@ -92,11 +92,12 @@ export const ocrService = {
         ANALİZ PROTOKOLÜ (Thinking):
         1. ROOT_CONTAINER: Sayfa genel yerleşimi (sütun sayısı, grid yapısı, kenar boşlukları).
         2. LOGIC_MODULES: Soru bloklarının teknik yapısı (soru tipi, format, boşluk tasarımı).
-        3. SOLUTION_LOGIC: Cevaba giden mantıksal yol ve örüntü.
-        4. DETECTED_TYPE: Materyal türü (MATH_WORKSHEET | READING_COMPREHENSION | FILL_IN_THE_BLANK | MATCHING | TRUE_FALSE | MULTIPLE_CHOICE | OTHER).
-        5. LAYOUT_HINTS: Sütun sayısı, görsel varlığı, toplam soru sayısı tahmini.
+        3. EXACT_TEXT_EXTRACTION: Görselde okuduğun metinleri, yönergeleri, tabloları ve soruları KESİNLİKLE DEĞİŞTİRMEDEN (1:1 Birebir) Blueprint içerisine veri olarak aktar.
+        4. SOLUTION_LOGIC: Cevaba giden mantıksal yol ve örüntü.
+        5. DETECTED_TYPE: Materyal türü (MATH_WORKSHEET | READING_COMPREHENSION | FILL_IN_THE_BLANK | MATCHING | TRUE_FALSE | MULTIPLE_CHOICE | OTHER).
+        6. LAYOUT_HINTS: Sütun sayısı, görsel varlığı, toplam soru sayısı tahmini.
         
-        SADECE metni okuma; sayfa hiyerarşisini ve mimari yapısını çöz.
+        SADECE metni okuma; sayfa hiyerarşisini, mimari yapısını ve ASIL VERİYİ eksiksiz çöz.
         `;
 
         const schema = {

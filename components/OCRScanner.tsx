@@ -414,14 +414,19 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     };
 
     // ─── Klonlama ──────────────────────────────────
-    const handleClone = async () => {
+    const handleClone = async (isExact: boolean = false) => {
         setStep('generating');
         setProgressStartTime(Date.now());
         try {
             const blueprintToUse = isEditingBlueprint ? editedBlueprint : blueprintData.worksheetBlueprint;
             const titleToUse = editedTitle || blueprintData.title;
-            const options: GeneratorOptions = {
-                mode: 'ai', difficulty, worksheetCount: variantCount, itemCount: 8, topic: titleToUse,
+            const options: any = {
+                mode: 'ai',
+                difficulty,
+                worksheetCount: variantCount,
+                itemCount: 8,
+                topic: titleToUse,
+                isExactClone: isExact,
                 ...(activeStudent ? { studentContext: activeStudent } : {})
             };
             const result = await generateFromRichPrompt(ActivityType.OCR_CONTENT, blueprintToUse, options);
@@ -644,10 +649,17 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                                     )}
                                 </div>
 
-                                <button onClick={handleClone} className="w-full py-6 bg-white text-indigo-950 font-black rounded-[2rem] hover:scale-[1.02] active:scale-95 transition-all shadow-2xl flex items-center justify-center gap-4 text-xl overflow-hidden group">
-                                    <i className="fa-solid fa-rocket group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
-                                    {variantCount > 1 ? `${variantCount} VARYANT İNŞA ET` : 'MİMARİYİ YENİDEN İNŞA ET'}
-                                </button>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                                    <button onClick={() => handleClone(false)} className="py-6 bg-indigo-600 text-white font-black rounded-3xl hover:bg-indigo-700 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 text-sm group border-2 border-indigo-400/20">
+                                        <i className="fa-solid fa-wand-magic-sparkles group-hover:rotate-12 transition-transform"></i>
+                                        {variantCount > 1 ? `${variantCount} FARKLI VARYANT ÜRET` : 'YENİ İÇERİKLE KLONLA'}
+                                    </button>
+
+                                    <button onClick={() => handleClone(true)} className="py-6 bg-white text-indigo-950 font-black rounded-3xl hover:bg-slate-100 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 text-sm group border-2 border-slate-200">
+                                        <i className="fa-solid fa-copy group-hover:-translate-y-1 transition-transform"></i>
+                                        BİREBİR AYNI ÜRET (1:1)
+                                    </button>
+                                </div>
                                 <button onClick={() => setStep('upload')} className="w-full mt-4 py-3 text-slate-500 font-bold hover:text-white transition-colors text-sm uppercase tracking-widest">Farklı Görsel Seç</button>
                             </div>
                         </div>
