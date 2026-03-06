@@ -75,7 +75,7 @@ const recursiveSafeText = (val: any): string => {
     return String(val);
 };
 
-const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any }) => {
+export const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any }) => {
     const content: any = block.content;
     if (!content) return null;
 

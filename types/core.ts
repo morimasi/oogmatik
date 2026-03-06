@@ -665,7 +665,7 @@ export interface ReadingStudioConfig {
     showDateSection: boolean;
 }
 
-export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'pedagogical_note' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes' | 'logic_problem' | 'syllable_train' | '5n1k' | 'questions';
+export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'pedagogical_note' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes' | 'logic_problem' | 'syllable_train' | '5n1k' | 'questions' | 'activity_component' | 'text' | 'image' | 'grid' | 'table' | 'cloze_test' | 'match_columns' | 'categorical_sorting' | 'logic_card' | 'footer_validation' | 'visual_clue_card' | 'neuro_marker' | 'svg_shape';
 
 export interface LayoutItem {
     id: LayoutSectionId;

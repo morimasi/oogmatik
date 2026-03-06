@@ -14,6 +14,8 @@ import { WorkbookView } from './WorkbookView';
 import { EditableContext } from './Editable';
 import { paginationService } from '../services/paginationService';
 
+import { UniversalWorksheetWrapper } from './UniversalStudio/UniversalWorksheetWrapper';
+
 interface ContentAreaProps {
   currentView: View;
   onBackToGenerator: () => void;
@@ -201,20 +203,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
                     {/* FIXED TOP CENTERING SCALING */}
                     {processedData.length > 0 && !isLoading && (
-                        <div 
-                            className="transition-transform duration-100 ease-out will-change-transform"
-                            style={{ 
-                                transform: `scale(${scale})`,
-                                transformOrigin: 'top center',
-                                marginTop: '40px', // Kağıdın tepeden başlaması için estetik boşluk
-                                marginBottom: '100px' // Alt tarafta çalışma mesafesi
-                            }}
-                        >
-                            <Worksheet 
+                        <div className="w-full h-full">
+                            <UniversalWorksheetWrapper 
                                 activityType={activityType} 
-                                data={processedData}
-                                settings={styleSettings} 
-                                studentProfile={studentProfile}
+                                worksheetData={processedData}
+                                scale={scale}
                             />
                         </div>
                     )}
