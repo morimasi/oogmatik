@@ -1,156 +1,42 @@
 
-import React, { useState, useRef, useEffect, useCallback, useMemo, useLayoutEffect } from 'react';
-import { InteractiveStoryData, LayoutSectionId, LayoutItem, ReadingStudioConfig, ActivityType, Student } from '../../types';
-import { generateInteractiveStory } from '../../services/generators/readingStudio';
-import { useAuth } from '../../context/AuthContext';
-import { useStudent } from '../../context/StudentContext';
+import React, { useState, useRef } from 'react';
+import { ReadingStudioProvider, useReadingStudio } from '../../context/ReadingStudioContext';
 import { printService } from '../../utils/printService';
-import { worksheetService } from '../../services/worksheetService';
-import { ImageDisplay, QUESTION_TYPES, StoryHighlighter } from '../sheets/common';
-import { EditableText } from '../Editable';
-import { ShareModal } from '../ShareModal';
+import { generateInteractiveStory } from '../../services/generators/readingStudio';
 import { ReadingStudioContentRenderer } from './ReadingStudioContentRenderer';
+import { StudentSelector } from './Editor/StudentSelector';
+import { AIProductionPanel } from './Editor/AIProductionPanel';
+import { ComponentLibrary } from './Editor/ComponentLibrary';
 
 // --- CONFIGURATION CONSTANTS ---
-const SNAP_GRID = 5;
 const A4_WIDTH_PX = 794;
 const A4_HEIGHT_PX = 1123;
-const PAGE_BOTTOM_PADDING = 100;
 
-// --- DEFINITIONS & DEFAULTS ---
+const ReadingStudioInner = ({ onBack }: { onBack: () => void }) => {
+    const {
+        config, setStoryData, layout, setLayout,
+        isLoading, setIsLoading, designMode, setDesignMode,
+        storyData
+    } = useReadingStudio();
 
-interface ComponentDefinition {
-    id: LayoutSectionId;
-    label: string;
-    defaultTitle: string;
-    icon: string;
-    description: string;
-    defaultStyle: Partial<LayoutItem['style']>;
-}
-
-interface ActiveComponent extends LayoutItem {
-    customTitle?: string;
-    customIcon?: string;
-    themeColor?: string;
-    instanceId: string;
-    icon: string;
-}
-
-interface SavedTemplate {
-    id: string;
-    name: string;
-    createdAt: string;
-    layout: ActiveComponent[];
-}
-
-const DEFAULT_STYLE_BASE: LayoutItem['style'] = {
-    x: 20, y: 20, w: 754, h: 100, zIndex: 1, rotation: 0,
-    padding: 10,
-    backgroundColor: 'transparent',
-    borderColor: 'transparent',
-    borderWidth: 0,
-    borderStyle: 'solid',
-    borderRadius: 0,
-    opacity: 1,
-    boxShadow: 'none',
-    textAlign: 'left',
-    color: '#000000',
-    fontSize: 14,
-    fontFamily: 'OpenDyslexic',
-    lineHeight: 1.5,
-    letterSpacing: 0,
-    imageSettings: {
-        enabled: true,
-        position: 'right',
-        widthPercent: 40,
-        opacity: 1,
-        objectFit: 'cover',
-        borderRadius: 8,
-        blendMode: 'normal',
-        filter: 'none'
-    }
-};
-
-const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
-    { id: 'header', label: 'Başlık Künyesi', defaultTitle: 'HİKAYE KÜNYESİ', icon: 'fa-heading', description: 'Başlık, tür ve tarih alanı.', defaultStyle: { h: 120 } },
-    { id: 'tracker', label: 'Okuma Takipçisi', defaultTitle: 'OKUMA TAKİBİ', icon: 'fa-eye', description: 'Okuma sayısını işaretleme alanı.', defaultStyle: { h: 60, w: 200 } },
-    { id: 'story_block', label: 'Hikaye Metni', defaultTitle: 'OKUMA METNİ', icon: 'fa-book-open', description: 'Ana metin ve görsel alanı.', defaultStyle: { h: 400 } },
-    { id: 'vocabulary', label: 'Sözlükçe', defaultTitle: 'SÖZLÜKÇE', icon: 'fa-spell-check', description: 'Zor kelimeler ve anlamları.', defaultStyle: { h: 150 } },
-    { id: 'pedagogical_note', label: 'Pedagojik Not', defaultTitle: 'EĞİTMEN NOTU', icon: 'fa-user-graduate', description: 'Metnin bilişsel hedefleri ve kazanımları.', defaultStyle: { h: 100, backgroundColor: '#f0f9ff', borderColor: '#bae6fd' } },
-    { id: 'questions_5n1k', label: '5N 1K Analizi', defaultTitle: '5N 1K SORULARI', icon: 'fa-circle-question', description: 'Kim, Ne, Nerede soruları.', defaultStyle: { w: 754, h: 300 } },
-    { id: 'questions_test', label: 'Test Soruları', defaultTitle: 'DEĞERLENDİRME', icon: 'fa-list-check', description: 'Çoktan seçmeli sorular.', defaultStyle: { w: 754, h: 300 } },
-    { id: 'questions_inference', label: 'Derin Analiz', defaultTitle: 'DERİN ANALİZ', icon: 'fa-brain', description: 'Çıkarım ve yorum soruları.', defaultStyle: { h: 150 } },
-    { id: 'creative', label: 'Yaratıcı Alan', defaultTitle: 'YARATICI ALAN', icon: 'fa-paintbrush', description: 'Çizim ve yazma alanı.', defaultStyle: { h: 200 } },
-    { id: 'notes', label: 'Not Alanı', defaultTitle: 'NOTLAR', icon: 'fa-note-sticky', description: 'Boş not satırları.', defaultStyle: { h: 100 } },
-];
-
-const AutoContentWrapper = ({ children, onSizeChange, enabled }: { children?: any, onSizeChange: (h: number) => void, enabled: boolean }) => {
-    const contentRef = useRef(null as HTMLDivElement | null);
-    const lastHeight = useRef(0 as number);
-
-    useLayoutEffect(() => {
-        if (!enabled || !contentRef.current) return;
-        const observer = new ResizeObserver(() => {
-            if (!contentRef.current) return;
-            const currentContentHeight = contentRef.current.scrollHeight;
-            if (Math.abs(currentContentHeight - lastHeight.current) > 2) {
-                lastHeight.current = currentContentHeight;
-                onSizeChange(currentContentHeight);
-            }
-        });
-        observer.observe(contentRef.current);
-        return () => observer.disconnect();
-    }, [onSizeChange, enabled]);
-
-    return (
-        <div className="w-full h-full overflow-hidden">
-            <div ref={contentRef} className="w-full h-auto min-h-full">
-                {children}
-            </div>
-        </div>
-    );
-};
-
-export const ReadingStudio = ({ onBack, onAddToWorkbook }: ReadingStudioProps) => {
-    const { user } = useAuth();
-    const { students, setActiveStudent, activeStudent } = useStudent();
-    const [isLoading, setIsLoading] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [isSaved, setIsSaved] = useState(false);
-    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-    const [isPrinting, setIsPrinting] = useState(false);
-
-    const [storyData, setStoryData] = useState(null as InteractiveStoryData | null);
-    const [sidebarTab, setSidebarTab] = useState('settings' as 'settings' | 'library' | 'templates');
-    const [layout, setLayout] = useState([] as ActiveComponent[]);
-    const [selectedId, setSelectedId] = useState(null as string | null);
-    const [designMode, setDesignMode] = useState(true);
-    const [smartFlow, setSmartFlow] = useState(true);
-
-    const [config, setConfig] = useState({
-        gradeLevel: '3. Sınıf', studentName: '', topic: '', genre: 'Macera', tone: 'Eğlenceli',
-        length: 'medium', layoutDensity: 'comfortable', textComplexity: 'moderate',
-        fontSettings: { family: 'OpenDyslexic', size: 16, lineHeight: 1.8, letterSpacing: 1, wordSpacing: 2 },
-        includeImage: true, imageSize: 40, imageOpacity: 100, imagePosition: 'right',
-        imageGeneration: { enabled: true, style: 'storybook', complexity: 'simple' },
-        include5N1K: true, countMultipleChoice: 3, countTrueFalse: 2, countFillBlanks: 2, countLogic: 1, countInference: 1,
-        focusVocabulary: true, includeCreativeTask: true, includeWordHunt: false, includeSpellingCheck: false,
-        showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
-    } as ReadingStudioConfig);
-
-    const [templates, setTemplates] = useState([] as SavedTemplate[]);
-    const [templateName, setTemplateName] = useState("");
+    const [sidebarTab, setSidebarTab] = useState('production' as 'production' | 'library' | 'styling');
     const [canvasScale, setCanvasScale] = useState(0.85);
-    const canvasRef = useRef(null as HTMLDivElement | null);
 
     // Initial layout setup
-    useEffect(() => {
+    React.useEffect(() => {
         if (layout.length === 0) {
-            const initialComponents: ActiveComponent[] = [
-                { ...COMPONENT_DEFINITIONS[0], instanceId: 'init_header', isVisible: true, specificData: { title: "YENİ HİKAYE", subtitle: "Okuma ve Anlama Çalışması" }, style: { ...DEFAULT_STYLE_BASE, ...COMPONENT_DEFINITIONS[0].defaultStyle } },
-                { ...COMPONENT_DEFINITIONS[2], instanceId: 'init_story', isVisible: true, specificData: { text: "Buraya AI ile üretilen hikaye gelecek..." }, style: { ...DEFAULT_STYLE_BASE, ...COMPONENT_DEFINITIONS[2].defaultStyle, y: 150 } }
-            ];
-            setLayout(initialComponents);
+            setLayout([
+                {
+                    id: 'header', label: 'Başlık Künyesi', instanceId: 'init_header', isVisible: true,
+                    specificData: { title: "YENİ HİKAYE", subtitle: "Okuma ve Anlama Çalışması" },
+                    style: { x: 20, y: 20, w: 754, h: 120, zIndex: 1, rotation: 0, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                },
+                {
+                    id: 'story_block', label: 'Hikaye Metni', instanceId: 'init_story', isVisible: true,
+                    specificData: { text: "Buraya AI ile üretilen hikaye gelecek..." },
+                    style: { x: 20, y: 160, w: 754, h: 420, zIndex: 1, rotation: 0, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                }
+            ]);
         }
     }, []);
 
@@ -161,7 +47,7 @@ export const ReadingStudio = ({ onBack, onAddToWorkbook }: ReadingStudioProps) =
             setStoryData(data);
 
             // Auto-populate layout with generated data
-            const newLayout = layout.map((item: ActiveComponent) => {
+            setLayout((prev: any[]) => prev.map((item: any) => {
                 const updatedItem = { ...item };
                 if (item.id === 'header') updatedItem.specificData = { title: data.title, subtitle: `${data.genre} | ${data.gradeLevel}` };
                 if (item.id === 'story_block') updatedItem.specificData = { text: data.story, imagePrompt: data.imagePrompt };
@@ -170,151 +56,101 @@ export const ReadingStudio = ({ onBack, onAddToWorkbook }: ReadingStudioProps) =
                 if (item.id === 'questions_test') updatedItem.specificData = { questions: data.multipleChoice?.map(q => ({ text: q.question })) };
                 if (item.id === 'creative') updatedItem.specificData = { task: data.creativeTask };
                 if (item.id === 'pedagogical_note') updatedItem.specificData = { text: data.pedagogicalNote };
+                if (item.id === 'logic_problem') updatedItem.specificData = { questions: data.logicQuestions?.map(q => ({ text: q.question, hint: q.hint })) };
                 return updatedItem;
-            });
-            setLayout(newLayout);
+            }));
             setDesignMode(false);
-        } catch (e) { alert("Hata oluştu."); } finally { setIsLoading(false); }
+        } catch (e) {
+            alert("Hata oluştu. Lütfen tekrar deneyin.");
+        } finally {
+            setIsLoading(false);
+        }
     };
-
-    const addComponent = (def: ComponentDefinition) => {
-        const lastY = layout.length > 0 ? Math.max(...layout.map((l: ActiveComponent) => (l.style.y || 0) + (l.style.h || 0))) : 0;
-        const newComp: ActiveComponent = {
-            ...def,
-            instanceId: `inst_${Date.now()}`,
-            isVisible: true,
-            style: { ...DEFAULT_STYLE_BASE, ...def.defaultStyle, y: lastY + 20 },
-            specificData: {}
-        };
-        setLayout([...layout, newComp]);
-        setSelectedId(newComp.instanceId);
-    };
-
-    const handleAutoResize = useCallback((instanceId: string, h: number) => {
-        if (!smartFlow) return;
-        setLayout((prev: ActiveComponent[]) => prev.map((item: ActiveComponent) => item.instanceId === instanceId ? { ...item, style: { ...item.style, h: Math.max(50, h) } } : item));
-    }, [smartFlow]);
 
     const handlePrint = async (action: 'print' | 'download') => {
-        setIsPrinting(true);
-        try { await printService.generatePdf('#canvas-root', 'Hikaye', { action }); } finally { setIsPrinting(false); }
+        try { await printService.generatePdf('#canvas-root', 'Hikaye', { action }); } catch (e) { }
     };
 
     return (
-        <div className="h-full flex flex-col bg-[#121214] overflow-hidden text-zinc-100 absolute inset-0 z-50">
-            <div className="h-16 bg-[#18181b] border-b border-zinc-800 flex justify-between items-center px-6 shrink-0 z-50">
+        <div className="h-full flex flex-col bg-[#09090b] overflow-hidden text-zinc-100 absolute inset-0 z-50">
+            {/* Header */}
+            <header className="h-16 bg-[#121214] border-b border-zinc-800 flex justify-between items-center px-6 shrink-0 z-50">
                 <div className="flex items-center gap-4">
-                    <button onClick={onBack} className="w-10 h-10 rounded-xl hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition-colors"><i className="fa-solid fa-arrow-left"></i></button>
-                    <h2 className="text-lg font-black text-white flex items-center gap-2 tracking-tight"><i className="fa-solid fa-book-open text-indigo-500"></i> Reading Studio</h2>
+                    <button onClick={onBack} className="w-10 h-10 rounded-xl hover:bg-zinc-800 flex items-center justify-center text-zinc-400 transition-colors border border-transparent hover:border-zinc-700">
+                        <i className="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div className="flex flex-col">
+                        <h2 className="text-sm font-black text-white flex items-center gap-2 tracking-tight uppercase italic">
+                            Oogmatik <span className="text-indigo-500 not-italic">Reading Studio Pro</span>
+                        </h2>
+                        {storyData && <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{storyData.title}</span>}
+                    </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button onClick={handleGenerate} disabled={isLoading} className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-500 disabled:opacity-50">
-                        {isLoading ? "Üretiliyor..." : "AI ile Üret"}
+                    <button
+                        onClick={handleGenerate}
+                        disabled={isLoading}
+                        className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 disabled:opacity-50 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+                    >
+                        {isLoading ? <><i className="fa-solid fa-circle-notch fa-spin mr-2"></i> Üretiliyor...</> : "AI İle Baştan Yarat"}
                     </button>
-                    <button onClick={() => handlePrint('print')} className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white"><i className="fa-solid fa-print"></i></button>
+                    <div className="w-px h-6 bg-zinc-800 mx-2"></div>
+                    <button onClick={() => handlePrint('print')} className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700/50"><i className="fa-solid fa-print"></i></button>
+                    <button className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700/50"><i className="fa-solid fa-floppy-disk"></i></button>
                 </div>
-            </div>
+            </header>
 
             <div className="flex-1 flex overflow-hidden">
-                <aside className="w-80 bg-[#18181b] border-r border-zinc-800 flex flex-col overflow-hidden">
-                    <div className="flex border-b border-zinc-800 shrink-0">
-                        <button onClick={() => setSidebarTab('settings')} className={`flex-1 p-4 text-[10px] font-black uppercase tracking-widest transition-colors ${sidebarTab === 'settings' ? 'text-indigo-500 bg-zinc-800/50' : 'text-zinc-500 hover:text-zinc-300'}`}>Üretim</button>
-                        <button onClick={() => setSidebarTab('templates')} className={`flex-1 p-4 text-[10px] font-black uppercase tracking-widest transition-colors ${sidebarTab === 'templates' ? 'text-emerald-500 bg-zinc-800/50' : 'text-zinc-500 hover:text-zinc-300'}`}>Bileşenler</button>
+                {/* Sidebar */}
+                <aside className="w-80 bg-[#121214] border-r border-zinc-800 flex flex-col overflow-hidden shadow-2xl z-40">
+                    <div className="p-4 border-b border-zinc-800 bg-black/20">
+                        <StudentSelector />
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                        {sidebarTab === 'settings' && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
-                                <h4 className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Hikaye Ayarları</h4>
-                                <div>
-                                    <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Tema / Konu</label>
-                                    <input type="text" value={config.topic} onChange={(e: any) => setConfig({ ...config, topic: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Uzay Macerası" />
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Kahraman Adı</label>
-                                        <input type="text" value={config.characterName} onChange={(e: any) => setConfig({ ...config, characterName: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Mert" />
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Sınıf</label>
-                                        <select value={config.gradeLevel} onChange={(e: any) => setConfig({ ...config, gradeLevel: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
-                                            {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Karakter Özellikleri</label>
-                                    <input type="text" value={config.characterTraits} onChange={(e: any) => setConfig({ ...config, characterTraits: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Cesur, hayvansever" />
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Tür</label>
-                                        <select value={config.genre} onChange={(e: any) => setConfig({ ...config, genre: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
-                                            {['Macera', 'Masal', 'Gizem', 'Bilim Kurgu', 'Fabl', 'Sosyal Öykü'].map(g => <option key={g} value={g}>{g}</option>)}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Uzunluk</label>
-                                        <select value={config.length} onChange={(e: any) => setConfig({ ...config, length: e.target.value as any })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
-                                            <option value="short">Kısa</option>
-                                            <option value="medium">Orta</option>
-                                            <option value="long">Uzun</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                    <div className="flex border-b border-zinc-800 shrink-0 bg-zinc-900/30">
+                        <button onClick={() => setSidebarTab('production')} className={`flex-1 pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'production' ? 'text-indigo-500 border-indigo-500 bg-indigo-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Üretim</button>
+                        <button onClick={() => setSidebarTab('library')} className={`flex-1 pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'library' ? 'text-emerald-500 border-emerald-500 bg-emerald-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Bileşenler</button>
+                        <button onClick={() => setSidebarTab('styling')} className={`flex-1 pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'styling' ? 'text-amber-500 border-amber-500 bg-amber-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Stil</button>
+                    </div>
 
-                        {sidebarTab === 'templates' && (
-                            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                                <h4 className="text-[10px] font-black uppercase text-zinc-500 tracking-widest mb-4">Bileşen Kütüphanesi</h4>
-                                <div className="grid grid-cols-1 gap-2">
-                                    {COMPONENT_DEFINITIONS.map(def => (
-                                        <button key={def.id} onClick={() => addComponent(def)} className="group flex items-center gap-3 w-full p-4 bg-zinc-900/50 hover:bg-zinc-800 border border-zinc-800 hover:border-indigo-500/50 rounded-2xl transition-all text-left">
-                                            <div className="w-10 h-10 rounded-xl bg-zinc-800 group-hover:bg-indigo-600/20 flex items-center justify-center text-zinc-500 group-hover:text-indigo-500 transition-colors shrink-0">
-                                                <i className={`fa-solid ${def.icon}`}></i>
-                                            </div>
-                                            <div className="overflow-hidden">
-                                                <p className="text-xs font-black text-zinc-200 truncate">{def.label}</p>
-                                                <p className="text-[10px] text-zinc-500 truncate">{def.description}</p>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
+                    <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-8">
+                        {sidebarTab === 'production' && <AIProductionPanel />}
+                        {sidebarTab === 'library' && <ComponentLibrary />}
+                        {sidebarTab === 'styling' && (
+                            <div className="text-center py-12 text-zinc-600 italic text-xs">
+                                Stil ayarları yakında eklenecek...
                             </div>
                         )}
                     </div>
                 </aside>
 
-                <main className="flex-1 bg-black/40 overflow-auto p-12 custom-scrollbar flex flex-col items-center">
-                    <div className="flex gap-4 mb-8 bg-[#18181b] p-2 rounded-2xl border border-zinc-800 scale-90 sm:scale-100">
-                        <button onClick={() => setDesignMode(!designMode)} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${designMode ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:bg-zinc-800'}`}>
+                {/* Main Canvas Area */}
+                <main className="flex-1 bg-[#09090b] overflow-auto p-12 custom-scrollbar flex flex-col items-center relative">
+                    <div className="flex gap-4 mb-8 bg-[#121214]/80 backdrop-blur-xl p-2 rounded-2xl border border-zinc-800 shadow-2xl sticky top-0 z-30">
+                        <button onClick={() => setDesignMode(!designMode)} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${designMode ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/30' : 'text-zinc-500 hover:bg-zinc-800'}`}>
                             <i className={`fa-solid ${designMode ? 'fa-pen-ruler' : 'fa-eye'} mr-2`}></i>
                             {designMode ? 'Tasarım Modu' : 'İzleme Modu'}
                         </button>
                         <div className="w-px h-8 bg-zinc-800 mx-2"></div>
                         <div className="flex items-center gap-4 px-4">
-                            <input type="range" min="0.5" max="1.5" step="0.05" value={canvasScale} onChange={(e: any) => setCanvasScale(parseFloat(e.target.value))} className="w-32 accent-indigo-500" />
-                            <span className="text-[10px] font-black text-zinc-500 min-w-[40px]">% {Math.round(canvasScale * 100)}</span>
+                            <button onClick={() => setCanvasScale(Math.max(0.5, canvasScale - 0.1))} className="text-zinc-500 hover:text-white transition-colors"><i className="fa-solid fa-minus text-xs"></i></button>
+                            <span className="text-[10px] font-black text-zinc-500 min-w-[40px] text-center">% {Math.round(canvasScale * 100)}</span>
+                            <button onClick={() => setCanvasScale(Math.min(1.5, canvasScale + 0.1))} className="text-zinc-500 hover:text-white transition-colors"><i className="fa-solid fa-plus text-xs"></i></button>
                         </div>
                     </div>
 
                     <div
                         id="canvas-root"
-                        className="bg-white text-black shadow-2xl origin-top transition-transform relative select-none"
+                        className="bg-white text-black shadow-[0_0_100px_rgba(0,0,0,0.5)] origin-top transition-all relative"
                         style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: '20mm', transform: `scale(${canvasScale})` }}
                     >
-                        <ReadingStudioContentRenderer
-                            layout={layout}
-                            storyData={storyData}
-                        />
+                        <ReadingStudioContentRenderer layout={layout} storyData={storyData} />
 
-                        {/* Empty State Overlay */}
-                        {!storyData && !layout.some((l: ActiveComponent) => l.specificData?.text) && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-200 pointer-events-none opacity-40">
-                                <i className="fa-solid fa-magic-wand-sparkles text-8xl mb-6"></i>
-                                <p className="text-xl font-black uppercase tracking-[0.2em]">Sihrinizi Bekliyor</p>
-                                <p className="text-sm mt-2 font-medium">Sol panelden bir konu belirleyip üretmeye başlayın.</p>
+                        {!storyData && layout.length === 0 && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-300 pointer-events-none opacity-20 bg-zinc-50/50">
+                                <i className="fa-solid fa-wand-magic-sparkles text-9xl mb-8"></i>
+                                <p className="text-2xl font-black uppercase tracking-[0.3em]">Boş Tuval</p>
+                                <p className="text-xs mt-3 font-bold uppercase tracking-widest">Hikayenizi oluşturmak için sol paneli kullanın.</p>
                             </div>
                         )}
                     </div>
@@ -324,7 +160,8 @@ export const ReadingStudio = ({ onBack, onAddToWorkbook }: ReadingStudioProps) =
     );
 };
 
-interface ReadingStudioProps {
-    onBack: () => void;
-    onAddToWorkbook?: (data: any) => void;
-}
+export const ReadingStudio = (props: { onBack: () => void }) => (
+    <ReadingStudioProvider>
+        <ReadingStudioInner {...props} />
+    </ReadingStudioProvider>
+);

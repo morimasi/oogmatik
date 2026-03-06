@@ -1,15 +1,69 @@
-
-import React from 'react';
-import { ImageDisplay } from '../sheets/common';
-
+import React, { useState, useCallback, useRef } from 'react';
+import { ImageDisplay, QUESTION_TYPES } from '../sheets/common';
 import { InteractiveStoryData, LayoutItem } from '../../types';
+import { useReadingStudio } from '../../context/ReadingStudioContext';
 
-interface ReadingStudioContentRendererProps {
-    layout: LayoutItem[];
-    storyData: InteractiveStoryData | null;
-}
+const DraggableItem = ({ item, children }: { item: any, children: any }) => {
+    const { designMode, updateComponent, setSelectedId, selectedId } = useReadingStudio();
+    const isDragging = useRef(false);
+    const startPos = useRef({ x: 0, y: 0 });
 
-export const ReadingStudioContentRenderer = ({ layout, storyData }: ReadingStudioContentRendererProps) => {
+    const handleMouseDown = (e: any) => {
+        if (!designMode) return;
+        isDragging.current = true;
+        startPos.current = { x: e.clientX - (item.style.x || 0), y: e.clientY - (item.style.y || 0) };
+        setSelectedId(item.instanceId);
+
+        const onMouseMove = (moveEvent: MouseEvent) => {
+            if (!isDragging.current) return;
+            updateComponent(item.instanceId, {
+                style: {
+                    ...item.style,
+                    x: Math.round((moveEvent.clientX - startPos.current.x) / 5) * 5,
+                    y: Math.round((moveEvent.clientY - startPos.current.y) / 5) * 5
+                }
+            });
+        };
+
+        const onMouseUp = () => {
+            isDragging.current = false;
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+    };
+
+    const isSelected = selectedId === item.instanceId;
+
+    return (
+        <div
+            className={`absolute group transition-shadow ${designMode ? 'cursor-move ring-indigo-500/20' : ''} ${isSelected && designMode ? 'ring-2 ring-indigo-500 shadow-2xl z-50' : ''}`}
+            style={{
+                left: item.style.x,
+                top: item.style.y,
+                width: item.style.w,
+                height: item.style.h,
+                transform: `rotate(${item.style.rotation || 0}deg)`,
+                zIndex: item.style.zIndex
+            }}
+            onMouseDown={handleMouseDown}
+        >
+            {designMode && isSelected && (
+                <div className="absolute -top-10 left-0 bg-indigo-600 text-white text-[8px] font-black px-3 py-1.5 rounded-lg shadow-xl uppercase tracking-widest flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-2">
+                    <i className="fa-solid fa-arrows-up-down-left-right"></i>
+                    {item.label}
+                    <div className="w-px h-3 bg-white/20 mx-1"></div>
+                    <button onClick={(e: any) => { e.stopPropagation(); updateComponent(item.instanceId, { isVisible: false }); }} className="hover:text-red-300"><i className="fa-solid fa-trash"></i></button>
+                </div>
+            )}
+            {children}
+        </div>
+    );
+};
+
+export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: LayoutItem[], storyData: InteractiveStoryData | null }) => {
     if (!layout || !Array.isArray(layout)) return null;
 
     const renderItemContent = (item: any) => {
@@ -100,26 +154,64 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: ReadingStudi
             );
         }
 
+        if (item.id === 'logic_problem') {
+            const data = item.specificData || { questions: [] };
+            return (
+                <div className="h-full flex flex-col bg-emerald-50/30" style={boxStyle}>
+                    <h4 className="font-black text-xs uppercase mb-3 flex items-center gap-2">
+                        <i className="fa-solid fa-brain-circuit text-emerald-600"></i>
+                        Mantıksal Akıl Yürütme
+                    </h4>
+                    <div className="flex-1 space-y-4">
+                        {(data.questions || []).map((q: any, i: number) => (
+                            <div key={i} className="bg-white/80 p-3 rounded-xl border border-emerald-100 shadow-sm">
+                                <p className="text-sm font-bold text-zinc-900 mb-2">{q.text}</p>
+                                <div className="h-8 border-b border-zinc-200 border-dashed opacity-50"></div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        if (item.id === 'syllable_train') {
+            const storyText = storyData?.story || "";
+            const firstWord = storyText.split(' ')[0] || "Tren";
+            return (
+                <div className="h-full flex flex-col justify-center items-center" style={boxStyle}>
+                    <h4 className="font-black text-[10px] uppercase mb-4 opacity-50 self-start">Heceleme Antrenmanı</h4>
+                    <div className="flex gap-1">
+                        {firstWord.split('').map((char, i) => (
+                            <div key={i} className="w-10 h-10 border-2 border-zinc-900 rounded-lg flex items-center justify-center font-black text-lg bg-zinc-50 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                                {char.toUpperCase()}
+                            </div>
+                        ))}
+                        <div className="w-10 h-10 border-2 border-zinc-300 border-dashed rounded-lg flex items-center justify-center text-zinc-300 font-black">?</div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (item.id === 'tracker') {
+            return (
+                <div className="flex items-center gap-4 bg-zinc-50 p-4 rounded-2xl border-2 border-zinc-900" style={boxStyle}>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Okuma Takibi:</span>
+                    <div className="flex gap-2">
+                        {[1, 2, 3].map(i => <div key={i} className="w-6 h-6 border-2 border-zinc-900 rounded-full flex items-center justify-center text-[10px] font-black">{i}</div>)}
+                    </div>
+                </div>
+            );
+        }
+
         return <div style={boxStyle}>{item.label}</div>;
     };
 
     return (
         <div className="relative w-full h-full min-h-[800px] bg-white text-black">
             {layout.filter((l: any) => l.isVisible).map((item: any) => (
-                <div
-                    key={item.instanceId}
-                    className="absolute"
-                    style={{
-                        left: item.style.x,
-                        top: item.style.y,
-                        width: item.style.w,
-                        height: item.style.h,
-                        transform: `rotate(${item.style.rotation || 0}deg)`,
-                        zIndex: item.style.zIndex
-                    }}
-                >
+                <DraggableItem key={item.instanceId} item={item}>
                     {renderItemContent(item)}
-                </div>
+                </DraggableItem>
             ))}
         </div>
     );

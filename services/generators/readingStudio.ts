@@ -23,8 +23,15 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     if (config.countMultipleChoice > 0) tasksInstruction += `\n- Çoktan Seçmeli Test: ${config.countMultipleChoice} adet (Çeldiriciler mantıklı olmalı).`;
     if (config.countTrueFalse > 0) tasksInstruction += `\n- Doğru/Yanlış Sorgusu: ${config.countTrueFalse} adet.`;
     if (config.countFillBlanks > 0) tasksInstruction += `\n- Boşluk Doldurma: ${config.countFillBlanks} adet (Metindeki kilit kavramlar seçilmeli).`;
-    if (config.countLogic > 0) tasksInstruction += `\n- Mantık/Muhakeme: ${config.countLogic} adet (Hikaye evreninde geçen bir problem).`;
+    if (config.countLogic > 0) tasksInstruction += `\n- Mantık/Muhakeme: ${config.countLogic} adet (Hikaye evreninde geçen, ${config.logicDifficulty || 'Medium'} zorlukta bir problem).`;
     if (config.countInference > 0) tasksInstruction += `\n- Çıkarım Yapma: ${config.countInference} adet (Satır aralarını okuma soruları).`;
+
+    if (config.phonemeFocus) {
+        tasksInstruction += `\n- ÖNEMLİ: Hikaye metninde ve sorularda özellikle "${config.phonemeFocus}" ses/harf gruplarına yoğunlaş (Disleksi müdahale odağı).`;
+    }
+    if (config.syllableFocus) {
+        tasksInstruction += `\n- TEKNİK: Kelimeleri hece yapılarına göre analiz edilebilir netlikte tut.`;
+    }
 
     const prompt = `
     [ROL: DİSLEKSİ UZMANI, ÇOCUK EDEBİYATI YAZARI VE EĞİTİM TEKNOLOĞU]
@@ -35,8 +42,8 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     1. KONU/TEMA: "${config.topic}"
     2. TÜR: ${config.genre}
     3. ANLATIM TONU: ${config.tone}
-    4. HEDEF KİTLE: ${config.gradeLevel} seviyesi.
-    5. ANA KARAKTER: İSİM: "${config.characterName || 'Öğrenci'}", ÖZELLİKLER: "${config.characterTraits || 'Meraklı ve cesur'}"
+    4. HEDEF KİTLE: ${config.gradeLevel} seviyesi. (ÖĞRENCİ: ${config.studentName || 'Anonim'})
+    5. ANA KARAKTER: İSİM: "${config.characterName || config.studentName || 'Öğrenci'}", ÖZELLİKLER: "${config.characterTraits || 'Meraklı ve cesur'}"
     6. DİL KARMAŞIKLIĞI: ${complexityMap[config.textComplexity || 'moderate']}
     7. METİN UZUNLUĞU: ${lengthMap[config.length || 'medium']}
     

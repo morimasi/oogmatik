@@ -590,6 +590,7 @@ export interface OCRResult {
 
 export interface ReadingStudioConfig {
     gradeLevel: string;
+    studentId?: string;
     studentName: string;
     characterName?: string;
     characterTraits?: string;
@@ -609,11 +610,12 @@ export interface ReadingStudioConfig {
     includeImage: boolean;
     imageSize: number;
     imageOpacity: number;
-    imagePosition: 'left' | 'right' | 'top' | 'background';
+    imagePosition: 'left' | 'right' | 'background';
     imageGeneration: {
         enabled: boolean;
         style: string;
         complexity: 'simple' | 'detailed';
+        colorPalette?: string;
     };
     include5N1K: boolean;
     countMultipleChoice: number;
@@ -623,6 +625,9 @@ export interface ReadingStudioConfig {
     countInference: number;
     focusVocabulary: boolean;
     includeCreativeTask: boolean;
+    phonemeFocus?: string; // Örn: "b-d", "s-z", "p-b"
+    syllableFocus?: boolean; // Hece bazlı renklendirme talebi
+    logicDifficulty?: 'Easy' | 'Medium' | 'Hard';
     includeWordHunt: boolean;
     includeSpellingCheck: boolean;
     showReadingTracker: boolean;
@@ -631,7 +636,7 @@ export interface ReadingStudioConfig {
     showDateSection: boolean;
 }
 
-export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes' | 'pedagogical_note';
+export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'pedagogical_note' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes' | 'logic_problem' | 'syllable_train';
 
 export interface LayoutItem {
     id: LayoutSectionId;
