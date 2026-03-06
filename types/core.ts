@@ -631,7 +631,7 @@ export interface ReadingStudioConfig {
     showDateSection: boolean;
 }
 
-export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes';
+export type LayoutSectionId = 'header' | 'tracker' | 'story_block' | 'vocabulary' | 'questions_5n1k' | 'questions_test' | 'questions_inference' | 'creative' | 'notes' | 'pedagogical_note';
 
 export interface LayoutItem {
     id: LayoutSectionId;

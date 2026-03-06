@@ -84,9 +84,9 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
     { id: 'notes', label: 'Not Alanı', defaultTitle: 'NOTLAR', icon: 'fa-note-sticky', description: 'Boş not satırları.', defaultStyle: { h: 100 } },
 ];
 
-const AutoContentWrapper = ({ children, onSizeChange, enabled }: { children?: React.ReactNode, onSizeChange: (h: number) => void, enabled: boolean }) => {
-    const contentRef = useRef<HTMLDivElement>(null);
-    const lastHeight = useRef<number>(0);
+const AutoContentWrapper = ({ children, onSizeChange, enabled }: { children?: any, onSizeChange: (h: number) => void, enabled: boolean }) => {
+    const contentRef = useRef(null as HTMLDivElement | null);
+    const lastHeight = useRef(0 as number);
 
     useLayoutEffect(() => {
         if (!enabled || !contentRef.current) return;
@@ -111,7 +111,7 @@ const AutoContentWrapper = ({ children, onSizeChange, enabled }: { children?: Re
     );
 };
 
-export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWorkbook }) => {
+export const ReadingStudio = ({ onBack, onAddToWorkbook }: ReadingStudioProps) => {
     const { user } = useAuth();
     const { students, setActiveStudent, activeStudent } = useStudent();
     const [isLoading, setIsLoading] = useState(false);
@@ -120,14 +120,14 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
 
-    const [storyData, setStoryData] = useState<InteractiveStoryData | null>(null);
-    const [sidebarTab, setSidebarTab] = useState<'settings' | 'library' | 'templates'>('settings');
-    const [layout, setLayout] = useState<ActiveComponent[]>([]);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [storyData, setStoryData] = useState(null as InteractiveStoryData | null);
+    const [sidebarTab, setSidebarTab] = useState('settings' as 'settings' | 'library' | 'templates');
+    const [layout, setLayout] = useState([] as ActiveComponent[]);
+    const [selectedId, setSelectedId] = useState(null as string | null);
     const [designMode, setDesignMode] = useState(true);
     const [smartFlow, setSmartFlow] = useState(true);
 
-    const [config, setConfig] = useState<ReadingStudioConfig>({
+    const [config, setConfig] = useState({
         gradeLevel: '3. Sınıf', studentName: '', topic: '', genre: 'Macera', tone: 'Eğlenceli',
         length: 'medium', layoutDensity: 'comfortable', textComplexity: 'moderate',
         fontSettings: { family: 'OpenDyslexic', size: 16, lineHeight: 1.8, letterSpacing: 1, wordSpacing: 2 },
@@ -136,12 +136,12 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
         include5N1K: true, countMultipleChoice: 3, countTrueFalse: 2, countFillBlanks: 2, countLogic: 1, countInference: 1,
         focusVocabulary: true, includeCreativeTask: true, includeWordHunt: false, includeSpellingCheck: false,
         showReadingTracker: false, showSelfAssessment: false, showTeacherNotes: false, showDateSection: true
-    });
+    } as ReadingStudioConfig);
 
-    const [templates, setTemplates] = useState<SavedTemplate[]>([]);
+    const [templates, setTemplates] = useState([] as SavedTemplate[]);
     const [templateName, setTemplateName] = useState("");
     const [canvasScale, setCanvasScale] = useState(0.85);
-    const canvasRef = useRef<HTMLDivElement>(null);
+    const canvasRef = useRef(null as HTMLDivElement | null);
 
     // Initial layout setup
     useEffect(() => {
@@ -161,7 +161,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
             setStoryData(data);
 
             // Auto-populate layout with generated data
-            const newLayout = layout.map(item => {
+            const newLayout = layout.map((item: ActiveComponent) => {
                 const updatedItem = { ...item };
                 if (item.id === 'header') updatedItem.specificData = { title: data.title, subtitle: `${data.genre} | ${data.gradeLevel}` };
                 if (item.id === 'story_block') updatedItem.specificData = { text: data.story, imagePrompt: data.imagePrompt };
@@ -178,7 +178,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
     };
 
     const addComponent = (def: ComponentDefinition) => {
-        const lastY = layout.length > 0 ? Math.max(...layout.map(l => (l.style.y || 0) + (l.style.h || 0))) : 0;
+        const lastY = layout.length > 0 ? Math.max(...layout.map((l: ActiveComponent) => (l.style.y || 0) + (l.style.h || 0))) : 0;
         const newComp: ActiveComponent = {
             ...def,
             instanceId: `inst_${Date.now()}`,
@@ -192,7 +192,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
 
     const handleAutoResize = useCallback((instanceId: string, h: number) => {
         if (!smartFlow) return;
-        setLayout(prev => prev.map(item => item.instanceId === instanceId ? { ...item, style: { ...item.style, h: Math.max(50, h) } } : item));
+        setLayout((prev: ActiveComponent[]) => prev.map((item: ActiveComponent) => item.instanceId === instanceId ? { ...item, style: { ...item.style, h: Math.max(50, h) } } : item));
     }, [smartFlow]);
 
     const handlePrint = async (action: 'print' | 'download') => {
@@ -228,34 +228,34 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                                 <h4 className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Hikaye Ayarları</h4>
                                 <div>
                                     <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Tema / Konu</label>
-                                    <input type="text" value={config.topic} onChange={e => setConfig({ ...config, topic: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Uzay Macerası" />
+                                    <input type="text" value={config.topic} onChange={(e: any) => setConfig({ ...config, topic: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Uzay Macerası" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
                                         <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Kahraman Adı</label>
-                                        <input type="text" value={config.characterName} onChange={e => setConfig({ ...config, characterName: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Mert" />
+                                        <input type="text" value={config.characterName} onChange={(e: any) => setConfig({ ...config, characterName: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Mert" />
                                     </div>
                                     <div>
                                         <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Sınıf</label>
-                                        <select value={config.gradeLevel} onChange={e => setConfig({ ...config, gradeLevel: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
+                                        <select value={config.gradeLevel} onChange={(e: any) => setConfig({ ...config, gradeLevel: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
                                             {['1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}
                                         </select>
                                     </div>
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Karakter Özellikleri</label>
-                                    <input type="text" value={config.characterTraits} onChange={e => setConfig({ ...config, characterTraits: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Cesur, hayvansever" />
+                                    <input type="text" value={config.characterTraits} onChange={(e: any) => setConfig({ ...config, characterTraits: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white" placeholder="Örn: Cesur, hayvansever" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
                                         <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Tür</label>
-                                        <select value={config.genre} onChange={e => setConfig({ ...config, genre: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
+                                        <select value={config.genre} onChange={(e: any) => setConfig({ ...config, genre: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
                                             {['Macera', 'Masal', 'Gizem', 'Bilim Kurgu', 'Fabl', 'Sosyal Öykü'].map(g => <option key={g} value={g}>{g}</option>)}
                                         </select>
                                     </div>
                                     <div>
                                         <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Uzunluk</label>
-                                        <select value={config.length} onChange={e => setConfig({ ...config, length: e.target.value as any })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
+                                        <select value={config.length} onChange={(e: any) => setConfig({ ...config, length: e.target.value as any })} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white">
                                             <option value="short">Kısa</option>
                                             <option value="medium">Orta</option>
                                             <option value="long">Uzun</option>
@@ -294,7 +294,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                         </button>
                         <div className="w-px h-8 bg-zinc-800 mx-2"></div>
                         <div className="flex items-center gap-4 px-4">
-                            <input type="range" min="0.5" max="1.5" step="0.05" value={canvasScale} onChange={e => setCanvasScale(parseFloat(e.target.value))} className="w-32 accent-indigo-500" />
+                            <input type="range" min="0.5" max="1.5" step="0.05" value={canvasScale} onChange={(e: any) => setCanvasScale(parseFloat(e.target.value))} className="w-32 accent-indigo-500" />
                             <span className="text-[10px] font-black text-zinc-500 min-w-[40px]">% {Math.round(canvasScale * 100)}</span>
                         </div>
                     </div>
@@ -310,7 +310,7 @@ export const ReadingStudio: React.FC<ReadingStudioProps> = ({ onBack, onAddToWor
                         />
 
                         {/* Empty State Overlay */}
-                        {!storyData && !layout.some(l => l.specificData?.text) && (
+                        {!storyData && !layout.some((l: ActiveComponent) => l.specificData?.text) && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-200 pointer-events-none opacity-40">
                                 <i className="fa-solid fa-magic-wand-sparkles text-8xl mb-6"></i>
                                 <p className="text-xl font-black uppercase tracking-[0.2em]">Sihrinizi Bekliyor</p>

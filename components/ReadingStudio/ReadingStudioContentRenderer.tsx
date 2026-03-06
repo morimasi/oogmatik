@@ -2,12 +2,14 @@
 import React from 'react';
 import { ImageDisplay } from '../sheets/common';
 
+import { InteractiveStoryData, LayoutItem } from '../../types';
+
 interface ReadingStudioContentRendererProps {
-    layout: any[];
-    storyData: any;
+    layout: LayoutItem[];
+    storyData: InteractiveStoryData | null;
 }
 
-export const ReadingStudioContentRenderer: React.FC<ReadingStudioContentRendererProps> = ({ layout, storyData }) => {
+export const ReadingStudioContentRenderer = ({ layout, storyData }: ReadingStudioContentRendererProps) => {
     if (!layout || !Array.isArray(layout)) return null;
 
     const renderItemContent = (item: any) => {
@@ -103,7 +105,7 @@ export const ReadingStudioContentRenderer: React.FC<ReadingStudioContentRenderer
 
     return (
         <div className="relative w-full h-full min-h-[800px] bg-white text-black">
-            {layout.filter(l => l.isVisible).map((item: any) => (
+            {layout.filter((l: any) => l.isVisible).map((item: any) => (
                 <div
                     key={item.instanceId}
                     className="absolute"

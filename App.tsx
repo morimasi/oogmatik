@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions, SavedAssessment, Curriculum, ActiveCurriculumSession } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
@@ -20,16 +20,16 @@ import { AssessmentReportViewer } from './components/AssessmentReportViewer';
 import * as offlineGenerators from './services/offlineGenerators';
 
 // Lazy Loaded Components
-const ProfileView = React.lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
-const AdminDashboard = React.lazy(() => import('./components/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
-const MessagesView = React.lazy(() => import('./components/MessagesView').then(module => ({ default: module.MessagesView })));
-const OCRScanner = React.lazy(() => import('./components/OCRScanner').then(module => ({ default: module.OCRScanner })));
-const CurriculumView = React.lazy(() => import('./components/CurriculumView').then(module => ({ default: module.CurriculumView })));
-const ReadingStudio = React.lazy(() => import('./components/ReadingStudio/ReadingStudio').then(module => ({ default: module.ReadingStudio })));
-const MathStudio = React.lazy(() => import('./components/MathStudio/MathStudio').then(module => ({ default: module.MathStudio })));
-const StudentDashboard = React.lazy(() => import('./components/Student/StudentDashboard').then(module => ({ default: module.StudentDashboard })));
-const ScreeningModule = React.lazy(() => import('./components/Screening/ScreeningModule').then(module => ({ default: module.ScreeningModule })));
-const AssessmentModule = React.lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
+const ProfileView = lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
+const MessagesView = lazy(() => import('./components/MessagesView').then(module => ({ default: module.MessagesView })));
+const OCRScanner = lazy(() => import('./components/OCRScanner').then(module => ({ default: module.OCRScanner })));
+const CurriculumView = lazy(() => import('./components/CurriculumView').then(module => ({ default: module.CurriculumView })));
+const ReadingStudio = lazy(() => import('./components/ReadingStudio/ReadingStudio').then(module => ({ default: module.ReadingStudio })));
+const MathStudio = lazy(() => import('./components/MathStudio/MathStudio').then(module => ({ default: module.MathStudio })));
+const StudentDashboard = lazy(() => import('./components/Student/StudentDashboard').then(module => ({ default: module.StudentDashboard })));
+const ScreeningModule = lazy(() => import('./components/Screening/ScreeningModule').then(module => ({ default: module.ScreeningModule })));
+const AssessmentModule = lazy(() => import('./components/AssessmentModule').then(module => ({ default: module.AssessmentModule })));
 
 
 const initialStyleSettings: StyleSettings = {
@@ -116,7 +116,7 @@ const HeaderDropdown = ({ label, icon, children, colorClass = "text-zinc-500" }:
     children?: any,
     colorClass?: string
 }) => {
-    const [isOpen, setIsOpen] = React.useState(false);
+    const [isOpen, setIsOpen] = useState(false);
     return (
         <div className="relative group" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
             <button className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 font-bold text-xs uppercase tracking-wider ${colorClass}`}>
@@ -148,45 +148,45 @@ const DropdownItem = ({ icon, label, onClick, badge }: { icon: string, label: st
 const AppContent = () => {
     const { user, logout } = useAuth();
     const { activeStudent, setActiveStudent, students } = useStudent();
-    const [currentView, setCurrentView] = React.useState<ExtendedView>('generator');
-    const [viewHistory, setViewHistory] = React.useState<ExtendedView[]>([]);
-    const [selectedActivity, setSelectedActivity] = React.useState<ActivityType | null>(null);
-    const [worksheetData, setWorksheetData] = React.useState<WorksheetData>(null);
-    const [isLoading, setIsLoading] = React.useState<boolean>(false);
-    const [error, setError] = React.useState<string | null>(null);
-    const [activeCurriculumSession, setActiveCurriculumSession] = React.useState<ActiveCurriculumSession | null>(null);
-    const [loadedCurriculum, setLoadedCurriculum] = React.useState<Curriculum | null>(null);
-    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-    const [isSidebarExpanded, setIsSidebarExpanded] = React.useState(true);
-    const [zenMode, setZenMode] = React.useState(false);
-    const [openModal, setOpenModal] = React.useState<ModalType | null>(null);
-    const [isFeedbackOpen, setIsFeedbackOpen] = React.useState(false);
-    const [isAuthModalOpen, setIsAuthModalOpen] = React.useState(false);
-    const [unreadCount, setUnreadCount] = React.useState(0);
-    const [isTourOpen, setIsTourOpen] = React.useState(false);
-    const [studentProfile, setStudentProfile] = React.useState<StudentProfile | null>(null);
-    const [isStudentModalOpen, setIsStudentModalOpen] = React.useState(false);
-    const [selectedSavedReport, setSelectedSavedReport] = React.useState<SavedAssessment | null>(null);
-    const [workbookItems, setWorkbookItems] = React.useState<CollectionItem[]>([]);
-    const [workbookSettings, setWorkbookSettings] = React.useState<WorkbookSettings>({
+    const [currentView, setCurrentView] = useState('generator' as ExtendedView);
+    const [viewHistory, setViewHistory] = useState([] as ExtendedView[]);
+    const [selectedActivity, setSelectedActivity] = useState(null as ActivityType | null);
+    const [worksheetData, setWorksheetData] = useState(null as WorksheetData);
+    const [isLoading, setIsLoading] = useState(false as boolean);
+    const [error, setError] = useState(null as string | null);
+    const [activeCurriculumSession, setActiveCurriculumSession] = useState(null as ActiveCurriculumSession | null);
+    const [loadedCurriculum, setLoadedCurriculum] = useState(null as Curriculum | null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+    const [zenMode, setZenMode] = useState(false);
+    const [openModal, setOpenModal] = useState(null as ModalType | null);
+    const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [isTourOpen, setIsTourOpen] = useState(false);
+    const [studentProfile, setStudentProfile] = useState(null as StudentProfile | null);
+    const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+    const [selectedSavedReport, setSelectedSavedReport] = useState(null as SavedAssessment | null);
+    const [workbookItems, setWorkbookItems] = useState([] as CollectionItem[]);
+    const [workbookSettings, setWorkbookSettings] = useState({
         title: 'Çalışma Kitapçığı', studentName: '', schoolName: '', year: new Date().getFullYear().toString(),
         teacherNote: '', theme: 'modern', accentColor: '#4f46e5', coverStyle: 'centered',
         showTOC: true, showPageNumbers: true, showWatermark: false, watermarkOpacity: 0.05, showBackCover: true
-    });
+    } as WorkbookSettings);
 
     // Screening to Plan Bridge
-    const [screeningPlanData, setScreeningPlanData] = React.useState<{ name: string, age: number, weaknesses: string[], diagnosisContext?: string } | null>(null);
+    const [screeningPlanData, setScreeningPlanData] = useState(null as { name: string, age: number, weaknesses: string[], diagnosisContext?: string } | null);
 
-    const [theme, setTheme] = React.useState<AppTheme>(() => {
+    const [theme, setTheme] = useState((() => {
         try { const storedTheme = localStorage.getItem('app-theme'); return (storedTheme as AppTheme) || 'anthracite'; } catch (e) { return 'anthracite'; }
-    });
-    const [uiSettings, setUiSettings] = React.useState<UiSettings>(() => {
+    })() as AppTheme);
+    const [uiSettings, setUiSettings] = useState((() => {
         try { const stored = localStorage.getItem('app-ui-settings'); return stored ? { ...initialUiSettings, ...JSON.parse(stored) } : initialUiSettings; } catch (e) { return initialUiSettings; }
-    });
-    const [styleSettings, setStyleSettings] = React.useState<StyleSettings>(initialStyleSettings);
-    const [historyItems, setHistoryItems] = React.useState<HistoryItem[]>(() => {
+    })() as UiSettings);
+    const [styleSettings, setStyleSettings] = useState(initialStyleSettings as StyleSettings);
+    const [historyItems, setHistoryItems] = useState((() => {
         try { const stored = localStorage.getItem('user_history'); return stored ? JSON.parse(stored) : []; } catch { return []; }
-    });
+    })() as HistoryItem[]);
 
     const navigateTo = (view: ExtendedView) => { if (currentView === view) return; setViewHistory((prev: ExtendedView[]) => [...prev, currentView]); setCurrentView(view); };
     const handleGoBack = () => {
@@ -207,7 +207,7 @@ const AppContent = () => {
         handleOpenStudio('curriculum');
     };
 
-    React.useEffect(() => { localStorage.setItem('user_history', JSON.stringify(historyItems)); }, [historyItems]);
+    useEffect(() => { localStorage.setItem('user_history', JSON.stringify(historyItems)); }, [historyItems]);
     const addToHistory = (activityType: ActivityType, data: SingleWorksheetData[]) => {
         const activity = ACTIVITIES.find(a => a.id === activityType);
         const category = ACTIVITY_CATEGORIES.find(c => c.activities.includes(activityType));
@@ -227,12 +227,12 @@ const AppContent = () => {
         try { await worksheetService.saveWorksheet(user.id, name, activityType, data, activity.icon, { id: category.id, title: category.title }, styleSettings, studentProfile || undefined, studentProfile?.studentId); alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`); } catch (e: any) { alert(`Kaydedilirken bir hata oluştu: ${e.message}.`); }
     };
 
-    const loadSavedWorksheet = (item: any) => {
+    const loadSavedWorksheet = (item: SavedWorksheet | Curriculum | SavedAssessment | any) => {
         if (item.report || item.activityType === ActivityType.ASSESSMENT_REPORT) { setSelectedSavedReport(item as SavedAssessment); return; }
         if (item.schedule && item.durationDays) { setLoadedCurriculum(item as Curriculum); navigateTo('curriculum'); return; }
         if (item.activityType === ActivityType.WORKBOOK || item.workbookItems) { if (item.workbookItems && item.workbookSettings) { setWorkbookItems(item.workbookItems); setWorkbookSettings(item.workbookSettings); navigateTo('workbook'); } return; }
         setSelectedActivity(item.activityType); setWorksheetData(item.worksheetData); if (item.styleSettings) setStyleSettings(item.styleSettings);
-        if (item.studentProfile) { setStudentProfile(item.studentProfile); if (item.studentId) { const s = students.find((x: any) => x.id === item.studentId); if (s) setActiveStudent(s); } } else { setStudentProfile(null); setActiveStudent(null); }
+        if (item.studentProfile) { setStudentProfile(item.studentProfile); if (item.studentId) { const s = students.find((x: { id: string }) => x.id === item.studentId); if (s) setActiveStudent(s); } } else { setStudentProfile(null); setActiveStudent(null); }
         navigateTo('generator'); setIsSidebarExpanded(true);
     };
 
@@ -381,7 +381,7 @@ const AppContent = () => {
             {/* SPECIAL RENDER FOR STUDIOS WHEN IN THAT VIEW */}
             {currentView === 'curriculum' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-                    <React.Suspense fallback={<LoadingSpinner />}>
+                    <Suspense fallback={<LoadingSpinner />}>
                         <CurriculumView
                             onBack={handleGoBack}
                             onSelectActivity={handleSelectActivity as any}
@@ -389,70 +389,70 @@ const AppContent = () => {
                             initialPlan={loadedCurriculum}
                             preFillData={screeningPlanData}
                         />
-                    </React.Suspense>
+                    </Suspense>
                 </div>
             )}
 
             {currentView === 'reading-studio' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-                    <React.Suspense fallback={<LoadingSpinner />}>
+                    <Suspense fallback={<LoadingSpinner />}>
                         <ReadingStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                    </React.Suspense>
+                    </Suspense>
                 </div>
             )}
 
             {currentView === 'math-studio' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-                    <React.Suspense fallback={<LoadingSpinner />}>
+                    <Suspense fallback={<LoadingSpinner />}>
                         <MathStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                    </React.Suspense>
+                    </Suspense>
                 </div>
             )}
 
             {currentView === 'ocr' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-                    <React.Suspense fallback={<LoadingSpinner />}>
+                    <Suspense fallback={<LoadingSpinner />}>
                         <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
-                    </React.Suspense>
+                    </Suspense>
                 </div>
             )}
 
             {currentView === 'students' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-                    <React.Suspense fallback={<LoadingSpinner />}>
+                    <Suspense fallback={<LoadingSpinner />}>
                         <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
-                    </React.Suspense>
+                    </Suspense>
                 </div>
             )}
 
             {currentView === 'messages' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-                    <React.Suspense fallback={<LoadingSpinner />}>
+                    <Suspense fallback={<LoadingSpinner />}>
                         <MessagesView onBack={handleGoBack} />
-                    </React.Suspense>
+                    </Suspense>
                 </div>
             )}
 
             {/* Admin view is special, keeps its own context */}
             {currentView === 'admin' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[70] overflow-hidden">
-                    <React.Suspense fallback={<LoadingSpinner />}>
+                    <Suspense fallback={<LoadingSpinner />}>
                         <AdminDashboard onBack={handleGoBack} />
-                    </React.Suspense>
+                    </Suspense>
                 </div>
             )}
 
             {/* Assessment and Screening run inside ContentArea via currentView prop, but need special handling in ContentArea */}
             {currentView === 'screening' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-                    <React.Suspense fallback={<LoadingSpinner />}>
+                    <Suspense fallback={<LoadingSpinner />}>
                         <ScreeningModule
                             onBack={handleGoBack}
                             onSelectActivity={handleSelectActivity}
                             onAddToWorkbook={handleAddToWorkbookGeneral as any}
                             onGeneratePlan={(n: string, a: number, w: string[], c?: string) => handleGeneratePlanFromScreening(n, a, w, c)}
                         />
-                    </React.Suspense>
+                    </Suspense>
                 </div>
             )}
 
