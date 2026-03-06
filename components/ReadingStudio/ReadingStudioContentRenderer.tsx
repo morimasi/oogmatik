@@ -110,6 +110,7 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
 };
 
 export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: LayoutItem[], storyData: InteractiveStoryData | null }) => {
+    const { designMode } = useReadingStudio();
     if (!layout || !Array.isArray(layout)) return null;
 
     const renderItemContent = (item: any) => {
