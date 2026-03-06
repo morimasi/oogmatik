@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { LayoutItem } from '../../types';
 import { useUniversalStudio } from '../../context/UniversalStudioContext';
 import { BlockRenderer, SheetRenderer } from '../SheetRenderer';
+import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 
 const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.ReactNode }) => {
     const { 
@@ -66,12 +67,12 @@ const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.R
                 let newX = Math.round((initialStyle.x + dx) / 8) * 8;
                 let newY = Math.round((initialStyle.y + dy) / 8) * 8;
                 
-                const centerX = 794 / 2;
+                const centerX = A4_WIDTH_PX / 2;
                 const itemCenterX = newX + (initialStyle.w / 2);
                 
                 if (Math.abs(itemCenterX - centerX) < 15) newX = centerX - (initialStyle.w / 2);
                 if (Math.abs(newX - 20) < 15) newX = 20;
-                if (Math.abs((newX + initialStyle.w) - 774) < 15) newX = 774 - initialStyle.w;
+                if (Math.abs((newX + initialStyle.w) - (A4_WIDTH_PX - 20)) < 15) newX = (A4_WIDTH_PX - 20) - initialStyle.w;
 
                 const deltaX = newX - initialStyle.x;
                 const deltaY = newY - initialStyle.y;
@@ -286,7 +287,7 @@ export const UniversalCanvas = () => {
                         key={pageIndex}
                         ref={pageIndex === 0 ? canvasRef : null}
                         className={`worksheet-page print-page relative bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid' : ''}`}
-                        style={{ width: 794, minHeight: 1123, padding: 0 }}
+                        style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: 0 }}
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
                         onMouseUp={handleCanvasMouseUp}

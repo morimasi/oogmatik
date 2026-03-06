@@ -6,11 +6,12 @@ import { ReadingStudioContentRenderer } from './ReadingStudioContentRenderer';
 import { StudentSelector } from './Editor/StudentSelector';
 import { AIProductionPanel } from './Editor/AIProductionPanel';
 import { ComponentLibrary } from './Editor/ComponentLibrary';
+import { ContentPanel } from './Editor/ContentPanel';
+import { ArchivePanel } from './Editor/ArchivePanel';
 import { LayoutItem } from '../../types'; // Added LayoutItem import
+import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 
-// --- CONFIGURATION CONSTANTS ---
-const A4_WIDTH_PX = 794;
-const A4_HEIGHT_PX = 1123;
+import { StylePanel } from './Editor/StylePanel';
 
 interface ReadingStudioInnerProps {
     onBack: () => void;
@@ -21,10 +22,10 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     const {
         config, setStoryData, layout, setLayout,
         isLoading, setIsLoading, designMode, setDesignMode,
-        storyData, setSelectedId
+        storyData, setSelectedId, undo, redo, canUndo, canRedo
     } = useReadingStudio();
 
-    const [sidebarTab, setSidebarTab] = useState('production' as 'production' | 'library' | 'styling');
+    const [sidebarTab, setSidebarTab] = useState('production' as 'production' | 'library' | 'styling' | 'content' | 'archive');
     const [canvasScale, setCanvasScale] = useState(0.85);
 
     // Initial layout setup
@@ -32,12 +33,12 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         if (layout.length === 0) {
             setLayout([
                 {
-                    id: 'header', label: 'Başlık Künyesi', instanceId: 'init_header', isVisible: true,
+                    id: 'header', label: 'Başlık Künyesi', instanceId: 'init_header', isVisible: true, pageIndex: 0,
                     specificData: { title: "YENİ HİKAYE", subtitle: "Okuma ve Anlama Çalışması" },
                     style: { x: 20, y: 20, w: 754, h: 120, zIndex: 1, rotation: 0, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
                 },
                 {
-                    id: 'story_block', label: 'Hikaye Metni', instanceId: 'init_story', isVisible: true,
+                    id: 'story_block', label: 'Hikaye Metni', instanceId: 'init_story', isVisible: true, pageIndex: 0,
                     specificData: { text: "Buraya AI ile üretilen hikaye gelecek..." },
                     style: { x: 20, y: 160, w: 754, h: 420, zIndex: 1, rotation: 0, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
                 }
@@ -51,56 +52,65 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
             const result = await generateInteractiveStory(config);
             setStoryData(result);
 
-            // Create initial layout based on result
-            let newLayout: LayoutItem[] = [
-                {
-                    id: 'header', label: 'Başlık Künyesi', instanceId: `header_${Date.now()}`, isVisible: true,
-                    specificData: { title: result.title, subtitle: `${config.genre} - ${config.gradeLevel}` },
-                    style: { x: 20, y: 20, w: 754, h: 120, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
-                },
-                {
-                    id: 'story_block', label: 'Hikaye Metni', instanceId: `story_${Date.now()}`, isVisible: true,
-                    specificData: { text: result.story },
-                    style: { x: 20, y: 160, w: 754, h: 450, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 16, fontFamily: 'OpenDyslexic', lineHeight: 1.8 }
-                }
-            ];
+            let newLayout: LayoutItem[] = [];
+            let lastY = 20;
+            let currentPage = 0;
 
-            let lastY = 630;
+            const addItem = (itemData: any, expectedHeight: number) => {
+                if (lastY + expectedHeight > A4_HEIGHT_PX - 40) {
+                    currentPage++;
+                    lastY = 20;
+                }
+                itemData.pageIndex = currentPage;
+                itemData.style.y = lastY;
+                newLayout.push(itemData);
+                lastY += expectedHeight + 20;
+            };
+
+            // Header
+            addItem({
+                id: 'header', label: 'Başlık Künyesi', instanceId: `header_${Date.now()}`, isVisible: true,
+                specificData: { title: result.title, subtitle: `${config.genre} - ${config.gradeLevel}` },
+                style: { x: 20, y: 0, w: 754, h: 120, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+            }, 120);
+
+            // Story Block
+            addItem({
+                id: 'story_block', label: 'Hikaye Metni', instanceId: `story_${Date.now()}`, isVisible: true,
+                specificData: { text: result.story },
+                style: { x: 20, y: 0, w: 754, h: 450, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 16, fontFamily: 'OpenDyslexic', lineHeight: 1.8 }
+            }, 450);
 
             if (result.vocabulary && result.vocabulary.length > 0) {
-                newLayout.push({
+                addItem({
                     id: 'vocabulary', label: 'Kelime Dağarcığı', instanceId: `voc_${Date.now()}`, isVisible: true,
                     specificData: { words: result.vocabulary },
-                    style: { x: 20, y: lastY, w: 754, h: 150, zIndex: 1, rotation: 0, padding: 15, backgroundColor: '#f8fafc', borderColor: '#e2e8f0', borderWidth: 1, borderStyle: 'solid', borderRadius: 12, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
-                });
-                lastY += 170;
+                    style: { x: 20, y: 0, w: 754, h: 150, zIndex: 1, rotation: 0, padding: 15, backgroundColor: '#f8fafc', borderColor: '#e2e8f0', borderWidth: 1, borderStyle: 'solid', borderRadius: 12, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                }, 150);
             }
 
             if (result.fiveW1H && result.fiveW1H.length > 0) {
-                newLayout.push({
+                addItem({
                     id: '5n1k', label: '5N1K Çalışması', instanceId: `q5n1k_${Date.now()}`, isVisible: true,
                     specificData: { questions: result.fiveW1H },
-                    style: { x: 20, y: lastY, w: 754, h: 400, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
-                });
-                lastY += 420;
+                    style: { x: 20, y: 0, w: 754, h: 400, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                }, 400);
             }
 
             if (result.logicQuestions && result.logicQuestions.length > 0) {
-                newLayout.push({
+                addItem({
                     id: 'logic_problem', label: 'Mantık Bulmacası', instanceId: `logic_${Date.now()}`, isVisible: true,
                     specificData: { puzzle: result.logicQuestions[0] },
-                    style: { x: 20, y: lastY, w: 754, h: 200, zIndex: 1, rotation: 0, padding: 20, backgroundColor: '#fef3c7', borderColor: '#f59e0b', borderWidth: 1, borderStyle: 'dashed', borderRadius: 16, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
-                });
-                lastY += 220;
+                    style: { x: 20, y: 0, w: 754, h: 200, zIndex: 1, rotation: 0, padding: 20, backgroundColor: '#fef3c7', borderColor: '#f59e0b', borderWidth: 1, borderStyle: 'dashed', borderRadius: 16, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                }, 200);
             }
 
             if (result.inferenceQuestions && result.inferenceQuestions.length > 0) {
-                newLayout.push({
+                addItem({
                     id: 'questions', label: 'Çıkarım Soruları', instanceId: `inf_${Date.now()}`, isVisible: true,
                     specificData: { questions: result.inferenceQuestions.map((q: any) => ({ question: q.question, type: 'open' })) },
-                    style: { x: 20, y: lastY, w: 754, h: 250, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
-                });
-                lastY += 270;
+                    style: { x: 20, y: 0, w: 754, h: 250, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                }, 250);
             }
 
             setLayout(newLayout);
@@ -114,7 +124,29 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     };
 
     const handlePrint = async (action: 'print' | 'download') => {
-        try { await printService.generatePdf('#canvas-root', 'Hikaye', { action }); } catch (e) { }
+        try { await printService.generatePdf('#canvas-root .a4-page', 'Hikaye', { action }); } catch (e) { }
+    };
+
+    const handleSave = () => {
+        try {
+            const data = localStorage.getItem('reading_studio_archive');
+            const archive = data ? JSON.parse(data) : [];
+            const newProject = {
+                id: `proj_${Date.now()}`,
+                title: storyData?.title || config.topic || 'İsimsiz Çalışma',
+                date: new Date().toISOString(),
+                config,
+                storyData,
+                layout,
+                layoutCount: layout.length
+            };
+            archive.push(newProject);
+            localStorage.setItem('reading_studio_archive', JSON.stringify(archive));
+            window.dispatchEvent(new Event('reading_studio_saved'));
+            alert('Çalışmanız başarıyla arşive kaydedildi.');
+        } catch (e) {
+            alert('Kaydetme başarısız oldu.');
+        }
     };
 
     return (
@@ -133,6 +165,23 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
+                    <div className="flex bg-zinc-800 rounded-xl p-0.5 border border-zinc-700/50">
+                        <button
+                            disabled={!canUndo}
+                            onClick={undo}
+                            className="w-10 h-10 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 disabled:opacity-20 transition-all font-bold"
+                        >
+                            <i className="fa-solid fa-rotate-left"></i>
+                        </button>
+                        <button
+                            disabled={!canRedo}
+                            onClick={redo}
+                            className="w-10 h-10 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 disabled:opacity-20 transition-all font-bold"
+                        >
+                            <i className="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                    <div className="w-px h-6 bg-zinc-800 mx-1"></div>
                     <button
                         onClick={handleGenerate}
                         disabled={isLoading}
@@ -142,7 +191,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
                     </button>
                     <div className="w-px h-6 bg-zinc-800 mx-2"></div>
                     <button onClick={() => handlePrint('print')} className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700/50"><i className="fa-solid fa-print"></i></button>
-                    <button className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700/50"><i className="fa-solid fa-floppy-disk"></i></button>
+                    <button onClick={handleSave} className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700/50"><i className="fa-solid fa-floppy-disk"></i></button>
                 </div>
             </header>
 
@@ -153,20 +202,20 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
                         <StudentSelector />
                     </div>
 
-                    <div className="flex border-b border-zinc-800 shrink-0 bg-zinc-900/30">
-                        <button onClick={() => setSidebarTab('production')} className={`flex-1 pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'production' ? 'text-indigo-500 border-indigo-500 bg-indigo-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Üretim</button>
-                        <button onClick={() => setSidebarTab('library')} className={`flex-1 pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'library' ? 'text-emerald-500 border-emerald-500 bg-emerald-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Bileşenler</button>
-                        <button onClick={() => setSidebarTab('styling')} className={`flex-1 pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'styling' ? 'text-amber-500 border-amber-500 bg-amber-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Stil</button>
+                    <div className="flex border-b border-zinc-800 shrink-0 bg-zinc-900/30 overflow-x-auto custom-scrollbar">
+                        <button onClick={() => setSidebarTab('production')} className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'production' ? 'text-indigo-500 border-indigo-500 bg-indigo-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Üretim</button>
+                        <button onClick={() => setSidebarTab('library')} className={`flex-1 min-w-[80px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'library' ? 'text-emerald-500 border-emerald-500 bg-emerald-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Bileşenler</button>
+                        <button onClick={() => setSidebarTab('content')} className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'content' ? 'text-sky-500 border-sky-500 bg-sky-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>İçerik</button>
+                        <button onClick={() => setSidebarTab('styling')} className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'styling' ? 'text-amber-500 border-amber-500 bg-amber-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Stil</button>
+                        <button onClick={() => setSidebarTab('archive')} className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'archive' ? 'text-purple-500 border-purple-500 bg-purple-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Arşiv</button>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-8">
                         {sidebarTab === 'production' && <AIProductionPanel />}
                         {sidebarTab === 'library' && <ComponentLibrary />}
-                        {sidebarTab === 'styling' && (
-                            <div className="text-center py-12 text-zinc-600 italic text-xs">
-                                Stil ayarları yakında eklenecek...
-                            </div>
-                        )}
+                        {sidebarTab === 'content' && <ContentPanel />}
+                        {sidebarTab === 'styling' && <StylePanel />}
+                        {sidebarTab === 'archive' && <ArchivePanel />}
                     </div>
                 </aside>
 
@@ -187,8 +236,8 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
 
                     <div
                         id="canvas-root"
-                        className="bg-white text-black shadow-[0_0_100px_rgba(0,0,0,0.5)] origin-top transition-all relative"
-                        style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: '20mm', transform: `scale(${canvasScale})` }}
+                        className="origin-top transition-all relative"
+                        style={{ transform: `scale(${canvasScale})` }}
                     >
                         <ReadingStudioContentRenderer layout={layout} storyData={storyData} />
 
