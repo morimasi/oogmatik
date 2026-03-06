@@ -133,7 +133,7 @@ export interface DotPaintingData extends BaseActivityData {
     grid: number[][];
 }
 
-export interface AbcConnectData extends BaseActivityData {
+export interface AbcConnectVisualData extends BaseActivityData {
     points: { x: number; y: number; label: string }[];
 }
 

@@ -1,20 +1,20 @@
-import { MagicPyramidData } from '../../types/math';
+import { MagicPyramidData, GeneratorOptions } from '../../../types';
 
-export const generateMagicPyramidActivity = (difficulty: string = 'Makul', count: number = 2): MagicPyramidData[] => {
+export const generateOfflineMagicPyramid = async (options: GeneratorOptions): Promise<MagicPyramidData[]> => {
+    const { difficulty, worksheetCount } = options;
     const activities: MagicPyramidData[] = [];
 
     let layers = 5;
-    if (difficulty === 'Kolay') layers = 4;
-    if (difficulty === 'Zor' || difficulty === 'Çok Zor') layers = 6;
+    if (difficulty === 'Başlangıç') layers = 4;
+    if (difficulty === 'Zor' || difficulty === 'Uzman') layers = 6;
 
-    for (let c = 0; c < count; c++) {
-        // Ritmik sayma kuralı belirle
-        const step = Math.floor(Math.random() * 4) + 2; // 2, 3, 4, 5'er ritmik sayma
+    for (let c = 0; c < worksheetCount; c++) {
+        const step = Math.floor(Math.random() * 4) + 2;
         const apex = Math.floor(Math.random() * 5) + step;
 
         const grid: number[][] = [];
         let correctPath: number[] = [];
-        let currentPathIndex = 0; // 0, 1, 2... index in the row
+        let currentPathIndex = 0;
 
         let val = apex;
 
@@ -22,7 +22,6 @@ export const generateMagicPyramidActivity = (difficulty: string = 'Makul', count
             const rowArr: number[] = [];
             grid.push(rowArr);
 
-            // Doğru yol rotası: ya sol alt (aynı index) ya sağ alt (index + 1)
             if (row > 0) {
                 const goRight = Math.random() > 0.5;
                 if (goRight) currentPathIndex++;
@@ -30,12 +29,10 @@ export const generateMagicPyramidActivity = (difficulty: string = 'Makul', count
             }
             correctPath.push(currentPathIndex);
 
-            // Hücreleri doldur
             for (let col = 0; col <= row; col++) {
                 if (col === currentPathIndex) {
-                    rowArr.push(val); // Doğru yolu yerleştir
+                    rowArr.push(val);
                 } else {
-                    // Çeldiricileri yerleştir (yakın sayılar ama hedefin aynısı değil)
                     let distractor;
                     do {
                         distractor = val + (Math.floor(Math.random() * 5) - 2) * step;

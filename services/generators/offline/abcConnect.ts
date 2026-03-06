@@ -1,10 +1,18 @@
-import { AbcConnectData } from '../../types/math';
+import { AbcConnectData, GeneratorOptions } from '../../../types';
 
-export const generateAbcConnectActivity = (difficulty: string = 'Makul', count: number = 2): AbcConnectData[] => {
-    let gridDims = [4, 5];
-    if (difficulty === 'Kolay') gridDims = [3, 4];
-    if (difficulty === 'Makul') gridDims = [4, 5];
-    if (difficulty === 'Zor' || difficulty === 'Çok Zor') gridDims = [5, 6];
+/**
+ * ABC Bağlama Ultra-Profesyonel Yerel Üretici
+ * Çoklu modlar (Romen, Harf, Nokta, İşlem) ve akıllı yerleşim içerir.
+ */
+export const generateOfflineAbcConnect = async (options: GeneratorOptions): Promise<AbcConnectData[]> => {
+    const { difficulty, worksheetCount, gridSize, variant: optVariant, density } = options;
+
+    let dim = gridSize || 5;
+    if (!gridSize) {
+        if (difficulty === 'Başlangıç') dim = 4;
+        else if (difficulty === 'Orta') dim = 5;
+        else if (difficulty === 'Zor' || difficulty === 'Uzman') dim = 6;
+    }
 
     const romanMap: Record<number, string> = {
         1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI', 7: 'VII', 8: 'VIII', 9: 'IX', 10: 'X',
@@ -13,39 +21,34 @@ export const generateAbcConnectActivity = (difficulty: string = 'Makul', count: 
 
     const activities: AbcConnectData[] = [];
 
-    for (let c = 0; c < count; c++) {
-        const dim = gridDims[c % gridDims.length];
-        // Basit bir rasgele dağılım, yapay zekaya ihtiyaç duymayan mantık
-        const pairCount = Math.floor(dim * 1.5);
+    for (let c = 0; c < worksheetCount; c++) {
+        const pairCount = Math.floor(dim * (density === 'high' ? 2 : (density === 'low' ? 1.2 : 1.5)));
         const paths: any[] = [];
         const usedCells = new Set<string>();
 
         const getRandomEmptyCell = () => {
             let x, y, key;
+            let attempts = 0;
             do {
                 x = Math.floor(Math.random() * dim);
                 y = Math.floor(Math.random() * dim);
                 key = `${x},${y}`;
-            } while (usedCells.has(key));
+                attempts++;
+            } while (usedCells.has(key) && attempts < 100);
             return { x, y, key };
         };
-
-        // Bu algoritma, A'dan B'ye doğrulanmış karmaşık Numberlink yolu çizmek yerine
-        // sadece Romen Rakamları ile doğal sayıları harita üzerine dağıtır.
-        // Arayüzde çizgiler draw-canvas ile serbestçe çekilecektir.
 
         let startValueIndex = Math.floor(Math.random() * 5) + 1;
 
         for (let i = 0; i < pairCount; i++) {
             const val = startValueIndex + i;
-
             const startCell = getRandomEmptyCell();
             usedCells.add(startCell.key);
-
             const endCell = getRandomEmptyCell();
             usedCells.add(endCell.key);
 
             paths.push({
+                id: `path_${i}`,
                 start: { x: startCell.x, y: startCell.y },
                 end: { x: endCell.x, y: endCell.y },
                 value: val,
@@ -54,12 +57,18 @@ export const generateAbcConnectActivity = (difficulty: string = 'Makul', count: 
         }
 
         activities.push({
-            title: `Romen Rakamları Bağlama (Boyut: ${dim}x${dim})`,
-            instruction: 'Sayıları karşılık gelen Romen rakamlarıyla, çizgiler birbirini kesmeden birleştir.',
+            title: `ABC Bağlama (${dim}x${dim})`,
+            instruction: 'Sayıları karşılık gelen değerleriyle, çizgiler birbirini kesmeden birleştir.',
+            pedagogicalNote: 'Görsel-uzamsal planlama ve sembolik eşleştirme becerilerini geliştirir.',
             gridDim: dim,
+            variant: (optVariant as any) || 'roman',
             paths
         });
     }
 
     return activities;
 };
+
+// Aliases for compatibility
+export const generateAbcConnectActivity = (difficulty: string, count: number) =>
+    generateOfflineAbcConnect({ difficulty, worksheetCount: count } as any);

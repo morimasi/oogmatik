@@ -1,4 +1,3 @@
-
 export * from './algorithm';
 export * from './mathLogic';
 export * from './wordGames';
@@ -11,8 +10,8 @@ export * from './newActivities';
 export * from './assessment';
 export * from './mapDetective';
 export * from './mathStudio';
-export * from './abcConnect';
-export * from './capsuleGame';
-export * from './futoshiki';
-export * from './magicPyramid';
-export * from './oddEvenSudoku';
+export * from '../generators/offline/abcConnect';
+export * from '../generators/offline/capsuleGame';
+export * from '../generators/offline/futoshiki';
+export * from '../generators/offline/magicPyramid';
+export * from '../generators/offline/oddEvenSudoku';

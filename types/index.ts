@@ -1,5 +1,6 @@
 export * from './core';
 export * from './math';
+export type { AbcConnectData } from './math';
 export * from './verbal';
 export type {
     SearchFieldItem, ShapeCountingData, FindTheDifferenceData, WordComparisonData, ShapeMatchingData,
