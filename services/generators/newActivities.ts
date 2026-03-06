@@ -49,14 +49,31 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
             layoutArchitecture: {
                 type: Type.OBJECT,
                 properties: {
-                    cols: { type: Type.INTEGER },
+                    cols: { type: Type.INTEGER, description: "Sayfadaki sütun sayısı (1-2)" },
                     blocks: {
                         type: Type.ARRAY,
                         items: {
                             type: Type.OBJECT,
                             properties: {
-                                type: { type: Type.STRING, enum: ['header', 'text', 'grid', 'table', 'logic_card', 'image', 'footer_validation'] },
-                                content: { type: Type.OBJECT },
+                                type: {
+                                    type: Type.STRING,
+                                    enum: [
+                                        'header', 'text', 'grid', 'table', 'logic_card', 'image',
+                                        'footer_validation', 'cloze_test', 'categorical_sorting',
+                                        'match_columns', 'visual_clue_card', 'neuro_marker', 'svg_shape'
+                                    ]
+                                },
+                                content: {
+                                    type: Type.OBJECT,
+                                    description: "Blok içeriği. Kurallar: " +
+                                        "grid: {cells: string[], cols: number}; " +
+                                        "table: {headers: string[], rows: string[][]}; " +
+                                        "text/header/cloze_test: {text: string}; " +
+                                        "match_columns: {left: string[], right: string[]}; " +
+                                        "categorical_sorting: {categories: string[], items: {label: string, category: string}[]}; " +
+                                        "logic_card: {text: string, data: string[][], options: string[]}; " +
+                                        "footer_validation: {text: string, targetValue: string};"
+                                },
                                 weight: { type: Type.INTEGER }
                             },
                             required: ['type', 'content']

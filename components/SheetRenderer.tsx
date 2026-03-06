@@ -95,16 +95,19 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock, key?: any
         case 'text':
             return <div className="block-text text-lg leading-relaxed mb-4 font-dyslexic" style={blockStyle}><EditableText value={recursiveSafeText(content.text || content)} tag="div" /></div>;
 
-        case 'grid':
+        case 'grid': {
+            const cells = content.cells || content.items || content.data || [];
+            const cols = content.cols || content.columns || 4;
             return (
                 <div className="block-svg-shape flex justify-center mb-4">
-                    <div className="block-grid-container grid gap-2 border-4 border-black p-4 bg-zinc-50 rounded-2xl" style={{ gridTemplateColumns: `repeat(${content.cols || 4}, 1fr)` }}>
-                        {(content.cells || []).map((cell: any, i: number) => (
+                    <div className="block-grid-container grid gap-2 border-4 border-black p-4 bg-zinc-50 rounded-2xl" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+                        {cells.map((cell: any, i: number) => (
                             <div key={i} className="block-grid-cell w-12 h-12 border-2 border-zinc-300 bg-white rounded-lg flex items-center justify-center font-black text-xl"><EditableText value={recursiveSafeText(cell)} tag="span" /></div>
                         ))}
                     </div>
                 </div>
             );
+        }
 
         case 'table':
             return (

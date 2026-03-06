@@ -240,7 +240,7 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                 ActivityType.MAP_INSTRUCTION
             ];
 
-            const shouldSplitArray = !activityType || !componentsThatHandleTheirOwnArrays.includes(activityType as ActivityType);
+            const shouldSplitArray = !activityType || (activityType !== ActivityType.OCR_CONTENT && !componentsThatHandleTheirOwnArrays.includes(activityType as ActivityType));
 
             if (shouldSplitArray && arrayKeys.length > 0) {
                 const mainKey = arrayKeys[0];
