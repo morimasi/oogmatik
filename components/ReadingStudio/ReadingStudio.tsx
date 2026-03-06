@@ -6,6 +6,8 @@ import { ReadingStudioContentRenderer } from './ReadingStudioContentRenderer';
 import { StudentSelector } from './Editor/StudentSelector';
 import { AIProductionPanel } from './Editor/AIProductionPanel';
 import { ComponentLibrary } from './Editor/ComponentLibrary';
+import { ContentPanel } from './Editor/ContentPanel';
+import { ArchivePanel } from './Editor/ArchivePanel';
 import { LayoutItem } from '../../types'; // Added LayoutItem import
 
 // --- CONFIGURATION CONSTANTS ---
@@ -26,7 +28,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         storyData, setSelectedId, undo, redo, canUndo, canRedo
     } = useReadingStudio();
 
-    const [sidebarTab, setSidebarTab] = useState('production' as 'production' | 'library' | 'styling');
+    const [sidebarTab, setSidebarTab] = useState('production' as 'production' | 'library' | 'styling' | 'content' | 'archive');
     const [canvasScale, setCanvasScale] = useState(0.85);
 
     // Initial layout setup
@@ -128,6 +130,28 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         try { await printService.generatePdf('#canvas-root .a4-page', 'Hikaye', { action }); } catch (e) { }
     };
 
+    const handleSave = () => {
+        try {
+            const data = localStorage.getItem('reading_studio_archive');
+            const archive = data ? JSON.parse(data) : [];
+            const newProject = {
+                id: `proj_${Date.now()}`,
+                title: storyData?.title || config.topic || 'İsimsiz Çalışma',
+                date: new Date().toISOString(),
+                config,
+                storyData,
+                layout,
+                layoutCount: layout.length
+            };
+            archive.push(newProject);
+            localStorage.setItem('reading_studio_archive', JSON.stringify(archive));
+            window.dispatchEvent(new Event('reading_studio_saved'));
+            alert('Çalışmanız başarıyla arşive kaydedildi.');
+        } catch (e) {
+            alert('Kaydetme başarısız oldu.');
+        }
+    };
+
     return (
         <div className="h-full flex flex-col bg-[#09090b] overflow-hidden text-zinc-100 absolute inset-0 z-50">
             {/* Header */}
@@ -170,7 +194,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
                     </button>
                     <div className="w-px h-6 bg-zinc-800 mx-2"></div>
                     <button onClick={() => handlePrint('print')} className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700/50"><i className="fa-solid fa-print"></i></button>
-                    <button className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700/50"><i className="fa-solid fa-floppy-disk"></i></button>
+                    <button onClick={handleSave} className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700/50"><i className="fa-solid fa-floppy-disk"></i></button>
                 </div>
             </header>
 
@@ -181,16 +205,20 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
                         <StudentSelector />
                     </div>
 
-                    <div className="flex border-b border-zinc-800 shrink-0 bg-zinc-900/30">
-                        <button onClick={() => setSidebarTab('production')} className={`flex-1 pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'production' ? 'text-indigo-500 border-indigo-500 bg-indigo-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Üretim</button>
-                        <button onClick={() => setSidebarTab('library')} className={`flex-1 pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'library' ? 'text-emerald-500 border-emerald-500 bg-emerald-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Bileşenler</button>
-                        <button onClick={() => setSidebarTab('styling')} className={`flex-1 pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'styling' ? 'text-amber-500 border-amber-500 bg-amber-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Stil</button>
+                    <div className="flex border-b border-zinc-800 shrink-0 bg-zinc-900/30 overflow-x-auto custom-scrollbar">
+                        <button onClick={() => setSidebarTab('production')} className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'production' ? 'text-indigo-500 border-indigo-500 bg-indigo-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Üretim</button>
+                        <button onClick={() => setSidebarTab('library')} className={`flex-1 min-w-[80px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'library' ? 'text-emerald-500 border-emerald-500 bg-emerald-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Bileşenler</button>
+                        <button onClick={() => setSidebarTab('content')} className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'content' ? 'text-sky-500 border-sky-500 bg-sky-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>İçerik</button>
+                        <button onClick={() => setSidebarTab('styling')} className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'styling' ? 'text-amber-500 border-amber-500 bg-amber-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Stil</button>
+                        <button onClick={() => setSidebarTab('archive')} className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'archive' ? 'text-purple-500 border-purple-500 bg-purple-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>Arşiv</button>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-8">
                         {sidebarTab === 'production' && <AIProductionPanel />}
                         {sidebarTab === 'library' && <ComponentLibrary />}
+                        {sidebarTab === 'content' && <ContentPanel />}
                         {sidebarTab === 'styling' && <StylePanel />}
+                        {sidebarTab === 'archive' && <ArchivePanel />}
                     </div>
                 </aside>
 

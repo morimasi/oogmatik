@@ -33,11 +33,27 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
                     }
                 });
             } else {
+                let newX = Math.round((initialStyle.x + dx) / 8) * 8;
+                let newY = Math.round((initialStyle.y + dy) / 8) * 8;
+                
+                // Magnetic Snap to common alignments (Grid, Center, Margins)
+                const centerX = 794 / 2;
+                const itemCenterX = newX + (initialStyle.w / 2);
+                
+                // Snap to Center X
+                if (Math.abs(itemCenterX - centerX) < 15) {
+                    newX = centerX - (initialStyle.w / 2);
+                }
+                // Snap to Left Margin (20px)
+                if (Math.abs(newX - 20) < 15) newX = 20;
+                // Snap to Right Margin
+                if (Math.abs((newX + initialStyle.w) - 774) < 15) newX = 774 - initialStyle.w;
+
                 updateComponent(item.instanceId, {
                     style: {
                         ...item.style,
-                        x: Math.round((initialStyle.x + dx) / 8) * 8,
-                        y: Math.round((initialStyle.y + dy) / 8) * 8
+                        x: newX,
+                        y: newY
                     }
                 });
             }

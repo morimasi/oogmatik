@@ -144,7 +144,7 @@ export const StylePanel = () => {
             {/* Layout Section */}
             <div className="space-y-4 pt-4 border-t border-zinc-800/50">
                 <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                    <i className="fa-solid fa-arrows-up-down-left-right"></i> Boyut ve Kenarlık
+                    <i className="fa-solid fa-arrows-up-down-left-right"></i> Boyut ve Yerleşim
                 </p>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -158,6 +158,18 @@ export const StylePanel = () => {
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
+                        <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Döndürme (Derece)</label>
+                        <input
+                            type="number"
+                            value={s.rotation || 0}
+                            onChange={(e: any) => updateStyle({ rotation: parseInt(e.target.value) })}
+                            className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-2.5 text-xs text-white"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5">
                         <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Kenarlık (px)</label>
                         <input
                             type="number" min="0" max="10"
@@ -165,6 +177,40 @@ export const StylePanel = () => {
                             onChange={(e: any) => updateStyle({ borderWidth: parseInt(e.target.value) })}
                             className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-2.5 text-xs text-white"
                         />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Gölge (Shadow)</label>
+                        <select
+                            value={s.boxShadow || 'none'}
+                            onChange={(e: any) => updateStyle({ boxShadow: e.target.value })}
+                            className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-2.5 text-xs text-white"
+                        >
+                            <option value="none">Yok</option>
+                            <option value="sm">Hafif</option>
+                            <option value="md">Orta</option>
+                            <option value="lg">Belirgin</option>
+                            <option value="xl">Büyük</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Şeffaflık (%)</label>
+                        <input
+                            type="range" min="0" max="100"
+                            value={(s.opacity || 1) * 100}
+                            onChange={(e: any) => updateStyle({ opacity: parseInt(e.target.value) / 100 })}
+                            className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer mt-2"
+                        />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Katman (Z-Index)</label>
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => updateStyle({ zIndex: Math.max(0, (s.zIndex || 1) - 1) })} className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700/50 flex items-center justify-center hover:bg-zinc-800"><i className="fa-solid fa-minus text-xs"></i></button>
+                            <span className="flex-1 text-center font-bold text-sm text-white">{s.zIndex || 1}</span>
+                            <button onClick={() => updateStyle({ zIndex: (s.zIndex || 1) + 1 })} className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700/50 flex items-center justify-center hover:bg-zinc-800"><i className="fa-solid fa-plus text-xs"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
