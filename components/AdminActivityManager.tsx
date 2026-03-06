@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, type FC } from 'react';
 import { DynamicActivity, PromptTemplate } from '../types/admin';
 import { adminService } from '../services/adminService';
 import { ACTIVITY_CATEGORIES } from '../constants';

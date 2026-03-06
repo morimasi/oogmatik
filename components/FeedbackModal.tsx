@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, type FormEvent } from 'react';
 import { ActivityType, FeedbackCategory } from '../types';
 import { messagingService } from '../services/messagingService';
 import { useAuth } from '../context/AuthContext';
@@ -29,7 +29,7 @@ export const FeedbackModal = ({ isOpen, onClose, activityType, activityTitle }: 
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSending(true);
 
