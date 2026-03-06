@@ -81,11 +81,21 @@ export function ReadingStudioProvider({ children }: { children: any }) {
 
     const addComponent = useCallback((def: any) => {
         saveHistory(layout);
-        const lastY = layout.length > 0 ? Math.max(...layout.map((l: LayoutItem) => (l.style.y || 0) + (l.style.h || 0))) : 0;
+        const lastPage = layout.length > 0 ? Math.max(...layout.map(l => l.pageIndex || 0)) : 0;
+        const itemsOnLastPage = layout.filter(l => (l.pageIndex || 0) === lastPage);
+        let lastY = itemsOnLastPage.length > 0 ? Math.max(...itemsOnLastPage.map(l => (l.style.y || 0) + (l.style.h || 0))) : 0;
+        
+        let newPageIndex = lastPage;
+        if (lastY + 100 > 1123 - 40) { // A4_HEIGHT_PX = 1123
+            newPageIndex++;
+            lastY = 0;
+        }
+
         const newComp: LayoutItem = {
             ...def,
             instanceId: `inst_${Date.now()}`,
             isVisible: true,
+            pageIndex: newPageIndex,
             style: {
                 x: 20, y: lastY + 20, w: 754, h: 100, zIndex: 1, rotation: 0,
                 padding: 10, backgroundColor: 'transparent', borderColor: 'transparent',

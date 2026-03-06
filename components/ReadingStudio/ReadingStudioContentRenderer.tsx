@@ -283,18 +283,31 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
     };
 
     return (
-        <div className="relative w-full h-full min-h-[800px] bg-white text-black">
+        <div className="flex flex-col gap-8 w-full items-center">
             <style>{`
                 .design-grid {
                     background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
                     background-size: 8px 8px;
                 }
             `}</style>
-            {layout.filter((l: any) => l.isVisible).map((item: any) => (
-                <DraggableItem key={item.instanceId} item={item}>
-                    {renderItemContent(item)}
-                </DraggableItem>
-            ))}
+            
+            {Array.from({ length: Math.max(1, ...layout.map((l: any) => (l.pageIndex || 0) + 1)) }).map((_, pageIndex) => {
+                const pageItems = layout.filter((l: any) => l.isVisible && (l.pageIndex || 0) === pageIndex);
+                
+                return (
+                    <div
+                        key={pageIndex}
+                        className={`a4-page relative bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid' : ''}`}
+                        style={{ width: 794, minHeight: 1123, padding: 0 }}
+                    >
+                        {pageItems.map((item: any) => (
+                            <DraggableItem key={item.instanceId} item={item}>
+                                {renderItemContent(item)}
+                            </DraggableItem>
+                        ))}
+                    </div>
+                );
+            })}
         </div>
     );
 };

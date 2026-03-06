@@ -34,12 +34,12 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         if (layout.length === 0) {
             setLayout([
                 {
-                    id: 'header', label: 'Başlık Künyesi', instanceId: 'init_header', isVisible: true,
+                    id: 'header', label: 'Başlık Künyesi', instanceId: 'init_header', isVisible: true, pageIndex: 0,
                     specificData: { title: "YENİ HİKAYE", subtitle: "Okuma ve Anlama Çalışması" },
                     style: { x: 20, y: 20, w: 754, h: 120, zIndex: 1, rotation: 0, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
                 },
                 {
-                    id: 'story_block', label: 'Hikaye Metni', instanceId: 'init_story', isVisible: true,
+                    id: 'story_block', label: 'Hikaye Metni', instanceId: 'init_story', isVisible: true, pageIndex: 0,
                     specificData: { text: "Buraya AI ile üretilen hikaye gelecek..." },
                     style: { x: 20, y: 160, w: 754, h: 420, zIndex: 1, rotation: 0, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
                 }
@@ -53,56 +53,65 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
             const result = await generateInteractiveStory(config);
             setStoryData(result);
 
-            // Create initial layout based on result
-            let newLayout: LayoutItem[] = [
-                {
-                    id: 'header', label: 'Başlık Künyesi', instanceId: `header_${Date.now()}`, isVisible: true,
-                    specificData: { title: result.title, subtitle: `${config.genre} - ${config.gradeLevel}` },
-                    style: { x: 20, y: 20, w: 754, h: 120, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
-                },
-                {
-                    id: 'story_block', label: 'Hikaye Metni', instanceId: `story_${Date.now()}`, isVisible: true,
-                    specificData: { text: result.story },
-                    style: { x: 20, y: 160, w: 754, h: 450, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 16, fontFamily: 'OpenDyslexic', lineHeight: 1.8 }
-                }
-            ];
+            let newLayout: LayoutItem[] = [];
+            let lastY = 20;
+            let currentPage = 0;
 
-            let lastY = 630;
+            const addItem = (itemData: any, expectedHeight: number) => {
+                if (lastY + expectedHeight > A4_HEIGHT_PX - 40) {
+                    currentPage++;
+                    lastY = 20;
+                }
+                itemData.pageIndex = currentPage;
+                itemData.style.y = lastY;
+                newLayout.push(itemData);
+                lastY += expectedHeight + 20;
+            };
+
+            // Header
+            addItem({
+                id: 'header', label: 'Başlık Künyesi', instanceId: `header_${Date.now()}`, isVisible: true,
+                specificData: { title: result.title, subtitle: `${config.genre} - ${config.gradeLevel}` },
+                style: { x: 20, y: 0, w: 754, h: 120, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+            }, 120);
+
+            // Story Block
+            addItem({
+                id: 'story_block', label: 'Hikaye Metni', instanceId: `story_${Date.now()}`, isVisible: true,
+                specificData: { text: result.story },
+                style: { x: 20, y: 0, w: 754, h: 450, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 16, fontFamily: 'OpenDyslexic', lineHeight: 1.8 }
+            }, 450);
 
             if (result.vocabulary && result.vocabulary.length > 0) {
-                newLayout.push({
+                addItem({
                     id: 'vocabulary', label: 'Kelime Dağarcığı', instanceId: `voc_${Date.now()}`, isVisible: true,
                     specificData: { words: result.vocabulary },
-                    style: { x: 20, y: lastY, w: 754, h: 150, zIndex: 1, rotation: 0, padding: 15, backgroundColor: '#f8fafc', borderColor: '#e2e8f0', borderWidth: 1, borderStyle: 'solid', borderRadius: 12, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
-                });
-                lastY += 170;
+                    style: { x: 20, y: 0, w: 754, h: 150, zIndex: 1, rotation: 0, padding: 15, backgroundColor: '#f8fafc', borderColor: '#e2e8f0', borderWidth: 1, borderStyle: 'solid', borderRadius: 12, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                }, 150);
             }
 
             if (result.fiveW1H && result.fiveW1H.length > 0) {
-                newLayout.push({
+                addItem({
                     id: '5n1k', label: '5N1K Çalışması', instanceId: `q5n1k_${Date.now()}`, isVisible: true,
                     specificData: { questions: result.fiveW1H },
-                    style: { x: 20, y: lastY, w: 754, h: 400, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
-                });
-                lastY += 420;
+                    style: { x: 20, y: 0, w: 754, h: 400, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                }, 400);
             }
 
             if (result.logicQuestions && result.logicQuestions.length > 0) {
-                newLayout.push({
+                addItem({
                     id: 'logic_problem', label: 'Mantık Bulmacası', instanceId: `logic_${Date.now()}`, isVisible: true,
                     specificData: { puzzle: result.logicQuestions[0] },
-                    style: { x: 20, y: lastY, w: 754, h: 200, zIndex: 1, rotation: 0, padding: 20, backgroundColor: '#fef3c7', borderColor: '#f59e0b', borderWidth: 1, borderStyle: 'dashed', borderRadius: 16, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
-                });
-                lastY += 220;
+                    style: { x: 20, y: 0, w: 754, h: 200, zIndex: 1, rotation: 0, padding: 20, backgroundColor: '#fef3c7', borderColor: '#f59e0b', borderWidth: 1, borderStyle: 'dashed', borderRadius: 16, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                }, 200);
             }
 
             if (result.inferenceQuestions && result.inferenceQuestions.length > 0) {
-                newLayout.push({
+                addItem({
                     id: 'questions', label: 'Çıkarım Soruları', instanceId: `inf_${Date.now()}`, isVisible: true,
                     specificData: { questions: result.inferenceQuestions.map((q: any) => ({ question: q.question, type: 'open' })) },
-                    style: { x: 20, y: lastY, w: 754, h: 250, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
-                });
-                lastY += 270;
+                    style: { x: 20, y: 0, w: 754, h: 250, zIndex: 1, rotation: 0, padding: 20, backgroundColor: 'transparent', borderColor: '#e2e8f0', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', textAlign: 'left', color: '#000000', fontSize: 14, fontFamily: 'OpenDyslexic', lineHeight: 1.5 }
+                }, 250);
             }
 
             setLayout(newLayout);
@@ -116,7 +125,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     };
 
     const handlePrint = async (action: 'print' | 'download') => {
-        try { await printService.generatePdf('#canvas-root', 'Hikaye', { action }); } catch (e) { }
+        try { await printService.generatePdf('#canvas-root .a4-page', 'Hikaye', { action }); } catch (e) { }
     };
 
     return (
@@ -202,8 +211,8 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
 
                     <div
                         id="canvas-root"
-                        className={`bg-white text-black shadow-[0_0_100px_rgba(0,0,0,0.5)] origin-top transition-all relative ${designMode ? 'design-grid' : ''}`}
-                        style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: '20mm', transform: `scale(${canvasScale})` }}
+                        className="origin-top transition-all relative"
+                        style={{ transform: `scale(${canvasScale})` }}
                     >
                         <ReadingStudioContentRenderer layout={layout} storyData={storyData} />
 

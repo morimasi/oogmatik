@@ -672,6 +672,7 @@ export interface LayoutItem {
     label: string;
     instanceId: string;
     isVisible: boolean;
+    pageIndex?: number;
     style: {
         x: number;
         y: number;
