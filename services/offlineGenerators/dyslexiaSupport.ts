@@ -284,24 +284,49 @@ export const generateOfflineReadingPyramid = async (options: GeneratorOptions): 
 // DİĞER EKSİK MODÜLLER İÇİN BOŞ/STANDART DÖNÜŞLER (Hataları önlemek için)
 export const generateOfflineReadingFlow = async (options: GeneratorOptions): Promise<ReadingFlowData[]> => {
     const { worksheetCount, difficulty, topic } = options;
-    const words = getWordsForDifficulty(difficulty, topic || 'Hikaye');
     const results: ReadingFlowData[] = [];
 
+    // Pedagojik Ritmik Akış Setleri (Seviye Bazlı)
+    const FLOW_TEMPLATES: Record<string, string[][]> = {
+        'Başlangıç': [
+            ["Ali", "Ali bak.", "Ali eve bak.", "Ali büyük eve bak.", "Ali o büyük eve bak."],
+            ["Işık", "Işık yak.", "Işık hızla yak.", "Işık mumu hızla yak.", "Işık o mumu hızla yak."],
+            ["Ece", "Ece ye.", "Ece elma ye.", "Ece tatlı elma ye.", "Ece o tatlı elma ye."]
+        ],
+        'Orta': [
+            ["Kitap", "Kitap oku.", "Her gün kitap oku.", "Her gün bir kitap oku.", "Her gün yeni bir kitap oku."],
+            ["Okul", "Okul açıldı.", "Bugün okul açıldı.", "Bugün neşeyle okul açıldı.", "Bugün tüm yurtta okul açıldı."],
+            ["Boya", "Boya yap.", "Kırmızı boya yap.", "Duvara kırmızı boya yap.", "Büyük duvara kırmızı boya yap."]
+        ],
+        'Zor': [
+            ["Yapay", "Yapay zeka.", "Gelecek yapay zeka.", "Gelecek tamamen yapay zeka.", "Gelecek tamamen yapay zeka olacak."],
+            ["Bilim", "Bilim insanı.", "Genç bir bilim insanı.", "Genç bir bilim insanı geldi.", "Genç bir bilim insanı bize geldi."],
+            ["Orman", "Orman kralı.", "Yüce orman kralı.", "Yüce orman kralı aslan.", "Yüce orman kralı aslan kükredi."]
+        ]
+    };
+
+    const selectedDifficulty = ((FLOW_TEMPLATES as any)[difficulty] || FLOW_TEMPLATES['Orta']) as string[][];
+
     for (let p = 0; p < worksheetCount; p++) {
-        const sentences = Array.from({ length: 3 }, () => {
-            const sentenceWords = getRandomItems(words, 5);
+        const selectedSets = getRandomItems(selectedDifficulty, 3);
+        const paragraphs = selectedSets.map((set: string[]) => {
             return {
-                sentences: [{
-                    syllables: sentenceWords.flatMap(w => syllabifyWord(w).map(s => ({ text: s })))
-                }]
+                sentences: set.map((s: string) => ({
+                    syllables: s.split(' ').flatMap((word: string, wIdx: number, words: string[]) => {
+                        const syls = syllabifyWord(word).map(syllable => ({ text: syllable }));
+                        // Kelime aralarına boşluk ekle (boş bir hece objesi gibi veya özel bir işaretle)
+                        if (wIdx < words.length - 1) syls.push({ text: ' ' });
+                        return syls;
+                    })
+                }))
             };
         });
 
         results.push({
-            title: "Okuma Akıcılığı (Hece Odaklı)",
-            instruction: "Kelimeleri heceleyerek ve hızlanarak okuyun.",
-            pedagogicalNote: "Okuma hızını ve heceleme doğruluğunu artırır.",
-            text: { paragraphs: sentences }
+            title: "Ritmik Okuma Akıcılığı",
+            instruction: "Kelimeleri ritmik bir şekilde, her satırda bir kelime ekleyerek oku.",
+            pedagogicalNote: "Görsel tarama hızını artırırken, kelime tanıma eşiğini düşürür ve okuma akıcılığını (fluency) destekler.",
+            text: { paragraphs }
         });
     }
     return results;
@@ -329,19 +354,41 @@ export const generateOfflinePhonologicalAwareness = async (options: GeneratorOpt
 };
 
 export const generateOfflineSyllableTrain = async (options: GeneratorOptions): Promise<SyllableTrainData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty, variant = 'standard' } = options;
     const results: SyllableTrainData[] = [];
 
+    const TOPICS = ['animals', 'fruits_veggies', 'school', 'items_household'];
+
     for (let p = 0; p < worksheetCount; p++) {
-        const words = getWordsForDifficulty(difficulty, 'Obje');
-        const trains = getRandomItems(words, 4).map(w => ({
-            syllables: syllabifyWord(w)
-        }));
+        const topic = getRandomItems(TOPICS, 1)[0];
+        const wordsPool = getWordsForDifficulty(difficulty, topic);
+        const selectedWords = getRandomItems(wordsPool, 4);
+
+        const trains = selectedWords.map(word => {
+            const syllables = syllabifyWord(word);
+            let trainSyllables = [...syllables];
+            let missingSyllableIndex: number | undefined;
+
+            if (variant === 'missing') {
+                missingSyllableIndex = getRandomInt(0, syllables.length - 1);
+            } else if (variant === 'scrambled') {
+                trainSyllables = shuffle([...syllables]);
+            }
+
+            return {
+                word,
+                syllables: trainSyllables,
+                missingSyllableIndex,
+                isPseudo: Math.random() > 0.8 // %20 ihtimalle anlamsız kelime (analiz odaklı)
+            };
+        });
 
         results.push({
-            title: "Hece Treni",
-            instruction: "Vagonlardaki heceleri birleştirerek kelimeleri oluşturun.",
-            pedagogicalNote: "Hece sentezi ve kelime yapılandırma becerisi.",
+            title: "Hece Ekspresi (Vagon Sentezi)",
+            instruction: variant === 'missing'
+                ? "Trendeki eksik vagonu bulup kelimeyi tamamlayın."
+                : (variant === 'scrambled' ? "Karışık vagonları birleştirerek anlamlı kelimeyi raylara oturtun." : "Vagonlardaki heceleri birleştirip kelimeyi yüksek sesle okuyun."),
+            pedagogicalNote: "Hece sentezi (synthesis) ve fonolojik farkındalık becerilerini vagon metaforu ile görselleştirir.",
             trains
         });
     }
@@ -349,23 +396,56 @@ export const generateOfflineSyllableTrain = async (options: GeneratorOptions): P
 };
 
 export const generateOfflineVisualTrackingLines = async (options: GeneratorOptions): Promise<VisualTrackingLineData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount, difficulty = 'Orta' } = options;
     const results: VisualTrackingLineData[] = [];
 
+    const complexityMap: Record<string, number> = { 'Başlangıç': 2, 'Orta': 3, 'Zor': 5, 'Uzman': 8 };
+    const lineCount = complexityMap[difficulty] || 3;
+
+    const generatePath = (yStart: number, yEnd: number, pIdx: number) => {
+        const segments = 4;
+        const segmentWidth = 700 / segments;
+        let d = `M 50 ${yStart}`;
+        for (let i = 1; i <= segments; i++) {
+            const cp1x = 50 + (i - 1) * segmentWidth + segmentWidth / 3;
+            const cp1y = yStart + (Math.random() - 0.5) * 200;
+            const cp2x = 50 + (i - 1) * segmentWidth + (2 * segmentWidth) / 3;
+            const cp2y = yEnd + (Math.random() - 0.5) * 200;
+            const targetX = 50 + i * segmentWidth;
+            const targetY = i === segments ? yEnd : yStart + (Math.random() - 0.5) * 50;
+            d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${targetX} ${targetY}`;
+        }
+        return d;
+    };
+
     for (let p = 0; p < worksheetCount; p++) {
-        const paths = [
-            { id: 1, d: "M 50 100 Q 200 50 400 100 T 750 100", color: "#FF5733", strokeWidth: 3, startLabel: "A" },
-            { id: 2, d: "M 50 200 Q 250 300 450 200 T 750 200", color: "#33FF57", strokeWidth: 3, startLabel: "B" },
-            { id: 3, d: "M 50 300 C 150 100 350 500 750 300", color: "#3357FF", strokeWidth: 3, startLabel: "C" }
-        ];
+        const startChars = shuffle(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].slice(0, lineCount));
+        const endChars = shuffle(['1', '2', '3', '4', '5', '6', '7', '8'].slice(0, lineCount));
+
+        const paths = startChars.map((char, idx) => {
+            const yStart = 50 + (idx * 350) / lineCount;
+            const targetIdx = getRandomInt(0, lineCount - 1);
+            const yEnd = 50 + (targetIdx * 350) / lineCount;
+
+            return {
+                id: idx + 1,
+                d: generatePath(yStart, yEnd, idx),
+                color: COLORS[idx % COLORS.length].css,
+                strokeWidth: 2.5,
+                startLabel: char,
+                endLabel: endChars[idx],
+                yStart,
+                yEnd
+            };
+        });
 
         results.push({
-            title: "Görsel Takip Çizgileri",
-            instruction: "Harfleri takip ederek hangi çıkışa ulaştıklarını bulun.",
-            pedagogicalNote: "Göz takip hareketlerini (saccadic movements) ve görsel dikkati geliştirir.",
+            title: "Görsel Takip ve Labirent Yollar",
+            instruction: "Harflerden başlayarak çizgileri takip edin ve hangi rakama ulaştığınızı kutucuklara yazın.",
+            pedagogicalNote: "Göz takip hareketlerini (saccadic movements), görsel dikkati ve el-göz koordinasyonunu geliştirir.",
             paths,
             width: 800,
-            height: 400
+            height: 450
         });
     }
     return results;

@@ -71,7 +71,12 @@ export interface PhonologicalAwarenessData extends BaseActivityData {
 }
 
 export interface SyllableTrainData extends BaseActivityData {
-    trains: { syllables: string[] }[];
+    trains: {
+        syllables: string[];
+        word?: string;
+        missingSyllableIndex?: number;
+        isPseudo?: boolean;
+    }[];
 }
 
 export interface BackwardSpellingData extends BaseActivityData {
@@ -346,7 +351,16 @@ export interface MirrorLettersData extends BaseActivityData {
 }
 
 export interface VisualTrackingLineData extends BaseActivityData {
-    paths: { id: number; d: string; color: string; strokeWidth: number; startLabel?: string }[];
+    paths: {
+        id: number;
+        d: string;
+        color: string;
+        strokeWidth: number;
+        startLabel?: string;
+        endLabel?: string;
+        yStart: number;
+        yEnd: number;
+    }[];
     width: number;
     height: number;
 }
