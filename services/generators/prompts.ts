@@ -72,16 +72,17 @@ export const FIND_THE_DIFFERENCE_CORE_GUIDE = `
 export const VISUAL_ODD_ONE_OUT_CORE_GUIDE = `
 [GÖREV: GÖRSEL FARKLIYI BUL - KLİNİK DERİNLİK MODU]
 
-İçerik üretirken şu görsel algı matrisini kullan:
-1. **KLİNİK ÇELDİRİCİLER**:
-   - 'beginner': Renk veya tamamen farklı şekiller.
-   - 'intermediate': Şeklin boyutu veya kalınlığı (strokeDifference) ile oynanmış hali.
-   - 'clinical': Mikro farklar (15-30 derece rotasyon, ayna görüntüsü, minik bir detayın (nokta, çizgi) yer değiştirmesi).
-2. **MİMARİ**:
-   - 'isProfessionalMode' true ise 'ultra_dense' veya 'grid_compact' yerleşimini kullan.
-   - Her 'row' için 4 veya 6 öğe üret.
-3. **SVG ÜRETİMİ**:
-   - 'itemType' svg ise, yüksek kontrastlı ve basit geometrik desenler üret. Farklı olan öğeyi 'clinicalMeta' içinde 'isModified: true' olarak işaretle.
+İçerik üretirken şu klinik alt kategorilere ve kurallara odaklan:
+1. **KARAKTER AYRIŞTIRMA (Character Discrimination)**:
+   - 'subType' character_discrimination ise: b-d, p-q, m-n, u-n, 6-9, 2-5, s-z gibi birbirine benzeyen karakterlerin ayna görüntüsü veya rotasyon farklılıklarını kullan.
+2. **SEMBOLİK MANTIK (Symbolic Logic)**:
+   - Soyut geometrik şekillerin (SVG) parça-bütün ilişkisindeki (örneğin bir çizginin eksik olması veya 15 derece eğik olması) mikroskobik farkları kurgula.
+3. **KLİNİK ZORLUK**:
+   - 'beginner': Renk veya tamamen farklı nesneler.
+   - 'intermediate': Şeklin boyutu, kalınlığı veya belirgin rotasyonu.
+   - 'clinical': Mikro farklar (ayna görüntüsü, 10-15 derece rotasyon, minik bir detay farkı). Farklı olanı 'clinicalMeta' içinde 'isModified: true' olarak işaretle.
+4. **MİMARİ**:
+   - 'isProfessionalMode' true ise 'ultra_dense', 'grid_compact' veya 'protocol' yerleşimini kullan.
 `;
 
 export const GRID_DRAWING_CORE_GUIDE = `

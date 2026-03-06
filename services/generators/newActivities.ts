@@ -163,9 +163,11 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                             type: Type.OBJECT,
                                             properties: {
                                                 difficulty: { type: Type.STRING, enum: ['beginner', 'intermediate', 'expert', 'clinical'] },
-                                                layout: { type: Type.STRING, enum: ['classic', 'compact', 'ultra_dense', 'single', 'grid_2x1', 'grid_2x2', 'side_by_side', 'stacked', 'grid_compact'] },
+                                                layout: { type: Type.STRING, enum: ['classic', 'compact', 'ultra_dense', 'single', 'grid_2x1', 'grid_2x2', 'side_by_side', 'stacked', 'grid_compact', 'protocol'] },
                                                 gridType: { type: Type.STRING, enum: ['dots', 'squares', 'crosses'] },
                                                 axis: { type: Type.STRING, enum: ['vertical', 'horizontal', 'diagonal'] },
+                                                itemType: { type: Type.STRING, enum: ['svg', 'text', 'image', 'character'] },
+                                                subType: { type: Type.STRING, enum: ['character_discrimination', 'symbolic_logic', 'object_recognition'] },
                                                 targetShape: { type: Type.STRING },
                                                 theme: { type: Type.STRING, enum: ['classic', 'modern', 'minimal'] },
                                                 overlapping: { type: Type.BOOLEAN },
@@ -192,7 +194,10 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                                 clueComplexity: { type: Type.NUMBER },
                                                 vocabularyLevel: { type: Type.STRING },
                                                 morphologicalComplexity: { type: Type.NUMBER },
-                                                derivationalVariety: { type: Type.NUMBER }
+                                                derivationalVariety: { type: Type.NUMBER },
+                                                discriminationFactor: { type: Type.NUMBER },
+                                                isMirrorTask: { type: Type.BOOLEAN },
+                                                targetCognitiveSkill: { type: Type.STRING }
                                             }
                                         }
                                     },
