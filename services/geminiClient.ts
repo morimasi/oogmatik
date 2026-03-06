@@ -3,43 +3,102 @@ import { Type } from "@google/genai";
 // Model Seçimi: Uygulamanın tüm yapısında Gemini 3 Flash Preview (Thinking Enabled) kullanılacak
 const MASTER_MODEL = 'gemini-3-flash-preview';
 
-// JSON Dengeleyici
-const balanceBraces = (str: string): string => {
-    let openBraces = (str.match(/\{/g) || []).length;
-    let closeBraces = (str.match(/\}/g) || []).length;
-    let openBrackets = (str.match(/\[/g) || []).length;
-    let closeBrackets = (str.match(/\]/g) || []).length;
+// ============================================================
+// JSON ONARIM MOTORU (3 Katmanlı Strateji)
+// ============================================================
 
-    while (openBrackets > closeBrackets) { str += ']'; closeBrackets++; }
-    while (openBraces > closeBraces) { str += '}'; closeBraces++; }
+/**
+ * KATMAN 1: Eksik kapanış parantezlerini sayısal olarak tamamlar.
+ * Örnek: { "a": [1, 2 → { "a": [1, 2]}
+ */
+const balanceBraces = (str: string): string => {
+    // Önce string içlerindeki parantezleri yoksay
+    const stack: string[] = [];
+    let inString = false;
+    let escaped = false;
+
+    for (let i = 0; i < str.length; i++) {
+        const ch = str[i];
+        if (escaped) { escaped = false; continue; }
+        if (ch === '\\' && inString) { escaped = true; continue; }
+        if (ch === '"') { inString = !inString; continue; }
+        if (inString) continue;
+
+        if (ch === '{') stack.push('}');
+        else if (ch === '[') stack.push(']');
+        else if ((ch === '}' || ch === ']') && stack.length > 0) {
+            if (stack[stack.length - 1] === ch) stack.pop();
+            else stack.pop(); // yanlış kapanış → tüket (tolerans)
+        }
+    }
+
+    // Açık string varsa kapat
+    if (inString) str += '"';
+    // Kalan açık parantezleri ters sırayla kapat
+    while (stack.length > 0) str += stack.pop();
     return str;
 };
 
-// JSON Onarıcı
+/**
+ * KATMAN 2: Kesik JSON'ı son geçerli virgülden keser.
+ * Örnek: { "a": 1, "b": { → { "a": 1 }
+ */
+const truncateToLastValidEntry = (str: string): string => {
+    // Son tam virgülü bul ve oradan kes
+    const lastComma = str.lastIndexOf(',');
+    if (lastComma > 0) {
+        const candidate = str.substring(0, lastComma);
+        return balanceBraces(candidate);
+    }
+    return balanceBraces(str);
+};
+
+/**
+ * KATMAN 3: Ana JSON Onarıcı
+ * Sırasıyla 3 strateji uygular; birincisi başarısız olursa sonrakine geçer.
+ */
 const tryRepairJson = (jsonStr: string): any => {
     if (!jsonStr) throw new Error("AI yanıt dönmedi.");
+
+    // 1. Görünmez karakterleri ve markdown bloklarını temizle
     let cleaned = jsonStr.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+    cleaned = cleaned
+        .replace(/^```json[\s\S]*?\n/, '')  // başındaki ```json ... satırını sil
+        .replace(/^```\s*/m, '')             // başındaki ``` sil
+        .replace(/```\s*$/m, '')             // sonundaki ``` sil
+        .trim();
 
-    // Markdown temizliği
-    cleaned = cleaned.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/```$/, '').trim();
-
+    // JSON başlangıcını bul (bazen model önüne açıklama ekler)
     const firstBrace = cleaned.indexOf('{');
     const firstBracket = cleaned.indexOf('[');
     let startIndex = -1;
-
     if (firstBrace !== -1 && firstBracket !== -1) startIndex = Math.min(firstBrace, firstBracket);
     else if (firstBrace !== -1) startIndex = firstBrace;
     else if (firstBracket !== -1) startIndex = firstBracket;
+    if (startIndex > 0) cleaned = cleaned.substring(startIndex);
 
-    if (startIndex !== -1) cleaned = cleaned.substring(startIndex);
-    cleaned = balanceBraces(cleaned);
-
+    // STRATEJİ 1: Direkt parse
     try {
         return JSON.parse(cleaned);
-    } catch (e) {
-        console.error("JSON Parse Error:", cleaned);
-        throw new Error("AI verisi işlenemedi. JSON formatı bozuk.");
-    }
+    } catch (_e1) { /* devam */ }
+
+    // STRATEJİ 2: Eksik parantezleri tamamlayarak parse
+    try {
+        const balanced = balanceBraces(cleaned);
+        return JSON.parse(balanced);
+    } catch (_e2) { /* devam */ }
+
+    // STRATEJİ 3: Son geçerli girişe kadar kes, sonra tamamla
+    try {
+        const truncated = truncateToLastValidEntry(cleaned);
+        const result = JSON.parse(truncated);
+        console.warn('[GeminiClient] JSON truncated & repaired. Yanıt token sınırına çarpmış olabilir.');
+        return result;
+    } catch (_e3) { /* tüm stratejiler başarısız */ }
+
+    // Tüm stratejiler başarısız → orijinal ham metni logla
+    console.error('[GeminiClient] JSON Parse tamamen başarısız. Ham metin:', cleaned.substring(0, 500));
+    throw new Error('AI verisi işlenemedi. JSON formatı bozuk veya yanıt çok kısa.');
 };
 
 const SYSTEM_INSTRUCTION = `
@@ -172,14 +231,18 @@ export const generateCreativeMultimodal = async (params: {
     contents.push({ parts });
 
     // İstek Gövdesi
+    // KRİTİK TOKEN DENGESİ:
+    // thinkingBudget, maxOutputTokens'tan ÇIKARILIR.
+    // Formül: Gerçek JSON tokeni = maxOutputTokens - thinkingBudget
+    // 32000 - 2000 = 30000 token JSON için ayrılır → kesik JSON sorunu çözülür.
     const body: any = {
         contents,
         generationConfig: {
-            temperature: 0, // Klinik üretim için deterministik olmalı
-            maxOutputTokens: 16000,
+            temperature: 0,
+            maxOutputTokens: 32000,       // ✅ Artırıldı
             responseMimeType: "application/json",
             thinkingConfig: {
-                thinkingBudget: 8000 // Karmaşık içerikler için bütçeyi artırdık
+                thinkingBudget: 2000      // ✅ Azaltıldı (yapısal JSON için yeterli)
             }
         },
         systemInstruction: {
