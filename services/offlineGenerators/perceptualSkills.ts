@@ -1,9 +1,9 @@
 
-import { 
+import {
     FindTheDifferenceData, VisualOddOneOutData, GridDrawingData, SymmetryDrawingData, ShapeCountingData, DirectionalTrackingData,
-    GeneratorOptions, SearchFieldItem
+    GeneratorOptions, SearchFieldItem, ShapeType
 } from '../../types';
-import { getRandomInt, shuffle, getRandomItems, generateConnectedPath, SHAPE_TYPES } from './helpers';
+import { getRandomInt, shuffle, getRandomItems, generateConnectedPath, SHAPE_TYPES, PREDEFINED_GRID_PATTERNS, generateSymmetricPattern, turkishAlphabet } from './helpers';
 
 // --- GEOMETRIC PATH CONSTANTS ---
 const SHAPE_PATHS: Record<string, string> = {
@@ -31,7 +31,7 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
     for (let p = 0; p < worksheetCount; p++) {
         // A4 sayfasında 4 ana bölge (Puzzle) oluştur
         const puzzles: any[] = [];
-        
+
         for (let section = 0; section < 4; section++) {
             const searchField: any[] = [];
             let targetCount = 0;
@@ -40,7 +40,7 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
             for (let i = 0; i < currentItemCount; i++) {
                 const isTarget = Math.random() < config.targetRatio;
                 const type = isTarget ? 'triangle' : getRandomItems(config.types.filter(t => t !== 'triangle'), 1)[0];
-                
+
                 if (type === 'triangle') targetCount++;
 
                 searchField.push({
@@ -66,12 +66,12 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
             title: "Görsel Tarama: Üçgen Avı",
             instruction: "Aşağıdaki kutuların içindeki TÜM ÜÇGENLERİ bul ve sayısını altındaki kutucuğa yaz. Dikkat et, bazıları dönmüş veya gizlenmiş olabilir!",
             pedagogicalNote: "Şekil-zemin algısı (figure-ground) ve görsel sabitlik (visual constancy) becerilerini geliştiren klinik dikkat çalışması.",
-            settings: { 
-                difficulty: difficulty || 'Orta', 
-                itemCount: itemCount, 
-                targetShape: 'triangle', 
-                colorComplexity: 'monochrome', 
-                layoutType: 'chaotic' 
+            settings: {
+                difficulty: difficulty || 'Orta',
+                itemCount: itemCount,
+                targetShape: 'triangle',
+                colorComplexity: 'monochrome',
+                layoutType: 'chaotic'
             },
             searchField: puzzles as any, // Taşınan yeni yapı
             correctCount: puzzles.reduce((acc, curr) => acc + curr.correctCount, 0),
@@ -81,4 +81,131 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
     return results;
 };
 
-// ... remaining generators ...
+export const generateOfflineGridDrawing = async (options: GeneratorOptions): Promise<GridDrawingData[]> => {
+    const { worksheetCount, difficulty, gridSize = 8, concept = 'copy' } = options;
+    const results: GridDrawingData[] = [];
+
+    for (let p = 0; p < worksheetCount; p++) {
+        // Seçilen zorluğa/konsepte göre bir desen seç veya üret
+        const patternName = getRandomItems(Object.keys(PREDEFINED_GRID_PATTERNS), 1)[0];
+        const sourcePattern = PREDEFINED_GRID_PATTERNS[patternName];
+
+        results.push({
+            title: "Kare Kopyalama",
+            instruction: "Sol taraftaki deseni sağdaki boş ızgaraya noktaları ve çizgileri takip ederek kopyalayın.",
+            pedagogicalNote: "Görsel-motor koordinasyon, planlama ve mekansal ilişkilendirme becerilerini geliştirir.",
+            gridDim: gridSize,
+            showCoordinates: (options as any).showCoordinates !== false,
+            transformMode: concept as any,
+            drawings: [{
+                lines: sourcePattern,
+                title: patternName,
+                complexityLevel: 'medium'
+            }]
+        });
+    }
+    return results;
+};
+
+export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions): Promise<SymmetryDrawingData[]> => {
+    const { worksheetCount, difficulty, gridSize = 8, concept = 'mirror_v' } = options;
+    const results: SymmetryDrawingData[] = [];
+
+    for (let p = 0; p < worksheetCount; p++) {
+        // Simetrik çizgiler üret
+        const lines = generateConnectedPath(gridSize / 2, 3).map(line => ({
+            x1: line[0][0], y1: line[0][1],
+            x2: line[1][0], y2: line[1][1],
+            color: 'black'
+        }));
+
+        results.push({
+            title: "Simetri Tamamlama",
+            instruction: "Desenleri simetri eksenine göre aynadaki yansıması olacak şekilde tamamlayın.",
+            pedagogicalNote: "Bilateral koordinasyon, görsel algı ve simetri kavramını güçlendirir.",
+            gridDim: gridSize,
+            axis: concept === 'mirror_h' ? 'horizontal' : 'vertical',
+            showCoordinates: (options as any).showCoordinates !== false,
+            lines,
+            dots: []
+        });
+    }
+    return results;
+};
+
+export const generateOfflineFindTheDifference = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
+    const { worksheetCount, difficulty, itemCount = 5, findDiffType = 'visual' } = options;
+    const results: FindTheDifferenceData[] = [];
+
+    for (let p = 0; p < worksheetCount; p++) {
+        const size = difficulty === 'Başlangıç' ? 5 : (difficulty === 'Orta' ? 7 : 10);
+        const sourceGrid: string[][] = Array.from({ length: size }, () => Array.from({ length: size }, () => getRandomItems(findDiffType === 'char' ? turkishAlphabet.split('') : SHAPE_TYPES, 1)[0]));
+
+        const targetGrid = sourceGrid.map(row => [...row]);
+        const diffPositions: { r: number, c: number }[] = [];
+
+        while (diffPositions.length < itemCount) {
+            const r = getRandomInt(0, size - 1);
+            const c = getRandomInt(0, size - 1);
+            if (!diffPositions.some(pos => pos.r === r && pos.c === c)) {
+                let newVal = getRandomItems(findDiffType === 'char' ? turkishAlphabet.split('') : SHAPE_TYPES, 1)[0];
+                while (newVal === sourceGrid[r][c]) newVal = getRandomItems(findDiffType === 'char' ? turkishAlphabet.split('') : SHAPE_TYPES, 1)[0];
+                targetGrid[r][c] = newVal;
+                diffPositions.push({ r, c });
+            }
+        }
+
+        results.push({
+            title: "Farkı Bul",
+            instruction: `İki tablo arasındaki ${itemCount} farkı bul ve işaretle.`,
+            pedagogicalNote: "Dikkat yoğunluğu, görsel tarama ve karşılaştırmalı analiz yeteneğini geliştirir.",
+            rows: Array.from({ length: size }, (_, r) => ({
+                items: sourceGrid[r],
+                correctIndex: -1, // Not used in this variant
+                visualDistractionLevel: 'medium'
+            }))
+        } as any);
+    }
+    return results;
+};
+
+export const generateOfflineDirectionalTracking = async (options: GeneratorOptions): Promise<DirectionalTrackingData[]> => {
+    const { worksheetCount, difficulty, codeLength = 5 } = options;
+    const results: DirectionalTrackingData[] = [];
+
+    for (let p = 0; p < worksheetCount; p++) {
+        const size = 6;
+        const grid: string[][] = Array.from({ length: size }, () => Array.from({ length: size }, () => getRandomItems(turkishAlphabet.split(''), 1)[0]));
+
+        const path: { r: number, c: number, char: string, direction: string }[] = [];
+        let cr = getRandomInt(0, size - 3), cc = getRandomInt(0, size - 3);
+
+        const directions = [
+            { label: 'SAĞ', dr: 0, dc: 1, icon: 'fa-arrow-right' },
+            { label: 'SOL', dr: 0, dc: -1, icon: 'fa-arrow-left' },
+            { label: 'AŞAĞI', dr: 1, dc: 0, icon: 'fa-arrow-down' },
+            { label: 'YUKARI', dr: -1, dc: 0, icon: 'fa-arrow-up' }
+        ];
+
+        for (let i = 0; i < codeLength; i++) {
+            const move = directions[getRandomInt(0, 3)];
+            const nr = Math.max(0, Math.min(size - 1, cr + move.dr));
+            const nc = Math.max(0, Math.min(size - 1, cc + move.dc));
+            path.push({ r: nr, c: nc, char: grid[nr][nc], direction: move.label });
+            cr = nr; cc = nc;
+        }
+
+        results.push({
+            title: "Yönsel İz Sürme",
+            instruction: "Okları ve yönergeleri takip ederek ızgara üzerindeki harfleri topla ve gizli şifreyi oluştur.",
+            pedagogicalNote: "Yönsel algı, takip ve mekansal kodlama becerilerini destekler.",
+            puzzles: [{
+                grid,
+                path: path.map(p => p.direction),
+                startPos: { r: path[0].r, c: path[0].c },
+                targetWord: path.map(pt => pt.char).join('')
+            }]
+        });
+    }
+    return results;
+};

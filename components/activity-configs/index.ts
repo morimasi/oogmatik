@@ -25,6 +25,9 @@ import { MorphologyConfig } from './MorphologyConfig';
 import { ReadingPyramidConfig } from './ReadingPyramidConfig';
 import { NumberPathLogicConfig } from './NumberPathLogicConfig';
 import { DirectionalTrackingConfig } from './DirectionalTrackingConfig';
+import { FutoshikiConfig } from './FutoshikiConfig';
+import { AbcConnectConfig } from './AbcConnectConfig';
+
 
 export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.MATH_MEMORY_CARDS]: MathMemoryCardsConfig,
@@ -52,4 +55,6 @@ export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.READING_PYRAMID]: ReadingPyramidConfig,
     [ActivityType.NUMBER_PATH_LOGIC]: NumberPathLogicConfig,
     [ActivityType.DIRECTIONAL_TRACKING]: DirectionalTrackingConfig,
+    [ActivityType.FUTOSHIKI]: FutoshikiConfig,
+    [ActivityType.ABC_CONNECT]: AbcConnectConfig,
 };

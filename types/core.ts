@@ -239,6 +239,8 @@ export interface GeneratorOptions {
     includeImage?: boolean;
     showSumTarget?: boolean;
     concept?: string;
+    density?: 'low' | 'medium' | 'high';
+    hintLevel?: 'low' | 'medium' | 'high';
 }
 
 export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'diamond' | 'pentagon' | 'octagon';

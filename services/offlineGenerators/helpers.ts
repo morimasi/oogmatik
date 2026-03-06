@@ -85,7 +85,7 @@ export const getWordsForDifficulty = (difficulty: string, topic?: string): strin
         else if (difficulty === 'Zor') pool = TR_VOCAB.hard_words;
         else pool = TR_VOCAB.expert_words;
     }
-    
+
     return [...new Set(pool)];
 };
 
@@ -94,12 +94,12 @@ export const getWordsForDifficulty = (difficulty: string, topic?: string): strin
  * Kural: Bir kelime içinde iki ünlü arasındaki bir ünsüz, kendinden sonraki ünlüyle hece kurar.
  * İki ünlü arasındaki iki ünsüzden ilki kendinden önceki ünlüyle, ikincisi kendinden sonraki ünlüyle hece kurar.
  */
-export const simpleSyllabify = (text: string): string[] => {
+export const syllabifyWord = (text: string): string[] => {
     if (!text) return [];
     const word = text.trim().toLowerCase();
     const vowels = "aeıioöuü";
     const syllables: string[] = [];
-    
+
     let lastSplit = 0;
     for (let i = 1; i < word.length; i++) {
         if (vowels.includes(word[i])) {
@@ -109,7 +109,7 @@ export const simpleSyllabify = (text: string): string[] => {
             if (i > 0 && !vowels.includes(word[i - 1])) {
                 splitPoint = i - 1;
             }
-            
+
             // Eğer bu split noktası bir önceki heceden daha ilerideyse heceyi ayır
             // Bu mantık "ilköğretim" gibi zorlu kelimeleri bile doğru ayırır: il-köğ-re-tim
             if (splitPoint > lastSplit) {
@@ -118,7 +118,7 @@ export const simpleSyllabify = (text: string): string[] => {
             }
         }
     }
-    
+
     // Kelimenin geri kalanını son hece olarak ekle
     const remaining = text.substring(lastSplit);
     if (remaining) {
@@ -129,29 +129,29 @@ export const simpleSyllabify = (text: string): string[] => {
 };
 
 export const generateMazePath = (rows: number, cols: number) => {
-    const grid = Array.from({length: rows}, () => Array(cols).fill(0));
-    const path: {r:number, c:number}[] = [{r:0, c:0}];
+    const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+    const path: { r: number, c: number }[] = [{ r: 0, c: 0 }];
     let cr = 0, cc = 0;
-    while(cr < rows-1 || cc < cols-1) {
-        if(cr < rows-1 && Math.random() > 0.5) cr++; else if(cc < cols-1) cc++; else if(cr < rows-1) cr++;
-        path.push({r: cr, c: cc});
+    while (cr < rows - 1 || cc < cols - 1) {
+        if (cr < rows - 1 && Math.random() > 0.5) cr++; else if (cc < cols - 1) cc++; else if (cr < rows - 1) cr++;
+        path.push({ r: cr, c: cc });
     }
     let id = 1;
     const pIds = [], dIds = [];
-    for(let r=0; r<rows; r++) for(let c=0; c<cols; c++) {
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
         grid[r][c] = id;
-        if(path.some(p => p.r === r && p.c === c)) pIds.push(id); else dIds.push(id);
+        if (path.some(p => p.r === r && p.c === c)) pIds.push(id); else dIds.push(id);
         id++;
     }
     return { grid, pathIds: pIds, distractorIds: dIds };
 };
 
 export const generateSymmetricPattern = (rows: number, cols: number, density: number): number[][] => {
-    const grid = Array.from({length: rows}, () => Array(cols).fill(0));
+    const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
     const midR = Math.ceil(rows / 2);
     const midC = Math.ceil(cols / 2);
-    for(let r = 0; r < midR; r++) {
-        for(let c = 0; c < midC; c++) {
+    for (let r = 0; r < midR; r++) {
+        for (let c = 0; c < midC; c++) {
             if (Math.random() < density) {
                 grid[r][c] = 1;
                 if (c < cols - 1 - c) grid[r][cols - 1 - c] = 1;
@@ -165,30 +165,30 @@ export const generateSymmetricPattern = (rows: number, cols: number, density: nu
 
 export const generateConnectedPath = (dim: number, complexity: number): [number, number][][] => {
     const lines: [number, number][][] = [];
-    let currentX = getRandomInt(0, Math.floor(dim/2));
+    let currentX = getRandomInt(0, Math.floor(dim / 2));
     let currentY = getRandomInt(0, dim);
     const steps = Math.min(dim * 4, 4 + complexity * 3);
-    
+
     const usedPoints = new Set<string>();
     usedPoints.add(`${currentX},${currentY}`);
 
-    for(let i=0; i<steps; i++) {
+    for (let i = 0; i < steps; i++) {
         const moves = [
-            {dx: 1, dy: 0}, {dx: -1, dy: 0}, {dx: 0, dy: 1}, {dx: 0, dy: -1},
-            {dx: 1, dy: 1}, {dx: -1, dy: -1}, {dx: 1, dy: -1}, {dx: -1, dy: 1}
+            { dx: 1, dy: 0 }, { dx: -1, dy: 0 }, { dx: 0, dy: 1 }, { dx: 0, dy: -1 },
+            { dx: 1, dy: 1 }, { dx: -1, dy: -1 }, { dx: 1, dy: -1 }, { dx: -1, dy: 1 }
         ].filter(m => {
             const nx = currentX + m.dx;
             const ny = currentY + m.dy;
             return nx >= 0 && nx <= dim && ny >= 0 && ny <= dim;
         });
-        
-        if(moves.length === 0) break;
+
+        if (moves.length === 0) break;
         const move = moves[Math.floor(Math.random() * moves.length)];
         const nextX = currentX + move.dx;
         const nextY = currentY + move.dy;
-        
+
         lines.push([[currentX, currentY], [nextX, nextY]]);
-        currentX = nextX; 
+        currentX = nextX;
         currentY = nextY;
         usedPoints.add(`${currentX},${currentY}`);
     }
@@ -199,11 +199,11 @@ export const generateSudokuGrid = (n: number, difficulty: string): (number | nul
     const size = n;
     const boxH = size === 9 ? 3 : (size === 6 ? 2 : 2);
     const boxW = size === 9 ? 3 : (size === 6 ? 3 : 2);
-    const grid: number[][] = Array.from({length: size}, () => Array(size).fill(0));
+    const grid: number[][] = Array.from({ length: size }, () => Array(size).fill(0));
     const isValid = (r: number, c: number, num: number) => {
-        for(let k=0; k<size; k++) if (grid[r][k] === num || grid[k][c] === num) return false;
-        const sr = Math.floor(r/boxH)*boxH, sc = Math.floor(c/boxW)*boxW;
-        for(let i=0; i<boxH; i++) for(let j=0; j<boxW; j++) if(grid[sr+i][sc+j] === num) return false;
+        for (let k = 0; k < size; k++) if (grid[r][k] === num || grid[k][c] === num) return false;
+        const sr = Math.floor(r / boxH) * boxH, sc = Math.floor(c / boxW) * boxW;
+        for (let i = 0; i < boxH; i++) for (let j = 0; j < boxW; j++) if (grid[sr + i][sc + j] === num) return false;
         return true;
     };
     const solve = (r: number, c: number): boolean => {
@@ -211,7 +211,7 @@ export const generateSudokuGrid = (n: number, difficulty: string): (number | nul
         const nr = c === size - 1 ? r + 1 : r;
         const nc = c === size - 1 ? 0 : c + 1;
         if (grid[r][c] !== 0) return solve(nr, nc);
-        const nums = shuffle(Array.from({length: size}, (_, i) => i + 1));
+        const nums = shuffle(Array.from({ length: size }, (_, i) => i + 1));
         for (const num of nums) {
             if (isValid(r, c, num)) {
                 grid[r][c] = num;
@@ -222,20 +222,20 @@ export const generateSudokuGrid = (n: number, difficulty: string): (number | nul
         return false;
     };
     solve(0, 0);
-    const removeCount = difficulty === 'Başlangıç' ? size*size*0.3 : difficulty === 'Orta' ? size*size*0.5 : size*size*0.6;
-    const puzzle = grid.map(row => [...row]) as (number|null)[][];
+    const removeCount = difficulty === 'Başlangıç' ? size * size * 0.3 : difficulty === 'Orta' ? size * size * 0.5 : size * size * 0.6;
+    const puzzle = grid.map(row => [...row]) as (number | null)[][];
     let removed = 0;
-    while(removed < removeCount) {
-        const r = getRandomInt(0, size-1), c = getRandomInt(0, size-1);
+    while (removed < removeCount) {
+        const r = getRandomInt(0, size - 1), c = getRandomInt(0, size - 1);
         if (puzzle[r][c] !== null) { puzzle[r][c] = null; removed++; }
     }
     return puzzle;
 };
 
 export const generateLatinSquare = (n: number): number[][] => {
-    let grid = [shuffle(Array.from({length: n}, (_, i) => i + 1))];
+    let grid = [shuffle(Array.from({ length: n }, (_, i) => i + 1))];
     for (let i = 1; i < n; i++) {
-        const prev = grid[i-1];
+        const prev = grid[i - 1];
         grid.push([...prev.slice(1), prev[0]]);
     }
     grid = shuffle(grid);
@@ -243,8 +243,8 @@ export const generateLatinSquare = (n: number): number[][] => {
 };
 
 export const PREDEFINED_GRID_PATTERNS: Record<string, [number, number][][]> = {
-    'house': [[[1,4], [1,2]], [[1,2], [3,0]], [[3,0], [5,2]], [[5,2], [5,4]], [[5,4], [1,4]], [[2,4], [2,2]], [[2,2], [4,2]], [[4,2], [4,4]]],
-    'boat': [[[1,3], [5,3]], [[1,3], [2,5]], [[5,3], [4,5]], [[2,5], [4,5]], [[3,3], [3,1]], [[3,1], [4,2]], [[4,2], [3,2]]],
-    'tree': [[[3,5], [3,3]], [[3,3], [1,3]], [[1,3], [2,1]], [[2,1], [3,2]], [[3,2], [4,1]], [[4,1], [5,3]], [[5,3], [3,3]]],
-    'duck': [[[2,2], [3,1]], [[3,1], [4,1]], [[4,1], [4,2]], [[4,2], [5,2]], [[5,2], [5,3]], [[5,3], [2,3]], [[2,3], [2,2]], [[3,2], [3,2]]]
+    'house': [[[1, 4], [1, 2]], [[1, 2], [3, 0]], [[3, 0], [5, 2]], [[5, 2], [5, 4]], [[5, 4], [1, 4]], [[2, 4], [2, 2]], [[2, 2], [4, 2]], [[4, 2], [4, 4]]],
+    'boat': [[[1, 3], [5, 3]], [[1, 3], [2, 5]], [[5, 3], [4, 5]], [[2, 5], [4, 5]], [[3, 3], [3, 1]], [[3, 1], [4, 2]], [[4, 2], [3, 2]]],
+    'tree': [[[3, 5], [3, 3]], [[3, 3], [1, 3]], [[1, 3], [2, 1]], [[2, 1], [3, 2]], [[3, 2], [4, 1]], [[4, 1], [5, 3]], [[5, 3], [3, 3]]],
+    'duck': [[[2, 2], [3, 1]], [[3, 1], [4, 1]], [[4, 1], [4, 2]], [[4, 2], [5, 2]], [[5, 2], [5, 3]], [[5, 3], [2, 3]], [[2, 3], [2, 2]], [[3, 2], [3, 2]]]
 };

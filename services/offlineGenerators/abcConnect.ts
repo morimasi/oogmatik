@@ -5,18 +5,20 @@ import { AbcConnectData, GeneratorOptions } from '../../types';
  * Çoklu modlar (Romen, Harf, Nokta, İşlem) ve akıllı yerleşim içerir.
  */
 export const generateOfflineAbcConnect = async (options: GeneratorOptions): Promise<AbcConnectData[]> => {
-    const { difficulty, worksheetCount } = options;
+    const { difficulty, worksheetCount, gridSize, variant: optVariant, density } = options;
 
     // Boyut belirleme
-    let dim = 4;
-    if (difficulty === 'Başlangıç') dim = 4;
-    else if (difficulty === 'Orta') dim = 5;
-    else if (difficulty === 'Zor') dim = 6;
-    else if (difficulty === 'Uzman') dim = 8;
+    let dim = gridSize || 4;
+    if (!gridSize) {
+        if (difficulty === 'Başlangıç') dim = 4;
+        else if (difficulty === 'Orta') dim = 5;
+        else if (difficulty === 'Zor') dim = 6;
+        else if (difficulty === 'Uzman') dim = 8;
+    }
 
     const activities: AbcConnectData[] = [];
 
-    // Varyantlar arası geçiş (Her sayfada farklı bir varyant denenebilir veya sabit kalabilir)
+    const variantOption = optVariant as ('roman' | 'case' | 'dots' | 'math' | undefined);
     const variants: ('roman' | 'case' | 'dots' | 'math')[] = ['roman', 'case', 'dots', 'math'];
 
     const romanMap: Record<number, string> = {
@@ -27,8 +29,13 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
     const letters = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ";
 
     for (let c = 0; c < worksheetCount; c++) {
-        const variant = variants[c % variants.length];
-        const pairCount = Math.floor(dim * 1.2);
+        const variant = variantOption || variants[c % variants.length];
+
+        let pairDensity = 1.2;
+        if (density === 'low') pairDensity = 0.8;
+        else if (density === 'high') pairDensity = 1.6;
+
+        const pairCount = Math.floor(dim * pairDensity);
         const paths: any[] = [];
         const usedCells = new Set<string>();
 
@@ -59,7 +66,7 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
             } else if (variant === 'dots') {
                 const val = i + 1;
                 value = val;
-                matchValue = `dots-${val}`; // UI'da render edilecek
+                matchValue = `dots-${val}`;
             } else if (variant === 'math') {
                 const result = Math.floor(Math.random() * 9) + 2;
                 const a = Math.floor(Math.random() * (result - 1)) + 1;

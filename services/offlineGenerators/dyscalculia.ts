@@ -6,48 +6,55 @@ import { getRandomInt, shuffle, getRandomItems } from './helpers';
  * Saat Okuma Yerel Üretici (Hızlı Mod)
  */
 export const generateOfflineClockReading = async (options: GeneratorOptions): Promise<ClockReadingData[]> => {
-    const { worksheetCount, difficulty } = options;
-    const pages: ClockReadingData[] = [];
+    const { worksheetCount, difficulty, variant = 'analog-to-digital' } = options;
+    const results: ClockReadingData[] = [];
 
     for (let p = 0; p < worksheetCount; p++) {
-        const clocks = [];
-        const count = difficulty === 'Başlangıç' ? 6 : 9;
+        const clocks = Array.from({ length: 6 }, () => {
+            let hour = getRandomInt(1, 12);
+            let minute = 0;
 
-        for (let i = 0; i < count; i++) {
-            const hour = getRandomInt(1, 12);
-            const minute = (difficulty === 'Başlangıç') ? (Math.random() > 0.5 ? 0 : 30) : getRandomInt(0, 59);
-            const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-            
-            const distractors = new Set<string>();
-            while(distractors.size < 3) {
-                const h = getRandomInt(1, 12);
-                const m = getRandomInt(0, 59);
-                const d = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-                if (d !== timeString) distractors.add(d);
+            if (difficulty === 'Başlangıç') {
+                minute = Math.random() > 0.5 ? 0 : 30;
+            } else if (difficulty === 'Orta') {
+                minute = [0, 15, 30, 45][getRandomInt(0, 3)];
+            } else {
+                minute = getRandomInt(0, 11) * 5;
             }
 
-            clocks.push({
+            const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+            const hourWords = ["", "Bir", "İki", "Üç", "Dört", "Beş", "Altı", "Yedi", "Sekiz", "Dokuz", "On", "On Bir", "On İki"];
+            let verbalTime = `Saat ${hourWords[hour]}`;
+            if (minute === 30) verbalTime += " buçuk";
+            else if (minute !== 0) verbalTime += ` ${minute} geçiyor`;
+
+            return {
                 hour,
                 minute,
                 timeString,
-                options: shuffle([timeString, ...Array.from(distractors)]),
-                problemText: difficulty === 'Zor' ? "15 dakika sonra saat kaç olur?" : undefined
-            });
-        }
+                verbalTime,
+                options: shuffle([timeString, `${(hour % 12) + 1}:15`, `${hour}:45`, `${hour - 1}:30`]).slice(0, 4)
+            };
+        });
 
-        pages.push({
+        results.push({
             title: "Saat Okuma Atölyesi",
-            instruction: "Analog saatlerde gösterilen zamanı dijital olarak bulun veya doğru şıkkı işaretleyin.",
+            instruction: (variant as any) === 'analog-to-digital'
+                ? "Analog saatlerde gösterilen zamanı altındaki dijital kutucuklara yazın."
+                : "Verilen dijital zamana göre saatin akrep ve yelkovanını çizin.",
             pedagogicalNote: "Zaman algısı, analog-dijital dönüşüm ve ritmik sayma becerilerini destekler.",
+            variant: (variant as any),
             clocks,
             settings: {
                 showNumbers: true,
                 showTicks: true,
-                showHands: true
+                showHands: (variant as any) === 'analog-to-digital',
+                showOptions: difficulty === 'Başlangıç',
+                difficulty
             }
         });
     }
-    return pages;
+    return results;
 };
 
 export const generateOfflineNumberSense = async (options: GeneratorOptions): Promise<NumberSenseData[]> => {
@@ -56,18 +63,54 @@ export const generateOfflineNumberSense = async (options: GeneratorOptions): Pro
         const exercises: any[] = [];
         const max = difficulty === 'Başlangıç' ? 10 : 20;
         const start = getRandomInt(0, 5);
-        exercises.push({ type: 'missing', values: [start, start+1, start+2, start+3], target: start+2, visualType: 'number-line-advanced' });
+        exercises.push({ type: 'missing', values: [start, start + 1, start + 2, start + 3], target: start + 2, visualType: 'number-line-advanced' });
         return { title: `Sayı Hissi (${difficulty})`, instruction: 'Eksiği bul.', exercises };
     });
 };
 
 export const generateOfflineMoneyCounting = async (options: GeneratorOptions): Promise<MoneyCountingData[]> => {
     const { worksheetCount, difficulty } = options;
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Paralarımız",
-        instruction: "Toplamı hesapla.",
-        puzzles: [{ notes: [{value: 5, count: 2}], coins: [{value: 1, count: 3}], question: "Kaç TL?", options: ["13", "10", "15"], answer: "13" }]
-    }));
+    const results: MoneyCountingData[] = [];
+    const notes = [200, 100, 50, 20, 10, 5];
+    const coins = [1, 0.5, 0.25, 0.1, 0.05];
+
+    for (let p = 0; p < worksheetCount; p++) {
+        const puzzles = Array.from({ length: 4 }, () => {
+            const selectedNotes: { value: number; count: number }[] = [];
+            const selectedCoins: { value: number; count: number }[] = [];
+            let total = 0;
+            const noteCount = difficulty === 'Başlangıç' ? 2 : (difficulty === 'Orta' ? 3 : 5);
+            for (let i = 0; i < noteCount; i++) {
+                const val = notes[getRandomInt(0, difficulty === 'Başlangıç' ? 3 : 5)];
+                const count = getRandomInt(1, 3);
+                selectedNotes.push({ value: val, count });
+                total += val * count;
+            }
+            if (difficulty !== 'Başlangıç') {
+                for (let i = 0; i < 2; i++) {
+                    const val = coins[getRandomInt(0, 2)];
+                    const count = getRandomInt(1, 4);
+                    selectedCoins.push({ value: val, count });
+                    total += val * count;
+                }
+            }
+            const formattedTotal = total.toFixed(2);
+            return {
+                notes: selectedNotes,
+                coins: selectedCoins,
+                question: "Cüzdandaki toplam para miktarını bulun.",
+                options: shuffle([`${total} TL`, `${(total + 10).toFixed(2)} TL`, `${(total - 5).toFixed(2)} TL`]),
+                answer: `${formattedTotal} TL`
+            };
+        });
+        results.push({
+            title: "Paralarımız ve Hesaplamalar",
+            instruction: "Görsellerdeki kağıt ve madeni paraları toplayarak toplam miktarı bulun.",
+            pedagogicalNote: "Finansal okuryazarlık, ondalık sayılarla toplama ve günlük yaşam matematiği.",
+            puzzles
+        });
+    }
+    return results;
 };
 
 export const generateOfflineVisualArithmetic = async (options: GeneratorOptions): Promise<VisualArithmeticData[]> => {
