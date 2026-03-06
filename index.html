@@ -160,12 +160,12 @@
         display: flex !important;
         flex-direction: column !important;
         width: 210mm !important;
-        min-height: 296.8mm !important;
-        max-height: 296.8mm !important;
-        padding: 10mm 12mm 14mm 12mm !important;
-        margin: 0 !important;
-        overflow: visible !important;
-        /* TAŞMA DÜZELTİLDİ: İçerik kesilmeyecek */
+        height: 296.8mm !important;
+        /* SABİT A4 BOYUTU */
+        padding: 12mm 15mm !important;
+        margin: 0 auto !important;
+        overflow: hidden !important;
+        /* Sayfa dışına taşanlar kesilir (pagination ile çözülecek) */
         page-break-after: always !important;
         break-after: page !important;
         box-sizing: border-box !important;
@@ -182,10 +182,18 @@
         flex: 1 !important;
         display: flex !important;
         flex-direction: column !important;
-        gap: 5px !important;
+        gap: 8px !important;
         width: 100% !important;
-        overflow: visible !important;
-        /* TAŞMA DÜZELTİLDİ */
+        overflow: hidden !important;
+      }
+
+      /* Blokların sayfa ortasında kesilmesini önle */
+      .block-container,
+      .pedagogical-header,
+      .block-table-container,
+      .block-grid-container {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
       }
 
       /* 2 sütunlu grid ise gap küçült */

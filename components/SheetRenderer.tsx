@@ -1,7 +1,7 @@
 
 import React from 'react';
 import {
-    ActivityType, SingleWorksheetData, WorksheetBlock,
+    ActivityType, SingleWorksheetData, WorksheetBlock, StudentProfile, StyleSettings,
     AlgorithmData, MathPuzzleData, NumberPatternData, RealLifeProblemData, LogicGridPuzzleData, FutoshikiData, NumberPyramidData, OddOneOutData, NumberLogicRiddleData, NumberPathLogicData, VisualArithmeticData, ClockReadingData, NumberSenseData, MoneyCountingData, MathMemoryCardsData, SpatialGridData, ConceptMatchData, EstimationData, AbcConnectData, OddEvenSudokuData, MagicPyramidData, NumberCapsuleData,
     WordMemoryData, VisualMemoryData, CharacterMemoryData, ColorWheelMemoryData, ImageComprehensionData, StroopTestData, LetterGridTestData, NumberSearchData, ChaoticNumberSearchData, AttentionDevelopmentData, AttentionFocusData, FindDuplicateData, FindLetterPairData, TargetSearchData,
     InteractiveStoryData, SyllableMasterLabData, ReadingSudokuData, ReadingStroopData, SynonymAntonymMatchData, SyllableWordBuilderData, LetterVisualMatchingData, FamilyRelationsData, FamilyLogicTestData, MorphologyMatrixData, ReadingPyramidData, ReadingFlowData, PhonologicalAwarenessData, RapidNamingData, LetterDiscriminationData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, HandwritingPracticeData,
@@ -460,7 +460,7 @@ const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlo
     return [block];
 };
 
-const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
+const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: SingleWorksheetData, studentProfile?: StudentProfile | null, settings?: StyleSettings }) => {
     const architecture = data.layoutArchitecture;
     const rawBlocks: WorksheetBlock[] = architecture?.blocks || data.blocks || [];
     const cols = architecture?.cols || 1;
@@ -468,23 +468,23 @@ const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
     // ══════════════════════════════════════════════
     // AKILLI SAYFALAMA — Bölme + Ağırlık Sistemi
     // ══════════════════════════════════════════════
-    const PAGE_MAX_WEIGHT = 900; // Kompakt A4 kapasitesi (print CSS küçültmeli)
-    const HEADER_WEIGHT = 80;    // PedagogicalHeader rezervi
+    const PAGE_MAX_WEIGHT = 920;  // A4 portrait kapasitesi
+    const HEADER_RESERVE = 150;   // Profil + Header alanı rezervi
 
-    // 1. Önce büyük blokları böl
+    // 1. Önce çok büyük blokları böl
     const allBlocks: WorksheetBlock[] = rawBlocks.flatMap((block) =>
-        splitLargeBlock(block, PAGE_MAX_WEIGHT - HEADER_WEIGHT)
+        splitLargeBlock(block, PAGE_MAX_WEIGHT - HEADER_RESERVE)
     );
 
     // 2. Sayfalara dağıt
     const pages: WorksheetBlock[][] = [[]];
-    let currentWeight = HEADER_WEIGHT;
+    let currentWeight = HEADER_RESERVE;
 
     allBlocks.forEach((block: WorksheetBlock) => {
         const weight = getBlockWeight(block);
         if (currentWeight + weight > PAGE_MAX_WEIGHT && pages[pages.length - 1].length > 0) {
             pages.push([block]);
-            currentWeight = HEADER_WEIGHT + weight;
+            currentWeight = HEADER_RESERVE + weight;
         } else {
             pages[pages.length - 1].push(block);
             currentWeight += weight;
@@ -492,42 +492,65 @@ const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
     });
 
     const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => (
-        <div key={pageIdx} className="worksheet-page ultra-print-page print-page mb-20 shadow-2xl relative">
+        <div key={pageIdx} className="worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden">
+
+            {/* Öğrenci Bilgi Şeridi */}
+            {settings?.showStudentInfo && (
+                <div className="w-full px-6 py-4 flex justify-between items-end border-b-2 border-zinc-900 mb-6 font-lexend">
+                    <div className="flex gap-12">
+                        <div className="flex flex-col">
+                            <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">Öğrenci Adı Soyadı</span>
+                            <div className="h-6 border-b border-zinc-200 min-w-[180px] font-black text-sm uppercase text-black">
+                                {studentProfile?.name || "...................................."}
+                            </div>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">Sınıf / Grup</span>
+                            <div className="h-6 border-b border-zinc-200 min-w-[60px] font-black text-sm text-center text-black">
+                                {studentProfile?.grade || "........"}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                        <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">Çalışma Tarihi</span>
+                        <div className="h-6 border-b border-zinc-200 min-w-[80px] font-black text-sm text-right text-black">
+                            {new Date().toLocaleDateString('tr-TR')}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <PedagogicalHeader
-                title={pageIdx === 0 ? data.title : `${data.title} (${pageIdx + 1}. Sayfa)`}
-                instruction={pageIdx === 0 ? data.instruction : '↓ Çalışmaya devam et.'}
+                title={pageIdx === 0 ? data.title : `${data.title} (Dvm.)`}
+                instruction={pageIdx === 0 ? data.instruction : 'Lütfen çalışmaya devam edin.'}
                 note={pageIdx === 0 ? data.pedagogicalNote : ''}
                 data={data}
             />
 
             <div
                 className={`print-content-area flex-1 mt-4 ${cols > 1 ? 'grid' : 'flex flex-col'}`}
-                style={cols > 1 ? { gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '4px' } : { gap: '4px' }}
+                style={cols > 1 ? { gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '6mm' } : { gap: '6mm' }}
             >
                 {pageBlocks.map((block, idx) => (
-                    <BlockRenderer key={idx} block={block} />
+                    <div key={idx} className="block-container">
+                        <BlockRenderer block={block} />
+                    </div>
                 ))}
             </div>
 
-            {/* Print Only Footer */}
-            <div className="print-footer hidden print:flex">
-                <span>Oogmatik | Nöro-Mimari Motoru v6.0</span>
-                <span>Sayfa {pageIdx + 1} / {pages.length}</span>
-            </div>
-
-            <div className="mt-auto pt-4 opacity-20 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.5em] text-zinc-400 no-print">
-                <span>Bursa Disleksi AI • Nöro-Mimari Motoru v6.0</span>
-                <div className="flex gap-4">
-                    <i className="fa-solid fa-microchip"></i>
-                    <i className="fa-solid fa-brain"></i>
-                    <i className="fa-solid fa-bezier-curve"></i>
+            {/* Profesyonel Footer */}
+            <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.4em] text-zinc-400">
+                <div className="flex items-center gap-2">
+                    <span className="bg-black text-white px-1.5 py-0.5 rounded font-black">AI</span>
+                    <span>Bursa Disleksi AI • Nöro-Mimari Motoru v7.0</span>
                 </div>
+                <span>SAYFA {pageIdx + 1} / {pages.length}</span>
             </div>
         </div>
     );
 
     return (
-        <div className="w-full flex flex-col items-center gap-12 animate-in fade-in duration-500 font-lexend no-scrollbar" id="print-container">
+        <div className="w-full flex flex-col items-center gap-10 no-scrollbar" id="print-container">
             {pages.map((p, i) => renderPage(p, i))}
         </div>
     );
@@ -536,13 +559,24 @@ const UnifiedContentRenderer = ({ data }: { data: SingleWorksheetData }) => {
 interface SheetRendererProps {
     activityType: ActivityType | null;
     data: SingleWorksheetData;
+    studentProfile?: StudentProfile | null;
+    settings?: StyleSettings;
 }
 
-export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererProps) => {
+export const SheetRenderer = React.memo(({ activityType, data, studentProfile, settings }: SheetRendererProps) => {
     if (!data) return null;
-    if (data.layoutArchitecture || data.blocks) return <UnifiedContentRenderer data={data} />;
-    if (activityType === ActivityType.STORY_COMPREHENSION && data.layout) return <ReadingStudioContentRenderer layout={data.layout} storyData={data.storyData} />;
 
+    // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
+    if (data.layoutArchitecture || data.blocks) {
+        return <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />;
+    }
+
+    // Özel modül renderları (Story Comprehension vb.)
+    if (activityType === ActivityType.STORY_COMPREHENSION && data.layout) {
+        return <ReadingStudioContentRenderer layout={data.layout} storyData={data.storyData} />;
+    }
+
+    // Geleneksel modül renderları
     switch (activityType) {
         case ActivityType.ALGORITHM_GENERATOR: return <AlgorithmSheet data={data as unknown as AlgorithmData} />;
         case ActivityType.MATH_PUZZLE: return <MathPuzzleSheet data={data as unknown as MathPuzzleData} />;
@@ -614,6 +648,6 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.WORD_SEARCH: return <WordSearchSheet data={data as unknown as WordSearchData} />;
         case ActivityType.ANAGRAM: return <AnagramSheet data={data as unknown as AnagramsData} />;
         case ActivityType.CROSSWORD: return <CrosswordSheet data={data as unknown as CrosswordData} />;
-        default: return <UnifiedContentRenderer data={data} />;
+        default: return <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />;
     }
 });

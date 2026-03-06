@@ -126,82 +126,19 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
 
     if (!data || !activityType || data.length === 0) return null;
 
+    // Tekil sayfa verisini al (SheetRenderer buna göre sayfalama yapacak)
+    const pageData = Array.isArray(data) ? data[0] : data;
+
     return (
         <div className="flex flex-col items-center w-full" style={variableStyle}>
-            {data.map((pageData: any, index: number) => (
-                <div key={index} id={`page-${index}`} className="worksheet-page print-page group" style={pageStyle}>
-
-                    {/* Klinik Odak Katmanı */}
-                    <ReadingRuler settings={settings} />
-
-                    {/* Header Strip */}
-                    <div className="w-full px-10 py-6 flex justify-between items-end border-b-2 border-zinc-900 mb-8" style={{ display: settings.showStudentInfo ? 'flex' : 'none' }}>
-                        <div className="flex gap-10">
-                            <div className="flex flex-col">
-                                <span className="text-[8px] text-zinc-400 uppercase font-black tracking-widest">Öğrenci</span>
-                                <div className="h-6 border-b border-zinc-200 min-w-[200px] font-bold text-sm">
-                                    <EditableText value={studentProfile?.name} tag="span" />
-                                </div>
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-[8px] text-zinc-400 uppercase font-black tracking-widest">Sınıf</span>
-                                <div className="h-6 border-b border-zinc-200 min-w-[50px] font-bold text-sm text-center">
-                                    <EditableText value={studentProfile?.grade} tag="span" />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-end">
-                            <span className="text-[8px] text-zinc-400 uppercase font-black tracking-widest">Tarih</span>
-                            <div className="h-6 border-b border-zinc-200 min-w-[80px] font-bold text-sm text-right">
-                                <EditableText value={studentProfile?.date || new Date().toLocaleDateString('tr-TR')} tag="span" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Main Content Area */}
-                    <div className="w-full px-10 py-2 flex flex-col flex-1 relative z-10">
-                        <style>{`
-                            .worksheet-content {
-                                font-family: var(--worksheet-font-family), sans-serif;
-                                font-size: var(--worksheet-font-size);
-                                line-height: var(--worksheet-line-height);
-                                letter-spacing: var(--worksheet-letter-spacing);
-                                word-spacing: var(--worksheet-word-spacing);
-                                text-align: var(--content-align);
-                                font-weight: var(--font-weight);
-                                font-style: var(--font-style);
-                                height: 100%;
-                            }
-                            .worksheet-content p {
-                                margin-bottom: var(--worksheet-paragraph-spacing);
-                            }
-                            .dynamic-grid {
-                                display: grid;
-                                grid-template-columns: var(--grid-columns);
-                                gap: var(--worksheet-gap);
-                                width: 100%;
-                            }
-                        `}</style>
-                        <div className="worksheet-content">
-                            <ErrorBoundary>
-                                <SheetRenderer activityType={activityType} data={pageData} />
-                            </ErrorBoundary>
-                        </div>
-                    </div>
-
-                    {/* Footer Area */}
-                    <div className="w-full px-10 pb-4 flex justify-between items-end text-[7px] text-zinc-300 font-mono mt-auto" style={{ display: settings.showFooter ? 'flex' : 'none' }}>
-                        <span>Bursa Disleksi AI • {new Date().getFullYear()}</span>
-                        <span className="uppercase tracking-[0.3em] font-black">{pageData.title || 'Çalışma Sayfası'}</span>
-                    </div>
-
-                    {isEditMode && (
-                        <div className="absolute top-2 left-2 bg-indigo-600 text-white text-[9px] px-2 py-1 rounded shadow-lg font-bold uppercase tracking-widest opacity-50 no-print">
-                            Düzenleme Modu
-                        </div>
-                    )}
-                </div>
-            ))}
+            <ErrorBoundary>
+                <SheetRenderer
+                    activityType={activityType}
+                    data={pageData}
+                    studentProfile={studentProfile}
+                    settings={settings}
+                />
+            </ErrorBoundary>
         </div>
     );
 };
