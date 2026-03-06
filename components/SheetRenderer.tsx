@@ -2,7 +2,7 @@
 import React from 'react';
 import {
     ActivityType, SingleWorksheetData, WorksheetBlock,
-    AlgorithmData, MathPuzzleData, NumberPatternData, RealLifeProblemData, LogicGridPuzzleData, FutoshikiData, NumberPyramidData, OddOneOutData, NumberLogicRiddleData, NumberPathLogicData, VisualArithmeticData, ClockReadingData, NumberSenseData, MoneyCountingData, MathMemoryCardsData, SpatialGridData, ConceptMatchData, EstimationData,
+    AlgorithmData, MathPuzzleData, NumberPatternData, RealLifeProblemData, LogicGridPuzzleData, FutoshikiData, NumberPyramidData, OddOneOutData, NumberLogicRiddleData, NumberPathLogicData, VisualArithmeticData, ClockReadingData, NumberSenseData, MoneyCountingData, MathMemoryCardsData, SpatialGridData, ConceptMatchData, EstimationData, AbcConnectData, OddEvenSudokuData, MagicPyramidData, NumberCapsuleData,
     WordMemoryData, VisualMemoryData, CharacterMemoryData, ColorWheelMemoryData, ImageComprehensionData, StroopTestData, LetterGridTestData, NumberSearchData, ChaoticNumberSearchData, AttentionDevelopmentData, AttentionFocusData, FindDuplicateData, FindLetterPairData, TargetSearchData,
     InteractiveStoryData, SyllableMasterLabData, ReadingSudokuData, ReadingStroopData, SynonymAntonymMatchData, SyllableWordBuilderData, LetterVisualMatchingData, FamilyRelationsData, FamilyLogicTestData, MorphologyMatrixData, ReadingPyramidData, ReadingFlowData, PhonologicalAwarenessData, RapidNamingData, LetterDiscriminationData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, CodeReadingData, AttentionToQuestionData, HandwritingPracticeData,
     MapInstructionData, FindTheDifferenceData, VisualOddOneOutData, GridDrawingData, SymmetryDrawingData, ShapeCountingData, DirectionalTrackingData, HiddenPasswordGridData, WordSearchData, AnagramsData, CrosswordData
@@ -26,6 +26,10 @@ import { MathMemoryCardsSheet } from './sheets/math/MathMemoryCardsSheet';
 import { SpatialGridSheet } from './sheets/math/SpatialGridSheet';
 import { ConceptMatchSheet } from './sheets/math/ConceptMatchSheet';
 import { EstimationSheet } from './sheets/math/EstimationSheet';
+import { AbcConnectSheet } from './sheets/math/AbcConnectSheet';
+import { OddEvenSudokuSheet } from './sheets/math/OddEvenSudokuSheet';
+import { MagicPyramidSheet } from './sheets/math/MagicPyramidSheet';
+import { CapsuleGameSheet } from './sheets/math/CapsuleGameSheet';
 import { WordMemorySheet, VisualMemorySheet, CharacterMemorySheet, ColorWheelSheet, ImageComprehensionSheet } from './sheets/attention/MemorySheets';
 import { StroopTestSheet } from './sheets/attention/StroopTestSheet';
 import { BurdonTestSheet, NumberSearchSheet, AttentionDevelopmentSheet, ChaoticNumberSearchSheet, AttentionFocusSheet, FindDuplicateSheet, LetterGridTestSheet, TargetSearchSheet } from './sheets/attention/AttentionSheets';
@@ -424,6 +428,10 @@ export const SheetRenderer = React.memo(({ activityType, data }: SheetRendererPr
         case ActivityType.SPATIAL_GRID: return <SpatialGridSheet data={data as unknown as SpatialGridData} />;
         case ActivityType.CONCEPT_MATCH: return <ConceptMatchSheet data={data as unknown as ConceptMatchData} />;
         case ActivityType.ESTIMATION: return <EstimationSheet data={data as unknown as EstimationData} />;
+        case ActivityType.ABC_CONNECT: return <AbcConnectSheet data={data as unknown as AbcConnectData} />;
+        case ActivityType.ODD_EVEN_SUDOKU: return <OddEvenSudokuSheet data={data as unknown as OddEvenSudokuData} />;
+        case ActivityType.MAGIC_PYRAMID: return <MagicPyramidSheet data={data as unknown as MagicPyramidData} />;
+        case ActivityType.CAPSULE_GAME: return <CapsuleGameSheet data={data as unknown as NumberCapsuleData} />;
         case ActivityType.WORD_MEMORY: return <WordMemorySheet data={data as unknown as WordMemoryData} />;
         case ActivityType.VISUAL_MEMORY: return <VisualMemorySheet data={data as unknown as VisualMemoryData} />;
         case ActivityType.CHARACTER_MEMORY: return <CharacterMemorySheet data={data as unknown as CharacterMemoryData} />;

@@ -11,3 +11,8 @@ export * from './newActivities';
 export * from './assessment';
 export * from './mapDetective';
 export * from './mathStudio';
+export * from './abcConnect';
+export * from './capsuleGame';
+export * from './futoshiki';
+export * from './magicPyramid';
+export * from './oddEvenSudoku';

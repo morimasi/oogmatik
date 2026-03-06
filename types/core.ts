@@ -679,4 +679,8 @@ export type CognitiveErrorTag =
     | 'visual_reversal'
     | 'visual_inversion'
     | 'working_memory_overflow'
-    | 'logical_reasoning';
+    | 'logical_reasoning'
+    | 'visual_spatial_memory'
+    | 'selective_attention'
+    | 'processing_speed'
+    | 'phonological_loop';
