@@ -7,13 +7,16 @@ $ErrorActionPreference = "Stop"
 
 # --- AYARLAR ---
 $REPO_DIR = "d:\bbma\bursadisleksi\oogmatik"
-$GITHUB_PAT = "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"
-$GITHUB_USER = "morimasi"
-$REPO_NAME = "oogmatik"
-$BRANCH = "main"
-# ----------------
+$GITHUB_PAT = $env:GITHUB_PAT
 
-Write-Host ""
+if ([string]::IsNullOrWhiteSpace($GITHUB_PAT)) {
+    Write-Host ""
+    Write-Host "====================== GUVENLIK UYARISI ======================" -ForegroundColor Yellow
+    Write-Host "GitHub, kod icine acikca yazilmis tokenlari GUVENLIK NEDENIYLE REDDEDER (403 Hatasi)." -ForegroundColor Yellow
+    Write-Host "Bu yuzden token'i artik dosyada degil, GUVENLI bir sekilde soracagiz." -ForegroundColor Yellow
+    Write-Host "Lutfen 'ghp_' ile baslayan token'inizi asagiya yapistirin (gizli gorunecektir):" -ForegroundColor Yellow
+    $GITHUB_PAT = Read-Host -AsSecureString | ConvertFrom-SecureString -AsPlainText
+}
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  OOGMATIK - GitHub Push Baslatiliyor" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
