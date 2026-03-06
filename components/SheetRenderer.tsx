@@ -375,32 +375,32 @@ const getBlockWeight = (block: WorksheetBlock): number => {
     if (!content) return 0;
 
     switch (type) {
-        case 'header': return 60;
+        case 'header': return 40;  // 60 -> 40
         case 'text': {
             const text = recursiveSafeText(content.text || content);
-            return 30 + (Math.ceil(text.length / 120) * 18);
+            return 20 + (Math.ceil(text.length / 150) * 12); // Daha hafif
         }
         case 'grid': {
             const rows = Math.ceil((content.cells?.length || 0) / (content.cols || 4));
-            return 50 + (rows * 38);
+            return 40 + (rows * 28); // 50+38 -> 40+28
         }
         case 'table': {
             const rows = (content.rows || content.data || []).length;
-            return 60 + (rows * 32);
+            return 45 + (rows * 24); // 60+32 -> 45+24
         }
-        case 'image': return 280;
-        case 'cloze_test': return 100 + (content.text?.length || 0) / 3;
-        case 'categorical_sorting': return 80 + (content.categories?.length || 0) * 60;
+        case 'image': return 250;
+        case 'cloze_test': return 80 + (content.text?.length || 0) / 4;
+        case 'categorical_sorting': return 70 + (content.categories?.length || 0) * 40;
         case 'match_columns': {
             const leftLen = (content.leftColumn || content.left || []).length;
-            return 80 + leftLen * 34;
+            return 60 + leftLen * 28;
         }
-        case 'visual_clue_card': return 80;
-        case 'neuro_marker': return 40;
-        case 'logic_card': return 140;
-        case 'footer_validation': return 100;
-        case 'svg_shape': return 90;
-        default: return 70;
+        case 'visual_clue_card': return 70;
+        case 'neuro_marker': return 35;
+        case 'logic_card': return 120;
+        case 'footer_validation': return 90;
+        case 'svg_shape': return 80;
+        default: return 60;
     }
 };
 
@@ -468,8 +468,8 @@ const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: Sing
     // ══════════════════════════════════════════════
     // AKILLI SAYFALAMA — Bölme + Ağırlık Sistemi
     // ══════════════════════════════════════════════
-    const PAGE_MAX_WEIGHT = 920;  // A4 portrait kapasitesi
-    const HEADER_RESERVE = 150;   // Profil + Header alanı rezervi
+    const PAGE_MAX_WEIGHT = 980;  // Kapasite artırıldı (920 -> 980)
+    const HEADER_RESERVE = 120;   // Rezerv azaltıldı (150 -> 120)
 
     // 1. Önce çok büyük blokları böl
     const allBlocks: WorksheetBlock[] = rawBlocks.flatMap((block) =>

@@ -160,12 +160,12 @@
         display: flex !important;
         flex-direction: column !important;
         width: 210mm !important;
-        height: 296.8mm !important;
-        /* SABİT A4 BOYUTU */
-        padding: 12mm 15mm !important;
+        min-height: 296mm !important;
+        /* SABİT A4 BOYUTU YERİNE MİNİMUM */
+        padding: 10mm 12mm !important;
         margin: 0 auto !important;
-        overflow: hidden !important;
-        /* Sayfa dışına taşanlar kesilir (pagination ile çözülecek) */
+        overflow: visible !important;
+        /* Sayfa dışına taşanların görünmesini sağla */
         page-break-after: always !important;
         break-after: page !important;
         box-sizing: border-box !important;
@@ -182,9 +182,9 @@
         flex: 1 !important;
         display: flex !important;
         flex-direction: column !important;
-        gap: 8px !important;
+        gap: 12px !important;
         width: 100% !important;
-        overflow: hidden !important;
+        overflow: visible !important;
       }
 
       /* Blokların sayfa ortasında kesilmesini önle */
