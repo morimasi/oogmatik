@@ -72,17 +72,28 @@ export interface FindIdenticalWordData extends BaseActivityData {
 }
 
 export interface VisualOddOneOutItem {
-    svgPaths?: { d: string; fill?: string; stroke?: string; strokeWidth?: number }[];
+    svg?: string; // Inline SVG content for clinical precision
+    imagePrompt?: string;
     label?: string;
     rotation?: number;
     scale?: number;
     isMirrored?: boolean;
-    segments?: boolean[]; // For SegmentDisplay compatibility
+    segments?: boolean[];
+    clinicalMeta?: {
+        isModified?: boolean;
+        modifiedPart?: string;
+        strokeDifference?: number;
+    };
 }
 
 export interface VisualOddOneOutData extends BaseActivityData {
-    difficultyLevel?: string;
-    distractionLevel: 'low' | 'medium' | 'high' | 'extreme';
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        layout: 'single' | 'grid_compact' | 'ultra_dense';
+        itemType: 'svg' | 'text' | 'image';
+        isProfessionalMode: boolean;
+        showClinicalNotes?: boolean;
+    };
     rows: {
         items: VisualOddOneOutItem[];
         correctIndex: number;

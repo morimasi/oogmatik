@@ -69,6 +69,21 @@ export const FIND_THE_DIFFERENCE_CORE_GUIDE = `
    - Eğer 'itemType' svg ise, öğeleri karmaşık geometrik şekiller (iç içe geçmiş kareler, kesişen daireler) olarak 'imageBase64' yerine 'svg' stringi olarak üret.
 `;
 
+export const VISUAL_ODD_ONE_OUT_CORE_GUIDE = `
+[GÖREV: GÖRSEL FARKLIYI BUL - KLİNİK DERİNLİK MODU]
+
+İçerik üretirken şu görsel algı matrisini kullan:
+1. **KLİNİK ÇELDİRİCİLER**:
+   - 'beginner': Renk veya tamamen farklı şekiller.
+   - 'intermediate': Şeklin boyutu veya kalınlığı (strokeDifference) ile oynanmış hali.
+   - 'clinical': Mikro farklar (15-30 derece rotasyon, ayna görüntüsü, minik bir detayın (nokta, çizgi) yer değiştirmesi).
+2. **MİMARİ**:
+   - 'isProfessionalMode' true ise 'ultra_dense' veya 'grid_compact' yerleşimini kullan.
+   - Her 'row' için 4 veya 6 öğe üret.
+3. **SVG ÜRETİMİ**:
+   - 'itemType' svg ise, yüksek kontrastlı ve basit geometrik desenler üret. Farklı olan öğeyi 'clinicalMeta' içinde 'isModified: true' olarak işaretle.
+`;
+
 export const getMathPrompt = (title: string, difficulty: string, rule: string, student?: Student): string => {
     return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[KURAL]: ${rule}\n${IMAGE_GENERATION_GUIDE}`;
 };
