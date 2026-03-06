@@ -108,8 +108,37 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                             items: {
                                                 type: Type.OBJECT,
                                                 properties: {
-                                                    lines: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.NUMBER } } } },
-                                                    title: { type: Type.STRING }
+                                                    lines: {
+                                                        type: Type.ARRAY,
+                                                        items: {
+                                                            type: Type.OBJECT,
+                                                            properties: {
+                                                                x1: { type: Type.NUMBER },
+                                                                y1: { type: Type.NUMBER },
+                                                                x2: { type: Type.NUMBER },
+                                                                y2: { type: Type.NUMBER }
+                                                            }
+                                                        }
+                                                    },
+                                                    dots: {
+                                                        type: Type.ARRAY,
+                                                        items: {
+                                                            type: Type.OBJECT,
+                                                            properties: {
+                                                                x: { type: Type.NUMBER },
+                                                                y: { type: Type.NUMBER }
+                                                            }
+                                                        }
+                                                    },
+                                                    title: { type: Type.STRING },
+                                                    clinicalMeta: {
+                                                        type: Type.OBJECT,
+                                                        properties: {
+                                                            asymmetryIndex: { type: Type.NUMBER },
+                                                            complexity: { type: Type.NUMBER },
+                                                            targetCognitiveSkill: { type: Type.STRING }
+                                                        }
+                                                    }
                                                 }
                                             }
                                         },
@@ -117,24 +146,12 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
                                             type: Type.OBJECT,
                                             properties: {
                                                 difficulty: { type: Type.STRING, enum: ['beginner', 'intermediate', 'expert', 'clinical'] },
-                                                differenceType: { type: Type.STRING },
-                                                itemType: { type: Type.STRING },
-                                                layout: { type: Type.STRING, enum: ['single', 'grid_compact', 'ultra_dense', 'side_by_side', 'stacked'] },
+                                                axis: { type: Type.STRING, enum: ['vertical', 'horizontal', 'diagonal'] },
                                                 gridType: { type: Type.STRING, enum: ['dots', 'squares', 'crosses'] },
-                                                transformMode: { type: Type.STRING },
+                                                layout: { type: Type.STRING, enum: ['single', 'grid_2x1', 'grid_2x2'] },
+                                                showGhostPoints: { type: Type.BOOLEAN },
                                                 showCoordinates: { type: Type.BOOLEAN },
                                                 isProfessionalMode: { type: Type.BOOLEAN }
-                                            }
-                                        },
-                                        clinicalMeta: {
-                                            type: Type.OBJECT,
-                                            properties: {
-                                                errorType: { type: Type.STRING },
-                                                rotationAngle: { type: Type.INTEGER },
-                                                isMirrored: { type: Type.BOOLEAN },
-                                                strokeDifference: { type: Type.STRING },
-                                                crossingPoints: { type: Type.INTEGER },
-                                                isSymmetric: { type: Type.BOOLEAN }
                                             }
                                         }
                                     },

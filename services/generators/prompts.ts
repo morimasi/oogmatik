@@ -103,6 +103,23 @@ export const GRID_DRAWING_CORE_GUIDE = `
    - 'gridDim' değerini zorluğa göre 5 ile 12 arasında seç.
 `;
 
+export const SYMMETRY_CORE_GUIDE = `
+[GÖREV: SİMETRİ TAMAMLAMA - KLİNİK DERİNLİK MODU]
+
+İçerik üretirken şu görsel-uzamsal kuralları kullan:
+1. **SİMETRİ EKSENLERİ**:
+   - 'vertical': Dikey eksen (en temel seviye).
+   - 'horizontal': Yatay eksen (uzamsal yer değiştirme için orta zorluk).
+   - 'diagonal': Çapraz eksen (üst düzey zihinsel döndürme ve disleksi rehabilitasyonu için kritik).
+2. **PEDAGOJİK DESTEK**:
+   - 'showGhostPoints': Hedef noktaları silik bir şekilde göstererek başlangıç düzeyindeki öğrencilere rehberlik et.
+3. **ZORLUK SEVİYESİ**:
+   - 'beginner': Simetri eksenine bitişik, basit hatlar.
+   - 'clinical': Eksen uzağından başlayan, iç içe geçen, kesişen veya boşluklu (omission) figürler.
+4. **MİMARİ**:
+   - 'gridType': Kareli (squares), noktalı (dots) veya artı (crosses). Noktalı ızgara görsel algı yükünü artırır.
+`;
+
 export const getMathPrompt = (title: string, difficulty: string, rule: string, student?: Student): string => {
    return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[KURAL]: ${rule}\n${IMAGE_GENERATION_GUIDE}`;
 };

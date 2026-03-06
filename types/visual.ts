@@ -125,12 +125,27 @@ export interface GridDrawingData extends BaseActivityData {
 }
 
 export interface SymmetryDrawingData extends BaseActivityData {
+    settings?: {
+        difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
+        axis: 'vertical' | 'horizontal' | 'diagonal';
+        gridType: 'dots' | 'squares' | 'crosses';
+        layout: 'single' | 'grid_2x1' | 'grid_2x2';
+        showGhostPoints: boolean;
+        showCoordinates: boolean;
+        isProfessionalMode: boolean;
+        showClinicalNotes?: boolean;
+    };
     gridDim: number;
-    axis: 'vertical' | 'horizontal';
-    showCoordinates: boolean;
-    isMirrorImage?: boolean;
-    lines: { x1: number; y1: number; x2: number; y2: number; color: string }[];
-    dots: { x: number; y: number; color: string }[];
+    drawings: {
+        lines: { x1: number; y1: number; x2: number; y2: number; color?: string }[];
+        dots: { x: number; y: number; color?: string }[];
+        title: string;
+        clinicalMeta?: {
+            asymmetryIndex: number; // 0-1 range
+            complexity: number;
+            targetCognitiveSkill: string;
+        };
+    }[];
 }
 
 export interface DirectionalTrackingData extends BaseActivityData {
