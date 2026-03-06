@@ -373,7 +373,14 @@ export interface OperationSquareData extends BaseActivityData {
 
 export interface AbcConnectData extends BaseActivityData {
     gridDim: number;
-    paths: { start: { x: number; y: number }, end: { x: number; y: number }, value: string | number, matchValue: string | number }[];
+    variant: 'roman' | 'case' | 'dots' | 'math';
+    paths: {
+        start: { x: number; y: number },
+        end: { x: number; y: number },
+        value: string | number,
+        matchValue: string | number,
+        id: string
+    }[];
     prompt?: string;
 }
 

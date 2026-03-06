@@ -28,7 +28,7 @@ const UpIcon = () => (
     </svg>
 );
 
-export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
+export const FutoshikiSheet = ({ data }: { data: FutoshikiData }) => {
     const puzzles = data?.puzzles || [];
     // If size is large (>= 6), use col-1, otherwise grid-2 possible
     const firstSize = puzzles[0]?.size || 4;
@@ -38,7 +38,7 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
         <div className="flex flex-col font-lexend mt-8">
             <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
             <div className={`grid ${gridCols} gap-12 mt-12 mb-8 items-start`}>
-                {puzzles.map((p, i) => (
+                {puzzles.map((p: any, i: number) => (
                     <div key={i} className="flex flex-col items-center break-inside-avoid">
                         <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500 mb-6 bg-indigo-50 px-4 py-1.5 rounded-2xl border border-indigo-100 shadow-sm">
                             SEVİYE #{i + 1} • {p.size}x{p.size} IZGARA
@@ -78,7 +78,7 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
 
                                     // Yatay sembol (< veya >)
                                     if (isNumberRow && !isNumberCol) {
-                                        const constraint = p.constraints?.find(c => c.r1 === gridRow && Math.min(c.c1, c.c2) === gridCol && c.r1 === c.r2);
+                                        const constraint = p.constraints?.find((c: any) => c.r1 === gridRow && Math.min(c.c1, c.c2) === gridCol && c.r1 === c.r2);
                                         if (constraint) {
                                             const isGreater = (constraint.c1 < constraint.c2 && constraint.type === 'greater') ||
                                                 (constraint.c1 > constraint.c2 && constraint.type === 'less');
@@ -89,7 +89,7 @@ export const FutoshikiSheet: React.FC<{ data: FutoshikiData }> = ({ data }) => {
 
                                     // Dikey sembol (^ veya v)
                                     if (!isNumberRow && isNumberCol) {
-                                        const constraint = p.constraints?.find(c => Math.min(c.r1, c.r2) === gridRow && c.c1 === gridCol && c.c1 === c.c2);
+                                        const constraint = p.constraints?.find((c: any) => Math.min(c.r1, c.r2) === gridRow && c.c1 === gridCol && c.c1 === c.c2);
                                         if (constraint) {
                                             const isDown = (constraint.r1 < constraint.r2 && constraint.type === 'greater') ||
                                                 (constraint.r1 > constraint.r2 && constraint.type === 'less');
