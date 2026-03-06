@@ -1,6 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { ChangeEvent, FormEvent } from 'react';
+import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
 import { refinePromptWithAI, generateCreativeStudioActivity, analyzeReferenceFiles } from '../services/generators/creativeStudio';
 import { PEDAGOGICAL_LIBRARY, ActivityLibraryItem } from '../services/generators/promptLibrary';
 import { MultimodalFile } from '../services/geminiClient';
@@ -36,13 +35,13 @@ const THINKING_MESSAGES = [
 ];
 
 export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
-    const [prompt, setPrompt] = useState("");
-    const [difficulty, setDifficulty] = useState("Orta");
-    const [itemCount, setItemCount] = useState(8);
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [isAnalyzingFile, setIsAnalyzingFile] = useState(false);
-    const [status, setStatus] = useState("");
-    const [statusIndex, setStatusIndex] = useState(0);
+    const [prompt, setPrompt] = useState<string>("");
+    const [difficulty, setDifficulty] = useState<string>("Orta");
+    const [itemCount, setItemCount] = useState<number>(8);
+    const [isProcessing, setIsProcessing] = useState<boolean>(false);
+    const [isAnalyzingFile, setIsAnalyzingFile] = useState<boolean>(false);
+    const [status, setStatus] = useState<string>("");
+    const [statusIndex, setStatusIndex] = useState<number>(0);
     const [activeTab, setActiveTab] = useState<'editor' | 'library'>('editor');
     const [librarySearch, setLibrarySearch] = useState("");
 
@@ -60,7 +59,7 @@ export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
 
     // Tooltip State
     const [hoveredItem, setHoveredItem] = useState<ActivityLibraryItem | null>(null);
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    const [mousePos, setMousePos] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 
     const [attachedFiles, setAttachedFiles] = useState<MultimodalFile[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,7 +78,7 @@ export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
         let interval: any;
         if (isProcessing || isAnalyzingFile) {
             interval = setInterval(() => {
-                setStatusIndex(prev => (prev + 1) % THINKING_MESSAGES.length);
+                setStatusIndex((prev: number) => (prev + 1) % THINKING_MESSAGES.length);
             }, 4000);
         }
         return () => clearInterval(interval);
@@ -97,8 +96,8 @@ export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
                 r.onerror = rej;
                 r.readAsDataURL(file);
             });
-            const fileList = Array.from(files);
-            const newFiles = await Promise.all(fileList.map(f => reader(f)));
+            const fileList = Array.from(files) as File[];
+            const newFiles = await Promise.all(fileList.map((f: File) => reader(f)));
             const combined = [...attachedFiles, ...newFiles];
             setAttachedFiles(combined);
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -115,7 +114,7 @@ export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
         setIsAnalyzingFile(true);
         try {
             const analysisResult = await analyzeReferenceFiles(files, prompt);
-            setPrompt(prev => prev.trim() ? `${prev}\n\n---\n\n${analysisResult}` : analysisResult);
+            setPrompt((prev: string) => prev.trim() ? `${prev}\n\n---\n\n${analysisResult}` : analysisResult);
             setStatus("Analiz tamamlandı.");
         } catch (e) {
             setStatus("Analiz başarısız.");
@@ -259,8 +258,8 @@ export const CreativeStudio = ({ onResult, onCancel }: CreativeStudioProps) => {
                                     </button>
                                     <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*,application/pdf" multiple />
 
-                                    {snippets.map(s => (
-                                        <button key={s.id} onClick={() => setPrompt(prev => prev + "\n" + s.value)} className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-[11px] font-black uppercase transition-all">
+                                    {snippets.map((s: CustomAction) => (
+                                        <button key={s.id} onClick={() => setPrompt((prev: string) => prev + "\n" + s.value)} className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-[11px] font-black uppercase transition-all">
                                             + {s.label}
                                         </button>
                                     ))}
