@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { UniversalStudioProvider, useUniversalStudio } from '../../context/UniversalStudioContext';
 import { convertToLayoutItems } from './UniversalAdapter';

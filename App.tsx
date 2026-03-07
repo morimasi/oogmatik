@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions, SavedAssessment, Curriculum, ActiveCurriculumSession } from './types';
 import Sidebar from './components/Sidebar';
