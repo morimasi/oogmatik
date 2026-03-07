@@ -577,7 +577,16 @@ const AppContent = () => {
             {currentView === 'profile' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
                     <Suspense fallback={<LoadingSpinner />}>
-                        <ProfileView onBack={handleGoBack} onSelectActivity={handleSelectActivity} onLoadSaved={loadSavedWorksheet} />
+                        <ProfileView 
+                            onBack={handleGoBack} 
+                            onSelectActivity={handleSelectActivity} 
+                            onLoadSaved={loadSavedWorksheet}
+                            theme={theme}
+                            uiSettings={uiSettings}
+                            onUpdateTheme={setTheme}
+                            onUpdateUiSettings={setUiSettings}
+                            onOpenSettingsModal={() => setOpenModal('settings')}
+                        />
                     </Suspense>
                 </div>
             )}

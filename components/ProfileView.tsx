@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useStudent } from '../context/StudentContext'; 
-import { SavedAssessment, SavedWorksheet, ActivityType, User, Curriculum, Student } from '../types';
+import { SavedAssessment, SavedWorksheet, ActivityType, User, Curriculum, Student, UiSettings, AppTheme } from '../types';
 import { assessmentService } from '../services/assessmentService';
 import { worksheetService } from '../services/worksheetService';
 import { curriculumService } from '../services/curriculumService'; 
@@ -12,6 +12,18 @@ import { RadarChart } from './RadarChart';
 import { printService } from '../utils/printService'; 
 import { ACTIVITIES } from '../constants';
 import { StudentDashboard } from './Student/StudentDashboard';
+
+interface ProfileViewProps {
+    onBack: () => void;
+    onSelectActivity: (id: ActivityType | null) => void;
+    onLoadSaved: (ws: SavedWorksheet) => void;
+    targetUser?: User;
+    theme?: AppTheme;
+    uiSettings?: UiSettings;
+    onUpdateTheme?: (theme: AppTheme) => void;
+    onUpdateUiSettings?: (settings: UiSettings) => void;
+    onOpenSettingsModal?: () => void;
+}
 
 // --- BENTO COMPONENTS ---
 
@@ -86,12 +98,34 @@ const ActionButton: React.FC<{ label: string; icon: string; onClick: () => void;
 
 type ProfileTab = 'overview' | 'students' | 'evaluations' | 'plans' | 'reports' | 'settings';
 
-export const ProfileView: React.FC<{ onBack: () => void; onSelectActivity: (id: ActivityType | null) => void; onLoadSaved: (ws: SavedWorksheet) => void; targetUser?: User }> = ({ onBack, onSelectActivity, onLoadSaved, targetUser }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ 
+    onBack, 
+    onSelectActivity, 
+    onLoadSaved, 
+    targetUser,
+    theme: externalTheme,
+    uiSettings: externalUiSettings,
+    onUpdateTheme,
+    onUpdateUiSettings,
+    onOpenSettingsModal
+}) => {
     const { user: authUser, updateUser, logout } = useAuth();
     const { students, activeStudent } = useStudent(); 
     
     const user = targetUser || authUser;
     const isReadOnly = !!targetUser && targetUser.id !== authUser?.id;
+
+    // Use external settings or default values
+    const currentTheme = externalTheme || 'anthracite';
+    const currentUiSettings = externalUiSettings || {
+        fontFamily: 'OpenDyslexic',
+        fontSizeScale: 1,
+        letterSpacing: 'normal' as const,
+        lineHeight: 1.6,
+        saturation: 100
+    };
+    
+    const isDarkTheme = currentTheme === 'dark' || currentTheme === 'anthracite' || currentTheme === 'space' || currentTheme.includes('anthracite') || currentTheme.includes('cyber');
 
     const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
     
@@ -112,6 +146,38 @@ export const ProfileView: React.FC<{ onBack: () => void; onSelectActivity: (id: 
     
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+
+    // Settings toggles state
+    const [darkModeEnabled, setDarkModeEnabled] = useState(isDarkTheme);
+    const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('emailNotifications') || 'true');
+        } catch { return true; }
+    });
+
+    // Sync dark mode with external theme
+    useEffect(() => {
+        setDarkModeEnabled(isDarkTheme);
+    }, [isDarkTheme]);
+
+    const handleToggleDarkMode = () => {
+        const newTheme = darkModeEnabled ? 'light' : 'anthracite';
+        setDarkModeEnabled(!darkModeEnabled);
+        if (onUpdateTheme) {
+            onUpdateTheme(newTheme);
+        } else {
+            // Fallback: apply directly to document
+            document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-anthracite', 'theme-space', 'theme-nature', 'theme-ocean', 'theme-anthracite-gold', 'theme-anthracite-cyber');
+            document.documentElement.classList.add(`theme-${newTheme}`);
+            localStorage.setItem('app-theme', newTheme);
+        }
+    };
+
+    const handleToggleNotifications = () => {
+        const newValue = !emailNotificationsEnabled;
+        setEmailNotificationsEnabled(newValue);
+        localStorage.setItem('emailNotifications', JSON.stringify(newValue));
+    };
 
     useEffect(() => {
         if (user) {
@@ -499,32 +565,61 @@ export const ProfileView: React.FC<{ onBack: () => void; onSelectActivity: (id: 
                                         <div className="space-y-4">
                                             <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b pb-2">SİSTEM TERCİHLERİ</h4>
                                             <div className="space-y-3">
-                                                <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+                                                <div 
+                                                    className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-indigo-300 transition-all"
+                                                    onClick={handleToggleDarkMode}
+                                                >
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i className="fa-solid fa-moon"></i></div>
-                                                        <div><p className="text-sm font-black text-zinc-800 dark:text-zinc-200">Koyu Tema</p><p className="text-[10px] text-zinc-500">Göz yorgunluğunu azaltın.</p></div>
+                                                        <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                                                            <i className={`fa-solid ${darkModeEnabled ? 'fa-moon' : 'fa-sun'}`}></i>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-black text-zinc-800 dark:text-zinc-200">Koyu Tema</p>
+                                                            <p className="text-[10px] text-zinc-500">Göz yorgunluğunu azaltın.</p>
+                                                        </div>
                                                     </div>
-                                                    <div className="w-12 h-6 bg-zinc-300 dark:bg-indigo-600 rounded-full relative cursor-pointer"><div className="w-4 h-4 bg-white rounded-full absolute top-1 left-1 dark:left-7 transition-all"></div></div>
+                                                    <div className={`w-12 h-6 rounded-full relative transition-all ${darkModeEnabled ? 'bg-indigo-600' : 'bg-zinc-300 dark:bg-zinc-600'}`}>
+                                                        <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 shadow-md transition-all ${darkModeEnabled ? 'left-6' : 'left-0.5'}`}></div>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 opacity-50 cursor-not-allowed">
+                                                <div 
+                                                    className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-indigo-300 transition-all"
+                                                    onClick={handleToggleNotifications}
+                                                >
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><i className="fa-solid fa-bell"></i></div>
-                                                        <div><p className="text-sm font-black text-zinc-800 dark:text-zinc-200">E-posta Bildirimleri</p><p className="text-[10px] text-zinc-500">Raporlar tamamlandığında haberdar olun.</p></div>
+                                                        <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                                                            <i className="fa-solid fa-bell"></i>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-black text-zinc-800 dark:text-zinc-200">E-posta Bildirimleri</p>
+                                                            <p className="text-[10px] text-zinc-500">Raporlar tamamlandığında haberdar olun.</p>
+                                                        </div>
                                                     </div>
-                                                    <div className="w-12 h-6 bg-zinc-300 rounded-full relative"><div className="w-4 h-4 bg-white rounded-full absolute top-1 left-1 transition-all"></div></div>
+                                                    <div className={`w-12 h-6 rounded-full relative transition-all ${emailNotificationsEnabled ? 'bg-indigo-600' : 'bg-zinc-300 dark:bg-zinc-600'}`}>
+                                                        <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 shadow-md transition-all ${emailNotificationsEnabled ? 'left-6' : 'left-0.5'}`}></div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="pt-6">
+                                        <div className="pt-6 flex gap-4 flex-wrap">
                                             <button 
                                                 onClick={handleUpdateProfile}
                                                 disabled={isSavingProfile}
-                                                className="w-full md:w-auto px-10 py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black text-xs uppercase tracking-widest shadow-2xl shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                                                className="flex-1 md:flex-none px-10 py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black text-xs uppercase tracking-widest shadow-2xl shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                                             >
                                                 {isSavingProfile ? <i className="fa-solid fa-circle-notch fa-spin mr-2"></i> : <i className="fa-solid fa-save mr-2"></i>}
                                                 Ayarları Kaydet
                                             </button>
+                                            {onOpenSettingsModal && (
+                                                <button 
+                                                    onClick={onOpenSettingsModal}
+                                                    className="flex-1 md:flex-none px-10 py-5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-[1.5rem] font-black text-xs uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <i className="fa-solid fa-sliders mr-2"></i>
+                                                    Gelişmiş Ayarlar
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </BentoCard>
