@@ -48,11 +48,22 @@ interface ContentAreaProps {
 const LandingText = memo(() => {
     const text = "Her şey tersti sen farkında olana kadar...";
     return (
-        <h2 className="text-3xl font-bold mb-2 text-[var(--text-primary)] leading-normal text-center max-w-2xl mx-auto">
+        <h2 className="text-4xl font-black mb-6 text-[var(--text-primary)] leading-tight text-center max-w-3xl mx-auto tracking-tighter">
             {text.split('').map((char, i) => {
                 if (char === ' ') return <span key={i}> </span>;
-                const isAnimated = ['e', 'a', 'ı', 'i', 'o', 'ö', 'u', 'ü', 'b', 'd', 'p'].includes(char.toLowerCase()) && Math.random() > 0.3;
-                return <span key={i} className={`inline - block ${isAnimated ? 'dyslexia-flip text-[var(--accent-color)]' : ''} `}>{char}</span>;
+                // Rastgele harfleri animasyonlu yap (Bursa Disleksi logosu mantığıyla)
+                const isAnimated = true;
+                const delay = Math.random() * -10;
+                const duration = 5 + Math.random() * 5;
+                return (
+                    <span
+                        key={i}
+                        className={`inline-block dyslexia-flip`}
+                        style={{ animationDelay: `${delay}s`, animationDuration: `${duration}s` }}
+                    >
+                        {char}
+                    </span>
+                );
             })}
         </h2>
     );
@@ -186,13 +197,27 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                                     </div>
                                 )}
 
-                                {!isLoading && !error && processedData.length === 0 && (
-                                    <div className="flex flex-col items-center justify-center py-40 w-full opacity-40">
+                                {!isLoading && processedData.length === 0 && !error ? (
+                                    <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in duration-1000">
                                         <LandingText />
-                                        <p className="text-[var(--text-secondary)] font-medium mt-4">Bir etkinlik seçin ve farkı görün.</p>
-                                        <img src="/assets/logo.png" alt="Logo" className="h-24 w-auto mt-8 grayscale-0 opacity-100 hover:scale-125 hover:drop-shadow-[0_0_30px_rgba(79,70,229,0.6)] transition-all duration-500 cursor-pointer select-none animate-breathing-logo" />
+                                        <div className="relative group/logo mt-12">
+                                            {/* Logo Arkası Yıldız Parıltısı (Hover'da görünür) */}
+                                            <div className="absolute -inset-10 bg-indigo-500/0 group-hover/logo:bg-indigo-500/20 rounded-full blur-3xl transition-all duration-1000 scale-0 group-hover/logo:scale-150" />
+                                            <div className="absolute -inset-4 border border-indigo-400/0 group-hover/logo:border-indigo-400/30 rounded-full transition-all duration-700 scale-50 group-hover/logo:scale-110" />
+
+                                            <img
+                                                src="/assets/logo.png"
+                                                alt="Logo"
+                                                className="h-32 w-auto relative z-10 transition-all duration-700 cursor-pointer select-none star-glow hover:scale-125 animate-breathing-logo"
+                                            />
+
+                                            {/* Ekstra Parıltı Efektleri */}
+                                            <div className="absolute top-0 right-0 w-2 h-2 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_1.5s_infinite] transition-opacity" />
+                                            <div className="absolute bottom-4 left-0 w-1.5 h-1.5 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2s_infinite_0.5s] transition-opacity" />
+                                            <div className="absolute top-1/2 -left-4 w-1 h-1 bg-indigo-200 rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_1.2s_infinite_1s] transition-opacity" />
+                                        </div>
                                     </div>
-                                )}
+                                ) : null}
 
                                 {error && (
                                     <div className="bg-red-50 p-10 rounded-[3rem] border-2 border-red-100 text-center max-w-lg mt-20">
