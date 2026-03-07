@@ -11,14 +11,14 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
         'mult': 'Çarpma (x)',
         'div': 'Bölme (÷)'
     };
-    
-    const selectedOpsText = config.selectedOperations.length > 0 
+
+    const selectedOpsText = config.selectedOperations.length > 0
         ? config.selectedOperations.map(op => opsMap[op]).join(' ve ')
         : 'Dört İşlem Karışık';
 
-    const complexityDesc = config.complexity === '1-step' ? 'Tek işlemli, doğrudan çözüm gerektiren' 
-        : config.complexity === '2-step' ? 'İki aşamalı (Önce topla sonra çıkar gibi)' 
-        : 'Çok adımlı ve düşündürücü';
+    const complexityDesc = config.complexity === '1-step' ? 'Tek işlemli, doğrudan çözüm gerektiren'
+        : config.complexity === '2-step' ? 'İki aşamalı (Önce topla sonra çıkar gibi)'
+            : 'Çok adımlı ve düşündürücü';
 
     const prompt = `
     [ROL: MATEMATİK MÜFREDAT UZMANI ve ÖZEL EĞİTİM PEDAGOGU]
@@ -71,6 +71,6 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
         required: ['problems']
     };
 
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+    // Fix: Model parametresi kaldırıldı, generateWithSchema artık varsayılan modeli kullanıyor.
     return await generateWithSchema(prompt, schema);
 };

@@ -12,7 +12,7 @@ Sadece JSON döndür.
 
 export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions): Promise<HiddenPasswordGridData[]> => {
     const { topic, difficulty, worksheetCount, gridSize = 5, itemCount = 9, case: letterCase } = options;
-    
+
     const prompt = `
     "Gizli Şifre Matrisi" (Letter Cancellation) etkinliği üret. 
     Konu: ${topic || 'Karışık'}. Zorluk: ${difficulty}.
@@ -65,7 +65,7 @@ export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions
         }
     };
 
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+    // Fix: Model parametresi kaldırıldı, generateWithSchema artık varsayılan modeli kullanıyor.
     const result = await generateWithSchema(prompt, schema);
     return result.map((page: any) => ({
         ...page,

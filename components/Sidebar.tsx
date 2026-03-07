@@ -14,7 +14,7 @@ const toPascalCase = (str: string): string => {
     return str.toLowerCase()
         .split(/[-_ ]+/)
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
+        .join('');
 };
 
 interface SidebarProps {
@@ -94,17 +94,24 @@ const Sidebar: React.FC<SidebarProps> = ({
                 }
             }
             if (!result) {
-                const pascalCaseName = toPascalCase(selectedActivity).replace(/\s+/g, '');
-                const generatorFunctionName = `generate${pascalCaseName}FromAI`;
-                const runOfflineGenerator = async () => {
-                    const offlineGenerator = (offlineGenerators as any)[`generateOffline${pascalCaseName}`];
-                    if (offlineGenerator) return await offlineGenerator(options);
-                    throw new Error("Üretim motoru bulunamadı.");
+                const pascalName = toPascalCase(selectedActivity);
+                const generatorName = `generate${pascalName}FromAI`;
+                const generatorFallbackName = `generate${pascalName}GeneratorFromAI`;
+                const offlineName = `generateOffline${pascalName}`;
+                const offlineFallbackName = `generateOffline${pascalName}Generator`;
+
+                const runOffline = async () => {
+                    const offlineGen = (offlineGenerators as any)[offlineName] || (offlineGenerators as any)[offlineFallbackName];
+                    if (offlineGen) return await offlineGen(options);
+                    throw new Error(`${selectedActivity} için jeneratör bulunamadı.`);
                 };
+
                 if (options.mode === 'ai') {
-                    const onlineGenerator = (generators as any)[generatorFunctionName];
-                    result = onlineGenerator ? await onlineGenerator(options) : await runOfflineGenerator();
-                } else { result = await runOfflineGenerator(); }
+                    const aiGen = (generators as any)[generatorName] || (generators as any)[generatorFallbackName];
+                    result = aiGen ? await aiGen(options) : await runOffline();
+                } else {
+                    result = await runOffline();
+                }
             }
             if (result) {
                 setWorksheetData(result);

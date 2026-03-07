@@ -149,6 +149,6 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
         required: ['title', 'story', 'imagePrompt', 'fiveW1H']
     };
 
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+    // Fix: Model parametresi kaldırıldı, generateWithSchema artık varsayılan modeli kullanıyor.
     return await generateWithSchema(prompt, schema);
 };

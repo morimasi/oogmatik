@@ -6,7 +6,7 @@ import { getMathPrompt } from './prompts';
 
 export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
     const { difficulty, itemCount = 6, gridSize = 3, studentContext } = options;
-    
+
     const rule = `
     [KRİTİK GÖREV: YÜKSEK HASSASİYETLİ SAYİSAL ANALİZ]
     1. Üretilecek Bilmece Sayısı: TAM OLARAK ${itemCount} ADET.
@@ -66,6 +66,6 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
         }
     };
 
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+    // Fix: Model parametresi kaldırıldı, generateWithSchema artık varsayılan modeli kullanıyor.
     return await generateWithSchema(prompt, schema);
 };

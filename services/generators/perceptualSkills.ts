@@ -10,10 +10,10 @@ import { MAP_DETECTIVE_PROMPT, PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } fro
 
 export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { difficulty, worksheetCount, visualType, distractionLevel, gridSize, studentContext } = options;
-    
-    const typeDesc = visualType === 'geometric' ? 'Karmaşık Geometrik Şekiller' : 
-                   visualType === 'abstract' ? 'Soyut Desenler' : 
-                   visualType === 'character' ? 'Ayna Harf ve Rakamlar (b/d, p/q, 6/9 vb.)' : 'Karmaşık poligonlar';
+
+    const typeDesc = visualType === 'geometric' ? 'Karmaşık Geometrik Şekiller' :
+        visualType === 'abstract' ? 'Soyut Desenler' :
+            visualType === 'character' ? 'Ayna Harf ve Rakamlar (b/d, p/q, 6/9 vb.)' : 'Karmaşık poligonlar';
 
     const prompt = `
     ${PEDAGOGICAL_BASE}
@@ -44,34 +44,34 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
             pedagogicalNote: { type: Type.STRING },
             cognitiveGoal: { type: Type.STRING },
             targetedErrors: { type: Type.ARRAY, items: { type: Type.STRING } },
-            rows: { 
-                type: Type.ARRAY, 
-                items: { 
-                    type: Type.OBJECT, 
-                    properties: { 
-                        items: { 
-                            type: Type.ARRAY, 
-                            items: { 
-                                type: Type.OBJECT, 
-                                properties: { 
-                                    svgPaths: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { d: {type:Type.STRING}, fill: {type:Type.STRING}, stroke: {type:Type.STRING} } } },
+            rows: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        items: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    svgPaths: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { d: { type: Type.STRING }, fill: { type: Type.STRING }, stroke: { type: Type.STRING } } } },
                                     label: { type: Type.STRING },
                                     rotation: { type: Type.NUMBER },
                                     isMirrored: { type: Type.BOOLEAN }
-                                } 
-                            } 
-                        }, 
-                        correctIndex: { type: Type.INTEGER }, 
+                                }
+                            }
+                        },
+                        correctIndex: { type: Type.INTEGER },
                         reason: { type: Type.STRING }
                     }
-                } 
+                }
             }
         },
         required: ["title", "instruction", "rows", "pedagogicalNote", "targetedErrors"]
     };
 
     const schema = { type: Type.ARRAY, items: singleSchema };
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+    // Fix: Model parametresi kaldırıldı, generateWithSchema artık varsayılan modeli kullanıyor.
     return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData[]>;
 };
 
