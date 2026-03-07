@@ -28,49 +28,57 @@
       --accent-color: #fbbf24;
       --accent-hover: #f59e0b;
       --pattern-color: #3f3f46;
-      --ui-font: 'Lexend', 'OpenDyslexic', sans-serif;
-      --ui-scale: 1;
-      --ui-spacing: normal;
-      --ui-line-height: 1.6;
-      --ui-saturation: 100%;
+      --ui-font: var(--app-font-family, 'Lexend', 'OpenDyslexic', sans-serif);
+      --ui-scale: var(--app-font-size-scale, 1);
+      --ui-spacing: var(--app-letter-spacing, normal);
+      --ui-line-height: var(--app-line-height, 1.6);
+      --ui-saturation: var(--app-saturation, 100%);
       --pattern-image: none;
     }
 
-    :root.theme-light {
-      --bg-primary: #f8fafc;
-      --bg-secondary: #f1f5f9;
-      --bg-paper: #ffffff;
-      --bg-inset: #f1f5f9;
-      --panel-bg: rgba(255, 255, 255, 0.95);
-      --text-primary: #0f172a;
-      --text-secondary: #475569;
-      --text-muted: #94a3b8;
-      --border-color: #e2e8f0;
-      --accent-color: #4f46e5;
-      --accent-hover: #4338ca;
-      --pattern-color: #e2e8f0;
+    /* Theme-specific Overrides for UI Elements */
+    :root.theme-anthracite-gold {
+      --bg-primary: #1f1f22;
+      --bg-paper: #28282c;
+      --accent-color: #fbbf24;
+      --text-primary: #fefce8;
     }
 
-    :root.dark {
-      --bg-primary: #18181b;
-      --bg-secondary: #09090b;
-      --bg-paper: #27272a;
-      --bg-inset: #09090b;
-      --panel-bg: rgba(39, 39, 42, 0.95);
-      --text-primary: #f4f4f5;
-      --text-secondary: #a1a1aa;
-      --text-muted: #71717a;
-      --border-color: #3f3f46;
-      --accent-color: #818cf8;
-      --accent-hover: #6366f1;
-      --pattern-color: #27272a;
+    :root.theme-anthracite-cyber {
+      --bg-primary: #000000;
+      --bg-paper: #0a0a0a;
+      --accent-color: #ec4899;
+      --text-primary: #ffffff;
+      --border-color: #ec489955;
+    }
+
+    :root.theme-space {
+      --bg-primary: #0b0d17;
+      --bg-paper: #161a29;
+      --accent-color: #38bdf8;
+      --text-primary: #f1f5f9;
+    }
+
+    :root.theme-nature {
+      --bg-primary: #f0fdf4;
+      --bg-paper: #ffffff;
+      --accent-color: #22c55e;
+      --text-primary: #166534;
+    }
+
+    :root.theme-ocean {
+      --bg-primary: #ecfeff;
+      --bg-paper: #ffffff;
+      --accent-color: #06b6d4;
+      --text-primary: #155e75;
     }
 
     body {
-      font-family: var(--ui-font);
-      font-size: calc(16px * var(--ui-scale));
-      letter-spacing: var(--ui-spacing);
-      line-height: var(--ui-line-height);
+      font-family: var(--ui-font) !important;
+      font-size: calc(16px * var(--ui-scale)) !important;
+      letter-spacing: var(--ui-spacing) !important;
+      line-height: var(--ui-line-height) !important;
+      filter: saturate(var(--ui-saturation)) !important;
       background-color: var(--bg-primary);
       background-image: var(--pattern-image);
       background-size: 550px 550px;
