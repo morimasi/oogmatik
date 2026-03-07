@@ -1,9 +1,18 @@
 
 import {
-    FindTheDifferenceData, VisualOddOneOutData, GridDrawingData, SymmetryDrawingData, ShapeCountingData, DirectionalTrackingData,
+    FindTheDifferenceData, VisualOddOneOutData, VisualOddOneOutItem, GridDrawingData, SymmetryDrawingData, ShapeCountingData, DirectionalTrackingData,
     GeneratorOptions, SearchFieldItem, ShapeType
 } from '../../types';
 import { getRandomInt, shuffle, getRandomItems, generateConnectedPath, SHAPE_TYPES, PREDEFINED_GRID_PATTERNS, generateSymmetricPattern, turkishAlphabet } from './helpers';
+
+const mapDifficulty = (diff: string): 'beginner' | 'intermediate' | 'expert' | 'clinical' => {
+    switch (diff) {
+        case 'Başlangıç': return 'beginner';
+        case 'Zor': return 'expert';
+        case 'Uzman': return 'clinical';
+        default: return 'intermediate';
+    }
+};
 
 // --- GEOMETRIC PATH CONSTANTS ---
 const SHAPE_PATHS: Record<string, string> = {
@@ -67,15 +76,14 @@ export const generateOfflineShapeCounting = async (options: GeneratorOptions): P
             instruction: "Aşağıdaki kutuların içindeki TÜM ÜÇGENLERİ bul ve sayısını altındaki kutucuğa yaz. Dikkat et, bazıları dönmüş veya gizlenmiş olabilir!",
             pedagogicalNote: "Şekil-zemin algısı (figure-ground) ve görsel sabitlik (visual constancy) becerilerini geliştiren klinik dikkat çalışması.",
             settings: {
-                difficulty: difficulty || 'Orta',
-                itemCount: itemCount,
+                difficulty: mapDifficulty(difficulty || 'Orta'),
                 targetShape: 'triangle',
-                colorComplexity: 'monochrome',
-                layoutType: 'chaotic'
+                layout: 'grid_2x2',
+                overlapping: true,
+                isProfessionalMode: true,
+                showClinicalNotes: false
             },
-            searchField: puzzles as any, // Taşınan yeni yapı
-            correctCount: puzzles.reduce((acc, curr) => acc + curr.correctCount, 0),
-            clues: ["İpucu: Gözlerinle satır satır tarama yaparak ilerlemek hata payını azaltır."]
+            sections: puzzles as any // Taşınan yeni yapı
         });
     }
     return results;
@@ -95,8 +103,14 @@ export const generateOfflineGridDrawing = async (options: GeneratorOptions): Pro
             instruction: "Sol taraftaki deseni sağdaki boş ızgaraya noktaları ve çizgileri takip ederek kopyalayın.",
             pedagogicalNote: "Görsel-motor koordinasyon, planlama ve mekansal ilişkilendirme becerilerini geliştirir.",
             gridDim: gridSize,
-            showCoordinates: (options as any).showCoordinates !== false,
-            transformMode: concept as any,
+            settings: {
+                difficulty: mapDifficulty(difficulty || 'Orta'),
+                layout: 'side_by_side',
+                gridType: 'dots',
+                transformMode: concept as any,
+                showCoordinates: (options as any).showCoordinates !== false,
+                isProfessionalMode: true
+            },
             drawings: [{
                 lines: sourcePattern,
                 title: patternName,
@@ -124,10 +138,20 @@ export const generateOfflineSymmetryDrawing = async (options: GeneratorOptions):
             instruction: "Desenleri simetri eksenine göre aynadaki yansıması olacak şekilde tamamlayın.",
             pedagogicalNote: "Bilateral koordinasyon, görsel algı ve simetri kavramını güçlendirir.",
             gridDim: gridSize,
-            axis: concept === 'mirror_h' ? 'horizontal' : 'vertical',
-            showCoordinates: (options as any).showCoordinates !== false,
-            lines,
-            dots: []
+            settings: {
+                difficulty: mapDifficulty(difficulty || 'Orta'),
+                axis: concept === 'mirror_h' ? 'horizontal' : 'vertical',
+                gridType: 'dots',
+                layout: 'single',
+                showGhostPoints: false,
+                showCoordinates: (options as any).showCoordinates !== false,
+                isProfessionalMode: true
+            },
+            drawings: [{
+                lines,
+                dots: [],
+                title: "Simetri"
+            }]
         });
     }
     return results;
@@ -200,11 +224,75 @@ export const generateOfflineDirectionalTracking = async (options: GeneratorOptio
             instruction: "Okları ve yönergeleri takip ederek ızgara üzerindeki harfleri topla ve gizli şifreyi oluştur.",
             pedagogicalNote: "Yönsel algı, takip ve mekansal kodlama becerilerini destekler.",
             puzzles: [{
+                title: "Rota 1",
                 grid,
                 path: path.map(p => p.direction),
                 startPos: { r: path[0].r, c: path[0].c },
                 targetWord: path.map(pt => pt.char).join('')
             }]
+        });
+    }
+    return results;
+};
+
+export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
+    const { worksheetCount, difficulty } = options;
+    const results: VisualOddOneOutData[] = [];
+
+    // Görsel benzerlik ve yön karışıklığı yaratan setler (Özellikle disleksi için)
+    const sets = [
+        ['b', 'd'], ['p', 'q'], ['m', 'n'], ['s', 'ş'], ['c', 'ç'],
+        ['O', 'Q'], ['E', 'F'], ['6', '9'], ['3', 'E'], ['5', 'S'],
+        ['u', 'n'], ['f', 't']
+    ];
+
+    for (let p = 0; p < worksheetCount; p++) {
+        const rows: any[] = [];
+        const rowCount = difficulty === 'Başlangıç' ? 5 : (difficulty === 'Orta' ? 7 : 10);
+        // Sütun (öğe) sayısı zorluğa göre artabilir
+        const itemCount = difficulty === 'Başlangıç' ? 4 : (difficulty === 'Uzman' ? 6 : 5);
+
+        for (let r = 0; r < rowCount; r++) {
+            const set = getRandomItems(sets, 1)[0];
+            const isReversed = Math.random() > 0.5;
+            const baseChar = isReversed ? set[1] : set[0];
+            const oddChar = isReversed ? set[0] : set[1];
+
+            const items: VisualOddOneOutItem[] = [];
+            let correctIndex = getRandomInt(0, itemCount - 1);
+
+            for (let i = 0; i < itemCount; i++) {
+                items.push({
+                    label: i === correctIndex ? oddChar : baseChar,
+                    rotation: difficulty === 'Uzman' ? getRandomInt(-10, 10) : 0,
+                    scale: 1
+                });
+            }
+
+            rows.push({
+                items,
+                correctIndex,
+                reason: `'${baseChar}' harfleri arasına '${oddChar}' gizlenmiş.`,
+                clinicalMeta: {
+                    discriminationFactor: 0.8,
+                    isMirrorTask: ['b', 'd', 'p', 'q', 'u', 'n', '3', 'E'].includes(baseChar),
+                    targetCognitiveSkill: 'Visual Discrimination'
+                }
+            });
+        }
+
+        results.push({
+            title: "Görsel Ayrıştırma",
+            instruction: "Her satırda diğerlerinden farklı olan harfi, sayıyı veya sembolü bularak işaretleyin.",
+            pedagogicalNote: "Görsel ayırt etme, yön tayini (spatial orientation) ve dikkat kontrolünü geliştirir.",
+            settings: {
+                difficulty: mapDifficulty(difficulty || 'Orta'),
+                layout: itemCount > 4 ? 'grid_compact' : 'single',
+                itemType: 'character',
+                isProfessionalMode: true,
+                showClinicalNotes: false
+            },
+            rows
         });
     }
     return results;
