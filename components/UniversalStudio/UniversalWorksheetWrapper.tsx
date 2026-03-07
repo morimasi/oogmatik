@@ -116,6 +116,8 @@ const UniversalWorksheetInner = ({ worksheetData, activityType, scale, styleSett
             const items = convertToLayoutItems(activityType, worksheetData, styleSettings);
             setLayout(items);
             setIsAdapterRunning(false);
+        } else {
+            setIsAdapterRunning(false);
         }
     }, [worksheetData, activityType, setLayout, styleSettings]);
 

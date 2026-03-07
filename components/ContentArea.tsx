@@ -129,10 +129,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
     return (
         <EditableContext.Provider value={{ isEditMode, zoom: scale }}>
-            <main className={`flex - 1 flex flex - col h - full bg - [var(--bg - primary)]overflow - hidden`}>
+            <main className="flex-1 flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
 
                 {/* TOOLBAR */}
-                <div className={`shrink - 0 bg - [var(--bg - paper)]border - b border - [var(--border - color)]p - 4 z - 20 shadow - sm relative transition - all duration - 300 ${zenMode ? 'hidden' : ''} `}>
+                <div className={`shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 z-20 shadow-sm relative transition-all duration-300 ${zenMode ? 'hidden' : ''}`}>
                     <div className="flex justify-between items-center mb-4">
                         <nav className="flex items-center text-sm text-[var(--text-secondary)]">
                             <ol className="flex items-center space-x-2">
@@ -169,10 +169,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 {/* VIEWPORT - THE DESK SURFACE */}
                 <div
                     ref={scrollContainerRef}
-                    className={`flex - 1 relative overflow - y - auto overflow - x - hidden scroll - smooth custom - scrollbar transition - colors duration - 500 ${zenMode
+                    className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar transition-colors duration-500 ${zenMode
                         ? 'bg-[#050505]'
                         : 'bg-[var(--bg-secondary)]'
-                        } `}
+                        }`}
                 >
                     {/* justify-start and items-start for fixed top anchoring */}
                     <div className="w-full flex flex-col items-center justify-start min-h-full py-0">
