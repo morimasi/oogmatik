@@ -187,9 +187,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                                 )}
 
                                 {!isLoading && !error && processedData.length === 0 && (
-                                    <div className="flex flex-col items-center justify-center py-40 w-full opacity-40">
-                                        <LandingText />
-                                        <p className="text-[var(--text-secondary)] font-medium mt-4">Bir etkinlik seçin ve farkı görün.</p>
+                                    <div className="flex flex-col items-center justify-center py-40 w-full relative">
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] dark:opacity-[0.07] overflow-hidden">
+                                            <img src="/assets/logo.png" className="w-[600px] h-auto object-contain rotate-[-12deg] scale-125" alt="" />
+                                        </div>
+                                        <div className="relative z-10 opacity-40 text-center">
+                                            <LandingText />
+                                            <p className="text-[var(--text-secondary)] font-medium mt-4">Bir etkinlik seçin ve farkı görün.</p>
+                                        </div>
                                     </div>
                                 )}
 
