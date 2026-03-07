@@ -1,7 +1,7 @@
 import { Type } from "@google/genai";
 
-// Model Seçimi: Uygulamanın tüm yapısında Gemini 2.0 Flash (Thinking Enabled) kullanılacak
-const MASTER_MODEL = 'gemini-2.0-flash-exp';
+// Model Seçimi: Uygulamanın tüm yapısında Gemini 3 Flash Preview (Thinking Enabled) kullanılacak
+const MASTER_MODEL = 'gemini-3-flash-preview';
 
 // ============================================================
 // JSON ONARIM MOTORU (3 Katmanlı Strateji)
@@ -165,7 +165,7 @@ export const evaluateContent = async (content: any) => {
     const apiKey = getApiKey();
     if (!apiKey) throw new Error("API Key eksik");
 
-    const url = `https://generativelanguage.googleapis.com/v1alpha/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`; // Denetim için de aynı model
+    const url = `https://generativelanguage.googleapis.com/v1alpha/models/gemini-3-flash-preview:generateContent?key=${apiKey}`; // Denetim için de aynı model
 
 
     const prompt = `

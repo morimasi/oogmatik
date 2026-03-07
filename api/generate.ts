@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             systemInstruction: SYSTEM_INSTRUCTION,
             responseMimeType: "application/json",
             responseSchema: schema,
-            temperature: 0.1, 
+            temperature: 0.1,
             safetySettings: [
                 { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
                 { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
@@ -46,11 +46,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         let parts: any[] = [];
         if (image) {
-            parts.push({ 
-                inlineData: { 
-                    mimeType: mimeType || 'image/jpeg', 
-                    data: image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "") 
-                } 
+            parts.push({
+                inlineData: {
+                    mimeType: mimeType || 'image/jpeg',
+                    data: image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "")
+                }
             });
         }
         parts.push({ text: prompt });
@@ -60,7 +60,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             contents: { parts },
             config: config,
         });
-        
+
         if (result.text) {
             res.setHeader('Content-Type', 'application/json; charset=utf-8');
             return res.status(200).send(result.text);
