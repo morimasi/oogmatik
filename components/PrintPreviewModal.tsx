@@ -69,14 +69,14 @@ const ToggleOption = ({
             className={`w-10 h-5 rounded-full relative transition-colors ${active ? 'bg-indigo-600' : 'bg-zinc-300 dark:bg-zinc-600'} cursor-pointer`}
             onClick={() => onChange(!active)}
         >
-            <input type="checkbox" checked={active} onChange={e => onChange(e.target.checked)} className="hidden" />
+            <input type="checkbox" checked={active} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.checked)} className="hidden" />
             <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all shadow ${active ? 'left-6' : 'left-1'}`}></div>
         </div>
     </label>
 );
 
 // ─── Ana Modal ───────────────────────────────────────────────
-export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, onClose, worksheetData, title }) => {
+export const PrintPreviewModal = ({ isOpen, onClose, worksheetData, title }: PrintPreviewModalProps) => {
     const [selectedPages, setSelectedPages] = useState<number[]>([]);
     const [isGrayscale, setIsGrayscale] = useState(false);
     const [compact, setCompact] = useState(false);
@@ -86,7 +86,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
 
     useEffect((): void => {
         if (isOpen) {
-            setSelectedPages(worksheetData.map((_: unknown, i: number) => i));
+            setSelectedPages((worksheetData || []).map((_: unknown, i: number) => i));
         }
     }, [isOpen, worksheetData]);
 
@@ -97,7 +97,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
     }, []);
 
     const selectAll = useCallback((): void => {
-        setSelectedPages(worksheetData.map((_: unknown, i: number) => i));
+        setSelectedPages((worksheetData || []).map((_: unknown, i: number) => i));
     }, [worksheetData]);
 
     const clearAll = useCallback((): void => setSelectedPages([]), []);
@@ -126,7 +126,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
 
     if (!isOpen) return null;
 
-    const pageCount = worksheetData.length;
+    const pageCount = worksheetData?.length || 0;
     const selCount = selectedPages.length;
 
     return (
@@ -301,7 +301,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
                                     {pageCount} Sayfa — Seçmek için tıklayın
                                 </p>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    {worksheetData.map((_: unknown, index: number) => (
+                                    {(worksheetData || []).map((_: unknown, index: number) => (
                                         <div
                                             key={index}
                                             onClick={() => togglePage(index)}
