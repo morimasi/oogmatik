@@ -500,8 +500,8 @@ const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: Sing
     // ══════════════════════════════════════════════
     // AKILLI SAYFALAMA — Bölme + Ağırlık Sistemi
     // ══════════════════════════════════════════════
-    const PAGE_MAX_WEIGHT = 1050; // Yeni 11pt font ve 15mm padding ile kapasite ayarlandı
-    const HEADER_RESERVE = 100;
+    const PAGE_MAX_WEIGHT = 920; // Devam sayfalarındaki boşluk marjı için kapasite %12 daraltıldı
+    const HEADER_RESERVE = 120; // Başlık alanı payı artırıldı
 
     // 1. Önce çok büyük blokları böl (Recursive bölme gerekebilir, şimdilik tek seviye)
     let allBlocks: WorksheetBlock[] = [];
@@ -531,7 +531,9 @@ const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: Sing
     });
 
     const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => (
-        <div key={pageIdx} className={`worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden ${pageIdx > 0 ? 'pt-[20mm]' : ''}`}>
+        <div key={pageIdx} className={`worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden`}>
+            {/* Sayfa Üstü Güvenli Alan (Sadece continuation için) */}
+            {pageIdx > 0 && <div className="print-spacer" />}
 
             {/* Öğrenci Bilgi Şeridi */}
             {settings?.showStudentInfo && (

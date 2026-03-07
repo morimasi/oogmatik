@@ -217,7 +217,8 @@
         flex-direction: column !important;
         width: 210mm !important;
         min-height: 296mm !important;
-        padding: 10mm 15mm !important;
+        padding: 5mm 15mm !important;
+        /* Standart padding azaltıldı, bileşen kontrolüne bırakıldı */
         margin: 0 auto !important;
         overflow: visible !important;
         page-break-after: always !important;
@@ -229,6 +230,14 @@
         position: relative !important;
         border: none !important;
         box-shadow: none !important;
+      }
+
+      /* Continuation sayfaları için fiziksel boşluk garantisi */
+      .print-spacer {
+        height: 15mm !important;
+        display: block !important;
+        width: 100% !important;
+        clear: both !important;
       }
 
       /* ═══════════════════════════════════════════
