@@ -137,6 +137,25 @@
       background: var(--text-muted);
     }
 
+    /* --- DİSLEKSİ DOSTU LOGO ANİMASYONU --- */
+    @keyframes breathing-logo {
+
+      0%,
+      100% {
+        transform: scale(1) translateY(0);
+        filter: grayscale(100%) opacity(0.4);
+      }
+
+      50% {
+        transform: scale(1.08) translateY(-10px);
+        filter: grayscale(0%) opacity(0.8);
+      }
+    }
+
+    .animate-breathing-logo {
+      animation: breathing-logo 8s ease-in-out infinite;
+    }
+
     /* --- DYNAMIC WORKSHEET STRUCTURE --- */
     .worksheet-page {
       background-color: white;
