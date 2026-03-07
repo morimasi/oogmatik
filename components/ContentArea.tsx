@@ -190,7 +190,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                                     <div className="flex flex-col items-center justify-center py-40 w-full opacity-40">
                                         <LandingText />
                                         <p className="text-[var(--text-secondary)] font-medium mt-4">Bir etkinlik seçin ve farkı görün.</p>
-                                        <img src="/assets/logo.png" alt="Logo" className="h-24 w-auto mt-8 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-700 pointer-events-none select-none animate-breathing-logo" />
+                                        <img src="/assets/logo.png" alt="Logo" className="h-24 w-auto mt-8 grayscale-0 opacity-100 hover:scale-125 hover:drop-shadow-[0_0_30px_rgba(79,70,229,0.6)] transition-all duration-500 cursor-pointer select-none animate-breathing-logo" />
                                     </div>
                                 )}
 
