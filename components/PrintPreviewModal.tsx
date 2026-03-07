@@ -79,7 +79,6 @@ const ToggleOption = ({
 export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, onClose, worksheetData, title }) => {
     const [selectedPages, setSelectedPages] = useState<number[]>([]);
     const [isGrayscale, setIsGrayscale] = useState(false);
-    const [includeAnswerKey, setIncludeAnswerKey] = useState(false);
     const [compact, setCompact] = useState(false);
     const [columnsPerPage, setColumnsPerPage] = useState<1 | 2>(1);
     const [fontSize, setFontSize] = useState<10 | 11 | 12>(11);
@@ -110,7 +109,6 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
                 action: 'print',
                 selectedPages,
                 grayscale: isGrayscale,
-                includeAnswerKey,
                 worksheetData: worksheetData as any[],
                 compact,
                 columnsPerPage,
@@ -168,11 +166,6 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
                             <span className="text-sm font-bold text-zinc-700 dark:text-zinc-200">
                                 {selCount} / {pageCount} Sayfa
                             </span>
-                            {includeAnswerKey && (
-                                <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">
-                                    + Cevap Anahtarı
-                                </span>
-                            )}
                         </div>
                         <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1.5 overflow-hidden">
                             <div
@@ -202,15 +195,6 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
                             active={compact}
                             iconBg={compact ? 'bg-sky-500 text-white' : 'bg-sky-100 text-sky-500'}
                             onChange={setCompact}
-                        />
-
-                        <ToggleOption
-                            icon="fa-key"
-                            label="Cevap Anahtarı"
-                            sublabel="Son sayfaya otomatik ekle"
-                            active={includeAnswerKey}
-                            iconBg="bg-emerald-100 text-emerald-600"
-                            onChange={setIncludeAnswerKey}
                         />
                     </div>
 
@@ -271,7 +255,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
                     <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-3">
                         <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1.5">Baskı Özeti</p>
                         <div className="space-y-1 text-[10px] text-indigo-700 dark:text-indigo-300">
-                            <div className="flex justify-between"><span>Toplam sayfa:</span><span className="font-black">{selCount + (includeAnswerKey ? 1 : 0)}</span></div>
+                            <div className="flex justify-between"><span>Toplam sayfa:</span><span className="font-black">{selCount}</span></div>
                             <div className="flex justify-between"><span>Düzen:</span><span className="font-black">{columnsPerPage === 2 ? '2 Sütun' : 'Tek Sütun'}</span></div>
                             <div className="flex justify-between"><span>Font:</span><span className="font-black">{fontSize}pt {compact ? '(Kompakt)' : ''}</span></div>
                             <div className="flex justify-between"><span>Renk:</span><span className="font-black">{isGrayscale ? 'Siyah-Beyaz' : 'Renkli'}</span></div>
@@ -348,23 +332,6 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, on
                                             </div>
                                         </div>
                                     ))}
-
-                                    {/* Cevap Anahtarı Önizleme */}
-                                    {includeAnswerKey && (
-                                        <div
-                                            className="relative rounded-xl overflow-hidden border-2 border-dashed border-emerald-400 shadow-sm bg-emerald-50 dark:bg-emerald-900/20 flex flex-col items-center justify-center text-center p-3"
-                                            style={{ aspectRatio: '210/297' }}
-                                        >
-                                            <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center text-xl mb-2">
-                                                <i className="fa-solid fa-key"></i>
-                                            </div>
-                                            <p className="font-black text-emerald-800 dark:text-emerald-300 text-[10px] uppercase tracking-widest">Cevap Anahtarı</p>
-                                            <p className="text-[8px] text-emerald-600 dark:text-emerald-400 mt-1">Otomatik oluşturulacak</p>
-                                            <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px]">
-                                                <i className="fa-solid fa-check"></i>
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             </>
                         )}

@@ -312,18 +312,55 @@
       }
 
       /* ═══════════════════════════════════════════
-         CEVAP ANAHTARI SAYFASI
+         YAPI ONARIMLARI — KARIŞIK VE BOZUK TABLO ÖNLEME
       ═══════════════════════════════════════════ */
-      .answer-key-page {
-        visibility: visible !important;
-        page-break-before: always !important;
-        break-before: page !important;
-        page-break-after: always !important;
-        break-after: page !important;
-        background: white !important;
-        color: black !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+
+      /* Sabit/Esnek yükseklikleri ez — A4 boyunca serbestçe aksın */
+      .h-full,
+      .h-screen,
+      .min-h-\[500px\],
+      .min-h-\[600px\] {
+        height: auto !important;
+        min-height: 0 !important;
+      }
+
+      /* Yatay kaydırma sınıflarını ez — kesilmeleri önle */
+      .overflow-x-auto,
+      .overflow-y-auto,
+      .overflow-auto,
+      .overflow-hidden {
+        overflow: visible !important;
+      }
+
+      /* Flex içindeki taşmaları wrap ile koru */
+      .flex.overflow-x-auto {
+        flex-wrap: wrap !important;
+      }
+
+      /* Responsive Gridlerin A4 sayfasında daralmasını/bozulmasını önle */
+      /* A4 genişliği yeterli olduğundan MD breakpoint yapılarını zorunlu kıl */
+      .md\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+
+      .md\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+
+      .md\:grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      }
+
+      .md\:grid-cols-5 {
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+      }
+
+      .sm\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+
+      .sm\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
       }
 
       /* ═══════════════════════════════════════════

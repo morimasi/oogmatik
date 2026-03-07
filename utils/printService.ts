@@ -8,7 +8,6 @@ export interface PrintOptions {
     action: 'print' | 'download';
     selectedPages?: number[];
     grayscale?: boolean;
-    includeAnswerKey?: boolean;
     worksheetData?: any[];
     /** @default false Kompakt mod: font + padding küçültür, sayfaya daha fazla içerik sığdırır */
     compact?: boolean;
@@ -17,143 +16,6 @@ export interface PrintOptions {
     /** @default 11 Yazı boyutu (pt) */
     fontSize?: 10 | 11 | 12;
 }
-
-/**
- * Aktivite verilerinden cevap anahtarı HTML'i üretir.
- * Block tabanlı etkinliklerde answer/key alanlarını, cloze_test'te boşlukları,
- * match_columns'ta eşleşmeleri otomatik çıkarır.
- */
-const generateAnswerKeyHtml = (worksheetData: any[]): string => {
-    let allAnswers: { page: number; question: string; answer: string }[] = [];
-
-    worksheetData.forEach((sheet: any, pageIdx: number) => {
-        const data = sheet.data || sheet;
-        const blocks: any[] = data?.layoutArchitecture?.blocks || data?.blocks || [];
-        let questionCounter = 1;
-
-        blocks.forEach((block: any) => {
-            const c = block.content;
-            if (!c) return;
-
-            switch (block.type) {
-                case 'cloze_test': {
-                    const text: string = typeof c.text === 'string' ? c.text : JSON.stringify(c.text || '');
-                    const matches = text.match(/\[([^\]]+)\]/g) || [];
-                    matches.forEach((m, i) => {
-                        allAnswers.push({
-                            page: pageIdx + 1,
-                            question: `Sayfa ${pageIdx + 1} - Boşluk ${i + 1}`,
-                            answer: m.replace('[', '').replace(']', '')
-                        });
-                    });
-                    break;
-                }
-                case 'match_columns': {
-                    const left: any[] = c.leftColumn || c.left || [];
-                    const right: any[] = c.rightColumn || c.right || [];
-                    left.forEach((item: any, i: number) => {
-                        if (right[i]) {
-                            allAnswers.push({
-                                page: pageIdx + 1,
-                                question: `${questionCounter++}. ${typeof item === 'string' ? item : item?.text || JSON.stringify(item)}`,
-                                answer: typeof right[i] === 'string' ? right[i] : right[i]?.text || JSON.stringify(right[i])
-                            });
-                        }
-                    });
-                    break;
-                }
-                case 'logic_card': {
-                    if (c.answer !== undefined && c.answer !== null) {
-                        allAnswers.push({
-                            page: pageIdx + 1,
-                            question: `${questionCounter++}. ${typeof c.text === 'string' ? c.text.slice(0, 60) + '...' : 'Mantık Sorusu'}`,
-                            answer: String(c.answer)
-                        });
-                    }
-                    break;
-                }
-                default: {
-                    // Genel: answer / correctAnswer / key alanlarını tara
-                    const answerVal = c.answer ?? c.correctAnswer ?? c.key ?? c.solution ?? c.result;
-                    if (answerVal !== undefined && answerVal !== null) {
-                        const label = c.question || c.text || c.title || c.label;
-                        const questionText = typeof label === 'string'
-                            ? label.slice(0, 70)
-                            : `Soru ${questionCounter}`;
-                        allAnswers.push({
-                            page: pageIdx + 1,
-                            question: `${questionCounter++}. ${questionText}`,
-                            answer: typeof answerVal === 'object' ? JSON.stringify(answerVal) : String(answerVal)
-                        });
-                    }
-                    break;
-                }
-            }
-        });
-
-        // Üst düzey cevap alanları (bazı special modüller)
-        const topLevelAnswer = data?.answer || data?.answers || data?.answerKey || data?.solution;
-        if (topLevelAnswer) {
-            const answerText = Array.isArray(topLevelAnswer)
-                ? topLevelAnswer.join(', ')
-                : typeof topLevelAnswer === 'object'
-                    ? Object.entries(topLevelAnswer).map(([k, v]) => `${k}: ${v}`).join(' | ')
-                    : String(topLevelAnswer);
-            allAnswers.push({ page: pageIdx + 1, question: `Sayfa ${pageIdx + 1} - Genel Cevap`, answer: answerText });
-        }
-    });
-
-    if (allAnswers.length === 0) {
-        return `<div class="answer-key-page ultra-print-page" style="width:210mm;min-height:297mm;padding:15mm;box-sizing:border-box;background:white;display:flex;flex-direction:column;">
-            <div style="border-bottom:3px solid black;padding-bottom:8mm;margin-bottom:8mm;">
-                <span style="font-size:7pt;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:#71717a;">Cevap Anahtarı</span>
-                <h2 style="font-size:18pt;font-weight:900;text-transform:uppercase;margin:4px 0 0 0;color:black;">Cevap Anahtarı</h2>
-            </div>
-            <p style="color:#71717a;font-size:10pt;">Bu etkinlik için otomatik cevap anahtarı üretilemedi. Lütfen etkinlik içeriğini kontrol edin.</p>
-        </div>`;
-    }
-
-    const groupedByPage: Record<number, typeof allAnswers> = {};
-    allAnswers.forEach(a => {
-        if (!groupedByPage[a.page]) groupedByPage[a.page] = [];
-        groupedByPage[a.page].push(a);
-    });
-
-    let rows = '';
-    let rowNum = 1;
-    allAnswers.forEach(a => {
-        const bg = rowNum % 2 === 0 ? '#f9f9fb' : '#ffffff';
-        rows += `<tr style="background:${bg};">
-            <td style="padding:4px 6px;border:1px solid #e4e4e7;font-size:9pt;width:32px;text-align:center;font-weight:900;color:#71717a;">${rowNum++}</td>
-            <td style="padding:4px 8px;border:1px solid #e4e4e7;font-size:9pt;color:#27272a;">${a.question}</td>
-            <td style="padding:4px 8px;border:1px solid #e4e4e7;font-size:9pt;font-weight:900;color:#18181b;">${a.answer}</td>
-        </tr>`;
-    });
-
-    return `<div class="answer-key-page ultra-print-page" style="width:210mm;min-height:297mm;padding:15mm 15mm 12mm 15mm;box-sizing:border-box;background:white;display:flex;flex-direction:column;page-break-before:always;break-before:page;">
-        <div style="border-bottom:3px solid black;padding-bottom:8mm;margin-bottom:8mm;display:flex;align-items:flex-end;justify-content:space-between;">
-            <div>
-                <span style="font-size:7pt;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:#71717a;display:block;margin-bottom:2px;">Bursa Disleksi AI • Nöro-Mimari Motoru</span>
-                <h2 style="font-size:20pt;font-weight:900;text-transform:uppercase;margin:0;letter-spacing:-0.03em;color:black;">🔑 Cevap Anahtarı</h2>
-            </div>
-            <span style="font-size:8pt;color:#71717a;font-weight:700;">${new Date().toLocaleDateString('tr-TR')}</span>
-        </div>
-        <table style="width:100%;border-collapse:collapse;margin-bottom:8mm;">
-            <thead>
-                <tr style="background:#18181b;color:white;">
-                    <th style="padding:6px;font-size:8pt;font-weight:900;text-align:center;border:1px solid #3f3f46;">#</th>
-                    <th style="padding:6px 8px;font-size:8pt;font-weight:900;text-align:left;border:1px solid #3f3f46;">Soru / Boşluk</th>
-                    <th style="padding:6px 8px;font-size:8pt;font-weight:900;text-align:left;border:1px solid #3f3f46;">Doğru Cevap</th>
-                </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-        </table>
-        <div style="margin-top:auto;padding-top:6mm;border-top:2px solid black;display:flex;justify-content:space-between;font-size:7pt;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:#71717a;">
-            <div><span style="background:black;color:white;padding:1px 4px;border-radius:2px;margin-right:4px;">AI</span>Bursa Disleksi AI • Nöro-Mimari Motoru v4.0</div>
-            <span>Cevap Anahtarı • ${allAnswers.length} madde</span>
-        </div>
-    </div>`;
-};
 
 export const printService = {
     /**
@@ -257,20 +119,6 @@ export const printService = {
 
             printContainer.appendChild(clone);
         });
-
-        // 5. Cevap anahtarı ekle (implement edildi!)
-        if (options.includeAnswerKey && options.worksheetData && options.worksheetData.length > 0) {
-            const answerKeyHtml = generateAnswerKeyHtml(options.worksheetData);
-            const answerKeyWrapper = document.createElement('div');
-            answerKeyWrapper.innerHTML = answerKeyHtml;
-            // Wrapper'ın içindeki ilk çocuğu al
-            const answerKeyPage = answerKeyWrapper.firstElementChild as HTMLElement;
-            if (answerKeyPage) {
-                answerKeyPage.style.setProperty('page-break-before', 'always', 'important');
-                answerKeyPage.style.setProperty('break-before', 'page', 'important');
-                printContainer.appendChild(answerKeyPage);
-            }
-        }
 
         document.body.appendChild(printContainer);
 
