@@ -201,20 +201,15 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                                     <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in duration-1000">
                                         <LandingText />
                                         <div className="relative group/logo mt-12">
-                                            {/* Logo Arkası Yıldız Parıltısı (Hover'da görünür) */}
-                                            <div className="absolute -inset-10 bg-indigo-500/0 group-hover/logo:bg-indigo-500/20 rounded-full blur-3xl transition-all duration-1000 scale-0 group-hover/logo:scale-150" />
-                                            <div className="absolute -inset-4 border border-indigo-400/0 group-hover/logo:border-indigo-400/30 rounded-full transition-all duration-700 scale-50 group-hover/logo:scale-110" />
-
                                             <img
                                                 src="/assets/logo.png"
                                                 alt="Logo"
                                                 className="h-32 w-auto relative z-10 transition-all duration-700 cursor-pointer select-none star-glow hover:scale-125 animate-breathing-logo"
                                             />
 
-                                            {/* Ekstra Parıltı Efektleri */}
-                                            <div className="absolute top-0 right-0 w-2 h-2 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_1.5s_infinite] transition-opacity" />
-                                            <div className="absolute bottom-4 left-0 w-1.5 h-1.5 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2s_infinite_0.5s] transition-opacity" />
-                                            <div className="absolute top-1/2 -left-4 w-1 h-1 bg-indigo-200 rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_1.2s_infinite_1s] transition-opacity" />
+                                            {/* Minimalist Parıltı Efektleri */}
+                                            <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2s_infinite] transition-opacity" />
+                                            <div className="absolute bottom-4 left-0 w-1 h-1 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2.5s_infinite_0.5s] transition-opacity" />
                                         </div>
                                     </div>
                                 ) : null}

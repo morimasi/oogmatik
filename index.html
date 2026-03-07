@@ -194,20 +194,19 @@
 
       0%,
       100% {
-        opacity: 0.3;
-        transform: scale(1);
-        filter: blur(0px);
+        opacity: 0;
+        transform: scale(0.5);
       }
 
       50% {
-        opacity: 1;
-        transform: scale(1.2);
-        filter: blur(2px) drop-shadow(0 0 15px white);
+        opacity: 0.8;
+        transform: scale(1);
+        filter: drop-shadow(0 0 5px white);
       }
     }
 
     .star-glow:hover {
-      box-shadow: 0 0 40px 10px rgba(79, 70, 229, 0.4), 0 0 70px 20px rgba(168, 85, 247, 0.2);
+      filter: drop-shadow(0 0 15px rgba(79, 70, 229, 0.3));
     }
 
     /* --- DYNAMIC WORKSHEET STRUCTURE --- */
