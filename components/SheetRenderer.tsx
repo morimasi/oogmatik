@@ -551,6 +551,9 @@ const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: Sing
 
     const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => (
         <div key={pageIdx} data-page-idx={pageIdx} className={`worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden`}>
+            {/* Ekranda Sayfa Numarası (Print'te gizli) */}
+            <div className="page-indicator-screen no-print">SAYFA {pageIdx + 1}</div>
+
             {/* Sayfa Üstü Marj (Hassas Simetri Kontrolü) */}
             <div className="print-top-margin h-0" />
 
@@ -708,6 +711,7 @@ export const SheetRenderer = React.memo(({ activityType, data, studentProfile, s
         case ActivityType.WORD_SEARCH: return <WordSearchSheet data={data as unknown as WordSearchData} />;
         case ActivityType.ANAGRAM: return <AnagramSheet data={data as unknown as AnagramsData} />;
         case ActivityType.CROSSWORD: return <CrosswordSheet data={data as unknown as CrosswordData} />;
+        case (activityType as any): // Herhangi bir modül blok yapısı içeriyorsa pagination desteği alabilir
         default: return <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />;
     }
 });
