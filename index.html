@@ -121,7 +121,7 @@
       page-break-inside: avoid !important;
     }
 
-    /* --- ULTRA PROFESSIONAL PRINT ENGINE V3 — A4 KOMPAKT SİSTEM --- */
+    /* --- ULTRA PRINT ENGINE v4.0 — A4 KOMPAKT SİSTEM — Bursa Disleksi AI --- */
     @media print {
       @page {
         size: A4 portrait;
@@ -135,6 +135,7 @@
         margin: 0 !important;
         padding: 0 !important;
         height: auto !important;
+        overflow: visible !important;
       }
 
       #print-container {
@@ -150,7 +151,7 @@
       }
 
       /* ═══════════════════════════════════════════
-         SAYFA KONTEYNER — A4 Piksel Mühendisliği
+         SAYFA KONTEYNER — A4 Standart Mod
          A4 = 210mm x 297mm @ 96dpi = 794px x 1123px
       ═══════════════════════════════════════════ */
       .ultra-print-page,
@@ -161,7 +162,6 @@
         width: 210mm !important;
         min-height: 296mm !important;
         padding: 10mm 15mm !important;
-        /* Slightly more side padding for professional look */
         margin: 0 auto !important;
         overflow: visible !important;
         page-break-after: always !important;
@@ -170,20 +170,103 @@
         background: white !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        color-adjust: exact !important;
         position: relative !important;
         border: none !important;
         box-shadow: none !important;
       }
 
       /* ═══════════════════════════════════════════
-         İÇERİK ALANI — Kompakt + Yoğun
+         KOMPAKT MOD — Daha fazla içerik sığdır
+         #print-container.compact-print ile etkinleşir
+      ═══════════════════════════════════════════ */
+      #print-container.compact-print .ultra-print-page,
+      #print-container.compact-print .worksheet-page {
+        padding: 7mm 11mm !important;
+      }
+
+      #print-container.compact-print .pedagogical-header h3 {
+        font-size: 13pt !important;
+        margin-bottom: 1mm !important;
+      }
+
+      #print-container.compact-print .pedagogical-header p.instruction {
+        font-size: 9pt !important;
+        line-height: 1.4 !important;
+      }
+
+      #print-container.compact-print .pedagogical-header p.note {
+        font-size: 8pt !important;
+      }
+
+      #print-container.compact-print .block-text {
+        font-size: 10pt !important;
+        line-height: 1.5 !important;
+      }
+
+      #print-container.compact-print .print-content-area {
+        gap: 4mm !important;
+      }
+
+      #print-container.compact-print .pedagogical-header {
+        margin-bottom: 3mm !important;
+        padding-bottom: 3mm !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         ÇİFT SÜTUN MOD
+         #print-container.two-column-print ile etkinleşir
+      ═══════════════════════════════════════════ */
+      #print-container.two-column-print .print-content-area {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 5mm !important;
+        align-items: start !important;
+      }
+
+      #print-container.two-column-print .block-header,
+      #print-container.two-column-print .pedagogical-header,
+      #print-container.two-column-print .block-footer-val {
+        /* Header ve footer tam genişlik alır */
+        grid-column: 1 / -1 !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         FONT BOYUTU VARYANTLARI
+         data-font-size attribute ile etkinleşir
+      ═══════════════════════════════════════════ */
+      #print-container[data-font-size="10"] .block-text,
+      #print-container[data-font-size="10"] .block-cloze {
+        font-size: 10pt !important;
+      }
+
+      #print-container[data-font-size="11"] .block-text,
+      #print-container[data-font-size="11"] .block-cloze {
+        font-size: 11pt !important;
+      }
+
+      #print-container[data-font-size="12"] .block-text,
+      #print-container[data-font-size="12"] .block-cloze {
+        font-size: 12pt !important;
+        line-height: 1.8 !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         GRAYSKALE MOD
+      ═══════════════════════════════════════════ */
+      #print-container.grayscale-print * {
+        filter: grayscale(100%) contrast(1.1) !important;
+        -webkit-filter: grayscale(100%) contrast(1.1) !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         İÇERİK ALANI — Temel
       ═══════════════════════════════════════════ */
       .print-content-area {
         flex: 1 !important;
         display: flex !important;
         flex-direction: column !important;
-        gap: 8mm !important;
-        /* Standardized gap */
+        gap: 6mm !important;
         width: 100% !important;
         overflow: visible !important;
       }
@@ -196,17 +279,17 @@
       .block-match,
       .block-categorical,
       .block-cloze,
-      .block-logic-card {
+      .block-logic-card,
+      .block-clue-card,
+      .block-footer-val {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
         margin-bottom: 0 !important;
-        /* Managed by gap */
       }
 
       /* ═══════════════════════════════════════════
-         BLOK ÖZEL AYARLARI (Profesyonel Düzeltmeler)
+         BLOK ÖZEL AYARLARI
       ═══════════════════════════════════════════ */
-
       .block-header {
         border-bottom-width: 3px !important;
         margin-bottom: 2mm !important;
@@ -223,35 +306,61 @@
         font-size: 14pt !important;
       }
 
+      .pedagogical-header {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
       /* ═══════════════════════════════════════════
-         GİZLE / GÖSTER
+         CEVAP ANAHTARI SAYFASI
       ═══════════════════════════════════════════ */
-      .no-print,
-      .edit-handle,
-      button,
-      .ui-panel,
-      [class*="animate-"],
-      [class*="hover:"],
-      [class*="blur-"],
-      [class*="backdrop-"],
-      .page-label-container {
+      .answer-key-page {
+        visibility: visible !important;
+        page-break-before: always !important;
+        break-before: page !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        background: white !important;
+        color: black !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         GİZLE / GÖSTER — Hassas Kurallar
+      ═══════════════════════════════════════════ */
+      /* Sadece UI butonlarını gizle, print-keep olanları koru */
+      button:not(.print-keep) {
         display: none !important;
       }
 
-      /* Sayfa Alt Bilgisi */
-      .print-footer {
-        position: absolute !important;
-        bottom: 8mm !important;
-        left: 15mm !important;
-        right: 15mm !important;
+      .no-print,
+      .edit-handle,
+      .overlay-ui,
+      .ui-panel,
+      .print-toolbar,
+      .print-controls,
+      .page-navigator,
+      .page-label-container,
+      [class*="backdrop-blur"],
+      [class*="animate-spin"],
+      [class*="animate-bounce"],
+      [class*="animate-pulse"] {
+        display: none !important;
+      }
+
+      /* Tailwind hover: ve focus: pseudo-class sınıflarını gizleme
+         (Tailwind'in bu sınıfları @media print'te zaten etkisiz) */
+
+      /* ═══════════════════════════════════════════
+         SAYFA ALT BİLGİSİ
+      ═══════════════════════════════════════════ */
+      .print-footer,
+      [class*="mt-auto"][class*="border-t"] {
         display: flex !important;
-        justify-content: space-between !important;
-        font-size: 8pt !important;
-        color: #71717a !important;
-        border-top: 1px solid #e4e4e7 !important;
-        padding-top: 2mm !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.1em !important;
+        visibility: visible !important;
+        position: relative !important;
+        width: 100% !important;
       }
     }
   </style>
