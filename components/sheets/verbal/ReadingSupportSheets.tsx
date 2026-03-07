@@ -41,30 +41,62 @@ export const PhonologicalAwarenessSheet = ({ data }: { data: PhonologicalAwarene
     </div>
 );
 
-export const RapidNamingSheet = ({ data }: { data: RapidNamingData }) => (
-    <div className="flex flex-col font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 gap-8 mt-10 flex-1 content-start">
-            {(data.grid || []).map((row, rIdx) => (
-                <div key={rIdx} className="flex justify-around items-center p-8 bg-white border-[3px] border-zinc-900 rounded-[3rem] shadow-sm group hover:border-indigo-500 transition-all">
-                    {row.items.map((item, iIdx) => (
-                        <div key={iIdx} className="flex flex-col items-center group/item">
-                            <span className="text-6xl transform group-hover/item:scale-125 transition-transform duration-300">{item.value}</span>
-                            {item.label && <span className="text-[10px] text-zinc-400 font-black mt-3 uppercase tracking-widest">{item.label}</span>}
-                        </div>
-                    ))}
+export const RapidNamingSheet = ({ data }: { data: RapidNamingData }) => {
+    const settings = data.settings;
+    const isRows = settings?.layout === 'rows';
+
+    return (
+        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+            <PedagogicalHeader
+                title={data.title || "HIZLI İSİMLENDİRME (RAN)"}
+                instruction={data.instruction || "Öğeleri soldan sağa, mümkün olduğunca hızlı ve hatasız bir şekilde isimlendirin."}
+                note={data.pedagogicalNote}
+            />
+
+            <div className={`mt-8 flex-1 content-start ${isRows ? 'flex flex-col gap-6' : 'grid grid-cols-1 gap-4'}`}>
+                {(data.grid || []).map((row, rIdx) => (
+                    <div key={rIdx} className="flex justify-around items-center p-6 bg-zinc-50 border-2 border-zinc-100 rounded-[2.5rem] shadow-sm group hover:border-indigo-200 hover:bg-white transition-all">
+                        {row.items.map((item, iIdx) => (
+                            <div key={iIdx} className="flex flex-col items-center group/item cursor-pointer">
+                                <div className="w-16 h-16 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-zinc-100 group-hover/item:scale-110 group-hover/item:border-indigo-500 transition-all duration-300">
+                                    <span className={`font-black text-zinc-900 ${item.value.length > 2 ? 'text-2xl' : 'text-4xl'}`}>
+                                        <EditableText value={item.value} tag="span" />
+                                    </span>
+                                </div>
+                                {item.label && (
+                                    <span className="text-[8px] text-zinc-400 font-black mt-2 uppercase tracking-widest opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                        {item.label}
+                                    </span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+
+            {/* Klinik Hız Analiz Paneli */}
+            <div className="mt-6 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex justify-between items-center mx-1">
+                <div className="flex gap-10">
+                    <div className="flex flex-col">
+                        <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest mb-1">Hedef Hız (Öğe/Dakika)</span>
+                        <span className="text-sm font-black italic">{data.clinicalMeta?.targetSpeed || '--'} bpm</span>
+                    </div>
+                    <div className="flex flex-col border-l border-white/10 pl-10">
+                        <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest mb-1">Gerekli Süre</span>
+                        <span className="text-sm font-black">......... sn / ......... sn</span>
+                    </div>
+                    <div className="flex flex-col border-l border-white/10 pl-10">
+                        <span className="text-[7px] font-black text-rose-400 uppercase tracking-widest mb-1">Hata Payı</span>
+                        <span className="text-sm font-black">/ 50</span>
+                    </div>
                 </div>
-            ))}
-        </div>
-        <div className="mt-8 p-4 bg-zinc-900 text-white rounded-2xl flex justify-between items-center shadow-xl">
-            <span className="text-[10px] font-black uppercase tracking-widest opacity-60">RAN Klinik Analiz</span>
-            <div className="flex gap-10">
-                <span className="text-[10px] font-bold">Toplam Süre: ............</span>
-                <span className="text-[10px] font-bold">Hata: ............</span>
+                <div className="text-[8px] font-bold text-zinc-500 text-right opacity-60">
+                    RAN HIZ PROTOKOLÜ v5.1
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 export const LetterDiscriminationSheet = ({ data }: { data: LetterDiscriminationData }) => (
     <div className="flex flex-col font-lexend p-2">
@@ -85,26 +117,67 @@ export const LetterDiscriminationSheet = ({ data }: { data: LetterDiscrimination
     </div>
 );
 
-export const MirrorLettersSheet = ({ data }: { data: MirrorLettersData }) => (
-    <div className="flex flex-col font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="mt-6 text-center mb-10">
-            <span className="px-12 py-4 bg-rose-600 text-white rounded-[2rem] font-black text-3xl shadow-2xl border-4 border-white ring-8 ring-rose-50 uppercase tracking-widest">AYNA ÇİFTİ: {data.targetPair}</span>
-        </div>
-        <div className="space-y-6 flex-1 content-start">
-            {(data.rows || []).map((row, i) => (
-                <div key={i} className="flex justify-around items-center p-8 border-[3px] border-zinc-900 rounded-[3rem] bg-white group hover:shadow-xl transition-all shadow-sm break-inside-avoid">
-                    {row.items.map((item, j) => (
-                        <div key={j} className="text-6xl font-black text-zinc-900 transition-transform duration-500 group-hover:scale-110"
-                            style={{ transform: `rotate(${item.rotation}deg) ${item.isMirrored ? 'scaleX(-1)' : ''}` }}>
-                            {item.letter}
-                        </div>
-                    ))}
+export const MirrorLettersSheet = ({ data }: { data: MirrorLettersData }) => {
+    const settings = data.settings;
+    const isCompact = settings?.layout === 'compact';
+
+    return (
+        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+            <PedagogicalHeader
+                title={data.title || "AYNA HARFLER AYRIŞTIRMA"}
+                instruction={data.instruction || `Hedef harf çiftini (${data.targetPair}) dikkatlice inceleyin ve farklı olanları işaretleyin.`}
+                note={data.pedagogicalNote}
+            />
+
+            <div className="mt-8 text-center mb-10">
+                <div className="inline-flex flex-col items-center p-6 bg-rose-600 text-white rounded-[2.5rem] shadow-2xl border-4 border-white ring-8 ring-rose-50 transform hover:-rotate-1 transition-transform">
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] mb-2 opacity-80">KRİTİK AYNA ÇİFTİ</span>
+                    <span className="text-5xl font-black tracking-widest">{data.targetPair}</span>
                 </div>
-            ))}
+            </div>
+
+            <div className={`space-y-4 flex-1 content-start ${isCompact ? 'grid grid-cols-2 gap-4 space-y-0' : ''}`}>
+                {(data.rows || []).map((row, i) => (
+                    <div key={i} className="flex justify-around items-center p-8 border-2 border-zinc-100 rounded-[3rem] bg-zinc-50/50 group hover:bg-white hover:border-rose-200 transition-all shadow-sm break-inside-avoid relative">
+                        <div className="absolute top-4 left-6 text-[8px] font-black text-zinc-300 uppercase tracking-widest">SET {i + 1}</div>
+                        {row.items.map((item, j) => (
+                            <div key={j} className="flex flex-col items-center gap-3">
+                                <div
+                                    className="text-6xl font-black text-zinc-900 transition-all duration-500 group-hover:scale-110 cursor-pointer select-none drop-shadow-sm"
+                                    style={{ transform: `rotate(${item.rotation}deg) ${item.isMirrored ? 'scaleX(-1)' : ''}` }}
+                                >
+                                    {item.letter}
+                                </div>
+                                <div className="w-6 h-6 rounded-full border-2 border-zinc-200 flex items-center justify-center group-hover:border-rose-300">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-transparent group-hover:bg-rose-50"></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+
+            {/* Klinik Ayrıştırma Paneli */}
+            {settings?.showClinicalNotes && data.clinicalMeta && (
+                <div className="mt-6 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex justify-between items-center mx-1">
+                    <div className="flex gap-10">
+                        <div className="flex flex-col">
+                            <span className="text-[7px] font-black text-rose-400 uppercase tracking-widest mb-1">Reversal Olasılığı</span>
+                            <span className="text-sm font-black text-white">%{Math.round(data.clinicalMeta.reversalProbability * 100)}</span>
+                        </div>
+                        <div className="flex flex-col border-l border-white/10 pl-10">
+                            <span className="text-[7px] font-black text-rose-400 uppercase tracking-widest mb-1">Ayrıştırma Karmaşıklığı</span>
+                            <span className="text-sm font-black text-white">{data.clinicalMeta.discriminationComplexity}/10</span>
+                        </div>
+                    </div>
+                    <div className="text-[8px] font-bold text-zinc-500 text-right opacity-60">
+                        VİZÜEL AYRIŞTIRMA PROTOKOLÜ v2.0
+                    </div>
+                </div>
+            )}
         </div>
-    </div>
-);
+    );
+};
 
 export const SyllableTrainSheet = ({ data }: { data: SyllableTrainData }) => (
     <div className="flex flex-col font-lexend p-2">
@@ -130,24 +203,88 @@ export const SyllableTrainSheet = ({ data }: { data: SyllableTrainData }) => (
     </div>
 );
 
-export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineData }) => (
-    <div className="flex flex-col font-lexend p-2 h-full">
-        <PedagogicalHeader title={data.title} instruction="Çizgileri gözünle takip et ve harfleri eşleştir." note={data.pedagogicalNote} />
-        <div className="mt-6 flex-1 relative bg-white border-4 border-zinc-900 rounded-[4rem] p-10 shadow-2xl overflow-hidden group">
-            <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
-            <svg viewBox={`0 0 ${data.width} ${data.height}`} className="w-full h-full overflow-visible drop-shadow-sm">
-                {(data.paths || []).map((path) => (
-                    <g key={path.id}>
-                        <path d={path.d} fill="none" stroke={path.color} strokeWidth={path.strokeWidth} strokeLinecap="round" opacity="0.4" className="hover:opacity-100 transition-opacity duration-500 cursor-help" />
-                        <circle cx="30" cy={path.id * 60 + 30} r="18" fill="white" stroke={path.color} strokeWidth="3" />
-                        <text x="30" y={path.id * 60 + 36} textAnchor="middle" fontSize="14" fontWeight="900" fill={path.color}>{path.startLabel || path.id}</text>
-                        <circle cx={data.width - 30} cy={path.id * 50 + 80} r="22" fill="none" stroke="#e5e7eb" strokeDasharray="6 4" strokeWidth="2" />
-                    </g>
-                ))}
-            </svg>
+export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineData }) => {
+    const settings = data.settings;
+
+    return (
+        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+            <PedagogicalHeader
+                title={data.title || "GÖRSEL İZLEME MATRİSİ"}
+                instruction={data.instruction || "Çizgileri gözünüzle takip edin ve başlangıçtaki harf/sayı ile bitişteki kutucuğu eşleştirin."}
+                note={data.pedagogicalNote}
+            />
+
+            <div className="mt-8 flex-1 relative bg-zinc-50 border-4 border-zinc-100 rounded-[4rem] p-10 shadow-inner group overflow-hidden">
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, currentColor 2px, transparent 2px)', backgroundSize: '40px 40px' }}></div>
+
+                <svg viewBox={`0 0 ${data.width} ${data.height}`} className="w-full h-full overflow-visible drop-shadow-md">
+                    <defs>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                            <feMerge>
+                                <feMergeNode in="coloredBlur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
+
+                    {(data.paths || []).map((path) => (
+                        <g key={path.id} className="group/path">
+                            <path
+                                d={path.d}
+                                fill="none"
+                                stroke={path.color}
+                                strokeWidth={path.strokeWidth}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                opacity="0.3"
+                                className="group-hover/path:opacity-100 transition-opacity duration-500 cursor-pointer"
+                                filter="url(#glow)"
+                            />
+
+                            {/* Start Node */}
+                            <circle cx="35" cy={path.yStart} r="22" fill="white" stroke={path.color} strokeWidth="4" className="shadow-lg" />
+                            <text x="35" y={path.yStart + 6} textAnchor="middle" fontSize="18" fontWeight="900" fill="black">{path.startLabel || path.id}</text>
+
+                            {/* End Node Area */}
+                            <rect
+                                x={data.width - 65}
+                                y={path.yEnd - 25}
+                                width="50"
+                                height="50"
+                                rx="12"
+                                fill="white"
+                                stroke="#e5e7eb"
+                                strokeWidth="2"
+                                strokeDasharray="6 4"
+                                className="group-hover/path:border-indigo-500 transition-colors"
+                            />
+                        </g>
+                    ))}
+                </svg>
+            </div>
+
+            {/* Klinik Göz Takip Analiz Paneli */}
+            {settings?.showClinicalNotes && data.clinicalMeta && (
+                <div className="mt-6 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex justify-between items-center mx-1">
+                    <div className="flex gap-10">
+                        <div className="flex flex-col">
+                            <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest mb-1">Perseptüal Yük</span>
+                            <span className="text-sm font-black text-white">{data.clinicalMeta.perceptualLoad}/100</span>
+                        </div>
+                        <div className="flex flex-col border-l border-white/10 pl-10">
+                            <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest mb-1">Görsel Tarama Verimi</span>
+                            <span className="text-sm font-black text-white">%{Math.round(data.clinicalMeta.visualSearchEfficiency * 100)}</span>
+                        </div>
+                    </div>
+                    <div className="text-[8px] font-bold text-zinc-500 text-right opacity-60">
+                        OKÜLOMOTOR TAKİP PROTOKOLÜ v4.0
+                    </div>
+                </div>
+            )}
         </div>
-    </div>
-);
+    );
+};
 
 export const BackwardSpellingSheet = ({ data }: { data: BackwardSpellingData }) => (
     <div className="flex flex-col font-lexend p-2">

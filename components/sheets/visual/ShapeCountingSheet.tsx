@@ -18,96 +18,100 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
     const settings = data?.settings;
     const sections = data?.sections || [];
     const layout = settings?.layout || 'single';
-    const isProfessionalMode = settings?.isProfessionalMode;
 
     const gridCols = layout === 'grid_2x1' ? 'grid-cols-2' : (layout === 'grid_2x2' ? 'grid-cols-2' : 'grid-cols-1');
 
     return (
         <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
-            <PedagogicalHeader title={data.title || "ŞEKİL SAYMA & GÖRSEL SEÇİCİLİK"} instruction={data.instruction} note={data.pedagogicalNote} />
+            <PedagogicalHeader
+                title={data.title || "FİGÜR-ZEMİN & SEÇİCİ DİKKAT"}
+                instruction={data.instruction || "Aşağıdaki karmaşık alanda hedef şekli bulup kaç adet olduğunu yazın."}
+                note={data.pedagogicalNote}
+            />
 
-            {/* Hedef Hatırlatıcı Panel */}
-            <div className="flex justify-center my-4">
-                <div className="bg-zinc-900 text-white px-8 py-3 rounded-2xl flex items-center gap-6 shadow-xl border-2 border-zinc-800 ring-4 ring-zinc-50">
+            {/* Hedef Hatırlatıcı Panel - Premium */}
+            <div className="flex justify-center my-6">
+                <div className="bg-zinc-900 text-white px-10 py-4 rounded-[2.5rem] flex items-center gap-8 shadow-2xl border-4 border-white ring-8 ring-zinc-50 transform hover:scale-105 transition-transform">
                     <div className="flex flex-col">
-                        <span className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-400">Aranan Hedef</span>
-                        <span className="text-sm font-black uppercase tracking-tighter">{settings?.targetShape === 'triangle' ? 'ÜÇGEN' : settings?.targetShape}</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-1">ARANAN HEDEF</span>
+                        <span className="text-xl font-black uppercase tracking-tighter">{settings?.targetShape || 'ÜÇGEN'}</span>
                     </div>
-                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center p-1.5">
-                        <svg viewBox="0 0 100 100" className="w-full h-full fill-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]">
+                    <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center p-2 border border-white/20">
+                        <svg viewBox="0 0 100 100" className="w-full h-full fill-amber-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.6)]">
                             <path d={SHAPE_PATHS[settings?.targetShape || 'triangle']} />
                         </svg>
                     </div>
                 </div>
             </div>
 
-            <div className={`grid ${gridCols} gap-6 mt-4 flex-1 content-start items-start`}>
+            <div className={`grid ${gridCols} gap-6 mt-4 flex-1 content-start items-start pb-10`}>
                 {sections.map((section, idx) => (
                     <EditableElement
                         key={idx}
-                        className="flex flex-col border-2 border-zinc-900 rounded-[2.5rem] bg-white group p-5 relative overflow-visible shadow-sm break-inside-avoid"
+                        className="flex flex-col border-2 border-zinc-100 rounded-[3rem] bg-zinc-50/50 group p-6 relative overflow-visible shadow-sm break-inside-avoid hover:border-indigo-200 hover:bg-white transition-all"
                     >
                         {/* Bölüm Başlığı */}
-                        <div className="absolute -top-3 left-8 px-4 py-1 bg-zinc-900 text-white rounded-lg font-black text-[9px] uppercase tracking-widest z-10 shadow-lg">
-                            {section.title || `SAHA ${idx + 1}`}
+                        <div className="absolute -top-3 left-10 px-4 py-1 bg-zinc-900 text-white rounded-xl font-black text-[9px] uppercase tracking-widest z-10 shadow-lg border-2 border-white">
+                            {section.title || `GÖRSEL SAHA ${idx + 1}`}
                         </div>
 
-                        {/* Arama Alanı */}
-                        <div className="relative aspect-video border-2 border-zinc-100 rounded-3xl bg-zinc-50/50 overflow-hidden mb-4">
+                        {/* Arama Alanı - High Quality */}
+                        <div className="relative aspect-video border-2 border-zinc-200 rounded-[2.5rem] bg-white overflow-hidden mb-6 shadow-inner ring-4 ring-zinc-50">
                             <svg viewBox="0 0 100 100" className="w-full h-full">
                                 {section.searchField.map((item: any) => (
                                     <path
                                         key={item.id}
                                         d={SHAPE_PATHS[item.type] || SHAPE_PATHS.triangle}
-                                        fill={settings?.overlapping ? "rgba(0,0,0,0.05)" : "none"}
+                                        fill={settings?.overlapping ? "rgba(79, 70, 229, 0.08)" : "none"}
                                         stroke="black"
-                                        strokeWidth={1.2}
+                                        strokeWidth={1.5}
                                         style={{
                                             transform: `translate(${item.x}%, ${item.y}%) rotate(${item.rotation}deg) scale(${item.size / 8})`,
                                             transformOrigin: 'center',
                                             transformBox: 'fill-box'
                                         }}
-                                        className="mix-blend-multiply"
+                                        className="mix-blend-multiply opacity-80"
                                     />
                                 ))}
                             </svg>
                         </div>
 
                         {/* Cevap & Klinik Bilgi */}
-                        <div className="flex items-end justify-between px-2">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Cevap Alanı</span>
-                                <div className="w-24 h-12 border-b-4 border-zinc-900 bg-zinc-100/50 rounded-t-xl flex items-center justify-center">
-                                    <EditableText value="" tag="div" placeholder="?" className="font-black text-2xl text-zinc-900" />
+                        <div className="flex items-center justify-between px-2">
+                            <div className="flex items-center gap-4">
+                                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none">Toplam:</span>
+                                <div className="w-20 h-14 border-b-4 border-zinc-900 bg-zinc-100 rounded-t-2xl flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
+                                    <EditableText value="" tag="div" placeholder="?" className="font-black text-3xl text-zinc-900" />
                                 </div>
                             </div>
 
                             {settings?.showClinicalNotes && section.clinicalMeta && (
-                                <div className="text-right flex flex-col items-end opacity-40">
-                                    <span className="text-[6px] font-black uppercase text-zinc-500 tracking-tighter">Figür-Zemin Karmaşası: {section.clinicalMeta.figureGroundComplexity}</span>
-                                    <span className="text-[6px] font-black uppercase text-zinc-500 tracking-tighter">İç İçe Geçme: %{Math.round(section.clinicalMeta.overlappingRatio * 100)}</span>
+                                <div className="text-right flex flex-col items-end">
+                                    <span className="text-[7px] font-black uppercase text-indigo-400 tracking-tighter mb-0.5">F/G İndeksi: {section.clinicalMeta.figureGroundComplexity}</span>
+                                    <span className="text-[7px] font-black uppercase text-indigo-400 tracking-tighter">İç İçe Geçme: %{Math.round(section.clinicalMeta.overlappingRatio * 100)}</span>
                                 </div>
                             )}
                         </div>
 
                         {/* Hidden Solution */}
-                        <div className="absolute bottom-2 right-6 opacity-0 group-hover:opacity-5 transition-opacity rotate-180 text-[7px] font-black select-none pointer-events-none">
+                        <div className="absolute bottom-2 right-8 opacity-0 group-hover:opacity-5 transition-opacity rotate-180 text-[7px] font-black select-none pointer-events-none">
                             ÇİS: {section.correctCount}
                         </div>
                     </EditableElement>
                 ))}
             </div>
 
-            {/* Footer / Tracker */}
-            <div className="mt-8 pt-4 border-t-2 border-zinc-900/10 flex justify-between items-end opacity-30 no-print">
-                <div className="flex flex-col gap-1">
-                    <span className="text-[6px] font-black text-zinc-400 uppercase tracking-[0.4em]">Bursa Disleksi AI • Nöro-Görsel Modül</span>
-                    <span className="text-[8px] font-bold">Görsel Seçicilik & Ketleme Testi v4.2</span>
+            {/* Alt Bilgi - Klinik Tracker */}
+            <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
+                <div className="flex gap-10">
+                    <div className="flex flex-col">
+                        <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">BİLİŞSEL HEDEF</span>
+                        <span className="text-xs font-black uppercase">Figür-Zemin & Ketleme</span>
+                    </div>
                 </div>
-                <div className="flex gap-4 items-center">
-                    <div className="w-2 h-2 rounded-full bg-zinc-900"></div>
-                    <div className="w-2 h-2 rounded-full bg-zinc-400"></div>
-                    <div className="w-2 h-2 rounded-full bg-zinc-200"></div>
+                <div className="flex items-center gap-3 opacity-60">
+                    <span className="text-[8px] font-bold tracking-[0.2em]">OKÜLER DİKKAT TESTİ v2.2</span>
+                    <i className="fa-solid fa-eye text-indigo-400 text-xs shadow-glow"></i>
                 </div>
             </div>
         </div>
