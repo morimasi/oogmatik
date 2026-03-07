@@ -81,9 +81,42 @@
       overflow-y: auto;
     }
 
-    /* --- UNIVERSAL CANVAS HEADER FIX --- */
+    /* Universal Mode Canvas Fix */
     .universal-mode-canvas .pedagogical-header {
       display: none !important;
+    }
+
+    /* ════════════════════════════════════════════════════════════ */
+    /* CORPORATE WATERMARK (Filigran) */
+    /* ════════════════════════════════════════════════════════════ */
+    .worksheet-page {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .worksheet-page::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 500px;
+      height: 500px;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      background-image: url('/assets/logo.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      opacity: 0.06;
+      pointer-events: none;
+      z-index: 0;
+      /* İçeriğin hemen arkasında */
+    }
+
+    @media print {
+      .worksheet-page::before {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
     }
 
     ::-webkit-scrollbar {
