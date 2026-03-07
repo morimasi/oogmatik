@@ -104,7 +104,11 @@ const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.R
         <div
             className={`absolute transition-all ${designMode && !isLocked ? 'cursor-move' : ''} ${isSelected && designMode ? 'z-50' : ''} ${isLocked ? 'pointer-events-none' : ''}`}
             style={{
-                left: item.style.x, top: item.style.y, width: item.style.w, height: item.style.h,
+                left: item.style.x,
+                top: item.style.y,
+                width: item.style.w,
+                height: (item.id === 'activity_component' && !item.groupId) ? 'auto' : item.style.h,
+                minHeight: (item.id === 'activity_component' && !item.groupId) ? `${item.style.h}px` : undefined,
                 transform: `rotate(${item.style.rotation || 0}deg)`, zIndex: item.style.zIndex
             }}
             onMouseDown={handleMouseDown}
@@ -241,8 +245,16 @@ export const UniversalCanvas = () => {
         };
 
         if (item.id === 'activity_component') {
+            const isFullPage = !item.groupId;
             return (
-                <div style={boxStyle} className="h-full w-full overflow-visible">
+                <div
+                    style={{
+                        ...boxStyle,
+                        height: isFullPage ? 'auto' : '100%',
+                        minHeight: isFullPage ? `${item.style.h}px` : undefined
+                    }}
+                    className="w-full overflow-visible"
+                >
                     <SheetRenderer activityType={item.specificData.activityType} data={item.specificData.data} />
                 </div>
             );

@@ -175,86 +175,11 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
             // Find main data array to split (e.g. puzzles, questions, words)
             const arrayKeys = Object.keys(pageData).filter(k => Array.isArray(pageData[k]) && k !== 'targetedErrors' && k !== 'blocks' && typeof pageData[k][0] === 'object');
 
-            // Eğer activityType, kendi array render mantığını (örn: Bento Grid) içeren
-            // özel bir worksheet ise, UniversalAdapter diziyi zorla bölmemelidir.
-            const componentsThatHandleTheirOwnArrays = [
-                ActivityType.FIND_THE_DIFFERENCE,
-                ActivityType.VISUAL_ODD_ONE_OUT,
-                ActivityType.GRID_DRAWING,
-                ActivityType.SYMMETRY_DRAWING,
-                ActivityType.WORD_SEARCH,
-                ActivityType.SHAPE_COUNTING,
-                ActivityType.DIRECTIONAL_TRACKING,
-                ActivityType.DOT_PAINTING,
-                ActivityType.SHAPE_SUDOKU,
-                ActivityType.CROSSWORD,
-                ActivityType.HIDDEN_PASSWORD_GRID,
-                ActivityType.THEMATIC_ODD_ONE_OUT,
-                ActivityType.PUNCTUATION_MAZE,
-                ActivityType.ANAGRAM,
-                ActivityType.NUMBER_LOGIC_RIDDLES,
-                ActivityType.ATTENTION_DEVELOPMENT,
-                ActivityType.ATTENTION_FOCUS,
-                ActivityType.FIND_IDENTICAL_WORD,
-                ActivityType.STORY_COMPREHENSION,
-                ActivityType.ALGORITHM_GENERATOR,
-                ActivityType.MATH_PUZZLE,
-                ActivityType.NUMBER_PATTERN,
-                ActivityType.REAL_LIFE_MATH_PROBLEMS,
-                ActivityType.LOGIC_GRID_PUZZLE,
-                ActivityType.FUTOSHIKI,
-                ActivityType.NUMBER_PYRAMID,
-                ActivityType.ODD_ONE_OUT,
-                ActivityType.NUMBER_PATH_LOGIC,
-                ActivityType.VISUAL_ARITHMETIC,
-                ActivityType.CLOCK_READING,
-                ActivityType.NUMBER_SENSE,
-                ActivityType.MONEY_COUNTING,
-                ActivityType.MATH_MEMORY_CARDS,
-                ActivityType.SPATIAL_GRID,
-                ActivityType.CONCEPT_MATCH,
-                ActivityType.ESTIMATION,
-                ActivityType.ABC_CONNECT,
-                ActivityType.ODD_EVEN_SUDOKU,
-                ActivityType.MAGIC_PYRAMID,
-                ActivityType.CAPSULE_GAME,
-                ActivityType.WORD_MEMORY,
-                ActivityType.VISUAL_MEMORY,
-                ActivityType.CHARACTER_MEMORY,
-                ActivityType.COLOR_WHEEL_MEMORY,
-                ActivityType.IMAGE_COMPREHRENSION,
-                ActivityType.STROOP_TEST,
-                ActivityType.BURDON_TEST,
-                ActivityType.NUMBER_SEARCH,
-                ActivityType.CHAOTIC_NUMBER_SEARCH,
-                ActivityType.LETTER_GRID_TEST,
-                ActivityType.FIND_LETTER_PAIR,
-                ActivityType.TARGET_SEARCH,
-                ActivityType.SYLLABLE_MASTER_LAB,
-                ActivityType.READING_SUDOKU,
-                ActivityType.READING_STROOP,
-                ActivityType.SYNONYM_ANTONYM_MATCH,
-                ActivityType.SYLLABLE_WORD_BUILDER,
-                ActivityType.LETTER_VISUAL_MATCHING,
-                ActivityType.FAMILY_RELATIONS,
-                ActivityType.FAMILY_LOGIC_TEST,
-                ActivityType.MORPHOLOGY_MATRIX,
-                ActivityType.READING_PYRAMID,
-                ActivityType.READING_FLOW,
-                ActivityType.PHONOLOGICAL_AWARENESS,
-                ActivityType.RAPID_NAMING,
-                ActivityType.LETTER_DISCRIMINATION,
-                ActivityType.MIRROR_LETTERS,
-                ActivityType.SYLLABLE_TRAIN,
-                ActivityType.VISUAL_TRACKING_LINES,
-                ActivityType.BACKWARD_SPELLING,
-                ActivityType.CODE_READING,
-                ActivityType.ATTENTION_TO_QUESTION,
-                ActivityType.HANDWRITING_PRACTICE,
-                ActivityType.MAP_INSTRUCTION
-            ];
-
-            const shouldSplitArray = !activityType || (activityType !== ActivityType.OCR_CONTENT && !componentsThatHandleTheirOwnArrays.includes(activityType as ActivityType));
+            // Kullanıcının "Etkinlikler parçalanmadan tam takır olmalı" talebi doğrultusunda,
+            // UniversalAdapter'in etkinlik dizilerini zorla bölüp dar kutulara sıkıştırma (chunking)
+            // işlemi tüm standart etkinlikler için devre dışı bırakılmıştır.
+            // Sadece OCR gibi ham veriler parçalanarak Canvas'a dağıtılabilir.
+            const shouldSplitArray = activityType === ActivityType.OCR_CONTENT;
 
             if (shouldSplitArray && arrayKeys.length > 0) {
                 const mainKey = arrayKeys[0];
