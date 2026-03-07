@@ -531,7 +531,7 @@ const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: Sing
     });
 
     const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => (
-        <div key={pageIdx} className="worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden">
+        <div key={pageIdx} className={`worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden ${pageIdx > 0 ? 'pt-[20mm]' : ''}`}>
 
             {/* Öğrenci Bilgi Şeridi */}
             {settings?.showStudentInfo && (
