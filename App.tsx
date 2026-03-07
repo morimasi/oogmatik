@@ -83,6 +83,27 @@ const LoadingSpinner = () => (
     </div>
 );
 
+const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title?: string; children: React.ReactNode }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300" onClick={onClose}>
+            <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-zinc-200 dark:border-zinc-800" onClick={(e) => e.stopPropagation()}>
+                {title && (
+                    <div className="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800">
+                        <h2 className="text-xl font-black text-zinc-800 dark:text-white">{title}</h2>
+                        <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                            <i className="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                )}
+                <div className="p-6">
+                    {children}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
     if (!isOpen) return null;
     return (
