@@ -71,7 +71,7 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
     };
 
     const schema = { type: Type.ARRAY, items: singleSchema };
-    // Fix: Model parametresi kaldırıldı, generateWithSchema artık varsayılan modeli kullanıyor.
+    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
     return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData[]>;
 };
 

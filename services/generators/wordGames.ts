@@ -65,7 +65,7 @@ export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions
         }
     };
 
-    // Fix: Model parametresi kaldırıldı, generateWithSchema artık varsayılan modeli kullanıyor.
+    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
     const result = await generateWithSchema(prompt, schema);
     return result.map((page: any) => ({
         ...page,

@@ -285,9 +285,7 @@ const AppContent = () => {
 
                     <div className="flex items-center gap-4">
                         <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-400 p-2 hover:text-zinc-900 transition-colors"><i className="fa-solid fa-bars-staggered fa-lg"></i></button>
-                        <button id="tour-logo" onClick={() => { navigateTo('generator'); setSelectedActivity(null); setWorksheetData(null); setActiveCurriculumSession(null); }} className="flex items-center gap-2 group">
-                            <img src="/assets/logo.png" className="h-10 w-auto transition-transform group-hover:scale-105" alt="Bursa Disleksi" />
-                            <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-1"></div>
+                        <button id="tour-logo" onClick={() => { navigateTo('generator'); setSelectedActivity(null); setWorksheetData(null); setActiveCurriculumSession(null); }} className="flex items-center gap-3">
                             <DyslexiaLogo className="h-10 w-auto" />
                         </button>
                     </div>
