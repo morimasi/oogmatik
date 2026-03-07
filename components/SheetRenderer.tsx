@@ -500,8 +500,11 @@ const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: Sing
     // ══════════════════════════════════════════════
     // AKILLI SAYFALAMA — Bölme + Ağırlık Sistemi
     // ══════════════════════════════════════════════
-    const PAGE_MAX_WEIGHT = 920; // Devam sayfalarındaki boşluk marjı için kapasite %12 daraltıldı
-    const HEADER_RESERVE = 120; // Başlık alanı payı artırıldı
+    const PAGE_MAX_WEIGHT = 1188; // 297mm * 4 (Milimetrik Standart)
+    const STUDENT_INFO_RESERVE = settings?.showStudentInfo ? 80 : 0;
+    const HEADER_RESERVE = 180; // PedagogicalHeader için güvenli alan (45mm)
+    const FOOTER_RESERVE = 60;  // Sayfa altı güvenli alan (15mm)
+    const USABLE_PAGE_HEIGHT = PAGE_MAX_WEIGHT - STUDENT_INFO_RESERVE - FOOTER_RESERVE;
 
     // 1. Önce çok büyük blokları böl (Recursive bölme gerekebilir, şimdilik tek seviye)
     let allBlocks: WorksheetBlock[] = [];
@@ -514,16 +517,32 @@ const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: Sing
         }
     });
 
-    // 2. Sayfalara dağıt
+    // 2. Sayfalara dağıt (Milimetrik Greedy Algoritması)
     const pages: WorksheetBlock[][] = [[]];
-    let currentWeight = HEADER_RESERVE;
+    let currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE;
 
     allBlocks.forEach((block: WorksheetBlock) => {
         const weight = getBlockWeight(block);
-        // Eğer block mevcut sayfaya sığmıyorsa ve sayfa boş değilse yeni sayfaya geç
-        if (currentWeight + weight > PAGE_MAX_WEIGHT && pages[pages.length - 1].length > 0) {
+
+        // Eğer blok tek başına bir sayfadan büyükse (artık allBlocks splitten geçtiği için bu nadirdir)
+        // ya da mevcut sayfaya sığmıyorsa
+        if (currentWeight + weight > (PAGE_MAX_WEIGHT - FOOTER_RESERVE)) {
+            // Sığmayan bloğu tekrar bölmeyi dene (Son dakika greedy split)
+            const remainingSpace = (PAGE_MAX_WEIGHT - FOOTER_RESERVE) - currentWeight;
+
+            if (remainingSpace > 150) { // En az 37mm yer varsa bölmeye çalış
+                const splitResults = splitLargeBlock(block, remainingSpace);
+                if (splitResults.length > 1) {
+                    pages[pages.length - 1].push(splitResults[0]);
+                    pages.push([splitResults[1]]);
+                    currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE + getBlockWeight(splitResults[1]);
+                    return;
+                }
+            }
+
+            // Bölünemiyorsa veya yer çok azsa direkt yeni sayfaya at
             pages.push([block]);
-            currentWeight = HEADER_RESERVE + weight;
+            currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE + weight;
         } else {
             pages[pages.length - 1].push(block);
             currentWeight += weight;
@@ -531,9 +550,9 @@ const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: Sing
     });
 
     const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => (
-        <div key={pageIdx} className={`worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden`}>
-            {/* Sayfa Üstü Güvenli Alan (Sadece continuation için) */}
-            {pageIdx > 0 && <div className="print-spacer" />}
+        <div key={pageIdx} data-page-idx={pageIdx} className={`worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden`}>
+            {/* Sayfa Üstü Marj (Hassas Simetri Kontrolü) */}
+            <div className="print-top-margin h-0" />
 
             {/* Öğrenci Bilgi Şeridi */}
             {settings?.showStudentInfo && (
