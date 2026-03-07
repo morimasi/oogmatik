@@ -104,12 +104,23 @@ export const ProfileView: React.FC<{ onBack: () => void; onSelectActivity: (id: 
     
     // Settings States
     const [editName, setEditName] = useState(user?.name || '');
+    const [editProfession, setEditProfession] = useState(user?.profession || '');
+    const [editInstitution, setEditInstitution] = useState(user?.institution || '');
+    const [editPhone, setEditPhone] = useState(user?.phone || '');
+    const [editBio, setEditBio] = useState(user?.bio || '');
+    const [avatarUrl, setAvatarUrl] = useState(user?.avatar || '');
+    
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
 
     useEffect(() => {
         if (user) {
             setEditName(user.name);
+            setEditProfession(user.profession || '');
+            setEditInstitution(user.institution || '');
+            setEditPhone(user.phone || '');
+            setEditBio(user.bio || '');
+            setAvatarUrl(user.avatar || '');
             loadData();
         }
     }, [user?.id]);
@@ -137,7 +148,14 @@ export const ProfileView: React.FC<{ onBack: () => void; onSelectActivity: (id: 
         if (!user || isReadOnly) return;
         setIsSavingProfile(true);
         try {
-            await updateUser({ name: editName });
+            await updateUser({ 
+                name: editName,
+                profession: editProfession,
+                institution: editInstitution,
+                phone: editPhone,
+                bio: editBio,
+                avatar: avatarUrl
+            });
             setMessage({ type: 'success', text: 'Profil başarıyla güncellendi.' });
             setTimeout(() => setMessage(null), 3000);
         } catch (e) {
@@ -411,14 +429,69 @@ export const ProfileView: React.FC<{ onBack: () => void; onSelectActivity: (id: 
                                     <div className="max-w-xl space-y-10">
                                         <div className="space-y-4">
                                             <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b pb-2">KİŞİSEL BİLGİLER</h4>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <div>
-                                                    <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">Görünen Ad</label>
-                                                    <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                            
+                                            <div className="flex flex-col md:flex-row gap-8">
+                                                {/* Avatar Upload UI */}
+                                                <div className="flex flex-col items-center gap-4 shrink-0">
+                                                    <div className="w-32 h-32 rounded-[2rem] overflow-hidden border-4 border-zinc-100 dark:border-zinc-800 shadow-lg relative group">
+                                                        <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                                        <label className="absolute inset-0 bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                                            <i className="fa-solid fa-camera text-2xl mb-2"></i>
+                                                            <span className="text-[10px] font-bold">Değiştir</span>
+                                                            <input 
+                                                                type="text" 
+                                                                className="hidden" 
+                                                                onChange={(e) => {
+                                                                    // Placeholder for actual file upload, allowing direct URL input for now
+                                                                    const url = prompt('Avatar URL giriniz:', avatarUrl);
+                                                                    if (url) setAvatarUrl(url);
+                                                                }} 
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    const url = prompt('Avatar URL giriniz (Gerçek dosya yükleme servisi eklenebilir):', avatarUrl);
+                                                                    if (url) setAvatarUrl(url);
+                                                                }}
+                                                            />
+                                                        </label>
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => setAvatarUrl(`https://api.dicebear.com/7.x/avataaars/svg?seed=${editName || user.email}`)}
+                                                        className="text-[10px] font-bold text-zinc-500 hover:text-indigo-600 uppercase tracking-widest transition-colors"
+                                                    >
+                                                        <i className="fa-solid fa-rotate-right mr-1"></i> Rastgele Üret
+                                                    </button>
                                                 </div>
-                                                <div>
-                                                    <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">E-posta (Değiştirilemez)</label>
-                                                    <input type="text" value={user.email} disabled className="w-full p-4 bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-400 cursor-not-allowed outline-none" />
+
+                                                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div>
+                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">Görünen Ad <span className="text-red-500">*</span></label>
+                                                        <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">E-posta (Değiştirilemez)</label>
+                                                        <input type="text" value={user.email} disabled className="w-full p-4 bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-400 cursor-not-allowed outline-none" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">Unvan / Uzmanlık</label>
+                                                        <input type="text" value={editProfession} onChange={e => setEditProfession(e.target.value)} placeholder="Örn: Özel Eğitim Uzmanı" className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">Kurum / Okul</label>
+                                                        <input type="text" value={editInstitution} onChange={e => setEditInstitution(e.target.value)} placeholder="Örn: Bursa Disleksi Merkezi" className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                                    </div>
+                                                    <div className="md:col-span-2">
+                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">İletişim (Telefon)</label>
+                                                        <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} placeholder="Örn: +90 555 123 4567" className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                                    </div>
+                                                    <div className="md:col-span-2">
+                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">Hakkımda / Biyografi</label>
+                                                        <textarea 
+                                                            value={editBio} 
+                                                            onChange={e => setEditBio(e.target.value)} 
+                                                            placeholder="Kendinizden veya çalışma alanlarınızdan kısaca bahsedin..." 
+                                                            className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 h-32 resize-none"
+                                                        ></textarea>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

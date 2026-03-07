@@ -118,6 +118,10 @@ export interface User {
         title: string;
         date: string;
     };
+    profession?: string;
+    institution?: string;
+    phone?: string;
+    bio?: string;
 }
 
 export interface Student {

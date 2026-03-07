@@ -20,7 +20,11 @@ const mapDbUserToAppUser = (docData: any, uid: string, email: string): User => (
     status: docData.status || 'active',
     subscriptionPlan: docData.subscriptionPlan || 'free',
     favorites: docData.favorites || [],
-    lastActiveActivity: docData.lastActiveActivity || undefined
+    lastActiveActivity: docData.lastActiveActivity || undefined,
+    profession: docData.profession || '',
+    institution: docData.institution || '',
+    phone: docData.phone || '',
+    bio: docData.bio || ''
 });
 
 export const authService = {
@@ -78,7 +82,11 @@ export const authService = {
                 status: 'active',
                 subscriptionPlan: 'free',
                 worksheetCount: 0,
-                favorites: []
+                favorites: [],
+                profession: '',
+                institution: '',
+                phone: '',
+                bio: ''
             };
 
             await setDoc(doc(db, "users", user.uid), newUserProfile);
@@ -118,7 +126,11 @@ export const authService = {
                     worksheetCount: 0,
                     status: 'active',
                     subscriptionPlan: 'free',
-                    favorites: []
+                    favorites: [],
+                    profession: '',
+                    institution: '',
+                    phone: '',
+                    bio: ''
                 };
             }
         } catch (error) {
@@ -135,6 +147,10 @@ export const authService = {
         if (updates.avatar) dbUpdates.avatar = updates.avatar;
         if (updates.worksheetCount !== undefined) dbUpdates.worksheetCount = updates.worksheetCount;
         if (updates.favorites) dbUpdates.favorites = updates.favorites;
+        if (updates.profession !== undefined) dbUpdates.profession = updates.profession;
+        if (updates.institution !== undefined) dbUpdates.institution = updates.institution;
+        if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+        if (updates.bio !== undefined) dbUpdates.bio = updates.bio;
 
         await updateDoc(userDocRef, dbUpdates);
         
