@@ -15,7 +15,6 @@ import { EditableContext } from './Editable';
 import { paginationService } from '../services/paginationService';
 
 import { UniversalWorksheetWrapper } from './UniversalStudio/UniversalWorksheetWrapper';
-import DyslexiaLogo from './DyslexiaLogo';
 
 interface ContentAreaProps {
     currentView: View;
@@ -191,9 +190,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                                     <div className="flex flex-col items-center justify-center py-40 w-full opacity-40">
                                         <LandingText />
                                         <p className="text-[var(--text-secondary)] font-medium mt-4">Bir etkinlik seçin ve farkı görün.</p>
-                                        <div className="mt-12 scale-150 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-700">
-                                            <DyslexiaLogo className="h-16 w-auto" />
-                                        </div>
+                                        <img src="/assets/logo.png" alt="Logo" className="h-24 w-auto mt-8 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-700 pointer-events-none select-none" />
                                     </div>
                                 )}
 
