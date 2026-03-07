@@ -7,8 +7,8 @@ interface Rect { x: number; y: number; w: number; h: number; }
 class LayoutEngine {
     private canvasWidth = A4_WIDTH_PX;
     private canvasHeight = A4_HEIGHT_PX;
-    private padding = A4_DEFAULT_MARGIN_PX; // A4 margins
-    private gap = 15; // Öğeler arası mesafe
+    private padding = 15; // A4 margins (reduced from 20)
+    private gap = 8; // Öğeler arası mesafe (reduced from 15)
 
     private occupiedSpaces: { page: number; rect: Rect }[] = [];
 
@@ -62,7 +62,7 @@ class LayoutEngine {
     }
 }
 
-export const convertToLayoutItems = (activityType: ActivityType | null, worksheetData: SingleWorksheetData[]): LayoutItem[] => {
+export const convertToLayoutItems = (activityType: ActivityType | null, worksheetData: SingleWorksheetData[], settings?: any): LayoutItem[] => {
     let layout: LayoutItem[] = [];
 
     if (!worksheetData || worksheetData.length === 0) return layout;
@@ -72,10 +72,10 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
     worksheetData.forEach((pageData, pIdx) => {
         const blocks = pageData.layoutArchitecture?.blocks || pageData.blocks;
 
-        // Başlık
-        if (pageData.title) {
+        // Başlık (Sadece ayarlar izin veriyorsa)
+        if (pageData.title && settings?.showTitle !== false) {
             const w = 754;
-            const h = 60;
+            const h = 45; // Reduced from 60
             const pos = engine.findSpace(w, h);
 
             layout.push({
@@ -144,8 +144,8 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
             });
         } else {
             // Legacy Architecture - Deep Extraction Engine
-            if (pageData.instruction) {
-                const w = 754; const h = 60;
+            if (pageData.instruction && settings?.showInstruction !== false) {
+                const w = 754; const h = 40; // Reduced from 60
                 const pos = engine.findSpace(w, h);
                 layout.push({
                     id: 'text',
@@ -222,7 +222,7 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                 });
             } else {
                 // Absolute fallback
-                const w = 754; const h = 1000;
+                const w = 754; const h = 850; // Reduced from 1000 to fit A4 with header
                 const pos = engine.findSpace(w, h);
                 layout.push({
                     id: 'activity_component',

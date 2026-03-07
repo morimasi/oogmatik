@@ -270,7 +270,7 @@ export const UniversalCanvas = () => {
         if (item.id === 'header') {
             return (
                 <div style={boxStyle} className="h-full flex flex-col justify-center">
-                    <h2 className="text-3xl font-black uppercase border-b-4 border-current pb-2">{item.specificData.title}</h2>
+                    <h2 className="text-xl font-bold uppercase border-b-2 border-zinc-200 pb-1">{item.specificData.title}</h2>
                 </div>
             );
         }
