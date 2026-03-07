@@ -178,6 +178,20 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
             // Eğer activityType, kendi array render mantığını (örn: Bento Grid) içeren
             // özel bir worksheet ise, UniversalAdapter diziyi zorla bölmemelidir.
             const componentsThatHandleTheirOwnArrays = [
+                ActivityType.FIND_THE_DIFFERENCE,
+                ActivityType.VISUAL_ODD_ONE_OUT,
+                ActivityType.GRID_DRAWING,
+                ActivityType.SYMMETRY_DRAWING,
+                ActivityType.WORD_SEARCH,
+                ActivityType.SHAPE_COUNTING,
+                ActivityType.DIRECTIONAL_TRACKING,
+                ActivityType.DOT_PAINTING,
+                ActivityType.SHAPE_SUDOKU,
+                ActivityType.CROSSWORD,
+                ActivityType.HIDDEN_PASSWORD_GRID,
+                ActivityType.THEMATIC_ODD_ONE_OUT,
+                ActivityType.PUNCTUATION_MAZE,
+                ActivityType.ANAGRAM,
                 ActivityType.NUMBER_LOGIC_RIDDLES,
                 ActivityType.ATTENTION_DEVELOPMENT,
                 ActivityType.ATTENTION_FOCUS,
@@ -283,7 +297,7 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                 });
             } else {
                 // Absolute fallback
-                const w = 754; const h = 800;
+                const w = 754; const h = 1000;
                 const pos = engine.findSpace(w, h);
                 layout.push({
                     id: 'activity_component',

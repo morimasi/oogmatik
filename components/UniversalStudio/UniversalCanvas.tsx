@@ -5,14 +5,14 @@ import { BlockRenderer, SheetRenderer } from '../SheetRenderer';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 
 const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.ReactNode }) => {
-    const { 
-        designMode, updateComponent, setSelectedId, selectedId, layout, setLayout, 
-        selectedIds, toggleSelection, lockedItems, groupedItems 
+    const {
+        designMode, updateComponent, setSelectedId, selectedId, layout, setLayout,
+        selectedIds, toggleSelection, lockedItems, groupedItems
     } = useUniversalStudio();
     const isDragging = useRef(false);
     const startPos = useRef({ x: 0, y: 0 });
     const initialLayout = useRef<LayoutItem[]>([]);
-    
+
     const isLocked = lockedItems.includes(item.instanceId);
     const isSelected = selectedId === item.instanceId || selectedIds.includes(item.instanceId);
     const isInGroup = !!item.groupId;
@@ -20,9 +20,9 @@ const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.R
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (isLocked) return;
-        
+
         const isCtrlKey = e.ctrlKey || e.metaKey;
-        
+
         if (!designMode) {
             toggleSelection(item.instanceId, isCtrlKey);
             return;
@@ -32,7 +32,7 @@ const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.R
         const isResizeHandle = target.closest('.resize-handle');
         const isLockButton = target.closest('.lock-button');
         const isActionButton = target.closest('.action-button');
-        
+
         if (isLockButton || isActionButton) return;
 
         isDragging.current = true;
@@ -57,7 +57,7 @@ const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.R
                     if (l.instanceId === item.instanceId) {
                         return { ...l, style: { ...l.style, w: newW, h: newH } };
                     }
-                    
+
                     if (l.pageIndex === item.pageIndex && l.style.y >= (initialStyle.y + initialStyle.h - 10)) {
                         return { ...l, style: { ...l.style, y: l.style.y + heightDiff } };
                     }
@@ -66,10 +66,10 @@ const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.R
             } else {
                 let newX = Math.round((initialStyle.x + dx) / 8) * 8;
                 let newY = Math.round((initialStyle.y + dy) / 8) * 8;
-                
+
                 const centerX = A4_WIDTH_PX / 2;
                 const itemCenterX = newX + (initialStyle.w / 2);
-                
+
                 if (Math.abs(itemCenterX - centerX) < 15) newX = centerX - (initialStyle.w / 2);
                 if (Math.abs(newX - 20) < 15) newX = 20;
                 if (Math.abs((newX + initialStyle.w) - (A4_WIDTH_PX - 20)) < 15) newX = (A4_WIDTH_PX - 20) - initialStyle.w;
@@ -111,12 +111,12 @@ const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.R
         >
             {/* Grup Göstergesi */}
             {isInGroup && designMode && (
-                <div 
+                <div
                     className="absolute -top-1 -left-1 -right-1 -bottom-1 rounded-lg opacity-30 pointer-events-none"
                     style={{ backgroundColor: groupColor, border: `2px dashed ${groupColor}` }}
                 />
             )}
-            
+
             {/* Seçim ve Kilit Göstergeleri */}
             {designMode && isSelected && (
                 <>
@@ -124,7 +124,7 @@ const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.R
                         <i className="fa-solid fa-arrows-up-down-left-right"></i>
                         {item.label}
                         {isInGroup && (
-                            <span 
+                            <span
                                 className="px-1.5 py-0.5 rounded text-[8px]"
                                 style={{ backgroundColor: groupColor }}
                             >
@@ -132,42 +132,42 @@ const DraggableItem = ({ item, children }: { item: LayoutItem; children: React.R
                             </span>
                         )}
                         <div className="w-px h-3 bg-white/20 mx-1"></div>
-                        <button 
-                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); updateComponent(item.instanceId, { isVisible: false }); }} 
+                        <button
+                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); updateComponent(item.instanceId, { isVisible: false }); }}
                             className="action-button hover:text-red-300 transition-colors"
                             title="Sil"
                         >
                             <i className="fa-solid fa-trash"></i>
                         </button>
                     </div>
-                    
+
                     {!isLocked && (
                         <div className="resize-handle absolute -right-1.5 -bottom-1.5 w-4 h-4 bg-white border-2 border-indigo-600 rounded-md shadow-lg cursor-nwse-resize z-50 flex items-center justify-center hover:scale-110 transition-transform">
                             <div className="w-1 h-1 bg-indigo-600 rounded-full"></div>
                         </div>
                     )}
-                    
+
                     <div className={`absolute inset-0 ring-2 ${isLocked ? 'ring-gray-400 ring-offset-1' : 'ring-indigo-500 ring-offset-2'} pointer-events-none rounded-sm`}></div>
                 </>
             )}
-            
+
             {/* Kilit İkonu */}
             {isLocked && designMode && (
                 <div className="absolute -top-3 -right-3 w-6 h-6 bg-gray-500 text-white rounded-full flex items-center justify-center shadow-lg z-50">
                     <i className="fa-solid fa-lock text-xs"></i>
                 </div>
             )}
-            
+
             {/* Grup İkonu */}
             {isInGroup && designMode && !isSelected && (
-                <div 
+                <div
                     className="absolute -top-2 -left-2 w-5 h-5 rounded-full flex items-center justify-center shadow-md z-40 text-white text-[8px]"
                     style={{ backgroundColor: groupColor }}
                 >
                     <i className="fa-solid fa-object-group"></i>
                 </div>
             )}
-            
+
             {children}
         </div>
     );
@@ -201,14 +201,14 @@ export const UniversalCanvas = () => {
 
     const handleCanvasMouseDown = (e: React.MouseEvent) => {
         if (!designMode || e.target !== e.currentTarget) return;
-        
+
         const rect = canvasRef.current?.getBoundingClientRect();
         if (!rect) return;
-        
+
         setIsMarqueeSelecting(true);
         setMarqueeStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
         setMarqueeEnd({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-        
+
         if (!e.ctrlKey && !e.metaKey) {
             clearSelection();
         }
@@ -216,10 +216,10 @@ export const UniversalCanvas = () => {
 
     const handleCanvasMouseMove = (e: React.MouseEvent) => {
         if (!isMarqueeSelecting) return;
-        
+
         const rect = canvasRef.current?.getBoundingClientRect();
         if (!rect) return;
-        
+
         setMarqueeEnd({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     };
 
@@ -242,7 +242,7 @@ export const UniversalCanvas = () => {
 
         if (item.id === 'activity_component') {
             return (
-                <div style={boxStyle} className="h-full w-full overflow-hidden">
+                <div style={boxStyle} className="h-full w-full overflow-visible">
                     <SheetRenderer activityType={item.specificData.activityType} data={item.specificData.data} />
                 </div>
             );
@@ -278,15 +278,15 @@ export const UniversalCanvas = () => {
                     background-size: 8px 8px;
                 }
             `}</style>
-            
+
             {Array.from({ length: Math.max(1, ...layout.map((l: LayoutItem) => (l.pageIndex || 0) + 1)) }).map((_, pageIndex) => {
                 const pageItems = layout.filter((l: LayoutItem) => l.isVisible && (l.pageIndex || 0) === pageIndex);
-                
+
                 return (
                     <div
                         key={pageIndex}
                         ref={pageIndex === 0 ? canvasRef : null}
-                        className={`worksheet-page print-page relative bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid' : ''}`}
+                        className={`universal-mode-canvas worksheet-page print-page relative bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid' : ''}`}
                         style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: 0 }}
                         onMouseDown={handleCanvasMouseDown}
                         onMouseMove={handleCanvasMouseMove}
@@ -297,10 +297,10 @@ export const UniversalCanvas = () => {
                                 {renderItemContent(item)}
                             </DraggableItem>
                         ))}
-                        
+
                         {/* Marquee Selection Box */}
                         {isMarqueeSelecting && marqueeStyle && (
-                            <div 
+                            <div
                                 className="absolute border-2 border-indigo-500 bg-indigo-500/10 pointer-events-none z-50"
                                 style={marqueeStyle}
                             />
