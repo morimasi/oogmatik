@@ -120,6 +120,24 @@
       box-sizing: border-box;
     }
 
+    /* Filigran (Logo Watermark) */
+    .worksheet-page::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      width: 400px;
+      height: 400px;
+      background-image: url('/assets/logo.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.04;
+      pointer-events: none;
+      z-index: 0;
+    }
+
     .break-inside-avoid {
       break-inside: avoid !important;
       page-break-inside: avoid !important;
