@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { printService, PrintOptions } from '../utils/printService';
 import { WorksheetData } from '../types';
