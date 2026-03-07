@@ -323,16 +323,18 @@
       .ultra-print-page,
       .worksheet-page {
         visibility: visible !important;
-        display: flex !important;
-        flex-direction: column !important;
+        display: block !important;
         width: 210mm !important;
         min-height: 297mm !important;
+        height: auto !important;
         padding: 15mm 15mm !important;
         /* Milimetrik Simetri */
         margin: 0 auto !important;
         overflow: visible !important;
         page-break-after: always !important;
         break-after: page !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
         box-sizing: border-box !important;
         background: white !important;
         -webkit-print-color-adjust: exact !important;
@@ -340,6 +342,14 @@
         position: relative !important;
         border: none !important;
         box-shadow: none !important;
+      }
+
+      /* Yüksek flex yapıları blok moduna çevirerek sayfalama kırılmalarını engelle (çoklu sayfa desteği) */
+      .worksheet-page > .flex-1,
+      .worksheet-page > .flex-col {
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
       }
 
       /* ═══════════════════════════════════════════
@@ -370,8 +380,8 @@
         line-height: 1.5 !important;
       }
 
-      #print-container.compact-print .print-content-area {
-        gap: 4mm !important;
+      #print-container.compact-print .print-content-area > * {
+        margin-bottom: 4mm !important;
       }
 
       #print-container.compact-print .pedagogical-header {
@@ -388,6 +398,10 @@
         grid-template-columns: 1fr 1fr !important;
         gap: 5mm !important;
         align-items: start !important;
+      }
+
+      #print-container.two-column-print .print-content-area > * {
+        margin-bottom: 0 !important;
       }
 
       #print-container.two-column-print .block-header,
@@ -430,11 +444,12 @@
       ═══════════════════════════════════════════ */
       .print-content-area {
         flex: 1 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 6mm !important;
+        display: block !important;
         width: 100% !important;
         overflow: visible !important;
+      }
+      .print-content-area > * {
+        margin-bottom: 6mm !important;
       }
 
       /* Blokların sayfa ortasında kesilmesini önle */

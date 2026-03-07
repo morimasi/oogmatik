@@ -107,8 +107,7 @@ export const printService = {
             clone.style.setProperty('width', '210mm', 'important');
             clone.style.setProperty('min-height', '297mm', 'important');
             clone.style.setProperty('box-sizing', 'border-box', 'important');
-            clone.style.setProperty('display', 'flex', 'important');
-            clone.style.setProperty('flex-direction', 'column', 'important');
+            clone.style.setProperty('display', 'block', 'important');
             clone.style.setProperty('overflow', 'visible', 'important');
             clone.style.setProperty('page-break-after', 'always', 'important');
             clone.style.setProperty('break-after', 'page', 'important');
