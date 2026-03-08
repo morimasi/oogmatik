@@ -75,8 +75,8 @@ const TabPill: React.FC<{ active: boolean; onClick: () => void; label: string; i
     <button
         onClick={onClick}
         className={`px-6 py-3.5 rounded-2xl text-xs font-black flex items-center gap-3 transition-all duration-300 uppercase tracking-widest border-2 ${active
-                ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white shadow-2xl scale-105 z-10'
-                : 'bg-white dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 border-transparent hover:border-zinc-100 dark:hover:border-zinc-700'
+            ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white shadow-2xl scale-105 z-10'
+            : 'bg-white dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 border-transparent hover:border-zinc-100 dark:hover:border-zinc-700'
             }`}
     >
         <i className={`${icon} ${active ? 'animate-bounce' : ''}`}></i>
@@ -241,7 +241,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     if (!user) return null;
 
     return (
-        <div className="bg-[#f8fafc] dark:bg-[#09090b] h-full flex flex-col font-['Lexend'] overflow-hidden">
+        <div className="bg-[#f8fafc] dark:bg-[#09090b] min-h-full flex flex-col font-['Lexend'] overflow-y-auto">
             {/* 1. PROFESSIONAL HEADER */}
             <div className="shrink-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-8 md:p-12 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>

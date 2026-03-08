@@ -101,15 +101,18 @@ export interface VisualOddOneOutData extends BaseActivityData {
         subType?: 'character_discrimination' | 'symbolic_logic' | 'object_recognition';
         isProfessionalMode: boolean;
         showClinicalNotes?: boolean;
+        cognitiveLoad?: number;
     };
     rows: {
         items: VisualOddOneOutItem[];
         correctIndex: number;
         reason?: string;
         clinicalMeta?: {
-            discriminationFactor: number; // 0-1
-            isMirrorTask: boolean;
-            targetCognitiveSkill: string;
+            discriminationFactor?: number; // 0-1
+            isMirrorTask?: boolean;
+            targetCognitiveSkill?: string;
+            targetedError?: string;
+            cognitiveLoad?: number;
         };
     }[];
 }

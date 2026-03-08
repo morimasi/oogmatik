@@ -35,90 +35,106 @@ export const VisualOddOneOutSheet = ({ data }: { data: VisualOddOneOutData }) =>
     const settings = data.settings;
     const isUltraDense = settings?.layout === 'ultra_dense';
     const isProtocol = settings?.layout === 'protocol';
-    const isGridCompact = settings?.layout === 'grid_compact' || isUltraDense;
 
-    // Grid sütun sayısını ayarla
-    let gridCols = "grid-cols-1";
-    if (isUltraDense) gridCols = "grid-cols-3";
-    else if (isGridCompact) gridCols = "grid-cols-2";
+    // Grid sütun sayısını ayarla: Bol içerik için optimize et
+    const gridCols = isUltraDense ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-1";
 
     return (
-        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+        <div className="flex flex-col min-h-full bg-white font-sans text-black overflow-visible professional-worksheet p-8">
             <PedagogicalHeader
-                title={data?.title || (isProtocol ? "GÖRSEL AYRIŞTIRMA PROTOKOLÜ" : "GÖRSEL FARKLIYI BUL")}
+                title={data?.title || "GÖRSEL AYRIŞTIRMA & DİKKAT"}
                 instruction={data?.instruction || "Diğerlerinden farklı olan öğeyi bulup işaretleyin."}
                 note={data?.pedagogicalNote}
             />
 
-            <div className={`grid ${gridCols} gap-4 mt-6 flex-1 content-start pb-8`}>
+            <div className={`grid ${gridCols} gap-6 mt-8 flex-1 content-start pb-12`}>
                 {(data.rows || []).map((row, i) => (
                     <EditableElement
                         key={i}
                         className={`
-                            flex flex-col p-4 border-2 border-zinc-100 rounded-[2rem] bg-zinc-50/50 relative break-inside-avoid shadow-sm group
-                            hover:border-indigo-200 hover:bg-white transition-all
-                            ${isUltraDense ? 'p-2' : ''}
-                            ${isProtocol ? 'border-l-[6px] border-l-zinc-900 border-r-2 border-y-2' : ''}
+                            flex flex-col p-5 border-2 border-zinc-100 rounded-[2.5rem] bg-zinc-50/30 relative break-inside-avoid shadow-sm group
+                            hover:border-indigo-200 hover:bg-white transition-all duration-300
+                            ${isUltraDense ? 'p-3' : ''}
                         `}
                     >
-                        {/* Sıra Numarası ve Klinik Etiket */}
-                        <div className="flex justify-between items-center mb-3">
-                            <div className="flex items-center gap-2">
-                                <div className="bg-zinc-900 text-white w-7 h-7 flex items-center justify-center font-black text-xs rounded-xl shadow-lg border-2 border-white ring-1 ring-zinc-900">
+                        {/* Üst Bilgi Satırı */}
+                        <div className="flex justify-between items-center mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-indigo-600 text-white w-8 h-8 flex items-center justify-center font-black text-sm rounded-2xl shadow-lg ring-4 ring-indigo-50">
                                     {i + 1}
                                 </div>
-                                {settings?.subType && (
-                                    <span className="text-[7px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-2 py-0.5 rounded-full">
-                                        {settings.subType.replace('_', ' ')}
+                                {row.clinicalMeta?.targetedError && settings?.showClinicalNotes && (
+                                    <span className="text-[8px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                                        {row.clinicalMeta.targetedError.replace('_', ' ')}
                                     </span>
                                 )}
                             </div>
-                            {settings?.showClinicalNotes && row.clinicalMeta && (
-                                <div className="text-[7px] font-bold text-zinc-400 uppercase tracking-tighter opacity-50 group-hover:opacity-100 transition-opacity">
-                                    Faktör: {row.clinicalMeta.discriminationFactor} • {row.clinicalMeta.isMirrorTask ? 'Ayna Görüntüsü' : 'Detay Farkı'}
+
+                            {settings?.showClinicalNotes && row.clinicalMeta?.cognitiveLoad && (
+                                <div className="flex items-center gap-2">
+                                    <div className="flex gap-0.5">
+                                        {[...Array(5)].map((_, idx) => (
+                                            <div
+                                                key={idx}
+                                                className={`w-1 h-3 rounded-full ${idx < (row.clinicalMeta!.cognitiveLoad! / 2) ? 'bg-amber-400' : 'bg-zinc-200'}`}
+                                            ></div>
+                                        ))}
+                                    </div>
+                                    <span className="text-[7px] font-black text-zinc-400 uppercase tracking-tighter">YÜK: %{row.clinicalMeta.cognitiveLoad * 10}</span>
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex items-center justify-around py-2 gap-3">
+                        <div className="flex items-center justify-around py-4 gap-4">
                             {(row.items || []).map((item, j) => (
-                                <div key={j} className="flex flex-col items-center gap-2 flex-1">
+                                <div key={j} className="flex flex-col items-center gap-3 flex-1">
                                     <div className={`
-                                        aspect-square w-full bg-white rounded-2xl border-2 border-zinc-100 flex items-center justify-center transition-all
-                                        hover:border-indigo-500 hover:shadow-md cursor-pointer
+                                        aspect-square w-full max-w-[100px] bg-white rounded-3xl border-2 border-zinc-100 flex items-center justify-center transition-all
+                                        hover:border-indigo-500 hover:shadow-xl hover:-translate-y-1 cursor-pointer group-hover:bg-zinc-50/50
                                     `}>
-                                        <ComplexShapeRenderer item={item} size={isUltraDense ? 30 : (isProtocol ? 60 : 50)} />
+                                        <ComplexShapeRenderer item={item} size={isUltraDense ? 40 : 60} />
                                     </div>
-                                    <div className="w-5 h-5 rounded-full border-2 border-zinc-200 flex items-center justify-center group-hover:border-zinc-300">
-                                        <div className="w-2 h-2 rounded-full bg-zinc-100 group-hover:bg-zinc-200"></div>
+                                    <div className="w-6 h-6 rounded-xl border-2 border-zinc-200 flex items-center justify-center group-hover:border-indigo-300 transition-colors">
+                                        <div className="w-2.5 h-2.5 rounded-md bg-zinc-100 group-hover:bg-indigo-400 transition-all"></div>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
                         {settings?.showClinicalNotes && row.reason && (
-                            <div className="mt-3 pt-3 border-t border-zinc-100 flex items-center gap-2">
-                                <i className="fa-solid fa-microscope text-indigo-400 text-[8px]"></i>
-                                <span className="text-[8px] text-zinc-500 font-bold italic leading-none">
-                                    Hedef Analiz: <EditableText value={row.reason} tag="span" />
-                                </span>
+                            <div className="mt-4 pt-4 border-t border-dashed border-zinc-200 flex items-start gap-3">
+                                <div className="bg-amber-100 dark:bg-amber-900/20 p-1.5 rounded-lg">
+                                    <i className="fa-solid fa-lightbulb text-amber-600 text-[10px]"></i>
+                                </div>
+                                <p className="text-[9px] text-zinc-500 font-bold leading-relaxed italic">
+                                    <span className="text-zinc-400 mr-1 opacity-50 NOT-ITALIC font-black">ANALİZ:</span>
+                                    <EditableText value={row.reason} tag="span" />
+                                </p>
                             </div>
                         )}
                     </EditableElement>
                 ))}
             </div>
 
-            {/* Alt Bilgi Paneli */}
-            <div className="mt-auto px-6 py-4 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-8 items-center">
+            {/* Premium Footer */}
+            <div className="mt-auto px-8 py-6 bg-indigo-950 text-white rounded-[3.5rem] border-8 border-white flex justify-between items-center shadow-2xl">
+                <div className="flex gap-10 items-center">
                     <div className="flex flex-col">
-                        <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-0.5">Zorluk Seviyesi</span>
-                        <span className="text-xs font-black uppercase">{settings?.difficulty || 'Standard'}</span>
+                        <span className="text-[8px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-1">STRATEJİK ODAK</span>
+                        <div className="flex items-center gap-2">
+                            <i className="fa-solid fa-brain text-indigo-400"></i>
+                            <span className="text-sm font-black tracking-tight">{settings?.subType?.replace('_', ' ').toUpperCase() || 'GÖRSEL AYRIŞTIRMA'}</span>
+                        </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-3 opacity-60">
-                    <span className="text-[8px] font-bold tracking-[0.2em]">PROFESYONEL AYRIŞTIRMA MODÜLÜ v3.2</span>
-                    <i className="fa-solid fa-crosshairs text-indigo-400 text-xs shadow-glow"></i>
+                <div className="flex items-center gap-4">
+                    <div className="text-right">
+                        <span className="block text-[7px] font-black text-indigo-300 uppercase tracking-widest leading-none">PROFESYONEL ÖLÇEK</span>
+                        <span className="text-[10px] font-black tracking-tighter opacity-50 uppercase">Klinik Doğrulama V3.P</span>
+                    </div>
+                    <div className="w-10 h-10 bg-indigo-900 rounded-2xl flex items-center justify-center border border-indigo-800">
+                        <i className="fa-solid fa-award text-indigo-400 text-lg"></i>
+                    </div>
                 </div>
             </div>
         </div>
