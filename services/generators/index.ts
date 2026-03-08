@@ -20,3 +20,4 @@ export * from './financialMarket';
 export * from './directionalCodeReading';
 export * from './logicErrorHunter';
 export * from './patternCompletion';
+export * from './mapInstruction';

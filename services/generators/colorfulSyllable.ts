@@ -1,7 +1,7 @@
 import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions, ColorfulSyllableReadingData } from '../../types';
 
-export const generateColorfulSyllableReading = async (options: GeneratorOptions): Promise<ColorfulSyllableReadingData> => {
+export const generateColorfulSyllableReadingFromAI = async (options: GeneratorOptions): Promise<ColorfulSyllableReadingData> => {
     const difficulty = options.difficulty || 'orta';
     const topic = options.topic || 'Genel Doğa Hikayesi';
     const textLength = options.textLength || 'kısa';

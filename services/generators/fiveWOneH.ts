@@ -1,7 +1,7 @@
 import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions, FiveWOneHData } from '../../types';
 
-export const generateFiveWOneH = async (options: GeneratorOptions): Promise<FiveWOneHData> => {
+export const generateFiveWOneHFromAI = async (options: GeneratorOptions): Promise<FiveWOneHData> => {
     const difficulty = options.difficulty || 'orta';
     const topic = options.topic || 'Genel Çocuk Hikayesi';
     const textLength = options.textLength || 'kısa'; // kısa: 1 paragraf, orta: 2 paragraf, uzun: 3+

@@ -1,7 +1,7 @@
 import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions, FamilyTreeMatrixData } from '../../types';
 
-export const generateFamilyTreeMatrix = async (options: GeneratorOptions): Promise<FamilyTreeMatrixData> => {
+export const generateFamilyTreeMatrixFromAI = async (options: GeneratorOptions): Promise<FamilyTreeMatrixData> => {
     const difficulty = options.difficulty || 'Orta';
     const familySize = options.familySize || 'nuclear';
     const clueComplexity = options.clueComplexity || 'logical';
