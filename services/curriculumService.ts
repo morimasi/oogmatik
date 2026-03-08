@@ -20,7 +20,7 @@ export const curriculumService = {
         student: Partial<Student>,
         durationDays: number = 7
     ): Promise<Curriculum> => {
-        
+
         // Tüm aktivitelerin ID ve Açıklamasını birleştir
         const availableActivities = ACTIVITIES.map(a => `- ${a.id}: ${a.title} (${a.description})`).join('\n');
 
@@ -120,7 +120,7 @@ export const curriculumService = {
 
         return {
             id: crypto.randomUUID(),
-            studentId: student.id || null,
+            studentId: student.id || undefined,
             studentName: student.name || 'Öğrenci',
             grade: student.grade || '',
             startDate: new Date().toISOString(),
@@ -139,7 +139,7 @@ export const curriculumService = {
             userId,
             createdAt: new Date().toISOString()
         };
-        const { id, ...dataToSave } = payload; 
+        const { id, ...dataToSave } = payload;
         const docRef = await addDoc(collection(db, "saved_curriculums"), dataToSave);
         return docRef.id;
     },

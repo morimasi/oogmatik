@@ -94,7 +94,7 @@ export const AdminDraftReview = () => {
                             <p className="text-[10px] font-black uppercase tracking-tight">TASLAK BULUNAMADI</p>
                         </div>
                     ) : (
-                        drafts.filter(d => !!d && !!d.id).map((item: ActivityDraft) => (
+                        drafts.filter((d: ActivityDraft) => !!d && !!d.id).map((item: ActivityDraft) => (
                             <div
                                 key={item.id}
                                 onClick={() => handleSelectDraft(item)}

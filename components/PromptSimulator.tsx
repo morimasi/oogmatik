@@ -8,17 +8,17 @@ import { SheetRenderer } from './SheetRenderer';
 const detectActivityType = (promptId: string): ActivityType => {
     // prompt_math_puzzle -> MATH_PUZZLE
     const rawId = promptId.replace(/^prompt_/i, '').toUpperCase();
-    
+
     // ActivityType enum'ında var mı kontrol et
     if (rawId in ActivityType) {
         return rawId as ActivityType;
     }
-    
+
     // Yaygın eşleşmeler
-    if (rawId.includes('READING')) return ActivityType.READING_COMPREHENSION;
+    if (rawId.includes('READING')) return ActivityType.STORY_COMPREHENSION;
     if (rawId.includes('MATH')) return ActivityType.MATH_PUZZLE;
     if (rawId.includes('VISUAL')) return ActivityType.VISUAL_ODD_ONE_OUT;
-    
+
     return ActivityType.MATH_PUZZLE; // Fallback
 };
 
@@ -34,7 +34,7 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
     const [isAuditing, setIsAuditing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<'preview' | 'json'>('preview');
-    
+
     // Otomatik algılanan aktivite tipi
     const [selectedActivityType, setSelectedActivityType] = useState<ActivityType>(detectActivityType(prompt.id));
 
@@ -48,7 +48,7 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
     useEffect(() => {
         const matches = prompt.template.match(/\{\{(.*?)\}\}/g);
         const vars = matches ? [...new Set(matches.map(m => m.replace(/\{|\}/g, '')))] : [];
-        
+
         const initialVars: Record<string, string> = {};
         vars.forEach(v => {
             initialVars[v] = ''; // Varsayılan boş
@@ -104,10 +104,10 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
                     Object.keys(variables).map(v => (
                         <div key={v} className="space-y-1.5">
                             <label className="text-[10px] font-bold text-indigo-400 uppercase ml-1 block">{v}</label>
-                            <input 
-                                type="text" 
-                                value={variables[v]} 
-                                onChange={e => setVariables({...variables, [v]: e.target.value})}
+                            <input
+                                type="text"
+                                value={variables[v]}
+                                onChange={e => setVariables({ ...variables, [v]: e.target.value })}
                                 className="w-full bg-black border border-zinc-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs font-mono text-zinc-200 outline-none transition-all"
                                 placeholder={`Değer girin...`}
                             />
@@ -115,8 +115,8 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
                     ))
                 )}
 
-                <button 
-                    onClick={handleSimulate} 
+                <button
+                    onClick={handleSimulate}
                     disabled={loading}
                     className="mt-4 w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-900/20"
                 >
@@ -134,8 +134,8 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
                 {/* Renderer Override (Manuel Seçim) */}
                 <div className="mt-4 pt-4 border-t border-zinc-800">
                     <label className="text-[9px] font-bold text-zinc-500 uppercase block mb-2">RENDER MOTORU (DEBUG)</label>
-                    <select 
-                        value={selectedActivityType} 
+                    <select
+                        value={selectedActivityType}
                         onChange={(e) => setSelectedActivityType(e.target.value as ActivityType)}
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2 px-2 text-[10px] text-zinc-300 outline-none"
                     >
@@ -152,7 +152,7 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
                             <span className="text-[9px] font-black text-zinc-500 uppercase">AI PEDAGOG KARNESİ</span>
                             {isAuditing && <span className="text-[8px] text-indigo-400 animate-pulse">Analiz ediliyor...</span>}
                         </div>
-                        
+
                         {auditReport ? (
                             <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800 space-y-4">
                                 <div className="flex items-center justify-between">
@@ -216,9 +216,9 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
                             </pre>
                         ) : (
                             <div className="p-8 transform scale-90 origin-top h-full overflow-y-auto">
-                                <SheetRenderer 
+                                <SheetRenderer
                                     activityType={selectedActivityType}
-                                    data={Array.isArray(result) ? result : [result]} 
+                                    data={(Array.isArray(result) ? result : [result]) as any}
                                     settings={{
                                         fontFamily: 'Lexend',
                                         fontSize: 16,
@@ -231,7 +231,7 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
                                         contentAlign: 'center', fontWeight: 'normal', fontStyle: 'normal', visualStyle: 'card', lineHeight: 1.5,
                                         letterSpacing: 0, wordSpacing: 0, paragraphSpacing: 10, showPedagogicalNote: false, showMascot: false,
                                         showInstruction: true, showImage: false, smartPagination: false, focusMode: false, rulerColor: 'red', rulerHeight: 10, maskOpacity: 0.5
-                                    }} 
+                                    }}
                                 />
                             </div>
                         )

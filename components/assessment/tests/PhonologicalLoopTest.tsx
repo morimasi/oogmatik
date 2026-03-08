@@ -7,7 +7,7 @@ interface PhonologicalLoopTestProps {
 }
 
 // Türkçe hece/kelime dizileri — zorluk artar
-const SEQUENCES: { items: string[]; level: number; type: 'syllable' | 'word' | 'digit' }[] = [
+const SEQUENCES: { items: string[]; level: number; type: 'syllable' | 'word' | 'digit' | 'reverse' | 'letter' | 'mixed' }[] = [
     // Seviye 1 — 2'li hece
     { items: ['ba', 'ma'], level: 1, type: 'syllable' },
     { items: ['ta', 'li'], level: 1, type: 'syllable' },
@@ -22,9 +22,21 @@ const SEQUENCES: { items: string[]; level: number; type: 'syllable' | 'word' | '
     { items: ['araba', 'ev', 'ağaç'], level: 4, type: 'word' },
     // Seviye 5 — 4'lü kelime
     { items: ['masa', 'kalem', 'kitap', 'defter'], level: 5, type: 'word' },
+    { items: ['güneş', 'ay', 'bulut', 'yıldız'], level: 5, type: 'word' },
     // Seviye 6 — 5'li rakam dizisi
     { items: ['3', '7', '1', '9', '4'], level: 6, type: 'digit' },
-    { items: ['8', '2', '6', '4', '1'], level: 6, type: 'digit' }
+    { items: ['8', '2', '6', '4', '1'], level: 6, type: 'digit' },
+    // Seviye 7 — 4'lü harf dizisi
+    { items: ['A', 'K', 'M', 'T'], level: 7, type: 'letter' },
+    { items: ['B', 'D', 'G', 'L'], level: 7, type: 'letter' },
+    // Seviye 8 — 3'lü ters sıra (geri doğru tekrar)
+    { items: ['top', 'ev', 'kuş'], level: 8, type: 'reverse' },
+    { items: ['yol', 'göl', 'dağ'], level: 8, type: 'reverse' },
+    // Seviye 9 — 4'lü ters sıra
+    { items: ['deniz', 'ateş', 'rüzgar', 'toprak'], level: 9, type: 'reverse' },
+    // Seviye 10 — 5'li karışık (rakam + hece)
+    { items: ['5', 'ba', '2', 'ki', '7'], level: 10, type: 'mixed' },
+    { items: ['ma', '3', 'li', '8', 'de'], level: 10, type: 'mixed' }
 ];
 
 type AnswerStatus = {
@@ -86,8 +98,12 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
 
         // Tam seçim yapıldı mı?
         if (newSelected.length === currentSeq.items.length) {
+            // Reverse tipte: beklenen sıra ters
+            const expectedOrder = currentSeq.type === 'reverse'
+                ? [...currentSeq.items].reverse()
+                : currentSeq.items;
             // Değerlendirme
-            const results: AnswerStatus[] = currentSeq.items.map((expected, idx) => ({
+            const results: AnswerStatus[] = expectedOrder.map((expected, idx) => ({
                 item: expected,
                 isCorrect: newSelected[idx] === expected,
                 userInput: newSelected[idx]
@@ -178,7 +194,7 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
 
     if (phase === 'done') return null;
 
-    const levelLabel = currentSeq.type === 'syllable' ? 'Heceler' : currentSeq.type === 'word' ? 'Kelimeler' : 'Rakamlar';
+    const levelLabel = currentSeq.type === 'syllable' ? 'Heceler' : currentSeq.type === 'word' ? 'Kelimeler' : currentSeq.type === 'reverse' ? '⬅ Ters Sıra' : currentSeq.type === 'letter' ? 'Harfler' : currentSeq.type === 'mixed' ? 'Karışık' : 'Rakamlar';
 
     return (
         <div className="flex flex-col items-center justify-center w-full h-full max-w-lg mx-auto select-none gap-6">
@@ -230,7 +246,7 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
                 <div className="flex flex-col items-center gap-6 w-full">
                     <p className="text-sm text-rose-500 font-black uppercase tracking-widest">
                         <i className="fa-solid fa-hand-pointer mr-2"></i>
-                        Aynı sırayla seç!
+                        {currentSeq.type === 'reverse' ? 'TERS sırayla seç! ⬅' : 'Aynı sırayla seç!'}
                     </p>
 
                     {/* Seçilen kutular */}

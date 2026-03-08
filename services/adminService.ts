@@ -220,5 +220,10 @@ export const adminService = {
 
     deleteDraft: async (id: string) => {
         await deleteDoc(doc(db, "activity_drafts", id));
+    },
+
+    // Yeni aktiviteyi doğrudan sisteme yayınla (CreativeStudio → ActivityPublisher)
+    publishNewActivity: async (activity: DynamicActivity) => {
+        await adminService.saveActivity(activity);
     }
 };
