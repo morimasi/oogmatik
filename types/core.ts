@@ -404,6 +404,12 @@ export interface ClinicalObservation {
     anxietyLevel: 'low' | 'medium' | 'high';
     attentionSpan: 'focused' | 'distracted' | 'hyperactive';
     motorSkills: 'typical' | 'delayed' | 'precise';
+    // Genişletilmiş klinik indikatörler (FAZ 4)
+    cooperationLevel?: 'cooperative' | 'reluctant' | 'resistant';
+    fatigueIndex?: 'normal' | 'mild' | 'severe';
+    frustrationTolerance?: 'high' | 'medium' | 'low';
+    verbalization?: 'adequate' | 'limited' | 'excessive';
+    eyeContact?: 'normal' | 'reduced' | 'avoidant';
     notes: string;
 }
 
