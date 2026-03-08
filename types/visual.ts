@@ -183,6 +183,9 @@ export interface DirectionalTrackingData extends BaseActivityData {
 export interface MapInstructionData extends BaseActivityData {
     instructions: string[];
     cities: { id: string; name: string; x: number; y: number; region?: string; isCoastal?: boolean; neighbors?: string[] }[];
+    emphasizedRegion?: string;
+    questionType?: 'spatial_logic' | 'linguistic_geo' | 'attribute_search' | 'neighbor_path' | 'route_planning';
+    difficultyLevel?: 1 | 2 | 3 | 4 | 5;
     settings?: {
         showCityNames: boolean;
         markerStyle: 'circle' | 'star' | 'target' | 'dot' | 'none';

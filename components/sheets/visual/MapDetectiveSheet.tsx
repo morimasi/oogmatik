@@ -3,6 +3,7 @@ import React from 'react';
 import { MapInstructionData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
+import { TurkeyMapSVG } from './TurkeyMapSVG';
 
 const CompassRose = () => (
     <div className="flex flex-col items-center opacity-70 scale-110">
@@ -49,13 +50,20 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
             <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 group min-h-[450px]">
 
                 {/* Zemin Harita Katmanı */}
-                <div className="absolute inset-0 w-full h-full flex items-center justify-center p-4 bg-white z-10">
-                    <img
-                        src={mapSource}
-                        alt="Türkiye Haritası"
-                        crossOrigin={isCustomMap ? undefined : "anonymous"}
-                        className={`w-full h-full object-contain ${isCustomMap ? '' : 'mix-blend-multiply'} transition-all duration-700 ${isRegionFocused ? 'scale-110 opacity-80' : 'opacity-100'}`}
-                    />
+                <div className="absolute inset-0 w-full h-full flex items-center justify-center p-2 bg-white z-10">
+                    {isCustomMap ? (
+                        <img
+                            src={mapSource}
+                            alt="Özel Harita"
+                            className="w-full h-full object-contain transition-all duration-700"
+                        />
+                    ) : (
+                        <TurkeyMapSVG
+                            emphasizedRegion={data.emphasizedRegion || 'all'}
+                            showRegionLabels={true}
+                            className="w-full h-full transition-all duration-700"
+                        />
+                    )}
                 </div>
 
                 {/* Konumsal Overlay (Dinamik AI İşaretçileri) */}

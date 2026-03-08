@@ -6,12 +6,30 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const regions = [
-        { value: 'all', label: 'TÜRKİYE' },
-        { value: 'Marmara', label: 'MARMARA' },
-        { value: 'Ege', label: 'EGE' },
-        { value: 'Akdeniz', label: 'AKDENİZ' },
-        { value: 'Karadeniz', label: 'KARADENİZ' },
-        { value: 'İç Anadolu', label: 'İÇ ANADOLU' }
+        { value: 'all', label: 'TÜRKİYE', icon: 'fa-globe' },
+        { value: 'Marmara', label: 'MARMARA', icon: 'fa-water' },
+        { value: 'Ege', label: 'EGE', icon: 'fa-sun' },
+        { value: 'Akdeniz', label: 'AKDENİZ', icon: 'fa-umbrella-beach' },
+        { value: 'İç Anadolu', label: 'İÇ ANADOLU', icon: 'fa-wheat-awn' },
+        { value: 'Karadeniz', label: 'KARADENİZ', icon: 'fa-cloud-rain' },
+        { value: 'Doğu Anadolu', label: 'DOĞU ANADOLU', icon: 'fa-mountain-sun' },
+        { value: 'Güneydoğu', label: 'GÜNEYDOĞU', icon: 'fa-sun-plant-wilt' }
+    ];
+
+    const questionTypes = [
+        { value: 'spatial_logic', label: 'Uzamsal Mantık', icon: 'fa-compass', desc: 'Yön + konum' },
+        { value: 'linguistic_geo', label: 'Dilsel Coğrafya', icon: 'fa-spell-check', desc: 'Harf + bölge' },
+        { value: 'attribute_search', label: 'Özellik Arama', icon: 'fa-filter', desc: 'Kıyı + nitelik' },
+        { value: 'neighbor_path', label: 'Komşu Yolu', icon: 'fa-route', desc: 'İl → il takip' },
+        { value: 'route_planning', label: 'Rota Planı', icon: 'fa-map-location-dot', desc: 'A→B rota çizme' }
+    ];
+
+    const difficulties = [
+        { value: 'Başlangıç', label: 'K-1', desc: 'Sadece Konum', color: 'emerald' },
+        { value: 'Orta', label: 'K-2', desc: 'Konum + Yön', color: 'blue' },
+        { value: 'Zor', label: 'K-3', desc: 'Mantıksal Çıkarım', color: 'amber' },
+        { value: 'Uzman', label: 'K-4', desc: 'Algoritmik İzleme', color: 'orange' },
+        { value: 'Klinik', label: 'K-5', desc: 'Dikkat Testi', color: 'rose' }
     ];
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,6 +43,14 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
         }
     };
 
+    const toggleQuestionType = (type: string) => {
+        const current: string[] = options.mapInstructionTypes || [];
+        const updated = current.includes(type)
+            ? current.filter(t => t !== type)
+            : [...current, type];
+        onChange('mapInstructionTypes', updated.length > 0 ? updated : ['spatial_logic']);
+    };
+
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             {/* Manuel Harita Yükleme */}
@@ -32,8 +58,8 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 <label className="text-[10px] font-black text-indigo-400 uppercase mb-3 block text-center tracking-widest">
                     <i className="fa-solid fa-upload mr-2"></i>Özel Harita / Kroki
                 </label>
-                
-                <div 
+
+                <div
                     onClick={() => fileInputRef.current?.click()}
                     className="w-full aspect-video border-2 border-dashed border-indigo-500/40 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-500/10 transition-all group overflow-hidden"
                 >
@@ -48,13 +74,14 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                         <>
                             <i className="fa-solid fa-map-location-dot text-2xl text-indigo-500/40 mb-2 group-hover:scale-110 transition-transform"></i>
                             <span className="text-[10px] font-bold text-zinc-500 text-center px-4">Görsel Yükle (JPG/PNG)</span>
+                            <span className="text-[8px] text-zinc-600 mt-1">veya standart Türkiye haritası kullanılır</span>
                         </>
                     )}
                 </div>
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
-                
+
                 {options.customInput && (
-                    <button 
+                    <button
                         onClick={(e) => { e.stopPropagation(); onChange('customInput', undefined); }}
                         className="w-full mt-3 py-1.5 text-[9px] font-black text-rose-500 hover:text-rose-400 uppercase tracking-widest transition-colors"
                     >
@@ -63,41 +90,114 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 )}
             </div>
 
-            <div className="p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-[2rem] border border-blue-100 dark:border-blue-800/30">
-                <label className="text-[10px] font-black text-blue-600 uppercase mb-3 block text-center">Bölgesel Odak (Hazır Harita)</label>
+            {/* Bölgesel Odak — 7 + 1 Bölge */}
+            <div className="p-4 bg-blue-900/10 rounded-[2rem] border border-blue-800/30">
+                <label className="text-[10px] font-black text-blue-400 uppercase mb-3 block text-center tracking-widest">
+                    <i className="fa-solid fa-map mr-2"></i>Bölgesel Odak
+                </label>
                 <div className="grid grid-cols-2 gap-2">
                     {regions.map(r => (
-                        <button 
+                        <button
                             key={r.value}
                             onClick={() => onChange('emphasizedRegion', r.value)}
                             disabled={!!options.customInput}
-                            className={`py-2 rounded-xl text-[10px] font-black border transition-all ${options.emphasizedRegion === r.value ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'} ${options.customInput ? 'opacity-30 cursor-not-allowed' : ''}`}
+                            className={`py-2.5 rounded-xl text-[9px] font-black border transition-all flex items-center justify-center gap-2 ${options.emphasizedRegion === r.value
+                                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg'
+                                    : 'bg-zinc-800 text-zinc-500 border-zinc-700 hover:border-blue-500'
+                                } ${options.customInput ? 'opacity-30 cursor-not-allowed' : ''}`}
                         >
+                            <i className={`fa-solid ${r.icon} text-[8px]`}></i>
                             {r.label}
                         </button>
                     ))}
                 </div>
             </div>
 
-            <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-4">
-                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase block">Yönerge Karmaşıklığı</label>
-                    <select 
-                        value={options.difficulty} 
-                        onChange={e => onChange('difficulty', e.target.value)}
-                        className="w-full p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none focus:border-indigo-500"
-                    >
-                        <option value="Başlangıç">Sadece Konum</option>
-                        <option value="Orta">Konum + Yön</option>
-                        <option value="Zor">Mantıksal Çıkarım</option>
-                        <option value="Uzman">Tam Algoritmik İzleme</option>
-                    </select>
+            {/* Soru Tipleri */}
+            <div className="p-4 bg-violet-900/10 rounded-[2rem] border border-violet-800/30">
+                <label className="text-[10px] font-black text-violet-400 uppercase mb-3 block text-center tracking-widest">
+                    <i className="fa-solid fa-puzzle-piece mr-2"></i>Soru Tipleri
+                </label>
+                <div className="space-y-2">
+                    {questionTypes.map(qt => {
+                        const isActive = (options.mapInstructionTypes || []).includes(qt.value);
+                        return (
+                            <button
+                                key={qt.value}
+                                onClick={() => toggleQuestionType(qt.value)}
+                                className={`w-full py-2.5 px-4 rounded-xl text-left flex items-center gap-3 transition-all border ${isActive
+                                        ? 'bg-violet-600/15 border-violet-500/40 text-violet-300'
+                                        : 'bg-zinc-800/50 border-zinc-700/50 text-zinc-500 hover:border-violet-500/30'
+                                    }`}
+                            >
+                                <i className={`fa-solid ${qt.icon} text-xs ${isActive ? 'text-violet-400' : 'text-zinc-600'}`}></i>
+                                <div className="flex-1">
+                                    <span className="text-[10px] font-black uppercase">{qt.label}</span>
+                                    <span className="text-[8px] ml-2 opacity-60">{qt.desc}</span>
+                                </div>
+                                {isActive && <i className="fa-solid fa-check text-violet-400 text-xs"></i>}
+                            </button>
+                        );
+                    })}
                 </div>
-                
-                <div className="flex items-center justify-between p-1">
+            </div>
+
+            {/* Zorluk Kademesi */}
+            <div className="p-5 bg-zinc-800/50 rounded-[2.5rem] border border-zinc-700/50 space-y-4">
+                <label className="text-[10px] font-black text-zinc-400 uppercase block text-center tracking-widest">
+                    <i className="fa-solid fa-gauge-high mr-2"></i>Klinik Zorluk Kademesi
+                </label>
+                <div className="space-y-2">
+                    {difficulties.map(d => (
+                        <button
+                            key={d.value}
+                            onClick={() => onChange('difficulty', d.value)}
+                            className={`w-full py-3 px-4 rounded-xl flex items-center justify-between transition-all border ${options.difficulty === d.value
+                                    ? `bg-${d.color}-600/15 border-${d.color}-500/40 text-white shadow-lg`
+                                    : 'bg-zinc-900/50 border-zinc-700/30 text-zinc-500 hover:border-zinc-500'
+                                }`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className={`text-[11px] font-black ${options.difficulty === d.value ? `text-${d.color}-400` : 'text-zinc-600'}`}>{d.label}</span>
+                                <span className="text-[10px] font-bold">{d.desc}</span>
+                            </div>
+                            {options.difficulty === d.value && <i className="fa-solid fa-circle-check text-emerald-400 text-sm"></i>}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Şehir İsimleri Toggle */}
+                <div className="flex items-center justify-between px-2 pt-3 border-t border-zinc-700/30">
                     <span className="text-[10px] font-black text-zinc-400 uppercase">Şehir İsimleri</span>
-                    <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${options.showCityNames !== false ? 'bg-indigo-600' : 'bg-zinc-300'}`} onClick={() => onChange('showCityNames', options.showCityNames === false)}>
-                        <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${options.showCityNames !== false ? 'left-4.5' : 'left-0.5'}`}></div>
+                    <div
+                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.showCityNames !== false ? 'bg-indigo-600' : 'bg-zinc-600'}`}
+                        onClick={() => onChange('showCityNames', options.showCityNames === false)}
+                    >
+                        <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow ${options.showCityNames !== false ? 'left-5' : 'left-0.5'}`}></div>
+                    </div>
+                </div>
+
+                {/* İşaretçi Stili */}
+                <div className="flex items-center justify-between px-2">
+                    <span className="text-[10px] font-black text-zinc-400 uppercase">İşaretçi</span>
+                    <div className="flex gap-1.5">
+                        {(['circle', 'star', 'target', 'dot', 'none'] as const).map(ms => (
+                            <button
+                                key={ms}
+                                onClick={() => onChange('markerStyle', ms)}
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] transition-all ${(options.markerStyle || 'circle') === ms
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'bg-zinc-800 text-zinc-500'
+                                    }`}
+                                title={ms}
+                            >
+                                {ms === 'circle' && '●'}
+                                {ms === 'star' && '★'}
+                                {ms === 'target' && '◎'}
+                                {ms === 'dot' && '·'}
+                                {ms === 'none' && '∅'}
+                            </button>
+                        ))}
                     </div>
                 </div>
             </div>
