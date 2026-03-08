@@ -7,7 +7,7 @@ import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
  * analyzeReferenceFiles: GÖRSELİN MİMARİ DNA'SINI ÇIKARIR (Thinking Mode)
  */
 export const analyzeReferenceFiles = async (files: MultimodalFile[], currentPrompt: string): Promise<string> => {
-    const prompt = `
+  const prompt = `
     [GÖREV: NEURO-ARCHITECTURAL REVERSE ENGINEERING]
     Bu görseli bir AI Mühendisi ve Özel Eğitim Uzmanı olarak "Thinking" modunda analiz et. 
     Görselin "MİMARİ DNA"sını çıkarman gerekiyor.
@@ -21,24 +21,64 @@ export const analyzeReferenceFiles = async (files: MultimodalFile[], currentProm
     Yeni bir Gemini isteği için MASTER PROMPT oluştur. Bu prompt, 'layoutArchitecture' yapısını mükemmel şekilde tarif etmeli.
     `;
 
-    const schema = {
-        type: Type.OBJECT,
-        properties: {
-            analysis: { type: Type.STRING },
-            blueprintPrompt: { type: Type.STRING }
-        },
-        required: ['analysis', 'blueprintPrompt']
-    };
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      analysis: { type: Type.STRING },
+      blueprintPrompt: { type: Type.STRING }
+    },
+    required: ['analysis', 'blueprintPrompt']
+  };
 
-    // Fix: Removed 'useFlash' property from the generateCreativeMultimodal call as it is not part of the defined type
-    const result = await generateCreativeMultimodal({ prompt, schema, files });
-    return `[BLUEPRINT_V1.0]\n${result.blueprintPrompt}\n\n[ANALİZ]: ${result.analysis}`;
+  // Fix: Removed 'useFlash' property from the generateCreativeMultimodal call as it is not part of the defined type
+  const result = await generateCreativeMultimodal({ prompt, schema, files });
+  return `[BLUEPRINT_V1.0]\n${result.blueprintPrompt}\n\n[ANALİZ]: ${result.analysis}`;
 };
 
 export const generateCreativeStudioActivity = async (enrichedPrompt: string, options: any, files?: MultimodalFile[]) => {
-    const prompt = `
+  // Profil bazlı ek prompt bölümü
+  const profileSection = options.targetProfile ? `
+    [KLİNİK PROFİL — ÖÖG HEDEFLEME]
+    Güçlük Profili: ${options.targetProfile.disability === 'dyslexia' ? 'DİSLEKSİ' : options.targetProfile.disability === 'dyscalculia' ? 'DİSKALKULİ' : options.targetProfile.disability === 'adhd' ? 'DEHB' : 'KARMA'}
+    Yaş Grubu: ${options.targetProfile.ageGroup}
+    Hedef Beceriler: ${(options.targetProfile.targetSkills || []).join(', ')}
+    Çeldirici Matrisi: ${(options.targetProfile.distractorTypes || []).join(', ')}
+    
+    ${options.targetProfile.disability === 'dyslexia' ? `
+    [DİSLEKSİ ÖZEL KONFİGÜRASYON]:
+    - Harf çeldirici matrisi: b↔d, p↔q, m↔n, u↔n, 6↔9
+    - Fonolojik farkındalık vurgusu: hece ayırma, ses birimi analizi
+    - Tipografi: Lexend veya OpenDyslexic font ailesi, min 14pt
+    - Satır aralığı: 1.8x, harf aralığı: 0.05em artırılmış
+    ` : ''}
+    ${options.targetProfile.disability === 'dyscalculia' ? `
+    [DİSKALKULİ ÖZEL KONFİGÜRASYON]:
+    - Sayı hissi vurgusu: basamak değeri, miktar karşılaştırma
+    - Görsel destek: her matematik işlemi için manipülatif görseller
+    - Sembol-anlam eşleştirme: +, -, ×, ÷ sembollerinin somut açıklamaları
+    ` : ''}
+    ${options.targetProfile.disability === 'adhd' ? `
+    [DEHB ÖZEL KONFİGÜRASYON]:
+    - Kısa görev blokları: her görev max 3-5 adım
+    - Görsel çapa noktaları: her bölüm başına dikkat çekici ikon
+    - Ödül sistemi: yıldız, puan veya ilerleme çubuğu
+    - Zamanlama ipuçları: tahmini süre göstergeleri
+    ` : ''}
+    ` : '';
+
+  const formatSection = options.outputFormat && options.outputFormat !== 'bento_grid' ? `
+    [ÇIKTI FORMAT TALİMATI: ${options.outputFormat.toUpperCase()}]
+    ${options.outputFormat === 'classic_page' ? 'Geleneksel dikey akışlı çalışma kağıdı. Grid yerine dikey bloklar kullan.' : ''}
+    ${options.outputFormat === 'lined_notebook' ? 'Çizgili defter formatı. Her satırda yazma alanı bırak. Harf pratiğine uygun.' : ''}
+    ${options.outputFormat === 'flashcard' ? 'Kesip kullanılabilir kart formatı. Her kart bağımsız, çerçeveli ve eşit boyutlu.' : ''}
+    ${options.outputFormat === 'quiz_card' ? 'Soru-cevap formatı. Ön yüz soru, arka yüz cevap mantığında.' : ''}
+    ` : '';
+
+  const prompt = `
     ${PEDAGOGICAL_BASE}
     ${CLINICAL_DIAGNOSTIC_GUIDE}
+    ${profileSection}
+    ${formatSection}
     
     [ULTRA-CREATIVE MISSION: NEURO-ARCHITECTURAL GENERATION]
     GÖREV: Aşağıdaki BLUEPRINT'i kullanarak, klinik derinliği maksimize edilmiş, BENTO-GRID düzeninde profesyonel bir çalışma sayfası üret.
@@ -85,61 +125,61 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
     DİKKAT: content objesini asla boş bırakma. Seçtiğin 'type' değerine uygun örnek içeriği çoğaltıp detaylandırarak üret.
     `;
 
-    const schema = {
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      instruction: { type: Type.STRING },
+      pedagogicalNote: { type: Type.STRING },
+      layoutArchitecture: {
         type: Type.OBJECT,
         properties: {
-            title: { type: Type.STRING },
-            instruction: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            layoutArchitecture: {
-                type: Type.OBJECT,
-                properties: {
-                    cols: { type: Type.INTEGER },
-                    blocks: {
-                        type: Type.ARRAY,
-                        items: {
-                            type: Type.OBJECT,
-                            properties: {
-                                type: {
-                                    type: Type.STRING,
-                                    enum: [
-                                        'header', 'text', 'grid', 'table', 'logic_card',
-                                        'footer_validation', 'image', 'cloze_test',
-                                        'categorical_sorting', 'match_columns',
-                                        'visual_clue_card', 'neuro_marker'
-                                    ]
-                                },
-                                content: { type: Type.OBJECT },
-                                weight: { type: Type.INTEGER }
-                            },
-                            required: ['type', 'content']
-                        }
-                    }
+          cols: { type: Type.INTEGER },
+          blocks: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                type: {
+                  type: Type.STRING,
+                  enum: [
+                    'header', 'text', 'grid', 'table', 'logic_card',
+                    'footer_validation', 'image', 'cloze_test',
+                    'categorical_sorting', 'match_columns',
+                    'visual_clue_card', 'neuro_marker'
+                  ]
                 },
-                required: ['blocks']
+                content: { type: Type.OBJECT },
+                weight: { type: Type.INTEGER }
+              },
+              required: ['type', 'content']
             }
+          }
         },
-        required: ['title', 'instruction', 'layoutArchitecture']
-    };
+        required: ['blocks']
+      }
+    },
+    required: ['title', 'instruction', 'layoutArchitecture']
+  };
 
-    return await generateCreativeMultimodal({
-        prompt,
-        schema,
-        files,
-        temperature: 0.7,
-        thinkingBudget: 4000
-    });
+  return await generateCreativeMultimodal({
+    prompt,
+    schema,
+    files,
+    temperature: 0.7,
+    thinkingBudget: 4000
+  });
 };
 
 /**
  * refinePromptWithAI: Prompt mühendisliği asistanı.
  */
 export const refinePromptWithAI = async (currentPrompt: string, mode: 'expand' | 'clinical'): Promise<string> => {
-    const prompt = `
+  const prompt = `
     GÖREV: Bu kullanıcı komutunu Gemini 3 Pro "Thinking" motoru için teknik bir blueprint üretim talimatına dönüştür.
     İSTEM: "${currentPrompt}"
     MOD: ${mode}
     `;
-    const result = await generateWithSchema(prompt, { type: Type.OBJECT, properties: { refined: { type: Type.STRING } }, required: ['refined'] });
-    return result.refined;
+  const result = await generateWithSchema(prompt, { type: Type.OBJECT, properties: { refined: { type: Type.STRING } }, required: ['refined'] });
+  return result.refined;
 };
