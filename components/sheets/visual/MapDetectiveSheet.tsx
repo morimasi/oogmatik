@@ -21,16 +21,27 @@ const CompassRose = () => (
 
 const MapMarker = ({ type }: { type: string }) => {
     switch (type) {
-        case 'star': return <i className="fa-solid fa-star text-indigo-600 text-[12px]"></i>;
-        case 'target': return <i className="fa-solid fa-crosshairs text-indigo-600 text-[12px]"></i>;
-        case 'dot': return <circle r="4" fill="#000" />;
-        case 'none': return null;
-        default: return (
-            <g>
-                <circle r="8" fill="indigo" fillOpacity="0.2" className="animate-pulse" />
-                <circle r="4" fill="#000" stroke="white" strokeWidth="1.5" />
-            </g>
-        );
+        case 'star':
+            return <polygon points="0,-10 2.5,-3.5 10,-3.5 4,1.5 6,8.5 0,4.5 -6,8.5 -4,1.5 -10,-3.5 -2.5,-3.5" fill="#4f46e5" stroke="white" strokeWidth="1" />;
+        case 'target':
+            return (
+                <g>
+                    <circle r="7" fill="none" stroke="#4f46e5" strokeWidth="2" />
+                    <circle r="2" fill="#4f46e5" />
+                    <path d="M-11,0 L11,0 M0,-11 L0,11" stroke="#4f46e5" strokeWidth="1.5" />
+                </g>
+            );
+        case 'dot':
+            return <circle r="4" fill="#000" stroke="white" strokeWidth="1.5" />;
+        case 'none':
+            return null;
+        default:
+            return (
+                <g>
+                    <circle r="8" fill="#4f46e5" fillOpacity="0.2" className="animate-pulse" />
+                    <circle r="4.5" fill="#4f46e5" stroke="white" strokeWidth="1.5" />
+                </g>
+            );
     }
 };
 
@@ -50,12 +61,12 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
             <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 group min-h-[450px]">
 
                 {/* Zemin Harita Katmanı — padding YOK, tam inset-0 */}
-                <div className="absolute inset-0 w-full h-full bg-white z-10">
+                <div className="absolute inset-0 w-full h-full bg-slate-50 z-10 flex items-center justify-center">
                     {isCustomMap ? (
                         <img
                             src={mapSource}
                             alt="Özel Harita"
-                            className="w-full h-full object-cover transition-all duration-700"
+                            className="w-full h-full object-cover transition-all duration-700 absolute inset-0"
                         />
                     ) : (
                         <TurkeyMapSVG
@@ -63,7 +74,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                             showRegionLabels={true}
                             width="100%"
                             height="100%"
-                            className="w-full h-full transition-all duration-700"
+                            className="w-full h-full absolute inset-0 transition-all duration-700"
                         />
                     )}
 
