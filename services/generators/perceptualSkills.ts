@@ -97,7 +97,7 @@ export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions)
     1. İki adet grid oluştur (gridA ve gridB).
     2. gridA referans tablodur, gridB ise ${itemCount} adet fark barındırır.
     3. Farklar disleksi/dikkat profiline göre seçilmelidir (örn: b yerine d, m yerine n).
-    4. Tüm metinler tamamen TÜRKÇE olmalıdır.
+    4. [KRİTİK]: Tüm metinler, kelimeler ve içerikler %100 TÜRKÇE olmalıdır. İngilizce kelime KESİNLİKLE kullanma.
     
     ÇIKTI FORMATI:
     - gridA: [[string, ...], ...]

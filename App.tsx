@@ -79,7 +79,7 @@ type ExtendedView = View | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studi
 
 const LoadingSpinner = () => (
     <div className="flex items-center justify-center h-full w-full min-h-[200px]">
-        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-[var(--accent-muted)] border-t-[var(--accent-color)] rounded-full animate-spin"></div>
     </div>
 );
 
@@ -87,11 +87,11 @@ const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose:
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300" onClick={onClose}>
-            <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-zinc-200 dark:border-zinc-800" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-[var(--bg-paper)] rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-[var(--border-color)]" onClick={(e) => e.stopPropagation()}>
                 {title && (
-                    <div className="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800">
-                        <h2 className="text-xl font-black text-zinc-800 dark:text-white">{title}</h2>
-                        <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                    <div className="flex items-center justify-between p-6 border-b border-[var(--border-color)]">
+                        <h2 className="text-xl font-black text-[var(--accent-color)] tracking-tight">{title}</h2>
+                        <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--surface-glass)] text-[var(--text-secondary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all">
                             <i className="fa-solid fa-times"></i>
                         </button>
                     </div>
@@ -108,12 +108,12 @@ const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300" onClick={onClose}>
-            <div className="bg-[#f8fafc] dark:bg-[#09090b] rounded-[2.5rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-zinc-200 dark:border-zinc-800" onClick={(e) => e.stopPropagation()}>
-                
+            <div className="bg-[var(--bg-primary)] rounded-[2.5rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-[var(--border-color)]" onClick={(e) => e.stopPropagation()}>
+
                 {/* Header Background */}
-                <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-t-[2.5rem] overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-br from-[var(--accent-color)] to-[var(--accent-hover)] rounded-t-[2.5rem] overflow-hidden opacity-90">
                     <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#f8fafc] dark:from-[#09090b] to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[var(--bg-primary)] to-transparent"></div>
                 </div>
 
                 {/* Close Button */}
@@ -122,7 +122,7 @@ const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                 </button>
 
                 <div className="relative pt-12 px-6 sm:px-12 pb-12">
-                    
+
                     {/* Developer Avatar & Intro */}
                     <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-12 relative z-10">
                         <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-white dark:border-[#09090b] shadow-xl shrink-0 bg-white">
@@ -150,7 +150,7 @@ const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
 
                     {/* Bento Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        
+
                         {/* Mission */}
                         <div className="md:col-span-2 bg-white dark:bg-zinc-800 p-8 rounded-[2rem] border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-lg transition-all group relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-bl-full transition-transform group-hover:scale-110"></div>
@@ -200,7 +200,7 @@ const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                         </div>
 
                     </div>
-                    
+
                     {/* Footer */}
                     <div className="mt-12 text-center border-t border-zinc-200 dark:border-zinc-800 pt-8">
                         <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
@@ -223,7 +223,7 @@ const tourSteps: TourStep[] = [
     { targetId: 'tour-history-btn', title: 'Geçmiş', content: 'Daha önce oluşturduğunuz etkinliklere buradan ulaşabilirsiniz.', position: 'bottom' },
 ];
 
-const HeaderDropdown = ({ label, icon, children, colorClass = "text-zinc-500" }: {
+const HeaderDropdown = ({ label, icon, children, colorClass = "text-[var(--text-secondary)]" }: {
     label: string,
     icon: string,
     children?: any,
@@ -232,14 +232,14 @@ const HeaderDropdown = ({ label, icon, children, colorClass = "text-zinc-500" }:
     const [isOpen, setIsOpen] = useState(false);
     return (
         <div className="relative group" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
-            <button className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 font-bold text-xs uppercase tracking-wider ${colorClass}`}>
+            <button className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all hover:bg-[var(--surface-glass)] font-bold text-xs uppercase tracking-wider ${colorClass}`}>
                 <i className={`fa-solid ${icon}`}></i>
                 <span className="hidden xl:inline">{label}</span>
                 <i className="fa-solid fa-chevron-down text-[8px] opacity-50"></i>
             </button>
             {isOpen && (
                 <div className="absolute right-0 top-full pt-2 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-2 min-w-[200px] overflow-hidden">
+                    <div className="bg-[var(--panel-bg)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 min-w-[200px] overflow-hidden backdrop-blur-xl ring-1 ring-white/5">
                         {children}
                     </div>
                 </div>
@@ -249,12 +249,12 @@ const HeaderDropdown = ({ label, icon, children, colorClass = "text-zinc-500" }:
 };
 
 const DropdownItem = ({ icon, label, onClick, badge }: { icon: string, label: string, onClick: () => void, badge?: number }) => (
-    <button onClick={onClick} className="w-full flex items-center justify-between px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl transition-colors group">
+    <button onClick={onClick} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--surface-glass)] rounded-xl transition-colors group">
         <div className="flex items-center gap-3">
-            <i className={`fa-solid ${icon} w-4 text-center text-zinc-400 group-hover:text-indigo-500 transition-colors`}></i>
-            <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">{label}</span>
+            <i className={`fa-solid ${icon} w-4 text-center text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-colors`}></i>
+            <span className="text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">{label}</span>
         </div>
-        {badge !== undefined && badge > 0 && <span className="bg-indigo-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{badge}</span>}
+        {badge !== undefined && badge > 0 && <span className="bg-[var(--accent-color)] text-[var(--bg-primary)] text-[9px] font-black px-1.5 py-0.5 rounded-full">{badge}</span>}
     </button>
 );
 
@@ -304,7 +304,7 @@ const AppContent = () => {
         document.documentElement.style.setProperty('--app-line-height', uiSettings.lineHeight.toString());
         document.documentElement.style.setProperty('--app-letter-spacing', uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal');
         document.documentElement.style.setProperty('--app-saturation', `${uiSettings.saturation}%`);
-        
+
         // Add a class for wide letter spacing to target specific elements if needed
         if (uiSettings.letterSpacing === 'wide') {
             document.documentElement.classList.add('letter-spacing-wide');
@@ -318,7 +318,7 @@ const AppContent = () => {
         document.body.style.lineHeight = uiSettings.lineHeight.toString();
         document.body.style.letterSpacing = uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal';
         document.body.style.filter = `saturate(${uiSettings.saturation}%)`;
-        
+
         localStorage.setItem('app-ui-settings', JSON.stringify(uiSettings));
     }, [uiSettings]);
 
@@ -330,10 +330,10 @@ const AppContent = () => {
         } else {
             document.documentElement.classList.remove('dark');
         }
-        
+
         // Remove all theme classes first
         document.documentElement.classList.remove(
-            'theme-light', 'theme-dark', 'theme-anthracite', 'theme-space', 
+            'theme-light', 'theme-dark', 'theme-anthracite', 'theme-space',
             'theme-nature', 'theme-ocean', 'theme-anthracite-gold', 'theme-anthracite-cyber'
         );
         // Add selected theme class
@@ -436,12 +436,12 @@ const AppContent = () => {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-transparent font-sans transition-colors duration-300">
-            <header className={`relative bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 shadow-sm z-50 transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}>
+        <div className="flex flex-col h-screen bg-[var(--bg-primary)] font-sans transition-colors duration-300">
+            <header className={`relative bg-[var(--bg-paper)]/80 backdrop-blur-md border-b border-[var(--border-color)] shadow-sm z-50 transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}>
                 <div className="w-full px-6 py-4 flex justify-between items-center gap-6">
 
                     <div className="flex items-center gap-4">
-                        <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-zinc-400 p-2 hover:text-zinc-900 transition-colors"><i className="fa-solid fa-bars-staggered fa-lg"></i></button>
+                        <button onClick={() => setIsSidebarOpen(true)} className="md:hidden text-[var(--text-muted)] p-2 hover:text-[var(--text-primary)] transition-colors"><i className="fa-solid fa-bars-staggered fa-lg"></i></button>
                         <button id="tour-logo" onClick={() => { navigateTo('generator'); setSelectedActivity(null); setWorksheetData(null); setActiveCurriculumSession(null); }} className="flex items-center gap-3">
                             <DyslexiaLogo className="h-10 w-auto" />
                         </button>
@@ -454,25 +454,25 @@ const AppContent = () => {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => handleOpenStudio('assessment')}
-                            className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-indigo-200 dark:shadow-none transition-all active:scale-95"
+                            className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-[var(--bg-primary)] rounded-2xl text-xs font-black shadow-lg transition-all active:scale-95"
                         >
                             <i className="fa-solid fa-user-doctor"></i> DEĞERLENDİRME
                         </button>
 
-                        <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-2"></div>
+                        <div className="h-8 w-px bg-[var(--border-color)] mx-2"></div>
 
                         <div className="flex items-center gap-1">
-                            <button onClick={() => navigateTo('workbook')} className="relative p-2.5 text-zinc-400 hover:text-emerald-500 transition-all rounded-xl hover:bg-emerald-50" title="Kitapçık">
+                            <button onClick={() => navigateTo('workbook')} className="relative p-2.5 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-xl hover:bg-[var(--accent-muted)]" title="Kitapçık">
                                 <i className="fa-solid fa-book-medical fa-lg"></i>
-                                {workbookItems.length > 0 && <span className="absolute top-0.5 right-0.5 bg-emerald-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">{workbookItems.length}</span>}
+                                {workbookItems.length > 0 && <span className="absolute top-0.5 right-0.5 bg-[var(--accent-color)] text-[var(--bg-primary)] text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)]">{workbookItems.length}</span>}
                             </button>
-                            <button onClick={() => navigateTo('messages')} className="relative p-2.5 text-zinc-400 hover:text-indigo-500 transition-all rounded-xl hover:bg-indigo-50" title="Mesajlar">
+                            <button onClick={() => navigateTo('messages')} className="relative p-2.5 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-xl hover:bg-[var(--accent-muted)]" title="Mesajlar">
                                 <i className="fa-solid fa-comment-dots fa-lg"></i>
-                                {unreadCount > 0 && <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">{unreadCount}</span>}
+                                {unreadCount > 0 && <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)]">{unreadCount}</span>}
                             </button>
                         </div>
 
-                        <HeaderDropdown label="Kitaplığım" icon="fa-bookmark" colorClass="text-emerald-600 dark:text-emerald-400">
+                        <HeaderDropdown label="Kitaplığım" icon="fa-bookmark" colorClass="text-[var(--accent-color)]">
                             <DropdownItem icon="fa-heart" label="Favoriler" onClick={() => navigateTo('favorites')} />
                             <DropdownItem icon="fa-box-archive" label="Arşiv" onClick={() => navigateTo('savedList')} />
                             <DropdownItem icon="fa-share-nodes" label="Paylaşılanlar" onClick={() => navigateTo('shared')} />
@@ -486,19 +486,19 @@ const AppContent = () => {
                             <DropdownItem icon="fa-laptop-code" label="Geliştirici" onClick={() => setOpenModal('developer')} />
                         </HeaderDropdown>
 
-                        <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-2"></div>
+                        <div className="h-8 w-px bg-[var(--border-color)] mx-2"></div>
 
                         {user ? (
-                            <HeaderDropdown label={user.name.split(' ')[0]} icon="fa-user-circle" colorClass="text-zinc-900 dark:text-white">
+                            <HeaderDropdown label={user.name.split(' ')[0]} icon="fa-user-circle" colorClass="text-[var(--text-primary)]">
                                 <DropdownItem icon="fa-user-gear" label="Profil Ayarları" onClick={() => navigateTo('profile')} />
                                 <DropdownItem icon="fa-sliders" label="Görünüm Ayarları" onClick={() => setOpenModal('settings')} />
-                                {user.role === 'admin' && <div className="h-px bg-zinc-100 dark:bg-zinc-800 my-1"></div>}
+                                {user.role === 'admin' && <div className="h-px bg-[var(--border-color)] my-1"></div>}
                                 {user.role === 'admin' && <DropdownItem icon="fa-shield-halved" label="Admin Paneli" onClick={() => navigateTo('admin')} />}
-                                <div className="h-px bg-zinc-100 dark:bg-zinc-800 my-1"></div>
+                                <div className="h-px bg-[var(--border-color)] my-1"></div>
                                 <DropdownItem icon="fa-arrow-right-from-bracket" label="Çıkış Yap" onClick={logout} />
                             </HeaderDropdown>
                         ) : (
-                            <button onClick={() => setIsAuthModalOpen(true)} className="px-6 py-2.5 bg-zinc-900 text-white dark:bg-white dark:text-black rounded-2xl text-xs font-black shadow-lg transition-all active:scale-95">GİRİŞ YAP</button>
+                            <button onClick={() => setIsAuthModalOpen(true)} className="px-6 py-2.5 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-2xl text-xs font-black shadow-lg transition-all active:scale-95">GİRİŞ YAP</button>
                         )}
                     </div>
                 </div>
@@ -577,9 +577,9 @@ const AppContent = () => {
             {currentView === 'profile' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
                     <Suspense fallback={<LoadingSpinner />}>
-                        <ProfileView 
-                            onBack={handleGoBack} 
-                            onSelectActivity={handleSelectActivity} 
+                        <ProfileView
+                            onBack={handleGoBack}
+                            onSelectActivity={handleSelectActivity}
                             onLoadSaved={loadSavedWorksheet}
                             theme={theme}
                             uiSettings={uiSettings}

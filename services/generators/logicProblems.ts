@@ -6,7 +6,8 @@ import {
     NumberPatternData, ShapeNumberPatternData,
     ThematicOddOneOutData, PunctuationMazeData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationPhoneNumberData,
     ArithmeticConnectData, RomanArabicMatchConnectData, WeightConnectData, LengthConnectData, VisualNumberPatternData,
-    LogicGridPuzzleData
+    LogicGridPuzzleData, AbcConnectData, MagicPyramidData, NumberCapsuleData,
+    OddEvenSudokuData, FutoshikiData, KendokuData, NumberPyramidData
 } from '../../types';
 import { generateMazePath } from '../offlineGenerators/helpers';
 
@@ -60,7 +61,7 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
 
 export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): Promise<PunctuationMazeData[]> => {
     const { difficulty, worksheetCount } = options;
-    
+
     // We only ask AI for content, we handle spatial layout manually
     const prompt = `
     "${difficulty}" seviyesinde "Noktalama Labirenti" için içerik oluştur.
@@ -80,7 +81,7 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
-    
+
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -95,7 +96,7 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
         },
         required: ["title", "prompt", "punctuationMark", "correctSentences", "incorrectSentences", "instruction", "pedagogicalNote", "imagePrompt"]
     };
-    
+
     const schema = { type: Type.ARRAY, items: singleSchema };
     const rawData = await generateWithSchema(prompt, schema) as any[];
 
@@ -104,19 +105,19 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
         const rows = 5;
         const cols = 5;
         const { grid, pathIds, distractorIds } = generateMazePath(rows, cols);
-        
-        const finalRules: {id: number, text: string, isCorrect: boolean, isPath: boolean}[] = [];
+
+        const finalRules: { id: number, text: string, isCorrect: boolean, isPath: boolean }[] = [];
         const corrects = data.correctSentences || [];
         const incorrects = data.incorrectSentences || [];
-        
-        for(let r=0; r<rows; r++) {
-            for(let c=0; c<cols; c++) {
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
                 const cellId = grid[r][c];
                 const isPath = pathIds.includes(cellId);
-                const text = isPath 
-                    ? corrects[cellId % corrects.length] 
+                const text = isPath
+                    ? corrects[cellId % corrects.length]
                     : incorrects[cellId % incorrects.length];
-                
+
                 finalRules.push({
                     id: cellId,
                     text: text || "...",
@@ -214,4 +215,57 @@ export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): 
     const singleSchema = { type: Type.OBJECT, properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, imagePrompt: { type: Type.STRING }, clues: { type: Type.ARRAY, items: { type: Type.STRING } }, people: { type: Type.ARRAY, items: { type: Type.STRING } }, categories: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, items: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { name: { type: Type.STRING }, imageDescription: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ["name", "imageDescription", "imagePrompt"] } } }, required: ["title", "items"] } } }, required: ["title", "prompt", "clues", "people", "categories", "instruction", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: Type.ARRAY, items: singleSchema };
     return generateWithSchema(prompt, schema) as Promise<LogicGridPuzzleData[]>;
+};
+export const generateAbcConnectFromAI = async (options: GeneratorOptions): Promise<AbcConnectData[]> => {
+    const { difficulty, worksheetCount, gridSize = 5 } = options;
+    const prompt = `"${difficulty}" seviyesinde "ABC Bağlama" bulmacası. ${gridSize}x${gridSize} bir ızgara üzerinde rakamları (veya Romen rakamlarını) eşleriyle çizgiler kesişmeden birleştirecek bir yapı kurgula. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+    const singleSchema = { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, gridDim: { type: Type.INTEGER }, variant: { type: Type.STRING, enum: ['roman', 'case', 'dots', 'math'] }, paths: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { start: { type: Type.OBJECT, properties: { x: { type: Type.INTEGER }, y: { type: Type.INTEGER } } }, end: { type: Type.OBJECT, properties: { x: { type: Type.INTEGER }, y: { type: Type.INTEGER } } }, value: { type: Type.STRING }, matchValue: { type: Type.STRING }, id: { type: Type.STRING } }, required: ["start", "end", "value", "matchValue", "id"] } } }, required: ["title", "instruction", "gridDim", "paths"] };
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<AbcConnectData[]>;
+};
+
+export const generateMagicPyramidFromAI = async (options: GeneratorOptions): Promise<MagicPyramidData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `"${difficulty}" seviyesinde "Sihirli Piramit" bulmacası. Tepeden tabana ritmik bir yol oluştur. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+    const singleSchema = { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, pyramids: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { layers: { type: Type.INTEGER }, apex: { type: Type.INTEGER }, step: { type: Type.INTEGER }, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER } } }, correctPath: { type: Type.ARRAY, items: { type: Type.INTEGER } } }, required: ["layers", "apex", "step", "grid", "correctPath"] } } }, required: ["title", "instruction", "pyramids"] };
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<MagicPyramidData[]>;
+};
+
+export const generateNumberCapsuleFromAI = async (options: GeneratorOptions): Promise<NumberCapsuleData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `"${difficulty}" seviyesinde "Sayı Kapsülleri" (Capsule Game). Izgara dışındaki hedeflere ulaşacak şekilde rakamları yerleştir. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+    const singleSchema = { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER, nullable: true } } }, rowTargets: { type: Type.ARRAY, items: { type: Type.INTEGER } }, colTargets: { type: Type.ARRAY, items: { type: Type.INTEGER } }, capsules: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { id: { type: Type.STRING }, target: { type: Type.INTEGER }, cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { x: { type: Type.INTEGER }, y: { type: Type.INTEGER } } } } }, required: ["id", "target", "cells"] } } }, required: ["title", "instruction", "grid", "capsules"] };
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<NumberCapsuleData[]>;
+};
+
+export const generateOddEvenSudokuFromAI = async (options: GeneratorOptions): Promise<OddEvenSudokuData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `"${difficulty}" seviyesinde "Tek ve Çift Sudoku". Renklerle (örn: odd=Tek, even=Çift) kısıtlanmış 4x4 veya 6x6 sudoku. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+    const singleSchema = { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { size: { type: Type.INTEGER }, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER, nullable: true } } }, oddEvenMask: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING, enum: ['odd', 'even', null], nullable: true } } } }, required: ["size", "grid", "oddEvenMask"] } } }, required: ["title", "instruction", "puzzles"] };
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<OddEvenSudokuData[]>;
+};
+
+export const generateFutoshikiFromAI = async (options: GeneratorOptions): Promise<FutoshikiData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `"${difficulty}" seviyesinde "Futoşhiki" bulmacası. Büyüktür/Küçüktür işaretlerine göre rakamları yerleştir. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+    const singleSchema = { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { size: { type: Type.INTEGER }, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER, nullable: true } } }, constraints: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { r1: { type: Type.INTEGER }, c1: { type: Type.INTEGER }, r2: { type: Type.INTEGER }, c2: { type: Type.INTEGER }, relation: { type: Type.STRING, enum: ['<', '>'] } } } } }, required: ["size", "grid"] } } }, required: ["title", "instruction", "puzzles"] };
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<FutoshikiData[]>;
+};
+
+export const generateKendokuFromAI = async (options: GeneratorOptions): Promise<KendokuData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `"${difficulty}" seviyesinde "Kendoku" (Can-Can) bulmacası. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+    const singleSchema = { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, puzzles: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { size: { type: Type.INTEGER }, grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER, nullable: true } } }, cages: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { target: { type: Type.INTEGER }, op: { type: Type.STRING }, cells: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { r: { type: Type.INTEGER }, c: { type: Type.INTEGER } } } } } } } }, required: ["size", "grid", "cages"] } } }, required: ["title", "instruction", "puzzles"] };
+    return generateWithSchema(prompt, { type: Type.ARRAY, items: singleSchema });
+};
+
+export const generateNumberPyramidFromAI = async (options: GeneratorOptions): Promise<NumberPyramidData[]> => {
+    const { difficulty, worksheetCount } = options;
+    const prompt = `"${difficulty}" seviyesinde "Sayı Piramidi". Alt iki kutucuğun toplamı üsttekini verecek şekilde pyramid üret. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+    const singleSchema = { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, pedagogicalNote: { type: Type.STRING }, pyramids: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { rows: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.INTEGER, nullable: true } } } }, required: ["rows"] } } }, required: ["title", "instruction", "pyramids"] };
+    return generateWithSchema(prompt, { type: Type.ARRAY, items: singleSchema });
 };
