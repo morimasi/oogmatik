@@ -112,6 +112,15 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         const handleWheel = (e: WheelEvent) => {
             if (currentView !== 'generator' || processedData.length === 0 || isLoading) return;
 
+            // Kontrol: Fare A4 kağıdı üzerinde mi?
+            const target = e.target as HTMLElement;
+            const isHoveringPaper = target.closest('.universal-mode-canvas') || target.closest('.worksheet-page') || target.closest('[data-worksheet-content="true"]');
+
+            if (!isHoveringPaper) {
+                // Sadece çalışma kağıdı dışındaysa default scroll davranışı çalışsın
+                return;
+            }
+
             // PREVENT DEFAULT SCROLLING
             e.preventDefault();
 

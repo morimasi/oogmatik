@@ -128,7 +128,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         , [selectedActivity, allActivities]);
 
     return (
-        <aside className={`fixed inset-y-0 left-0 z-30 bg-zinc-50/80 dark:bg-[#09090b]/90 backdrop-blur-2xl border-r border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-700 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} ${isExpanded ? 'w-[280px]' : 'w-[85px]'}`}>
+        <aside className={`fixed inset-y-0 left-0 z-30 bg-zinc-50/80 dark:bg-[#09090b]/90 backdrop-blur-2xl border-r border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-700 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} ${isExpanded ? 'w-[420px]' : 'w-[85px]'}`}>
             <div className="flex h-full flex-col overflow-hidden">
                 {selectedActivity ? (
                     selectedActivityData ? (

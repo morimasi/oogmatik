@@ -161,9 +161,15 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
     const { worksheetCount, difficulty, itemCount = 5, findDiffType = 'visual' } = options;
     const results: FindTheDifferenceData[] = [];
 
+    const EMOJIS = ["🍎", "🚗", "🏠", "⭐", "🎈", "📚", "⚽", "☀️", "🌙", "🌲", "🌺", "🎁", "🐱", "🐶", "🦁", "🐢", "🦋", "🐝"];
+
     for (let p = 0; p < worksheetCount; p++) {
         const size = difficulty === 'Başlangıç' ? 5 : (difficulty === 'Orta' ? 7 : 10);
-        const sourceGrid: string[][] = Array.from({ length: size }, () => Array.from({ length: size }, () => getRandomItems(findDiffType === 'char' ? turkishAlphabet.split('') : SHAPE_TYPES, 1)[0]));
+
+        // görsel ise emoji kullan, yoksa harf
+        const sourcePool = findDiffType === 'char' ? turkishAlphabet.split('') : EMOJIS;
+
+        const sourceGrid: string[][] = Array.from({ length: size }, () => Array.from({ length: size }, () => getRandomItems(sourcePool, 1)[0]));
 
         const targetGrid = sourceGrid.map(row => [...row]);
         const diffPositions: { r: number, c: number }[] = [];
@@ -172,8 +178,8 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
             const r = getRandomInt(0, size - 1);
             const c = getRandomInt(0, size - 1);
             if (!diffPositions.some(pos => pos.r === r && pos.c === c)) {
-                let newVal = getRandomItems(findDiffType === 'char' ? turkishAlphabet.split('') : SHAPE_TYPES, 1)[0];
-                while (newVal === sourceGrid[r][c]) newVal = getRandomItems(findDiffType === 'char' ? turkishAlphabet.split('') : SHAPE_TYPES, 1)[0];
+                let newVal = getRandomItems(sourcePool, 1)[0];
+                while (newVal === sourceGrid[r][c]) newVal = getRandomItems(sourcePool, 1)[0];
                 targetGrid[r][c] = newVal;
                 diffPositions.push({ r, c });
             }
