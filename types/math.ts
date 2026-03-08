@@ -394,3 +394,58 @@ export interface MagicPyramidData extends BaseActivityData {
     pyramids: { layers: number; apex: number; step: number; grid: number[][]; correctPath: number[] }[];
     instructionPrefix?: string;
 }
+
+export interface ApartmentResident {
+    id: string; // Örn: R1, R2
+    floor: number;
+    room: number;
+    variables: Record<string, string>; // Örn: { "name": "Ali", "color": "Kırmızı", "pet": "Kedi" }
+}
+
+export interface ApartmentLogicData extends BaseActivityData {
+    settings?: {
+        difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+        apartmentFloors: number;
+        apartmentRoomsPerFloor: number;
+        variableCount: number;
+        negativeClues: boolean;
+    };
+    content: {
+        title: string;
+        variableTypes: string[]; // Örn: ["İsim", "Kapı Rengi", "Evcil Hayvan"]
+        residents: ApartmentResident[];
+        clues: string[];
+    };
+}
+
+export interface FinancialMarketItem {
+    id: string;
+    name: string; // Örn: Elma, Süt, Oyuncak Araba
+    price: number;
+    category: 'food' | 'toy' | 'book' | 'clothes';
+    icon: string; // FontAwesome class
+}
+
+export interface FinancialMarketData extends BaseActivityData {
+    settings?: {
+        difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+        currency: 'TRY' | 'USD' | 'EUR';
+        useCents: boolean;
+        budgetLimit: number;
+    };
+    content: {
+        title: string;
+        shopName: string; // Örn: Ali'nin Bakkalı
+        walletBalance: number; // Öğrencinin sahip olduğu başlangıç parası
+        shelves: FinancialMarketItem[]; // Marketteki tüm ürünler
+        tasks: {
+            id: string;
+            instruction: string; // Örn: "2 tane süt ve 1 elma alırsan kaç lira ödersin?"
+            cart: { itemId: string; quantity: number }[]; // Sepetteki ürünler
+            expectedTotal: number;
+            expectedChange: number; // Para üstü
+        }[];
+    };
+}
+
+

@@ -68,43 +68,69 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                     )}
 
                     {/* Konumsal Overlay — harita ile AYNI wrapper içinde, aynı koordinat sistemi */}
-                    {!isCustomMap && (
-                        <svg
-                            viewBox="0 0 1000 500"
-                            preserveAspectRatio="xMidYMid meet"
-                            className="w-full h-full absolute inset-0 z-20 pointer-events-none"
-                            style={{ top: 0, left: 0, position: 'absolute' }}
-                        >
-                            {(data.cities || []).map((city) => (
-                                <g key={city.id} transform={`translate(${city.x}, ${city.y})`}>
-                                    <MapMarker type={data.settings?.markerStyle || 'circle'} />
-                                    {data.settings?.showCityNames !== false && (
-                                        <text
-                                            y="-14"
-                                            textAnchor="middle"
-                                            fontSize="11"
-                                            fontWeight="900"
-                                            className="fill-zinc-900 font-sans tracking-tight"
-                                            style={{
-                                                paintOrder: 'stroke',
-                                                stroke: 'white',
-                                                strokeWidth: '4px',
-                                                strokeLinejoin: 'round'
-                                            }}
-                                        >
-                                            {city.name}
-                                        </text>
-                                    )}
-                                </g>
-                            ))}
-                        </svg>
-                    )}
+                    <svg
+                        viewBox="0 0 1000 500"
+                        preserveAspectRatio="xMidYMid meet"
+                        className="w-full h-full absolute inset-0 z-20 pointer-events-none"
+                        style={{ top: 0, left: 0, position: 'absolute' }}
+                    >
+                        {/* GRID SİSTEMİ ÇİZİMİ */}
+                        {data.settings?.useGridSystem && (() => {
+                            const cols = data.gridConfig?.cols || 10;
+                            const rows = data.gridConfig?.rows || 5;
+                            const colWidth = 1000 / cols;
+                            const rowHeight = 500 / rows;
+                            const gridLines = [];
+
+                            for (let i = 0; i <= cols; i++) {
+                                gridLines.push(<line key={`v${i}`} x1={i * colWidth} y1={0} x2={i * colWidth} y2={500} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" />);
+                                if (i < cols) {
+                                    gridLines.push(<text key={`c${i}`} x={i * colWidth + colWidth / 2} y={20} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle">{String.fromCharCode(65 + i)}</text>);
+                                    gridLines.push(<text key={`c${i}_b`} x={i * colWidth + colWidth / 2} y={490} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle">{String.fromCharCode(65 + i)}</text>);
+                                }
+                            }
+
+                            for (let i = 0; i <= rows; i++) {
+                                gridLines.push(<line key={`h${i}`} x1={0} y1={i * rowHeight} x2={1000} y2={i * rowHeight} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" />);
+                                if (i < rows) {
+                                    gridLines.push(<text key={`r${i}`} x={20} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle">{i + 1}</text>);
+                                    gridLines.push(<text key={`r${i}_r`} x={980} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle">{i + 1}</text>);
+                                }
+                            }
+                            return gridLines;
+                        })()}
+
+                        {(data.cities || []).map((city) => (
+                            <g key={city.id} transform={`translate(${city.x}, ${city.y})`}>
+                                <MapMarker type={data.settings?.markerStyle || 'circle'} />
+                                {data.settings?.showCityNames !== false && (
+                                    <text
+                                        y="-14"
+                                        textAnchor="middle"
+                                        fontSize="11"
+                                        fontWeight="900"
+                                        className="fill-zinc-900 font-sans tracking-tight"
+                                        style={{
+                                            paintOrder: 'stroke',
+                                            stroke: 'white',
+                                            strokeWidth: '4px',
+                                            strokeLinejoin: 'round'
+                                        }}
+                                    >
+                                        {city.name}
+                                    </text>
+                                )}
+                            </g>
+                        ))}
+                    </svg>
                 </div>
 
                 {/* Pusula & Araçlar Overlay */}
-                <div className="absolute bottom-8 right-10 flex items-end gap-10 z-30 no-print">
-                    <CompassRose />
-                </div>
+                {data.settings?.includeCompass !== false && (
+                    <div className="absolute bottom-8 right-10 flex items-end gap-10 z-30 no-print">
+                        <CompassRose />
+                    </div>
+                )}
 
                 {/* Manuel Harita Modu Rozeti */}
                 {isCustomMap && (

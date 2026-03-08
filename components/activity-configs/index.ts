@@ -28,6 +28,14 @@ import { DirectionalTrackingConfig } from './DirectionalTrackingConfig';
 import { FutoshikiConfig } from './FutoshikiConfig';
 import { AbcConnectConfig } from './AbcConnectConfig';
 import { ArchCloneConfig } from './ArchCloneConfig';
+import { FiveWOneHConfig } from './FiveWOneHConfig';
+import { ColorfulSyllableReadingConfig } from './ColorfulSyllableReadingConfig';
+import { FamilyTreeMatrixConfig } from './FamilyTreeMatrixConfig';
+import { ApartmentLogicConfig } from './ApartmentLogicConfig';
+import { FinancialMarketConfig } from './FinancialMarketConfig';
+import { DirectionalCodeReadingConfig } from './DirectionalCodeReadingConfig';
+import { LogicErrorHunterConfig } from './LogicErrorHunterConfig';
+import { PatternCompletionConfig } from './PatternCompletionConfig';
 
 
 export const ActivityConfigRegistry: Record<string, any> = {
@@ -59,4 +67,12 @@ export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.FUTOSHIKI]: FutoshikiConfig,
     [ActivityType.ABC_CONNECT]: AbcConnectConfig,
     [ActivityType.AI_WORKSHEET_CONVERTER]: ArchCloneConfig,
+    [ActivityType.FIVE_W_ONE_H]: FiveWOneHConfig,
+    [ActivityType.COLORFUL_SYLLABLE_READING]: ColorfulSyllableReadingConfig,
+    [ActivityType.FAMILY_TREE_MATRIX]: FamilyTreeMatrixConfig,
+    [ActivityType.APARTMENT_LOGIC_PUZZLE]: ApartmentLogicConfig,
+    [ActivityType.FINANCIAL_MARKET_CALCULATOR]: FinancialMarketConfig,
+    [ActivityType.DIRECTIONAL_CODE_READING]: DirectionalCodeReadingConfig,
+    [ActivityType.LOGIC_ERROR_HUNTER]: LogicErrorHunterConfig,
+    [ActivityType.PATTERN_COMPLETION]: PatternCompletionConfig,
 };

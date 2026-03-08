@@ -218,6 +218,62 @@ export const ACTIVITIES: Activity[] = [
         description: 'Izgara dışındaki hedef sayılara ulaşmak için içerdeki kapsülleri doğru rakamlarla doldurun.',
         icon: 'fa-solid fa-capsules',
         defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.FIVE_W_ONE_H,
+        title: '5N1K Okuma Anlama Simülatörü',
+        description: 'Özelleştirilebilir metin uzunluğu ve konu seçenekleriyle AI destekli hikaye okuma ve 5N1K kavramsal soruları.',
+        icon: 'fa-solid fa-file-signature',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.COLORFUL_SYLLABLE_READING,
+        title: 'Renkli Hece / Odaklı Okuma',
+        description: 'Disleksi dostu palette hece ve kelime renklendirmesiyle (Di-kkat!) saniye tutulabilecek WPM artırıcı okuma egzersizi.',
+        icon: 'fa-solid fa-highlighter',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.FAMILY_TREE_MATRIX,
+        title: 'Akrabalık ve Soy Ağacı Matrisi',
+        description: 'Mantıksal çıkarım ve yönergeleri takip ederek soy ağacındaki kayıp aile üyelerini bulma oyunu.',
+        icon: 'fa-solid fa-network-wired',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.APARTMENT_LOGIC_PUZZLE,
+        title: 'Nerede Oturuyor? (Einstein Apartmanı)',
+        description: 'Komşuluk ilişkilerini, mantıksal zıtlıkları ve yönleri bir araya getiren klasik apartman yerleşim bulmacası.',
+        icon: 'fa-solid fa-building',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.FINANCIAL_MARKET_CALCULATOR,
+        title: 'Pazar Yeri & Finans',
+        description: 'Diskalkuli için bütçe, para üstü ve alışveriş sepeti hesaplamaları içeren market standı simülasyonu.',
+        icon: 'fa-solid fa-store',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.DIRECTIONAL_CODE_READING,
+        title: 'Şifreli Kod & Rota',
+        description: 'Oklar ve harflerle verilen algoritmik kodu takip ederek (sağ, sol, yukarı) hedefi bulma oyunu.',
+        icon: 'fa-solid fa-map-location-dot',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.LOGIC_ERROR_HUNTER,
+        title: 'Mantık Hataları Avcısı',
+        description: 'Paragraf içindeki mantıksal, zamansal veya fiziksel hataları tespit edip düzeltme etkinliği.',
+        icon: 'fa-solid fa-bug-slash',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.PATTERN_COMPLETION,
+        title: 'Kafayı Çalıştır (Desen Tamamla)',
+        description: 'Verilen matris desenlerindeki eksik bloğu/parçayı bulma ve tamamlama mantığı.',
+        icon: 'fa-solid fa-puzzle-piece',
+        defaultStyle: { columns: 1 }
     }
 ];
 
@@ -229,6 +285,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         description: 'Görsel tarama, uzamsal algı ve yön tayini çalışmaları.',
         icon: 'fa-solid fa-eye',
         activities: [
+            ActivityType.PATTERN_COMPLETION,
+            ActivityType.DIRECTIONAL_CODE_READING,
             ActivityType.MAP_INSTRUCTION,
             ActivityType.DIRECTIONAL_TRACKING,
             ActivityType.FIND_THE_DIFFERENCE,
@@ -240,11 +298,26 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         ]
     },
     {
+        id: 'reading-comprehension',
+        title: 'Okuduğunu Anlama',
+        description: 'Hikaye odaklı, görsel ve metin ilişkilendiren testler.',
+        icon: 'fa-solid fa-book-open',
+        activities: [
+            ActivityType.LOGIC_ERROR_HUNTER,
+            ActivityType.FIVE_W_ONE_H,
+            ActivityType.STORY_COMPREHENSION,
+            ActivityType.STORY_ANALYSIS,
+            ActivityType.MISSING_PARTS
+        ]
+    },
+    {
         id: 'reading-verbal',
         title: 'Okuma & Dil',
         description: 'Disleksi dostu okuma ve yazma materyalleri.',
         icon: 'fa-solid fa-book-open',
         activities: [
+            ActivityType.FAMILY_TREE_MATRIX,
+            ActivityType.COLORFUL_SYLLABLE_READING,
             ActivityType.READING_PYRAMID,
             ActivityType.FIND_LETTER_PAIR,
             ActivityType.SYLLABLE_MASTER_LAB,
@@ -265,16 +338,18 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     {
         id: 'math-logic',
         title: 'Matematik & Mantık',
-        description: 'Sayısal akıl yürütme ve işlem yeteneği geliştirme.',
+        description: 'İşlemsel düşünme, şekil şifreleri, uzamsal zeka materyalleri.',
         icon: 'fa-solid fa-calculator',
         activities: [
+            ActivityType.FINANCIAL_MARKET_CALCULATOR,
+            ActivityType.APARTMENT_LOGIC_PUZZLE,
             ActivityType.NUMBER_LOGIC_RIDDLES,
-            ActivityType.NUMBER_PATH_LOGIC,
+            ActivityType.REAL_LIFE_MATH_PROBLEMS,
             ActivityType.MATH_PUZZLE,
             ActivityType.NUMBER_PATTERN,
             ActivityType.KENDOKU,
             ActivityType.NUMBER_PYRAMID,
-            ActivityType.REAL_LIFE_MATH_PROBLEMS,
+            ActivityType.NUMBER_PATH_LOGIC,
             ActivityType.CLOCK_READING,
             ActivityType.MONEY_COUNTING,
             ActivityType.MATH_MEMORY_CARDS,

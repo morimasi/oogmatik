@@ -454,7 +454,98 @@ export interface HiddenPasswordGridData extends BaseActivityData {
     };
     grids: {
         targetLetter: string;
-        hiddenWord: string;
-        grid: string[][];
+        correctAnswer: string;
+        options: string[];
     }[];
 }
+
+export interface LogicErrorHunterData extends BaseActivityData {
+    settings?: {
+        difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+        absurdityDegree: 'minimal' | 'obvious' | 'surreal';
+        errorCount: number;
+    };
+    content: {
+        title: string;
+        story: string; // Hataları barındıran uzun paragraf (Hatalı kelimelerin indekslerini tutabilmek veya özel işaretleyici ile sarabilmek için). Örn: "Güneş **gece** doğar." Ancak sadece düz metin olarak verilsin, biz UI'da vurgulamayacağız, çocuk kendisi bulacak.
+        errors: {
+            id: string;
+            faultyWordOrPhrase: string; // Metin içindeki absürt kelime (örn: "gece")
+            correction: string; // Doğrusu ne olmalıydı (örn: "sabah")
+            explanation: string; // Neden mantıksız (örn: "Güneş gündüzleri doğduğu için gece doğması mantıksızdır.")
+        }[];
+    };
+}
+
+export interface FiveWOneHQuestion {
+    id: string;
+    type: 'who' | 'what' | 'where' | 'when' | 'how' | 'why' | 'inference';
+    questionText: string;
+    answerType: 'open_ended' | 'multiple_choice' | 'fill_in_the_blank';
+    options?: string[];
+    correctAnswer: string;
+}
+
+export interface FiveWOneHData extends BaseActivityData {
+    settings?: {
+        difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+        topic: string; // Kullanıcının seçeceği ilgi alanı
+        textLength: 'kısa' | 'orta' | 'uzun';
+        syllableColoring: boolean; // Renkli hece aktif mi?
+        fontFamily: string; // Disleksi / Normal font
+        questionStyle: 'test_and_open' | 'only_open_ended' | 'only_test';
+    };
+    content: {
+        title: string;
+        text: string;
+        paragraphs: string[];
+    };
+    questions: FiveWOneHQuestion[];
+}
+
+export interface ColorfulSyllableReadingData extends BaseActivityData {
+    settings?: {
+        difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+        topic: string;
+        textLength: 'kısa' | 'orta' | 'uzun';
+        wpmTarget: number;
+        colorPalette: 'red_blue' | 'contrast' | 'pastel';
+        highlightType: 'vowels_only' | 'syllables' | 'words';
+    };
+    content: {
+        title: string;
+        paragraphs: {
+            text: string;
+            syllabified: { word: string; parts: string[] }[];
+        }[];
+    };
+}
+
+export interface FamilyTreeNode {
+    id: string; // Örn: P1, P2
+    role: string; // Örn: Baba, Anne, Dede, Çocuk 1
+    name?: string; // Boş bırakılacak düğümler için boş olabilir
+    gender: 'M' | 'F';
+    generation: number; // 0: Dede/Nine, 1: Anne/Baba, 2: Çocuklar
+    partnersWith?: string; // Evli olduğu kişinin ID'si
+    parents?: [string, string]; // Anne ve Baba ID'leri (varsa)
+    isHidden: boolean; // Öğrencinin bulması istenen kişi mi?
+}
+
+export interface FamilyTreeMatrixData extends BaseActivityData {
+    settings?: {
+        difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+        familySize: 'nuclear' | 'extended';
+        clueComplexity: 'direct' | 'logical';
+        emptyNodesCount: number;
+    };
+    content: {
+        title: string;
+        storyIntro: string; // Kısa başlangıç hikayesi (Örn: "Yılmaz ailesi hafta sonu toplandı...")
+        nodes: FamilyTreeNode[];
+        clues: string[]; // Çözüme götüren ipuçları
+    };
+}
+
+
+

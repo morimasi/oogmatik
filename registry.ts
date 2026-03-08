@@ -56,6 +56,22 @@ export const getDefaultOptionsForActivity = (activityId: ActivityType | string):
             return { ...base, itemCount: 1, gridSize: 5 };
         case ActivityType.AI_WORKSHEET_CONVERTER:
             return { ...base, mode: 'ai', itemCount: 10, variant: 'cloze', topic: 'TR' };
+        case ActivityType.FIVE_W_ONE_H:
+            return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', textLength: 'kısa', topic: 'Genel Hikaye', questionStyle: 'test_and_open', syllableColoring: false };
+        case ActivityType.COLORFUL_SYLLABLE_READING:
+            return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', textLength: 'kısa', wpmTarget: 60, highlightType: 'syllables', colorPalette: 'red_blue', topic: 'Uzay Macerası' };
+        case ActivityType.FAMILY_TREE_MATRIX:
+            return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', familySize: 'nuclear', clueComplexity: 'logical', emptyNodesCount: 2 };
+        case ActivityType.APARTMENT_LOGIC_PUZZLE:
+            return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', apartmentFloors: 2, apartmentRoomsPerFloor: 3, variableCount: 2, negativeClues: false };
+        case ActivityType.FINANCIAL_MARKET_CALCULATOR:
+            return { ...base, mode: 'ai', itemCount: 4, difficulty: 'Orta', currency: 'TRY', useCents: false, budgetLimit: 100, cartSize: 2 };
+        case ActivityType.DIRECTIONAL_CODE_READING:
+            return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 6, obstacleDensity: 20, cipherType: 'arrows' };
+        case ActivityType.LOGIC_ERROR_HUNTER:
+            return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', absurdityDegree: 'obvious', errorCount: 3 };
+        case ActivityType.PATTERN_COMPLETION:
+            return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 3, patternType: 'geometric' };
         default:
             return base;
     }

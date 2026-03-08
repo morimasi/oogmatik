@@ -182,7 +182,7 @@ export interface DirectionalTrackingData extends BaseActivityData {
 
 export interface MapInstructionData extends BaseActivityData {
     instructions: string[];
-    cities: { id: string; name: string; x: number; y: number; region?: string; isCoastal?: boolean; neighbors?: string[] }[];
+    cities: { id: string; name: string; x: number; y: number; region?: string; isCoastal?: boolean; neighbors?: string[]; gridCode?: string }[];
     emphasizedRegion?: string;
     questionType?: 'spatial_logic' | 'linguistic_geo' | 'attribute_search' | 'neighbor_path' | 'route_planning';
     difficultyLevel?: 1 | 2 | 3 | 4 | 5;
@@ -190,7 +190,11 @@ export interface MapInstructionData extends BaseActivityData {
         showCityNames: boolean;
         markerStyle: 'circle' | 'star' | 'target' | 'dot' | 'none';
         difficulty: string;
+        mapType?: 'turkey' | 'world' | 'treasure';
+        includeCompass?: boolean;
+        useGridSystem?: boolean;
     };
+    gridConfig?: { rows: number; cols: number };
 }
 
 export interface SymbolCipherData extends BaseActivityData {
@@ -260,4 +264,53 @@ export interface AlgorithmStep {
 export interface AlgorithmData extends BaseActivityData {
     challenge: string;
     steps: AlgorithmStep[];
+}
+
+export interface DirectionalCodeReadingData extends BaseActivityData {
+    settings?: {
+        difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+        gridSize: number; // Örn: 5x5, 8x8
+        obstacleDensity: number; // % yüzde
+        cipherType: 'arrows' | 'letters' | 'colors';
+    };
+    content: {
+        title: string;
+        storyIntro?: string;
+        grid: {
+            x: number;
+            y: number;
+            type: 'empty' | 'obstacle' | 'start' | 'target' | 'path';
+            icon?: string;
+        }[][];
+        startPos: { x: number; y: number };
+        targetPos: { x: number; y: number };
+        instructions: { step: number; count: number; direction: 'up' | 'down' | 'left' | 'right' }[];
+    };
+}
+
+export interface PatternCell {
+    x: number;
+    y: number;
+    isMissing: boolean; // Eksik (Soru İşareti) olan parça bu mu?
+    shapes?: { type: ShapeType; color: string; rotation: number }[]; // Geometrik tipler için (Hücre içinde birden fazla şekil olabilir)
+    color?: string; // Sadece color block modunda hücre rengi
+    content?: string; // Logic mode modunda veya özel semboller (, sayı, harf)
+}
+
+export interface PatternCompletionData extends BaseActivityData {
+    settings?: {
+        difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+        patternType: 'geometric' | 'color_blocks' | 'logic_sequence';
+        gridSize: number; // Örn: 3x3
+    };
+    content: {
+        title: string;
+        instruction: string;
+        matrix: PatternCell[];
+        options: {
+            id: string; // A, B, C, D
+            isCorrect: boolean;
+            cell: PatternCell; // Seçenekteki parçanın görsel karşılığı
+        }[];
+    };
 }

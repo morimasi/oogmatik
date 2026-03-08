@@ -95,7 +95,15 @@ export enum ActivityType {
     NUMBER_SENSE = 'NUMBER_SENSE',
     ABC_CONNECT = 'ABC_CONNECT',
     MAGIC_PYRAMID = 'MAGIC_PYRAMID',
-    CAPSULE_GAME = 'CAPSULE_GAME'
+    CAPSULE_GAME = 'CAPSULE_GAME',
+    FIVE_W_ONE_H = 'FIVE_W_ONE_H',
+    COLORFUL_SYLLABLE_READING = 'COLORFUL_SYLLABLE_READING',
+    FAMILY_TREE_MATRIX = 'FAMILY_TREE_MATRIX',
+    APARTMENT_LOGIC_PUZZLE = 'APARTMENT_LOGIC_PUZZLE',
+    FINANCIAL_MARKET_CALCULATOR = 'FINANCIAL_MARKET_CALCULATOR',
+    DIRECTIONAL_CODE_READING = 'DIRECTIONAL_CODE_READING',
+    LOGIC_ERROR_HUNTER = 'LOGIC_ERROR_HUNTER',
+    PATTERN_COMPLETION = 'PATTERN_COMPLETION'
 }
 
 export type UserRole = 'user' | 'admin';
@@ -202,8 +210,7 @@ export interface GeneratorOptions {
     itemCount: number;
     topic?: string;
     gridSize?: number;
-    patternType?: 'arithmetic' | 'geometric' | 'complex';
-    targetShape?: ShapeType;
+    patternType?: 'arithmetic' | 'geometric' | 'complex' | 'color_blocks' | 'logic_sequence';
     variant?: string;
     studentContext?: Student;
     memorizeRatio?: number;
@@ -246,6 +253,30 @@ export interface GeneratorOptions {
     concept?: string;
     density?: 'low' | 'medium' | 'high';
     hintLevel?: 'low' | 'medium' | 'high';
+    textLength?: 'kısa' | 'orta' | 'uzun';
+    questionStyle?: 'test_and_open' | 'only_test' | 'only_open_ended';
+    syllableColoring?: boolean;
+    wpmTarget?: number;
+    colorPalette?: 'red_blue' | 'contrast' | 'pastel';
+    highlightType?: 'vowels_only' | 'syllables' | 'words';
+    familySize?: 'nuclear' | 'extended';
+    clueComplexity?: 'direct' | 'logical';
+    emptyNodesCount?: number;
+    apartmentFloors?: number;
+    apartmentRoomsPerFloor?: number;
+    variableCount?: number;
+    negativeClues?: boolean;
+    currency?: 'TRY' | 'USD' | 'EUR';
+    useCents?: boolean;
+    budgetLimit?: number;
+    cartSize?: number;
+    obstacleDensity?: number;
+    cipherType?: 'arrows' | 'letters' | 'colors';
+    absurdityDegree?: 'minimal' | 'obvious' | 'surreal';
+    errorCount?: number;
+    useGridSystem?: boolean;
+    mapType?: 'turkey' | 'world' | 'treasure';
+    includeCompass?: boolean;
 }
 
 export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'diamond' | 'pentagon' | 'octagon';
