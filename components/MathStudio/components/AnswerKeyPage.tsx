@@ -4,8 +4,11 @@ import React from 'react';
 import { MathOperation, MathProblem, MathPageConfig } from '../../../types/math';
 import { PageShell } from './PageShell';
 
+import { ThemeConfig } from '../constants';
+
 interface AnswerKeyPageProps {
     pageConfig: MathPageConfig;
+    themeConfig: ThemeConfig;
     drillAnswers?: MathOperation[];
     problemAnswers?: MathProblem[];
     totalContentPages: number;
@@ -18,6 +21,7 @@ interface AnswerKeyPageProps {
  */
 export const AnswerKeyPage: React.FC<AnswerKeyPageProps> = ({
     pageConfig,
+    themeConfig,
     drillAnswers,
     problemAnswers,
     totalContentPages,
@@ -26,7 +30,7 @@ export const AnswerKeyPage: React.FC<AnswerKeyPageProps> = ({
     const totalPages = totalContentPages + 1;
 
     return (
-        <PageShell pageConfig={pageConfig} pageIndex={pageIndex} totalPages={totalPages} studentName="CEVAP ANAHTARI">
+        <PageShell pageConfig={pageConfig} pageIndex={pageIndex} totalPages={totalPages} studentName="CEVAP ANAHTARI" themeConfig={themeConfig}>
             <div className="mb-4">
                 <h2 className="text-lg font-black uppercase tracking-tight text-indigo-700 flex items-center gap-2">
                     <i className="fa-solid fa-key"></i> Cevap Anahtarı

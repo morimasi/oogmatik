@@ -6,9 +6,12 @@ import { PageShell } from './PageShell';
 import { OperationCardVertical, OperationCardHorizontal } from './OperationCard';
 import { useDrillPagination } from '../hooks/usePagination';
 
+import { ThemeConfig } from '../constants';
+
 interface DrillCanvasProps {
     drillConfig: MathDrillConfig;
     pageConfig: MathPageConfig;
+    themeConfig: ThemeConfig;
     generatedDrills: MathOperation[];
     studentName?: string;
 }
@@ -16,6 +19,7 @@ interface DrillCanvasProps {
 export const DrillCanvas: React.FC<DrillCanvasProps> = ({
     drillConfig,
     pageConfig,
+    themeConfig,
     generatedDrills,
     studentName,
 }) => {
@@ -30,6 +34,7 @@ export const DrillCanvas: React.FC<DrillCanvasProps> = ({
                     pageIndex={pageIdx}
                     totalPages={totalPages}
                     studentName={studentName}
+                    themeConfig={themeConfig}
                 >
                     <div
                         className="grid w-full"
@@ -38,11 +43,11 @@ export const DrillCanvas: React.FC<DrillCanvasProps> = ({
                             gap: `${drillConfig.gap}px`,
                         }}
                     >
-                        {pageItems.map((op) => (
+                        {pageItems.map((op, i) => (
                             <div key={op.id} className="flex justify-center items-start">
                                 {drillConfig.orientation === 'vertical'
-                                    ? <OperationCardVertical op={op} fontSize={drillConfig.fontSize} showText={drillConfig.showTextRepresentation} />
-                                    : <OperationCardHorizontal op={op} fontSize={drillConfig.fontSize} showText={drillConfig.showTextRepresentation} />
+                                    ? <OperationCardVertical op={op} fontSize={drillConfig.fontSize} showText={drillConfig.showTextRepresentation} themeConfig={themeConfig} index={pageIdx * pageItems.length + i} />
+                                    : <OperationCardHorizontal op={op} fontSize={drillConfig.fontSize} showText={drillConfig.showTextRepresentation} themeConfig={themeConfig} index={pageIdx * pageItems.length + i} />
                                 }
                             </div>
                         ))}

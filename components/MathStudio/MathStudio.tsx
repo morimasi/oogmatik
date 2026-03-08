@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useStudent } from '../../context/StudentContext';
 import { ShareModal } from '../ShareModal';
 import { MathPageConfig, MathMode } from '../../types/math';
-import { DEFAULT_PAGE_CONFIG } from './constants';
+import { DEFAULT_PAGE_CONFIG, DEFAULT_THEME_CONFIG, ThemeConfig } from './constants';
 
 // Hooks
 import { useDrillGenerator } from './hooks/useDrillGenerator';
@@ -25,6 +25,7 @@ import { StudentPanel } from './panels/StudentPanel';
 import { PageSettingsPanel } from './panels/PageSettingsPanel';
 import { DrillSettingsPanel } from './panels/DrillSettingsPanel';
 import { ProblemSettingsPanel } from './panels/ProblemSettingsPanel';
+import { AdvancedPanel } from './panels/AdvancedPanel';
 
 // Pagination
 import { useDrillPagination } from './hooks/usePagination';
@@ -42,6 +43,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
     // --- STATE ---
     const [mode, setMode] = useState<MathMode>('drill');
     const [pageConfig, setPageConfig] = useState<MathPageConfig>({ ...DEFAULT_PAGE_CONFIG });
+    const [themeConfig, setThemeConfig] = useState<ThemeConfig>({ ...DEFAULT_THEME_CONFIG });
     const [selectedStudentId, setSelectedStudentId] = useState<string>('anonymous');
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -162,6 +164,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                                 onSelectStudent={handleSelectStudent}
                             />
                             <PageSettingsPanel pageConfig={pageConfig} setPageConfig={setPageConfig} />
+                            <AdvancedPanel themeConfig={themeConfig} setThemeConfig={setThemeConfig} />
 
                             {mode === 'drill' && (
                                 <DrillSettingsPanel
@@ -191,6 +194,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                         <DrillCanvas
                             drillConfig={drill.drillConfig}
                             pageConfig={pageConfig}
+                            themeConfig={themeConfig}
                             generatedDrills={drill.generatedDrills}
                             studentName={selectedStudentName}
                         />
@@ -200,6 +204,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                         <ProblemCanvas
                             problemConfig={problem.problemConfig}
                             pageConfig={pageConfig}
+                            themeConfig={themeConfig}
                             generatedProblems={problem.generatedProblems}
                             studentName={selectedStudentName}
                         />
@@ -209,6 +214,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                     {drill.drillConfig.showAnswer && mode === 'drill' && drill.generatedDrills.length > 0 && (
                         <AnswerKeyPage
                             pageConfig={pageConfig}
+                            themeConfig={themeConfig}
                             drillAnswers={drill.generatedDrills}
                             totalContentPages={totalContentPages}
                         />
