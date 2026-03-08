@@ -25,6 +25,10 @@ const SHAPE_PATHS: Record<string, string> = {
     diamond: "M 50 10 L 85 50 L 50 90 L 15 50 Z"
 };
 
+const TURKISH_WORDS_EASY = ["kedi", "masa", "elma", "kitap", "kalem", "defter", "silgi", "okul", "top", "gül"];
+const TURKISH_WORDS_MEDIUM = ["pencere", "bilgisayar", "öğretmen", "öğrenci", "kütüphane", "merdiven", "gökyüzü", "arkadaş"];
+const TURKISH_WORDS_HARD = ["karakteristik", "elektrikli", "mükemmeliyet", "disiplinli", "araştırmacı", "profesyonel"];
+
 export const generateOfflineShapeCounting = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
     const { worksheetCount, difficulty, itemCount = 30 } = options;
     const results: ShapeCountingData[] = [];
@@ -164,35 +168,59 @@ export const generateOfflineFindTheDifference = async (options: GeneratorOptions
     const EMOJIS = ["🍎", "🚗", "🏠", "⭐", "🎈", "📚", "⚽", "☀️", "🌙", "🌲", "🌺", "🎁", "🐱", "🐶", "🦁", "🐢", "🦋", "🐝"];
 
     for (let p = 0; p < worksheetCount; p++) {
-        const size = difficulty === 'Başlangıç' ? 5 : (difficulty === 'Orta' ? 7 : 10);
+        const size = difficulty === 'Başlangıç' ? 4 : (difficulty === 'Orta' ? 5 : 6);
 
-        // görsel ise emoji kullan, yoksa harf
-        const sourcePool = findDiffType === 'char' ? turkishAlphabet.split('') : EMOJIS;
+        // Veri havuzu seçimi
+        let sourcePool = EMOJIS;
+        if (findDiffType === 'char') {
+            sourcePool = turkishAlphabet.split('');
+        } else if (findDiffType === 'word') {
+            sourcePool = difficulty === 'Başlangıç' ? TURKISH_WORDS_EASY : (difficulty === 'Orta' ? TURKISH_WORDS_MEDIUM : TURKISH_WORDS_HARD);
+        }
 
-        const sourceGrid: string[][] = Array.from({ length: size }, () => Array.from({ length: size }, () => getRandomItems(sourcePool, 1)[0]));
+        // İki farklı grid oluştur
+        const gridA: string[][] = Array.from({ length: size }, () =>
+            Array.from({ length: size }, () => getRandomItems(sourcePool, 1)[0])
+        );
 
-        const targetGrid = sourceGrid.map(row => [...row]);
+        const gridB = gridA.map(row => [...row]);
         const diffPositions: { r: number, c: number }[] = [];
 
+        // Farkları yerleştir
         while (diffPositions.length < itemCount) {
             const r = getRandomInt(0, size - 1);
             const c = getRandomInt(0, size - 1);
             if (!diffPositions.some(pos => pos.r === r && pos.c === c)) {
                 let newVal = getRandomItems(sourcePool, 1)[0];
-                while (newVal === sourceGrid[r][c]) newVal = getRandomItems(sourcePool, 1)[0];
-                targetGrid[r][c] = newVal;
+                while (newVal === gridA[r][c]) newVal = getRandomItems(sourcePool, 1)[0];
+                gridB[r][c] = newVal;
                 diffPositions.push({ r, c });
             }
         }
 
         results.push({
-            title: "Farkı Bul",
-            instruction: `İki tablo arasındaki ${itemCount} farkı bul ve işaretle.`,
-            pedagogicalNote: "Dikkat yoğunluğu, görsel tarama ve karşılaştırmalı analiz yeteneğini geliştirir.",
-            rows: Array.from({ length: size }, (_, r) => ({
-                items: sourceGrid[r],
-                correctIndex: -1, // Not used in this variant
-                visualDistractionLevel: 'medium'
+            title: "DİKKAT VE AYRIŞTIRMA: İKİ TABLO ARASINDAKİ FARKLAR",
+            instruction: `Soldaki tablo ile sağdaki tablo arasındaki ${itemCount} farkı bulup sağdakinde işaretleyin.`,
+            pedagogicalNote: "Karşılaştırmalı görsel tarama, seçici dikkat ve çalışma belleğini güçlendiren profesyonel dikkat egzersizi.",
+            settings: {
+                difficulty: mapDifficulty(difficulty || 'Orta'),
+                layout: 'side_by_side',
+                itemType: findDiffType as any,
+                isProfessionalMode: true,
+                showClinicalNotes: true
+            },
+            // GridA ve GridB'yi taşıyacak yapı
+            gridA,
+            gridB,
+            diffCount: itemCount,
+            // Legacy render desteği için rows (opsiyonel)
+            rows: gridB.map((row, r) => ({
+                items: row,
+                correctIndex: -1,
+                clinicalMeta: {
+                    errorType: 'Görsel Fark',
+                    isMirrorTask: false
+                }
             }))
         } as any);
     }
@@ -298,15 +326,16 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
         }
 
         results.push({
-            title: "Görsel Ayrıştırma",
-            instruction: "Her satırda diğerlerinden farklı olan öğeyi bularak işaretleyin.",
-            pedagogicalNote: "Görsel ayırt etme, yön tayini (spatial orientation) ve dikkat kontrolünü geliştirir.",
+            title: "GÖRSEL AYRIŞTIRMA VE KETLEME",
+            instruction: "Her satırda diğerlerinden farklı (yönü, şekli veya türü değişik) olan öğeyi bularak işaretleyin.",
+            pedagogicalNote: "Görsel ayırt etme, yön tayini (spatial orientation) ve ketleme (inhibition) becerilerini geliştiren klinik materyal.",
             settings: {
                 difficulty: mapDifficulty(difficulty || 'Orta'),
                 layout: itemCount >= 6 ? 'ultra_dense' : 'grid_compact',
                 itemType: 'character',
                 isProfessionalMode: true,
-                showClinicalNotes: false
+                showClinicalNotes: true,
+                subType: 'character_discrimination'
             },
             rows
         });

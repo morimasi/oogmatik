@@ -4,11 +4,75 @@ import { FindTheDifferenceData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData }) => {
+export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData & { gridA?: any[][], gridB?: any[][], diffCount?: number } }) => {
     const rows = data?.rows || [];
     const settings = data?.settings;
     const isUltraDense = settings?.layout === 'ultra_dense';
     const isGridCompact = settings?.layout === 'grid_compact' || isUltraDense;
+    const isSideBySide = settings?.layout === 'side_by_side' || (data.gridA && data.gridB);
+
+    if (isSideBySide && data.gridA && data.gridB) {
+        return (
+            <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+                <PedagogicalHeader
+                    title={data?.title || "FARK BULMACA: TABLO KARŞILAŞTIRMA"}
+                    instruction={data?.instruction || `Sol taraftaki tablo ile sağ taraftaki tablo arasındaki ${data.diffCount || ''} farkı bulun.`}
+                    note={data?.pedagogicalNote}
+                />
+
+                <div className="flex-1 flex flex-col md:flex-row gap-8 mt-8 items-start justify-center px-4">
+                    {/* Tablo A */}
+                    <div className="flex-1 flex flex-col items-center gap-4">
+                        <span className="px-4 py-1.5 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md">REFERANS TABLO</span>
+                        <div className="grid gap-2 p-4 border-4 border-zinc-900 bg-white rounded-[2rem] shadow-xl" style={{ gridTemplateColumns: `repeat(${data.gridA[0].length}, 1fr)` }}>
+                            {data.gridA.flat().map((cell, i) => (
+                                <div key={i} className="w-12 h-12 border-2 border-zinc-100 rounded-xl flex items-center justify-center font-black text-xl bg-zinc-50/50">
+                                    <EditableText value={String(cell)} tag="span" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Ayırıcı / Ok h-full flex items-center justify-center hidden md:flex */}
+                    <div className="self-center flex flex-col items-center opacity-20 hidden md:flex">
+                        <i className="fa-solid fa-chevron-right text-4xl"></i>
+                        <span className="text-[8px] font-black mt-2">KARŞILAŞTIR</span>
+                    </div>
+
+                    {/* Tablo B (Farkların İşaretleneceği Yer) */}
+                    <div className="flex-1 flex flex-col items-center gap-4">
+                        <span className="px-4 py-1.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md">FARKLI OLANI İŞARETLE</span>
+                        <div className="grid gap-2 p-4 border-4 border-indigo-600 bg-white rounded-[2rem] shadow-xl" style={{ gridTemplateColumns: `repeat(${data.gridB[0].length}, 1fr)` }}>
+                            {data.gridB.flat().map((cell, i) => (
+                                <div key={i} className="w-12 h-12 border-2 border-indigo-100 rounded-xl flex items-center justify-center font-black text-xl hover:bg-indigo-50 cursor-pointer transition-colors relative group">
+                                    <EditableText value={String(cell)} tag="span" />
+                                    <div className="absolute inset-1 rounded-lg border-2 border-transparent group-hover:border-indigo-300 border-dashed"></div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Alt Bilgi Paneli */}
+                <div className="mt-12 p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
+                    <div className="flex gap-10">
+                        <div className="flex flex-col">
+                            <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">KLİNİK MODÜL</span>
+                            <span className="text-xs font-black uppercase whitespace-nowrap">Karşılaştırmalı Görsel Analiz</span>
+                        </div>
+                        <div className="flex flex-col border-l border-white/10 pl-10">
+                            <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">HEDEF FARK</span>
+                            <span className="text-xs font-black uppercase">{data.diffCount} ADET</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3 opacity-60">
+                        <span className="text-[8px] font-bold tracking-[0.2em]">DİSKRİMİNASYON BATARYASI v6.0</span>
+                        <i className="fa-solid fa-microscope text-indigo-400 text-xs shadow-glow"></i>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     // Grid sütun sayısını ayarla
     let gridCols = "grid-cols-1";

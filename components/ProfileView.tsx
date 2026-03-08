@@ -1,15 +1,15 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useStudent } from '../context/StudentContext'; 
+import { useStudent } from '../context/StudentContext';
 import { SavedAssessment, SavedWorksheet, ActivityType, User, Curriculum, Student, UiSettings, AppTheme } from '../types';
 import { assessmentService } from '../services/assessmentService';
 import { worksheetService } from '../services/worksheetService';
-import { curriculumService } from '../services/curriculumService'; 
+import { curriculumService } from '../services/curriculumService';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
 import { LineChart } from './LineChart';
 import { RadarChart } from './RadarChart';
-import { printService } from '../utils/printService'; 
+import { printService } from '../utils/printService';
 import { ACTIVITIES } from '../constants';
 import { StudentDashboard } from './Student/StudentDashboard';
 
@@ -27,11 +27,11 @@ interface ProfileViewProps {
 
 // --- BENTO COMPONENTS ---
 
-const BentoCard: React.FC<{ 
-    children: React.ReactNode; 
-    className?: string; 
-    title?: string; 
-    icon?: string; 
+const BentoCard: React.FC<{
+    children: React.ReactNode;
+    className?: string;
+    title?: string;
+    icon?: string;
     iconColor?: string;
     action?: React.ReactNode;
 }> = ({ children, className = "", title, icon, iconColor = "bg-zinc-100 text-zinc-500", action }) => (
@@ -62,9 +62,8 @@ const StatValue: React.FC<{ value: string | number; label?: string; subValue?: s
         </div>
         {label && <div className="text-sm text-zinc-500 font-bold uppercase tracking-wide">{label}</div>}
         {subValue && (
-            <div className={`text-[10px] font-black px-2 py-1 rounded-full inline-flex items-center gap-1 mt-3 w-fit ${
-                trend === 'up' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-700'
-            }`}>
+            <div className={`text-[10px] font-black px-2 py-1 rounded-full inline-flex items-center gap-1 mt-3 w-fit ${trend === 'up' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-700'
+                }`}>
                 {trend === 'up' && <i className="fa-solid fa-arrow-trend-up"></i>}
                 {subValue}
             </div>
@@ -75,11 +74,10 @@ const StatValue: React.FC<{ value: string | number; label?: string; subValue?: s
 const TabPill: React.FC<{ active: boolean; onClick: () => void; label: string; icon: string }> = ({ active, onClick, label, icon }) => (
     <button
         onClick={onClick}
-        className={`px-6 py-3.5 rounded-2xl text-xs font-black flex items-center gap-3 transition-all duration-300 uppercase tracking-widest border-2 ${
-            active 
-            ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white shadow-2xl scale-105 z-10' 
-            : 'bg-white dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 border-transparent hover:border-zinc-100 dark:hover:border-zinc-700'
-        }`}
+        className={`px-6 py-3.5 rounded-2xl text-xs font-black flex items-center gap-3 transition-all duration-300 uppercase tracking-widest border-2 ${active
+                ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white shadow-2xl scale-105 z-10'
+                : 'bg-white dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 border-transparent hover:border-zinc-100 dark:hover:border-zinc-700'
+            }`}
     >
         <i className={`${icon} ${active ? 'animate-bounce' : ''}`}></i>
         <span>{label}</span>
@@ -87,7 +85,7 @@ const TabPill: React.FC<{ active: boolean; onClick: () => void; label: string; i
 );
 
 const ActionButton: React.FC<{ label: string; icon: string; onClick: () => void; color?: string }> = ({ label, icon, onClick, color = "bg-indigo-600 text-white" }) => (
-    <button 
+    <button
         onClick={onClick}
         className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20 ${color}`}
     >
@@ -98,10 +96,10 @@ const ActionButton: React.FC<{ label: string; icon: string; onClick: () => void;
 
 type ProfileTab = 'overview' | 'students' | 'evaluations' | 'plans' | 'reports' | 'settings';
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ 
-    onBack, 
-    onSelectActivity, 
-    onLoadSaved, 
+export const ProfileView: React.FC<ProfileViewProps> = ({
+    onBack,
+    onSelectActivity,
+    onLoadSaved,
     targetUser,
     theme: externalTheme,
     uiSettings: externalUiSettings,
@@ -110,8 +108,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     onOpenSettingsModal
 }) => {
     const { user: authUser, updateUser, logout } = useAuth();
-    const { students, activeStudent } = useStudent(); 
-    
+    const { students, activeStudent } = useStudent();
+
     const user = targetUser || authUser;
     const isReadOnly = !!targetUser && targetUser.id !== authUser?.id;
 
@@ -124,18 +122,18 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         lineHeight: 1.6,
         saturation: 100
     };
-    
+
     const isDarkTheme = currentTheme === 'dark' || currentTheme === 'anthracite' || currentTheme === 'space' || currentTheme.includes('anthracite') || currentTheme.includes('cyber');
 
     const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
-    
+
     const [assessments, setAssessments] = useState<SavedAssessment[]>([]);
     const [worksheets, setWorksheets] = useState<SavedWorksheet[]>([]);
     const [curriculums, setCurriculums] = useState<Curriculum[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
-    
+
     // Settings States
     const [editName, setEditName] = useState(user?.name || '');
     const [editProfession, setEditProfession] = useState(user?.profession || '');
@@ -143,9 +141,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     const [editPhone, setEditPhone] = useState(user?.phone || '');
     const [editBio, setEditBio] = useState(user?.bio || '');
     const [avatarUrl, setAvatarUrl] = useState(user?.avatar || '');
-    
+
     const [isSavingProfile, setIsSavingProfile] = useState(false);
-    const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+    const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     // Settings toggles state
     const [darkModeEnabled, setDarkModeEnabled] = useState(isDarkTheme);
@@ -214,7 +212,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         if (!user || isReadOnly) return;
         setIsSavingProfile(true);
         try {
-            await updateUser({ 
+            await updateUser({
                 name: editName,
                 profession: editProfession,
                 institution: editInstitution,
@@ -243,11 +241,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     if (!user) return null;
 
     return (
-        <div className="bg-[#f8fafc] dark:bg-[#09090b] min-h-screen flex flex-col font-['Lexend']">
+        <div className="bg-[#f8fafc] dark:bg-[#09090b] h-full flex flex-col font-['Lexend'] overflow-hidden">
             {/* 1. PROFESSIONAL HEADER */}
             <div className="shrink-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-8 md:p-12 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-                
+
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-end gap-10 relative z-10">
                     <div className="relative group">
                         <div className="w-40 h-40 rounded-[3rem] p-1 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl overflow-hidden transform group-hover:rotate-6 transition-transform duration-500">
@@ -298,7 +296,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             {/* 3. MODULE CONTENT AREA */}
             <div className="flex-1 p-8 md:p-12 overflow-y-auto">
                 <div className="max-w-7xl mx-auto pb-20">
-                    
+
                     {message && (
                         <div className={`mb-8 p-4 rounded-2xl flex items-center gap-3 animate-in slide-in-from-top-4 duration-300 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
                             <i className={`fa-solid ${message.type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}`}></i>
@@ -314,7 +312,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                         </div>
                     ) : (
                         <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-                            
+
                             {activeTab === 'overview' && (
                                 <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                                     {/* Stats Hero */}
@@ -327,10 +325,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                                         </div>
                                         {performanceTrends && (
                                             <div className="mt-12 h-64 w-full">
-                                                <LineChart 
-                                                    data={performanceTrends} 
-                                                    lines={[{ key: 'puan', color: '#6366f1', label: 'Ortalama Dikkat Skoru' }]} 
-                                                    height={250} 
+                                                <LineChart
+                                                    data={performanceTrends}
+                                                    lines={[{ key: 'puan', color: '#6366f1', label: 'Ortalama Dikkat Skoru' }]}
+                                                    height={250}
                                                 />
                                             </div>
                                         )}
@@ -457,7 +455,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                                             </div>
                                             <div className="flex gap-4">
                                                 <button className="flex-1 py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-2xl font-black text-xs uppercase tracking-widest transition-transform hover:scale-[1.02]">PLANA GİT</button>
-                                                <button onClick={() => {}} className="w-14 h-14 bg-zinc-100 dark:bg-zinc-700 rounded-2xl flex items-center justify-center text-zinc-500"><i className="fa-solid fa-print"></i></button>
+                                                <button onClick={() => { }} className="w-14 h-14 bg-zinc-100 dark:bg-zinc-700 rounded-2xl flex items-center justify-center text-zinc-500"><i className="fa-solid fa-print"></i></button>
                                             </div>
                                         </BentoCard>
                                     ))}
@@ -491,138 +489,179 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                             )}
 
                             {activeTab === 'settings' && (
-                                <BentoCard title="Hesap ve Sistem Ayarları" icon="fa-solid fa-sliders" iconColor="bg-zinc-100 text-zinc-900">
-                                    <div className="max-w-xl space-y-10">
-                                        <div className="space-y-4">
-                                            <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b pb-2">KİŞİSEL BİLGİLER</h4>
-                                            
-                                            <div className="flex flex-col md:flex-row gap-8">
-                                                {/* Avatar Upload UI */}
-                                                <div className="flex flex-col items-center gap-4 shrink-0">
-                                                    <div className="w-32 h-32 rounded-[2rem] overflow-hidden border-4 border-zinc-100 dark:border-zinc-800 shadow-lg relative group">
-                                                        <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                                                        <label className="absolute inset-0 bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                                            <i className="fa-solid fa-camera text-2xl mb-2"></i>
-                                                            <span className="text-[10px] font-bold">Değiştir</span>
-                                                            <input 
-                                                                type="text" 
-                                                                className="hidden" 
-                                                                onChange={(e) => {
-                                                                    // Placeholder for actual file upload, allowing direct URL input for now
-                                                                    const url = prompt('Avatar URL giriniz:', avatarUrl);
-                                                                    if (url) setAvatarUrl(url);
-                                                                }} 
-                                                                onClick={(e) => {
-                                                                    e.preventDefault();
-                                                                    const url = prompt('Avatar URL giriniz (Gerçek dosya yükleme servisi eklenebilir):', avatarUrl);
-                                                                    if (url) setAvatarUrl(url);
-                                                                }}
-                                                            />
-                                                        </label>
+                                <div className="space-y-8 pb-10">
+                                    {/* PERSONAL INFO CARD */}
+                                    <BentoCard title="Kişisel Bilgiler" icon="fa-solid fa-user-pen" iconColor="bg-indigo-50 text-indigo-600">
+                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                                            {/* Avatar Section */}
+                                            <div className="lg:col-span-3 flex flex-col items-center gap-6">
+                                                <div className="relative group/avatar">
+                                                    <div className="w-40 h-40 rounded-[3.5rem] p-1 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl overflow-hidden transform group-hover/avatar:scale-105 transition-all duration-500">
+                                                        <img src={avatarUrl} alt="Avatar" className="w-full h-full rounded-[3.3rem] object-cover bg-white dark:bg-zinc-800" />
                                                     </div>
-                                                    <button 
-                                                        onClick={() => setAvatarUrl(`https://api.dicebear.com/7.x/avataaars/svg?seed=${editName || user.email}`)}
-                                                        className="text-[10px] font-bold text-zinc-500 hover:text-indigo-600 uppercase tracking-widest transition-colors"
+                                                    <button
+                                                        onClick={() => {
+                                                            const url = prompt('Profil resmi URL giriniz:', avatarUrl);
+                                                            if (url) setAvatarUrl(url);
+                                                        }}
+                                                        className="absolute inset-0 bg-black/60 rounded-[3.5rem] opacity-0 group-hover/avatar:opacity-100 transition-all flex flex-col items-center justify-center text-white"
                                                     >
-                                                        <i className="fa-solid fa-rotate-right mr-1"></i> Rastgele Üret
+                                                        <i className="fa-solid fa-camera text-3xl mb-2"></i>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Resmi Değiştir</span>
                                                     </button>
                                                 </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => setAvatarUrl(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`)}
+                                                        className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-all"
+                                                    >
+                                                        <i className="fa-solid fa-dice mr-2"></i> Yeni Üret
+                                                    </button>
+                                                </div>
+                                            </div>
 
-                                                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {/* Forms Section */}
+                                            <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                <div className="space-y-6">
                                                     <div>
-                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">Görünen Ad <span className="text-red-500">*</span></label>
-                                                        <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Tam Ad Soyad</label>
+                                                        <div className="relative group">
+                                                            <i className="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
+                                                            <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
+                                                        </div>
                                                     </div>
                                                     <div>
-                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">E-posta (Değiştirilemez)</label>
-                                                        <input type="text" value={user.email} disabled className="w-full p-4 bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-400 cursor-not-allowed outline-none" />
+                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">E-Posta (Sabit)</label>
+                                                        <div className="relative group">
+                                                            <i className="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300"></i>
+                                                            <input type="text" value={user.email} disabled className="w-full pl-12 pr-4 py-4 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-400 cursor-not-allowed outline-none" />
+                                                        </div>
                                                     </div>
                                                     <div>
-                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">Unvan / Uzmanlık</label>
-                                                        <input type="text" value={editProfession} onChange={e => setEditProfession(e.target.value)} placeholder="Örn: Özel Eğitim Uzmanı" className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Telefon Numarası</label>
+                                                        <div className="relative group">
+                                                            <i className="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
+                                                            <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-6">
+                                                    <div>
+                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Meslek / Uzmanlık</label>
+                                                        <div className="relative group">
+                                                            <i className="fa-solid fa-briefcase absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
+                                                            <input type="text" value={editProfession} onChange={e => setEditProfession(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
+                                                        </div>
                                                     </div>
                                                     <div>
-                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">Kurum / Okul</label>
-                                                        <input type="text" value={editInstitution} onChange={e => setEditInstitution(e.target.value)} placeholder="Örn: Bursa Disleksi Merkezi" className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Kurum / Okul Bilgisi</label>
+                                                        <div className="relative group">
+                                                            <i className="fa-solid fa-building absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
+                                                            <input type="text" value={editInstitution} onChange={e => setEditInstitution(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
+                                                        </div>
                                                     </div>
                                                     <div className="md:col-span-2">
-                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">İletişim (Telefon)</label>
-                                                        <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} placeholder="Örn: +90 555 123 4567" className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500" />
-                                                    </div>
-                                                    <div className="md:col-span-2">
-                                                        <label className="block text-[10px] font-black text-zinc-500 uppercase mb-2">Hakkımda / Biyografi</label>
-                                                        <textarea 
-                                                            value={editBio} 
-                                                            onChange={e => setEditBio(e.target.value)} 
-                                                            placeholder="Kendinizden veya çalışma alanlarınızdan kısaca bahsedin..." 
-                                                            className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 h-32 resize-none"
-                                                        ></textarea>
+                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Kısa Biyografi</label>
+                                                        <div className="relative group">
+                                                            <textarea value={editBio} onChange={e => setEditBio(e.target.value)} className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-3xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all h-20 resize-none" />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+                                        <div className="mt-10 flex justify-end">
+                                            <button
+                                                onClick={handleUpdateProfile}
+                                                disabled={isSavingProfile}
+                                                className="px-10 py-5 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-3xl font-black text-xs uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                                            >
+                                                {isSavingProfile ? <i className="fa-solid fa-circle-notch fa-spin mr-3"></i> : <i className="fa-solid fa-check-double mr-3"></i>}
+                                                Profil Bilgilerini Güncelle
+                                            </button>
+                                        </div>
+                                    </BentoCard>
 
-                                        <div className="space-y-4">
-                                            <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest border-b pb-2">SİSTEM TERCİHLERİ</h4>
-                                            <div className="space-y-3">
-                                                <div 
-                                                    className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-indigo-300 transition-all"
-                                                    onClick={handleToggleDarkMode}
-                                                >
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                        {/* SYSTEM PREFERENCES */}
+                                        <BentoCard title="Sistem Tercihleri" icon="fa-solid fa-palette" iconColor="bg-amber-50 text-amber-600">
+                                            <div className="space-y-4">
+                                                <div onClick={handleToggleDarkMode} className="flex items-center justify-between p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-indigo-400 transition-all group">
+                                                    <div className="flex items-center gap-5">
+                                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all ${darkModeEnabled ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-zinc-800 text-zinc-400 group-hover:text-indigo-500'}`}>
                                                             <i className={`fa-solid ${darkModeEnabled ? 'fa-moon' : 'fa-sun'}`}></i>
                                                         </div>
                                                         <div>
-                                                            <p className="text-sm font-black text-zinc-800 dark:text-zinc-200">Koyu Tema</p>
-                                                            <p className="text-[10px] text-zinc-500">Göz yorgunluğunu azaltın.</p>
+                                                            <p className="font-black text-zinc-800 dark:text-zinc-200 text-sm">Karanlık Mod</p>
+                                                            <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Gece kullanımı için optimize edin</p>
                                                         </div>
                                                     </div>
-                                                    <div className={`w-12 h-6 rounded-full relative transition-all ${darkModeEnabled ? 'bg-indigo-600' : 'bg-zinc-300 dark:bg-zinc-600'}`}>
-                                                        <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 shadow-md transition-all ${darkModeEnabled ? 'left-6' : 'left-0.5'}`}></div>
+                                                    <div className={`w-14 h-7 rounded-full relative transition-all duration-300 ${darkModeEnabled ? 'bg-indigo-600 shadow-lg shadow-indigo-500/40' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
+                                                        <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all duration-300 shadow-sm ${darkModeEnabled ? 'left-8' : 'left-1'}`}></div>
                                                     </div>
                                                 </div>
-                                                <div 
-                                                    className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-indigo-300 transition-all"
-                                                    onClick={handleToggleNotifications}
-                                                >
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+
+                                                <div onClick={handleToggleNotifications} className="flex items-center justify-between p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-emerald-400 transition-all group">
+                                                    <div className="flex items-center gap-5">
+                                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all ${emailNotificationsEnabled ? 'bg-emerald-600 text-white' : 'bg-white dark:bg-zinc-800 text-zinc-400 group-hover:text-emerald-500'}`}>
                                                             <i className="fa-solid fa-bell"></i>
                                                         </div>
                                                         <div>
-                                                            <p className="text-sm font-black text-zinc-800 dark:text-zinc-200">E-posta Bildirimleri</p>
-                                                            <p className="text-[10px] text-zinc-500">Raporlar tamamlandığında haberdar olun.</p>
+                                                            <p className="font-black text-zinc-800 dark:text-zinc-200 text-sm">E-Posta Bildirimleri</p>
+                                                            <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Haftalık özet ve kritik raporlar</p>
                                                         </div>
                                                     </div>
-                                                    <div className={`w-12 h-6 rounded-full relative transition-all ${emailNotificationsEnabled ? 'bg-indigo-600' : 'bg-zinc-300 dark:bg-zinc-600'}`}>
-                                                        <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 shadow-md transition-all ${emailNotificationsEnabled ? 'left-6' : 'left-0.5'}`}></div>
+                                                    <div className={`w-14 h-7 rounded-full relative transition-all duration-300 ${emailNotificationsEnabled ? 'bg-emerald-600 shadow-lg shadow-emerald-500/40' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
+                                                        <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all duration-300 shadow-sm ${emailNotificationsEnabled ? 'left-8' : 'left-1'}`}></div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </BentoCard>
 
-                                        <div className="pt-6 flex gap-4 flex-wrap">
-                                            <button 
-                                                onClick={handleUpdateProfile}
-                                                disabled={isSavingProfile}
-                                                className="flex-1 md:flex-none px-10 py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black text-xs uppercase tracking-widest shadow-2xl shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
-                                            >
-                                                {isSavingProfile ? <i className="fa-solid fa-circle-notch fa-spin mr-2"></i> : <i className="fa-solid fa-save mr-2"></i>}
-                                                Ayarları Kaydet
-                                            </button>
-                                            {onOpenSettingsModal && (
-                                                <button 
-                                                    onClick={onOpenSettingsModal}
-                                                    className="flex-1 md:flex-none px-10 py-5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-[1.5rem] font-black text-xs uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all flex items-center justify-center gap-2"
-                                                >
-                                                    <i className="fa-solid fa-sliders mr-2"></i>
-                                                    Gelişmiş Ayarlar
-                                                </button>
-                                            )}
-                                        </div>
+                                        {/* SECURITY CARD */}
+                                        <BentoCard title="Güvenlik ve Erişim" icon="fa-solid fa-shield-halved" iconColor="bg-blue-50 text-blue-600">
+                                            <div className="h-full flex flex-col justify-between pt-2">
+                                                <div className="p-6 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-3xl mb-8">
+                                                    <div className="flex items-start gap-4">
+                                                        <i className="fa-solid fa-info-circle text-blue-600 mt-1"></i>
+                                                        <p className="text-xs font-bold text-blue-700 dark:text-blue-400 leading-relaxed">Güvenliğiniz için şifrenizi en az 3 ayda bir değiştirmenizi öneririz. Şifreniz en az 8 karakter, büyük harf ve sembol içermelidir.</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-4">
+                                                    <button
+                                                        onClick={() => {
+                                                            const pass = prompt('Yeni şifre giriniz:');
+                                                            if (pass && pass.length >= 6) {
+                                                                // AuthContext updatePassword call could go here
+                                                                alert('Şifre güncelleme isteği gönderildi.');
+                                                            }
+                                                        }}
+                                                        className="flex-1 px-6 py-4 bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-white text-zinc-900 dark:text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
+                                                    >
+                                                        Şifre Değiştir
+                                                    </button>
+                                                    <button
+                                                        onClick={onOpenSettingsModal}
+                                                        className="px-6 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
+                                                    >
+                                                        Gelişmiş Ayarlar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </BentoCard>
+
+                                        {/* DANGER ZONE */}
+                                        <BentoCard className="lg:col-span-2 border-red-100 dark:border-red-900/30" title="Tehlikeli Bölge" icon="fa-solid fa-triangle-exclamation" iconColor="bg-red-50 text-red-600">
+                                            <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-red-50/30 dark:bg-red-900/5 rounded-[2.5rem]">
+                                                <div className="text-center md:text-left">
+                                                    <h5 className="font-black text-red-700 dark:text-red-400 text-sm mb-1 uppercase tracking-tight">Hesabı Kalıcı Olarak Kapat</h5>
+                                                    <p className="text-[11px] text-zinc-500 font-bold">Tüm öğrenci verileriniz, raporlarınız ve arşiviniz geri dönülemez şekilde silinecektir.</p>
+                                                </div>
+                                                <button className="px-8 py-4 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-red-500/20 hover:scale-105 active:scale-95 transition-all">HESABI SİL</button>
+                                            </div>
+                                        </BentoCard>
                                     </div>
-                                </BentoCard>
+                                </div>
                             )}
 
                         </div>

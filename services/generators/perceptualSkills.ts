@@ -75,4 +75,73 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
     return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData[]>;
 };
 
-// ... remaining perceptual generators ...
+export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
+    const { difficulty, worksheetCount, findDiffType, itemCount = 5, studentContext } = options;
+
+    const typeDesc = findDiffType === 'word' ? 'Türkçe Kelimeler' :
+        findDiffType === 'char' ? 'Karıştırılan Harfler' : 'Görsel Emojiler';
+
+    const prompt = `
+    ${PEDAGOGICAL_BASE}
+    ${CLINICAL_DIAGNOSTIC_GUIDE}
+    
+    GÖREV: [İKİ TABLO ARASINDAKİ FARKLARI BULMA]
+    
+    PARAMETRELER:
+    - Veri Tipi: ${typeDesc}.
+    - Zorluk: ${difficulty}.
+    - Hedef Fark Sayısı: ${itemCount}.
+    - Öğrenci Profili: ${studentContext?.diagnosis?.join(', ') || 'Genel Gelişim'}.
+    
+    STRATEJİ:
+    1. İki adet grid oluştur (gridA ve gridB).
+    2. gridA referans tablodur, gridB ise ${itemCount} adet fark barındırır.
+    3. Farklar disleksi/dikkat profiline göre seçilmelidir (örn: b yerine d, m yerine n).
+    4. Tüm metinler tamamen TÜRKÇE olmalıdır.
+    
+    ÇIKTI FORMATI:
+    - gridA: [[string, ...], ...]
+    - gridB: [[string, ...], ...]
+    - diffCount: number
+    - rows: [{ items: [...], clinicalMeta: { errorType: "..." } }] (gridB'nin satır yansıması)
+    `;
+
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            gridA: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            gridB: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            diffCount: { type: Type.INTEGER },
+            rows: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        items: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        clinicalMeta: { type: Type.OBJECT, properties: { errorType: { type: Type.STRING } } }
+                    }
+                }
+            }
+        },
+        required: ["title", "instruction", "gridA", "gridB", "diffCount"]
+    };
+
+    const schema = { type: Type.ARRAY, items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<FindTheDifferenceData[]>;
+};
+
+export const generateShapeCountingFromAI = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
+    const { difficulty, worksheetCount, studentContext } = options;
+    const prompt = `
+    ${PEDAGOGICAL_BASE}
+    GÖREV: [ŞEKİL SAYMA VE GÖRSEL TARAMA]
+    ZORLUK: ${difficulty}
+    Öğrenci: ${studentContext?.diagnosis?.join(', ')}
+    SVG tabanlı geometrik şekillerden oluşan karmaşık bir tarama alanı tasarla.
+    `;
+    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, sections: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { searchField: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { type: { type: Type.STRING }, x: { type: Type.NUMBER }, y: { type: Type.NUMBER }, size: { type: Type.NUMBER } } } }, correctCount: { type: Type.NUMBER } } } } } } };
+    return generateWithSchema(prompt, schema) as Promise<ShapeCountingData[]>;
+};

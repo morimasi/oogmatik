@@ -37,11 +37,14 @@ export interface FindTheDifferenceData extends BaseActivityData {
     settings?: {
         difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
         differenceType: 'visual' | 'character' | 'morphological' | 'symbolic';
-        itemType: 'svg' | 'text' | 'image' | 'character';
-        layout: 'single' | 'grid_compact' | 'ultra_dense';
+        itemType: 'svg' | 'text' | 'image' | 'character' | 'word';
+        layout: 'single' | 'grid_compact' | 'ultra_dense' | 'side_by_side';
         isProfessionalMode: boolean;
         showClinicalNotes?: boolean;
     };
+    gridA?: any[][];
+    gridB?: any[][];
+    diffCount?: number;
     rows: {
         items: any[]; // Supports strings, SVG objects, or references
         correctIndex: number;
