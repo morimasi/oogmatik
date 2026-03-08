@@ -11,14 +11,14 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
         'mult': 'Çarpma (x)',
         'div': 'Bölme (÷)'
     };
-    
-    const selectedOpsText = config.selectedOperations.length > 0 
+
+    const selectedOpsText = config.selectedOperations.length > 0
         ? config.selectedOperations.map(op => opsMap[op]).join(' ve ')
         : 'Dört İşlem Karışık';
 
-    const complexityDesc = config.complexity === '1-step' ? 'Tek işlemli, doğrudan çözüm gerektiren' 
-        : config.complexity === '2-step' ? 'İki aşamalı (Önce topla sonra çıkar gibi)' 
-        : 'Çok adımlı ve düşündürücü';
+    const complexityDesc = config.complexity === '1-step' ? 'Tek işlemli, doğrudan çözüm gerektiren'
+        : config.complexity === '2-step' ? 'İki aşamalı (Önce topla sonra çıkar gibi)'
+            : 'Çok adımlı ve düşündürücü';
 
     const prompt = `
     [ROL: MATEMATİK MÜFREDAT UZMANI ve ÖZEL EĞİTİM PEDAGOGU]
@@ -31,14 +31,23 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
     - **Öğrenci Adı:** ${config.studentName || 'Öğrenci'}.
     - **Konu Başlıkları:** SADECE ${selectedOpsText}. (Başka işlem kullanma!)
     - **Sayı Aralığı:** ${config.numberRange} (Sonuçlar ve ara işlemler bu aralıkta kalmalı).
+    - **Zorluk Seviyesi:** ${config.difficulty} (Bu seviyeye kesinlikle uy!)
     - **Problem Yapısı:** ${complexityDesc}.
     - **Tarz:** ${config.problemStyle === 'story' ? 'Hikayeleştirilmiş, uzun betimlemeli' : config.problemStyle === 'logic' ? 'Mantık bulmacası tarzında' : 'Kısa, net ve anlaşılır'}.
+
+    ZORLUK SEVİYELERİ:
+    - Başlangıç: 1 basamak, somut nesne referansları, çok basit dil
+    - Temel: 2 basamak, günlük yaşam senaryoları
+    - Orta: 2-3 basamak, bağlamsal hikaye
+    - İleri: 3+ basamak, çok adımlı, mantık + aritmetik kombine
+    - Uzman: Stratejik düşünme, çok katmanlı, tuzak şıklı
 
     PEDAGOJİK KURALLAR (DİSLEKSİ & DİSKALKULİ DOSTU):
     1. Cümleler kısa ve net olsun. Devrik cümle kullanma.
     2. Gereksiz sayısal kalabalık yapma. 
     3. İşlem ipucu (operationHint) alanına, hangi işlemin yapılacağını kısaca yaz (örn: "Toplama işlemi").
     4. Cevap anahtarı kesinlikle doğru hesaplanmış olmalı.
+    5. Kademeli zorluk: İlk problemler kolay, son problemler ${config.difficulty} seviyesinde olsun.
 
     ÇIKTI FORMATI (JSON):
     [
