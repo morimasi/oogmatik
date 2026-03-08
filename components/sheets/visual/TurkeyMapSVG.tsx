@@ -30,13 +30,13 @@ const REGION_COLORS: Record<string, { fill: string; stroke: string; label: strin
 
 // Bölge etiket konumları
 const REGION_LABEL_POSITIONS: Record<string, { x: number; y: number }> = {
-    'Marmara': { x: 170, y: 135 },
-    'Ege': { x: 145, y: 295 },
-    'Akdeniz': { x: 400, y: 430 },
-    'İç Anadolu': { x: 420, y: 270 },
-    'Karadeniz': { x: 580, y: 130 },
-    'Doğu Anadolu': { x: 790, y: 255 },
-    'Güneydoğu': { x: 700, y: 390 },
+    'Marmara': { x: 149, y: 99 },
+    'Ege': { x: 154, y: 263 },
+    'Akdeniz': { x: 419, y: 344 },
+    'İç Anadolu': { x: 429, y: 227 },
+    'Karadeniz': { x: 539, y: 97 },
+    'Doğu Anadolu': { x: 834, y: 199 },
+    'Güneydoğu': { x: 745, y: 319 },
 };
 
 export const TurkeyMapSVG: React.FC<TurkeyMapSVGProps> = ({
