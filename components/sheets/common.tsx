@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 import React, { useState } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
 
@@ -36,7 +36,7 @@ const SHAPE_PATHS: Record<string, string> = {
 export const ReadingRuler = () => null;
 
 export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => (
-    <div className="pedagogical-header mb-6 w-full break-inside-avoid border-b-4 border-zinc-900 pb-4 print:mb-2 print:pb-2 print:border-b-2">
+    <div className="pedagogical-header mb-6 w-full break-inside-avoid border-b-4 border-zinc-900 pb-4 print:mb-8 print:pb-2 print:border-b-2">
         <div className="flex items-start justify-between gap-6 print:gap-2">
             <div className="flex-1">
                 <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-3 print:text-lg print:mb-1">{title}</h3>

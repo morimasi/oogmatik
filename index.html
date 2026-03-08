@@ -28,49 +28,57 @@
       --accent-color: #fbbf24;
       --accent-hover: #f59e0b;
       --pattern-color: #3f3f46;
-      --ui-font: 'Lexend', 'OpenDyslexic', sans-serif;
-      --ui-scale: 1;
-      --ui-spacing: normal;
-      --ui-line-height: 1.6;
-      --ui-saturation: 100%;
+      --ui-font: var(--app-font-family, 'Lexend', 'OpenDyslexic', sans-serif);
+      --ui-scale: var(--app-font-size-scale, 1);
+      --ui-spacing: var(--app-letter-spacing, normal);
+      --ui-line-height: var(--app-line-height, 1.6);
+      --ui-saturation: var(--app-saturation, 100%);
       --pattern-image: none;
     }
 
-    :root.theme-light {
-      --bg-primary: #f8fafc;
-      --bg-secondary: #f1f5f9;
-      --bg-paper: #ffffff;
-      --bg-inset: #f1f5f9;
-      --panel-bg: rgba(255, 255, 255, 0.95);
-      --text-primary: #0f172a;
-      --text-secondary: #475569;
-      --text-muted: #94a3b8;
-      --border-color: #e2e8f0;
-      --accent-color: #4f46e5;
-      --accent-hover: #4338ca;
-      --pattern-color: #e2e8f0;
+    /* Theme-specific Overrides for UI Elements */
+    :root.theme-anthracite-gold {
+      --bg-primary: #1f1f22;
+      --bg-paper: #28282c;
+      --accent-color: #fbbf24;
+      --text-primary: #fefce8;
     }
 
-    :root.dark {
-      --bg-primary: #18181b;
-      --bg-secondary: #09090b;
-      --bg-paper: #27272a;
-      --bg-inset: #09090b;
-      --panel-bg: rgba(39, 39, 42, 0.95);
-      --text-primary: #f4f4f5;
-      --text-secondary: #a1a1aa;
-      --text-muted: #71717a;
-      --border-color: #3f3f46;
-      --accent-color: #818cf8;
-      --accent-hover: #6366f1;
-      --pattern-color: #27272a;
+    :root.theme-anthracite-cyber {
+      --bg-primary: #000000;
+      --bg-paper: #0a0a0a;
+      --accent-color: #ec4899;
+      --text-primary: #ffffff;
+      --border-color: #ec489955;
+    }
+
+    :root.theme-space {
+      --bg-primary: #0b0d17;
+      --bg-paper: #161a29;
+      --accent-color: #38bdf8;
+      --text-primary: #f1f5f9;
+    }
+
+    :root.theme-nature {
+      --bg-primary: #f0fdf4;
+      --bg-paper: #ffffff;
+      --accent-color: #22c55e;
+      --text-primary: #166534;
+    }
+
+    :root.theme-ocean {
+      --bg-primary: #ecfeff;
+      --bg-paper: #ffffff;
+      --accent-color: #06b6d4;
+      --text-primary: #155e75;
     }
 
     body {
-      font-family: var(--ui-font);
-      font-size: calc(16px * var(--ui-scale));
-      letter-spacing: var(--ui-spacing);
-      line-height: var(--ui-line-height);
+      font-family: var(--ui-font) !important;
+      font-size: calc(16px * var(--ui-scale)) !important;
+      letter-spacing: var(--ui-spacing) !important;
+      line-height: var(--ui-line-height) !important;
+      filter: saturate(var(--ui-saturation)) !important;
       background-color: var(--bg-primary);
       background-image: var(--pattern-image);
       background-size: 550px 550px;
@@ -79,7 +87,44 @@
       padding: 0;
       overflow-x: hidden;
       overflow-y: auto;
-      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Universal Mode Canvas Fix */
+    .universal-mode-canvas .pedagogical-header {
+      display: none !important;
+    }
+
+    /* ════════════════════════════════════════════════════════════ */
+    /* CORPORATE WATERMARK (Filigran) */
+    /* ════════════════════════════════════════════════════════════ */
+    .worksheet-page {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .worksheet-page::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 500px;
+      height: 500px;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      background-image: url('/assets/logo.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      opacity: 0.06;
+      pointer-events: none;
+      z-index: 0;
+      /* İçeriğin hemen arkasında */
+    }
+
+    @media print {
+      .worksheet-page::before {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
     }
 
     ::-webkit-scrollbar {
@@ -100,20 +145,149 @@
       background: var(--text-muted);
     }
 
+    /* --- DİSLEKSİ DOSTU LOGO ANİMASYONU --- */
+    @keyframes breathing-logo {
+
+      0%,
+      100% {
+        transform: scale(1) translateY(0);
+        filter: grayscale(0%) opacity(0.8);
+      }
+
+      50% {
+        transform: scale(1.05) translateY(-5px);
+        filter: grayscale(0%) opacity(1);
+      }
+    }
+
+    .animate-breathing-logo {
+      animation: breathing-logo 8s ease-in-out infinite;
+    }
+
+    @keyframes dyslexia-flip {
+      0% {
+        transform: rotateY(0deg);
+        fill: currentColor;
+      }
+
+      15% {
+        transform: rotateY(180deg);
+        color: var(--accent-color);
+      }
+
+      45% {
+        transform: rotateY(180deg);
+        color: var(--accent-color);
+      }
+
+      60% {
+        transform: rotateY(360deg);
+        color: var(--text-primary);
+      }
+
+      100% {
+        transform: rotateY(360deg);
+        color: currentColor;
+      }
+    }
+
+    .dyslexia-flip {
+      display: inline-block;
+      animation: dyslexia-flip 6s ease-in-out infinite;
+      transform-style: preserve-3d;
+      backface-visibility: visible;
+    }
+
+    @keyframes star-sparkle {
+
+      0%,
+      100% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+
+      50% {
+        opacity: 0.8;
+        transform: scale(1);
+        filter: drop-shadow(0 0 5px white);
+      }
+    }
+
+    .star-glow:hover {
+      filter: drop-shadow(0 0 15px rgba(79, 70, 229, 0.3));
+    }
+
+    /* --- SIDEBAR & NAVIGATION PREMIUM EFFECTS --- */
+    @keyframes menu-slide-in {
+      from {
+        opacity: 0;
+        transform: translateX(-15px);
+        filter: blur(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+        filter: blur(0);
+      }
+    }
+
+    .animate-menu-in {
+      animation: menu-slide-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.2);
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(79, 70, 229, 0.4);
+    }
+
     /* --- DYNAMIC WORKSHEET STRUCTURE --- */
     .worksheet-page {
       background-color: white;
       color: black;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-      margin: 0 auto;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      margin: 20px auto;
       width: 210mm;
       min-height: 297mm;
-      padding: 6mm;
+      padding: 15mm;
       position: relative;
       overflow: visible !important;
       display: flex;
       flex-direction: column;
       box-sizing: border-box;
+      border: 1px solid #e5e7eb;
+      transition: transform 0.3s ease;
+    }
+
+    .worksheet-page:hover {
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Sayfa Numarası (Sadece Ekranda) */
+    .page-indicator-screen {
+      position: absolute;
+      top: -15px;
+      right: 0;
+      font-size: 10px;
+      font-weight: 800;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: block;
+    }
+
+    @media print {
+      .page-indicator-screen {
+        display: none !important;
+      }
     }
 
     .break-inside-avoid {
@@ -121,7 +295,7 @@
       page-break-inside: avoid !important;
     }
 
-    /* --- ULTRA PROFESSIONAL PRINT ENGINE V3 — A4 KOMPAKT SİSTEM --- */
+    /* --- ULTRA PRINT ENGINE v4.0 — A4 KOMPAKT SİSTEM — Bursa Disleksi AI --- */
     @media print {
       @page {
         size: A4 portrait;
@@ -135,6 +309,7 @@
         margin: 0 !important;
         padding: 0 !important;
         height: auto !important;
+        overflow: visible !important;
       }
 
       #print-container {
@@ -150,22 +325,24 @@
       }
 
       /* ═══════════════════════════════════════════
-         SAYFA KONTEYNER — A4 Piksel Mühendisliği
+         SAYFA KONTEYNER — A4 Standart Mod
          A4 = 210mm x 297mm @ 96dpi = 794px x 1123px
       ═══════════════════════════════════════════ */
       .ultra-print-page,
       .worksheet-page {
         visibility: visible !important;
-        display: flex !important;
-        flex-direction: column !important;
+        display: block !important;
         width: 210mm !important;
-        min-height: 296mm !important;
-        padding: 10mm 15mm !important;
-        /* Slightly more side padding for professional look */
+        min-height: 297mm !important;
+        height: auto !important;
+        padding: 15mm 15mm !important;
+        /* Milimetrik Simetri */
         margin: 0 auto !important;
         overflow: visible !important;
         page-break-after: always !important;
         break-after: page !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
         box-sizing: border-box !important;
         background: white !important;
         -webkit-print-color-adjust: exact !important;
@@ -175,17 +352,112 @@
         box-shadow: none !important;
       }
 
+      /* Yüksek flex yapıları blok moduna çevirerek sayfalama kırılmalarını engelle (çoklu sayfa desteği) */
+      .worksheet-page > .flex-1,
+      .worksheet-page > .flex-col {
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+      }
+
       /* ═══════════════════════════════════════════
-         İÇERİK ALANI — Kompakt + Yoğun
+         KOMPAKT MOD — Daha fazla içerik sığdır
+         #print-container.compact-print ile etkinleşir
+      ═══════════════════════════════════════════ */
+      #print-container.compact-print .ultra-print-page,
+      #print-container.compact-print .worksheet-page {
+        padding: 7mm 11mm !important;
+      }
+
+      #print-container.compact-print .pedagogical-header h3 {
+        font-size: 13pt !important;
+        margin-bottom: 1mm !important;
+      }
+
+      #print-container.compact-print .pedagogical-header p.instruction {
+        font-size: 9pt !important;
+        line-height: 1.4 !important;
+      }
+
+      #print-container.compact-print .pedagogical-header p.note {
+        font-size: 8pt !important;
+      }
+
+      #print-container.compact-print .block-text {
+        font-size: 10pt !important;
+        line-height: 1.5 !important;
+      }
+
+      #print-container.compact-print .print-content-area > * {
+        margin-bottom: 4mm !important;
+      }
+
+      #print-container.compact-print .pedagogical-header {
+        margin-bottom: 3mm !important;
+        padding-bottom: 3mm !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         ÇİFT SÜTUN MOD
+         #print-container.two-column-print ile etkinleşir
+      ═══════════════════════════════════════════ */
+      #print-container.two-column-print .print-content-area {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 5mm !important;
+        align-items: start !important;
+      }
+
+      #print-container.two-column-print .print-content-area > * {
+        margin-bottom: 0 !important;
+      }
+
+      #print-container.two-column-print .block-header,
+      #print-container.two-column-print .pedagogical-header,
+      #print-container.two-column-print .block-footer-val {
+        /* Header ve footer tam genişlik alır */
+        grid-column: 1 / -1 !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         FONT BOYUTU VARYANTLARI
+         data-font-size attribute ile etkinleşir
+      ═══════════════════════════════════════════ */
+      #print-container[data-font-size="10"] .block-text,
+      #print-container[data-font-size="10"] .block-cloze {
+        font-size: 10pt !important;
+      }
+
+      #print-container[data-font-size="11"] .block-text,
+      #print-container[data-font-size="11"] .block-cloze {
+        font-size: 11pt !important;
+      }
+
+      #print-container[data-font-size="12"] .block-text,
+      #print-container[data-font-size="12"] .block-cloze {
+        font-size: 12pt !important;
+        line-height: 1.8 !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         GRAYSKALE MOD
+      ═══════════════════════════════════════════ */
+      #print-container.grayscale-print * {
+        filter: grayscale(100%) contrast(1.1) !important;
+        -webkit-filter: grayscale(100%) contrast(1.1) !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         İÇERİK ALANI — Temel
       ═══════════════════════════════════════════ */
       .print-content-area {
         flex: 1 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 8mm !important;
-        /* Standardized gap */
+        display: block !important;
         width: 100% !important;
         overflow: visible !important;
+      }
+      .print-content-area > * {
+        margin-bottom: 6mm !important;
       }
 
       /* Blokların sayfa ortasında kesilmesini önle */
@@ -196,17 +468,17 @@
       .block-match,
       .block-categorical,
       .block-cloze,
-      .block-logic-card {
+      .block-logic-card,
+      .block-clue-card,
+      .block-footer-val {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
         margin-bottom: 0 !important;
-        /* Managed by gap */
       }
 
       /* ═══════════════════════════════════════════
-         BLOK ÖZEL AYARLARI (Profesyonel Düzeltmeler)
+         BLOK ÖZEL AYARLARI
       ═══════════════════════════════════════════ */
-
       .block-header {
         border-bottom-width: 3px !important;
         margin-bottom: 2mm !important;
@@ -223,35 +495,98 @@
         font-size: 14pt !important;
       }
 
+      .pedagogical-header {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
       /* ═══════════════════════════════════════════
-         GİZLE / GÖSTER
+         YAPI ONARIMLARI — KARIŞIK VE BOZUK TABLO ÖNLEME
       ═══════════════════════════════════════════ */
-      .no-print,
-      .edit-handle,
-      button,
-      .ui-panel,
-      [class*="animate-"],
-      [class*="hover:"],
-      [class*="blur-"],
-      [class*="backdrop-"],
-      .page-label-container {
+
+      /* Sabit/Esnek yükseklikleri ez — A4 boyunca serbestçe aksın */
+      .h-full,
+      .h-screen,
+      .min-h-\[500px\],
+      .min-h-\[600px\] {
+        height: auto !important;
+        min-height: 0 !important;
+      }
+
+      /* Yatay kaydırma sınıflarını ez — kesilmeleri önle */
+      .overflow-x-auto,
+      .overflow-y-auto,
+      .overflow-auto,
+      .overflow-hidden {
+        overflow: visible !important;
+      }
+
+      /* Flex içindeki taşmaları wrap ile koru */
+      .flex.overflow-x-auto {
+        flex-wrap: wrap !important;
+      }
+
+      /* Responsive Gridlerin A4 sayfasında daralmasını/bozulmasını önle */
+      /* A4 genişliği yeterli olduğundan MD breakpoint yapılarını zorunlu kıl */
+      .md\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+
+      .md\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+
+      .md\:grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      }
+
+      .md\:grid-cols-5 {
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+      }
+
+      .sm\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+
+      .sm\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+
+      /* ═══════════════════════════════════════════
+         GİZLE / GÖSTER — Hassas Kurallar
+      ═══════════════════════════════════════════ */
+      /* Sadece UI butonlarını gizle, print-keep olanları koru */
+      button:not(.print-keep) {
         display: none !important;
       }
 
-      /* Sayfa Alt Bilgisi */
-      .print-footer {
-        position: absolute !important;
-        bottom: 8mm !important;
-        left: 15mm !important;
-        right: 15mm !important;
+      .no-print,
+      .edit-handle,
+      .overlay-ui,
+      .ui-panel,
+      .print-toolbar,
+      .print-controls,
+      .page-navigator,
+      .page-label-container,
+      [class*="backdrop-blur"],
+      [class*="animate-spin"],
+      [class*="animate-bounce"],
+      [class*="animate-pulse"] {
+        display: none !important;
+      }
+
+      /* Tailwind hover: ve focus: pseudo-class sınıflarını gizleme
+         (Tailwind'in bu sınıfları @media print'te zaten etkisiz) */
+
+      /* ═══════════════════════════════════════════
+         SAYFA ALT BİLGİSİ
+      ═══════════════════════════════════════════ */
+      .print-footer,
+      [class*="mt-auto"][class*="border-t"] {
         display: flex !important;
-        justify-content: space-between !important;
-        font-size: 8pt !important;
-        color: #71717a !important;
-        border-top: 1px solid #e4e4e7 !important;
-        padding-top: 2mm !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.1em !important;
+        visibility: visible !important;
+        position: relative !important;
+        width: 100% !important;
       }
     }
   </style>

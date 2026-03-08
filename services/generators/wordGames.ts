@@ -12,7 +12,7 @@ Sadece JSON döndür.
 
 export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions): Promise<HiddenPasswordGridData[]> => {
     const { topic, difficulty, worksheetCount, gridSize = 5, itemCount = 9, case: letterCase } = options;
-    
+
     const prompt = `
     "Gizli Şifre Matrisi" (Letter Cancellation) etkinliği üret. 
     Konu: ${topic || 'Karışık'}. Zorluk: ${difficulty}.

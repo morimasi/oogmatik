@@ -7,8 +7,8 @@ interface Rect { x: number; y: number; w: number; h: number; }
 class LayoutEngine {
     private canvasWidth = A4_WIDTH_PX;
     private canvasHeight = A4_HEIGHT_PX;
-    private padding = A4_DEFAULT_MARGIN_PX; // A4 margins
-    private gap = 15; // Öğeler arası mesafe
+    private padding = 15; // A4 margins (reduced from 20)
+    private gap = 8; // Öğeler arası mesafe (reduced from 15)
 
     private occupiedSpaces: { page: number; rect: Rect }[] = [];
 
@@ -62,7 +62,7 @@ class LayoutEngine {
     }
 }
 
-export const convertToLayoutItems = (activityType: ActivityType | null, worksheetData: SingleWorksheetData[]): LayoutItem[] => {
+export const convertToLayoutItems = (activityType: ActivityType | null, worksheetData: SingleWorksheetData[], settings?: any): LayoutItem[] => {
     let layout: LayoutItem[] = [];
 
     if (!worksheetData || worksheetData.length === 0) return layout;
@@ -72,10 +72,10 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
     worksheetData.forEach((pageData, pIdx) => {
         const blocks = pageData.layoutArchitecture?.blocks || pageData.blocks;
 
-        // Başlık
-        if (pageData.title) {
+        // Başlık (Sadece ayarlar izin veriyorsa)
+        if (pageData.title && settings?.showTitle !== false) {
             const w = 754;
-            const h = 60;
+            const h = 45; // Reduced from 60
             const pos = engine.findSpace(w, h);
 
             layout.push({
@@ -144,8 +144,8 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
             });
         } else {
             // Legacy Architecture - Deep Extraction Engine
-            if (pageData.instruction) {
-                const w = 754; const h = 60;
+            if (pageData.instruction && settings?.showInstruction !== false) {
+                const w = 754; const h = 40; // Reduced from 60
                 const pos = engine.findSpace(w, h);
                 layout.push({
                     id: 'text',
@@ -175,72 +175,11 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
             // Find main data array to split (e.g. puzzles, questions, words)
             const arrayKeys = Object.keys(pageData).filter(k => Array.isArray(pageData[k]) && k !== 'targetedErrors' && k !== 'blocks' && typeof pageData[k][0] === 'object');
 
-            // Eğer activityType, kendi array render mantığını (örn: Bento Grid) içeren
-            // özel bir worksheet ise, UniversalAdapter diziyi zorla bölmemelidir.
-            const componentsThatHandleTheirOwnArrays = [
-                ActivityType.NUMBER_LOGIC_RIDDLES,
-                ActivityType.ATTENTION_DEVELOPMENT,
-                ActivityType.ATTENTION_FOCUS,
-                ActivityType.FIND_IDENTICAL_WORD,
-                ActivityType.STORY_COMPREHENSION,
-                ActivityType.ALGORITHM_GENERATOR,
-                ActivityType.MATH_PUZZLE,
-                ActivityType.NUMBER_PATTERN,
-                ActivityType.REAL_LIFE_MATH_PROBLEMS,
-                ActivityType.LOGIC_GRID_PUZZLE,
-                ActivityType.FUTOSHIKI,
-                ActivityType.NUMBER_PYRAMID,
-                ActivityType.ODD_ONE_OUT,
-                ActivityType.NUMBER_PATH_LOGIC,
-                ActivityType.VISUAL_ARITHMETIC,
-                ActivityType.CLOCK_READING,
-                ActivityType.NUMBER_SENSE,
-                ActivityType.MONEY_COUNTING,
-                ActivityType.MATH_MEMORY_CARDS,
-                ActivityType.SPATIAL_GRID,
-                ActivityType.CONCEPT_MATCH,
-                ActivityType.ESTIMATION,
-                ActivityType.ABC_CONNECT,
-                ActivityType.ODD_EVEN_SUDOKU,
-                ActivityType.MAGIC_PYRAMID,
-                ActivityType.CAPSULE_GAME,
-                ActivityType.WORD_MEMORY,
-                ActivityType.VISUAL_MEMORY,
-                ActivityType.CHARACTER_MEMORY,
-                ActivityType.COLOR_WHEEL_MEMORY,
-                ActivityType.IMAGE_COMPREHRENSION,
-                ActivityType.STROOP_TEST,
-                ActivityType.BURDON_TEST,
-                ActivityType.NUMBER_SEARCH,
-                ActivityType.CHAOTIC_NUMBER_SEARCH,
-                ActivityType.LETTER_GRID_TEST,
-                ActivityType.FIND_LETTER_PAIR,
-                ActivityType.TARGET_SEARCH,
-                ActivityType.SYLLABLE_MASTER_LAB,
-                ActivityType.READING_SUDOKU,
-                ActivityType.READING_STROOP,
-                ActivityType.SYNONYM_ANTONYM_MATCH,
-                ActivityType.SYLLABLE_WORD_BUILDER,
-                ActivityType.LETTER_VISUAL_MATCHING,
-                ActivityType.FAMILY_RELATIONS,
-                ActivityType.FAMILY_LOGIC_TEST,
-                ActivityType.MORPHOLOGY_MATRIX,
-                ActivityType.READING_PYRAMID,
-                ActivityType.READING_FLOW,
-                ActivityType.PHONOLOGICAL_AWARENESS,
-                ActivityType.RAPID_NAMING,
-                ActivityType.LETTER_DISCRIMINATION,
-                ActivityType.MIRROR_LETTERS,
-                ActivityType.SYLLABLE_TRAIN,
-                ActivityType.VISUAL_TRACKING_LINES,
-                ActivityType.BACKWARD_SPELLING,
-                ActivityType.CODE_READING,
-                ActivityType.ATTENTION_TO_QUESTION,
-                ActivityType.HANDWRITING_PRACTICE,
-                ActivityType.MAP_INSTRUCTION
-            ];
-
-            const shouldSplitArray = !activityType || (activityType !== ActivityType.OCR_CONTENT && !componentsThatHandleTheirOwnArrays.includes(activityType as ActivityType));
+            // Kullanıcının "Etkinlikler parçalanmadan tam takır olmalı" talebi doğrultusunda,
+            // UniversalAdapter'in etkinlik dizilerini zorla bölüp dar kutulara sıkıştırma (chunking)
+            // işlemi tüm standart etkinlikler için devre dışı bırakılmıştır.
+            // Sadece OCR gibi ham veriler parçalanarak Canvas'a dağıtılabilir.
+            const shouldSplitArray = activityType === ActivityType.OCR_CONTENT;
 
             if (shouldSplitArray && arrayKeys.length > 0) {
                 const mainKey = arrayKeys[0];
@@ -283,7 +222,7 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                 });
             } else {
                 // Absolute fallback
-                const w = 754; const h = 800;
+                const w = 754; const h = 850; // Reduced from 1000 to fit A4 with header
                 const pos = engine.findSpace(w, h);
                 layout.push({
                     id: 'activity_component',

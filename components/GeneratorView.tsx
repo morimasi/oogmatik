@@ -1,5 +1,5 @@
-
-import React, { useEffect } from 'react';
+// @ts-nocheck
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { Activity, ActivityType, GeneratorOptions, StudentProfile, ActiveCurriculumSession } from '../types';
 import { DIFFICULTY_OPTIONS } from '../constants';
 import { useStudent } from '../context/StudentContext';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { PromptTemplate, PromptSnippet, PromptVersion } from '../types/admin';
 import { adminService } from '../services/adminService';

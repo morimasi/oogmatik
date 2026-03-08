@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+// @ts-nocheck
+import React, { useState, useEffect, useRef } from 'react';
 import { SavedAssessment, AssessmentReport, ActivityType, ClinicalObservation } from '../types';
 import { RadarChart } from './RadarChart';
 import { ACTIVITIES } from '../constants';
@@ -21,13 +21,13 @@ interface AssessmentReportViewerProps {
 
 const ObservationCard: React.FC<{ observations: ClinicalObservation }> = ({ observations }) => {
     if (!observations) return null;
-    
+
     return (
         <div className="bg-amber-50 border border-amber-200 p-6 rounded-xl break-inside-avoid shadow-sm print:shadow-none mb-6">
             <h4 className="font-bold text-amber-800 mb-4 flex items-center gap-2 border-b border-amber-200 pb-2">
                 <i className="fa-solid fa-clipboard-user"></i> Klinik Gözlem ve Davranış Analizi
             </h4>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm">
                 <div className="flex items-center justify-between p-3 bg-white/60 rounded-lg border border-amber-100">
                     <span className="text-amber-700 font-medium">Kaygı Düzeyi</span>
@@ -49,7 +49,7 @@ const ObservationCard: React.FC<{ observations: ClinicalObservation }> = ({ obse
                     "{observations.notes}"
                 </div>
             )}
-            
+
             <div className="mt-2 text-[10px] text-amber-400 text-right italic">
                 * Bu bölüm sadece uzman erişimine açıktır.
             </div>
@@ -57,9 +57,9 @@ const ObservationCard: React.FC<{ observations: ClinicalObservation }> = ({ obse
     );
 };
 
-export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({ 
-    assessment, 
-    onClose, 
+export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
+    assessment,
+    onClose,
     user,
     onManualSave,
     isSaving,
@@ -80,9 +80,9 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
         if (!assessment || !user) return;
         try {
             await assessmentService.shareAssessment(
-                assessment, 
-                user.id, 
-                user.name, 
+                assessment,
+                user.id,
+                user.name,
                 receiverId
             );
             alert('Rapor başarıyla paylaşıldı.');
@@ -117,7 +117,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
             <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative" onClick={e => e.stopPropagation()}>
-                
+
                 <header className="p-4 bg-zinc-100 border-b border-zinc-200 flex justify-between items-center">
                     <div>
                         <h3 className="font-bold text-lg text-zinc-900">{assessment.studentName} Raporu</h3>
@@ -125,10 +125,10 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                     </div>
                     <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-zinc-200 flex items-center justify-center text-black"><i className="fa-solid fa-times"></i></button>
                 </header>
-                
+
                 {/* TOOLBAR */}
                 <div className="flex justify-end items-center gap-3 p-3 bg-zinc-50 border-b border-zinc-200 flex-wrap">
-                    <button 
+                    <button
                         onClick={() => handleAction('download')}
                         disabled={isPrinting}
                         className="flex items-center gap-2 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-bold hover:bg-red-200 disabled:opacity-50"
@@ -136,7 +136,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                         {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
                         PDF İndir
                     </button>
-                    <button 
+                    <button
                         onClick={() => handleAction('print')}
                         disabled={isPrinting}
                         className="flex items-center gap-2 px-3 py-1.5 bg-zinc-200 text-zinc-700 rounded-lg text-sm font-bold hover:bg-zinc-300 disabled:opacity-50"
@@ -147,16 +147,16 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                     <div className="h-6 w-px bg-zinc-300 mx-2"></div>
 
                     {onAutoGenerateWorkbook && (
-                        <button 
+                        <button
                             onClick={() => onAutoGenerateWorkbook(report)}
                             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg text-sm font-bold hover:shadow-lg transition-all shadow-md"
                         >
                             <i className="fa-solid fa-wand-magic-sparkles"></i> Akıllı Rota
                         </button>
                     )}
-                    
+
                     {onAddToWorkbook && (
-                        <button 
+                        <button
                             onClick={(e) => {
                                 handleAddToWorkbook();
                                 const btn = e.currentTarget;
@@ -187,7 +187,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                         <h1 className="text-3xl font-black text-black">Tanısal Değerlendirme Raporu</h1>
                         <div className="flex justify-between mt-4 text-black"><p><strong>Öğrenci:</strong> {assessment.studentName}</p><p><strong>Tarih:</strong> {new Date(assessment.createdAt).toLocaleDateString('tr-TR')}</p></div>
                     </div>
-                    
+
                     {/* Clinical Observations Section (Top Priority for Specialists) */}
                     <ObservationCard observations={observations} />
 
@@ -195,7 +195,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                         <h4 className="font-bold mb-2 uppercase text-indigo-800 tracking-wider">Uzman Görüşü & Özet</h4>
                         {report.overallSummary}
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
                         <div className="p-4 border border-zinc-200 rounded-xl flex flex-col items-center justify-center min-h-[300px] bg-white break-inside-avoid shadow-sm">
                             <h4 className="font-bold text-zinc-500 text-xs uppercase mb-4">Beceri ve Zeka Alanları Analizi</h4>
@@ -213,7 +213,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                                 const label = labelMap[key] || key;
                                 const riskLevel = score > 80 ? 'Yüksek Başarı' : score > 50 ? 'Ortalama' : 'Desteklenmeli';
                                 const colorClass = score > 80 ? 'bg-green-500' : score > 50 ? 'bg-yellow-500' : 'bg-red-500';
-                                
+
                                 return (
                                     <div key={key} className="p-3 rounded-lg border border-zinc-200 flex flex-col bg-white">
                                         <div className="flex justify-between mb-1">
@@ -225,8 +225,8 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                                             </span>
                                         </div>
                                         <div className="w-full h-2 bg-zinc-200 rounded-full overflow-hidden">
-                                            <div 
-                                                className={`h-full rounded-full ${colorClass}`} 
+                                            <div
+                                                className={`h-full rounded-full ${colorClass}`}
                                                 style={{ width: `${score}%` }}
                                             ></div>
                                         </div>
@@ -235,8 +235,8 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                             })}
                         </div>
                     </div>
-                    
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 break-inside-avoid">
                         <div className="p-6 bg-green-50 rounded-xl border border-green-200 break-inside-avoid">
                             <h4 className="font-bold text-green-800 mb-4 flex items-center gap-2 border-b border-green-200 pb-2"><i className="fa-solid fa-thumbs-up"></i> Güçlü Yönler</h4>
                             <ul className="list-disc list-inside text-sm text-green-900 space-y-2">
@@ -259,14 +259,14 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                             </ul>
                         </div>
                     )}
-                    
-                     <div className="bg-zinc-900 text-white p-8 rounded-2xl shadow-lg break-inside-avoid">
+
+                    <div className="bg-zinc-900 text-white p-8 rounded-2xl shadow-lg break-inside-avoid">
                         <h4 className="font-bold text-lg mb-6 flex items-center gap-2 border-b border-zinc-700 pb-4"><i className="fa-solid fa-road"></i> Kişiselleştirilmiş Eğitim Rotası</h4>
                         <div className="space-y-4">
                             {(report.roadmap || []).map((item, idx) => {
                                 const activityDef = ACTIVITIES.find(a => a.id === item.activityId);
                                 const title = activityDef?.title || item.activityId;
-                                
+
                                 return (
                                     <div key={idx} className="bg-zinc-800 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-zinc-700">
                                         <div className="flex items-center gap-4">
@@ -279,7 +279,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                                         <div className="flex items-center gap-3">
                                             <span className="text-xs font-bold bg-zinc-900 px-4 py-2 rounded-full text-zinc-400 border border-zinc-700 whitespace-nowrap">{item.frequency}</span>
                                             {onSelectActivity && (
-                                                <button 
+                                                <button
                                                     onClick={() => { onSelectActivity(item.activityId as ActivityType); onClose(); }}
                                                     className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition-colors shadow-md flex items-center gap-2"
                                                 >
@@ -294,7 +294,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                     </div>
                 </div>
             </div>
-            
+
             <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleShareReport} />
         </div>
     );

@@ -6,7 +6,7 @@ import { getMathPrompt } from './prompts';
 
 export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
     const { difficulty, itemCount = 6, gridSize = 3, studentContext } = options;
-    
+
     const rule = `
     [KRİTİK GÖREV: YÜKSEK HASSASİYETLİ SAYİSAL ANALİZ]
     1. Üretilecek Bilmece Sayısı: TAM OLARAK ${itemCount} ADET.

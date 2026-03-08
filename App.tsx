@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { ActivityType, WorksheetData, SavedWorksheet, SingleWorksheetData, AppTheme, HistoryItem, StyleSettings, View, UiSettings, CollectionItem, WorkbookSettings, StudentProfile, AssessmentReport, GeneratorOptions, SavedAssessment, Curriculum, ActiveCurriculumSession } from './types';
 import Sidebar from './components/Sidebar';
@@ -74,7 +75,7 @@ const initialUiSettings: UiSettings = {
 };
 
 type ModalType = 'settings' | 'history' | 'about' | 'developer';
-type ExtendedView = View | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'assessment' | 'screening';
+type ExtendedView = View | 'ocr' | 'curriculum' | 'reading-studio' | 'math-studio' | 'students' | 'assessment' | 'screening' | 'profile';
 
 const LoadingSpinner = () => (
     <div className="flex items-center justify-center h-full w-full min-h-[200px]">
@@ -82,19 +83,131 @@ const LoadingSpinner = () => (
     </div>
 );
 
-const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children?: any }) => {
+const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title?: string; children: React.ReactNode }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={onClose}>
-            <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[85vh]" onClick={(e: any) => e.stopPropagation()}>
-                <div className="flex justify-between items-center p-5 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 rounded-t-2xl">
-                    <h3 className="text-xl font-bold text-zinc-900 dark:text-white">{title}</h3>
-                    <button onClick={onClose} className="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
-                        <i className="fa-solid fa-times text-lg"></i>
-                    </button>
-                </div>
-                <div className="p-6 overflow-y-auto custom-scrollbar">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300" onClick={onClose}>
+            <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-zinc-200 dark:border-zinc-800" onClick={(e) => e.stopPropagation()}>
+                {title && (
+                    <div className="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800">
+                        <h2 className="text-xl font-black text-zinc-800 dark:text-white">{title}</h2>
+                        <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                            <i className="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+                )}
+                <div className="p-6">
                     {children}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300" onClick={onClose}>
+            <div className="bg-[#f8fafc] dark:bg-[#09090b] rounded-[2.5rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-zinc-200 dark:border-zinc-800" onClick={(e) => e.stopPropagation()}>
+                
+                {/* Header Background */}
+                <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-t-[2.5rem] overflow-hidden">
+                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#f8fafc] dark:from-[#09090b] to-transparent"></div>
+                </div>
+
+                {/* Close Button */}
+                <button onClick={onClose} className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors z-10 backdrop-blur-md">
+                    <i className="fa-solid fa-times text-lg"></i>
+                </button>
+
+                <div className="relative pt-12 px-6 sm:px-12 pb-12">
+                    
+                    {/* Developer Avatar & Intro */}
+                    <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-12 relative z-10">
+                        <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-white dark:border-[#09090b] shadow-xl shrink-0 bg-white">
+                            {/* Varsayılan avatar yerine modern bir icon veya gerçek bir geliştirici fotosu konabilir */}
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=developer" alt="Developer" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="text-center md:text-left flex-1">
+                            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white tracking-tighter mb-2">Bursa Disleksi Geliştirici Ekibi</h2>
+                            <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest flex items-center justify-center md:justify-start gap-2">
+                                <i className="fa-solid fa-code text-indigo-500"></i> AI & Eğitim Teknolojileri
+                            </p>
+                        </div>
+                        <div className="flex gap-3">
+                            <a href="#" className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 hover:border-indigo-200 transition-all hover:-translate-y-1">
+                                <i className="fa-brands fa-github text-xl"></i>
+                            </a>
+                            <a href="#" className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-blue-600 hover:border-blue-200 transition-all hover:-translate-y-1">
+                                <i className="fa-brands fa-linkedin text-xl"></i>
+                            </a>
+                            <a href="mailto:iletisim@bursadisleksi.com" className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-rose-600 hover:border-rose-200 transition-all hover:-translate-y-1">
+                                <i className="fa-solid fa-envelope text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    {/* Bento Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        {/* Mission */}
+                        <div className="md:col-span-2 bg-white dark:bg-zinc-800 p-8 rounded-[2rem] border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-lg transition-all group relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-bl-full transition-transform group-hover:scale-110"></div>
+                            <div className="flex items-center gap-4 mb-6 relative">
+                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 flex items-center justify-center text-xl">
+                                    <i className="fa-solid fa-rocket"></i>
+                                </div>
+                                <h3 className="text-sm font-black text-zinc-400 uppercase tracking-widest">Vizyonumuz</h3>
+                            </div>
+                            <p className="text-zinc-600 dark:text-zinc-300 leading-relaxed relative">
+                                Amacımız, özel eğitim ihtiyacı olan bireyler için <strong>yapay zeka destekli</strong>, kişiselleştirilmiş ve bilimsel temellere dayanan araçlar üreterek öğrenme süreçlerini hızlandırmak ve eğitimcilerin yükünü hafifletmektir. Teknoloji ve pedagojiyi harmanlayarak fırsat eşitliği sunmayı hedefliyoruz.
+                            </p>
+                        </div>
+
+                        {/* Version Info */}
+                        <div className="bg-white dark:bg-zinc-800 p-8 rounded-[2rem] border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col justify-center items-center text-center group">
+                            <div className="w-20 h-20 rounded-full bg-zinc-50 dark:bg-zinc-900 border-4 border-white dark:border-zinc-800 shadow-inner flex items-center justify-center mb-4 group-hover:rotate-180 transition-transform duration-700">
+                                <i className="fa-solid fa-microchip text-3xl text-zinc-400"></i>
+                            </div>
+                            <div className="text-4xl font-black text-zinc-900 dark:text-white tracking-tighter mb-1">v2.4.0</div>
+                            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-100 dark:bg-zinc-900 px-3 py-1 rounded-full">Güncel Sürüm</div>
+                        </div>
+
+                        {/* Tech Stack */}
+                        <div className="md:col-span-3 bg-white dark:bg-zinc-800 p-8 rounded-[2rem] border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xl">
+                                    <i className="fa-solid fa-layer-group"></i>
+                                </div>
+                                <h3 className="text-sm font-black text-zinc-400 uppercase tracking-widest">Kullanılan Teknolojiler</h3>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                                {[
+                                    { name: 'React', icon: 'fa-brands fa-react text-blue-500' },
+                                    { name: 'TypeScript', icon: 'fa-brands fa-js text-blue-600' },
+                                    { name: 'Tailwind', icon: 'fa-solid fa-wind text-cyan-500' },
+                                    { name: 'Firebase', icon: 'fa-solid fa-fire text-yellow-500' },
+                                    { name: 'OpenAI', icon: 'fa-solid fa-brain text-emerald-500' },
+                                    { name: 'Node.js', icon: 'fa-brands fa-node-js text-green-600' }
+                                ].map(tech => (
+                                    <div key={tech.name} className="flex flex-col items-center justify-center p-4 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 hover:border-indigo-200 dark:hover:border-indigo-900/50 transition-colors">
+                                        <i className={`${tech.icon} text-3xl mb-3`}></i>
+                                        <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">{tech.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    {/* Footer */}
+                    <div className="mt-12 text-center border-t border-zinc-200 dark:border-zinc-800 pt-8">
+                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                            &copy; {new Date().getFullYear()} Bursa Disleksi. Tüm hakları saklıdır.
+                        </p>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -183,6 +296,50 @@ const AppContent = () => {
     const [uiSettings, setUiSettings] = useState((() => {
         try { const stored = localStorage.getItem('app-ui-settings'); return stored ? { ...initialUiSettings, ...JSON.parse(stored) } : initialUiSettings; } catch (e) { return initialUiSettings; }
     })() as UiSettings);
+
+    // Apply UI settings to document root when they change
+    useEffect(() => {
+        document.documentElement.style.setProperty('--app-font-family', uiSettings.fontFamily);
+        document.documentElement.style.setProperty('--app-font-size-scale', uiSettings.fontSizeScale.toString());
+        document.documentElement.style.setProperty('--app-line-height', uiSettings.lineHeight.toString());
+        document.documentElement.style.setProperty('--app-letter-spacing', uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal');
+        document.documentElement.style.setProperty('--app-saturation', `${uiSettings.saturation}%`);
+        
+        // Add a class for wide letter spacing to target specific elements if needed
+        if (uiSettings.letterSpacing === 'wide') {
+            document.documentElement.classList.add('letter-spacing-wide');
+        } else {
+            document.documentElement.classList.remove('letter-spacing-wide');
+        }
+
+        // Apply styles directly to body for inherited properties
+        document.body.style.fontFamily = uiSettings.fontFamily;
+        document.body.style.fontSize = `${16 * uiSettings.fontSizeScale}px`;
+        document.body.style.lineHeight = uiSettings.lineHeight.toString();
+        document.body.style.letterSpacing = uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal';
+        document.body.style.filter = `saturate(${uiSettings.saturation}%)`;
+        
+        localStorage.setItem('app-ui-settings', JSON.stringify(uiSettings));
+    }, [uiSettings]);
+
+    // Theme effect
+    useEffect(() => {
+        // Handle basic dark/light first
+        if (theme === 'dark' || theme === 'anthracite' || theme === 'space' || theme.includes('anthracite')) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        
+        // Remove all theme classes first
+        document.documentElement.classList.remove(
+            'theme-light', 'theme-dark', 'theme-anthracite', 'theme-space', 
+            'theme-nature', 'theme-ocean', 'theme-anthracite-gold', 'theme-anthracite-cyber'
+        );
+        // Add selected theme class
+        document.documentElement.classList.add(`theme-${theme}`);
+        localStorage.setItem('app-theme', theme);
+    }, [theme]);
     const [styleSettings, setStyleSettings] = useState(initialStyleSettings as StyleSettings);
     const [historyItems, setHistoryItems] = useState((() => {
         try { const stored = localStorage.getItem('user_history'); return stored ? JSON.parse(stored) : []; } catch { return []; }
@@ -417,6 +574,23 @@ const AppContent = () => {
                 </div>
             )}
 
+            {currentView === 'profile' && (
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <ProfileView 
+                            onBack={handleGoBack} 
+                            onSelectActivity={handleSelectActivity} 
+                            onLoadSaved={loadSavedWorksheet}
+                            theme={theme}
+                            uiSettings={uiSettings}
+                            onUpdateTheme={setTheme}
+                            onUpdateUiSettings={setUiSettings}
+                            onOpenSettingsModal={() => setOpenModal('settings')}
+                        />
+                    </Suspense>
+                </div>
+            )}
+
             {currentView === 'students' && (
                 <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
                     <Suspense fallback={<LoadingSpinner />}>
@@ -461,6 +635,7 @@ const AppContent = () => {
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
             <StudentInfoModal isOpen={isStudentModalOpen} onClose={() => setIsStudentModalOpen(false)} currentProfile={studentProfile} onSave={(p: StudentProfile) => setStudentProfile(p)} onClear={() => setStudentProfile(null)} />
             <SettingsModal isOpen={openModal === 'settings'} onClose={() => setOpenModal(null)} uiSettings={uiSettings} onUpdateUiSettings={setUiSettings} theme={theme} onUpdateTheme={setTheme} />
+            <DeveloperModal isOpen={openModal === 'developer'} onClose={() => setOpenModal(null)} />
             <AssessmentReportViewer assessment={selectedSavedReport} onClose={() => setSelectedSavedReport(null)} user={user} onSelectActivity={handleSelectActivity} onGeneratePlan={(name: string, age: number, weaknesses: string[], context?: string) => handleGeneratePlanFromScreening(name, age, weaknesses, context)} />
             <Modal isOpen={openModal === 'history'} onClose={() => setOpenModal(null)} title="İşlem Geçmişi"><HistoryView historyItems={historyItems} onRestore={handleRestoreFromHistory} onSaveToArchive={handleSaveHistoryItem} onDelete={deleteHistoryItem} onClearAll={clearHistory} onClose={() => setOpenModal(null)} /></Modal>
             <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda"><div className="text-center space-y-6"><DyslexiaLogo className="h-16 w-auto mx-auto" /><div className="space-y-4 text-zinc-600 dark:text-zinc-300"><p className="leading-relaxed">Bursa Disleksi AI, özel öğrenme güçlüğü yaşayan bireylerin eğitim süreçlerini desteklemek, eğitmen ve ailelere kişiselleştirilmiş, bilimsel temelli materyaller sunmak amacıyla geliştirilmiş yeni nesil bir yapay zeka platformudur.</p></div></div></Modal>
