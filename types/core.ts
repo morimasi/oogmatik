@@ -370,6 +370,9 @@ export interface WorkbookSettings {
     watermarkOpacity: number;
     showBackCover: boolean;
     logoUrl?: string;
+    aiPreface?: string;
+    isAiGeneratedCover?: boolean;
+    aiCoverConcept?: string;
 }
 
 export interface WorksheetBlock {

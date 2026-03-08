@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { printService } from '../utils/printService';
 import { Toolbar } from './Toolbar';
 import { useStudent } from '../context/StudentContext';
+import { ActivityImporterModal } from './ActivityImporterModal';
 
 interface WorkbookViewProps {
     items: CollectionItem[];
@@ -98,6 +99,9 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
     const [activeTab, setActiveTab] = useState<'content' | 'design' | 'assign'>('content');
     const [isSaving, setIsSaving] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [isImporterOpen, setIsImporterOpen] = useState(false);
+    const [isGeneratingPreface, setIsGeneratingPreface] = useState(false);
+    const [layoutMode, setLayoutMode] = useState<'list' | 'grid'>('list');
 
     // Style Override State (Activity)
     const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -138,6 +142,10 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
     const handleDragEnd = useCallback(() => {
         setDraggedItemIndex(null);
     }, []);
+
+    const handleImportActivities = useCallback((newItems: CollectionItem[]) => {
+        setItems((prev: CollectionItem[]) => [...prev, ...newItems]);
+    }, [setItems]);
 
     const handleDuplicateItem = useCallback((item: CollectionItem) => {
         const newItem = {
@@ -240,6 +248,36 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
                 setIsPrinting(false);
             }
         }, 100);
+    };
+
+    const handleGeneratePreface = async () => {
+        setIsGeneratingPreface(true);
+        try {
+            // Küçük bir yapay bekleme animasyonu
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const typesCount: Record<string, number> = {};
+            items.forEach(item => {
+                if (item.itemType === 'activity') {
+                    typesCount[item.activityType] = (typesCount[item.activityType] || 0) + 1;
+                }
+            });
+
+            const topActivities = Object.entries(typesCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(entry => entry[0].replace(/_/g, ' '));
+
+            let preface = `Bu çalışma kitapçığı, ${settings.studentName || 'öğrencimizin'} bireysel gelişim hedefleri doğrultusunda özel olarak hazırlanmıştır.\n\n`;
+            preface += `Kitapçık içeriğinde özellikle şu bilişsel alanlara odaklanılmıştır: ${topActivities.join(', ')}.\n`;
+            preface += `Düzenli uygulama ile görsel-uzamsal bellek, dikkat süresi ve akademik becerilerde belirgin bir artış hedeflenmektedir. Çalışmalar sırasında geri bildirim vermeyi ve destekleyici bir ortam sağlamayı unutmayınız.`;
+
+            setSettings(s => ({ ...s, teacherNote: preface, aiPreface: preface }));
+        } catch (e) {
+            console.error("AI Error:", e);
+        } finally {
+            setIsGeneratingPreface(false);
+        }
     };
 
     const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -393,27 +431,49 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Eğitmen Notu</label>
-                                            <textarea value={settings.teacherNote} onChange={e => setSettings(s => ({ ...s, teacherNote: e.target.value }))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none" placeholder="Öğrenciye bir not bırakın..." />
+                                            <div className="flex items-center justify-between mb-2">
+                                                <label className="text-xs font-bold text-zinc-500 uppercase">Eğitmen Notu / Önsöz</label>
+                                                <button
+                                                    onClick={handleGeneratePreface}
+                                                    disabled={isGeneratingPreface || items.length === 0}
+                                                    className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-full hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                                                >
+                                                    {isGeneratingPreface ? <i className="fa-solid fa-circle-notch fa-spin mr-1"></i> : <i className="fa-solid fa-wand-magic-sparkles mr-1"></i>}
+                                                    AI İLE ÜRET
+                                                </button>
+                                            </div>
+                                            <textarea value={settings.teacherNote} onChange={e => setSettings(s => ({ ...s, teacherNote: e.target.value }))} className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none h-32 resize-none" placeholder="Öğrenciye veya veliye bir not bırakın..." />
                                         </div>
                                     </div>
 
                                     <div className="pt-6 border-t border-zinc-200 dark:border-zinc-700">
                                         <div className="flex justify-between items-center mb-4">
-                                            <h3 className="font-bold text-zinc-700 dark:text-zinc-200 text-sm">Sayfalar ({items.length})</h3>
-                                            <button onClick={handleClearAll} className="text-xs text-red-500 hover:underline">Hepsini Sil</button>
+                                            <div className="flex items-center gap-3">
+                                                <h3 className="font-bold text-zinc-700 dark:text-zinc-200 text-sm">Sayfalar ({items.length})</h3>
+                                                <div className="flex bg-zinc-100 dark:bg-zinc-700 p-0.5 rounded-lg border border-zinc-200 dark:border-zinc-600">
+                                                    <button onClick={() => setLayoutMode('list')} className={`w-6 h-6 rounded flex items-center justify-center transition-all ${layoutMode === 'list' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} title="Liste Görünümü"><i className="fa-solid fa-list text-[10px]"></i></button>
+                                                    <button onClick={() => setLayoutMode('grid')} className={`w-6 h-6 rounded flex items-center justify-center transition-all ${layoutMode === 'grid' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} title="Izgara Görünümü"><i className="fa-solid fa-border-all text-[10px]"></i></button>
+                                                </div>
+                                            </div>
+                                            <button onClick={handleClearAll} className="text-xs text-red-500 hover:underline font-bold">Tümünü Sil</button>
                                         </div>
 
-                                        <div className="mb-4">
+                                        <div className="mb-4 grid grid-cols-2 gap-2">
+                                            <button
+                                                onClick={() => setIsImporterOpen(true)}
+                                                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-95"
+                                            >
+                                                <i className="fa-solid fa-cloud-arrow-down"></i> Kütüphaneden Ekle
+                                            </button>
                                             <button
                                                 onClick={handleAddDivider}
-                                                className="w-full py-2 border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all"
+                                                className="w-full py-2 border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95"
                                             >
-                                                <i className="fa-solid fa-bookmark"></i> Bölüm Kapağı Ekle
+                                                <i className="fa-solid fa-bookmark"></i> Bölüm Kapağı
                                             </button>
                                         </div>
 
-                                        <div className="space-y-2">
+                                        <div className={`${layoutMode === 'grid' ? 'grid grid-cols-2 gap-2' : 'space-y-2'}`}>
                                             {items.map((item, index) => (
                                                 <SortablePageItem
                                                     key={item.id}
@@ -441,8 +501,31 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
                             {activeTab === 'design' && (
                                 <>
                                     <div>
-                                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Kapak Teması</label>
-                                        <div className="grid grid-cols-2 gap-3">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <label className="text-xs font-bold text-zinc-500 uppercase">Kapak Teması & AI Tasarım</label>
+                                            <label className="flex items-center gap-2 cursor-pointer group">
+                                                <span className="text-[10px] font-black text-indigo-500 uppercase">AI Kapak Üret</span>
+                                                <div className={`w-8 h-4 rounded-full relative transition-colors ${settings.isAiGeneratedCover ? 'bg-indigo-500' : 'bg-zinc-300'}`}>
+                                                    <input type="checkbox" checked={settings.isAiGeneratedCover} onChange={e => setSettings((s: WorkbookSettings) => ({ ...s, isAiGeneratedCover: e.target.checked }))} className="hidden" />
+                                                    <div className={`w-2.5 h-2.5 bg-white rounded-full absolute top-[3px] transition-all ${settings.isAiGeneratedCover ? 'left-[18px]' : 'left-[3px]'}`}></div>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        {settings.isAiGeneratedCover && (
+                                            <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl space-y-2 animate-in fade-in slide-in-from-top-2">
+                                                <label className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400">AI Konsept Promtu (Örn: Uzay temalı öğrenme)</label>
+                                                <input
+                                                    type="text"
+                                                    value={settings.aiCoverConcept || ''}
+                                                    onChange={e => setSettings((s: WorkbookSettings) => ({ ...s, aiCoverConcept: e.target.value }))}
+                                                    className="w-full p-2.5 bg-white dark:bg-zinc-800 border border-indigo-200 dark:border-indigo-700 rounded-lg text-xs outline-none focus:ring-2 ring-indigo-500/30"
+                                                    placeholder="Görsel konseptini tanımlayın..."
+                                                />
+                                            </div>
+                                        )}
+
+                                        <div className={`grid grid-cols-2 gap-3 ${settings.isAiGeneratedCover ? 'opacity-50 pointer-events-none' : ''}`}>
                                             {['modern', 'classic', 'fun', 'minimal', 'academic', 'artistic', 'space', 'nature', 'geometric'].map(t => (
                                                 <button
                                                     key={t}
@@ -654,6 +737,12 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
                     </div>
                 </div>
             )}
+
+            <ActivityImporterModal
+                isOpen={isImporterOpen}
+                onClose={() => setIsImporterOpen(false)}
+                onImport={handleImportActivities}
+            />
         </div>
     );
 };
