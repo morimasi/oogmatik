@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { refinePromptWithAI, generateCreativeStudioActivity, analyzeReferenceFiles } from '../../services/generators/creativeStudio';
+import { TargetProfile, OutputFormat } from '../../types/creativeStudio';
 import { PEDAGOGICAL_LIBRARY, ActivityLibraryItem } from '../../services/generators/promptLibrary';
 import { MultimodalFile } from '../../services/geminiClient';
 import { EditorPane } from './EditorPane';
@@ -31,24 +32,35 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     const [prompt, setPrompt] = useState("");
     const [difficulty, setDifficulty] = useState("Orta");
     const [itemCount, setItemCount] = useState(8);
-    
+
     // --- PROFESSIONAL STATES ---
-    const [distractionLevel, setDistractionLevel] = useState("medium"); 
-    const [fontSizePreference, setFontSizePreference] = useState("medium"); 
+    const [distractionLevel, setDistractionLevel] = useState("medium");
+    const [fontSizePreference, setFontSizePreference] = useState("medium");
+
+    // --- KLİNİK PROFİL STATE ---
+    const [targetProfile, setTargetProfile] = useState<TargetProfile>({
+        disability: 'dyslexia',
+        ageGroup: '8-10',
+        targetSkills: ['phonological_awareness', 'visual_discrimination'],
+        distractorTypes: ['visual_reversal']
+    });
+    const [outputFormat, setOutputFormat] = useState<OutputFormat>('bento_grid');
+    const [clinicalIntensity, setClinicalIntensity] = useState(60);
+    const [visualLoad, setVisualLoad] = useState(50);
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [isAnalyzingFile, setIsAnalyzingFile] = useState(false);
     const [status, setStatus] = useState("");
     const [statusIndex, setStatusIndex] = useState(0);
     const [activeTab, setActiveTab] = useState<'editor' | 'library'>('editor');
-    
+
     // Custom Data States
     const [localLibrary, setLocalLibrary] = useState<ActivityLibraryItem[]>([]);
     const [customSnippets, setCustomSnippets] = useState<AISnippet[]>([]);
     const [showSnippetModal, setShowSnippetModal] = useState(false);
     const [lastResult, setLastResult] = useState<any>(null);
     const [showPublishModal, setShowPublishModal] = useState(false);
-    
+
     const [hoveredItem, setHoveredItem] = useState<ActivityLibraryItem | null>(null);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [attachedFiles, setAttachedFiles] = useState<MultimodalFile[]>([]);
@@ -56,7 +68,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     useEffect(() => {
         const savedLib = localStorage.getItem('custom_pedagogical_lib');
         setLocalLibrary([...PEDAGOGICAL_LIBRARY, ...(savedLib ? JSON.parse(savedLib) : [])]);
-        
+
         const savedSnippets = localStorage.getItem('custom_ai_snippets_v2');
         if (savedSnippets) setCustomSnippets(JSON.parse(savedSnippets));
     }, []);
@@ -104,11 +116,15 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         if (!prompt.trim() && attachedFiles.length === 0) return;
         setIsProcessing(true);
         try {
-            const result = await generateCreativeStudioActivity(prompt, { 
-                difficulty, 
+            const result = await generateCreativeStudioActivity(prompt, {
+                difficulty,
                 itemCount,
                 distractionLevel,
-                fontSizePreference
+                fontSizePreference,
+                targetProfile,
+                outputFormat,
+                clinicalIntensity,
+                visualLoad
             }, attachedFiles);
             setLastResult(result);
             onResult(Array.isArray(result) ? result : [result]);
@@ -128,7 +144,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
             <SmartTooltip item={hoveredItem} pos={mousePos} />
 
             {showSnippetModal && (
-                <SnippetManagerModal 
+                <SnippetManagerModal
                     onClose={() => setShowSnippetModal(false)}
                     customSnippets={customSnippets}
                     onSaveCustom={(s) => {
@@ -149,9 +165,9 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
             )}
 
             {showPublishModal && lastResult && (
-                <ActivityPublisher 
-                    blueprint={lastResult} 
-                    onClose={() => setShowPublishModal(false)} 
+                <ActivityPublisher
+                    blueprint={lastResult}
+                    onClose={() => setShowPublishModal(false)}
                     onSuccess={() => { setShowPublishModal(false); alert("Modül başarıyla sisteme enjekte edildi!"); }}
                 />
             )}
@@ -165,7 +181,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                 </div>
                 <div className="flex items-center gap-3">
                     {lastResult && (
-                        <button 
+                        <button
                             onClick={() => setShowPublishModal(true)}
                             className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-lg"
                         >
@@ -182,15 +198,15 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-4 pb-20">
                 <div className="lg:col-span-8 flex flex-col gap-6 h-[750px]">
                     {activeTab === 'editor' ? (
-                        <EditorPane 
+                        <EditorPane
                             prompt={prompt} setPrompt={setPrompt} attachedFiles={attachedFiles}
                             onFilesSelect={handleFilesSelect} onRemoveFile={(idx) => setAttachedFiles(f => f.filter((_, i) => i !== idx))}
                             onRefine={handleRefine} snippets={activeSnippets} isAnalyzing={isAnalyzingFile}
                             onAddSnippet={() => setShowSnippetModal(true)}
                         />
                     ) : (
-                        <LibraryPane 
-                            items={localLibrary} onAddCustom={() => {}} 
+                        <LibraryPane
+                            items={localLibrary} onAddCustom={() => { }}
                             onSelect={(item) => { setPrompt(item.basePrompt); setActiveTab('editor'); }}
                             onHover={(item, pos) => { setHoveredItem(item); setMousePos(pos); }}
                         />
@@ -198,11 +214,15 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                 </div>
 
                 <div className="lg:col-span-4">
-                    <ControlPane 
+                    <ControlPane
                         difficulty={difficulty} setDifficulty={setDifficulty}
                         itemCount={itemCount} setItemCount={setItemCount}
                         distractionLevel={distractionLevel} setDistractionLevel={setDistractionLevel}
                         fontSizePreference={fontSizePreference} setFontSizePreference={setFontSizePreference}
+                        targetProfile={targetProfile} setTargetProfile={setTargetProfile}
+                        outputFormat={outputFormat} setOutputFormat={setOutputFormat}
+                        clinicalIntensity={clinicalIntensity} setClinicalIntensity={setClinicalIntensity}
+                        visualLoad={visualLoad} setVisualLoad={setVisualLoad}
                         onGenerate={handleGenerate} onCancel={onCancel}
                         isProcessing={isProcessing} isAnalyzing={isAnalyzingFile}
                         status={status} statusMessage={THINKING_MESSAGES[statusIndex]}
