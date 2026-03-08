@@ -49,48 +49,57 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
             {/* HARİTA KANVASI */}
             <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 group min-h-[450px]">
 
-                {/* Zemin Harita Katmanı */}
-                <div className="absolute inset-0 w-full h-full flex items-center justify-center p-2 bg-white z-10">
+                {/* Zemin Harita Katmanı — padding YOK, tam inset-0 */}
+                <div className="absolute inset-0 w-full h-full bg-white z-10">
                     {isCustomMap ? (
                         <img
                             src={mapSource}
                             alt="Özel Harita"
-                            className="w-full h-full object-contain transition-all duration-700"
+                            className="w-full h-full object-cover transition-all duration-700"
                         />
                     ) : (
                         <TurkeyMapSVG
                             emphasizedRegion={data.emphasizedRegion || 'all'}
                             showRegionLabels={true}
+                            width="100%"
+                            height="100%"
                             className="w-full h-full transition-all duration-700"
                         />
                     )}
-                </div>
 
-                {/* Konumsal Overlay (Dinamik AI İşaretçileri) */}
-                <svg viewBox="0 0 1000 500" className="w-full h-full absolute inset-0 z-20 pointer-events-none drop-shadow-md">
-                    {(data.cities || []).map((city) => (
-                        <g key={city.id} transform={`translate(${city.x}, ${city.y})`}>
-                            <MapMarker type={data.settings?.markerStyle || 'circle'} />
-                            {data.settings?.showCityNames !== false && (
-                                <text
-                                    y="-16"
-                                    textAnchor="middle"
-                                    fontSize="12"
-                                    fontWeight="900"
-                                    className="fill-zinc-900 font-sans tracking-tight"
-                                    style={{
-                                        paintOrder: 'stroke',
-                                        stroke: 'white',
-                                        strokeWidth: '4px',
-                                        strokeLinejoin: 'round'
-                                    }}
-                                >
-                                    {city.name}
-                                </text>
-                            )}
-                        </g>
-                    ))}
-                </svg>
+                    {/* Konumsal Overlay — harita ile AYNI wrapper içinde, aynı koordinat sistemi */}
+                    {!isCustomMap && (
+                        <svg
+                            viewBox="0 0 1000 500"
+                            preserveAspectRatio="xMidYMid meet"
+                            className="w-full h-full absolute inset-0 z-20 pointer-events-none"
+                            style={{ top: 0, left: 0, position: 'absolute' }}
+                        >
+                            {(data.cities || []).map((city) => (
+                                <g key={city.id} transform={`translate(${city.x}, ${city.y})`}>
+                                    <MapMarker type={data.settings?.markerStyle || 'circle'} />
+                                    {data.settings?.showCityNames !== false && (
+                                        <text
+                                            y="-14"
+                                            textAnchor="middle"
+                                            fontSize="11"
+                                            fontWeight="900"
+                                            className="fill-zinc-900 font-sans tracking-tight"
+                                            style={{
+                                                paintOrder: 'stroke',
+                                                stroke: 'white',
+                                                strokeWidth: '4px',
+                                                strokeLinejoin: 'round'
+                                            }}
+                                        >
+                                            {city.name}
+                                        </text>
+                                    )}
+                                </g>
+                            ))}
+                        </svg>
+                    )}
+                </div>
 
                 {/* Pusula & Araçlar Overlay */}
                 <div className="absolute bottom-8 right-10 flex items-end gap-10 z-30 no-print">
