@@ -19,8 +19,6 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
     const complexityDesc = config.complexity === '1-step' ? 'Tek işlemli, doğrudan çözüm gerektiren'
         : config.complexity === '2-step' ? 'İki aşamalı (Önce topla sonra çıkar gibi)'
             : 'Çok adımlı ve düşündürücü';
-<<<<<<< HEAD
-
     const problemTypesText = (config.problemTypes && config.problemTypes.length > 0)
         ? config.problemTypes.map(t => {
             if (t === 'standard') return 'Standart Sözel';
@@ -30,8 +28,6 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
             return t;
         }).join(', ')
         : 'Standart Sözel';
-=======
->>>>>>> a84a5de3c6d5a8419d77ae91b6b340afe7da6761
 
     const prompt = `
     [ROL: MATEMATİK MÜFREDAT UZMANI ve ÖZEL EĞİTİM PEDAGOGU]
