@@ -386,7 +386,7 @@ export interface WorksheetBlock {
     weight?: number;
 }
 
-export type CognitiveDomain = 'visual_spatial_memory' | 'processing_speed' | 'selective_attention' | 'phonological_loop' | 'logical_reasoning';
+export type CognitiveDomain = 'visual_spatial_memory' | 'processing_speed' | 'selective_attention' | 'phonological_loop' | 'logical_reasoning' | 'visual_search';
 
 export interface SubTestResult {
     testId: CognitiveDomain;

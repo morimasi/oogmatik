@@ -6,6 +6,7 @@ import { StroopInteractiveTest } from './tests/StroopInteractiveTest';
 import { RapidNamingTest } from './tests/RapidNamingTest';
 import { LogicTest } from './tests/LogicTest';
 import { PhonologicalLoopTest } from './tests/PhonologicalLoopTest';
+import { VisualSearchTest } from './tests/VisualSearchTest';
 
 interface AssessmentEngineProps {
     domain: CognitiveDomain;
@@ -24,6 +25,8 @@ export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({ domain, onCo
             return <LogicTest onComplete={onComplete} />;
         case 'phonological_loop':
             return <PhonologicalLoopTest onComplete={onComplete} />;
+        case 'visual_search':
+            return <VisualSearchTest onComplete={onComplete} />;
         default:
             return (
                 <div className="flex flex-col items-center justify-center w-full h-full gap-6 text-center">

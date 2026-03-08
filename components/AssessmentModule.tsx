@@ -44,7 +44,8 @@ const DOMAIN_ACTIVITY_MAP: Record<CognitiveDomain, ActivityType[]> = {
     processing_speed: [ActivityType.RAPID_NAMING, ActivityType.READING_FLOW],
     selective_attention: [ActivityType.STROOP_TEST, ActivityType.BURDON_TEST, ActivityType.ATTENTION_TO_QUESTION, ActivityType.FIND_THE_DIFFERENCE],
     phonological_loop: [ActivityType.PHONOLOGICAL_AWARENESS, ActivityType.SYLLABLE_TRAIN, ActivityType.WORD_MEMORY],
-    logical_reasoning: [ActivityType.LOGIC_GRID_PUZZLE, ActivityType.NUMBER_PATTERN]
+    logical_reasoning: [ActivityType.LOGIC_GRID_PUZZLE, ActivityType.NUMBER_PATTERN],
+    visual_search: [ActivityType.TARGET_SEARCH, ActivityType.VISUAL_TRACKING_LINES, ActivityType.CHAOTIC_NUMBER_SEARCH]
 };
 
 export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, onAutoGenerateWorkbook }: AssessmentModuleProps) => {
@@ -140,12 +141,14 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
         const logicResult = completedResults.find(r => r.testId === 'logical_reasoning');
         const processingResult = completedResults.find(r => r.testId === 'processing_speed');
         const phonologicalResult = completedResults.find(r => r.testId === 'phonological_loop');
+        const visualSearchResult = completedResults.find(r => r.testId === 'visual_search');
 
         const attentionScore = attentionResult?.score ?? 100;
         const memoryScore = memoryResult?.score ?? 100;
         const logicScore = logicResult?.score ?? 100;
         const processingScore = processingResult?.score ?? 100;
         const phonologicalScore = phonologicalResult?.score ?? 100;
+        const visualSearchScore = visualSearchResult?.score ?? 100;
 
         // FIX: Dyscalculia gerçek hesaplama
         const dyscalculiaRisk =
