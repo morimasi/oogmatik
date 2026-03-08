@@ -13,6 +13,7 @@ interface ProblemCanvasProps {
     pageConfig: MathPageConfig;
     themeConfig: ThemeConfig;
     generatedProblems: MathProblem[];
+    instruction?: string;
     studentName?: string;
 }
 
@@ -21,6 +22,7 @@ export const ProblemCanvas: React.FC<ProblemCanvasProps> = ({
     pageConfig,
     themeConfig,
     generatedProblems,
+    instruction,
     studentName,
 }) => {
     const { pages, totalPages } = useProblemPagination(generatedProblems, problemConfig.includeSolutionBox, pageConfig.margin);
@@ -53,6 +55,14 @@ export const ProblemCanvas: React.FC<ProblemCanvasProps> = ({
                         studentName={studentName}
                         themeConfig={themeConfig}
                     >
+                        {pageIdx === 0 && instruction && (
+                            <div className="mb-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg shadow-sm">
+                                <p className="text-indigo-900 font-medium italic text-sm">
+                                    <i className="fa-solid fa-bullhorn mr-2"></i>
+                                    {instruction}
+                                </p>
+                            </div>
+                        )}
                         <div className="flex flex-col gap-4">
                             {pageItems.map((prob, i) => (
                                 <ProblemCard

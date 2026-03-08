@@ -11,6 +11,7 @@ export const useProblemGenerator = (initialStudentName: string) => {
         studentName: initialStudentName || '',
     });
     const [generatedProblems, setGeneratedProblems] = useState<MathProblem[]>([]);
+    const [instruction, setInstruction] = useState<string>('');
     const [isGenerating, setIsGenerating] = useState(false);
 
     const toggleProblemOp = useCallback((op: string) => {
@@ -19,6 +20,15 @@ export const useProblemGenerator = (initialStudentName: string) => {
             const newOps = current.includes(op) ? current.filter(o => o !== op) : [...current, op];
             if (newOps.length === 0) return prev;
             return { ...prev, selectedOperations: newOps };
+        });
+    }, []);
+
+    const toggleProblemType = useCallback((type: 'standard' | 'fill-in' | 'true-false' | 'comparison') => {
+        setProblemConfig(prev => {
+            const current = prev.problemTypes || [];
+            const newTypes = current.includes(type) ? current.filter(t => t !== type) : [...current, type];
+            if (newTypes.length === 0) return prev; // En az 1 tip seçili kalmalı
+            return { ...prev, problemTypes: newTypes };
         });
     }, []);
 
@@ -31,9 +41,13 @@ export const useProblemGenerator = (initialStudentName: string) => {
                 text: p.text || "Soru metni yüklenemedi.",
                 answer: p.answer || "?",
                 operationHint: p.operationHint,
+                type: p.type || 'standard',
+                imagePrompt: p.imagePrompt,
+                options: p.options || [],
                 steps: p.steps || [],
             }));
             setGeneratedProblems(mapped);
+            setInstruction(result.instruction || '');
             return { success: true };
         } catch (e) {
             console.error(e);
@@ -47,8 +61,10 @@ export const useProblemGenerator = (initialStudentName: string) => {
         problemConfig,
         setProblemConfig,
         generatedProblems,
+        instruction,
         isGenerating,
         toggleProblemOp,
+        toggleProblemType,
         handleGenerateProblems,
     };
 };

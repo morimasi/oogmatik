@@ -57,10 +57,20 @@ export const AnswerKeyPage: React.FC<AnswerKeyPageProps> = ({
                     {problemAnswers.map((prob, i) => (
                         <div key={prob.id} className="flex gap-3 text-sm border-b border-zinc-100 pb-2">
                             <span className="font-black text-indigo-600 w-6 shrink-0">{i + 1}.</span>
-                            <div className="flex-1">
-                                <span className="font-bold text-zinc-800">Cevap: {prob.answer}</span>
-                                {prob.operationHint && (
-                                    <span className="text-xs text-zinc-400 ml-2">({prob.operationHint})</span>
+                            <div className="flex-1 space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <span className="font-bold text-zinc-800">Cevap: {prob.answer}</span>
+                                    {prob.operationHint && (
+                                        <span className="text-xs text-zinc-400">({prob.operationHint})</span>
+                                    )}
+                                </div>
+                                {/* Çözüm Adımları */}
+                                {prob.steps && prob.steps.length > 0 && (
+                                    <div className="text-xs text-zinc-500 pl-2 border-l-2 border-indigo-100">
+                                        {prob.steps.map((step, stepIdx) => (
+                                            <div key={stepIdx}>{step}</div>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
                         </div>

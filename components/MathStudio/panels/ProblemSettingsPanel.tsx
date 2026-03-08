@@ -7,12 +7,13 @@ interface ProblemSettingsPanelProps {
     problemConfig: MathProblemConfig;
     setProblemConfig: (config: MathProblemConfig) => void;
     toggleProblemOp: (op: string) => void;
+    toggleProblemType: (type: 'standard' | 'fill-in' | 'true-false' | 'comparison') => void;
     isGenerating: boolean;
     onGenerate: () => void;
 }
 
 export const ProblemSettingsPanel: React.FC<ProblemSettingsPanelProps> = ({
-    problemConfig, setProblemConfig, toggleProblemOp, isGenerating, onGenerate,
+    problemConfig, setProblemConfig, toggleProblemOp, toggleProblemType, isGenerating, onGenerate,
 }) => (
     <div className="p-5 space-y-6 animate-in slide-in-from-left-4">
 
@@ -21,7 +22,7 @@ export const ProblemSettingsPanel: React.FC<ProblemSettingsPanelProps> = ({
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xl shadow-inner border border-white/10">🤖</div>
                 <div>
                     <h4 className="font-bold text-white text-sm">Akıllı Problem Motoru</h4>
-                    <p className="text-[10px] text-indigo-200">Tam kontrollü AI üretim.</p>
+                    <p className="text-[10px] text-indigo-200">Gelişmiş AI destekli özgün içerik.</p>
                 </div>
             </div>
 
@@ -92,16 +93,33 @@ export const ProblemSettingsPanel: React.FC<ProblemSettingsPanelProps> = ({
                     </div>
                 </div>
 
-                {/* Difficulty */}
+                {/* Difficulty Focus */}
                 <div>
-                    <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1.5 block">Zorluk Seviyesi</label>
-                    <select value={problemConfig.difficulty} onChange={e => setProblemConfig({ ...problemConfig, difficulty: e.target.value })} className="w-full p-2.5 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none font-bold">
-                        <option value="Başlangıç">🌱 Başlangıç</option>
-                        <option value="Temel">📗 Temel</option>
-                        <option value="Orta">📘 Orta</option>
-                        <option value="İleri">📕 İleri</option>
-                        <option value="Uzman">🏆 Uzman</option>
-                    </select>
+                    <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1.5 block">Pedagojik Zorluk Kalibrasyonu</label>
+                    <div className="space-y-2">
+                        {[
+                            { level: 'Başlangıç', emoji: '🌱', desc: 'Tek Adım, Somut' },
+                            { level: 'Temel', emoji: '📗', desc: '2 Adım, Günlük' },
+                            { level: 'Orta', emoji: '📘', desc: 'Hikayeli, Orta' },
+                            { level: 'İleri', emoji: '📕', desc: 'Mantık + Aritmetik' },
+                            { level: 'Uzman', emoji: '🏆', desc: 'Stratejik, Tuzaklı' }
+                        ].map(diff => (
+                            <label key={diff.level} className={`flex items-center justify-between p-2 rounded-lg cursor-pointer border transition-colors ${problemConfig.difficulty === diff.level ? 'bg-indigo-500/20 border-indigo-400' : 'bg-black/20 border-white/5 hover:border-white/20'}`}>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="radio"
+                                        name="difficulty"
+                                        value={diff.level}
+                                        checked={problemConfig.difficulty === diff.level}
+                                        onChange={e => setProblemConfig({ ...problemConfig, difficulty: e.target.value })}
+                                        className="w-4 h-4 text-indigo-500 bg-black/50 border-white/20 focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm font-bold text-white">{diff.emoji} {diff.level}</span>
+                                </div>
+                                <span className="text-[10px] text-zinc-400 pr-2">{diff.desc}</span>
+                            </label>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Generate Button */}
@@ -116,10 +134,21 @@ export const ProblemSettingsPanel: React.FC<ProblemSettingsPanelProps> = ({
             </div>
         </div>
 
-        {/* Solution box toggle */}
-        <label className="flex items-center gap-3 p-4 bg-zinc-900 rounded-xl cursor-pointer border border-zinc-800 hover:border-indigo-500/50 transition-colors">
-            <input type="checkbox" checked={problemConfig.includeSolutionBox} onChange={e => setProblemConfig({ ...problemConfig, includeSolutionBox: e.target.checked })} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 bg-black border-zinc-700" />
-            <span className="text-sm font-bold text-zinc-300">Çözüm ve İşlem Kutusu Ekle</span>
-        </label>
+        <div className="space-y-2">
+            {/* Visual Prompts Toggle */}
+            <label className="flex items-center gap-3 p-4 bg-zinc-900 rounded-xl cursor-pointer border border-zinc-800 hover:border-indigo-500/50 transition-colors">
+                <input type="checkbox" checked={problemConfig.generateImages} onChange={e => setProblemConfig({ ...problemConfig, generateImages: e.target.checked })} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 bg-black border-zinc-700" />
+                <div className="flex flex-col">
+                    <span className="text-sm font-bold text-zinc-300">İngilizce Görsel Desteği (imagePrompt)</span>
+                    <span className="text-[10px] text-zinc-500">Kapak görselleri veya ipucu için DALL-E tarzı komut üret</span>
+                </div>
+            </label>
+
+            {/* Solution box toggle */}
+            <label className="flex items-center gap-3 p-4 bg-zinc-900 rounded-xl cursor-pointer border border-zinc-800 hover:border-indigo-500/50 transition-colors">
+                <input type="checkbox" checked={problemConfig.includeSolutionBox} onChange={e => setProblemConfig({ ...problemConfig, includeSolutionBox: e.target.checked })} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 bg-black border-zinc-700" />
+                <span className="text-sm font-bold text-zinc-300">Çözüm ve İşlem Kutusu Ekle</span>
+            </label>
+        </div>
     </div>
 );

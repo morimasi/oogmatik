@@ -179,6 +179,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                                     problemConfig={problem.problemConfig}
                                     setProblemConfig={problem.setProblemConfig}
                                     toggleProblemOp={problem.toggleProblemOp}
+                                    toggleProblemType={problem.toggleProblemType}
                                     isGenerating={problem.isGenerating}
                                     onGenerate={handleGenerate}
                                 />
@@ -206,6 +207,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                             pageConfig={pageConfig}
                             themeConfig={themeConfig}
                             generatedProblems={problem.generatedProblems}
+                            instruction={problem.instruction}
                             studentName={selectedStudentName}
                         />
                     )}
@@ -216,6 +218,15 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                             pageConfig={pageConfig}
                             themeConfig={themeConfig}
                             drillAnswers={drill.generatedDrills}
+                            totalContentPages={totalContentPages}
+                        />
+                    )}
+
+                    {problem.problemConfig.includeSolutionBox && mode === 'problem_ai' && problem.generatedProblems.length > 0 && (
+                        <AnswerKeyPage
+                            pageConfig={pageConfig}
+                            themeConfig={themeConfig}
+                            problemAnswers={problem.generatedProblems}
                             totalContentPages={totalContentPages}
                         />
                     )}

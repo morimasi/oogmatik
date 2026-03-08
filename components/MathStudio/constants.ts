@@ -65,6 +65,8 @@ export const DEFAULT_PROBLEM_CONFIG = {
     numberRange: '1-20',
     problemStyle: 'simple' as const,
     complexity: '1-step' as const,
+    problemTypes: ['standard'] as ('standard' | 'fill-in' | 'true-false' | 'comparison')[],
+    generateImages: false,
 };
 
 // --- THEME SYSTEM ---

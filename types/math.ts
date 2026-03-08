@@ -249,6 +249,10 @@ export interface MathProblem {
     text: string;
     answer: string;
     operationHint?: string;
+    imagePrompt?: string; // AI tarafından üretilen görsel istemi
+    type?: 'standard' | 'fill-in' | 'true-false' | 'comparison'; // Soru tipi
+    options?: string[]; // Çoktan seçmeli/doğru-yanlış için opsiyonel şıklar
+    steps?: string[]; // Çözüm adımları
 }
 
 export interface MathProblemConfig {
@@ -261,6 +265,8 @@ export interface MathProblemConfig {
     numberRange: string;
     problemStyle: 'simple' | 'story' | 'logic';
     complexity: '1-step' | '2-step' | 'multi-step';
+    problemTypes: ('standard' | 'fill-in' | 'true-false' | 'comparison')[]; // Eklendi: Çoklu soru tipleri
+    generateImages: boolean; // Eklendi: Görsel ipucu üretme toggle'ı
 }
 
 export interface LogicGridPuzzleData extends BaseActivityData {

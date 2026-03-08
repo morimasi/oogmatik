@@ -36,6 +36,45 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({ problem, showSolutionB
                         <EditableText value={problem.text} tag="span" />
                     </p>
 
+                    {/* AI Generated Image Indicator (Simulation/Placeholder) */}
+                    {problem.imagePrompt && (
+                        <div className="mt-2 text-xs text-indigo-500 bg-indigo-50/50 border border-indigo-100 p-2 rounded flex items-center gap-2">
+                            <i className="fa-solid fa-image"></i>
+                            <span className="italic">Görsel İpucu: {problem.imagePrompt}</span>
+                        </div>
+                    )}
+
+                    {/* Options (if type needs it or provided) */}
+                    {problem.options && problem.options.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-4">
+                            {problem.options.map((opt, i) => (
+                                <div key={i} className="flex items-center gap-2">
+                                    <div className="w-5 h-5 rounded-full border-2 border-zinc-300 flex items-center justify-center text-[10px] font-bold text-zinc-500">{String.fromCharCode(65 + i)}</div>
+                                    <span className="text-sm font-medium">{opt}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Visual Indicator for specific types */}
+                    {(problem.type === 'true-false' || problem.type === 'comparison') && (!problem.options || problem.options.length === 0) && (
+                        <div className="mt-3 flex gap-4 justify-end border-t border-dashed border-zinc-200 pt-2">
+                            {problem.type === 'true-false' && (
+                                <>
+                                    <div className="px-4 py-1 border-2 border-zinc-300 rounded-lg text-sm font-bold text-zinc-400">DOĞRU</div>
+                                    <div className="px-4 py-1 border-2 border-zinc-300 rounded-lg text-sm font-bold text-zinc-400">YANLIŞ</div>
+                                </>
+                            )}
+                            {problem.type === 'comparison' && (
+                                <div className="flex items-center gap-2">
+                                    {['<', '=', '>'].map(sign => (
+                                        <div key={sign} className="w-8 h-8 flex items-center justify-center border-2 border-zinc-300 rounded-lg font-bold text-zinc-500 text-lg">{sign}</div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     {showSolutionBox && (
                         <div className="mt-2 w-full h-24 border border-zinc-300 border-dashed rounded-lg bg-zinc-50/30 relative flex items-end justify-between p-2">
                             <span className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest absolute top-1 left-2">Çözüm</span>
