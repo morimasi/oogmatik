@@ -27,6 +27,7 @@ import { NumberPathLogicConfig } from './NumberPathLogicConfig';
 import { DirectionalTrackingConfig } from './DirectionalTrackingConfig';
 import { FutoshikiConfig } from './FutoshikiConfig';
 import { AbcConnectConfig } from './AbcConnectConfig';
+import { ArchCloneConfig } from './ArchCloneConfig';
 
 
 export const ActivityConfigRegistry: Record<string, any> = {
@@ -57,4 +58,5 @@ export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.DIRECTIONAL_TRACKING]: DirectionalTrackingConfig,
     [ActivityType.FUTOSHIKI]: FutoshikiConfig,
     [ActivityType.ABC_CONNECT]: AbcConnectConfig,
+    [ActivityType.AI_WORKSHEET_CONVERTER]: ArchCloneConfig,
 };

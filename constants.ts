@@ -83,9 +83,9 @@ export const ACTIVITIES: Activity[] = [
     },
     {
         id: ActivityType.AI_WORKSHEET_CONVERTER,
-        title: 'AI Destekli Dönüştürücü',
-        description: 'Mevcut materyalleri yapay zeka ile akıllı çalışma sayfalarına dönüştürün.',
-        icon: 'fa-solid fa-wand-sparkles'
+        title: 'Mimari Klonlayıcı',
+        description: 'Mevcut materyalin/sorunun (ya da şablonun) pedagojik mimarisini birebir kopyalayarak yeni bir konu bağlamında yepyeni aktiviteler üretir.',
+        icon: 'fa-solid fa-clone'
     },
     {
         id: ActivityType.HIDDEN_PASSWORD_GRID,
@@ -287,7 +287,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
             ActivityType.ODD_EVEN_SUDOKU,
             ActivityType.FUTOSHIKI,
             ActivityType.MAGIC_PYRAMID,
-            ActivityType.CAPSULE_GAME
+            ActivityType.CAPSULE_GAME,
+            ActivityType.AI_WORKSHEET_CONVERTER
         ]
     }
 ];

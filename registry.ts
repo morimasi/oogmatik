@@ -15,6 +15,7 @@ export const CLINICAL_PRIORITIES: Record<ActivityType | string, CognitiveErrorTa
     [ActivityType.FUTOSHIKI]: ['logical_reasoning', 'processing_speed'],
     [ActivityType.MAGIC_PYRAMID]: ['logical_reasoning', 'phonological_loop'],
     [ActivityType.CAPSULE_GAME]: ['logical_reasoning', 'working_memory_overflow'],
+    [ActivityType.AI_WORKSHEET_CONVERTER]: ['logical_reasoning', 'selective_attention'],
 };
 
 /**
@@ -53,6 +54,8 @@ export const getDefaultOptionsForActivity = (activityId: ActivityType | string):
             return { ...base, itemCount: 1, pyramidHeight: 5 };
         case ActivityType.CAPSULE_GAME:
             return { ...base, itemCount: 1, gridSize: 5 };
+        case ActivityType.AI_WORKSHEET_CONVERTER:
+            return { ...base, mode: 'ai', itemCount: 10, variant: 'cloze', topic: 'TR' };
         default:
             return base;
     }
