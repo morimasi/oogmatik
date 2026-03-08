@@ -1,7 +1,7 @@
 import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions, LogicErrorHunterData } from '../../types/verbal';
 
-export const generateLogicErrorHunter = async (options: GeneratorOptions): Promise<LogicErrorHunterData> => {
+export const generateLogicErrorHunterFromAI = async (options: GeneratorOptions): Promise<LogicErrorHunterData> => {
     const difficulty = options.difficulty || 'Orta';
     const absurdityDegree = options.absurdityDegree || 'obvious';
     const errorCount = options.errorCount || 3;

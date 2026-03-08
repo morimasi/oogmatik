@@ -2,7 +2,7 @@ import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions } from '../../types/core';
 import { PatternCompletionData } from '../../types/visual';
 
-export const generatePatternCompletion = async (options: GeneratorOptions): Promise<PatternCompletionData> => {
+export const generatePatternCompletionFromAI = async (options: GeneratorOptions): Promise<PatternCompletionData> => {
     const difficulty = options.difficulty || 'Orta';
     const gridSize = options.gridSize || 3;
     const patternType = options.patternType || 'geometric';

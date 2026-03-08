@@ -1,7 +1,7 @@
 import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions, FinancialMarketData } from '../../types';
 
-export const generateFinancialMarket = async (options: GeneratorOptions): Promise<FinancialMarketData> => {
+export const generateFinancialMarketCalculatorFromAI = async (options: GeneratorOptions): Promise<FinancialMarketData> => {
     const difficulty = options.difficulty || 'Orta';
     const currency = options.currency || 'TRY';
     const useCents = options.useCents === true;

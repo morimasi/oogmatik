@@ -1,7 +1,7 @@
 import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions, DirectionalCodeReadingData } from '../../types/visual';
 
-export const generateDirectionalCodeReading = async (options: GeneratorOptions): Promise<DirectionalCodeReadingData> => {
+export const generateDirectionalCodeReadingFromAI = async (options: GeneratorOptions): Promise<DirectionalCodeReadingData> => {
     const difficulty = options.difficulty || 'Orta';
     const gridSize = options.gridSize || 6;
     const obstacleDensity = options.obstacleDensity || 20;

@@ -1,7 +1,7 @@
 import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions, ApartmentLogicData } from '../../types';
 
-export const generateApartmentLogic = async (options: GeneratorOptions): Promise<ApartmentLogicData> => {
+export const generateApartmentLogicPuzzleFromAI = async (options: GeneratorOptions): Promise<ApartmentLogicData> => {
     const difficulty = options.difficulty || 'Orta';
     const floors = options.apartmentFloors || 2;
     const roomsPerFloor = options.apartmentRoomsPerFloor || 3;
