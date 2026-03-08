@@ -66,3 +66,52 @@ export const DEFAULT_PROBLEM_CONFIG = {
     problemStyle: 'simple' as const,
     complexity: '1-step' as const,
 };
+
+// --- THEME SYSTEM ---
+
+export type PaperTheme = 'classic' | 'pastel-yellow' | 'pastel-blue' | 'sepia' | 'karne';
+export type FontTheme = 'standard' | 'dyslexic' | 'handwritten';
+export type BorderStyle = 'none' | 'thin' | 'thick' | 'rounded';
+export type NumberingStyle = 'numeric' | 'alpha' | 'roman' | 'none';
+
+export interface ThemeConfig {
+    paperTheme: PaperTheme;
+    fontTheme: FontTheme;
+    borderStyle: BorderStyle;
+    numberingStyle: NumberingStyle;
+}
+
+export const DEFAULT_THEME_CONFIG: ThemeConfig = {
+    paperTheme: 'classic',
+    fontTheme: 'standard',
+    borderStyle: 'none',
+    numberingStyle: 'numeric',
+};
+
+export const PAPER_THEMES: Record<PaperTheme, { label: string; bg: string; border: string; text: string }> = {
+    'classic': { label: 'Klasik', bg: '#ffffff', border: '#000000', text: '#000000' },
+    'pastel-yellow': { label: 'Pastel Sarı', bg: '#fefce8', border: '#a16207', text: '#422006' },
+    'pastel-blue': { label: 'Pastel Mavi', bg: '#eff6ff', border: '#1e40af', text: '#172554' },
+    'sepia': { label: 'Sepia', bg: '#faf5ef', border: '#78350f', text: '#451a03' },
+    'karne': { label: 'Karne', bg: '#ffffff', border: '#1e293b', text: '#0f172a' },
+};
+
+export const FONT_THEMES: Record<FontTheme, { label: string; fontFamily: string; icon: string }> = {
+    'standard': { label: 'Standart', fontFamily: "'JetBrains Mono', monospace", icon: 'fa-font' },
+    'dyslexic': { label: 'Disleksi Dostu', fontFamily: "'Lexend', 'OpenDyslexic', sans-serif", icon: 'fa-universal-access' },
+    'handwritten': { label: 'El Yazısı', fontFamily: "'Caveat', cursive", icon: 'fa-pen-fancy' },
+};
+
+export const BORDER_STYLES: Record<BorderStyle, { label: string; css: string }> = {
+    'none': { label: 'Yok', css: 'none' },
+    'thin': { label: 'İnce', css: '1px solid' },
+    'thick': { label: 'Kalın', css: '3px solid' },
+    'rounded': { label: 'Yuvarlak', css: '2px solid' },
+};
+
+export const NUMBERING_STYLES: Record<NumberingStyle, { label: string; format: (n: number) => string }> = {
+    'numeric': { label: '1, 2, 3...', format: (n) => `${n}` },
+    'alpha': { label: 'A, B, C...', format: (n) => String.fromCharCode(64 + n) },
+    'roman': { label: 'I, II, III...', format: (n) => ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX'][n] || `${n}` },
+    'none': { label: 'Yok', format: () => '' },
+};
