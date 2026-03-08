@@ -50,7 +50,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
     ] as const;
 
     const handleReset = () => {
-        if(confirm('Tüm görünüm ayarları varsayılana döndürülecek. Emin misiniz?')) {
+        if (confirm('Tüm görünüm ayarları varsayılana döndürülecek. Emin misiniz?')) {
             onUpdateUiSettings({
                 fontFamily: 'OpenDyslexic',
                 fontSizeScale: 1,
@@ -63,9 +63,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-[#121214] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.3)] w-full max-w-5xl flex flex-col md:flex-row overflow-hidden max-h-[90vh] border border-zinc-200 dark:border-zinc-800/60 transform transition-all">
-                
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-2 sm:p-6 animate-in fade-in duration-300">
+            <div className="bg-white dark:bg-[#121214] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.3)] w-full max-w-5xl flex flex-col md:flex-row overflow-hidden max-h-[95vh] border border-zinc-200 dark:border-zinc-800/60 transform transition-all">
+
                 {/* SOL PANEL: Navigasyon */}
                 <div className="w-full md:w-72 bg-zinc-50 dark:bg-[#0a0a0c] border-r border-zinc-200 dark:border-zinc-800/60 flex flex-col shrink-0">
                     <div className="p-6 border-b border-zinc-200 dark:border-zinc-800/60">
@@ -106,7 +106,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
 
                 {/* SAĞ PANEL: İçerik */}
                 <div className="flex-1 flex flex-col bg-white dark:bg-[#121214] min-w-0 relative">
-                    
+
                     {/* Header (Mobil Kapatma) */}
                     <div className="absolute top-4 right-4 z-10">
                         <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-500 transition-all transform hover:scale-105 active:scale-95 shadow-sm border border-zinc-200 dark:border-zinc-700">
@@ -115,7 +115,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                     </div>
 
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10">
-                        
+
                         {/* CANLI ÖNİZLEME KUTUSU (Her sekmede görünür) */}
                         <div className="mb-10">
                             <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -132,7 +132,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                                 }}>
                                 {/* Desen (Theme CSS değişkenlerinden besleniyor gibi davranır) */}
                                 <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
-                                
+
                                 <div className="relative z-10 max-w-lg">
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold mb-4 uppercase tracking-wider" style={{ backgroundColor: 'var(--bg-secondary, rgba(128,128,128,0.1))', color: 'var(--accent-color, #6366f1)' }}>
                                         <i className="fa-solid fa-bolt"></i> Simülasyon Aktif
@@ -149,14 +149,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
 
                         {/* SEKME İÇERİKLERİ */}
                         <div className="animate-in slide-in-from-right-8 fade-in duration-300">
-                            
+
                             {/* TEMA SEKME */}
                             {activeTab === 'appearance' && (
                                 <div className="space-y-6">
                                     <div>
                                         <h3 className="text-lg font-bold text-zinc-800 dark:text-white mb-1">Renk Paleti</h3>
                                         <p className="text-sm text-zinc-500 mb-6">Uygulamanın genel renk şemasını seçin. Koyu temalar göz yorgunluğunu azaltır.</p>
-                                        
+
                                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                             {themes.map(t => (
                                                 <button
@@ -203,12 +203,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                                     <div>
                                         <h3 className="text-lg font-bold text-zinc-800 dark:text-white mb-1">Yazı Tipi (Font)</h3>
                                         <p className="text-sm text-zinc-500 mb-6">Disleksi ve özel öğrenme güçlüğü için optimize edilmiş fontlar.</p>
-                                        
+
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {fonts.map(f => (
                                                 <button
                                                     key={f.id}
-                                                    onClick={() => onUpdateUiSettings({...uiSettings, fontFamily: f.id})}
+                                                    onClick={() => onUpdateUiSettings({ ...uiSettings, fontFamily: f.id })}
                                                     className={`p-5 text-left border-2 rounded-2xl transition-all duration-200 relative overflow-hidden group ${uiSettings.fontFamily === f.id ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10' : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600'}`}
                                                 >
                                                     {uiSettings.fontFamily === f.id && <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-500/10 rounded-bl-full"></div>}
@@ -236,10 +236,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                                             </div>
                                         </div>
                                         <div className="relative pt-2">
-                                            <input 
+                                            <input
                                                 type="range" min="1.0" max="2.5" step="0.1"
                                                 value={uiSettings.lineHeight}
-                                                onChange={(e) => onUpdateUiSettings({...uiSettings, lineHeight: parseFloat(e.target.value)})}
+                                                onChange={(e) => onUpdateUiSettings({ ...uiSettings, lineHeight: parseFloat(e.target.value) })}
                                                 className="w-full h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                                             />
                                             <div className="flex justify-between text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-wider">
@@ -274,10 +274,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                                                     {Math.round(uiSettings.fontSizeScale * 100)}%
                                                 </div>
                                             </div>
-                                            <input 
+                                            <input
                                                 type="range" min="0.8" max="1.5" step="0.05"
                                                 value={uiSettings.fontSizeScale}
-                                                onChange={(e) => onUpdateUiSettings({...uiSettings, fontSizeScale: parseFloat(e.target.value)})}
+                                                onChange={(e) => onUpdateUiSettings({ ...uiSettings, fontSizeScale: parseFloat(e.target.value) })}
                                                 className="w-full h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                                             />
                                         </div>
@@ -291,9 +291,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                                                 <p className="text-xs text-zinc-500 mt-1 max-w-md">Harflerin birbirine yapışmasını ve "dans etmesini" (kalabalık etkisini) önlemek için harf aralarını açar.</p>
                                             </div>
                                             <div className="relative inline-block w-14 align-middle select-none shrink-0">
-                                                <input type="checkbox" 
+                                                <input type="checkbox"
                                                     checked={uiSettings.letterSpacing === 'wide'}
-                                                    onChange={(e) => onUpdateUiSettings({...uiSettings, letterSpacing: e.target.checked ? 'wide' : 'normal'})}
+                                                    onChange={(e) => onUpdateUiSettings({ ...uiSettings, letterSpacing: e.target.checked ? 'wide' : 'normal' })}
                                                     className="toggle-checkbox absolute block w-7 h-7 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-300 ease-in-out z-10 checked:translate-x-7 checked:border-indigo-500"
                                                     style={{ borderColor: uiSettings.letterSpacing === 'wide' ? '#6366f1' : '#e4e4e7' }}
                                                 />
@@ -314,10 +314,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                                                     {uiSettings.saturation}%
                                                 </div>
                                             </div>
-                                            <input 
+                                            <input
                                                 type="range" min="0" max="100" step="5"
                                                 value={uiSettings.saturation}
-                                                onChange={(e) => onUpdateUiSettings({...uiSettings, saturation: parseFloat(e.target.value)})}
+                                                onChange={(e) => onUpdateUiSettings({ ...uiSettings, saturation: parseFloat(e.target.value) })}
                                                 className="w-full h-2 bg-gradient-to-r from-zinc-400 to-indigo-500 rounded-lg appearance-none cursor-pointer"
                                                 style={{ accentColor: '#6366f1' }}
                                             />

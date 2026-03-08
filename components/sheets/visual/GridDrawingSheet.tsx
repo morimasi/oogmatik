@@ -11,10 +11,10 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     const gridType = settings?.gridType || 'squares';
 
     // Hücre boyutu hesaplama (Taşmayı önlemek için available width daraltıldı)
-    const availableWidth = 580;
+    const availableWidth = 520;
     const cellSize = isStacked
-        ? Math.min(40, Math.floor(availableWidth / (gridDim + 2)))
-        : Math.min(28, Math.floor(availableWidth / (gridDim * 2 + 4)));
+        ? Math.min(38, Math.floor(availableWidth / (gridDim + 1)))
+        : Math.min(26, Math.floor(availableWidth / (gridDim * 2 + 2)));
 
     const totalSize = gridDim * cellSize;
     const showCoords = settings?.showCoordinates;
@@ -24,7 +24,7 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
         const sanitizedId = `grid-${isReference}-${label.replace(/\s+/g, '-')}`;
 
         return (
-            <div className="flex flex-col items-center group/grid">
+            <div className="flex flex-col items-center group/grid shrink-0">
                 <div className={`
                     mb-4 px-4 py-1.5 rounded-xl border-2 font-black text-[9px] uppercase tracking-widest shadow-md transition-all
                     ${isReference ? 'bg-zinc-900 text-white border-white scale-105' : 'bg-white text-zinc-400 border-zinc-100 group-hover/grid:border-indigo-200 group-hover/grid:text-indigo-400'}
@@ -35,7 +35,7 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
                     relative p-3 bg-white border-2 rounded-[2.5rem] transition-all overflow-visible
                     ${isReference ? 'border-zinc-200 shadow-xl ring-8 ring-zinc-50' : 'border-zinc-100 border-dashed shadow-sm group-hover:border-indigo-200 group-hover:shadow-lg'}
                 `}>
-                    <svg width={totalSize + offset * 2} height={totalSize + offset * 2} className="overflow-visible">
+                    <svg width={totalSize + offset * 2} height={totalSize + offset * 2} className="overflow-visible max-w-full h-auto">
                         <defs>
                             <pattern id={sanitizedId} width={cellSize} height={cellSize} patternUnits="userSpaceOnUse">
                                 {gridType === 'squares' && (
@@ -94,26 +94,26 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet max-w-full">
             <PedagogicalHeader
                 title={data?.title || "KARE KOPYALAMA & MOTOR PLANLAMA"}
                 instruction={data?.instruction || "Sol taraftaki örnek çizimi sağ taraftaki boş ızgaraya aynı koordinatları kullanarak kopyalayın."}
                 note={data?.pedagogicalNote}
             />
 
-            <div className={`flex-1 flex flex-col gap-12 py-8 items-center`}>
+            <div className={`flex-1 flex flex-col gap-12 py-8 items-center overflow-x-hidden`}>
                 {(data?.drawings || []).map((drawing, index) => (
-                    <EditableElement
+                    <div
                         key={index}
                         className={`
-                            relative flex items-center justify-center p-6 border-2 border-zinc-100 rounded-[2.5rem] bg-zinc-50/30 break-inside-avoid w-full group
-                            ${isStacked ? 'flex-col gap-6' : 'flex-row gap-8'}
+                            relative flex items-center justify-center p-4 sm:p-8 border-2 border-zinc-100 rounded-[2.5rem] bg-zinc-50/30 break-inside-avoid w-full max-w-full group overflow-hidden
+                            ${isStacked ? 'flex-col gap-8' : 'flex-row gap-10'}
                         `}
                     >
                         {renderGrid(drawing.lines, `REFERANS MODEL`, true)}
 
                         {!isStacked && (
-                            <div className="flex flex-col items-center opacity-20 group-hover:opacity-40 transition-opacity">
+                            <div className="flex flex-col items-center opacity-20 group-hover:opacity-40 transition-opacity shrink-0">
                                 <i className="fa-solid fa-arrow-right-long text-4xl text-zinc-300"></i>
                                 <span className="text-[7px] font-black uppercase tracking-widest mt-2">KOPYALA</span>
                             </div>
@@ -123,7 +123,7 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
 
                         {/* Klinik Metrikler */}
                         {settings?.showClinicalNotes && drawing.clinicalMeta && (
-                            <div className="absolute top-6 right-10 text-right opacity-40 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute top-6 right-10 text-right opacity-40 group-hover:opacity-100 transition-opacity hidden sm:block">
                                 <span className="text-[7px] font-black uppercase text-indigo-400 block tracking-widest">Görsel-Motor Entegrasyon</span>
                                 <div className="flex gap-4 mt-1 justify-end">
                                     <span className="text-[8px] font-bold text-zinc-500">Kesişim: {drawing.clinicalMeta.crossingPoints}</span>
@@ -131,7 +131,7 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
                                 </div>
                             </div>
                         )}
-                    </EditableElement>
+                    </div>
                 ))}
             </div>
 
