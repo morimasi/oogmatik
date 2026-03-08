@@ -261,6 +261,8 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     const [isEditingBlueprint, setIsEditingBlueprint] = (React as any).useState(false);
     const [difficulty, setDifficulty] = (React as any).useState('Orta' as DifficultyLevel);
     const [variantCount, setVariantCount] = (React as any).useState(1);
+    const [itemCount, setItemCount] = (React as any).useState(8);
+    const [concept, setConcept] = (React as any).useState('');
     const [finalData, setFinalData] = (React as any).useState(null as WorksheetData | null);
     const [toast, setToast] = (React as any).useState(null as { message: string; type: ToastType } | null);
     const [retryCount, setRetryCount] = (React as any).useState(0);
@@ -424,8 +426,8 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                 mode: 'ai',
                 difficulty,
                 worksheetCount: variantCount,
-                itemCount: 8,
-                topic: titleToUse,
+                itemCount: itemCount,
+                topic: concept ? `${titleToUse} (${concept} bağlamında)` : titleToUse,
                 isExactClone: isExact,
                 ...(activeStudent ? { studentContext: activeStudent } : {})
             };
@@ -448,8 +450,8 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                     <i className="fa-solid fa-arrow-left"></i>
                 </button>
                 <div className="flex flex-col items-center">
-                    <h2 className="text-xs font-black uppercase tracking-[0.4em] text-indigo-400">Mimari Klonlayıcı</h2>
-                    <span className="text-[8px] font-bold opacity-30 tracking-[0.2em]">NEURO-ARCH ENGINE v3.0</span>
+                    <h2 className="text-xs font-black uppercase tracking-[0.4em] text-indigo-400">ArchClone Stüdyosu</h2>
+                    <span className="text-[8px] font-bold opacity-30 tracking-[0.2em]">KAPSAMLI MİMARİ KLON & ÜRETİM</span>
                 </div>
                 <StudentSelector students={students} activeStudent={activeStudent} onSelect={setActiveStudent} />
             </div>
@@ -518,14 +520,24 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                         )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full px-4">
-                            <button onClick={() => fileInputRef.current?.click()} className="group p-10 bg-white text-indigo-950 rounded-[2.5rem] hover:-translate-y-2 transition-all shadow-2xl flex flex-col items-center gap-4 text-center border-4 border-transparent hover:border-indigo-200">
-                                <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-3xl text-indigo-600"><i className="fa-solid fa-file-import"></i></div>
-                                <div><h4 className="font-black text-xl mb-1">Mimari Analiz</h4><p className="text-xs font-medium text-slate-500">Görselden veya PDF'den Blueprint Çıkar</p></div>
+                            <button onClick={() => fileInputRef.current?.click()} className="group p-8 bg-white text-indigo-950 rounded-[2.5rem] hover:-translate-y-2 transition-all shadow-2xl flex flex-col items-center gap-3 text-center border-4 border-transparent hover:border-indigo-200">
+                                <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-2xl text-indigo-600"><i className="fa-solid fa-file-import"></i></div>
+                                <div><h4 className="font-black text-lg mb-1">Görselden Klonla</h4><p className="text-[10px] font-medium text-slate-500">Mevcut bir soruyu analiz et</p></div>
                             </button>
-                            <button onClick={() => setStep('creative')} className="group p-10 bg-indigo-600 text-white rounded-[2.5rem] hover:-translate-y-2 transition-all shadow-2xl flex flex-col items-center gap-4 text-center border-4 border-transparent hover:border-indigo-400">
-                                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl"><i className="fa-solid fa-wand-magic-sparkles"></i></div>
-                                <div><h4 className="font-black text-xl mb-1">Creative Studio</h4><p className="text-xs font-medium text-indigo-100 opacity-70">Fikirleri Gerçeğe Dönüştür</p></div>
+                            {/* Blueprint Şablonları Butonu - Hazır Yapıları Tetikler */}
+                            <button onClick={() => {
+                                // Default boş template veya seçicisine yönlendirebiliriz
+                                setBlueprintData({ worksheetBlueprint: "...", title: "Yeni Etkinlik" });
+                                setStep('studio');
+                            }} className="group p-8 bg-indigo-50 border-2 border-indigo-100 text-indigo-950 rounded-[2.5rem] hover:-translate-y-2 transition-all shadow-xl flex flex-col items-center gap-3 text-center hover:border-indigo-300">
+                                <div className="w-14 h-14 bg-indigo-100/50 rounded-2xl flex items-center justify-center text-2xl text-indigo-600"><i className="fa-solid fa-layer-group"></i></div>
+                                <div><h4 className="font-black text-lg mb-1">Şablondan Üret</h4><p className="text-[10px] font-medium text-slate-500">Hazır mimari haritalarını kullan</p></div>
                             </button>
+                            <button onClick={() => setStep('creative')} className="group col-span-1 md:col-span-2 p-6 bg-indigo-600 text-white rounded-[2.5rem] hover:-translate-y-2 transition-all shadow-2xl flex flex-col items-center gap-2 text-center border-4 border-transparent hover:border-indigo-400">
+                                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-xl"><i className="fa-solid fa-wand-magic-sparkles"></i></div>
+                                <div><h4 className="font-black text-lg mb-1">Creative Studio</h4><p className="text-[10px] font-medium text-indigo-100 opacity-70">Sıfırdan Serbest Üretim</p></div>
+                            </button>
+
                         </div>
 
                         <input type="file" ref={fileInputRef} onChange={handleFile} accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,application/pdf" capture="environment" multiple className="hidden" />
@@ -630,20 +642,33 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                                 {/* Zorluk & Varyant */}
                                 <div className="space-y-4 mb-6">
                                     <div><label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Zorluk Seviyesi</label><DifficultyPicker selected={difficulty} onChange={setDifficulty} /></div>
-                                    <div>
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Varyant Sayısı</label>
-                                        <div className="flex gap-2">
-                                            {[1, 2, 3].map((n: number) => (
-                                                <button key={n} onClick={() => setVariantCount(n)} className={`w-12 h-12 rounded-xl border font-black text-sm transition-all ${variantCount === n ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-400' : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'}`}>
-                                                    {n}×
-                                                </button>
-                                            ))}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Soru/Öğe Sayısı</label>
+                                            <input type="number" min={1} max={30} value={itemCount} onChange={(e: any) => setItemCount(parseInt(e.target.value))}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-indigo-500 outline-none transition-all" />
                                         </div>
+                                        <div>
+                                            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Varyant Sayısı</label>
+                                            <div className="flex gap-2">
+                                                {[1, 2, 3].map((n: number) => (
+                                                    <button key={n} onClick={() => setVariantCount(n)} className={`flex-1 h-12 rounded-xl border font-black text-sm transition-all ${variantCount === n ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-400' : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'}`}>
+                                                        {n}×
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Odaklanılacak Konu / Bağlam (Opsiyonel)</label>
+                                        <textarea value={concept} onChange={(e: any) => setConcept(e.target.value)}
+                                            placeholder="Örn: Hücrenin organelleri, kesirlerle toplama işlemi, Cumhuriyet dönemi..."
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs font-medium text-white placeholder-slate-600 focus:border-indigo-500 outline-none resize-none transition-all h-20 custom-scrollbar" />
                                     </div>
                                     {activeStudent && (
                                         <div className="flex items-center gap-3 p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
                                             <span className="w-8 h-8 rounded-lg bg-indigo-500/30 flex items-center justify-center text-indigo-300 text-xs font-black">{activeStudent.avatar || activeStudent.name.charAt(0).toUpperCase()}</span>
-                                            <div className="text-left flex-1"><p className="text-xs font-bold text-indigo-300">{activeStudent.name}</p><p className="text-[10px] text-indigo-400/60">{activeStudent.grade} • {activeStudent.learningStyle} • {activeStudent.diagnosis.join(', ')}</p></div>
+                                            <div className="text-left flex-1"><p className="text-xs font-bold text-indigo-300">{activeStudent.name}</p><p className="text-[10px] text-indigo-400/60">{activeStudent.grade} • {activeStudent.learningStyle}</p></div>
                                             <i className="fa-solid fa-user-check text-indigo-400/50 text-xs"></i>
                                         </div>
                                     )}

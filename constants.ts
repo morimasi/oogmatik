@@ -81,12 +81,7 @@ export const ACTIVITIES: Activity[] = [
         description: 'Sıralı düşünme ve mantık yürütme becerilerini geliştiren akış şemaları.',
         icon: 'fa-solid fa-code-fork'
     },
-    {
-        id: ActivityType.AI_WORKSHEET_CONVERTER,
-        title: 'Mimari Klonlayıcı',
-        description: 'Mevcut materyalin/sorunun (ya da şablonun) pedagojik mimarisini birebir kopyalayarak yeni bir konu bağlamında yepyeni aktiviteler üretir.',
-        icon: 'fa-solid fa-clone'
-    },
+
     {
         id: ActivityType.HIDDEN_PASSWORD_GRID,
         title: 'Gizli Şifre Matrisi',
@@ -287,8 +282,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
             ActivityType.ODD_EVEN_SUDOKU,
             ActivityType.FUTOSHIKI,
             ActivityType.MAGIC_PYRAMID,
-            ActivityType.CAPSULE_GAME,
-            ActivityType.AI_WORKSHEET_CONVERTER
+            ActivityType.CAPSULE_GAME
         ]
     }
 ];
