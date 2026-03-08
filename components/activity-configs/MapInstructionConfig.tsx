@@ -1,6 +1,6 @@
-
 import React, { useRef } from 'react';
 import { GeneratorOptions } from '../../types';
+import { TurkeyMapSVG } from '../sheets/visual/TurkeyMapSVG';
 
 export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,26 +90,35 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 )}
             </div>
 
-            {/* Bölgesel Odak — 7 + 1 Bölge */}
+            {/* Bölgesel Odak — İnteraktif Harita Seçimi */}
             <div className="p-4 bg-blue-900/10 rounded-[2rem] border border-blue-800/30">
-                <label className="text-[10px] font-black text-blue-400 uppercase mb-3 block text-center tracking-widest">
-                    <i className="fa-solid fa-map mr-2"></i>Bölgesel Odak
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                    {regions.map(r => (
+                <label className="text-[10px] font-black text-blue-400 uppercase mb-3 flex items-center justify-between tracking-widest">
+                    <span><i className="fa-solid fa-map mr-2"></i>Bölgesel Odak</span>
+                    {options.emphasizedRegion && options.emphasizedRegion !== 'all' && (
                         <button
-                            key={r.value}
-                            onClick={() => onChange('emphasizedRegion', r.value)}
-                            disabled={!!options.customInput}
-                            className={`py-2.5 rounded-xl text-[9px] font-black border transition-all flex items-center justify-center gap-2 ${options.emphasizedRegion === r.value
-                                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg'
-                                    : 'bg-zinc-800 text-zinc-500 border-zinc-700 hover:border-blue-500'
-                                } ${options.customInput ? 'opacity-30 cursor-not-allowed' : ''}`}
+                            onClick={() => onChange('emphasizedRegion', 'all')}
+                            className="text-blue-400 hover:text-blue-300 text-[9px] bg-blue-900/30 px-2 py-1 rounded"
                         >
-                            <i className={`fa-solid ${r.icon} text-[8px]`}></i>
-                            {r.label}
+                            TÜM TÜRKİYE
                         </button>
-                    ))}
+                    )}
+                </label>
+
+                <div className={`relative w-full aspect-[2/1] bg-black/20 rounded-xl overflow-hidden border border-zinc-800/50 ${options.customInput ? 'opacity-30 pointer-events-none' : ''}`}>
+                    <TurkeyMapSVG
+                        emphasizedRegion={options.emphasizedRegion || 'all'}
+                        interactive={!options.customInput}
+                        onRegionClick={(r) => onChange('emphasizedRegion', r)}
+                        showRegionLabels={false}
+                    />
+
+                    {!options.customInput && (!options.emphasizedRegion || options.emphasizedRegion === 'all') && (
+                        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                            <span className="text-[10px] font-bold text-white/50 tracking-widest bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">
+                                SEÇMEK İÇİN BÖLGEYE TIKLAYIN
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -126,8 +135,8 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                                 key={qt.value}
                                 onClick={() => toggleQuestionType(qt.value)}
                                 className={`w-full py-2.5 px-4 rounded-xl text-left flex items-center gap-3 transition-all border ${isActive
-                                        ? 'bg-violet-600/15 border-violet-500/40 text-violet-300'
-                                        : 'bg-zinc-800/50 border-zinc-700/50 text-zinc-500 hover:border-violet-500/30'
+                                    ? 'bg-violet-600/15 border-violet-500/40 text-violet-300'
+                                    : 'bg-zinc-800/50 border-zinc-700/50 text-zinc-500 hover:border-violet-500/30'
                                     }`}
                             >
                                 <i className={`fa-solid ${qt.icon} text-xs ${isActive ? 'text-violet-400' : 'text-zinc-600'}`}></i>
@@ -153,8 +162,8 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                             key={d.value}
                             onClick={() => onChange('difficulty', d.value)}
                             className={`w-full py-3 px-4 rounded-xl flex items-center justify-between transition-all border ${options.difficulty === d.value
-                                    ? `bg-${d.color}-600/15 border-${d.color}-500/40 text-white shadow-lg`
-                                    : 'bg-zinc-900/50 border-zinc-700/30 text-zinc-500 hover:border-zinc-500'
+                                ? `bg-${d.color}-600/15 border-${d.color}-500/40 text-white shadow-lg`
+                                : 'bg-zinc-900/50 border-zinc-700/30 text-zinc-500 hover:border-zinc-500'
                                 }`}
                         >
                             <div className="flex items-center gap-3">
@@ -186,8 +195,8 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                                 key={ms}
                                 onClick={() => onChange('markerStyle', ms)}
                                 className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] transition-all ${(options.markerStyle || 'circle') === ms
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'bg-zinc-800 text-zinc-500'
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-zinc-800 text-zinc-500'
                                     }`}
                                 title={ms}
                             >
