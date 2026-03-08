@@ -246,20 +246,29 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
     const results: VisualOddOneOutData[] = [];
 
     // Görsel benzerlik ve yön karışıklığı yaratan setler (Özellikle disleksi için)
-    const sets = [
+    const letterSets = [
         ['b', 'd'], ['p', 'q'], ['m', 'n'], ['s', 'ş'], ['c', 'ç'],
         ['O', 'Q'], ['E', 'F'], ['6', '9'], ['3', 'E'], ['5', 'S'],
         ['u', 'n'], ['f', 't']
     ];
 
+    const emojiSets = [
+        ['🙂', '🙃'], ['🚗', '🚙'], ['🍎', '🍅'], ['☀️', '🏵️'],
+        ['🌲', '🌳'], ['🐶', '🐻'], ['⚽', '🏀'], ['🎈', '🪀']
+    ];
+
     for (let p = 0; p < worksheetCount; p++) {
         const rows: any[] = [];
-        const rowCount = difficulty === 'Başlangıç' ? 5 : (difficulty === 'Orta' ? 7 : 10);
+
+        // Profesyonel bol içerik: Satır sayısı başlangıçta 8'den başlasın, uzman seviyesinde 15'e çıksın.
+        const rowCount = difficulty === 'Başlangıç' ? 8 : (difficulty === 'Orta' ? 12 : 15);
         // Sütun (öğe) sayısı zorluğa göre artabilir
-        const itemCount = difficulty === 'Başlangıç' ? 4 : (difficulty === 'Uzman' ? 6 : 5);
+        const itemCount = difficulty === 'Başlangıç' ? 5 : (difficulty === 'Orta' ? 6 : 8);
 
         for (let r = 0; r < rowCount; r++) {
-            const set = getRandomItems(sets, 1)[0];
+            // Karışık olarak harf veya emoji seti seç
+            const useEmoji = Math.random() > 0.7;
+            const set = getRandomItems(useEmoji ? emojiSets : letterSets, 1)[0];
             const isReversed = Math.random() > 0.5;
             const baseChar = isReversed ? set[1] : set[0];
             const oddChar = isReversed ? set[0] : set[1];
@@ -270,17 +279,18 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
             for (let i = 0; i < itemCount; i++) {
                 items.push({
                     label: i === correctIndex ? oddChar : baseChar,
-                    rotation: difficulty === 'Uzman' ? getRandomInt(-10, 10) : 0,
-                    scale: 1
+                    rotation: difficulty === 'Uzman' && !useEmoji ? getRandomInt(-15, 15) : 0,
+                    scale: 1,
+                    isMirrored: false
                 });
             }
 
             rows.push({
                 items,
                 correctIndex,
-                reason: `'${baseChar}' harfleri arasına '${oddChar}' gizlenmiş.`,
+                reason: `'${baseChar}' arasına '${oddChar}' gizlenmiş.`,
                 clinicalMeta: {
-                    discriminationFactor: 0.8,
+                    discriminationFactor: 0.9,
                     isMirrorTask: ['b', 'd', 'p', 'q', 'u', 'n', '3', 'E'].includes(baseChar),
                     targetCognitiveSkill: 'Visual Discrimination'
                 }
@@ -289,11 +299,11 @@ export const generateOfflineVisualOddOneOut = async (options: GeneratorOptions):
 
         results.push({
             title: "Görsel Ayrıştırma",
-            instruction: "Her satırda diğerlerinden farklı olan harfi, sayıyı veya sembolü bularak işaretleyin.",
+            instruction: "Her satırda diğerlerinden farklı olan öğeyi bularak işaretleyin.",
             pedagogicalNote: "Görsel ayırt etme, yön tayini (spatial orientation) ve dikkat kontrolünü geliştirir.",
             settings: {
                 difficulty: mapDifficulty(difficulty || 'Orta'),
-                layout: itemCount > 4 ? 'grid_compact' : 'single',
+                layout: itemCount >= 6 ? 'ultra_dense' : 'grid_compact',
                 itemType: 'character',
                 isProfessionalMode: true,
                 showClinicalNotes: false

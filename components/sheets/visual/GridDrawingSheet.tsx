@@ -7,18 +7,18 @@ import { EditableElement } from '../../Editable';
 export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     const settings = data?.settings;
     const gridDim = data?.gridDim || 6;
-    const isStacked = settings?.layout === 'stacked' || gridDim > 8;
+    const isStacked = settings?.layout === 'stacked' || gridDim >= 8;
     const gridType = settings?.gridType || 'squares';
 
-    // Hücre boyutu hesaplama
-    const availableWidth = 180 * 3.78;
+    // Hücre boyutu hesaplama (Taşmayı önlemek için available width daraltıldı)
+    const availableWidth = 580;
     const cellSize = isStacked
-        ? Math.min(45, Math.floor(availableWidth / (gridDim + 2)))
-        : Math.min(38, Math.floor(availableWidth / (gridDim * 2 + 3)));
+        ? Math.min(40, Math.floor(availableWidth / (gridDim + 2)))
+        : Math.min(28, Math.floor(availableWidth / (gridDim * 2 + 4)));
 
     const totalSize = gridDim * cellSize;
     const showCoords = settings?.showCoordinates;
-    const offset = showCoords ? 25 : 10;
+    const offset = showCoords ? 20 : 10;
 
     const renderGrid = (lines: [number, number][][] | null, label: string, isReference: boolean) => {
         const sanitizedId = `grid-${isReference}-${label.replace(/\s+/g, '-')}`;
@@ -106,8 +106,8 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
                     <EditableElement
                         key={index}
                         className={`
-                            relative flex items-center justify-center p-10 border-2 border-zinc-100 rounded-[3rem] bg-zinc-50/30 break-inside-avoid w-full group
-                            ${isStacked ? 'flex-col gap-12' : 'flex-row gap-20'}
+                            relative flex items-center justify-center p-6 border-2 border-zinc-100 rounded-[2.5rem] bg-zinc-50/30 break-inside-avoid w-full group
+                            ${isStacked ? 'flex-col gap-6' : 'flex-row gap-8'}
                         `}
                     >
                         {renderGrid(drawing.lines, `REFERANS MODEL`, true)}
