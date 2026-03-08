@@ -97,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     return (
-        <aside className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700 transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside className={`fixed inset-y-0 left-0 z-30 w-[var(--sidebar-width)] transform bg-[var(--bg-paper)] border-r border-[var(--border-color)] transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="flex h-full flex-col">
                 {selectedActivity ? (
                     <GeneratorView
@@ -107,21 +107,28 @@ const Sidebar: React.FC<SidebarProps> = ({
                         isLoading={isLoading}
                     />
                 ) : (
-                    <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-                        <h2 className="text-xs font-black text-zinc-400 uppercase tracking-widest px-4 mb-6">Etkinlik Laboratuvarı</h2>
+                    <nav className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+                        <h2 className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest px-4 mb-6">Etkinlik Laboratuvarı</h2>
                         {ACTIVITY_CATEGORIES.map(category => (
-                            <div key={category.id}>
-                                <button onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${openCategoryId === category.id ? 'bg-zinc-100 dark:bg-zinc-800' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50'}`}>
+                            <div key={category.id} className="mb-2">
+                                <button
+                                    onClick={() => setOpenCategoryId(openCategoryId === category.id ? null : category.id)}
+                                    className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 ${openCategoryId === category.id ? 'bg-[var(--accent-muted)] text-[var(--accent-color)] shadow-sm' : 'hover:bg-[var(--surface-glass)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                                >
                                     <span className="flex items-center gap-3 font-bold text-sm">
-                                        <i className={`${category.icon} text-zinc-400`}></i>
+                                        <i className={`${category.icon} ${openCategoryId === category.id ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}></i>
                                         {category.title}
                                     </span>
-                                    <i className={`fa-solid fa-chevron-down text-[10px] transition-transform ${openCategoryId === category.id ? 'rotate-180' : ''}`}></i>
+                                    <i className={`fa-solid fa-chevron-down text-[10px] transition-transform duration-300 ${openCategoryId === category.id ? 'rotate-180' : ''}`}></i>
                                 </button>
                                 {openCategoryId === category.id && (
-                                    <div className="ml-8 mt-2 space-y-1">
+                                    <div className="ml-4 mt-2 space-y-1 animate-in slide-in-from-top-2 duration-300">
                                         {ACTIVITIES.filter(a => category.activities.includes(a.id)).map(act => (
-                                            <button key={act.id} onClick={() => onSelectActivity(act.id)} className="w-full text-left p-3 text-xs font-bold text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                                            <button
+                                                key={act.id}
+                                                onClick={() => onSelectActivity(act.id)}
+                                                className="w-full text-left p-3 pl-8 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--accent-color)] hover:bg-[var(--surface-glass)] rounded-xl transition-all"
+                                            >
                                                 {act.title}
                                             </button>
                                         ))}

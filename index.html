@@ -16,61 +16,72 @@
     @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;800&family=Lexend:wght@400;600;800&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
 
     :root {
-      --bg-primary: #222226;
-      --bg-secondary: #1a1a1d;
-      --bg-paper: #2d2d32;
-      --bg-inset: #18181b;
-      --panel-bg: rgba(45, 45, 50, 0.95);
-      --text-primary: #fefce8;
-      --text-secondary: #d4d4d8;
-      --text-muted: #a1a1aa;
-      --border-color: #3f3f46;
+      --bg-primary: #121214;
+      --bg-secondary: #0a0a0b;
+      --bg-paper: #1e1e22;
+      --bg-inset: #121214;
+      --card-bg: rgba(30, 30, 34, 0.7);
+      --card-border: rgba(255, 255, 255, 0.05);
+      --panel-bg: rgba(30, 30, 34, 0.95);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: rgba(255, 255, 255, 0.08);
       --accent-color: #fbbf24;
       --accent-hover: #f59e0b;
-      --pattern-color: #3f3f46;
+      --accent-muted: rgba(251, 191, 36, 0.1);
+      --surface-glass: rgba(255, 255, 255, 0.03);
       --ui-font: var(--app-font-family, 'Lexend', 'OpenDyslexic', sans-serif);
       --ui-scale: var(--app-font-size-scale, 1);
       --ui-spacing: var(--app-letter-spacing, normal);
       --ui-line-height: var(--app-line-height, 1.6);
       --ui-saturation: var(--app-saturation, 100%);
       --pattern-image: none;
+      --sidebar-width: 320px;
     }
 
     /* Theme-specific Overrides for UI Elements */
     :root.theme-anthracite-gold {
-      --bg-primary: #1f1f22;
-      --bg-paper: #28282c;
+      --bg-primary: #121214;
+      --bg-paper: #1e1e22;
       --accent-color: #fbbf24;
-      --text-primary: #fefce8;
+      --text-primary: #f8fafc;
     }
 
     :root.theme-anthracite-cyber {
-      --bg-primary: #000000;
-      --bg-paper: #0a0a0a;
-      --accent-color: #ec4899;
+      --bg-primary: #050505;
+      --bg-paper: #0d0d0d;
+      --accent-color: #f472b6;
       --text-primary: #ffffff;
-      --border-color: #ec489955;
+      --border-color: rgba(244, 114, 182, 0.2);
+      --accent-muted: rgba(244, 114, 182, 0.1);
     }
 
     :root.theme-space {
-      --bg-primary: #0b0d17;
-      --bg-paper: #161a29;
+      --bg-primary: #020617;
+      --bg-paper: #0f172a;
       --accent-color: #38bdf8;
-      --text-primary: #f1f5f9;
+      --text-primary: #f8fafc;
+      --border-color: rgba(56, 189, 248, 0.1);
+      --accent-muted: rgba(56, 189, 248, 0.1);
     }
 
     :root.theme-nature {
-      --bg-primary: #f0fdf4;
-      --bg-paper: #ffffff;
-      --accent-color: #22c55e;
-      --text-primary: #166534;
+      --bg-primary: #052e16;
+      --bg-paper: #064e3b;
+      --accent-color: #4ade80;
+      --text-primary: #f0fdf4;
+      --border-color: rgba(74, 222, 128, 0.1);
+      --accent-muted: rgba(74, 222, 128, 0.1);
     }
 
     :root.theme-ocean {
-      --bg-primary: #ecfeff;
-      --bg-paper: #ffffff;
-      --accent-color: #06b6d4;
-      --text-primary: #155e75;
+      --bg-primary: #082f49;
+      --bg-paper: #0c4a6e;
+      --accent-color: #0ea5e9;
+      --text-primary: #f0f9ff;
+      --border-color: rgba(14, 165, 233, 0.1);
+      --accent-muted: rgba(14, 165, 233, 0.1);
     }
 
     body {
@@ -353,8 +364,8 @@
       }
 
       /* Yüksek flex yapıları blok moduna çevirerek sayfalama kırılmalarını engelle (çoklu sayfa desteği) */
-      .worksheet-page > .flex-1,
-      .worksheet-page > .flex-col {
+      .worksheet-page>.flex-1,
+      .worksheet-page>.flex-col {
         display: block !important;
         height: auto !important;
         min-height: 0 !important;
@@ -388,7 +399,7 @@
         line-height: 1.5 !important;
       }
 
-      #print-container.compact-print .print-content-area > * {
+      #print-container.compact-print .print-content-area>* {
         margin-bottom: 4mm !important;
       }
 
@@ -408,7 +419,7 @@
         align-items: start !important;
       }
 
-      #print-container.two-column-print .print-content-area > * {
+      #print-container.two-column-print .print-content-area>* {
         margin-bottom: 0 !important;
       }
 
@@ -456,7 +467,8 @@
         width: 100% !important;
         overflow: visible !important;
       }
-      .print-content-area > * {
+
+      .print-content-area>* {
         margin-bottom: 6mm !important;
       }
 
