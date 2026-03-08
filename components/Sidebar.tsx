@@ -59,6 +59,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
     const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
+    // Boyutlandırma State'leri
+    const [sidebarWidth, setSidebarWidth] = useState(420);
+    const [isResizing, setIsResizing] = useState(false);
+
     useEffect(() => {
         const loadDynamicResources = async () => {
             try {
@@ -81,6 +85,29 @@ const Sidebar: React.FC<SidebarProps> = ({
         };
         loadDynamicResources();
     }, []);
+
+    // Resize Logic
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isResizing) return;
+            let newWidth = e.clientX;
+            if (newWidth < 280) newWidth = 280;
+            if (newWidth > 650) newWidth = 650;
+            setSidebarWidth(newWidth);
+        };
+
+        const handleMouseUp = () => setIsResizing(false);
+
+        if (isResizing) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isResizing]);
 
     const handleGenerate = async (options: GeneratorOptions) => {
         if (!selectedActivity) return;
@@ -128,7 +155,20 @@ const Sidebar: React.FC<SidebarProps> = ({
         , [selectedActivity, allActivities]);
 
     return (
-        <aside className={`fixed inset-y-0 left-0 z-30 bg-zinc-50/80 dark:bg-[#09090b]/90 backdrop-blur-2xl border-r border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-700 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'} ${isExpanded ? 'w-[420px]' : 'w-[85px]'}`}>
+        <aside
+            style={{ width: isExpanded ? `${sidebarWidth}px` : '85px' }}
+            className={`fixed inset-y-0 left-0 z-30 bg-zinc-50/80 dark:bg-[#09090b]/90 backdrop-blur-2xl border-r border-zinc-200/50 dark:border-zinc-800/50 transition-all ${isResizing ? '' : 'duration-700 cubic-bezier(0.4, 0, 0.2, 1)'} flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
+        >
+            {/* Resizing Handle */}
+            {isExpanded && (
+                <div
+                    onMouseDown={() => setIsResizing(true)}
+                    className={`absolute -right-0.5 top-0 bottom-0 w-1.5 cursor-col-resize z-50 hover:bg-indigo-500/40 transition-colors group ${isResizing ? 'bg-indigo-500/60 w-2' : ''}`}
+                >
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-8 bg-zinc-300 dark:bg-zinc-700 rounded-full opacity-0 group-hover:opacity-100" />
+                </div>
+            )}
+
             <div className="flex h-full flex-col overflow-hidden">
                 {selectedActivity ? (
                     selectedActivityData ? (
