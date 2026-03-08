@@ -114,15 +114,19 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
             // Kontrol: Fare A4 kağıdı üzerinde mi?
             const target = e.target as HTMLElement;
-            const isHoveringPaper = target.closest('.universal-mode-canvas') || target.closest('.worksheet-page') || target.closest('[data-worksheet-content="true"]');
+            const isHoveringPaper = target.closest('.worksheet-page') || target.closest('[data-worksheet-content="true"]');
 
             if (!isHoveringPaper) {
-                // Sadece çalışma kağıdı dışındaysa default scroll davranışı çalışsın
-                return;
-            }
+                // Sadece çalışma kağıdı dısında ve CTRL tuşu kapalıysa scroll devam etsin
+                if (!e.ctrlKey) return;
 
-            // PREVENT DEFAULT SCROLLING
-            e.preventDefault();
+                // CTRL basılıysa boşlukta da zoom yapsın
+                e.preventDefault();
+            } else {
+                // Kağıt üzerindeyken HER ZAMAN zoom yap (Kullanıcı isteği)
+                // Eğer CTRL basılı değilse yine de e.preventDefault() yaparak sayfayı kaydırmayı engelle ve zoom yap
+                e.preventDefault();
+            }
 
             // ZOOM LOGIC
             const zoomSpeed = 0.0012;

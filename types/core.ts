@@ -277,6 +277,8 @@ export interface GeneratorOptions {
     useGridSystem?: boolean;
     mapType?: 'turkey' | 'world' | 'treasure';
     includeCompass?: boolean;
+    cognitiveLoad?: number;
+    includeClinicalNotes?: boolean;
 }
 
 export type ShapeType = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'diamond' | 'pentagon' | 'octagon';

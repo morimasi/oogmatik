@@ -1,17 +1,15 @@
 // @ts-nocheck
 import React, { useState, useMemo, useEffect } from 'react';
-import { ActivityType, WorksheetData, Activity, GeneratorOptions, ActivityCategory } from '../types';
-import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
-import * as generators from '../services/generators';
-import * as offlineGenerators from '../services/offlineGenerators';
+import { ActivityType, WorksheetData, Activity, GeneratorOptions, ActivityCategory } from './types';
+import { ACTIVITY_CATEGORIES, ACTIVITIES } from './constants';
+import * as generators from './services/generators';
+import * as offlineGenerators from './services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
-import { statsService } from '../services/statsService';
-import { adminService } from '../services/adminService';
-import { useStudent } from '../context/StudentContext';
+import { statsService } from './services/statsService';
+import { useStudent } from './context/StudentContext';
 
 /**
  * Normalizasyon: ID'yi CamelCase fonksiyon ismine çevirir.
- * NUMBER_LOGIC_RIDDLES -> NumberLogicRiddles
  */
 const toPascalCase = (str: string): string => {
     if (!str) return '';
@@ -31,6 +29,15 @@ interface SidebarProps {
     isSidebarOpen: boolean;
     closeSidebar: () => void;
     onAddToHistory: (activityType: ActivityType, data: WorksheetData) => void;
+    onOpenOCR?: () => void;
+    onOpenCurriculum?: () => void;
+    onOpenReadingStudio?: () => void;
+    onOpenMathStudio?: () => void;
+    onOpenScreening?: () => void;
+    activeCurriculumSession?: any;
+    isExpanded?: boolean;
+    width?: number;
+    onWidthChange?: (width: number) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -42,10 +49,33 @@ const Sidebar: React.FC<SidebarProps> = ({
     setIsLoading,
     setError,
     isLoading,
-    onAddToHistory
+    onAddToHistory,
+    width,
+    onWidthChange
 }) => {
     const { activeStudent } = useStudent();
     const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
+    const [isResizing, setIsResizing] = useState(false);
+
+    useEffect(() => {
+        if (!isResizing) return;
+
+        const handleMouseMove = (e: MouseEvent) => {
+            if (onWidthChange) {
+                const newWidth = Math.min(Math.max(280, e.clientX), 600);
+                onWidthChange(newWidth);
+            }
+        };
+
+        const handleMouseUp = () => setIsResizing(false);
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isResizing, onWidthChange]);
 
     const handleGenerate = async (options: GeneratorOptions) => {
         if (!selectedActivity) return;
@@ -78,7 +108,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 if (offlineGen) {
                     result = await offlineGen(enrichedOptions);
                 } else {
-                    throw new Error(`"${pascalName}" için yerel üretim motoru bulunamadı.`);
+                    throw new Error(`"${pascalName}" için üretim motoru henüz hazır değil.`);
                 }
             }
 
@@ -97,8 +127,11 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     return (
-        <aside className={`fixed inset-y-0 left-0 z-30 w-[var(--sidebar-width)] transform bg-[var(--bg-paper)] border-r border-[var(--border-color)] transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-            <div className="flex h-full flex-col">
+        <aside
+            className={`fixed inset-y-0 left-0 z-30 transform bg-[var(--bg-paper)] border-r border-[var(--border-color)] transition-all duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+            style={{ width: width || 320 }}
+        >
+            <div className="flex h-full flex-col relative">
                 {selectedActivity ? (
                     <GeneratorView
                         activity={ACTIVITIES.find(a => a.id === selectedActivity)!}
@@ -138,6 +171,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                         ))}
                     </nav>
                 )}
+
+                {/* RESIZE HANDLE */}
+                <div
+                    onMouseDown={() => setIsResizing(true)}
+                    className="absolute top-0 -right-1 w-2 h-full cursor-col-resize z-50 group"
+                >
+                    <div className={`w-full h-full transition-colors ${isResizing ? 'bg-indigo-500/50' : 'group-hover:bg-indigo-500/20'}`}></div>
+                </div>
             </div>
         </aside>
     );

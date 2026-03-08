@@ -271,6 +271,9 @@ const AppContent = () => {
     const [loadedCurriculum, setLoadedCurriculum] = useState(null as Curriculum | null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+    const [sidebarWidth, setSidebarWidth] = useState(() => {
+        try { const stored = localStorage.getItem('app-sidebar-width'); return stored ? parseInt(stored) : 320; } catch (e) { return 320; }
+    });
     const [zenMode, setZenMode] = useState(false);
     const [openModal, setOpenModal] = useState(null as ModalType | null);
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -340,6 +343,11 @@ const AppContent = () => {
         document.documentElement.classList.add(`theme-${theme}`);
         localStorage.setItem('app-theme', theme);
     }, [theme]);
+
+    useEffect(() => {
+        document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
+        localStorage.setItem('app-sidebar-width', sidebarWidth.toString());
+    }, [sidebarWidth]);
     const [styleSettings, setStyleSettings] = useState(initialStyleSettings as StyleSettings);
     const [historyItems, setHistoryItems] = useState((() => {
         try { const stored = localStorage.getItem('user_history'); return stored ? JSON.parse(stored) : []; } catch { return []; }
@@ -506,7 +514,10 @@ const AppContent = () => {
 
             <div className="flex flex-1 overflow-hidden">
                 {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
-                <div className={`transition-all duration-500 ease-in-out h-full ${zenMode ? '-ml-80 w-0 opacity-0 overflow-hidden' : ''}`}>
+                <div
+                    className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${zenMode ? 'w-0 opacity-0 overflow-hidden' : ''}`}
+                    style={{ width: zenMode ? 0 : sidebarWidth, marginLeft: zenMode ? -sidebarWidth : 0 }}
+                >
                     <Sidebar
                         isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} selectedActivity={selectedActivity}
                         onSelectActivity={handleSelectActivity} setWorksheetData={setWorksheetData} setIsLoading={setIsLoading}
@@ -517,6 +528,7 @@ const AppContent = () => {
                         onOpenMathStudio={() => handleOpenStudio('math-studio')}
                         onOpenScreening={() => handleOpenStudio('screening')}
                         activeCurriculumSession={activeCurriculumSession} isExpanded={isSidebarExpanded}
+                        width={sidebarWidth} onWidthChange={setSidebarWidth}
                     />
                 </div>
                 <div className="flex-1 flex flex-col overflow-hidden">

@@ -19,21 +19,25 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
     ${PEDAGOGICAL_BASE}
     ${CLINICAL_DIAGNOSTIC_GUIDE}
     
-    GÖREV: [TANISAL GÖRSEL AYRIŞTIRMA (ODD-ONE-OUT)]
+    GÖREV: [ULTRA-PROFESYONEL TANISAL GÖRSEL AYRIŞTIRMA (ODD-ONE-OUT)]
     
     PARAMETRELER:
     - Mimari Tip: ${typeDesc}.
     - Zorluk: ${difficulty}.
     - Çeldirici Hassasiyeti: ${distractionLevel}.
+    - Bilişsel Yük Endeksi: ${options.cognitiveLoad || 5} / 10.
+    - Klinik Metrik Talebi: ${options.includeClinicalNotes ? 'AKTİF' : 'PASİF'}.
     - Satır Başı Öğe Sayısı: ${gridSize || 4}.
+    - Üretilecek Satır Sayısı: 8-10 (Bol içerikli çıktı).
     - Öğrenci Profili: ${studentContext?.diagnosis?.join(', ') || 'Genel Gelişim'}.
     
     STRATEJİ:
-    Öğrencinin disleksi/dikkat profiline göre hataları hedefle. 
-    Örneğin; görsel ters algılama (reversal) varsa, şekilleri X ekseninde aynalayarak çeldirici oluştur.
+    1. Bilişsel yük endeksi ${options.cognitiveLoad || 5} ise, şekiller arası benzerliği bu oranda artır.
+    2. Her satırda farklı bir disleksi alt hatasını hedefle (örn: rotasyonel hata, aynalamalı hata, konumsal hata).
+    3. [ÖNEMLİ]: "Bol içerik" talebi nedeniyle bir A4 sayfasını tamamen dolduracak kadar (en az 8 satır) veri üret.
     
     ÇIKTI FORMATI:
-    - rows: [{ items: [{ svgPaths: [...], label: string, rotation: number, isMirrored: boolean }], correctIndex: number, targetedErrors: ["visual_reversal", ...], cognitiveGoal: "..." }]
+    - rows: [{ items: [{ svgPaths: [...], label: string, rotation: number, isMirrored: boolean }], correctIndex: number, reason: string, clinicalMeta: { targetedError: string, cognitiveLoad: number } }]
     `;
 
     const singleSchema = {
@@ -42,8 +46,6 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
             title: { type: Type.STRING },
             instruction: { type: Type.STRING },
             pedagogicalNote: { type: Type.STRING },
-            cognitiveGoal: { type: Type.STRING },
-            targetedErrors: { type: Type.ARRAY, items: { type: Type.STRING } },
             rows: {
                 type: Type.ARRAY,
                 items: {
@@ -62,12 +64,19 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
                             }
                         },
                         correctIndex: { type: Type.INTEGER },
-                        reason: { type: Type.STRING }
+                        reason: { type: Type.STRING },
+                        clinicalMeta: {
+                            type: Type.OBJECT,
+                            properties: {
+                                targetedError: { type: Type.STRING },
+                                cognitiveLoad: { type: Type.NUMBER }
+                            }
+                        }
                     }
                 }
             }
         },
-        required: ["title", "instruction", "rows", "pedagogicalNote", "targetedErrors"]
+        required: ["title", "instruction", "rows", "pedagogicalNote"]
     };
 
     const schema = { type: Type.ARRAY, items: singleSchema };
