@@ -70,6 +70,11 @@ const Sidebar: React.FC<SidebarProps> = ({
     const [isStudioMenuOpen, setIsStudioMenuOpen] = useState(false);
     const [selectedStudio, setSelectedStudio] = useState<string | null>(null);
     const [isResizing, setIsResizing] = useState(false);
+    
+    // Hover popup state
+    const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+    const [popupTimeout, setPopupTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
 
     const studioItems = [
         { id: 'ocr', label: 'Klon (OCR)', icon: 'fa-camera-viewfinder', color: 'bg-indigo-500', onClick: onOpenOCR },
@@ -84,6 +89,73 @@ const Sidebar: React.FC<SidebarProps> = ({
         setIsStudioMenuOpen(false);
         if (item.onClick) item.onClick();
     };
+
+    // Hover popup handlers
+    const handleCategoryMouseEnter = (categoryId: string) => {
+        // Clear any existing timeouts
+        if (popupTimeout) clearTimeout(popupTimeout);
+        if (closeTimeout) clearTimeout(closeTimeout);
+        
+        // Set popup to show after 0-100ms delay
+        const timeout = setTimeout(() => {
+            setHoveredCategory(categoryId);
+        }, Math.random() * 100); // Random delay between 0-100ms
+        
+        setPopupTimeout(timeout);
+    };
+
+    const handleCategoryMouseLeave = () => {
+        // Clear popup timeout
+        if (popupTimeout) clearTimeout(popupTimeout);
+        
+        // Set close timeout with 150ms delay
+        const timeout = setTimeout(() => {
+            setHoveredCategory(null);
+        }, 150);
+        
+        setCloseTimeout(timeout);
+    };
+
+    const handlePopupMouseEnter = () => {
+        // Clear close timeout when mouse enters popup
+        if (closeTimeout) clearTimeout(closeTimeout);
+    };
+
+    const handlePopupMouseLeave = () => {
+        // Set close timeout when mouse leaves popup
+        const timeout = setTimeout(() => {
+            setHoveredCategory(null);
+        }, 150);
+        
+        setCloseTimeout(timeout);
+    };
+
+    const handleActivitySelect = (activityId: ActivityType) => {
+        onSelectActivity(activityId);
+        setHoveredCategory(null);
+    };
+
+    // ESC key handler
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setHoveredCategory(null);
+                if (closeTimeout) clearTimeout(closeTimeout);
+                if (popupTimeout) clearTimeout(popupTimeout);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [closeTimeout, popupTimeout]);
+
+    // Cleanup timeouts on unmount
+    useEffect(() => {
+        return () => {
+            if (popupTimeout) clearTimeout(popupTimeout);
+            if (closeTimeout) clearTimeout(closeTimeout);
+        };
+    }, [popupTimeout, closeTimeout]);
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -325,6 +397,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                             {isExpanded && <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.4em] mb-6 block ml-1">Akıllı Modüller</span>}
                             {categorizedActivities.map((category) => {
                                 const isOpen = openCategoryId === category.id;
+                                const isHovered = hoveredCategory === category.id;
                                 const colors: any = {
                                     'visual-perception': 'text-violet-500 bg-violet-500/10 border-violet-500/20',
                                     'reading-verbal': 'text-teal-500 bg-teal-500/10 border-teal-500/20',
@@ -334,7 +407,19 @@ const Sidebar: React.FC<SidebarProps> = ({
                                     <div key={category.id} className="relative mb-2">
                                         <button
                                             onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)}
+                                            onMouseEnter={() => handleCategoryMouseEnter(category.id)}
+                                            onMouseLeave={handleCategoryMouseLeave}
                                             className={`w-full group flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-500 relative ${isOpen && isExpanded ? 'bg-white dark:bg-zinc-800/60 shadow-xl shadow-indigo-500/5' : 'hover:bg-white/60 dark:hover:bg-zinc-800/40'}`}
+                                            aria-haspopup="true"
+                                            aria-expanded={isHovered}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    setHoveredCategory(category.id);
+                                                }
+                                            }}
                                         >
                                             {/* Aktif Belirteci (Glow Hattı) */}
                                             {isOpen && isExpanded && <div className="absolute left-0 top-3 bottom-3 w-1 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)]" />}
@@ -349,6 +434,61 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                 </>
                                             )}
                                         </button>
+
+                                        {/* PREMIUM HOVER POPUP MENU */}
+                                        {isHovered && (
+                                            <div
+                                                className="absolute left-full top-0 ml-2 z-50 premium-popup-menu"
+                                                onMouseEnter={handlePopupMouseEnter}
+                                                onMouseLeave={handlePopupMouseLeave}
+                                                style={{
+                                                    minWidth: '280px',
+                                                    maxWidth: '350px',
+                                                    animation: 'slideInFade 0.3s ease-out'
+                                                }}
+                                            >
+                                                {/* Popup Content */}
+                                                <div className="premium-popup-content">
+                                                    {/* Header */}
+                                                    <div className="premium-popup-header">
+                                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${colors[category.id]?.split(' ')[0] || 'bg-zinc-500'} text-white shadow-lg`}>
+                                                            <i className={`${category.icon}`}></i>
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <h3 className="premium-popup-title">{category.title}</h3>
+                                                            <p className="premium-popup-subtitle">{category.items.length} Etkinlik</p>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {/* Activity List */}
+                                                    <div className="premium-popup-activities" role="menu">
+                                                        {category.items.map((activity, index) => (
+                                                            <button
+                                                                key={activity.id}
+                                                                onClick={() => handleActivitySelect(activity.id)}
+                                                                className="premium-popup-activity-item"
+                                                                role="menuitem"
+                                                                tabIndex={0}
+                                                                style={{
+                                                                    animationDelay: `${index * 50}ms`
+                                                                }}
+                                                            >
+                                                                <div className="premium-popup-activity-icon">
+                                                                    <i className={`${activity.icon || 'fa-star'} text-xs`}></i>
+                                                                </div>
+                                                                <div className="flex-1 text-left">
+                                                                    <span className="premium-popup-activity-title">{activity.title}</span>
+                                                                    {activity.description && (
+                                                                        <span className="premium-popup-activity-desc">{activity.description}</span>
+                                                                    )}
+                                                                </div>
+                                                                <i className="fa-solid fa-arrow-right text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200"></i>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
 
                                         {isExpanded && isOpen && (
                                             <div className="ml-8 pl-5 mt-2 space-y-1 pr-2 border-l-2 border-zinc-100 dark:border-zinc-800 animate-in slide-in-from-left-2 fade-in duration-500">

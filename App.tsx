@@ -19,6 +19,7 @@ import { StudentInfoModal } from './components/StudentInfoModal';
 import { HistoryView } from './components/HistoryView';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
 import * as offlineGenerators from './services/offlineGenerators';
+import './components/PremiumPopupStyles.css'; // Import premium popup styles
 
 // Lazy Loaded Components
 const ProfileView = lazy(() => import('./components/ProfileView').then(module => ({ default: module.ProfileView })));
