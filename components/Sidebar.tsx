@@ -366,84 +366,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* STUDIO DRAWER / SIDE MENU */}
-      <div
-        className={`fixed inset-0 z-[100] transition-opacity duration-300 ${isStudioMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-      >
-        {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
-          onClick={() => setIsStudioMenuOpen(false)}
-        />
-
-        {/* Sliding Menu Panel */}
-        <div
-          className={`studio-menu-container absolute top-0 right-0 bottom-0 w-full sm:w-80 bg-white dark:bg-zinc-900 shadow-2xl border-l border-zinc-200 dark:border-zinc-800 transform transition-transform duration-150 ease-out flex flex-col ${isStudioMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
-                <i className="fa-solid fa-layer-group"></i>
-              </div>
-              <div>
-                <h2 className="text-lg font-black text-zinc-900 dark:text-white tracking-tight">
-                  Stüdyolar
-                </h2>
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                  Kreatif Araçlar
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsStudioMenuOpen(false)}
-              className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-colors"
-            >
-              <i className="fa-solid fa-times"></i>
-            </button>
-          </div>
-
-          {/* Menu Items */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {studioItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleStudioClick(item)}
-                className={`w-full group flex items-center gap-4 p-4 rounded-2xl border transition-all duration-200 relative overflow-hidden ${selectedStudio === item.id ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800' : 'bg-white dark:bg-zinc-800/50 border-zinc-100 dark:border-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700 hover:shadow-lg hover:-translate-y-0.5'}`}
-              >
-                <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg shadow-md transition-transform duration-300 group-hover:scale-110 ${item.color} text-white`}
-                >
-                  <i className={`fa-solid ${item.icon}`}></i>
-                </div>
-                <div className="flex-1 text-left">
-                  <h3
-                    className={`font-bold text-sm transition-colors ${selectedStudio === item.id ? 'text-indigo-700 dark:text-indigo-300' : 'text-zinc-700 dark:text-zinc-200 group-hover:text-zinc-900 dark:group-hover:text-white'}`}
-                  >
-                    {item.label}
-                  </h3>
-                  <span
-                    className={`text-[10px] font-medium uppercase tracking-wider transition-colors ${selectedStudio === item.id ? 'text-indigo-500' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-indigo-500'}`}
-                  >
-                    {selectedStudio === item.id ? 'Şu an Açık' : 'Stüdyoyu Aç'}
-                  </span>
-                </div>
-                <i
-                  className={`fa-solid fa-chevron-right text-xs transition-all duration-300 ${selectedStudio === item.id ? 'text-indigo-500 translate-x-0' : 'text-zinc-300 -translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0'}`}
-                ></i>
-              </button>
-            ))}
-          </div>
-
-          {/* Footer Info */}
-          <div className="p-6 bg-zinc-50 dark:bg-zinc-900/80 border-t border-zinc-100 dark:border-zinc-800 text-center">
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
-              Tüm stüdyolar yapay zeka destekli olarak çalışır.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <aside
         style={{ width: isExpanded ? '320px' : '85px' }}
         className={`fixed inset-y-0 left-0 z-30 bg-zinc-50/80 dark:bg-[#09090b]/90 backdrop-blur-2xl border-r border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
@@ -486,8 +408,24 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </span>
                 )}
                 <button
-                  onClick={() => setIsStudioMenuOpen(true)}
+                  onClick={(e) => {
+                    setPopupRect(e.currentTarget.getBoundingClientRect());
+                    setHoveredCategory('studios');
+                  }}
+                  onMouseEnter={(e) => handleCategoryMouseEnter('studios', e)}
+                  onMouseLeave={handleCategoryMouseLeave}
                   className={`studio-trigger-btn w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-3 rounded-2xl transition-all duration-300 bg-gradient-to-r from-zinc-100 to-white dark:from-zinc-800 dark:to-zinc-900 hover:shadow-lg border border-zinc-200 dark:border-zinc-700 relative overflow-hidden`}
+                  aria-haspopup="true"
+                  aria-expanded={hoveredCategory === 'studios'}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setPopupRect(e.currentTarget.getBoundingClientRect());
+                      setHoveredCategory('studios');
+                    }
+                  }}
                 >
                   <div
                     className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm shadow-sm transition-all duration-500 bg-indigo-600 text-white relative z-10`}
@@ -513,6 +451,111 @@ const Sidebar: React.FC<SidebarProps> = ({
                   {/* Hover Effect Background */}
                   <div className="absolute inset-0 bg-indigo-50 dark:bg-indigo-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </button>
+
+                {/* PREMIUM HOVER POPUP MENU FOR STUDIOS */}
+                {hoveredCategory === 'studios' &&
+                  popupRect &&
+                  createPortal(
+                    <div
+                      className="premium-popup-menu md:block hidden"
+                      onMouseEnter={handlePopupMouseEnter}
+                      onMouseLeave={handlePopupMouseLeave}
+                      role="menu"
+                      aria-label="Stüdyolar menüsü"
+                      aria-hidden="false"
+                      style={{
+                        animation: 'slideInFade 0.35s ease-in-out',
+                        position: 'fixed',
+                        top: popupRect.top,
+                        left: popupRect.right + 12,
+                      }}
+                      onKeyDown={(e) => {
+                        const items = Array.from(
+                          document.querySelectorAll('.premium-popup-activity-item')
+                        );
+                        const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+                        let nextIndex = currentIndex;
+
+                        if (e.key === 'ArrowDown') {
+                          e.preventDefault();
+                          nextIndex = Math.min(currentIndex + 1, items.length - 1);
+                        } else if (e.key === 'ArrowUp') {
+                          e.preventDefault();
+                          nextIndex = Math.max(currentIndex - 1, 0);
+                        } else if (e.key === 'Home') {
+                          e.preventDefault();
+                          nextIndex = 0;
+                        } else if (e.key === 'End') {
+                          e.preventDefault();
+                          nextIndex = items.length - 1;
+                        }
+
+                        if (nextIndex !== currentIndex && items[nextIndex]) {
+                          (items[nextIndex] as HTMLElement).focus();
+                        }
+                      }}
+                    >
+                      <div className="premium-popup-content">
+                        <div className="premium-popup-header">
+                          <div
+                            className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm shadow-lg bg-indigo-600 text-white`}
+                          >
+                            <i className={`fa-solid fa-layer-group`}></i>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="premium-popup-title">Stüdyolar</h3>
+                            <p className="premium-popup-subtitle">Kreatif Araçlar</p>
+                          </div>
+                        </div>
+
+                        <div
+                          className="premium-popup-activities"
+                          role="listbox"
+                          aria-label="Stüdyolar Listesi"
+                        >
+                          {studioItems.map((item, index) => (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                handleStudioClick(item);
+                                setHoveredCategory(null);
+                              }}
+                              className="premium-popup-activity-item"
+                              role="option"
+                              aria-selected={false}
+                              tabIndex={0}
+                              style={{
+                                animationDelay: `${index * 40}ms`,
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  handleStudioClick(item);
+                                  setHoveredCategory(null);
+                                }
+                              }}
+                            >
+                              <div
+                                className={`premium-popup-activity-icon !bg-none ${item.color} text-white`}
+                              >
+                                <i className={`fa-solid ${item.icon} text-xs`}></i>
+                              </div>
+                              <div className="flex-1 text-left min-w-0">
+                                <span className="premium-popup-activity-title block truncate">
+                                  {item.label}
+                                </span>
+                                <span className="premium-popup-activity-desc block truncate">
+                                  Stüdyoyu Aç
+                                </span>
+                              </div>
+                              <i className="fa-solid fa-arrow-right text-xs premium-popup-activity-arrow"></i>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>,
+                    document.body
+                  )}
               </div>
 
               <div className="h-px bg-gradient-to-r from-transparent via-zinc-200 dark:via-zinc-800 to-transparent mx-2 opacity-50"></div>
