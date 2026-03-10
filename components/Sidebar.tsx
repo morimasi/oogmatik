@@ -167,10 +167,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     // Clear popup timeout
     if (popupTimeout) clearTimeout(popupTimeout);
 
-    // Set close timeout with 150ms delay
+    // Set close timeout with 350ms delay for stability
     const timeout = setTimeout(() => {
       setHoveredCategory(null);
-    }, 150);
+    }, 350);
 
     setCloseTimeout(timeout);
   };
@@ -184,7 +184,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     // Set close timeout when mouse leaves popup
     const timeout = setTimeout(() => {
       setHoveredCategory(null);
-    }, 150);
+    }, 350);
 
     setCloseTimeout(timeout);
   };
@@ -399,163 +399,157 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )
           ) : (
-            <nav className="flex-1 overflow-y-auto px-4 py-8 space-y-10 custom-scrollbar scroll-smooth">
-              {/* STÜDYOLAR - SINGLE BUTTON WITH DRAWER */}
-              <div className="flex flex-col px-2">
-                {isExpanded && (
-                  <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.3em] mb-2 ml-2">
-                    Stüdyolar
-                  </span>
-                )}
-                <button
-                  onClick={(e) => {
-                    setPopupRect(e.currentTarget.getBoundingClientRect());
-                    setHoveredCategory('studios');
-                  }}
-                  onMouseEnter={(e) => handleCategoryMouseEnter('studios', e)}
-                  onMouseLeave={handleCategoryMouseLeave}
-                  className={`studio-trigger-btn w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-3 rounded-2xl transition-all duration-300 bg-gradient-to-r from-zinc-100 to-white dark:from-zinc-800 dark:to-zinc-900 hover:shadow-lg border border-zinc-200 dark:border-zinc-700 relative overflow-hidden`}
-                  aria-haspopup="true"
-                  aria-expanded={hoveredCategory === 'studios'}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
+            <nav className="flex-1 overflow-y-auto px-4 py-6 custom-scrollbar scroll-smooth">
+              {isExpanded && (
+                <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.4em] mb-4 mt-2 block ml-3">
+                  Akıllı Modüller
+                </span>
+              )}
+
+              <div className="space-y-2 px-2">
+                {/* STÜDYOLAR - SINGLE BUTTON WITH POPUP */}
+                <div className="relative mb-2">
+                  <button
+                    onClick={(e) => {
                       setPopupRect(e.currentTarget.getBoundingClientRect());
                       setHoveredCategory('studios');
-                    }
-                  }}
-                >
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm shadow-sm transition-all duration-500 bg-indigo-600 text-white relative z-10`}
+                    }}
+                    onMouseEnter={(e) => handleCategoryMouseEnter('studios', e)}
+                    onMouseLeave={handleCategoryMouseLeave}
+                    className={`studio-trigger-btn w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-3 rounded-2xl transition-all duration-300 bg-gradient-to-r from-zinc-100 to-white dark:from-zinc-800 dark:to-zinc-900 hover:shadow-lg border border-zinc-200 dark:border-zinc-700 relative overflow-hidden`}
+                    aria-haspopup="true"
+                    aria-expanded={hoveredCategory === 'studios'}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setPopupRect(e.currentTarget.getBoundingClientRect());
+                        setHoveredCategory('studios');
+                      }
+                    }}
                   >
-                    <i className="fa-solid fa-layer-group"></i>
-                  </div>
-
-                  {isExpanded && (
-                    <div className="flex-1 flex flex-col items-start relative z-10">
-                      <span className="text-xs font-black text-zinc-800 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                        Stüdyolar
-                      </span>
-                      <span className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
-                        Tüm Modüller
-                      </span>
-                    </div>
-                  )}
-
-                  {isExpanded && (
-                    <i className="fa-solid fa-chevron-right text-[10px] text-zinc-400 relative z-10 transition-transform group-hover:translate-x-1"></i>
-                  )}
-
-                  {/* Hover Effect Background */}
-                  <div className="absolute inset-0 bg-indigo-50 dark:bg-indigo-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </button>
-
-                {/* PREMIUM HOVER POPUP MENU FOR STUDIOS */}
-                {hoveredCategory === 'studios' &&
-                  popupRect &&
-                  createPortal(
                     <div
-                      className="premium-popup-menu md:block hidden"
-                      onMouseEnter={handlePopupMouseEnter}
-                      onMouseLeave={handlePopupMouseLeave}
-                      role="menu"
-                      aria-label="Stüdyolar menüsü"
-                      aria-hidden="false"
-                      style={{
-                        animation: 'slideInFade 0.35s ease-in-out',
-                        position: 'fixed',
-                        top: popupRect.top,
-                        left: popupRect.right + 12,
-                      }}
-                      onKeyDown={(e) => {
-                        const items = Array.from(
-                          document.querySelectorAll('.premium-popup-activity-item')
-                        );
-                        const currentIndex = items.indexOf(document.activeElement as HTMLElement);
-                        let nextIndex = currentIndex;
-
-                        if (e.key === 'ArrowDown') {
-                          e.preventDefault();
-                          nextIndex = Math.min(currentIndex + 1, items.length - 1);
-                        } else if (e.key === 'ArrowUp') {
-                          e.preventDefault();
-                          nextIndex = Math.max(currentIndex - 1, 0);
-                        } else if (e.key === 'Home') {
-                          e.preventDefault();
-                          nextIndex = 0;
-                        } else if (e.key === 'End') {
-                          e.preventDefault();
-                          nextIndex = items.length - 1;
-                        }
-
-                        if (nextIndex !== currentIndex && items[nextIndex]) {
-                          (items[nextIndex] as HTMLElement).focus();
-                        }
-                      }}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm shadow-sm transition-all duration-500 bg-indigo-600 text-white relative z-10`}
                     >
-                      <div className="premium-popup-content">
-                        <div className="premium-popup-header">
-                          <span className="premium-popup-title">Stüdyolar</span>
-                        </div>
+                      <i className="fa-solid fa-layer-group"></i>
+                    </div>
 
-                        <div
-                          className="premium-popup-activities"
-                          role="listbox"
-                          aria-label="Stüdyolar Listesi"
-                        >
-                          {studioItems.map((item, index) => (
-                            <button
-                              key={item.id}
-                              onClick={() => {
-                                handleStudioClick(item);
-                                setHoveredCategory(null);
-                              }}
-                              className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
-                              role="option"
-                              aria-selected={selectedStudio === item.id}
-                              tabIndex={0}
-                              style={{
-                                animationDelay: `${index * 20}ms`,
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                  e.preventDefault();
+                    {isExpanded && (
+                      <div className="flex-1 flex flex-col items-start relative z-10">
+                        <span className="text-xs font-black text-zinc-800 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                          Stüdyolar
+                        </span>
+                        <span className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+                          Tüm Modüller
+                        </span>
+                      </div>
+                    )}
+
+                    {isExpanded && (
+                      <i className="fa-solid fa-chevron-right text-[10px] text-zinc-400 relative z-10 transition-transform group-hover:translate-x-1"></i>
+                    )}
+
+                    {/* Hover Effect Background */}
+                    <div className="absolute inset-0 bg-indigo-50 dark:bg-indigo-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </button>
+
+                  {/* PREMIUM HOVER POPUP MENU FOR STUDIOS */}
+                  {hoveredCategory === 'studios' &&
+                    popupRect &&
+                    createPortal(
+                      <div
+                        className="premium-popup-menu md:block hidden"
+                        onMouseEnter={handlePopupMouseEnter}
+                        onMouseLeave={handlePopupMouseLeave}
+                        role="menu"
+                        aria-label="Stüdyolar menüsü"
+                        aria-hidden="false"
+                        style={{
+                          animation: 'slideInFade 0.35s ease-in-out',
+                          position: 'fixed',
+                          top: popupRect.top,
+                          left: popupRect.right + 12,
+                        }}
+                        onKeyDown={(e) => {
+                          const items = Array.from(
+                            document.querySelectorAll('.premium-popup-activity-item')
+                          );
+                          const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+                          let nextIndex = currentIndex;
+
+                          if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            nextIndex = Math.min(currentIndex + 1, items.length - 1);
+                          } else if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            nextIndex = Math.max(currentIndex - 1, 0);
+                          } else if (e.key === 'Home') {
+                            e.preventDefault();
+                            nextIndex = 0;
+                          } else if (e.key === 'End') {
+                            e.preventDefault();
+                            nextIndex = items.length - 1;
+                          }
+
+                          if (nextIndex !== currentIndex && items[nextIndex]) {
+                            (items[nextIndex] as HTMLElement).focus();
+                          }
+                        }}
+                      >
+                        <div className="premium-popup-content">
+                          <div className="premium-popup-header">
+                            <span className="premium-popup-title">Stüdyolar</span>
+                          </div>
+
+                          <div
+                            className="premium-popup-activities"
+                            role="listbox"
+                            aria-label="Stüdyolar Listesi"
+                          >
+                            {studioItems.map((item, index) => (
+                              <button
+                                key={item.id}
+                                onClick={() => {
                                   handleStudioClick(item);
                                   setHoveredCategory(null);
-                                }
-                              }}
-                            >
-                              <div
-                                className={`premium-popup-activity-icon ${item.color.replace('bg-', 'text-')}`}
+                                }}
+                                className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
+                                role="option"
+                                aria-selected={selectedStudio === item.id}
+                                tabIndex={0}
+                                style={{
+                                  animationDelay: `${index * 20}ms`,
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    handleStudioClick(item);
+                                    setHoveredCategory(null);
+                                  }
+                                }}
                               >
-                                <i className={`fa-solid ${item.icon}`}></i>
-                              </div>
-                              <span className="premium-popup-activity-title block truncate">
-                                {item.label}
-                              </span>
-                              {selectedStudio === item.id && (
-                                <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
-                              )}
-                            </button>
-                          ))}
+                                <div
+                                  className={`premium-popup-activity-icon ${item.color.replace('bg-', 'text-')}`}
+                                >
+                                  <i className={`fa-solid ${item.icon}`}></i>
+                                </div>
+                                <span className="premium-popup-activity-title block truncate">
+                                  {item.label}
+                                </span>
+                                {selectedStudio === item.id && (
+                                  <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
+                                )}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </div>,
-                    document.body
-                  )}
-              </div>
+                      </div>,
+                      document.body
+                    )}
+                </div>
 
-              <div className="h-px bg-gradient-to-r from-transparent via-zinc-200 dark:via-zinc-800 to-transparent mx-2 opacity-50"></div>
-
-              {/* ETKİNLİKLER - MODERN ACCORDIONS */}
-              <div className="space-y-2">
-                {isExpanded && (
-                  <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.4em] mb-6 block ml-1">
-                    Akıllı Modüller
-                  </span>
-                )}
+                {/* ETKİNLİKLER - MODERN ACCORDIONS */}
                 {categorizedActivities.map((category) => {
                   const isOpen = openCategoryId === category.id;
                   const isHovered = hoveredCategory === category.id;
