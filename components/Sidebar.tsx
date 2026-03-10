@@ -69,6 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     // Boyutlandırma State'leri
     const [isStudioMenuOpen, setIsStudioMenuOpen] = useState(false);
     const [selectedStudio, setSelectedStudio] = useState<string | null>(null);
+    const [isResizing, setIsResizing] = useState(false);
 
     const studioItems = [
         { id: 'ocr', label: 'Klon (OCR)', icon: 'fa-camera-viewfinder', color: 'bg-indigo-500', onClick: onOpenOCR },
