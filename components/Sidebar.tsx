@@ -259,7 +259,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
             <aside
                 style={{ width: isExpanded ? '320px' : '85px' }}
-                className={`fixed inset-y-0 left-0 z-30 bg-zinc-50/80 dark:bg-[#09090b]/90 backdrop-blur-2xl border-r border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-700 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
+                className={`fixed inset-y-0 left-0 z-30 bg-zinc-50/80 dark:bg-[#09090b]/90 backdrop-blur-2xl border-r border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
             >
             {/* Resizing Handle */}
             {isExpanded && (
@@ -373,6 +373,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 )}
             </div>
         </aside>
+        </>
     );
 };
 
