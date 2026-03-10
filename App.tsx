@@ -461,6 +461,13 @@ const AppContent = () => {
 
                     <div className="flex items-center gap-2">
                         <button
+                            onClick={() => handleOpenStudio('students')}
+                            className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-2xl text-xs font-black transition-all active:scale-95 border border-indigo-100"
+                        >
+                            <i className="fa-solid fa-graduation-cap"></i> ÖĞRENCİLER
+                        </button>
+                        
+                        <button
                             onClick={() => handleOpenStudio('assessment')}
                             className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-[var(--bg-primary)] rounded-2xl text-xs font-black shadow-lg transition-all active:scale-95"
                         >
