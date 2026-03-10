@@ -54,6 +54,8 @@ import { SymmetryDrawingSheet } from './sheets/visual/SymmetryDrawingSheet';
 import { ShapeCountingSheet } from './sheets/visual/ShapeCountingSheet';
 import { DirectionalTrackingSheet } from './sheets/visual/DirectionalTrackingSheet';
 import { ReadingStudioContentRenderer } from './ReadingStudio/ReadingStudioContentRenderer';
+import { VisualInterpretationSheet } from './sheets/visual/VisualInterpretationSheet';
+import { BrainTeasersSheet } from './sheets/logic/BrainTeasersSheet';
 import { PedagogicalHeader, ImageDisplay } from './sheets/common';
 import { EditableText } from './Editable';
 
