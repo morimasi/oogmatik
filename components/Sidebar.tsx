@@ -469,7 +469,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                           animation: 'slideInFade 0.35s ease-in-out',
                           position: 'fixed',
                           top: popupRect.top,
-                          left: popupRect.right + 12,
+                          left: popupRect.left + popupRect.width * 0.5,
                         }}
                         onKeyDown={(e) => {
                           const items = Array.from(
@@ -618,7 +618,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                               animation: 'slideInFade 0.35s ease-in-out',
                               position: 'fixed',
                               top: popupRect.top,
-                              left: popupRect.right + 12,
+                              left: popupRect.left + popupRect.width * 0.5,
                             }}
                             onKeyDown={(e) => {
                               const items = Array.from(
