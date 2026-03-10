@@ -1,7 +1,7 @@
 import { GeneratorOptions, ActivityType } from '../../types';
 import { GeneratorMode, IActivityGenerator } from './core/types';
-import { FiveWOneHGenerator } from './FiveWOneHGenerator';
-import { LogicErrorHunterGenerator } from './LogicErrorHunterGenerator';
+import { GenericActivityGenerator } from './core/GenericActivityGenerator';
+import { ACTIVITY_GENERATOR_REGISTRY } from './registry';
 
 /**
  * Merkezi Aktivite Servisi (Facade / Factory)
@@ -26,19 +26,24 @@ export class ActivityService {
     }
 
     /**
-     * Tüm jeneratörleri burada kayıt ederiz.
-     * İleride burası dinamik olarak (plugin sistemi gibi) da çalışabilir.
+     * Tüm jeneratörleri registry'den alıp kaydeder.
      */
     private registerGenerators() {
-        // Varsayılan olarak OFFLINE modunu kullanıyoruz.
-        // Bunu bir config dosyasından veya UI'dan gelen bir parametreden de alabiliriz.
-        // Şimdilik hibrit bir yaklaşım: Bazı aktiviteler AI, bazıları Offline olabilir.
-        
-        // 5N1K Jeneratörü (Varsayılan: AI)
-        this.generators.set(ActivityType.FIVE_W_ONE_H, new FiveWOneHGenerator(GeneratorMode.AI));
-        
-        // Logic Error Hunter Jeneratörü (Varsayılan: AI)
-        this.generators.set(ActivityType.LOGIC_ERROR_HUNTER, new LogicErrorHunterGenerator(GeneratorMode.AI));
+        // Varsayılan mod: AI (Eğer varsa)
+        const DEFAULT_MODE = GeneratorMode.AI;
+
+        for (const [type, mapping] of Object.entries(ACTIVITY_GENERATOR_REGISTRY)) {
+            const activityType = type as ActivityType;
+            
+            // GenericActivityGenerator kullanarak dinamik oluştur
+            const generator = new GenericActivityGenerator(
+                DEFAULT_MODE,
+                mapping.ai,
+                mapping.offline
+            );
+
+            this.generators.set(activityType, generator);
+        }
     }
 
     /**
@@ -46,19 +51,21 @@ export class ActivityService {
      */
     public async generate(type: ActivityType, options: GeneratorOptions, mode?: GeneratorMode): Promise<any> {
         
-        // Eğer özel bir mod (AI/Offline) istenmişse, geçici bir jeneratör oluşturabiliriz
-        // Veya mevcut jeneratörün modunu değiştirebiliriz.
-        // Şimdilik basit tutalım: Kayıtlı jeneratörü kullan.
-
         const generator = this.generators.get(type);
         
         if (!generator) {
+            // Eğer generator bulunamadıysa, belki henüz migrate edilmemiştir.
+            // Eski yöntemle çalışan bir fallback mekanizması eklenebilir.
+            console.warn(`No generator found for activity type: ${type}. Checking legacy mapping...`);
             throw new Error(`No generator found for activity type: ${type}`);
         }
 
-        // Eğer mod parametresi geldiyse, jeneratörün modunu geçici olarak değiştirebiliriz
-        // Ancak şu anki yapıda jeneratörler stateless değil.
-        // İleride burayı daha dinamik yapabiliriz.
+        // Mod değişikliği isteği varsa (örn: kullanıcı offline istedi)
+        // GenericActivityGenerator'ın modunu değiştirmemiz gerekebilir.
+        // Ancak bu singleton olduğu için diğer istekleri etkileyebilir.
+        // Bu yüzden, generate metoduna 'mode' parametresi eklemek daha doğru olur.
+        // Şimdilik GenericActivityGenerator, constructor'da aldığı modu kullanıyor.
+        // İleride GenericActivityGenerator'ın generate metoduna mode parametresi eklenebilir.
 
         return await generator.generate(options);
     }

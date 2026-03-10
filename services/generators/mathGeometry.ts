@@ -11,7 +11,7 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
         targetShape = 'triangle',
         distractionLevel = 'medium',
         variant = 'standard' // 'standard' (grid) vs 'mixed' (chaotic)
-    } = options;
+    } = options as any;
     
     const prompt = `
     ${PEDAGOGICAL_BASE}
