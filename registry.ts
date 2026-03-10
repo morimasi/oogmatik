@@ -16,6 +16,8 @@ export const CLINICAL_PRIORITIES: Record<ActivityType | string, CognitiveErrorTa
     [ActivityType.MAGIC_PYRAMID]: ['logical_reasoning', 'phonological_loop'],
     [ActivityType.CAPSULE_GAME]: ['logical_reasoning', 'working_memory_overflow'],
     [ActivityType.AI_WORKSHEET_CONVERTER]: ['logical_reasoning', 'selective_attention'],
+    [ActivityType.VISUAL_INTERPRETATION]: ['visual_discrimination', 'logical_reasoning'],
+    [ActivityType.BRAIN_TEASERS]: ['logical_reasoning', 'processing_speed'],
 };
 
 /**
@@ -72,6 +74,10 @@ export const getDefaultOptionsForActivity = (activityId: ActivityType | string):
             return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', absurdityDegree: 'obvious', errorCount: 3 };
         case ActivityType.PATTERN_COMPLETION:
             return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 3, patternType: 'geometric' };
+        case ActivityType.VISUAL_INTERPRETATION:
+            return { ...base, mode: 'ai', itemCount: 5, difficulty: 'Orta', topic: 'daily_life', visualStyle: 'illustration', questionStyle: 'mixed' };
+        case ActivityType.BRAIN_TEASERS:
+            return { ...base, mode: 'ai', itemCount: 3, difficulty: 'Orta', topic: 'mixed', hintLevel: 'low' };
         default:
             return base;
     }

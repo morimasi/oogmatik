@@ -134,7 +134,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
     const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
 
-    // Settings States
     const [editName, setEditName] = useState(user?.name || '');
     const [editProfession, setEditProfession] = useState(user?.profession || '');
     const [editInstitution, setEditInstitution] = useState(user?.institution || '');
@@ -145,7 +144,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-    // Settings toggles state
+    const [settingsCategory, setSettingsCategory] = useState<'profile' | 'appearance' | 'ai' | 'notifications' | 'security'>('profile');
+
+    const [aiSettings, setAiSettings] = useState({
+        model: 'gemini-1.5-pro',
+        creativity: 75,
+        autoSuggest: true,
+        analysisDepth: 'detailed',
+        voiceAssistant: false,
+        dataPrivacy: 'balanced',
+        tone: 'kurumsal'
+    });
+
+    const [customUi, setCustomUi] = useState(() => ({
+        density: externalUiSettings?.compactMode ? 'compact' : 'comfortable',
+        radius: 'xl',
+        sidebarPosition: 'left',
+        accent: 'indigo'
+    }));
+
     const [darkModeEnabled, setDarkModeEnabled] = useState(isDarkTheme);
     const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(() => {
         try {
@@ -153,7 +170,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         } catch { return true; }
     });
 
-    // Sync dark mode with external theme
     useEffect(() => {
         setDarkModeEnabled(isDarkTheme);
     }, [isDarkTheme]);
@@ -164,7 +180,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         if (onUpdateTheme) {
             onUpdateTheme(newTheme);
         } else {
-            // Fallback: apply directly to document
             document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-anthracite', 'theme-space', 'theme-nature', 'theme-ocean', 'theme-anthracite-gold', 'theme-anthracite-cyber');
             document.documentElement.classList.add(`theme-${newTheme}`);
             localStorage.setItem('app-theme', newTheme);
@@ -229,7 +244,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         }
     };
 
-    // --- ANALYTICS COMPUTATIONS ---
     const performanceTrends = useMemo(() => {
         if (assessments.length < 2) return null;
         return assessments.slice(0, 5).reverse().map(a => ({
@@ -238,10 +252,24 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         }));
     }, [assessments]);
 
+    const settingsTabs = [
+        { id: 'profile', label: 'Profil', icon: 'fa-user-pen', desc: 'Kişisel bilgiler ve uzmanlık alanı' },
+        { id: 'appearance', label: 'Arayüz', icon: 'fa-sliders', desc: 'Görsel yoğunluk ve tema kontrolü' },
+        { id: 'ai', label: 'AI Asistan', icon: 'fa-brain', desc: 'Analiz modu ve akıllı öneriler' },
+        { id: 'notifications', label: 'Bildirimler', icon: 'fa-bell', desc: 'Özetler ve kritik uyarılar' },
+        { id: 'security', label: 'Güvenlik', icon: 'fa-shield-halved', desc: 'Erişim ve hesap güvenliği' }
+    ];
+
+    const modulePadding = (externalUiSettings?.compactMode || customUi.density === 'compact') ? 'p-4 md:p-6' : 'p-8 md:p-12';
+    const settingsSpacing = customUi.density === 'compact' ? 'space-y-4' : 'space-y-8';
+    const radiusClass = customUi.radius === 'lg' ? 'rounded-[1.5rem]' : customUi.radius === 'xl' ? 'rounded-[2rem]' : 'rounded-[2.5rem]';
+    const accentSoft = customUi.accent === 'emerald' ? 'bg-emerald-50 text-emerald-600' : customUi.accent === 'cyan' ? 'bg-cyan-50 text-cyan-600' : 'bg-indigo-50 text-indigo-600';
+    const accentRing = customUi.accent === 'emerald' ? 'ring-emerald-500' : customUi.accent === 'cyan' ? 'ring-cyan-500' : 'ring-indigo-500';
+
     if (!user) return null;
 
     return (
-        <div className="bg-[#f8fafc] dark:bg-[#09090b] min-h-full flex flex-col font-['Lexend'] overflow-y-auto">
+        <div className="bg-[#f8fafc] dark:bg-[#09090b] h-full flex flex-col font-['Lexend'] overflow-hidden">
             {/* 1. PROFESSIONAL HEADER */}
             <div className="shrink-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-8 md:p-12 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
@@ -294,7 +322,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
 
             {/* 3. MODULE CONTENT AREA */}
-            <div className="flex-1 p-8 md:p-12 overflow-y-auto">
+            <div className={`flex-1 overflow-y-auto custom-scrollbar ${modulePadding}`}>
                 <div className="max-w-7xl mx-auto pb-20">
 
                     {message && (
@@ -489,177 +517,382 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                             )}
 
                             {activeTab === 'settings' && (
-                                <div className="space-y-8 pb-10">
-                                    {/* PERSONAL INFO CARD */}
-                                    <BentoCard title="Kişisel Bilgiler" icon="fa-solid fa-user-pen" iconColor="bg-indigo-50 text-indigo-600">
-                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                                            {/* Avatar Section */}
-                                            <div className="lg:col-span-3 flex flex-col items-center gap-6">
-                                                <div className="relative group/avatar">
-                                                    <div className="w-40 h-40 rounded-[3.5rem] p-1 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl overflow-hidden transform group-hover/avatar:scale-105 transition-all duration-500">
-                                                        <img src={avatarUrl} alt="Avatar" className="w-full h-full rounded-[3.3rem] object-cover bg-white dark:bg-zinc-800" />
-                                                    </div>
+                                <div className={`grid grid-cols-1 lg:grid-cols-12 ${customUi.density === 'compact' ? 'gap-4' : 'gap-8'} pb-10`}>
+                                    <div className="lg:col-span-3">
+                                        <div className={`bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm ${radiusClass} p-4 lg:sticky lg:top-24`}>
+                                            <div className="space-y-2">
+                                                {settingsTabs.map(tab => (
                                                     <button
-                                                        onClick={() => {
-                                                            const url = prompt('Profil resmi URL giriniz:', avatarUrl);
-                                                            if (url) setAvatarUrl(url);
-                                                        }}
-                                                        className="absolute inset-0 bg-black/60 rounded-[3.5rem] opacity-0 group-hover/avatar:opacity-100 transition-all flex flex-col items-center justify-center text-white"
+                                                        key={tab.id}
+                                                        onClick={() => setSettingsCategory(tab.id as typeof settingsCategory)}
+                                                        className={`w-full text-left p-4 rounded-2xl transition-all duration-200 flex items-start gap-4 group ${settingsCategory === tab.id ? `bg-white dark:bg-zinc-900/80 shadow-md border border-zinc-200 dark:border-zinc-700 ${accentRing} ring-2` : 'hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-transparent'}`}
                                                     >
-                                                        <i className="fa-solid fa-camera text-3xl mb-2"></i>
-                                                        <span className="text-[10px] font-black uppercase tracking-widest">Resmi Değiştir</span>
-                                                    </button>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => setAvatarUrl(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`)}
-                                                        className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-all"
-                                                    >
-                                                        <i className="fa-solid fa-dice mr-2"></i> Yeni Üret
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            {/* Forms Section */}
-                                            <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                <div className="space-y-6">
-                                                    <div>
-                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Tam Ad Soyad</label>
-                                                        <div className="relative group">
-                                                            <i className="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
-                                                            <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">E-Posta (Sabit)</label>
-                                                        <div className="relative group">
-                                                            <i className="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300"></i>
-                                                            <input type="text" value={user.email} disabled className="w-full pl-12 pr-4 py-4 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-400 cursor-not-allowed outline-none" />
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Telefon Numarası</label>
-                                                        <div className="relative group">
-                                                            <i className="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
-                                                            <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-6">
-                                                    <div>
-                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Meslek / Uzmanlık</label>
-                                                        <div className="relative group">
-                                                            <i className="fa-solid fa-briefcase absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
-                                                            <input type="text" value={editProfession} onChange={e => setEditProfession(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Kurum / Okul Bilgisi</label>
-                                                        <div className="relative group">
-                                                            <i className="fa-solid fa-building absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
-                                                            <input type="text" value={editInstitution} onChange={e => setEditInstitution(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
-                                                        </div>
-                                                    </div>
-                                                    <div className="md:col-span-2">
-                                                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Kısa Biyografi</label>
-                                                        <div className="relative group">
-                                                            <textarea value={editBio} onChange={e => setEditBio(e.target.value)} className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-3xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all h-20 resize-none" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="mt-10 flex justify-end">
-                                            <button
-                                                onClick={handleUpdateProfile}
-                                                disabled={isSavingProfile}
-                                                className="px-10 py-5 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-3xl font-black text-xs uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
-                                            >
-                                                {isSavingProfile ? <i className="fa-solid fa-circle-notch fa-spin mr-3"></i> : <i className="fa-solid fa-check-double mr-3"></i>}
-                                                Profil Bilgilerini Güncelle
-                                            </button>
-                                        </div>
-                                    </BentoCard>
-
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                        {/* SYSTEM PREFERENCES */}
-                                        <BentoCard title="Sistem Tercihleri" icon="fa-solid fa-palette" iconColor="bg-amber-50 text-amber-600">
-                                            <div className="space-y-4">
-                                                <div onClick={handleToggleDarkMode} className="flex items-center justify-between p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-indigo-400 transition-all group">
-                                                    <div className="flex items-center gap-5">
-                                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all ${darkModeEnabled ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-zinc-800 text-zinc-400 group-hover:text-indigo-500'}`}>
-                                                            <i className={`fa-solid ${darkModeEnabled ? 'fa-moon' : 'fa-sun'}`}></i>
+                                                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${settingsCategory === tab.id ? `${accentSoft}` : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-300'}`}>
+                                                            <i className={`fa-solid ${tab.icon}`}></i>
                                                         </div>
                                                         <div>
-                                                            <p className="font-black text-zinc-800 dark:text-zinc-200 text-sm">Karanlık Mod</p>
-                                                            <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Gece kullanımı için optimize edin</p>
+                                                            <h3 className={`text-sm font-black ${settingsCategory === tab.id ? 'text-zinc-900 dark:text-white' : 'text-zinc-600 dark:text-zinc-400'}`}>{tab.label}</h3>
+                                                            <p className="text-[10px] text-zinc-500 mt-0.5 leading-snug">{tab.desc}</p>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className={`lg:col-span-9 ${settingsSpacing}`}>
+                                        {settingsCategory === 'profile' && (
+                                            <div className={settingsSpacing}>
+                                                <BentoCard className={radiusClass} title="Kişisel Bilgiler" icon="fa-solid fa-user-pen" iconColor={accentSoft}>
+                                                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                                                        <div className="lg:col-span-3 flex flex-col items-center gap-6">
+                                                            <div className="relative group/avatar">
+                                                                <div className="w-40 h-40 rounded-[3.5rem] p-1 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl overflow-hidden transform group-hover/avatar:scale-105 transition-all duration-500">
+                                                                    <img src={avatarUrl} alt="Avatar" className="w-full h-full rounded-[3.3rem] object-cover bg-white dark:bg-zinc-800" />
+                                                                </div>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        const url = prompt('Profil resmi URL giriniz:', avatarUrl);
+                                                                        if (url) setAvatarUrl(url);
+                                                                    }}
+                                                                    className="absolute inset-0 bg-black/60 rounded-[3.5rem] opacity-0 group-hover/avatar:opacity-100 transition-all flex flex-col items-center justify-center text-white"
+                                                                >
+                                                                    <i className="fa-solid fa-camera text-3xl mb-2"></i>
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest">Resmi Değiştir</span>
+                                                                </button>
+                                                            </div>
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    onClick={() => setAvatarUrl(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`)}
+                                                                    className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-all"
+                                                                >
+                                                                    <i className="fa-solid fa-dice mr-2"></i> Yeni Üret
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                            <div className="space-y-6">
+                                                                <div>
+                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Tam Ad Soyad</label>
+                                                                    <div className="relative group">
+                                                                        <i className="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
+                                                                        <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">E-Posta (Sabit)</label>
+                                                                    <div className="relative group">
+                                                                        <i className="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300"></i>
+                                                                        <input type="text" value={user.email} disabled className="w-full pl-12 pr-4 py-4 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-400 cursor-not-allowed outline-none" />
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Telefon Numarası</label>
+                                                                    <div className="relative group">
+                                                                        <i className="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
+                                                                        <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="space-y-6">
+                                                                <div>
+                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Meslek / Uzmanlık</label>
+                                                                    <div className="relative group">
+                                                                        <i className="fa-solid fa-briefcase absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
+                                                                        <input type="text" value={editProfession} onChange={e => setEditProfession(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Kurum / Okul Bilgisi</label>
+                                                                    <div className="relative group">
+                                                                        <i className="fa-solid fa-building absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-indigo-500 transition-colors"></i>
+                                                                        <input type="text" value={editInstitution} onChange={e => setEditInstitution(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="md:col-span-2">
+                                                                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Kısa Biyografi</label>
+                                                                    <div className="relative group">
+                                                                        <textarea value={editBio} onChange={e => setEditBio(e.target.value)} className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-3xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all h-20 resize-none" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div className={`w-14 h-7 rounded-full relative transition-all duration-300 ${darkModeEnabled ? 'bg-indigo-600 shadow-lg shadow-indigo-500/40' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
-                                                        <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all duration-300 shadow-sm ${darkModeEnabled ? 'left-8' : 'left-1'}`}></div>
+                                                    <div className="mt-10 flex justify-end">
+                                                        <button
+                                                            onClick={handleUpdateProfile}
+                                                            disabled={isSavingProfile}
+                                                            className="px-10 py-5 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-3xl font-black text-xs uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                                                        >
+                                                            {isSavingProfile ? <i className="fa-solid fa-circle-notch fa-spin mr-3"></i> : <i className="fa-solid fa-check-double mr-3"></i>}
+                                                            Profil Bilgilerini Güncelle
+                                                        </button>
                                                     </div>
-                                                </div>
+                                                </BentoCard>
+                                            </div>
+                                        )}
 
-                                                <div onClick={handleToggleNotifications} className="flex items-center justify-between p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-emerald-400 transition-all group">
-                                                    <div className="flex items-center gap-5">
-                                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all ${emailNotificationsEnabled ? 'bg-emerald-600 text-white' : 'bg-white dark:bg-zinc-800 text-zinc-400 group-hover:text-emerald-500'}`}>
-                                                            <i className="fa-solid fa-bell"></i>
+                                        {settingsCategory === 'appearance' && (
+                                            <div className={settingsSpacing}>
+                                                <BentoCard className={radiusClass} title="Arayüz Hakimiyeti" icon="fa-solid fa-sliders" iconColor={accentSoft}>
+                                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                        <div className="space-y-4">
+                                                            <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Yoğunluk</p>
+                                                            <div className="flex gap-3">
+                                                                {['compact', 'comfortable'].map(option => (
+                                                                    <button
+                                                                        key={option}
+                                                                        onClick={() => {
+                                                                            setCustomUi(prev => ({ ...prev, density: option as typeof customUi.density }));
+                                                                            if (onUpdateUiSettings && externalUiSettings) {
+                                                                                onUpdateUiSettings({ ...externalUiSettings, compactMode: option === 'compact' });
+                                                                            }
+                                                                        }}
+                                                                        className={`flex-1 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${customUi.density === option ? 'bg-zinc-900 dark:bg-white text-white dark:text-black border-zinc-900 dark:border-white' : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-500'}`}
+                                                                    >
+                                                                        {option === 'compact' ? 'Kompakt' : 'Dengeli'}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                            <p className="text-[10px] text-zinc-400">Modül boşluklarını azaltarak daha fazla içerik sığdırır.</p>
+                                                        </div>
+                                                        <div className="space-y-4">
+                                                            <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Köşe Yuvarlığı</p>
+                                                            <div className="flex gap-3">
+                                                                {['lg', 'xl', '2xl'].map(option => (
+                                                                    <button
+                                                                        key={option}
+                                                                        onClick={() => setCustomUi(prev => ({ ...prev, radius: option as typeof customUi.radius }))}
+                                                                        className={`flex-1 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${customUi.radius === option ? 'bg-zinc-900 dark:bg-white text-white dark:text-black border-zinc-900 dark:border-white' : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-500'}`}
+                                                                    >
+                                                                        {option === 'lg' ? 'Keskin' : option === 'xl' ? 'Yumuşak' : 'Ultra'}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-4">
+                                                            <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Sidebar Konumu</p>
+                                                            <div className="flex gap-3">
+                                                                {['left', 'right'].map(option => (
+                                                                    <button
+                                                                        key={option}
+                                                                        onClick={() => setCustomUi(prev => ({ ...prev, sidebarPosition: option as typeof customUi.sidebarPosition }))}
+                                                                        className={`flex-1 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${customUi.sidebarPosition === option ? 'bg-zinc-900 dark:bg-white text-white dark:text-black border-zinc-900 dark:border-white' : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-500'}`}
+                                                                    >
+                                                                        {option === 'left' ? 'Sol' : 'Sağ'}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-4">
+                                                            <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Vurgu Rengi</p>
+                                                            <div className="flex gap-3">
+                                                                {['indigo', 'emerald', 'cyan'].map(option => (
+                                                                    <button
+                                                                        key={option}
+                                                                        onClick={() => setCustomUi(prev => ({ ...prev, accent: option as typeof customUi.accent }))}
+                                                                        className={`flex-1 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${customUi.accent === option ? 'bg-zinc-900 dark:bg-white text-white dark:text-black border-zinc-900 dark:border-white' : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-500'}`}
+                                                                    >
+                                                                        {option === 'indigo' ? 'İndigo' : option === 'emerald' ? 'Zümrüt' : 'Siyan'}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </BentoCard>
+
+                                                <BentoCard className={radiusClass} title="Sistem Tercihleri" icon="fa-solid fa-palette" iconColor="bg-amber-50 text-amber-600">
+                                                    <div className="space-y-4">
+                                                        <div onClick={handleToggleDarkMode} className="flex items-center justify-between p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-indigo-400 transition-all group">
+                                                            <div className="flex items-center gap-5">
+                                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all ${darkModeEnabled ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-zinc-800 text-zinc-400 group-hover:text-indigo-500'}`}>
+                                                                    <i className={`fa-solid ${darkModeEnabled ? 'fa-moon' : 'fa-sun'}`}></i>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-black text-zinc-800 dark:text-zinc-200 text-sm">Karanlık Mod</p>
+                                                                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Gece kullanımı için optimize edin</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className={`w-14 h-7 rounded-full relative transition-all duration-300 ${darkModeEnabled ? 'bg-indigo-600 shadow-lg shadow-indigo-500/40' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
+                                                                <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all duration-300 shadow-sm ${darkModeEnabled ? 'left-8' : 'left-1'}`}></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </BentoCard>
+                                            </div>
+                                        )}
+
+                                        {settingsCategory === 'ai' && (
+                                            <div className={settingsSpacing}>
+                                                <BentoCard className={radiusClass} title="AI Orkestrasyon" icon="fa-solid fa-brain" iconColor={accentSoft}>
+                                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                        <div>
+                                                            <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Model</label>
+                                                            <select
+                                                                value={aiSettings.model}
+                                                                onChange={e => setAiSettings(prev => ({ ...prev, model: e.target.value }))}
+                                                                className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                                            >
+                                                                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                                                                <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                                                                <option value="internal-pro">Oogmatik Pro</option>
+                                                            </select>
                                                         </div>
                                                         <div>
-                                                            <p className="font-black text-zinc-800 dark:text-zinc-200 text-sm">E-Posta Bildirimleri</p>
-                                                            <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Haftalık özet ve kritik raporlar</p>
+                                                            <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Çıktı Dili</label>
+                                                            <select
+                                                                value={aiSettings.tone}
+                                                                onChange={e => setAiSettings(prev => ({ ...prev, tone: e.target.value }))}
+                                                                className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                                            >
+                                                                <option value="kurumsal">Kurumsal</option>
+                                                                <option value="öğretmen">Öğretmen Tonu</option>
+                                                                <option value="bilimsel">Bilimsel</option>
+                                                                <option value="dostane">Dostane</option>
+                                                            </select>
+                                                        </div>
+                                                        <div className="lg:col-span-2">
+                                                            <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Yaratıcılık</label>
+                                                            <div className="flex items-center gap-4">
+                                                                <input
+                                                                    type="range"
+                                                                    min="0"
+                                                                    max="100"
+                                                                    value={aiSettings.creativity}
+                                                                    onChange={e => setAiSettings(prev => ({ ...prev, creativity: Number(e.target.value) }))}
+                                                                    className="w-full accent-indigo-600"
+                                                                />
+                                                                <span className="text-xs font-black text-indigo-600 w-12 text-right">%{aiSettings.creativity}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Analiz Derinliği</label>
+                                                            <select
+                                                                value={aiSettings.analysisDepth}
+                                                                onChange={e => setAiSettings(prev => ({ ...prev, analysisDepth: e.target.value }))}
+                                                                className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                                            >
+                                                                <option value="detailed">Detaylı</option>
+                                                                <option value="summary">Özet</option>
+                                                                <option value="bullet">Madde Madde</option>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Gizlilik Profili</label>
+                                                            <select
+                                                                value={aiSettings.dataPrivacy}
+                                                                onChange={e => setAiSettings(prev => ({ ...prev, dataPrivacy: e.target.value }))}
+                                                                className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                                            >
+                                                                <option value="balanced">Dengeli</option>
+                                                                <option value="strict">Sıkı</option>
+                                                                <option value="collab">İşbirlikçi</option>
+                                                            </select>
+                                                        </div>
+                                                        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div onClick={() => setAiSettings(prev => ({ ...prev, autoSuggest: !prev.autoSuggest }))} className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-indigo-400 transition-all">
+                                                                <div>
+                                                                    <p className="font-black text-zinc-800 dark:text-zinc-200 text-sm">Akıllı Öneriler</p>
+                                                                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Konuya göre otomatik öner</p>
+                                                                </div>
+                                                                <div className={`w-12 h-6 rounded-full relative transition-all duration-300 ${aiSettings.autoSuggest ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
+                                                                    <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all duration-300 ${aiSettings.autoSuggest ? 'left-7' : 'left-1'}`}></div>
+                                                                </div>
+                                                            </div>
+                                                            <div onClick={() => setAiSettings(prev => ({ ...prev, voiceAssistant: !prev.voiceAssistant }))} className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-indigo-400 transition-all">
+                                                                <div>
+                                                                    <p className="font-black text-zinc-800 dark:text-zinc-200 text-sm">Sesli Asistan</p>
+                                                                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">AI yanıtlarını seslendir</p>
+                                                                </div>
+                                                                <div className={`w-12 h-6 rounded-full relative transition-all duration-300 ${aiSettings.voiceAssistant ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
+                                                                    <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all duration-300 ${aiSettings.voiceAssistant ? 'left-7' : 'left-1'}`}></div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div className={`w-14 h-7 rounded-full relative transition-all duration-300 ${emailNotificationsEnabled ? 'bg-emerald-600 shadow-lg shadow-emerald-500/40' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
-                                                        <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all duration-300 shadow-sm ${emailNotificationsEnabled ? 'left-8' : 'left-1'}`}></div>
-                                                    </div>
-                                                </div>
+                                                </BentoCard>
                                             </div>
-                                        </BentoCard>
+                                        )}
 
-                                        {/* SECURITY CARD */}
-                                        <BentoCard title="Güvenlik ve Erişim" icon="fa-solid fa-shield-halved" iconColor="bg-blue-50 text-blue-600">
-                                            <div className="h-full flex flex-col justify-between pt-2">
-                                                <div className="p-6 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-3xl mb-8">
-                                                    <div className="flex items-start gap-4">
-                                                        <i className="fa-solid fa-info-circle text-blue-600 mt-1"></i>
-                                                        <p className="text-xs font-bold text-blue-700 dark:text-blue-400 leading-relaxed">Güvenliğiniz için şifrenizi en az 3 ayda bir değiştirmenizi öneririz. Şifreniz en az 8 karakter, büyük harf ve sembol içermelidir.</p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex gap-4">
-                                                    <button
-                                                        onClick={() => {
-                                                            const pass = prompt('Yeni şifre giriniz:');
-                                                            if (pass && pass.length >= 6) {
-                                                                // AuthContext updatePassword call could go here
-                                                                alert('Şifre güncelleme isteği gönderildi.');
-                                                            }
-                                                        }}
-                                                        className="flex-1 px-6 py-4 bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-white text-zinc-900 dark:text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
-                                                    >
-                                                        Şifre Değiştir
-                                                    </button>
-                                                    <button
-                                                        onClick={onOpenSettingsModal}
-                                                        className="px-6 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
-                                                    >
-                                                        Gelişmiş Ayarlar
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </BentoCard>
+                                        {settingsCategory === 'notifications' && (
+                                            <div className={settingsSpacing}>
+                                                <BentoCard className={radiusClass} title="Bildirim Kontrolü" icon="fa-solid fa-bell" iconColor="bg-emerald-50 text-emerald-600">
+                                                    <div className="space-y-4">
+                                                        <div onClick={handleToggleNotifications} className="flex items-center justify-between p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:border-emerald-400 transition-all group">
+                                                            <div className="flex items-center gap-5">
+                                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all ${emailNotificationsEnabled ? 'bg-emerald-600 text-white' : 'bg-white dark:bg-zinc-800 text-zinc-400 group-hover:text-emerald-500'}`}>
+                                                                    <i className="fa-solid fa-bell"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-black text-zinc-800 dark:text-zinc-200 text-sm">E-Posta Bildirimleri</p>
+                                                                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Haftalık özet ve kritik raporlar</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className={`w-14 h-7 rounded-full relative transition-all duration-300 ${emailNotificationsEnabled ? 'bg-emerald-600 shadow-lg shadow-emerald-500/40' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
+                                                                <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all duration-300 shadow-sm ${emailNotificationsEnabled ? 'left-8' : 'left-1'}`}></div>
+                                                            </div>
+                                                        </div>
 
-                                        {/* DANGER ZONE */}
-                                        <BentoCard className="lg:col-span-2 border-red-100 dark:border-red-900/30" title="Tehlikeli Bölge" icon="fa-solid fa-triangle-exclamation" iconColor="bg-red-50 text-red-600">
-                                            <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-red-50/30 dark:bg-red-900/5 rounded-[2.5rem]">
-                                                <div className="text-center md:text-left">
-                                                    <h5 className="font-black text-red-700 dark:text-red-400 text-sm mb-1 uppercase tracking-tight">Hesabı Kalıcı Olarak Kapat</h5>
-                                                    <p className="text-[11px] text-zinc-500 font-bold">Tüm öğrenci verileriniz, raporlarınız ve arşiviniz geri dönülemez şekilde silinecektir.</p>
-                                                </div>
-                                                <button className="px-8 py-4 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-red-500/20 hover:scale-105 active:scale-95 transition-all">HESABI SİL</button>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div className="p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                                                                <h4 className="font-black text-zinc-800 dark:text-zinc-200 text-sm mb-2">Haftalık Özet</h4>
+                                                                <p className="text-[10px] text-zinc-500 font-bold">Öğrenci gelişim raporlarını tek e-postada topla.</p>
+                                                            </div>
+                                                            <div className="p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                                                                <h4 className="font-black text-zinc-800 dark:text-zinc-200 text-sm mb-2">Kritik Uyarılar</h4>
+                                                                <p className="text-[10px] text-zinc-500 font-bold">Düşüş eğiliminde otomatik uyarı gönder.</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </BentoCard>
                                             </div>
-                                        </BentoCard>
+                                        )}
+
+                                        {settingsCategory === 'security' && (
+                                            <div className={settingsSpacing}>
+                                                <BentoCard className={radiusClass} title="Güvenlik ve Erişim" icon="fa-solid fa-shield-halved" iconColor="bg-blue-50 text-blue-600">
+                                                    <div className="h-full flex flex-col justify-between pt-2">
+                                                        <div className="p-6 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-3xl mb-8">
+                                                            <div className="flex items-start gap-4">
+                                                                <i className="fa-solid fa-info-circle text-blue-600 mt-1"></i>
+                                                                <p className="text-xs font-bold text-blue-700 dark:text-blue-400 leading-relaxed">Güvenliğiniz için şifrenizi en az 3 ayda bir değiştirmenizi öneririz. Şifreniz en az 8 karakter, büyük harf ve sembol içermelidir.</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-4">
+                                                            <button
+                                                                onClick={() => {
+                                                                    const pass = prompt('Yeni şifre giriniz:');
+                                                                    if (pass && pass.length >= 6) {
+                                                                        alert('Şifre güncelleme isteği gönderildi.');
+                                                                    }
+                                                                }}
+                                                                className="flex-1 px-6 py-4 bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-white text-zinc-900 dark:text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
+                                                            >
+                                                                Şifre Değiştir
+                                                            </button>
+                                                            <button
+                                                                onClick={onOpenSettingsModal}
+                                                                className="px-6 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
+                                                            >
+                                                                Gelişmiş Ayarlar
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </BentoCard>
+
+                                                <BentoCard className={`${radiusClass} border-red-100 dark:border-red-900/30`} title="Tehlikeli Bölge" icon="fa-solid fa-triangle-exclamation" iconColor="bg-red-50 text-red-600">
+                                                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-red-50/30 dark:bg-red-900/5 rounded-[2.5rem]">
+                                                        <div className="text-center md:text-left">
+                                                            <h5 className="font-black text-red-700 dark:text-red-400 text-sm mb-1 uppercase tracking-tight">Hesabı Kalıcı Olarak Kapat</h5>
+                                                            <p className="text-[11px] text-zinc-500 font-bold">Tüm öğrenci verileriniz, raporlarınız ve arşiviniz geri dönülemez şekilde silinecektir.</p>
+                                                        </div>
+                                                        <button className="px-8 py-4 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-red-500/20 hover:scale-105 active:scale-95 transition-all">HESABI SİL</button>
+                                                    </div>
+                                                </BentoCard>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}

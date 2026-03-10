@@ -36,6 +36,8 @@ import { FinancialMarketConfig } from './FinancialMarketConfig';
 import { DirectionalCodeReadingConfig } from './DirectionalCodeReadingConfig';
 import { LogicErrorHunterConfig } from './LogicErrorHunterConfig';
 import { PatternCompletionConfig } from './PatternCompletionConfig';
+import { VisualInterpretationConfig } from './VisualInterpretationConfig';
+import { BrainTeasersConfig } from './BrainTeasersConfig';
 
 
 export const ActivityConfigRegistry: Record<string, any> = {
@@ -75,4 +77,6 @@ export const ActivityConfigRegistry: Record<string, any> = {
     [ActivityType.DIRECTIONAL_CODE_READING]: DirectionalCodeReadingConfig,
     [ActivityType.LOGIC_ERROR_HUNTER]: LogicErrorHunterConfig,
     [ActivityType.PATTERN_COMPLETION]: PatternCompletionConfig,
+    [ActivityType.VISUAL_INTERPRETATION]: VisualInterpretationConfig,
+    [ActivityType.BRAIN_TEASERS]: BrainTeasersConfig,
 };

@@ -274,6 +274,20 @@ export const ACTIVITIES: Activity[] = [
         description: 'Verilen matris desenlerindeki eksik bloğu/parçayı bulma ve tamamlama mantığı.',
         icon: 'fa-solid fa-puzzle-piece',
         defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.VISUAL_INTERPRETATION,
+        title: 'Resim Yorumlama ve Analiz',
+        description: 'Görsel sahneleri analiz etme, detayları fark etme ve mantıksal çıkarımlar yapma.',
+        icon: 'fa-solid fa-magnifying-glass-plus',
+        defaultStyle: { columns: 1 }
+    },
+    {
+        id: ActivityType.BRAIN_TEASERS,
+        title: 'Kafayı Çalıştır (Zeka Oyunları)',
+        description: 'Farklı zorluk seviyelerinde mantık, dikkat ve problem çözme odaklı zeka soruları.',
+        icon: 'fa-solid fa-lightbulb',
+        defaultStyle: { columns: 1 }
     }
 ];
 
@@ -286,6 +300,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         icon: 'fa-solid fa-eye',
         activities: [
             ActivityType.PATTERN_COMPLETION,
+            ActivityType.VISUAL_INTERPRETATION,
             ActivityType.DIRECTIONAL_CODE_READING,
             ActivityType.MAP_INSTRUCTION,
             ActivityType.DIRECTIONAL_TRACKING,
@@ -305,6 +320,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         activities: [
             ActivityType.LOGIC_ERROR_HUNTER,
             ActivityType.FIVE_W_ONE_H,
+            ActivityType.VISUAL_INTERPRETATION,
             ActivityType.STORY_COMPREHENSION,
             ActivityType.STORY_ANALYSIS,
             ActivityType.MISSING_PARTS
@@ -342,6 +358,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
         icon: 'fa-solid fa-calculator',
         activities: [
             ActivityType.FINANCIAL_MARKET_CALCULATOR,
+            ActivityType.BRAIN_TEASERS,
             ActivityType.APARTMENT_LOGIC_PUZZLE,
             ActivityType.NUMBER_LOGIC_RIDDLES,
             ActivityType.REAL_LIFE_MATH_PROBLEMS,
