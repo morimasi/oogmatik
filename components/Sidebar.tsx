@@ -362,7 +362,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     <>
       <aside
         style={{ width: isExpanded ? '320px' : '85px' }}
-        className={`fixed inset-y-0 left-0 z-30 bg-zinc-50/80 dark:bg-[#09090b]/90 backdrop-blur-2xl border-r border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
+        className={`fixed inset-y-0 left-0 z-30 bg-[var(--bg-primary)] backdrop-blur-2xl border-r border-[var(--border-color)] transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
       >
         {/* Resizing Handle */}
         {isExpanded && (
@@ -385,9 +385,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                 activeCurriculumSession={activeCurriculumSession}
               />
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-zinc-50 dark:bg-zinc-900/50">
-                <i className="fa-solid fa-circle-notch fa-spin text-2xl text-indigo-500 mb-4"></i>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[var(--bg-primary)]">
+                <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--accent-color)] mb-4"></i>
+                <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
                   Etkinlik Yükleniyor...
                 </p>
               </div>
@@ -410,7 +410,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     }}
                     onMouseEnter={(e) => handleCategoryMouseEnter('studios', e)}
                     onMouseLeave={handleCategoryMouseLeave}
-                    className={`studio-trigger-btn w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-3 rounded-2xl transition-all duration-300 bg-gradient-to-r from-zinc-100 to-white dark:from-zinc-800 dark:to-zinc-900 hover:shadow-lg border border-zinc-200 dark:border-zinc-700 relative overflow-hidden`}
+                    className={`studio-trigger-btn w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-3 rounded-2xl transition-all duration-300 bg-[var(--bg-paper)] hover:shadow-lg border border-[var(--border-color)] relative overflow-hidden`}
                     aria-haspopup="true"
                     aria-expanded={hoveredCategory === 'studios'}
                     role="button"
@@ -424,28 +424,28 @@ const Sidebar: React.FC<SidebarProps> = ({
                     }}
                   >
                     <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm shadow-sm transition-all duration-500 bg-indigo-600 text-white relative z-10`}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm shadow-sm transition-all duration-500 bg-[var(--accent-color)] text-white relative z-10`}
                     >
                       <i className="fa-solid fa-layer-group"></i>
                     </div>
 
                     {isExpanded && (
                       <div className="flex-1 flex flex-col items-start relative z-10">
-                        <span className="text-xs font-black text-zinc-800 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                        <span className="text-xs font-black text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors">
                           Stüdyolar
                         </span>
-                        <span className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+                        <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wide">
                           Tüm Modüller
                         </span>
                       </div>
                     )}
 
                     {isExpanded && (
-                      <i className="fa-solid fa-chevron-right text-[10px] text-zinc-400 relative z-10 transition-transform group-hover:translate-x-1"></i>
+                      <i className="fa-solid fa-chevron-right text-[10px] text-[var(--text-muted)] relative z-10 transition-transform group-hover:translate-x-1"></i>
                     )}
 
                     {/* Hover Effect Background */}
-                    <div className="absolute inset-0 bg-indigo-50 dark:bg-indigo-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-[var(--accent-muted)] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </button>
 
                   {/* PREMIUM HOVER POPUP MENU FOR STUDIOS */}
@@ -558,7 +558,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)}
                         onMouseEnter={(e) => handleCategoryMouseEnter(category.id, e)}
                         onMouseLeave={handleCategoryMouseLeave}
-                        className={`category-trigger-btn w-full group flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-500 relative ${isOpen && isExpanded ? 'bg-white dark:bg-zinc-800/60 shadow-xl shadow-indigo-500/5' : 'hover:bg-white/60 dark:hover:bg-zinc-800/40'}`}
+                        className={`category-trigger-btn w-full group flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-500 relative ${isOpen && isExpanded ? 'bg-[var(--bg-paper)] shadow-xl' : 'hover:bg-[var(--surface-elevated)]'}`}
                         aria-haspopup="true"
                         aria-expanded={isHovered}
                         role="button"
@@ -573,7 +573,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       >
                         {/* Aktif Belirteci (Glow Hattı) */}
                         {isOpen && isExpanded && (
-                          <div className="absolute left-0 top-3 bottom-3 w-1 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)]" />
+                          <div className="absolute left-0 top-3 bottom-3 w-1 bg-[var(--accent-color)] rounded-full shadow-[0_0_10px_var(--accent-color)]" />
                         )}
 
                         <div
@@ -591,7 +591,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                               {category.title}
                             </span>
                             <i
-                              className={`fa-solid fa-chevron-right text-[9px] opacity-30 transition-transform duration-500 ${isOpen ? 'rotate-90 text-indigo-500 opacity-100' : ''}`}
+                              className={`fa-solid fa-chevron-right text-[9px] opacity-30 transition-transform duration-500 ${isOpen ? 'rotate-90 text-[var(--accent-color)] opacity-100' : ''}`}
                             ></i>
                           </>
                         )}
@@ -693,10 +693,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <button
                               key={activity.id}
                               onClick={() => onSelectActivity(activity.id)}
-                              className={`w-full group flex items-center gap-2 text-left py-2.5 px-3 rounded-xl text-[11px] font-bold transition-all duration-300 relative ${selectedActivity === activity.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20'}`}
+                              className={`w-full group flex items-center gap-2 text-left py-2.5 px-3 rounded-xl text-[11px] font-bold transition-all duration-300 relative ${selectedActivity === activity.id ? 'bg-[var(--accent-color)] text-white shadow-lg' : 'text-[var(--text-secondary)] hover:text-[var(--accent-color)] hover:bg-[var(--accent-muted)]'}`}
                             >
                               {selectedActivity !== activity.id && (
-                                <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700 transition-colors group-hover:bg-indigo-400" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[var(--border-color)] transition-colors group-hover:bg-[var(--accent-color)]" />
                               )}
                               <span className="flex-1 truncate">{activity.title}</span>
                               {selectedActivity === activity.id && (
