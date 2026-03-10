@@ -98,8 +98,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   // Hover popup state
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
-  const [popupTimeout, setPopupTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
+  const popupTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const closeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const [popupRect, setPopupRect] = useState<DOMRect | null>(null);
 
   const studioItems = [
@@ -149,44 +149,38 @@ const Sidebar: React.FC<SidebarProps> = ({
   // Hover popup handlers
   const handleCategoryMouseEnter = (categoryId: string, event: React.MouseEvent) => {
     // Clear any existing timeouts
-    if (popupTimeout) clearTimeout(popupTimeout);
-    if (closeTimeout) clearTimeout(closeTimeout);
+    if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
 
     const rect = event.currentTarget.getBoundingClientRect();
 
     // Set popup to show after 0-100ms delay
-    const timeout = setTimeout(() => {
+    popupTimeoutRef.current = setTimeout(() => {
       setPopupRect(rect);
       setHoveredCategory(categoryId);
     }, Math.random() * 100); // Random delay between 0-100ms
-
-    setPopupTimeout(timeout);
   };
 
   const handleCategoryMouseLeave = () => {
     // Clear popup timeout
-    if (popupTimeout) clearTimeout(popupTimeout);
+    if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
 
     // Set close timeout with 350ms delay for stability
-    const timeout = setTimeout(() => {
+    closeTimeoutRef.current = setTimeout(() => {
       setHoveredCategory(null);
     }, 350);
-
-    setCloseTimeout(timeout);
   };
 
   const handlePopupMouseEnter = () => {
     // Clear close timeout when mouse enters popup
-    if (closeTimeout) clearTimeout(closeTimeout);
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
   };
 
   const handlePopupMouseLeave = () => {
     // Set close timeout when mouse leaves popup
-    const timeout = setTimeout(() => {
+    closeTimeoutRef.current = setTimeout(() => {
       setHoveredCategory(null);
     }, 350);
-
-    setCloseTimeout(timeout);
   };
 
   const handleActivitySelect = (activityId: ActivityType) => {
@@ -199,22 +193,22 @@ const Sidebar: React.FC<SidebarProps> = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setHoveredCategory(null);
-        if (closeTimeout) clearTimeout(closeTimeout);
-        if (popupTimeout) clearTimeout(popupTimeout);
+        if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+        if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [closeTimeout, popupTimeout]);
+  }, []);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
-      if (popupTimeout) clearTimeout(popupTimeout);
-      if (closeTimeout) clearTimeout(closeTimeout);
+      if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
     };
-  }, [popupTimeout, closeTimeout]);
+  }, []);
 
   // Close menu when clicking outside - Enhanced for popup
   useEffect(() => {
