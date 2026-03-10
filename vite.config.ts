@@ -1,10 +1,17 @@
 
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './vitest.setup.ts',
+    include: ['**/*.{test,spec}.{ts,tsx}'],
+  },
   define: {
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY),
     'process.env.FIREBASE_API_KEY': JSON.stringify(process.env.FIREBASE_API_KEY),

@@ -6,22 +6,40 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint \"{api,components,context,data,database,hooks,services,types,utils}/**/*.{js,jsx,ts,tsx}\" \"*.{ts,tsx}\" --quiet",
+    "format": "prettier --write \"{api,components,context,data,database,hooks,services,types,utils}/**/*.{js,jsx,ts,tsx,css,md}\" \"*.{ts,tsx,json,md}\"",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run"
   },
   "dependencies": {
-    "@google/genai": "*",
-    "firebase": "^10.7.1",
+    "@google/genai": "^1.44.0",
+    "firebase": "^12.10.0",
     "html2canvas": "^1.4.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22.10.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@vercel/node": "^5.0.2",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@typescript-eslint/eslint-plugin": "^8.57.0",
+    "@typescript-eslint/parser": "^8.57.0",
+    "@vercel/node": "^3.0.1",
+    "@vitejs/plugin-react": "^4.7.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "jsdom": "^28.1.0",
+    "prettier": "^3.8.1",
     "typescript": "^5.9.3",
-    "vite": "^6.4.1"
+    "vite": "^6.4.1",
+    "vitest": "^4.0.18"
   }
 }

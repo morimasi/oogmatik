@@ -189,32 +189,66 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
     const [plans, setPlans] = useState<Curriculum[]>([]);
     
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
 
     const effectiveUserId = targetUserId || user?.id;
     const isReadOnly = !!targetUserId && targetUserId !== user?.id;
 
+    // Debounce search query
     useEffect(() => {
-        if (effectiveUserId) loadAllData();
-        else setLoading(false);
-    }, [effectiveUserId]);
+        const timer = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+            setPage(0); // Reset page on new search
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
-    const loadAllData = async () => {
-        setLoading(true);
+    useEffect(() => {
+        if (effectiveUserId) {
+            setWorksheets([]);
+            setAssessments([]);
+            setPlans([]);
+            setPage(0);
+            loadData(0);
+        }
+        else setLoading(false);
+    }, [effectiveUserId, activeTab, debouncedSearchQuery, activeCategory]);
+
+    const loadData = async (pageNum: number) => {
+        if (pageNum === 0) setLoading(true);
+        else setLoadingMore(true);
+        
         try {
-            const [wsData, asData, plData] = await Promise.all([
-                worksheetService.getUserWorksheets(effectiveUserId!, 0, 1000),
-                assessmentService.getUserAssessments(effectiveUserId!),
-                curriculumService.getUserCurriculums(effectiveUserId!)
-            ]);
-            setWorksheets(wsData.items);
-            setAssessments(asData);
-            setPlans(plData);
+            if (activeTab === 'materials') {
+                const wsData = await worksheetService.getUserWorksheets(effectiveUserId!, pageNum, PAGE_SIZE, activeCategory);
+                if (pageNum === 0) setWorksheets(wsData.items);
+                else setWorksheets(prev => [...prev, ...wsData.items]);
+                setHasMore(wsData.items.length === PAGE_SIZE);
+            } else if (activeTab === 'reports') {
+                const asData = await assessmentService.getUserAssessments(effectiveUserId!);
+                setAssessments(asData);
+                setHasMore(false); // Assessment service doesn't support pagination yet
+            } else if (activeTab === 'plans') {
+                const plData = await curriculumService.getUserCurriculums(effectiveUserId!);
+                setPlans(plData);
+                setHasMore(false); // Curriculum service doesn't support pagination yet
+            }
         } catch (e) {
             console.error(e);
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
+    };
+
+    const handleLoadMore = () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        loadData(nextPage);
     };
 
     const handleDelete = async (id: string, type: 'materials' | 'reports' | 'plans') => {
@@ -236,20 +270,14 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
         }
     };
 
-    // --- FILTERING LOGIC ---
+    // --- FILTERING LOGIC (Search only, category is handled by server-side fetching) ---
     const filteredItems = useMemo(() => {
-        const query = searchQuery.toLowerCase();
+        const query = debouncedSearchQuery.toLowerCase();
         
         if (activeTab === 'materials') {
             return worksheets.filter(item => {
                 if (!item) return false;
-                const matchesSearch = (item.name || '').toLowerCase().includes(query);
-                const categoryDef = ACTIVITY_CATEGORIES.find(c => c.activities.includes(item.activityType));
-                // Fallback to visual-perception if category missing
-                const catId = categoryDef?.id || 'visual-perception'; 
-                
-                const matchesCategory = activeCategory === 'all' || catId === activeCategory || (item.category?.id === activeCategory);
-                return matchesSearch && matchesCategory;
+                return (item.name || '').toLowerCase().includes(query);
             });
         }
         if (activeTab === 'reports') {
@@ -259,7 +287,7 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
             return plans.filter(item => item && (item.studentName || '').toLowerCase().includes(query));
         }
         return [];
-    }, [activeTab, activeCategory, searchQuery, worksheets, assessments, plans]);
+    }, [activeTab, debouncedSearchQuery, worksheets, assessments, plans]);
 
     return (
         <div className="flex h-full bg-zinc-50 dark:bg-black rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
@@ -353,16 +381,36 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                             <p className="font-medium">Bu kategoride kayıt bulunamadı.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
-                            {activeTab === 'materials' && filteredItems.map((item: any) => (
-                                <MaterialCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'materials')} isReadOnly={isReadOnly} />
-                            ))}
-                            {activeTab === 'reports' && filteredItems.map((item: any) => (
-                                <ReportCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'reports')} isReadOnly={isReadOnly} />
-                            ))}
-                            {activeTab === 'plans' && filteredItems.map((item: any) => (
-                                <PlanCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'plans')} isReadOnly={isReadOnly} />
-                            ))}
+                        <div className="pb-20">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {activeTab === 'materials' && filteredItems.map((item: any) => (
+                                    <MaterialCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'materials')} isReadOnly={isReadOnly} />
+                                ))}
+                                {activeTab === 'reports' && filteredItems.map((item: any) => (
+                                    <ReportCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'reports')} isReadOnly={isReadOnly} />
+                                ))}
+                                {activeTab === 'plans' && filteredItems.map((item: any) => (
+                                    <PlanCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'plans')} isReadOnly={isReadOnly} />
+                                ))}
+                            </div>
+
+                            {/* Load More Button */}
+                            {hasMore && filteredItems.length > 0 && (
+                                <div className="mt-12 flex justify-center">
+                                    <button 
+                                        onClick={handleLoadMore}
+                                        disabled={loadingMore}
+                                        className="px-8 py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl font-bold text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all shadow-sm flex items-center gap-2 disabled:opacity-50"
+                                    >
+                                        {loadingMore ? (
+                                            <i className="fa-solid fa-circle-notch fa-spin"></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-down"></i>
+                                        )}
+                                        Daha Fazla Yükle
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
