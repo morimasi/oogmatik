@@ -497,15 +497,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     >
                       <div className="premium-popup-content">
                         <div className="premium-popup-header">
-                          <div
-                            className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm shadow-lg bg-indigo-600 text-white`}
-                          >
-                            <i className={`fa-solid fa-layer-group`}></i>
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="premium-popup-title">Stüdyolar</h3>
-                            <p className="premium-popup-subtitle">Kreatif Araçlar</p>
-                          </div>
+                          <span className="premium-popup-title">Stüdyolar</span>
                         </div>
 
                         <div
@@ -520,12 +512,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 handleStudioClick(item);
                                 setHoveredCategory(null);
                               }}
-                              className="premium-popup-activity-item"
+                              className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
                               role="option"
-                              aria-selected={false}
+                              aria-selected={selectedStudio === item.id}
                               tabIndex={0}
                               style={{
-                                animationDelay: `${index * 40}ms`,
+                                animationDelay: `${index * 20}ms`,
                               }}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter' || e.key === ' ') {
@@ -536,19 +528,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                               }}
                             >
                               <div
-                                className={`premium-popup-activity-icon !bg-none ${item.color} text-white`}
+                                className={`premium-popup-activity-icon ${item.color.replace('bg-', 'text-')}`}
                               >
-                                <i className={`fa-solid ${item.icon} text-xs`}></i>
+                                <i className={`fa-solid ${item.icon}`}></i>
                               </div>
-                              <div className="flex-1 text-left min-w-0">
-                                <span className="premium-popup-activity-title block truncate">
-                                  {item.label}
-                                </span>
-                                <span className="premium-popup-activity-desc block truncate">
-                                  Stüdyoyu Aç
-                                </span>
-                              </div>
-                              <i className="fa-solid fa-arrow-right text-xs premium-popup-activity-arrow"></i>
+                              <span className="premium-popup-activity-title block truncate">
+                                {item.label}
+                              </span>
+                              {selectedStudio === item.id && (
+                                <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
+                              )}
                             </button>
                           ))}
                         </div>
@@ -667,17 +656,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                           >
                             <div className="premium-popup-content">
                               <div className="premium-popup-header">
-                                <div
-                                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm shadow-lg ${colors[category.id]?.split(' ')[0] || 'bg-zinc-500'} text-white`}
-                                >
-                                  <i className={`${category.icon}`}></i>
-                                </div>
-                                <div className="flex-1">
-                                  <h3 className="premium-popup-title">{category.title}</h3>
-                                  <p className="premium-popup-subtitle">
-                                    {category.items.length} Etkinlik
-                                  </p>
-                                </div>
+                                <span className="premium-popup-title">{category.title}</span>
                               </div>
 
                               <div
@@ -689,12 +668,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                                   <button
                                     key={activity.id}
                                     onClick={() => handleActivitySelect(activity.id)}
-                                    className="premium-popup-activity-item"
+                                    className={`premium-popup-activity-item ${selectedActivity === activity.id ? 'active' : ''}`}
                                     role="option"
-                                    aria-selected={false}
+                                    aria-selected={selectedActivity === activity.id}
                                     tabIndex={0}
                                     style={{
-                                      animationDelay: `${index * 40}ms`,
+                                      animationDelay: `${index * 20}ms`,
                                     }}
                                     onKeyDown={(e) => {
                                       if (e.key === 'Enter' || e.key === ' ') {
@@ -704,19 +683,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                                     }}
                                   >
                                     <div className="premium-popup-activity-icon">
-                                      <i className={`${activity.icon || 'fa-star'} text-xs`}></i>
+                                      <i className={`${activity.icon || 'fa-star'}`}></i>
                                     </div>
-                                    <div className="flex-1 text-left min-w-0">
-                                      <span className="premium-popup-activity-title block truncate">
-                                        {activity.title}
-                                      </span>
-                                      {activity.description && (
-                                        <span className="premium-popup-activity-desc block truncate">
-                                          {activity.description}
-                                        </span>
-                                      )}
-                                    </div>
-                                    <i className="fa-solid fa-arrow-right text-xs premium-popup-activity-arrow"></i>
+                                    <span className="premium-popup-activity-title block truncate">
+                                      {activity.title}
+                                    </span>
+                                    {selectedActivity === activity.id && (
+                                      <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
+                                    )}
                                   </button>
                                 ))}
                               </div>
