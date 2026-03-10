@@ -36,18 +36,18 @@ interface SidebarProps {
     activeCurriculumSession?: ActiveCurriculumSession | null;
 }
 
-const ToolIcon = ({ icon, label, onClick, color, isExpanded, isActive }: any) => (
+const ToolIcon = ({ icon, label, onClick, color, isExpanded, isActive, animation = "group-hover:animate-bounce" }: any) => (
     <button
         onClick={onClick}
-        className={`group relative flex flex-col items-center gap-2 transition-all outline-none ${isActive ? 'scale-110' : 'hover:scale-105'}`}
+        className={`group relative flex flex-col items-center gap-1.5 transition-all outline-none ${isActive ? 'scale-110' : 'hover:scale-105'}`}
         title={label}
     >
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg transition-all duration-500 shadow-lg ${isActive ? `${color} ring-4 ring-white/20 shadow-indigo-500/20` : `bg-white dark:bg-zinc-800/40 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-700/30 text-zinc-500 dark:text-zinc-400 group-hover:border-indigo-400/50`} relative overflow-hidden group`}>
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg transition-all duration-500 shadow-md ${isActive ? `${color} ring-2 ring-white/30 shadow-indigo-500/30` : `bg-white dark:bg-zinc-800/60 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-700/30 text-zinc-500 dark:text-zinc-400 hover:border-indigo-400/50 hover:shadow-lg hover:shadow-indigo-500/10`} relative overflow-hidden`}>
             {/* Animasyonlu Işıltı Katmanı */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-            <i className={`fa-solid ${icon}`}></i>
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+            <i className={`fa-solid ${icon} transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'} ${animation}`}></i>
         </div>
-        {isExpanded && <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300'}`}>{label}</span>}
+        {isExpanded && <span className={`text-[9px] font-extrabold uppercase tracking-wider transition-colors ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300'}`}>{label}</span>}
     </button>
 );
 
@@ -189,14 +189,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <nav className="flex-1 overflow-y-auto px-4 py-8 space-y-10 custom-scrollbar scroll-smooth">
 
                         {/* STÜDYOLAR - PREMIUM ICON STRIP */}
-                        <div className="flex flex-col">
-                            {isExpanded && <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.4em] mb-6 ml-1">Kreatif Stüdyolar</span>}
-                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-2 px-1">
-                                <ToolIcon icon="fa-camera-viewfinder" label="Klon" onClick={onOpenOCR} color="bg-indigo-600 text-white" isExpanded={isExpanded} />
-                                <ToolIcon icon="fa-calendar-check" label="Plan" onClick={onOpenCurriculum} color="bg-emerald-600 text-white" isExpanded={isExpanded} />
-                                <ToolIcon icon="fa-book-open" label="Oku" onClick={onOpenReadingStudio} color="bg-rose-600 text-white" isExpanded={isExpanded} />
-                                <ToolIcon icon="fa-calculator" label="Mat" onClick={onOpenMathStudio} color="bg-blue-600 text-white" isExpanded={isExpanded} />
-                                <ToolIcon icon="fa-clipboard-question" label="Tarama" onClick={onOpenScreening} color="bg-purple-600 text-white" isExpanded={isExpanded} />
+                        <div className={`flex flex-col ${isExpanded ? 'px-1' : 'items-center'}`}>
+                            {isExpanded && <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.3em] mb-3 ml-1">Stüdyolar</span>}
+                            <div className={`grid ${isExpanded ? 'grid-cols-5 gap-2' : 'grid-cols-1 gap-4'}`}>
+                                <ToolIcon icon="fa-camera-viewfinder" label="Klon" onClick={onOpenOCR} color="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white" isExpanded={isExpanded} animation="group-hover:-translate-y-1" />
+                                <ToolIcon icon="fa-calendar-check" label="Plan" onClick={onOpenCurriculum} color="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white" isExpanded={isExpanded} animation="group-hover:-translate-y-1" />
+                                <ToolIcon icon="fa-book-open" label="Oku" onClick={onOpenReadingStudio} color="bg-gradient-to-br from-rose-500 to-rose-700 text-white" isExpanded={isExpanded} animation="group-hover:-translate-y-1" />
+                                <ToolIcon icon="fa-calculator" label="Mat" onClick={onOpenMathStudio} color="bg-gradient-to-br from-blue-500 to-blue-700 text-white" isExpanded={isExpanded} animation="group-hover:-translate-y-1" />
+                                <ToolIcon icon="fa-clipboard-question" label="Tarama" onClick={onOpenScreening} color="bg-gradient-to-br from-purple-500 to-purple-700 text-white" isExpanded={isExpanded} animation="group-hover:-translate-y-1" />
                             </div>
                         </div>
 
