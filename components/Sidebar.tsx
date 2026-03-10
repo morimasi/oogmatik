@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ActivityType,
   WorksheetData,
@@ -99,6 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [popupTimeout, setPopupTimeout] = useState<NodeJS.Timeout | null>(null);
   const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [popupRect, setPopupRect] = useState<DOMRect | null>(null);
 
   const studioItems = [
     {
@@ -145,13 +147,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   // Hover popup handlers
-  const handleCategoryMouseEnter = (categoryId: string) => {
+  const handleCategoryMouseEnter = (categoryId: string, event: React.MouseEvent) => {
     // Clear any existing timeouts
     if (popupTimeout) clearTimeout(popupTimeout);
     if (closeTimeout) clearTimeout(closeTimeout);
 
+    const rect = event.currentTarget.getBoundingClientRect();
+
     // Set popup to show after 0-100ms delay
     const timeout = setTimeout(() => {
+      setPopupRect(rect);
       setHoveredCategory(categoryId);
     }, Math.random() * 100); // Random delay between 0-100ms
 
@@ -531,7 +536,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <div key={category.id} className="relative mb-2">
                       <button
                         onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)}
-                        onMouseEnter={() => handleCategoryMouseEnter(category.id)}
+                        onMouseEnter={(e) => handleCategoryMouseEnter(category.id, e)}
                         onMouseLeave={handleCategoryMouseLeave}
                         className={`category-trigger-btn w-full group flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-500 relative ${isOpen && isExpanded ? 'bg-white dark:bg-zinc-800/60 shadow-xl shadow-indigo-500/5' : 'hover:bg-white/60 dark:hover:bg-zinc-800/40'}`}
                         aria-haspopup="true"
@@ -541,6 +546,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
+                            setPopupRect(e.currentTarget.getBoundingClientRect());
                             setHoveredCategory(category.id);
                           }
                         }}
@@ -572,103 +578,109 @@ const Sidebar: React.FC<SidebarProps> = ({
                       </button>
 
                       {/* PREMIUM HOVER POPUP MENU - Enhanced with Accessibility */}
-                      {isHovered && (
-                        <div
-                          className="absolute left-full top-0 ml-2 z-50 premium-popup-menu md:block hidden"
-                          onMouseEnter={handlePopupMouseEnter}
-                          onMouseLeave={handlePopupMouseLeave}
-                          role="menu"
-                          aria-label={`${category.title} kategorisindeki etkinlikler`}
-                          aria-hidden="false"
-                          style={{
-                            animation: 'slideInFade 0.35s ease-in-out',
-                          }}
-                          onKeyDown={(e) => {
-                            const items = Array.from(
-                              document.querySelectorAll('.premium-popup-activity-item')
-                            );
-                            const currentIndex = items.indexOf(
-                              document.activeElement as HTMLElement
-                            );
-                            let nextIndex = currentIndex;
+                      {isHovered &&
+                        popupRect &&
+                        createPortal(
+                          <div
+                            className="premium-popup-menu md:block hidden"
+                            onMouseEnter={handlePopupMouseEnter}
+                            onMouseLeave={handlePopupMouseLeave}
+                            role="menu"
+                            aria-label={`${category.title} kategorisindeki etkinlikler`}
+                            aria-hidden="false"
+                            style={{
+                              animation: 'slideInFade 0.35s ease-in-out',
+                              position: 'fixed',
+                              top: popupRect.top,
+                              left: popupRect.right + 12,
+                            }}
+                            onKeyDown={(e) => {
+                              const items = Array.from(
+                                document.querySelectorAll('.premium-popup-activity-item')
+                              );
+                              const currentIndex = items.indexOf(
+                                document.activeElement as HTMLElement
+                              );
+                              let nextIndex = currentIndex;
 
-                            if (e.key === 'ArrowDown') {
-                              e.preventDefault();
-                              nextIndex = Math.min(currentIndex + 1, items.length - 1);
-                            } else if (e.key === 'ArrowUp') {
-                              e.preventDefault();
-                              nextIndex = Math.max(currentIndex - 1, 0);
-                            } else if (e.key === 'Home') {
-                              e.preventDefault();
-                              nextIndex = 0;
-                            } else if (e.key === 'End') {
-                              e.preventDefault();
-                              nextIndex = items.length - 1;
-                            }
+                              if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                nextIndex = Math.min(currentIndex + 1, items.length - 1);
+                              } else if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                nextIndex = Math.max(currentIndex - 1, 0);
+                              } else if (e.key === 'Home') {
+                                e.preventDefault();
+                                nextIndex = 0;
+                              } else if (e.key === 'End') {
+                                e.preventDefault();
+                                nextIndex = items.length - 1;
+                              }
 
-                            if (nextIndex !== currentIndex && items[nextIndex]) {
-                              (items[nextIndex] as HTMLElement).focus();
-                            }
-                          }}
-                        >
-                          <div className="premium-popup-content">
-                            <div className="premium-popup-header">
-                              <div
-                                className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm shadow-lg ${colors[category.id]?.split(' ')[0] || 'bg-zinc-500'} text-white`}
-                              >
-                                <i className={`${category.icon}`}></i>
-                              </div>
-                              <div className="flex-1">
-                                <h3 className="premium-popup-title">{category.title}</h3>
-                                <p className="premium-popup-subtitle">
-                                  {category.items.length} Etkinlik
-                                </p>
-                              </div>
-                            </div>
-
-                            <div
-                              className="premium-popup-activities"
-                              role="listbox"
-                              aria-label="Etkinlikler"
-                            >
-                              {category.items.map((activity, index) => (
-                                <button
-                                  key={activity.id}
-                                  onClick={() => handleActivitySelect(activity.id)}
-                                  className="premium-popup-activity-item"
-                                  role="option"
-                                  aria-selected={false}
-                                  tabIndex={0}
-                                  style={{
-                                    animationDelay: `${index * 40}ms`,
-                                  }}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                      e.preventDefault();
-                                      handleActivitySelect(activity.id);
-                                    }
-                                  }}
+                              if (nextIndex !== currentIndex && items[nextIndex]) {
+                                (items[nextIndex] as HTMLElement).focus();
+                              }
+                            }}
+                          >
+                            <div className="premium-popup-content">
+                              <div className="premium-popup-header">
+                                <div
+                                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm shadow-lg ${colors[category.id]?.split(' ')[0] || 'bg-zinc-500'} text-white`}
                                 >
-                                  <div className="premium-popup-activity-icon">
-                                    <i className={`${activity.icon || 'fa-star'} text-xs`}></i>
-                                  </div>
-                                  <div className="flex-1 text-left min-w-0">
-                                    <span className="premium-popup-activity-title block truncate">
-                                      {activity.title}
-                                    </span>
-                                    {activity.description && (
-                                      <span className="premium-popup-activity-desc block truncate">
-                                        {activity.description}
+                                  <i className={`${category.icon}`}></i>
+                                </div>
+                                <div className="flex-1">
+                                  <h3 className="premium-popup-title">{category.title}</h3>
+                                  <p className="premium-popup-subtitle">
+                                    {category.items.length} Etkinlik
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div
+                                className="premium-popup-activities"
+                                role="listbox"
+                                aria-label="Etkinlikler"
+                              >
+                                {category.items.map((activity, index) => (
+                                  <button
+                                    key={activity.id}
+                                    onClick={() => handleActivitySelect(activity.id)}
+                                    className="premium-popup-activity-item"
+                                    role="option"
+                                    aria-selected={false}
+                                    tabIndex={0}
+                                    style={{
+                                      animationDelay: `${index * 40}ms`,
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        handleActivitySelect(activity.id);
+                                      }
+                                    }}
+                                  >
+                                    <div className="premium-popup-activity-icon">
+                                      <i className={`${activity.icon || 'fa-star'} text-xs`}></i>
+                                    </div>
+                                    <div className="flex-1 text-left min-w-0">
+                                      <span className="premium-popup-activity-title block truncate">
+                                        {activity.title}
                                       </span>
-                                    )}
-                                  </div>
-                                  <i className="fa-solid fa-arrow-right text-xs premium-popup-activity-arrow"></i>
-                                </button>
-                              ))}
+                                      {activity.description && (
+                                        <span className="premium-popup-activity-desc block truncate">
+                                          {activity.description}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <i className="fa-solid fa-arrow-right text-xs premium-popup-activity-arrow"></i>
+                                  </button>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      )}
+                          </div>,
+                          document.body
+                        )}
 
                       {isExpanded && isOpen && (
                         <div className="ml-8 pl-5 mt-2 space-y-1 pr-2 border-l-2 border-zinc-100 dark:border-zinc-800 animate-in slide-in-from-left-2 fade-in duration-500">
