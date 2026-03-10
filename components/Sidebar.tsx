@@ -67,8 +67,36 @@ const Sidebar: React.FC<SidebarProps> = ({
     const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
     // Boyutlandırma State'leri
-    const [sidebarWidth, setSidebarWidth] = useState(420);
-    const [isResizing, setIsResizing] = useState(false);
+    const [isStudioMenuOpen, setIsStudioMenuOpen] = useState(false);
+    const [selectedStudio, setSelectedStudio] = useState<string | null>(null);
+
+    const studioItems = [
+        { id: 'ocr', label: 'Klon (OCR)', icon: 'fa-camera-viewfinder', color: 'bg-indigo-500', onClick: onOpenOCR },
+        { id: 'curriculum', label: 'Plan & Müfredat', icon: 'fa-calendar-check', color: 'bg-emerald-500', onClick: onOpenCurriculum },
+        { id: 'reading', label: 'Okuma Stüdyosu', icon: 'fa-book-open', color: 'bg-rose-500', onClick: onOpenReadingStudio },
+        { id: 'math', label: 'Matematik Stüdyosu', icon: 'fa-calculator', color: 'bg-blue-500', onClick: onOpenMathStudio },
+        { id: 'screening', label: 'Tarama & Analiz', icon: 'fa-clipboard-question', color: 'bg-purple-500', onClick: onOpenScreening },
+    ];
+
+    const handleStudioClick = (item: any) => {
+        setSelectedStudio(item.id);
+        setIsStudioMenuOpen(false);
+        if (item.onClick) item.onClick();
+    };
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            if (isStudioMenuOpen && !target.closest('.studio-menu-container') && !target.closest('.studio-trigger-btn')) {
+                setIsStudioMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isStudioMenuOpen]);
+
 
     useEffect(() => {
         const loadDynamicResources = async () => {
@@ -93,7 +121,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         loadDynamicResources();
     }, []);
 
-    // Resize Logic
+    // Resize Logic (Disabled for now as we use fixed width or simpler layout)
+    /*
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!isResizing) return;
@@ -115,6 +144,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             window.removeEventListener('mouseup', handleMouseUp);
         };
     }, [isResizing]);
+    */
 
     const handleGenerate = async (options: GeneratorOptions) => {
         if (!selectedActivity) return;
@@ -162,10 +192,75 @@ const Sidebar: React.FC<SidebarProps> = ({
         , [selectedActivity, allActivities]);
 
     return (
-        <aside
-            style={{ width: isExpanded ? `${sidebarWidth}px` : '85px' }}
-            className={`fixed inset-y-0 left-0 z-30 bg-zinc-50/80 dark:bg-[#09090b]/90 backdrop-blur-2xl border-r border-zinc-200/50 dark:border-zinc-800/50 transition-all ${isResizing ? '' : 'duration-700 cubic-bezier(0.4, 0, 0.2, 1)'} flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
-        >
+        <>
+            {/* STUDIO DRAWER / SIDE MENU */}
+            <div className={`fixed inset-0 z-[100] transition-opacity duration-300 ${isStudioMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+                
+                {/* Backdrop */}
+                <div 
+                    className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
+                    onClick={() => setIsStudioMenuOpen(false)}
+                />
+
+                {/* Sliding Menu Panel */}
+                <div className={`studio-menu-container absolute top-0 right-0 bottom-0 w-full sm:w-80 bg-white dark:bg-zinc-900 shadow-2xl border-l border-zinc-200 dark:border-zinc-800 transform transition-transform duration-150 ease-out flex flex-col ${isStudioMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+                    
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                                <i className="fa-solid fa-layer-group"></i>
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-black text-zinc-900 dark:text-white tracking-tight">Stüdyolar</h2>
+                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Kreatif Araçlar</p>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={() => setIsStudioMenuOpen(false)}
+                            className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-colors"
+                        >
+                            <i className="fa-solid fa-times"></i>
+                        </button>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                        {studioItems.map((item) => (
+                            <button
+                                key={item.id}
+                                onClick={() => handleStudioClick(item)}
+                                className={`w-full group flex items-center gap-4 p-4 rounded-2xl border transition-all duration-200 relative overflow-hidden ${selectedStudio === item.id ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800' : 'bg-white dark:bg-zinc-800/50 border-zinc-100 dark:border-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700 hover:shadow-lg hover:-translate-y-0.5'}`}
+                            >
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg shadow-md transition-transform duration-300 group-hover:scale-110 ${item.color} text-white`}>
+                                    <i className={`fa-solid ${item.icon}`}></i>
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <h3 className={`font-bold text-sm transition-colors ${selectedStudio === item.id ? 'text-indigo-700 dark:text-indigo-300' : 'text-zinc-700 dark:text-zinc-200 group-hover:text-zinc-900 dark:group-hover:text-white'}`}>
+                                        {item.label}
+                                    </h3>
+                                    <span className={`text-[10px] font-medium uppercase tracking-wider transition-colors ${selectedStudio === item.id ? 'text-indigo-500' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-indigo-500'}`}>
+                                        {selectedStudio === item.id ? 'Şu an Açık' : 'Stüdyoyu Aç'}
+                                    </span>
+                                </div>
+                                <i className={`fa-solid fa-chevron-right text-xs transition-all duration-300 ${selectedStudio === item.id ? 'text-indigo-500 translate-x-0' : 'text-zinc-300 -translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0'}`}></i>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Footer Info */}
+                    <div className="p-6 bg-zinc-50 dark:bg-zinc-900/80 border-t border-zinc-100 dark:border-zinc-800 text-center">
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                            Tüm stüdyolar yapay zeka destekli olarak çalışır.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <aside
+                style={{ width: isExpanded ? '320px' : '85px' }}
+                className={`fixed inset-y-0 left-0 z-30 bg-zinc-50/80 dark:bg-[#09090b]/90 backdrop-blur-2xl border-r border-zinc-200/50 dark:border-zinc-800/50 transition-all duration-700 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
+            >
             {/* Resizing Handle */}
             {isExpanded && (
                 <div
@@ -195,16 +290,31 @@ const Sidebar: React.FC<SidebarProps> = ({
                 ) : (
                     <nav className="flex-1 overflow-y-auto px-4 py-8 space-y-10 custom-scrollbar scroll-smooth">
 
-                        {/* STÜDYOLAR - PREMIUM LIST MENU */}
+                        {/* STÜDYOLAR - SINGLE BUTTON WITH DRAWER */}
                         <div className="flex flex-col px-2">
                             {isExpanded && <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.3em] mb-2 ml-2">Stüdyolar</span>}
-                            <div className="space-y-1">
-                                <StudioMenuItem icon="fa-camera-viewfinder" label="Klon (OCR)" onClick={onOpenOCR} color="bg-gradient-to-br from-indigo-500 to-indigo-700" isExpanded={isExpanded} />
-                                <StudioMenuItem icon="fa-calendar-check" label="Plan & Müfredat" onClick={onOpenCurriculum} color="bg-gradient-to-br from-emerald-500 to-emerald-700" isExpanded={isExpanded} />
-                                <StudioMenuItem icon="fa-book-open" label="Okuma Stüdyosu" onClick={onOpenReadingStudio} color="bg-gradient-to-br from-rose-500 to-rose-700" isExpanded={isExpanded} />
-                                <StudioMenuItem icon="fa-calculator" label="Matematik Stüdyosu" onClick={onOpenMathStudio} color="bg-gradient-to-br from-blue-500 to-blue-700" isExpanded={isExpanded} />
-                                <StudioMenuItem icon="fa-clipboard-question" label="Tarama & Analiz" onClick={onOpenScreening} color="bg-gradient-to-br from-purple-500 to-purple-700" isExpanded={isExpanded} />
-                            </div>
+                            <button
+                                onClick={() => setIsStudioMenuOpen(true)}
+                                className={`studio-trigger-btn w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-3 rounded-2xl transition-all duration-300 bg-gradient-to-r from-zinc-100 to-white dark:from-zinc-800 dark:to-zinc-900 hover:shadow-lg border border-zinc-200 dark:border-zinc-700 relative overflow-hidden`}
+                            >
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm shadow-sm transition-all duration-500 bg-indigo-600 text-white relative z-10`}>
+                                    <i className="fa-solid fa-layer-group"></i>
+                                </div>
+                                
+                                {isExpanded && (
+                                    <div className="flex-1 flex flex-col items-start relative z-10">
+                                        <span className="text-xs font-black text-zinc-800 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Stüdyolar</span>
+                                        <span className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Tüm Modüller</span>
+                                    </div>
+                                )}
+                                
+                                {isExpanded && (
+                                    <i className="fa-solid fa-chevron-right text-[10px] text-zinc-400 relative z-10 transition-transform group-hover:translate-x-1"></i>
+                                )}
+
+                                {/* Hover Effect Background */}
+                                <div className="absolute inset-0 bg-indigo-50 dark:bg-indigo-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            </button>
                         </div>
 
                         <div className="h-px bg-gradient-to-r from-transparent via-zinc-200 dark:via-zinc-800 to-transparent mx-2 opacity-50"></div>
