@@ -143,10 +143,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-2 sm:p-6 animate-in fade-in duration-300">
-      <div className="bg-white dark:bg-[#121214] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.3)] w-full max-w-5xl flex flex-col md:flex-row overflow-hidden max-h-[95vh] border border-zinc-200 dark:border-zinc-800/60 transform transition-all">
-        {/* SOL PANEL: Navigasyon */}
-        <div className="w-full md:w-72 bg-zinc-50 dark:bg-[#0a0a0c] border-r border-zinc-200 dark:border-zinc-800/60 flex flex-col shrink-0">
-          <div className="p-6 border-b border-zinc-200 dark:border-zinc-800/60">
+      {/* Container Wrapper: Max width and height with scrolling enabled */}
+      <div className="bg-white dark:bg-[#121214] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.3)] w-full max-w-5xl h-full max-h-[95vh] flex flex-col md:flex-row overflow-hidden border border-zinc-200 dark:border-zinc-800/60 transform transition-all">
+        {/* SOL PANEL: Navigasyon (Sabit genişlik, taşma durumunda kayar) */}
+        <div className="w-full md:w-72 bg-zinc-50 dark:bg-[#0a0a0c] border-r border-zinc-200 dark:border-zinc-800/60 flex flex-col shrink-0 h-full max-h-[20vh] md:max-h-full overflow-y-auto">
+          <div className="p-6 border-b border-zinc-200 dark:border-zinc-800/60 shrink-0">
             <h2 className="text-xl font-black text-zinc-800 dark:text-zinc-100 flex items-center gap-3 tracking-tight">
               <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                 <i className="fa-solid fa-sliders"></i>
@@ -158,7 +159,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </p>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -185,7 +186,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             ))}
           </div>
 
-          <div className="p-4 border-t border-zinc-200 dark:border-zinc-800/60 bg-zinc-100/50 dark:bg-zinc-900/20">
+          <div className="p-4 border-t border-zinc-200 dark:border-zinc-800/60 bg-zinc-100/50 dark:bg-zinc-900/20 shrink-0">
             <button
               onClick={handleReset}
               className="w-full py-3 px-4 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 border border-transparent hover:border-red-200 dark:hover:border-red-500/20 transition-all flex items-center justify-center gap-2"
@@ -195,10 +196,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* SAĞ PANEL: İçerik */}
-        <div className="flex-1 flex flex-col bg-white dark:bg-[#121214] min-w-0 relative">
+        {/* SAĞ PANEL: İçerik (Kayar alan) */}
+        <div className="flex-1 flex flex-col bg-white dark:bg-[#121214] min-w-0 relative h-full">
           {/* Header (Mobil Kapatma) */}
-          <div className="absolute top-4 right-4 z-10">
+          <div className="absolute top-4 right-4 z-10 md:hidden">
             <button
               onClick={onClose}
               className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-500 transition-all transform hover:scale-105 active:scale-95 shadow-sm border border-zinc-200 dark:border-zinc-700"
@@ -207,9 +208,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
 
+          {/* İçerik Alanı: Yeterli padding ve overflow ile dolu bir yükseklik */}
           <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10">
             {/* CANLI ÖNİZLEME KUTUSU (Her sekmede görünür) */}
-            <div className="mb-10">
+            <div className="mb-10 shrink-0">
               <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                 <i className="fa-solid fa-eye text-indigo-500"></i> Canlı Önizleme
               </h3>
@@ -224,7 +226,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   color: 'var(--text-primary)',
                 }}
               >
-                {/* Desen (Theme CSS değişkenlerinden besleniyor gibi davranır) */}
                 <div
                   className="absolute inset-0 opacity-10 pointer-events-none"
                   style={{
