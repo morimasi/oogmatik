@@ -38,8 +38,8 @@
 }
 
 .premium-popup-content {
-  display: flex;
-  flex-direction: column;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 .premium-popup-header {
@@ -60,8 +60,8 @@
 }
 
 .premium-popup-activities {
-  display: flex;
-  flex-direction: column;
+  display: flex !important;
+  flex-direction: column !important;
   gap: 2px;
   max-height: 350px;
   overflow-y: auto;

@@ -492,13 +492,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                           }
                         }}
                       >
-                        <div className="premium-popup-content">
+                        <div className="premium-popup-content flex flex-col">
                           <div className="premium-popup-header">
                             <span className="premium-popup-title">Stüdyolar</span>
                           </div>
 
                           <div
-                            className="premium-popup-activities"
+                            className="premium-popup-activities flex flex-col"
                             role="listbox"
                             aria-label="Stüdyolar Listesi"
                           >
@@ -643,13 +643,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                               }
                             }}
                           >
-                            <div className="premium-popup-content">
+                            <div className="premium-popup-content flex flex-col">
                               <div className="premium-popup-header">
                                 <span className="premium-popup-title">{category.title}</span>
                               </div>
 
                               <div
-                                className="premium-popup-activities"
+                                className="premium-popup-activities flex flex-col"
                                 role="listbox"
                                 aria-label="Etkinlikler"
                               >
