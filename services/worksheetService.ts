@@ -1,15 +1,43 @@
+/**
+ * OOGMATIK - Worksheet Service
+ * Firestore CRUD + Error Handling + Permission Validation
+ */
 
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types';
+import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError';
+import { logError, retryWithBackoff, withTimeout } from '../utils/errorHandler';
 
 const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, startAfter } = firestore;
 
+/**
+ * Firestore timeout configurations (ms)
+ */
+const FIRESTORE_TIMEOUT = 10000;
+const FIRESTORE_RETRY_CONFIG = {
+    maxRetries: 3,
+    initialDelay: 500,
+    shouldRetry: (error: any) => {
+        // Retry on network errors, not on permission errors
+        const message = error?.message || '';
+        return message.includes('DEADLINE_EXCEEDED') || 
+               message.includes('UNAVAILABLE') ||
+               message.includes('RESOURCE_EXHAUSTED');
+    }
+};
+
+/**
+ * Serialize worksheet data to JSON string
+ */
 const serializeData = (data: any): string => {
     try {
         return JSON.stringify(data);
     } catch (e) {
-        console.error("Serialization error", e);
+        logError(
+            new InternalServerError('Veri serileştirilemedi'),
+            { context: 'serializeData', originalError: e }
+        );
         return "[]";
     }
 };
