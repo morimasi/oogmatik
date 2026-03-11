@@ -508,8 +508,43 @@ export const ImageDisplay = React.memo(
           </g>
         );
       }
+      if (
+        lower.includes('animal') ||
+        lower.includes('pet') ||
+        lower.includes('hayvan') ||
+        lower.includes('canlı')
+      ) {
+        return (
+          <g stroke="white" strokeWidth="4" fill="none">
+            <circle cx="200" cy="200" r="80" fill="white" fillOpacity="0.2" />
+            <circle cx="312" cy="200" r="80" fill="white" fillOpacity="0.2" />
+            <circle cx="170" cy="180" r="15" fill="black" />
+            <circle cx="342" cy="180" r="15" fill="black" />
+            <path d="M240 280 Q256 320 272 280" />
+          </g>
+        );
+      }
+      if (
+        lower.includes('home') ||
+        lower.includes('house') ||
+        lower.includes('ev') ||
+        lower.includes('yapı')
+      ) {
+        return (
+          <g stroke="white" strokeWidth="4" fill="none">
+            <path
+              d="M100 250 L256 100 L412 250 L412 450 L100 450 Z"
+              fill="white"
+              fillOpacity="0.2"
+            />
+            <rect x="220" y="350" width="72" height="100" />
+            <rect x="150" y="280" width="60" height="60" />
+          </g>
+        );
+      }
 
       // Default Generic Icon
+
       return (
         <g stroke="white" strokeWidth="6" fill="none" opacity="0.4">
           <rect x="120" y="140" width="272" height="200" rx="20" />
