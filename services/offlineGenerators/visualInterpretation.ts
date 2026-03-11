@@ -1,42 +1,57 @@
-
 import { GeneratorOptions, WorksheetData } from '../../types';
-import { getRandomInt, shuffle } from './helpers';
+import { getRandomInt } from './helpers';
 
 const VISUAL_SCENES = [
     {
         title: "Piknik Günü",
-        instruction: "Piknik karesini dikkatle inceleyin ve detayları fark edin.",
-        imagePrompt: "A cozy family picnic in a lush green park. A red and white checkered blanket is spread on the grass. A basket with bread and grapes is on the blanket. Two children are playing with a frisbee. In the background, there is a small blue pond with ducks.",
-        alt: "Parkta piknik yapan aile ve oyun oynayan çocuklar.",
+        instruction: "Piknik karesini bir dedektif gibi inceleyin ve gizli detayları fark edin.",
+        imagePrompt: "A high-quality, cinematic style illustration of a family picnic in a lush green park. Golden hour lighting. A red and white checkered blanket, a basket with purple grapes and a sourdough loaf. Two children in blue and yellow shirts playing with a lime green frisbee. In the background, a small pond with three white ducks and a weeping willow tree.",
+        alt: "Parkta güneşli bir günde piknik yapan aile ve göletteki ördekler.",
+        pedagogicalNote: "Görsel-mekansal algı ve detay odaklı dikkat becerilerini hedefler.",
         questions: [
-            { q: "Piknik örtüsü ne renktir?", type: "multiple", options: ["Kırmızı-Beyaz", "Mavi-Sarı", "Yeşil-Siyah"], answer: "Kırmızı-Beyaz" },
-            { q: "Piknik sepetinin içinde hangi meyve bulunuyor?", type: "multiple", options: ["Elma", "Üzüm", "Muz"], answer: "Üzüm" },
-            { q: "Arka plandaki gölette hangi hayvanlar yüzüyor?", type: "multiple", options: ["Balıklar", "Kurbağalar", "Ördekler"], answer: "Ördekler" },
-            { q: "Çocuklar hangi oyuncakla oynuyor?", type: "open", answer: "Frisbee (Uçan daire)" }
+            { q: "Piknik örtüsünün deseni ve rengi nedir?", type: "multiple", options: ["Kırmızı-Beyaz Kareli", "Mavi-Sarı Çizgili", "Düz Yeşil", "Pembe Puantiyeli"], answer: "Kırmızı-Beyaz Kareli" },
+            { q: "Görseldeki gölette toplam kaç tane ördek yüzüyor?", type: "multiple", options: ["2", "3", "4", "5"], answer: "3" },
+            { q: "Çocukların oynadığı oyuncağın (frisbee) rengi tam olarak nedir?", type: "multiple", options: ["Canlı Yeşil", "Parlak Kırmızı", "Gök Mavisi", "Turuncu"], answer: "Canlı Yeşil" },
+            { q: "Sepetin içindeki ekmeğin türü nedir?", type: "open", answer: "Ekşi mayalı (Sourdough) ekmek" }
         ]
     },
     {
-        title: "Uzay İstasyonu",
-        instruction: "Geleceğin uzay istasyonunda neler olduğunu keşfet!",
-        imagePrompt: "Inside a futuristic space station control room. Large panoramic windows show the Earth in the distance. Several robot assistants are moving crates. An astronaut in a white suit is looking at holographic displays. There is a small plant growing in a glass sphere.",
-        alt: "Uzay istasyonu kontrol odasında astronot ve robotlar.",
+        title: "Kış Şehri Gizemi",
+        instruction: "Karla kaplı bu şehirde her şey göründüğü gibi mi? Dikkatle bak!",
+        imagePrompt: "Hyper-realistic winter street at dusk. Warm orange light from street lamps reflecting on fresh snow. A red vintage car is parked near a bakery. An old man in a green coat is walking a white poodle. On the bakery window, there is a golden 'Closed' sign and a small cat silhouette.",
+        alt: "Karlı bir kış akşamında sokak lambaları ve kırmızı araba.",
+        pedagogicalNote: "Şekil-zemin algısı ve düşük ışıkta görsel ayırım becerilerini geliştirir.",
         questions: [
-            { q: "Pencereden dışarı bakıldığında hangi gezegen görünüyor?", type: "multiple", options: ["Mars", "Dünya", "Jüpiter"], answer: "Dünya" },
-            { q: "Astronot neyi inceliyor?", type: "multiple", options: ["Holografik ekranlar", "Kağıt harita", "Mikroskop"], answer: "Holografik ekranlar" },
-            { q: "Cam küre içinde ne yetişiyor?", type: "open", answer: "Küçük bir bitki" },
-            { q: "Kutuları kimler taşıyor?", type: "multiple", options: ["Robotlar", "Astronotlar", "Uzaylılar"], answer: "Robotlar" }
+            { q: "Sokak lambalarından yayılan ışığın rengi nedir?", type: "multiple", options: ["Sıcak Turuncu", "Soğuk Mavi", "Parlak Beyaz", "Mor"], answer: "Sıcak Turuncu" },
+            { q: "Bakery (Fırın) camında hangi hayvanın silüeti görünüyor?", type: "multiple", options: ["Kedi", "Köpek", "Kuş", "Tavşan"], answer: "Kedi" },
+            { q: "Yaşlı adamın yanındaki köpeğin cinsi/rengi nedir?", type: "multiple", options: ["Beyaz Poodle", "Siyah Labrador", "Kahverengi Golden", "Gri Kurt Köpeği"], answer: "Beyaz Poodle" },
+            { q: "Park halindeki antika araba ne renktir?", type: "open", answer: "Kırmızı" }
         ]
     },
     {
-        title: "Antik Orman",
-        instruction: "Büyülü ve antik bir ormanda gizli detayları bul.",
-        imagePrompt: "A magical ancient forest with giant glowing mushrooms of purple and blue. A crystal clear stream flows through the center. Small glowing fairies are hovering near the flowers. A large white stag is drinking water from the stream.",
-        alt: "Işıldayan mantarlar ve perilerin olduğu büyülü orman.",
+        title: "Deniz Altı Krallığı",
+        instruction: "Okyanusun derinliklerindeki sihirli dünyayı analiz et.",
+        imagePrompt: "Vibrant underwater coral reef scene. Deep blue water with shafts of sunlight piercing through. A large orange octopus is hiding behind purple coral. A school of neon blue fish is swimming in a spiral. A sunken wooden treasure chest is half-buried in the white sand, slightly open showing gold coins.",
+        alt: "Mercan resifleri arasında saklanan ahtapot ve hazine sandığı.",
+        pedagogicalNote: "Görsel tarama ve renk-biçim sabitliği becerilerini destekler.",
         questions: [
-            { q: "Derede su içen hayvan hangisidir?", type: "multiple", options: ["Geyik", "Ayı", "Kurt"], answer: "Geyik" },
-            { q: "Mantarlar ne renk parlıyor?", type: "multiple", options: ["Kırmızı ve Sarı", "Mor ve Mavi", "Yeşil ve Pembe"], answer: "Mor ve Mavi" },
-            { q: "Çiçeklerin etrafında kimler uçuyor?", type: "open", answer: "Işıldayan periler" },
-            { q: "Geyiğin rengi nedir?", type: "multiple", options: ["Kahverengi", "Beyaz", "Siyah"], answer: "Beyaz" }
+            { q: "Turuncu ahtapot hangi renk mercanın arkasına saklanmış?", type: "multiple", options: ["Mor", "Yeşil", "Sarı", "Kırmızı"], answer: "Mor" },
+            { q: "Mavi balık sürüsü hangi formda yüzüyor?", type: "multiple", options: ["Sarmal (Spiral)", "Düz Hat", "Üçgen", "Dağınık"], answer: "Sarmal (Spiral)" },
+            { q: "Kumların arasına yarı gömülü duran nesne nedir?", type: "multiple", options: ["Hazine Sandığı", "Eski Bir Gemi", "Dev Bir İnci", "Denizaltı"], answer: "Hazine Sandığı" },
+            { q: "Hazine sandığının içinde ne parlıyor?", type: "open", answer: "Altın sikkeler" }
+        ]
+    },
+    {
+        title: "Büyülü Kütüphane",
+        instruction: "Bu kütüphanede kitaplar uçuyor olabilir mi? İyi incele!",
+        imagePrompt: "Whimsical ancient library with floating books and glowing lanterns. High arched ceilings. A young girl with round glasses is sitting on a rolling ladder, holding a thick blue book. A small mechanical owl is perched on a stack of encyclopedias. Dust motes dancing in the light beams.",
+        alt: "Uçan kitaplar ve ışıldayan fenerlerle dolu masalsı bir kütüphane.",
+        pedagogicalNote: "Mekansal organizasyon ve detaylı görsel dikkat üzerine odaklanır.",
+        questions: [
+            { q: "Kütüphane tavanlarının mimari şekli nasıldır?", type: "multiple", options: ["Yüksek Kemerli", "Düz ve Alçak", "Cam Tavan", "Kubbeli"], answer: "Yüksek Kemerli" },
+            { q: "Merdivende oturan kızın elindeki kitap ne renktir?", type: "multiple", options: ["Mavi", "Kırmızı", "Yeşil", "Sarı"], answer: "Mavi" },
+            { q: "Ansiklopedilerin üzerinde duran mekanik hayvan hangisidir?", type: "multiple", options: ["Baykuş", "Kedi", "Fare", "Ejderha"], answer: "Baykuş" },
+            { q: "Işık demetlerinin içinde ne dans ediyor?", type: "open", answer: "Toz zerreleri" }
         ]
     }
 ];
@@ -52,6 +67,7 @@ export const generateOfflineVisualInterpretation = async (options: GeneratorOpti
             activityType: "VISUAL_INTERPRETATION",
             title: scene.title,
             instruction: scene.instruction,
+            pedagogicalNote: scene.pedagogicalNote,
             layoutArchitecture: {
                 blocks: [
                     {
@@ -70,5 +86,5 @@ export const generateOfflineVisualInterpretation = async (options: GeneratorOpti
                 ]
             }
         };
-    });
+    }) as any;
 };

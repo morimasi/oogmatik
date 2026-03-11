@@ -21,37 +21,45 @@ export class VisualInterpretationGenerator extends BaseGenerator<any> {
             Çocuğun öğrenme stili: ${student.learningStyle}. İçerik onun ilgisini çekecek düzeyde olmalı.`;
     }
 
-    const prompt = `Sen "Disleksi ve Özel Öğrenme Güçlüğü" alanında uzman, nöro-pedagojik görsel algı testleri hazırlayan kıdemli bir eğitim tasarımcısısın.
-Görev: Öğrencinin görsel detayları fark etme, 5N1K analizi yapma ve mantıksal çıkarım (inference) yeteneklerini geliştiren ultra-profesyonel bir "Resim Yorumlama ve Analiz" etkinliği üretmek.
+    const prompt = `Sen "Disleksi ve Özel Öğrenme Güçlüğü" ve "Nöro-Pedagoji" alanında dünya çapında uzman, üst düzey bir eğitim materyali tasarımcısısın.
+Görev: Öğrencinin görsel algı, detay farkındalığı, görsel-mekansal akıl yürütme ve mantıksal çıkarım (inference) yeteneklerini en üst seviyeye taşıyan "Görsel Yorumlama ve Analiz" etkinliği üretmek.
 
-AYARLAR:
-- Konu/Tema: "${topic}" (Örn: daily_life, nature, city, fantasy...)
-- Görsel Stili: "${visualStyle}" (Bu stilde bir resim üretilmesi için DALL-E / Midjourney kalitesinde muazzam detaylı İngilizce prompt yazacaksın)
-- Soru Zorluğu: "${difficulty}" (Zorluk seviyesi arttıkça sorular daha soyut, çıkarıma ve gizli detaylara dayalı olmalı)
-- Soru Sayısı: ${itemCount} adet soru
-- Soru Tipi: "${questionStyle}" (mixed = hem test hem açık uçlu, sadece open_ended vs.)
-${studentCtx}
+ETKİNLİK PARAMETRELERİ:
+- Tema/Konu: "${topic}" (Görsel bu tema üzerinde yoğunlaşmalı)
+- Zorluk Seviyesi: "${difficulty}" 
+  * Başlangıç: Somut, doğrudan görünen nesneler ve basit ilişkiler.
+  * Orta: Mekansal konumlar, renk-biçim detayları ve basit neden-sonuç.
+  * Zor: Soyut kavramlar, gizli detaylar, duygusal ifadeler ve karmaşık mantıksal hatalar.
+  * Uzman: Paradokslar, çok katmanlı hikayeler ve derin çıkarım gerektiren görsel ipuçları.
+- Görsel Stili: "${visualStyle}" (Örn: hyper-realistic, digital art, watercolor, flat design)
+- Soru Sayısı: ${itemCount}
+- Soru Tarzı: "${questionStyle}"
 
-AŞAMA 1: GÖRSEL PROMPTU (SCENE DESCRIPTION)
-Lütfen seçilen konuya uygun, içinde en az 5-6 mantıksal ilişkinin veya gizli detayın olduğu çok zengin, hareketli bir sahne hayal et.
-"imagePrompt" alanına, yapay zekanın bu resmi kusursuz çizebilmesi için İNGİLİZCE çok detaylı bir image generation prompt'u yaz. (Örn: "A highly detailed, ${visualStyle} style illustration of a busy city park. In the foreground, a golden retriever is jumping to catch a red frisbee..."). Bu görselde soracağın soruların cevapları KESİNLİKLE bulunmalı.
+AŞAMA 1: ULTRA-DETAYLI GÖRSEL KURGUSU (IMAGE PROMPT)
+"imagePrompt" alanına, DALL-E 3 veya Midjourney V6 kalitesinde, her pikseli düşünülmüş muazzam bir İNGİLİZCE prompt yazmalısın.
+Prompt şunları içermeli:
+- Işıklandırma (Örn: cinematic lighting, golden hour, soft studio light)
+- Kompozisyon (Örn: wide angle, rule of thirds, top-down view)
+- Detay Yoğunluğu (Örn: ultra-detailed, 8k resolution, intricate textures)
+- Mantıksal Katmanlar: Görselde soracağın her sorunun cevabı mutlaka görseldeki bir detayda (nesnenin rengi, birinin bakış yönü, duvardaki bir saatin saati vb.) gizli olmalı.
 
-AŞAMA 2: SORULAR VE PEDAGOJİK ANALİZ
-Verdiğin görsel tasvire %100 sadık kalarak, çocuğun görseldeki durumları analiz etmesini sağlayacak ${itemCount} adet soru hazırla.
+AŞAMA 2: PEDAGOJİK SORULAR VE ANALİZ
+Sorular sadece "ne görüyorsun?" şeklinde olmamalı; "şu kişi neden oraya bakıyor olabilir?", "görseldeki hangi nesne fizik kurallarına aykırı?" gibi derinlik içermeli.
 
-JSON ÇIKTI FORMATI: (Lütfen sadece geçerli JSON döndür, markdown veya başka metin kullanma)
+JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
 {
     "id": "visual_int_uuid",
     "activityType": "VISUAL_INTERPRETATION",
-    "title": "Görselin İlgi Çekici Türkçe Başlığı",
-    "instruction": "Kullanıcıya/Öğrenciye yönerge (Örn: Resmi bir dedektif gibi incele ve soruları cevapla.)",
+    "title": "Pedagojik ve İlgi Çekici Başlık",
+    "instruction": "Öğrenciye yönelik, motive edici ve net yönerge.",
+    "pedagogicalNote": "Bu etkinliğin hangi bilişsel beceriyi (Örn: Görsel ayırım, şekil-zemin algısı) hedeflediğine dair kısa bir uzman notu.",
     "layoutArchitecture": {
         "blocks": [
             {
                 "type": "image",
                 "content": {
-                    "prompt": "Görsel üretim motorları için İNGİLİZCE detaylı prompt (DALL-E style)",
-                    "alt": "Görselin 1-2 cümlelik Türkçe kısa açıklaması"
+                    "prompt": "İNGİLİZCE detaylı görsel üretim promptu",
+                    "alt": "Görselin Türkçe kısa betimlemesi"
                 }
             },
             {
@@ -59,12 +67,11 @@ JSON ÇIKTI FORMATI: (Lütfen sadece geçerli JSON döndür, markdown veya başk
                 "content": {
                     "items": [
                         {
-                            "q": "Soru 1 (Örn: Çocuğun elindeki elma ne renkti?)",
-                            "type": "multiple", // Veya "open", veya "true_false"
-                            "options": ["A", "B", "C"], // Sadece multiple ise dolu olsun, değilse null
+                            "q": "Soru metni",
+                            "type": "multiple", // Veya "open"
+                            "options": ["Seçenek A", "Seçenek B", "Seçenek C", "Seçenek D"],
                             "answer": "Doğru Cevap"
                         }
-                        // ... toplam ${itemCount} soru
                     ]
                 }
             }
