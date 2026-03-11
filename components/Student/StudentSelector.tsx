@@ -1,39 +1,43 @@
 import React, { useState } from 'react';
 import { useStudent } from '../../context/StudentContext';
+import { AdvancedStudentForm } from './modules/AdvancedStudentForm';
+import { AdvancedStudent } from '../../types/student-advanced';
 
 export const StudentSelector: React.FC = () => {
     const { students, setActiveStudent, addStudent } = useStudent();
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddForm, setShowAddForm] = useState(false);
-    const [newStudentName, setNewStudentName] = useState('');
-    const [newStudentGrade, setNewStudentGrade] = useState('1. Sınıf');
 
     const filteredStudents = students.filter(s => 
         s.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleAddStudent = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newStudentName.trim()) return;
-
+    const handleSaveStudent = async (studentData: Partial<AdvancedStudent>) => {
         try {
             await addStudent({
-                name: newStudentName,
-                grade: newStudentGrade,
-                age: 7, // Default
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newStudentName}-${Math.random()}`,
-                diagnosis: [],
+                ...studentData,
+                // Ensure required fields for base Student type are present if missing
+                age: 7, // Default if not calculated from birthdate
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${studentData.name}-${Math.random()}`,
                 interests: [],
-                strengths: [],
-                weaknesses: [],
-                notes: ''
+                notes: studentData.initialNotes?.observations || ''
             } as any);
             setShowAddForm(false);
-            setNewStudentName('');
         } catch (error) {
             console.error('Error adding student:', error);
         }
     };
+
+    if (showAddForm) {
+        return (
+            <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-black overflow-y-auto">
+                <AdvancedStudentForm 
+                    onSave={handleSaveStudent} 
+                    onCancel={() => setShowAddForm(false)} 
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="w-full h-full overflow-y-auto bg-zinc-50 dark:bg-black p-8 font-['Lexend']">
@@ -117,56 +121,13 @@ export const StudentSelector: React.FC = () => {
                     </button>
                 </div>
 
-                {filteredStudents.length === 0 && !showAddForm && (
+                {filteredStudents.length === 0 && (
                     <div className="text-center py-20">
                         <div className="w-24 h-24 bg-zinc-100 dark:bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-6">
                             <i className="fa-solid fa-users-slash text-4xl text-zinc-300"></i>
                         </div>
                         <h3 className="text-xl font-bold text-zinc-400">Öğrenci bulunamadı.</h3>
                         <p className="text-zinc-500 mt-2">Arama kriterlerinizi değiştirin veya yeni bir öğrenci ekleyin.</p>
-                    </div>
-                )}
-
-                {/* Add Modal */}
-                {showAddForm && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                        <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-300">
-                            <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center">
-                                <h2 className="text-xl font-black">Yeni Öğrenci</h2>
-                                <button onClick={() => setShowAddForm(false)} className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center hover:bg-zinc-200">
-                                    <i className="fa-solid fa-times"></i>
-                                </button>
-                            </div>
-                            <form onSubmit={handleAddStudent} className="p-6 space-y-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Ad Soyad</label>
-                                    <input 
-                                        autoFocus
-                                        type="text" 
-                                        required
-                                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-2 border-transparent focus:border-indigo-500 outline-none font-bold"
-                                        placeholder="Örn: Ali Yılmaz"
-                                        value={newStudentName}
-                                        onChange={e => setNewStudentName(e.target.value)}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Sınıf Seviyesi</label>
-                                    <select 
-                                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-2 border-transparent focus:border-indigo-500 outline-none font-bold"
-                                        value={newStudentGrade}
-                                        onChange={e => setNewStudentGrade(e.target.value)}
-                                    >
-                                        {['Okul Öncesi', '1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf', '7. Sınıf', '8. Sınıf'].map(g => (
-                                            <option key={g} value={g}>{g}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <button type="submit" className="w-full py-4 bg-indigo-600 text-white rounded-xl font-black hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none mt-4">
-                                    Kaydet ve Devam Et
-                                </button>
-                            </form>
-                        </div>
                     </div>
                 )}
             </div>

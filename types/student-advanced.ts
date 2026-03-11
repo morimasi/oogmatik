@@ -175,6 +175,44 @@ export interface StudentAIProfile {
 
 // 7. MAIN AGGREGATE TYPE
 export interface AdvancedStudent extends Student {
+    // Extended Personal Info
+    personalInfo?: {
+        tcNo?: string;
+        birthDate?: string;
+        gender?: string;
+        bloodType?: string;
+        address?: string;
+        phone?: string;
+        email?: string;
+    };
+    familyInfo?: {
+        parentName?: string;
+        parentRelation?: string;
+        parentPhone?: string;
+        parentEmail?: string;
+        parentJob?: string;
+        emergencyContact?: string;
+    };
+    schoolInfo?: {
+        schoolName?: string;
+        studentNumber?: string;
+        teacherName?: string;
+    };
+    healthInfo?: {
+        diagnosis?: string[];
+        medications?: string;
+        allergies?: string;
+        reportDate?: string;
+        reportEndDate?: string;
+    };
+    initialNotes?: {
+        observations?: string;
+        expectations?: string;
+        strengths?: string;
+        weaknesses?: string;
+    };
+
+    // Modules
     iep: IEPPlan;
     financial: FinancialProfile;
     attendance: {
