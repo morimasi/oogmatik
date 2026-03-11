@@ -50,7 +50,7 @@ export const ColorfulSyllableReadingSheet: React.FC<Props> = ({ data }) => {
     };
 
     return (
-        <div className="w-full h-full p-8 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-full p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* ETKİNLİK BAŞLIĞI */}
             <div className="flex justify-between items-center border-b-4 border-rose-400 pb-4 mb-6">
                 <div>
@@ -67,13 +67,13 @@ export const ColorfulSyllableReadingSheet: React.FC<Props> = ({ data }) => {
 
             <div className="flex-1 flex flex-col items-center justify-start mt-4 px-10">
                 {data.content?.paragraphs?.map((paragraph, pIdx) => (
-                    <div key={pIdx} className="mb-10 w-full text-justify" style={{ lineHeight: '3' }}>
+                    <div key={pIdx} className="mb-10 print:mb-4 w-full text-justify" style={{ lineHeight: '3' }}>
                         {paragraph.syllabified?.map((wordObj, wIdx) => renderWord(wordObj, wIdx))}
                     </div>
                 ))}
 
                 {/* Okuma Paneli / Form Alt Bilgisi */}
-                <div className="w-full mt-auto mb-10 p-6 bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-3xl flex items-center justify-between page-break-inside-avoid">
+                <div className="w-full mt-auto mb-10 print:mb-4 p-6 bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-3xl flex items-center justify-between page-break-inside-avoid">
                     <div className="flex items-center gap-4">
                         <div className="w-16 h-16 bg-white border-4 border-zinc-200 rounded-full flex items-center justify-center text-zinc-400">
                             <i className="fa-solid fa-stopwatch text-2xl"></i>
@@ -99,3 +99,4 @@ export const ColorfulSyllableReadingSheet: React.FC<Props> = ({ data }) => {
         </div>
     );
 };
+

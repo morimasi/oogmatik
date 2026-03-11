@@ -7,11 +7,11 @@ import { EditableText } from '../../Editable';
 export const VisualArithmeticSheet = ({ data }: { data: VisualArithmeticData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 content-start flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3 mt-10 content-start flex-1">
             {(data.problems || []).map((prob, i) => {
                 const visual = prob.visualType || 'objects';
                 return (
-                    <div key={i} className="p-8 border-[3px] border-zinc-900 rounded-[3rem] bg-white shadow-sm flex flex-col gap-6 break-inside-avoid group hover:border-indigo-50 transition-all">
+                    <div key={i} className="p-8 print:p-3 border-[3px] border-zinc-900 rounded-[3rem] bg-white shadow-sm flex flex-col gap-6 break-inside-avoid group hover:border-indigo-50 transition-all">
                         <div className="flex items-center justify-around">
                             {visual === 'ten-frame' && <TenFrame count={prob.num1} />}
                             {visual === 'dice' && <Domino count={prob.num1} />}
@@ -40,3 +40,4 @@ export const VisualArithmeticSheet = ({ data }: { data: VisualArithmeticData }) 
         </div>
     </div>
 );
+

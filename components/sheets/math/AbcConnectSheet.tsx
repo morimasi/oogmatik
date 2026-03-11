@@ -44,7 +44,7 @@ export const AbcConnectSheet = ({ data }: { data: AbcConnectData }) => {
 
             <div className="flex-1 flex items-center justify-center mt-10">
                 <div
-                    className="relative bg-white/50 backdrop-blur-sm border-[4px] border-slate-200 rounded-[2.5rem] shadow-xl p-8"
+                    className="relative bg-white/50 backdrop-blur-sm border-[4px] border-slate-200 rounded-[2.5rem] shadow-xl p-8 print:p-3"
                     style={{
                         display: 'grid',
                         gridTemplateColumns: `repeat(${gridDim}, minmax(0, 1fr))`,
@@ -134,3 +134,4 @@ export const AbcConnectSheet = ({ data }: { data: AbcConnectData }) => {
         </div>
     );
 };
+

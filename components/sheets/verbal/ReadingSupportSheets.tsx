@@ -29,7 +29,7 @@ export const PhonologicalAwarenessSheet = ({ data }: { data: PhonologicalAwarene
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-6 mt-8">
             {(data.exercises || []).map((ex, i) => (
-                <div key={i} className="p-8 bg-white border-[3px] border-zinc-900 rounded-[2.5rem] flex justify-between items-center group hover:bg-zinc-50 transition-all shadow-sm">
+                <div key={i} className="p-8 print:p-3 bg-white border-[3px] border-zinc-900 rounded-[2.5rem] flex justify-between items-center group hover:bg-zinc-50 transition-all shadow-sm">
                     <div className="flex-1">
                         <p className="text-2xl font-black text-zinc-800 tracking-tight leading-none mb-3"><EditableText value={ex.question} tag="span" /></p>
                         <span className="text-xs font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full">Kaynak: {ex.word}</span>
@@ -76,7 +76,7 @@ export const RapidNamingSheet = ({ data }: { data: RapidNamingData }) => {
 
             {/* Klinik Hız Analiz Paneli */}
             <div className="mt-6 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex justify-between items-center mx-1">
-                <div className="flex gap-10">
+                <div className="flex gap-10 print:p-4">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest mb-1">Hedef Hız (Öğe/Dakika)</span>
                         <span className="text-sm font-black italic">{data.clinicalMeta?.targetSpeed || '--'} bpm</span>
@@ -109,7 +109,7 @@ export const LetterDiscriminationSheet = ({ data }: { data: LetterDiscrimination
                 ))}
             </div>
         </div>
-        <div className="flex-1 bg-white border-2 border-zinc-100 rounded-[3rem] p-10 font-mono text-3xl tracking-[0.6em] leading-[4rem] text-center select-none shadow-inner overflow-hidden">
+        <div className="flex-1 bg-white border-2 border-zinc-100 rounded-[3rem] p-10 print:p-4 font-mono text-3xl tracking-[0.6em] leading-[4rem] text-center select-none shadow-inner overflow-hidden">
             {(data.rows || []).map((row, i) => (
                 <div key={i} className="mb-2 border-b border-zinc-50 pb-1 hover:bg-zinc-50 transition-colors">{row.letters.join('')}</div>
             ))}
@@ -129,7 +129,7 @@ export const MirrorLettersSheet = ({ data }: { data: MirrorLettersData }) => {
                 note={data.pedagogicalNote}
             />
 
-            <div className="mt-8 text-center mb-10">
+            <div className="mt-8 text-center mb-10 print:mb-4">
                 <div className="inline-flex flex-col items-center p-6 bg-rose-600 text-white rounded-[2.5rem] shadow-2xl border-4 border-white ring-8 ring-rose-50 transform hover:-rotate-1 transition-transform">
                     <span className="text-[10px] font-black uppercase tracking-[0.4em] mb-2 opacity-80">KRİTİK AYNA ÇİFTİ</span>
                     <span className="text-5xl font-black tracking-widest">{data.targetPair}</span>
@@ -138,7 +138,7 @@ export const MirrorLettersSheet = ({ data }: { data: MirrorLettersData }) => {
 
             <div className={`space-y-4 flex-1 content-start ${isCompact ? 'grid grid-cols-2 gap-4 space-y-0' : ''}`}>
                 {(data.rows || []).map((row, i) => (
-                    <div key={i} className="flex justify-around items-center p-8 border-2 border-zinc-100 rounded-[3rem] bg-zinc-50/50 group hover:bg-white hover:border-rose-200 transition-all shadow-sm break-inside-avoid relative">
+                    <div key={i} className="flex justify-around items-center p-8 print:p-3 border-2 border-zinc-100 rounded-[3rem] bg-zinc-50/50 group hover:bg-white hover:border-rose-200 transition-all shadow-sm break-inside-avoid relative">
                         <div className="absolute top-4 left-6 text-[8px] font-black text-zinc-300 uppercase tracking-widest">SET {i + 1}</div>
                         {row.items.map((item, j) => (
                             <div key={j} className="flex flex-col items-center gap-3">
@@ -160,7 +160,7 @@ export const MirrorLettersSheet = ({ data }: { data: MirrorLettersData }) => {
             {/* Klinik Ayrıştırma Paneli */}
             {settings?.showClinicalNotes && data.clinicalMeta && (
                 <div className="mt-6 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex justify-between items-center mx-1">
-                    <div className="flex gap-10">
+                    <div className="flex gap-10 print:p-4">
                         <div className="flex flex-col">
                             <span className="text-[7px] font-black text-rose-400 uppercase tracking-widest mb-1">Reversal Olasılığı</span>
                             <span className="text-sm font-black text-white">%{Math.round(data.clinicalMeta.reversalProbability * 100)}</span>
@@ -214,7 +214,7 @@ export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineDat
                 note={data.pedagogicalNote}
             />
 
-            <div className="mt-8 flex-1 relative bg-zinc-50 border-4 border-zinc-100 rounded-[4rem] p-10 shadow-inner group overflow-hidden">
+            <div className="mt-8 flex-1 relative bg-zinc-50 border-4 border-zinc-100 rounded-[4rem] p-10 print:p-4 shadow-inner group overflow-hidden">
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, currentColor 2px, transparent 2px)', backgroundSize: '40px 40px' }}></div>
 
                 <svg viewBox={`0 0 ${data.width} ${data.height}`} className="w-full h-full overflow-visible drop-shadow-md">
@@ -267,7 +267,7 @@ export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineDat
             {/* Klinik Göz Takip Analiz Paneli */}
             {settings?.showClinicalNotes && data.clinicalMeta && (
                 <div className="mt-6 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex justify-between items-center mx-1">
-                    <div className="flex gap-10">
+                    <div className="flex gap-10 print:p-4">
                         <div className="flex flex-col">
                             <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest mb-1">Perseptüal Yük</span>
                             <span className="text-sm font-black text-white">{data.clinicalMeta.perceptualLoad}/100</span>
@@ -289,9 +289,9 @@ export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineDat
 export const BackwardSpellingSheet = ({ data }: { data: BackwardSpellingData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction="Kelimeleri son harfinden başlayarak geriye doğru yaz." note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 flex-1 content-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3 mt-10 flex-1 content-start">
             {(data.items || []).map((item, i) => (
-                <EditableElement key={i} className="p-8 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm flex flex-col gap-5 group hover:border-indigo-500 transition-all break-inside-avoid">
+                <EditableElement key={i} className="p-8 print:p-3 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm flex flex-col gap-5 group hover:border-indigo-500 transition-all break-inside-avoid">
                     <p className="text-3xl font-black text-zinc-900 text-center tracking-[0.3em] bg-zinc-50 py-6 rounded-[2rem] border-2 border-zinc-100 group-hover:bg-indigo-50/30 transition-colors">
                         <EditableText value={item.original} tag="span" />
                     </p>
@@ -305,7 +305,7 @@ export const BackwardSpellingSheet = ({ data }: { data: BackwardSpellingData }) 
 export const CodeReadingSheet = ({ data }: { data: CodeReadingData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction="Sembollerin karşılığı olan harfleri kullanarak şifreli kelimeleri çöz." note={data.pedagogicalNote} />
-        <div className="bg-zinc-900 p-8 rounded-[3.5rem] border-4 border-white shadow-2xl mb-12 mt-6 relative overflow-hidden">
+        <div className="bg-zinc-900 p-8 print:p-3 rounded-[3.5rem] border-4 border-white shadow-2xl mb-12 mt-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5 rotate-12"><i className="fa-solid fa-key text-[8rem]"></i></div>
             <h4 className="text-[11px] font-black uppercase text-indigo-400 mb-6 tracking-[0.4em] flex items-center gap-3"><i className="fa-solid fa-lock-open"></i> ŞİFRE ANAHTARI</h4>
             <div className="flex flex-wrap gap-5 justify-center relative z-10">
@@ -358,7 +358,7 @@ export const HandwritingPracticeSheet = ({ data }: { data: HandwritingPracticeDa
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-16 mt-12 flex-1">
             {(data.lines || []).map((line, i) => (
-                <div key={i} className="flex gap-8 items-start break-inside-avoid group">
+                <div key={i} className="flex gap-8 print:p-3 items-start break-inside-avoid group">
                     <div className="w-24 h-24 bg-zinc-900 rounded-[2rem] flex items-center justify-center overflow-hidden shadow-2xl shrink-0 group-hover:rotate-6 transition-transform">
                         {line.imagePrompt ? <ImageDisplay prompt={line.imagePrompt} className="w-full h-full object-cover opacity-80" /> : <i className="fa-solid fa-feather-pointed text-white text-3xl"></i>}
                     </div>

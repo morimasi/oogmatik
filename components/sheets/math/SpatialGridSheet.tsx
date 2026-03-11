@@ -11,7 +11,7 @@ export const SpatialGridSheet = ({ data }: { data: SpatialGridData }) => (
             {(data.tasks || []).map((task, idx) => (
                 <div key={idx} className="w-full flex flex-col items-center break-inside-avoid">
                     {task.type === 'count-cubes' && data.cubeData && (
-                        <div className="p-10 bg-white border-[3px] border-zinc-900 rounded-[3rem] shadow-xl">
+                        <div className="p-10 print:p-4 bg-white border-[3px] border-zinc-900 rounded-[3rem] shadow-xl">
                             <CubeStack counts={data.cubeData} />
                             <div className="mt-10 flex items-center justify-center gap-6">
                                 <span className="font-black text-xl text-zinc-700">Toplam Küp:</span>
@@ -24,3 +24,4 @@ export const SpatialGridSheet = ({ data }: { data: SpatialGridData }) => (
         </div>
     </div>
 );
+

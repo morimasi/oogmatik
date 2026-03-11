@@ -131,7 +131,7 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
 
             {/* Premium Footer Protokolü */}
             <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10">
+                <div className="flex gap-10 print:p-4">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">PROTOKOL ADI</span>
                         <span className="text-xs font-black uppercase">Uzamsal Barkod & Simetri</span>
@@ -145,3 +145,4 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
         </div>
     );
 };
+

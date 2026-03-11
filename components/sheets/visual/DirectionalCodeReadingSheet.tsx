@@ -28,7 +28,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
     };
 
     return (
-        <div className="w-full h-full p-8 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-full p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* ETKİNLİK BAŞLIĞI */}
             <div className="flex justify-between items-center border-b-4 border-indigo-500 pb-4 mb-6">
                 <div>
@@ -40,10 +40,10 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                 </div>
             </div>
 
-            <div className="flex-1 flex gap-8 items-start page-break-inside-avoid">
+            <div className="flex-1 flex gap-8 print:p-3 items-start page-break-inside-avoid">
 
                 {/* YÖN GÖSTERGESİ PUSULASI */}
-                <div className="absolute top-8 left-1/2 -translate-x-1/2 rotate-0 opacity-10 pointer-events-none z-0">
+                <div className="absolute top-8 print:p-3 left-1/2 -translate-x-1/2 rotate-0 opacity-10 pointer-events-none z-0">
                     <i className="fa-regular fa-compass text-[20rem]"></i>
                 </div>
 
@@ -146,3 +146,4 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
         </div >
     );
 };
+

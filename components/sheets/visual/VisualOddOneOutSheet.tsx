@@ -40,7 +40,7 @@ export const VisualOddOneOutSheet = ({ data }: { data: VisualOddOneOutData }) =>
     const gridCols = isUltraDense ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-1";
 
     return (
-        <div className="flex flex-col min-h-full bg-white font-sans text-black overflow-visible professional-worksheet p-8">
+        <div className="flex flex-col min-h-full bg-white font-sans text-black overflow-visible professional-worksheet p-8 print:p-3">
             <PedagogicalHeader
                 title={data?.title || "GÖRSEL AYRIŞTIRMA & DİKKAT"}
                 instruction={data?.instruction || "Diğerlerinden farklı olan öğeyi bulup işaretleyin."}
@@ -118,7 +118,7 @@ export const VisualOddOneOutSheet = ({ data }: { data: VisualOddOneOutData }) =>
 
             {/* Premium Footer */}
             <div className="mt-auto px-8 py-6 bg-indigo-950 text-white rounded-[3.5rem] border-8 border-white flex justify-between items-center shadow-2xl">
-                <div className="flex gap-10 items-center">
+                <div className="flex gap-10 print:p-4 items-center">
                     <div className="flex flex-col">
                         <span className="text-[8px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-1">STRATEJİK ODAK</span>
                         <div className="flex items-center gap-2">
@@ -140,3 +140,4 @@ export const VisualOddOneOutSheet = ({ data }: { data: VisualOddOneOutData }) =>
         </div>
     );
 };
+

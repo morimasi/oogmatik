@@ -36,7 +36,7 @@ export const FamilyTreeMatrixSheet: React.FC<Props> = ({ data }) => {
     };
 
     return (
-        <div className="w-full h-full p-8 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-full p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* ETKİNLİK BAŞLIĞI */}
             <div className="flex justify-between items-center border-b-4 border-emerald-400 pb-4 mb-6">
                 <div>
@@ -57,7 +57,7 @@ export const FamilyTreeMatrixSheet: React.FC<Props> = ({ data }) => {
                 )}
 
                 {/* SVG AĞAÇ ALANI (Çok basite indirgenmiş flex-based ağaç, A4 için güvenli) */}
-                <div className="w-full bg-zinc-50 rounded-3xl border-2 border-dashed border-zinc-300 p-8 flex flex-col items-center gap-12 relative print:bg-white min-h-[300px] justify-center">
+                <div className="w-full bg-zinc-50 rounded-3xl border-2 border-dashed border-zinc-300 p-8 print:p-3 flex flex-col items-center gap-12 relative print:bg-white min-h-[300px] justify-center">
 
                     {gen0.length > 0 && (
                         <div className="flex gap-16 relative">
@@ -114,3 +114,4 @@ export const FamilyTreeMatrixSheet: React.FC<Props> = ({ data }) => {
         </div>
     );
 };
+
