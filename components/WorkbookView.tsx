@@ -8,6 +8,8 @@ import { printService } from '../utils/printService';
 import { Toolbar } from './Toolbar';
 import { useStudent } from '../context/StudentContext';
 import { ActivityImporterModal } from './ActivityImporterModal';
+import { evaluateContent, generateWithSchema } from '../services/geminiClient';
+import { Type } from '@google/genai';
 
 interface WorkbookViewProps {
     items: CollectionItem[];
@@ -101,6 +103,8 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
     const [isPrinting, setIsPrinting] = useState(false);
     const [isImporterOpen, setIsImporterOpen] = useState(false);
     const [isGeneratingPreface, setIsGeneratingPreface] = useState(false);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState<any | null>(null);
     const [layoutMode, setLayoutMode] = useState<'list' | 'grid'>('list');
 
     // Style Override State (Activity)
@@ -253,9 +257,6 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
     const handleGeneratePreface = async () => {
         setIsGeneratingPreface(true);
         try {
-            // Küçük bir yapay bekleme animasyonu
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
             const typesCount: Record<string, number> = {};
             items.forEach(item => {
                 if (item.itemType === 'activity') {
@@ -265,18 +266,97 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
 
             const topActivities = Object.entries(typesCount)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 3)
+                .slice(0, 5)
                 .map(entry => entry[0].replace(/_/g, ' '));
 
-            let preface = `Bu çalışma kitapçığı, ${settings.studentName || 'öğrencimizin'} bireysel gelişim hedefleri doğrultusunda özel olarak hazırlanmıştır.\n\n`;
-            preface += `Kitapçık içeriğinde özellikle şu bilişsel alanlara odaklanılmıştır: ${topActivities.join(', ')}.\n`;
-            preface += `Düzenli uygulama ile görsel-uzamsal bellek, dikkat süresi ve akademik becerilerde belirgin bir artış hedeflenmektedir. Çalışmalar sırasında geri bildirim vermeyi ve destekleyici bir ortam sağlamayı unutmayınız.`;
+            const schema = {
+                type: Type.OBJECT,
+                properties: {
+                    preface: { type: Type.STRING }
+                },
+                required: ['preface']
+            };
 
-            setSettings(s => ({ ...s, teacherNote: preface, aiPreface: preface }));
+            const prompt = `
+[ROL: DENEYİMLİ ÖZEL EĞİTİM UZMANI & AİLE DANIŞMANI]
+
+Görev: Aşağıdaki çalışma kitapçığı için, veli ve öğrenciye hitap eden, duygusal olarak destekleyici ama klinik olarak tutarlı bir ÖNSÖZ yaz.
+
+- Öğrenci adı: ${settings.studentName || 'öğrencimiz'}
+- Okul / kurum: ${settings.schoolName || 'Bursa Disleksi AI'}
+- Dönem: ${settings.year || '2024-2025'}
+- Öne çıkan etkinlik türleri: ${topActivities.join(', ') || 'karışık bilişsel etkinlikler'}
+
+Ton:
+- 2–3 kısa paragraf
+- Suçlayıcı değil, güçlendirici
+- Disleksi dostu, sade ve kısa cümleler
+- Bilimsel ama korkutucu olmayan bir dil
+
+ÇIKTI:
+{
+  "preface": "tam metin burada"
+}
+`;
+
+            let prefaceText = '';
+            try {
+                const result = await generateWithSchema(prompt, schema) as { preface?: string };
+                prefaceText = (result && result.preface) ? result.preface : '';
+            } catch (aiErr) {
+                console.warn("Gemini preface fallback'a düştü:", aiErr);
+            }
+
+            if (!prefaceText) {
+                let fallback = `Bu çalışma kitapçığı, ${settings.studentName || 'öğrencimizin'} bireysel gelişim hedefleri doğrultusunda özel olarak hazırlanmıştır.\n\n`;
+                fallback += `Kitapçık içeriğinde özellikle şu bilişsel alanlara odaklanılmıştır: ${topActivities.join(', ')}.\n`;
+                fallback += `Düzenli uygulama ile görsel-uzamsal bellek, dikkat süresi ve akademik becerilerde belirgin bir artış hedeflenmektedir. Çalışmalar sırasında geri bildirim vermeyi ve destekleyici bir ortam sağlamayı unutmayınız.`;
+                prefaceText = fallback;
+            }
+
+            setSettings(s => ({ ...s, teacherNote: prefaceText, aiPreface: prefaceText }));
         } catch (e) {
             console.error("AI Error:", e);
         } finally {
             setIsGeneratingPreface(false);
+        }
+    };
+
+    const handleAnalyzeWorkbook = async () => {
+        if (items.length === 0) {
+            alert("Önce kitapçığa en az bir sayfa ekleyin.");
+            return;
+        }
+        setIsAnalyzing(true);
+        try {
+            const compactItems = items.map((item, index) => ({
+                index: index + 1,
+                id: item.id,
+                type: item.itemType,
+                activityType: item.activityType,
+                title: item.itemType === 'divider' ? item.dividerConfig?.title : item.title,
+                pedagogicalNote: (item as any).data?.[0]?.pedagogicalNote || undefined
+            }));
+
+            const payload = {
+                workbookTitle: settings.title,
+                studentName: settings.studentName,
+                schoolName: settings.schoolName,
+                year: settings.year,
+                activitySummary: compactItems
+            };
+
+            const result = await evaluateContent(payload);
+            if (!result) {
+                alert("AI analizi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.");
+                return;
+            }
+            setAnalysisResult(result);
+        } catch (e) {
+            console.error("Workbook AI analizi hatası:", e);
+            alert("AI analizi sırasında bir hata oluştu.");
+        } finally {
+            setIsAnalyzing(false);
         }
     };
 
@@ -637,6 +717,79 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
                                                 </div>
                                             )}
                                         </div>
+                                    </div>
+
+                                    {/* AI Pedagojik Analiz */}
+                                    <div className="mt-6 space-y-3 pt-4 border-t border-dashed border-indigo-200 dark:border-indigo-800">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                                                    <i className="fa-solid fa-brain"></i> AI Pedagojik Analiz
+                                                </p>
+                                                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1">
+                                                    Kitapçığın disleksi dostu tasarım ilkelerine uygunluğunu puanlar ve öneriler sunar.
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={handleAnalyzeWorkbook}
+                                                disabled={isAnalyzing || items.length === 0}
+                                                className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {isAnalyzing ? (
+                                                    <>
+                                                        <i className="fa-solid fa-circle-notch fa-spin"></i>
+                                                        Analiz ediliyor...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <i className="fa-solid fa-microscope"></i>
+                                                        Analiz Et
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+
+                                        {analysisResult && (
+                                            <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 space-y-2 text-xs">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 text-white">
+                                                            SKOR: {analysisResult.score ?? '--'}/100
+                                                        </span>
+                                                        <span className="text-[11px] font-bold text-indigo-800 dark:text-indigo-200">
+                                                            {analysisResult.verdict || 'Değerlendirme'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                {Array.isArray(analysisResult.analysis) && analysisResult.analysis.length > 0 && (
+                                                    <ul className="space-y-1 max-h-40 overflow-y-auto custom-scrollbar pr-1">
+                                                        {analysisResult.analysis.map((item: any, idx: number) => (
+                                                            <li key={idx} className="flex gap-2">
+                                                                <span className={`mt-0.5 text-[10px] ${
+                                                                    item.type === 'success'
+                                                                        ? 'text-emerald-500'
+                                                                        : item.type === 'warning'
+                                                                        ? 'text-amber-500'
+                                                                        : 'text-red-500'
+                                                                }`}>
+                                                                    <i className="fa-solid fa-circle"></i>
+                                                                </span>
+                                                                <div>
+                                                                    <p className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-100">
+                                                                        {item.message}
+                                                                    </p>
+                                                                    {item.suggestion && (
+                                                                        <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                                                                            Öneri: {item.suggestion}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </>
                             )}
