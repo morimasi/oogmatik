@@ -280,6 +280,7 @@ export interface GeneratorOptions {
   includeCompass?: boolean;
   cognitiveLoad?: number;
   includeClinicalNotes?: boolean;
+  classLevel?: number;
 }
 
 export type ShapeType =

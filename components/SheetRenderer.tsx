@@ -639,14 +639,22 @@ interface SheetRendererProps {
 export const SheetRenderer = React.memo(({ activityType, data, studentProfile, settings }: SheetRendererProps) => {
     if (!data) return null;
 
-    // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
-    if (data.layoutArchitecture || data.blocks) {
-        return <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />;
-    }
-
     // Özel modül renderları (Story Comprehension vb.)
     if (activityType === ActivityType.STORY_COMPREHENSION && data.layout) {
         return <ReadingStudioContentRenderer layout={data.layout} storyData={data.storyData} />;
+    }
+
+    if (activityType === ActivityType.VISUAL_INTERPRETATION) {
+        return <VisualInterpretationSheet data={data as any} settings={settings || {} as any} />;
+    }
+    
+    if (activityType === ActivityType.BRAIN_TEASERS) {
+        return <BrainTeasersSheet data={data as any} settings={settings || {} as any} />;
+    }
+
+    // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
+    if (data.layoutArchitecture || data.blocks) {
+        return <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />;
     }
 
     // Geleneksel modül renderları

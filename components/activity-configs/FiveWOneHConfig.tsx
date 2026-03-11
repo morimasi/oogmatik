@@ -35,6 +35,18 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                 </div>
 
                 <CompactToggleGroup
+                    label="Sınıf Seviyesi"
+                    selected={options.classLevel || 1}
+                    onChange={(v: any) => onChange('classLevel', v)}
+                    options={[
+                        { value: 1, label: '1. Sınıf' },
+                        { value: 2, label: '2. Sınıf' },
+                        { value: 3, label: '3. Sınıf' },
+                        { value: 4, label: '4. Sınıf' }
+                    ]}
+                />
+
+                <CompactToggleGroup
                     label="Metin Uzunluğu"
                     selected={options.textLength || 'kısa'}
                     onChange={(v: string) => onChange('textLength', v)}
