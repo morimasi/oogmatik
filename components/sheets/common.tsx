@@ -437,52 +437,174 @@ export const ImageDisplay = React.memo(
       setIsLoading(false);
     };
 
-    // Simple inline SVG placeholder for offline or failed loads
-    const InlinePlaceholder = () => (
-      <svg viewBox="0 0 512 512" width="100%" height="100%" role="img" aria-label={description}>
-        <defs>
-          <linearGradient id="grad" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0%" stopColor="#e2e8f0" />
-            <stop offset="100%" stopColor="#cbd5e1" />
-          </linearGradient>
-        </defs>
-        <rect width="512" height="512" fill="url(#grad)" />
-        <g fill="none" stroke="#64748b" strokeWidth="8">
-          <path d="M80 160 Q256 40 432 160" />
-          <path d="M80 320 Q256 200 432 320" />
+    // Advanced Fallback System: Keyword-based Local SVGs
+    const getFallbackSvg = (p: string) => {
+      const lower = p.toLowerCase();
+
+      // Educational Topic Mapping
+      if (lower.includes('pencil') || lower.includes('pen') || lower.includes('yazı')) {
+        return (
+          <g stroke="white" strokeWidth="4" fill="none">
+            <path d="M100 400 L120 420 L400 140 L380 120 Z" fill="white" fillOpacity="0.2" />
+            <path d="M100 400 L80 440 L120 420" fill="white" />
+          </g>
+        );
+      }
+      if (
+        lower.includes('book') ||
+        lower.includes('read') ||
+        lower.includes('kitap') ||
+        lower.includes('oku')
+      ) {
+        return (
+          <g stroke="white" strokeWidth="5" fill="none">
+            <path
+              d="M100 150 Q256 100 412 150 L412 400 Q256 350 100 400 Z"
+              fill="white"
+              fillOpacity="0.2"
+            />
+            <line x1="256" y1="130" x2="256" y2="380" strokeOpacity="0.5" />
+          </g>
+        );
+      }
+      if (
+        lower.includes('math') ||
+        lower.includes('number') ||
+        lower.includes('matematik') ||
+        lower.includes('sayı')
+      ) {
+        return (
+          <g
+            fill="white"
+            fontStyle="italic"
+            fontWeight="black"
+            fontSize="120"
+            opacity="0.3"
+            fontFamily="serif"
+          >
+            <text x="120" y="240">
+              ∑
+            </text>
+            <text x="280" y="380">
+              π
+            </text>
+            <text x="150" y="420" fontSize="60">
+              x + y
+            </text>
+          </g>
+        );
+      }
+      if (
+        lower.includes('idea') ||
+        lower.includes('brain') ||
+        lower.includes('düşün') ||
+        lower.includes('fikir')
+      ) {
+        return (
+          <g stroke="white" strokeWidth="4" fill="none">
+            <path d="M256 100 A100 100 0 1 0 256 300 Q256 350 256 400" />
+            <circle cx="256" cy="440" r="10" fill="white" />
+            <path d="M210 180 Q256 150 300 180" opacity="0.5" />
+          </g>
+        );
+      }
+
+      // Default Generic Icon
+      return (
+        <g stroke="white" strokeWidth="6" fill="none" opacity="0.4">
+          <rect x="120" y="140" width="272" height="200" rx="20" />
+          <circle cx="210" cy="210" r="30" />
+          <path d="M120 300 L210 220 L280 280 L340 210 L392 280" />
         </g>
-        <text
-          x="50%"
-          y="52%"
-          textAnchor="middle"
-          fill="#64748b"
-          fontFamily="sans-serif"
-          fontSize="28"
-          fontWeight="bold"
+      );
+    };
+
+    // Premium Inline SVG Placeholder
+    const PremiumPlaceholder = () => {
+      const displayPrompt = prompt || 'Görsel';
+      const fallbackContent = getFallbackSvg(displayPrompt);
+
+      return (
+        <svg
+          viewBox="0 0 512 512"
+          width="100%"
+          height="100%"
+          role="img"
+          aria-label={description}
+          className="animate-in fade-in duration-1000"
         >
-          Resim yüklenemedi
-        </text>
-      </svg>
-    );
+          <defs>
+            <linearGradient id="premiumGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#4f46e5" />
+              <stop offset="50%" stopColor="#7c3aed" />
+              <stop offset="100%" stopColor="#9333ea" />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="15" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <rect width="512" height="512" fill="url(#premiumGrad)" rx="32" ry="32" />
+
+          {/* Abstract background shapes */}
+          <circle cx="450" cy="50" r="150" fill="white" fillOpacity="0.05" />
+          <circle cx="50" cy="450" r="100" fill="black" fillOpacity="0.05" />
+
+          {/* Topic-specific fallback content */}
+          <g filter="url(#glow)">{fallbackContent}</g>
+
+          <g transform="translate(256, 460)">
+            <text
+              textAnchor="middle"
+              fill="white"
+              fontFamily="Lexend, sans-serif"
+              fontSize="24"
+              fontWeight="800"
+              textTransform="uppercase"
+              letterSpacing="2"
+            >
+              {displayPrompt.length > 25 ? displayPrompt.substring(0, 22) + '...' : displayPrompt}
+            </text>
+            <text
+              y="25"
+              textAnchor="middle"
+              fill="white"
+              fillOpacity="0.6"
+              fontFamily="sans-serif"
+              fontSize="12"
+              fontWeight="bold"
+            >
+              (Offline Mod / Görsel Hazırlanıyor)
+            </text>
+          </g>
+        </svg>
+      );
+    };
 
     return (
       <div
-        className={`relative overflow-hidden rounded-2xl bg-zinc-50 ${className}`}
-        style={{ minHeight: '100px' }}
+        className={`relative overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800 border-2 border-dashed border-zinc-200 dark:border-zinc-700 shadow-inner ${className}`}
+        style={{ minHeight: '140px' }}
       >
         {useInlineSvg ? (
-          <InlinePlaceholder />
+          <PremiumPlaceholder />
         ) : (
           <>
             {isLoading && !base64 && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <i className="fa-solid fa-circle-notch fa-spin text-indigo-500"></i>
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-50/80 backdrop-blur-sm z-10">
+                <i className="fa-solid fa-wand-magic-sparkles fa-bounce text-indigo-500 text-2xl mb-2"></i>
+                <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest animate-pulse">
+                  AI Oluşturuyor...
+                </span>
               </div>
             )}
             <img
               src={url}
               alt={description}
-              className={`w-full h-full object-contain transition-opacity duration-700 ${isLoading && !base64 ? 'opacity-0' : 'opacity-100'}`}
+              className={`w-full h-full object-contain transition-all duration-1000 ${isLoading && !base64 ? 'opacity-0 scale-95 blur-lg' : 'opacity-100 scale-100 blur-0'}`}
               onLoad={() => !base64 && setIsLoading(false)}
               onError={handleError}
             />
