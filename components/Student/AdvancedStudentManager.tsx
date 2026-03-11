@@ -137,6 +137,17 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
         </div>
     );
 
+    const handleStudentUpdate = (updates: any) => {
+        if (!activeStudent) return;
+        
+        // Update local state first for immediate UI feedback
+        const updatedStudent = { ...currentStudent, ...updates };
+        setActiveStudent(updatedStudent);
+        
+        // In a real app, you would also call an API here
+        console.log('Student updated:', updatedStudent);
+    };
+
     const renderContent = () => {
         switch (selectedModule) {
             case 'overview':
@@ -155,7 +166,7 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
                         title="Bireyselleştirilmiş Eğitim Programı" 
                         subtitle="Özel öğrenme hedefleri ve ilerleme takibi."
                     >
-                        <IEPModule student={currentStudent} />
+                        <IEPModule student={currentStudent} onUpdate={(iep) => handleStudentUpdate({ iep })} />
                     </ContentWrapper>
                 );
             case 'financial':
@@ -209,7 +220,7 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
                         title="Öğrenci Ayarları" 
                         subtitle="Profil, bildirim ve modül yapılandırması."
                     >
-                        <SettingsModule student={currentStudent} />
+                        <SettingsModule student={currentStudent} onUpdate={handleStudentUpdate} />
                     </ContentWrapper>
                 );
             default:
