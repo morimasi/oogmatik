@@ -64,8 +64,8 @@ const MathStudio = lazy(() =>
   import('./components/MathStudio/MathStudio').then((module) => ({ default: module.MathStudio }))
 );
 const StudentDashboard = lazy(() =>
-  import('./components/Student/StudentDashboard').then((module) => ({
-    default: module.StudentDashboard,
+  import('./components/Student/AdvancedStudentManager').then((module) => ({
+    default: module.AdvancedStudentManager,
   }))
 );
 const ScreeningModule = lazy(() =>
@@ -1237,7 +1237,7 @@ const AppContent = () => {
       {currentView === 'students' && (
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
           <Suspense fallback={<LoadingSpinner />}>
-            <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
+            <StudentDashboard onBack={handleGoBack} />
           </Suspense>
         </div>
       )}
