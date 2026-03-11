@@ -21,11 +21,7 @@ export const LetterVisualMatchingSheet = ({ data }: { data: LetterVisualMatching
           </div>
           <div className="flex-1">
             <div className="h-28 bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-200 mb-4 print:mb-1 overflow-hidden">
-<<<<<<< HEAD
               <ImageDisplay prompt={pair.imagePrompt} className="w-full h-full  object-contain" />
-=======
-              <ImageDisplay prompt={pair.imagePrompt} className="w-full h-full print:h-0 object-contain" />
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             </div>
             {data.settings.showTracing && (
               <HandwritingGuide height={60}>
@@ -39,7 +35,4 @@ export const LetterVisualMatchingSheet = ({ data }: { data: LetterVisualMatching
   </div>
 );
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

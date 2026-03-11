@@ -38,13 +38,8 @@
 }
 
 .premium-popup-content {
-<<<<<<< HEAD
   display: flex !important;
   flex-direction: column !important;
-=======
-  display: flex;
-  flex-direction: column;
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
 }
 
 .premium-popup-header {
@@ -65,13 +60,8 @@
 }
 
 .premium-popup-activities {
-<<<<<<< HEAD
   display: flex !important;
   flex-direction: column !important;
-=======
-  display: flex;
-  flex-direction: column;
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
   gap: 2px;
   max-height: 350px;
   overflow-y: auto;

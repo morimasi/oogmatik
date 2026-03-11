@@ -19,11 +19,7 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
     const gapSize = isUltraDense ? 'gap-1.5' : 'gap-3';
 
     return (
-<<<<<<< HEAD
         <div className="flex flex-col h-full  bg-white text-black font-lexend p-1 overflow-hidden select-none">
-=======
-        <div className="flex flex-col h-full print:h-0 bg-white text-black font-lexend p-1 overflow-hidden select-none">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader
                 title={data.title || "Sayısal Mantık Bilmeceleri"}
                 instruction={data.instruction || "İpuçlarını dikkatle analiz et ve doğru sayıyı bul."}
@@ -101,7 +97,4 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
     );
 };
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

@@ -46,11 +46,7 @@ export const RapidNamingSheet = ({ data }: { data: RapidNamingData }) => {
     const isRows = settings?.layout === 'rows';
 
     return (
-<<<<<<< HEAD
         <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet">
-=======
-        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader
                 title={data.title || "HIZLI İSİMLENDİRME (RAN)"}
                 instruction={data.instruction || "Öğeleri soldan sağa, mümkün olduğunca hızlı ve hatasız bir şekilde isimlendirin."}
@@ -126,11 +122,7 @@ export const MirrorLettersSheet = ({ data }: { data: MirrorLettersData }) => {
     const isCompact = settings?.layout === 'compact';
 
     return (
-<<<<<<< HEAD
         <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet">
-=======
-        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader
                 title={data.title || "AYNA HARFLER AYRIŞTIRMA"}
                 instruction={data.instruction || `Hedef harf çiftini (${data.targetPair}) dikkatlice inceleyin ve farklı olanları işaretleyin.`}
@@ -215,11 +207,7 @@ export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineDat
     const settings = data.settings;
 
     return (
-<<<<<<< HEAD
         <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet">
-=======
-        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader
                 title={data.title || "GÖRSEL İZLEME MATRİSİ"}
                 instruction={data.instruction || "Çizgileri gözünüzle takip edin ve başlangıçtaki harf/sayı ile bitişteki kutucuğu eşleştirin."}
@@ -229,11 +217,7 @@ export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineDat
             <div className="mt-8 print:mt-2 flex-1 relative bg-zinc-50 border-4 border-zinc-100 rounded-[4rem] p-10 print:p-3 print:p-4 print:p-1 shadow-inner group overflow-hidden">
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, currentColor 2px, transparent 2px)', backgroundSize: '40px 40px' }}></div>
 
-<<<<<<< HEAD
                 <svg viewBox={`0 0 ${data.width} ${data.height}`} className="w-full h-full  overflow-visible drop-shadow-md">
-=======
-                <svg viewBox={`0 0 ${data.width} ${data.height}`} className="w-full h-full print:h-0 overflow-visible drop-shadow-md">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                     <defs>
                         <filter id="glow">
                             <feGaussianBlur stdDeviation="2" result="coloredBlur" />
@@ -376,11 +360,7 @@ export const HandwritingPracticeSheet = ({ data }: { data: HandwritingPracticeDa
             {(data.lines || []).map((line, i) => (
                 <div key={i} className="flex gap-8 print:gap-2 print:gap-3 print:p-3 items-start break-inside-avoid group">
                     <div className="w-24 h-24 bg-zinc-900 rounded-[2rem] flex items-center justify-center overflow-hidden shadow-2xl shrink-0 group-hover:rotate-6 transition-transform">
-<<<<<<< HEAD
                         {line.imagePrompt ? <ImageDisplay prompt={line.imagePrompt} className="w-full h-full  object-cover opacity-80" /> : <i className="fa-solid fa-feather-pointed text-white text-3xl"></i>}
-=======
-                        {line.imagePrompt ? <ImageDisplay prompt={line.imagePrompt} className="w-full h-full print:h-0 object-cover opacity-80" /> : <i className="fa-solid fa-feather-pointed text-white text-3xl"></i>}
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                     </div>
                     <div className="flex-1 space-y-8">
                         <HandwritingGuide height={100}>
@@ -395,7 +375,4 @@ export const HandwritingPracticeSheet = ({ data }: { data: HandwritingPracticeDa
 );
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

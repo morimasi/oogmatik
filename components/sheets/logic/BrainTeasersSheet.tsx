@@ -15,11 +15,7 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
 
   return (
     <div
-<<<<<<< HEAD
       className="w-full h-full  flex flex-col gap-8 print:gap-2 print:gap-3 print:p-3 p-8 print:p-2 print:p-3"
-=======
-      className="w-full h-full print:h-0 flex flex-col gap-8 print:gap-2 print:gap-3 print:p-3 p-8 print:p-2 print:p-3"
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
       style={{ fontFamily: settings.fontFamily }}
     >
       {/* Header */}
@@ -110,7 +106,4 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
 
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
