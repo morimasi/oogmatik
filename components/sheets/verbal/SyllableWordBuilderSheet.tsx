@@ -12,8 +12,8 @@ export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderDa
       data={data}
     />
 
-    <div className="flex flex-col gap-10 print:p-4 mt-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3">
+    <div className="flex flex-col gap-10 print:gap-4 print:p-4 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3">
         {(data.words || []).map((word, idx) => (
           <EditableElement
             key={idx}
@@ -63,4 +63,5 @@ export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderDa
     </div>
   </div>
 );
+
 

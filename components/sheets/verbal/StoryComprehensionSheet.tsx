@@ -92,7 +92,7 @@ export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }
             </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 print:p-3 mb-10 print:mb-4 min-h-[400px]">
+        <div className="flex flex-col md:flex-row gap-8 print:gap-3 print:p-3 mb-10 print:mb-4 min-h-[400px]">
             <div className="flex-1 bg-white p-8 print:p-3 rounded-[2rem] border-2 border-zinc-100 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-2 h-full bg-indigo-600"></div>
                 <div className="prose max-w-none font-dyslexic text-xl leading-[2.2] text-zinc-800 text-justify">
@@ -106,7 +106,7 @@ export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }
             )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 print:p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 print:gap-4 print:p-4">
             <div className="space-y-8">
                 <PrintQuestionBlock title="5N 1K Analizi" questions={data.fiveW1H} type="open" icon="fa-magnifying-glass" />
                 <PrintQuestionBlock title="Sözlükçe" questions={data.vocabulary?.map(v => ({ question: `${v.word}: ${v.definition}` })) || []} type="list" icon="fa-spell-check" />
@@ -118,4 +118,5 @@ export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }
         </div>
     </div>
 );
+
 

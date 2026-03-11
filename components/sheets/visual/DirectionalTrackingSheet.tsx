@@ -34,7 +34,7 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
                 note={data?.pedagogicalNote}
             />
 
-            <div className={`grid ${gridCols} gap-8 print:p-3 mt-10 flex-1 content-start items-start pb-20`}>
+            <div className={`grid ${gridCols} gap-8 print:gap-3 print:p-3 mt-10 flex-1 content-start items-start pb-20`}>
                 {puzzles.map((puzzle, idx) => (
                     <EditableElement
                         key={idx}
@@ -45,7 +45,7 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
                             {puzzle.title || `TRAJEKTORİ ${idx + 1}`}
                         </div>
 
-                        <div className="flex flex-col gap-8 print:p-3">
+                        <div className="flex flex-col gap-8 print:gap-3 print:p-3">
                             {/* Üst: Yönerge Alanı - Premium Case */}
                             <div className="bg-zinc-900 border-2 border-white rounded-[2rem] p-6 shadow-2xl relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10"></div>
@@ -60,7 +60,7 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
                                 </div>
                             </div>
 
-                            <div className="flex gap-10 print:p-4 items-start">
+                            <div className="flex gap-10 print:gap-4 print:p-4 items-start">
                                 {/* Sol: Grid Sahası - High Precision */}
                                 <div className="relative shrink-0">
                                     <div className="p-3 bg-white border-2 border-zinc-200 rounded-[2.5rem] shadow-xl overflow-visible relative ring-8 ring-zinc-50">
@@ -137,7 +137,7 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
 
             {/* Footer Protokolü - Premium Dark */}
             <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10 print:p-4">
+                <div className="flex gap-10 print:gap-4 print:p-4">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">PROGRAM</span>
                         <span className="text-xs font-black uppercase font-mono">Cognitive Path Tracking v4.2</span>
@@ -154,3 +154,4 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
         </div>
     );
 };
+

@@ -40,7 +40,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                 </div>
             </div>
 
-            <div className="flex-1 flex gap-8 print:p-3 items-start page-break-inside-avoid">
+            <div className="flex-1 flex gap-8 print:gap-3 print:p-3 items-start page-break-inside-avoid">
 
                 {/* YÖN GÖSTERGESİ PUSULASI */}
                 <div className="absolute top-8 print:p-3 left-1/2 -translate-x-1/2 rotate-0 opacity-10 pointer-events-none z-0">
@@ -146,4 +146,5 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
         </div >
     );
 };
+
 

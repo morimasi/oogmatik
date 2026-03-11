@@ -14,7 +14,7 @@ export const SynonymAntonymMatchSheet = ({ data }: { data: SynonymAntonymMatchDa
         note={data.pedagogicalNote}
       />
 
-      <div className="flex flex-col gap-10 print:p-4 mt-6">
+      <div className="flex flex-col gap-10 print:gap-4 print:p-4 mt-6">
         <div className="grid grid-cols-2 gap-x-20 gap-y-6 pb-10 border-b-2 border-zinc-100">
           <div className="space-y-4">
             <h5 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-4">
@@ -78,4 +78,5 @@ export const SynonymAntonymMatchSheet = ({ data }: { data: SynonymAntonymMatchDa
     </div>
   );
 };
+
 

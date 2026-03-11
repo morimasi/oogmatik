@@ -7,9 +7,9 @@ import { EditableText } from '../../Editable';
 export const EstimationSheet = ({ data }: { data: EstimationData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3 mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3 mt-10">
             {(data.items || []).map((item, idx) => (
-                <div key={idx} className="flex flex-col items-center gap-8 print:p-3 p-10 print:p-4 bg-white border-[3px] border-zinc-900 rounded-[3rem] shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
+                <div key={idx} className="flex flex-col items-center gap-8 print:gap-3 print:p-3 p-10 print:p-4 bg-white border-[3px] border-zinc-900 rounded-[3rem] shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
                     <div className="w-56 h-56 border-[6px] border-zinc-100 rounded-full bg-zinc-50 relative overflow-hidden shadow-inner flex items-center justify-center">
                         <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-3 p-6">
                             {Array.from({ length: item.count }).map((_, i) => <div key={i} className="w-4 h-4 bg-indigo-500 rounded-full shadow-md transform hover:scale-125 transition-transform"></div>)}
@@ -30,4 +30,5 @@ export const EstimationSheet = ({ data }: { data: EstimationData }) => (
         </div>
     </div>
 );
+
 

@@ -135,7 +135,7 @@ export const CharacterMemorySheet = ({ data }: { data: CharacterMemoryData }) =>
             <div className="flex flex-col min-h-[500px] relative">
                 <PedagogicalHeader title={data.title} instruction="Bu karakterleri ve özelliklerini iyi ezberle." note={data.pedagogicalNote} data={data} />
 
-                <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 print:p-3 items-center justify-center p-4">
+                <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 print:gap-3 print:p-3 items-center justify-center p-4">
                     {(data.charactersToMemorize || []).map((char, index) => (
                         <EditableElement key={index} className="flex flex-col items-center bg-white border-2 border-black p-4 rounded-3xl aspect-square justify-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                             {/* Fix: Use base64 prop for direct buffer support or prompt if available */}
@@ -504,7 +504,7 @@ export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopment
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || "Yönergeleri takip et ve doğru sayıyı bul."} note={data.pedagogicalNote} data={data} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3">
                 {(data.puzzles || []).map((puzzle, i) => (
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl p-5 shadow-sm break-inside-avoid flex flex-col h-full">
                         {/* Riddle Text */}
@@ -552,7 +552,7 @@ export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => {
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || "İpuçlarını oku ve doğru cevabı bul."} note={data.pedagogicalNote} data={data} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3">
                 {(data.puzzles || []).map((puzzle, i) => (
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-400 dark:border-zinc-500 rounded-xl p-5 shadow-md break-inside-avoid flex flex-col h-full relative">
                         {/* Riddle Box */}
@@ -595,4 +595,5 @@ export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => {
         </div>
     );
 };
+
 

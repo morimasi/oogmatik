@@ -138,7 +138,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
 
                 {/* Pusula & Araçlar Overlay */}
                 {data.settings?.includeCompass !== false && (
-                    <div className="absolute bottom-8 right-10 flex items-end gap-10 print:p-4 z-30 no-print">
+                    <div className="absolute bottom-8 right-10 flex items-end gap-10 print:gap-4 print:p-4 z-30 no-print">
                         <CompassRose />
                     </div>
                 )}
@@ -171,7 +171,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
             </div>
 
             <div className="mt-auto pt-10 print:pt-4 flex justify-between items-center px-10 print:px-2 border-t border-zinc-100 opacity-30 print:opacity-50">
-                <div className="flex gap-12">
+                <div className="flex gap-12 print:gap-4">
                     <div className="flex flex-col">
                         <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Sistem</span>
                         <span className="text-[11px] font-bold text-zinc-800 uppercase">Manuel Görsel Entegrasyonu</span>
@@ -192,4 +192,5 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
         </div>
     );
 };
+
 

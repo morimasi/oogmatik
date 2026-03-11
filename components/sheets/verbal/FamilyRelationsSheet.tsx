@@ -14,7 +14,7 @@ export const FamilyRelationsSheet = ({ data }: { data: FamilyRelationsData }) =>
         note={data.pedagogicalNote}
       />
 
-      <div className="flex flex-col gap-10 print:p-4 mt-6">
+      <div className="flex flex-col gap-10 print:gap-4 print:p-4 mt-6">
         <div className="flex justify-between gap-16 items-start">
           <div className="flex-1 space-y-6">
             <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2 border-b-2 border-indigo-50 pb-1">
@@ -48,7 +48,7 @@ export const FamilyRelationsSheet = ({ data }: { data: FamilyRelationsData }) =>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-10 print:p-4 mt-6">
+        <div className="grid grid-cols-2 gap-10 print:gap-4 print:p-4 mt-6">
           <div className="border-[3px] border-zinc-900 rounded-[3rem] overflow-hidden shadow-2xl group hover:border-indigo-500 transition-colors">
             <div className="bg-zinc-900 group-hover:bg-indigo-600 text-white p-5 text-center transition-colors">
               <h4 className="font-black uppercase tracking-[0.3em] text-sm flex items-center justify-center gap-3">
@@ -102,4 +102,5 @@ export const FamilyRelationsSheet = ({ data }: { data: FamilyRelationsData }) =>
     </div>
   );
 };
+
 

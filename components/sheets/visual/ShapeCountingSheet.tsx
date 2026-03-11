@@ -31,7 +31,7 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
 
             {/* Hedef Hatırlatıcı Panel - Premium */}
             <div className="flex justify-center my-6">
-                <div className="bg-zinc-900 text-white px-10 py-4 rounded-[2.5rem] flex items-center gap-8 print:p-3 shadow-2xl border-4 border-white ring-8 ring-zinc-50 transform hover:scale-105 transition-transform">
+                <div className="bg-zinc-900 text-white px-10 py-4 rounded-[2.5rem] flex items-center gap-8 print:gap-3 print:p-3 shadow-2xl border-4 border-white ring-8 ring-zinc-50 transform hover:scale-105 transition-transform">
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-1">ARANAN HEDEF</span>
                         <span className="text-xl font-black uppercase tracking-tighter">{settings?.targetShape || 'ÜÇGEN'}</span>
@@ -103,7 +103,7 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
 
             {/* Alt Bilgi - Klinik Tracker */}
             <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10 print:p-4">
+                <div className="flex gap-10 print:gap-4 print:p-4">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">BİLİŞSEL HEDEF</span>
                         <span className="text-xs font-black uppercase">Figür-Zemin & Ketleme</span>
@@ -117,4 +117,5 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
         </div>
     );
 };
+
 

@@ -37,7 +37,7 @@ export const FutoshikiSheet = ({ data }: { data: FutoshikiData }) => {
     return (
         <div className="flex flex-col font-lexend mt-8">
             <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
-            <div className={`grid ${gridCols} gap-12 mt-12 mb-8 items-start`}>
+            <div className={`grid ${gridCols} gap-12 print:gap-4 mt-12 mb-8 items-start`}>
                 {puzzles.map((p, i: number) => (
                     <div key={i} className="flex flex-col items-center break-inside-avoid">
                         <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500 mb-6 bg-indigo-50 px-4 py-1.5 rounded-2xl border border-indigo-100 shadow-sm">
@@ -109,4 +109,5 @@ export const FutoshikiSheet = ({ data }: { data: FutoshikiData }) => {
         </div>
     );
 };
+
 
