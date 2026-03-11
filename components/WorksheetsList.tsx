@@ -7,6 +7,7 @@ import React, { useState, useMemo } from 'react';
 import { SavedWorksheet } from '../types';
 import { useGetUserWorksheets, useCreateWorksheet, useDeleteWorksheet, useShareWorksheet } from '../hooks/useWorksheets';
 import { ErrorDisplay } from './ErrorDisplay';
+import { AppError } from '../utils/AppError';
 
 interface WorksheetsListProps {
     userId: string;
@@ -131,9 +132,9 @@ export const WorksheetsList: React.FC<WorksheetsListProps> = ({
             </div>
 
             {/* Error Display */}
-            {error && <ErrorDisplay error={error} onRetry={() => window.location.reload()} />}
-            {deleteError && <ErrorDisplay error={deleteError} />}
-            {shareError && <ErrorDisplay error={shareError} />}
+            {error && <ErrorDisplay error={new Error(error.message)} onRetry={() => window.location.reload()} />}
+            {deleteError && <ErrorDisplay error={new Error(deleteError.message)} />}
+            {shareError && <ErrorDisplay error={new Error(shareError.message)} />}
 
             {/* Worksheets Table */}
             {filteredWorksheets.length > 0 ? (
