@@ -560,7 +560,9 @@ const UnifiedContentRenderer = ({ data, studentProfile, settings }: { data: Sing
     });
 
     const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => (
-        <div key={pageIdx} data-page-idx={pageIdx} className={`worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden`}>
+        <div key={pageIdx} data-page-idx={pageIdx} className={`worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden`}
+            style={{ backgroundColor: 'white', color: 'black', colorScheme: 'light' as any }}
+        >
             {/* Ekranda Sayfa Numarası (Print'te gizli) */}
             <div className="page-indicator-screen no-print">SAYFA {pageIdx + 1}</div>
 
@@ -647,7 +649,7 @@ export const SheetRenderer = React.memo(({ activityType, data, studentProfile, s
     if (activityType === ActivityType.VISUAL_INTERPRETATION) {
         return <VisualInterpretationSheet data={data as any} settings={settings || {} as any} />;
     }
-    
+
     if (activityType === ActivityType.BRAIN_TEASERS) {
         return <BrainTeasersSheet data={data as any} settings={settings || {} as any} />;
     }

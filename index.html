@@ -453,6 +453,45 @@
         box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
       }
 
+      /* ════════════════════════════════════════════════════════════ */
+      /* A4 ÇALIŞMA SAYFASI — TEMA İZOLASYONU                        */
+      /* Tema (dark/light/space/nature vb.) ne olursa olsun,         */
+      /* A4 çalışma sayfası her zaman beyaz, tertemiz kalır.         */
+      /* ════════════════════════════════════════════════════════════ */
+      .worksheet-page,
+      .worksheet-page * {
+        color-scheme: light !important;
+        transition: none !important; /* Tema geçiş animasyonunu engelle */
+      }
+
+      /* CSS Değişkenlerini Light modun sabit değerlerine sıfırla.
+         Tailwind zinc renkleri bu değişkenleri referans aldığından
+         tema değişiminden tamamen muaf olurlar. */
+      .worksheet-page {
+        --c-zinc-50:  #fafafa !important;
+        --c-zinc-100: #f4f4f5 !important;
+        --c-zinc-200: #e4e4e7 !important;
+        --c-zinc-300: #d4d4d8 !important;
+        --c-zinc-400: #a1a1aa !important;
+        --c-zinc-500: #71717a !important;
+        --c-zinc-600: #52525b !important;
+        --c-zinc-700: #3f3f46 !important;
+        --c-zinc-800: #27272a !important;
+        --c-zinc-900: #18181b !important;
+        --c-zinc-950: #09090b !important;
+        --c-indigo-50:  #eef2ff !important;
+        --c-indigo-100: #e0e7ff !important;
+        --c-indigo-200: #c7d2fe !important;
+        --c-indigo-300: #a5b4fc !important;
+        --c-indigo-400: #818cf8 !important;
+        --c-indigo-500: #6366f1 !important;
+        --c-indigo-600: #4f46e5 !important;
+        --c-indigo-700: #4338ca !important;
+        /* Arka plan ve metin rengi kesin override */
+        background-color: white !important;
+        color: black !important;
+      }
+
       /* Sayfa Numarası (Sadece Ekranda) */
       .page-indicator-screen {
         position: absolute;

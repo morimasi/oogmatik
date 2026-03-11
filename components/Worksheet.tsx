@@ -116,6 +116,7 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
             minHeight: isLandscape ? '210mm' : '297mm',
             backgroundColor: 'white',
             color: 'black',
+            colorScheme: 'light' as any,
             position: 'relative' as const,
             boxSizing: 'border-box' as const,
             marginBottom: '40px',
