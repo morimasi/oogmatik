@@ -27,11 +27,7 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
     const gridCols = layout === 'grid_2x1' ? 'grid-cols-2' : (layout === 'grid_compact' ? 'grid-cols-2' : 'grid-cols-1');
 
     return (
-<<<<<<< HEAD
         <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet">
-=======
-        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader
                 title={data?.title || "YÖNSEL İZ SÜRME & NAVİGASYON"}
                 instruction={data?.instruction || "Aşağıdaki yörüngeyi takip ederek gizli kodu/kelimeyi bulun."}
@@ -119,11 +115,7 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
                                                 <span className="text-[8px] font-black text-zinc-900">%{Math.round(puzzle.clinicalMeta.perceptualLoad * 100)}</span>
                                             </div>
                                             <div className="w-full h-1 bg-zinc-200 rounded-full overflow-hidden">
-<<<<<<< HEAD
                                                 <div className="h-full  bg-indigo-500" style={{ width: `${puzzle.clinicalMeta.perceptualLoad * 100}%` }}></div>
-=======
-                                                <div className="h-full print:h-0 bg-indigo-500" style={{ width: `${puzzle.clinicalMeta.perceptualLoad * 100}%` }}></div>
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                             </div>
                                             <div className="flex justify-between items-center pt-1 border-t border-zinc-200/50">
                                                 <span className="text-[7px] font-black uppercase text-zinc-400">Dikkati Kaydırma</span>
@@ -164,7 +156,4 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
 };
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

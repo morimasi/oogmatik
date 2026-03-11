@@ -7,11 +7,7 @@ import { PedagogicalHeader, GridComponent } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (
-<<<<<<< HEAD
     <div className="h-full  flex flex-col font-lexend p-2">
-=======
-    <div className="h-full print:h-0 flex flex-col font-lexend p-2">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex-1 bg-white border-2 border-zinc-100 rounded-3xl p-8 print:p-2 print:p-3 font-mono text-xl leading-[3rem] tracking-[0.5em] text-justify select-none shadow-inner mt-4 print:mt-1">
             {(data.grid || []).map((row, i) => (
@@ -25,11 +21,7 @@ export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (
 );
 
 export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchData }) => (
-<<<<<<< HEAD
     <div className="relative h-full  flex flex-col w-full font-lexend p-2">
-=======
-    <div className="relative h-full print:h-0 flex flex-col w-full font-lexend p-2">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="flex-1 relative border-4 border-zinc-900 rounded-[3rem] overflow-hidden bg-white min-h-[600px] shadow-2xl mt-4 print:mt-1">
             <div className="absolute top-0 left-0 w-full bg-zinc-900 text-white p-3 flex justify-center gap-4 print:gap-1 flex-wrap z-10 border-b-4 border-black">
@@ -53,11 +45,7 @@ export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchDa
 );
 
 export const NumberSearchSheet = ({ data }: { data: NumberSearchData }) => (
-<<<<<<< HEAD
     <div className="h-full  flex flex-col font-lexend p-2">
-=======
-    <div className="h-full print:h-0 flex flex-col font-lexend p-2">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex-1 flex flex-wrap gap-4 print:gap-1 justify-center p-10 print:p-3 print:p-4 print:p-1 border-4 border-zinc-900 rounded-[3rem] bg-white shadow-xl mt-6 print:mt-2">
             {(data.numbers || []).map((n, i) => (
@@ -181,7 +169,4 @@ export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => (
 
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

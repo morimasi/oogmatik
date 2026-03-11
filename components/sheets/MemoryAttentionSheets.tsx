@@ -93,11 +93,7 @@ export const VisualMemorySheet = ({ data }: { data: VisualMemoryData }) => {
                             <EditableElement key={index} className="aspect-square bg-white border-2 border-black rounded-xl p-2 flex flex-col items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                                 {/* Fix: Use base64 prop for direct buffer support */}
                                 {item.imageBase64 ? (
-<<<<<<< HEAD
                                     <ImageDisplay base64={item.imageBase64} description={item.description} className="w-full h-full  object-contain" />
-=======
-                                    <ImageDisplay base64={item.imageBase64} description={item.description} className="w-full h-full print:h-0 object-contain" />
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                 ) : (
                                     <span className="text-4xl">{item.imagePrompt || item.description.charAt(0)}</span>
                                 )}
@@ -184,11 +180,7 @@ export const ColorWheelSheet = ({ data }: { data: ColorWheelMemoryData }) => {
 
                 <div className="flex-1 flex items-center justify-center">
                     <EditableElement className="relative w-[300px] h-[300px]">
-<<<<<<< HEAD
                         <svg viewBox="0 0 300 300" className="w-full h-full  overflow-visible">
-=======
-                        <svg viewBox="0 0 300 300" className="w-full h-full print:h-0 overflow-visible">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                             {/* Wheel Segments */}
                             {items.map((item, i) => {
                                 const angle = (i * 360) / items.length;
@@ -282,11 +274,7 @@ export const ImageComprehensionSheet = ({ data }: { data: ImageComprehensionData
 // --- ATTENTION & PERCEPTION SHEETS ---
 
 export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (
-<<<<<<< HEAD
     <div className="w-full h-full ">
-=======
-    <div className="w-full h-full print:h-0">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction || "Sırasıyla a, b, d, g harflerinin altını çizin."} note={data.pedagogicalNote} data={data} />
 
         <div className="bg-white border-2 border-black rounded-lg p-1">
@@ -328,11 +316,7 @@ export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (
 );
 
 export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchData }) => (
-<<<<<<< HEAD
     <div className="relative h-full  flex flex-col w-full">
-=======
-    <div className="relative h-full print:h-0 flex flex-col w-full">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
 
         <div className="flex-1 relative border-4 border-black rounded-3xl overflow-hidden bg-white min-h-[600px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
@@ -383,11 +367,7 @@ export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchDa
 
 // --- REVISED STROOP TEST SHEET ---
 export const StroopTestSheet = ({ data }: { data: StroopTestData }) => (
-<<<<<<< HEAD
     <div className="flex flex-col h-full  justify-between">
-=======
-    <div className="flex flex-col h-full print:h-0 justify-between">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         <div className="shrink-0 mb-6 print:mb-2">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         </div>
@@ -526,11 +506,7 @@ export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopment
             <PedagogicalHeader title={data.title} instruction={data.instruction || "Yönergeleri takip et ve doğru sayıyı bul."} note={data.pedagogicalNote} data={data} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3">
                 {(data.puzzles || []).map((puzzle, i) => (
-<<<<<<< HEAD
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl p-5 print:p-1 shadow-sm break-inside-avoid flex flex-col h-full ">
-=======
-                    <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl p-5 print:p-1 shadow-sm break-inside-avoid flex flex-col h-full print:h-0">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                         {/* Riddle Text */}
                         <div className="bg-zinc-100 dark:bg-zinc-700/50 p-4 print:p-1 rounded-lg mb-4 print:mb-1 text-center border border-zinc-200 dark:border-zinc-600">
                             <p className="text-lg font-medium text-zinc-800 dark:text-zinc-100"><EditableText value={puzzle.riddle} tag="span" /></p>
@@ -578,11 +554,7 @@ export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => {
             <PedagogicalHeader title={data.title} instruction={data.instruction || "İpuçlarını oku ve doğru cevabı bul."} note={data.pedagogicalNote} data={data} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3">
                 {(data.puzzles || []).map((puzzle, i) => (
-<<<<<<< HEAD
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-400 dark:border-zinc-500 rounded-xl p-5 print:p-1 shadow-md break-inside-avoid flex flex-col h-full  relative">
-=======
-                    <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-400 dark:border-zinc-500 rounded-xl p-5 print:p-1 shadow-md break-inside-avoid flex flex-col h-full print:h-0 relative">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                         {/* Riddle Box */}
                         <div className="bg-amber-50 dark:bg-amber-900/20 p-4 print:p-1 rounded-lg mb-4 print:mb-1 text-center border border-amber-200 dark:border-amber-800">
                             <p className="text-lg font-medium text-amber-900 dark:text-amber-100 font-dyslexic"><EditableText value={puzzle.riddle} tag="span" /></p>
@@ -626,7 +598,4 @@ export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => {
 
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

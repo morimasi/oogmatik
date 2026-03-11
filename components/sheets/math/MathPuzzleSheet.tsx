@@ -16,11 +16,7 @@ const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: an
                             <div className="flex items-center gap-1">
                                 {item.multiplier > 1 && <span className="text-sm font-black text-indigo-600 bg-indigo-50 px-1.5 rounded">{item.multiplier}x</span>}
                                 <div className="w-12 h-12 flex items-center justify-center">
-<<<<<<< HEAD
                                     <ImageDisplay prompt={obj?.imagePrompt} description={obj?.name} className="w-full h-full  object-contain" />
-=======
-                                    <ImageDisplay prompt={obj?.imagePrompt} description={obj?.name} className="w-full h-full print:h-0 object-contain" />
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                 </div>
                             </div>
                         </React.Fragment>
@@ -36,11 +32,7 @@ const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: an
 };
 
 export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
-<<<<<<< HEAD
     <div className="flex flex-col h-full  font-lexend text-black bg-white">
-=======
-    <div className="flex flex-col h-full print:h-0 font-lexend text-black bg-white">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3 mt-4 print:mt-1 flex-1 content-start">
             {(data?.puzzles || []).map((puzzle, index) => (
@@ -73,7 +65,4 @@ export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
 
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

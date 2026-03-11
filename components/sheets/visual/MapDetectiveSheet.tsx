@@ -12,11 +12,7 @@ const CompassRose = () => (
             <span className="absolute -bottom-1.5 text-[12px] font-black bg-white px-1 leading-none">G</span>
             <span className="absolute -left-2 text-[12px] font-black bg-white px-1 leading-none">B</span>
             <span className="absolute -right-2 text-[12px] font-black bg-white px-1 leading-none">D</span>
-<<<<<<< HEAD
             <div className="w-0.5 h-full  bg-zinc-900 absolute left-1/2 -translate-x-1/2"></div>
-=======
-            <div className="w-0.5 h-full print:h-0 bg-zinc-900 absolute left-1/2 -translate-x-1/2"></div>
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <div className="h-0.5 w-full bg-zinc-900 absolute top-1/2 -translate-y-1/2"></div>
             <div className="w-3 h-3 bg-indigo-600 rounded-full z-10 border-2 border-white"></div>
         </div>
@@ -58,31 +54,19 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
     const isRegionFocused = data.cities && data.cities.length < 50;
 
     return (
-<<<<<<< HEAD
         <div className="flex flex-col h-full  bg-white p-2 print:p-0 font-sans text-black overflow-visible">
-=======
-        <div className="flex flex-col h-full print:h-0 bg-white p-2 print:p-0 font-sans text-black overflow-visible">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
 
             {/* HARİTA KANVASI */}
             <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 print:mb-3 print:mb-4 print:mb-1 group min-h-[450px] print:min-h-0 print:border-4 print:mb-6 print:mb-2 print:rounded-3xl">
 
                 {/* Zemin Harita Katmanı — padding YOK, tam inset-0 */}
-<<<<<<< HEAD
                 <div className="absolute inset-0 w-full h-full  bg-slate-50 z-10 flex items-center justify-center">
-=======
-                <div className="absolute inset-0 w-full h-full print:h-0 bg-slate-50 z-10 flex items-center justify-center">
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                     {isCustomMap ? (
                         <img
                             src={mapSource}
                             alt="Özel Harita"
-<<<<<<< HEAD
                             className="w-full h-full  object-cover transition-all duration-700 absolute inset-0"
-=======
-                            className="w-full h-full print:h-0 object-cover transition-all duration-700 absolute inset-0"
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                         />
                     ) : (
                         <TurkeyMapSVG
@@ -90,11 +74,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                             showRegionLabels={true}
                             width="100%"
                             height="100%"
-<<<<<<< HEAD
                             className="w-full h-full  absolute inset-0 transition-all duration-700"
-=======
-                            className="w-full h-full print:h-0 absolute inset-0 transition-all duration-700"
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                         />
                     )}
 
@@ -102,11 +82,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                     <svg
                         viewBox="0 0 1000 500"
                         preserveAspectRatio="xMidYMid meet"
-<<<<<<< HEAD
                         className="w-full h-full  absolute inset-0 z-20 pointer-events-none"
-=======
-                        className="w-full h-full print:h-0 absolute inset-0 z-20 pointer-events-none"
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                         style={{ top: 0, left: 0, position: 'absolute' }}
                     >
                         {/* GRID SİSTEMİ ÇİZİMİ */}
@@ -219,7 +195,4 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
 
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
