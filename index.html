@@ -576,7 +576,8 @@
         max-width: 210mm !important;
         min-height: 297mm !important;
         height: auto !important;
-        padding: 10mm 12mm !important;
+        padding: 5mm 8mm !important;
+        /* Standart boşluğu da daralttık */
         /* Ortala */
         margin: 0 !important;
         overflow: visible !important;
@@ -607,7 +608,8 @@
       ═══════════════════════════════════════════ */
       #print-container.compact-print .ultra-print-page,
       #print-container.compact-print .worksheet-page {
-        padding: 5mm 8mm !important;
+        padding: 4mm 5mm !important;
+        /* Çok daha dar boşluk - premium & ekonomik görünüm */
       }
 
       #print-container.compact-print .pedagogical-header h3 {
@@ -717,14 +719,6 @@
       .block-logic-card,
       .block-clue-card,
       .block-footer-val,
-      /* Bütün Tailwind kartları ve kapsayıcıları koru */
-      .rounded-2xl,
-      .rounded-3xl,
-      .rounded-xl,
-      .bg-white,
-      .bg-zinc-50,
-      .border,
-      .shadow-sm,
       /* Görsellerin/Canvas'ların yarısı üstte kalmasın */
       img,
       canvas,
