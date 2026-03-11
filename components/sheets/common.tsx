@@ -4,254 +4,491 @@ import { ShapeType, BaseActivityData } from '../../types';
 
 // --- KLİNİK RENK PALETİ ---
 export const CLINICAL_COLORS = {
-    primary: '#4f46e5',
-    success: '#10b981',
-    warning: '#f59e0b',
-    danger: '#ef4444',
-    neutral: '#3f3f46'
+  primary: '#4f46e5',
+  success: '#10b981',
+  warning: '#f59e0b',
+  danger: '#ef4444',
+  neutral: '#3f3f46',
 };
 
 // --- CONSTANTS ---
 export const QUESTION_TYPES: Record<string, { label: string; color: string }> = {
-    who: { label: 'KİM?', color: '#4f46e5' },
-    where: { label: 'NEREDE?', color: '#10b981' },
-    when: { label: 'NE ZAMAN?', color: '#f59e0b' },
-    what: { label: 'NE?', color: '#ef4444' },
-    why: { label: 'NİYE?', color: '#8b5cf6' },
-    how: { label: 'NASIL?', color: '#ec4899' },
+  who: { label: 'KİM?', color: '#4f46e5' },
+  where: { label: 'NEREDE?', color: '#10b981' },
+  when: { label: 'NE ZAMAN?', color: '#f59e0b' },
+  what: { label: 'NE?', color: '#ef4444' },
+  why: { label: 'NİYE?', color: '#8b5cf6' },
+  how: { label: 'NASIL?', color: '#ec4899' },
 };
 
 const SHAPE_PATHS: Record<string, string> = {
-    triangle: "M 50 15 L 85 85 L 15 85 Z",
-    circle: "M 50 50 m -35 0 a 35 35 0 1 0 70 0 a 35 35 0 1 0 -70 0",
-    square: "M 20 20 L 80 20 L 80 80 L 20 80 Z",
-    star: "M 50 10 L 61 35 L 88 35 L 66 52 L 75 78 L 50 62 L 25 78 L 34 52 L 12 35 L 39 35 Z",
-    hexagon: "M 50 10 L 85 30 L 85 70 L 50 90 L 15 70 L 15 30 Z",
-    pentagon: "M 50 10 L 90 40 L 75 85 L 25 85 L 10 40 Z",
-    diamond: "M 50 10 L 85 50 L 50 90 L 15 50 Z"
+  triangle: 'M 50 15 L 85 85 L 15 85 Z',
+  circle: 'M 50 50 m -35 0 a 35 35 0 1 0 70 0 a 35 35 0 1 0 -70 0',
+  square: 'M 20 20 L 80 20 L 80 80 L 20 80 Z',
+  star: 'M 50 10 L 61 35 L 88 35 L 66 52 L 75 78 L 50 62 L 25 78 L 34 52 L 12 35 L 39 35 Z',
+  hexagon: 'M 50 10 L 85 30 L 85 70 L 50 90 L 15 70 L 15 30 Z',
+  pentagon: 'M 50 10 L 90 40 L 75 85 L 25 85 L 10 40 Z',
+  diamond: 'M 50 10 L 85 50 L 50 90 L 15 50 Z',
 };
 
 // --- COMPONENTS ---
 
 export const ReadingRuler = () => null;
 
-export const PedagogicalHeader = React.memo(({ title, instruction, note, data }: { title: string; instruction: string; note?: string; data?: BaseActivityData }) => (
+export const PedagogicalHeader = React.memo(
+  ({
+    title,
+    instruction,
+    note,
+    data,
+  }: {
+    title: string;
+    instruction: string;
+    note?: string;
+    data?: BaseActivityData;
+  }) => (
     <div className="pedagogical-header mb-6 w-full break-inside-avoid border-b-4 border-zinc-900 pb-4 print:mb-4 print:pb-2 print:border-b-[1.5pt]">
-        <div className="flex items-start justify-between gap-6 print:gap-4">
-            <div className="flex-1">
-                <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-3 print:text-xl print:mb-1">{title}</h3>
-                <p className="instruction text-base font-bold text-zinc-700 leading-normal italic print:text-xs print:leading-tight">{instruction}</p>
-            </div>
-            {data?.targetedErrors && (
-                <div className="flex flex-wrap gap-1 justify-end max-w-[200px] no-print">
-                    {data.targetedErrors.map((tag: string) => (
-                        <span key={tag} className="text-[7px] font-black bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded border border-zinc-200 uppercase tracking-widest">
-                            {tag.replace('_', ' ')}
-                        </span>
-                    ))}
-                </div>
-            )}
+      <div className="flex items-start justify-between gap-6 print:gap-4">
+        <div className="flex-1">
+          <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-3 print:text-xl print:mb-1">
+            {title}
+          </h3>
+          <p className="instruction text-base font-bold text-zinc-700 leading-normal italic print:text-xs print:leading-tight">
+            {instruction}
+          </p>
         </div>
-        {note && <p className="note mt-3 text-[10px] text-zinc-500 font-medium leading-relaxed max-w-3xl print:mt-2 print:text-[9px] print:leading-tight">
-            <i className="fa-solid fa-graduation-cap mr-2"></i>{note}
-        </p>}
+        {data?.targetedErrors && (
+          <div className="flex flex-wrap gap-1 justify-end max-w-[200px] no-print">
+            {data.targetedErrors.map((tag: string) => (
+              <span
+                key={tag}
+                className="text-[7px] font-black bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded border border-zinc-200 uppercase tracking-widest"
+              >
+                {tag.replace('_', ' ')}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      {note && (
+        <p className="note mt-3 text-[10px] text-zinc-500 font-medium leading-relaxed max-w-3xl print:mt-2 print:text-[9px] print:leading-tight">
+          <i className="fa-solid fa-graduation-cap mr-2"></i>
+          {note}
+        </p>
+      )}
     </div>
-));
-
+  )
+);
 
 export const TenFrame = ({ count, color = '#4f46e5' }: { count: number; color?: string }) => (
-    <div className="grid grid-cols-5 grid-rows-2 gap-1 p-1 bg-white border-2 border-black w-32 h-14 rounded-md shadow-sm">
-        {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="border border-zinc-200 rounded-sm flex items-center justify-center">
-                {i < count && <div className="w-4 h-4 rounded-full shadow-inner" style={{ backgroundColor: color }}></div>}
-            </div>
-        ))}
-    </div>
+  <div className="grid grid-cols-5 grid-rows-2 gap-1 p-1 bg-white border-2 border-black w-32 h-14 rounded-md shadow-sm">
+    {Array.from({ length: 10 }).map((_, i) => (
+      <div key={i} className="border border-zinc-200 rounded-sm flex items-center justify-center">
+        {i < count && (
+          <div
+            className="w-4 h-4 rounded-full shadow-inner"
+            style={{ backgroundColor: color }}
+          ></div>
+        )}
+      </div>
+    ))}
+  </div>
 );
 
-export const Shape = ({ name, className = "w-8 h-8", color = "currentColor" }: { name: ShapeType; className?: string; color?: string; key?: any }) => (
-    <svg viewBox="0 0 100 100" className={className} fill={color}>
-        <path d={SHAPE_PATHS[name] || SHAPE_PATHS.circle} />
-    </svg>
+export const Shape = ({
+  name,
+  className = 'w-8 h-8',
+  color = 'currentColor',
+}: {
+  name: ShapeType;
+  className?: string;
+  color?: string;
+  key?: any;
+}) => (
+  <svg viewBox="0 0 100 100" className={className} fill={color}>
+    <path d={SHAPE_PATHS[name] || SHAPE_PATHS.circle} />
+  </svg>
 );
 
-export const GridComponent = ({ grid, cellClassName = "w-10 h-10 border" }: { grid: string[][]; cellClassName?: string }) => (
-    <div className="inline-block border-2 border-zinc-900 bg-white">
-        {grid.map((row: string[], r: number) => (
-            <div key={r} className="flex">
-                {row.map((cell: string, c: number) => (
-                    <div key={c} className={`flex items-center justify-center font-bold ${cellClassName}`}>
-                        {cell}
-                    </div>
-                ))}
-            </div>
+export const GridComponent = ({
+  grid,
+  cellClassName = 'w-10 h-10 border',
+}: {
+  grid: string[][];
+  cellClassName?: string;
+}) => (
+  <div className="inline-block border-2 border-zinc-900 bg-white">
+    {grid.map((row: string[], r: number) => (
+      <div key={r} className="flex">
+        {row.map((cell: string, c: number) => (
+          <div key={c} className={`flex items-center justify-center font-bold ${cellClassName}`}>
+            {cell}
+          </div>
         ))}
-    </div>
+      </div>
+    ))}
+  </div>
 );
 
 export const CagedGridSvg = () => null;
 
 export const ShapeDisplay = ({ shapes }: { shapes: ShapeType[] }) => (
-    <div className="flex gap-1">
-        {shapes.map((s: ShapeType, i: number) => <Shape key={i} name={s} className="w-4 h-4" />)}
-    </div>
+  <div className="flex gap-1">
+    {shapes.map((s: ShapeType, i: number) => (
+      <Shape key={i} name={s} className="w-4 h-4" />
+    ))}
+  </div>
 );
 
-export const SegmentDisplay = ({ segments = [], color = "black" }: { segments?: boolean[]; color?: string }) => (
-    <div className="w-12 h-20 relative">
-        <div className="absolute inset-0 border-2 border-zinc-100 opacity-20" style={{ borderColor: color }}></div>
-        {segments.map((active, i) => active && <div key={i} className="absolute bg-current" style={{ opacity: 0.8, color }}></div>)}
-    </div>
+export const SegmentDisplay = ({
+  segments = [],
+  color = 'black',
+}: {
+  segments?: boolean[];
+  color?: string;
+}) => (
+  <div className="w-12 h-20 relative">
+    <div
+      className="absolute inset-0 border-2 border-zinc-100 opacity-20"
+      style={{ borderColor: color }}
+    ></div>
+    {segments.map(
+      (active, i) =>
+        active && (
+          <div key={i} className="absolute bg-current" style={{ opacity: 0.8, color }}></div>
+        )
+    )}
+  </div>
 );
 
-export const Matchstick = ({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) => (
-    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" />
+export const Matchstick = ({
+  x1,
+  y1,
+  x2,
+  y2,
+}: {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}) => (
+  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" />
 );
 
 export const ConnectionDot = ({ x, y, label }: { x: number; y: number; label?: string }) => (
-    <g transform={`translate(${x}, ${y})`}>
-        <circle r="4" fill="black" />
-        {label && <text y="15" textAnchor="middle" fontSize="10" fontWeight="bold">{label}</text>}
-    </g>
+  <g transform={`translate(${x}, ${y})`}>
+    <circle r="4" fill="black" />
+    {label && (
+      <text y="15" textAnchor="middle" fontSize="10" fontWeight="bold">
+        {label}
+      </text>
+    )}
+  </g>
 );
 
 export const CubeStack = ({ counts }: { counts: number[][] }) => (
-    <div className="flex flex-col items-center">
-        <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${counts[0]?.length || 0}, 30px)` }}>
-            {counts.map((row: number[], r: number) => row.map((count: number, c: number) => (
-                <div key={`${r}-${c}`} className="w-[30px] h-[30px] border-2 border-zinc-800 bg-zinc-100 flex items-center justify-center font-bold text-xs">
-                    {count}
-                </div>
-            )))}
-        </div>
+  <div className="flex flex-col items-center">
+    <div
+      className="grid gap-1"
+      style={{ gridTemplateColumns: `repeat(${counts[0]?.length || 0}, 30px)` }}
+    >
+      {counts.map((row: number[], r: number) =>
+        row.map((count: number, c: number) => (
+          <div
+            key={`${r}-${c}`}
+            className="w-[30px] h-[30px] border-2 border-zinc-800 bg-zinc-100 flex items-center justify-center font-bold text-xs"
+          >
+            {count}
+          </div>
+        ))
+      )}
     </div>
+  </div>
 );
 
 export const DyslexicText = ({ text }: { text: string }) => (
-    <p className="font-dyslexic text-lg leading-relaxed">{text}</p>
+  <p className="font-dyslexic text-lg leading-relaxed">{text}</p>
 );
 
 export const HandwritingGuide = ({ height, children }: { height: number; children?: any }) => (
-    <div className="relative w-full border-b border-zinc-200" style={{ height: `${height}px`, backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px)', backgroundSize: `100% ${height / 4}px` }}>
-        {children}
-    </div>
+  <div
+    className="relative w-full border-b border-zinc-200"
+    style={{
+      height: `${height}px`,
+      backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px)',
+      backgroundSize: `100% ${height / 4}px`,
+    }}
+  >
+    {children}
+  </div>
 );
 
-export const TracingText = ({ text, fontSize = "32px" }: { text: string; fontSize?: string }) => (
-    <span className="font-tracing opacity-40 select-none" style={{ fontSize }}>{text}</span>
+export const TracingText = ({ text, fontSize = '32px' }: { text: string; fontSize?: string }) => (
+  <span className="font-tracing opacity-40 select-none" style={{ fontSize }}>
+    {text}
+  </span>
 );
 
 export const Domino = ({ count }: { count: number }) => (
-    <div className="w-12 h-12 border-2 border-black rounded-lg flex items-center justify-center bg-white">
-        <div className="grid grid-cols-3 gap-1">
-            {Array.from({ length: 9 }).map((_, i) => (
-                <div key={i} className={`w-1.5 h-1.5 rounded-full ${[4, 0, 8, 2, 6, 1, 7, 3, 5].slice(0, count).includes(i) ? 'bg-black' : 'bg-transparent'}`}></div>
-            ))}
-        </div>
+  <div className="w-12 h-12 border-2 border-black rounded-lg flex items-center justify-center bg-white">
+    <div className="grid grid-cols-3 gap-1">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <div
+          key={i}
+          className={`w-1.5 h-1.5 rounded-full ${[4, 0, 8, 2, 6, 1, 7, 3, 5].slice(0, count).includes(i) ? 'bg-black' : 'bg-transparent'}`}
+        ></div>
+      ))}
     </div>
+  </div>
 );
 
-export const NumberBond = ({ whole, part1, part2 }: { whole: number; part1: number; part2: number; isAddition?: boolean }) => (
-    <div className="flex flex-col items-center gap-2">
-        <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center font-bold">{whole}</div>
-        <div className="flex gap-4">
-            <div className="w-8 h-8 rounded-full border border-black flex items-center justify-center text-sm">{part1}</div>
-            <div className="w-8 h-8 rounded-full border border-black flex items-center justify-center text-sm">{part2}</div>
-        </div>
+export const NumberBond = ({
+  whole,
+  part1,
+  part2,
+}: {
+  whole: number;
+  part1: number;
+  part2: number;
+  isAddition?: boolean;
+}) => (
+  <div className="flex flex-col items-center gap-2">
+    <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center font-bold">
+      {whole}
     </div>
+    <div className="flex gap-4">
+      <div className="w-8 h-8 rounded-full border border-black flex items-center justify-center text-sm">
+        {part1}
+      </div>
+      <div className="w-8 h-8 rounded-full border border-black flex items-center justify-center text-sm">
+        {part2}
+      </div>
+    </div>
+  </div>
 );
 
 export const FractionVisual = ({ num, den }: { num: number; den: number }) => (
-    <div className="w-12 h-12 rounded-full border-2 border-black relative overflow-hidden">
-        {Array.from({ length: den }).map((_, i) => (
-            <div
-                key={i}
-                className={`absolute inset-0 ${i < num ? 'bg-indigo-500' : 'bg-transparent'}`}
-                style={{
-                    clipPath: `conic-gradient(from ${i * (360 / den)}deg, #000 ${360 / den}deg, transparent 0)`,
-                    transform: `rotate(${i * (360 / den)}deg)`
-                }}
-            ></div>
-        ))}
-    </div>
+  <div className="w-12 h-12 rounded-full border-2 border-black relative overflow-hidden">
+    {Array.from({ length: den }).map((_, i) => (
+      <div
+        key={i}
+        className={`absolute inset-0 ${i < num ? 'bg-indigo-500' : 'bg-transparent'}`}
+        style={{
+          clipPath: `conic-gradient(from ${i * (360 / den)}deg, #000 ${360 / den}deg, transparent 0)`,
+          transform: `rotate(${i * (360 / den)}deg)`,
+        }}
+      ></div>
+    ))}
+  </div>
 );
 
-export const AnalogClock = ({ hour, minute, className, showHands = true }: { hour: number; minute: number; className?: string; showNumbers?: boolean; showTicks?: boolean; showHands?: boolean }) => (
-    <svg viewBox="0 0 100 100" className={className}>
-        <circle cx="50" cy="50" r="48" fill="none" stroke="black" strokeWidth="2" />
-        {showHands && (
-            <>
-                <line x1="50" y1="50" x2={50 + 25 * Math.sin((hour + minute / 60) * Math.PI / 6)} y2={50 - 25 * Math.cos((hour + minute / 60) * Math.PI / 6)} stroke="black" strokeWidth="3" strokeLinecap="round" />
-                <line x1="50" y1="50" x2={50 + 35 * Math.sin(minute * Math.PI / 30)} y2={50 - 35 * Math.cos(minute * Math.PI / 30)} stroke="black" strokeWidth="2" strokeLinecap="round" />
-            </>
-        )}
-        <circle cx="50" cy="50" r="2" fill="black" />
-    </svg>
+export const AnalogClock = ({
+  hour,
+  minute,
+  className,
+  showHands = true,
+}: {
+  hour: number;
+  minute: number;
+  className?: string;
+  showNumbers?: boolean;
+  showTicks?: boolean;
+  showHands?: boolean;
+}) => (
+  <svg viewBox="0 0 100 100" className={className}>
+    <circle cx="50" cy="50" r="48" fill="none" stroke="black" strokeWidth="2" />
+    {showHands && (
+      <>
+        <line
+          x1="50"
+          y1="50"
+          x2={50 + 25 * Math.sin(((hour + minute / 60) * Math.PI) / 6)}
+          y2={50 - 25 * Math.cos(((hour + minute / 60) * Math.PI) / 6)}
+          stroke="black"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <line
+          x1="50"
+          y1="50"
+          x2={50 + 35 * Math.sin((minute * Math.PI) / 30)}
+          y2={50 - 35 * Math.cos((minute * Math.PI) / 30)}
+          stroke="black"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </>
+    )}
+    <circle cx="50" cy="50" r="2" fill="black" />
+  </svg>
 );
 
-export const NumberLine = ({ start, end, step, missing = [] }: { start: number; end: number; step: number; missing?: number[] }) => (
-    <div className="w-full h-12 flex items-center px-4">
-        <div className="w-full h-0.5 bg-black relative">
-            {Array.from({ length: Math.round((end - start) / step) + 1 }).map((_, i) => {
-                const val = start + i * step;
-                return (
-                    <div key={val} className="absolute top-0 h-3 w-0.5 bg-black" style={{ left: `${(i / Math.round((end - start) / step)) * 100}%` }}>
-                        <span className="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] font-bold">
-                            {missing.includes(val) ? '?' : val}
-                        </span>
-                    </div>
-                );
-            })}
-        </div>
+export const NumberLine = ({
+  start,
+  end,
+  step,
+  missing = [],
+}: {
+  start: number;
+  end: number;
+  step: number;
+  missing?: number[];
+}) => (
+  <div className="w-full h-12 flex items-center px-4">
+    <div className="w-full h-0.5 bg-black relative">
+      {Array.from({ length: Math.round((end - start) / step) + 1 }).map((_, i) => {
+        const val = start + i * step;
+        return (
+          <div
+            key={val}
+            className="absolute top-0 h-3 w-0.5 bg-black"
+            style={{ left: `${(i / Math.round((end - start) / step)) * 100}%` }}
+          >
+            <span className="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] font-bold">
+              {missing.includes(val) ? '?' : val}
+            </span>
+          </div>
+        );
+      })}
     </div>
+  </div>
 );
 
 export const Base10Visualizer = ({ number, className }: { number: number; className?: string }) => (
-    <div className={`flex gap-2 ${className}`}>
-        {Array.from({ length: Math.floor(number / 10) }).map((_, i: number) => <div key={i} className="w-2 h-10 bg-indigo-200 border border-indigo-400"></div>)}
-        {Array.from({ length: number % 10 }).map((_, i: number) => <div key={i} className="w-2 h-2 bg-indigo-500 border border-indigo-700"></div>)}
-    </div>
+  <div className={`flex gap-2 ${className}`}>
+    {Array.from({ length: Math.floor(number / 10) }).map((_, i: number) => (
+      <div key={i} className="w-2 h-10 bg-indigo-200 border border-indigo-400"></div>
+    ))}
+    {Array.from({ length: number % 10 }).map((_, i: number) => (
+      <div key={i} className="w-2 h-2 bg-indigo-500 border border-indigo-700"></div>
+    ))}
+  </div>
 );
 
-export const StoryHighlighter = ({ text, highlights }: { text: string; highlights: { text: string; type: string }[] }) => {
-    let result: any[] = [text];
+export const StoryHighlighter = ({
+  text,
+  highlights,
+}: {
+  text: string;
+  highlights: { text: string; type: string }[];
+}) => {
+  let result: any[] = [text];
 
-    highlights.forEach((h: { text: string; type: string }) => {
-        if (!h.text) return;
-        const color = QUESTION_TYPES[h.type]?.color || '#fef08a';
+  highlights.forEach((h: { text: string; type: string }) => {
+    if (!h.text) return;
+    const color = QUESTION_TYPES[h.type]?.color || '#fef08a';
 
-        result = result.flatMap(part => {
-            if (typeof part !== 'string') return part;
-            const pieces = part.split(h.text);
-            return pieces.reduce((acc: any[], piece, i) => {
-                acc.push(piece);
-                if (i < pieces.length - 1) {
-                    acc.push(<span key={`${h.text}-${i}`} className="bg-yellow-200 rounded px-1" style={{ backgroundColor: `${color}33` }}>{h.text}</span>);
-                }
-                return acc;
-            }, []);
-        });
+    result = result.flatMap((part) => {
+      if (typeof part !== 'string') return part;
+      const pieces = part.split(h.text);
+      return pieces.reduce((acc: any[], piece, i) => {
+        acc.push(piece);
+        if (i < pieces.length - 1) {
+          acc.push(
+            <span
+              key={`${h.text}-${i}`}
+              className="bg-yellow-200 rounded px-1"
+              style={{ backgroundColor: `${color}33` }}
+            >
+              {h.text}
+            </span>
+          );
+        }
+        return acc;
+      }, []);
     });
+  });
 
-    return <>{result}</>;
+  return <>{result}</>;
 };
 
 export const FlowArrow = () => (
-    <div className="flex flex-col items-center py-2">
-        <div className="w-1 h-8 bg-zinc-900"></div>
-        <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-zinc-900"></div>
-    </div>
+  <div className="flex flex-col items-center py-2">
+    <div className="w-1 h-8 bg-zinc-900"></div>
+    <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-zinc-900"></div>
+  </div>
 );
 
-export const ImageDisplay = React.memo(({ prompt, base64, className = "w-full h-24", description = "image" }: { prompt?: string; base64?: string; className?: string; description?: string }) => {
+export const ImageDisplay = React.memo(
+  ({
+    prompt,
+    base64,
+    className = 'w-full h-24',
+    description = 'image',
+  }: {
+    prompt?: string;
+    base64?: string;
+    className?: string;
+    description?: string;
+  }) => {
     const [isLoading, setIsLoading] = useState(!base64);
+    const [hasError, setHasError] = useState(false);
+    const [useInlineSvg, setUseInlineSvg] = useState(false);
     const query = encodeURIComponent(prompt || 'educational illustration');
-    const url = base64 || `https://image.pollinations.ai/prompt/${query}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
+    const url =
+      base64 ||
+      `https://image.pollinations.ai/prompt/${query}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
+
+    const handleError = () => {
+      if (!base64) {
+        setHasError(true);
+        setUseInlineSvg(true);
+      }
+      setIsLoading(false);
+    };
+
+    // Simple inline SVG placeholder for offline or failed loads
+    const InlinePlaceholder = () => (
+      <svg viewBox="0 0 512 512" width="100%" height="100%" role="img" aria-label={description}>
+        <defs>
+          <linearGradient id="grad" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor="#e2e8f0" />
+            <stop offset="100%" stopColor="#cbd5e1" />
+          </linearGradient>
+        </defs>
+        <rect width="512" height="512" fill="url(#grad)" />
+        <g fill="none" stroke="#64748b" strokeWidth="8">
+          <path d="M80 160 Q256 40 432 160" />
+          <path d="M80 320 Q256 200 432 320" />
+        </g>
+        <text
+          x="50%"
+          y="52%"
+          textAnchor="middle"
+          fill="#64748b"
+          fontFamily="sans-serif"
+          fontSize="28"
+          fontWeight="bold"
+        >
+          Resim yüklenemedi
+        </text>
+      </svg>
+    );
 
     return (
-        <div className={`relative overflow-hidden rounded-2xl bg-zinc-50 ${className}`}>
-            {isLoading && !base64 && <div className="absolute inset-0 flex items-center justify-center"><i className="fa-solid fa-circle-notch fa-spin text-indigo-500"></i></div>}
-            <img src={url} alt={description} className={`w-full h-full object-contain transition-opacity duration-700 ${isLoading && !base64 ? 'opacity-0' : 'opacity-100'}`} onLoad={() => !base64 && setIsLoading(false)} />
-        </div>
+      <div
+        className={`relative overflow-hidden rounded-2xl bg-zinc-50 ${className}`}
+        style={{ minHeight: '100px' }}
+      >
+        {useInlineSvg ? (
+          <InlinePlaceholder />
+        ) : (
+          <>
+            {isLoading && !base64 && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <i className="fa-solid fa-circle-notch fa-spin text-indigo-500"></i>
+              </div>
+            )}
+            <img
+              src={url}
+              alt={description}
+              className={`w-full h-full object-contain transition-opacity duration-700 ${isLoading && !base64 ? 'opacity-0' : 'opacity-100'}`}
+              onLoad={() => !base64 && setIsLoading(false)}
+              onError={handleError}
+            />
+          </>
+        )}
+      </div>
     );
-});
+  }
+);
