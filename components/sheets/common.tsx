@@ -47,7 +47,7 @@ export const PedagogicalHeader = React.memo(
     note?: string;
     data?: BaseActivityData;
   }) => (
-    <div className="pedagogical-header mb-6 w-full break-inside-avoid border-b-4 border-zinc-900 pb-4 print:mb-4 print:pb-2 print:border-b-[1.5pt]">
+    <div className="pedagogical-header mb-6 w-full border-b-4 border-zinc-900 pb-4 print:mb-4 print:pb-2 print:border-b-[1.5pt]">
       <div className="flex items-start justify-between gap-6 print:gap-4">
         <div className="flex-1">
           <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-3 print:text-xl print:mb-1">
