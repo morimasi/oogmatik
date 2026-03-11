@@ -16,6 +16,7 @@ import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
 import { adminService } from '../services/adminService';
 import { useStudent } from '../context/StudentContext';
+import './PremiumPopupStyles.css';
 
 const toPascalCase = (str: string): string => {
   if (!str) return '';

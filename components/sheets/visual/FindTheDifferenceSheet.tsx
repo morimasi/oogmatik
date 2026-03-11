@@ -13,7 +13,7 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
 
     if (isSideBySide && data.gridA && data.gridB) {
         return (
-            <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
+            <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet">
                 <PedagogicalHeader
                     title={data?.title || "FARK BULMACA: TABLO KARŞILAŞTIRMA"}
                     instruction={data?.instruction || `Sol taraftaki tablo ile sağ taraftaki tablo arasındaki ${data.diffCount || ''} farkı bulun.`}
@@ -33,7 +33,7 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
                         </div>
                     </div>
 
-                    {/* Ayırıcı / Ok h-full print:h-0 flex items-center justify-center hidden md:flex */}
+                    {/* Ayırıcı / Ok h-full  flex items-center justify-center hidden md:flex */}
                     <div className="self-center flex flex-col items-center opacity-20 hidden md:flex">
                         <i className="fa-solid fa-chevron-right text-4xl"></i>
                         <span className="text-[8px] font-black mt-2">KARŞILAŞTIR</span>
@@ -80,7 +80,7 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
     else if (isGridCompact) gridCols = "grid-cols-2";
 
     return (
-        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
+        <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet">
             <PedagogicalHeader
                 title={data?.title || "FARKLI OLANI BUL & AYRIŞTIRMA"}
                 instruction={data?.instruction || "Diğerlerinden farklı olan öğeyi bulun ve işaretleyin."}
@@ -171,6 +171,7 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
         </div>
     );
 };
+
 
 
 

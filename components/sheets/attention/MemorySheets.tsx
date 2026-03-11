@@ -56,7 +56,7 @@ export const VisualMemorySheet = ({ data }: { data: VisualMemoryData }) => (
             <div className="grid grid-cols-3 md:grid-cols-4 gap-6 print:gap-2 mt-8 print:mt-2">
                 {(data.itemsToMemorize || []).map((item, i) => (
                     <div key={i} className="aspect-square border-2 border-black rounded-2xl p-2 bg-white shadow-sm">
-                        <ImageDisplay prompt={item.imagePrompt} description={item.description} className="w-full h-full print:h-0 object-contain" />
+                        <ImageDisplay prompt={item.imagePrompt} description={item.description} className="w-full h-full  object-contain" />
                     </div>
                 ))}
             </div>
@@ -67,7 +67,7 @@ export const VisualMemorySheet = ({ data }: { data: VisualMemoryData }) => (
                 {(data.testItems || []).map((item, i) => (
                     <div key={i} className="aspect-square border border-zinc-200 rounded-xl p-2 relative grayscale opacity-50">
                         <div className="absolute top-1 right-1 w-4 h-4 border border-black rounded bg-white"></div>
-                        <ImageDisplay prompt={item.imagePrompt} className="w-full h-full print:h-0 object-contain" />
+                        <ImageDisplay prompt={item.imagePrompt} className="w-full h-full  object-contain" />
                     </div>
                 ))}
             </div>
@@ -149,6 +149,7 @@ export const ImageComprehensionSheet = ({ data }: { data: ImageComprehensionData
         </div>
     </div>
 );
+
 
 
 

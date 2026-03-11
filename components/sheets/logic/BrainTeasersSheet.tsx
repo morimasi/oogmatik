@@ -15,7 +15,7 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
 
   return (
     <div
-      className="w-full h-full print:h-0 flex flex-col gap-8 print:gap-2 print:gap-3 print:p-3 p-8 print:p-2 print:p-3"
+      className="w-full h-full  flex flex-col gap-8 print:gap-2 print:gap-3 print:p-3 p-8 print:p-2 print:p-3"
       style={{ fontFamily: settings.fontFamily }}
     >
       {/* Header */}
@@ -103,6 +103,7 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
     </div>
   );
 };
+
 
 
 

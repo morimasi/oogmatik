@@ -22,7 +22,7 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
     const gridCols = layout === 'grid_2x1' ? 'grid-cols-2' : (layout === 'grid_2x2' ? 'grid-cols-2' : 'grid-cols-1');
 
     return (
-        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
+        <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet">
             <PedagogicalHeader
                 title={data.title || "FİGÜR-ZEMİN & SEÇİCİ DİKKAT"}
                 instruction={data.instruction || "Aşağıdaki karmaşık alanda hedef şekli bulup kaç adet olduğunu yazın."}
@@ -37,7 +37,7 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
                         <span className="text-xl font-black uppercase tracking-tighter">{settings?.targetShape || 'ÜÇGEN'}</span>
                     </div>
                     <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center p-2 border border-white/20">
-                        <svg viewBox="0 0 100 100" className="w-full h-full print:h-0 fill-amber-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.6)]">
+                        <svg viewBox="0 0 100 100" className="w-full h-full  fill-amber-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.6)]">
                             <path d={SHAPE_PATHS[settings?.targetShape || 'triangle']} />
                         </svg>
                     </div>
@@ -57,7 +57,7 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
 
                         {/* Arama Alanı - High Quality */}
                         <div className="relative aspect-video border-2 border-zinc-200 rounded-[2.5rem] bg-white overflow-hidden mb-6 print:mb-2 shadow-inner ring-4 ring-zinc-50">
-                            <svg viewBox="0 0 100 100" className="w-full h-full print:h-0">
+                            <svg viewBox="0 0 100 100" className="w-full h-full ">
                                 {section.searchField.map((item: any) => (
                                     <path
                                         key={item.id}
@@ -117,6 +117,7 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
         </div>
     );
 };
+
 
 
 

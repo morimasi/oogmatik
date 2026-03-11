@@ -50,7 +50,7 @@ export const ColorfulSyllableReadingSheet: React.FC<Props> = ({ data }) => {
     };
 
     return (
-        <div className="w-full h-full print:h-0 p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-full  p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* ETKİNLİK BAŞLIĞI */}
             <div className="flex justify-between items-center border-b-4 border-rose-400 pb-4 print:pb-1 mb-6 print:mb-2">
                 <div>
@@ -99,5 +99,6 @@ export const ColorfulSyllableReadingSheet: React.FC<Props> = ({ data }) => {
         </div>
     );
 };
+
 
 

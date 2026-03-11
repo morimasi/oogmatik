@@ -93,7 +93,7 @@ export const MorphologyMatrixSheet = ({ data }: { data: MorphologyMatrixData }) 
                   </span>
                   <div className="w-24 h-2 bg-zinc-200 rounded-full overflow-hidden">
                     <div
-                      className="h-full print:h-0 bg-indigo-500 shadow-glow"
+                      className="h-full  bg-indigo-500 shadow-glow"
                       style={{
                         width: `${data.clinicalMeta.morphologicalComplexity * 10 ? data.clinicalMeta.morphologicalComplexity * 10 : 0}%`,
                       }}
@@ -149,6 +149,7 @@ export const MorphologyMatrixSheet = ({ data }: { data: MorphologyMatrixData }) 
     </div>
   );
 };
+
 
 
 

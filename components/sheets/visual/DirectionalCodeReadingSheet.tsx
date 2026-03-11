@@ -28,7 +28,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
     };
 
     return (
-        <div className="w-full h-full print:h-0 p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-full  p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* ETKİNLİK BAŞLIĞI */}
             <div className="flex justify-between items-center border-b-4 border-indigo-500 pb-4 print:pb-1 mb-6 print:mb-2">
                 <div>
@@ -51,7 +51,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                 <div className="relative w-[60%] aspect-square bg-slate-50 border-4 border-indigo-900 rounded-3xl p-4 print:p-1 shadow-sm page-break-inside-avoid flex items-center justify-center z-10">
 
                     <div
-                        className="grid gap-[2px] w-full h-full print:h-0"
+                        className="grid gap-[2px] w-full h-full "
                         style={{
                             gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
                             gridTemplateRows: `repeat(${gridSize}, minmax(0, 1fr))`
@@ -92,7 +92,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                 </div>
 
                 {/* KOD (INSTRUCTION) BLOGU */}
-                <div className="w-[40%] bg-white border-[3px] border-zinc-900 rounded-[2rem] p-6 print:p-2 shadow-[8px_8px_0px_#1e1b4b] overflow-hidden relative page-break-inside-avoid h-full print:h-0 z-10 flex flex-col">
+                <div className="w-[40%] bg-white border-[3px] border-zinc-900 rounded-[2rem] p-6 print:p-2 shadow-[8px_8px_0px_#1e1b4b] overflow-hidden relative page-break-inside-avoid h-full  z-10 flex flex-col">
                     <div className="flex justify-between items-center mb-6 print:mb-2 border-b-2 border-zinc-200 pb-3">
                         <span className="text-sm font-black text-zinc-800 uppercase tracking-widest bg-zinc-100 px-3 py-1 rounded">Rotalama Kodları</span>
                         <i className="fa-solid fa-terminal text-zinc-400"></i>
@@ -146,6 +146,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
         </div >
     );
 };
+
 
 
 

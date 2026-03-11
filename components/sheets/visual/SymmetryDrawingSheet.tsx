@@ -102,7 +102,7 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
                             <span className="text-zinc-900">{clinicalMeta.complexity || '5'}/10</span>
                         </div>
                         <div className="w-full h-1 bg-zinc-200 rounded-full overflow-hidden">
-                            <div className="h-full print:h-0 bg-indigo-500" style={{ width: `${(clinicalMeta.complexity || 5) * 10}%` }}></div>
+                            <div className="h-full  bg-indigo-500" style={{ width: `${(clinicalMeta.complexity || 5) * 10}%` }}></div>
                         </div>
                         <span className="text-[6px] font-bold text-indigo-400 uppercase mt-1">Hedef: {clinicalMeta.targetCognitiveSkill || 'Uzamsal Planlama'}</span>
                     </div>
@@ -114,7 +114,7 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
     const containerGridCols = layout === 'grid_2x1' ? 'grid-cols-2' : (layout === 'grid_2x2' ? 'grid-cols-2' : 'grid-cols-1');
 
     return (
-        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
+        <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet">
             <PedagogicalHeader
                 title={data?.title || "SİMETRİ & MEKANSAL BÜTÜNLEME"}
                 instruction={data?.instruction || "Kırmızı kesikli çizgiye göre şeklin aynadaki görüntüsünü diğer tarafa çizin."}
@@ -145,6 +145,7 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
         </div>
     );
 };
+
 
 
 

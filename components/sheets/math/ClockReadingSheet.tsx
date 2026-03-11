@@ -5,7 +5,7 @@ import { PedagogicalHeader, AnalogClock } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => (
-    <div className="flex flex-col h-full print:h-0 font-lexend p-2">
+    <div className="flex flex-col h-full  font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1 mt-8 print:mt-2 flex-1 content-start">
             {(data.clocks || []).map((clock, i) => (
@@ -38,6 +38,7 @@ export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => (
         </div>
     </div>
 );
+
 
 
 

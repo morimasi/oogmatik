@@ -639,7 +639,7 @@ export const ImageDisplay = React.memo(
             <img
               src={url}
               alt={description}
-              className={`w-full h-full print:h-0 object-contain transition-all duration-1000 ${isLoading && !base64 ? 'opacity-0 scale-95 blur-lg' : 'opacity-100 scale-100 blur-0'}`}
+              className={`w-full h-full  object-contain transition-all duration-1000 ${isLoading && !base64 ? 'opacity-0 scale-95 blur-lg' : 'opacity-100 scale-100 blur-0'}`}
               onLoad={() => !base64 && setIsLoading(false)}
               onError={handleError}
             />
@@ -649,4 +649,5 @@ export const ImageDisplay = React.memo(
     );
   }
 );
+
 

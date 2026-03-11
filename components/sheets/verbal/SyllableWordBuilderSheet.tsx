@@ -23,7 +23,7 @@ export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderDa
               <ImageDisplay
                 prompt={word.imagePrompt}
                 description={word.targetWord}
-                className="w-full h-full print:h-0 object-contain"
+                className="w-full h-full  object-contain"
               />
             </div>
             <div className="flex-1 space-y-3">
@@ -63,6 +63,7 @@ export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderDa
     </div>
   </div>
 );
+
 
 
 

@@ -70,7 +70,7 @@ export const AlgorithmSheet = ({ data }: { data: AlgorithmData }) => {
     const steps = data.steps || [];
 
     return (
-        <div className="h-full print:h-0 flex flex-col text-black font-lexend p-2 overflow-visible">
+        <div className="h-full  flex flex-col text-black font-lexend p-2 overflow-visible">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
 
             <div className="mb-12 print:mb-3 p-10 print:p-3 print:p-4 print:p-1 bg-zinc-900 text-white rounded-[4rem] shadow-2xl relative overflow-hidden border-4 border-white ring-2 ring-zinc-100">
@@ -134,6 +134,7 @@ export const AlgorithmSheet = ({ data }: { data: AlgorithmData }) => {
         </div>
     );
 };
+
 
 
 

@@ -12,7 +12,7 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
     const cardSize = itemCount > 6 ? 'min-h-[200px]' : 'min-h-[280px]';
 
     return (
-        <div className="h-full print:h-0 flex flex-col text-black font-lexend">
+        <div className="h-full  flex flex-col text-black font-lexend">
             <PedagogicalHeader
                 title={data.title || "Sayısal Mantık Bilmeceleri"}
                 instruction={data.instruction || "Bilmeceleri çöz, doğru şıkkı işaretle ve sonuçları topla!"}
@@ -34,7 +34,7 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
                             {/* Görsel İpucu - Fix: Cast to any or ensure visualHint in type */}
                             {puzzle.visualHint && (
                                 <div className="h-24 w-full mb-4 print:mb-1 rounded-2xl bg-zinc-50 border border-zinc-100 overflow-hidden shadow-inner">
-                                    <ImageDisplay prompt={puzzle.visualHint} className="w-full h-full print:h-0" />
+                                    <ImageDisplay prompt={puzzle.visualHint} className="w-full h-full " />
                                 </div>
                             )}
 
@@ -131,6 +131,7 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
         </div>
     );
 };
+
 
 
 
