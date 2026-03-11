@@ -523,11 +523,12 @@
       page-break-inside: avoid !important;
     }
 
-    /* --- ULTRA PRINT ENGINE v4.0 — A4 KOMPAKT SİSTEM — Bursa Disleksi AI --- */
+    /* --- ULTRA PRINT ENGINE v4.1 — ÇOKLU SAYFA DESTEĞİ --- */
     @media print {
       @page {
         size: A4 portrait;
-        margin: 0mm !important;
+        margin: 5mm !important;
+        /* Tarayıcının çok sıfırlayıp metni kesmesini önler */
       }
 
       html,
@@ -538,6 +539,7 @@
         padding: 0 !important;
         height: auto !important;
         overflow: visible !important;
+        width: 100% !important;
       }
 
       #print-container {
@@ -546,25 +548,28 @@
         position: absolute !important;
         left: 0 !important;
         top: 0 !important;
-        width: 210mm !important;
-        margin: 0 !important;
+        width: 100% !important;
+        max-width: 210mm !important;
+        /* Fixed yerine esnek */
+        margin: 0 auto !important;
         background: white !important;
         z-index: 9999999 !important;
       }
 
       /* ═══════════════════════════════════════════
          SAYFA KONTEYNER — A4 Standart Mod
-         A4 = 210mm x 297mm @ 96dpi = 794px x 1123px
+         A4 = 210mm x 297mm
       ═══════════════════════════════════════════ */
       .ultra-print-page,
       .worksheet-page {
         visibility: visible !important;
         display: block !important;
-        width: 210mm !important;
+        width: 100% !important;
+        max-width: 210mm !important;
         min-height: 297mm !important;
         height: auto !important;
-        padding: 15mm 15mm !important;
-        /* Milimetrik Simetri */
+        padding: 10mm 12mm !important;
+        /* Ortala */
         margin: 0 auto !important;
         overflow: visible !important;
         page-break-after: always !important;
@@ -594,7 +599,7 @@
       ═══════════════════════════════════════════ */
       #print-container.compact-print .ultra-print-page,
       #print-container.compact-print .worksheet-page {
-        padding: 7mm 11mm !important;
+        padding: 5mm 8mm !important;
       }
 
       #print-container.compact-print .pedagogical-header h3 {
@@ -689,7 +694,11 @@
         margin-bottom: 6mm !important;
       }
 
-      /* Blokların sayfa ortasında kesilmesini önle */
+      /* ═══════════════════════════════════════════
+         BÖLÜNME ÖNLEYİCİLER (PAGE BREAK ALGORİTMASI)
+         Sayfa sınırına gelen resim, tablo ve soruların 
+         ortadan ikiye yarılmasını KESİNLİKLE engeller.
+      ═══════════════════════════════════════════ */
       .block-container,
       .pedagogical-header,
       .block-table-container,
@@ -699,10 +708,44 @@
       .block-cloze,
       .block-logic-card,
       .block-clue-card,
-      .block-footer-val {
+      .block-footer-val,
+      /* Bütün Tailwind kartları ve kapsayıcıları koru */
+      .rounded-2xl,
+      .rounded-3xl,
+      .rounded-xl,
+      .bg-white,
+      .bg-zinc-50,
+      .border,
+      .shadow-sm,
+      /* Görsellerin/Canvas'ların yarısı üstte kalmasın */
+      img,
+      canvas,
+      svg,
+      .aspect-video,
+      .aspect-square,
+      /* Tablo satırları ve hücreleri yarılmasın */
+      table,
+      tr,
+      th,
+      td,
+      thead,
+      tbody {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
-        margin-bottom: 0 !important;
+      }
+
+      /* Sayfa başlıkları ve soruların kendilerinden sonra 
+         gelen şıklar/metinlerle ayrılmasını önle */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      .block-header,
+      .font-bold {
+        break-after: avoid !important;
+        page-break-after: avoid !important;
       }
 
       /* ═══════════════════════════════════════════

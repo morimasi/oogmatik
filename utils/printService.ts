@@ -104,7 +104,8 @@ export const printService = {
             clone.style.setProperty('margin', '0 auto', 'important');
             clone.style.setProperty('box-shadow', 'none', 'important');
             clone.style.setProperty('position', 'relative', 'important');
-            clone.style.setProperty('width', '210mm', 'important');
+            clone.style.setProperty('width', '100%', 'important');
+            clone.style.setProperty('max-width', '210mm', 'important');
             clone.style.setProperty('min-height', '297mm', 'important');
             clone.style.setProperty('height', 'auto', 'important');     // Taşmayı önle
             clone.style.setProperty('max-height', 'none', 'important'); // Sınırları kaldır
