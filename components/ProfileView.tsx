@@ -12,6 +12,7 @@ import { RadarChart } from './RadarChart';
 import { printService } from '../utils/printService';
 import { ACTIVITIES } from '../constants';
 import { StudentDashboard } from './Student/StudentDashboard';
+import { AdvancedStudentManager } from './Student/AdvancedStudentManager';
 
 interface ProfileViewProps {
     onBack: () => void;
@@ -415,8 +416,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                             )}
 
                             {activeTab === 'students' && (
-                                <div className="h-[70vh] rounded-[3rem] overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-2xl">
-                                    <StudentDashboard onBack={() => setActiveTab('overview')} onLoadMaterial={onLoadSaved} />
+                                <div className="h-[85vh] rounded-[3rem] overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-2xl relative z-10">
+                                    <AdvancedStudentManager onBack={() => setActiveTab('overview')} />
                                 </div>
                             )}
 
