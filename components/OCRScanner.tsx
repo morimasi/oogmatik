@@ -277,38 +277,137 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     }, []);
 
     // ─── Dosya İşleme (hem file input hem drag&drop) ──────
+    // ─── File Size Constraints ─────────────────────────────────
+    const FILE_SIZE_LIMITS = {
+        image: 12 * 1024 * 1024,     // 12 MB for images
+        pdf: 15 * 1024 * 1024,       // 15 MB for PDFs
+        total: 50 * 1024 * 1024      // 50 MB total batch
+    };
+
+    /**
+     * Comprehensive file validation with detailed feedback
+     */
+    const validateAndProcessFile = (file: File, index: number, total: number): { valid: boolean; reason?: string } => {
+        // Check file extension and MIME type
+        const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+        const allowedMimes = [...allowedImageTypes, 'application/pdf'];
+        
+        if (!allowedMimes.includes(file.type)) {
+            return { 
+                valid: false, 
+                reason: `${file.name} (${file.type || 'unknown'}) formatı desteklenmiyor. Desteklenen: JPG, PNG, WebP, GIF, PDF` 
+            };
+        }
+
+        // File size validation with specific limits
+        const isImage = allowedImageTypes.includes(file.type);
+        const isPDF = file.type === 'application/pdf';
+        const sizeLimit = isImage ? FILE_SIZE_LIMITS.image : FILE_SIZE_LIMITS.pdf;
+        const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+
+        if (file.size > sizeLimit) {
+            const limitMB = (sizeLimit / (1024 * 1024)).toFixed(0);
+            return {
+                valid: false,
+                reason: `${file.name} çok büyük (${sizeInMB}MB, max ${limitMB}MB). Lütfen daha küçük bir dosya kullanın.`
+            };
+        }
+
+        // Min size check (prevent empty/corrupt files)
+        if (file.size < 10 * 1024) {  // 10KB minimum
+            return {
+                valid: false,
+                reason: `${file.name} çok küçük veya hasar görmüş (${sizeInMB}MB). Tam bir dosya yükleyin.`
+            };
+        }
+
+        return { valid: true };
+    };
+
     const processFiles = (React as any).useCallback(async (fileList: File[]) => {
+        if (fileList.length === 0) return;
+
+        // Pre-validation: Check file count
+        if (fileList.length > 5) {
+            showToast(`Maksimum 5 dosya seçebilirsin. ${fileList.length} dosya yükleme deneniyor, sadece ilk 5 işlenecek.`, 'warning');
+            fileList = Array.from(fileList).slice(0, 5);
+        }
+
         const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
         const validImages: File[] = [];
         const pdfFiles: File[] = [];
+        const rejectedFiles: { name: string; reason: string }[] = [];
+        let totalSize = 0;
 
-        fileList.forEach(f => {
+        // Detailed file validation
+        fileList.forEach((f, index) => {
+            const validation = validateAndProcessFile(f, index, fileList.length);
+            
+            if (!validation.valid) {
+                rejectedFiles.push({ name: f.name, reason: validation.reason || 'Bilinmeyen hata' });
+                return;
+            }
+
+            totalSize += f.size;
+
+            // Check if adding this file exceeds total limit
+            if (totalSize > FILE_SIZE_LIMITS.total) {
+                rejectedFiles.push({ 
+                    name: f.name, 
+                    reason: `Batch çok büyük olur (${(totalSize / (1024 * 1024)).toFixed(1)}MB toplam). Toplamda max 50MB.`
+                });
+                totalSize -= f.size; // Revert
+                return;
+            }
+
             if (f.type === 'application/pdf') {
                 pdfFiles.push(f);
             } else if (allowedImageTypes.includes(f.type)) {
-                if (f.size > 10 * 1024 * 1024) {
-                    showToast(`"${f.name}" 10MB sınırını aşıyor.`, 'warning');
-                } else {
-                    validImages.push(f);
-                }
-            } else {
-                showToast(`"${f.name}" formatı desteklenmiyor.`, 'warning');
+                validImages.push(f);
             }
         });
+
+        // Show rejected files feedback
+        if (rejectedFiles.length > 0) {
+            rejectedFiles.forEach(rf => {
+                showToast(`❌ ${rf.name}: ${rf.reason}`, 'error');
+            });
+        }
+
+        if (validImages.length === 0 && pdfFiles.length === 0) {
+            if (rejectedFiles.length === 0) {
+                showToast('Desteklenen dosya seçilmedi', 'info');
+            }
+            return;
+        }
 
         // PDF'leri görsele dönüştür
         let pdfImages: string[] = [];
         for (const pdf of pdfFiles) {
-            if (pdf.size > 25 * 1024 * 1024) {
-                showToast(`"${pdf.name}" 25MB PDF sınırını aşıyor.`, 'warning');
-                continue;
-            }
-            const converted = await convertPDFToImages(pdf);
-            if (converted.length === 0) {
-                showToast(`"${pdf.name}" dönüştürülemedi.`, 'error');
-            } else {
-                pdfImages = [...pdfImages, ...converted];
-                showToast(`"${pdf.name}" — ${converted.length} sayfa dönüştürüldü.`, 'success');
+            try {
+                showToast(`🔄 "${pdf.name}" dönüştürülüyor...`, 'info');
+                const converted = await convertPDFToImages(pdf);
+                
+                if (converted.length === 0) {
+                    showToast(`❌ "${pdf.name}" dönüştürülemedi. Dosya hasar görmüş olabilir.`, 'error');
+                } else {
+                    pdfImages = [...pdfImages, ...converted];
+                    showToast(
+                        `✅ "${pdf.name}" başarılı (${converted.length} sayfa)`, 
+                        'success'
+                    );
+                    
+                    // Warn if PDF has many pages
+                    if (converted.length > 5) {
+                        showToast(
+                            `📄 "${pdf.name}" ${converted.length} sayfa — tüm sayfalar işlenecek (zaman alabilir)`, 
+                            'warning'
+                        );
+                    }
+                }
+            } catch (error) {
+                const errorMsg = error instanceof Error ? error.message : 'Bilinmeyen hata';
+                showToast(`❌ "${pdf.name}" işlenirken hata: ${errorMsg}`, 'error');
             }
         }
 
@@ -383,33 +482,112 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     };
 
     // ─── Analiz ──────────────────────────────────
-    const startAnalysis = async (img: string, isRetry = false) => {
+    /**
+     * Exponential backoff retry strategy with detailed logging
+     * Retry delays: 1.5s → 3s → 6s → 12s (max 4 attempts total)
+     */
+    const RETRY_CONFIG = {
+        maxAttempts: 4,
+        delays: [1500, 3000, 6000, 12000] as number[], // Exponential backoff in ms
+        retryableErrors: ['503', '502', '429', 'timeout', 'ECONNREFUSED', 'ETIMEDOUT']
+    };
+
+    const isRetryableError = (errorMsg: string): boolean => {
+        return RETRY_CONFIG.retryableErrors.some(pattern => 
+            errorMsg.toUpperCase().includes(pattern.toUpperCase())
+        );
+    };
+
+    const startAnalysis = async (img: string, attemptNumber: number = 1) => {
         setStep('analyzing');
         setProgressStartTime(Date.now());
+        
         try {
             const result = await ocrService.processImage(img);
             setBlueprintData(result.structuredData);
             setEditedTitle(result.structuredData?.title || '');
             setEditedBlueprint(result.structuredData?.worksheetBlueprint || '');
-            if (result.warnings && result.warnings.length > 0) showToast(result.warnings[0], 'warning');
-            if (isRetry) setRetryCount(0);
+            
+            // Show all warnings, not just first
+            if (result.warnings && result.warnings.length > 0) {
+                result.warnings.forEach(warning => {
+                    showToast(warning, 'warning');
+                });
+            }
+            
+            if (attemptNumber > 1) {
+                setRetryCount(0);
+                showToast(`✅ Analiz başarılı (${attemptNumber}. denemede)`, 'success');
+            }
             setStep('studio');
+            
         } catch (e: unknown) {
             const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen hata.';
-            const currentRetry = retryCount + 1;
-            if (currentRetry < 2) {
-                setRetryCount(currentRetry);
-                showToast(`Analiz başarısız (${currentRetry}/2). Yeniden deneniyor...`, 'info');
-                setTimeout(() => startAnalysis(img, true), 1500);
+            const isRetryable = isRetryableError(errorMessage);
+            const remainingAttempts = RETRY_CONFIG.maxAttempts - attemptNumber;
+            
+            console.error(`[OCR Analysis] Attempt ${attemptNumber}/${RETRY_CONFIG.maxAttempts} failed:`, {
+                error: errorMessage,
+                isRetryable,
+                remainingAttempts
+            });
+
+            // Retry logic with exponential backoff
+            if (isRetryable && remainingAttempts > 0) {
+                const delayMs = RETRY_CONFIG.delays[attemptNumber - 1] || 15000;
+                const delaySec = (delayMs / 1000).toFixed(1);
+                
+                setRetryCount(attemptNumber);
+                showToast(
+                    `⏳ Analiz başarısız (${attemptNumber}/${RETRY_CONFIG.maxAttempts}). ${delaySec}s içinde yeniden deneyin...`,
+                    'warning'
+                );
+                
+                setTimeout(() => startAnalysis(img, attemptNumber + 1), delayMs);
+                
+            } else if (!isRetryable && remainingAttempts > 0) {
+                // Non-retryable error but retry anyway (content issue, not service)
+                const delayMs = 2000; // Shorter delay for non-service errors
+                setRetryCount(attemptNumber);
+                showToast(
+                    `🔄 Farklı bir görsel deneyin. ${attemptNumber}/${RETRY_CONFIG.maxAttempts} denemeler yapıldı.`,
+                    'info'
+                );
+                setTimeout(() => startAnalysis(img, attemptNumber + 1), delayMs);
+                
             } else {
+                // Max retries exceeded
                 setRetryCount(0);
-                const friendlyMessage = (() => {
-                    if (errorMessage.includes('Blueprint boş')) return 'Görsel analiz edilemedi. Daha net bir görsel deneyin.';
-                    if (errorMessage.includes('kısa')) return 'İçerik çok az tespit edildi. Daha büyük bir görsel yükleyin.';
-                    if (errorMessage.includes('API') || errorMessage.includes('503') || errorMessage.includes('502')) return 'AI servisi meşgul. Birkaç saniye sonra tekrar deneyin.';
-                    return 'Mimari analiz başarısız. Farklı bir görsel deneyin.';
-                })();
-                showToast(friendlyMessage, 'error');
+                
+                const friendlyErrorMap: Record<string, string> = {
+                    'Blueprint boş': 'Görsel analiz edilemedi. Daha net/büyük bir görsel deneyin.',
+                    'kısa': 'İçerik çok az tespit edildi. Daha detaylı bir belgeden upload etmeyi deneyin.',
+                    'layoutHints': 'Sayfa yapısı tanınamadı. Farklı bir belge deneyin.',
+                    'detectedType': 'Belge tipi tanınamadı. Eğitim belgesi olup olmadığını kontrol edin.'
+                };
+                
+                let friendlyMessage = 'Mimari analiz başarısız. Farklı bir görsel deneyin.';
+                
+                for (const [pattern, message] of Object.entries(friendlyErrorMap)) {
+                    if (errorMessage.toLowerCase().includes(pattern.toLowerCase())) {
+                        friendlyMessage = message;
+                        break;
+                    }
+                }
+                
+                // Add service-specific guidance
+                if (errorMessage.includes('503') || errorMessage.includes('502')) {
+                    friendlyMessage = 'AI servisi şu anda meşgul. Lütfen 30 saniye bekleyip tekrar deneyiniz.';
+                } else if (errorMessage.includes('429')) {
+                    friendlyMessage = 'Çok hızlı istekler gönderiliyor. Lütfen bir dakika bekleyin.';
+                }
+                
+                showToast(`❌ ${friendlyMessage}`, 'error');
+                console.error(`[OCR Analysis] Max retries exceeded after ${RETRY_CONFIG.maxAttempts} attempts`, {
+                    originalError: errorMessage,
+                    friendlyMessage
+                });
+                
                 setStep('upload');
             }
         }

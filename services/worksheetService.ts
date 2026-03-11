@@ -1,15 +1,43 @@
+/**
+ * OOGMATIK - Worksheet Service
+ * Firestore CRUD + Error Handling + Permission Validation
+ */
 
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types';
+import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError';
+import { logError, retryWithBackoff, withTimeout } from '../utils/errorHandler';
 
 const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, startAfter } = firestore;
 
+/**
+ * Firestore timeout configurations (ms)
+ */
+const FIRESTORE_TIMEOUT = 10000;
+const FIRESTORE_RETRY_CONFIG = {
+    maxRetries: 3,
+    initialDelay: 500,
+    shouldRetry: (error: any) => {
+        // Retry on network errors, not on permission errors
+        const message = error?.message || '';
+        return message.includes('DEADLINE_EXCEEDED') || 
+               message.includes('UNAVAILABLE') ||
+               message.includes('RESOURCE_EXHAUSTED');
+    }
+};
+
+/**
+ * Serialize worksheet data to JSON string
+ */
 const serializeData = (data: any): string => {
     try {
         return JSON.stringify(data);
     } catch (e) {
-        console.error("Serialization error", e);
+        logError(
+            new InternalServerError('Veri serileştirilemedi'),
+            { context: 'serializeData', originalError: e }
+        );
         return "[]";
     }
 };
@@ -207,8 +235,139 @@ export const worksheetService = {
         await addDoc(collection(db, "saved_worksheets"), payload);
     },
 
-    deleteWorksheet: async (id: string) => {
-        await deleteDoc(doc(db, "saved_worksheets", id));
+    /**
+     * Get single worksheet by ID with access control
+     * @throws {NotFoundError} If worksheet doesn't exist
+     * @throws {AuthorizationError} If user doesn't have access
+     */
+    getWorksheetById: async (worksheetId: string, userId: string): Promise<SavedWorksheet> => {
+        try {
+            const docRef = doc(db, "saved_worksheets", worksheetId);
+            const docSnap = await getDoc(docRef);
+            
+            if (!docSnap.exists()) {
+                throw new NotFoundError('Çalışma sayfası bulunamadı');
+            }
+            
+            const data = docSnap.data();
+            const worksheet = mapDbToWorksheet(data, docSnap.id);
+            
+            // Access control: Owner or shared with user
+            const isOwner = worksheet.userId === userId;
+            const isShared = worksheet.sharedWith === userId || 
+                           (Array.isArray(worksheet.sharedWith) && worksheet.sharedWith.includes(userId));
+            
+            if (!isOwner && !isShared) {
+                throw new AuthorizationError('Bu çalışma sayfasına erişim izniniz yok');
+            }
+            
+            return worksheet;
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            const appError = toAppError(error);
+            logError(appError, {
+                context: 'getWorksheetById',
+                worksheetId,
+                userId
+            });
+            throw appError;
+        }
+    },
+
+    /**
+     * Update worksheet with ownership check
+     * @throws {NotFoundError} If worksheet doesn't exist
+     * @throws {AuthorizationError} If user is not owner
+     */
+    updateWorksheet: async (
+        worksheetId: string,
+        userId: string,
+        updateData: Partial<SavedWorksheet>
+    ): Promise<SavedWorksheet> => {
+        try {
+            const docRef = doc(db, "saved_worksheets", worksheetId);
+            const docSnap = await getDoc(docRef);
+            
+            if (!docSnap.exists()) {
+                throw new NotFoundError('Çalışma sayfası bulunamadı');
+            }
+            
+            const data = docSnap.data();
+            
+            // Verify ownership
+            if (data.userId !== userId) {
+                throw new AuthorizationError('Bu çalışmayı düzenleme izniniz yok');
+            }
+            
+            // Prepare update payload
+            const payload = { ...updateData };
+            delete (payload as any).id;
+            delete (payload as any).userId;
+            delete (payload as any).createdAt;
+            (payload as any).updatedAt = new Date().toISOString();
+            
+            // Serialize if needed
+            if (payload.worksheetData && Array.isArray(payload.worksheetData)) {
+                (payload as any).worksheetData = serializeData(payload.worksheetData);
+            }
+            if (payload.workbookItems && Array.isArray(payload.workbookItems)) {
+                (payload as any).workbookItems = serializeData(payload.workbookItems);
+            }
+            
+            await updateDoc(docRef, payload);
+            
+            // Return updated worksheet
+            return mapDbToWorksheet({ ...data, ...payload }, worksheetId);
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            const appError = toAppError(error);
+            logError(appError, {
+                context: 'updateWorksheet',
+                worksheetId,
+                userId
+            });
+            throw appError;
+        }
+    },
+
+    /**
+     * Delete worksheet with ownership check
+     * @throws {NotFoundError} If worksheet doesn't exist
+     * @throws {AuthorizationError} If user is not owner
+     */
+    deleteWorksheet: async (worksheetId: string, userId: string): Promise<void> => {
+        try {
+            const docRef = doc(db, "saved_worksheets", worksheetId);
+            const docSnap = await getDoc(docRef);
+            
+            if (!docSnap.exists()) {
+                throw new NotFoundError('Çalışma sayfası bulunamadı');
+            }
+            
+            const data = docSnap.data();
+            
+            // Verify ownership
+            if (data.userId !== userId) {
+                throw new AuthorizationError('Bu çalışmayı silme izniniz yok');
+            }
+            
+            await deleteDoc(docRef);
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            const appError = toAppError(error);
+            logError(appError, {
+                context: 'deleteWorksheet',
+                worksheetId,
+                userId
+            });
+            throw appError;
+        }
     },
 
     saveWorkbook: async (userId: string, settings: WorkbookSettings, items: CollectionItem[], studentId?: string): Promise<SavedWorksheet> => {
