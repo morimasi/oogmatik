@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStudent } from '../../context/StudentContext';
 import { AdvancedStudent } from '../../types/student-advanced';
+import { Student } from '../../types';
 import { OverviewModule } from './modules/OverviewModule';
 import { IEPModule } from './modules/IEPModule';
 import { FinancialModule } from './modules/FinancialModule';
@@ -8,6 +9,7 @@ import { AttendanceModule } from './modules/AttendanceModule';
 import { AcademicModule } from './modules/AcademicModule';
 import { PortfolioModule } from './modules/PortfolioModule';
 import { BehaviorModule } from './modules/BehaviorModule';
+import { StudentSelectionGrid } from './modules/StudentSelectionGrid';
 
 // Icons mapping for sub-modules
 const MODULE_ICONS = {
@@ -26,17 +28,18 @@ const ManagerSidebar: React.FC<{
     activeModule: string;
     onSelectModule: (m: string) => void;
     student: AdvancedStudent;
-}> = ({ activeModule, onSelectModule, student }) => (
+    onChangeStudent: () => void;
+}> = ({ activeModule, onSelectModule, student, onChangeStudent }) => (
     <div className="w-64 bg-zinc-900 text-zinc-400 flex flex-col h-full border-r border-zinc-800">
         <div className="p-6 flex flex-col items-center border-b border-zinc-800/50">
-            <div className="relative group cursor-pointer">
+            <div onClick={onChangeStudent} className="relative group cursor-pointer" title="Öğrenci Değiştir">
                 <img 
-                    src={student.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'} 
+                    src={student.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name}`} 
                     alt={student.name} 
                     className="w-20 h-20 rounded-2xl object-cover border-4 border-zinc-800 group-hover:border-zinc-700 transition-colors" 
                 />
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white text-xs border-4 border-zinc-900">
-                    <i className="fa-solid fa-check"></i>
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center text-white text-xs border-4 border-zinc-900 group-hover:bg-indigo-600 transition-colors">
+                    <i className="fa-solid fa-arrow-right-arrow-left"></i>
                 </div>
             </div>
             <h3 className="mt-4 font-black text-white text-lg text-center leading-tight">{student.name}</h3>
@@ -105,12 +108,29 @@ const ContentWrapper: React.FC<{ title: string; subtitle?: string; children: Rea
 
 // Main Manager Component
 export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-    const { activeStudent, students } = useStudent();
+    const { students, setActiveStudent } = useStudent();
+    const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
     const [selectedModule, setSelectedModule] = useState('overview');
+
+    // Handle student selection
+    const handleStudentSelect = (student: Student) => {
+        setSelectedStudentId(student.id);
+        setActiveStudent(student); // Update global context if needed
+    };
+
+    // If no student selected, show selection grid
+    if (!selectedStudentId) {
+        return (
+            <StudentSelectionGrid 
+                students={students} 
+                onSelect={handleStudentSelect} 
+                onBack={onBack}
+            />
+        );
+    }
     
-    // Fallback if no student is active
-    // We cast it to AdvancedStudent but in a real app we should ensure data exists
-    const baseStudent = activeStudent || students[0];
+    // Find the selected student object
+    const baseStudent = students.find(s => s.id === selectedStudentId);
     
     // Mock data extension to prevent crashes if fields are missing
     const currentStudent: AdvancedStudent = baseStudent ? {
@@ -129,7 +149,7 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
             <div className="text-center">
                 <i className="fa-solid fa-users-slash text-4xl mb-4 text-zinc-600"></i>
                 <p>Öğrenci bulunamadı.</p>
-                <button onClick={onBack} className="mt-4 text-sm text-indigo-400 underline">Geri Dön</button>
+                <button onClick={() => setSelectedStudentId(null)} className="mt-4 text-sm text-indigo-400 underline">Geri Dön</button>
             </div>
         </div>
     );
@@ -217,14 +237,11 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
             {/* 1. Global Navigation Rail (Mini) */}
             <div className="w-20 bg-black border-r border-zinc-800 flex flex-col items-center py-8 gap-8 shrink-0">
                 <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl">O</div>
+                <button onClick={() => setSelectedStudentId(null)} className="w-12 h-12 rounded-2xl bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center justify-center transition-all" title="Öğrenci Listesi">
+                    <i className="fa-solid fa-users"></i>
+                </button>
                 <button onClick={onBack} className="w-12 h-12 rounded-2xl bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center justify-center transition-all" title="Ana Menü">
                     <i className="fa-solid fa-grid-2"></i>
-                </button>
-                <button className="w-12 h-12 rounded-2xl bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center justify-center transition-all" title="Bildirimler">
-                    <div className="relative">
-                        <i className="fa-solid fa-bell"></i>
-                        <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-zinc-900"></div>
-                    </div>
                 </button>
             </div>
 
@@ -233,6 +250,7 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
                 activeModule={selectedModule} 
                 onSelectModule={setSelectedModule} 
                 student={currentStudent} 
+                onChangeStudent={() => setSelectedStudentId(null)}
             />
 
             {/* 3. Main Content Area */}
