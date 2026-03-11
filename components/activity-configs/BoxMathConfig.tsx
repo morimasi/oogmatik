@@ -1,3 +1,4 @@
+// BoxMathConfig: Premium configuration for math box activities
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
