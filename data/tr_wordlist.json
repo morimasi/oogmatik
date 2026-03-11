@@ -1,0 +1,18 @@
+{
+  "Hayvanlar": [
+    "kedi", "köpek", "aslan", "kaplan", "fil", "zürafa", "ayı", "kurt", "tilki", "tavşan", 
+    "maymun", "yılan", "balık", "kuş", "ördek", "at", "eşek", "deve", "fare", "sincap"
+  ],
+  "Meyveler": [
+    "elma", "armut", "kiraz", "çilek", "muz", "portakal", "kavun", "karpuz", "üzüm", "erik",
+    "şeftali", "kayısı", "incir", "nar", "mandalina", "limon", "ananas", "mango", "kivi", "dut"
+  ],
+  "Meslekler": [
+    "doktor", "öğretmen", "polis", "avukat", "mühendis", "hemşire", "itfaiyeci", "aşçı", "pilot", "asker",
+    "terzi", "berber", "şoför", "çiftçi", "marangoz", "ressam", "mimar", "hakim", "savcı", "eczacı"
+  ],
+  "Rastgele": [
+    "kitap", "kalem", "masa", "ev", "araba", "güneş", "ay", "yıldız", "su", "hava", "toprak", "ateş",
+    "okul", "sınıf", "tahta", "silgi", "defter", "çanta", "oyun", "park"
+  ]
+}

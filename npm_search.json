@@ -1,0 +1,81 @@
+[
+
+{"name":"turkey-map-react","keywords":["turkey-map-react","turkey","map","svg","react","t├╝rkiye","iller","harita","interactive"],"version":"2.0.3","description":"An interactive SVG Turkey map for React JS applications.","sanitized_name":"turkey-map-react","publisher":{"email":"npm-oidc-no-reply@github.com","trustedPublisher":{"oidcConfigId":"oidc:***","id":"github"},"username":"GitHub Actions"},"maintainers":[{"email":"erdi.gokce@gmail.com","username":"erdigokce"}],"license":"MIT","date":"2025-12-10T22:04:28.035Z","links":{"homepage":"https://github.com/erdigokce/turkey-map-react#readme","repository":"git+https://github.com/erdigokce/turkey-map-react.git","bugs":"https://github.com/erdigokce/turkey-map-react/issues","npm":"https://www.npmjs.com/package/turkey-map-react"}}
+
+,
+
+{"name":"react-turkey-map","keywords":["map","react","harita","turkey","turkiye","turkey-map","turkiye-haritasi","react-turkey-map","react-turkiye-haritasi"],"version":"1.0.19","description":"Customizable Turkey map","sanitized_name":"react-turkey-map","publisher":{"email":"ozgr@live.com","username":"ozgrozer"},"maintainers":[{"email":"ozgr@live.com","username":"ozgrozer"}],"license":"MIT","date":"2024-06-01T20:17:11.844Z","links":{"homepage":"https://github.com/ozgrozer/react-turkey-map#readme","repository":"git+https://github.com/ozgrozer/react-turkey-map.git","bugs":"https://github.com/ozgrozer/react-turkey-map/issues","npm":"https://www.npmjs.com/package/react-turkey-map"}}
+
+,
+
+{"name":"turkey-map-react-names","keywords":["turkey-map-react","turkey","map","svg","react","t├╝rkiye","iller","harita","interactive"],"version":"2.0.6","description":"An interactive SVG Turkey map for React JS applications.","sanitized_name":"turkey-map-react-names","publisher":{"email":"osmankuzucu5@gmail.com","username":"nithronium"},"maintainers":[{"email":"osmankuzucu5@gmail.com","username":"nithronium"}],"license":"MIT","date":"2023-05-07T16:32:15.470Z","links":{"homepage":"https://github.com/erdigokce/turkey-map-react#readme","repository":"git+https://github.com/nithronium/turkey-map-react-with-names.git","bugs":"https://github.com/erdigokce/turkey-map-react/issues","npm":"https://www.npmjs.com/package/turkey-map-react-names"}}
+
+,
+
+{"name":"ts-turkey-map","keywords":["map","ts","react","harita","turkey","turkiye","turkey-map","turkiye-haritasi","react-turkey-map","react-turkiye-haritasi","typescript","turkiye-map"],"version":"1.0.30","description":"Customizable Turkey map with TypeScript and React 19 support","sanitized_name":"ts-turkey-map","publisher":{"email":"egecan@corevider.com","username":"corevider"},"maintainers":[{"email":"egecan@corevider.com","username":"corevider"}],"license":"MIT","date":"2025-07-27T13:51:38.015Z","links":{"homepage":"https://github.com/corevider/ts-turkey-map#readme","repository":"git+https://github.com/corevider/ts-turkey-map.git","bugs":"https://github.com/corevider/ts-turkey-map/issues","npm":"https://www.npmjs.com/package/ts-turkey-map"}}
+
+,
+
+{"name":"vue-turkey-map","keywords":[],"version":"0.0.11","description":"This repo contains SVG Turkey Map created with Vue.js. You can customize the map, you can interact with it.","sanitized_name":"vue-turkey-map","publisher":{"email":"mahmut.hg@gmail.com","username":"trombonist76"},"maintainers":[{"email":"mahmut.hg@gmail.com","username":"trombonist76"}],"date":"2023-04-24T18:59:45.539Z","links":{"npm":"https://www.npmjs.com/package/vue-turkey-map"}}
+
+,
+
+{"name":"turkey-map-custom","keywords":["turkey-map"],"version":"1.0.8","description":"An interactive SVG Turkey map for React JS applications.","sanitized_name":"turkey-map-custom","publisher":{"email":"arifhayir@gmail.com","username":"arifhayir"},"maintainers":[{"email":"arifhayir@gmail.com","username":"arifhayir"}],"license":"MIT","date":"2022-10-18T09:54:43.473Z","links":{"homepage":"https://gitlab.com/arif_hayir/turkeymap#readme","repository":"git+https://gitlab.com/arif_hayir/turkeymap.git","bugs":"https://gitlab.com/arif_hayir/turkeymap/issues","npm":"https://www.npmjs.com/package/turkey-map-custom"}}
+
+,
+
+{"name":"react-nvs-turkey-map","keywords":["react","turkey-map","turkey-map-component","turkey-map-library","turkey-map-library-for-react","turkey-districts-map-component"],"version":"1.2.1","description":"React Turkey Map Component","sanitized_name":"react-nvs-turkey-map","publisher":{"email":"ismetkizgin@hotmail.com","username":"ismetkizgin"},"maintainers":[{"email":"ismetkizgin@hotmail.com","username":"ismetkizgin"}],"license":"MIT","date":"2025-12-29T09:30:38.697Z","links":{"homepage":"https://github.com/novatorsoft/react-turkey-map#readme","repository":"git+https://github.com/novatorsoft/react-turkey-map.git","bugs":"https://github.com/novatorsoft/react-turkey-map/issues","npm":"https://www.npmjs.com/package/react-nvs-turkey-map"}}
+
+,
+
+{"name":"concat-map","keywords":["concat","concatMap","map","functional","higher-order"],"version":"0.0.2","description":"concatenative mapdashery","sanitized_name":"concat-map","publisher":{"email":"ljharb@gmail.com","username":"ljharb"},"maintainers":[{"email":"ljharb@gmail.com","username":"ljharb"}],"license":"MIT","date":"2022-10-12T16:32:50.075Z","links":{"homepage":"https://github.com/ljharb/concat-map#readme","repository":"git://github.com/ljharb/concat-map.git","bugs":"https://github.com/ljharb/concat-map/issues","npm":"https://www.npmjs.com/package/concat-map"}}
+
+,
+
+{"name":"is-map","keywords":["map","set","collection","is","robust"],"version":"2.0.3","description":"Is this value a JS Map? This module works cross-realm/iframe, and despite ES6 @@toStringTag.","sanitized_name":"is-map","publisher":{"email":"ljharb@gmail.com","username":"ljharb"},"maintainers":[{"email":"ljharb@gmail.com","username":"ljharb"}],"license":"MIT","date":"2024-03-08T16:49:07.811Z","links":{"homepage":"https://github.com/inspect-js/is-map#readme","repository":"git+https://github.com/inspect-js/is-map.git","bugs":"https://github.com/inspect-js/is-map/issues","npm":"https://www.npmjs.com/package/is-map"}}
+
+,
+
+{"name":"convert-source-map","keywords":["convert","sourcemap","source","map","browser","debug"],"version":"2.0.0","description":"Converts a source-map from/to  different formats and allows adding/changing properties.","sanitized_name":"convert-source-map","publisher":{"email":"blaine.bublitz@gmail.com","username":"phated"},"maintainers":[{"email":"blaine.bublitz@gmail.com","username":"phated"},{"email":"thlorenz10@gmail.com","username":"thlorenz"}],"license":"MIT","date":"2022-10-17T22:06:48.628Z","links":{"homepage":"https://github.com/thlorenz/convert-source-map","repository":"git://github.com/thlorenz/convert-source-map.git","bugs":"https://github.com/thlorenz/convert-source-map/issues","npm":"https://www.npmjs.com/package/convert-source-map"}}
+
+,
+
+{"name":"@jridgewell/gen-mapping","keywords":["source","map"],"version":"0.3.13","description":"Generate source maps","sanitized_name":"@jridgewell/gen-mapping","publisher":{"email":"justin+npm@ridgewell.name","actor":{"name":"jridgewell","type":"user","email":"justin+npm@ridgewell.name"},"username":"jridgewell"},"maintainers":[{"email":"justin+npm@ridgewell.name","username":"jridgewell"}],"license":"MIT","date":"2025-08-12T06:43:21.134Z","links":{"homepage":"https://github.com/jridgewell/sourcemaps/tree/main/packages/gen-mapping","repository":"git+https://github.com/jridgewell/sourcemaps.git","bugs":"https://github.com/jridgewell/sourcemaps/issues","npm":"https://www.npmjs.com/package/@jridgewell/gen-mapping"}}
+
+,
+
+{"name":"orderedmap","keywords":["persistent","map"],"version":"2.1.1","description":"Persistent ordered mapping from strings","sanitized_name":"orderedmap","publisher":{"email":"marijn@haverbeke.berlin","username":"marijn"},"maintainers":[{"email":"marijn@haverbeke.berlin","username":"marijn"}],"license":"MIT","date":"2023-05-17T08:10:28.237Z","links":{"homepage":"https://github.com/marijnh/orderedmap#readme","repository":"git+https://github.com/marijnh/orderedmap.git","bugs":"https://github.com/marijnh/orderedmap/issues","npm":"https://www.npmjs.com/package/orderedmap"}}
+
+,
+
+{"name":"@jridgewell/source-map","keywords":["sourcemap","source","map"],"version":"0.3.11","description":"Packages @jridgewell/trace-mapping and @jridgewell/gen-mapping into the familiar source-map API","sanitized_name":"@jridgewell/source-map","publisher":{"email":"justin+npm@ridgewell.name","actor":{"name":"jridgewell","type":"user","email":"justin+npm@ridgewell.name"},"username":"jridgewell"},"maintainers":[{"email":"justin+npm@ridgewell.name","username":"jridgewell"}],"license":"MIT","date":"2025-08-12T06:43:46.471Z","links":{"homepage":"https://github.com/jridgewell/sourcemaps/tree/main/packages/source-map","repository":"git+https://github.com/jridgewell/sourcemaps.git","bugs":"https://github.com/jridgewell/sourcemaps/issues","npm":"https://www.npmjs.com/package/@jridgewell/source-map"}}
+
+,
+
+{"name":"map-age-cleaner","keywords":["map","age","cleaner","maxage","expire","expiration","expiring"],"version":"0.2.0","description":"Automatically cleanup expired items in a Map","sanitized_name":"map-age-cleaner","publisher":{"email":"sam.verschueren@gmail.com","username":"samverschueren"},"maintainers":[{"email":"sam.verschueren@gmail.com","username":"samverschueren"}],"license":"MIT","date":"2021-08-23T20:30:12.826Z","links":{"homepage":"https://github.com/SamVerschueren/map-age-cleaner#readme","repository":"git+https://github.com/SamVerschueren/map-age-cleaner.git","bugs":"https://github.com/SamVerschueren/map-age-cleaner/issues","npm":"https://www.npmjs.com/package/map-age-cleaner"}}
+
+,
+
+{"name":"p-map","keywords":["promise","map","resolved","wait","collection","iterable","iterator","race","fulfilled","async","await","promises","concurrently","concurrency","parallel","bluebird"],"version":"7.0.4","description":"Map over promises concurrently","sanitized_name":"p-map","publisher":{"email":"sindresorhus@gmail.com","username":"sindresorhus"},"maintainers":[{"email":"sindresorhus@gmail.com","username":"sindresorhus"}],"license":"MIT","date":"2025-11-11T06:28:53.483Z","links":{"homepage":"https://github.com/sindresorhus/p-map#readme","repository":"git+https://github.com/sindresorhus/p-map.git","bugs":"https://github.com/sindresorhus/p-map/issues","npm":"https://www.npmjs.com/package/p-map"}}
+
+,
+
+{"name":"map-visit","keywords":["array","arrays","function","helper","invoke","key","map","method","object","objects","value","visit","visitor"],"version":"1.0.0","description":"Map `visit` over an array of objects.","sanitized_name":"map-visit","publisher":{"email":"github@sellside.com","username":"jonschlinkert"},"maintainers":[{"email":"brian.woodward@gmail.com","username":"doowb"},{"email":"github@sellside.com","username":"jonschlinkert"}],"license":"MIT","date":"2017-04-09T21:43:35.689Z","links":{"homepage":"https://github.com/jonschlinkert/map-visit","repository":"git+https://github.com/jonschlinkert/map-visit.git","bugs":"https://github.com/jonschlinkert/map-visit/issues","npm":"https://www.npmjs.com/package/map-visit"}}
+
+,
+
+{"name":"ngxs-reset-plugin","keywords":["ngxs","plugin","reset plugin","clear plugin","reset state","clear state","overwrite state","erase state","replace state","state defaults"],"version":"4.0.0","description":"Reset plugin for NGXS: Effortlessly clears, resets, or overwrites NGXS states respecting the state tree.","sanitized_name":"ngxs-reset-plugin","publisher":{"email":"bilgi@mehmeterim.com","username":"mehmeterim"},"maintainers":[{"email":"arman@armanozak.com","username":"armanozak"},{"email":"bilgi@mehmeterim.com","username":"mehmeterim"},{"email":"bnymncoskuner@gmail.com","username":"bnymncoskuner"}],"license":"MIT","date":"2024-06-23T19:36:32.054Z","links":{"homepage":"https://github.com/ng-turkey/ngxs-reset-plugin#readme","repository":"git+https://github.com/ng-turkey/ngxs-reset-plugin.git","bugs":"https://github.com/ng-turkey/ngxs-reset-plugin/issues","npm":"https://www.npmjs.com/package/ngxs-reset-plugin"}}
+
+,
+
+{"name":"source-map","keywords":[],"version":"0.7.6","description":"Generates and consumes source maps","sanitized_name":"source-map","publisher":{"email":"nchevobbe+npm@mozilla.com","username":"nchevobbe"},"maintainers":[{"email":"npm-owners@mozilla.com","username":"mozilla-npm"},{"email":"mythmon@gmail.com","username":"mythmon"},{"email":"jkratzer@mozilla.com","username":"jkratzer"},{"email":"factorui.npm@mozilla.com","username":"factorui.npm"},{"email":"project-nimbus-publishing@mozilla.com","username":"project-nimbus-publishing"},{"email":"gijskruitbosch@gmail.com","username":"gijs"},{"email":"brizental@mozilla.com","username":"brizental"},{"email":"aplacitelli@mozilla.com","username":"aplacitelli"},{"email":"rhelmer@mozilla.com","username":"mozrhelmer"},{"email":"ted@knowtheory.net","username":"knowtheory"},{"email":"niklasbaumgardner@gmail.com","username":"nbaumgardner"},{"email":"tigleym@gmail.com","username":"tigleym"},{"email":"eemeli@gmail.com","username":"eemeli"},{"email":"ahanot+npm@mozilla.com","username":"ahanot"},{"email":"mlifshin+npm@mozilla.com","username":"mlifshin"},{"email":"llisi+npm@mozilla.com","username":"llisi-moz"},{"email":"jdarcangelo+npm@mozilla.com","username":"jdarcangelo-mozilla"},{"email":"nchevobbe+npm@mozilla.com","username":"nchevobbe"},{"email":"nfitzgerald@mozilla.com","username":"mozilla-devtools"},{"email":"fitzgen@gmail.com","username":"nickfitzgerald"},{"email":"loganfsmyth@gmail.com","username":"loganfsmyth"},{"email":"ejpbruel@gmail.com","username":"ejpbruel"},{"email":"tom@tromey.com","username":"tromey"}],"license":"BSD-3-Clause","date":"2025-07-24T05:12:51.288Z","links":{"homepage":"https://github.com/mozilla/source-map","repository":"git+ssh://git@github.com/mozilla/source-map.git","bugs":"https://github.com/mozilla/source-map/issues","npm":"https://www.npmjs.com/package/source-map"}}
+
+,
+
+{"name":"@npmcli/map-workspaces","keywords":["npm","npmcli","libnpm","cli","workspaces","map-workspaces"],"version":"5.0.3","description":"Retrieves a name:pathname Map for a given workspaces config","sanitized_name":"@npmcli/map-workspaces","publisher":{"email":"npm-oidc-no-reply@github.com","trustedPublisher":{"oidcConfigId":"oidc:***","id":"github"},"username":"GitHub Actions"},"maintainers":[{"email":"gar+npm@danger.computer","username":"gar"},{"email":"saquibkhan@github.com","username":"saquibkhan"},{"email":"npm-cli+bot@github.com","username":"npm-cli-ops"},{"email":"reggi@github.com","username":"reggi"},{"email":"hashtagchris@github.com","username":"hashtagchris"},{"email":"owlstronaut@github.com","username":"owlstronaut"}],"license":"ISC","date":"2025-11-21T16:40:56.361Z","links":{"homepage":"https://github.com/npm/map-workspaces#readme","repository":"git+https://github.com/npm/map-workspaces.git","bugs":"https://github.com/npm/map-workspaces/issues","npm":"https://www.npmjs.com/package/@npmcli/map-workspaces"}}
+
+,
+
+{"name":"source-map-js","keywords":[],"version":"1.2.1","description":"Generates and consumes source maps","sanitized_name":"source-map-js","publisher":{"email":"v7rulnik@gmail.com","username":"7rulnik"},"maintainers":[{"email":"v7rulnik@gmail.com","username":"7rulnik"}],"license":"BSD-3-Clause","date":"2024-09-08T16:22:55.645Z","links":{"homepage":"https://github.com/7rulnik/source-map-js","repository":"git+https://github.com/7rulnik/source-map-js.git","bugs":"https://github.com/7rulnik/source-map-js/issues","npm":"https://www.npmjs.com/package/source-map-js"}}
+]
+
