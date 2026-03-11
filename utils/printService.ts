@@ -107,7 +107,7 @@ export const printService = {
             clone.style.setProperty('position', 'relative', 'important');
             clone.style.setProperty('width', '100%', 'important');
             clone.style.setProperty('max-width', 'none', 'important');
-            clone.style.setProperty('min-height', '297mm', 'important');
+            clone.style.setProperty('min-height', 'auto', 'important'); // Sınırları tamamen serbest bıraktık
             clone.style.setProperty('height', 'auto', 'important');     // Taşmayı önle
             clone.style.setProperty('max-height', 'none', 'important'); // Sınırları kaldır
             clone.style.setProperty('box-sizing', 'border-box', 'important');
@@ -133,6 +133,9 @@ export const printService = {
             });
 
             clone.classList.add('ultra-print-page');
+
+            // Force compact mode for premium look
+            printContainer.classList.add('compact-print');
 
             printContainer.appendChild(clone);
         });
