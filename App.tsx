@@ -68,6 +68,11 @@ const StudentDashboard = lazy(() =>
     default: module.AdvancedStudentManager,
   }))
 );
+const StudentSelector = lazy(() =>
+  import('./components/Student/StudentSelector').then((module) => ({
+    default: module.StudentSelector,
+  }))
+);
 const ScreeningModule = lazy(() =>
   import('./components/Screening/ScreeningModule').then((module) => ({
     default: module.ScreeningModule,

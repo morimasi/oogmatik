@@ -8,6 +8,7 @@ import { AttendanceModule } from './modules/AttendanceModule';
 import { AcademicModule } from './modules/AcademicModule';
 import { PortfolioModule } from './modules/PortfolioModule';
 import { BehaviorModule } from './modules/BehaviorModule';
+import { StudentSelector } from './StudentSelector';
 
 // Icons mapping for sub-modules
 const MODULE_ICONS = {
@@ -105,12 +106,12 @@ const ContentWrapper: React.FC<{ title: string; subtitle?: string; children: Rea
 
 // Main Manager Component
 export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-    const { activeStudent, students } = useStudent();
+    const { activeStudent, students, setActiveStudent } = useStudent();
     const [selectedModule, setSelectedModule] = useState('overview');
     
     // Fallback if no student is active
     // We cast it to AdvancedStudent but in a real app we should ensure data exists
-    const baseStudent = activeStudent || students[0];
+    const baseStudent = activeStudent;
     
     // Mock data extension to prevent crashes if fields are missing
     const currentStudent: AdvancedStudent = baseStudent ? {
@@ -125,12 +126,13 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
     } as AdvancedStudent : null as any;
 
     if (!currentStudent) return (
-        <div className="flex h-full items-center justify-center bg-zinc-950 text-white">
-            <div className="text-center">
-                <i className="fa-solid fa-users-slash text-4xl mb-4 text-zinc-600"></i>
-                <p>Öğrenci bulunamadı.</p>
-                <button onClick={onBack} className="mt-4 text-sm text-indigo-400 underline">Geri Dön</button>
-            </div>
+        <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-black overflow-y-auto">
+             <div className="p-4">
+                 <button onClick={onBack} className="mb-4 flex items-center gap-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
+                     <i className="fa-solid fa-arrow-left"></i> Ana Menüye Dön
+                 </button>
+                 <StudentSelector />
+             </div>
         </div>
     );
 
@@ -213,12 +215,15 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex bg-black font-['Lexend']">
+        <div className="w-full h-full flex bg-black font-['Lexend']">
             {/* 1. Global Navigation Rail (Mini) */}
             <div className="w-20 bg-black border-r border-zinc-800 flex flex-col items-center py-8 gap-8 shrink-0">
                 <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl">O</div>
                 <button onClick={onBack} className="w-12 h-12 rounded-2xl bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center justify-center transition-all" title="Ana Menü">
                     <i className="fa-solid fa-grid-2"></i>
+                </button>
+                <button onClick={() => setActiveStudent(null)} className="w-12 h-12 rounded-2xl bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center justify-center transition-all" title="Öğrenci Değiştir">
+                    <i className="fa-solid fa-users-rectangle"></i>
                 </button>
                 <button className="w-12 h-12 rounded-2xl bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center justify-center transition-all" title="Bildirimler">
                     <div className="relative">
