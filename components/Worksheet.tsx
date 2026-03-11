@@ -125,21 +125,25 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
         };
     }, [settings.orientation, settings.themeBorder, settings.borderColor, settings.borderWidth]);
 
-    if (!data || !activityType || data.length === 0) return null;
+    if (!data || !activityType) return null;
 
-    // Tekil sayfa verisini al (SheetRenderer buna göre sayfalama yapacak)
-    const pageData = Array.isArray(data) ? data[0] : data;
+    // Birden fazla çalışma sayfası varsa (worksheetCount > 1), hepsini render et
+    const worksheets = Array.isArray(data) ? data : [data];
+
+    if (worksheets.length === 0) return null;
 
     return (
         <div className="flex flex-col items-center w-full" style={variableStyle}>
-            <ErrorBoundary>
-                <SheetRenderer
-                    activityType={activityType}
-                    data={pageData}
-                    studentProfile={studentProfile}
-                    settings={settings}
-                />
-            </ErrorBoundary>
+            {worksheets.map((ws, idx) => (
+                <ErrorBoundary key={ws.id || idx}>
+                    <SheetRenderer
+                        activityType={activityType}
+                        data={ws}
+                        studentProfile={studentProfile}
+                        settings={settings}
+                    />
+                </ErrorBoundary>
+            ))}
         </div>
     );
 };

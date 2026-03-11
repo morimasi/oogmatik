@@ -1,6 +1,7 @@
 // VisualInterpretationSheet.tsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { WorksheetData, StyleSettings } from '../../../types';
+import { ImageDisplay } from '../common';
 
 interface VisualInterpretationSheetProps {
   data: WorksheetData;
@@ -11,23 +12,14 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
   data,
   settings,
 }) => {
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-
-  if (!data || !Array.isArray(data) || data.length === 0) return null;
-  const activity = data[0];
+  if (!data) return null;
+  const activity = Array.isArray(data) ? data[0] : data;
   const blocks = activity.layoutArchitecture?.blocks || [];
 
   const imageBlock = blocks.find((b: any) => b.type === 'image');
   const questionsBlock = blocks.find((b: any) => b.type === 'question' || b.type === 'questions');
 
-  const imagePrompt = imageBlock?.content?.prompt || 'Görsel Yükleniyor...';
-
-  useEffect(() => {
-    // Placeholder logic for visual representation
-    const encodedPrompt = encodeURIComponent('Visual Analysis Scene');
-    setPhotoUrl(`https://placehold.co/1200x600/f3f4f6/334155?text=${encodedPrompt}&font=lora`);
-  }, [imagePrompt]);
-
+  const imagePrompt = imageBlock?.content?.prompt || 'Beautiful educational scene for children';
   const questions = questionsBlock?.content?.items || [];
 
   return (
@@ -72,19 +64,14 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
 
       {/* 2. Görsel Panel (Scene Focus) */}
       <div className="w-full rounded-xl overflow-hidden border border-zinc-200 bg-zinc-50 relative group break-inside-avoid">
-        <div className="w-full h-72 relative overflow-hidden flex items-center justify-center bg-zinc-100">
-          {photoUrl ? (
-            <img src={photoUrl} alt="Scene" className="w-full h-full object-cover" />
-          ) : (
-            <div className="animate-pulse text-zinc-400 font-bold flex flex-col items-center gap-3">
-              <i className="fa-solid fa-image text-4xl"></i>
-              <span>Görsel İşleniyor...</span>
-            </div>
-          )}
-        </div>
+        <ImageDisplay
+          prompt={imagePrompt}
+          description={activity.layoutArchitecture?.blocks[0]?.content?.alt}
+          className="w-full h-80 object-cover border-b border-zinc-200 shadow-inner"
+        />
 
         {/* Altyazı veya Prompt Metni */}
-        <div className="w-full p-2 bg-white border-t border-zinc-200 text-center">
+        <div className="w-full p-2 bg-white text-center">
           <p className="text-[10px] font-medium text-zinc-400 font-mono tracking-tight line-clamp-1 italic">
             "{activity.layoutArchitecture?.blocks[0]?.content?.alt || 'Görsel sahne analizi için hazırlanmıştır.'}"
           </p>
@@ -161,4 +148,3 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
     </div>
   );
 };
-
