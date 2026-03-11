@@ -8,7 +8,11 @@ export const HiddenPasswordGridSheet = ({ data }: { data: HiddenPasswordGridData
     const gridColsClass = itemCount <= 3 ? "grid-cols-1" : itemCount <= 6 ? "grid-cols-2" : "grid-cols-3";
 
     return (
+<<<<<<< HEAD
         <div className="w-full h-full  flex flex-col bg-white p-2 font-lexend">
+=======
+        <div className="w-full h-full print:h-0 flex flex-col bg-white p-2 font-lexend">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
             <div className={`grid ${gridColsClass} gap-x-10 gap-y-12 mt-8 print:mt-2 flex-1 content-start`}>
                 {(data.grids || []).map((item, idx) => (
@@ -43,7 +47,11 @@ export const HiddenPasswordGridSheet = ({ data }: { data: HiddenPasswordGridData
 };
 
 export const AnagramSheet = ({ data }: { data: AnagramsData }) => (
+<<<<<<< HEAD
     <div className="flex flex-col h-full  bg-white font-lexend p-2">
+=======
+    <div className="flex flex-col h-full print:h-0 bg-white font-lexend p-2">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 print:gap-2 print:gap-3 print:p-3 mt-10 print:mt-3 flex-1 content-start">
             {(data.anagrams || []).map((item, i) => (
@@ -67,7 +75,11 @@ export const WordSearchSheet = ({ data }: { data: WordSearchData }) => {
     const cellSize = isUltraDense ? Math.min(32, Math.floor(450 / gridLen)) : Math.min(42, Math.floor(550 / gridLen));
 
     return (
+<<<<<<< HEAD
         <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet">
+=======
+        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader
                 title={data?.title || "KELİME BULMACA & GÖRSEL TARAMA"}
                 instruction={data?.instruction || "Aşağıdaki harf yığınının içine gizlenmiş kelimeleri bulun."}
@@ -160,7 +172,11 @@ export const CrosswordSheet = ({ data }: { data: CrosswordData }) => {
     };
 
     return (
+<<<<<<< HEAD
         <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet">
+=======
+        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader
                 title={data?.title || "KARE BULMACA & SÖZEL BELLEK"}
                 instruction={data?.instruction || "Aşağıdaki ipuçlarını takip ederek bulmacayı doldurun."}
@@ -262,4 +278,7 @@ export const CrosswordSheet = ({ data }: { data: CrosswordData }) => {
 };
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

@@ -23,7 +23,11 @@ const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: an
                             <div className="flex items-center gap-1">
                                 {item.multiplier > 1 && <span className="text-sm font-black text-indigo-600 bg-indigo-50 px-1.5 rounded">{item.multiplier}x</span>}
                                 <div className="w-12 h-12 flex items-center justify-center">
+<<<<<<< HEAD
                                     <ImageDisplay prompt={obj?.imagePrompt} description={obj?.name} className="w-full h-full  object-contain" />
+=======
+                                    <ImageDisplay prompt={obj?.imagePrompt} description={obj?.name} className="w-full h-full print:h-0 object-contain" />
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                 </div>
                             </div>
                         </React.Fragment>
@@ -39,7 +43,11 @@ const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: an
 };
 
 export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
+<<<<<<< HEAD
     <div className="flex flex-col h-full  font-lexend text-black bg-white">
+=======
+    <div className="flex flex-col h-full print:h-0 font-lexend text-black bg-white">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3 mt-4 print:mt-1 flex-1 content-start">
@@ -61,7 +69,11 @@ export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
                             {puzzle.objects.map((obj, i) => (
                                 <div key={i} className="flex flex-col items-center group/obj">
                                     <div className="w-10 h-10 mb-1 opacity-40 group-hover/obj:opacity-100 transition-opacity">
+<<<<<<< HEAD
                                         <ImageDisplay prompt={obj.imagePrompt} className="w-full h-full  object-contain" />
+=======
+                                        <ImageDisplay prompt={obj.imagePrompt} className="w-full h-full print:h-0 object-contain" />
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                     </div>
                                     <span className="text-[8px] font-black text-zinc-300 uppercase tracking-tighter">{obj.name}</span>
                                 </div>
@@ -118,7 +130,11 @@ export const RealLifeMathProblemsSheet = ({ data }: { data: RealLifeProblemData 
                             <div className="text-lg font-medium text-justify mb-4 print:mb-1"><EditableText value={problem?.text} tag="p" /></div>
                             {problem.imagePrompt && (
                                 <div className="w-full h-48 bg-zinc-50 rounded-2xl border border-zinc-200 mb-4 print:mb-1 overflow-hidden">
+<<<<<<< HEAD
                                     <ImageDisplay prompt={problem.imagePrompt} description={problem.text.substring(0, 20)} className="w-full h-full  object-contain mix-blend-multiply" />
+=======
+                                    <ImageDisplay prompt={problem.imagePrompt} description={problem.text.substring(0, 20)} className="w-full h-full print:h-0 object-contain mix-blend-multiply" />
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                 </div>
                             )}
                         </div>
@@ -172,7 +188,11 @@ export const LogicGridPuzzleSheet = ({ data }: { data: LogicGridPuzzleData }) =>
                             {(data?.categories || []).flatMap(c => (c?.items || []).map(i => (
                                 <th key={i?.name} className="border-2 border-zinc-800 p-2 vertical-text h-32 w-12 relative bg-zinc-50">
                                     <div className="absolute inset-0 flex flex-col items-center justify-end pb-2">
+<<<<<<< HEAD
                                         {i.imagePrompt && <div className="w-8 h-8 mb-2 opacity-40"><ImageDisplay prompt={i.imagePrompt} description={i.name} className="w-full h-full  object-contain" /></div>}
+=======
+                                        {i.imagePrompt && <div className="w-8 h-8 mb-2 opacity-40"><ImageDisplay prompt={i.imagePrompt} description={i.name} className="w-full h-full print:h-0 object-contain" /></div>}
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                         <span className="writing-vertical font-black uppercase text-zinc-600 tracking-tighter"><EditableText value={i?.name} tag="span" /></span>
                                     </div>
                                 </th>
@@ -295,4 +315,7 @@ export const RomanArabicMatchConnectSheet = SimpleVisualList;
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

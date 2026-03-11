@@ -74,7 +74,11 @@ const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, q
 };
 
 export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }) => (
+<<<<<<< HEAD
     <div className="flex flex-col h-full  bg-white relative font-lexend">
+=======
+    <div className="flex flex-col h-full print:h-0 bg-white relative font-lexend">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         <ReadingRuler />
         <div className="shrink-0 mb-6 print:mb-2 flex justify-between items-start border-b-4 border-zinc-900 pb-4 print:pb-1">
             <div className="flex-1">
@@ -94,14 +98,22 @@ export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }
 
         <div className="flex flex-col md:flex-row gap-8 print:gap-2 print:gap-3 print:p-3 mb-10 print:mb-3 print:mb-4 print:mb-1 min-h-[400px]">
             <div className="flex-1 bg-white p-8 print:p-2 print:p-3 rounded-[2rem] border-2 border-zinc-100 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+<<<<<<< HEAD
                 <div className="absolute top-0 left-0 w-2 h-full  bg-indigo-600"></div>
+=======
+                <div className="absolute top-0 left-0 w-2 h-full print:h-0 bg-indigo-600"></div>
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                 <div className="prose max-w-none font-dyslexic text-xl leading-[2.2] text-zinc-800 text-justify">
                     <StoryHighlighter text={data.story} highlights={(data.fiveW1H || []).map(q => ({ text: q.answer, type: q.type }))} />
                 </div>
             </div>
             {data.imagePrompt && (
                 <div className="w-full md:w-1/3 aspect-square bg-zinc-50 rounded-[2.5rem] border-4 border-white shadow-2xl overflow-hidden shrink-0">
+<<<<<<< HEAD
                     <ImageDisplay prompt={data.imagePrompt} description={data.title} className="w-full h-full  object-cover" />
+=======
+                    <ImageDisplay prompt={data.imagePrompt} description={data.title} className="w-full h-full print:h-0 object-cover" />
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                 </div>
             )}
         </div>
@@ -121,4 +133,7 @@ export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

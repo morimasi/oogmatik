@@ -17,7 +17,11 @@ const ComplexShapeRenderer = ({ item, size = 80 }: { item: VisualOddOneOutItem, 
             }}
         >
             {item.svg ? (
+<<<<<<< HEAD
                 <div className="w-full h-full  flex items-center justify-center" dangerouslySetInnerHTML={{ __html: item.svg }} />
+=======
+                <div className="w-full h-full print:h-0 flex items-center justify-center" dangerouslySetInnerHTML={{ __html: item.svg }} />
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             ) : item.label ? (
                 <span className={`font-black text-zinc-900 select-none font-mono ${size < 40 ? 'text-lg' : 'text-4xl'}`}>
                     {item.label}
@@ -143,4 +147,7 @@ export const VisualOddOneOutSheet = ({ data }: { data: VisualOddOneOutData }) =>
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

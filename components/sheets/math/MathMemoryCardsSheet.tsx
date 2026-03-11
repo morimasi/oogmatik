@@ -57,7 +57,11 @@ export const MathMemoryCardsSheet = ({ data }: { data: MathMemoryCardsData }) =>
     const cols = cardCount > 24 ? 'grid-cols-6' : (cardCount > 12 ? 'grid-cols-4' : 'grid-cols-3');
 
     return (
+<<<<<<< HEAD
         <div className="flex flex-col h-full  font-lexend p-1 bg-white">
+=======
+        <div className="flex flex-col h-full print:h-0 font-lexend p-1 bg-white">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
 
             <div
@@ -95,4 +99,7 @@ export const MathMemoryCardsSheet = ({ data }: { data: MathMemoryCardsData }) =>
     );
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

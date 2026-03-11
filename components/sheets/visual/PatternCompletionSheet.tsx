@@ -26,13 +26,22 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
 
     const renderCellContent = (cell: PatternCell) => {
         if (cell.isMissing) {
+<<<<<<< HEAD
             return <div className="w-full h-full  flex flex-col items-center justify-center bg-zinc-100 rounded-xl border-4 border-dashed border-zinc-300 text-5xl text-zinc-300"><i className="fa-solid fa-question"></i></div>;
+=======
+            return <div className="w-full h-full print:h-0 flex flex-col items-center justify-center bg-zinc-100 rounded-xl border-4 border-dashed border-zinc-300 text-5xl text-zinc-300"><i className="fa-solid fa-question"></i></div>;
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         }
 
         if (patternType === 'geometric' && cell.shapes) {
             return (
+<<<<<<< HEAD
                 <div className="w-full h-full  flex items-center justify-center p-2 relative bg-white border-2 border-slate-200 rounded-xl shadow-sm">
                     <svg viewBox="0 0 100 100" className="w-full h-full  max-w-[80%] max-h-[80%] overflow-visible drop-shadow-sm">
+=======
+                <div className="w-full h-full print:h-0 flex items-center justify-center p-2 relative bg-white border-2 border-slate-200 rounded-xl shadow-sm">
+                    <svg viewBox="0 0 100 100" className="w-full h-full print:h-0 max-w-[80%] max-h-[80%] overflow-visible drop-shadow-sm">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                         {cell.shapes.map((shape, i) => (
                             <g key={i} style={{ transformOrigin: '50% 50%', transform: `rotate(${shape.rotation || 0}deg)` }}>
                                 {renderShape(shape.type, shape.color)}
@@ -46,7 +55,11 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
         if (patternType === 'color_blocks') {
             return (
                 <div
+<<<<<<< HEAD
                     className="w-full h-full  rounded-xl border-4 border-slate-800 shadow-[2px_2px_0px_#1e293b]"
+=======
+                    className="w-full h-full print:h-0 rounded-xl border-4 border-slate-800 shadow-[2px_2px_0px_#1e293b]"
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                     style={{ backgroundColor: cell.color || '#fff' }}
                 ></div>
             );
@@ -54,17 +67,29 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
 
         if (patternType === 'logic_sequence') {
             return (
+<<<<<<< HEAD
                 <div className="w-full h-full  flex items-center justify-center bg-blue-50 border-4 border-blue-900 rounded-xl shadow-[4px_4px_0px_#1e3a8a]">
+=======
+                <div className="w-full h-full print:h-0 flex items-center justify-center bg-blue-50 border-4 border-blue-900 rounded-xl shadow-[4px_4px_0px_#1e3a8a]">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                     <span className="text-4xl lg:text-5xl font-black text-blue-900">{cell.content}</span>
                 </div>
             );
         }
 
+<<<<<<< HEAD
         return <div className="w-full h-full  bg-slate-100 rounded-xl border-2 border-slate-300"></div>;
     };
 
     return (
         <div className="w-full h-full  p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+=======
+        return <div className="w-full h-full print:h-0 bg-slate-100 rounded-xl border-2 border-slate-300"></div>;
+    };
+
+    return (
+        <div className="w-full h-full print:h-0 p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             {/* BAŞLIK */}
             <div className="flex justify-between items-center border-b-4 border-sky-500 pb-4 print:pb-1 mb-8 print:mb-2">
                 <div>
@@ -82,7 +107,11 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
                 <div className="w-full lg:w-1/2 max-w-[400px] aspect-square bg-slate-50 border-8 border-slate-300 rounded-[2rem] p-4 print:p-1 shadow-md page-break-inside-avoid flex items-center justify-center shrink-0">
 
                     <div
+<<<<<<< HEAD
                         className="grid gap-3 w-full h-full "
+=======
+                        className="grid gap-3 w-full h-full print:h-0"
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                         style={{
                             gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
                             gridTemplateRows: `repeat(${gridSize}, minmax(0, 1fr))`
@@ -90,7 +119,11 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
                     >
                         {/* 1D array to Grid render */}
                         {matrix.map((cell, idx) => (
+<<<<<<< HEAD
                             <div key={idx} style={{ gridColumn: cell.x + 1, gridRow: cell.y + 1 }} className="h-full  w-full">
+=======
+                            <div key={idx} style={{ gridColumn: cell.x + 1, gridRow: cell.y + 1 }} className="h-full print:h-0 w-full">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                 {renderCellContent(cell)}
                             </div>
                         ))}
@@ -133,4 +166,7 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

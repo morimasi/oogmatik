@@ -16,7 +16,10 @@ import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
 import { adminService } from '../services/adminService';
 import { useStudent } from '../context/StudentContext';
+<<<<<<< HEAD
 import './PremiumPopupStyles.css';
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
 
 const toPascalCase = (str: string): string => {
   if (!str) return '';
@@ -492,13 +495,21 @@ const Sidebar: React.FC<SidebarProps> = ({
                           }
                         }}
                       >
+<<<<<<< HEAD
                         <div className="premium-popup-content flex flex-col">
+=======
+                        <div className="premium-popup-content">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                           <div className="premium-popup-header">
                             <span className="premium-popup-title">Stüdyolar</span>
                           </div>
 
                           <div
+<<<<<<< HEAD
                             className="premium-popup-activities flex flex-col"
+=======
+                            className="premium-popup-activities"
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                             role="listbox"
                             aria-label="Stüdyolar Listesi"
                           >
@@ -643,13 +654,21 @@ const Sidebar: React.FC<SidebarProps> = ({
                               }
                             }}
                           >
+<<<<<<< HEAD
                             <div className="premium-popup-content flex flex-col">
+=======
+                            <div className="premium-popup-content">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                               <div className="premium-popup-header">
                                 <span className="premium-popup-title">{category.title}</span>
                               </div>
 
                               <div
+<<<<<<< HEAD
                                 className="premium-popup-activities flex flex-col"
+=======
+                                className="premium-popup-activities"
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                 role="listbox"
                                 aria-label="Etkinlikler"
                               >

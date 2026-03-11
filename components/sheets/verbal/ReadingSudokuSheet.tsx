@@ -66,8 +66,13 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
                   className="aspect-square bg-white rounded-2xl flex items-center justify-center border-2 border-zinc-700 shadow-inner group"
                 >
                   {sym.imagePrompt ? (
+<<<<<<< HEAD
                     <div className="w-full h-full  p-1.5">
                       <ImageDisplay prompt={sym.imagePrompt} className="w-full h-full " />
+=======
+                    <div className="w-full h-full print:h-0 p-1.5">
+                      <ImageDisplay prompt={sym.imagePrompt} className="w-full h-full print:h-0" />
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                     </div>
                   ) : (
                     <span className="text-zinc-900 font-black text-lg uppercase">{sym.value}</span>
@@ -88,4 +93,7 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
 };
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

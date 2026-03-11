@@ -6,7 +6,11 @@ import { EditableElement, EditableText } from '../../Editable';
 
 export const NumberPathLogicSheet = ({ data }: { data: NumberPathLogicData }) => {
     return (
+<<<<<<< HEAD
         <div className="flex flex-col h-full  font-lexend p-2 text-black bg-white overflow-visible">
+=======
+        <div className="flex flex-col h-full print:h-0 font-lexend p-2 text-black bg-white overflow-visible">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
 
             {/* LEJANT (Legend) - Premium Card Style */}
@@ -58,7 +62,11 @@ export const NumberPathLogicSheet = ({ data }: { data: NumberPathLogicData }) =>
                                     <div className="flex flex-col items-center gap-2 shrink-0">
                                         <div className={`w-16 h-16 rounded-2xl flex items-center justify-center font-black text-2xl shadow-inner border-[3px] transition-colors ${sIdx === chain.steps.length - 1 ? 'bg-indigo-50 border-indigo-200 text-indigo-800' : 'bg-white border-dashed border-zinc-200 text-zinc-200'}`}>
                                             {sIdx === chain.steps.length - 1 ? (
+<<<<<<< HEAD
                                                 <div className="w-full h-full  flex items-center justify-center">
+=======
+                                                <div className="w-full h-full print:h-0 flex items-center justify-center">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                                     <span className="opacity-0 group-hover:opacity-100 transition-opacity text-xs absolute -top-4 text-indigo-400 font-bold">CEVAP: {step.expectedValue}</span>
                                                     ?
                                                 </div>
@@ -89,4 +97,7 @@ export const NumberPathLogicSheet = ({ data }: { data: NumberPathLogicData }) =>
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

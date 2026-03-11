@@ -20,7 +20,11 @@ export const RealLifeMathProblemsSheet = ({ data }: { data: RealLifeProblemData 
                             </div>
                             {problem.imagePrompt && (
                                 <div className="w-full h-56 bg-zinc-50 rounded-[2.5rem] border-2 border-zinc-100 mb-6 print:mb-2 overflow-hidden shadow-inner">
+<<<<<<< HEAD
                                     <ImageDisplay prompt={problem.imagePrompt} description={problem.text.substring(0, 30)} className="w-full h-full  object-contain mix-blend-multiply" />
+=======
+                                    <ImageDisplay prompt={problem.imagePrompt} description={problem.text.substring(0, 30)} className="w-full h-full print:h-0 object-contain mix-blend-multiply" />
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                 </div>
                             )}
                         </div>
@@ -35,4 +39,7 @@ export const RealLifeMathProblemsSheet = ({ data }: { data: RealLifeProblemData 
     </div>
 );
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

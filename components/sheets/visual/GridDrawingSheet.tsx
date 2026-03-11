@@ -94,7 +94,11 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     };
 
     return (
+<<<<<<< HEAD
         <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet max-w-full">
+=======
+        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet max-w-full">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             <PedagogicalHeader
                 title={data?.title || "KARE KOPYALAMA & MOTOR PLANLAMA"}
                 instruction={data?.instruction || "Sol taraftaki örnek çizimi sağ taraftaki boş ızgaraya aynı koordinatları kullanarak kopyalayın."}
@@ -154,4 +158,7 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

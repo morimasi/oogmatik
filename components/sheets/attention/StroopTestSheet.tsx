@@ -5,7 +5,11 @@ import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';
 
 export const StroopTestSheet = ({ data }: { data: StroopTestData }) => (
+<<<<<<< HEAD
     <div className="flex flex-col h-full  font-lexend p-2">
+=======
+    <div className="flex flex-col h-full print:h-0 font-lexend p-2">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex-1 grid grid-cols-4 gap-y-10 gap-x-4 items-center content-start mt-8 print:mt-2">
             {(data.items || []).map((item: { text: string, color: string }, i: number) => (
@@ -27,4 +31,7 @@ export const StroopTestSheet = ({ data }: { data: StroopTestData }) => (
     </div>
 );
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

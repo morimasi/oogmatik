@@ -30,7 +30,11 @@ export const LogicGridPuzzleSheet = ({ data }: { data: LogicGridPuzzleData }) =>
                             {(data?.categories || []).flatMap(c => (c?.items || []).map(i => (
                                 <th key={i?.name} className="border-2 border-zinc-900 p-4 print:p-1 h-40 w-16 relative bg-zinc-50">
                                     <div className="absolute inset-0 flex flex-col items-center justify-end pb-4 print:pb-1">
+<<<<<<< HEAD
                                         {i.imagePrompt && <div className="w-10 h-10 mb-4 print:mb-1 opacity-40"><ImageDisplay prompt={i.imagePrompt} description={i.name} className="w-full h-full  object-contain" /></div>}
+=======
+                                        {i.imagePrompt && <div className="w-10 h-10 mb-4 print:mb-1 opacity-40"><ImageDisplay prompt={i.imagePrompt} description={i.name} className="w-full h-full print:h-0 object-contain" /></div>}
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                                         <span className="writing-vertical font-black uppercase text-zinc-600 tracking-tighter text-[10px]"><EditableText value={i?.name} tag="span" /></span>
                                     </div>
                                 </th>
@@ -59,4 +63,7 @@ export const LogicGridPuzzleSheet = ({ data }: { data: LogicGridPuzzleData }) =>
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

@@ -17,7 +17,11 @@ export const ApartmentLogicSheet: React.FC<Props> = ({ data }) => {
     const roomIndices = Array.from({ length: roomsPerFloor }).map((_, i) => i + 1); // 1, 2, 3.. daire
 
     return (
+<<<<<<< HEAD
         <div className="w-full h-full  p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+=======
+        <div className="w-full h-full print:h-0 p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
             {/* ETKİNLİK BAŞLIĞI */}
             <div className="flex justify-between items-center border-b-4 border-orange-400 pb-4 print:pb-1 mb-6 print:mb-2">
                 <div>
@@ -129,4 +133,7 @@ export const ApartmentLogicSheet: React.FC<Props> = ({ data }) => {
 };
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4

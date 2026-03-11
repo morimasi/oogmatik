@@ -249,13 +249,21 @@ const HeaderDropdown = ({ label, icon, children, colorClass = "text-[var(--text-
 };
 
 const DropdownItem = ({ icon, label, onClick, badge }: { icon: string, label: string, onClick?: () => void, badge?: number }) => (
+<<<<<<< HEAD
     <button
+=======
+    <button 
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         onClick={(e) => {
             e.stopPropagation();
             if (onClick && typeof onClick === 'function') {
                 onClick();
             }
+<<<<<<< HEAD
         }}
+=======
+        }} 
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--surface-glass)] rounded-xl transition-colors group"
     >
         <div className="flex items-center gap-3">
@@ -475,6 +483,7 @@ const AppContent = () => {
                             <i className="fa-solid fa-user-doctor"></i> DEĞERLENDİRME
                         </button>
 
+<<<<<<< HEAD
                         <button
                             onClick={() => handleOpenStudio('students')}
                             className="hidden lg:flex items-center gap-2 px-6 py-2.5 bg-[var(--surface-glass)] hover:bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-2xl text-xs font-black shadow-sm transition-all active:scale-95 border border-[var(--border-color)]"
@@ -482,6 +491,8 @@ const AppContent = () => {
                             <i className="fa-solid fa-user-graduate"></i> ÖĞRENCİLERİM
                         </button>
 
+=======
+>>>>>>> 7ddd6a5ed99eef0e234e449bd0286508a88609b4
                         <div className="h-8 w-px bg-[var(--border-color)] mx-2"></div>
 
                         <div className="flex items-center gap-1">
