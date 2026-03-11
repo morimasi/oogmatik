@@ -142,15 +142,4 @@ export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions)
     return generateWithSchema(prompt, schema) as Promise<FindTheDifferenceData[]>;
 };
 
-export const generateShapeCountingFromAI = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
-    const { difficulty, worksheetCount, studentContext } = options;
-    const prompt = `
-    ${PEDAGOGICAL_BASE}
-    GÖREV: [ŞEKİL SAYMA VE GÖRSEL TARAMA]
-    ZORLUK: ${difficulty}
-    Öğrenci: ${studentContext?.diagnosis?.join(', ')}
-    SVG tabanlı geometrik şekillerden oluşan karmaşık bir tarama alanı tasarla.
-    `;
-    const schema = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, instruction: { type: Type.STRING }, sections: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { searchField: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { type: { type: Type.STRING }, x: { type: Type.NUMBER }, y: { type: Type.NUMBER }, size: { type: Type.NUMBER } } } }, correctCount: { type: Type.NUMBER } } } } } } };
-    return generateWithSchema(prompt, schema) as Promise<ShapeCountingData[]>;
-};
+

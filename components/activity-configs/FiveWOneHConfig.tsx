@@ -1,11 +1,23 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
+interface ToggleOption {
+    value: string | number;
+    label: string;
+}
+
+interface CompactToggleGroupProps {
+    label: string;
+    selected: string | number;
+    onChange: (value: any) => void;
+    options: ToggleOption[];
+}
+
+const CompactToggleGroup: React.FC<CompactToggleGroupProps> = ({ label, selected, onChange, options }) => (
     <div className="space-y-1">
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
         <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
-            {options.map((opt: any) => (
+            {options.map((opt) => (
                 <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
                     {opt.label}
                 </button>
@@ -28,11 +40,23 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                     <input
                         type="text"
                         value={options.topic || ''}
-                        onChange={e => onChange('topic', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('topic', e.target.value)}
                         placeholder="Örn: Uzay, Dinozorlar, Futbol..."
                         className="w-full p-4 bg-white dark:bg-zinc-800 border-2 border-indigo-100 dark:border-zinc-700 rounded-2xl text-sm font-bold outline-none focus:border-indigo-500 dark:text-zinc-100 placeholder-zinc-400 shadow-inner"
                     />
                 </div>
+
+                <CompactToggleGroup
+                    label="Sınıf Seviyesi"
+                    selected={options.classLevel || 1}
+                    onChange={(v: any) => onChange('classLevel', v)}
+                    options={[
+                        { value: 1, label: '1. Sınıf' },
+                        { value: 2, label: '2. Sınıf' },
+                        { value: 3, label: '3. Sınıf' },
+                        { value: 4, label: '4. Sınıf' }
+                    ]}
+                />
 
                 <CompactToggleGroup
                     label="Metin Uzunluğu"
@@ -87,7 +111,7 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                     <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">Font Konfigürasyonu</label>
                     <select
                         value={options.fontFamily || 'Comic Sans MS'}
-                        onChange={e => onChange('fontFamily', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('fontFamily', e.target.value)}
                         className="w-full p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold outline-none focus:border-indigo-500 dark:text-zinc-200"
                     >
                         <option value="Comic Sans MS">Comic Sans (Disleksi Dostu)</option>

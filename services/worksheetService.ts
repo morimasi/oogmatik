@@ -3,7 +3,7 @@ import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types';
 
-const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc } = firestore;
+const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, startAfter } = firestore;
 
 const serializeData = (data: any): string => {
     try {
@@ -97,19 +97,47 @@ export const worksheetService = {
         }
     },
 
-    getUserWorksheets: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
+    getUserWorksheets: async (userId: string, page: number, pageSize: number, categoryId?: string): Promise<{ items: SavedWorksheet[], count: number | null }> => {
         try {
-            const q = query(collection(db, "saved_worksheets"), where("userId", "==", userId));
+            // Only fetch private (not shared) worksheets for this user
+            let q = query(
+                collection(db, "saved_worksheets"), 
+                where("userId", "==", userId),
+                where("sharedWith", "==", null)
+            );
+
+            if (categoryId && categoryId !== 'all') {
+                q = query(q, where("category.id", "==", categoryId));
+            }
+
+            q = query(q, orderBy("createdAt", "desc"), limit(pageSize));
+            
+            // Note: This needs a composite index in Firestore (userId, sharedWith, category.id, createdAt)
             const querySnapshot = await getDocs(q);
+            const items: SavedWorksheet[] = [];
+            querySnapshot.forEach((doc) => {
+                items.push(mapDbToWorksheet(doc.data(), doc.id));
+            });
+            
+            return { items, count: null };
+        } catch (error) {
+            console.warn("Firestore Query Error (Index likely missing):", error);
+            // Fallback to client-side filter if index is missing
+            const qFallback = query(collection(db, "saved_worksheets"), where("userId", "==", userId));
+            const querySnapshot = await getDocs(qFallback);
             const items: SavedWorksheet[] = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data() as any;
                 if (!data.sharedWith) items.push(mapDbToWorksheet(data, doc.id));
             });
-            items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-            return { items, count: items.length };
-        } catch (error) {
-            return { items: [], count: 0 };
+            
+            let filtered = items;
+            if (categoryId && categoryId !== 'all') {
+                filtered = items.filter(i => i.category?.id === categoryId);
+            }
+
+            filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            return { items: filtered.slice(page * pageSize, (page + 1) * pageSize), count: filtered.length };
         }
     },
 
@@ -133,17 +161,29 @@ export const worksheetService = {
         try {
             const q = query(
                 collection(db, "saved_worksheets"), 
-                where("sharedWith", "==", userId)
+                where("sharedWith", "==", userId),
+                orderBy("createdAt", "desc"),
+                limit(pageSize)
             );
             const querySnapshot = await getDocs(q);
             const items: SavedWorksheet[] = [];
             querySnapshot.forEach((doc) => {
                 items.push(mapDbToWorksheet(doc.data(), doc.id));
             });
-            items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-            return { items, count: items.length };
+            return { items, count: null };
         } catch (error) {
-            return { items: [], count: 0 };
+            console.warn("Firestore Shared Query Error:", error);
+            const qFallback = query(
+                collection(db, "saved_worksheets"), 
+                where("sharedWith", "==", userId)
+            );
+            const querySnapshot = await getDocs(qFallback);
+            const items: SavedWorksheet[] = [];
+            querySnapshot.forEach((doc) => {
+                items.push(mapDbToWorksheet(doc.data(), doc.id));
+            });
+            items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            return { items: items.slice(page * pageSize, (page + 1) * pageSize), count: items.length };
         }
     },
 

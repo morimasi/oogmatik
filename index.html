@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 
 <head>
@@ -8,6 +8,43 @@
   <meta name="description" content="Nöro-mimari ve özel eğitim için derinlikli materyal üretim merkezi." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            zinc: {
+              50: 'var(--c-zinc-50, #fafafa)',
+              100: 'var(--c-zinc-100, #f4f4f5)',
+              200: 'var(--c-zinc-200, #e4e4e7)',
+              300: 'var(--c-zinc-300, #d4d4d8)',
+              400: 'var(--c-zinc-400, #a1a1aa)',
+              500: 'var(--c-zinc-500, #71717a)',
+              600: 'var(--c-zinc-600, #52525b)',
+              700: 'var(--c-zinc-700, #3f3f46)',
+              800: 'var(--c-zinc-800, #27272a)',
+              900: 'var(--c-zinc-900, #18181b)',
+              950: 'var(--c-zinc-950, #09090b)',
+            },
+            indigo: {
+              50: 'var(--c-indigo-50, #eef2ff)',
+              100: 'var(--c-indigo-100, #e0e7ff)',
+              200: 'var(--c-indigo-200, #c7d2fe)',
+              300: 'var(--c-indigo-300, #a5b4fc)',
+              400: 'var(--c-indigo-400, #818cf8)',
+              500: 'var(--c-indigo-500, #6366f1)',
+              600: 'var(--c-indigo-600, #4f46e5)',
+              700: 'var(--c-indigo-700, #4338ca)',
+              800: 'var(--c-indigo-800, #3730a3)',
+              900: 'var(--c-indigo-900, #312e81)',
+              950: 'var(--c-indigo-950, #1e1b4b)',
+            },
+          },
+        },
+      },
+    };
+  </script>
   <!-- Font Awesome 6.5.1 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -16,72 +53,141 @@
     @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;800&family=Lexend:wght@400;600;800&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
 
     :root {
-      --bg-primary: #121214;
-      --bg-secondary: #0a0a0b;
-      --bg-paper: #1e1e22;
-      --bg-inset: #121214;
-      --card-bg: rgba(30, 30, 34, 0.7);
-      --card-border: rgba(255, 255, 255, 0.05);
-      --panel-bg: rgba(30, 30, 34, 0.95);
+      /* Design Tokens - Default (Anthracite) */
+      --bg-primary-rgb: 18, 18, 20;
+      --bg-secondary-rgb: 10, 10, 11;
+      --bg-paper-rgb: 24, 24, 27;
+      --bg-inset-rgb: 9, 9, 11;
+
+      --bg-primary: rgb(var(--bg-primary-rgb));
+      --bg-secondary: rgb(var(--bg-secondary-rgb));
+      --bg-paper: rgb(var(--bg-paper-rgb));
+      --bg-inset: rgb(var(--bg-inset-rgb));
+
+      --surface-glass: rgba(255, 255, 255, 0.03);
+      --surface-elevated: rgba(255, 255, 255, 0.05);
+
       --text-primary: #f8fafc;
       --text-secondary: #94a3b8;
       --text-muted: #64748b;
+
       --border-color: rgba(255, 255, 255, 0.08);
-      --accent-color: #fbbf24;
-      --accent-hover: #f59e0b;
-      --accent-muted: rgba(251, 191, 36, 0.1);
-      --surface-glass: rgba(255, 255, 255, 0.03);
-      --ui-font: var(--app-font-family, 'Lexend', 'OpenDyslexic', sans-serif);
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-muted: rgba(99, 102, 241, 0.1);
+
+      --radius-premium: 16px;
+      --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      --blur-premium: 20px;
+
+      --ui-font: var(--app-font-family, 'Lexend', sans-serif);
       --ui-scale: var(--app-font-size-scale, 1);
       --ui-spacing: var(--app-letter-spacing, normal);
       --ui-line-height: var(--app-line-height, 1.6);
       --ui-saturation: var(--app-saturation, 100%);
-      --pattern-image: none;
       --sidebar-width: 320px;
+
+      /* Transition */
+      --app-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Theme-specific Overrides for UI Elements */
+    /* --- THEME DEFINITIONS --- */
+
+    :root.theme-light {
+      --bg-primary-rgb: 248, 250, 252;
+      --bg-secondary-rgb: 241, 245, 249;
+      --bg-paper-rgb: 255, 255, 255;
+      --bg-inset-rgb: 241, 245, 249;
+      --surface-glass: rgba(0, 0, 0, 0.02);
+      --surface-elevated: rgba(0, 0, 0, 0.04);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --border-color: rgba(0, 0, 0, 0.06);
+      --accent-color: #4f46e5;
+      --accent-hover: #4338ca;
+      --accent-muted: rgba(79, 70, 229, 0.08);
+      --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    }
+
+    :root.theme-dark {
+      --bg-primary-rgb: 9, 9, 11;
+      --bg-secondary-rgb: 2, 2, 3;
+      --bg-paper-rgb: 18, 18, 20;
+      --bg-inset-rgb: 0, 0, 0;
+      --surface-glass: rgba(255, 255, 255, 0.02);
+      --surface-elevated: rgba(255, 255, 255, 0.04);
+      --text-primary: #ffffff;
+      --text-secondary: #a1a1aa;
+      --text-muted: #52525b;
+      --border-color: rgba(255, 255, 255, 0.06);
+      --accent-color: #818cf8;
+      --accent-hover: #6366f1;
+      --accent-muted: rgba(129, 140, 248, 0.1);
+    }
+
     :root.theme-anthracite-gold {
-      --bg-primary: #121214;
-      --bg-paper: #1e1e22;
+      --bg-primary-rgb: 18, 18, 20;
+      --bg-paper-rgb: 28, 28, 31;
       --accent-color: #fbbf24;
-      --text-primary: #f8fafc;
+      --accent-hover: #f59e0b;
+      --accent-muted: rgba(251, 191, 36, 0.1);
+      --border-color: rgba(251, 191, 36, 0.15);
     }
 
     :root.theme-anthracite-cyber {
-      --bg-primary: #050505;
-      --bg-paper: #0d0d0d;
-      --accent-color: #f472b6;
+      --bg-primary-rgb: 5, 5, 5;
+      --bg-paper-rgb: 13, 13, 13;
+      --bg-secondary-rgb: 0, 0, 0;
+      --accent-color: #ec4899;
+      --accent-hover: #db2777;
       --text-primary: #ffffff;
-      --border-color: rgba(244, 114, 182, 0.2);
-      --accent-muted: rgba(244, 114, 182, 0.1);
+      --border-color: rgba(236, 72, 153, 0.2);
+      --accent-muted: rgba(236, 72, 153, 0.1);
+      --shadow-premium: 0 0 20px rgba(236, 72, 153, 0.15);
     }
 
     :root.theme-space {
-      --bg-primary: #020617;
-      --bg-paper: #0f172a;
+      --bg-primary-rgb: 2, 6, 23;
+      --bg-paper-rgb: 15, 23, 42;
+      --bg-secondary-rgb: 2, 6, 23;
       --accent-color: #38bdf8;
-      --text-primary: #f8fafc;
+      --accent-hover: #0ea5e9;
+      --text-primary: #f1f5f9;
       --border-color: rgba(56, 189, 248, 0.1);
-      --accent-muted: rgba(56, 189, 248, 0.1);
+      --accent-muted: rgba(56, 189, 248, 0.05);
     }
 
     :root.theme-nature {
-      --bg-primary: #052e16;
-      --bg-paper: #064e3b;
+      --bg-primary-rgb: 5, 46, 22;
+      --bg-paper-rgb: 6, 78, 59;
+      --bg-secondary-rgb: 2, 44, 34;
       --accent-color: #4ade80;
+      --accent-hover: #22c55e;
       --text-primary: #f0fdf4;
       --border-color: rgba(74, 222, 128, 0.1);
-      --accent-muted: rgba(74, 222, 128, 0.1);
+      --accent-muted: rgba(74, 222, 128, 0.08);
     }
 
     :root.theme-ocean {
-      --bg-primary: #082f49;
-      --bg-paper: #0c4a6e;
+      --bg-primary-rgb: 8, 47, 73;
+      --bg-paper-rgb: 12, 74, 110;
+      --bg-secondary-rgb: 7, 59, 76;
       --accent-color: #0ea5e9;
+      --accent-hover: #0284c7;
       --text-primary: #f0f9ff;
       --border-color: rgba(14, 165, 233, 0.1);
-      --accent-muted: rgba(14, 165, 233, 0.1);
+      --accent-muted: rgba(14, 165, 233, 0.08);
+    }
+
+    /* Global Reset & Body Styles */
+    * {
+      transition:
+        background-color 0.4s ease,
+        border-color 0.4s ease,
+        color 0.4s ease,
+        transform 0.2s ease,
+        box-shadow 0.4s ease;
     }
 
     body {
@@ -91,13 +197,82 @@
       line-height: var(--ui-line-height) !important;
       filter: saturate(var(--ui-saturation)) !important;
       background-color: var(--bg-primary);
-      background-image: var(--pattern-image);
-      background-size: 550px 550px;
       color: var(--text-primary);
       margin: 0;
       padding: 0;
       overflow-x: hidden;
       overflow-y: auto;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Compact Mode Adjustments */
+    :root.compact-mode {
+      --radius-premium: 10px;
+      --sidebar-width: 280px;
+    }
+
+    .compact-mode .p-10 {
+      padding: 1.5rem !important;
+    }
+
+    .compact-mode .p-8 {
+      padding: 1.25rem !important;
+    }
+
+    .compact-mode .p-6 {
+      padding: 0.85rem !important;
+    }
+
+    .compact-mode .p-5 {
+      padding: 0.75rem !important;
+    }
+
+    .compact-mode .p-4 {
+      padding: 0.65rem !important;
+    }
+
+    .compact-mode .py-8 {
+      padding-top: 1.25rem !important;
+      padding-bottom: 1.25rem !important;
+    }
+
+    .compact-mode .py-6 {
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
+    }
+
+    .compact-mode .rounded-3xl {
+      border-radius: 1.25rem !important;
+    }
+
+    .compact-mode .rounded-2xl {
+      border-radius: 1rem !important;
+    }
+
+    .compact-mode .rounded-xl {
+      border-radius: 0.75rem !important;
+    }
+
+    .compact-mode .gap-6 {
+      gap: 0.75rem !important;
+    }
+
+    /* Re-map dynamic tailwind variables to our theme tokens */
+    :root {
+      --c-zinc-50: var(--bg-primary);
+      --c-zinc-100: var(--bg-secondary);
+      --c-zinc-200: var(--border-color);
+      --c-zinc-300: var(--border-color);
+      --c-zinc-400: var(--text-muted);
+      --c-zinc-500: var(--text-muted);
+      --c-zinc-600: var(--text-secondary);
+      --c-zinc-700: var(--text-secondary);
+      --c-zinc-800: var(--bg-paper);
+      --c-zinc-900: var(--bg-inset);
+      --c-indigo-500: var(--accent-color);
+      --c-indigo-600: var(--accent-hover);
+      --c-indigo-700: var(--accent-hover);
     }
 
     /* Universal Mode Canvas Fix */
@@ -114,7 +289,7 @@
     }
 
     .worksheet-page::before {
-      content: "";
+      content: '';
       position: absolute;
       top: 50%;
       left: 50%;
@@ -264,7 +439,9 @@
     .worksheet-page {
       background-color: white;
       color: black;
-      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      box-shadow:
+        0 10px 30px -5px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
       margin: 20px auto;
       width: 210mm;
       min-height: 297mm;
@@ -280,6 +457,46 @@
 
     .worksheet-page:hover {
       box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ════════════════════════════════════════════════════════════ */
+    /* A4 ÇALIŞMA SAYFASI — TEMA İZOLASYONU                        */
+    /* Tema (dark/light/space/nature vb.) ne olursa olsun,         */
+    /* A4 çalışma sayfası her zaman beyaz, tertemiz kalır.         */
+    /* ════════════════════════════════════════════════════════════ */
+    .worksheet-page,
+    .worksheet-page * {
+      color-scheme: light !important;
+      transition: none !important;
+      /* Tema geçiş animasyonunu engelle */
+    }
+
+    /* CSS Değişkenlerini Light modun sabit değerlerine sıfırla.
+         Tailwind zinc renkleri bu değişkenleri referans aldığından
+         tema değişiminden tamamen muaf olurlar. */
+    .worksheet-page {
+      --c-zinc-50: #fafafa !important;
+      --c-zinc-100: #f4f4f5 !important;
+      --c-zinc-200: #e4e4e7 !important;
+      --c-zinc-300: #d4d4d8 !important;
+      --c-zinc-400: #a1a1aa !important;
+      --c-zinc-500: #71717a !important;
+      --c-zinc-600: #52525b !important;
+      --c-zinc-700: #3f3f46 !important;
+      --c-zinc-800: #27272a !important;
+      --c-zinc-900: #18181b !important;
+      --c-zinc-950: #09090b !important;
+      --c-indigo-50: #eef2ff !important;
+      --c-indigo-100: #e0e7ff !important;
+      --c-indigo-200: #c7d2fe !important;
+      --c-indigo-300: #a5b4fc !important;
+      --c-indigo-400: #818cf8 !important;
+      --c-indigo-500: #6366f1 !important;
+      --c-indigo-600: #4f46e5 !important;
+      --c-indigo-700: #4338ca !important;
+      /* Arka plan ve metin rengi kesin override */
+      background-color: white !important;
+      color: black !important;
     }
 
     /* Sayfa Numarası (Sadece Ekranda) */
@@ -306,30 +523,42 @@
       page-break-inside: avoid !important;
     }
 
-    /* --- ULTRA PRINT ENGINE v4.0 — A4 KOMPAKT SİSTEM — Bursa Disleksi AI --- */
+    /* --- ULTRA PRINT ENGINE v4.2 — KUSURSUZ ÇOKLU SAYFA VE ÖLÇEKLENDİRME --- */
     @media print {
       @page {
         size: A4 portrait;
-        margin: 0mm !important;
+        margin: 10mm !important;
+      }
+
+      /* 1. Asıl Arayüzü (Root) Tamamen Yok Et (Zemin Çakışmasını Önler) */
+      #root {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        position: absolute !important;
       }
 
       html,
       body {
-        visibility: hidden;
         background: white !important;
         margin: 0 !important;
         padding: 0 !important;
         height: auto !important;
+        width: 100% !important;
         overflow: visible !important;
       }
 
+      /* 2. Print Container Artık Sayfanın Tek Hakimi (Relative Position ile doğal akar) */
       #print-container {
-        visibility: visible !important;
         display: block !important;
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 210mm !important;
+        visibility: visible !important;
+        position: relative !important;
+        /* <--- ABSOLUTE İPTAL (Çoklu Sayfa Donmasını Çözer) */
+        width: 100% !important;
+        max-width: none !important;
         margin: 0 !important;
         background: white !important;
         z-index: 9999999 !important;
@@ -337,18 +566,19 @@
 
       /* ═══════════════════════════════════════════
          SAYFA KONTEYNER — A4 Standart Mod
-         A4 = 210mm x 297mm @ 96dpi = 794px x 1123px
+         A4 = 210mm x 297mm
       ═══════════════════════════════════════════ */
       .ultra-print-page,
       .worksheet-page {
         visibility: visible !important;
         display: block !important;
-        width: 210mm !important;
+        width: 100% !important;
+        max-width: 210mm !important;
         min-height: 297mm !important;
         height: auto !important;
-        padding: 15mm 15mm !important;
-        /* Milimetrik Simetri */
-        margin: 0 auto !important;
+        padding: 10mm 12mm !important;
+        /* Ortala */
+        margin: 0 !important;
         overflow: visible !important;
         page-break-after: always !important;
         break-after: page !important;
@@ -377,7 +607,7 @@
       ═══════════════════════════════════════════ */
       #print-container.compact-print .ultra-print-page,
       #print-container.compact-print .worksheet-page {
-        padding: 7mm 11mm !important;
+        padding: 5mm 8mm !important;
       }
 
       #print-container.compact-print .pedagogical-header h3 {
@@ -434,18 +664,18 @@
          FONT BOYUTU VARYANTLARI
          data-font-size attribute ile etkinleşir
       ═══════════════════════════════════════════ */
-      #print-container[data-font-size="10"] .block-text,
-      #print-container[data-font-size="10"] .block-cloze {
+      #print-container[data-font-size='10'] .block-text,
+      #print-container[data-font-size='10'] .block-cloze {
         font-size: 10pt !important;
       }
 
-      #print-container[data-font-size="11"] .block-text,
-      #print-container[data-font-size="11"] .block-cloze {
+      #print-container[data-font-size='11'] .block-text,
+      #print-container[data-font-size='11'] .block-cloze {
         font-size: 11pt !important;
       }
 
-      #print-container[data-font-size="12"] .block-text,
-      #print-container[data-font-size="12"] .block-cloze {
+      #print-container[data-font-size='12'] .block-text,
+      #print-container[data-font-size='12'] .block-cloze {
         font-size: 12pt !important;
         line-height: 1.8 !important;
       }
@@ -472,7 +702,11 @@
         margin-bottom: 6mm !important;
       }
 
-      /* Blokların sayfa ortasında kesilmesini önle */
+      /* ═══════════════════════════════════════════
+         BÖLÜNME ÖNLEYİCİLER (PAGE BREAK ALGORİTMASI)
+         Sayfa sınırına gelen resim, tablo ve soruların 
+         ortadan ikiye yarılmasını KESİNLİKLE engeller.
+      ═══════════════════════════════════════════ */
       .block-container,
       .pedagogical-header,
       .block-table-container,
@@ -482,10 +716,44 @@
       .block-cloze,
       .block-logic-card,
       .block-clue-card,
-      .block-footer-val {
+      .block-footer-val,
+      /* Bütün Tailwind kartları ve kapsayıcıları koru */
+      .rounded-2xl,
+      .rounded-3xl,
+      .rounded-xl,
+      .bg-white,
+      .bg-zinc-50,
+      .border,
+      .shadow-sm,
+      /* Görsellerin/Canvas'ların yarısı üstte kalmasın */
+      img,
+      canvas,
+      svg,
+      .aspect-video,
+      .aspect-square,
+      /* Tablo satırları ve hücreleri yarılmasın */
+      table,
+      tr,
+      th,
+      td,
+      thead,
+      tbody {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
-        margin-bottom: 0 !important;
+      }
+
+      /* Sayfa başlıkları ve soruların kendilerinden sonra 
+         gelen şıklar/metinlerle ayrılmasını önle */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      .block-header,
+      .font-bold {
+        break-after: avoid !important;
+        page-break-after: avoid !important;
       }
 
       /* ═══════════════════════════════════════════
@@ -520,9 +788,11 @@
       .h-full,
       .h-screen,
       .min-h-\[500px\],
-      .min-h-\[600px\] {
+      .min-h-\[600px\],
+      [style*="height: 100%"] {
         height: auto !important;
         min-height: 0 !important;
+        max-height: none !important;
       }
 
       /* Yatay kaydırma sınıflarını ez — kesilmeleri önle */
@@ -565,11 +835,16 @@
       }
 
       /* ═══════════════════════════════════════════
-         GİZLE / GÖSTER — Hassas Kurallar
+         GİZLE / GÖSTER — Hassas Kurallar (TAMAMEN DOM'DAN YOK ET)
       ═══════════════════════════════════════════ */
       /* Sadece UI butonlarını gizle, print-keep olanları koru */
       button:not(.print-keep) {
         display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
 
       .no-print,
@@ -580,45 +855,52 @@
       .print-controls,
       .page-navigator,
       .page-label-container,
-      [class*="backdrop-blur"],
-      [class*="animate-spin"],
-      [class*="animate-bounce"],
-      [class*="animate-pulse"] {
+      .fixed,
+      .absolute.top-0:not(.worksheet-page .absolute),
+      [class*='backdrop-blur'],
+      [class*='animate-spin'],
+      [class*='animate-bounce'],
+      [class*='scroll-m'] {
         display: none !important;
+        position: fixed !important;
+        /* DOM akısında yeri kalmasın */
+        top: -9999px !important;
       }
 
       /* Tailwind hover: ve focus: pseudo-class sınıflarını gizleme
          (Tailwind'in bu sınıfları @media print'te zaten etkisiz) */
 
       /* ═══════════════════════════════════════════
-         SAYFA ALT BİLGİSİ
+         SAYFA ALT BİLGİSİ VE TAŞMA ENGELLEYİCİLER
       ═══════════════════════════════════════════ */
       .print-footer,
-      [class*="mt-auto"][class*="border-t"] {
+      [class*='mt-auto'][class*='border-t'] {
         display: flex !important;
         visibility: visible !important;
         position: relative !important;
         width: 100% !important;
+        break-inside: avoid !important;
       }
+
     }
   </style>
   <script type="importmap">
-    {
-      "imports": {
-        "vite": "https://aistudiocdn.com/vite@^7.2.6",
-        "react/": "https://aistudiocdn.com/react@^19.2.0/",
-        "react": "https://aistudiocdn.com/react@^19.2.0",
-        "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/",
-        "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
-        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-        "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
-        "@vercel/node": "https://aistudiocdn.com/@vercel/node@^5.5.14",
-        "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1",
-        "jspdf": "https://aistudiocdn.com/jspdf@^3.0.4",
-        "pdfjs-dist": "https://esm.sh/pdfjs-dist@^5.4.449"
+      {
+        "imports": {
+          "vite": "https://aistudiocdn.com/vite@^7.2.6",
+          "react/": "https://aistudiocdn.com/react@^19.2.0/",
+          "react": "https://aistudiocdn.com/react@^19.2.0",
+          "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/",
+          "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+          "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+          "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+          "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
+          "@vercel/node": "https://aistudiocdn.com/@vercel/node@^5.5.14",
+          "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1",
+          "jspdf": "https://aistudiocdn.com/jspdf@^3.0.4",
+          "pdfjs-dist": "https://esm.sh/pdfjs-dist@^5.4.449"
+        }
       }
-    }
     </script>
 </head>
 

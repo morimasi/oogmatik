@@ -23,3 +23,5 @@ export * from '../generators/offline/capsuleGame';
 export * from '../generators/offline/futoshiki';
 export * from '../generators/offline/magicPyramid';
 export * from '../generators/offline/oddEvenSudoku';
+export * from './visualInterpretation';
+export * from './boxMath';

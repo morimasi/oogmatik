@@ -1,4 +1,3 @@
-
 export * from './readingStudio';
 export * from './algorithm';
 export * from './mathLogicGames';
@@ -21,3 +20,7 @@ export * from './directionalCodeReading';
 export * from './logicErrorHunter';
 export * from './patternCompletion';
 export * from './mapInstruction';
+export * from './mathStudio';
+export * from './assessment';
+export * from './visualInterpretation';
+export * from './boxMath';
