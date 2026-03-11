@@ -3,10 +3,10 @@ import { GeneratorOptions } from '../../types';
 
 interface Props {
   options: GeneratorOptions;
-  setOptions: (options: GeneratorOptions) => void;
+  onChange: (key: keyof GeneratorOptions, value: any) => void;
 }
 
-export const BoxMathConfig: React.FC<Props> = ({ options, setOptions }) => {
+export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -32,7 +32,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, setOptions }) => {
             ].map((v) => (
               <button
                 key={v.id}
-                onClick={() => setOptions({ ...options, variant: v.id })}
+                onClick={() => onChange('variant', v.id)}
                 className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${options.variant === v.id ? 'border-indigo-500 bg-indigo-50 text-indigo-600 shadow-sm' : 'border-zinc-100 bg-white text-zinc-400 hover:border-zinc-200'}`}
               >
                 <i className={`fa-solid ${v.icon} text-lg`}></i>
@@ -57,7 +57,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, setOptions }) => {
               max="24"
               step="2"
               value={options.itemCount}
-              onChange={(e) => setOptions({ ...options, itemCount: parseInt(e.target.value) })}
+              onChange={(e) => onChange('itemCount', parseInt(e.target.value))}
               className="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-indigo-500"
             />
             <div className="flex justify-between mt-2">
@@ -89,7 +89,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, setOptions }) => {
           {['Başlangıç', 'Orta', 'Zor', 'Uzman'].map((d) => (
             <button
               key={d}
-              onClick={() => setOptions({ ...options, difficulty: d as any })}
+              onClick={() => onChange('difficulty', d as any)}
               className={`py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all ${options.difficulty === d ? 'border-zinc-900 bg-zinc-900 text-white shadow-md' : 'border-white bg-white text-zinc-400 hover:border-zinc-200'}`}
             >
               {d}
