@@ -8,7 +8,6 @@ import { AttendanceModule } from './modules/AttendanceModule';
 import { AcademicModule } from './modules/AcademicModule';
 import { PortfolioModule } from './modules/PortfolioModule';
 import { BehaviorModule } from './modules/BehaviorModule';
-import { SettingsModule } from './modules/SettingsModule';
 import { StudentSelector } from './StudentSelector';
 
 // Icons mapping for sub-modules
@@ -201,18 +200,6 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
                         subtitle="Olumlu davranışlar ve olay kayıtları."
                     >
                         <BehaviorModule student={currentStudent} />
-                    </ContentWrapper>
-                );
-            case 'settings':
-                return (
-                    <ContentWrapper 
-                        title="Ayarlar Merkezi" 
-                        subtitle="Kişiselleştirme, bildirimler ve sistem tercihleri."
-                    >
-                        <SettingsModule 
-                            student={currentStudent} 
-                            onUpdateSettings={(newSettings) => console.log('Settings updated:', newSettings)} 
-                        />
                     </ContentWrapper>
                 );
             default:
