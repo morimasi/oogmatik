@@ -105,6 +105,7 @@ export enum ActivityType {
   PATTERN_COMPLETION = 'PATTERN_COMPLETION',
   VISUAL_INTERPRETATION = 'VISUAL_INTERPRETATION',
   BRAIN_TEASERS = 'BRAIN_TEASERS',
+  BOX_MATH = 'BOX_MATH',
 }
 
 export type UserRole = 'user' | 'admin';

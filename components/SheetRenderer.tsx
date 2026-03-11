@@ -168,7 +168,9 @@ import { DirectionalTrackingSheet } from './sheets/visual/DirectionalTrackingShe
 import { ReadingStudioContentRenderer } from './ReadingStudio/ReadingStudioContentRenderer';
 import { VisualInterpretationSheet } from './sheets/visual/VisualInterpretationSheet';
 import { BrainTeasersSheet } from './sheets/logic/BrainTeasersSheet';
+import { BoxMathSheet } from './sheets/math/BoxMathSheet';
 import { PedagogicalHeader, ImageDisplay } from './sheets/common';
+
 import { EditableText } from './Editable';
 
 const recursiveSafeText = (val: any): string => {
@@ -971,6 +973,7 @@ export const SheetRenderer = React.memo(
     }
 
     // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
+
     if (data.layoutArchitecture || data.blocks) {
       return (
         <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />
@@ -1135,7 +1138,10 @@ export const SheetRenderer = React.memo(
         return <AnagramSheet data={data as unknown as AnagramsData} />;
       case ActivityType.CROSSWORD:
         return <CrosswordSheet data={data as unknown as CrosswordData} />;
+      case ActivityType.BOX_MATH:
+        return <BoxMathSheet data={data as any} />;
       case activityType as any: // Herhangi bir modül blok yapısı içeriyorsa pagination desteği alabilir
+
       default:
         return (
           <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />
