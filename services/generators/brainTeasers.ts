@@ -1,20 +1,14 @@
-
 import { ActivityType, GeneratorOptions, WorksheetData } from '../../types';
 import { BaseGenerator } from './core/BaseGenerator';
 
-export class BrainTeasersGenerator extends BaseGenerator {
-    constructor() {
-        super(ActivityType.BRAIN_TEASERS, {
-            id: ActivityType.BRAIN_TEASERS,
-            title: 'Kafayı Çalıştır (Zeka Oyunları)',
-            description: 'Farklı zorluk seviyelerinde mantık, dikkat ve problem çözme odaklı zeka soruları.',
-            icon: 'fa-solid fa-lightbulb'
-        });
-    }
+export class BrainTeasersGenerator extends BaseGenerator<any> {
+  constructor() {
+    super();
+  }
 
-    async generate(options: GeneratorOptions): Promise<WorksheetData> {
-        // AI Generator implementation
-        const prompt = `
+  protected async execute(options: GeneratorOptions): Promise<WorksheetData> {
+    // AI Generator implementation
+    const prompt = `
             Lütfen bir "Zeka ve Mantık Oyunları" çalışma kağıdı oluştur.
             
             Konu: ${options.topic || 'Genel Mantık'}
@@ -35,36 +29,36 @@ export class BrainTeasersGenerator extends BaseGenerator {
             }
         `;
 
-        // Mock response
-        return {
-            title: 'Kafayı Çalıştır',
-            instruction: 'Soruları dikkatlice oku ve mantığını kullanarak çöz.',
-            layoutArchitecture: {
-                blocks: [
-                    {
-                        type: 'puzzles',
-                        content: {
-                            items: [
-                                {
-                                    type: 'riddle',
-                                    q: 'Benim şehirlerim var ama evlerim yok. Dağlarım var ama ağaçlarım yok. Sularım var ama balıklarım yok. Ben neyim?',
-                                    a: 'Harita'
-                                },
-                                {
-                                    type: 'math_trick',
-                                    q: 'Bir sepette 5 elma var. 5 çocuğa birer elma verdin ama sepette hala bir elma kaldı. Bu nasıl mümkün oldu?',
-                                    a: 'Son çocuğa elmayı sepetle birlikte verdin.'
-                                },
-                                {
-                                    type: 'pattern',
-                                    q: 'Sıradaki şekil hangisi olmalı? 🟥 🟦 🟥 🟦 ...',
-                                    a: '🟥'
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        } as any;
-    }
+    // Mock response
+    return {
+      title: 'Kafayı Çalıştır',
+      instruction: 'Soruları dikkatlice oku ve mantığını kullanarak çöz.',
+      layoutArchitecture: {
+        blocks: [
+          {
+            type: 'puzzles',
+            content: {
+              items: [
+                {
+                  type: 'riddle',
+                  q: 'Benim şehirlerim var ama evlerim yok. Dağlarım var ama ağaçlarım yok. Sularım var ama balıklarım yok. Ben neyim?',
+                  a: 'Harita',
+                },
+                {
+                  type: 'math_trick',
+                  q: 'Bir sepette 5 elma var. 5 çocuğa birer elma verdin ama sepette hala bir elma kaldı. Bu nasıl mümkün oldu?',
+                  a: 'Son çocuğa elmayı sepetle birlikte verdin.',
+                },
+                {
+                  type: 'pattern',
+                  q: 'Sıradaki şekil hangisi olmalı? 🟥 🟦 🟥 🟦 ...',
+                  a: '🟥',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    } as any;
+  }
 }

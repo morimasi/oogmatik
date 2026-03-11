@@ -255,7 +255,16 @@ export interface GeneratorOptions {
   density?: 'low' | 'medium' | 'high';
   hintLevel?: 'low' | 'medium' | 'high' | 'none';
   textLength?: 'kısa' | 'orta' | 'uzun';
-  questionStyle?: 'test_and_open' | 'only_test' | 'only_open_ended' | 'mixed' | '5n1k' | 'detail' | 'inference' | 'true_false' | 'open_ended';
+  questionStyle?:
+    | 'test_and_open'
+    | 'only_test'
+    | 'only_open_ended'
+    | 'mixed'
+    | '5n1k'
+    | 'detail'
+    | 'inference'
+    | 'true_false'
+    | 'open_ended';
   syllableColoring?: boolean;
   wpmTarget?: number;
   colorPalette?: 'red_blue' | 'contrast' | 'pastel';
@@ -276,6 +285,7 @@ export interface GeneratorOptions {
   absurdityDegree?: 'minimal' | 'obvious' | 'surreal';
   errorCount?: number;
   useGridSystem?: boolean;
+  targetShape?: string;
   mapType?: 'turkey' | 'world' | 'treasure';
   includeCompass?: boolean;
   cognitiveLoad?: number;
