@@ -228,7 +228,7 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock; key?: any
     case 'header':
       return (
         <h2
-          className="block-header text-3xl font-black uppercase text-center mb-4 border-b-4 border-black pb-2"
+          className="block-header text-3xl font-black uppercase text-center mb-4 print:mb-2 border-b-4 border-black pb-2 print:pb-1"
           style={blockStyle}
         >
           <EditableText value={recursiveSafeText(content.text || content)} tag="span" />
@@ -237,7 +237,7 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock; key?: any
 
     case 'text':
       return (
-        <div className="block-text text-lg leading-relaxed mb-4 font-dyslexic" style={blockStyle}>
+        <div className="block-text text-lg leading-relaxed mb-4 print:mb-1 font-dyslexic" style={blockStyle}>
           <EditableText value={recursiveSafeText(content.text || content)} tag="div" />
         </div>
       );
@@ -246,9 +246,9 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock; key?: any
       const cells = content.cells || content.items || content.data || [];
       const cols = content.cols || content.columns || 4;
       return (
-        <div className="block-svg-shape flex justify-center mb-4">
+        <div className="block-svg-shape flex justify-center mb-4 print:mb-2">
           <div
-            className="block-grid-container grid gap-2 border-4 border-black p-4 bg-zinc-50 rounded-2xl"
+            className="block-grid-container grid gap-2 border-4 border-black p-4 print:p-2 bg-zinc-50 rounded-2xl"
             style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
           >
             {cells.map((cell: any, i: number) => (
@@ -268,7 +268,7 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock; key?: any
       const headers: string[] = content.headers || content.columns || [];
       const rows: any[][] = content.rows || content.data || content.items || [];
       return (
-        <div className="block-table-container overflow-hidden border-4 border-black rounded-2xl mb-4 bg-white mx-auto max-w-full shadow-sm">
+        <div className="block-table-container overflow-hidden border-4 border-black rounded-2xl mb-4 print:mb-2 bg-white mx-auto max-w-full shadow-sm">
           <table className="w-full border-collapse">
             {headers.length > 0 && (
               <thead className="bg-zinc-100">
@@ -305,7 +305,7 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock; key?: any
 
     case 'logic_card':
       return (
-        <div className="block-logic-card p-5 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm flex flex-col gap-3 mb-3 break-inside-avoid">
+        <div className="block-logic-card p-5 print:p-2 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm flex flex-col gap-3 print:gap-1 mb-3 print:mb-1 break-inside-avoid">
           <div className="logic-text-box bg-zinc-900 text-white p-3 rounded-2xl text-center text-sm font-bold italic mb-1">
             <EditableText value={recursiveSafeText(content.text)} tag="p" />
           </div>
@@ -396,7 +396,7 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock; key?: any
       const parts = rawText.split(/(\[.*?\])/g);
       return (
         <div
-          className="block-cloze p-5 bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-[2rem] mb-4 relative break-inside-avoid"
+          className="block-cloze p-5 print:p-2 bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-[2rem] mb-4 print:mb-1 relative break-inside-avoid"
           style={{ lineHeight: '2.4', fontSize: '11px' }}
         >
           <div className="flex items-center gap-2 mb-2">
@@ -501,7 +501,7 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock; key?: any
       const leftItems: any[] = content.leftColumn || content.left || [];
       const rightItems: any[] = content.rightColumn || content.right || [];
       return (
-        <div className="block-match mb-4 break-inside-avoid p-4 bg-white border-2 border-zinc-100 rounded-[2rem] shadow-sm">
+        <div className="block-match mb-4 print:mb-1 break-inside-avoid p-4 print:p-2 bg-white border-2 border-zinc-100 rounded-[2rem] shadow-sm">
           <div className="flex gap-3">
             <div className="flex-1 flex flex-col gap-1.5">
               <p className="block-match-label text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1 text-center">

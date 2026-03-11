@@ -1,5 +1,5 @@
 git add .
 
-git commit -m "feat(ai): antgravity guncel"
+git commit -m "feat(ai): anti guncel"
 
 git push
