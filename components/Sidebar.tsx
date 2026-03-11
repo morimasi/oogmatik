@@ -18,6 +18,8 @@ import { adminService } from '../services/adminService';
 import { useStudent } from '../context/StudentContext';
 import './PremiumPopupStyles.css';
 
+import './PremiumPopupStyles.css';
+
 const toPascalCase = (str: string): string => {
   if (!str) return '';
   return str
@@ -454,8 +456,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                     popupRect &&
                     createPortal(
                       <div
-                        className="premium-popup-menu md:block hidden"
+                        className="premium-popup-menu"
                         onMouseEnter={handlePopupMouseEnter}
+
                         onMouseLeave={handlePopupMouseLeave}
                         role="menu"
                         aria-label="Stüdyolar menüsü"
