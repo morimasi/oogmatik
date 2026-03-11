@@ -15,7 +15,7 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
 
   return (
     <div
-      className="w-full h-full flex flex-col gap-8 p-8"
+      className="w-full h-full flex flex-col gap-8 print:p-3 p-8 print:p-3"
       style={{ fontFamily: settings.fontFamily }}
     >
       {/* Header */}
@@ -37,13 +37,13 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
       )}
 
       {/* Puzzles Grid */}
-      <div className="grid grid-cols-1 gap-8">
+      <div className="grid grid-cols-1 gap-8 print:p-3">
         {puzzles.map((puzzle: any, idx: number) => (
           <div
             key={idx}
             className="bg-white rounded-3xl border-2 border-zinc-100 shadow-xl overflow-hidden group hover:border-amber-200 transition-colors"
           >
-            <div className="p-8">
+            <div className="p-8 print:p-3">
               <div className="flex items-start gap-6">
                 <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-black shrink-0">
                   {idx + 1}
@@ -103,3 +103,4 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
     </div>
   );
 };
+

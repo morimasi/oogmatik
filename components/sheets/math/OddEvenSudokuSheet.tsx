@@ -12,7 +12,7 @@ export const OddEvenSudokuSheet = ({ data }: { data: OddEvenSudokuData }) => {
                 data={data}
             />
 
-            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3">
                 {data.puzzles?.map((puzzle, pIndex) => {
                     const boxSizeR = puzzle.size === 6 ? 2 : 2;
                     const boxSizeC = puzzle.size === 6 ? 3 : 2;
@@ -78,3 +78,4 @@ export const OddEvenSudokuSheet = ({ data }: { data: OddEvenSudokuData }) => {
         </div>
     );
 };
+

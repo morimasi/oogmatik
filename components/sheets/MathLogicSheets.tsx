@@ -42,7 +42,7 @@ export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
     <div className="flex flex-col h-full font-lexend text-black bg-white">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4 flex-1 content-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3 mt-4 flex-1 content-start">
             {(data?.puzzles || []).map((puzzle, index) => (
                 <EditableElement key={index} className="flex flex-col border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-[10px_10px_0px_0px_rgba(0,0,0,0.05)] overflow-hidden group hover:shadow-xl transition-all duration-500 break-inside-avoid">
                     {/* Header Label */}
@@ -55,7 +55,7 @@ export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
                         </div>
                     </div>
 
-                    <div className="p-8 flex-1 flex flex-col gap-4">
+                    <div className="p-8 print:p-3 flex-1 flex flex-col gap-4">
                         {/* Legend Area (Optional Hint) */}
                         <div className="flex justify-center gap-6 mb-4">
                             {puzzle.objects.map((obj, i) => (
@@ -151,7 +151,7 @@ export const NumberPatternSheet = ({ data }: { data: NumberPatternData }) => (
 export const LogicGridPuzzleSheet = ({ data }: { data: LogicGridPuzzleData }) => (
     <div className="flex flex-col">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8 print:p-3">
             <EditableElement className="text-base border-4 border-zinc-800 p-6 bg-zinc-50 rounded-3xl shadow-inner">
                 <h4 className="font-black text-xs uppercase tracking-widest text-indigo-600 mb-4 flex items-center gap-2"><i className="fa-solid fa-lightbulb"></i> İpuçlarını Takip Et</h4>
                 <ul className="space-y-3">
@@ -292,3 +292,4 @@ export const RomanNumeralConnectSheet = SimpleVisualList;
 export const ArithmeticConnectSheet = SimpleVisualList;
 export const OperationSquareSheet = SimpleVisualList;
 export const RomanArabicMatchConnectSheet = SimpleVisualList;
+

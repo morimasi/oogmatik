@@ -106,8 +106,8 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
                     <div
                         key={index}
                         className={`
-                            relative flex items-center justify-center p-4 sm:p-8 border-2 border-zinc-100 rounded-[2.5rem] bg-zinc-50/30 break-inside-avoid w-full max-w-full group overflow-hidden
-                            ${isStacked ? 'flex-col gap-8' : 'flex-row gap-10'}
+                            relative flex items-center justify-center p-4 sm:p-8 print:p-3 border-2 border-zinc-100 rounded-[2.5rem] bg-zinc-50/30 break-inside-avoid w-full max-w-full group overflow-hidden
+                            ${isStacked ? 'flex-col gap-8 print:p-3' : 'flex-row gap-10 print:p-4'}
                         `}
                     >
                         {renderGrid(drawing.lines, `REFERANS MODEL`, true)}
@@ -137,7 +137,7 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
 
             {/* Premium Footer Protokolü */}
             <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10">
+                <div className="flex gap-10 print:p-4">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">PROTOKOL</span>
                         <span className="text-xs font-black uppercase">Visuo-Motor Precision Engine</span>
@@ -151,3 +151,4 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
         </div>
     );
 };
+

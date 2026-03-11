@@ -45,7 +45,7 @@ export const WordMemorySheet = ({ data }: { data: WordMemoryData }) => {
                 <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Kelimeleri dikkatlice oku ve ezberle." note={data.pedagogicalNote} data={data} />
 
                 <div className="flex-1 flex flex-col items-center justify-center">
-                    <div className="bg-white border-4 border-black rounded-3xl p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-2xl w-full text-center">
+                    <div className="bg-white border-4 border-black rounded-3xl p-8 print:p-3 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-2xl w-full text-center">
                         <h3 className="text-xl font-bold text-black mb-6 uppercase tracking-widest border-b-2 border-black pb-2">Ezberlenecek Liste</h3>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                             {(data.wordsToMemorize || []).map((word, index) => (
@@ -63,7 +63,7 @@ export const WordMemorySheet = ({ data }: { data: WordMemoryData }) => {
                 <PedagogicalHeader title={`${data.title} - TEST`} instruction="2. AŞAMA: Aklında kalan kelimeleri bul ve kutucuğu işaretle." />
 
                 <div className="flex-1">
-                    <div className="bg-white border-4 border-black rounded-3xl p-8 max-w-3xl mx-auto w-full">
+                    <div className="bg-white border-4 border-black rounded-3xl p-8 print:p-3 max-w-3xl mx-auto w-full">
                         <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
                             {(data.testWords || []).map((word, index) => (
                                 <div key={index} className="flex items-center gap-2 p-2 border-2 border-zinc-200 rounded-lg cursor-pointer">
@@ -135,7 +135,7 @@ export const CharacterMemorySheet = ({ data }: { data: CharacterMemoryData }) =>
             <div className="flex flex-col min-h-[500px] relative">
                 <PedagogicalHeader title={data.title} instruction="Bu karakterleri ve özelliklerini iyi ezberle." note={data.pedagogicalNote} data={data} />
 
-                <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 items-center justify-center p-4">
+                <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 print:p-3 items-center justify-center p-4">
                     {(data.charactersToMemorize || []).map((char, index) => (
                         <EditableElement key={index} className="flex flex-col items-center bg-white border-2 border-black p-4 rounded-3xl aspect-square justify-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                             {/* Fix: Use base64 prop for direct buffer support or prompt if available */}
@@ -246,8 +246,8 @@ export const ImageComprehensionSheet = ({ data }: { data: ImageComprehensionData
         <div className="min-h-[500px] flex flex-col">
             <PedagogicalHeader title={data.title} instruction="Metni oku ve sahneyi zihninde canlandır." note={data.pedagogicalNote} data={data} />
 
-            <div className="flex-1 flex items-center justify-center p-8">
-                <div className="bg-white p-8 border-4 border-black rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-2xl font-medium leading-loose max-w-2xl text-center font-dyslexic text-black">
+            <div className="flex-1 flex items-center justify-center p-8 print:p-3">
+                <div className="bg-white p-8 print:p-3 border-4 border-black rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-2xl font-medium leading-loose max-w-2xl text-center font-dyslexic text-black">
                     {data.sceneDescription}
                 </div>
             </div>
@@ -425,7 +425,7 @@ const StandardSheet = ({ data, children }: { data: any, children: any }) => (
 
 export const NumberSearchSheet = ({ data }: { data: NumberSearchData }) => (
     <StandardSheet data={data}>
-        <div className="flex flex-wrap gap-3 justify-center font-mono text-xl p-8 border-2 border-black rounded-3xl bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+        <div className="flex flex-wrap gap-3 justify-center font-mono text-xl p-8 print:p-3 border-2 border-black rounded-3xl bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
             {(data.numbers || []).map((n, i) => (
                 <span key={i} className="w-12 h-12 flex items-center justify-center border-2 border-zinc-100 hover:border-black rounded-lg font-bold text-black transition-all cursor-default select-none">{n}</span>
             ))}
@@ -504,7 +504,7 @@ export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopment
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || "Yönergeleri takip et ve doğru sayıyı bul."} note={data.pedagogicalNote} data={data} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3">
                 {(data.puzzles || []).map((puzzle, i) => (
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl p-5 shadow-sm break-inside-avoid flex flex-col h-full">
                         {/* Riddle Text */}
@@ -552,7 +552,7 @@ export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => {
     return (
         <div>
             <PedagogicalHeader title={data.title} instruction={data.instruction || "İpuçlarını oku ve doğru cevabı bul."} note={data.pedagogicalNote} data={data} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3">
                 {(data.puzzles || []).map((puzzle, i) => (
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-400 dark:border-zinc-500 rounded-xl p-5 shadow-md break-inside-avoid flex flex-col h-full relative">
                         {/* Riddle Box */}
@@ -595,3 +595,4 @@ export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => {
         </div>
     );
 };
+

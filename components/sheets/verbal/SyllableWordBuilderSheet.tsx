@@ -12,8 +12,8 @@ export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderDa
       data={data}
     />
 
-    <div className="flex flex-col gap-10 mt-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="flex flex-col gap-10 print:p-4 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3">
         {(data.words || []).map((word, idx) => (
           <EditableElement
             key={idx}
@@ -42,8 +42,8 @@ export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderDa
         ))}
       </div>
 
-      <div className="mt-8 p-8 bg-zinc-900 text-white rounded-[3.5rem] shadow-2xl relative overflow-hidden break-inside-avoid border-4 border-white">
-        <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12">
+      <div className="mt-8 p-8 print:p-3 bg-zinc-900 text-white rounded-[3.5rem] shadow-2xl relative overflow-hidden break-inside-avoid border-4 border-white">
+        <div className="absolute top-0 right-0 p-8 print:p-3 opacity-10 rotate-12">
           <i className="fa-solid fa-puzzle-piece text-[10rem]"></i>
         </div>
         <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-8 flex items-center gap-3">
@@ -63,3 +63,4 @@ export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderDa
     </div>
   </div>
 );
+

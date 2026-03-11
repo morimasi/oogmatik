@@ -23,7 +23,7 @@ export const FinancialMarketSheet: React.FC<Props> = ({ data }) => {
     };
 
     return (
-        <div className="w-full h-[297mm] p-8 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-[297mm] p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* BAŞLIK & CÜZDAN */}
             <div className="flex justify-between items-center border-b-4 border-lime-400 pb-4 mb-4">
                 <div>
@@ -136,3 +136,4 @@ export const FinancialMarketSheet: React.FC<Props> = ({ data }) => {
         </div>
     );
 };
+

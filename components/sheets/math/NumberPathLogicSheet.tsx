@@ -10,7 +10,7 @@ export const NumberPathLogicSheet = ({ data }: { data: NumberPathLogicData }) =>
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
 
             {/* LEJANT (Legend) - Premium Card Style */}
-            <div className="mt-4 mb-10 bg-zinc-900 text-white p-8 rounded-[3rem] shadow-2xl border-4 border-white flex justify-around items-center break-inside-avoid relative overflow-hidden">
+            <div className="mt-4 mb-10 print:mb-4 bg-zinc-900 text-white p-8 print:p-3 rounded-[3rem] shadow-2xl border-4 border-white flex justify-around items-center break-inside-avoid relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12"><i className="fa-solid fa-code-branch text-[10rem]"></i></div>
                 <div className="absolute -left-10 bottom-0 w-24 h-24 bg-indigo-500/20 rounded-full blur-2xl"></div>
 
@@ -27,7 +27,7 @@ export const NumberPathLogicSheet = ({ data }: { data: NumberPathLogicData }) =>
             </div>
 
             {/* ZİNCİRLER (Chains) */}
-            <div className="flex-1 flex flex-col gap-8 w-full content-start">
+            <div className="flex-1 flex flex-col gap-8 print:p-3 w-full content-start">
                 {(data.chains || []).map((chain, idx) => (
                     <EditableElement key={idx} className="flex items-center p-5 border-[3px] border-zinc-100 rounded-[2.5rem] bg-white shadow-sm break-inside-avoid group hover:border-indigo-500 transition-all overflow-x-auto no-scrollbar">
 
@@ -86,3 +86,4 @@ export const NumberPathLogicSheet = ({ data }: { data: NumberPathLogicData }) =>
         </div>
     );
 };
+

@@ -10,7 +10,7 @@ export const LogicErrorHunterSheet: React.FC<Props> = ({ data }) => {
     const errors = data.content?.errors || [];
 
     return (
-        <div className="w-full h-full p-8 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-full p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* BAŞLIK */}
             <div className="flex justify-between items-center border-b-4 border-fuchsia-500 pb-4 mb-6">
                 <div>
@@ -100,3 +100,4 @@ export const LogicErrorHunterSheet: React.FC<Props> = ({ data }) => {
         </div>
     );
 };
+

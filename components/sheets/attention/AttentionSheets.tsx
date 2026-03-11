@@ -9,7 +9,7 @@ import { EditableElement, EditableText } from '../../Editable';
 export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (
     <div className="h-full flex flex-col font-lexend p-2">
         <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex-1 bg-white border-2 border-zinc-100 rounded-3xl p-8 font-mono text-xl leading-[3rem] tracking-[0.5em] text-justify select-none shadow-inner mt-4">
+        <div className="flex-1 bg-white border-2 border-zinc-100 rounded-3xl p-8 print:p-3 font-mono text-xl leading-[3rem] tracking-[0.5em] text-justify select-none shadow-inner mt-4">
             {(data.grid || []).map((row, i) => (
                 <div key={i} className="flex items-center border-b border-zinc-50 pb-1">
                     <span className="w-10 text-[10px] font-black text-zinc-300 pr-2 border-r mr-4">{i + 1}</span>
@@ -32,7 +32,7 @@ export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchDa
                     <span className="font-black text-xl bg-white text-zinc-900 px-3 py-0.5 rounded-lg">{data.range?.end || 40}</span>
                 </div>
             </div>
-            <div className="absolute inset-0 top-16 p-8">
+            <div className="absolute inset-0 top-16 p-8 print:p-3">
                 {(data.numbers || []).map((num, i) => (
                     <EditableElement key={i} className="absolute flex items-center justify-center font-black select-none leading-none hover:text-indigo-600 transition-colors"
                         style={{ left: `${num.x}%`, top: `${num.y}%`, transform: `rotate(${num.rotation}deg) scale(${num.size})`, color: 'black', fontSize: '1.4rem', zIndex: Math.floor(Math.random() * 20) }}>
@@ -47,7 +47,7 @@ export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchDa
 export const NumberSearchSheet = ({ data }: { data: NumberSearchData }) => (
     <div className="h-full flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="flex-1 flex flex-wrap gap-4 justify-center p-10 border-4 border-zinc-900 rounded-[3rem] bg-white shadow-xl mt-6">
+        <div className="flex-1 flex flex-wrap gap-4 justify-center p-10 print:p-4 border-4 border-zinc-900 rounded-[3rem] bg-white shadow-xl mt-6">
             {(data.numbers || []).map((n, i) => (
                 <div key={i} className="w-12 h-12 flex items-center justify-center border-2 border-zinc-100 rounded-xl font-black text-lg hover:border-indigo-50 hover:bg-indigo-50 transition-all cursor-default">
                     {n}
@@ -76,7 +76,7 @@ export const FindDuplicateSheet = ({ data }: { data: FindDuplicateData }) => (
 export const LetterGridTestSheet = ({ data }: { data: LetterGridTestData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="bg-white border-[3px] border-zinc-900 p-8 rounded-[2.5rem] shadow-sm mt-6">
+        <div className="bg-white border-[3px] border-zinc-900 p-8 print:p-3 rounded-[2.5rem] shadow-sm mt-6">
             <div className="font-mono text-lg leading-[3rem] tracking-[0.8em] text-center select-none text-zinc-900">
                 {(data.grid || []).map((row, i) => (
                     <div key={i} className="mb-2 border-b border-zinc-50 pb-1">{row.join('')}</div>
@@ -89,7 +89,7 @@ export const LetterGridTestSheet = ({ data }: { data: LetterGridTestData }) => (
 export const TargetSearchSheet = ({ data }: { data: TargetSearchData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="bg-white border-[3px] border-zinc-900 p-10 rounded-[3rem] text-zinc-900 font-mono text-2xl tracking-[1em] text-center leading-[3.5rem] shadow-sm mt-6">
+        <div className="bg-white border-[3px] border-zinc-900 p-10 print:p-4 rounded-[3rem] text-zinc-900 font-mono text-2xl tracking-[1em] text-center leading-[3.5rem] shadow-sm mt-6">
             {(data.grid || []).map((row, i) => (
                 <div key={i} className="hover:bg-zinc-50 transition-colors">{row.join('')}</div>
             ))}
@@ -106,9 +106,9 @@ export const TargetSearchSheet = ({ data }: { data: TargetSearchData }) => (
 export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopmentData }) => (
     <div className="space-y-8 font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3 mt-6">
             {(data.puzzles || []).map((p, i) => (
-                <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
+                <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 print:p-3 shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
                     <div className="bg-zinc-900 text-white p-5 rounded-2xl mb-8 font-bold text-center italic shadow-inner">
                         <EditableText value={p.riddle} tag="p" />
                     </div>
@@ -137,9 +137,9 @@ export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopment
 export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3 mt-6">
             {(data.puzzles || []).map((puzzle, i) => (
-                <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 shadow-sm break-inside-avoid flex flex-col group hover:border-indigo-50 transition-all">
+                <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 print:p-3 shadow-sm break-inside-avoid flex flex-col group hover:border-indigo-50 transition-all">
                     <div className="bg-amber-50 border-2 border-amber-200 p-5 rounded-2xl mb-8 text-center shadow-inner">
                         <p className="text-xl font-bold text-amber-900 font-dyslexic italic"><EditableText value={puzzle.riddle} tag="span" /></p>
                     </div>
@@ -166,3 +166,4 @@ export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => (
         </div>
     </div>
 );
+

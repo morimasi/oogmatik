@@ -10,7 +10,7 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
     const fontFamily = data.settings?.fontFamily || 'Comic Sans MS';
 
     return (
-        <div className="w-full h-full p-8 flex flex-col bg-white overflow-hidden text-zinc-800 print:p-0 print:border-none border border-zinc-200" style={{ fontFamily }}>
+        <div className="w-full h-full p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-800 print:p-0 print:border-none border border-zinc-200" style={{ fontFamily }}>
             {/* ETKİNLİK BAŞLIĞI */}
             <div className="flex justify-between items-center border-b-4 border-indigo-400 pb-4 mb-8">
                 <div>
@@ -24,9 +24,9 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
             </div>
 
             {/* MİMARİ A4 YERLEŞİMİ : ÜSTTE METİN, ALTTA SORULAR */}
-            <div className="flex-1 flex flex-col gap-10">
+            <div className="flex-1 flex flex-col gap-10 print:p-4">
                 {/* 1. OKUMA ALANI */}
-                <div className="bg-indigo-50/50 rounded-[2rem] p-8 border-2 border-indigo-100 relative">
+                <div className="bg-indigo-50/50 rounded-[2rem] p-8 print:p-3 border-2 border-indigo-100 relative">
                     <div className="absolute -top-4 -left-4 w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center text-white text-xl font-black shadow-lg shadow-indigo-200">
                         <i className="fa-solid fa-book-open"></i>
                     </div>
@@ -99,3 +99,4 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
         </div>
     );
 };
+

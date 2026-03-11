@@ -86,7 +86,7 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
 
             {/* Toplam Kontrol Alanı */}
             <div className="mt-10 mb-6 break-inside-avoid shrink-0">
-                <EditableElement className="bg-zinc-900 text-white p-8 rounded-[3.5rem] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 border-4 border-white relative overflow-hidden">
+                <EditableElement className="bg-zinc-900 text-white p-8 print:p-3 rounded-[3.5rem] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 print:p-3 border-4 border-white relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
 
                     <div className="flex-1 text-center md:text-left relative z-10">
@@ -102,7 +102,7 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-10 bg-white/10 p-6 rounded-[2.5rem] border border-white/20 backdrop-blur-xl relative z-10">
+                    <div className="flex items-center gap-10 print:p-4 bg-white/10 p-6 rounded-[2.5rem] border border-white/20 backdrop-blur-xl relative z-10">
                         <div className="text-center">
                             <span className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em] block mb-2">HEDEF SAYI</span>
                             <div className="text-5xl font-black text-amber-400 font-mono drop-shadow-[0_0_15px_rgba(251,191,36,0.4)]">
@@ -131,3 +131,4 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
         </div>
     );
 };
+

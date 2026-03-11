@@ -54,11 +54,11 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
     const isRegionFocused = data.cities && data.cities.length < 50;
 
     return (
-        <div className="flex flex-col h-full bg-white p-2 font-sans text-black overflow-visible">
+        <div className="flex flex-col h-full bg-white p-2 print:p-0 font-sans text-black overflow-visible">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
 
             {/* HARİTA KANVASI */}
-            <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 group min-h-[450px]">
+            <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 print:mb-4 group min-h-[450px] print:min-h-0 print:border-4 print:mb-6 print:rounded-3xl">
 
                 {/* Zemin Harita Katmanı — padding YOK, tam inset-0 */}
                 <div className="absolute inset-0 w-full h-full bg-slate-50 z-10 flex items-center justify-center">
@@ -138,28 +138,28 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
 
                 {/* Pusula & Araçlar Overlay */}
                 {data.settings?.includeCompass !== false && (
-                    <div className="absolute bottom-8 right-10 flex items-end gap-10 z-30 no-print">
+                    <div className="absolute bottom-8 right-10 flex items-end gap-10 print:p-4 z-30 no-print">
                         <CompassRose />
                     </div>
                 )}
 
                 {/* Manuel Harita Modu Rozeti */}
                 {isCustomMap && (
-                    <div className="absolute top-8 right-10 bg-indigo-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border-2 border-white z-40 animate-in fade-in">
+                    <div className="absolute top-8 print:p-3 right-10 bg-indigo-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border-2 border-white z-40 animate-in fade-in">
                         <i className="fa-solid fa-wand-magic-sparkles mr-2"></i>AI Analiz Aktif
                     </div>
                 )}
             </div>
 
             {/* YÖNERGE LİSTESİ */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 p-8 bg-zinc-50 rounded-[4rem] border-2 border-zinc-100 shadow-inner">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 print:gap-x-4 gap-y-6 print:gap-y-3 p-8 print:p-4 bg-zinc-50 rounded-[4rem] print:rounded-2xl border-2 border-zinc-100 shadow-inner">
                 {(data.instructions || []).map((inst, i) => (
-                    <EditableElement key={i} className="flex items-start gap-5 p-5 bg-white rounded-[2rem] border border-zinc-200 shadow-sm hover:border-indigo-500 hover:shadow-indigo-100 transition-all group cursor-default">
-                        <div className="w-10 h-10 rounded-2xl bg-zinc-900 text-white flex items-center justify-center text-sm font-black shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-indigo-600 transition-all">
+                    <EditableElement key={i} className="flex items-start gap-5 print:gap-3 p-5 print:p-3 bg-white rounded-[2rem] print:rounded-xl border border-zinc-200 shadow-sm hover:border-indigo-500 hover:shadow-indigo-100 transition-all group cursor-default">
+                        <div className="w-10 h-10 print:w-8 print:h-8 rounded-2xl print:rounded-xl bg-zinc-900 text-white flex items-center justify-center text-sm print:text-xs font-black shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-indigo-600 transition-all">
                             {i + 1}
                         </div>
                         <div className="flex-1 pt-0.5">
-                            <p className="text-[15px] font-bold text-zinc-800 leading-snug tracking-tight">
+                            <p className="text-[15px] print:text-sm font-bold text-zinc-800 leading-snug tracking-tight">
                                 <EditableText value={inst} tag="span" />
                             </p>
                         </div>
@@ -170,7 +170,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                 ))}
             </div>
 
-            <div className="mt-auto pt-10 flex justify-between items-center px-10 border-t border-zinc-100 opacity-30">
+            <div className="mt-auto pt-10 print:pt-4 flex justify-between items-center px-10 print:px-2 border-t border-zinc-100 opacity-30 print:opacity-50">
                 <div className="flex gap-12">
                     <div className="flex flex-col">
                         <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Sistem</span>
@@ -192,3 +192,4 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
         </div>
     );
 };
+

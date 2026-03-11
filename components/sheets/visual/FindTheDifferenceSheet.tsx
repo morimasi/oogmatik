@@ -20,7 +20,7 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
                     note={data?.pedagogicalNote}
                 />
 
-                <div className="flex-1 flex flex-col md:flex-row gap-8 mt-8 items-start justify-center px-4">
+                <div className="flex-1 flex flex-col md:flex-row gap-8 print:p-3 mt-8 items-start justify-center px-4">
                     {/* Tablo A */}
                     <div className="flex-1 flex flex-col items-center gap-4">
                         <span className="px-4 py-1.5 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md">REFERANS TABLO</span>
@@ -55,7 +55,7 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
 
                 {/* Alt Bilgi Paneli */}
                 <div className="mt-12 p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                    <div className="flex gap-10">
+                    <div className="flex gap-10 print:p-4">
                         <div className="flex flex-col">
                             <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">KLİNİK MODÜL</span>
                             <span className="text-xs font-black uppercase whitespace-nowrap">Karşılaştırmalı Görsel Analiz</span>
@@ -157,7 +157,7 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
 
             {/* Footer Protokolü */}
             <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10">
+                <div className="flex gap-10 print:p-4">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">KLİNİK MODÜL</span>
                         <span className="text-xs font-black uppercase">Görsel Seçicilik & Ketleme</span>
@@ -171,3 +171,4 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
         </div>
     );
 };
+

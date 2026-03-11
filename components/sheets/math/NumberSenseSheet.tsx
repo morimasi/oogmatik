@@ -9,7 +9,7 @@ export const NumberSenseSheet = ({ data }: { data: NumberSenseData }) => (
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-12 mt-10">
             {(data.exercises || []).map((ex, i) => (
-                <div key={i} className="p-10 border-[3px] border-zinc-900 rounded-[3rem] break-inside-avoid group">
+                <div key={i} className="p-10 print:p-4 border-[3px] border-zinc-900 rounded-[3rem] break-inside-avoid group">
                     {ex.type === 'missing' && <NumberLine start={ex.values[0]} end={ex.values[ex.values.length - 1]} step={ex.step || 1} missing={[ex.target]} />}
                     {ex.type === 'comparison' && (
                         <div className="flex items-center justify-around py-4">
@@ -23,3 +23,4 @@ export const NumberSenseSheet = ({ data }: { data: NumberSenseData }) => (
         </div>
     </div>
 );
+

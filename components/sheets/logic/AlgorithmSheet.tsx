@@ -73,8 +73,8 @@ export const AlgorithmSheet = ({ data }: { data: AlgorithmData }) => {
         <div className="h-full flex flex-col text-black font-lexend p-2 overflow-visible">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
 
-            <div className="mb-12 p-10 bg-zinc-900 text-white rounded-[4rem] shadow-2xl relative overflow-hidden border-4 border-white ring-2 ring-zinc-100">
-                <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12 -translate-y-4 translate-x-4"><i className="fa-solid fa-microchip text-[12rem]"></i></div>
+            <div className="mb-12 p-10 print:p-4 bg-zinc-900 text-white rounded-[4rem] shadow-2xl relative overflow-hidden border-4 border-white ring-2 ring-zinc-100">
+                <div className="absolute top-0 right-0 p-8 print:p-3 opacity-10 rotate-12 -translate-y-4 translate-x-4"><i className="fa-solid fa-microchip text-[12rem]"></i></div>
                 <div className="relative z-10">
                     <h4 className="text-[11px] font-black uppercase text-indigo-400 mb-4 tracking-[0.5em] flex items-center gap-3">
                         <i className="fa-solid fa-brain-circuit animate-pulse"></i> PROBLEM SENARYOSU
@@ -108,13 +108,13 @@ export const AlgorithmSheet = ({ data }: { data: AlgorithmData }) => {
                 )}
             </div>
 
-            <div className="mt-16 p-10 bg-zinc-50 border-[3px] border-zinc-200 border-dashed rounded-[4rem] text-center relative overflow-hidden break-inside-avoid">
+            <div className="mt-16 p-10 print:p-4 bg-zinc-50 border-[3px] border-zinc-200 border-dashed rounded-[4rem] text-center relative overflow-hidden break-inside-avoid">
                 <h4 className="text-xs font-black text-zinc-400 uppercase mb-8 tracking-[0.3em] flex items-center justify-center gap-4">
                     <div className="h-0.5 w-12 bg-zinc-200"></div>
                     AKILLI ÇÖZÜM VE ANALİZ ALANI
                     <div className="h-0.5 w-12 bg-zinc-200"></div>
                 </h4>
-                <div className="grid grid-cols-2 gap-10 min-h-[200px]">
+                <div className="grid grid-cols-2 gap-10 print:p-4 min-h-[200px]">
                     <div className="border-b-2 border-zinc-300 relative">
                         <span className="absolute -top-6 left-0 text-[10px] font-black text-zinc-300 uppercase">Öğrenci Notları</span>
                     </div>
@@ -134,3 +134,4 @@ export const AlgorithmSheet = ({ data }: { data: AlgorithmData }) => {
         </div>
     );
 };
+

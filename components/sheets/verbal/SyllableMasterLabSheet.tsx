@@ -107,7 +107,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
         instruction={data.instruction}
         note={data.pedagogicalNote}
       />
-      <div className="flex flex-col gap-10 mt-6">
+      <div className="flex flex-col gap-10 print:p-4 mt-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 content-start">
           {items.map((item, i) => renderItem(item, i))}
         </div>
@@ -121,3 +121,4 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
     </div>
   );
 };
+

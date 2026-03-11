@@ -45,7 +45,7 @@ export const FutoshikiSheet = ({ data }: { data: FutoshikiData }) => {
                         </span>
 
                         <div
-                            className="bg-white/40 backdrop-blur-md p-8 rounded-[3rem] border-4 border-slate-100 relative shadow-xl"
+                            className="bg-white/40 backdrop-blur-md p-8 print:p-3 rounded-[3rem] border-4 border-slate-100 relative shadow-xl"
                             style={{
                                 display: 'grid',
                                 gridTemplateColumns: `repeat(${p.size * 2 - 1}, auto)`,
@@ -109,3 +109,4 @@ export const FutoshikiSheet = ({ data }: { data: FutoshikiData }) => {
         </div>
     );
 };
+

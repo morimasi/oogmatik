@@ -17,7 +17,7 @@ export const ApartmentLogicSheet: React.FC<Props> = ({ data }) => {
     const roomIndices = Array.from({ length: roomsPerFloor }).map((_, i) => i + 1); // 1, 2, 3.. daire
 
     return (
-        <div className="w-full h-full p-8 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-full p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* ETKİNLİK BAŞLIĞI */}
             <div className="flex justify-between items-center border-b-4 border-orange-400 pb-4 mb-6">
                 <div>
@@ -32,7 +32,7 @@ export const ApartmentLogicSheet: React.FC<Props> = ({ data }) => {
             <div className="flex-1 flex flex-col gap-6">
 
                 {/* SVG APARTMAN GÖRSELLEŞTİRMESİ */}
-                <div className="w-full bg-orange-50/50 rounded-t-[3rem] rounded-b-xl border-4 border-orange-100 p-8 flex flex-col items-center relative print:bg-white min-h-[300px]">
+                <div className="w-full bg-orange-50/50 rounded-t-[3rem] rounded-b-xl border-4 border-orange-100 p-8 print:p-3 flex flex-col items-center relative print:bg-white min-h-[300px]">
                     {/* Çatı Çizimi */}
                     <div className="w-[80%] h-12 flex justify-center items-end opacity-20 relative top-2">
                         <div className="w-0 h-0 border-l-[150px] border-l-transparent border-r-[150px] border-r-transparent border-b-[50px] border-b-orange-900"></div>
@@ -127,3 +127,4 @@ export const ApartmentLogicSheet: React.FC<Props> = ({ data }) => {
         </div>
     );
 };
+
