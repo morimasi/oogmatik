@@ -16,7 +16,7 @@ export const ReadingPyramidSheet = ({ data }: { data: ReadingPyramidData }) => {
         note={data.pedagogicalNote}
       />
 
-      <div className={`grid ${gridClass} gap-12 mt-6 content-start`}>
+      <div className={`grid ${gridClass} gap-12 print:gap-4 mt-6 content-start`}>
         {(data.pyramids || []).map((pyramid, pIdx) => (
           <EditableElement key={pIdx} className="flex flex-col items-center break-inside-avoid">
             <div className="bg-zinc-900 text-white px-8 py-2 rounded-full font-black text-sm uppercase tracking-widest mb-6 shadow-lg border-4 border-zinc-100">
@@ -61,3 +61,4 @@ export const ReadingPyramidSheet = ({ data }: { data: ReadingPyramidData }) => {
     </div>
   );
 };
+

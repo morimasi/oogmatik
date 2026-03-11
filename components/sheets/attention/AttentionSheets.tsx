@@ -106,7 +106,7 @@ export const TargetSearchSheet = ({ data }: { data: TargetSearchData }) => (
 export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopmentData }) => (
     <div className="space-y-8 font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3 mt-6">
             {(data.puzzles || []).map((p, i) => (
                 <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 print:p-3 shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
                     <div className="bg-zinc-900 text-white p-5 rounded-2xl mb-8 font-bold text-center italic shadow-inner">
@@ -137,7 +137,7 @@ export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopment
 export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3 mt-6">
             {(data.puzzles || []).map((puzzle, i) => (
                 <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 print:p-3 shadow-sm break-inside-avoid flex flex-col group hover:border-indigo-50 transition-all">
                     <div className="bg-amber-50 border-2 border-amber-200 p-5 rounded-2xl mb-8 text-center shadow-inner">
@@ -166,4 +166,5 @@ export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => (
         </div>
     </div>
 );
+
 

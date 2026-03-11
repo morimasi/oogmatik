@@ -8,7 +8,7 @@ import { EditableElement, EditableText } from '../../Editable';
 export const ReadingFlowSheet = ({ data }: { data: ReadingFlowData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction="Metni önce heceleyerek, sonra akıcı bir şekilde oku." note={data.pedagogicalNote} />
-        <div className="mt-10 p-12 bg-zinc-50 border-4 border-zinc-100 rounded-[3.5rem] shadow-inner flex-1 flex flex-col justify-center">
+        <div className="mt-10 p-12 print:p-4 bg-zinc-50 border-4 border-zinc-100 rounded-[3.5rem] shadow-inner flex-1 flex flex-col justify-center">
             {(data.text?.paragraphs || []).map((p, pIdx) => (
                 <div key={pIdx} className="mb-8 last:mb-0">
                     {(p.sentences || []).map((s, sIdx) => (
@@ -76,7 +76,7 @@ export const RapidNamingSheet = ({ data }: { data: RapidNamingData }) => {
 
             {/* Klinik Hız Analiz Paneli */}
             <div className="mt-6 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex justify-between items-center mx-1">
-                <div className="flex gap-10 print:p-4">
+                <div className="flex gap-10 print:gap-4 print:p-4">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest mb-1">Hedef Hız (Öğe/Dakika)</span>
                         <span className="text-sm font-black italic">{data.clinicalMeta?.targetSpeed || '--'} bpm</span>
@@ -160,7 +160,7 @@ export const MirrorLettersSheet = ({ data }: { data: MirrorLettersData }) => {
             {/* Klinik Ayrıştırma Paneli */}
             {settings?.showClinicalNotes && data.clinicalMeta && (
                 <div className="mt-6 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex justify-between items-center mx-1">
-                    <div className="flex gap-10 print:p-4">
+                    <div className="flex gap-10 print:gap-4 print:p-4">
                         <div className="flex flex-col">
                             <span className="text-[7px] font-black text-rose-400 uppercase tracking-widest mb-1">Reversal Olasılığı</span>
                             <span className="text-sm font-black text-white">%{Math.round(data.clinicalMeta.reversalProbability * 100)}</span>
@@ -267,7 +267,7 @@ export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineDat
             {/* Klinik Göz Takip Analiz Paneli */}
             {settings?.showClinicalNotes && data.clinicalMeta && (
                 <div className="mt-6 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex justify-between items-center mx-1">
-                    <div className="flex gap-10 print:p-4">
+                    <div className="flex gap-10 print:gap-4 print:p-4">
                         <div className="flex flex-col">
                             <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest mb-1">Perseptüal Yük</span>
                             <span className="text-sm font-black text-white">{data.clinicalMeta.perceptualLoad}/100</span>
@@ -289,7 +289,7 @@ export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineDat
 export const BackwardSpellingSheet = ({ data }: { data: BackwardSpellingData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction="Kelimeleri son harfinden başlayarak geriye doğru yaz." note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3 mt-10 flex-1 content-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3 mt-10 flex-1 content-start">
             {(data.items || []).map((item, i) => (
                 <EditableElement key={i} className="p-8 print:p-3 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm flex flex-col gap-5 group hover:border-indigo-500 transition-all break-inside-avoid">
                     <p className="text-3xl font-black text-zinc-900 text-center tracking-[0.3em] bg-zinc-50 py-6 rounded-[2rem] border-2 border-zinc-100 group-hover:bg-indigo-50/30 transition-colors">
@@ -358,7 +358,7 @@ export const HandwritingPracticeSheet = ({ data }: { data: HandwritingPracticeDa
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-16 mt-12 flex-1">
             {(data.lines || []).map((line, i) => (
-                <div key={i} className="flex gap-8 print:p-3 items-start break-inside-avoid group">
+                <div key={i} className="flex gap-8 print:gap-3 print:p-3 items-start break-inside-avoid group">
                     <div className="w-24 h-24 bg-zinc-900 rounded-[2rem] flex items-center justify-center overflow-hidden shadow-2xl shrink-0 group-hover:rotate-6 transition-transform">
                         {line.imagePrompt ? <ImageDisplay prompt={line.imagePrompt} className="w-full h-full object-cover opacity-80" /> : <i className="fa-solid fa-feather-pointed text-white text-3xl"></i>}
                     </div>
@@ -373,3 +373,4 @@ export const HandwritingPracticeSheet = ({ data }: { data: HandwritingPracticeDa
         </div>
     </div>
 );
+

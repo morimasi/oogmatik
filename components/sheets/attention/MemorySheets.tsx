@@ -80,7 +80,7 @@ export const CharacterMemorySheet = ({ data }: { data: CharacterMemoryData }) =>
     <div className="w-full font-lexend">
         <div className="min-h-[500px] flex flex-col">
             <PedagogicalHeader title={data.title} instruction="Bu karakterleri ve özelliklerini iyi ezberle." note={data.pedagogicalNote} data={data} />
-            <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 print:p-3 items-center justify-center p-4">
+            <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 print:gap-3 print:p-3 items-center justify-center p-4">
                 {(data.charactersToMemorize || []).map((char, index) => (
                     <EditableElement key={index} className="flex flex-col items-center bg-white border-2 border-black p-4 rounded-3xl aspect-square justify-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                         <ImageDisplay prompt={char.imagePrompt} className="w-32 h-32 rounded-full object-cover border-4 border-black mb-4" />
@@ -149,4 +149,5 @@ export const ImageComprehensionSheet = ({ data }: { data: ImageComprehensionData
         </div>
     </div>
 );
+
 

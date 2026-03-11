@@ -27,7 +27,7 @@ export const NumberPathLogicSheet = ({ data }: { data: NumberPathLogicData }) =>
             </div>
 
             {/* ZİNCİRLER (Chains) */}
-            <div className="flex-1 flex flex-col gap-8 print:p-3 w-full content-start">
+            <div className="flex-1 flex flex-col gap-8 print:gap-3 print:p-3 w-full content-start">
                 {(data.chains || []).map((chain, idx) => (
                     <EditableElement key={idx} className="flex items-center p-5 border-[3px] border-zinc-100 rounded-[2.5rem] bg-white shadow-sm break-inside-avoid group hover:border-indigo-500 transition-all overflow-x-auto no-scrollbar">
 
@@ -86,4 +86,5 @@ export const NumberPathLogicSheet = ({ data }: { data: NumberPathLogicData }) =>
         </div>
     );
 };
+
 

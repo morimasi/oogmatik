@@ -19,7 +19,7 @@ export const MorphologyMatrixSheet = ({ data }: { data: MorphologyMatrixData }) 
       />
 
       <div
-        className={`grid ${isGrid ? 'grid-cols-2' : 'grid-cols-1'} gap-8 print:p-3 mt-10 content-start pb-20`}
+        className={`grid ${isGrid ? 'grid-cols-2' : 'grid-cols-1'} gap-8 print:gap-3 print:p-3 mt-10 content-start pb-20`}
       >
         {(data?.items || []).map((item, idx) => (
           <EditableElement
@@ -34,7 +34,7 @@ export const MorphologyMatrixSheet = ({ data }: { data: MorphologyMatrixData }) 
               </div>
             )}
 
-            <div className="flex items-center gap-8 print:p-3">
+            <div className="flex items-center gap-8 print:gap-3 print:p-3">
               {/* KÖK KELİME - Premium Hex/Octagon Style */}
               <div className="bg-zinc-900 text-white px-8 py-4 rounded-[2rem] shadow-2xl relative shrink-0 ring-8 ring-zinc-50 transform group-hover:scale-105 transition-transform">
                 <span className="text-[8px] font-black absolute -top-3 left-6 bg-indigo-600 px-3 py-1 rounded-full text-white uppercase tracking-[0.2em] ring-4 ring-white shadow-glow">
@@ -82,7 +82,7 @@ export const MorphologyMatrixSheet = ({ data }: { data: MorphologyMatrixData }) 
       <div className="mt-auto mx-1">
         {settings?.showClinicalNotes && data.clinicalMeta && (
           <div className="mb-4 p-8 print:p-3 bg-zinc-50 rounded-[3rem] border-2 border-zinc-100 shadow-inner flex justify-between items-center mx-4">
-            <div className="flex gap-12">
+            <div className="flex gap-12 print:gap-4">
               <div className="flex flex-col">
                 <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-2 flex items-center gap-2">
                   <i className="fa-solid fa-dna text-indigo-400"></i> KARMAŞIKLIK İNDEKSİ
@@ -125,7 +125,7 @@ export const MorphologyMatrixSheet = ({ data }: { data: MorphologyMatrixData }) 
         )}
 
         <div className="p-6 bg-zinc-900 text-white rounded-t-[3.5rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl">
-          <div className="flex gap-10 print:p-4">
+          <div className="flex gap-10 print:gap-4 print:p-4">
             <div className="flex flex-col">
               <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-1">
                 PROGRAM KATALOĞU
@@ -149,4 +149,5 @@ export const MorphologyMatrixSheet = ({ data }: { data: MorphologyMatrixData }) 
     </div>
   );
 };
+
 

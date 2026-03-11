@@ -15,7 +15,7 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
         note={data.pedagogicalNote}
       />
 
-      <div className="flex flex-col md:flex-row gap-12 items-center justify-center mt-12">
+      <div className="flex flex-col md:flex-row gap-12 print:gap-4 items-center justify-center mt-12">
         <div className="border-[4px] border-black bg-black shadow-2xl rounded-lg overflow-hidden shrink-0">
           <table className="border-collapse bg-white">
             <tbody>
@@ -86,3 +86,4 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
     </div>
   );
 };
+

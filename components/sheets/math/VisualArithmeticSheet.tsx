@@ -7,7 +7,7 @@ import { EditableText } from '../../Editable';
 export const VisualArithmeticSheet = ({ data }: { data: VisualArithmeticData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3 mt-10 content-start flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3 mt-10 content-start flex-1">
             {(data.problems || []).map((prob, i) => {
                 const visual = prob.visualType || 'objects';
                 return (
@@ -40,4 +40,5 @@ export const VisualArithmeticSheet = ({ data }: { data: VisualArithmeticData }) 
         </div>
     </div>
 );
+
 

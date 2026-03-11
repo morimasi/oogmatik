@@ -45,7 +45,7 @@ export const HiddenPasswordGridSheet = ({ data }: { data: HiddenPasswordGridData
 export const AnagramSheet = ({ data }: { data: AnagramsData }) => (
     <div className="flex flex-col h-full bg-white font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 print:p-3 mt-10 flex-1 content-start">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 print:gap-3 print:p-3 mt-10 flex-1 content-start">
             {(data.anagrams || []).map((item, i) => (
                 <EditableElement key={i} className="flex flex-col gap-4 p-6 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm hover:shadow-xl transition-all break-inside-avoid group">
                     <div className="text-4xl font-black tracking-[0.3em] text-indigo-600 text-center py-6 bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-200 group-hover:bg-white transition-colors">
@@ -74,7 +74,7 @@ export const WordSearchSheet = ({ data }: { data: WordSearchData }) => {
                 note={data?.pedagogicalNote}
             />
 
-            <div className={`flex flex-col md:flex-row gap-10 print:p-4 mt-8 items-start flex-1 pb-10`}>
+            <div className={`flex flex-col md:flex-row gap-10 print:gap-4 print:p-4 mt-8 items-start flex-1 pb-10`}>
                 {/* Bulmaca Alanı - Premium Frame */}
                 <div className="border-[6px] border-zinc-900 bg-white p-2 rounded-[2rem] shadow-2xl shrink-0 ring-8 ring-zinc-50 transform hover:scale-[1.01] transition-transform">
                     <table className="border-collapse mx-auto font-mono">
@@ -134,7 +134,7 @@ export const WordSearchSheet = ({ data }: { data: WordSearchData }) => {
 
             {/* Footer Protokolü */}
             <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10 print:p-4">
+                <div className="flex gap-10 print:gap-4 print:p-4">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">PROGRAM</span>
                         <span className="text-xs font-black uppercase">Oküler Tarama & Görsel Dikkat</span>
@@ -167,7 +167,7 @@ export const CrosswordSheet = ({ data }: { data: CrosswordData }) => {
                 note={data?.pedagogicalNote}
             />
 
-            <div className="flex flex-col gap-10 print:p-4 mt-10 flex-1 pb-10">
+            <div className="flex flex-col gap-10 print:gap-4 print:p-4 mt-10 flex-1 pb-10">
                 {/* Bulmaca Tablosu - Premium Shadow */}
                 <div className="p-4 bg-zinc-900 border-[8px] border-white rounded-[3rem] shadow-2xl self-center overflow-visible ring-12 ring-zinc-50 group transform hover:scale-[1.02] transition-transform">
                     <table className="border-collapse mx-auto">
@@ -201,7 +201,7 @@ export const CrosswordSheet = ({ data }: { data: CrosswordData }) => {
                 </div>
 
                 {/* İpuçları Paneli - Modern Bento */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 print:p-4 p-12 bg-zinc-900 text-white rounded-[4rem] border-4 border-white shadow-2xl relative overflow-visible mx-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 print:gap-4 print:p-4 p-12 print:p-4 bg-zinc-900 text-white rounded-[4rem] border-4 border-white shadow-2xl relative overflow-visible mx-2">
                     <div className="absolute -top-6 left-1/2 -translate-x-1/2 px-10 py-2.5 bg-indigo-600 text-white rounded-full font-black text-[11px] uppercase tracking-[0.5em] shadow-xl ring-8 ring-white z-20"> PROTOKOL İPUÇLARI </div>
 
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
@@ -227,7 +227,7 @@ export const CrosswordSheet = ({ data }: { data: CrosswordData }) => {
                 {/* Klinik Analiz Metrikleri - Protocol Overlay */}
                 {settings?.showClinicalNotes && data.clinicalMeta && (
                     <div className="mt-auto pt-8 border-t-4 border-zinc-100 flex justify-between items-center px-10">
-                        <div className="flex gap-12">
+                        <div className="flex gap-12 print:gap-4">
                             <div className="flex flex-col">
                                 <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">Bağlanabilirlik</span>
                                 <span className="text-xs font-black">%{Math.round(data.clinicalMeta.connectivityIndex * 100)} Integration</span>
@@ -246,7 +246,7 @@ export const CrosswordSheet = ({ data }: { data: CrosswordData }) => {
 
             {/* Premium Footer Protokolü */}
             <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10 print:p-4">
+                <div className="flex gap-10 print:gap-4 print:p-4">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">MODÜL ADI</span>
                         <span className="text-xs font-black uppercase font-mono">Verbal Retrieval & Semantic Map</span>
@@ -260,3 +260,4 @@ export const CrosswordSheet = ({ data }: { data: CrosswordData }) => {
         </div>
     );
 };
+

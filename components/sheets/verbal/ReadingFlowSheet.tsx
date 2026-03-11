@@ -11,7 +11,7 @@ export const ReadingFlowSheet = ({ data }: { data: ReadingFlowData }) => (
       instruction="Metni önce heceleyerek, sonra akıcı bir şekilde oku."
       note={data.pedagogicalNote}
     />
-    <div className="mt-10 p-12 bg-zinc-50 border-4 border-zinc-100 rounded-[3.5rem] shadow-inner flex flex-col justify-center overflow-hidden">
+    <div className="mt-10 p-12 print:p-4 bg-zinc-50 border-4 border-zinc-100 rounded-[3.5rem] shadow-inner flex flex-col justify-center overflow-hidden">
       {(data.text?.paragraphs || []).map((p, pIdx) => (
         <div key={pIdx} className="mb-8 last:mb-0">
           {(p.sentences || []).map((s, sIdx) => (
@@ -34,3 +34,4 @@ export const ReadingFlowSheet = ({ data }: { data: ReadingFlowData }) => (
     </div>
   </div>
 );
+

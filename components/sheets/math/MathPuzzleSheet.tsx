@@ -34,7 +34,7 @@ const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: an
 export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
     <div className="flex flex-col h-full font-lexend text-black bg-white">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:p-3 mt-4 flex-1 content-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3 mt-4 flex-1 content-start">
             {(data?.puzzles || []).map((puzzle, index) => (
                 <EditableElement key={index} className="flex flex-col border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-[10px_10px_0px_0px_rgba(0,0,0,0.05)] overflow-hidden group hover:shadow-xl transition-all duration-500 break-inside-avoid">
                     <div className="bg-zinc-900 px-6 py-3 flex justify-between items-center text-white">
@@ -62,4 +62,5 @@ export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
         </div>
     </div>
 );
+
 

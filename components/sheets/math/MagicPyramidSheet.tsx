@@ -5,7 +5,7 @@ import { EditableText } from '../../Editable';
 
 export const MagicPyramidSheet = ({ data }: { data: MagicPyramidData }) => {
     return (
-        <div className="w-full flex flex-col gap-8 print:p-3 p-4">
+        <div className="w-full flex flex-col gap-8 print:gap-3 print:p-3 p-4">
             <PedagogicalHeader
                 title={data.title}
                 instruction={data.instruction || "En üstte verilen sayıdan başlayarak, yukarıdan aşağıya doğru ritmik sayma kurallarına uyarak ilerleyin. Her satırda sadece 1 hücre seçmelisiniz."}
@@ -49,4 +49,5 @@ export const MagicPyramidSheet = ({ data }: { data: MagicPyramidData }) => {
         </div>
     );
 };
+
 

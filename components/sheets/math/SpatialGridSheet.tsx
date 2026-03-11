@@ -7,7 +7,7 @@ import { EditableText } from '../../Editable';
 export const SpatialGridSheet = ({ data }: { data: SpatialGridData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="grid grid-cols-1 gap-12 mt-10 justify-items-center">
+        <div className="grid grid-cols-1 gap-12 print:gap-4 mt-10 justify-items-center">
             {(data.tasks || []).map((task, idx) => (
                 <div key={idx} className="w-full flex flex-col items-center break-inside-avoid">
                     {task.type === 'count-cubes' && data.cubeData && (
@@ -24,4 +24,5 @@ export const SpatialGridSheet = ({ data }: { data: SpatialGridData }) => (
         </div>
     </div>
 );
+
 

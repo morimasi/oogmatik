@@ -7,7 +7,7 @@ import { EditableElement, EditableText } from '../../Editable';
 export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => (
     <div className="flex flex-col h-full font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-10 print:p-4 mt-8 flex-1 content-start">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-10 print:gap-4 print:p-4 mt-8 flex-1 content-start">
             {(data.clocks || []).map((clock, i) => (
                 <div key={i} className="flex flex-col items-center gap-6 p-6 border-2 border-zinc-100 rounded-[2.5rem] bg-white hover:shadow-xl transition-all break-inside-avoid group">
                     <div className="relative group-hover:scale-110 transition-transform duration-500">
@@ -38,4 +38,5 @@ export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => (
         </div>
     </div>
 );
+
 

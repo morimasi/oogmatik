@@ -76,7 +76,7 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-12 page-break-inside-avoid px-8">
+            <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-12 print:gap-4 page-break-inside-avoid px-8">
 
                 {/* MATRIX (IZGARA) ALANI */}
                 <div className="w-full lg:w-1/2 max-w-[400px] aspect-square bg-slate-50 border-8 border-slate-300 rounded-[2rem] p-4 shadow-md page-break-inside-avoid flex items-center justify-center shrink-0">
@@ -130,4 +130,5 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
         </div >
     );
 };
+
 

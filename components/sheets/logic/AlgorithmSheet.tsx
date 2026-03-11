@@ -114,7 +114,7 @@ export const AlgorithmSheet = ({ data }: { data: AlgorithmData }) => {
                     AKILLI ÇÖZÜM VE ANALİZ ALANI
                     <div className="h-0.5 w-12 bg-zinc-200"></div>
                 </h4>
-                <div className="grid grid-cols-2 gap-10 print:p-4 min-h-[200px]">
+                <div className="grid grid-cols-2 gap-10 print:gap-4 print:p-4 min-h-[200px]">
                     <div className="border-b-2 border-zinc-300 relative">
                         <span className="absolute -top-6 left-0 text-[10px] font-black text-zinc-300 uppercase">Öğrenci Notları</span>
                     </div>
@@ -134,4 +134,5 @@ export const AlgorithmSheet = ({ data }: { data: AlgorithmData }) => {
         </div>
     );
 };
+
 
