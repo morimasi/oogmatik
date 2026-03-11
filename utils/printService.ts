@@ -52,8 +52,9 @@ export const printService = {
         printContainer.style.setProperty('position', 'absolute', 'important');
         printContainer.style.setProperty('top', '0', 'important');
         printContainer.style.setProperty('left', '0', 'important');
-        printContainer.style.setProperty('width', '210mm', 'important');
-        printContainer.style.setProperty('margin', '0', 'important');
+        printContainer.style.setProperty('width', '100%', 'important');
+        printContainer.style.setProperty('max-width', '210mm', 'important');
+        printContainer.style.setProperty('margin', '0 auto', 'important');
         printContainer.style.setProperty('padding', '0', 'important');
         printContainer.style.setProperty('background', 'white', 'important');
         printContainer.style.setProperty('z-index', '9999999', 'important');
@@ -105,7 +106,7 @@ export const printService = {
             clone.style.setProperty('box-shadow', 'none', 'important');
             clone.style.setProperty('position', 'relative', 'important');
             clone.style.setProperty('width', '100%', 'important');
-            clone.style.setProperty('max-width', '210mm', 'important');
+            clone.style.setProperty('max-width', 'none', 'important');
             clone.style.setProperty('min-height', '297mm', 'important');
             clone.style.setProperty('height', 'auto', 'important');     // Taşmayı önle
             clone.style.setProperty('max-height', 'none', 'important'); // Sınırları kaldır

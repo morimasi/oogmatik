@@ -34,7 +34,7 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
 
   return (
     <div
-      className="w-full h-auto flex flex-col gap-6 p-8 min-h-[297mm] break-inside-avoid"
+      className="w-full flex flex-col gap-6 p-8 print:p-0 min-h-[297mm] break-inside-avoid"
       style={{ fontFamily: settings.fontFamily, color: '#18181b' }}
     >
       {/* 1. Profesyonel Başlık ve Analiz Künyesi */}
