@@ -106,6 +106,8 @@ export const printService = {
             clone.style.setProperty('position', 'relative', 'important');
             clone.style.setProperty('width', '210mm', 'important');
             clone.style.setProperty('min-height', '297mm', 'important');
+            clone.style.setProperty('height', 'auto', 'important');     // Taşmayı önle
+            clone.style.setProperty('max-height', 'none', 'important'); // Sınırları kaldır
             clone.style.setProperty('box-sizing', 'border-box', 'important');
             clone.style.setProperty('display', 'block', 'important');
             clone.style.setProperty('overflow', 'visible', 'important');
@@ -113,6 +115,20 @@ export const printService = {
             clone.style.setProperty('break-after', 'page', 'important');
             clone.style.setProperty('background', 'white', 'important');
             clone.style.setProperty('color', 'black', 'important');
+
+            // Hatalı flex-box uzamalarını içeriden de engelle
+            const allElements = clone.querySelectorAll('*');
+            allElements.forEach(child => {
+                const el = child as HTMLElement;
+                // scroll ve gizli overflowları görünür yap (kağıtta scroll olmaz)
+                if (el.style.overflow === 'hidden' || el.style.overflow === 'auto' || el.style.overflowY === 'auto') {
+                    el.style.setProperty('overflow', 'visible', 'important');
+                }
+                // yüksekliği inline %100 veya h-screen olanların boyunu auto yap
+                if (el.style.height === '100%' || el.style.height === '100vh') {
+                    el.style.setProperty('height', 'auto', 'important');
+                }
+            });
 
             clone.classList.add('ultra-print-page');
 
