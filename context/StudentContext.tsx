@@ -15,7 +15,7 @@ interface StudentContextType {
     deleteStudent: (id: string) => Promise<void>;
 }
 
-const StudentContext = createContext<StudentContextType | undefined>(undefined);
+export const StudentContext = createContext<StudentContextType | undefined>(undefined);
 
 // --- SANITIZATION LAYER ---
 const sanitizeStudent = (data: any): Partial<Student> => {
