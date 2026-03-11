@@ -1,9 +1,14 @@
 
+// @ts-ignore - Vercel types optional
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { AppError, ValidationError, RateLimitError, toAppError } from '../utils/AppError';
 import { validateFeedbackRequest } from '../utils/schemas';
 import { RateLimiter } from '../services/rateLimiter';
 import { logError } from '../utils/errorHandler';
+
+// Fallback types for non-Vercel environments
+export type VercelRequest = any;
+export type VercelResponse = any;
 
 // Rate limiter instance
 const rateLimiter = new RateLimiter();

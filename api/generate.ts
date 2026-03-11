@@ -1,10 +1,15 @@
 
+// @ts-ignore - Vercel types optional
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 import { AppError, ValidationError, RateLimitError, TimeoutError, InternalServerError, toAppError } from '../utils/AppError';
 import { validateGenerateActivityRequest } from '../utils/schemas';
 import { RateLimiter } from '../services/rateLimiter';
 import { retryWithBackoff, logError } from '../utils/errorHandler';
+
+// Fallback types for non-Vercel environments
+export type VercelRequest = any;
+export type VercelResponse = any;
 
 const MASTER_MODEL = "gemini-3-flash-preview";
 
