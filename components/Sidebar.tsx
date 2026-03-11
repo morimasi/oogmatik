@@ -16,6 +16,8 @@ import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
 import { adminService } from '../services/adminService';
 import { useStudent } from '../context/StudentContext';
+import './PremiumPopupStyles.css';
+
 
 const toPascalCase = (str: string): string => {
   if (!str) return '';
@@ -453,8 +455,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                     popupRect &&
                     createPortal(
                       <div
-                        className="premium-popup-menu md:block hidden"
+                        className="premium-popup-menu"
                         onMouseEnter={handlePopupMouseEnter}
+
                         onMouseLeave={handlePopupMouseLeave}
                         role="menu"
                         aria-label="Stüdyolar menüsü"
@@ -491,14 +494,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                           }
                         }}
                       >
-                        <div className="premium-popup-content">
+                        <div className="premium-popup-content flex flex-col">
                           <div className="premium-popup-header">
                             <span className="premium-popup-title">Stüdyolar</span>
                           </div>
 
                           <div
-                            className="premium-popup-activities"
+                            className="premium-popup-activities flex flex-col"
                             role="listbox"
+
                             aria-label="Stüdyolar Listesi"
                           >
                             {studioItems.map((item, index) => (
