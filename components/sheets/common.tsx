@@ -47,13 +47,13 @@ export const PedagogicalHeader = React.memo(
     note?: string;
     data?: BaseActivityData;
   }) => (
-    <div className="pedagogical-header mb-6 w-full border-b-4 border-zinc-900 pb-4 print:mb-4 print:pb-2 print:border-b-[1.5pt]">
-      <div className="flex items-start justify-between gap-6 print:gap-4">
+    <div className="pedagogical-header mb-6 w-full border-b-4 border-zinc-900 pb-4 print:mb-1 print:pb-1 print:border-b-[1pt]">
+      <div className="flex items-start justify-between gap-6 print:gap-1">
         <div className="flex-1">
-          <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-3 print:text-xl print:mb-1">
+          <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-3 print:text-lg print:mb-0">
             {title}
           </h3>
-          <p className="instruction text-base font-bold text-zinc-700 leading-normal italic print:text-xs print:leading-tight">
+          <p className="instruction text-base font-bold text-zinc-700 leading-normal italic print:text-[10px] print:leading-tight">
             {instruction}
           </p>
         </div>
@@ -256,7 +256,7 @@ export const NumberBond = ({
     <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center font-bold">
       {whole}
     </div>
-    <div className="flex gap-4">
+    <div className="flex gap-4 print:gap-1">
       <div className="w-8 h-8 rounded-full border border-black flex items-center justify-center text-sm">
         {part1}
       </div>
@@ -334,7 +334,7 @@ export const NumberLine = ({
   step: number;
   missing?: number[];
 }) => (
-  <div className="w-full h-12 flex items-center px-4">
+  <div className="w-full h-12 flex items-center px-4 print:px-1">
     <div className="w-full h-0.5 bg-black relative">
       {Array.from({ length: Math.round((end - start) / step) + 1 }).map((_, i) => {
         const val = start + i * step;
@@ -639,7 +639,7 @@ export const ImageDisplay = React.memo(
             <img
               src={url}
               alt={description}
-              className={`w-full h-full object-contain transition-all duration-1000 ${isLoading && !base64 ? 'opacity-0 scale-95 blur-lg' : 'opacity-100 scale-100 blur-0'}`}
+              className={`w-full h-full print:h-0 object-contain transition-all duration-1000 ${isLoading && !base64 ? 'opacity-0 scale-95 blur-lg' : 'opacity-100 scale-100 blur-0'}`}
               onLoad={() => !base64 && setIsLoading(false)}
               onError={handleError}
             />
@@ -649,3 +649,4 @@ export const ImageDisplay = React.memo(
     );
   }
 );
+

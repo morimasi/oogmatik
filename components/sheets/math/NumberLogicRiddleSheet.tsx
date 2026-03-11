@@ -15,11 +15,11 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
     const isUltraDense = hintCount > 5 || itemCount > 12;
     const fontSize = hintCount > 7 ? 'text-[8px]' : (hintCount > 4 ? 'text-[9px]' : 'text-[11px]');
     const iconSize = hintCount > 7 ? 'w-3 h-3 text-[6px]' : 'w-4 h-4 text-[8px]';
-    const cardPadding = isUltraDense ? 'p-2.5' : 'p-4';
+    const cardPadding = isUltraDense ? 'p-2.5' : 'p-4 print:p-1';
     const gapSize = isUltraDense ? 'gap-1.5' : 'gap-3';
 
     return (
-        <div className="flex flex-col h-full bg-white text-black font-lexend p-1 overflow-hidden select-none">
+        <div className="flex flex-col h-full print:h-0 bg-white text-black font-lexend p-1 overflow-hidden select-none">
             <PedagogicalHeader
                 title={data.title || "Sayısal Mantık Bilmeceleri"}
                 instruction={data.instruction || "İpuçlarını dikkatle analiz et ve doğru sayıyı bul."}
@@ -96,3 +96,4 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
         </div>
     );
 };
+

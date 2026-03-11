@@ -12,15 +12,15 @@ export const BoxMathSheet = ({ data }: { data: BoxMathData }) => {
         note={data.pedagogicalNote}
       />
 
-      <div className="flex flex-col gap-6 mt-4">
+      <div className="flex flex-col gap-6 print:gap-2 mt-4 print:mt-1">
         {/* 2 Sütunlu Izgara Düzeni - A4 Verimliliği İçin */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
           {(data.problems || []).map((prob, idx) => (
             <EditableElement
               key={idx}
-              className="flex items-center justify-between p-4 border-2 border-zinc-100 bg-zinc-50/30 rounded-[2rem] hover:bg-white hover:border-indigo-200 transition-all group"
+              className="flex items-center justify-between p-4 print:p-1 border-2 border-zinc-100 bg-zinc-50/30 rounded-[2rem] hover:bg-white hover:border-indigo-200 transition-all group"
             >
-              <div className="flex items-center gap-4 flex-1">
+              <div className="flex items-center gap-4 print:gap-1 flex-1">
                 <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-zinc-900 text-white font-black text-xs shadow-lg group-hover:scale-110 transition-transform">
                   {idx + 1}
                 </span>
@@ -46,7 +46,7 @@ export const BoxMathSheet = ({ data }: { data: BoxMathData }) => {
                     <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
                       HEDEF
                     </span>
-                    <div className="px-4 py-1.5 bg-white border-2 border-dashed border-indigo-200 rounded-xl font-black text-indigo-600 shadow-sm min-w-[60px] text-center">
+                    <div className="px-4 print:px-1 py-1.5 bg-white border-2 border-dashed border-indigo-200 rounded-xl font-black text-indigo-600 shadow-sm min-w-[60px] text-center">
                       □ = ?
                     </div>
                   </div>
@@ -56,7 +56,7 @@ export const BoxMathSheet = ({ data }: { data: BoxMathData }) => {
                     <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">
                       DEĞER
                     </span>
-                    <div className="px-4 py-1.5 bg-zinc-900 text-white rounded-xl font-black shadow-md min-w-[60px] text-center transform group-hover:rotate-2 transition-transform">
+                    <div className="px-4 print:px-1 py-1.5 bg-zinc-900 text-white rounded-xl font-black shadow-md min-w-[60px] text-center transform group-hover:rotate-2 transition-transform">
                       □ = {prob.givenValue}
                     </div>
                   </div>
@@ -80,8 +80,8 @@ export const BoxMathSheet = ({ data }: { data: BoxMathData }) => {
       </div>
 
       {/* Alt Bilgi */}
-      <div className="mt-12 pt-6 border-t border-zinc-100 flex justify-between items-center px-10 opacity-30">
-        <div className="flex items-center gap-4">
+      <div className="mt-12 print:mt-3 pt-6 print:pt-2 border-t border-zinc-100 flex justify-between items-center px-10 print:px-3 opacity-30">
+        <div className="flex items-center gap-4 print:gap-1">
           <i className="fa-solid fa-microchip text-2xl text-indigo-500"></i>
           <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">
             Bursa Disleksi AI • Nöro-Bilişsel Matematik Sistemi v4.0
@@ -96,3 +96,4 @@ export const BoxMathSheet = ({ data }: { data: BoxMathData }) => {
     </div>
   );
 };
+

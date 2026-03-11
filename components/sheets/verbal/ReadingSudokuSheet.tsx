@@ -15,7 +15,7 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
         note={data.pedagogicalNote}
       />
 
-      <div className="flex flex-col md:flex-row gap-12 print:gap-4 items-center justify-center mt-12">
+      <div className="flex flex-col md:flex-row gap-12 print:gap-3 print:gap-4 print:gap-1 items-center justify-center mt-12 print:mt-3">
         <div className="border-[4px] border-black bg-black shadow-2xl rounded-lg overflow-hidden shrink-0">
           <table className="border-collapse bg-white">
             <tbody>
@@ -55,19 +55,19 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
         </div>
 
         <div className="w-full md:w-56 space-y-8">
-          <div className="p-6 bg-zinc-900 text-white rounded-[2.5rem] shadow-xl border-4 border-white">
-            <h5 className="text-[10px] font-black uppercase tracking-widest mb-6 text-indigo-400 text-center">
+          <div className="p-6 print:p-2 bg-zinc-900 text-white rounded-[2.5rem] shadow-xl border-4 border-white">
+            <h5 className="text-[10px] font-black uppercase tracking-widest mb-6 print:mb-2 text-indigo-400 text-center">
               SEMBOL HAVUZU
             </h5>
-            <div className={`grid ${size === 4 ? 'grid-cols-2' : 'grid-cols-3'} gap-4`}>
+            <div className={`grid ${size === 4 ? 'grid-cols-2' : 'grid-cols-3'} gap-4 print:gap-1`}>
               {data.symbols.map((sym, idx) => (
                 <div
                   key={idx}
                   className="aspect-square bg-white rounded-2xl flex items-center justify-center border-2 border-zinc-700 shadow-inner group"
                 >
                   {sym.imagePrompt ? (
-                    <div className="w-full h-full p-1.5">
-                      <ImageDisplay prompt={sym.imagePrompt} className="w-full h-full" />
+                    <div className="w-full h-full print:h-0 p-1.5">
+                      <ImageDisplay prompt={sym.imagePrompt} className="w-full h-full print:h-0" />
                     </div>
                   ) : (
                     <span className="text-zinc-900 font-black text-lg uppercase">{sym.value}</span>
@@ -76,7 +76,7 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
               ))}
             </div>
           </div>
-          <div className="p-4 border-2 border-dashed border-zinc-200 rounded-3xl bg-zinc-50/50">
+          <div className="p-4 print:p-1 border-2 border-dashed border-zinc-200 rounded-3xl bg-zinc-50/50">
             <p className="text-[10px] font-bold text-zinc-400 text-center leading-relaxed">
               Her satır ve sütunda tüm sembolleri sadece bir kez kullanmalısın.
             </p>
@@ -86,4 +86,5 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
     </div>
   );
 };
+
 

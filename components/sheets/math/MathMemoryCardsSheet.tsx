@@ -6,7 +6,7 @@ import { EditableElement, EditableText } from '../../Editable';
 
 const MemoryCardUI = ({ card, showCheckCode }: { card: MathMemoryCard, showCheckCode: boolean }) => {
     return (
-        <EditableElement className="aspect-[3/4] bg-white border-[1px] border-zinc-300 rounded-lg flex flex-col items-center justify-center p-4 relative overflow-hidden group shadow-sm transition-all hover:border-indigo-400 break-inside-avoid">
+        <EditableElement className="aspect-[3/4] bg-white border-[1px] border-zinc-300 rounded-lg flex flex-col items-center justify-center p-4 print:p-1 relative overflow-hidden group shadow-sm transition-all hover:border-indigo-400 break-inside-avoid">
             {/* Kesim Kılavuzu (İç Çerçeve) */}
             <div className="absolute inset-0 border-[1px] border-dashed border-zinc-100 pointer-events-none"></div>
 
@@ -57,11 +57,11 @@ export const MathMemoryCardsSheet = ({ data }: { data: MathMemoryCardsData }) =>
     const cols = cardCount > 24 ? 'grid-cols-6' : (cardCount > 12 ? 'grid-cols-4' : 'grid-cols-3');
 
     return (
-        <div className="flex flex-col h-full font-lexend p-1 bg-white">
+        <div className="flex flex-col h-full print:h-0 font-lexend p-1 bg-white">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
 
             <div
-                className={`flex-1 grid ${cols} gap-3 mt-4 content-start`}
+                className={`flex-1 grid ${cols} gap-3 mt-4 print:mt-1 content-start`}
             >
                 {(data.cards || []).map((card) => (
                     <MemoryCardUI
@@ -73,8 +73,8 @@ export const MathMemoryCardsSheet = ({ data }: { data: MathMemoryCardsData }) =>
             </div>
 
             {/* Fiziksel Materyal Talimat Şeridi */}
-            <div className="mt-6 p-4 bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-200 flex justify-between items-center opacity-70 break-inside-avoid shadow-inner">
-                <div className="flex items-center gap-4">
+            <div className="mt-6 print:mt-2 p-4 print:p-1 bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-200 flex justify-between items-center opacity-70 break-inside-avoid shadow-inner">
+                <div className="flex items-center gap-4 print:gap-1">
                     <div className="w-10 h-10 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-zinc-400 shadow-sm">
                         <i className="fa-solid fa-scissors"></i>
                     </div>
@@ -94,3 +94,4 @@ export const MathMemoryCardsSheet = ({ data }: { data: MathMemoryCardsData }) =>
         </div>
     );
 };
+

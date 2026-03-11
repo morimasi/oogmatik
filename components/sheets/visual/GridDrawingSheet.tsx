@@ -26,7 +26,7 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
         return (
             <div className="flex flex-col items-center group/grid shrink-0">
                 <div className={`
-                    mb-4 px-4 py-1.5 rounded-xl border-2 font-black text-[9px] uppercase tracking-widest shadow-md transition-all
+                    mb-4 print:mb-1 px-4 print:px-1 py-1.5 rounded-xl border-2 font-black text-[9px] uppercase tracking-widest shadow-md transition-all
                     ${isReference ? 'bg-zinc-900 text-white border-white scale-105' : 'bg-white text-zinc-400 border-zinc-100 group-hover/grid:border-indigo-200 group-hover/grid:text-indigo-400'}
                 `}>
                     {label}
@@ -94,20 +94,20 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet max-w-full">
+        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet max-w-full">
             <PedagogicalHeader
                 title={data?.title || "KARE KOPYALAMA & MOTOR PLANLAMA"}
                 instruction={data?.instruction || "Sol taraftaki örnek çizimi sağ taraftaki boş ızgaraya aynı koordinatları kullanarak kopyalayın."}
                 note={data?.pedagogicalNote}
             />
 
-            <div className={`flex-1 flex flex-col gap-12 print:gap-4 py-8 items-center overflow-x-hidden`}>
+            <div className={`flex-1 flex flex-col gap-12 print:gap-3 print:gap-4 print:gap-1 py-8 print:py-2 items-center overflow-x-hidden`}>
                 {(data?.drawings || []).map((drawing, index) => (
                     <div
                         key={index}
                         className={`
-                            relative flex items-center justify-center p-4 sm:p-8 print:p-3 border-2 border-zinc-100 rounded-[2.5rem] bg-zinc-50/30 break-inside-avoid w-full max-w-full group overflow-hidden
-                            ${isStacked ? 'flex-col gap-8 print:gap-3 print:p-3' : 'flex-row gap-10 print:gap-4 print:p-4'}
+                            relative flex items-center justify-center p-4 print:p-1 sm:p-8 print:p-2 print:p-3 border-2 border-zinc-100 rounded-[2.5rem] bg-zinc-50/30 break-inside-avoid w-full max-w-full group overflow-hidden
+                            ${isStacked ? 'flex-col gap-8 print:gap-2 print:gap-3 print:p-3' : 'flex-row gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1'}
                         `}
                     >
                         {renderGrid(drawing.lines, `REFERANS MODEL`, true)}
@@ -125,7 +125,7 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
                         {settings?.showClinicalNotes && drawing.clinicalMeta && (
                             <div className="absolute top-6 right-10 text-right opacity-40 group-hover:opacity-100 transition-opacity hidden sm:block">
                                 <span className="text-[7px] font-black uppercase text-indigo-400 block tracking-widest">Görsel-Motor Entegrasyon</span>
-                                <div className="flex gap-4 mt-1 justify-end">
+                                <div className="flex gap-4 print:gap-1 mt-1 justify-end">
                                     <span className="text-[8px] font-bold text-zinc-500">Kesişim: {drawing.clinicalMeta.crossingPoints}</span>
                                     <span className="text-[8px] font-bold text-zinc-500">Uzamsal: {Math.round((drawing.lines?.length || 0) * 0.8)} Unit</span>
                                 </div>
@@ -136,8 +136,8 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
             </div>
 
             {/* Premium Footer Protokolü */}
-            <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10 print:gap-4 print:p-4">
+            <div className="mt-auto p-6 print:p-2 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
+                <div className="flex gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">PROTOKOL</span>
                         <span className="text-xs font-black uppercase">Visuo-Motor Precision Engine</span>
@@ -151,5 +151,6 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
         </div>
     );
 };
+
 
 

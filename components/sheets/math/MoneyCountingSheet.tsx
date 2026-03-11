@@ -14,18 +14,18 @@ const MoneyIcon = ({ value, type }: { value: number, type: 'coin' | 'note' }) =>
 export const MoneyCountingSheet = ({ data }: { data: MoneyCountingData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
-        <div className="space-y-10 mt-8 flex-1 content-start">
+        <div className="space-y-10 mt-8 print:mt-2 flex-1 content-start">
             {(data.puzzles || []).map((puzzle, idx) => (
-                <div key={idx} className="p-8 print:p-3 bg-white border-[3px] border-zinc-900 rounded-[3rem] flex flex-col gap-8 print:gap-3 print:p-3 break-inside-avoid shadow-sm group hover:border-indigo-50 transition-all">
-                    <div className="flex flex-wrap gap-6 items-center justify-center p-6 bg-zinc-50 rounded-[2rem] border-2 border-dashed border-zinc-200 shadow-inner">
+                <div key={idx} className="p-8 print:p-2 print:p-3 bg-white border-[3px] border-zinc-900 rounded-[3rem] flex flex-col gap-8 print:gap-2 print:gap-3 print:p-3 break-inside-avoid shadow-sm group hover:border-indigo-50 transition-all">
+                    <div className="flex flex-wrap gap-6 print:gap-2 items-center justify-center p-6 print:p-2 bg-zinc-50 rounded-[2rem] border-2 border-dashed border-zinc-200 shadow-inner">
                         {puzzle.notes?.map((n, ni) => Array.from({ length: n.count }).map((_, i) => <MoneyIcon key={`n-${ni}-${i}`} value={n.value} type="note" />))}
                         {puzzle.coins?.map((c, ci) => Array.from({ length: c.count }).map((_, i) => <MoneyIcon key={`c-${ci}-${i}`} value={c.value} type="coin" />))}
                     </div>
-                    <div className="flex flex-col items-center gap-6">
+                    <div className="flex flex-col items-center gap-6 print:gap-2">
                         <p className="text-xl font-black text-zinc-800 text-center"><EditableText value={puzzle.question} tag="span" /></p>
-                        <div className="flex gap-4">
+                        <div className="flex gap-4 print:gap-1">
                             {puzzle.options.map((opt, i) => (
-                                <div key={i} className="px-8 py-3 border-[3px] border-zinc-900 rounded-2xl font-black text-2xl hover:bg-zinc-900 hover:text-white transition-all cursor-pointer shadow-md">
+                                <div key={i} className="px-8 print:px-2 py-3 border-[3px] border-zinc-900 rounded-2xl font-black text-2xl hover:bg-zinc-900 hover:text-white transition-all cursor-pointer shadow-md">
                                     <EditableText value={opt} tag="span" /> TL
                                 </div>
                             ))}
@@ -36,5 +36,6 @@ export const MoneyCountingSheet = ({ data }: { data: MoneyCountingData }) => (
         </div>
     </div>
 );
+
 
 

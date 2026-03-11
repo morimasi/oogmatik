@@ -5,21 +5,21 @@ import { EditableText } from '../../Editable';
 
 export const OddEvenSudokuSheet = ({ data }: { data: OddEvenSudokuData }) => {
     return (
-        <div className="w-full flex flex-col gap-6 p-4">
+        <div className="w-full flex flex-col gap-6 print:gap-2 p-4 print:p-1">
             <PedagogicalHeader
                 title={data.title}
                 instruction={data.instruction || "Yeşil kutulara SADECE TEK sayılar, Mavi kutulara SADECE ÇİFT sayılar gelmelidir."}
                 data={data}
             />
 
-            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3">
+            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3">
                 {data.puzzles?.map((puzzle, pIndex) => {
                     const boxSizeR = puzzle.size === 6 ? 2 : 2;
                     const boxSizeC = puzzle.size === 6 ? 3 : 2;
 
                     return (
                         <div key={pIndex} className="flex flex-col items-center">
-                            <h3 className="text-lg font-bold text-slate-700 mb-4 font-serif">Bulmaca {pIndex + 1}</h3>
+                            <h3 className="text-lg font-bold text-slate-700 mb-4 print:mb-1 font-serif">Bulmaca {pIndex + 1}</h3>
                             <div
                                 className="border-4 border-slate-700 bg-slate-700 gap-[2px] shadow-sm"
                                 style={{
@@ -65,12 +65,12 @@ export const OddEvenSudokuSheet = ({ data }: { data: OddEvenSudokuData }) => {
             </div>
 
             {/* Renk Lejantı */}
-            <div className="mt-4 flex flex-wrap gap-4 justify-center">
-                <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg">
+            <div className="mt-4 print:mt-1 flex flex-wrap gap-4 print:gap-1 justify-center">
+                <div className="flex items-center gap-2 px-4 print:px-1 py-2 bg-slate-50 border border-slate-200 rounded-lg">
                     <span className="w-4 h-4 rounded bg-emerald-100 border border-emerald-300"></span>
                     <span className="text-sm font-medium text-slate-700">Tek Sayı (1, 3, 5...)</span>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg">
+                <div className="flex items-center gap-2 px-4 print:px-1 py-2 bg-slate-50 border border-slate-200 rounded-lg">
                     <span className="w-4 h-4 rounded bg-sky-100 border border-sky-300"></span>
                     <span className="text-sm font-medium text-slate-700">Çift Sayı (2, 4, 6...)</span>
                 </div>
@@ -78,5 +78,6 @@ export const OddEvenSudokuSheet = ({ data }: { data: OddEvenSudokuData }) => {
         </div>
     );
 };
+
 
 

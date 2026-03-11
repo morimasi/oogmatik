@@ -35,16 +35,16 @@ export const AbcConnectSheet = ({ data }: { data: AbcConnectData }) => {
     const { gridDim, paths, variant } = data;
 
     return (
-        <div className="w-full flex flex-col gap-6 font-lexend mt-8">
+        <div className="w-full flex flex-col gap-6 print:gap-2 font-lexend mt-8 print:mt-2">
             <PedagogicalHeader
                 title={data.title}
                 instruction={data.instruction}
                 data={data}
             />
 
-            <div className="flex-1 flex items-center justify-center mt-10">
+            <div className="flex-1 flex items-center justify-center mt-10 print:mt-3">
                 <div
-                    className="relative bg-white/50 backdrop-blur-sm border-[4px] border-slate-200 rounded-[2.5rem] shadow-xl p-8 print:p-3"
+                    className="relative bg-white/50 backdrop-blur-sm border-[4px] border-slate-200 rounded-[2.5rem] shadow-xl p-8 print:p-2 print:p-3"
                     style={{
                         display: 'grid',
                         gridTemplateColumns: `repeat(${gridDim}, minmax(0, 1fr))`,
@@ -110,11 +110,11 @@ export const AbcConnectSheet = ({ data }: { data: AbcConnectData }) => {
             </div>
 
             {/* Premium Info Panel */}
-            <div className="mt-12 p-6 bg-gradient-to-r from-slate-50 to-indigo-50/30 border border-slate-200 rounded-[1.5rem] shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="flex flex-wrap gap-4 items-center">
+            <div className="mt-12 print:mt-3 p-6 print:p-2 bg-gradient-to-r from-slate-50 to-indigo-50/30 border border-slate-200 rounded-[1.5rem] shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 print:gap-1">
+                <div className="flex flex-wrap gap-4 print:gap-1 items-center">
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Klavuz:</span>
                     {variant === 'roman' && (
-                        <div className="flex gap-4 text-sm font-black text-slate-600">
+                        <div className="flex gap-4 print:gap-1 text-sm font-black text-slate-600">
                             <span className="bg-white px-3 py-1 rounded-lg border border-slate-100 shadow-sm">I = 1</span>
                             <span className="bg-white px-3 py-1 rounded-lg border border-slate-100 shadow-sm">V = 5</span>
                             <span className="bg-white px-3 py-1 rounded-lg border border-slate-100 shadow-sm">X = 10</span>
@@ -134,4 +134,5 @@ export const AbcConnectSheet = ({ data }: { data: AbcConnectData }) => {
         </div>
     );
 };
+
 

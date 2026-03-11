@@ -5,13 +5,13 @@ import { EditableText } from '../../Editable';
 
 export const CapsuleGameSheet = ({ data }: { data: NumberCapsuleData }) => {
     return (
-        <div className="flex flex-col font-lexend mt-8">
+        <div className="flex flex-col font-lexend mt-8 print:mt-2">
             <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
 
-            <div className="flex justify-center mt-12 mb-8 break-inside-avoid">
+            <div className="flex justify-center mt-12 print:mt-3 mb-8 print:mb-2 break-inside-avoid">
                 <div className="flex flex-col items-center">
                     <div
-                        className="bg-zinc-50 border-4 border-slate-700 p-6 rounded-3xl relative shadow-md"
+                        className="bg-zinc-50 border-4 border-slate-700 p-6 print:p-2 rounded-3xl relative shadow-md"
                         style={{
                             display: 'grid',
                             gridTemplateColumns: `repeat(${data.grid[0]?.length || 4}, 1fr)`,
@@ -53,14 +53,14 @@ export const CapsuleGameSheet = ({ data }: { data: NumberCapsuleData }) => {
                                     );
                                 })}
                                 {/* Row Target on the Right */}
-                                <div className="flex items-center justify-center font-black text-xl text-indigo-600 bg-indigo-50 px-4 rounded-xl border-l-2 border-indigo-200 ml-2">
+                                <div className="flex items-center justify-center font-black text-xl text-indigo-600 bg-indigo-50 px-4 print:px-1 rounded-xl border-l-2 border-indigo-200 ml-2">
                                     {data.rowTargets?.[rIndex]}
                                 </div>
                             </React.Fragment>
                         ))}
                     </div>
 
-                    <div className="mt-8 flex gap-3 text-sm font-medium text-slate-500 bg-slate-50 px-6 py-3 rounded-2xl border border-slate-200">
+                    <div className="mt-8 print:mt-2 flex gap-3 text-sm font-medium text-slate-500 bg-slate-50 px-6 print:px-2 py-3 rounded-2xl border border-slate-200">
                         <i className="fa-solid fa-circle-info text-indigo-400 mt-1"></i>
                         <p>Satırdaki ve sütundaki sayıların toplamı mavi kutuları; kapsül (sarı) içindeki sayıların toplamı ise kapsülün sol üstündeki sayıyı vermelidir.</p>
                     </div>
@@ -69,3 +69,4 @@ export const CapsuleGameSheet = ({ data }: { data: NumberCapsuleData }) => {
         </div>
     );
 };
+

@@ -36,9 +36,9 @@ export const FamilyTreeMatrixSheet: React.FC<Props> = ({ data }) => {
     };
 
     return (
-        <div className="w-full h-full p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-full print:h-0 p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* ETKİNLİK BAŞLIĞI */}
-            <div className="flex justify-between items-center border-b-4 border-emerald-400 pb-4 mb-6">
+            <div className="flex justify-between items-center border-b-4 border-emerald-400 pb-4 print:pb-1 mb-6 print:mb-2">
                 <div>
                     <h1 className="text-4xl font-black text-emerald-900 tracking-tighter uppercase">{data.content?.title || "Soy Ağacı Bulmacası"}</h1>
                     <p className="text-sm font-bold text-emerald-600 mt-1 uppercase tracking-widest">Mantıksal Çıkarım • Zorluk: {data.settings?.difficulty.toUpperCase()}</p>
@@ -48,19 +48,19 @@ export const FamilyTreeMatrixSheet: React.FC<Props> = ({ data }) => {
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col gap-6">
+            <div className="flex-1 flex flex-col gap-6 print:gap-2">
 
                 {data.content?.storyIntro && Object.keys(data.content.storyIntro).length > 0 && typeof data.content.storyIntro === 'string' && (
-                    <div className="text-sm font-medium text-zinc-600 bg-zinc-50 p-4 rounded-xl border border-zinc-200 italic">
+                    <div className="text-sm font-medium text-zinc-600 bg-zinc-50 p-4 print:p-1 rounded-xl border border-zinc-200 italic">
                         "{data.content.storyIntro}"
                     </div>
                 )}
 
                 {/* SVG AĞAÇ ALANI (Çok basite indirgenmiş flex-based ağaç, A4 için güvenli) */}
-                <div className="w-full bg-zinc-50 rounded-3xl border-2 border-dashed border-zinc-300 p-8 print:p-3 flex flex-col items-center gap-12 print:gap-4 relative print:bg-white min-h-[300px] justify-center">
+                <div className="w-full bg-zinc-50 rounded-3xl border-2 border-dashed border-zinc-300 p-8 print:p-2 print:p-3 flex flex-col items-center gap-12 print:gap-3 print:gap-4 print:gap-1 relative print:bg-white min-h-[300px] justify-center">
 
                     {gen0.length > 0 && (
-                        <div className="flex gap-16 relative">
+                        <div className="flex gap-16 print:gap-4 relative">
                             {gen0.map(renderNodeBox)}
                             {gen0.length > 1 && <div className="absolute top-1/2 left-32 right-32 border-b-2 border-zinc-300 -z-10"></div>}
                         </div>
@@ -71,7 +71,7 @@ export const FamilyTreeMatrixSheet: React.FC<Props> = ({ data }) => {
                     )}
 
                     {gen1.length > 0 && (
-                        <div className="flex gap-16 relative">
+                        <div className="flex gap-16 print:gap-4 relative">
                             {gen1.map(renderNodeBox)}
                             {gen1.length > 1 && <div className="absolute top-1/2 left-32 right-32 border-b-2 border-zinc-300 -z-10"></div>}
                         </div>
@@ -82,7 +82,7 @@ export const FamilyTreeMatrixSheet: React.FC<Props> = ({ data }) => {
                     )}
 
                     {gen2.length > 0 && (
-                        <div className="flex gap-12 print:gap-4 relative">
+                        <div className="flex gap-12 print:gap-3 print:gap-4 print:gap-1 relative">
                             {gen2.map(renderNodeBox)}
                         </div>
                     )}
@@ -90,8 +90,8 @@ export const FamilyTreeMatrixSheet: React.FC<Props> = ({ data }) => {
                 </div>
 
                 {/* İPUÇLARI ALANI */}
-                <div className="w-full mt-4 bg-white border-2 border-emerald-100 rounded-2xl p-6 shadow-sm mb-4 page-break-inside-avoid">
-                    <h3 className="text-sm font-black text-emerald-800 uppercase tracking-widest flex items-center gap-2 mb-4 border-b border-emerald-50 pb-2">
+                <div className="w-full mt-4 print:mt-1 bg-white border-2 border-emerald-100 rounded-2xl p-6 print:p-2 shadow-sm mb-4 print:mb-1 page-break-inside-avoid">
+                    <h3 className="text-sm font-black text-emerald-800 uppercase tracking-widest flex items-center gap-2 mb-4 print:mb-1 border-b border-emerald-50 pb-2">
                         <i className="fa-solid fa-magnifying-glass"></i> Araştırmacı İpuçları
                     </h3>
                     <ul className="space-y-3">
@@ -107,12 +107,13 @@ export const FamilyTreeMatrixSheet: React.FC<Props> = ({ data }) => {
             </div>
 
             {/* FOOTER */}
-            <div className="pt-4 mt-auto border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
+            <div className="pt-4 print:pt-1 mt-auto border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
                 <span>Neuro-Oogmatik Özel Eğitim Teknolojileri</span>
                 <span>Modül: Soy Ağacı ({data.settings?.familySize === 'extended' ? 'Geniş' : 'Çekirdek'})</span>
             </div>
         </div>
     );
 };
+
 
 

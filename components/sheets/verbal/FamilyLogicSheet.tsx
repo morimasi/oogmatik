@@ -12,11 +12,11 @@ export const FamilyLogicSheet = ({ data }: { data: FamilyLogicTestData }) => {
         note={data.pedagogicalNote}
       />
 
-      <div className="flex flex-col gap-4 mt-6 content-start max-w-4xl mx-auto w-full">
+      <div className="flex flex-col gap-4 print:gap-1 mt-6 print:mt-2 content-start max-w-4xl mx-auto w-full">
         {(data.statements || []).map((st, idx) => (
           <EditableElement
             key={idx}
-            className="flex items-center gap-8 print:gap-3 print:p-3 p-5 border-2 border-zinc-100 bg-white rounded-[2rem] hover:bg-zinc-50 hover:border-indigo-200 transition-all group break-inside-avoid shadow-sm"
+            className="flex items-center gap-8 print:gap-2 print:gap-3 print:p-3 p-5 print:p-1 border-2 border-zinc-100 bg-white rounded-[2rem] hover:bg-zinc-50 hover:border-indigo-200 transition-all group break-inside-avoid shadow-sm"
           >
             <div className="flex gap-3 shrink-0">
               <div className="flex flex-col items-center">
@@ -44,8 +44,8 @@ export const FamilyLogicSheet = ({ data }: { data: FamilyLogicTestData }) => {
         ))}
       </div>
 
-      <div className="mt-12 p-8 print:p-3 bg-zinc-900 text-white rounded-[3.5rem] shadow-2xl flex items-center gap-10 print:gap-4 print:p-4 border-4 border-white relative overflow-hidden break-inside-avoid">
-        <div className="absolute top-0 right-0 p-4 opacity-5 rotate-12">
+      <div className="mt-12 print:mt-3 p-8 print:p-2 print:p-3 bg-zinc-900 text-white rounded-[3.5rem] shadow-2xl flex items-center gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1 border-4 border-white relative overflow-hidden break-inside-avoid">
+        <div className="absolute top-0 right-0 p-4 print:p-1 opacity-5 rotate-12">
           <i className="fa-solid fa-brain text-[12rem]"></i>
         </div>
         <div className="w-20 h-20 bg-white/10 rounded-3xl backdrop-blur-md flex items-center justify-center text-3xl text-indigo-400 border border-white/10 shrink-0 shadow-inner">
@@ -63,11 +63,11 @@ export const FamilyLogicSheet = ({ data }: { data: FamilyLogicTestData }) => {
         </div>
       </div>
 
-      <div className="mt-auto pt-8 flex justify-between items-center px-10 opacity-30">
+      <div className="mt-auto pt-8 print:pt-2 flex justify-between items-center px-10 print:px-3 opacity-30">
         <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">
           Bursa Disleksi AI • Bilişsel Muhakeme Modülü
         </p>
-        <div className="flex gap-4">
+        <div className="flex gap-4 print:gap-1">
           <div className="w-8 h-2 bg-zinc-200 rounded-full"></div>
           <div className="w-8 h-2 bg-indigo-500 rounded-full"></div>
           <div className="w-8 h-2 bg-zinc-200 rounded-full"></div>
@@ -76,5 +76,6 @@ export const FamilyLogicSheet = ({ data }: { data: FamilyLogicTestData }) => {
     </div>
   );
 };
+
 
 

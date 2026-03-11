@@ -6,7 +6,7 @@ import { EditableElement, EditableText } from '../../Editable';
 
 const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: any[], rightSide: number | string }, objects: any[], fontSize?: string }) => {
     return (
-        <div className="flex items-center justify-center gap-4 py-3 border-b border-zinc-50 last:border-0 group-hover:bg-zinc-50/50 transition-colors rounded-xl">
+        <div className="flex items-center justify-center gap-4 print:gap-1 py-3 border-b border-zinc-50 last:border-0 group-hover:bg-zinc-50/50 transition-colors rounded-xl">
             <div className="flex items-center gap-2">
                 {eq.leftSide.map((item: any, i: number) => {
                     const obj = objects.find(o => o.name === item.objectName);
@@ -16,7 +16,7 @@ const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: an
                             <div className="flex items-center gap-1">
                                 {item.multiplier > 1 && <span className="text-sm font-black text-indigo-600 bg-indigo-50 px-1.5 rounded">{item.multiplier}x</span>}
                                 <div className="w-12 h-12 flex items-center justify-center">
-                                    <ImageDisplay prompt={obj?.imagePrompt} description={obj?.name} className="w-full h-full object-contain" />
+                                    <ImageDisplay prompt={obj?.imagePrompt} description={obj?.name} className="w-full h-full print:h-0 object-contain" />
                                 </div>
                             </div>
                         </React.Fragment>
@@ -24,7 +24,7 @@ const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: an
                 })}
             </div>
             <span className="text-2xl font-black text-zinc-900">=</span>
-            <div className={`font-mono font-black ${fontSize} bg-zinc-900 text-white px-4 py-1.5 rounded-2xl shadow-lg`}>
+            <div className={`font-mono font-black ${fontSize} bg-zinc-900 text-white px-4 print:px-1 py-1.5 rounded-2xl shadow-lg`}>
                 {eq.rightSide}
             </div>
         </div>
@@ -32,21 +32,21 @@ const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: an
 };
 
 export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
-    <div className="flex flex-col h-full font-lexend text-black bg-white">
+    <div className="flex flex-col h-full print:h-0 font-lexend text-black bg-white">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3 mt-4 flex-1 content-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3 mt-4 print:mt-1 flex-1 content-start">
             {(data?.puzzles || []).map((puzzle, index) => (
                 <EditableElement key={index} className="flex flex-col border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-[10px_10px_0px_0px_rgba(0,0,0,0.05)] overflow-hidden group hover:shadow-xl transition-all duration-500 break-inside-avoid">
-                    <div className="bg-zinc-900 px-6 py-3 flex justify-between items-center text-white">
+                    <div className="bg-zinc-900 px-6 print:px-2 py-3 flex justify-between items-center text-white">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">GİZEMLİ DENKLEM #{index + 1}</span>
                     </div>
-                    <div className="p-8 print:p-3 flex-1 flex flex-col gap-4">
+                    <div className="p-8 print:p-2 print:p-3 flex-1 flex flex-col gap-4 print:gap-1">
                         <div className="space-y-2">
                             {puzzle.equations.map((eq, eIdx) => (
                                 <EquationRow key={eIdx} eq={eq} objects={puzzle.objects} />
                             ))}
                         </div>
-                        <div className="mt-8 p-6 bg-indigo-50 rounded-[2rem] border-2 border-indigo-100 flex flex-col items-center gap-4 relative overflow-hidden">
+                        <div className="mt-8 print:mt-2 p-6 print:p-2 bg-indigo-50 rounded-[2rem] border-2 border-indigo-100 flex flex-col items-center gap-4 print:gap-1 relative overflow-hidden">
                             <p className="text-xs font-black text-indigo-400 uppercase tracking-widest leading-none">Hedef İşlem</p>
                             <div className="text-2xl font-black text-zinc-900 flex items-center gap-3">
                                 <EditableText value={puzzle.finalQuestion} tag="span" />
@@ -62,5 +62,6 @@ export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
         </div>
     </div>
 );
+
 
 

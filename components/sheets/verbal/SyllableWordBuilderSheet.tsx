@@ -12,18 +12,18 @@ export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderDa
       data={data}
     />
 
-    <div className="flex flex-col gap-10 print:gap-4 print:p-4 mt-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-3 print:p-3">
+    <div className="flex flex-col gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1 mt-6 print:mt-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3">
         {(data.words || []).map((word, idx) => (
           <EditableElement
             key={idx}
-            className="flex items-center gap-6 p-5 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm break-inside-avoid group hover:border-indigo-500 transition-all"
+            className="flex items-center gap-6 print:gap-2 p-5 print:p-1 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm break-inside-avoid group hover:border-indigo-500 transition-all"
           >
             <div className="w-24 h-24 rounded-3xl bg-zinc-50 border border-zinc-100 shrink-0 overflow-hidden shadow-inner">
               <ImageDisplay
                 prompt={word.imagePrompt}
                 description={word.targetWord}
-                className="w-full h-full object-contain"
+                className="w-full h-full print:h-0 object-contain"
               />
             </div>
             <div className="flex-1 space-y-3">
@@ -42,18 +42,18 @@ export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderDa
         ))}
       </div>
 
-      <div className="mt-8 p-8 print:p-3 bg-zinc-900 text-white rounded-[3.5rem] shadow-2xl relative overflow-hidden break-inside-avoid border-4 border-white">
-        <div className="absolute top-0 right-0 p-8 print:p-3 opacity-10 rotate-12">
+      <div className="mt-8 print:mt-2 p-8 print:p-2 print:p-3 bg-zinc-900 text-white rounded-[3.5rem] shadow-2xl relative overflow-hidden break-inside-avoid border-4 border-white">
+        <div className="absolute top-0 right-0 p-8 print:p-2 print:p-3 opacity-10 rotate-12">
           <i className="fa-solid fa-puzzle-piece text-[10rem]"></i>
         </div>
-        <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-8 flex items-center gap-3">
+        <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-8 print:mb-2 flex items-center gap-3">
           <i className="fa-solid fa-layer-group"></i> HECE HAVUZU
         </h4>
-        <div className="flex flex-wrap justify-center gap-4 relative z-10">
+        <div className="flex flex-wrap justify-center gap-4 print:gap-1 relative z-10">
           {(data.syllableBank || []).map((syllable, idx) => (
             <EditableElement
               key={idx}
-              className="px-6 py-3 bg-white text-zinc-900 rounded-2xl font-black text-xl shadow-lg border-2 border-transparent hover:border-indigo-500 hover:scale-105 transition-all cursor-default uppercase"
+              className="px-6 print:px-2 py-3 bg-white text-zinc-900 rounded-2xl font-black text-xl shadow-lg border-2 border-transparent hover:border-indigo-500 hover:scale-105 transition-all cursor-default uppercase"
             >
               <EditableText value={syllable} tag="span" />
             </EditableElement>
@@ -63,5 +63,6 @@ export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderDa
     </div>
   </div>
 );
+
 
 

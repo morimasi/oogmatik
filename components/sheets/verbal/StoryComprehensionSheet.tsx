@@ -7,8 +7,8 @@ import { EditableElement, EditableText } from '../../Editable';
 const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, questions: any[] | undefined, type: string, icon?: string }) => {
     if (!questions || questions.length === 0) return null;
     return (
-        <div className="mb-8 break-inside-avoid">
-            <div className="flex items-center gap-2 mb-4 border-b-2 border-zinc-800 pb-1">
+        <div className="mb-8 print:mb-2 break-inside-avoid">
+            <div className="flex items-center gap-2 mb-4 print:mb-1 border-b-2 border-zinc-800 pb-1">
                 {icon && <i className={`fa-solid ${icon} text-indigo-500`}></i>}
                 <h4 className="font-black text-black uppercase text-sm">{title}</h4>
             </div>
@@ -74,9 +74,9 @@ const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, q
 };
 
 export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }) => (
-    <div className="flex flex-col h-full bg-white relative font-lexend">
+    <div className="flex flex-col h-full print:h-0 bg-white relative font-lexend">
         <ReadingRuler />
-        <div className="shrink-0 mb-6 flex justify-between items-start border-b-4 border-zinc-900 pb-4">
+        <div className="shrink-0 mb-6 print:mb-2 flex justify-between items-start border-b-4 border-zinc-900 pb-4 print:pb-1">
             <div className="flex-1">
                 <PedagogicalHeader title={data.title} instruction={data.instruction || "Hikayeyi en az 3 kez oku."} note={data.pedagogicalNote} />
             </div>
@@ -92,21 +92,21 @@ export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }
             </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 print:gap-3 print:p-3 mb-10 print:mb-4 min-h-[400px]">
-            <div className="flex-1 bg-white p-8 print:p-3 rounded-[2rem] border-2 border-zinc-100 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-2 h-full bg-indigo-600"></div>
+        <div className="flex flex-col md:flex-row gap-8 print:gap-2 print:gap-3 print:p-3 mb-10 print:mb-3 print:mb-4 print:mb-1 min-h-[400px]">
+            <div className="flex-1 bg-white p-8 print:p-2 print:p-3 rounded-[2rem] border-2 border-zinc-100 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-2 h-full print:h-0 bg-indigo-600"></div>
                 <div className="prose max-w-none font-dyslexic text-xl leading-[2.2] text-zinc-800 text-justify">
                     <StoryHighlighter text={data.story} highlights={(data.fiveW1H || []).map(q => ({ text: q.answer, type: q.type }))} />
                 </div>
             </div>
             {data.imagePrompt && (
                 <div className="w-full md:w-1/3 aspect-square bg-zinc-50 rounded-[2.5rem] border-4 border-white shadow-2xl overflow-hidden shrink-0">
-                    <ImageDisplay prompt={data.imagePrompt} description={data.title} className="w-full h-full object-cover" />
+                    <ImageDisplay prompt={data.imagePrompt} description={data.title} className="w-full h-full print:h-0 object-cover" />
                 </div>
             )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 print:gap-4 print:p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1">
             <div className="space-y-8">
                 <PrintQuestionBlock title="5N 1K Analizi" questions={data.fiveW1H} type="open" icon="fa-magnifying-glass" />
                 <PrintQuestionBlock title="Sözlükçe" questions={data.vocabulary?.map(v => ({ question: `${v.word}: ${v.definition}` })) || []} type="list" icon="fa-spell-check" />
@@ -118,5 +118,6 @@ export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }
         </div>
     </div>
 );
+
 
 

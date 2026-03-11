@@ -15,7 +15,7 @@ export const ReadingStroopSheet = ({ data }: { data: ReadingStroopData }) => {
       />
 
       <div
-        className="w-full grid gap-y-12 gap-x-4 mt-12 content-start"
+        className="w-full grid gap-y-12 gap-x-4 mt-12 print:mt-3 content-start"
         style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
       >
         {(data.grid || []).map((item, idx) => (
@@ -31,12 +31,12 @@ export const ReadingStroopSheet = ({ data }: { data: ReadingStroopData }) => {
       </div>
 
       {data.evaluationBox && (
-        <div className="mt-auto pt-10 border-t-4 border-zinc-900 break-inside-avoid">
-          <div className="grid grid-cols-4 gap-6 mb-4">
+        <div className="mt-auto pt-10 print:pt-3 border-t-4 border-zinc-900 break-inside-avoid">
+          <div className="grid grid-cols-4 gap-6 print:gap-2 mb-4 print:mb-1">
             {['SÜRE', 'HATA', 'DÜZELTME', 'PUAN'].map((label) => (
               <div
                 key={label}
-                className={`p-4 rounded-2xl border-2 ${label === 'PUAN' ? 'bg-indigo-600 text-white border-indigo-700' : 'bg-zinc-50 border-zinc-200 text-zinc-400'}`}
+                className={`p-4 print:p-1 rounded-2xl border-2 ${label === 'PUAN' ? 'bg-indigo-600 text-white border-indigo-700' : 'bg-zinc-50 border-zinc-200 text-zinc-400'}`}
               >
                 <h5 className="text-[10px] font-black uppercase mb-2 tracking-widest">{label}</h5>
                 <div
@@ -50,3 +50,4 @@ export const ReadingStroopSheet = ({ data }: { data: ReadingStroopData }) => {
     </div>
   );
 };
+
