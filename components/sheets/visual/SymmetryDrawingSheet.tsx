@@ -27,7 +27,7 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
     const renderSVG = (lines: SymmetryDrawingData['drawings'][0]['lines'], dots: SymmetryDrawingData['drawings'][0]['dots'], title: string, clinicalMeta?: any) => {
         return (
             <div className="flex flex-col items-center group">
-                <div className="mb-4 px-4 py-1.5 bg-zinc-900 text-white rounded-xl border-2 border-white font-black text-[9px] uppercase tracking-widest shadow-lg transform group-hover:-translate-y-1 transition-transform">
+                <div className="mb-4 print:mb-1 px-4 print:px-1 py-1.5 bg-zinc-900 text-white rounded-xl border-2 border-white font-black text-[9px] uppercase tracking-widest shadow-lg transform group-hover:-translate-y-1 transition-transform">
                     {title}
                 </div>
                 <div className="relative p-3 bg-white border-2 border-zinc-100 rounded-[2.5rem] shadow-xl overflow-visible ring-8 ring-zinc-50 group-hover:ring-indigo-50 transition-all">
@@ -96,13 +96,13 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
 
                 {/* Klinik Analiz Metrikleri */}
                 {settings?.showClinicalNotes && clinicalMeta && (
-                    <div className="mt-4 w-full bg-zinc-50 rounded-2xl p-3 border border-zinc-100 flex flex-col gap-1">
+                    <div className="mt-4 print:mt-1 w-full bg-zinc-50 rounded-2xl p-3 border border-zinc-100 flex flex-col gap-1">
                         <div className="flex justify-between items-center text-[7px] font-black uppercase tracking-widest text-zinc-400">
                             <span>Karmaşıklık</span>
                             <span className="text-zinc-900">{clinicalMeta.complexity || '5'}/10</span>
                         </div>
                         <div className="w-full h-1 bg-zinc-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-indigo-500" style={{ width: `${(clinicalMeta.complexity || 5) * 10}%` }}></div>
+                            <div className="h-full print:h-0 bg-indigo-500" style={{ width: `${(clinicalMeta.complexity || 5) * 10}%` }}></div>
                         </div>
                         <span className="text-[6px] font-bold text-indigo-400 uppercase mt-1">Hedef: {clinicalMeta.targetCognitiveSkill || 'Uzamsal Planlama'}</span>
                     </div>
@@ -114,14 +114,14 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
     const containerGridCols = layout === 'grid_2x1' ? 'grid-cols-2' : (layout === 'grid_2x2' ? 'grid-cols-2' : 'grid-cols-1');
 
     return (
-        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
             <PedagogicalHeader
                 title={data?.title || "SİMETRİ & MEKANSAL BÜTÜNLEME"}
                 instruction={data?.instruction || "Kırmızı kesikli çizgiye göre şeklin aynadaki görüntüsünü diğer tarafa çizin."}
                 note={data?.pedagogicalNote}
             />
 
-            <div className={`grid ${containerGridCols} gap-12 print:gap-4 mt-10 flex-1 content-start items-start justify-items-center pb-20`}>
+            <div className={`grid ${containerGridCols} gap-12 print:gap-3 print:gap-4 print:gap-1 mt-10 print:mt-3 flex-1 content-start items-start justify-items-center pb-20 print:pb-4`}>
                 {(data?.drawings || []).map((draw, i) => (
                     <EditableElement key={i} className="break-inside-avoid">
                         {renderSVG(draw.lines, draw.dots, draw.title, draw.clinicalMeta)}
@@ -130,8 +130,8 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
             </div>
 
             {/* Premium Footer Protokolü */}
-            <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10 print:gap-4 print:p-4">
+            <div className="mt-auto p-6 print:p-2 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
+                <div className="flex gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">PROTOKOL ADI</span>
                         <span className="text-xs font-black uppercase">Uzamsal Barkod & Simetri</span>
@@ -145,5 +145,6 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
         </div>
     );
 };
+
 
 

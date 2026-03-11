@@ -24,7 +24,7 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
 
   return (
     <div
-      className="w-full flex flex-col gap-5 p-8 print:p-0 min-h-[297mm] break-inside-avoid bg-white"
+      className="w-full flex flex-col gap-5 print:gap-1 p-8 print:p-2 print:p-0 min-h-[297mm] break-inside-avoid bg-white"
       style={{ fontFamily: settings.fontFamily, color: '#18181b' }}
     >
       {/* 1. Profesyonel Başlık ve Analiz Künyesi */}
@@ -81,7 +81,7 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
       {/* 3. Sorular (Bilişsel Sorgulama Matrisi) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mt-1">
         {questions.map((q: any, idx: number) => (
-          <div key={idx} className="relative bg-white border border-zinc-200 rounded-xl p-4 break-inside-avoid shadow-sm">
+          <div key={idx} className="relative bg-white border border-zinc-200 rounded-xl p-4 print:p-1 break-inside-avoid shadow-sm">
 
             <div className="flex justify-between items-start mb-3">
               <div className="w-7 h-7 bg-zinc-900 text-white rounded-lg flex items-center justify-center font-black text-xs">
@@ -92,7 +92,7 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
               </div>
             </div>
 
-            <h3 className="text-[13px] font-bold text-zinc-800 mb-4 pl-1 leading-snug">
+            <h3 className="text-[13px] font-bold text-zinc-800 mb-4 print:mb-1 pl-1 leading-snug">
               {q.q || q.questionText || q.text}
             </h3>
 
@@ -123,7 +123,7 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
       </div>
 
       {/* 4. Klinik Gözlem Notları (Sayfa Altı Footer) */}
-      <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex flex-col gap-2 break-inside-avoid">
+      <div className="mt-auto pt-4 print:pt-1 border-t-2 border-zinc-900 flex flex-col gap-2 break-inside-avoid">
         <div className="flex justify-between items-center">
           <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-800 flex items-center gap-2">
             <i className="fa-solid fa-clipboard-user"></i> Uzman Gözlem Paneli
@@ -141,10 +141,11 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
           </div>
           <div className="col-span-2 border border-zinc-200 rounded-lg p-2 bg-zinc-50/50">
             <span className="block text-[8px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Uzman Notu</span>
-            <div className="w-full border-b border-zinc-200 border-dotted mt-4"></div>
+            <div className="w-full border-b border-zinc-200 border-dotted mt-4 print:mt-1"></div>
           </div>
         </div>
       </div>
     </div>
   );
 };
+

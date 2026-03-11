@@ -23,9 +23,9 @@ export const FinancialMarketSheet: React.FC<Props> = ({ data }) => {
     };
 
     return (
-        <div className="w-full h-[297mm] p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-[297mm] p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* BAŞLIK & CÜZDAN */}
-            <div className="flex justify-between items-center border-b-4 border-lime-400 pb-4 mb-4">
+            <div className="flex justify-between items-center border-b-4 border-lime-400 pb-4 print:pb-1 mb-4 print:mb-1">
                 <div>
                     <h1 className="text-4xl font-black text-lime-900 tracking-tighter uppercase">{data.content?.title || "Alışveriş Zamanı"}</h1>
                     <p className="text-sm font-bold text-lime-600 mt-1 uppercase tracking-widest">{data.content?.shopName} • Mantıksal Hesaplama</p>
@@ -43,11 +43,11 @@ export const FinancialMarketSheet: React.FC<Props> = ({ data }) => {
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col gap-6">
+            <div className="flex-1 flex flex-col gap-6 print:gap-2">
 
                 {/* RAF GÖRSELİ */}
-                <div className="w-full bg-orange-50/30 rounded-3xl border-2 border-orange-100 p-6 shadow-sm relative pt-10 mt-4 page-break-inside-avoid">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border-2 border-orange-200 px-6 py-2 rounded-full shadow-md text-orange-800 font-black tracking-widest uppercase text-sm flex items-center gap-2">
+                <div className="w-full bg-orange-50/30 rounded-3xl border-2 border-orange-100 p-6 print:p-2 shadow-sm relative pt-10 print:pt-3 mt-4 print:mt-1 page-break-inside-avoid">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border-2 border-orange-200 px-6 print:px-2 py-2 rounded-full shadow-md text-orange-800 font-black tracking-widest uppercase text-sm flex items-center gap-2">
                         <i className="fa-solid fa-store"></i> Ürün Rafları
                     </div>
 
@@ -72,20 +72,20 @@ export const FinancialMarketSheet: React.FC<Props> = ({ data }) => {
                 </div>
 
                 {/* GÖREVLER (TASKS) / FİŞLER */}
-                <div className="grid grid-cols-2 gap-6 flex-1 mt-4">
+                <div className="grid grid-cols-2 gap-6 print:gap-2 flex-1 mt-4 print:mt-1">
                     {tasks.map((task, tIdx) => (
-                        <div key={tIdx} className="bg-white border-2 border-zinc-200 rounded-3xl p-5 shadow-sm flex flex-col page-break-inside-avoid relative overflow-hidden">
+                        <div key={tIdx} className="bg-white border-2 border-zinc-200 rounded-3xl p-5 print:p-1 shadow-sm flex flex-col page-break-inside-avoid relative overflow-hidden">
 
                             {/* Fiş Tırtığı Efekti (Top) */}
                             <div className="absolute -top-3 left-0 w-full h-6 bg-[length:20px_20px] bg-[radial-gradient(circle_at_10px_0,transparent_10px,#fff_11px)] border-t border-zinc-200 z-10"></div>
 
-                            <div className="flex items-start gap-3 mb-4 mt-2">
+                            <div className="flex items-start gap-3 mb-4 print:mb-1 mt-2">
                                 <div className="w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 font-black flex items-center justify-center flex-shrink-0 border border-zinc-200">{tIdx + 1}</div>
                                 <p className="text-sm font-bold text-zinc-700 leading-snug">{task.instruction}</p>
                             </div>
 
                             {/* Alışveriş Sepeti */}
-                            <div className="bg-zinc-50 rounded-xl p-3 border border-zinc-200 mb-4 flex-1">
+                            <div className="bg-zinc-50 rounded-xl p-3 border border-zinc-200 mb-4 print:mb-1 flex-1">
                                 <div className="text-[10px] font-black text-zinc-400 tracking-widest uppercase mb-2">Sepettekiler</div>
                                 <div className="space-y-2">
                                     {task.cart.map((cartItem, cIdx) => {
@@ -98,7 +98,7 @@ export const FinancialMarketSheet: React.FC<Props> = ({ data }) => {
                                                     </div>
                                                     <span>{prod?.name}</span>
                                                 </div>
-                                                <div className="flex items-center gap-4">
+                                                <div className="flex items-center gap-4 print:gap-1">
                                                     <span className="text-xs text-zinc-400">{cartItem.quantity} Adet</span>
                                                     <span>+ {formatPrice((prod?.price || 0) * cartItem.quantity)}</span>
                                                 </div>
@@ -109,7 +109,7 @@ export const FinancialMarketSheet: React.FC<Props> = ({ data }) => {
                             </div>
 
                             {/* Hesaplama Alanı */}
-                            <div className="border-t-2 border-dashed border-zinc-300 pt-4 mt-auto">
+                            <div className="border-t-2 border-dashed border-zinc-300 pt-4 print:pt-1 mt-auto">
                                 <div className="flex justify-between items-center mb-3 text-sm">
                                     <span className="font-bold text-zinc-500">Toplam Tutar:</span>
                                     <div className="w-24 h-8 bg-zinc-100 border-2 border-zinc-200 rounded-lg"></div>
@@ -129,11 +129,12 @@ export const FinancialMarketSheet: React.FC<Props> = ({ data }) => {
             </div>
 
             {/* FOOTER */}
-            <div className="pt-4 mt-auto border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
+            <div className="pt-4 print:pt-1 mt-auto border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
                 <span>Neuro-Oogmatik Özel Eğitim Teknolojileri</span>
                 <span>Modül: Finansal Market • G: {tasks.length} • Raf: {shelves.length}</span>
             </div>
         </div>
     );
 };
+
 

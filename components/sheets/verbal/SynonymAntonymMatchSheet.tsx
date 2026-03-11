@@ -14,16 +14,16 @@ export const SynonymAntonymMatchSheet = ({ data }: { data: SynonymAntonymMatchDa
         note={data.pedagogicalNote}
       />
 
-      <div className="flex flex-col gap-10 print:gap-4 print:p-4 mt-6">
-        <div className="grid grid-cols-2 gap-x-20 gap-y-6 pb-10 border-b-2 border-zinc-100">
+      <div className="flex flex-col gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1 mt-6 print:mt-2">
+        <div className="grid grid-cols-2 gap-x-20 gap-y-6 pb-10 print:pb-3 border-b-2 border-zinc-100">
           <div className="space-y-4">
-            <h5 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-4">
+            <h5 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-4 print:mb-1">
               KELİMELER
             </h5>
             {data.pairs.map((pair, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-4 border-2 border-zinc-800 rounded-2xl bg-zinc-50 relative group"
+                className="flex items-center justify-between p-4 print:p-1 border-2 border-zinc-800 rounded-2xl bg-zinc-50 relative group"
               >
                 <span className="font-black text-xl uppercase">
                   <EditableText value={pair.source} tag="span" />
@@ -33,13 +33,13 @@ export const SynonymAntonymMatchSheet = ({ data }: { data: SynonymAntonymMatchDa
             ))}
           </div>
           <div className="space-y-4">
-            <h5 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-4">
+            <h5 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-4 print:mb-1">
               ANLAMLAR
             </h5>
             {shuffledTargets.map((pair, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-start p-4 border-2 border-zinc-200 border-dashed rounded-2xl bg-white relative group hover:border-emerald-500 transition-all cursor-default"
+                className="flex items-center justify-start p-4 print:p-1 border-2 border-zinc-200 border-dashed rounded-2xl bg-white relative group hover:border-emerald-500 transition-all cursor-default"
               >
                 <div className="w-5 h-5 rounded-full border-2 border-zinc-200 bg-white absolute -left-2.5 top-1/2 -translate-y-1/2 group-hover:border-emerald-500 transition-colors shadow-sm"></div>
                 <span className="font-bold text-xl uppercase ml-6 text-zinc-500 group-hover:text-zinc-900">
@@ -57,7 +57,7 @@ export const SynonymAntonymMatchSheet = ({ data }: { data: SynonymAntonymMatchDa
           {data.sentences.map((sent, idx) => (
             <EditableElement
               key={idx}
-              className="p-5 bg-indigo-50/30 border-l-8 border-indigo-500 rounded-r-3xl"
+              className="p-5 print:p-1 bg-indigo-50/30 border-l-8 border-indigo-500 rounded-r-3xl"
             >
               <p className="text-xl leading-relaxed italic text-zinc-800">
                 {sent.text.split('_______').map((part, i, arr) => (
@@ -78,5 +78,6 @@ export const SynonymAntonymMatchSheet = ({ data }: { data: SynonymAntonymMatchDa
     </div>
   );
 };
+
 
 

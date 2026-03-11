@@ -13,18 +13,18 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
 
     if (isSideBySide && data.gridA && data.gridB) {
         return (
-            <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+            <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
                 <PedagogicalHeader
                     title={data?.title || "FARK BULMACA: TABLO KARŞILAŞTIRMA"}
                     instruction={data?.instruction || `Sol taraftaki tablo ile sağ taraftaki tablo arasındaki ${data.diffCount || ''} farkı bulun.`}
                     note={data?.pedagogicalNote}
                 />
 
-                <div className="flex-1 flex flex-col md:flex-row gap-8 print:gap-3 print:p-3 mt-8 items-start justify-center px-4">
+                <div className="flex-1 flex flex-col md:flex-row gap-8 print:gap-2 print:gap-3 print:p-3 mt-8 print:mt-2 items-start justify-center px-4 print:px-1">
                     {/* Tablo A */}
-                    <div className="flex-1 flex flex-col items-center gap-4">
-                        <span className="px-4 py-1.5 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md">REFERANS TABLO</span>
-                        <div className="grid gap-2 p-4 border-4 border-zinc-900 bg-white rounded-[2rem] shadow-xl" style={{ gridTemplateColumns: `repeat(${data.gridA[0].length}, 1fr)` }}>
+                    <div className="flex-1 flex flex-col items-center gap-4 print:gap-1">
+                        <span className="px-4 print:px-1 py-1.5 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md">REFERANS TABLO</span>
+                        <div className="grid gap-2 p-4 print:p-1 border-4 border-zinc-900 bg-white rounded-[2rem] shadow-xl" style={{ gridTemplateColumns: `repeat(${data.gridA[0].length}, 1fr)` }}>
                             {data.gridA.flat().map((cell, i) => (
                                 <div key={i} className="w-12 h-12 border-2 border-zinc-100 rounded-xl flex items-center justify-center font-black text-xl bg-zinc-50/50">
                                     <EditableText value={String(cell)} tag="span" />
@@ -33,16 +33,16 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
                         </div>
                     </div>
 
-                    {/* Ayırıcı / Ok h-full flex items-center justify-center hidden md:flex */}
+                    {/* Ayırıcı / Ok h-full print:h-0 flex items-center justify-center hidden md:flex */}
                     <div className="self-center flex flex-col items-center opacity-20 hidden md:flex">
                         <i className="fa-solid fa-chevron-right text-4xl"></i>
                         <span className="text-[8px] font-black mt-2">KARŞILAŞTIR</span>
                     </div>
 
                     {/* Tablo B (Farkların İşaretleneceği Yer) */}
-                    <div className="flex-1 flex flex-col items-center gap-4">
-                        <span className="px-4 py-1.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md">FARKLI OLANI İŞARETLE</span>
-                        <div className="grid gap-2 p-4 border-4 border-indigo-600 bg-white rounded-[2rem] shadow-xl" style={{ gridTemplateColumns: `repeat(${data.gridB[0].length}, 1fr)` }}>
+                    <div className="flex-1 flex flex-col items-center gap-4 print:gap-1">
+                        <span className="px-4 print:px-1 py-1.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md">FARKLI OLANI İŞARETLE</span>
+                        <div className="grid gap-2 p-4 print:p-1 border-4 border-indigo-600 bg-white rounded-[2rem] shadow-xl" style={{ gridTemplateColumns: `repeat(${data.gridB[0].length}, 1fr)` }}>
                             {data.gridB.flat().map((cell, i) => (
                                 <div key={i} className="w-12 h-12 border-2 border-indigo-100 rounded-xl flex items-center justify-center font-black text-xl hover:bg-indigo-50 cursor-pointer transition-colors relative group">
                                     <EditableText value={String(cell)} tag="span" />
@@ -54,8 +54,8 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
                 </div>
 
                 {/* Alt Bilgi Paneli */}
-                <div className="mt-12 p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                    <div className="flex gap-10 print:gap-4 print:p-4">
+                <div className="mt-12 print:mt-3 p-6 print:p-2 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
+                    <div className="flex gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1">
                         <div className="flex flex-col">
                             <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">KLİNİK MODÜL</span>
                             <span className="text-xs font-black uppercase whitespace-nowrap">Karşılaştırmalı Görsel Analiz</span>
@@ -80,14 +80,14 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
     else if (isGridCompact) gridCols = "grid-cols-2";
 
     return (
-        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
             <PedagogicalHeader
                 title={data?.title || "FARKLI OLANI BUL & AYRIŞTIRMA"}
                 instruction={data?.instruction || "Diğerlerinden farklı olan öğeyi bulun ve işaretleyin."}
                 note={data?.pedagogicalNote}
             />
 
-            <div className={`grid ${gridCols} gap-4 mt-6 flex-1 content-start pb-10`}>
+            <div className={`grid ${gridCols} gap-4 print:gap-1 mt-6 print:mt-2 flex-1 content-start pb-10 print:pb-3`}>
                 {rows.map((row, index) => {
                     const items = row?.items || [];
                     const isHard = row?.visualDistractionLevel === 'high' || row?.visualDistractionLevel === 'extreme';
@@ -97,7 +97,7 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
                         <EditableElement
                             key={index}
                             className={`
-                                flex flex-col p-4 border-2 border-zinc-100 rounded-[2.5rem] bg-zinc-50/30 transition-all break-inside-avoid relative group hover:bg-white hover:border-indigo-200 hover:shadow-lg
+                                flex flex-col p-4 print:p-1 border-2 border-zinc-100 rounded-[2.5rem] bg-zinc-50/30 transition-all break-inside-avoid relative group hover:bg-white hover:border-indigo-200 hover:shadow-lg
                                 ${isUltraDense ? 'p-3' : ''}
                             `}
                         >
@@ -156,8 +156,8 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
             </div>
 
             {/* Footer Protokolü */}
-            <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10 print:gap-4 print:p-4">
+            <div className="mt-auto p-6 print:p-2 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
+                <div className="flex gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">KLİNİK MODÜL</span>
                         <span className="text-xs font-black uppercase">Görsel Seçicilik & Ketleme</span>
@@ -171,5 +171,6 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
         </div>
     );
 };
+
 
 

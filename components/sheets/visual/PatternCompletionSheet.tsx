@@ -26,13 +26,13 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
 
     const renderCellContent = (cell: PatternCell) => {
         if (cell.isMissing) {
-            return <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-100 rounded-xl border-4 border-dashed border-zinc-300 text-5xl text-zinc-300"><i className="fa-solid fa-question"></i></div>;
+            return <div className="w-full h-full print:h-0 flex flex-col items-center justify-center bg-zinc-100 rounded-xl border-4 border-dashed border-zinc-300 text-5xl text-zinc-300"><i className="fa-solid fa-question"></i></div>;
         }
 
         if (patternType === 'geometric' && cell.shapes) {
             return (
-                <div className="w-full h-full flex items-center justify-center p-2 relative bg-white border-2 border-slate-200 rounded-xl shadow-sm">
-                    <svg viewBox="0 0 100 100" className="w-full h-full max-w-[80%] max-h-[80%] overflow-visible drop-shadow-sm">
+                <div className="w-full h-full print:h-0 flex items-center justify-center p-2 relative bg-white border-2 border-slate-200 rounded-xl shadow-sm">
+                    <svg viewBox="0 0 100 100" className="w-full h-full print:h-0 max-w-[80%] max-h-[80%] overflow-visible drop-shadow-sm">
                         {cell.shapes.map((shape, i) => (
                             <g key={i} style={{ transformOrigin: '50% 50%', transform: `rotate(${shape.rotation || 0}deg)` }}>
                                 {renderShape(shape.type, shape.color)}
@@ -46,7 +46,7 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
         if (patternType === 'color_blocks') {
             return (
                 <div
-                    className="w-full h-full rounded-xl border-4 border-slate-800 shadow-[2px_2px_0px_#1e293b]"
+                    className="w-full h-full print:h-0 rounded-xl border-4 border-slate-800 shadow-[2px_2px_0px_#1e293b]"
                     style={{ backgroundColor: cell.color || '#fff' }}
                 ></div>
             );
@@ -54,19 +54,19 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
 
         if (patternType === 'logic_sequence') {
             return (
-                <div className="w-full h-full flex items-center justify-center bg-blue-50 border-4 border-blue-900 rounded-xl shadow-[4px_4px_0px_#1e3a8a]">
+                <div className="w-full h-full print:h-0 flex items-center justify-center bg-blue-50 border-4 border-blue-900 rounded-xl shadow-[4px_4px_0px_#1e3a8a]">
                     <span className="text-4xl lg:text-5xl font-black text-blue-900">{cell.content}</span>
                 </div>
             );
         }
 
-        return <div className="w-full h-full bg-slate-100 rounded-xl border-2 border-slate-300"></div>;
+        return <div className="w-full h-full print:h-0 bg-slate-100 rounded-xl border-2 border-slate-300"></div>;
     };
 
     return (
-        <div className="w-full h-full p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-full print:h-0 p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* BAŞLIK */}
-            <div className="flex justify-between items-center border-b-4 border-sky-500 pb-4 mb-8">
+            <div className="flex justify-between items-center border-b-4 border-sky-500 pb-4 print:pb-1 mb-8 print:mb-2">
                 <div>
                     <h1 className="text-4xl font-black text-sky-900 tracking-tighter uppercase">{data.content?.title || "Kafayı Çalıştır!"}</h1>
                     <p className="text-sm font-bold text-sky-600 mt-1 uppercase tracking-widest">{data.content?.instruction || "Eksik parçayı bul ve işaretle."}</p>
@@ -76,13 +76,13 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-12 print:gap-4 page-break-inside-avoid px-8">
+            <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-12 print:gap-3 print:gap-4 print:gap-1 page-break-inside-avoid px-8 print:px-2">
 
                 {/* MATRIX (IZGARA) ALANI */}
-                <div className="w-full lg:w-1/2 max-w-[400px] aspect-square bg-slate-50 border-8 border-slate-300 rounded-[2rem] p-4 shadow-md page-break-inside-avoid flex items-center justify-center shrink-0">
+                <div className="w-full lg:w-1/2 max-w-[400px] aspect-square bg-slate-50 border-8 border-slate-300 rounded-[2rem] p-4 print:p-1 shadow-md page-break-inside-avoid flex items-center justify-center shrink-0">
 
                     <div
-                        className="grid gap-3 w-full h-full"
+                        className="grid gap-3 w-full h-full print:h-0"
                         style={{
                             gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
                             gridTemplateRows: `repeat(${gridSize}, minmax(0, 1fr))`
@@ -90,7 +90,7 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
                     >
                         {/* 1D array to Grid render */}
                         {matrix.map((cell, idx) => (
-                            <div key={idx} style={{ gridColumn: cell.x + 1, gridRow: cell.y + 1 }} className="h-full w-full">
+                            <div key={idx} style={{ gridColumn: cell.x + 1, gridRow: cell.y + 1 }} className="h-full print:h-0 w-full">
                                 {renderCellContent(cell)}
                             </div>
                         ))}
@@ -99,9 +99,9 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
                 </div>
 
                 {/* SEÇENEKLER (A, B, C, D) OY KUTUSU GİBİ */}
-                <div className="w-full lg:w-1/2 flex flex-col gap-6 max-w-[400px]">
+                <div className="w-full lg:w-1/2 flex flex-col gap-6 print:gap-2 max-w-[400px]">
                     <h3 className="text-xl font-black text-slate-800 uppercase tracking-widest text-center mb-2">Şıklar</h3>
-                    <div className="grid grid-cols-2 gap-6 w-full">
+                    <div className="grid grid-cols-2 gap-6 print:gap-2 w-full">
                         {options.map((opt, idx) => (
                             <div key={idx} className="flex flex-col items-center gap-3 group relative cursor-pointer">
                                 {/* Şık Kutusu */}
@@ -123,12 +123,13 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data }) => {
             </div>
 
             {/* FOOTER */}
-            <div className="pt-4 mt-auto border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
+            <div className="pt-4 print:pt-1 mt-auto border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
                 <span>Neuro-Oogmatik Özel Eğitim Teknolojileri</span>
                 <span>Modül: Kafayı Çalıştır • IQ Matrisi: {gridSize}x{gridSize}</span>
             </div>
         </div >
     );
 };
+
 
 

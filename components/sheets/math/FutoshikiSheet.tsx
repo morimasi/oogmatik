@@ -35,17 +35,17 @@ export const FutoshikiSheet = ({ data }: { data: FutoshikiData }) => {
     const gridCols = firstSize > 5 ? 'grid-cols-1' : (puzzles.length > 1 ? 'grid-cols-2' : 'grid-cols-1');
 
     return (
-        <div className="flex flex-col font-lexend mt-8">
+        <div className="flex flex-col font-lexend mt-8 print:mt-2">
             <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
-            <div className={`grid ${gridCols} gap-12 print:gap-4 mt-12 mb-8 items-start`}>
+            <div className={`grid ${gridCols} gap-12 print:gap-3 print:gap-4 print:gap-1 mt-12 print:mt-3 mb-8 print:mb-2 items-start`}>
                 {puzzles.map((p, i: number) => (
                     <div key={i} className="flex flex-col items-center break-inside-avoid">
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500 mb-6 bg-indigo-50 px-4 py-1.5 rounded-2xl border border-indigo-100 shadow-sm">
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500 mb-6 print:mb-2 bg-indigo-50 px-4 print:px-1 py-1.5 rounded-2xl border border-indigo-100 shadow-sm">
                             SEVİYE #{i + 1} • {p.size}x{p.size} IZGARA
                         </span>
 
                         <div
-                            className="bg-white/40 backdrop-blur-md p-8 print:p-3 rounded-[3rem] border-4 border-slate-100 relative shadow-xl"
+                            className="bg-white/40 backdrop-blur-md p-8 print:p-2 print:p-3 rounded-[3rem] border-4 border-slate-100 relative shadow-xl"
                             style={{
                                 display: 'grid',
                                 gridTemplateColumns: `repeat(${p.size * 2 - 1}, auto)`,
@@ -109,5 +109,6 @@ export const FutoshikiSheet = ({ data }: { data: FutoshikiData }) => {
         </div>
     );
 };
+
 
 

@@ -28,9 +28,9 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
     };
 
     return (
-        <div className="w-full h-full p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-full print:h-0 p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* ETKİNLİK BAŞLIĞI */}
-            <div className="flex justify-between items-center border-b-4 border-indigo-500 pb-4 mb-6">
+            <div className="flex justify-between items-center border-b-4 border-indigo-500 pb-4 print:pb-1 mb-6 print:mb-2">
                 <div>
                     <h1 className="text-4xl font-black text-indigo-900 tracking-tighter uppercase">{data.content?.title || "Gizli Rota"}</h1>
                     <p className="text-sm font-bold text-indigo-600 mt-1 uppercase tracking-widest">{data.content?.storyIntro || "Kodları takip et, hedefe ulaş."}</p>
@@ -40,7 +40,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                 </div>
             </div>
 
-            <div className="flex-1 flex gap-8 print:gap-3 print:p-3 items-start page-break-inside-avoid">
+            <div className="flex-1 flex gap-8 print:gap-2 print:gap-3 print:p-3 items-start page-break-inside-avoid">
 
                 {/* YÖN GÖSTERGESİ PUSULASI */}
                 <div className="absolute top-8 print:p-3 left-1/2 -translate-x-1/2 rotate-0 opacity-10 pointer-events-none z-0">
@@ -48,10 +48,10 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                 </div>
 
                 {/* GRID (LABİRENT) 2D MATRİS */}
-                <div className="relative w-[60%] aspect-square bg-slate-50 border-4 border-indigo-900 rounded-3xl p-4 shadow-sm page-break-inside-avoid flex items-center justify-center z-10">
+                <div className="relative w-[60%] aspect-square bg-slate-50 border-4 border-indigo-900 rounded-3xl p-4 print:p-1 shadow-sm page-break-inside-avoid flex items-center justify-center z-10">
 
                     <div
-                        className="grid gap-[2px] w-full h-full"
+                        className="grid gap-[2px] w-full h-full print:h-0"
                         style={{
                             gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
                             gridTemplateRows: `repeat(${gridSize}, minmax(0, 1fr))`
@@ -92,8 +92,8 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                 </div>
 
                 {/* KOD (INSTRUCTION) BLOGU */}
-                <div className="w-[40%] bg-white border-[3px] border-zinc-900 rounded-[2rem] p-6 shadow-[8px_8px_0px_#1e1b4b] overflow-hidden relative page-break-inside-avoid h-full z-10 flex flex-col">
-                    <div className="flex justify-between items-center mb-6 border-b-2 border-zinc-200 pb-3">
+                <div className="w-[40%] bg-white border-[3px] border-zinc-900 rounded-[2rem] p-6 print:p-2 shadow-[8px_8px_0px_#1e1b4b] overflow-hidden relative page-break-inside-avoid h-full print:h-0 z-10 flex flex-col">
+                    <div className="flex justify-between items-center mb-6 print:mb-2 border-b-2 border-zinc-200 pb-3">
                         <span className="text-sm font-black text-zinc-800 uppercase tracking-widest bg-zinc-100 px-3 py-1 rounded">Rotalama Kodları</span>
                         <i className="fa-solid fa-terminal text-zinc-400"></i>
                     </div>
@@ -115,7 +115,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
 
                     {/* LEHÇE/ANAHTAR */}
                     {cipherType === 'letters' && (
-                        <div className="mt-4 pt-4 border-t-2 border-dashed border-zinc-200 translate-y-2">
+                        <div className="mt-4 print:mt-1 pt-4 print:pt-1 border-t-2 border-dashed border-zinc-200 translate-y-2">
                             <div className="grid grid-cols-2 gap-2 text-[10px] font-bold text-zinc-500 bg-zinc-50 p-3 rounded-xl border border-zinc-200">
                                 <span><strong className="text-zinc-800">Y:</strong> Yukarı</span>
                                 <span><strong className="text-zinc-800">A:</strong> Aşağı</span>
@@ -125,7 +125,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                         </div>
                     )}
                     {cipherType === 'colors' && (
-                        <div className="mt-4 pt-4 border-t-2 border-dashed border-zinc-200 translate-y-2">
+                        <div className="mt-4 print:mt-1 pt-4 print:pt-1 border-t-2 border-dashed border-zinc-200 translate-y-2">
                             <div className="grid grid-cols-2 gap-2 text-[10px] font-bold text-zinc-500 bg-zinc-50 p-3 rounded-xl border border-zinc-200">
                                 <span className="text-blue-600 font-black">MAVİ: Yukarı</span>
                                 <span className="text-yellow-600 font-black">SARI: Aşağı</span>
@@ -139,12 +139,13 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
             </div >
 
             {/* FOOTER */}
-            < div className="pt-4 mt-auto border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest" >
+            < div className="pt-4 print:pt-1 mt-auto border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest" >
                 <span>Neuro-Oogmatik Özel Eğitim Teknolojileri</span>
                 <span>Modül: Şifreli Algoritma • Izgara: {gridSize}x{gridSize} • Adım: {instructions.length}</span>
             </div >
         </div >
     );
 };
+
 
 

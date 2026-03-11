@@ -107,12 +107,12 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
         instruction={data.instruction}
         note={data.pedagogicalNote}
       />
-      <div className="flex flex-col gap-10 print:gap-4 print:p-4 mt-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 content-start">
+      <div className="flex flex-col gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1 mt-6 print:mt-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:gap-1 content-start">
           {items.map((item, i) => renderItem(item, i))}
         </div>
       </div>
-      <div className="mt-10 pt-6 border-t border-zinc-100 flex justify-between items-center opacity-40">
+      <div className="mt-10 print:mt-3 pt-6 print:pt-2 border-t border-zinc-100 flex justify-between items-center opacity-40">
         <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-[0.5em]">
           Bursa Disleksi AI • Bilişsel Dil Laboratuvarı
         </p>
@@ -121,5 +121,6 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
     </div>
   );
 };
+
 
 

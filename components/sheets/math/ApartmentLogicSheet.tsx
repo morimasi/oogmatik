@@ -17,9 +17,9 @@ export const ApartmentLogicSheet: React.FC<Props> = ({ data }) => {
     const roomIndices = Array.from({ length: roomsPerFloor }).map((_, i) => i + 1); // 1, 2, 3.. daire
 
     return (
-        <div className="w-full h-full p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
+        <div className="w-full h-full print:h-0 p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-900 print:p-0 print:border-none border border-zinc-200">
             {/* ETKİNLİK BAŞLIĞI */}
-            <div className="flex justify-between items-center border-b-4 border-orange-400 pb-4 mb-6">
+            <div className="flex justify-between items-center border-b-4 border-orange-400 pb-4 print:pb-1 mb-6 print:mb-2">
                 <div>
                     <h1 className="text-4xl font-black text-orange-900 tracking-tighter uppercase">{data.content?.title || "Zebra Apartmanı"}</h1>
                     <p className="text-sm font-bold text-orange-600 mt-1 uppercase tracking-widest">Uzamsal Mantık • Zorluk: {data.settings?.difficulty.toUpperCase()}</p>
@@ -29,19 +29,19 @@ export const ApartmentLogicSheet: React.FC<Props> = ({ data }) => {
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col gap-6">
+            <div className="flex-1 flex flex-col gap-6 print:gap-2">
 
                 {/* SVG APARTMAN GÖRSELLEŞTİRMESİ */}
-                <div className="w-full bg-orange-50/50 rounded-t-[3rem] rounded-b-xl border-4 border-orange-100 p-8 print:p-3 flex flex-col items-center relative print:bg-white min-h-[300px]">
+                <div className="w-full bg-orange-50/50 rounded-t-[3rem] rounded-b-xl border-4 border-orange-100 p-8 print:p-2 print:p-3 flex flex-col items-center relative print:bg-white min-h-[300px]">
                     {/* Çatı Çizimi */}
                     <div className="w-[80%] h-12 flex justify-center items-end opacity-20 relative top-2">
                         <div className="w-0 h-0 border-l-[150px] border-l-transparent border-r-[150px] border-r-transparent border-b-[50px] border-b-orange-900"></div>
                     </div>
 
-                    <div className="bg-orange-900/5 border-2 border-orange-900/20 p-4 rounded-xl shadow-inner">
+                    <div className="bg-orange-900/5 border-2 border-orange-900/20 p-4 print:p-1 rounded-xl shadow-inner">
                         <div className="flex flex-col gap-3">
                             {floorHeights.map((floorNum) => (
-                                <div key={`floor-${floorNum}`} className="flex items-center gap-4">
+                                <div key={`floor-${floorNum}`} className="flex items-center gap-4 print:gap-1">
                                     {/* Kat Göstergesi */}
                                     <div className="w-12 h-24 bg-orange-100 border border-orange-200 rounded-l-xl flex items-center justify-center -ml-8">
                                         <span className="font-black text-orange-800 -rotate-90 text-xs tracking-widest block w-max">{floorNum}. KAT</span>
@@ -76,8 +76,8 @@ export const ApartmentLogicSheet: React.FC<Props> = ({ data }) => {
                 </div>
 
                 {/* CEVAP TABLOSU / LEJANT */}
-                <div className="w-full flex gap-4">
-                    <div className="flex-1 bg-white border-2 border-zinc-200 rounded-2xl p-4 shadow-sm page-break-inside-avoid">
+                <div className="w-full flex gap-4 print:gap-1">
+                    <div className="flex-1 bg-white border-2 border-zinc-200 rounded-2xl p-4 print:p-1 shadow-sm page-break-inside-avoid">
                         <h3 className="text-sm font-black text-zinc-800 uppercase tracking-widest mb-3 border-b border-zinc-100 pb-2 flex justify-between">
                             <span>Araştırma Tablosu</span>
                             <span className="text-[10px] text-zinc-400">Not Almak İçin Kullanabilirsin</span>
@@ -102,8 +102,8 @@ export const ApartmentLogicSheet: React.FC<Props> = ({ data }) => {
                     </div>
 
                     {/* İPUÇLARI */}
-                    <div className="w-[60%] bg-zinc-50 border-2 border-orange-100 rounded-2xl p-6 shadow-sm page-break-inside-avoid">
-                        <h3 className="text-sm font-black text-orange-800 uppercase tracking-widest flex items-center gap-2 mb-4 border-b border-orange-50 pb-2">
+                    <div className="w-[60%] bg-zinc-50 border-2 border-orange-100 rounded-2xl p-6 print:p-2 shadow-sm page-break-inside-avoid">
+                        <h3 className="text-sm font-black text-orange-800 uppercase tracking-widest flex items-center gap-2 mb-4 print:mb-1 border-b border-orange-50 pb-2">
                             <i className="fa-solid fa-list-check"></i> Komşu İpuçları
                         </h3>
                         <ul className="space-y-3">
@@ -120,11 +120,12 @@ export const ApartmentLogicSheet: React.FC<Props> = ({ data }) => {
             </div>
 
             {/* FOOTER */}
-            <div className="pt-4 mt-auto border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
+            <div className="pt-4 print:pt-1 mt-auto border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
                 <span>Neuro-Oogmatik Özel Eğitim Teknolojileri</span>
                 <span>Modül: Apartman Mantığı • Kat: {floors} • Daire: {totalRooms}</span>
             </div>
         </div>
     );
 };
+
 

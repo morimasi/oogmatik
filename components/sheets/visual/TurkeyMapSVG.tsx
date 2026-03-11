@@ -176,3 +176,4 @@ export const TurkeyMapSVG: React.FC<TurkeyMapSVGProps> = ({
         </svg>
     );
 };
+

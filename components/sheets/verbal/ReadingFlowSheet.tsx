@@ -11,13 +11,13 @@ export const ReadingFlowSheet = ({ data }: { data: ReadingFlowData }) => (
       instruction="Metni önce heceleyerek, sonra akıcı bir şekilde oku."
       note={data.pedagogicalNote}
     />
-    <div className="mt-10 p-12 print:p-4 bg-zinc-50 border-4 border-zinc-100 rounded-[3.5rem] shadow-inner flex flex-col justify-center overflow-hidden">
+    <div className="mt-10 print:mt-3 p-12 print:p-3 print:p-4 print:p-1 bg-zinc-50 border-4 border-zinc-100 rounded-[3.5rem] shadow-inner flex flex-col justify-center overflow-hidden">
       {(data.text?.paragraphs || []).map((p, pIdx) => (
-        <div key={pIdx} className="mb-8 last:mb-0">
+        <div key={pIdx} className="mb-8 print:mb-2 last:mb-0">
           {(p.sentences || []).map((s, sIdx) => (
             <p
               key={sIdx}
-              className="text-3xl leading-[2.5] font-dyslexic text-zinc-800 text-justify tracking-wide mb-6"
+              className="text-3xl leading-[2.5] font-dyslexic text-zinc-800 text-justify tracking-wide mb-6 print:mb-2"
             >
               {(s.syllables || []).map((syl, sylIdx) => (
                 <span
@@ -34,4 +34,5 @@ export const ReadingFlowSheet = ({ data }: { data: ReadingFlowData }) => (
     </div>
   </div>
 );
+
 

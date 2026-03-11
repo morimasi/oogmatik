@@ -5,7 +5,7 @@ import { EditableText } from '../../Editable';
 
 export const MagicPyramidSheet = ({ data }: { data: MagicPyramidData }) => {
     return (
-        <div className="w-full flex flex-col gap-8 print:gap-3 print:p-3 p-4">
+        <div className="w-full flex flex-col gap-8 print:gap-2 print:gap-3 print:p-3 p-4 print:p-1">
             <PedagogicalHeader
                 title={data.title}
                 instruction={data.instruction || "En üstte verilen sayıdan başlayarak, yukarıdan aşağıya doğru ritmik sayma kurallarına uyarak ilerleyin. Her satırda sadece 1 hücre seçmelisiniz."}
@@ -13,8 +13,8 @@ export const MagicPyramidSheet = ({ data }: { data: MagicPyramidData }) => {
             />
 
             {data.pyramids.map((pyramid, pIndex) => (
-                <div key={pIndex} className="flex flex-col items-center bg-slate-50/50 rounded-2xl p-6 border border-slate-100">
-                    <div className="mb-6 px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-medium text-sm flex items-center gap-2 shadow-sm">
+                <div key={pIndex} className="flex flex-col items-center bg-slate-50/50 rounded-2xl p-6 print:p-2 border border-slate-100">
+                    <div className="mb-6 print:mb-2 px-4 print:px-1 py-2 bg-amber-100 text-amber-800 rounded-full font-medium text-sm flex items-center gap-2 shadow-sm">
                         <i className="fa-solid fa-arrow-down-1-9"></i>
                         {data.instructionPrefix || `${pyramid.step}'er ritmik sayma`}
                     </div>
@@ -49,5 +49,6 @@ export const MagicPyramidSheet = ({ data }: { data: MagicPyramidData }) => {
         </div>
     );
 };
+
 
 

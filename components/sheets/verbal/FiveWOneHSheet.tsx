@@ -10,9 +10,9 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
     const fontFamily = data.settings?.fontFamily || 'Comic Sans MS';
 
     return (
-        <div className="w-full h-full p-8 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-800 print:p-0 print:border-none border border-zinc-200" style={{ fontFamily }}>
+        <div className="w-full h-full print:h-0 p-8 print:p-2 print:p-3 flex flex-col bg-white overflow-hidden text-zinc-800 print:p-0 print:border-none border border-zinc-200" style={{ fontFamily }}>
             {/* ETKİNLİK BAŞLIĞI */}
-            <div className="flex justify-between items-center border-b-4 border-indigo-400 pb-4 mb-8">
+            <div className="flex justify-between items-center border-b-4 border-indigo-400 pb-4 print:pb-1 mb-8 print:mb-2">
                 <div>
                     <h1 className="text-4xl font-black text-indigo-900 tracking-tighter uppercase">{data.content.title}</h1>
                     <p className="text-sm font-bold text-indigo-500/70 mt-1 uppercase tracking-widest">{data.settings?.topic} • 5N1K Çözümlemesi</p>
@@ -24,15 +24,15 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
             </div>
 
             {/* MİMARİ A4 YERLEŞİMİ : ÜSTTE METİN, ALTTA SORULAR */}
-            <div className="flex-1 flex flex-col gap-10 print:gap-4 print:p-4">
+            <div className="flex-1 flex flex-col gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1">
                 {/* 1. OKUMA ALANI */}
-                <div className="bg-indigo-50/50 rounded-[2rem] p-8 print:p-3 border-2 border-indigo-100 relative">
+                <div className="bg-indigo-50/50 rounded-[2rem] p-8 print:p-2 print:p-3 border-2 border-indigo-100 relative">
                     <div className="absolute -top-4 -left-4 w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center text-white text-xl font-black shadow-lg shadow-indigo-200">
                         <i className="fa-solid fa-book-open"></i>
                     </div>
-                    <h2 className="text-xl font-black text-indigo-800 mb-4 ml-6 uppercase underline decoration-indigo-300 decoration-4 underline-offset-4">Hikayeyi Oku</h2>
+                    <h2 className="text-xl font-black text-indigo-800 mb-4 print:mb-1 ml-6 uppercase underline decoration-indigo-300 decoration-4 underline-offset-4">Hikayeyi Oku</h2>
 
-                    <div className="space-y-4 text-justify px-4">
+                    <div className="space-y-4 text-justify px-4 print:px-1">
                         {data.content.paragraphs.map((p, i) => (
                             <p key={i} className="text-2xl leading-[2.5] font-medium text-slate-800 indent-12">
                                 {data.settings?.syllableColoring ?
@@ -54,7 +54,7 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
 
                 {/* 2. SORULAR ALANI (Kompakt Grid) */}
                 <div className="flex-1">
-                    <h2 className="text-2xl font-black text-indigo-900 mb-6 flex items-center gap-3">
+                    <h2 className="text-2xl font-black text-indigo-900 mb-6 print:mb-2 flex items-center gap-3">
                         <span className="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-white text-lg"><i className="fa-solid fa-circle-question"></i></span>
                         Soruları Cevapla
                     </h2>
@@ -81,7 +81,7 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
 
                                 {/* Açık Uçlu (Boşluk Yazma) ise */}
                                 {(q.answerType === 'open_ended' || q.answerType === 'fill_in_the_blank') && (
-                                    <div className="mt-4 pt-4 border-b-2 border-dashed border-slate-300 w-full relative">
+                                    <div className="mt-4 print:mt-1 pt-4 print:pt-1 border-b-2 border-dashed border-slate-300 w-full relative">
                                         <i className="fa-solid fa-pen text-slate-200 absolute right-0 -top-2"></i>
                                     </div>
                                 )}
@@ -92,12 +92,13 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
             </div>
 
             {/* FOOTER */}
-            <div className="mt-8 pt-4 border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
+            <div className="mt-8 print:mt-2 pt-4 print:pt-1 border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
                 <span>Neuro-Oogmatik Özel Eğitim Teknolojileri</span>
                 <span>Modül: 5N1K Okuma-Anlama • Seviye: {data.settings?.difficulty.toUpperCase()}</span>
             </div>
         </div>
     );
 };
+
 
 

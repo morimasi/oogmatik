@@ -7,10 +7,10 @@ import { EditableElement, EditableText } from '../../Editable';
 export const NumberPyramidSheet = ({ data }: { data: NumberPyramidData }) => (
     <div className="flex flex-col font-lexend">
         <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 print:gap-4 mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 print:gap-3 print:gap-4 print:gap-1 mt-10 print:mt-3">
             {(data?.pyramids || []).map((p, i) => (
                 <div key={i} className="flex flex-col items-center gap-3 break-inside-avoid group">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-400 mb-4">PİRAMİT #{i + 1}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-400 mb-4 print:mb-1">PİRAMİT #{i + 1}</span>
                     {(p?.rows || []).map((row, r) => (
                         <div key={r} className="flex gap-3">
                             {(row || []).map((cell, c) => (
@@ -25,4 +25,5 @@ export const NumberPyramidSheet = ({ data }: { data: NumberPyramidData }) => (
         </div>
     </div>
 );
+
 

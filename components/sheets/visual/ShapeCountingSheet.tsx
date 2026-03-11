@@ -22,7 +22,7 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
     const gridCols = layout === 'grid_2x1' ? 'grid-cols-2' : (layout === 'grid_2x2' ? 'grid-cols-2' : 'grid-cols-1');
 
     return (
-        <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+        <div className="flex flex-col h-full print:h-0 bg-white font-sans text-black overflow-visible professional-worksheet">
             <PedagogicalHeader
                 title={data.title || "FİGÜR-ZEMİN & SEÇİCİ DİKKAT"}
                 instruction={data.instruction || "Aşağıdaki karmaşık alanda hedef şekli bulup kaç adet olduğunu yazın."}
@@ -30,34 +30,34 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
             />
 
             {/* Hedef Hatırlatıcı Panel - Premium */}
-            <div className="flex justify-center my-6">
-                <div className="bg-zinc-900 text-white px-10 py-4 rounded-[2.5rem] flex items-center gap-8 print:gap-3 print:p-3 shadow-2xl border-4 border-white ring-8 ring-zinc-50 transform hover:scale-105 transition-transform">
+            <div className="flex justify-center my-6 print:my-2">
+                <div className="bg-zinc-900 text-white px-10 print:px-3 py-4 print:py-1 rounded-[2.5rem] flex items-center gap-8 print:gap-2 print:gap-3 print:p-3 shadow-2xl border-4 border-white ring-8 ring-zinc-50 transform hover:scale-105 transition-transform">
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-1">ARANAN HEDEF</span>
                         <span className="text-xl font-black uppercase tracking-tighter">{settings?.targetShape || 'ÜÇGEN'}</span>
                     </div>
                     <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center p-2 border border-white/20">
-                        <svg viewBox="0 0 100 100" className="w-full h-full fill-amber-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.6)]">
+                        <svg viewBox="0 0 100 100" className="w-full h-full print:h-0 fill-amber-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.6)]">
                             <path d={SHAPE_PATHS[settings?.targetShape || 'triangle']} />
                         </svg>
                     </div>
                 </div>
             </div>
 
-            <div className={`grid ${gridCols} gap-6 mt-4 flex-1 content-start items-start pb-10`}>
+            <div className={`grid ${gridCols} gap-6 print:gap-2 mt-4 print:mt-1 flex-1 content-start items-start pb-10 print:pb-3`}>
                 {sections.map((section, idx) => (
                     <EditableElement
                         key={idx}
-                        className="flex flex-col border-2 border-zinc-100 rounded-[3rem] bg-zinc-50/50 group p-6 relative overflow-visible shadow-sm break-inside-avoid hover:border-indigo-200 hover:bg-white transition-all"
+                        className="flex flex-col border-2 border-zinc-100 rounded-[3rem] bg-zinc-50/50 group p-6 print:p-2 relative overflow-visible shadow-sm break-inside-avoid hover:border-indigo-200 hover:bg-white transition-all"
                     >
                         {/* Bölüm Başlığı */}
-                        <div className="absolute -top-3 left-10 px-4 py-1 bg-zinc-900 text-white rounded-xl font-black text-[9px] uppercase tracking-widest z-10 shadow-lg border-2 border-white">
+                        <div className="absolute -top-3 left-10 px-4 print:px-1 py-1 bg-zinc-900 text-white rounded-xl font-black text-[9px] uppercase tracking-widest z-10 shadow-lg border-2 border-white">
                             {section.title || `GÖRSEL SAHA ${idx + 1}`}
                         </div>
 
                         {/* Arama Alanı - High Quality */}
-                        <div className="relative aspect-video border-2 border-zinc-200 rounded-[2.5rem] bg-white overflow-hidden mb-6 shadow-inner ring-4 ring-zinc-50">
-                            <svg viewBox="0 0 100 100" className="w-full h-full">
+                        <div className="relative aspect-video border-2 border-zinc-200 rounded-[2.5rem] bg-white overflow-hidden mb-6 print:mb-2 shadow-inner ring-4 ring-zinc-50">
+                            <svg viewBox="0 0 100 100" className="w-full h-full print:h-0">
                                 {section.searchField.map((item: any) => (
                                     <path
                                         key={item.id}
@@ -78,7 +78,7 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
 
                         {/* Cevap & Klinik Bilgi */}
                         <div className="flex items-center justify-between px-2">
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 print:gap-1">
                                 <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none">Toplam:</span>
                                 <div className="w-20 h-14 border-b-4 border-zinc-900 bg-zinc-100 rounded-t-2xl flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
                                     <EditableText value="" tag="div" placeholder="?" className="font-black text-3xl text-zinc-900" />
@@ -102,8 +102,8 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
             </div>
 
             {/* Alt Bilgi - Klinik Tracker */}
-            <div className="mt-auto p-6 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10 print:gap-4 print:p-4">
+            <div className="mt-auto p-6 print:p-2 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
+                <div className="flex gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">BİLİŞSEL HEDEF</span>
                         <span className="text-xs font-black uppercase">Figür-Zemin & Ketleme</span>
@@ -117,5 +117,6 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
         </div>
     );
 };
+
 
 

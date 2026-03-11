@@ -12,7 +12,7 @@ const CompassRose = () => (
             <span className="absolute -bottom-1.5 text-[12px] font-black bg-white px-1 leading-none">G</span>
             <span className="absolute -left-2 text-[12px] font-black bg-white px-1 leading-none">B</span>
             <span className="absolute -right-2 text-[12px] font-black bg-white px-1 leading-none">D</span>
-            <div className="w-0.5 h-full bg-zinc-900 absolute left-1/2 -translate-x-1/2"></div>
+            <div className="w-0.5 h-full print:h-0 bg-zinc-900 absolute left-1/2 -translate-x-1/2"></div>
             <div className="h-0.5 w-full bg-zinc-900 absolute top-1/2 -translate-y-1/2"></div>
             <div className="w-3 h-3 bg-indigo-600 rounded-full z-10 border-2 border-white"></div>
         </div>
@@ -54,19 +54,19 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
     const isRegionFocused = data.cities && data.cities.length < 50;
 
     return (
-        <div className="flex flex-col h-full bg-white p-2 print:p-0 font-sans text-black overflow-visible">
+        <div className="flex flex-col h-full print:h-0 bg-white p-2 print:p-0 font-sans text-black overflow-visible">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
 
             {/* HARİTA KANVASI */}
-            <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 print:mb-4 group min-h-[450px] print:min-h-0 print:border-4 print:mb-6 print:rounded-3xl">
+            <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 print:mb-3 print:mb-4 print:mb-1 group min-h-[450px] print:min-h-0 print:border-4 print:mb-6 print:mb-2 print:rounded-3xl">
 
                 {/* Zemin Harita Katmanı — padding YOK, tam inset-0 */}
-                <div className="absolute inset-0 w-full h-full bg-slate-50 z-10 flex items-center justify-center">
+                <div className="absolute inset-0 w-full h-full print:h-0 bg-slate-50 z-10 flex items-center justify-center">
                     {isCustomMap ? (
                         <img
                             src={mapSource}
                             alt="Özel Harita"
-                            className="w-full h-full object-cover transition-all duration-700 absolute inset-0"
+                            className="w-full h-full print:h-0 object-cover transition-all duration-700 absolute inset-0"
                         />
                     ) : (
                         <TurkeyMapSVG
@@ -74,7 +74,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                             showRegionLabels={true}
                             width="100%"
                             height="100%"
-                            className="w-full h-full absolute inset-0 transition-all duration-700"
+                            className="w-full h-full print:h-0 absolute inset-0 transition-all duration-700"
                         />
                     )}
 
@@ -82,7 +82,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                     <svg
                         viewBox="0 0 1000 500"
                         preserveAspectRatio="xMidYMid meet"
-                        className="w-full h-full absolute inset-0 z-20 pointer-events-none"
+                        className="w-full h-full print:h-0 absolute inset-0 z-20 pointer-events-none"
                         style={{ top: 0, left: 0, position: 'absolute' }}
                     >
                         {/* GRID SİSTEMİ ÇİZİMİ */}
@@ -138,23 +138,23 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
 
                 {/* Pusula & Araçlar Overlay */}
                 {data.settings?.includeCompass !== false && (
-                    <div className="absolute bottom-8 right-10 flex items-end gap-10 print:gap-4 print:p-4 z-30 no-print">
+                    <div className="absolute bottom-8 right-10 flex items-end gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1 z-30 no-print">
                         <CompassRose />
                     </div>
                 )}
 
                 {/* Manuel Harita Modu Rozeti */}
                 {isCustomMap && (
-                    <div className="absolute top-8 print:p-3 right-10 bg-indigo-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border-2 border-white z-40 animate-in fade-in">
+                    <div className="absolute top-8 print:p-3 right-10 bg-indigo-600 text-white px-4 print:px-1 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border-2 border-white z-40 animate-in fade-in">
                         <i className="fa-solid fa-wand-magic-sparkles mr-2"></i>AI Analiz Aktif
                     </div>
                 )}
             </div>
 
             {/* YÖNERGE LİSTESİ */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 print:gap-x-4 gap-y-6 print:gap-y-3 p-8 print:p-4 bg-zinc-50 rounded-[4rem] print:rounded-2xl border-2 border-zinc-100 shadow-inner">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 print:gap-x-4 gap-y-6 print:gap-y-3 p-8 print:p-2 print:p-4 print:p-1 bg-zinc-50 rounded-[4rem] print:rounded-2xl border-2 border-zinc-100 shadow-inner">
                 {(data.instructions || []).map((inst, i) => (
-                    <EditableElement key={i} className="flex items-start gap-5 print:gap-3 p-5 print:p-3 bg-white rounded-[2rem] print:rounded-xl border border-zinc-200 shadow-sm hover:border-indigo-500 hover:shadow-indigo-100 transition-all group cursor-default">
+                    <EditableElement key={i} className="flex items-start gap-5 print:gap-1 print:gap-3 p-5 print:p-1 print:p-3 bg-white rounded-[2rem] print:rounded-xl border border-zinc-200 shadow-sm hover:border-indigo-500 hover:shadow-indigo-100 transition-all group cursor-default">
                         <div className="w-10 h-10 print:w-8 print:h-8 rounded-2xl print:rounded-xl bg-zinc-900 text-white flex items-center justify-center text-sm print:text-xs font-black shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-indigo-600 transition-all">
                             {i + 1}
                         </div>
@@ -170,8 +170,8 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                 ))}
             </div>
 
-            <div className="mt-auto pt-10 print:pt-4 flex justify-between items-center px-10 print:px-2 border-t border-zinc-100 opacity-30 print:opacity-50">
-                <div className="flex gap-12 print:gap-4">
+            <div className="mt-auto pt-10 print:pt-3 print:pt-4 print:pt-1 flex justify-between items-center px-10 print:px-3 print:px-2 border-t border-zinc-100 opacity-30 print:opacity-50">
+                <div className="flex gap-12 print:gap-3 print:gap-4 print:gap-1">
                     <div className="flex flex-col">
                         <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Sistem</span>
                         <span className="text-[11px] font-bold text-zinc-800 uppercase">Manuel Görsel Entegrasyonu</span>
@@ -183,7 +183,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                 </div>
                 <div className="flex flex-col items-end">
                     <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em] mb-1 text-right">Bursa Disleksi AI • Uzman Serisi</p>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 print:gap-1">
                         <i className="fa-solid fa-map-location-dot"></i>
                         <i className="fa-solid fa-brain"></i>
                     </div>
@@ -192,5 +192,6 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
         </div>
     );
 };
+
 
 
