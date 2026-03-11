@@ -246,7 +246,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
     const performanceTrends = useMemo(() => {
         if (assessments.length < 2) return null;
-        return assessments.slice(0, 5).reverse().map(a => ({
+        return assessments.slice(0, 5).reverse().map((a: SavedAssessment) => ({
             date: a.createdAt,
             puan: a.report.scores.attention || 0
         }));
