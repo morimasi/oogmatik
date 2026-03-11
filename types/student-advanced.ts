@@ -173,6 +173,54 @@ export interface StudentAIProfile {
     lastUpdated: string;
 }
 
+// 8. SETTINGS (Ayarlar)
+export interface Settings {
+    theme: {
+        mode: 'light' | 'dark' | 'system';
+        primaryColor: string;
+        fontSize: 'small' | 'medium' | 'large';
+        reduceMotion: boolean;
+    };
+    language: {
+        current: 'tr' | 'en' | 'de' | 'fr';
+        autoTranslateComments: boolean;
+    };
+    notifications: {
+        email: boolean;
+        push: boolean;
+        sms: boolean;
+        dailyDigest: boolean;
+        weeklyReport: boolean;
+        alertThresholds: {
+            attendance: number; // %
+            grade: number; // score
+            behavior: number; // points
+        };
+    };
+    privacy: {
+        shareDataWithAI: boolean;
+        visibleToParents: boolean;
+        anonymizeInReports: boolean;
+        dataRetentionDays: number;
+    };
+    accessibility: {
+        screenReaderOptimized: boolean;
+        highContrast: boolean;
+        dyslexiaFriendlyFont: boolean;
+    };
+    ai: {
+        enableSuggestions: boolean;
+        autoGenerateGoals: boolean;
+        sentimentAnalysis: boolean;
+        learningPathAdaptation: boolean;
+    };
+    backup: {
+        autoBackup: boolean;
+        lastBackupDate?: string;
+        frequency: 'daily' | 'weekly' | 'monthly';
+    };
+}
+
 // 7. MAIN AGGREGATE TYPE
 export interface AdvancedStudent extends Student {
     iep: IEPPlan;
@@ -191,4 +239,5 @@ export interface AdvancedStudent extends Student {
     };
     portfolio: PortfolioItem[];
     aiProfile: StudentAIProfile;
+    settings?: Settings; // Optional for backward compatibility
 }
