@@ -309,6 +309,10 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
         ai: aiGenerators.generateThematicOddOneOutFromAI,
         offline: undefined
     },
+    [ActivityType.VISUAL_INTERPRETATION]: {
+        ai: aiGenerators.generateVisualInterpretationFromAI,
+        offline: offlineGenerators.generateOfflineVisualInterpretation
+    },
 
     // 4. HİKAYE & SÖZEL MANTIK
     [ActivityType.STORY_COMPREHENSION]: {

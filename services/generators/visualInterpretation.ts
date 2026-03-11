@@ -55,7 +55,7 @@ JSON ÇIKTI FORMATI: (Lütfen sadece geçerli JSON döndür, markdown veya başk
                 }
             },
             {
-                "type": "questions",
+                "type": "question",
                 "content": {
                     "items": [
                         {
@@ -86,3 +86,8 @@ JSON ÇIKTI FORMATI: (Lütfen sadece geçerli JSON döndür, markdown veya başk
     return generatedData as WorksheetData;
   }
 }
+
+export const generateVisualInterpretationFromAI = async (options: GeneratorOptions): Promise<WorksheetData> => {
+  const generator = new VisualInterpretationGenerator();
+  return generator.generate(options) as Promise<WorksheetData>;
+};

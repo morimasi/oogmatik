@@ -22,3 +22,4 @@ export * from './patternCompletion';
 export * from './mapInstruction';
 export * from './mathStudio';
 export * from './assessment';
+export * from './visualInterpretation';
