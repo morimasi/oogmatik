@@ -9,7 +9,7 @@ interface AuthContextType {
     isLoading: boolean;
     login: (email: string, pass: string) => Promise<void>;
     register: (email: string, pass: string, name: string) => Promise<void>;
-    logout: () => void;
+    logout: () => Promise<void>;
     updateUser: (updates: Partial<User>) => Promise<void>;
     updatePassword: (newPassword: string) => Promise<void>;
 }

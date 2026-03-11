@@ -86,12 +86,12 @@ const LoadingSpinner = () => (
 const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title?: string; children: React.ReactNode }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300" onClick={(e) => { e.stopPropagation(); onClose(); }}>
             <div className="bg-[var(--bg-paper)] rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-[var(--border-color)]" onClick={(e) => e.stopPropagation()}>
                 {title && (
                     <div className="flex items-center justify-between p-6 border-b border-[var(--border-color)]">
                         <h2 className="text-xl font-black text-[var(--accent-color)] tracking-tight">{title}</h2>
-                        <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--surface-glass)] text-[var(--text-secondary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all">
+                        <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--surface-glass)] text-[var(--text-secondary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all">
                             <i className="fa-solid fa-times"></i>
                         </button>
                     </div>
@@ -107,7 +107,7 @@ const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose:
 const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300" onClick={(e) => { e.stopPropagation(); onClose(); }}>
             <div className="bg-[var(--bg-primary)] rounded-[2.5rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-[var(--border-color)]" onClick={(e) => e.stopPropagation()}>
 
                 {/* Header Background */}
@@ -117,7 +117,7 @@ const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                 </div>
 
                 {/* Close Button */}
-                <button onClick={onClose} className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors z-10 backdrop-blur-md">
+                <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors z-10 backdrop-blur-md">
                     <i className="fa-solid fa-times text-lg"></i>
                 </button>
 
@@ -248,8 +248,16 @@ const HeaderDropdown = ({ label, icon, children, colorClass = "text-[var(--text-
     );
 };
 
-const DropdownItem = ({ icon, label, onClick, badge }: { icon: string, label: string, onClick: () => void, badge?: number }) => (
-    <button onClick={onClick} className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--surface-glass)] rounded-xl transition-colors group">
+const DropdownItem = ({ icon, label, onClick, badge }: { icon: string, label: string, onClick?: () => void, badge?: number }) => (
+    <button 
+        onClick={(e) => {
+            e.stopPropagation();
+            if (onClick && typeof onClick === 'function') {
+                onClick();
+            }
+        }} 
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--surface-glass)] rounded-xl transition-colors group"
+    >
         <div className="flex items-center gap-3">
             <i className={`fa-solid ${icon} w-4 text-center text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-colors`}></i>
             <span className="text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">{label}</span>
@@ -503,7 +511,7 @@ const AppContent = () => {
                                 {user.role === 'admin' && <div className="h-px bg-[var(--border-color)] my-1"></div>}
                                 {user.role === 'admin' && <DropdownItem icon="fa-shield-halved" label="Admin Paneli" onClick={() => navigateTo('admin')} />}
                                 <div className="h-px bg-[var(--border-color)] my-1"></div>
-                                <DropdownItem icon="fa-arrow-right-from-bracket" label="Çıkış Yap" onClick={logout} />
+                                <DropdownItem icon="fa-arrow-right-from-bracket" label="Çıkış Yap" onClick={async () => { await logout(); }} />
                             </HeaderDropdown>
                         ) : (
                             <button onClick={() => setIsAuthModalOpen(true)} className="px-6 py-2.5 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-2xl text-xs font-black shadow-lg transition-all active:scale-95">GİRİŞ YAP</button>
