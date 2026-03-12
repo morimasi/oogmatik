@@ -1,10 +1,10 @@
 
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { 
-  initializeFirestore, 
-  persistentLocalCache, 
-  persistentMultipleTabManager 
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -27,9 +27,10 @@ export const auth = getAuth(app);
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager()
-  })
+  }),
+  experimentalForceLongPolling: true
 });
 
 export const checkDbConnection = async () => {
-    return !!(firebaseConfig.apiKey && firebaseConfig.projectId); 
+  return !!(firebaseConfig.apiKey && firebaseConfig.projectId);
 };

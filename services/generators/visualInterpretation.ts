@@ -25,26 +25,23 @@ export class VisualInterpretationGenerator extends BaseGenerator<any> {
 Görev: Öğrencinin görsel algı, detay farkındalığı, görsel-mekansal akıl yürütme ve mantıksal çıkarım (inference) yeteneklerini en üst seviyeye taşıyan "Görsel Yorumlama ve Analiz" etkinliği üretmek.
 
 ETKİNLİK PARAMETRELERİ:
-- Tema/Konu: "${topic}" (Görsel bu tema üzerinde yoğunlaşmalı)
+- Tema/Konu: "${topic}" 
 - Zorluk Seviyesi: "${difficulty}" 
-  * Başlangıç: Somut, doğrudan görünen nesneler ve basit ilişkiler.
-  * Orta: Mekansal konumlar, renk-biçim detayları ve basit neden-sonuç.
-  * Zor: Soyut kavramlar, gizli detaylar, duygusal ifadeler ve karmaşık mantıksal hatalar.
-  * Uzman: Paradokslar, çok katmanlı hikayeler ve derin çıkarım gerektiren görsel ipuçları.
-- Görsel Stili: "${visualStyle}" (Örn: hyper-realistic, digital art, watercolor, flat design)
+- Görsel Stili: "${visualStyle}"
 - Soru Sayısı: ${itemCount}
 - Soru Tarzı: "${questionStyle}"
 
-AŞAMA 1: ULTRA-DETAYLI GÖRSEL KURGUSU (IMAGE PROMPT)
-"imagePrompt" alanına, DALL-E 3 veya Midjourney V6 kalitesinde, her pikseli düşünülmüş muazzam bir İNGİLİZCE prompt yazmalısın.
-Prompt şunları içermeli:
-- Işıklandırma (Örn: cinematic lighting, golden hour, soft studio light)
-- Kompozisyon (Örn: wide angle, rule of thirds, top-down view)
-- Detay Yoğunluğu (Örn: ultra-detailed, 8k resolution, intricate textures)
-- Mantıksal Katmanlar: Görselde soracağın her sorunun cevabı mutlaka görseldeki bir detayda (nesnenin rengi, birinin bakış yönü, duvardaki bir saatin saati vb.) gizli olmalı.
+${studentCtx}
+
+AŞAMA 1: ULTRA-DETAYLI GÖRSEL KURGUSU (ULTRA-PREMIUM IMAGE PROMPT)
+"imagePrompt" alanına, Midjourney V6 veya DALL-E 3 kalitesinde, muazzam bir İNGİLİZCE prompt yazmalısın. 
+Görsel üretim robotuna şu talimatları içerecek şekilde komut ver:
+- "Cinematic lighting, hyper-realistic details, 8k, masterwork, vivid colors."
+- "Composition: Wide shot, intricate background details that contain hidden educational clues."
+- "Focus: ${topic} temalı sahnede, öğrencinin dikkatini çekecek 5 spesifik nesne veya olay kurgula."
 
 AŞAMA 2: PEDAGOJİK SORULAR VE ANALİZ
-Sorular sadece "ne görüyorsun?" şeklinde olmamalı; "şu kişi neden oraya bakıyor olabilir?", "görseldeki hangi nesne fizik kurallarına aykırı?" gibi derinlik içermeli.
+Sorular, görseldeki spesifik detaylara (Örn: "Duvardaki saatin yelkovanı hangi sayıyı gösteriyor?", "Mavi çantalı çocuk neden şaşkın bakıyor?") odaklanmalıdır.
 
 JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
 {
@@ -52,7 +49,7 @@ JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
     "activityType": "VISUAL_INTERPRETATION",
     "title": "Pedagojik ve İlgi Çekici Başlık",
     "instruction": "Öğrenciye yönelik, motive edici ve net yönerge.",
-    "pedagogicalNote": "Bu etkinliğin hangi bilişsel beceriyi (Örn: Görsel ayırım, şekil-zemin algısı) hedeflediğine dair kısa bir uzman notu.",
+    "pedagogicalNote": "Bilişsel hedef notu.",
     "layoutArchitecture": {
         "blocks": [
             {
@@ -68,7 +65,7 @@ JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
                     "items": [
                         {
                             "q": "Soru metni",
-                            "type": "multiple", // Veya "open"
+                            "type": "multiple",
                             "options": ["Seçenek A", "Seçenek B", "Seçenek C", "Seçenek D"],
                             "answer": "Doğru Cevap"
                         }
