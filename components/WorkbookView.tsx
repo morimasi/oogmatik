@@ -278,24 +278,30 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
             };
 
             const prompt = `
-[ROL: DENEYİMLİ ÖZEL EĞİTİM UZMANI & AİLE DANIŞMANI]
+[ROL: KIDEMLİ NÖROPEDAGOJİ UZMANI & DİSLEKSİ TERAPİSTİ]
 
-Görev: Aşağıdaki çalışma kitapçığı için, veli ve öğrenciye hitap eden, duygusal olarak destekleyici ama klinik olarak tutarlı bir ÖNSÖZ yaz.
+GÖREV: Aşağıdaki çalışma kitapçığı için profesyonel, klinik derinliği olan ama aileye sıcak gelen bir ÖNSÖZ metni kaleme al.
 
-- Öğrenci adı: ${settings.studentName || 'öğrencimiz'}
-- Okul / kurum: ${settings.schoolName || 'Bursa Disleksi AI'}
-- Dönem: ${settings.year || '2024-2025'}
-- Öne çıkan etkinlik türleri: ${topActivities.join(', ') || 'karışık bilişsel etkinlikler'}
+PARAMETRELER:
+- Öğrenci: ${settings.studentName || 'Değerli Öğrencimiz'}
+- Okul/Kurum: ${settings.schoolName || 'Özel Gelişim Merkezi'}
+- Dönem/Yıl: ${settings.year || 'Mevcut Eğitim Yılı'}
+- Odak Alanlar: ${topActivities.join(', ')}
 
-Ton:
-- 2–3 kısa paragraf
-- Suçlayıcı değil, güçlendirici
-- Disleksi dostu, sade ve kısa cümleler
-- Bilimsel ama korkutucu olmayan bir dil
+YAZIM STİLİ:
+1. GİRİŞ: Çalışmanın amacını ve akademik/bilişsel gelişimin önemini belirt.
+2. GELİŞME: Özellikle ${topActivities.slice(0, 2).join(' ve ')} alanlarındaki çalışmaların nöral plastisite üzerindeki etkisine değin.
+3. SONUÇ: Aileye destekleri için teşekkür et ve motivasyonel bir kapanış yap.
 
-ÇIKTI:
+KRİTİK KURALLAR:
+- Maksimum 250 kelime.
+- Kısa, anlaşılır cümleler (Disleksi dostu iletişim).
+- Profesyonel terminolojiyi (örn: bilişsel esneklik, fonolojik farkındalık) parantez içinde basit açıklamalarıyla kullan.
+- Hitabet samimi ve güçlendirici olmalı.
+
+ÇIKTI FORMATI: Sadece JSON nesnesi dönün:
 {
-  "preface": "tam metin burada"
+  "preface": "yazılan metin"
 }
 `;
 
@@ -479,12 +485,12 @@ Ton:
                                             <i className="fa-solid fa-user-plus"></i> Öğrenci Atama
                                         </h4>
                                         <select
-                                            value={students.find(s => s.name === settings.studentName)?.id || 'anonymous'}
+                                            value={students.find((s: StudentProfile) => s.name === settings.studentName)?.id || 'anonymous'}
                                             onChange={(e) => handleStudentAssign(e.target.value)}
                                             className="w-full p-3 bg-white dark:bg-zinc-800 border border-amber-200 dark:border-amber-700 rounded-xl text-sm font-bold outline-none focus:ring-2 ring-amber-500/20"
                                         >
                                             <option value="anonymous">Misafir / Atanmamış</option>
-                                            {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
+                                            {students.map((s: StudentProfile) => <option key={s.id || s.name} value={s.id || s.name}>{s.name} ({s.grade})</option>)}
                                         </select>
                                         <p className="text-[10px] text-amber-500 mt-2 italic font-medium leading-tight">
                                             * Bir öğrenci seçtiğinizde kapak ve sayfa künyeleri otomatik güncellenir.
