@@ -1,14 +1,6 @@
 import { BaseActivityData, ShapeType, ActivityType } from './core';
 
-export interface GeneratorOptions {
-  difficulty?: string;
-  gridSize?: number;
-  obstacleDensity?: number;
-  cipherType?: string;
-  puzzleCount?: number;
-  studentContext?: any;
-  [key: string]: any;
-}
+// GeneratorOptions core.ts'den taşındı.
 
 export interface SearchFieldItem {
   id: string;
@@ -297,23 +289,37 @@ export interface AlgorithmData extends BaseActivityData {
 
 export interface DirectionalCodeReadingData extends BaseActivityData {
   settings?: {
-    difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
-    gridSize: number; // Örn: 5x5, 8x8
-    obstacleDensity: number; // % yüzde
-    cipherType: 'arrows' | 'letters' | 'colors';
+    difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor' | string;
+    gridSize: number;
+    obstacleDensity: number;
+    cipherType: 'arrows' | 'letters' | 'colors' | string;
+    puzzleCount?: number;
   };
   content: {
     title: string;
     storyIntro?: string;
-    grid: {
-      x: number;
-      y: number;
-      type: 'empty' | 'obstacle' | 'start' | 'target' | 'path';
-      icon?: string;
-    }[][];
-    startPos: { x: number; y: number };
-    targetPos: { x: number; y: number };
-    instructions: { step: number; count: number; direction: 'up' | 'down' | 'left' | 'right' }[];
+    puzzles: {
+      id: string;
+      title: string;
+      grid: {
+        x: number;
+        y: number;
+        type: 'empty' | 'obstacle' | 'start' | 'target' | 'path';
+        icon?: string;
+      }[][];
+      startPos: { x: number; y: number };
+      targetPos: { x: number; y: number };
+      instructions: {
+        step: number;
+        count: number;
+        direction: 'up' | 'down' | 'left' | 'right' | string;
+        label?: string;
+      }[];
+      clinicalMeta?: {
+        cognitiveLoad: number;
+        planningComplexity: string;
+      };
+    }[];
   };
 }
 

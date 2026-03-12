@@ -206,12 +206,13 @@ export interface StyleSettings {
 }
 
 export interface GeneratorOptions {
-  mode: 'fast' | 'ai';
-  difficulty: 'Başlangıç' | 'Orta' | 'Zor' | 'Uzman';
-  worksheetCount: number;
-  itemCount: number;
+  mode?: 'fast' | 'ai';
+  difficulty?: string;
+  worksheetCount?: number;
+  itemCount?: number;
   topic?: string;
   gridSize?: number;
+  puzzleCount?: number;
   patternType?: 'arithmetic' | 'geometric' | 'complex' | 'color_blocks' | 'logic_sequence';
   variant?: string;
   studentContext?: Student;
@@ -297,6 +298,7 @@ export interface GeneratorOptions {
   pathType?: 'straight' | 'curved' | 'angular';
   connectDots?: boolean;
   showPoints?: boolean;
+  [key: string]: any;
 }
 
 export type ShapeType =
