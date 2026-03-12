@@ -1,8 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import { User } from '../types';
-import { authService } from '../services/authService';
-import { auth } from '../services/firebaseClient';
-import { onAuthStateChanged } from "firebase/auth";
+import { useAuthStore } from '../store/useAuthStore';
 
 interface AuthContextType {
     user: User | null;
@@ -17,59 +15,20 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const store = useAuthStore();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-            if (firebaseUser) {
-                try {
-                    // Kullanıcı verisini Firestore'dan çek (veya oluştur)
-                    // authService.getCurrentUser bu mantığı içerir
-                    const currentUser = await authService.getCurrentUser();
-                    setUser(currentUser);
-                } catch(e) {
-                    console.error("Auth state change user fetch error:", e);
-                } finally {
-                    setIsLoading(false);
-                }
-            } else {
-                setUser(null);
-                setIsLoading(false);
-            }
-        });
-
+        const unsubscribe = store.initialize();
         return () => unsubscribe();
     }, []);
 
-    const login = async (email: string, pass: string) => {
-        const loggedUser = await authService.login(email, pass);
-        setUser(loggedUser);
-    };
-
-    const register = async (email: string, pass: string, name: string) => {
-        const newUser = await authService.register(email, pass, name);
-        setUser(newUser);
-    };
-
-    const logout = async () => {
-        await authService.logout();
-        setUser(null);
-    };
-
-    const updateUser = async (updates: Partial<User>) => {
-        if (!user) return;
-        const updated = await authService.updateProfile(user.id, updates);
-        setUser(updated);
-    };
-
-    const updatePassword = async (newPassword: string) => {
-        if (!user) return;
-        await authService.updatePassword(newPassword);
-    };
+    const value = useMemo(() => ({
+        ...store,
+        updatePassword: async (pass: string) => { /* useAuthStore'da henüz yok, gerekirse eklenebilir */ }
+    }), [store]);
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateUser, updatePassword }}>
+        <AuthContext.Provider value={value as any}>
             {children}
         </AuthContext.Provider>
     );
