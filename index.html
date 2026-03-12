@@ -545,15 +545,17 @@
       html,
       body {
         background: white !important;
-        margin: 0 !important;
+        margin: 0 auto !important;
+        /* v4: Merkeze sabitle */
         padding: 0 !important;
         height: auto !important;
-        width: 100% !important;
-        /* v3: 100% yaparak tarayıcının kağıt boyutunu algılamasını sağla */
+        width: 210mm !important;
+        /* v4: Tam genişlik kilidi (Absolute Sync) */
         overflow: visible !important;
         display: block !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        position: relative !important;
       }
 
       /* 2. Print Container Artık Sayfanın Tek Hakimi (Relative Position ile doğal akar) */
