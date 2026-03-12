@@ -4,7 +4,8 @@ import { ActivityType, WorksheetData, StyleSettings, GeneratorOptions, Student }
 import Worksheet from './Worksheet';
 import { generateFromRichPrompt } from '../services/generators/newActivities';
 import { CreativeStudio } from './CreativeStudio/index';
-import { useStudent } from '../context/StudentContext';
+import { useStudentStore } from '../store/useStudentStore';
+import { useReadingStore } from '../store/useReadingStore';
 
 const PREVIEW_SETTINGS: StyleSettings = {
     fontSize: 16, scale: 0.65, borderColor: '#d4d4d8', borderWidth: 1, margin: 5, columns: 1, gap: 10,
@@ -250,20 +251,21 @@ interface OCRScannerProps {
     onResult: (data: any) => void;
 }
 export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
-    const { activeStudent, students, setActiveStudent } = useStudent();
+    const { activeStudent, students, setActiveStudent } = useStudentStore();
 
     const [step, setStep] = (React as any).useState('upload' as 'upload' | 'analyzing' | 'studio' | 'generating' | 'result' | 'creative');
     const [images, setImages] = (React as any).useState([] as string[]);
     const [activeImageIndex, setActiveImageIndex] = (React as any).useState(0);
     const [blueprintData, setBlueprintData] = (React as any).useState(null as any);
     const [editedTitle, setEditedTitle] = (React as any).useState('');
-    const [editedBlueprint, setEditedBlueprint] = (React as any).useState('');
+    const [editedBlueprint, setEditedBlueprint] = (React as any).useState(false);
     const [isEditingBlueprint, setIsEditingBlueprint] = (React as any).useState(false);
     const [difficulty, setDifficulty] = (React as any).useState('Orta' as DifficultyLevel);
     const [variantCount, setVariantCount] = (React as any).useState(1);
     const [itemCount, setItemCount] = (React as any).useState(8);
     const [concept, setConcept] = (React as any).useState('');
     const [finalData, setFinalData] = (React as any).useState(null as WorksheetData | null);
+    const { layout, setLayout } = useReadingStore();
     const [toast, setToast] = (React as any).useState(null as { message: string; type: ToastType } | null);
     const [retryCount, setRetryCount] = (React as any).useState(0);
     const [progressStartTime, setProgressStartTime] = (React as any).useState(0);
@@ -291,11 +293,11 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         // Check file extension and MIME type
         const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
         const allowedMimes = [...allowedImageTypes, 'application/pdf'];
-        
+
         if (!allowedMimes.includes(file.type)) {
-            return { 
-                valid: false, 
-                reason: `${file.name} (${file.type || 'unknown'}) formatı desteklenmiyor. Desteklenen: JPG, PNG, WebP, GIF, PDF` 
+            return {
+                valid: false,
+                reason: `${file.name} (${file.type || 'unknown'}) formatı desteklenmiyor. Desteklenen: JPG, PNG, WebP, GIF, PDF`
             };
         }
 
@@ -342,7 +344,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         // Detailed file validation
         fileList.forEach((f, index) => {
             const validation = validateAndProcessFile(f, index, fileList.length);
-            
+
             if (!validation.valid) {
                 rejectedFiles.push({ name: f.name, reason: validation.reason || 'Bilinmeyen hata' });
                 return;
@@ -352,8 +354,8 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
 
             // Check if adding this file exceeds total limit
             if (totalSize > FILE_SIZE_LIMITS.total) {
-                rejectedFiles.push({ 
-                    name: f.name, 
+                rejectedFiles.push({
+                    name: f.name,
                     reason: `Batch çok büyük olur (${(totalSize / (1024 * 1024)).toFixed(1)}MB toplam). Toplamda max 50MB.`
                 });
                 totalSize -= f.size; // Revert
@@ -387,20 +389,20 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
             try {
                 showToast(`🔄 "${pdf.name}" dönüştürülüyor...`, 'info');
                 const converted = await convertPDFToImages(pdf);
-                
+
                 if (converted.length === 0) {
                     showToast(`❌ "${pdf.name}" dönüştürülemedi. Dosya hasar görmüş olabilir.`, 'error');
                 } else {
                     pdfImages = [...pdfImages, ...converted];
                     showToast(
-                        `✅ "${pdf.name}" başarılı (${converted.length} sayfa)`, 
+                        `✅ "${pdf.name}" başarılı (${converted.length} sayfa)`,
                         'success'
                     );
-                    
+
                     // Warn if PDF has many pages
                     if (converted.length > 5) {
                         showToast(
-                            `📄 "${pdf.name}" ${converted.length} sayfa — tüm sayfalar işlenecek (zaman alabilir)`, 
+                            `📄 "${pdf.name}" ${converted.length} sayfa — tüm sayfalar işlenecek (zaman alabilir)`,
                             'warning'
                         );
                     }
@@ -493,7 +495,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     };
 
     const isRetryableError = (errorMsg: string): boolean => {
-        return RETRY_CONFIG.retryableErrors.some(pattern => 
+        return RETRY_CONFIG.retryableErrors.some(pattern =>
             errorMsg.toUpperCase().includes(pattern.toUpperCase())
         );
     };
@@ -501,31 +503,31 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     const startAnalysis = async (img: string, attemptNumber: number = 1) => {
         setStep('analyzing');
         setProgressStartTime(Date.now());
-        
+
         try {
             const result = await ocrService.processImage(img);
             setBlueprintData(result.structuredData);
             setEditedTitle(result.structuredData?.title || '');
             setEditedBlueprint(result.structuredData?.worksheetBlueprint || '');
-            
+
             // Show all warnings, not just first
             if (result.warnings && result.warnings.length > 0) {
                 result.warnings.forEach(warning => {
                     showToast(warning, 'warning');
                 });
             }
-            
+
             if (attemptNumber > 1) {
                 setRetryCount(0);
                 showToast(`✅ Analiz başarılı (${attemptNumber}. denemede)`, 'success');
             }
             setStep('studio');
-            
+
         } catch (e: unknown) {
             const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen hata.';
             const isRetryable = isRetryableError(errorMessage);
             const remainingAttempts = RETRY_CONFIG.maxAttempts - attemptNumber;
-            
+
             console.error(`[OCR Analysis] Attempt ${attemptNumber}/${RETRY_CONFIG.maxAttempts} failed:`, {
                 error: errorMessage,
                 isRetryable,
@@ -536,15 +538,15 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
             if (isRetryable && remainingAttempts > 0) {
                 const delayMs = RETRY_CONFIG.delays[attemptNumber - 1] || 15000;
                 const delaySec = (delayMs / 1000).toFixed(1);
-                
+
                 setRetryCount(attemptNumber);
                 showToast(
                     `⏳ Analiz başarısız (${attemptNumber}/${RETRY_CONFIG.maxAttempts}). ${delaySec}s içinde yeniden deneyin...`,
                     'warning'
                 );
-                
+
                 setTimeout(() => startAnalysis(img, attemptNumber + 1), delayMs);
-                
+
             } else if (!isRetryable && remainingAttempts > 0) {
                 // Non-retryable error but retry anyway (content issue, not service)
                 const delayMs = 2000; // Shorter delay for non-service errors
@@ -554,40 +556,40 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                     'info'
                 );
                 setTimeout(() => startAnalysis(img, attemptNumber + 1), delayMs);
-                
+
             } else {
                 // Max retries exceeded
                 setRetryCount(0);
-                
+
                 const friendlyErrorMap: Record<string, string> = {
                     'Blueprint boş': 'Görsel analiz edilemedi. Daha net/büyük bir görsel deneyin.',
                     'kısa': 'İçerik çok az tespit edildi. Daha detaylı bir belgeden upload etmeyi deneyin.',
                     'layoutHints': 'Sayfa yapısı tanınamadı. Farklı bir belge deneyin.',
                     'detectedType': 'Belge tipi tanınamadı. Eğitim belgesi olup olmadığını kontrol edin.'
                 };
-                
+
                 let friendlyMessage = 'Mimari analiz başarısız. Farklı bir görsel deneyin.';
-                
+
                 for (const [pattern, message] of Object.entries(friendlyErrorMap)) {
                     if (errorMessage.toLowerCase().includes(pattern.toLowerCase())) {
                         friendlyMessage = message;
                         break;
                     }
                 }
-                
+
                 // Add service-specific guidance
                 if (errorMessage.includes('503') || errorMessage.includes('502')) {
                     friendlyMessage = 'AI servisi şu anda meşgul. Lütfen 30 saniye bekleyip tekrar deneyiniz.';
                 } else if (errorMessage.includes('429')) {
                     friendlyMessage = 'Çok hızlı istekler gönderiliyor. Lütfen bir dakika bekleyin.';
                 }
-                
+
                 showToast(`❌ ${friendlyMessage}`, 'error');
                 console.error(`[OCR Analysis] Max retries exceeded after ${RETRY_CONFIG.maxAttempts} attempts`, {
                     originalError: errorMessage,
                     friendlyMessage
                 });
-                
+
                 setStep('upload');
             }
         }

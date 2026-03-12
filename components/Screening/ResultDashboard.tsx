@@ -7,7 +7,7 @@ import { RadarChart } from '../RadarChart';
 import { generateWithSchema } from '../../services/geminiClient';
 import { Type } from "@google/genai";
 import { printService } from '../../utils/printService';
-import { useAuth } from '../../context/AuthContext';
+import { useAuthStore } from '../../store/useAuthStore';
 import { assessmentService } from '../../services/assessmentService';
 import { ShareModal } from '../ShareModal';
 
@@ -20,10 +20,10 @@ interface Props {
 }
 
 export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectActivity, onAddToWorkbook, onGeneratePlan }) => {
-    const { user } = useAuth();
+    const { user } = useAuthStore();
     const [aiAnalysis, setAiAnalysis] = useState<any>(null);
     const [loadingAi, setLoadingAi] = useState(false);
-    
+
     // Action States
     const [isSaving, setIsSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
@@ -88,12 +88,12 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
         // Convert ScreeningResult to AssessmentReport format for storage compatibility
         const reportData: AssessmentReport = {
             overallSummary: aiAnalysis?.letter || "Analiz bekleniyor...",
-            scores: Object.entries(result.categoryScores).reduce((acc, [k, v]) => ({...acc, [k]: (v as any).score}), {}),
-            chartData: chartData.map(c => ({...c, fullMark: 100})),
+            scores: Object.entries(result.categoryScores).reduce((acc, [k, v]) => ({ ...acc, [k]: (v as any).score }), {}),
+            chartData: chartData.map(c => ({ ...c, fullMark: 100 })),
             analysis: {
                 strengths: [], // Screening doesn't separate explicitly yet
-                weaknesses: Object.values(result.categoryScores).filter((s:any) => s.riskLevel === 'high').map((s:any) => s.findings).flat(),
-                errorAnalysis: Object.values(result.categoryScores).flatMap((s:any) => s.findings)
+                weaknesses: Object.values(result.categoryScores).filter((s: any) => s.riskLevel === 'high').map((s: any) => s.findings).flat(),
+                errorAnalysis: Object.values(result.categoryScores).flatMap((s: any) => s.findings)
             },
             roadmap: [], // Can be populated
             observations: {
@@ -123,11 +123,11 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
             const data = mapToSavedAssessment();
             // Using existing assessment service to save to Firestore
             await assessmentService.saveAssessment(
-                user.id, 
-                data.studentName, 
-                data.gender, 
-                data.age, 
-                data.grade, 
+                user.id,
+                data.studentName,
+                data.gender,
+                data.age,
+                data.grade,
                 data.report
             );
             setIsSaved(true);
@@ -168,7 +168,7 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
                 data: data,
                 settings: { showTitle: true }
             };
-            onAddToWorkbook(item.data); 
+            onAddToWorkbook(item.data);
             alert("Rapor kitapçığa eklendi!");
         }
     };
@@ -184,7 +184,7 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
                 if (val.riskLevel === 'high' || val.riskLevel === 'moderate') {
                     // Kategori ismini ekle
                     weaknesses.push(CATEGORY_LABELS[key] || key);
-                    
+
                     // Spesifik bulguları (symptoms) ekle - BU ÇOK ÖNEMLİ
                     // Örn: "d-b harflerini karıştırır"
                     if (val.findings && val.findings.length > 0) {
@@ -198,7 +198,7 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
             // Approximate age (default 7 if not gathered in intro)
             // Detaylı tanı metnini context olarak gönderiyoruz
             const diagnosisContext = diagnosisDetails.join('\n');
-            
+
             onGeneratePlan(result.studentName, 7, weaknesses, diagnosisContext);
         }
     };
@@ -216,12 +216,12 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
                     </div>
                     <h2 className="text-2xl font-black text-zinc-900 dark:text-white">{result.studentName}</h2>
                 </div>
-                
+
                 <div className="flex flex-wrap gap-2 justify-end">
                     <button onClick={handleCreateSmartPlan} className="group relative px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-2xl font-black text-xs flex items-center gap-3 transition-all shadow-xl shadow-zinc-500/20 hover:scale-105 active:scale-95 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <span className="relative flex items-center gap-2">
-                            <i className="fa-solid fa-wand-magic-sparkles"></i> 
+                            <i className="fa-solid fa-wand-magic-sparkles"></i>
                             Kişisel Eğitim Planı Oluştur
                         </span>
                     </button>
@@ -273,7 +273,7 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
             {/* AI Analysis Section */}
             <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-800/30 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-6 opacity-5 rotate-12"><i className="fa-solid fa-wand-magic-sparkles text-9xl"></i></div>
-                
+
                 <h3 className="text-lg font-black text-indigo-800 dark:text-indigo-300 mb-6 flex items-center gap-2">
                     <i className="fa-solid fa-robot"></i> Uzman Görüşü (AI)
                 </h3>
@@ -288,12 +288,12 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
                         <div className="prose prose-indigo max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed bg-white/50 p-6 rounded-2xl border border-white/20 shadow-sm">
                             {(aiAnalysis as any).letter}
                         </div>
-                        
+
                         <h4 className="font-black text-xs text-indigo-400 uppercase tracking-widest mt-4">Ev & Okul İçin Öneriler</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {(aiAnalysis as any).actionSteps.map((step: string, i: number) => (
                                 <div key={i} className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm flex gap-3">
-                                    <div className="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">{i+1}</div>
+                                    <div className="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">{i + 1}</div>
                                     <p className="text-sm font-bold text-zinc-700">{step}</p>
                                 </div>
                             ))}
@@ -330,10 +330,10 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
 
                         {/* Chart Area */}
                         <div className="flex justify-center py-4">
-                             {/* Fixed Size Chart for Print */}
-                             <div style={{ width: '400px', height: '400px' }}>
-                                 <RadarChart data={chartData} />
-                             </div>
+                            {/* Fixed Size Chart for Print */}
+                            <div style={{ width: '400px', height: '400px' }}>
+                                <RadarChart data={chartData} />
+                            </div>
                         </div>
 
                         {/* Scores Table */}
@@ -403,7 +403,7 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
                                 ))}
                             </div>
                         </div>
-                        
+
                         {/* Footer Info */}
                         <div className="mt-8 p-4 border border-dashed border-zinc-300 rounded-xl text-xs text-zinc-500 text-center">
                             <p>Değerlendirmeyi Yapan: <strong>{result.respondentRole === 'parent' ? 'Ebeveyn' : 'Öğretmen'}</strong></p>

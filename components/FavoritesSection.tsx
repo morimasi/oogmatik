@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Activity, ActivityStats, ActivityType } from '../types';
 import { statsService } from '../services/statsService';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/useAuthStore';
 import { authService } from '../services/authService';
 
 interface FavoritesSectionProps {
@@ -28,13 +28,12 @@ const CategoryPill: React.FC<{ id: string, active: boolean, onClick: () => void 
     if (!category && id !== 'all') return null;
 
     return (
-        <button 
+        <button
             onClick={onClick}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border whitespace-nowrap shadow-sm hover:shadow-md active:scale-95 ${
-                active 
-                ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white ring-2 ring-offset-2 ring-zinc-200 dark:ring-zinc-800' 
-                : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700 hover:bg-zinc-50'
-            }`}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border whitespace-nowrap shadow-sm hover:shadow-md active:scale-95 ${active
+                    ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white ring-2 ring-offset-2 ring-zinc-200 dark:ring-zinc-800'
+                    : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700 hover:bg-zinc-50'
+                }`}
         >
             {id !== 'all' && <i className={`${category?.icon} opacity-70`}></i>}
             {id === 'all' ? 'Tümü' : category?.title}
@@ -42,15 +41,15 @@ const CategoryPill: React.FC<{ id: string, active: boolean, onClick: () => void 
     );
 };
 
-const FavoriteCard: React.FC<FavoriteCardProps> = ({ 
-    activity, 
-    onSelect, 
-    onRemove, 
+const FavoriteCard: React.FC<FavoriteCardProps> = ({
+    activity,
+    onSelect,
+    onRemove,
     isReadOnly,
     usageCount = 0
 }) => {
     const category = ACTIVITY_CATEGORIES.find(cat => cat.activities.includes(activity.id));
-    
+
     // Dynamic Gradient based on Category ID for quick visual id
     const getGradient = () => {
         if (category?.id === 'math-logic') return 'from-blue-500 to-indigo-600 shadow-indigo-200 dark:shadow-none';
@@ -62,7 +61,7 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({
 
     return (
         <div className="group relative flex flex-col h-full">
-            <div 
+            <div
                 onClick={onSelect}
                 className={`relative overflow-hidden rounded-3xl p-6 text-white bg-gradient-to-br ${getGradient()} shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer h-full border border-white/10`}
             >
@@ -70,7 +69,7 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500">
                     <i className={`${activity.icon} text-9xl`}></i>
                 </div>
-                
+
                 {/* Header */}
                 <div className="relative z-10 flex justify-between items-start mb-6">
                     <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-white/20">
@@ -86,7 +85,7 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({
                 {/* Content */}
                 <div className="relative z-10 flex-1">
                     <div className="flex items-center gap-2 mb-2 opacity-80">
-                         <span className="text-[10px] font-bold uppercase tracking-widest">{category?.title}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">{category?.title}</span>
                     </div>
                     <h3 className="text-xl font-black leading-tight mb-2 text-white drop-shadow-md">{activity.title}</h3>
                     <p className="text-xs text-white/80 font-medium line-clamp-2 leading-relaxed">{activity.description}</p>
@@ -98,7 +97,7 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({
                         <i className="fa-solid fa-play"></i> Hızlı Başlat
                     </button>
                     {!isReadOnly && onRemove && (
-                        <button 
+                        <button
                             onClick={(e) => { e.stopPropagation(); onRemove(); }}
                             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-500/80 text-white/70 hover:text-white transition-colors"
                             title="Favorilerden Çıkar"
@@ -113,13 +112,13 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({
 };
 
 export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActivity, onBack, targetUserId }) => {
-    const { user } = useAuth();
+    const { user } = useAuthStore();
     const [activeTab, setActiveTab] = useState<'favorites' | 'popular'>('favorites');
     const [topActivities, setTopActivities] = useState<(Activity & { stats: ActivityStats })[]>([]);
     const [manualFavorites, setManualFavorites] = useState<Activity[]>([]);
     const [userStats, setUserStats] = useState<ActivityStats[]>([]);
     const [loading, setLoading] = useState(true);
-    
+
     // Filters
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -164,7 +163,7 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
 
     const handleRemoveFavorite = (id: ActivityType) => {
         if (isReadOnly) return;
-        if(confirm("Favorilerden çıkarmak istediğinize emin misiniz?")) {
+        if (confirm("Favorilerden çıkarmak istediğinize emin misiniz?")) {
             statsService.toggleFavorite(id);
             setManualFavorites(prev => prev.filter(a => a.id !== id));
         }
@@ -172,11 +171,11 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
 
     const filteredItems = useMemo(() => {
         const source = activeTab === 'favorites' ? manualFavorites : topActivities;
-        
+
         let items = source.filter(item => {
-            const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                  item.description.toLowerCase().includes(searchQuery.toLowerCase());
-            
+            const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.description.toLowerCase().includes(searchQuery.toLowerCase());
+
             const category = ACTIVITY_CATEGORIES.find(cat => cat.activities.includes(item.id));
             const matchesCategory = selectedCategory === 'all' || category?.id === selectedCategory;
 
@@ -220,13 +219,13 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
 
                     {!isReadOnly && (
                         <div className="bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl flex gap-1 shadow-inner">
-                            <button 
+                            <button
                                 onClick={() => setActiveTab('favorites')}
                                 className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'favorites' ? 'bg-white dark:bg-zinc-600 text-black dark:text-white shadow-sm' : 'text-zinc-500'}`}
                             >
                                 <i className="fa-solid fa-bookmark"></i> Koleksiyon
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setActiveTab('popular')}
                                 className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'popular' ? 'bg-white dark:bg-zinc-600 text-black dark:text-white shadow-sm' : 'text-zinc-500'}`}
                             >
@@ -256,21 +255,21 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
                     </div>
                 ) : (
                     <div className="max-w-[1600px] mx-auto space-y-8">
-                        
+
                         {/* HERO CARD (Most Used) */}
                         {activeTab === 'favorites' && mostUsedFavorite && searchQuery === '' && selectedCategory === 'all' && (
                             <div className="animate-in fade-in slide-in-from-top-4 duration-500 mb-8">
                                 <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-4 ml-1 flex items-center gap-2">
                                     <i className="fa-solid fa-star text-yellow-400"></i> En Çok Kullandığın
                                 </h4>
-                                <div 
+                                <div
                                     onClick={() => onSelectActivity(mostUsedFavorite.id)}
                                     className="bg-zinc-900 dark:bg-white text-white dark:text-black rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group cursor-pointer border-4 border-transparent hover:border-indigo-500 transition-colors"
                                 >
                                     {/* Abstract shapes */}
                                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
                                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full blur-3xl opacity-20 translate-y-1/2 -translate-x-1/2"></div>
-                                    
+
                                     <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
                                         <div className="flex items-center gap-8">
                                             <div className="w-28 h-28 bg-white/10 dark:bg-black/5 backdrop-blur-xl rounded-3xl flex items-center justify-center text-6xl shadow-inner border border-white/10 dark:border-black/10">
@@ -311,9 +310,9 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
                                     {filteredItems.map((item, idx) => {
                                         if (activeTab === 'favorites' && mostUsedFavorite && item.id === mostUsedFavorite.id && searchQuery === '' && selectedCategory === 'all') return null;
                                         return (
-                                            <FavoriteCard 
-                                                key={item.id} 
-                                                activity={item} 
+                                            <FavoriteCard
+                                                key={item.id}
+                                                activity={item}
                                                 usageCount={item.stats.generationCount}
                                                 onSelect={() => onSelectActivity(item.id)}
                                                 onRemove={activeTab === 'favorites' ? () => handleRemoveFavorite(item.id) : undefined}

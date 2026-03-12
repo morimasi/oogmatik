@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { ActivityType, FeedbackCategory } from '../types';
 import { messagingService } from '../services/messagingService';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ const CATEGORIES: { id: FeedbackCategory; label: string; icon: string; desc: str
 ];
 
 export const FeedbackModal = ({ isOpen, onClose, activityType, activityTitle }: FeedbackModalProps) => {
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   const [rating, setRating] = useState<number>(0);
   const [category, setCategory] = useState<FeedbackCategory>('general');
   const [message, setMessage] = useState('');

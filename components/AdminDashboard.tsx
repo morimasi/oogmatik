@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { User, ActivityStats } from '../types';
 import { authService } from '../services/authService';
 import { statsService } from '../services/statsService';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/useAuthStore';
 import { ProfileView } from './ProfileView';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
 import { FavoritesSection } from './FavoritesSection';
@@ -14,7 +14,7 @@ import { AdminPromptStudio } from './AdminPromptStudio';
 import { AdminFeedback } from './AdminFeedback';
 import { AdminStaticContent } from './AdminStaticContent';
 import { AdminUserManagement } from './AdminUserManagement';
-import { AdminDraftReview } from './AdminDraftReview'; 
+import { AdminDraftReview } from './AdminDraftReview';
 
 interface AdminDashboardProps {
     onBack: () => void;
@@ -23,7 +23,7 @@ interface AdminDashboardProps {
 const PAGE_SIZE = 15;
 
 const NavButton = ({ active, label, icon, onClick, count }: any) => (
-    <button 
+    <button
         onClick={onClick}
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm mb-1 ${active ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none' : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800'}`}
     >
@@ -34,8 +34,8 @@ const NavButton = ({ active, label, icon, onClick, count }: any) => (
 );
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
-    const { user } = useAuth();
-    
+    const { user } = useAuthStore();
+
     // Persistent Tab State
     const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'activities' | 'prompts' | 'static_content' | 'feedbacks' | 'drafts'>(() => {
         const saved = localStorage.getItem('admin_active_tab');
@@ -45,7 +45,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     useEffect(() => {
         localStorage.setItem('admin_active_tab', activeTab);
     }, [activeTab]);
-    
+
     // Data States
     const [stats, setStats] = useState<ActivityStats[]>([]);
     const [loading, setLoading] = useState(true);
@@ -100,9 +100,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                     </div>
                 </div>
                 <div className="flex-1 overflow-hidden relative">
-                    {inspectView === 'profile' && <ProfileView onBack={() => setInspectingUser(null)} onSelectActivity={() => {}} onLoadSaved={() => {}} targetUser={inspectingUser} />}
-                    {inspectView === 'archive' && <div className="h-full p-4 overflow-y-auto"><SavedWorksheetsView onLoad={() => {}} onBack={() => setInspectView('profile')} targetUserId={inspectingUser.id} /></div>}
-                    {inspectView === 'favorites' && <div className="h-full p-4 overflow-y-auto"><FavoritesSection onSelectActivity={() => {}} targetUserId={inspectingUser.id} /></div>}
+                    {inspectView === 'profile' && <ProfileView onBack={() => setInspectingUser(null)} onSelectActivity={() => { }} onLoadSaved={() => { }} targetUser={inspectingUser} />}
+                    {inspectView === 'archive' && <div className="h-full p-4 overflow-y-auto"><SavedWorksheetsView onLoad={() => { }} onBack={() => setInspectView('profile')} targetUserId={inspectingUser.id} /></div>}
+                    {inspectView === 'favorites' && <div className="h-full p-4 overflow-y-auto"><FavoritesSection onSelectActivity={() => { }} targetUserId={inspectingUser.id} /></div>}
                 </div>
             </div>
         );
@@ -126,13 +126,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                     <p className="px-4 mb-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">Analiz & Kullanıcı</p>
                     <NavButton active={activeTab === 'dashboard'} label="Genel Bakış" icon="fa-chart-pie" onClick={() => setActiveTab('dashboard')} />
                     <NavButton active={activeTab === 'users'} label="Kullanıcılar" icon="fa-users" onClick={() => setActiveTab('users')} />
-                    
+
                     <p className="px-4 mt-6 mb-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">İçerik Motoru</p>
                     <NavButton active={activeTab === 'activities'} label="Aktivite Yöneticisi" icon="fa-layer-group" onClick={() => setActiveTab('activities')} />
                     <NavButton active={activeTab === 'prompts'} label="Prompt Stüdyosu" icon="fa-terminal" onClick={() => setActiveTab('prompts')} />
                     <NavButton active={activeTab === 'drafts'} label="OCR Taslakları" icon="fa-camera-rotate" onClick={() => setActiveTab('drafts')} />
                     <NavButton active={activeTab === 'static_content'} label="Veri Kaynakları" icon="fa-database" onClick={() => setActiveTab('static_content')} />
-                    
+
                     <p className="px-4 mt-6 mb-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">Destek</p>
                     <NavButton active={activeTab === 'feedbacks'} label="Gelen Kutusu" icon="fa-inbox" onClick={() => setActiveTab('feedbacks')} count={3} />
                 </nav>
@@ -161,7 +161,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                         </h1>
                         <span className="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-mono text-zinc-500 border border-zinc-200 dark:border-zinc-700">v1.3.0</span>
                     </div>
-                    
+
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full text-xs font-bold border border-green-100 dark:border-green-800">
                             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>

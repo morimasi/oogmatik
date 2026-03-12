@@ -15,7 +15,7 @@ import * as offlineGenerators from '../services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
 import { adminService } from '../services/adminService';
-import { useStudent } from '../context/StudentContext';
+import { useStudentStore } from '../store/useStudentStore';
 import './PremiumPopupStyles.css';
 
 import './PremiumPopupStyles.css';
@@ -91,6 +91,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
+  const { activeStudent, setActiveStudent } = useStudentStore();
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 

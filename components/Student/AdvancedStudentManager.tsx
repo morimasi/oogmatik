@@ -26,6 +26,26 @@ const MODULE_ICONS = {
   settings: 'fa-sliders',
 };
 
+const ContentWrapper: React.FC<{
+  title: string,
+  subtitle: string,
+  children: React.ReactNode,
+  actions?: React.ReactNode
+}> = ({ title, subtitle, children, actions }) => (
+  <div className="h-full flex flex-col animate-in fade-in duration-500">
+    <div className="p-8 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur">
+      <div>
+        <h2 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">{title}</h2>
+        <p className="text-zinc-500 text-sm mt-1">{subtitle}</p>
+      </div>
+      {actions && <div className="flex gap-3">{actions}</div>}
+    </div>
+    <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+      {children}
+    </div>
+  </div>
+);
+
 // ... (ManagerSidebar component remains mostly same, just updating labels)
 const ManagerSidebar: React.FC<{
   activeModule: string;
@@ -118,6 +138,15 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
   const { activeStudent, students, setActiveStudent, addStudent, updateStudent, deleteStudent } = useStudentStore();
   const [selectedModule, setSelectedModule] = useState('overview');
   const [visibleModules, setVisibleModules] = useState<string[]>(Object.keys(MODULE_ICONS));
+
+  const handleStudentUpdate = async (updates: Partial<AdvancedStudent>) => {
+    if (!activeStudent) return;
+    try {
+      await updateStudent(activeStudent.id, updates);
+    } catch (e) {
+      console.error("Öğrenci güncelleme hatası:", e);
+    }
+  };
 
   // ... (currentStudent logic remains same)
   const baseStudent = activeStudent;

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { SavedWorksheet, CollectionItem, ActivityType } from '../types';
 import { worksheetService } from '../services/worksheetService';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface ActivityImporterModalProps {
     isOpen: boolean;
@@ -11,7 +11,7 @@ interface ActivityImporterModalProps {
 }
 
 export const ActivityImporterModal: React.FC<ActivityImporterModalProps> = ({ isOpen, onClose, onImport }) => {
-    const { user } = useAuth();
+    const { user } = useAuthStore();
     const [worksheets, setWorksheets] = useState<SavedWorksheet[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
