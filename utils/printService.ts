@@ -132,31 +132,28 @@ export const printService = {
         cel.style.setProperty('scale', '1', 'important');
         cel.style.setProperty('zoom', '1', 'important');
         cel.style.setProperty('-webkit-text-size-adjust', '100%', 'important');
-        cel.style.setProperty('box-sizing', 'border-box', 'important');
         if (cel.hasAttribute('data-scaled')) cel.removeAttribute('data-scaled');
 
-        // 2. Physical Width Lock (v6) — Taşan her şeyi buda
+        // 2. Viewport ve Taşma Normalizasyonu (v5)
         const oStyle = window.getComputedStyle(oel);
         const computedWidth = parseFloat(oStyle.width) || 0;
 
-        // 793px (209.8mm) güvenli sınırdır. Bu değeri aşan her şeyi %100'e çek.
-        // Tarayıcı bu genişlikten büyük bir şey görürse kağıdı küçültür (Shrink to fit).
-        if (computedWidth > 793 || oStyle.width.includes('vw')) {
+        // Eğer içerik kağıt genişliğinden (794px ≈ 210mm) genişse, 100%'e çek (Taşmayı ve dolayısıyla küçülmeyi önler)
+        if (computedWidth > 794 || oStyle.width.includes('vw')) {
           cel.style.setProperty('width', '100%', 'important');
           cel.style.setProperty('max-width', '100%', 'important');
-          cel.style.setProperty('min-width', '0', 'important');
         }
 
-        // 3. Flex ve Grid Alanlarını Baskı Boyutuna Zorla
-        if (oStyle.display === 'flex' || oStyle.display === 'grid' || oStyle.display === 'inline-flex') {
+        // 3. Flex ve Grid Alanlarını Sabitle
+        if (oStyle.display === 'flex' || oStyle.display === 'grid') {
           cel.style.setProperty('max-width', '100%', 'important');
-          cel.style.setProperty('width', '100%', 'important');
-          cel.style.setProperty('flex-basis', 'auto', 'important');
+          cel.style.setProperty('overflow', 'visible', 'important');
         }
 
-        // 4. Görünürlük ve Yükseklik Temizliği
-        if (oStyle.height.includes('vh')) cel.style.setProperty('height', 'auto', 'important');
-        if (oStyle.overflow === 'hidden' || oStyle.overflow === 'auto' || oStyle.overflow === 'scroll') {
+        if (oStyle.height.includes('vh')) cel.style.height = 'auto';
+
+        // 4. Görünürlük ve Taşma
+        if (oStyle.overflow === 'hidden' || oStyle.overflow === 'auto') {
           cel.style.setProperty('overflow', 'visible', 'important');
         }
       });
