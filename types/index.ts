@@ -1,4 +1,8 @@
 export * from './core';
+export * from './student';
+export * from './user';
+export * from './activity';
+export * from './studio';
 export * from './math';
 export type { AbcConnectData } from './math';
 export * from './verbal';

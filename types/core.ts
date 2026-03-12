@@ -4,155 +4,13 @@ declare global {
   }
 }
 
-export enum ActivityType {
-  FIND_LETTER_PAIR = 'FIND_LETTER_PAIR',
-  READING_SUDOKU = 'READING_SUDOKU',
-  SYLLABLE_MASTER_LAB = 'SYLLABLE_MASTER_LAB',
-  READING_STROOP = 'READING_STROOP',
-  FAMILY_RELATIONS = 'FAMILY_RELATIONS',
-  FAMILY_LOGIC_TEST = 'FAMILY_LOGIC_TEST',
-  SYNONYM_ANTONYM_MATCH = 'SYNONYM_ANTONYM_MATCH',
-  LETTER_VISUAL_MATCHING = 'LETTER_VISUAL_MATCHING',
-  SYLLABLE_WORD_BUILDER = 'SYLLABLE_WORD_BUILDER',
-  MAP_INSTRUCTION = 'MAP_INSTRUCTION',
-  ALGORITHM_GENERATOR = 'ALGORITHM_GENERATOR',
-  AI_WORKSHEET_CONVERTER = 'AI_WORKSHEET_CONVERTER',
-  HIDDEN_PASSWORD_GRID = 'HIDDEN_PASSWORD_GRID',
-  NUMBER_LOGIC_RIDDLES = 'NUMBER_LOGIC_RIDDLES',
-  MATH_PUZZLE = 'MATH_PUZZLE',
-  CLOCK_READING = 'CLOCK_READING',
-  MONEY_COUNTING = 'MONEY_COUNTING',
-  MATH_MEMORY_CARDS = 'MATH_MEMORY_CARDS',
-  FIND_THE_DIFFERENCE = 'FIND_THE_DIFFERENCE',
-  VISUAL_ODD_ONE_OUT = 'VISUAL_ODD_ONE_OUT',
-  GRID_DRAWING = 'GRID_DRAWING',
-  SYMMETRY_DRAWING = 'SYMMETRY_DRAWING',
-  WORD_SEARCH = 'WORD_SEARCH',
-  SHAPE_COUNTING = 'SHAPE_COUNTING',
-  MORPHOLOGY_MATRIX = 'MORPHOLOGY_MATRIX',
-  READING_PYRAMID = 'READING_PYRAMID',
-  NUMBER_PATH_LOGIC = 'NUMBER_PATH_LOGIC',
-  DIRECTIONAL_TRACKING = 'DIRECTIONAL_TRACKING',
-  STORY_COMPREHENSION = 'STORY_COMPREHENSION',
-  STORY_ANALYSIS = 'STORY_ANALYSIS',
-  STORY_CREATION_PROMPT = 'STORY_CREATION_PROMPT',
-  WORDS_IN_STORY = 'WORDS_IN_STORY',
-  STORY_SEQUENCING = 'STORY_SEQUENCING',
-  PROVERB_SAYING_SORT = 'PROVERB_SAYING_SORT',
-  PROVERB_WORD_CHAIN = 'PROVERB_WORD_CHAIN',
-  PROVERB_FILL_IN_THE_BLANK = 'PROVERB_FILL_IN_THE_BLANK',
-  PROVERB_SEARCH = 'PROVERB_SEARCH',
-  PROVERB_SENTENCE_FINDER = 'PROVERB_SENTENCE_FINDER',
-  MISSING_PARTS = 'MISSING_PARTS',
-  OCR_CONTENT = 'OCR_CONTENT',
-  ASSESSMENT_REPORT = 'ASSESSMENT_REPORT',
-  WORKBOOK = 'WORKBOOK',
-  FUTOSHIKI = 'FUTOSHIKI',
-  KENDOKU = 'KENDOKU',
-  NUMBER_PYRAMID = 'NUMBER_PYRAMID',
-  NUMBER_PATTERN = 'NUMBER_PATTERN',
-  REAL_LIFE_MATH_PROBLEMS = 'REAL_LIFE_MATH_PROBLEMS',
-  MATH_STUDIO = 'MATH_STUDIO',
-  WORD_MEMORY = 'WORD_MEMORY',
-  VISUAL_MEMORY = 'VISUAL_MEMORY',
-  CHARACTER_MEMORY = 'CHARACTER_MEMORY',
-  COLOR_WHEEL_MEMORY = 'COLOR_WHEEL_MEMORY',
-  IMAGE_COMPREHRENSION = 'IMAGE_COMPREHRENSION',
-  STROOP_TEST = 'STROOP_TEST',
-  BURDON_TEST = 'BURDON_TEST',
-  NUMBER_SEARCH = 'NUMBER_SEARCH',
-  CHAOTIC_NUMBER_SEARCH = 'CHAOTIC_NUMBER_SEARCH',
-  ATTENTION_DEVELOPMENT = 'ATTENTION_DEVELOPMENT',
-  ATTENTION_FOCUS = 'ATTENTION_FOCUS',
-  FIND_IDENTICAL_WORD = 'FIND_IDENTICAL_WORD',
-  LETTER_GRID_TEST = 'LETTER_GRID_TEST',
-  TARGET_SEARCH = 'TARGET_SEARCH',
-  READING_FLOW = 'READING_FLOW',
-  PHONOLOGICAL_AWARENESS = 'PHONOLOGICAL_AWARENESS',
-  RAPID_NAMING = 'RAPID_NAMING',
-  LETTER_DISCRIMINATION = 'LETTER_DISCRIMINATION',
-  MIRROR_LETTERS = 'MIRROR_LETTERS',
-  SYLLABLE_TRAIN = 'SYLLABLE_TRAIN',
-  VISUAL_TRACKING_LINES = 'VISUAL_TRACKING_LINES',
-  BACKWARD_SPELLING = 'BACKWARD_SPELLING',
-  CODE_READING = 'CODE_READING',
-  ATTENTION_TO_QUESTION = 'ATTENTION_TO_QUESTION',
-  HANDWRITING_PRACTICE = 'HANDWRITING_PRACTICE',
-  ANAGRAM = 'ANAGRAM',
-  CROSSWORD = 'CROSSWORD',
-  ODD_ONE_OUT = 'ODD_ONE_OUT',
-  THEMATIC_ODD_ONE_OUT = 'THEMATIC_ODD_ONE_OUT',
-  CONCEPT_MATCH = 'CONCEPT_MATCH',
-  ESTIMATION = 'ESTIMATION',
-  SPATIAL_GRID = 'SPATIAL_GRID',
-  ODD_EVEN_SUDOKU = 'ODD_EVEN_SUDOKU',
-  PUNCTUATION_MAZE = 'PUNCTUATION_MAZE',
-  LOGIC_GRID_PUZZLE = 'LOGIC_GRID_PUZZLE',
-  DOT_PAINTING = 'DOT_PAINTING',
-  SHAPE_SUDOKU = 'SHAPE_SUDOKU',
-  VISUAL_ARITHMETIC = 'VISUAL_ARITHMETIC',
-  NUMBER_SENSE = 'NUMBER_SENSE',
-  ABC_CONNECT = 'ABC_CONNECT',
-  MAGIC_PYRAMID = 'MAGIC_PYRAMID',
-  CAPSULE_GAME = 'CAPSULE_GAME',
-  FIVE_W_ONE_H = 'FIVE_W_ONE_H',
-  COLORFUL_SYLLABLE_READING = 'COLORFUL_SYLLABLE_READING',
-  FAMILY_TREE_MATRIX = 'FAMILY_TREE_MATRIX',
-  APARTMENT_LOGIC_PUZZLE = 'APARTMENT_LOGIC_PUZZLE',
-  FINANCIAL_MARKET_CALCULATOR = 'FINANCIAL_MARKET_CALCULATOR',
-  DIRECTIONAL_CODE_READING = 'DIRECTIONAL_CODE_READING',
-  LOGIC_ERROR_HUNTER = 'LOGIC_ERROR_HUNTER',
-  PATTERN_COMPLETION = 'PATTERN_COMPLETION',
-  VISUAL_INTERPRETATION = 'VISUAL_INTERPRETATION',
-  BRAIN_TEASERS = 'BRAIN_TEASERS',
-  BOX_MATH = 'BOX_MATH',
-}
+import { ActivityType, Activity, ActivityCategory, WorksheetBlock, CognitiveErrorTag } from './activity';
+import { User, UserRole, UserStatus } from './user';
+import { Student, StudentProfile } from './student';
+import { LayoutItem, LayoutSectionId } from './studio';
 
-export type UserRole = 'user' | 'admin';
-export type UserStatus = 'active' | 'suspended';
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole;
-  avatar: string;
-  createdAt: string;
-  lastLogin: string;
-  worksheetCount: number;
-  status: UserStatus;
-  subscriptionPlan: 'free' | 'pro';
-  favorites: ActivityType[];
-  lastActiveActivity?: {
-    id: string;
-    title: string;
-    date: string;
-  };
-  profession?: string;
-  institution?: string;
-  phone?: string;
-  bio?: string;
-}
-
-export interface Student {
-  id: string;
-  teacherId: string;
-  name: string;
-  age: number;
-  grade: string;
-  avatar: string;
-  diagnosis: string[];
-  interests: string[];
-  strengths: string[];
-  weaknesses: string[];
-  learningStyle: 'Görsel' | 'İşitsel' | 'Kinestetik' | 'Karma';
-  parentName?: string;
-  contactPhone?: string;
-  contactEmail?: string;
-  notes?: string;
-  notesHistory?: string;
-  createdAt: string;
-}
+export { ActivityType };
+export type { Activity, ActivityCategory, WorksheetBlock, User, UserRole, UserStatus, Student, StudentProfile, LayoutItem, LayoutSectionId, CognitiveErrorTag };
 
 export interface BaseActivityData {
   title: string;
@@ -312,31 +170,9 @@ export type ShapeType =
   | 'octagon';
 export type VisualMathType = 'ten-frame' | 'dice' | 'blocks' | 'objects' | 'number-bond' | 'mixed';
 
-export interface Activity {
-  id: ActivityType;
-  title: string;
-  description: string;
-  icon: string;
-  defaultStyle?: Partial<StyleSettings>;
-  promptId?: string;
-}
 
-export interface ActivityCategory {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  activities: ActivityType[];
-}
 
-export interface StudentProfile {
-  studentId?: string;
-  name: string;
-  school: string;
-  grade: string;
-  date: string;
-  notes?: string;
-}
+
 
 export interface OverlayItem {
   id: string;
@@ -472,34 +308,7 @@ export interface WorkbookSettings {
   customBackCoverNote?: string;
 }
 
-export interface WorksheetBlock {
-  type:
-  | 'header'
-  | 'text'
-  | 'grid'
-  | 'table'
-  | 'svg_shape'
-  | 'dual_column'
-  | 'image'
-  | 'question'
-  | 'logic_card'
-  | 'footer_validation'
-  | 'cloze_test'
-  | 'categorical_sorting'
-  | 'match_columns'
-  | 'visual_clue_card'
-  | 'neuro_marker';
-  content: any;
-  style?: {
-    textAlign?: string;
-    fontWeight?: string;
-    fontSize?: number;
-    backgroundColor?: string;
-    borderRadius?: number;
-    color?: string;
-  };
-  weight?: number;
-}
+
 
 export type CognitiveDomain =
   | 'visual_spatial_memory'
@@ -730,143 +539,8 @@ export interface OCRResult {
   warnings?: string[];
 }
 
-export interface ReadingStudioConfig {
-  gradeLevel: string;
-  studentId?: string;
-  studentName: string;
-  studentProfile?: {
-    diagnosis?: string[];
-    interests?: string[];
-    strengths?: string[];
-    weaknesses?: string[];
-  };
-  characterName?: string;
-  characterTraits?: string;
-  topic: string;
-  genre: string;
-  tone: string;
-  length: 'short' | 'medium' | 'long' | 'epic';
-  layoutDensity: 'compact' | 'comfortable' | 'spacious';
-  textComplexity: 'simple' | 'moderate' | 'advanced';
-  fontSettings: {
-    family: string;
-    size: number;
-    lineHeight: number;
-    letterSpacing: number;
-    wordSpacing: number;
-  };
-  includeImage: boolean;
-  imageSize: number;
-  imageOpacity: number;
-  imagePosition: 'left' | 'right' | 'background';
-  imageGeneration: {
-    enabled: boolean;
-    style: string;
-    complexity: 'simple' | 'detailed';
-    colorPalette?: string;
-  };
-  include5N1K: boolean;
-  countMultipleChoice: number;
-  countTrueFalse: number;
-  countFillBlanks: number;
-  countLogic: number;
-  countInference: number;
-  focusVocabulary: boolean;
-  includeCreativeTask: boolean;
-  phonemeFocus?: string; // Örn: "b-d", "s-z", "p-b"
-  syllableFocus?: boolean; // Hece bazlı renklendirme talebi
-  logicDifficulty?: 'Easy' | 'Medium' | 'Hard';
-  includeWordHunt: boolean;
-  includeSpellingCheck: boolean;
-  showReadingTracker: boolean;
-  showSelfAssessment: boolean;
-  showTeacherNotes: boolean;
-  showDateSection: boolean;
-}
 
-export type LayoutSectionId =
-  | 'header'
-  | 'tracker'
-  | 'story_block'
-  | 'vocabulary'
-  | 'pedagogical_note'
-  | 'questions_5n1k'
-  | 'questions_test'
-  | 'questions_inference'
-  | 'creative'
-  | 'notes'
-  | 'logic_problem'
-  | 'syllable_train'
-  | '5n1k'
-  | 'questions'
-  | 'activity_component'
-  | 'text'
-  | 'image'
-  | 'grid'
-  | 'table'
-  | 'cloze_test'
-  | 'match_columns'
-  | 'categorical_sorting'
-  | 'logic_card'
-  | 'footer_validation'
-  | 'visual_clue_card'
-  | 'neuro_marker'
-  | 'svg_shape';
 
-export interface LayoutItem {
-  id: LayoutSectionId;
-  label: string;
-  instanceId: string;
-  isVisible: boolean;
-  pageIndex?: number;
-  groupId?: string;
-  style: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    zIndex: number;
-    rotation?: number;
-    padding?: number;
-    backgroundColor?: string;
-    borderColor?: string;
-    borderWidth?: number;
-    borderStyle?: string;
-    borderRadius?: number;
-    opacity?: number;
-    boxShadow?: string;
-    textAlign?: string;
-    color?: string;
-    fontSize?: number;
-    fontFamily?: string;
-    lineHeight?: number;
-    letterSpacing?: number;
-    fontWeight?: string;
-    imageSettings?: {
-      enabled: boolean;
-      position: 'left' | 'right' | 'background';
-      widthPercent: number;
-      opacity: number;
-      objectFit: string;
-      borderRadius: number;
-      blendMode: string;
-      filter: string;
-    };
-  };
-  specificData?: any;
-}
 
-export type CognitiveErrorTag =
-  | 'visual_discrimination'
-  | 'attention_lapse'
-  | 'impulsivity_error'
-  | 'phonological_substitution'
-  | 'sequencing_error'
-  | 'visual_reversal'
-  | 'visual_inversion'
-  | 'working_memory_overflow'
-  | 'logical_reasoning'
-  | 'visual_spatial_memory'
-  | 'selective_attention'
-  | 'processing_speed'
-  | 'phonological_loop';
+
+

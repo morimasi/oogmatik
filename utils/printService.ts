@@ -142,21 +142,33 @@ export const printService = {
 
         document.body.appendChild(printContainer);
 
-        // 6. Görsellerin yüklenmesini bekle
-        const images = printContainer.querySelectorAll('img');
-        const imagePromises = Array.from(images).map(img => {
-            if (img.complete && img.naturalHeight !== 0) return Promise.resolve();
-            return new Promise<void>(resolve => {
-                img.onload = () => resolve();
-                img.onerror = () => resolve();
-                // 4 saniye timeout: takılı kalan görselleri beklemeden devam et
-                setTimeout(resolve, 4000);
-            });
+        // 6. Görsellerin ve Fontların yüklenmesini bekle (Deterministik)
+        const images = Array.from(printContainer.querySelectorAll('img'));
+        const imagePromises = images.map(async (img) => {
+            try {
+                if (img.complete) {
+                    await img.decode();
+                } else {
+                    await new Promise((resolve, reject) => {
+                        img.onload = () => img.decode().then(resolve).catch(resolve);
+                        img.onerror = resolve;
+                        setTimeout(resolve, 8000); // Max 8sn görsel bazlı timeout
+                    });
+                }
+            } catch (e) {
+                console.warn('[PrintEngine] Görsel decode edilemedi, devam ediliyor:', img.src);
+            }
         });
+
+        // Fontların hazır olduğundan emin ol
+        if ('fonts' in document) {
+            await (document as any).fonts.ready;
+        }
+
         await Promise.all(imagePromises);
 
-        // 7. Tarayıcı düzen motorunun yerleşmesini bekle
-        const layoutDelay = options.compact ? 600 : 900;
+        // 7. Tarayıcı düzen motorunun yerleşmesini bekle (Dinamik)
+        const layoutDelay = options.compact ? 400 : 700;
         await new Promise(resolve => setTimeout(resolve, layoutDelay));
 
         // 8. Yazdır

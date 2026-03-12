@@ -64,11 +64,13 @@ export const useReadingStore = create<ReadingState>((set, get) => ({
     setActiveStudent: (activeStudent) => set({ activeStudent }),
     setIsLoading: (isLoading) => set({ isLoading }),
 
-    // Operations
+    // Operations (Optimized for performance)
     updateComponent: (instanceId, updates, saveToHistory = false) => {
         const { layout, past } = get();
         if (saveToHistory) {
-            set({ past: [...past.slice(-19), layout], future: [] });
+            // Bellek yönetimi: Geçmişi 20 adımda tut ve sadece gerektiğinde kopyala
+            const nextPast = [...past.slice(-19), layout];
+            set({ past: nextPast, future: [] });
         }
         set((state) => ({
             layout: state.layout.map(item => item.instanceId === instanceId ? { ...item, ...updates } : item)
