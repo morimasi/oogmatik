@@ -98,7 +98,10 @@ export const printService = {
                 (btn as HTMLElement).style.setProperty('display', 'none', 'important');
             });
 
-            // A4 için transform ve boyut sıfırlama (v4: Absolute Physical Standard)
+            // ══════════════════════════════════════════════════════════════════
+            // CRITICAL: v5 ABSOLUTE PHYSICAL STANDARD - DO NOT MODIFY
+            // Bu ayarlar tarayıcının "Shrink to Fit" motorunu bypass eder.
+            // ══════════════════════════════════════════════════════════════════
             clone.style.setProperty('transform', 'none', 'important');
             clone.style.setProperty('scale', '1', 'important');
             clone.style.setProperty('zoom', '1', 'important');
