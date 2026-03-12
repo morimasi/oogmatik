@@ -776,6 +776,48 @@ const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlo
     }
   }
 
+  if (block.type === 'table') {
+    const rows = content.rows || content.data || [];
+    const header = content.headers || [];
+    const chunkSize = Math.max(1, Math.floor((maxWeight - 50) / 28));
+    if (rows.length > chunkSize) {
+      const chunks: WorksheetBlock[] = [];
+      for (let i = 0; i < rows.length; i += chunkSize) {
+        chunks.push({
+          ...block,
+          content: {
+            ...content,
+            rows: rows.slice(i, i + chunkSize),
+            data: rows.slice(i, i + chunkSize),
+            headers: i === 0 ? header : (content.repeatHeader ? header : []),
+            isContinuation: i > 0,
+          },
+        });
+      }
+      return chunks;
+    }
+  }
+
+  if (block.type === 'grid') {
+    const cells = content.cells || [];
+    const cols = content.cols || 4;
+    const chunkSize = Math.max(1, Math.floor((maxWeight - 40) / 32) * cols);
+    if (cells.length > chunkSize) {
+      const chunks: WorksheetBlock[] = [];
+      for (let i = 0; i < cells.length; i += chunkSize) {
+        chunks.push({
+          ...block,
+          content: {
+            ...content,
+            cells: cells.slice(i, i + chunkSize),
+            isContinuation: i > 0,
+          },
+        });
+      }
+      return chunks;
+    }
+  }
+
   if (block.type === 'categorical_sorting') {
     const cats: string[] = content.categories || [];
     const items: any[] = content.items || [];
