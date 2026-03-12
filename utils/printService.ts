@@ -48,14 +48,11 @@ export const printService = {
     const printContainer = document.createElement('div');
     printContainer.id = 'print-container';
 
-    // v6: Pixel Dayalı Fiziksel Kilit (A4 ≈ 794px @ 96dpi)
-    const A4_WIDTH_PX = '794px';
-
     // Temel stiller
-    printContainer.style.setProperty('position', 'relative', 'important');
-    printContainer.style.setProperty('width', A4_WIDTH_PX, 'important');
-    printContainer.style.setProperty('max-width', A4_WIDTH_PX, 'important');
-    printContainer.style.setProperty('margin', '0', 'important'); // v6: Sol tarafa daya (Browser marjinleri ile sığması için)
+    printContainer.style.setProperty('position', 'relative', 'important'); // v4: relative yaparak doğal sayfa akışını sağla
+    printContainer.style.setProperty('width', '210mm', 'important');
+    printContainer.style.setProperty('max-width', '210mm', 'important');
+    printContainer.style.setProperty('margin', '0 auto', 'important');
     printContainer.style.setProperty('padding', '0', 'important');
     printContainer.style.setProperty('background', 'white', 'important');
     printContainer.style.setProperty('z-index', '9999999', 'important');
@@ -101,17 +98,17 @@ export const printService = {
         (btn as HTMLElement).style.setProperty('display', 'none', 'important');
       });
 
-      // A4 için transform ve boyut sıfırlama (v6: Hard Pixel Standard)
+      // A4 için transform ve boyut sıfırlama (v4: Absolute Physical Standard)
       clone.style.setProperty('transform', 'none', 'important');
       clone.style.setProperty('scale', '1', 'important');
       clone.style.setProperty('zoom', '1', 'important');
-      clone.style.setProperty('margin', '0', 'important');
+      clone.style.setProperty('margin', '0 auto', 'important');
       clone.style.setProperty('box-shadow', 'none', 'important');
       clone.style.setProperty('position', 'relative', 'important');
-      clone.style.setProperty('width', A4_WIDTH_PX, 'important');
-      clone.style.setProperty('max-width', A4_WIDTH_PX, 'important');
-      clone.style.setProperty('padding', '38px', 'important'); // 10mm ≈ 38px (96dpi)
-      clone.style.setProperty('min-height', '1122px', 'important'); // A4 Height ≈ 1123px
+      clone.style.setProperty('width', '210mm', 'important');
+      clone.style.setProperty('max-width', '210mm', 'important');
+      clone.style.setProperty('padding', '10mm', 'important'); // v4.1: Tam 1cm marjin
+      clone.style.setProperty('min-height', '296.7mm', 'important');
       clone.style.setProperty('height', 'auto', 'important');
       clone.style.setProperty('box-sizing', 'border-box', 'important');
       clone.style.setProperty('display', 'block', 'important');
@@ -121,61 +118,41 @@ export const printService = {
       clone.style.setProperty('background', 'white', 'important');
       clone.style.setProperty('color', 'black', 'important');
 
-      // --- DEEP ASSET CAPTURE & STYLE CLEANING (v7) ---
+      // --- DEEP STYLE CLEANING (v4) ---
       const originalElements = el.querySelectorAll('*');
       const cloneElements = clone.querySelectorAll('*');
-
-      // 1. Canvas Mirroring (Mevcut kanvas verilerini klona aktar)
-      const originalCanvases = el.querySelectorAll('canvas');
-      const clonedCanvases = clone.querySelectorAll('canvas');
-      originalCanvases.forEach((oCanvas, cIdx) => {
-        const cCanvas = clonedCanvases[cIdx] as HTMLCanvasElement;
-        if (cCanvas) {
-          cCanvas.width = oCanvas.width;
-          cCanvas.height = oCanvas.height;
-          const ctx = cCanvas.getContext('2d');
-          if (ctx) ctx.drawImage(oCanvas, 0, 0);
-        }
-      });
 
       cloneElements.forEach((child, idx) => {
         const cel = child as HTMLElement;
         const oel = originalElements[idx] as HTMLElement;
         if (!oel) return;
 
-        // 2. Ekran ölçeklendirmelerini ve zoom etkilerini kesin temizle
+        // 1. Ekran ölçeklendirmelerini ve zoom etkilerini kesin temizle
         cel.style.setProperty('transform', 'none', 'important');
         cel.style.setProperty('scale', '1', 'important');
         cel.style.setProperty('zoom', '1', 'important');
         cel.style.setProperty('-webkit-text-size-adjust', '100%', 'important');
         if (cel.hasAttribute('data-scaled')) cel.removeAttribute('data-scaled');
 
-        // 3. Viewport ve Taşma Normalizasyonu
+        // 2. Viewport ve Taşma Normalizasyonu (v5)
         const oStyle = window.getComputedStyle(oel);
         const computedWidth = parseFloat(oStyle.width) || 0;
 
-        if (computedWidth > 750 || oStyle.width.includes('vw')) {
+        // Eğer içerik kağıt genişliğinden (794px ≈ 210mm) genişse, 100%'e çek (Taşmayı ve dolayısıyla küçülmeyi önler)
+        if (computedWidth > 794 || oStyle.width.includes('vw')) {
           cel.style.setProperty('width', '100%', 'important');
           cel.style.setProperty('max-width', '100%', 'important');
         }
 
+        // 3. Flex ve Grid Alanlarını Sabitle
         if (oStyle.display === 'flex' || oStyle.display === 'grid') {
           cel.style.setProperty('max-width', '100%', 'important');
-          cel.style.setProperty('width', '100%', 'important');
           cel.style.setProperty('overflow', 'visible', 'important');
         }
 
         if (oStyle.height.includes('vh')) cel.style.height = 'auto';
 
-        // 4. SVG & Asset Integrity (Bozuk SVG referanslarını önle)
-        if (cel.tagName.toLowerCase() === 'svg') {
-          cel.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-          if (!cel.getAttribute('viewBox') && cel.offsetWidth) {
-            cel.setAttribute('viewBox', `0 0 ${cel.offsetWidth} ${cel.offsetHeight}`);
-          }
-        }
-
-        // 5. Görünürlük ve Taşma
+        // 4. Görünürlük ve Taşma
         if (oStyle.overflow === 'hidden' || oStyle.overflow === 'auto') {
           cel.style.setProperty('overflow', 'visible', 'important');
         }
@@ -223,39 +200,13 @@ export const printService = {
       await document.fonts.ready;
     }
 
-    // 8. Viewport Manipülasyonu ve Yazdır (v6: DOM Isolation)
+    // 8. Yazdır
     const originalTitle = document.title;
     document.title = title.replace(/[^a-z0-9ğüşıöç]/gi, '_');
 
-    // Viewport meta tag'ini fiziksel genişliğe kilitler (Tarayıcıyı kandırır)
-    const meta = document.querySelector('meta[name="viewport"]');
-    const originalViewport = meta ? meta.getAttribute('content') : '';
-    if (meta) meta.setAttribute('content', 'width=794, initial-scale=1, maximum-scale=1, user-scalable=no');
-
-    // Root elementini geçici olarak "Derin Gizle" (Layout engine'i kırmadan)
-    const root = document.getElementById('root');
-    if (root) {
-      root.style.setProperty('visibility', 'hidden', 'important');
-      root.style.setProperty('position', 'fixed', 'important');
-      root.style.setProperty('top', '-9999px', 'important');
-      root.style.setProperty('left', '-9999px', 'important');
-      root.style.setProperty('opacity', '0', 'important');
-    }
-
-    // Ekstra bekleme: SVG ve karmaşık layout bileşenleri için (v7)
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     window.print();
 
-    // 9. Temizlik ve Geri Yükleme
-    if (meta && originalViewport) meta.setAttribute('content', originalViewport);
-    if (root) {
-      root.style.removeProperty('visibility');
-      root.style.removeProperty('position');
-      root.style.removeProperty('top');
-      root.style.removeProperty('left');
-      root.style.removeProperty('opacity');
-    }
+    // 9. Temizlik (print dialog kapatıldıktan sonra)
     document.title = originalTitle;
 
     // afterprint eventi ya da timeout ile güvenli cleanup

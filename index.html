@@ -531,64 +531,64 @@
         /* Tarayıcı marjinlerini sıfırla, kontrolü CSS'e al */
       }
 
-      /* 1. Root Element İzolasyonu (v7: Display Persistence)
-         display: none yerine visibility: hidden kullanarak render motorlarının 
-         (SVG, Chart vb.) çalışmaya devam etmesini sağlıyoruz. */
+      /* 1. Asıl Arayüzü (Root) Tamamen Yok Et (Zemin Çakışmasını Önler) */
       #root {
+        display: none !important;
         visibility: hidden !important;
-        position: absolute !important;
-        top: -9999px !important;
-        left: -9999px !important;
         width: 0 !important;
         height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
+        position: absolute !important;
       }
 
       html,
       body {
         background: white !important;
         margin: 0 !important;
+        /* v5: Marjini sıfırla, kağıdı tam kapla */
         padding: 0 !important;
         height: auto !important;
-        width: 794px !important;
-        /* v6: 210mm @ 96dpi Hard Lock */
+        width: 100% !important;
+        /* Tarayıcı genişliği %100 almalı */
         overflow: visible !important;
         display: block !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         position: relative !important;
-        transform: none !important;
-        zoom: 1 !important;
       }
 
-      /* 2. Print Container Artık Sayfanın Tek Hakimi */
+      /* 2. Print Container Artık Sayfanın Tek Hakimi (Relative Position ile doğal akar) */
       #print-container {
         display: block !important;
         visibility: visible !important;
         position: relative !important;
-        width: 794px !important;
-        max-width: 794px !important;
-        margin: 0 !important;
+        /* <--- ABSOLUTE İPTAL (Çoklu Sayfa Donmasını Çözer) */
+        width: 210mm !important;
+        /* Kağıt genişliği */
+        max-width: 210mm !important;
+        margin: 0 auto !important;
+        /* Mükemmel ortalama */
         background: white !important;
         z-index: 9999999 !important;
       }
 
       /* ═══════════════════════════════════════════
          SAYFA KONTEYNER — A4 Standart Mod
+         A4 = 210mm x 297mm
       ═══════════════════════════════════════════ */
       .ultra-print-page,
       .worksheet-page {
         visibility: visible !important;
         display: block !important;
-        width: 794px !important;
-        min-height: 1122px !important;
+        width: 210mm !important;
+        /* A4 Genişliğine Kilitli */
+        min-height: 296mm !important;
         height: auto !important;
-        padding: 38px !important;
-        /* 10mm ≈ 38px */
-        margin: 0 !important;
+        padding: 10mm !important;
+        /* Kullanıcı Talebi: Tam 1cm boşluk */
+        margin: 0 auto !important;
+        /* Merkeze hizala */
         overflow: visible !important;
         page-break-after: always !important;
         break-after: page !important;
@@ -600,6 +600,7 @@
         border: none !important;
         box-shadow: none !important;
         transform: scale(1) !important;
+        /* Her türlü skalayı sıfırla */
         zoom: 1 !important;
       }
 
@@ -728,7 +729,7 @@
       .block-logic-card,
       .block-clue-card,
       .block-footer-val,
-      /* Görsellerin/Canvas'ların yarısı üstte kalmasın ve görünürlüğü garanti olsun */
+      /* Görsellerin/Canvas'ların yarısı üstte kalmasın */
       img,
       canvas,
       svg,
@@ -743,9 +744,6 @@
       tbody {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
-        visibility: visible !important;
-        display: block !important;
-        max-width: 100% !important;
       }
 
       /* Sayfa başlıkları ve soruların kendilerinden sonra 
