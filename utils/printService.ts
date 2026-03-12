@@ -91,8 +91,8 @@ export const printService = {
       // UI gürültüsünü temizle (sadece kesin UI elementleri)
       const uiGarbage = clone.querySelectorAll(
         '.edit-handle, .page-navigator, .no-print, .overlay-ui, ' +
-          '[data-testid="edit-btn"], .page-label-container, ' +
-          '.print-toolbar, .print-controls, [class*="backdrop-blur"]'
+        '[data-testid="edit-btn"], .page-label-container, ' +
+        '.print-toolbar, .print-controls, [class*="backdrop-blur"]'
       );
       uiGarbage.forEach((e) => (e as HTMLElement).remove());
 
@@ -188,8 +188,9 @@ export const printService = {
     await Promise.all(imagePromises);
 
     // 7. Tarayıcı düzen motorunun (Layout) tam oturduğundan emin ol
+    // Özellikle çok sayfalı kitapçıklarda ve ağır AI görsellerinde bekleme süresini 1.5 saniyeye çıkarıyoruz.
     await new Promise((resolve) =>
-      requestAnimationFrame(() => setTimeout(resolve, options.compact ? 800 : 1200))
+      requestAnimationFrame(() => setTimeout(resolve, options.compact ? 1000 : 1500))
     );
 
     // Kontrol: Fontlar hala yüklenmemiş olabilir mi?

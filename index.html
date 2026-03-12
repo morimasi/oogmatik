@@ -615,11 +615,38 @@
       }
 
       /* Yüksek flex yapıları blok moduna çevirerek sayfalama kırılmalarını engelle (çoklu sayfa desteği) */
+      .worksheet-page,
+      .worksheet-page>div,
+      .worksheet-page>div>div,
       .worksheet-page>.flex-1,
       .worksheet-page>.flex-col {
         display: block !important;
         height: auto !important;
         min-height: 0 !important;
+        overflow: visible !important;
+      }
+
+      /* TEMA İZOLASYONU: Baskı sırasında TÜM CSS değişkenlerini Light Mode'a zorla
+         Böylece Dark Mode aktifken bile beyaz üzerine siyah çıktı alınır. */
+      * {
+        --bg-primary: #ffffff !important;
+        --bg-secondary: #f4f4f5 !important;
+        --bg-paper: #ffffff !important;
+        --text-primary: #000000 !important;
+        --text-secondary: #475569 !important;
+        --text-muted: #94a3b8 !important;
+        --border-color: #e2e8f0 !important;
+        --accent-color: #4f46e5 !important;
+        /* Standart Indigo */
+        --c-zinc-900: #18181b !important;
+        --c-zinc-800: #27272a !important;
+        --c-zinc-700: #3f3f46 !important;
+        --c-zinc-600: #52525b !important;
+        --c-zinc-500: #71717a !important;
+        --c-zinc-400: #a1a1aa !important;
+        --c-zinc-300: #d4d4d8 !important;
+        --c-zinc-200: #e4e4e7 !important;
+        --c-zinc-100: #f4f4f5 !important;
       }
 
       /* ═══════════════════════════════════════════

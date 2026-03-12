@@ -19,11 +19,12 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
     const getPageStyle = (extra = {}) => ({
         width: '210mm',
         minHeight: '296.5mm', // Subtle adjustment for PDF precision
+        height: 'auto', // Baskı sırasında uzamasına izin ver
         margin: '0 auto',
         backgroundColor: 'white',
         color: 'black',
         position: 'relative' as const,
-        overflow: 'hidden' as const,
+        overflow: 'visible' as const, // Taşmaya izin ver (print-engine v5 için kritik)
         boxShadow: '0 0 40px rgba(0,0,0,0.1)',
         fontFamily: font,
         ...extra

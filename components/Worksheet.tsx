@@ -114,6 +114,7 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
         return {
             width: isLandscape ? '297mm' : '210mm',
             minHeight: isLandscape ? '210mm' : '297mm',
+            height: 'auto', // Baskı sırasında uzatmaya izin ver
             backgroundColor: 'white',
             color: 'black',
             colorScheme: 'light' as any,
@@ -121,6 +122,7 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
             boxSizing: 'border-box' as const,
             marginBottom: '40px',
             boxShadow: '0 40px 100px -20px rgba(0,0,0,0.2)',
+            overflow: 'visible' as const, // Çoklu sayfa akışı için kritik
             ...getBorderCSS(settings.themeBorder || 'simple', settings.borderColor, settings.borderWidth)
         };
     }, [settings.orientation, settings.themeBorder, settings.borderColor, settings.borderWidth]);
