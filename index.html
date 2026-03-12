@@ -546,49 +546,44 @@
       body {
         background: white !important;
         margin: 0 !important;
-        /* v5: Marjini sıfırla, kağıdı tam kapla */
         padding: 0 !important;
         height: auto !important;
-        width: 100% !important;
-        /* Tarayıcı genişliği %100 almalı */
+        width: 794px !important;
+        /* v6: 210mm @ 96dpi Hard Lock */
         overflow: visible !important;
         display: block !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         position: relative !important;
+        transform: none !important;
+        zoom: 1 !important;
       }
 
-      /* 2. Print Container Artık Sayfanın Tek Hakimi (Relative Position ile doğal akar) */
+      /* 2. Print Container Artık Sayfanın Tek Hakimi */
       #print-container {
         display: block !important;
         visibility: visible !important;
         position: relative !important;
-        /* <--- ABSOLUTE İPTAL (Çoklu Sayfa Donmasını Çözer) */
-        width: 210mm !important;
-        /* Kağıt genişliği */
-        max-width: 210mm !important;
-        margin: 0 auto !important;
-        /* Mükemmel ortalama */
+        width: 794px !important;
+        max-width: 794px !important;
+        margin: 0 !important;
         background: white !important;
         z-index: 9999999 !important;
       }
 
       /* ═══════════════════════════════════════════
          SAYFA KONTEYNER — A4 Standart Mod
-         A4 = 210mm x 297mm
       ═══════════════════════════════════════════ */
       .ultra-print-page,
       .worksheet-page {
         visibility: visible !important;
         display: block !important;
-        width: 210mm !important;
-        /* A4 Genişliğine Kilitli */
-        min-height: 296mm !important;
+        width: 794px !important;
+        min-height: 1122px !important;
         height: auto !important;
-        padding: 10mm !important;
-        /* Kullanıcı Talebi: Tam 1cm boşluk */
-        margin: 0 auto !important;
-        /* Merkeze hizala */
+        padding: 38px !important;
+        /* 10mm ≈ 38px */
+        margin: 0 !important;
         overflow: visible !important;
         page-break-after: always !important;
         break-after: page !important;
@@ -600,7 +595,6 @@
         border: none !important;
         box-shadow: none !important;
         transform: scale(1) !important;
-        /* Her türlü skalayı sıfırla */
         zoom: 1 !important;
       }
 
