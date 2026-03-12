@@ -3,8 +3,7 @@ import { DirectionalTrackingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-// Fix: Explicitly defining props type for clarity and resolving implicit 'any' error
-const ArrowIcon = ({ dir, compact = false }: { dir: string; compact?: boolean; key?: number | string }) => {
+const ArrowIcon = ({ dir, compact = false }: { dir: string; compact?: boolean }) => {
   const rotations: Record<string, number> = {
     right: 0,
     down: 90,
@@ -14,13 +13,10 @@ const ArrowIcon = ({ dir, compact = false }: { dir: string; compact?: boolean; k
 
   return (
     <div
-      className={`${compact ? 'w-6 h-6 rounded-lg' : 'w-8 h-8 rounded-xl'} flex items - center justify - center bg - white shadow - sm border - 2 border - zinc - 200 group - hover: scale - 110 transition - transform relative`}
+      className={`${compact ? 'w-8 h-8 rounded-lg' : 'w-10 h-10 rounded-xl'} flex items-center justify-center bg-zinc-50 border-2 border-zinc-200 group-hover:border-indigo-500 transition-all relative shadow-sm`}
     >
-      <div
-        className={`absolute inset - 0 bg - amber - 400 opacity - 0 group - hover: opacity - 10 ${compact ? 'rounded-lg' : 'rounded-xl'} transition - opacity`}
-      ></div>
       <i
-        className={`fa - solid fa - arrow - right text - zinc - 800 ${compact ? 'text-[10px]' : 'text-sm'} `}
+        className={`fa-solid fa-arrow-right text-zinc-800 ${compact ? 'text-xs' : 'text-sm'}`}
         style={{ transform: `rotate(${rotations[dir] || 0}deg)` }}
       ></i>
     </div>
@@ -28,221 +24,155 @@ const ArrowIcon = ({ dir, compact = false }: { dir: string; compact?: boolean; k
 };
 
 export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingData }) => {
-  const settings = data?.settings;
   const puzzles = data?.puzzles || [];
-  const layout = settings?.layout || 'single';
-
-  // Premium dynamic grid layout depending on the item count
-  const gridCols =
-    layout === 'grid_2x1'
-      ? 'grid-cols-1'
-      : layout === 'grid_compact'
-        ? 'grid-cols-2'
-        : 'grid-cols-1';
+  const layout = data?.settings?.layout || 'single';
   const isSingle = puzzles.length === 1;
-  const isCompact = layout === 'grid_compact';
 
   return (
-    <div className="flex flex-col h-full bg-white font-sans text-black overflow-hidden professional-worksheet">
+    <div className="flex flex-col h-full bg-white font-['Lexend'] text-black overflow-hidden professional-worksheet p-10 print:p-4">
       <PedagogicalHeader
         title={data?.title || 'YÖNSEL İZ SÜRME & ŞİFRE ÇÖZÜCÜ'}
         instruction={
           data?.instruction ||
-          'İşaretli başlangıç vektöründen okların yönünü adım adım takip edin ve bulduğunuz karakterleri sırasıyla şifre alanına yazın.'
+          'İşaretli başlangıç noktasından okların yönünü adım adım takip edin ve bulduğunuz karakterleri sırasıyla şifre kutularına yazın.'
         }
         note={data?.pedagogicalNote}
       />
 
-      <div
-        className={`grid ${gridCols} ${isSingle ? 'gap-12 print:gap-6 mt-8' : isCompact ? 'gap-4 print:gap-2 mt-4' : 'gap-8 print:gap-6 mt-6'} flex - 1 content - start items - start pb - 6`}
-      >
-        {puzzles.map((puzzle: DirectionalTrackingData['puzzles'][number], idx: number) => {
-          const rows = puzzle.grid.length;
-          const cols = puzzle.grid[0].length;
+      <div className={`mt-8 grid ${isSingle ? 'grid-cols-1' : 'grid-cols-2'} gap-8 print:gap-4 flex-1 content-start`}>
+        {puzzles.map((puzzle, idx) => (
+          <EditableElement
+            key={idx}
+            className={`relative bg-white border-[3px] border-zinc-900 rounded-[3rem] p-10 print:p-6 shadow-[12px_12px_0_#18181b] flex flex-col gap-10 print:gap-6 break-inside-avoid ${isSingle ? 'max-w-4xl mx-auto w-full' : ''}`}
+          >
+            {/* Badge */}
+            <div className="absolute -top-5 left-10 bg-indigo-600 text-white px-6 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] border-2 border-zinc-900 shadow-lg z-20">
+              Görev {idx + 1}
+            </div>
 
-          // Dynamic sizing based on layout
-          const cellSize = isSingle
-            ? cols > 8
-              ? 'w-14 h-14 text-2xl'
-              : 'w-16 h-16 text-3xl'
-            : isCompact
-              ? cols > 8
-                ? 'w-6 h-6 text-[10px]'
-                : 'w-8 h-8 text-xs'
-              : cols > 8
-                ? 'w-8 h-8 text-sm'
-                : 'w-10 h-10 text-lg';
+            <div className={`flex ${isSingle ? 'flex-row' : 'flex-col'} gap-12 print:gap-8 items-start justify-between`}>
 
-          return (
-            <EditableElement
-              key={idx}
-              className={`flex flex - col border - 2 border - zinc - 900 ${isCompact ? 'rounded-[2rem] p-4 print:p-2' : 'rounded-[2.5rem] p-6 print:p-4'} bg - white group relative shadow - [4px_4px_0_#18181b] break-inside - avoid transition - all ${isSingle ? 'h-full min-h-[600px] max-w-4xl mx-auto w-full' : ''} `}
-            >
-              {/* Bulmaca Başlığı */}
-              <div
-                className={`absolute ${isCompact ? '-top-3 left-6 px-3 py-1 text-[8px]' : '-top-4 left-8 px-4 py-1.5 text-[10px]'} bg - amber - 400 text - black rounded - xl font - black uppercase tracking - [0.2em] z - 10 border - 2 border - zinc - 900 shadow - [2px_2px_0_#18181b]`}
-              >
-                {puzzle.title || `ŞİFRE BLOĞU 0${idx + 1} `}
-              </div>
-
-              <div
-                className={`flex ${isSingle ? 'flex-col lg:flex-row gap-12 print:gap-8' : isCompact ? 'flex-col gap-4' : 'flex-col lg:flex-row gap-8 print:gap-6'} items - center h - full w - full justify - center`}
-              >
-                {/* Sol: Grid Sahası */}
-                <div className="relative shrink-0 flex flex-col items-center">
-                  <div
-                    className={`bg - zinc - 50 ${isCompact ? 'p-3 print:p-2 rounded-2xl' : 'p-6 print:p-4 rounded-[2rem]'} border - 2 border - zinc - 200 relative`}
-                  >
-                    {/* Koordinat Harfleri (Üst) */}
-                    <div className={`flex ${isCompact ? 'mb-1 ml-4' : 'mb-2 ml-6'} `}>
-                      {puzzle.grid[0].map((_cell: string, c: number) => (
-                        <span
-                          key={c}
-                          className={`${cellSize.split(' ')[0]} ${isCompact ? 'text-[8px]' : 'text-[10px]'} font - black text - zinc - 400 text - center uppercase`}
-                        >
-                          {String.fromCharCode(65 + c)}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="flex">
-                      {/* Koordinat Sayıları (Sol) */}
-                      <div
-                        className={`flex flex - col justify - around ${isCompact ? 'mr-1' : 'mr-2'} `}
-                      >
-                        {puzzle.grid.map((_row: string[], r: number) => (
-                          <span
-                            key={r}
-                            className={`${cellSize.split(' ')[1]} ${isCompact ? 'text-[8px]' : 'text-[10px]'} font - black text - zinc - 400 flex items - center justify - center`}
-                          >
-                            {r + 1}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* Grid Cells */}
-                      <div className="grid bg-zinc-200 gap-px border-2 border-zinc-900 rounded-xl overflow-hidden shadow-inner" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-                        {puzzle.grid.map((row: string[], r: number) => (
-                          row.map((cell: string, c: number) => {
-                            const isStart = r === puzzle.startPos.r && c === puzzle.startPos.c;
-                            return (
-                              <div
-                                key={`${r} -${c} `}
-                                className={`${cellSize} bg - white flex items - center justify - center font - black relative ${isStart ? 'text-white' : 'text-zinc-800'} transition - all`}
-                              >
-                                {isStart && <div className="absolute inset-0 bg-indigo-600 rounded-lg scale-90 border-2 border-indigo-900"></div>}
-                                <span className="relative z-10">{cell}</span>
-
-                                {/* Crosshairs Effect on hover */}
-                                <div className="absolute inset-0 border-2 border-amber-400 opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none"></div>
-                              </div>
-                            );
-                          })
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Başlangıç Vektörü Pin */}
-                    <div
-                      className={`absolute ${isCompact ? '-left-3 top-1/2 px-2 py-1 text-[7px]' : '-left-4 top-1/2 px-3 py-2 text-[10px]'} -translate - y - 1 / 2 bg - zinc - 900 text - white rounded - xl font - black uppercase tracking - widest border - 2 border - white shadow - lg - rotate - 90 origin - center whitespace - nowrap`}
-                    >
-                      BAŞLANGIÇ: {String.fromCharCode(65 + puzzle.startPos.c)}
-                      {puzzle.startPos.r + 1}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sağ: Yörünge ve Çıktı */}
-                <div
-                  className={`flex flex - col ${isSingle ? 'flex-1 w-full justify-center gap-10' : isCompact ? 'w-full gap-3' : 'flex-1 w-full gap-6'} `}
-                >
-                  {/* Yönerge Alanı */}
-                  <div
-                    className={`bg - zinc - 100 / 80 border - 2 border - zinc - 200 ${isCompact ? 'rounded-2xl p-3' : 'rounded-[2rem] p-6'} relative`}
-                  >
-                    <div
-                      className={`flex items - center gap - 3 ${isCompact ? 'mb-2 pb-2' : 'mb-4 pb-3'} border - b border - zinc - 300`}
-                    >
-                      <div
-                        className={`${isCompact ? 'w-6 h-6 text-xs' : 'w-8 h-8'} rounded - lg bg - amber - 100 text - amber - 600 flex items - center justify - center`}
-                      >
-                        <i className="fa-solid fa-route"></i>
-                      </div>
-                      <div>
-                        <h5
-                          className={`${isCompact ? 'text-[8px]' : 'text-[10px]'} font - black text - zinc - 500 uppercase tracking - widest`}
-                        >
-                          Yörünge Protokolü
-                        </h5>
-                        <p
-                          className={`${isCompact ? 'text-[8px]' : 'text-[10px]'} font - bold text - zinc - 400`}
-                        >
-                          {puzzle.path.length} Adım
-                        </p>
-                      </div>
-                    </div>
-                    <div className={`flex flex - wrap ${isCompact ? 'gap-1' : 'gap-2'} items - center`}>
-                      {puzzle.path.map((dir, dIdx) => (
-                        <ArrowIcon key={dIdx} dir={dir} compact={isCompact} />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Çıktı Alanı */}
-                  <div className="flex flex-col">
-                    <div className="flex justify-between items-end mb-2 px-2">
-                      <span
-                        className={`${isCompact ? 'text-[8px]' : 'text-[10px]'} font - black text - indigo - 600 uppercase tracking - [0.2em]`}
-                      >
-                        Deşifre Edilen Kod:
+              {/* GRID AREA */}
+              <div className="flex-1 flex flex-col items-center gap-4">
+                <div className="relative p-6 bg-zinc-50 rounded-[2.5rem] border-2 border-zinc-200">
+                  {/* Grid Labels (Top) */}
+                  <div className="flex ml-10 mb-2">
+                    {puzzle.grid[0].map((_, c) => (
+                      <span key={c} className="w-12 h-6 flex items-center justify-center text-[10px] font-black text-zinc-400 uppercase tracking-tighter">
+                        {String.fromCharCode(65 + c)}
                       </span>
-                      {settings?.showClinicalNotes && puzzle.clinicalMeta && !isCompact && (
-                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest bg-zinc-100 px-2 py-1 rounded-md">
-                          Bilişsel Yük: %{Math.round(puzzle.clinicalMeta.perceptualLoad * 100)}
+                    ))}
+                  </div>
+
+                  <div className="flex">
+                    {/* Grid Labels (Left) */}
+                    <div className="flex flex-col mr-2">
+                      {puzzle.grid.map((_, r) => (
+                        <span key={r} className="w-8 h-12 flex items-center justify-center text-[10px] font-black text-zinc-400">
+                          {r + 1}
                         </span>
+                      ))}
+                    </div>
+
+                    {/* Main Grid */}
+                    <div
+                      className="grid bg-zinc-200 gap-px border-2 border-zinc-900 rounded-2xl overflow-hidden shadow-xl"
+                      style={{ gridTemplateColumns: `repeat(${puzzle.grid[0].length}, minmax(0, 1fr))` }}
+                    >
+                      {puzzle.grid.map((row, r) =>
+                        row.map((cell, c) => {
+                          const isStart = r === puzzle.startPos.r && c === puzzle.startPos.c;
+                          return (
+                            <div key={`${r}-${c}`} className={`w-12 h-12 print:w-10 print:h-10 bg-white flex items-center justify-center font-black text-xl relative ${isStart ? 'bg-indigo-50' : ''}`}>
+                              {isStart && (
+                                <div className="absolute inset-2 border-2 border-indigo-500 rounded-lg flex items-center justify-center">
+                                  <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+                                </div>
+                              )}
+                              <span className={isStart ? 'text-indigo-600 scale-75' : 'text-zinc-800'}>{cell}</span>
+                            </div>
+                          );
+                        })
                       )}
                     </div>
-                    {/* Blank Boxes for the Answer based on start char + path length */}
-                    <div
-                      className={`flex gap - 2 w - full justify - between items - center bg - white border - 2 border - zinc - 200 ${isCompact ? 'p-2 rounded-xl' : 'p-3 rounded-2xl'} shadow - inner`}
-                    >
-                      {Array.from({ length: puzzle.path.length + 1 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className={`flex - 1 aspect - square ${isCompact ? 'max-w-[2rem] border-b-2 rounded-t-lg' : 'max-w-[3rem] border-b-4 rounded-t-xl'} border - zinc - 800 bg - zinc - 50 flex items - center justify - center`}
-                        >
-                          <EditableText
-                            value=""
-                            tag="div"
-                            placeholder="?"
-                            className={`font - black ${isCompact ? 'text-lg' : 'text-2xl'} text - zinc - 300`}
-                          />
-                        </div>
-                      ))}
-                    </div>
                   </div>
+                </div>
+                <div className="flex items-center gap-2 text-[10px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100 italic">
+                  <i className="fa-solid fa-location-dot"></i>
+                  Başlangıç: {String.fromCharCode(65 + puzzle.startPos.c)}{puzzle.startPos.r + 1}
                 </div>
               </div>
 
-              {/* Gizli Çözüm (Ters) */}
-              <div className="absolute bottom-4 right-6 opacity-0 group-hover:opacity-10 transition-opacity rotate-180 text-[10px] font-black select-none pointer-events-none bg-black text-white px-2 py-1 rounded">
-                ANS: {puzzle.targetWord}
+              {/* PATH & ANSWER AREA */}
+              <div className="flex-1 w-full space-y-8">
+                {/* Yörünge Bilgisi */}
+                <div className="bg-zinc-100 rounded-[2rem] p-6 border-2 border-zinc-200 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-4 opacity-5">
+                    <i className="fa-solid fa-route text-6xl"></i>
+                  </div>
+                  <h5 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                    Algoritma Yörüngesi
+                  </h5>
+                  <div className="flex flex-wrap gap-2">
+                    {puzzle.path.map((dir, dIdx) => (
+                      <ArrowIcon key={dIdx} dir={dir} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Deşifre Giriş Alanı */}
+                <div className="space-y-4">
+                  <h5 className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] ml-2">Deşifre Edilen Kod:</h5>
+                  <div className="flex flex-wrap gap-3">
+                    {Array.from({ length: puzzle.path.length + 1 }).map((_, i) => (
+                      <div key={i} className="w-16 h-20 print:w-12 print:h-16 flex flex-col items-center justify-center border-b-[5px] border-zinc-900 bg-zinc-50 rounded-t-2xl shadow-sm transition-all hover:bg-white hover:-translate-y-1">
+                        <span className="text-3xl font-black text-zinc-200">?</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </EditableElement>
-          );
-        })}
+            </div>
+
+            {/* Çözüm Anahtarı (Ters) */}
+            <div className="absolute bottom-4 right-10 rotate-180 opacity-0 group-hover:opacity-20 text-[8px] font-black uppercase tracking-widest pointer-events-none select-none">
+              Çözüm: {puzzle.targetWord}
+            </div>
+          </EditableElement>
+        ))}
       </div>
 
-      {/* Footer Protokolü - Minimalist */}
-      <div className="mt-auto pt-4 border-t-2 border-zinc-100 flex justify-between items-center px-4 print:px-0">
-        <div className="flex flex-col">
-          <span className="text-[8px] font-black text-indigo-500 uppercase tracking-[0.3em] mb-1">
-            KLİNİK MODÜL
-          </span>
-          <span className="text-xs font-bold text-zinc-400">Yönsel Kodlama ve Bellek</span>
+      {/* KLİNİK DEĞERLENDİRME PANELİ (A4 Bottom) */}
+      <div className="mt-auto pt-10 grid grid-cols-4 gap-6 border-t-[3px] border-zinc-100 px-4">
+        <div className="col-span-1 flex flex-col justify-center">
+          <span className="text-[9px] font-black text-indigo-500 uppercase tracking-[0.4em] mb-1">Clinic Pro</span>
+          <span className="text-sm font-black text-zinc-800 uppercase tracking-tight leading-none">Değerlendirme <br />Protokolü</span>
         </div>
-        <div className="w-12 h-12 rounded-full border-4 border-zinc-100 flex items-center justify-center opacity-50">
-          <i className="fa-solid fa-crosshairs text-zinc-400"></i>
+
+        <div className="bg-zinc-50 border-2 border-zinc-100 rounded-2xl p-4 flex flex-col justify-between">
+          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Tamamlama Süresi</span>
+          <div className="flex items-end gap-1">
+            <span className="text-xl font-black text-zinc-900">___:___</span>
+            <span className="text-[8px] font-bold text-zinc-400 mb-1.5">dk/sn</span>
+          </div>
+        </div>
+
+        <div className="bg-zinc-50 border-2 border-zinc-100 rounded-2xl p-4 flex flex-col justify-between">
+          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Hata / Düzeltme</span>
+          <div className="flex items-end gap-2">
+            <div className="flex-1 h-6 border-b-2 border-zinc-200"></div>
+            <span className="text-[8px] font-bold text-zinc-400 mb-0.5">adet</span>
+          </div>
+        </div>
+
+        <div className="bg-zinc-50 border-2 border-zinc-100 rounded-2xl p-4 flex flex-col justify-between">
+          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Dikkat & Odaklanma</span>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map(s => (
+              <div key={s} className="w-5 h-5 rounded-full border-2 border-zinc-200"></div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

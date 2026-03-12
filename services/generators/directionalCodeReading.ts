@@ -6,76 +6,53 @@ export const generateDirectionalCodeReadingFromAI = async (options: GeneratorOpt
     const gridSize = options.gridSize || 6;
     const obstacleDensity = options.obstacleDensity || 20;
     const cipherType = options.cipherType || 'arrows';
+    const puzzleCount = options.puzzleCount || (difficulty === 'Zor' ? 1 : 2);
     const student = options.studentContext;
 
-    let cipherInstruction = 'Klasik oklar kullanarak yönlendirme yap (Örn: 2 birim yukarı, 3 birim sol).';
-    if (cipherType === 'letters') {
-        cipherInstruction = 'Harf sembolojisi kullan. Örn: Yukarı=Y, Aşağı=A, Sağ=S, Sol=L. "2Y" = 2 birim yukarı demek.';
-    } else if (cipherType === 'colors') {
-        cipherInstruction = 'Renk sembolojisi veya karmaşık şifreleme. Örn: "Mavi 2" = 2 yukarı, "Kırmızı 1" = 1 sol.';
-    }
-
-    let studentContextInfo = '';
+    let systemContext = '';
     if (student) {
-        studentContextInfo = `Öğrenci Profili: ${student.age} yaşında. Senaryoyu (Örn: "Uzay gemisini istasyona ulaştır" veya "Köpeği kemiğe götür") onun ilgisini çekecek şekilde kısa tut.`;
+        systemContext = `Öğrenci Profili: ${student.age} yaşında. Senaryoyu öğrencinin ilgisini çekecek (Uzay, Gizli Ajan, Define Avı vb.) bir temaya oturt.`;
     }
-
-    // Grid boyutuna göre path (adım) sayısını sınırla
-    const maxSteps = Math.floor(gridSize * 1.5);
 
     const prompt = `
-Sen "Şifreli Kod Okuma / Rota Labirenti" tarzında algoritmik düşünme becerisi geliştiren bir OÖG (Özel Öğrenme Güçlüğü) etkinlik jeneratörüsün.
-Görev: ${gridSize}x${gridSize} boyutunda bir ızgara üzerinde başlangıç(start) noktasından hedef(target) noktasına ENGEL (obstacle) KUTULARINI AŞARAK giden bir algoritma rotası ve bu rotanın kodlarını üretmek.
+Sen "Şifreli Kod Okuma / Rota Labirenti" üzerine uzmanlaşmış bir OÖG (Özel Öğrenme Güçlüğü) etkinlik jeneratörüsün.
+Bireyin algoritmik düşünme, uzamsal planlama ve yönetici işlevlerini geliştirecek ${puzzleCount} farklı bulmaca (puzzles) üret.
 
 PARAMETRELER:
-- Zorluk Kategorisi: ${difficulty}
-- Matris(Grid) Boyutu: ${gridSize}x${gridSize} (Koordinatlar x: 0..${gridSize - 1}, y: 0..${gridSize - 1})
+- Zorluk: ${difficulty} (Basit seviyede tek hamleli, Zor seviyede L ve Z dönüşlü rotalar)
+- Izgara: ${gridSize}x${gridSize}
 - Engel Yoğunluğu: %${obstacleDensity}
-- Şifreleme/Kodlama Türü: ${cipherInstruction}
-${studentContextInfo}
+- Şifreleme Türü: ${cipherType} (arrows: oklar, letters: koordinat harfleri, colors: renk kodları)
+${systemContext}
 
-ALGORİTMA TASARIM KURALLARI:
-1. grid dizisi 2 boyutlu (array of array) olacaktır. Her hücre bir obje. \`y\` satırı (yukarıdan aşağıya), \`x\` sütunu (soldan sağa) temsil eder. [0][0] en sol üsttür.
-2. startPos ve targetPos hücreleri belirlenmeli.
-3. Arada geçerli zikzak veya L-şeklinde bir "path" (güzergah) olmalı ve bu rotadaki hücreleri "path" olarak işaretle (hata giderme veya ipucu vermek amaçlı).
-4. Rotanın üzerine ASLA "obstacle" (engel) koyma. 
-5. "instructions" dizisine, öğrencinin adım adım hedefi bulması için vereceği "KOD" satırlarını yaz.
-   direction: 'up' (y azalır), 'down' (y artar), 'left' (x azalır), 'right' (x artar).
-   Örn: 2 yukarı, 1 sağ, 3 aşağı gibi. Toplam adım sayısı maks ${maxSteps} komut civarında kalsın.
+ALGORİTMA KURALLARI:
+1. Her bulmaca için ayrı bir "puzzles" array elemanı üret.
+2. grid yapısında: 'empty', 'obstacle', 'start', 'target' tiplerini kullan.
+3. Zorluğa göre yönerge karmaşıklığını artır:
+   - Basit: "2 Sağ, 1 Aşağı"
+   - Orta: (+/-) Matematiksel şifreler (Örn: "4-2 Sağ" = 2 Sağ)
+   - Zor: Koordinat / Renk karmaşası (Örn: "Mavi Kapıdan 3 birim x-ekseni pozitif")
+4. ASLA engellerin üzerinden geçen bir rota (instructions) oluşturma.
+5. Her puzzle için klinikMeta (bilişsel yük, planlama zorluğu) ekle.
 
-Aşağıdaki JSON formatında kesin, parse edilebilir ve mantıksal olarak ÇÖZÜLEBİLİR formatta dön:
-
+Aşağıdaki JSON formatında (DirectionalCodeReadingData) çıktı ver:
 {
-    "id": "directional_code",
+    "id": "directional_code_premium",
     "activityType": "DIRECTIONAL_CODE_READING",
-    "title": "Şifreyi Çöz ve Hedefe Ulaş",
-    "settings": {
-        "difficulty": "${difficulty}",
-        "gridSize": ${gridSize},
-        "obstacleDensity": ${obstacleDensity},
-        "cipherType": "${cipherType}"
-    },
+    "settings": { "difficulty": "${difficulty}", "gridSize": ${gridSize}, "cipherType": "${cipherType}" },
     "content": {
-        "title": "Uzay Gemisini Park Et",
-        "storyIntro": "Komutan! Göktaşlarına (engellere) çarpmadan uzay istasyonuna ulaşmak için aşağıdaki kodları takip et.",
-        "startPos": { "x": 0, "y": 0 },
-        "targetPos": { "x": 4, "y": 4 },
-        "grid": [
-            [
-                { "x": 0, "y": 0, "type": "start", "icon": "fa-solid fa-rocket" },
-                { "x": 1, "y": 0, "type": "empty" },
-                // ... X eksenindeki hücreler (Toplam gridSize kadar sütun)
-            ],
-            [
-               // ... Satır y=1
-            ]
-            // ... Toplam gridSize kadar satır arrayi
-        ],
-        "instructions": [
-            { "step": 1, "count": 2, "direction": "down" },
-            { "step": 2, "count": 3, "direction": "right" },
-            { "step": 3, "count": 2, "direction": "down" },
-            { "step": 4, "count": 1, "direction": "right" }
+        "title": "ALGORİTMİK ROTA PROTOKOLÜ",
+        "storyIntro": "Premium seviye rota analizi ve kod okuma görevi.",
+        "puzzles": [
+            {
+                "id": "p1",
+                "title": "Sektör 7: Labirent",
+                "grid": [ [{ "x":0, "y":0, "type":"start", "icon":"fa-rocket" }, {...}] ],
+                "startPos": { "x": 0, "y": 0 },
+                "targetPos": { "x": 4, "y": 4 },
+                "instructions": [ { "step": 1, "count": 2, "direction": "down", "label": "2 Birim Aşağı" } ],
+                "clinicalMeta": { "cognitiveLoad": 0.7, "planningComplexity": "high" }
+            }
         ]
     }
 }
@@ -83,7 +60,7 @@ Aşağıdaki JSON formatında kesin, parse edilebilir ve mantıksal olarak ÇÖZ
 
     const parsedData = await generateCreativeMultimodal({
         prompt: prompt,
-        temperature: 0.6, // Mantık oyunlarında düşük yaratıcılık katı kurallara uymasını sağlar.
+        temperature: 0.5,
     });
 
     return parsedData as DirectionalCodeReadingData;

@@ -1,6 +1,14 @@
 import { BaseActivityData, ShapeType, ActivityType } from './core';
 
-export * from './core';
+export interface GeneratorOptions {
+  difficulty?: string;
+  gridSize?: number;
+  obstacleDensity?: number;
+  cipherType?: string;
+  puzzleCount?: number;
+  studentContext?: any;
+  [key: string]: any;
+}
 
 export interface SearchFieldItem {
   id: string;
@@ -201,11 +209,11 @@ export interface MapInstructionData extends BaseActivityData {
   }[];
   emphasizedRegion?: string;
   questionType?:
-    | 'spatial_logic'
-    | 'linguistic_geo'
-    | 'attribute_search'
-    | 'neighbor_path'
-    | 'route_planning';
+  | 'spatial_logic'
+  | 'linguistic_geo'
+  | 'attribute_search'
+  | 'neighbor_path'
+  | 'route_planning';
   difficultyLevel?: 1 | 2 | 3 | 4 | 5;
   settings?: {
     showCityNames: boolean;
