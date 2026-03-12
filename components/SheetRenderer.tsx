@@ -942,7 +942,7 @@ const UnifiedContentRenderer = ({
   );
 
   return (
-    <div className="w-full flex flex-col items-center gap-10 no-scrollbar" id="print-container">
+    <div className="w-full flex flex-col items-center gap-10 no-scrollbar" id="sheet-renderer-container">
       {pages.map((p, i) => renderPage(p, i))}
     </div>
   );

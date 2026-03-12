@@ -251,7 +251,7 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
             } finally {
                 setIsPrinting(false);
             }
-        }, 100);
+        }, 500);
     };
 
     const handleGeneratePreface = async () => {
