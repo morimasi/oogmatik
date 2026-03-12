@@ -1,4 +1,5 @@
-import { BaseActivityData, ShapeType, VisualMathType, ActivityType, Student } from './core';
+import { BaseActivityData, ShapeType, VisualMathType } from './common';
+import { ActivityType, Student } from './core';
 
 
 export interface NumberLogicRiddleData extends BaseActivityData {

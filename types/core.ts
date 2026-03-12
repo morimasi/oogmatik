@@ -4,63 +4,27 @@ declare global {
   }
 }
 
-export { ActivityType } from './activity';
-export type { Activity, ActivityCategory, WorksheetBlock, CognitiveErrorTag } from './activity';
-export { UserRole, UserStatus } from './user';
-export type { User } from './user';
-export type { Student, StudentProfile } from './student';
-export type { LayoutItem, LayoutSectionId, ReadingStudioConfig } from './studio';
+import { Activity, ActivityCategory, WorksheetBlock, CognitiveErrorTag, ActivityType } from './activity';
+import { User, UserRole, UserStatus } from './user';
+import { Student, StudentProfile } from './student';
+import { LayoutItem, LayoutSectionId, ReadingStudioConfig } from './studio';
 
-export interface BaseActivityData {
-  title: string;
-  instruction: string;
-  pedagogicalNote?: string;
-  imagePrompt?: string;
-  imageBase64?: string;
-  targetedErrors?: string[];
+export { ActivityType };
+export type { Activity, ActivityCategory, WorksheetBlock, CognitiveErrorTag, User, UserRole, UserStatus, Student, StudentProfile, LayoutItem, LayoutSectionId, ReadingStudioConfig };
+
+import type { StyleSettings, BaseActivityData, CognitiveDomain, ShapeType, VisualMathType } from './common';
+
+export type { StyleSettings, BaseActivityData, CognitiveDomain, ShapeType, VisualMathType };
+
+export interface SingleWorksheetData extends BaseActivityData {
   layoutArchitecture?: {
     cols?: number;
     gap?: number;
     blocks: WorksheetBlock[];
   };
+  [key: string]: any;
 }
-
-export type SingleWorksheetData = BaseActivityData & Record<string, any>;
 export type WorksheetData = SingleWorksheetData[] | null;
-
-export interface StyleSettings {
-  fontSize: number;
-  scale: number;
-  borderColor: string;
-  borderWidth: number;
-  margin: number;
-  columns: number;
-  gap: number;
-  orientation: 'portrait' | 'landscape';
-  themeBorder: 'none' | 'simple' | 'math' | 'verbal' | 'stars' | 'geo';
-  contentAlign: 'left' | 'center' | 'right' | 'justify';
-  fontWeight: 'normal' | 'bold';
-  fontStyle: 'normal' | 'italic';
-  visualStyle: 'card' | 'minimal';
-  showPedagogicalNote: boolean;
-  showMascot: boolean;
-  showStudentInfo: boolean;
-  showTitle: boolean;
-  showInstruction: boolean;
-  showImage: boolean;
-  showFooter: boolean;
-  smartPagination: boolean;
-  fontFamily: string;
-  lineHeight: number;
-  letterSpacing: number;
-  wordSpacing: number;
-  paragraphSpacing: number;
-  focusMode: boolean;
-  rulerColor: string;
-  rulerHeight: number;
-  maskOpacity: number;
-  title?: string;
-}
 
 export interface GeneratorOptions {
   mode?: 'fast' | 'ai';
@@ -158,16 +122,7 @@ export interface GeneratorOptions {
   [key: string]: any;
 }
 
-export type ShapeType =
-  | 'circle'
-  | 'square'
-  | 'triangle'
-  | 'hexagon'
-  | 'star'
-  | 'diamond'
-  | 'pentagon'
-  | 'octagon';
-export type VisualMathType = 'ten-frame' | 'dice' | 'blocks' | 'objects' | 'number-bond' | 'mixed';
+
 
 
 
@@ -309,13 +264,7 @@ export interface WorkbookSettings {
 
 
 
-export type CognitiveDomain =
-  | 'visual_spatial_memory'
-  | 'processing_speed'
-  | 'selective_attention'
-  | 'phonological_loop'
-  | 'logical_reasoning'
-  | 'visual_search';
+
 
 export interface SubTestResult {
   testId: CognitiveDomain;

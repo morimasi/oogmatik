@@ -1,4 +1,5 @@
-import { BaseActivityData, ShapeType, ActivityType } from './core';
+import { BaseActivityData, ShapeType } from './common';
+import { ActivityType } from './core';
 
 // GeneratorOptions core.ts'den taşındı.
 

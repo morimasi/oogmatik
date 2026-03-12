@@ -1,4 +1,5 @@
-import { BaseActivityData, ActivityType, Student } from './core';
+import { BaseActivityData } from './common';
+import { ActivityType, Student } from './core';
 
 
 export interface StoryQuestion {

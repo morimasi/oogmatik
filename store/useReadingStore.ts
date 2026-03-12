@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { InteractiveStoryData, ReadingStudioConfig, LayoutItem, Student } from '../types';
+import { ReadingStudioConfig, LayoutItem, Student } from '../types';
+import { InteractiveStoryData } from '../types/verbal';
 import { A4_HEIGHT_PX } from '../utils/layoutConstants';
 
 interface ReadingState {

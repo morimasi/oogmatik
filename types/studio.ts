@@ -1,4 +1,4 @@
-import { StyleSettings } from './core';
+import { StyleSettings } from './common';
 
 export type LayoutSectionId =
     | 'header'
