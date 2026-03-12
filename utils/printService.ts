@@ -100,7 +100,7 @@ export const printService = {
                 (btn as HTMLElement).style.setProperty('display', 'none', 'important');
             });
 
-            // A4 için transform ve boyut sıfırlama (Force Reset)
+            // A4 için transform ve boyut sıfırlama (v3: Ultra Precision)
             clone.style.setProperty('transform', 'none', 'important');
             clone.style.setProperty('scale', '1', 'important');
             clone.style.setProperty('zoom', '1', 'important');
@@ -109,7 +109,7 @@ export const printService = {
             clone.style.setProperty('position', 'relative', 'important');
             clone.style.setProperty('width', '210mm', 'important');
             clone.style.setProperty('max-width', '210mm', 'important');
-            clone.style.setProperty('min-height', '296mm', 'important');
+            clone.style.setProperty('min-height', '296.7mm', 'important'); // Hassas A4 yüksekliği
             clone.style.setProperty('height', 'auto', 'important');
             clone.style.setProperty('box-sizing', 'border-box', 'important');
             clone.style.setProperty('display', 'block', 'important');
@@ -119,32 +119,42 @@ export const printService = {
             clone.style.setProperty('background', 'white', 'important');
             clone.style.setProperty('color', 'black', 'important');
 
-            // Hatalı flex-box ve transform uzamalarını içeriden de engelle
+            // --- DEEP STYLE CLEANING (v3) ---
             const allElements = clone.querySelectorAll('*');
             allElements.forEach(child => {
                 const el = child as HTMLElement;
-                // Kalan transformları temizle
+                // 1. Her türlü ekran ölçeklendirmesini temizle
                 el.style.transform = 'none';
                 el.style.scale = 'none';
+                el.style.zoom = '1';
                 if (el.hasAttribute('data-scaled')) el.removeAttribute('data-scaled');
 
-                // scroll ve gizli overflowları görünür yap
-                if (el.style.overflow === 'hidden' || el.style.overflow === 'auto' || el.style.overflowY === 'auto') {
+                // 2. Viewport bazlı genişlikleri (vw) temizle (Minik görünmenin ana sebebi budur)
+                const computed = window.getComputedStyle(el);
+                if (computed.width.includes('vw')) el.style.width = '100%';
+                if (computed.maxWidth.includes('vw')) el.style.maxWidth = '100%';
+
+                // 3. Flex-basis veya min-width tarafından zorlanan devasa genişlikleri baskı sınırlarına çek
+                if (el.offsetWidth > 1000) { // Genellikle 210mm ~ 794px'dir.
+                    el.style.setProperty('width', '100%', 'important');
+                    el.style.setProperty('max-width', '100%', 'important');
+                }
+
+                // 4. Görünürlük ve Taşma
+                if (computed.overflow === 'hidden' || computed.overflow === 'auto') {
                     el.style.setProperty('overflow', 'visible', 'important');
                 }
-                // yüksekliği inline %100 veya h-screen olanların boyunu auto yap
-                if (el.style.height === '100%' || el.style.height === '100vh') {
+                if (computed.height === '100%' || computed.height.includes('vh')) {
                     el.style.setProperty('height', 'auto', 'important');
                 }
             });
 
             clone.classList.add('ultra-print-page');
-
-            // Force compact mode for premium look
-            printContainer.classList.add('compact-print');
-
             printContainer.appendChild(clone);
         });
+
+        // Force compact mode for premium look (moved outside the loop)
+        printContainer.classList.add('compact-print');
 
         document.body.appendChild(printContainer);
 
