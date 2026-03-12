@@ -28,9 +28,9 @@ interface PromptSimulatorProps {
 
 export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
     const [variables, setVariables] = useState<Record<string, string>>({});
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<WorksheetData>(null);
     const [loading, setLoading] = useState(false);
-    const [auditReport, setAuditReport] = useState<any>(null);
+    const [auditReport, setAuditReport] = useState<{ score: number; verdict: string; analysis: any[] } | null>(null);
     const [isAuditing, setIsAuditing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<'preview' | 'json'>('preview');
@@ -139,7 +139,7 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedActivityType(e.target.value as ActivityType)}
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2 px-2 text-[10px] text-zinc-300 outline-none"
                     >
-                        {Object.values(ActivityType).map((t: string) => (
+                        {Object.values(ActivityType).map((t: ActivityType) => (
                             <option key={t} value={t}>{t}</option>
                         ))}
                     </select>

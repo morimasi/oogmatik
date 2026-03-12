@@ -42,7 +42,7 @@ export const HiddenPasswordConfig = ({ options, onChange }: { options: Generator
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold text-zinc-500 uppercase">Izgara Boyutu</label>
                         <select value={options.gridSize || 5} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('gridSize', Number(e.target.value))} className="w-full p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold">
-                            {[4, 5, 6, 8].map(n => <option key={n} value={n}>{n}x{n}</option>)}
+                            {[4, 5, 6, 8].map((n: number) => <option key={n} value={n}>{n}x{n}</option>)}
                         </select>
                     </div>
                     <div className="space-y-1">

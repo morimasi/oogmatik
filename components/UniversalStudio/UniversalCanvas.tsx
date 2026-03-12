@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import React, { useRef, useState, useEffect } from 'react';
 import { LayoutItem } from '../../types';
 import { useUniversalStudio } from '../../context/UniversalStudioContext';
@@ -11,7 +11,7 @@ interface DraggableItemProps {
     children: React.ReactNode;
 }
 
-const DraggableItem: React.FC<DraggableItemProps> = ({ item, children }) => {
+const DraggableItem = ({ item, children }: DraggableItemProps) => {
     const {
         designMode, updateComponent, setSelectedId, selectedId, layout, setLayout,
         selectedIds, toggleSelection, lockedItems, groupedItems
@@ -277,7 +277,7 @@ export const UniversalCanvas = () => {
 
         return (
             <div style={boxStyle} className="h-full w-full">
-                <BlockRenderer block={{ type: item.id as any, content: item.specificData.content, style: {} }} />
+                <BlockRenderer block={{ type: item.id as any, content: item.specificData.content, style: {} as any }} />
             </div>
         );
     };
@@ -298,7 +298,7 @@ export const UniversalCanvas = () => {
                 }
             `}</style>
 
-            {Array.from({ length: Math.max(1, ...layout.map((l: LayoutItem) => (l.pageIndex || 0) + 1)) }).map((_, pageIndex) => {
+            {Array.from({ length: Math.max(1, ...layout.map((l: LayoutItem) => (l.pageIndex || 0) + 1)) }).map((_: any, pageIndex: number) => {
                 const pageItems = layout.filter((l: LayoutItem) => l.isVisible && (l.pageIndex || 0) === pageIndex);
 
                 return (

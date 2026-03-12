@@ -12,7 +12,7 @@ export const FamilyLogicConfig = ({ options, onChange }: { options: GeneratorOpt
                         { v: 'basic', l: '1. Derece (Anne-Baba-Kardeş)' },
                         { v: 'extended', l: '2. Derece (Hala-Amca-Kuzen)' },
                         { v: 'complex', l: 'Tam Soy Ağacı Mantığı' }
-                    ].map(t => (
+                    ].map((t: { v: string; l: string }) => (
                         <button
                             key={t.v}
                             onClick={() => onChange('variant', t.v)}
