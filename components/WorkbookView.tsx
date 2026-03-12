@@ -244,7 +244,7 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
         setIsPrinting(true);
         setTimeout(async () => {
             try {
-                await printService.generatePdf('.workbook-container .worksheet-page', settings.title || 'Kitapcik', { action });
+                await printService.generatePdf('.workbook-container', settings.title || 'Kitapcik', { action });
             } catch (error) {
                 console.error("Kitapçık oluşturma hatası:", error);
                 alert("Kitapçık oluşturulurken bir hata meydana geldi.");
