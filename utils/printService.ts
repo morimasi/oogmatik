@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// ULTRA PRINT ENGINE v4.0 — A4 Kompakt Çoklu Sayfa Yazdırma
+// ULTRA PRINT ENGINE v5.0 — A4 Kompakt Çoklu Sayfa Yazdırma
 // Bursa Disleksi AI — Nöro-Mimari Basım Motoru
 // ═══════════════════════════════════════════════════════════════
 
@@ -27,6 +27,9 @@ export const printService = {
     title: string = 'Bursa_Disleksi_AI_Etkinlik',
     options: PrintOptions
   ) => {
+    // 0. Render Stabilizasyonu (v5.0): DOM'un hazır olduğundan emin ol
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     // 1. Hedef elementleri bul
     let elements = Array.from(document.querySelectorAll(elementSelector)) as HTMLElement[];
 

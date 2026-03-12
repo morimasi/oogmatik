@@ -88,7 +88,7 @@ export const useExportActions = (deps: ExportDeps) => {
             } finally {
                 setIsPrinting(false);
             }
-        }, 100);
+        }, 500);
     }, [deps.pageConfig.title]);
 
     const handleAddToWorkbook = useCallback(() => {
