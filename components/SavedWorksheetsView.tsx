@@ -17,7 +17,7 @@ const PAGE_SIZE = 12;
 
 type ViewMode = 'grid' | 'list';
 
-const MaterialCard = ({ item, onLoad, onDelete, isReadOnly, isSelected, onToggleSelect, viewMode, onAnalyze }: any) => {
+const MaterialCard = ({ item, onLoad, onDelete, isReadOnly, isSelected, onToggleSelect, viewMode }: any) => {
     if (!item || !item.id) return null;
 
     const activityDef = ACTIVITIES.find(a => a.id === item.activityType);
@@ -39,17 +39,8 @@ const MaterialCard = ({ item, onLoad, onDelete, isReadOnly, isSelected, onToggle
                     <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate">{item.name}</h3>
                     <p className="text-[10px] font-bold text-zinc-400 uppercase">{categoryDef?.title || 'Genel'}</p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={(e) => { e.stopPropagation(); onAnalyze(item); }}
-                        className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors"
-                        title="AI Analizi"
-                    >
-                        <i className="fa-solid fa-wand-magic-sparkles text-xs"></i>
-                    </button>
-                    <div className="text-[10px] text-zinc-400 font-mono hidden md:block px-3 border-l border-zinc-100 dark:border-zinc-800">
-                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString('tr-TR') : '-'}
-                    </div>
+                <div className="text-[10px] text-zinc-400 font-mono hidden md:block">
+                    {item.createdAt ? new Date(item.createdAt).toLocaleDateString('tr-TR') : '-'}
                 </div>
                 {!isReadOnly && (
                     <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="w-8 h-8 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 transition-colors">
@@ -65,16 +56,10 @@ const MaterialCard = ({ item, onLoad, onDelete, isReadOnly, isSelected, onToggle
             onClick={() => onLoad(item)}
             className={`group archive-glass archive-card-hover rounded-[2rem] p-6 border transition-all cursor-pointer relative overflow-hidden flex flex-col h-full ${isSelected ? 'border-indigo-500 bg-indigo-50/20 dark:bg-indigo-900/10' : 'border-zinc-100 dark:border-zinc-800'}`}
         >
-            <div className="absolute top-4 right-4 z-10 flex gap-2">
-                <button
-                    onClick={(e) => { e.stopPropagation(); onAnalyze(item); }}
-                    className="w-8 h-8 rounded-lg bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm border border-white/20 text-indigo-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95"
-                >
-                    <i className="fa-solid fa-wand-magic-sparkles text-xs"></i>
-                </button>
+            <div className="absolute top-4 right-4 z-10">
                 <div
                     onClick={(e) => { e.stopPropagation(); onToggleSelect(item.id); }}
-                    className={`w-8 h-8 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-indigo-600 border-indigo-600 text-white scale-110 shadow-lg shadow-indigo-600/20' : 'bg-white/50 dark:bg-zinc-900/50 border-white/20 text-transparent opacity-0 group-hover:opacity-100'}`}
+                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-indigo-600 border-indigo-600 text-white scale-110' : 'bg-white/50 dark:bg-zinc-900/50 border-white/20 text-transparent opacity-0 group-hover:opacity-100'}`}
                 >
                     <i className="fa-solid fa-check text-xs"></i>
                 </div>
@@ -172,12 +157,6 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
     const [activeCategory, setActiveCategory] = useState<string>('all');
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-    const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name'>('newest');
-    const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
-
-    // AI Panel State
-    const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
-    const [selectedItemForAnalysis, setSelectedItemForAnalysis] = useState<any>(null);
 
     // Data Containers
     const [worksheets, setWorksheets] = useState<SavedWorksheet[]>([]);
@@ -295,51 +274,13 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
         }
     };
 
-    const handleAnalyzeRequest = (item: any) => {
-        setSelectedItemForAnalysis(item);
-        setIsAnalysisOpen(true);
-    };
-
     const filteredItems = useMemo(() => {
         const query = debouncedSearchQuery.toLowerCase();
-        let items: any[] = [];
-
-        if (activeTab === 'materials') items = [...worksheets];
-        else if (activeTab === 'reports') items = [...assessments];
-        else if (activeTab === 'plans') items = [...plans];
-
-        // 1. Search Filter
-        items = items.filter(item => {
-            const name = (item.name || item.studentName || '').toLowerCase();
-            return name.includes(query);
-        });
-
-        // 2. Date Filter
-        const now = new Date();
-        if (dateFilter !== 'all') {
-            items = items.filter(item => {
-                const date = new Date(item.createdAt);
-                if (dateFilter === 'today') return date.toDateString() === now.toDateString();
-                if (dateFilter === 'week') return (now.getTime() - date.getTime()) < 7 * 24 * 60 * 60 * 1000;
-                if (dateFilter === 'month') return (now.getTime() - date.getTime()) < 30 * 24 * 60 * 60 * 1000;
-                return true;
-            });
-        }
-
-        // 3. Sort
-        items.sort((a, b) => {
-            if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-            if (sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-            if (sortBy === 'name') {
-                const nameA = (a.name || a.studentName || '').toLowerCase();
-                const nameB = (b.name || b.studentName || '').toLowerCase();
-                return nameA.localeCompare(nameB);
-            }
-            return 0;
-        });
-
-        return items;
-    }, [activeTab, debouncedSearchQuery, worksheets, assessments, plans, sortBy, dateFilter]);
+        if (activeTab === 'materials') return worksheets.filter(item => (item.name || '').toLowerCase().includes(query));
+        if (activeTab === 'reports') return assessments.filter(item => (item.studentName || '').toLowerCase().includes(query));
+        if (activeTab === 'plans') return plans.filter(item => (item.studentName || '').toLowerCase().includes(query));
+        return [];
+    }, [activeTab, debouncedSearchQuery, worksheets, assessments, plans]);
 
     return (
         <div className="flex h-full bg-[#f8f9fc] dark:bg-zinc-950 rounded-[2.5rem] overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-2xl relative">
@@ -418,76 +359,32 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
             <div className="flex-1 flex flex-col min-w-0 bg-white/30 dark:bg-black/30 backdrop-blur-sm relative overflow-hidden">
 
                 {/* Search & Action Bar */}
-                <div className="p-8 pb-0 flex flex-col gap-6 z-20">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="relative flex-1 max-w-2xl w-full group">
-                            <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-indigo-600 transition-colors"></i>
-                            <input
-                                type="text"
-                                placeholder="Dosya adı, öğrenci veya kategori ile hızlı arama..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-4 py-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl text-sm font-bold shadow-sm focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
-                            />
-                        </div>
-
-                        {selectedIds.size > 0 && (
-                            <div className="flex items-center gap-3 animate-fade-in-up">
-                                <span className="text-xs font-black text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                                    <span className="text-indigo-600 dark:text-indigo-400">{selectedIds.size}</span> Öğe Seçildi
-                                </span>
-                                <button
-                                    onClick={handleBulkDelete}
-                                    className="px-6 py-3.5 bg-white dark:bg-zinc-900 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl text-xs font-black transition-all active:scale-95 flex items-center gap-2 border border-red-100 dark:border-red-800/50 shadow-lg shadow-red-500/5"
-                                >
-                                    <i className="fa-solid fa-trash-can text-[10px]"></i>
-                                    Toplu Sil
-                                </button>
-                                <button
-                                    onClick={() => alert("Seçili materyallerden kitapçık oluşturma özelliği yakında aktif olacaktır.")}
-                                    className="px-6 py-3.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-2xl text-xs font-black shadow-xl shadow-indigo-600/30 transition-all active:scale-95 flex items-center gap-2 ring-1 ring-white/10"
-                                >
-                                    <i className="fa-solid fa-book-medical animate-pulse"></i>
-                                    Kitapçık Oluştur
-                                </button>
-                            </div>
-                        )}
+                <div className="p-8 pb-4 flex flex-col md:flex-row items-center justify-between gap-6 z-20">
+                    <div className="relative flex-1 max-w-2xl w-full group">
+                        <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-indigo-600 transition-colors"></i>
+                        <input
+                            type="text"
+                            placeholder="Dosya adı, öğrenci veya kategori ile hızlı arama..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-12 pr-4 py-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl text-sm font-bold shadow-sm focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
+                        />
                     </div>
 
-                    {/* Quick Filters & Sorting Bar */}
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
-                        <div className="flex items-center gap-2 overflow-x-auto scroll-hide pb-2 md:pb-0">
-                            {[
-                                { id: 'all', label: 'Tümü' },
-                                { id: 'today', label: 'Bugün' },
-                                { id: 'week', label: 'Bu Hafta' },
-                                { id: 'month', label: 'Bu Ay' }
-                            ].map(f => (
-                                <button
-                                    key={f.id}
-                                    onClick={() => setDateFilter(f.id as any)}
-                                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${dateFilter === f.id ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 border border-indigo-100 dark:border-indigo-800' : 'text-zinc-400 hover:text-zinc-600'}`}
-                                >
-                                    {f.label}
-                                </button>
-                            ))}
+                    {selectedIds.size > 0 && (
+                        <div className="flex items-center gap-3 animate-fade-in-up">
+                            <span className="text-xs font-black text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                                <span className="text-indigo-600 dark:text-indigo-400">{selectedIds.size}</span> Öğe Seçildi
+                            </span>
+                            <button
+                                onClick={handleBulkDelete}
+                                className="px-6 py-3.5 bg-red-500 hover:bg-red-600 text-white rounded-2xl text-xs font-black shadow-lg shadow-red-500/20 transition-all active:scale-95 flex items-center gap-2"
+                            >
+                                <i className="fa-solid fa-trash-can"></i>
+                                Toplu Sil
+                            </button>
                         </div>
-
-                        <div className="flex items-center gap-4 shrink-0">
-                            <div className="flex items-center gap-2 px-4 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-700/50">
-                                <i className="fa-solid fa-arrow-down-wide-short text-zinc-400 text-[10px]"></i>
-                                <select
-                                    className="bg-transparent border-none text-[10px] font-black text-zinc-600 dark:text-zinc-300 outline-none cursor-pointer"
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value as any)}
-                                >
-                                    <option value="newest">En Yeni</option>
-                                    <option value="oldest">En Eski</option>
-                                    <option value="name">İsim (A-Z)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Grid Content */}
@@ -517,7 +414,7 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                         ) : (
                             <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
                                 {activeTab === 'materials' && filteredItems.map((item: any) => (
-                                    <MaterialCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'materials')} isReadOnly={isReadOnly} isSelected={selectedIds.has(item.id)} onToggleSelect={handleToggleSelect} viewMode={viewMode} onAnalyze={handleAnalyzeRequest} />
+                                    <MaterialCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'materials')} isReadOnly={isReadOnly} isSelected={selectedIds.has(item.id)} onToggleSelect={handleToggleSelect} viewMode={viewMode} />
                                 ))}
                                 {activeTab === 'reports' && filteredItems.map((item: any) => (
                                     <div key={item.id} className="animate-fade-in-up">
@@ -558,101 +455,73 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                                                     <i className="fa-solid fa-trash-can text-xs"></i>
                                                 </button>
                                             </div>
+                                            <>
+                                                <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+                                                    {activeTab === 'materials' && filteredItems.map((item: any) => (
+                                                        <MaterialCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'materials')} isReadOnly={isReadOnly} isSelected={selectedIds.has(item.id)} onToggleSelect={handleToggleSelect} viewMode={viewMode} />
+                                                    ))}
+                                                    {activeTab === 'reports' && filteredItems.map((item: any) => (
+                                                        <div key={item.id} className="animate-fade-in-up">
+                                                            <div onClick={() => onLoad(item)} className="archive-glass rounded-3xl p-6 border border-zinc-100 dark:border-zinc-800 hover:border-indigo-500 transition-all cursor-pointer group">
+                                                                <div className="flex items-start justify-between mb-4">
+                                                                    <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/10 text-purple-600 flex items-center justify-center text-xl">
+                                                                        <i className="fa-solid fa-clipboard-user"></i>
+                                                                    </div>
+                                                                    <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id, 'reports'); }} className="text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                                                                        <i className="fa-solid fa-trash-can"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <h3 className="text-lg font-black text-zinc-800 dark:text-zinc-100">{item.studentName}</h3>
+                                                                <p className="text-xs font-bold text-zinc-500 mb-4">{item.grade} • {item.age} Yaş</p>
+                                                                <div className="flex items-center justify-between pt-4 border-t border-zinc-100 dark:border-zinc-800/50">
+                                                                    <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1.5 rounded-xl uppercase tracking-widest">Analiz Hazır</span>
+                                                                    <span className="text-[10px] text-zinc-400 font-bold">{new Date(item.createdAt).toLocaleDateString()}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                    {activeTab === 'plans' && filteredItems.map((item: any) => (
+                                                        <div key={item.id} className="animate-fade-in-up">
+                                                            <div onClick={() => onLoad(item)} className="archive-glass rounded-3xl p-6 border border-zinc-100 dark:border-zinc-800 hover:border-indigo-500 transition-all cursor-pointer group">
+                                                                <div className="flex items-center gap-3 mb-4">
+                                                                    <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 border border-emerald-100 dark:border-emerald-800/50 rounded-xl text-[10px] font-black tracking-widest uppercase">
+                                                                        {item.durationDays} GÜNLÜK PROGRAM
+                                                                    </span>
+                                                                </div>
+                                                                <h3 className="text-lg font-black text-zinc-800 dark:text-zinc-100 mb-2">{item.studentName}</h3>
+                                                                <p className="text-[11px] font-bold text-zinc-500 line-clamp-2 mb-6">{item.note || 'Özel eğitim planı.'}</p>
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center gap-2 text-zinc-400 font-bold text-[10px]">
+                                                                        <i className="fa-solid fa-calendar-day"></i>
+                                                                        {new Date(item.createdAt).toLocaleDateString()}
+                                                                    </div>
+                                                                    <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id, 'plans'); }} className="w-8 h-8 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:text-red-500 transition-colors">
+                                                                        <i className="fa-solid fa-trash-can text-xs"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {hasMore && filteredItems.length > 0 && (
+                                                    <div className="mt-16 pb-12 flex justify-center">
+                                                        <button
+                                                            onClick={handleLoadMore}
+                                                            disabled={loadingMore}
+                                                            className="px-12 py-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[1.25rem] font-black text-xs text-zinc-600 dark:text-zinc-300 hover:border-indigo-500 transition-all shadow-xl shadow-zinc-100/50 dark:shadow-none flex items-center gap-3 disabled:opacity-50 active:scale-95"
+                                                        >
+                                                            {loadingMore ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-chevron-down"></i>}
+                                                            DAHA FAZLA GÖSTER
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </>
+                        )}
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {hasMore && filteredItems.length > 0 && (
-                            <div className="mt-16 pb-12 flex justify-center">
-                                <button
-                                    onClick={handleLoadMore}
-                                    disabled={loadingMore}
-                                    className="px-12 py-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[1.25rem] font-black text-xs text-zinc-600 dark:text-zinc-300 hover:border-indigo-500 transition-all shadow-xl shadow-zinc-100/50 dark:shadow-none flex items-center gap-3 disabled:opacity-50 active:scale-95"
-                                >
-                                    {loadingMore ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-chevron-down"></i>}
-                                    DAHA FAZLA GÖSTER
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
             </div>
-
-            {/* AI ANALYSIS SIDE PANEL overlay */}
-            {isAnalysisOpen && (
-                <div className="absolute inset-0 z-50 flex justify-end animate-fade-in">
-                    <div className="absolute inset-0 bg-zinc-900/40 backdrop-blur-sm" onClick={() => setIsAnalysisOpen(false)}></div>
-                    <div className="w-[450px] h-full bg-white dark:bg-zinc-900 shadow-2xl relative z-10 flex flex-col animate-slide-left border-l border-zinc-200 dark:border-zinc-800">
-                        <div className="p-8 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 flex items-center justify-center text-xl">
-                                    <i className="fa-solid fa-wand-magic-sparkles"></i>
-                                </div>
-                                <div>
-                                    <h3 className="font-black text-zinc-800 dark:text-white">AI Materyal Analizi</h3>
-                                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Akıllı Özetleme</p>
-                                </div>
-                            </div>
-                            <button onClick={() => setIsAnalysisOpen(false)} className="w-10 h-10 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-colors">
-                                <i className="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-8">
-                            {selectedItemForAnalysis && (
-                                <>
-                                    <div className="bg-zinc-50 dark:bg-zinc-800/50 p-6 rounded-[2rem] border border-zinc-100 dark:border-zinc-700/50">
-                                        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-4">Seçili Materyal</h4>
-                                        <h5 className="text-lg font-black text-zinc-800 dark:text-white mb-2">{selectedItemForAnalysis.name}</h5>
-                                        <p className="text-xs font-bold text-indigo-500">{selectedItemForAnalysis.activityType} • {new Date(selectedItemForAnalysis.createdAt).toLocaleDateString()}</p>
-                                    </div>
-
-                                    <div className="space-y-6">
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-3 text-emerald-500">
-                                                <i className="fa-solid fa-star text-xs"></i>
-                                                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Öne Çıkan Özellikler</h4>
-                                            </div>
-                                            <ul className="space-y-3">
-                                                <li className="flex items-start gap-3 bg-white dark:bg-zinc-900/50 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 text-xs font-bold text-zinc-600 dark:text-zinc-300">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0"></div>
-                                                    Bilişsel esnekliği artıran kompleks yapılar içerir.
-                                                </li>
-                                                <li className="flex items-start gap-3 bg-white dark:bg-zinc-900/50 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 text-xs font-bold text-zinc-600 dark:text-zinc-300">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1 shrink-0"></div>
-                                                    Görsel algı ve dikkat fokuslaması için optimize edilmiştir.
-                                                </li>
-                                            </ul>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-3 text-amber-500">
-                                                <i className="fa-solid fa-bullseye text-xs"></i>
-                                                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Hedef Kazanımlar</h4>
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                {['Dikkat Süresi', 'Mantıksal Akıl Yürütme', 'Patern Tanıma'].map(tag => (
-                                                    <span key={tag} className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-xl text-[10px] font-black text-zinc-600 dark:text-zinc-300">
-                                                        {tag}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <div className="pt-8 border-t border-zinc-100 dark:border-zinc-800">
-                                            <button className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs shadow-xl shadow-indigo-600/20 active:scale-95 transition-all">
-                                                DETAYLI RAPOR OLUŞTUR
-                                            </button>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
-    );
+                    );
 };
+                    ```
