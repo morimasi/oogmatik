@@ -4,12 +4,14 @@ interface AppState {
     // UI State
     isSidebarOpen: boolean;
     activeModule: string | null;
-    designMode: boolean;
+    isEditMode: boolean;
+    zoomScale: number;
 
     // Actions
     toggleSidebar: () => void;
     setActiveModule: (module: string | null) => void;
-    setDesignMode: (mode: boolean) => void;
+    setEditMode: (mode: boolean) => void;
+    setZoomScale: (scale: number) => void;
 
     // Global App State
     lastNotification: { message: string, type: 'success' | 'error' | 'info' } | null;
@@ -26,7 +28,8 @@ export const useAppStore = create<AppState>((set) => ({
     // Initial State
     isSidebarOpen: true,
     activeModule: null,
-    designMode: false,
+    isEditMode: false,
+    zoomScale: 0.85,
     lastNotification: null,
 
     // Methods
@@ -34,7 +37,9 @@ export const useAppStore = create<AppState>((set) => ({
 
     setActiveModule: (module) => set({ activeModule: module }),
 
-    setDesignMode: (mode) => set({ designMode: mode }),
+    setEditMode: (mode) => set({ isEditMode: mode }),
+
+    setZoomScale: (scale) => set({ zoomScale: scale }),
 
     notify: (message, type = 'info') => set({
         lastNotification: { message, type }

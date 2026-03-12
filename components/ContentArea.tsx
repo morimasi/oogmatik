@@ -11,7 +11,7 @@ import { SkeletonLoader } from './SkeletonLoader';
 import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
 import { WorkbookView } from './WorkbookView';
-import { EditableContext } from './Editable';
+import { useAppStore } from '../store/useAppStore';
 import { paginationService } from '../services/paginationService';
 
 import { UniversalWorksheetWrapper } from './UniversalStudio/UniversalWorksheetWrapper';
@@ -72,10 +72,8 @@ const LandingText = memo(() => {
 const ContentArea: React.FC<ContentAreaProps> = ({
     currentView, onBackToGenerator, activityType, worksheetData, isLoading, error, styleSettings, onStyleChange, onSave, onLoadSaved, onFeedback, onOpenAuth, onSelectActivity, workbookItems, setWorkbookItems, workbookSettings, setWorkbookSettings, onAddToWorkbook, onAutoGenerateWorkbook, studentProfile, zenMode, toggleZenMode, activeCurriculumSession, onCompleteCurriculumActivity, onAddDirectToWorkbook
 }) => {
-    const { user } = useAuthStore();
+    const { user, isEditMode, setEditMode, zoomScale, setZoomScale } = useAppStore();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [scale, setScale] = useState(0.85);
     const [processedData, setProcessedData] = useState<SingleWorksheetData[]>([]);
 
     // Scroller container ref
@@ -84,7 +82,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     // Auto-activate edit mode when OCR content arrives
     useEffect(() => {
         if (activityType === ActivityType.OCR_CONTENT && worksheetData) {
-            setIsEditMode(true);
+            setEditMode(true);
         }
     }, [activityType, worksheetData]);
 
@@ -132,10 +130,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             const zoomSpeed = 0.0012;
             const delta = -e.deltaY * zoomSpeed;
 
-            setScale(prevScale => {
-                const newScale = Math.min(Math.max(0.3, prevScale + delta), 2.5);
-                return newScale;
-            });
+            const newScale = Math.min(Math.max(0.3, zoomScale + delta), 2.5);
+            setZoomScale(newScale);
         };
 
         // passive: false is critical to allow preventDefault()
@@ -152,142 +148,140 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const ScreeningModule = React.lazy(() => import('./Screening/ScreeningModule').then(module => ({ default: module.ScreeningModule })));
 
     return (
-        <EditableContext.Provider value={{ isEditMode, zoom: scale }}>
-            <main className="flex-1 flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
+        <main className="flex-1 flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
 
-                {/* TOOLBAR */}
-                <div className={`shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 z-20 shadow-sm relative transition-all duration-300 ${zenMode ? 'hidden' : ''}`}>
-                    <div className="flex justify-between items-center mb-4">
-                        <nav className="flex items-center text-sm text-[var(--text-secondary)]">
-                            <ol className="flex items-center space-x-2">
-                                {breadcrumbs.map((crumb, idx) => (
-                                    <li key={idx} className="flex items-center">
-                                        {idx > 0 && <i className="fa-solid fa-chevron-right text-[10px] mx-2 opacity-50"></i>}
-                                        <span onClick={() => idx === 0 && onBackToGenerator()} className={`${idx === breadcrumbs.length - 1 ? "font-bold text-[var(--accent-color)]" : "hover:text-[var(--text-primary)] cursor-pointer"} `}>{crumb}</span>
-                                    </li>
-                                ))}
-                            </ol>
-                        </nav>
-                    </div>
-
-                    {currentView === 'generator' && activityType && (processedData.length > 0 || isLoading) && (
-                        <Toolbar
-                            settings={styleSettings}
-                            onSettingsChange={onStyleChange}
-                            onSave={() => onSave('Etkinlik', activityType, processedData)}
-                            onFeedback={onFeedback}
-                            onShare={() => setIsShareModalOpen(true)}
-                            onTogglePreview={toggleZenMode}
-                            isPreviewMode={zenMode}
-                            onAddToWorkbook={() => onAddToWorkbook()}
-                            workbookItemCount={workbookItems.length}
-                            onToggleEdit={() => setIsEditMode(!isEditMode)}
-                            isEditMode={isEditMode}
-                            worksheetData={processedData}
-                            isCurriculumMode={!!activeCurriculumSession}
-                            onCompleteCurriculumTask={onCompleteCurriculumActivity}
-                        />
-                    )}
+            {/* TOOLBAR */}
+            <div className={`shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 z-20 shadow-sm relative transition-all duration-300 ${zenMode ? 'hidden' : ''}`}>
+                <div className="flex justify-between items-center mb-4">
+                    <nav className="flex items-center text-sm text-[var(--text-secondary)]">
+                        <ol className="flex items-center space-x-2">
+                            {breadcrumbs.map((crumb, idx) => (
+                                <li key={idx} className="flex items-center">
+                                    {idx > 0 && <i className="fa-solid fa-chevron-right text-[10px] mx-2 opacity-50"></i>}
+                                    <span onClick={() => idx === 0 && onBackToGenerator()} className={`${idx === breadcrumbs.length - 1 ? "font-bold text-[var(--accent-color)]" : "hover:text-[var(--text-primary)] cursor-pointer"} `}>{crumb}</span>
+                                </li>
+                            ))}
+                        </ol>
+                    </nav>
                 </div>
 
-                {/* VIEWPORT - THE DESK SURFACE */}
-                <div
-                    ref={scrollContainerRef}
-                    className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar transition-colors duration-500 ${zenMode
-                        ? 'bg-[#050505]'
-                        : 'bg-[var(--bg-secondary)]'
-                        }`}
-                >
-                    {/* justify-start and items-start for fixed top anchoring */}
-                    <div className="w-full flex flex-col items-center justify-start min-h-full py-0">
+                {currentView === 'generator' && activityType && (processedData.length > 0 || isLoading) && (
+                    <Toolbar
+                        settings={styleSettings}
+                        onSettingsChange={onStyleChange}
+                        onSave={() => onSave('Etkinlik', activityType, processedData)}
+                        onFeedback={onFeedback}
+                        onShare={() => setIsShareModalOpen(true)}
+                        onTogglePreview={toggleZenMode}
+                        isPreviewMode={zenMode}
+                        onAddToWorkbook={() => onAddToWorkbook()}
+                        workbookItemCount={workbookItems.length}
+                        onToggleEdit={() => setEditMode(!isEditMode)}
+                        isEditMode={isEditMode}
+                        worksheetData={processedData}
+                        isCurriculumMode={!!activeCurriculumSession}
+                        onCompleteCurriculumTask={onCompleteCurriculumActivity}
+                    />
+                )}
+            </div>
 
-                        {currentView === 'generator' ? (
-                            <>
-                                {isLoading && (
-                                    <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in">
-                                        <SkeletonLoader />
-                                        <p className="mt-6 font-black text-indigo-600 animate-pulse uppercase tracking-[0.3em]">AI Hazırlıyor...</p>
-                                    </div>
-                                )}
+            {/* VIEWPORT - THE DESK SURFACE */}
+            <div
+                ref={scrollContainerRef}
+                className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar transition-colors duration-500 ${zenMode
+                    ? 'bg-[#050505]'
+                    : 'bg-[var(--bg-secondary)]'
+                    }`}
+            >
+                {/* justify-start and items-start for fixed top anchoring */}
+                <div className="w-full flex flex-col items-center justify-start min-h-full py-0">
 
-                                {!isLoading && processedData.length === 0 && !error ? (
-                                    <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in duration-1000">
-                                        <LandingText />
-                                        <div className="relative group/logo mt-12">
-                                            <img
-                                                src="/assets/logo.png"
-                                                alt="Logo"
-                                                className="h-32 w-auto relative z-10 transition-all duration-700 cursor-pointer select-none star-glow hover:scale-125 animate-breathing-logo"
-                                            />
+                    {currentView === 'generator' ? (
+                        <>
+                            {isLoading && (
+                                <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in">
+                                    <SkeletonLoader />
+                                    <p className="mt-6 font-black text-indigo-600 animate-pulse uppercase tracking-[0.3em]">AI Hazırlıyor...</p>
+                                </div>
+                            )}
 
-                                            {/* Minimalist Parıltı Efektleri */}
-                                            <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2s_infinite] transition-opacity" />
-                                            <div className="absolute bottom-4 left-0 w-1 h-1 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2.5s_infinite_0.5s] transition-opacity" />
-                                        </div>
-                                    </div>
-                                ) : null}
-
-                                {error && (
-                                    <div className="bg-red-50 p-10 rounded-[3rem] border-2 border-red-100 text-center max-w-lg mt-20">
-                                        <i className="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-4"></i>
-                                        <p className="text-red-700 font-bold">{error}</p>
-                                    </div>
-                                )}
-
-                                {/* FIXED TOP CENTERING SCALING */}
-                                {processedData.length > 0 && !isLoading && (
-                                    <div className="w-full h-full">
-                                        <UniversalWorksheetWrapper
-                                            activityType={activityType}
-                                            worksheetData={processedData}
-                                            scale={scale}
-                                            styleSettings={styleSettings}
+                            {!isLoading && processedData.length === 0 && !error ? (
+                                <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in duration-1000">
+                                    <LandingText />
+                                    <div className="relative group/logo mt-12">
+                                        <img
+                                            src="/assets/logo.png"
+                                            alt="Logo"
+                                            className="h-32 w-auto relative z-10 transition-all duration-700 cursor-pointer select-none star-glow hover:scale-125 animate-breathing-logo"
                                         />
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className="p-8 w-full max-w-7xl h-full">
-                                {currentView === 'savedList' ? (
-                                    <SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
-                                ) : currentView === 'workbook' ? (
-                                    <WorkbookView items={workbookItems} setItems={setWorkbookItems} settings={workbookSettings} setSettings={setWorkbookSettings} onBack={onBackToGenerator} />
-                                ) : currentView === 'favorites' ? (
-                                    <FavoritesSection onSelectActivity={onSelectActivity!} onBack={onBackToGenerator} />
-                                ) : currentView === 'shared' ? (
-                                    <SharedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
-                                ) : null}
-                            </div>
-                        )}
-                    </div>
 
-                    {/* ZOOM INDICATOR - THEMED */}
-                    {processedData.length > 0 && !isLoading && currentView === 'generator' && (
-                        <div className="fixed bottom-10 left-10 z-50 bg-[var(--bg-paper)] text-[var(--text-primary)] px-5 py-2.5 rounded-2xl text-xs font-black shadow-2xl border border-[var(--border-color)] animate-in slide-in-from-left-4 backdrop-blur-md opacity-80 hover:opacity-100 transition-opacity">
-                            BOYUT: %{Math.round(scale * 100)}
+                                        {/* Minimalist Parıltı Efektleri */}
+                                        <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2s_infinite] transition-opacity" />
+                                        <div className="absolute bottom-4 left-0 w-1 h-1 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2.5s_infinite_0.5s] transition-opacity" />
+                                    </div>
+                                </div>
+                            ) : null}
+
+                            {error && (
+                                <div className="bg-red-50 p-10 rounded-[3rem] border-2 border-red-100 text-center max-w-lg mt-20">
+                                    <i className="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-4"></i>
+                                    <p className="text-red-700 font-bold">{error}</p>
+                                </div>
+                            )}
+
+                            {/* FIXED TOP CENTERING SCALING */}
+                            {processedData.length > 0 && !isLoading && (
+                                <div className="w-full h-full">
+                                    <UniversalWorksheetWrapper
+                                        activityType={activityType}
+                                        worksheetData={processedData}
+                                        scale={zoomScale}
+                                        styleSettings={styleSettings}
+                                    />
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="p-8 w-full max-w-7xl h-full">
+                            {currentView === 'savedList' ? (
+                                <SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
+                            ) : currentView === 'workbook' ? (
+                                <WorkbookView items={workbookItems} setItems={setWorkbookItems} settings={workbookSettings} setSettings={setWorkbookSettings} onBack={onBackToGenerator} />
+                            ) : currentView === 'favorites' ? (
+                                <FavoritesSection onSelectActivity={onSelectActivity!} onBack={onBackToGenerator} />
+                            ) : currentView === 'shared' ? (
+                                <SharedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
+                            ) : null}
                         </div>
                     )}
                 </div>
 
-                {currentView === 'assessment' && (
-                    <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
-                        <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-4xl text-indigo-500"></i></div>}>
-                            <AssessmentModule onBack={onBackToGenerator} onSelectActivity={onSelectActivity!} onAddToWorkbook={onAddDirectToWorkbook} onAutoGenerateWorkbook={onAutoGenerateWorkbook} />
-                        </React.Suspense>
+                {/* ZOOM INDICATOR - THEMED */}
+                {processedData.length > 0 && !isLoading && currentView === 'generator' && (
+                    <div className="fixed bottom-10 left-10 z-50 bg-[var(--bg-paper)] text-[var(--text-primary)] px-5 py-2.5 rounded-2xl text-xs font-black shadow-2xl border border-[var(--border-color)] animate-in slide-in-from-left-4 backdrop-blur-md opacity-80 hover:opacity-100 transition-opacity">
+                        BOYUT: %{Math.round(zoomScale * 100)}
                     </div>
                 )}
+            </div>
 
-                {currentView === 'screening' && (
-                    <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
-                        <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-4xl text-purple-500"></i></div>}>
-                            <ScreeningModule onBack={onBackToGenerator} onSelectActivity={onSelectActivity} onAddToWorkbook={onAddDirectToWorkbook} />
-                        </React.Suspense>
-                    </div>
-                )}
+            {currentView === 'assessment' && (
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+                    <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-4xl text-indigo-500"></i></div>}>
+                        <AssessmentModule onBack={onBackToGenerator} onSelectActivity={onSelectActivity!} onAddToWorkbook={onAddDirectToWorkbook} onAutoGenerateWorkbook={onAutoGenerateWorkbook} />
+                    </React.Suspense>
+                </div>
+            )}
 
-                <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={() => { }} />
-            </main>
-        </EditableContext.Provider>
+            {currentView === 'screening' && (
+                <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+                    <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-4xl text-purple-500"></i></div>}>
+                        <ScreeningModule onBack={onBackToGenerator} onSelectActivity={onSelectActivity} onAddToWorkbook={onAddDirectToWorkbook} />
+                    </React.Suspense>
+                </div>
+            )}
+
+            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={() => { }} />
+        </main>
     );
 };
 

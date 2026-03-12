@@ -1,14 +1,10 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { useAppStore } from '../store/useAppStore';
 
-import React, { useState, useRef, useEffect, useContext, createContext } from 'react';
-
-interface EditableContextType {
-    isEditMode: boolean;
-    zoom: number;
-}
-
-export const EditableContext = createContext<EditableContextType>({ isEditMode: false, zoom: 1 });
-
-export const useEditable = () => useContext(EditableContext);
+export const useEditable = () => {
+    const { isEditMode, zoomScale } = useAppStore();
+    return { isEditMode, zoom: zoomScale };
+};
 
 interface EditableElementProps {
     children: React.ReactNode;
@@ -26,22 +22,22 @@ const SNAP_THRESHOLD = 10;
 
 export const EditableElement: React.FC<EditableElementProps> = ({ children, className = "", initialPos = { x: 0, y: 0 }, id, type = 'block', style: propStyle, onClick }) => {
     const { isEditMode, zoom } = useEditable();
-    
+
     // Transform State
     const [position, setPosition] = useState(initialPos);
     const [rotation, setRotation] = useState(0);
-    const [size, setSize] = useState<{w?: number, h?: number}>({});
-    
+    const [size, setSize] = useState<{ w?: number, h?: number }>({});
+
     // Interaction State
     const [isSelected, setIsSelected] = useState(false);
     const [isDeleted, setIsDeleted] = useState(false);
-    
+
     // Refs for performance (avoid state updates during calc)
     const ref = useRef<HTMLDivElement>(null);
     const startPos = useRef({ x: 0, y: 0 });
     const initialTransform = useRef({ x: 0, y: 0, w: 0, h: 0, r: 0 });
     const rafRef = useRef<number | null>(null);
-    
+
     // Flags for active operation
     const isDragging = useRef(false);
     const isResizing = useRef(false);
@@ -77,7 +73,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
         isDragging.current = true;
 
         startPos.current = { x: e.clientX, y: e.clientY };
-        initialTransform.current = { ...position, w: 0, h: 0, r: 0 }; 
+        initialTransform.current = { ...position, w: 0, h: 0, r: 0 };
     };
 
     // --- RESIZE LOGIC ---
@@ -87,11 +83,11 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
         isResizing.current = true;
         const rect = ref.current?.getBoundingClientRect();
         startPos.current = { x: e.clientX, y: e.clientY };
-        initialTransform.current = { 
-            x: position.x, y: position.y, 
-            w: rect ? rect.width / zoom : 0, 
+        initialTransform.current = {
+            x: position.x, y: position.y,
+            w: rect ? rect.width / zoom : 0,
             h: rect ? rect.height / zoom : 0,
-            r: rotation 
+            r: rotation
         };
     };
 
@@ -102,7 +98,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
         isRotating.current = true;
         const rect = ref.current?.getBoundingClientRect();
         // Calculate center relative to viewport
-        if(rect) {
+        if (rect) {
             const cx = rect.left + rect.width / 2;
             const cy = rect.top + rect.height / 2;
             // Store angle offset
@@ -124,7 +120,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
                 if (isDragging.current) {
                     const dx = (e.clientX - startPos.current.x) / zoom;
                     const dy = (e.clientY - startPos.current.y) / zoom;
-                    
+
                     let rawX = initialTransform.current.x + dx;
                     let rawY = initialTransform.current.y + dy;
 
@@ -154,7 +150,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
                     const angle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI;
                     setRotation(initialTransform.current.r + angle);
                 }
-                
+
                 rafRef.current = null;
             });
         };
@@ -173,7 +169,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
         }
-        
+
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
@@ -188,7 +184,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
         transform: `translate3d(${position.x}px, ${position.y}px, 0) rotate(${rotation}deg)`, // Hardware acceleration
         width: size.w,
         height: size.h,
-        position: 'relative', 
+        position: 'relative',
         zIndex: isSelected ? 50 : 1,
         cursor: isEditMode ? (isDragging.current ? 'grabbing' : 'grab') : undefined,
         outline: isEditMode && isSelected ? '2px solid #6366f1' : 'none',
@@ -209,7 +205,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
             {isEditMode && isSelected && (
                 <>
                     {/* Rotate Handle (Top) */}
-                    <div 
+                    <div
                         className="absolute -top-8 left-1/2 -translate-x-1/2 w-6 h-6 bg-white border border-indigo-500 rounded-full flex items-center justify-center cursor-ew-resize shadow-sm edit-handle z-50 hover:bg-indigo-50"
                         onMouseDown={handleRotateStart}
                         title="Döndür"
@@ -218,16 +214,16 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
                     </div>
 
                     {/* Delete Handle (Top Right) */}
-                    <div 
+                    <div
                         className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 border-2 border-white rounded-full flex items-center justify-center cursor-pointer shadow-sm edit-handle z-50 hover:bg-red-600 hover:scale-110 transition-transform"
-                        onClick={(e) => { e.stopPropagation(); if(confirm('Silmek istediğinize emin misiniz?')) setIsDeleted(true); }}
+                        onClick={(e) => { e.stopPropagation(); if (confirm('Silmek istediğinize emin misiniz?')) setIsDeleted(true); }}
                         title="Sil"
                     >
                         <i className="fa-solid fa-times text-[10px] text-white"></i>
                     </div>
 
                     {/* Resize Handle (Bottom Right) */}
-                    <div 
+                    <div
                         className="absolute -bottom-1.5 -right-1.5 w-4 h-4 bg-indigo-500 border-2 border-white rounded-full cursor-se-resize shadow-sm edit-handle z-50 hover:scale-125 transition-transform"
                         onMouseDown={handleResizeStart}
                     ></div>
@@ -238,11 +234,11 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
     );
 };
 
-export const EditableText: React.FC<{ 
-    value: string | number | undefined | null; 
-    className?: string; 
+export const EditableText: React.FC<{
+    value: string | number | undefined | null;
+    className?: string;
     tag?: 'p' | 'span' | 'h1' | 'h2' | 'h3' | 'h4' | 'div';
-    onChange?: (val: string) => void; 
+    onChange?: (val: string) => void;
     style?: React.CSSProperties;
     placeholder?: string;
 }> = ({ value, className = "", tag = 'p', onChange, style, placeholder }) => {
@@ -257,7 +253,7 @@ export const EditableText: React.FC<{
 
     if (!isEditMode) {
         // Safe render
-        return <Tag className={className} style={style} dangerouslySetInnerHTML={{__html: text}} />;
+        return <Tag className={className} style={style} dangerouslySetInnerHTML={{ __html: text }} />;
     }
 
     return (
@@ -269,9 +265,9 @@ export const EditableText: React.FC<{
             onBlur={(e: React.FocusEvent<HTMLElement>) => {
                 const newVal = e.currentTarget.textContent || "";
                 setText(newVal);
-                if(onChange) onChange(newVal);
+                if (onChange) onChange(newVal);
             }}
-            onKeyDown={(e: React.KeyboardEvent) => e.stopPropagation()} 
+            onKeyDown={(e: React.KeyboardEvent) => e.stopPropagation()}
             onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
             onClick={(e: React.MouseEvent) => e.preventDefault()}
             title="Düzenlemek için tıklayın"

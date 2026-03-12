@@ -7,8 +7,6 @@ import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
 import DyslexiaLogo from './components/DyslexiaLogo';
 import GlobalSearch from './components/GlobalSearch';
 import { FeedbackModal } from './components/FeedbackModal';
-// import { AuthProvider, useAuth } from './context/AuthContext';
-// import { StudentProvider, useStudent } from './context/StudentContext';
 import { AuthModal } from './components/AuthModal';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
@@ -272,6 +270,7 @@ import { useStudentStore } from './store/useStudentStore';
 const AppContent = () => {
     const authStore = useAuthStore();
     const studentStore = useStudentStore();
+    const { isEditMode, zoomScale } = useAppStore();
 
     // Global Initialization
     useEffect(() => {
