@@ -266,6 +266,7 @@ const DropdownItem = ({ icon, label, onClick, badge }: { icon: string, label: st
 
 import { useAuthStore } from './store/useAuthStore';
 import { useStudentStore } from './store/useStudentStore';
+import { useAppStore } from './store/useAppStore';
 
 const AppContent = () => {
     const authStore = useAuthStore();

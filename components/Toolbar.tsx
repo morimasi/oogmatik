@@ -47,11 +47,10 @@ const IconButton = ({
     onClick={onClick}
     disabled={disabled || isLoading}
     title={title}
-    className={`relative w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${
-      active
+    className={`relative w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${active
         ? 'bg-[var(--accent-color)] text-[var(--bg-primary)] shadow-md transform scale-105'
         : `text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] ${colorClass || 'hover:text-[var(--text-primary)]'}`
-    } ${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+      } ${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
   >
     {isLoading ? (
       <i className="fa-solid fa-circle-notch fa-spin"></i>
@@ -70,11 +69,10 @@ const MenuButton = ({ icon, label, onClick, active, isOpen }: any) => (
   <button
     onClick={onClick}
     data-dropdown-trigger
-    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all border select-none ${
-      active || isOpen
+    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all border select-none ${active || isOpen
         ? 'bg-[var(--accent-muted)] border-[var(--accent-color)]/30 text-[var(--accent-color)]'
         : 'bg-[var(--bg-paper)] border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:border-[var(--border-color)]'
-    }`}
+      }`}
   >
     <i
       className={`fa-solid ${icon} ${active || isOpen ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}
@@ -399,92 +397,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         )}
       </div>
 
-      {/* Premium AI Features */}
-      <div className="h-8 w-px bg-[var(--border-color)] mx-2"></div>
-      <div className="flex items-center gap-2">
-        <div className="relative">
-          <MenuButton
-            icon="fa-robot"
-            label="AI Önerileri"
-            isOpen={activeMenu === 'ai'}
-            onClick={() => setActiveMenu(activeMenu === 'ai' ? null : 'ai')}
-          />
-          {activeMenu === 'ai' && (
-            <DropdownPanel
-              title="Premium AI Özellikleri"
-              onClose={() => setActiveMenu(null)}
-              className="w-72"
-            >
-              <div className="space-y-3">
-                <button
-                  onClick={async () => {
-                    // AI Template Suggestions
-                    alert(
-                      'AI Şablon Önerileri aktif edildi! Aktivite tipinize göre önerilen şablolar gösterilecek.'
-                    );
-                  }}
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--surface-glass)] rounded-xl transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <i className="fa-solid fa-lightbulb w-4 text-center text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-colors"></i>
-                    <span className="text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                      Şablon Önerileri
-                    </span>
-                  </div>
-                </button>
-                <button
-                  onClick={async () => {
-                    // AI Content Generation
-                    alert(
-                      'AI İçerik Üretimi aktif edildi! Yeni alıştırmalar ve sorular otomatik olarak üretilecek.'
-                    );
-                  }}
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--surface-glass)] rounded-xl transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <i className="fa-solid fa-wand-magic-sparkles w-4 text-center text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-colors"></i>
-                    <span className="text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                      İçerik Üretimi
-                    </span>
-                  </div>
-                </button>
-                <button
-                  onClick={async () => {
-                    // AI Style Optimization
-                    alert(
-                      'AI Stil Optimizasyonu aktif edildi! En uygun font, renk ve düzen önerileri gösterilecek.'
-                    );
-                  }}
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--surface-glass)] rounded-xl transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <i className="fa-solid fa-palette w-4 text-center text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-colors"></i>
-                    <span className="text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                      Stil Optimizasyonu
-                    </span>
-                  </div>
-                </button>
-                <button
-                  onClick={async () => {
-                    // AI Difficulty Adaptation
-                    alert(
-                      'AI Zorluk Uyarlaması aktif edildi! Öğrenci performansına göre zorluk seviyesi otomatik olarak ayarlanacak.'
-                    );
-                  }}
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--surface-glass)] rounded-xl transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <i className="fa-solid fa-chart-line w-4 text-center text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-colors"></i>
-                    <span className="text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                      Zorluk Uyarlaması
-                    </span>
-                  </div>
-                </button>
-              </div>
-            </DropdownPanel>
-          )}
-        </div>
-      </div>
     </div>
   );
 };
