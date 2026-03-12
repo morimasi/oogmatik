@@ -47,10 +47,10 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
 
     useEffect(() => {
         const matches = prompt.template.match(/\{\{(.*?)\}\}/g);
-        const vars = matches ? [...new Set(matches.map(m => m.replace(/\{|\}/g, '')))] : [];
+        const vars: string[] = matches ? [...new Set(matches.map((m: string) => m.replace(/\{|\}/g, '')))] : [];
 
         const initialVars: Record<string, string> = {};
-        vars.forEach(v => {
+        vars.forEach((v: string) => {
             initialVars[v] = ''; // Varsayılan boş
         });
         setVariables(initialVars);
@@ -101,13 +101,13 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
                         <span className="text-[10px] text-zinc-500 font-mono">Değişken yok (Statik Prompt)</span>
                     </div>
                 ) : (
-                    Object.keys(variables).map(v => (
+                    Object.keys(variables).map((v: string) => (
                         <div key={v} className="space-y-1.5">
                             <label className="text-[10px] font-bold text-indigo-400 uppercase ml-1 block">{v}</label>
                             <input
                                 type="text"
                                 value={variables[v]}
-                                onChange={e => setVariables({ ...variables, [v]: e.target.value })}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVariables({ ...variables, [v]: e.target.value })}
                                 className="w-full bg-black border border-zinc-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs font-mono text-zinc-200 outline-none transition-all"
                                 placeholder={`Değer girin...`}
                             />
@@ -136,10 +136,10 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
                     <label className="text-[9px] font-bold text-zinc-500 uppercase block mb-2">RENDER MOTORU (DEBUG)</label>
                     <select
                         value={selectedActivityType}
-                        onChange={(e) => setSelectedActivityType(e.target.value as ActivityType)}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedActivityType(e.target.value as ActivityType)}
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2 px-2 text-[10px] text-zinc-300 outline-none"
                     >
-                        {Object.values(ActivityType).map(t => (
+                        {Object.values(ActivityType).map((t: string) => (
                             <option key={t} value={t}>{t}</option>
                         ))}
                     </select>

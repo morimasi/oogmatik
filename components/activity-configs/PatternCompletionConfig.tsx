@@ -1,11 +1,23 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
+interface ToggleOption {
+    value: any;
+    label: string;
+}
+
+interface ToggleGroupProps {
+    label: string;
+    selected: any;
+    onChange: (val: any) => void;
+    options: ToggleOption[];
+}
+
+const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupProps) => (
     <div className="space-y-1 mt-4">
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
         <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
-            {options.map((opt: any) => (
+            {options.map((opt) => (
                 <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-sky-600 dark:text-sky-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
                     {opt.label}
                 </button>

@@ -2,11 +2,23 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
+interface ToggleOption {
+    value: any;
+    label: string;
+}
+
+interface ToggleGroupProps {
+    label: string;
+    selected: any;
+    onChange: (val: any) => void;
+    options: ToggleOption[];
+}
+
+const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupProps) => (
     <div className="space-y-1">
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block tracking-wider">{label}</label>
         <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700">
-            {options.map((opt: any) => (
+            {options.map((opt) => (
                 <button
                     key={opt.value}
                     onClick={() => onChange(opt.value)}
@@ -19,7 +31,7 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
     </div>
 );
 
-export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: any, v: any) => void }) => {
+export const AbcConnectConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: any) => void }> = ({ options, onChange }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="p-5 bg-cyan-50/30 dark:bg-cyan-900/10 rounded-[2.5rem] border border-cyan-100 dark:border-cyan-800/30 shadow-sm">
