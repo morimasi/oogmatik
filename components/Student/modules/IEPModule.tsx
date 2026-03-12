@@ -30,7 +30,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
     const [activeTab, setActiveTab] = useState<'dashboard' | 'analysis' | 'goals' | 'reports'>('dashboard');
     const [newGoal, setNewGoal] = useState<Partial<IEPGoal>>({});
     const [showGoalModal, setShowGoalModal] = useState(false);
-    
+
     // Review Modal State
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [selectedGoalForReview, setSelectedGoalForReview] = useState<string | null>(null);
@@ -38,7 +38,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
 
     // State for interactive data (replacing pure mocks with editable state)
     const [goals, setGoals] = useState<IEPGoal[]>(student.iep?.goals || []);
-    
+
     // Simulated AI Data (In real app, fetch from API)
     const aiInsights = useMemo<AIInsight[]>(() => [
         {
@@ -67,7 +67,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
     // --- Goal Management ---
     const handleAddGoal = () => {
         if (!newGoal.title || !newGoal.description) return;
-        
+
         const goal: IEPGoal = {
             id: crypto.randomUUID(),
             title: newGoal.title,
@@ -99,7 +99,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
     };
 
     const handleUpdateProgress = (id: string, newProgress: number) => {
-        const updatedGoals = goals.map(g => 
+        const updatedGoals = goals.map(g =>
             g.id === id ? { ...g, progress: newProgress, status: newProgress === 100 ? 'achieved' : newProgress > 0 ? 'in_progress' : 'not_started' } : g
         );
         setGoals(updatedGoals as IEPGoal[]);
@@ -149,12 +149,12 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
     const TabButton = ({ id, icon, label }: { id: any, icon: string, label: string }) => (
         <button
             onClick={() => setActiveTab(id)}
-            className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap
-                ${activeTab === id 
-                    ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-lg scale-105' 
-                    : 'bg-white dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800'}`}
+            className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap
+                ${activeTab === id
+                    ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-2xl scale-105'
+                    : 'bg-white dark:bg-zinc-900 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 border border-zinc-100 dark:border-zinc-800'}`}
         >
-            <i className={`fa-solid ${icon}`}></i>
+            <i className={`fa-solid ${icon} ${activeTab === id ? 'text-indigo-500' : 'text-zinc-300'}`}></i>
             {label}
         </button>
     );
@@ -169,20 +169,20 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">Hedef Başlığı</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 font-bold"
                                     placeholder="Örn: Okuma Hızını Artırma"
                                     value={newGoal.title || ''}
-                                    onChange={e => setNewGoal({...newGoal, title: e.target.value})}
+                                    onChange={e => setNewGoal({ ...newGoal, title: e.target.value })}
                                 />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">Kategori</label>
-                                <select 
+                                <select
                                     className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 font-bold"
                                     value={newGoal.category || 'academic'}
-                                    onChange={e => setNewGoal({...newGoal, category: e.target.value as any})}
+                                    onChange={e => setNewGoal({ ...newGoal, category: e.target.value as any })}
                                 >
                                     <option value="academic">Akademik</option>
                                     <option value="behavioral">Davranışsal</option>
@@ -192,20 +192,20 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">Açıklama</label>
-                                <textarea 
+                                <textarea
                                     className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 text-sm min-h-[100px]"
                                     placeholder="Hedefin detayları ve başarı kriterleri..."
                                     value={newGoal.description || ''}
-                                    onChange={e => setNewGoal({...newGoal, description: e.target.value})}
+                                    onChange={e => setNewGoal({ ...newGoal, description: e.target.value })}
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 mb-1">Öncelik</label>
-                                    <select 
+                                    <select
                                         className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 font-bold"
                                         value={newGoal.priority || 'medium'}
-                                        onChange={e => setNewGoal({...newGoal, priority: e.target.value as any})}
+                                        onChange={e => setNewGoal({ ...newGoal, priority: e.target.value as any })}
                                     >
                                         <option value="high">Yüksek</option>
                                         <option value="medium">Orta</option>
@@ -214,23 +214,23 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 mb-1">Hedef Tarih</label>
-                                    <input 
-                                        type="date" 
+                                    <input
+                                        type="date"
                                         className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 font-bold"
                                         value={newGoal.targetDate ? newGoal.targetDate.split('T')[0] : ''}
-                                        onChange={e => setNewGoal({...newGoal, targetDate: new Date(e.target.value).toISOString()})}
+                                        onChange={e => setNewGoal({ ...newGoal, targetDate: new Date(e.target.value).toISOString() })}
                                     />
                                 </div>
                             </div>
                         </div>
                         <div className="flex gap-3 mt-8">
-                            <button 
+                            <button
                                 onClick={() => setShowGoalModal(false)}
                                 className="flex-1 py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 rounded-xl font-bold transition-colors"
                             >
                                 İptal
                             </button>
-                            <button 
+                            <button
                                 onClick={handleAddGoal}
                                 className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-indigo-200 dark:shadow-none"
                             >
@@ -249,43 +249,43 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">İlerleme Durumu (%)</label>
-                                <input 
-                                    type="number" 
+                                <input
+                                    type="number"
                                     min="0"
                                     max="100"
                                     className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 font-bold"
                                     value={newReview.progressSnapshot}
-                                    onChange={e => setNewReview({...newReview, progressSnapshot: parseInt(e.target.value)})}
+                                    onChange={e => setNewReview({ ...newReview, progressSnapshot: parseInt(e.target.value) })}
                                 />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">Değerlendirme Notu</label>
-                                <textarea 
+                                <textarea
                                     className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 text-sm min-h-[100px]"
                                     placeholder="Öğrencinin bu hedefteki performansı hakkında gözlemleriniz..."
                                     value={newReview.comment}
-                                    onChange={e => setNewReview({...newReview, comment: e.target.value})}
+                                    onChange={e => setNewReview({ ...newReview, comment: e.target.value })}
                                 />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">Sonraki Adımlar</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 text-sm"
                                     placeholder="Gerekirse alınacak önlemler veya strateji değişikliği..."
                                     value={newReview.nextSteps}
-                                    onChange={e => setNewReview({...newReview, nextSteps: e.target.value})}
+                                    onChange={e => setNewReview({ ...newReview, nextSteps: e.target.value })}
                                 />
                             </div>
                         </div>
                         <div className="flex gap-3 mt-8">
-                            <button 
+                            <button
                                 onClick={() => setShowReviewModal(false)}
                                 className="flex-1 py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 rounded-xl font-bold transition-colors"
                             >
                                 İptal
                             </button>
-                            <button 
+                            <button
                                 onClick={handleAddReview}
                                 className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-indigo-200 dark:shadow-none"
                             >
@@ -297,299 +297,279 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
             )}
 
             {/* Header / Navigation */}
-            <div className="flex gap-2 mb-8 overflow-x-auto pb-2 shrink-0">
-                <TabButton id="dashboard" icon="fa-chart-pie" label="BEP Paneli" />
-                <TabButton id="goals" icon="fa-bullseye" label="Hedefler (SMART)" />
-                <TabButton id="analysis" icon="fa-brain" label="AI Analiz & Profil" />
-                <TabButton id="reports" icon="fa-file-pdf" label="Raporlar" />
+            <div className="flex gap-4 mb-10 overflow-x-auto pb-4 shrink-0 px-2 no-scrollbar">
+                <TabButton id="dashboard" icon="fa-grid-2" label="BEP Paneli" />
+                <TabButton id="goals" icon="fa-bullseye-arrow" label="SMART Hedefler" />
+                <TabButton id="analysis" icon="fa-brain-circuit" label="Bilişsel Profil" />
+                <TabButton id="reports" icon="fa-file-chart-column" label="Akademik Rapor" />
             </div>
 
             <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
                 {/* DASHBOARD TAB */}
                 {activeTab === 'dashboard' && (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Left: Quick Stats */}
-                            <div className="space-y-6">
-                                <div className="bg-indigo-600 text-white p-6 rounded-2xl shadow-xl shadow-indigo-200 dark:shadow-none relative overflow-hidden">
-                                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-                                    <h3 className="font-bold text-lg relative z-10">BEP İlerlemesi</h3>
-                                    <div className="mt-4 relative z-10">
-                                        <div className="flex justify-between text-sm mb-2 opacity-90">
-                                            <span>Genel Başarı</span>
-                                            <span className="font-bold">
-                                                %{goals.length > 0 
-                                                    ? Math.round(goals.reduce((acc, g) => acc + g.progress, 0) / goals.length) 
-                                                    : 0}
-                                            </span>
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            {/* Ana İlerleme (Bento Card Large) */}
+                            <div className="lg:col-span-2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-900 text-white p-10 rounded-[3.5rem] shadow-2xl relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse"></div>
+                                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-400/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
+
+                                <div className="relative z-10">
+                                    <div className="flex justify-between items-start mb-12">
+                                        <div>
+                                            <h3 className="text-3xl font-black uppercase tracking-tighter mb-2">Genel BEP Performansı</h3>
+                                            <p className="text-indigo-100 text-[10px] font-black uppercase tracking-[0.2em] opacity-80">Mevcut Akademik Yıl İlerlemesi</p>
                                         </div>
-                                        <div className="w-full bg-black/20 rounded-full h-3 overflow-hidden">
-                                            <div 
-                                                className="bg-white h-full rounded-full transition-all duration-1000" 
-                                                style={{ width: `${goals.length > 0 ? Math.round(goals.reduce((acc, g) => acc + g.progress, 0) / goals.length) : 0}%` }}
-                                            ></div>
-                                        </div>
-                                        <div className="mt-6 grid grid-cols-3 gap-2 text-center">
-                                            <div className="bg-white/10 rounded-lg p-2">
-                                                <span className="block text-xl font-black">{goals.filter(g => g.status === 'achieved').length}</span>
-                                                <span className="text-[10px] opacity-75 uppercase">Tamamlanan</span>
-                                            </div>
-                                            <div className="bg-white/10 rounded-lg p-2">
-                                                <span className="block text-xl font-black">{goals.filter(g => g.status === 'in_progress').length}</span>
-                                                <span className="text-[10px] opacity-75 uppercase">Süren</span>
-                                            </div>
-                                            <div className="bg-white/10 rounded-lg p-2">
-                                                <span className="block text-xl font-black">{goals.length}</span>
-                                                <span className="text-[10px] opacity-75 uppercase">Toplam</span>
-                                            </div>
+                                        <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center border border-white/20">
+                                            <i className="fa-solid fa-chart-line-up text-2xl"></i>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                                    <h3 className="font-bold text-zinc-900 dark:text-white mb-4">AI Tahminleri</h3>
-                                    <div className="space-y-4">
-                                        {predictions.map((pred, i) => (
-                                            <div key={i} className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-xs text-zinc-500 font-medium">{pred.metric}</p>
-                                                    <div className="flex items-baseline gap-2">
-                                                        <span className="text-lg font-black text-zinc-800 dark:text-zinc-200">{pred.currentValue}</span>
-                                                        <i className="fa-solid fa-arrow-right text-[10px] text-zinc-300"></i>
-                                                        <span className={`text-lg font-black ${
-                                                            pred.trend === 'up' ? 'text-emerald-500' : 
-                                                            pred.trend === 'down' ? 'text-red-500' : 'text-amber-500'
-                                                        }`}>
-                                                            {pred.predictedValue}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs
-                                                    ${pred.riskLevel === 'high' ? 'bg-red-100 text-red-600' : 
-                                                      pred.riskLevel === 'low' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
-                                                    <i className={`fa-solid ${
-                                                        pred.trend === 'up' ? 'fa-arrow-trend-up' : 
-                                                        pred.trend === 'down' ? 'fa-arrow-trend-down' : 'fa-minus'
-                                                    }`}></i>
-                                                </div>
+                                    <div className="flex flex-col md:flex-row items-center gap-12">
+                                        <div className="relative w-48 h-48 flex items-center justify-center">
+                                            <svg className="w-full h-full -rotate-90">
+                                                <circle cx="96" cy="96" r="86" fill="none" stroke="currentColor" strokeWidth="14" className="text-white/10" />
+                                                <circle
+                                                    cx="96" cy="96" r="86" fill="none" stroke="currentColor" strokeWidth="14"
+                                                    strokeDasharray={540}
+                                                    strokeDashoffset={540 - (540 * (goals.length > 0 ? goals.reduce((acc, g) => acc + g.progress, 0) / goals.length : 0)) / 100}
+                                                    className="text-white transition-all duration-1000 ease-out"
+                                                    strokeLinecap="round"
+                                                />
+                                            </svg>
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                                <span className="text-5xl font-black">%{goals.length > 0 ? Math.round(goals.reduce((acc, g) => acc + g.progress, 0) / goals.length) : 0}</span>
+                                                <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Gelişim</span>
                                             </div>
-                                        ))}
+                                        </div>
+
+                                        <div className="flex-1 grid grid-cols-3 gap-6 w-full">
+                                            {[
+                                                { label: 'Hedef', val: goals.length, icon: 'fa-bullseye' },
+                                                { label: 'Tamam', val: goals.filter(g => g.status === 'achieved').length, icon: 'fa-check-circle' },
+                                                { label: 'Süren', val: goals.filter(g => g.status === 'in_progress').length, icon: 'fa-clock' }
+                                            ].map(stat => (
+                                                <div key={stat.label} className="p-6 bg-white/5 rounded-[2rem] border border-white/10 backdrop-blur-sm text-center">
+                                                    <i className={`fa-solid ${stat.icon} text-indigo-200 mb-2 opacity-50`}></i>
+                                                    <span className="block text-3xl font-black mb-1">{stat.val}</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-widest opacity-60">{stat.label}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Center & Right: Charts */}
-                            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col items-center">
-                                    <h3 className="font-bold text-zinc-900 dark:text-white mb-2 w-full text-left text-sm">Bilişsel Profil (Radar)</h3>
-                                    <div className="w-full h-64">
-                                        <RadarChart data={[
-                                            { label: 'Dikkat', value: 45 },
-                                            { label: 'Hafıza', value: 60 },
-                                            { label: 'Görsel', value: 95 },
-                                            { label: 'İşitsel', value: 30 },
-                                            { label: 'Dil', value: 70 },
-                                            { label: 'Hız', value: 50 },
-                                        ]} />
-                                    </div>
+                            {/* AI Tahmin Paneli (Bento Card) */}
+                            <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-zinc-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+                                <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-8 uppercase tracking-tighter">AI Projeksiyonu</h3>
+                                <div className="space-y-6">
+                                    {predictions.map((pred, i) => (
+                                        <div key={i} className="p-6 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 flex items-center justify-between group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800 transition-all">
+                                            <div className="flex-1">
+                                                <p className="text-[10px] text-zinc-400 font-black uppercase tracking-widest mb-2">{pred.metric}</p>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-2xl font-black text-zinc-900 dark:text-white">{pred.currentValue}</span>
+                                                    <i className="fa-solid fa-arrow-right text-[10px] text-zinc-300"></i>
+                                                    <span className={`text-2xl font-black ${pred.trend === 'up' ? 'text-emerald-500' : 'text-rose-500'
+                                                        }`}>
+                                                        {pred.predictedValue}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner
+                                                ${pred.riskLevel === 'high' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                                <i className={`fa-solid ${pred.trend === 'up' ? 'fa-chart-line-up' : 'fa-chart-line-down'}`}></i>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                                <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                                    <h3 className="font-bold text-zinc-900 dark:text-white mb-2 text-sm">Gelişim Trendi</h3>
-                                    <div className="w-full h-64">
-                                        <LineChart 
-                                            data={Array.from({ length: 6 }).map((_, i) => ({
-                                                date: new Date(Date.now() - (5 - i) * 30 * 24 * 60 * 60 * 1000).toISOString(),
-                                                attention: 40 + Math.random() * 20,
-                                                reading: 30 + i * 5 + Math.random() * 5,
-                                                math: 50 + Math.random() * 10
-                                            }))} 
-                                            lines={[
-                                                { key: 'attention', color: '#ef4444', label: 'Dikkat' },
-                                                { key: 'reading', color: '#3b82f6', label: 'Okuma' }
-                                            ]} 
-                                        />
-                                    </div>
+                            </div>
+                        </div>
+
+                        {/* Grafikler Alanı (Bento Grid Medium) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-zinc-100 dark:border-zinc-800 shadow-sm">
+                                <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-8 uppercase tracking-tighter">Bilişsel Dağılım</h3>
+                                <div className="w-full flex justify-center py-4 scale-110">
+                                    <RadarChart data={[
+                                        { label: 'Dikkat', value: 45 },
+                                        { label: 'Hafıza', value: 60 },
+                                        { label: 'Görsel', value: 95 },
+                                        { label: 'İşitsel', value: 30 },
+                                        { label: 'Dil', value: 70 },
+                                        { label: 'Hız', value: 50 },
+                                    ]} />
+                                </div>
+                            </div>
+                            <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-zinc-100 dark:border-zinc-800 shadow-sm">
+                                <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-8 uppercase tracking-tighter">Gelişim Trendi</h3>
+                                <div className="w-full h-72">
+                                    <LineChart
+                                        data={Array.from({ length: 6 }).map((_, i) => ({
+                                            date: new Date(Date.now() - (5 - i) * 30 * 24 * 60 * 60 * 1000).toISOString(),
+                                            attention: 40 + Math.random() * 20,
+                                            reading: 30 + i * 5 + Math.random() * 5
+                                        }))}
+                                        lines={[
+                                            { key: 'attention', color: '#6366f1', label: 'Dikkat' },
+                                            { key: 'reading', color: '#10b981', label: 'Okuma' }
+                                        ]}
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* GOALS TAB (Fully Interactive) */}
+                {/* GOALS TAB */}
                 {activeTab === 'goals' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="flex justify-between items-center mb-6">
+                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 space-y-8">
+                        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                             <div>
-                                <h3 className="font-bold text-xl text-zinc-900 dark:text-white">Bireyselleştirilmiş Hedefler</h3>
-                                <p className="text-zinc-500 text-sm mt-1">Öğrenci için tanımlanmış aktif hedefler ve ilerleme durumları.</p>
+                                <h3 className="text-3xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Akademik Hedef Matrisi</h3>
+                                <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mt-2">SMART Metodolojisi ile Takip</p>
                             </div>
-                            <button 
+                            <button
                                 onClick={() => setShowGoalModal(true)}
-                                className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-5 py-3 rounded-xl text-sm font-bold shadow-lg hover:scale-105 transition-transform flex items-center gap-2"
+                                className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all flex items-center gap-3"
                             >
-                                <i className="fa-solid fa-plus"></i>
-                                Yeni Hedef Ekle
+                                <i className="fa-solid fa-plus-circle"></i>
+                                Yeni Stratejik Hedef
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-1 gap-6 pb-10">
                             {goals.map(goal => (
-                                <div key={goal.id} className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all group shadow-sm">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-sm
-                                                ${goal.category === 'academic' ? 'bg-blue-100 text-blue-600' : 
-                                                  goal.category === 'behavioral' ? 'bg-purple-100 text-purple-600' : 'bg-orange-100 text-orange-600'}`}>
-                                                <i className={`fa-solid ${
-                                                    goal.category === 'academic' ? 'fa-book-open' : 
-                                                    goal.category === 'behavioral' ? 'fa-user-check' : 'fa-shapes'
-                                                }`}></i>
-                                            </div>
+                                <div key={goal.id} className="bg-white dark:bg-zinc-900 p-8 rounded-[3.5rem] border border-zinc-100 dark:border-zinc-800 hover:border-indigo-500/30 transition-all group shadow-sm flex flex-col lg:flex-row gap-8">
+                                    <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-3xl shadow-xl shrink-0
+                                        ${goal.category === 'academic' ? 'bg-indigo-50 text-indigo-600' :
+                                            goal.category === 'behavioral' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'}`}>
+                                        <i className={`fa-solid ${goal.category === 'academic' ? 'fa-book-sparkles' :
+                                                goal.category === 'behavioral' ? 'fa-user-gear' : 'fa-brain-circuit'
+                                            }`}></i>
+                                    </div>
+
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start mb-4">
                                             <div>
-                                                <h4 className="font-bold text-lg text-zinc-900 dark:text-white leading-tight">{goal.title}</h4>
-                                                <div className="flex gap-2 mt-1">
-                                                    <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 text-[10px] font-bold uppercase rounded tracking-wider">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <span className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border
+                                                        ${goal.priority === 'high' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-zinc-50 text-zinc-400 border-zinc-100'}`}>
+                                                        {goal.priority === 'high' ? 'Kritik Öncelik' : goal.priority === 'medium' ? 'Orta' : 'Düşük'}
+                                                    </span>
+                                                    <span className="px-3 py-1 bg-zinc-900 dark:bg-white text-white dark:text-black text-[9px] font-black uppercase tracking-widest rounded-lg">
                                                         {goal.category}
                                                     </span>
-                                                    <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded tracking-wider
-                                                        ${goal.priority === 'high' ? 'bg-red-100 text-red-600' : 'bg-zinc-100 text-zinc-500'}`}>
-                                                        {goal.priority === 'high' ? 'Yüksek Öncelik' : goal.priority === 'medium' ? 'Orta' : 'Düşük'}
-                                                    </span>
                                                 </div>
+                                                <h4 className="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tight">{goal.title}</h4>
+                                            </div>
+                                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button className="w-10 h-10 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 font-black">
+                                                    <i className="fa-solid fa-pen-nib"></i>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteGoal(goal.id)}
+                                                    className="w-10 h-10 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-900/20 flex items-center justify-center text-rose-400"
+                                                >
+                                                    <i className="fa-solid fa-trash-alt"></i>
+                                                </button>
                                             </div>
                                         </div>
-                                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="w-8 h-8 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-indigo-600 transition-colors">
-                                                <i className="fa-solid fa-pen"></i>
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDeleteGoal(goal.id)}
-                                                className="w-8 h-8 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center text-zinc-400 hover:text-red-600 transition-colors"
-                                            >
-                                                <i className="fa-solid fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-6 pl-[52px]">
-                                        {goal.description}
-                                    </p>
+                                        <p className="text-zinc-500 text-sm leading-relaxed mb-6 font-medium italic border-l-2 border-zinc-100 pl-4 py-1">{goal.description}</p>
 
-                                    <div className="pl-[52px]">
-                                        <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl mb-4 border border-zinc-100 dark:border-zinc-800">
-                                            <div className="flex justify-between text-xs font-bold mb-3">
-                                                <span className="text-zinc-500">İlerleme Durumu</span>
-                                                <div className="flex gap-4">
-                                                    <span className="text-indigo-600">% {goal.progress}</span>
-                                                    <span className="text-zinc-400 border-l pl-4 border-zinc-300">
-                                                        Hedef: {new Date(goal.targetDate).toLocaleDateString()}
-                                                    </span>
+                                        <div className="bg-zinc-50 dark:bg-zinc-800/50 p-6 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-800">
+                                            <div className="flex justify-between items-end mb-4">
+                                                <div>
+                                                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block mb-1">Mevcut İlerleme</span>
+                                                    <span className="text-3xl font-black text-indigo-600">%{goal.progress}</span>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block mb-1">Hedef Tarih</span>
+                                                    <span className="text-xs font-black text-zinc-900 dark:text-white">{new Date(goal.targetDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                                 </div>
                                             </div>
-                                            
-                                            {/* Interactive Progress Slider */}
-                                            <div className="relative h-6 flex items-center group/slider cursor-pointer">
-                                                <div className="absolute w-full h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                                                    <div 
-                                                        className="h-full bg-indigo-500 rounded-full transition-all duration-300" 
-                                                        style={{ width: `${goal.progress}%` }}
-                                                    ></div>
-                                                </div>
-                                                <input 
-                                                    type="range" 
-                                                    min="0" 
-                                                    max="100" 
-                                                    value={goal.progress} 
+                                            <div className="relative h-3 w-full bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-indigo-500 rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(99,102,241,0.5)]"
+                                                    style={{ width: `${goal.progress}%` }}
+                                                ></div>
+                                                <input
+                                                    type="range"
+                                                    min="0" max="100"
+                                                    value={goal.progress}
                                                     onChange={(e) => handleUpdateProgress(goal.id, parseInt(e.target.value))}
                                                     className="absolute w-full h-full opacity-0 cursor-pointer z-10"
                                                 />
-                                                <div 
-                                                    className="w-4 h-4 bg-white border-2 border-indigo-500 rounded-full shadow-md absolute pointer-events-none transition-all duration-300 group-hover/slider:scale-125"
-                                                    style={{ left: `calc(${goal.progress}% - 8px)` }}
-                                                ></div>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        {/* Reviews / Updates */}
-                                        <div className="flex justify-between items-center text-xs text-zinc-400">
-                                            <div className="flex flex-col gap-1">
-                                                <span>
-                                                    <i className="fa-regular fa-clock mr-1"></i>
-                                                    Son Değerlendirme: {goal.reviews && goal.reviews.length > 0 ? new Date(goal.reviews[goal.reviews.length - 1].date).toLocaleDateString() : 'Yok'}
+                                    <div className="lg:w-72 shrink-0 border-t lg:border-t-0 lg:border-l border-zinc-100 dark:border-zinc-800 pt-6 lg:pt-0 lg:pl-8 flex flex-col justify-center">
+                                        <h5 className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-4">Son Operasyon</h5>
+                                        {goal.reviews && goal.reviews.length > 0 ? (
+                                            <div className="space-y-3">
+                                                <p className="text-xs font-bold text-zinc-900 dark:text-white leading-relaxed">
+                                                    "{goal.reviews[goal.reviews.length - 1].comment}"
+                                                </p>
+                                                <span className="text-[9px] font-black text-indigo-500 uppercase">
+                                                    {new Date(goal.reviews[goal.reviews.length - 1].date).toLocaleDateString()} • {goal.reviews[goal.reviews.length - 1].reviewer}
                                                 </span>
-                                                {goal.reviews && goal.reviews.length > 0 && (
-                                                    <span className="text-zinc-500 italic max-w-xs truncate">
-                                                        "{goal.reviews[goal.reviews.length - 1].comment}"
-                                                    </span>
-                                                )}
                                             </div>
-                                            <button 
-                                                onClick={() => openReviewModal(goal.id)}
-                                                className="text-indigo-600 font-bold hover:underline"
-                                            >
-                                                + Değerlendirme Ekle
-                                            </button>
-                                        </div>
+                                        ) : (
+                                            <p className="text-xs italic text-zinc-300">Henüz bir değerlendirme yapılmamış.</p>
+                                        )}
+                                        <button
+                                            onClick={() => openReviewModal(goal.id)}
+                                            className="mt-6 w-full py-3 border border-zinc-100 dark:border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-indigo-600 transition-all"
+                                        >
+                                            Veri Girişi Yap
+                                        </button>
                                     </div>
                                 </div>
                             ))}
-                            
-                            {goals.length === 0 && (
-                                <div className="text-center py-20 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl bg-zinc-50/50">
-                                    <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 text-zinc-300">
-                                        <i className="fa-solid fa-bullseye text-3xl"></i>
-                                    </div>
-                                    <h3 className="text-zinc-900 dark:text-white font-bold text-lg">Henüz Hedef Tanımlanmamış</h3>
-                                    <p className="text-zinc-500 max-w-xs mx-auto mt-2 mb-6">
-                                        Öğrencinin gelişimini takip etmek için ilk hedefini oluşturun.
-                                    </p>
-                                    <button 
-                                        onClick={() => setShowGoalModal(true)}
-                                        className="text-indigo-600 font-bold hover:underline"
-                                    >
-                                        Hedef Oluştur
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     </div>
                 )}
 
                 {/* ANALYSIS TAB */}
                 {activeTab === 'analysis' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                         <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-6 flex gap-4">
-                            <div className="shrink-0 w-12 h-12 bg-amber-100 dark:bg-amber-900/30 text-amber-600 rounded-xl flex items-center justify-center text-xl">
-                                <i className="fa-solid fa-lightbulb"></i>
+                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 space-y-8">
+                        <div className="bg-gradient-to-br from-amber-500 to-amber-700 p-10 rounded-[3.5rem] text-white flex gap-8 items-center relative overflow-hidden shadow-2xl shadow-amber-500/20">
+                            <div className="absolute right-0 top-0 p-10 opacity-10">
+                                <i className="fa-solid fa-brain-circuit text-9xl"></i>
+                            </div>
+                            <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center text-3xl shrink-0">
+                                <i className="fa-solid fa-microchip-ai"></i>
                             </div>
                             <div>
-                                <h3 className="font-bold text-amber-800 dark:text-amber-500 text-lg">Yapay Zeka Analiz Modülü</h3>
-                                <p className="text-amber-700/80 dark:text-amber-500/80 text-sm mt-1">
-                                    Bu veriler, öğrencinin sisteme girilen test sonuçları (WISC-R, CAS), öğretmen gözlemleri ve akademik performans verilerinin makine öğrenimi algoritmalarıyla işlenmesi sonucu oluşturulmuştur.
+                                <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">Pedagojik Analiz Motoru</h3>
+                                <p className="text-amber-50 text-sm font-medium leading-relaxed max-w-2xl">
+                                    Öğrencinin bilişsel ve akademik verileri AI destekli algoritmalarla normalize edilerek gelişim öngörüleri oluşturulmaktadır.
                                 </p>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {aiInsights.map((insight, i) => (
-                                <div key={i} className={`p-6 rounded-2xl border-l-4 shadow-sm bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 ${
-                                    insight.type === 'strength' ? 'border-l-emerald-500' :
-                                    insight.type === 'weakness' ? 'border-l-amber-500' :
-                                    insight.type === 'threat' ? 'border-l-red-500' : 'border-l-blue-500'
-                                }`}>
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h4 className="font-bold text-zinc-900 dark:text-white">{insight.title}</h4>
-                                        <span className={`text-[10px] font-bold px-2 py-1 rounded ${
-                                            insight.confidence > 90 ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-600'
-                                        }`}>
+                                <div key={i} className={`p-10 rounded-[3.5rem] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group hover:shadow-2xl transition-all`}>
+                                    <div className="flex justify-between items-start mb-8">
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl
+                                                ${insight.type === 'strength' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                                                <i className={`fa-solid ${insight.type === 'strength' ? 'fa-shield-halved' : 'fa-triangle-exclamation'}`}></i>
+                                            </div>
+                                            <h4 className="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tight">{insight.title}</h4>
+                                        </div>
+                                        <span className="px-3 py-1 bg-zinc-50 dark:bg-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest text-zinc-400">
                                             %{insight.confidence} Güven
                                         </span>
                                     </div>
-                                    <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">{insight.description}</p>
-                                    <div className="flex flex-wrap gap-2">
+                                    <p className="text-zinc-500 text-sm leading-relaxed mb-10 font-medium">{insight.description}</p>
+                                    <div className="flex flex-wrap gap-3">
                                         {insight.source.map((s, idx) => (
-                                            <span key={idx} className="text-[10px] uppercase font-bold text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">
-                                                <i className="fa-solid fa-database mr-1 opacity-50"></i>
+                                            <span key={idx} className="text-[9px] font-black uppercase tracking-widest text-zinc-400 py-1 flex items-center gap-2">
+                                                <i className="fa-solid fa-link text-[8px] opacity-30"></i>
                                                 {s}
                                             </span>
                                         ))}
@@ -599,56 +579,41 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                         </div>
                     </div>
                 )}
-                
+
                 {/* REPORTS TAB */}
                 {activeTab === 'reports' && (
-                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white dark:bg-zinc-900 rounded-2xl p-12 text-center border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center min-h-[400px]">
-                        <div className="w-24 h-24 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mb-6 text-indigo-600 relative group cursor-pointer">
-                            <i className="fa-solid fa-file-invoice text-4xl group-hover:scale-110 transition-transform"></i>
-                            <div className="absolute inset-0 border-2 border-indigo-100 dark:border-indigo-800 rounded-full animate-ping opacity-20"></div>
-                        </div>
-                        <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-2">Akıllı Rapor Oluşturucu</h3>
-                        <p className="text-zinc-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
-                            Seçilen tarih aralığı için tüm AI analizlerini, ilerleme grafiklerini ve öğretmen notlarını içeren kapsamlı bir PDF raporu oluşturun.
-                        </p>
-                        
-                        <div className="grid grid-cols-2 gap-4 w-full max-w-md mb-8">
-                            <div className="bg-zinc-50 dark:bg-zinc-800 p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 text-left cursor-pointer hover:border-indigo-500 transition-colors">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <i className="fa-solid fa-check-circle text-emerald-500 text-xs"></i>
-                                    <span className="font-bold text-xs text-zinc-700 dark:text-zinc-300">Gelişim Grafikleri</span>
-                                </div>
-                            </div>
-                            <div className="bg-zinc-50 dark:bg-zinc-800 p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 text-left cursor-pointer hover:border-indigo-500 transition-colors">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <i className="fa-solid fa-check-circle text-emerald-500 text-xs"></i>
-                                    <span className="font-bold text-xs text-zinc-700 dark:text-zinc-300">AI Öngörüleri</span>
-                                </div>
-                            </div>
-                            <div className="bg-zinc-50 dark:bg-zinc-800 p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 text-left cursor-pointer hover:border-indigo-500 transition-colors">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <i className="fa-solid fa-check-circle text-emerald-500 text-xs"></i>
-                                    <span className="font-bold text-xs text-zinc-700 dark:text-zinc-300">Hedef Durumları</span>
-                                </div>
-                            </div>
-                            <div className="bg-zinc-50 dark:bg-zinc-800 p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 text-left cursor-pointer hover:border-indigo-500 transition-colors">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <i className="fa-solid fa-check-circle text-emerald-500 text-xs"></i>
-                                    <span className="font-bold text-xs text-zinc-700 dark:text-zinc-300">Öğretmen Notları</span>
-                                </div>
-                            </div>
+                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 bg-white dark:bg-zinc-900 rounded-[3.5rem] p-16 text-center border border-zinc-100 dark:border-zinc-800 flex flex-col items-center justify-center min-h-[500px] shadow-sm relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+
+                        <div className="w-28 h-28 bg-indigo-600 rounded-[2.5rem] flex items-center justify-center mb-10 text-white shadow-2xl shadow-indigo-600/40 relative group cursor-pointer transition-transform hover:scale-110">
+                            <i className="fa-solid fa-file-pdf text-5xl"></i>
+                            <div className="absolute inset-0 border-4 border-indigo-400 rounded-[2.5rem] animate-ping opacity-20"></div>
                         </div>
 
-                        <div className="flex justify-center gap-4 w-full max-w-md">
-                            <button className="flex-1 px-6 py-4 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 rounded-2xl font-bold text-sm transition-colors">
-                                Önizleme
+                        <h3 className="text-4xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter mb-4">Akademik Rapor Jeneratörü</h3>
+                        <p className="text-zinc-500 max-w-lg mx-auto mb-12 text-sm font-medium leading-relaxed">
+                            Öğrencinin tüm BEP süreçlerini içeren, profesyonel dizayn edilmiş, görselleştirilmiş performans raporunu tek tıkla hazırlayın.
+                        </p>
+
+                        <div className="flex flex-wrap justify-center gap-6 mb-12">
+                            {['Performans Özetleri', 'Gelişim Grafikleri', 'AI Analizleri', 'Gözlem Notları'].map(item => (
+                                <div key={item} className="px-6 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 flex items-center gap-3">
+                                    <i className="fa-solid fa-square-check text-indigo-500"></i>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400">{item}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-6 w-full max-w-md">
+                            <button className="flex-1 px-10 py-5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-300 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all">
+                                Önizleme Al
                             </button>
-                            <button className="flex-1 px-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-sm transition-colors shadow-lg shadow-indigo-200 dark:shadow-none flex items-center justify-center gap-2">
-                                <i className="fa-solid fa-download"></i>
-                                Raporu İndir
+                            <button className="flex-1 px-10 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all shadow-2xl shadow-indigo-600/30 flex items-center justify-center gap-3">
+                                <i className="fa-solid fa-cloud-arrow-down"></i>
+                                PDF Olarak İndir
                             </button>
                         </div>
-                     </div>
+                    </div>
                 )}
             </div>
         </div>
