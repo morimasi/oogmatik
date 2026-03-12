@@ -134,14 +134,19 @@ export const printService = {
         cel.style.setProperty('-webkit-text-size-adjust', '100%', 'important');
         if (cel.hasAttribute('data-scaled')) cel.removeAttribute('data-scaled');
 
-        // 2. Viewport ve Taşma Normalizasyonu (v5)
+        // 2. Viewport ve Taşma Normalizasyonu (v5: Zero-Tolerance)
         const oStyle = window.getComputedStyle(oel);
         const computedWidth = parseFloat(oStyle.width) || 0;
 
-        // Eğer içerik kağıt genişliğinden (794px ≈ 210mm) genişse, 100%'e çek (Taşmayı ve dolayısıyla küçülmeyi önler)
-        if (computedWidth > 794 || oStyle.width.includes('vw')) {
+        // A4 Genişliği (210mm @ 96 DPI ≈ 793.7px)
+        // Eğer içerik kağıt genişliğinden (790px) genişse, "Budama" işlemi yap
+        if (computedWidth > 790 || oStyle.width.includes('vw')) {
           cel.style.setProperty('width', '100%', 'important');
           cel.style.setProperty('max-width', '100%', 'important');
+          cel.style.setProperty('overflow', 'hidden', 'important'); // Geniş taşmaları buda
+          cel.style.setProperty('box-sizing', 'border-box', 'important');
+          cel.style.setProperty('margin-left', '0', 'important');
+          cel.style.setProperty('margin-right', '0', 'important');
         }
 
         // 3. Flex ve Grid Alanlarını Sabitle
@@ -152,8 +157,8 @@ export const printService = {
 
         if (oStyle.height.includes('vh')) cel.style.height = 'auto';
 
-        // 4. Görünürlük ve Taşma
-        if (oStyle.overflow === 'hidden' || oStyle.overflow === 'auto') {
+        // 4. Görünürlük ve Taşma (Eğer budanmadıysa)
+        if ((oStyle.overflow === 'hidden' || oStyle.overflow === 'auto') && computedWidth <= 790) {
           cel.style.setProperty('overflow', 'visible', 'important');
         }
       });
