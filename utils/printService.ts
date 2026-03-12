@@ -107,12 +107,14 @@ export const printService = {
             clone.style.setProperty('position', 'relative', 'important');
             clone.style.setProperty('width', '210mm', 'important');
             clone.style.setProperty('max-width', '210mm', 'important');
+            clone.style.setProperty('min-width', '210mm', 'important');
             clone.style.setProperty('padding', '10mm', 'important'); // v4.1: Tam 1cm marjin
-            clone.style.setProperty('min-height', '296.7mm', 'important');
+            clone.style.setProperty('min-height', '296mm', 'important');
             clone.style.setProperty('height', 'auto', 'important');
             clone.style.setProperty('box-sizing', 'border-box', 'important');
             clone.style.setProperty('display', 'block', 'important');
-            clone.style.setProperty('overflow', 'visible', 'important');
+            clone.style.setProperty('overflow-x', 'hidden', 'important');
+            clone.style.setProperty('overflow-y', 'visible', 'important');
             clone.style.setProperty('page-break-after', 'always', 'important');
             clone.style.setProperty('break-after', 'page', 'important');
             clone.style.setProperty('background', 'white', 'important');
@@ -191,7 +193,19 @@ export const printService = {
         const originalTitle = document.title;
         document.title = title.replace(/[^a-z0-9ğüşıöç]/gi, '_');
 
-        window.print();
+        // 5. Yazdırma işlemine geç
+        setTimeout(async () => {
+            window.print();
+
+            // 7. Temizlik: Print konteynerini kaldır
+            if (options.action === 'print') {
+                setTimeout(() => {
+                    if (printContainer.parentNode) {
+                        document.body.removeChild(printContainer);
+                    }
+                }, 2000);
+            }
+        }, 500); // v5: Stabilizasyon için süreyi artırdık
 
         // 9. Temizlik (print dialog kapatıldıktan sonra)
         document.title = originalTitle;

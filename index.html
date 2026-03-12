@@ -545,32 +545,37 @@
       html,
       body {
         background: white !important;
-        margin: 0 auto !important;
-        /* v4: Merkeze sabitle */
+        margin: 0 !important;
+        /* v5: Kenar boşluklarını sıfırla */
         padding: 0 !important;
         height: auto !important;
         width: 210mm !important;
-        /* v4: Tam genişlik kilidi (Absolute Sync) */
-        overflow: visible !important;
+        /* v5: Fiziksel genişlik kilidi */
+        max-width: 210mm !important;
+        min-width: 210mm !important;
+        overflow-x: hidden !important;
+        /* v5: Yatay taşmayı engelle (Küçülmeyi önler) */
+        overflow-y: visible !important;
         display: block !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         position: relative !important;
       }
 
-      /* 2. Print Container Artık Sayfanın Tek Hakimi (Relative Position ile doğal akar) */
+      /* 2. Print Container Artık Sayfanın Tek Hakimi */
       #print-container {
         display: block !important;
         visibility: visible !important;
         position: relative !important;
-        /* <--- ABSOLUTE İPTAL (Çoklu Sayfa Donmasını Çözer) */
         width: 210mm !important;
-        /* Kağıt genişliği */
         max-width: 210mm !important;
-        margin: 0 auto !important;
-        /* Mükemmel ortalama */
+        min-width: 210mm !important;
+        margin: 0 !important;
+        /* v5: Sola yasla, tarayıcı ortalasın */
+        padding: 0 !important;
         background: white !important;
         z-index: 9999999 !important;
+        overflow: visible !important;
       }
 
       /* ═══════════════════════════════════════════
