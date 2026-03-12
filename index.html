@@ -591,26 +591,28 @@
         visibility: visible !important;
         display: block !important;
         width: 210mm !important;
-        /* A4 Genişliğine Kilitli */
+        /* v6: İçerik tam A4 genişliğinde kalsın */
         min-height: 296mm !important;
         height: auto !important;
         padding: 10mm !important;
-        /* Kullanıcı Talebi: Tam 1cm boşluk */
+        /* v6: Tam 1cm marjin */
         margin: 0 auto !important;
-        /* Merkeze hizala */
+        /* v6: Sayfa içinde kesin merkezleme */
         overflow: visible !important;
         page-break-after: always !important;
         break-after: page !important;
-        page-break-inside: auto !important;
-        break-inside: auto !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
         box-sizing: border-box !important;
         background: white !important;
         position: relative !important;
         border: none !important;
         box-shadow: none !important;
-        transform: scale(1) !important;
-        /* Her türlü skalayı sıfırla */
+        transform: none !important;
+        /* v6: Tüm skalamaları temizle */
         zoom: 1 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
 
       /* Yüksek flex yapıları blok moduna çevirerek sayfalama kırılmalarını engelle (çoklu sayfa desteği) */

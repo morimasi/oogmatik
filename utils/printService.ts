@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// ULTRA PRINT ENGINE v5.0 — A4 Kompakt Çoklu Sayfa Yazdırma
+// ULTRA PRINT ENGINE v6.0 — A4 Kompakt Çoklu Sayfa Yazdırma
 // Bursa Disleksi AI — Nöro-Mimari Basım Motoru
 // ═══════════════════════════════════════════════════════════════
 
