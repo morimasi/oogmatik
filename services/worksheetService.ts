@@ -9,7 +9,7 @@ import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, Stude
 import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError';
 import { logError, retryWithBackoff, withTimeout } from '../utils/errorHandler';
 
-const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, startAfter } = firestore;
+const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, startAfter, writeBatch } = firestore;
 
 /**
  * Firestore timeout configurations (ms)
@@ -21,9 +21,9 @@ const FIRESTORE_RETRY_CONFIG = {
     shouldRetry: (error: any) => {
         // Retry on network errors, not on permission errors
         const message = error?.message || '';
-        return message.includes('DEADLINE_EXCEEDED') || 
-               message.includes('UNAVAILABLE') ||
-               message.includes('RESOURCE_EXHAUSTED');
+        return message.includes('DEADLINE_EXCEEDED') ||
+            message.includes('UNAVAILABLE') ||
+            message.includes('RESOURCE_EXHAUSTED');
     }
 };
 
@@ -44,7 +44,7 @@ const serializeData = (data: any): string => {
 
 const deserializeData = (data: any): SingleWorksheetData[] => {
     if (!data) return [];
-    
+
     let parsed: any = [];
     if (typeof data === 'string') {
         try {
@@ -86,10 +86,10 @@ const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
 
 export const worksheetService = {
     saveWorksheet: async (
-        userId: string, 
-        name: string, 
-        activityType: ActivityType, 
-        data: SingleWorksheetData[], 
+        userId: string,
+        name: string,
+        activityType: ActivityType,
+        data: SingleWorksheetData[],
         icon: string,
         category: { id: string, title: string },
         styleSettings?: StyleSettings,
@@ -117,7 +117,7 @@ export const worksheetService = {
 
             return {
                 ...mapDbToWorksheet(payload, docRef.id),
-                worksheetData: data 
+                worksheetData: data
             };
         } catch (error) {
             console.error("Error saving worksheet:", error);
@@ -129,7 +129,7 @@ export const worksheetService = {
         try {
             // Only fetch private (not shared) worksheets for this user
             let q = query(
-                collection(db, "saved_worksheets"), 
+                collection(db, "saved_worksheets"),
                 where("userId", "==", userId),
                 where("sharedWith", "==", null)
             );
@@ -139,14 +139,14 @@ export const worksheetService = {
             }
 
             q = query(q, orderBy("createdAt", "desc"), limit(pageSize));
-            
+
             // Note: This needs a composite index in Firestore (userId, sharedWith, category.id, createdAt)
             const querySnapshot = await getDocs(q);
             const items: SavedWorksheet[] = [];
             querySnapshot.forEach((doc) => {
                 items.push(mapDbToWorksheet(doc.data(), doc.id));
             });
-            
+
             return { items, count: null };
         } catch (error) {
             console.warn("Firestore Query Error (Index likely missing):", error);
@@ -158,7 +158,7 @@ export const worksheetService = {
                 const data = doc.data() as any;
                 if (!data.sharedWith) items.push(mapDbToWorksheet(data, doc.id));
             });
-            
+
             let filtered = items;
             if (categoryId && categoryId !== 'all') {
                 filtered = items.filter(i => i.category?.id === categoryId);
@@ -188,7 +188,7 @@ export const worksheetService = {
     getSharedWithMe: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
         try {
             const q = query(
-                collection(db, "saved_worksheets"), 
+                collection(db, "saved_worksheets"),
                 where("sharedWith", "==", userId),
                 orderBy("createdAt", "desc"),
                 limit(pageSize)
@@ -202,7 +202,7 @@ export const worksheetService = {
         } catch (error) {
             console.warn("Firestore Shared Query Error:", error);
             const qFallback = query(
-                collection(db, "saved_worksheets"), 
+                collection(db, "saved_worksheets"),
                 where("sharedWith", "==", userId)
             );
             const querySnapshot = await getDocs(qFallback);
@@ -224,14 +224,14 @@ export const worksheetService = {
             sharedWith: receiverId,
             createdAt: new Date().toISOString()
         };
-        
+
         if (Array.isArray(payload.worksheetData)) {
             payload.worksheetData = serializeData(payload.worksheetData);
         }
         if (Array.isArray(payload.workbookItems)) {
             payload.workbookItems = serializeData(payload.workbookItems);
         }
-        
+
         await addDoc(collection(db, "saved_worksheets"), payload);
     },
 
@@ -244,23 +244,23 @@ export const worksheetService = {
         try {
             const docRef = doc(db, "saved_worksheets", worksheetId);
             const docSnap = await getDoc(docRef);
-            
+
             if (!docSnap.exists()) {
                 throw new NotFoundError('Çalışma sayfası bulunamadı');
             }
-            
+
             const data = docSnap.data();
             const worksheet = mapDbToWorksheet(data, docSnap.id);
-            
+
             // Access control: Owner or shared with user
             const isOwner = worksheet.userId === userId;
-            const isShared = worksheet.sharedWith === userId || 
-                           (Array.isArray(worksheet.sharedWith) && worksheet.sharedWith.includes(userId));
-            
+            const isShared = worksheet.sharedWith === userId ||
+                (Array.isArray(worksheet.sharedWith) && worksheet.sharedWith.includes(userId));
+
             if (!isOwner && !isShared) {
                 throw new AuthorizationError('Bu çalışma sayfasına erişim izniniz yok');
             }
-            
+
             return worksheet;
         } catch (error) {
             if (error instanceof AppError) {
@@ -289,25 +289,25 @@ export const worksheetService = {
         try {
             const docRef = doc(db, "saved_worksheets", worksheetId);
             const docSnap = await getDoc(docRef);
-            
+
             if (!docSnap.exists()) {
                 throw new NotFoundError('Çalışma sayfası bulunamadı');
             }
-            
+
             const data = docSnap.data();
-            
+
             // Verify ownership
             if (data.userId !== userId) {
                 throw new AuthorizationError('Bu çalışmayı düzenleme izniniz yok');
             }
-            
+
             // Prepare update payload
             const payload = { ...updateData };
             delete (payload as any).id;
             delete (payload as any).userId;
             delete (payload as any).createdAt;
             (payload as any).updatedAt = new Date().toISOString();
-            
+
             // Serialize if needed
             if (payload.worksheetData && Array.isArray(payload.worksheetData)) {
                 (payload as any).worksheetData = serializeData(payload.worksheetData);
@@ -315,9 +315,9 @@ export const worksheetService = {
             if (payload.workbookItems && Array.isArray(payload.workbookItems)) {
                 (payload as any).workbookItems = serializeData(payload.workbookItems);
             }
-            
+
             await updateDoc(docRef, payload);
-            
+
             // Return updated worksheet
             return mapDbToWorksheet({ ...data, ...payload }, worksheetId);
         } catch (error) {
@@ -343,18 +343,18 @@ export const worksheetService = {
         try {
             const docRef = doc(db, "saved_worksheets", worksheetId);
             const docSnap = await getDoc(docRef);
-            
+
             if (!docSnap.exists()) {
                 throw new NotFoundError('Çalışma sayfası bulunamadı');
             }
-            
+
             const data = docSnap.data();
-            
+
             // Verify ownership
             if (data.userId !== userId) {
                 throw new AuthorizationError('Bu çalışmayı silme izniniz yok');
             }
-            
+
             await deleteDoc(docRef);
         } catch (error) {
             if (error instanceof AppError) {
@@ -367,6 +367,35 @@ export const worksheetService = {
                 userId
             });
             throw appError;
+        }
+    },
+
+    /**
+     * Delete multiple worksheets using a batch
+     */
+    deleteMultipleWorksheets: async (worksheetIds: string[], userId: string): Promise<void> => {
+        try {
+            const batch = writeBatch(db);
+            const userRef = doc(db, "users", userId);
+            let deletedCount = 0;
+
+            for (const id of worksheetIds) {
+                const docRef = doc(db, "saved_worksheets", id);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists() && docSnap.data().userId === userId) {
+                    batch.delete(docRef);
+                    deletedCount++;
+                }
+            }
+
+            if (deletedCount > 0) {
+                batch.update(userRef, { worksheetCount: increment(-deletedCount) });
+                await batch.commit();
+            }
+        } catch (error) {
+            console.error("Error in deleteMultipleWorksheets:", error);
+            throw toAppError(error);
         }
     },
 

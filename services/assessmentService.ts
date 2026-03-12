@@ -6,7 +6,7 @@ import { generateAdaptiveQuestionsFromAI } from './generators/assessment';
 import { generateOfflineAdaptiveQuestions } from './offlineGenerators/assessment';
 import { shuffle } from './offlineGenerators/helpers';
 
-const { collection, addDoc, query, where, getDocs } = firestore;
+const { collection, addDoc, query, where, getDocs, deleteDoc, doc, writeBatch } = firestore;
 
 export const assessmentService = {
     saveAssessment: async (
@@ -16,7 +16,7 @@ export const assessmentService = {
         age: number,
         grade: string,
         report: AssessmentReport,
-        studentId?: string 
+        studentId?: string
     ): Promise<void> => {
         const payload = {
             userId,
@@ -34,7 +34,7 @@ export const assessmentService = {
     getUserAssessments: async (userId: string): Promise<SavedAssessment[]> => {
         try {
             const q = query(
-                collection(db, "saved_assessments"), 
+                collection(db, "saved_assessments"),
                 where("userId", "==", userId)
             );
             const querySnapshot = await getDocs(q);
@@ -68,7 +68,7 @@ export const assessmentService = {
     getAssessmentsByStudent: async (studentId: string): Promise<SavedAssessment[]> => {
         try {
             const q = query(
-                collection(db, "saved_assessments"), 
+                collection(db, "saved_assessments"),
                 where("studentId", "==", studentId)
             );
             const querySnapshot = await getDocs(q);
@@ -102,7 +102,7 @@ export const assessmentService = {
             gender: assessment.gender,
             age: assessment.age,
             grade: assessment.grade,
-            report: JSON.parse(JSON.stringify(assessment.report)), 
+            report: JSON.parse(JSON.stringify(assessment.report)),
             sharedBy: senderId,
             sharedByName: senderName || 'Anonim',
             sharedWith: receiverId,
@@ -114,7 +114,7 @@ export const assessmentService = {
     getSharedAssessments: async (userId: string): Promise<SavedAssessment[]> => {
         try {
             const q = query(
-                collection(db, "saved_assessments"), 
+                collection(db, "saved_assessments"),
                 where("sharedWith", "==", userId)
             );
             const querySnapshot = await getDocs(q);
@@ -153,6 +153,18 @@ export const assessmentService = {
             console.warn("AI Generation failed for Assessment, falling back to Offline engine.", error);
             questionsMap = generateOfflineAdaptiveQuestions(selectedSkills, count);
         }
-        return Object.values(questionsMap).flat(); 
+        return Object.values(questionsMap).flat();
+    },
+
+    deleteAssessment: async (id: string): Promise<void> => {
+        await deleteDoc(doc(db, "saved_assessments", id));
+    },
+
+    deleteMultipleAssessments: async (ids: string[]): Promise<void> => {
+        const batch = writeBatch(db);
+        ids.forEach(id => {
+            batch.delete(doc(db, "saved_assessments", id));
+        });
+        await batch.commit();
     }
 };
