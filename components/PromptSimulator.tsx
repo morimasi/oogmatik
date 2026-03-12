@@ -47,7 +47,7 @@ export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
 
     useEffect(() => {
         const matches = prompt.template.match(/\{\{(.*?)\}\}/g);
-        const vars: string[] = matches ? [...new Set(matches.map((m: string) => m.replace(/\{|\}/g, '')))] : [];
+        const vars: string[] = matches ? [...new Set(matches.map((m: string) => m.replace(/\{|\}/g, '')) as string[])] : [];
 
         const initialVars: Record<string, string> = {};
         vars.forEach((v: string) => {

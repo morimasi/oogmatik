@@ -17,12 +17,10 @@ export const ColorfulSyllableReadingSheet: React.FC<Props> = ({ data }) => {
         if (!wordObj.parts || wordObj.parts.length === 0) return <span key={wIndex}>{wordObj.word} </span>;
 
         if (highlightType === 'vowels_only') {
-            // Sesli harfleri özel renge (paletin ilk rengi) boyar, sessizleri siyah.
-            // Data parts zaten harf harf veya parçalara ayrılmış olabilir. Bazen AI bunu string listesi döner.
             const chars = wordObj.parts.join('');
             return (
                 <span key={wIndex} className="mr-3 inline-block">
-                    {chars.split('').map((char, cIdx) => {
+                    {chars.split('').map((char: string, cIdx: number) => {
                         const isVowel = /[aeıioöuüAEIİOÖUÜ]/.test(char);
                         return <span key={cIdx} className={isVowel ? `${paletNames[0]} font-black` : 'text-zinc-800'}>{char}</span>;
                     })}
@@ -31,7 +29,6 @@ export const ColorfulSyllableReadingSheet: React.FC<Props> = ({ data }) => {
         }
 
         if (highlightType === 'words') {
-            // Sadece kelime kelime farklı renge boyar. (Bir kırmızı kelime, bir mavi kelime)
             return (
                 <span key={wIndex} className={`mr-3 inline-block ${paletNames[wIndex % 2]}`}>
                     {wordObj.word}
@@ -42,7 +39,7 @@ export const ColorfulSyllableReadingSheet: React.FC<Props> = ({ data }) => {
         // Default: 'syllables'
         return (
             <span key={wIndex} className="mr-4 inline-block">
-                {wordObj.parts.map((syl, sIdx) => (
+                {wordObj.parts.map((syl: string, sIdx: number) => (
                     <span key={sIdx} className={`${paletNames[sIdx % 2]}`}>{syl}</span>
                 ))}
             </span>
@@ -66,28 +63,28 @@ export const ColorfulSyllableReadingSheet: React.FC<Props> = ({ data }) => {
             </div>
 
             <div className="flex-1 flex flex-col items-center justify-start mt-4 print:mt-1 px-10 print:px-3">
-                {data.content?.paragraphs?.map((paragraph, pIdx) => (
+                {data.content?.paragraphs?.map((paragraph: any, pIdx: number) => (
                     <div key={pIdx} className="mb-10 print:mb-3 print:mb-4 print:mb-1 w-full text-justify" style={{ lineHeight: '3' }}>
-                        {paragraph.syllabified?.map((wordObj, wIdx) => renderWord(wordObj, wIdx))}
+                        {paragraph.syllabified?.map((wordObj: any, wIdx: number) => renderWord(wordObj, wIdx))}
                     </div>
                 ))}
+            </div>
 
-                {/* Okuma Paneli / Form Alt Bilgisi */}
-                <div className="w-full mt-auto mb-10 print:mb-3 print:mb-4 print:mb-1 p-6 print:p-2 bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-3xl flex items-center justify-between page-break-inside-avoid">
-                    <div className="flex items-center gap-4 print:gap-1">
-                        <div className="w-16 h-16 bg-white border-4 border-zinc-200 rounded-full flex items-center justify-center text-zinc-400">
-                            <i className="fa-solid fa-stopwatch text-2xl"></i>
-                        </div>
-                        <div>
-                            <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Performans Kaydı</div>
-                            <div className="text-lg font-black text-zinc-700">Bitirme Süreniz: ............ sn</div>
-                        </div>
+            {/* Okuma Paneli / Form Alt Bilgisi */}
+            <div className="w-full mt-auto mb-10 print:mb-3 print:mb-4 print:mb-1 p-6 print:p-2 bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-3xl flex items-center justify-between page-break-inside-avoid">
+                <div className="flex items-center gap-4 print:gap-1">
+                    <div className="w-16 h-16 bg-white border-4 border-zinc-200 rounded-full flex items-center justify-center text-zinc-400">
+                        <i className="fa-solid fa-stopwatch text-2xl"></i>
                     </div>
+                    <div>
+                        <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Performans Kaydı</div>
+                        <div className="text-lg font-black text-zinc-700">Bitirme Süreniz: ............ sn</div>
+                    </div>
+                </div>
 
-                    <div className="flex flex-col gap-2 items-end">
-                        <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Okunan Kelime Sayısı: ...........</div>
-                        <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Hatalı Kelime: ...........</div>
-                    </div>
+                <div className="flex flex-col gap-2 items-end">
+                    <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Okunan Kelime Sayısı: ...........</div>
+                    <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Hatalı Kelime: ...........</div>
                 </div>
             </div>
 
@@ -99,6 +96,3 @@ export const ColorfulSyllableReadingSheet: React.FC<Props> = ({ data }) => {
         </div>
     );
 };
-
-
-
