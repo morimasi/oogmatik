@@ -543,23 +543,21 @@
       }
 
       /* ══════════════════════════════════════════════════════════════════
-         CRITICAL: v5 PHYSICAL LOCK SYSTEM - DO NOT MODIFY THESE SETTINGS
-         Bu bölüm A4 baskı ölçeklendirmesini korur. Değiştirilmesi 
-         baskı boyutlarının bozulmasına (küçülmesine) neden olur.
+         v6.0 RELATIVE EXPANSION SYSTEM - DPI BYPASS
+         Sabit 210mm kilitleri kaldırıldı, tarayıcı DPI motoru esnek 
+         %100 genişlik ve sıfır marjin ile tam sayfa doluluğuna zorlanıyor.
          ══════════════════════════════════════════════════════════════════ */
       html,
       body {
         background: white !important;
         margin: 0 !important;
-        /* v5: Kenar boşluklarını sıfırla */
         padding: 0 !important;
         height: auto !important;
-        width: 210mm !important;
-        /* v5: Fiziksel genişlik kilidi */
-        max-width: 210mm !important;
-        min-width: 210mm !important;
+        width: 100% !important;
+        /* v6: Tam viewport yayılımı */
+        min-width: 100% !important;
+        max-width: 100% !important;
         overflow-x: hidden !important;
-        /* v5: Yatay taşmayı engelle (Küçülmeyi önler) */
         overflow-y: visible !important;
         display: block !important;
         -webkit-print-color-adjust: exact !important;
@@ -572,15 +570,16 @@
         display: block !important;
         visibility: visible !important;
         position: relative !important;
-        width: 210mm !important;
-        max-width: 210mm !important;
-        min-width: 210mm !important;
+        width: 100% !important;
+        /* v6: Genişliği tarayıcıya bırak */
+        max-width: 100% !important;
+        min-width: 100% !important;
         margin: 0 !important;
-        /* v5: Sola yasla, tarayıcı ortalasın */
         padding: 0 !important;
         background: white !important;
         z-index: 9999999 !important;
         overflow: visible !important;
+        box-sizing: border-box !important;
       }
 
       /* ═══════════════════════════════════════════
