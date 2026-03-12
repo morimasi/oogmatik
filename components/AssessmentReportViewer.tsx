@@ -132,7 +132,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
             } finally {
                 setIsPrinting(false);
             }
-        }, 500);
+        }, 100);
     };
 
     const labelMap: Record<string, string> = {

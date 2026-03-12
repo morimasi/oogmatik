@@ -542,44 +542,35 @@
         position: absolute !important;
       }
 
-      /* ══════════════════════════════════════════════════════════════════
-         v6.0 RELATIVE EXPANSION SYSTEM - DPI BYPASS
-         Sabit 210mm kilitleri kaldırıldı, tarayıcı DPI motoru esnek 
-         %100 genişlik ve sıfır marjin ile tam sayfa doluluğuna zorlanıyor.
-         ══════════════════════════════════════════════════════════════════ */
       html,
       body {
         background: white !important;
-        margin: 0 !important;
+        margin: 0 auto !important;
+        /* v4: Merkeze sabitle */
         padding: 0 !important;
         height: auto !important;
-        width: 100% !important;
-        /* v6: Tam viewport yayılımı */
-        min-width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-        overflow-y: visible !important;
+        width: 210mm !important;
+        /* v4: Tam genişlik kilidi (Absolute Sync) */
+        overflow: visible !important;
         display: block !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         position: relative !important;
       }
 
-      /* 2. Print Container Artık Sayfanın Tek Hakimi */
+      /* 2. Print Container Artık Sayfanın Tek Hakimi (Relative Position ile doğal akar) */
       #print-container {
         display: block !important;
         visibility: visible !important;
         position: relative !important;
-        width: 100% !important;
-        /* v6: Genişliği tarayıcıya bırak */
-        max-width: 100% !important;
-        min-width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
+        /* <--- ABSOLUTE İPTAL (Çoklu Sayfa Donmasını Çözer) */
+        width: 210mm !important;
+        /* Kağıt genişliği */
+        max-width: 210mm !important;
+        margin: 0 auto !important;
+        /* Mükemmel ortalama */
         background: white !important;
         z-index: 9999999 !important;
-        overflow: visible !important;
-        box-sizing: border-box !important;
       }
 
       /* ═══════════════════════════════════════════
@@ -591,63 +582,34 @@
         visibility: visible !important;
         display: block !important;
         width: 210mm !important;
-        /* v6: İçerik tam A4 genişliğinde kalsın */
+        /* A4 Genişliğine Kilitli */
         min-height: 296mm !important;
         height: auto !important;
         padding: 10mm !important;
-        /* v6: Tam 1cm marjin */
+        /* Kullanıcı Talebi: Tam 1cm boşluk */
         margin: 0 auto !important;
-        /* v6: Sayfa içinde kesin merkezleme */
+        /* Merkeze hizala */
         overflow: visible !important;
         page-break-after: always !important;
         break-after: page !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
         box-sizing: border-box !important;
         background: white !important;
         position: relative !important;
         border: none !important;
         box-shadow: none !important;
-        transform: none !important;
-        /* v6: Tüm skalamaları temizle */
+        transform: scale(1) !important;
+        /* Her türlü skalayı sıfırla */
         zoom: 1 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
       }
 
       /* Yüksek flex yapıları blok moduna çevirerek sayfalama kırılmalarını engelle (çoklu sayfa desteği) */
-      .worksheet-page,
-      .worksheet-page>div,
-      .worksheet-page>div>div,
       .worksheet-page>.flex-1,
       .worksheet-page>.flex-col {
         display: block !important;
         height: auto !important;
         min-height: 0 !important;
-        overflow: visible !important;
-      }
-
-      /* TEMA İZOLASYONU: Baskı sırasında TÜM CSS değişkenlerini Light Mode'a zorla
-         Böylece Dark Mode aktifken bile beyaz üzerine siyah çıktı alınır. */
-      * {
-        --bg-primary: #ffffff !important;
-        --bg-secondary: #f4f4f5 !important;
-        --bg-paper: #ffffff !important;
-        --text-primary: #000000 !important;
-        --text-secondary: #475569 !important;
-        --text-muted: #94a3b8 !important;
-        --border-color: #e2e8f0 !important;
-        --accent-color: #4f46e5 !important;
-        /* Standart Indigo */
-        --c-zinc-900: #18181b !important;
-        --c-zinc-800: #27272a !important;
-        --c-zinc-700: #3f3f46 !important;
-        --c-zinc-600: #52525b !important;
-        --c-zinc-500: #71717a !important;
-        --c-zinc-400: #a1a1aa !important;
-        --c-zinc-300: #d4d4d8 !important;
-        --c-zinc-200: #e4e4e7 !important;
-        --c-zinc-100: #f4f4f5 !important;
       }
 
       /* ═══════════════════════════════════════════

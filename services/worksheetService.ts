@@ -9,7 +9,7 @@ import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, Stude
 import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError';
 import { logError, retryWithBackoff, withTimeout } from '../utils/errorHandler';
 
-const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, startAfter, writeBatch } = firestore;
+const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, startAfter } = firestore;
 
 /**
  * Firestore timeout configurations (ms)
@@ -367,35 +367,6 @@ export const worksheetService = {
                 userId
             });
             throw appError;
-        }
-    },
-
-    /**
-     * Delete multiple worksheets using a batch
-     */
-    deleteMultipleWorksheets: async (worksheetIds: string[], userId: string): Promise<void> => {
-        try {
-            const batch = writeBatch(db);
-            const userRef = doc(db, "users", userId);
-            let deletedCount = 0;
-
-            for (const id of worksheetIds) {
-                const docRef = doc(db, "saved_worksheets", id);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists() && docSnap.data().userId === userId) {
-                    batch.delete(docRef);
-                    deletedCount++;
-                }
-            }
-
-            if (deletedCount > 0) {
-                batch.update(userRef, { worksheetCount: increment(-deletedCount) });
-                await batch.commit();
-            }
-        } catch (error) {
-            console.error("Error in deleteMultipleWorksheets:", error);
-            throw toAppError(error);
         }
     },
 

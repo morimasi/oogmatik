@@ -6,7 +6,7 @@ import { generateAdaptiveQuestionsFromAI } from './generators/assessment';
 import { generateOfflineAdaptiveQuestions } from './offlineGenerators/assessment';
 import { shuffle } from './offlineGenerators/helpers';
 
-const { collection, addDoc, query, where, getDocs, deleteDoc, doc, writeBatch } = firestore;
+const { collection, addDoc, query, where, getDocs } = firestore;
 
 export const assessmentService = {
     saveAssessment: async (
@@ -154,17 +154,5 @@ export const assessmentService = {
             questionsMap = generateOfflineAdaptiveQuestions(selectedSkills, count);
         }
         return Object.values(questionsMap).flat();
-    },
-
-    deleteAssessment: async (id: string): Promise<void> => {
-        await deleteDoc(doc(db, "saved_assessments", id));
-    },
-
-    deleteMultipleAssessments: async (ids: string[]): Promise<void> => {
-        const batch = writeBatch(db);
-        ids.forEach(id => {
-            batch.delete(doc(db, "saved_assessments", id));
-        });
-        await batch.commit();
     }
 };

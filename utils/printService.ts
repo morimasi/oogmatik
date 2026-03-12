@@ -1,5 +1,6 @@
+
 // ═══════════════════════════════════════════════════════════════
-// ULTRA PRINT ENGINE v6.0 — A4 Kompakt Çoklu Sayfa Yazdırma
+// ULTRA PRINT ENGINE v4.0 — A4 Kompakt Çoklu Sayfa Yazdırma
 // Bursa Disleksi AI — Nöro-Mimari Basım Motoru
 // ═══════════════════════════════════════════════════════════════
 
@@ -24,12 +25,9 @@ export const printService = {
    */
   generatePdf: async (
     elementSelector: string,
-    title: string = 'Bursa_Disleksi_AI_Etkinlik',
+    title: string = "Bursa_Disleksi_AI_Etkinlik",
     options: PrintOptions
   ) => {
-    // 0. Render Stabilizasyonu (v5.0): DOM'un hazır olduğundan emin ol
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     // 1. Hedef elementleri bul
     let elements = Array.from(document.querySelectorAll(elementSelector)) as HTMLElement[];
 
@@ -50,15 +48,14 @@ export const printService = {
     const printContainer = document.createElement('div');
     printContainer.id = 'print-container';
 
-    // v6.0: Relative Expansion - Konteyner tüm sayfayı doldurur
-    printContainer.style.setProperty('position', 'relative', 'important');
-    printContainer.style.setProperty('width', '100%', 'important');
-    printContainer.style.setProperty('max-width', '100%', 'important');
-    printContainer.style.setProperty('margin', '0', 'important');
+    // Temel stiller
+    printContainer.style.setProperty('position', 'relative', 'important'); // v4: relative yaparak doğal sayfa akışını sağla
+    printContainer.style.setProperty('width', '210mm', 'important');
+    printContainer.style.setProperty('max-width', '210mm', 'important');
+    printContainer.style.setProperty('margin', '0 auto', 'important');
     printContainer.style.setProperty('padding', '0', 'important');
     printContainer.style.setProperty('background', 'white', 'important');
     printContainer.style.setProperty('z-index', '9999999', 'important');
-    printContainer.style.setProperty('box-sizing', 'border-box', 'important');
 
     // Mod sınıfları ekle (CSS tarafından işlenir)
     if (options.grayscale) printContainer.classList.add('grayscale-print');
@@ -70,37 +67,54 @@ export const printService = {
     elements.forEach((el) => {
       const clone = el.cloneNode(true) as HTMLElement;
 
-      // ... (input senkronizasyonu aynı kalır)
+      // Input/textarea değerlerini senkronize et
+      const originalInputs = el.querySelectorAll('input, textarea, select');
+      const clonedInputs = clone.querySelectorAll('input, textarea, select');
+      originalInputs.forEach((input, i) => {
+        const clonedInput = clonedInputs[i] as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+        const originalInput = input as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+        if (!clonedInput || !originalInput) return;
 
-      // UI gürültüsünü temizle
+        if (originalInput.type === 'checkbox' || originalInput.type === 'radio') {
+          if ((originalInput as HTMLInputElement).checked) clonedInput.setAttribute('checked', 'checked');
+        } else if (originalInput.tagName === 'TEXTAREA') {
+          clonedInput.innerHTML = originalInput.value;
+          clonedInput.value = originalInput.value;
+        } else {
+          clonedInput.setAttribute('value', originalInput.value);
+        }
+      });
+
+      // UI gürültüsünü temizle (sadece kesin UI elementleri)
       const uiGarbage = clone.querySelectorAll(
         '.edit-handle, .page-navigator, .no-print, .overlay-ui, ' +
         '[data-testid="edit-btn"], .page-label-container, ' +
         '.print-toolbar, .print-controls, [class*="backdrop-blur"]'
       );
-      uiGarbage.forEach((e) => (e as HTMLElement).remove());
+      uiGarbage.forEach(e => (e as HTMLElement).remove());
 
-      clone.querySelectorAll('button:not(.print-keep)').forEach((btn) => {
+      // Butonları gizle (ama print-keep olarak işaretlenenler korunur)
+      clone.querySelectorAll('button:not(.print-keep)').forEach(btn => {
         (btn as HTMLElement).style.setProperty('display', 'none', 'important');
       });
 
-      // ══════════════════════════════════════════════════════════════════
-      // v6.0: DPI LOCK & RATIO SYNC
-      // ══════════════════════════════════════════════════════════════════
+      // A4 için transform ve boyut sıfırlama (v4: Absolute Physical Standard)
       clone.style.setProperty('transform', 'none', 'important');
       clone.style.setProperty('scale', '1', 'important');
       clone.style.setProperty('zoom', '1', 'important');
       clone.style.setProperty('margin', '0 auto', 'important');
       clone.style.setProperty('box-shadow', 'none', 'important');
       clone.style.setProperty('position', 'relative', 'important');
-      clone.style.setProperty('width', '210mm', 'important'); // Fiziksel içerik genişliği
+      clone.style.setProperty('width', '210mm', 'important');
       clone.style.setProperty('max-width', '210mm', 'important');
-      clone.style.setProperty('padding', '10mm', 'important'); // 1cm marjin
-      clone.style.setProperty('min-height', '296mm', 'important'); // A4 oranını koru
+      clone.style.setProperty('padding', '10mm', 'important'); // v4.1: Tam 1cm marjin
+      clone.style.setProperty('min-height', '296.7mm', 'important');
       clone.style.setProperty('height', 'auto', 'important');
       clone.style.setProperty('box-sizing', 'border-box', 'important');
       clone.style.setProperty('display', 'block', 'important');
       clone.style.setProperty('overflow', 'visible', 'important');
+      clone.style.setProperty('page-break-after', 'always', 'important');
+      clone.style.setProperty('break-after', 'page', 'important');
       clone.style.setProperty('background', 'white', 'important');
       clone.style.setProperty('color', 'black', 'important');
 
@@ -166,10 +180,7 @@ export const printService = {
     await Promise.all(imagePromises);
 
     // 7. Tarayıcı düzen motorunun (Layout) tam oturduğundan emin ol
-    // Özellikle çok sayfalı kitapçıklarda ve ağır AI görsellerinde bekleme süresini 1.5 saniyeye çıkarıyoruz.
-    await new Promise((resolve) =>
-      requestAnimationFrame(() => setTimeout(resolve, options.compact ? 1000 : 1500))
-    );
+    await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, options.compact ? 800 : 1200)));
 
     // Kontrol: Fontlar hala yüklenmemiş olabilir mi?
     if (document.fonts) {
@@ -180,19 +191,7 @@ export const printService = {
     const originalTitle = document.title;
     document.title = title.replace(/[^a-z0-9ğüşıöç]/gi, '_');
 
-    // 5. Yazdırma işlemine geç
-    setTimeout(async () => {
-      window.print();
-
-      // 7. Temizlik: Print konteynerini kaldır
-      if (options.action === 'print') {
-        setTimeout(() => {
-          if (printContainer.parentNode) {
-            document.body.removeChild(printContainer);
-          }
-        }, 2000);
-      }
-    }, 500); // v5: Stabilizasyon için süreyi artırdık
+    window.print();
 
     // 9. Temizlik (print dialog kapatıldıktan sonra)
     document.title = originalTitle;
@@ -213,5 +212,5 @@ export const printService = {
 
     // Fallback: 3 saniye sonra yine de temizle
     setTimeout(cleanup, 3000);
-  },
+  }
 };

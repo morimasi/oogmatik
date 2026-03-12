@@ -6,10 +6,12 @@ import { ACTIVITIES } from '../constants';
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 
-const { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc, getDoc, writeBatch } = firestore;
+const { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc, getDoc } = firestore;
 
 // Yardımcı Fonksiyon: Belli bir kategoriye ait aktivite ID'lerini filtreler
 const getActivitiesByTag = (tag: string): string[] => {
+    // Burada basit bir filtreleme yapılabilir, şimdilik tüm ID'leri dönelim
+    // Gelişmiş versiyonda ACTIVITIES constant'ına 'tags' eklenip filtrelenebilir.
     return ACTIVITIES.map(a => a.id);
 };
 
@@ -19,18 +21,55 @@ export const curriculumService = {
         durationDays: number = 7
     ): Promise<Curriculum> => {
 
+        // Tüm aktivitelerin ID ve Açıklamasını birleştir
         const availableActivities = ACTIVITIES.map(a => `- ${a.id}: ${a.title} (${a.description})`).join('\n');
 
         const prompt = `
         [ROL: KIDEMLİ NÖRO-PSİKOLOG VE BEP (BİREYSEL EĞİTİM PLANI) TASARIMCISI - GEMINI 3 FLASH THINKING]
+
         GÖREV: Öğrencinin klinik tablosuna ve ilgi alanlarına göre ${durationDays} günlük, kişiselleştirilmiş, bilimsel temelli bir Müfredat Planı oluştur.
+        
         ÖĞRENCİ PROFİLİ:
         - Ad: ${student.name}
         - Yaş/Sınıf: ${student.age} yaş, ${student.grade}
         - İlgi Alanları: ${student.interests?.join(', ') || 'Genel çocuk ilgileri'}
         - Zayıf Yönler / Destek İhtiyaçları: ${student.weaknesses?.join(', ')}
         - Ek Klinik Notlar: ${student.notes || 'Yok'}
-        ÇIKTI FORMATI (JSON): { goals: [], note: "", schedule: [] }
+
+        THINKING PROTOKOLÜ (PLANLAMA STRATEJİSİ):
+        1. **Semptom-Aktivite Eşleşmesi:** Öğrencinin zayıf yönlerini analiz et ve aşağıdaki listeden EN UYGUN aktivite ID'lerini seç.
+           - Örn: "b/d karıştırıyor" -> MIRROR_LETTERS, FIND_LETTER_PAIR
+           - Örn: "Okuma hızı yavaş" -> READING_FLOW, RAPID_NAMING
+           - Örn: "Dikkat eksikliği" -> BURDON_TEST, STROOP_TEST
+        2. **Sarmal Yapı (Spiral Learning):** 
+           - İlk günler: Başarı hissi yaratacak, ilgi alanına uygun eğlenceli aktiviteler.
+           - Orta günler: Zorlayıcı klinik çalışmalar (Semptom odaklı).
+           - Son günler: Pekiştirme ve genelleme.
+        3. **İlgi Alanı Entegrasyonu:** "goal" açıklamalarında öğrencinin sevdiği temaları kullan (Örn: "Uzay gemisi hızında okuma denemesi").
+
+        KULLANILABİLİR AKTİVİTE HAVUZU (SADECE BUNLARI KULLAN):
+        ${availableActivities}
+
+        ÇIKTI FORMATI (JSON):
+        {
+          "goals": ["Genel Hedef 1", "Genel Hedef 2"],
+          "note": "Uzman görüşü ve strateji özeti.",
+          "schedule": [
+            {
+              "day": 1,
+              "focus": "Günün odak konusu (Örn: Görsel Ayrıştırma)",
+              "activities": [
+                {
+                  "activityId": "AKTIVITE_ID_LISTEDEN_SEC",
+                  "title": "Aktivite Başlığı",
+                  "duration": 15,
+                  "difficultyLevel": "Easy",
+                  "goal": "Öğrenciye özel, motive edici kısa hedef cümlesi."
+                }
+              ]
+            }
+          ]
+        }
         `;
 
         const schema = {
@@ -68,10 +107,15 @@ export const curriculumService = {
         };
 
         const result = await generateWithSchema(prompt, schema);
+
         const schedule = result.schedule.map((day: any) => ({
             ...day,
             isCompleted: false,
-            activities: day.activities.map((act: any) => ({ ...act, id: crypto.randomUUID(), status: 'pending' }))
+            activities: day.activities.map((act: any) => ({
+                ...act,
+                id: crypto.randomUUID(),
+                status: 'pending'
+            }))
         }));
 
         return {
@@ -90,7 +134,11 @@ export const curriculumService = {
     },
 
     saveCurriculum: async (userId: string, curriculum: Curriculum): Promise<string> => {
-        const payload = { ...curriculum, userId, createdAt: new Date().toISOString() };
+        const payload = {
+            ...curriculum,
+            userId,
+            createdAt: new Date().toISOString()
+        };
         const { id, ...dataToSave } = payload;
         const docRef = await addDoc(collection(db, "saved_curriculums"), dataToSave);
         return docRef.id;
@@ -111,7 +159,9 @@ export const curriculumService = {
                 items.push({ ...data, id: doc.id });
             });
             return items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
-        } catch (e) { return []; }
+        } catch (e) {
+            return [];
+        }
     },
 
     getCurriculumsByStudent: async (studentId: string): Promise<Curriculum[]> => {
@@ -124,7 +174,9 @@ export const curriculumService = {
                 items.push({ ...data, id: doc.id });
             });
             return items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
-        } catch (e) { return []; }
+        } catch (e) {
+            return [];
+        }
     },
 
     deleteCurriculum: async (id: string): Promise<void> => {
@@ -147,14 +199,8 @@ export const curriculumService = {
                 });
                 await updateDoc(planRef, { schedule: newSchedule });
             }
-        } catch (e) { throw e; }
-    },
-
-    deleteMultipleCurriculums: async (ids: string[]): Promise<void> => {
-        const batch = writeBatch(db);
-        ids.forEach(id => {
-            batch.delete(doc(db, "saved_curriculums", id));
-        });
-        await batch.commit();
+        } catch (e) {
+            throw e;
+        }
     }
 };
