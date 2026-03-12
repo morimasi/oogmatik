@@ -3,7 +3,7 @@
  * Enforce permissions before operations
  */
 
-import type { VercelRequest, VercelResponse, VercelRequestCookie } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { AppError, AuthenticationError, AuthorizationError } from '../utils/AppError';
 import { hasPermission, hasRole, UserRole, Permission } from '../services/rbac';
 import { logError } from '../utils/errorHandler';
