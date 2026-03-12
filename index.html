@@ -531,15 +531,20 @@
         /* Tarayıcı marjinlerini sıfırla, kontrolü CSS'e al */
       }
 
-      /* 1. Asıl Arayüzü (Root) Tamamen Yok Et (Zemin Çakışmasını Önler) */
+      /* 1. Root Element İzolasyonu (v7: Display Persistence)
+         display: none yerine visibility: hidden kullanarak render motorlarının 
+         (SVG, Chart vb.) çalışmaya devam etmesini sağlıyoruz. */
       #root {
-        display: none !important;
         visibility: hidden !important;
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
         width: 0 !important;
         height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
-        position: absolute !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
       }
 
       html,
@@ -723,7 +728,7 @@
       .block-logic-card,
       .block-clue-card,
       .block-footer-val,
-      /* Görsellerin/Canvas'ların yarısı üstte kalmasın */
+      /* Görsellerin/Canvas'ların yarısı üstte kalmasın ve görünürlüğü garanti olsun */
       img,
       canvas,
       svg,
@@ -738,6 +743,9 @@
       tbody {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
+        visibility: visible !important;
+        display: block !important;
+        max-width: 100% !important;
       }
 
       /* Sayfa başlıkları ve soruların kendilerinden sonra 

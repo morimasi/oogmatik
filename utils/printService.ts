@@ -121,33 +121,44 @@ export const printService = {
       clone.style.setProperty('background', 'white', 'important');
       clone.style.setProperty('color', 'black', 'important');
 
-      // --- DEEP STYLE CLEANING (v4) ---
+      // --- DEEP ASSET CAPTURE & STYLE CLEANING (v7) ---
       const originalElements = el.querySelectorAll('*');
       const cloneElements = clone.querySelectorAll('*');
+
+      // 1. Canvas Mirroring (Mevcut kanvas verilerini klona aktar)
+      const originalCanvases = el.querySelectorAll('canvas');
+      const clonedCanvases = clone.querySelectorAll('canvas');
+      originalCanvases.forEach((oCanvas, cIdx) => {
+        const cCanvas = clonedCanvases[cIdx] as HTMLCanvasElement;
+        if (cCanvas) {
+          cCanvas.width = oCanvas.width;
+          cCanvas.height = oCanvas.height;
+          const ctx = cCanvas.getContext('2d');
+          if (ctx) ctx.drawImage(oCanvas, 0, 0);
+        }
+      });
 
       cloneElements.forEach((child, idx) => {
         const cel = child as HTMLElement;
         const oel = originalElements[idx] as HTMLElement;
         if (!oel) return;
 
-        // 1. Ekran ölçeklendirmelerini ve zoom etkilerini kesin temizle
+        // 2. Ekran ölçeklendirmelerini ve zoom etkilerini kesin temizle
         cel.style.setProperty('transform', 'none', 'important');
         cel.style.setProperty('scale', '1', 'important');
         cel.style.setProperty('zoom', '1', 'important');
         cel.style.setProperty('-webkit-text-size-adjust', '100%', 'important');
         if (cel.hasAttribute('data-scaled')) cel.removeAttribute('data-scaled');
 
-        // 2. Viewport ve Taşma Normalizasyonu (v6: Force Pixel Math)
+        // 3. Viewport ve Taşma Normalizasyonu
         const oStyle = window.getComputedStyle(oel);
         const computedWidth = parseFloat(oStyle.width) || 0;
 
-        // Eğer içerik kağıt genişliğinden (794px ≈ 210mm) genişse, 100%'e çek
         if (computedWidth > 750 || oStyle.width.includes('vw')) {
           cel.style.setProperty('width', '100%', 'important');
           cel.style.setProperty('max-width', '100%', 'important');
         }
 
-        // 3. Flex ve Grid Alanlarını Sabitle
         if (oStyle.display === 'flex' || oStyle.display === 'grid') {
           cel.style.setProperty('max-width', '100%', 'important');
           cel.style.setProperty('width', '100%', 'important');
@@ -156,7 +167,15 @@ export const printService = {
 
         if (oStyle.height.includes('vh')) cel.style.height = 'auto';
 
-        // 4. Görünürlük ve Taşma
+        // 4. SVG & Asset Integrity (Bozuk SVG referanslarını önle)
+        if (cel.tagName.toLowerCase() === 'svg') {
+          cel.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+          if (!cel.getAttribute('viewBox') && cel.offsetWidth) {
+            cel.setAttribute('viewBox', `0 0 ${cel.offsetWidth} ${cel.offsetHeight}`);
+          }
+        }
+
+        // 5. Görünürlük ve Taşma
         if (oStyle.overflow === 'hidden' || oStyle.overflow === 'auto') {
           cel.style.setProperty('overflow', 'visible', 'important');
         }
@@ -213,23 +232,29 @@ export const printService = {
     const originalViewport = meta ? meta.getAttribute('content') : '';
     if (meta) meta.setAttribute('content', 'width=794, initial-scale=1, maximum-scale=1, user-scalable=no');
 
-    // Root elementini geçici olarak gizle/pasifize et (Layout Shift'i önler)
+    // Root elementini geçici olarak "Derin Gizle" (Layout engine'i kırmadan)
     const root = document.getElementById('root');
     if (root) {
-      root.style.setProperty('display', 'none', 'important');
-      root.style.setProperty('position', 'absolute', 'important');
+      root.style.setProperty('visibility', 'hidden', 'important');
+      root.style.setProperty('position', 'fixed', 'important');
+      root.style.setProperty('top', '-9999px', 'important');
+      root.style.setProperty('left', '-9999px', 'important');
+      root.style.setProperty('opacity', '0', 'important');
     }
 
-    // Force layout update
-    void document.body.offsetHeight;
+    // Ekstra bekleme: SVG ve karmaşık layout bileşenleri için (v7)
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     window.print();
 
     // 9. Temizlik ve Geri Yükleme
     if (meta && originalViewport) meta.setAttribute('content', originalViewport);
     if (root) {
-      root.style.setProperty('display', '', '');
-      root.style.setProperty('position', '', '');
+      root.style.removeProperty('visibility');
+      root.style.removeProperty('position');
+      root.style.removeProperty('top');
+      root.style.removeProperty('left');
+      root.style.removeProperty('opacity');
     }
     document.title = originalTitle;
 
