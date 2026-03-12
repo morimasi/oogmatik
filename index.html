@@ -538,13 +538,13 @@
       /* 2. Viewport Reset & Zoom Blokajı */
       html,
       body {
-        width: 210mm !important;
-        height: 100% !important;
+        width: 100% !important; /* Tarayıcı genişliğine yayıl */
+        height: auto !important; /* Yükseklik serbest (Çoklu sayfa için kritik) */
         margin: 0 !important;
         padding: 0 !important;
         background: white !important;
         overflow: visible !important;
-        zoom: 1 !important; /* Zoom Blokajı */
+        zoom: 1 !important;
         transform: none !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -552,14 +552,14 @@
 
       /* 3. Print Container: Tek Hakim */
       #print-container {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
+        position: relative !important; /* Absolute yerine Relative (Akış için) */
         width: 210mm !important;
-        margin: 0 !important;
+        max-width: 210mm !important;
+        margin: 0 auto !important; /* Ortala */
         padding: 0 !important;
         z-index: 9999999 !important;
         background: white !important;
+        display: block !important;
       }
 
       /* Sayfa Konteyner */
@@ -567,14 +567,26 @@
       .worksheet-page {
         position: relative !important;
         width: 210mm !important;
-        min-height: 297mm !important; /* Tam A4 Yüksekliği */
+        /* Yükseklik serbest bırakıldı - İçerik kadar uzasın ve doğal bölünsün */
+        min-height: 297mm !important; 
+        height: auto !important;
         margin: 0 !important;
-        padding: 0 !important; /* İçeriğin padding'i JavaScript ile yönetilir */
+        /* Kullanıcı Talebi: Minimum boşluk (5mm) */
+        padding: 5mm !important; 
+        
+        /* Sayfa Sonu Yönetimi */
         page-break-after: always !important;
         break-after: page !important;
-        overflow: hidden !important; /* Genişlik Kırpma (Güvenlik Ağı) */
+        
+        /* İçerik Yönetimi */
+        overflow: visible !important;
         background: white !important;
         box-sizing: border-box !important;
+        display: block !important; /* Flex yerine Block (Akış için) */
+        
+        /* Ölçeklendirme Sıfırlama */
+        transform: none !important;
+        zoom: 1 !important;
       }
         /* A4 Genişliğine Kilitli */
         min-height: 296mm !important;
