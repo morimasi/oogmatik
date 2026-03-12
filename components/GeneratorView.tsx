@@ -8,7 +8,7 @@ import {
   ActiveCurriculumSession,
 } from '../types';
 import { DIFFICULTY_OPTIONS } from '../constants';
-import { useStudent } from '../context/StudentContext';
+import { useStudentStore } from '../store/useStudentStore';
 import { useActivitySettings } from '../hooks/useActivitySettings';
 import { getActivityConfigComponent } from '../registry';
 
@@ -50,7 +50,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   isExpanded = true,
   activeCurriculumSession,
 }) => {
-  const { students, activeStudent, setActiveStudent } = useStudent();
+  const { students, activeStudent, setActiveStudent } = useStudentStore();
 
   // activity null/undefined kontrolü
   if (!activity) {

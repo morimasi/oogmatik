@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { LayoutItem } from '../../types';
-import { useUniversalStudio } from '../../context/UniversalStudioContext';
+import { useCreativeStore } from '../../store/useCreativeStore';
 import { BlockRenderer, SheetRenderer } from '../SheetRenderer';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 
@@ -15,7 +15,7 @@ const DraggableItem = ({ item, children }: DraggableItemProps) => {
     const {
         designMode, updateComponent, setSelectedId, selectedId, layout, setLayout,
         selectedIds, toggleSelection, lockedItems, groupedItems
-    } = useUniversalStudio();
+    } = useCreativeStore();
     const isDragging = useRef(false);
     const startPos = useRef({ x: 0, y: 0 });
     const initialLayout = useRef<LayoutItem[]>([]);
@@ -194,7 +194,7 @@ function getGroupColor(groupId: string, groupedItems: Record<string, string[]>):
 }
 
 export const UniversalCanvas = () => {
-    const { layout, designMode, clearSelection } = useUniversalStudio();
+    const { layout, designMode, clearSelection } = useCreativeStore();
     const canvasRef = useRef<HTMLDivElement>(null);
     const [isMarqueeSelecting, setIsMarqueeSelecting] = useState(false);
     const [marqueeStart, setMarqueeStart] = useState({ x: 0, y: 0 });

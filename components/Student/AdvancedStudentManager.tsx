@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useStudent } from '../../context/StudentContext';
+import { useStudentStore } from '../../store/useStudentStore';
 import { AdvancedStudent } from '../../types/student-advanced';
 import { OverviewModule } from './modules/OverviewModule';
 import { IEPModule } from './modules/IEPModule';
@@ -60,11 +60,10 @@ const ManagerSidebar: React.FC<{
           <button
             key={key}
             onClick={() => onSelectModule(key)}
-            className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-              activeModule === key
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/40 translate-x-1'
-                : 'hover:bg-zinc-800 hover:text-zinc-200'
-            }`}
+            className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${activeModule === key
+              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/40 translate-x-1'
+              : 'hover:bg-zinc-800 hover:text-zinc-200'
+              }`}
           >
             <i
               className={`fa-solid ${icon} w-5 text-center text-sm ${activeModule === key ? 'text-white' : 'text-indigo-400'}`}
@@ -116,7 +115,7 @@ const ManagerSidebar: React.FC<{
 
 // Main Manager Component
 export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { activeStudent, students, setActiveStudent } = useStudent();
+  const { activeStudent, students, setActiveStudent, addStudent, updateStudent, deleteStudent } = useStudentStore();
   const [selectedModule, setSelectedModule] = useState('overview');
   const [visibleModules, setVisibleModules] = useState<string[]>(Object.keys(MODULE_ICONS));
 
@@ -124,15 +123,15 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
   const baseStudent = activeStudent;
   const currentStudent: AdvancedStudent = baseStudent
     ? ({
-        ...baseStudent,
-        iep: (baseStudent as any).iep || { goals: [], status: 'draft' },
-        financial: (baseStudent as any).financial || { balance: 0, transactions: [] },
-        attendance: (baseStudent as any).attendance || { stats: { attendanceRate: 0 } },
-        academic: (baseStudent as any).academic || { metrics: { gpa: 0 } },
-        behavior: (baseStudent as any).behavior || { score: 100, incidents: [] },
-        portfolio: (baseStudent as any).portfolio || [],
-        aiProfile: (baseStudent as any).aiProfile || {},
-      } as AdvancedStudent)
+      ...baseStudent,
+      iep: (baseStudent as any).iep || { goals: [], status: 'draft' },
+      financial: (baseStudent as any).financial || { balance: 0, transactions: [] },
+      attendance: (baseStudent as any).attendance || { stats: { attendanceRate: 0 } },
+      academic: (baseStudent as any).academic || { metrics: { gpa: 0 } },
+      behavior: (baseStudent as any).behavior || { score: 100, incidents: [] },
+      portfolio: (baseStudent as any).portfolio || [],
+      aiProfile: (baseStudent as any).aiProfile || {},
+    } as AdvancedStudent)
     : (null as any);
 
   if (!currentStudent)

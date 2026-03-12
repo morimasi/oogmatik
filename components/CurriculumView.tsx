@@ -4,8 +4,8 @@ import { curriculumService } from '../services/curriculumService';
 import { Curriculum, CurriculumDay, CurriculumActivity, Student, ActivityType } from '../types';
 import { ACTIVITIES } from '../constants';
 import { printService } from '../utils/printService';
-import { useAuth } from '../context/AuthContext';
-import { useStudent } from '../context/StudentContext';
+import { useAuthStore } from '../store/useAuthStore';
+import { useStudentStore } from '../store/useStudentStore';
 import { ShareModal } from './ShareModal';
 
 interface CurriculumViewProps {
@@ -16,15 +16,15 @@ interface CurriculumViewProps {
     preFillData?: { name: string; age: number; weaknesses: string[], diagnosisContext?: string } | null;
 }
 
-const DayCard: React.FC<{ 
-    day: CurriculumDay, 
+const DayCard: React.FC<{
+    day: CurriculumDay,
     isActiveDay: boolean,
-    onToggleActivity: (day: number, actId: string) => void, 
+    onToggleActivity: (day: number, actId: string) => void,
     onStartActivity: (actId: string, actType: string, title: string, difficulty: 'Easy' | 'Medium' | 'Hard', goal: string) => void,
     onSaveNote: (day: number, note: string) => void
 }> = ({ day, isActiveDay, onToggleActivity, onStartActivity, onSaveNote }) => {
     const isAllCompleted = day.activities.every(a => a.status === 'completed');
-    
+
     return (
         <div className={`group relative bg-white dark:bg-zinc-800 rounded-3xl border-2 transition-all duration-500 hover:shadow-2xl ${isActiveDay ? 'ring-4 ring-indigo-500/20 border-indigo-500 scale-[1.02] z-10 shadow-xl' : 'border-zinc-100 dark:border-zinc-700'} ${isAllCompleted ? 'opacity-80 grayscale-[0.3]' : ''} break-inside-avoid page-break-inside-avoid print:border-zinc-300 print:shadow-none`}>
             {isActiveDay && (
@@ -61,14 +61,14 @@ const DayCard: React.FC<{
                                 <p className="text-[10px] text-zinc-500 mt-1 italic line-clamp-2 leading-tight">{act.goal}</p>
                             </div>
                             <div className="flex flex-col gap-2 shrink-0">
-                                <button 
+                                <button
                                     onClick={() => onToggleActivity(day.day, act.id)}
                                     className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${act.status === 'completed' ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-zinc-200 dark:border-zinc-600 hover:border-emerald-500 text-transparent hover:text-emerald-500'}`}
                                 >
                                     <i className="fa-solid fa-check text-xs"></i>
                                 </button>
                                 {act.status !== 'completed' && (
-                                    <button 
+                                    <button
                                         onClick={() => onStartActivity(act.activityId, act.activityId, act.title, act.difficultyLevel, act.goal)}
                                         className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 active:scale-90"
                                         title="Uygulamayı Başlat"
@@ -80,10 +80,10 @@ const DayCard: React.FC<{
                         </div>
                     </div>
                 ))}
-                
+
                 <div className="pt-4 mt-2 border-t border-dashed border-zinc-100 dark:border-zinc-700 print:hidden">
                     <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1.5 block">Gözlem Notu</label>
-                    <textarea 
+                    <textarea
                         className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-700 rounded-xl text-[11px] resize-none focus:border-indigo-300 outline-none transition-all placeholder:text-zinc-300"
                         placeholder="Öğrencinin bugünkü tepkisi, odak süresi..."
                         rows={2}
@@ -97,10 +97,10 @@ const DayCard: React.FC<{
 };
 
 export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelectActivity, onStartCurriculumActivity, initialPlan, preFillData }) => {
-    const { user } = useAuth();
-    const { students, setActiveStudent } = useStudent();
-    
-    const [step, setStep] = useState(0); 
+    const { user } = useAuthStore();
+    const { students, setActiveStudent } = useStudentStore();
+
+    const [step, setStep] = useState(0);
     const [loading, setLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [curriculum, setCurriculum] = useState<Curriculum | null>(null);
@@ -226,7 +226,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
         const dayData = curriculum.schedule.find(d => d.day === day);
         const currentStatus = dayData?.activities.find(a => a.id === actId)?.status;
         const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
-        
+
         try {
             if (isSaved) await curriculumService.updateActivityStatus(curriculum.id, day, actId, newStatus as any);
             setCurriculum(prev => {
@@ -269,7 +269,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             );
         }
 
-        switch(step) {
+        switch (step) {
             case 0:
                 return (
                     <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4">
@@ -281,13 +281,13 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                             <p className="text-zinc-500">Mevcut bir öğrenciyi atayın veya yeni bir profil ile başlayın.</p>
                         </div>
                         <div className="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-700 shadow-xl space-y-6">
-                            
+
                             <div className="p-5 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30">
                                 <label className="block text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                                     <i className="fa-solid fa-user-check"></i> Mevcut Öğrenci Atama
                                 </label>
-                                <select 
-                                    value={formData.id || 'new'} 
+                                <select
+                                    value={formData.id || 'new'}
                                     onChange={e => handleStudentSelect(e.target.value)}
                                     className="w-full p-3 bg-white dark:bg-zinc-900 border border-amber-200 dark:border-amber-700 rounded-xl font-bold text-sm outline-none cursor-pointer focus:ring-2 ring-amber-500/20"
                                 >
@@ -299,27 +299,27 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-black text-zinc-400 uppercase tracking-widest mb-2">Öğrenci Adı</label>
-                                    <input 
-                                        type="text" 
-                                        value={formData.name} 
-                                        onChange={e => setFormData({...formData, name: e.target.value})}
-                                        className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500 outline-none" 
+                                    <input
+                                        type="text"
+                                        value={formData.name}
+                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                        className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500 outline-none"
                                         placeholder="Ad Soyad"
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-black text-zinc-400 uppercase tracking-widest mb-2">Sınıf</label>
-                                    <select value={formData.grade} onChange={e => setFormData({...formData, grade: e.target.value})} className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold outline-none">
+                                    <select value={formData.grade} onChange={e => setFormData({ ...formData, grade: e.target.value })} className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold outline-none">
                                         {['Okul Öncesi', '1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf', '7. Sınıf', '8. Sınıf'].map(g => <option key={g} value={g}>{g}</option>)}
                                     </select>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <label className="block text-xs font-black text-zinc-400 uppercase tracking-widest mb-2">Plan Süresi</label>
                                 <div className="grid grid-cols-3 gap-3">
                                     {[7, 15, 30].map(d => (
-                                        <button 
+                                        <button
                                             key={d}
                                             onClick={() => setPlanDuration(d)}
                                             className={`py-3 rounded-xl font-bold text-sm transition-all border-2 ${planDuration === d ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white dark:bg-zinc-700 text-zinc-500 border-zinc-100 dark:border-zinc-600'}`}
@@ -353,13 +353,13 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                                 </p>
                             </div>
                         )}
-                        
+
                         <div className="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-700 shadow-xl space-y-6">
                             <div>
                                 <label className="block text-xs font-black text-zinc-400 uppercase tracking-widest mb-3">Öğrencinin İlgi Alanları (AI Teması)</label>
                                 <div className="flex flex-wrap gap-2">
                                     {['Uzay', 'Dinozorlar', 'Hayvanlar', 'Doğa', 'Spor', 'Müzik', 'Robotlar', 'Denizler'].map(tag => (
-                                        <button 
+                                        <button
                                             key={tag}
                                             onClick={() => setFormData(prev => ({ ...prev, interests: prev.interests?.includes(tag) ? prev.interests.filter(t => t !== tag) : [...(prev.interests || []), tag] }))}
                                             className={`px-4 py-2 rounded-xl font-bold text-xs border-2 transition-all ${formData.interests?.includes(tag) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-zinc-700 text-zinc-500 border-zinc-100 dark:border-zinc-600'}`}
@@ -445,14 +445,14 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                     {curriculum.schedule.map((day, idx) => {
-                                        const isFirstIncomplete = !day.isCompleted && (idx === 0 || curriculum.schedule[idx-1].isCompleted);
+                                        const isFirstIncomplete = !day.isCompleted && (idx === 0 || curriculum.schedule[idx - 1].isCompleted);
                                         return (
-                                            <DayCard 
-                                                key={day.day} 
-                                                day={day} 
+                                            <DayCard
+                                                key={day.day}
+                                                day={day}
                                                 isActiveDay={isFirstIncomplete}
-                                                onToggleActivity={handleToggleActivity} 
-                                                onStartActivity={(id, type, title, diff, goal) => onStartCurriculumActivity(curriculum.id, day.day, id, type, curriculum.studentName, title, diff, goal, curriculum.studentId || undefined)} 
+                                                onToggleActivity={handleToggleActivity}
+                                                onStartActivity={(id, type, title, diff, goal) => onStartCurriculumActivity(curriculum.id, day.day, id, type, curriculum.studentName, title, diff, goal, curriculum.studentId || undefined)}
                                                 onSaveNote={handleSaveDayNote}
                                             />
                                         );
@@ -493,7 +493,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar print:overflow-visible print:h-auto print:bg-white">
                 {renderWizard()}
             </div>
-            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={() => {}} />
+            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={() => { }} />
         </div>
     );
 };

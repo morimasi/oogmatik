@@ -3,10 +3,10 @@ import React, { useState, useRef, useCallback } from 'react';
 import { CollectionItem, WorkbookSettings, StyleSettings, ActivityType } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
-import { useAuth } from '../context/AuthContext';
 import { printService } from '../utils/printService';
 import { Toolbar } from './Toolbar';
-import { useStudent } from '../context/StudentContext';
+import { useAuthStore } from '../store/useAuthStore';
+import { useStudentStore } from '../store/useStudentStore';
 import { ActivityImporterModal } from './ActivityImporterModal';
 import { evaluateContent, generateWithSchema } from '../services/geminiClient';
 import { Type } from '@google/genai';
@@ -95,8 +95,8 @@ const SortablePageItem = React.memo(({
 });
 
 export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }: WorkbookViewProps) => {
-    const { user } = useAuth();
-    const { students } = useStudent();
+    const { user } = useAuthStore();
+    const { activeStudent } = useStudentStore();
     const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
     const [activeTab, setActiveTab] = useState<'content' | 'design' | 'assign'>('content');
     const [isSaving, setIsSaving] = useState(false);
@@ -765,13 +765,12 @@ Ton:
                                                     <ul className="space-y-1 max-h-40 overflow-y-auto custom-scrollbar pr-1">
                                                         {analysisResult.analysis.map((item: any, idx: number) => (
                                                             <li key={idx} className="flex gap-2">
-                                                                <span className={`mt-0.5 text-[10px] ${
-                                                                    item.type === 'success'
+                                                                <span className={`mt-0.5 text-[10px] ${item.type === 'success'
                                                                         ? 'text-emerald-500'
                                                                         : item.type === 'warning'
-                                                                        ? 'text-amber-500'
-                                                                        : 'text-red-500'
-                                                                }`}>
+                                                                            ? 'text-amber-500'
+                                                                            : 'text-red-500'
+                                                                    }`}>
                                                                     <i className="fa-solid fa-circle"></i>
                                                                 </span>
                                                                 <div>

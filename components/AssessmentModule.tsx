@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ActivityType, SavedAssessment, ProfessionalAssessmentReport, SubTestResult, CognitiveDomain, ClinicalObservation, AssessmentRoadmapItem } from '../types';
-import { useAuth } from '../context/AuthContext';
-import { useStudent } from '../context/StudentContext';
+import { useAuthStore } from '../store/useAuthStore';
+import { useStudentStore } from '../store/useStudentStore';
 import { AssessmentEngine } from './assessment/AssessmentEngine';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
 import { assessmentService } from '../services/assessmentService';
@@ -49,8 +49,8 @@ const DOMAIN_ACTIVITY_MAP: Record<CognitiveDomain, ActivityType[]> = {
 };
 
 export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, onAutoGenerateWorkbook }: AssessmentModuleProps) => {
-    const { user } = useAuth();
-    const { students, activeStudent, setActiveStudent } = useStudent();
+    const { user } = useAuthStore();
+    const { students, activeStudent, setActiveStudent } = useStudentStore();
 
     const [view, setView] = useState<'setup' | 'running' | 'report'>('setup');
     const [activeTestIndex, setActiveTestIndex] = useState(0);

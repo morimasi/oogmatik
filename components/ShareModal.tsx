@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/useAuthStore';
 import { authService } from '../services/authService';
 
 interface ShareModalProps {
@@ -13,7 +13,7 @@ interface ShareModalProps {
 }
 
 export const ShareModal = ({ isOpen, onClose, onShare, worksheetTitle, isSending }: ShareModalProps) => {
-    const { user } = useAuth();
+    const { user } = useAuthStore();
     const [contacts, setContacts] = useState<User[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState<'direct' | 'link' | 'qr'>('direct');

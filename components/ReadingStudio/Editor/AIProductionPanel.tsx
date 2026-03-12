@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { useReadingStudio } from '../../../context/ReadingStudioContext';
+import { useReadingStore } from '../../../store/useReadingStore';
 
 export const AIProductionPanel = () => {
-    const { config, setConfig, isLoading } = useReadingStudio();
+    const { config, setConfig, isLoading } = useReadingStore();
 
     const update = (updates: Partial<typeof config>) => setConfig({ ...config, ...updates });
 
@@ -59,7 +59,7 @@ export const AIProductionPanel = () => {
                         <i className="fa-solid fa-layer-group mr-2"></i>
                         Heceleme Modu
                     </button>
-                    <select value={config.textComplexity} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ textComplexity: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white">
+                    <select value={config.textComplexity} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ textComplexity: e.target.value as any })} className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white">
                         <option value="simple">Basit Yapı</option>
                         <option value="moderate">Standart</option>
                         <option value="advanced">Zengin Dil</option>
@@ -85,7 +85,7 @@ export const AIProductionPanel = () => {
                         {['Easy', 'Medium', 'Hard'].map(lvl => (
                             <button
                                 key={lvl}
-                                onClick={() => update({ logicDifficulty: lvl })}
+                                onClick={() => update({ logicDifficulty: lvl as any })}
                                 className={`flex-1 py-1 rounded text-[8px] font-black transition-all ${config.logicDifficulty === lvl ? 'bg-emerald-600 text-white' : 'bg-zinc-800 text-zinc-500'}`}
                             >
                                 {lvl === 'Easy' ? 'KOLAY' : lvl === 'Medium' ? 'ORTA' : 'ZOR'}

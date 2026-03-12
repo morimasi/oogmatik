@@ -43,7 +43,7 @@ interface SidebarProps {
     onWidthChange?: (width: number) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
+const Sidebar = ({
     isSidebarOpen,
     closeSidebar,
     selectedActivity,
@@ -53,10 +53,19 @@ const Sidebar: React.FC<SidebarProps> = ({
     setError,
     isLoading,
     onAddToHistory,
+    onOpenOCR,
+    onOpenCurriculum,
+    onOpenReadingStudio,
+    onOpenMathStudio,
+    onOpenScreening,
+    activeCurriculumSession,
+    isExpanded,
     width,
     onWidthChange
-}) => {
-    const { activeStudent } = useStudent();
+}: SidebarProps) => {
+    const { user } = useAuthStore();
+    const { students, activeStudent, setActiveStudent } = useStudentStore();
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
     const [isResizing, setIsResizing] = useState(false);
 

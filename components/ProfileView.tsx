@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useStudent } from '../context/StudentContext';
+import { useAuthStore } from '../store/useAuthStore';
+import { useStudentStore } from '../store/useStudentStore';
 import { SavedAssessment, SavedWorksheet, ActivityType, User, Curriculum, Student, UiSettings, AppTheme } from '../types';
 import { assessmentService } from '../services/assessmentService';
 import { worksheetService } from '../services/worksheetService';
@@ -108,8 +108,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     onUpdateUiSettings,
     onOpenSettingsModal
 }) => {
-    const { user: authUser, updateUser, logout } = useAuth();
-    const { students, activeStudent } = useStudent();
+    const { user: authUser, updateUser, logout } = useAuthStore();
+    const { students, activeStudent } = useStudentStore();
 
     const user = targetUser || authUser;
     const isReadOnly = !!targetUser && targetUser.id !== authUser?.id;

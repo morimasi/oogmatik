@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useStudent } from '../../context/StudentContext';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useStudentStore } from '../../store/useStudentStore';
 import { Student, SavedWorksheet, SavedAssessment, Curriculum } from '../../types';
 import { worksheetService } from '../../services/worksheetService';
 import { assessmentService } from '../../services/assessmentService';
@@ -43,15 +44,8 @@ type GroupingMode = 'all' | 'grade' | 'age';
 type FormTab = 'identity' | 'academic' | 'parent';
 
 export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLoadMaterial }) => {
-  const {
-    students,
-    activeStudent,
-    setActiveStudent,
-    addStudent,
-    deleteStudent,
-    updateStudent,
-    isLoading: contextLoading,
-  } = useStudent();
+  const { user } = useAuthStore();
+  const { students, activeStudent, setActiveStudent, addStudent, deleteStudent, updateStudent, isLoading: contextLoading } = useStudentStore();
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
@@ -790,7 +784,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                             {Math.round(
                               (plan.schedule.filter((d) => d.isCompleted).length /
                                 plan.schedule.length) *
-                                100
+                              100
                             )}{' '}
                             Tamamlandı
                           </div>
@@ -1034,7 +1028,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                         onKeyDown={(e) =>
                           e.key === 'Enter' &&
                           (e.preventDefault(),
-                          handleAddTag('interests', tempInterest, setTempInterest))
+                            handleAddTag('interests', tempInterest, setTempInterest))
                         }
                       />
                       <button
@@ -1073,7 +1067,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                         onKeyDown={(e) =>
                           e.key === 'Enter' &&
                           (e.preventDefault(),
-                          handleAddTag('strengths', tempStrength, setTempStrength))
+                            handleAddTag('strengths', tempStrength, setTempStrength))
                         }
                       />
                       <button
@@ -1114,7 +1108,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                       onKeyDown={(e) =>
                         e.key === 'Enter' &&
                         (e.preventDefault(),
-                        handleAddTag('weaknesses', tempWeakness, setTempWeakness))
+                          handleAddTag('weaknesses', tempWeakness, setTempWeakness))
                       }
                     />
                     <button

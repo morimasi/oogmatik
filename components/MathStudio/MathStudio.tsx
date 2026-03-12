@@ -2,8 +2,8 @@
 // This is a thin shell that wires together hooks, panels, and canvas components.
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { useStudent } from '../../context/StudentContext';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useStudentStore } from '../../store/useStudentStore';
 import { ShareModal } from '../ShareModal';
 import { MathPageConfig, MathMode } from '../../types/math';
 import { DEFAULT_PAGE_CONFIG, DEFAULT_THEME_CONFIG, ThemeConfig } from './constants';
@@ -36,8 +36,8 @@ interface MathStudioProps {
 }
 
 export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook }) => {
-    const { user } = useAuth();
-    const { students, activeStudent } = useStudent();
+    const { user } = useAuthStore();
+    const { students, activeStudent } = useStudentStore();
     const { toasts, showToast, removeToast } = useToast();
 
     // --- STATE ---

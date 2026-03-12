@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { useStudent } from '../../../context/StudentContext';
-import { useReadingStudio } from '../../../context/ReadingStudioContext';
+import { useStudentStore } from '../../../store/useStudentStore';
+import { useReadingStore } from '../../../store/useReadingStore';
 
 export const StudentSelector = () => {
-    const { students } = useStudent();
-    const { activeStudent, setActiveStudent, config, setConfig } = useReadingStudio();
+    const { students } = useStudentStore();
+    const { activeStudent, setActiveStudent, config, setConfig } = useReadingStore();
 
     const handleSelect = (studentId: string) => {
         const student = students.find(s => s.id === studentId);

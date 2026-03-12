@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { useReadingStudio } from '../../../context/ReadingStudioContext';
+import { useReadingStore } from '../../../store/useReadingStore';
 
 export const StylePanel = () => {
-    const { layout, selectedId, updateComponent } = useReadingStudio();
+    const { layout, selectedId, updateComponent } = useReadingStore();
 
     const selectedItem = layout.find((item: any) => item.instanceId === selectedId);
 

@@ -5,7 +5,7 @@ import Worksheet from './Worksheet';
 import { Toolbar } from './Toolbar';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
 import { SharedWorksheetsView } from './SharedWorksheetsView';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/useAuthStore';
 import { ACTIVITIES } from '../constants';
 import { SkeletonLoader } from './SkeletonLoader';
 import { FavoritesSection } from './FavoritesSection';
@@ -72,7 +72,7 @@ const LandingText = memo(() => {
 const ContentArea: React.FC<ContentAreaProps> = ({
     currentView, onBackToGenerator, activityType, worksheetData, isLoading, error, styleSettings, onStyleChange, onSave, onLoadSaved, onFeedback, onOpenAuth, onSelectActivity, workbookItems, setWorkbookItems, workbookSettings, setWorkbookSettings, onAddToWorkbook, onAutoGenerateWorkbook, studentProfile, zenMode, toggleZenMode, activeCurriculumSession, onCompleteCurriculumActivity, onAddDirectToWorkbook
 }) => {
-    const { user } = useAuth();
+    const { user } = useAuthStore();
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [scale, setScale] = useState(0.85);

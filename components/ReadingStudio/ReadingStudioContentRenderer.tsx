@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { ImageDisplay, QUESTION_TYPES } from '../sheets/common';
 import { InteractiveStoryData, LayoutItem } from '../../types';
-import { useReadingStudio } from '../../context/ReadingStudioContext';
+import { useReadingStore } from '../../store/useReadingStore';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 
 const DraggableItem = ({ item, children }: { item: any, children: any }) => {
-    const { designMode, updateComponent, setSelectedId, selectedId, layout, setLayout } = useReadingStudio();
+    const { designMode, updateComponent, setSelectedId, selectedId, layout, setLayout } = useReadingStore();
     const isDragging = useRef(false);
     const startPos = useRef({ x: 0, y: 0 });
     const initialLayout = useRef<LayoutItem[]>([]);
@@ -36,7 +36,7 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
                     if (l.instanceId === item.instanceId) {
                         return { ...l, style: { ...l.style, w: newW, h: newH } };
                     }
-                    
+
                     // Akıllı Boşluk Doldurma: Boyutu değişen öğenin BİR ALTINDA kalan tüm öğeleri kaydır
                     if (l.pageIndex === item.pageIndex && l.style.y >= (initialStyle.y + initialStyle.h - 10)) {
                         return {
@@ -49,11 +49,11 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
             } else {
                 let newX = Math.round((initialStyle.x + dx) / 8) * 8;
                 let newY = Math.round((initialStyle.y + dy) / 8) * 8;
-                
+
                 // Magnetic Snap to common alignments (Grid, Center, Margins)
                 const centerX = A4_WIDTH_PX / 2;
                 const itemCenterX = newX + (initialStyle.w / 2);
-                
+
                 // Snap to Center X
                 if (Math.abs(itemCenterX - centerX) < 15) {
                     newX = centerX - (initialStyle.w / 2);
@@ -125,7 +125,7 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
 };
 
 export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: LayoutItem[], storyData: InteractiveStoryData | null }) => {
-    const { designMode } = useReadingStudio();
+    const { designMode } = useReadingStore();
     if (!layout || !Array.isArray(layout)) return null;
 
     const renderItemContent = (item: any) => {
@@ -322,10 +322,10 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
                     background-size: 8px 8px;
                 }
             `}</style>
-            
+
             {Array.from({ length: Math.max(1, ...layout.map((l: any) => (l.pageIndex || 0) + 1)) }).map((_, pageIndex) => {
                 const pageItems = layout.filter((l: any) => l.isVisible && (l.pageIndex || 0) === pageIndex);
-                
+
                 return (
                     <div
                         key={pageIndex}

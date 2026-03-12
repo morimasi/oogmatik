@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -13,7 +13,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [error, setError] = useState('');
-    const { login, register } = useAuth();
+    const { login, register } = useAuthStore();
     const [isLoading, setIsLoading] = useState(false);
     const [loadingText, setLoadingText] = useState('Bağlanıyor...');
     const isMounted = useRef(true);
@@ -70,7 +70,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 if (!name) throw new Error('İsim alanı zorunludur.');
                 await register(email, password, name);
             }
-            
+
             if (isMounted.current) {
                 onClose();
             }
@@ -107,14 +107,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 <div className="flex border-b border-zinc-200 dark:border-zinc-700">
                     <button
                         className={`flex-1 py-4 text-sm font-bold transition-colors ${mode === 'login' ? 'bg-white dark:bg-zinc-800 text-indigo-600 border-b-2 border-indigo-600' : 'bg-zinc-50 dark:bg-zinc-900/50 text-zinc-500'}`}
-                        onClick={() => { if(!isLoading) { setMode('login'); setError(''); } }}
+                        onClick={() => { if (!isLoading) { setMode('login'); setError(''); } }}
                         disabled={isLoading}
                     >
                         Giriş Yap
                     </button>
                     <button
                         className={`flex-1 py-4 text-sm font-bold transition-colors ${mode === 'register' ? 'bg-white dark:bg-zinc-800 text-indigo-600 border-b-2 border-indigo-600' : 'bg-zinc-50 dark:bg-zinc-900/50 text-zinc-500'}`}
-                        onClick={() => { if(!isLoading) { setMode('register'); setError(''); } }}
+                        onClick={() => { if (!isLoading) { setMode('register'); setError(''); } }}
                         disabled={isLoading}
                     >
                         Kayıt Ol
@@ -187,10 +187,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                             ) : (mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol')}
                         </button>
                     </form>
-                    
+
                     {/* Vazgeç butonu */}
-                    <button 
-                        onClick={handleClose} 
+                    <button
+                        onClick={handleClose}
                         type="button"
                         className="w-full mt-4 text-zinc-400 text-sm hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors py-2"
                     >

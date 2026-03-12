@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { UniversalStudioProvider, useUniversalStudio } from '../../context/UniversalStudioContext';
+import { useCreativeStore } from '../../store/useCreativeStore';
 import { convertToLayoutItems } from './UniversalAdapter';
 import { UniversalCanvas } from './UniversalCanvas';
 import { UniversalPropertiesPanel } from './UniversalPropertiesPanel';
@@ -18,7 +18,7 @@ const DesignModeToolbar = () => {
         designMode, setDesignMode, selectedId, selectedIds,
         groupSelected, ungroupSelected, lockSelected, unlockSelected,
         deleteSelected, clearSelection, layout
-    } = useUniversalStudio();
+    } = useCreativeStore();
 
     const hasSelection = selectedId || selectedIds.length > 0;
     const hasMultipleSelection = selectedIds.length > 1 || (selectedId && selectedIds.length === 0);
@@ -107,7 +107,7 @@ const DesignModeToolbar = () => {
 };
 
 const UniversalWorksheetInner = ({ worksheetData, activityType, scale, styleSettings }: UniversalWorksheetWrapperProps) => {
-    const { setLayout, designMode, setDesignMode } = useUniversalStudio();
+    const { setLayout, designMode, setDesignMode } = useCreativeStore();
     const [isAdapterRunning, setIsAdapterRunning] = useState(true);
 
     useEffect(() => {
@@ -162,9 +162,5 @@ const UniversalWorksheetInner = ({ worksheetData, activityType, scale, styleSett
 };
 
 export const UniversalWorksheetWrapper = (props: UniversalWorksheetWrapperProps) => {
-    return (
-        <UniversalStudioProvider>
-            <UniversalWorksheetInner {...props} />
-        </UniversalStudioProvider>
-    );
+    return <UniversalWorksheetInner {...props} />;
 };

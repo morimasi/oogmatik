@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useReadingStudio } from '../../../context/ReadingStudioContext';
+import { useReadingStore } from '../../../store/useReadingStore';
 import { LayoutSectionId } from '../../../types';
 
 interface ComponentDefinition {
@@ -26,7 +26,7 @@ const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
 ];
 
 export const ComponentLibrary = () => {
-    const { addComponent } = useReadingStudio();
+    const { addComponent } = useReadingStore();
 
     return (
         <div className="space-y-3">

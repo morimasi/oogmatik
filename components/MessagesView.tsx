@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/useAuthStore';
 import { messagingService, mapDbMessage } from '../services/messagingService';
 import { authService } from '../services/authService';
 import { Message, User } from '../types';
@@ -14,7 +14,7 @@ interface MessagesViewProps {
 }
 
 export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNotifications }) => {
-    const { user } = useAuth();
+    const { user } = useAuthStore();
     const [contacts, setContacts] = useState<User[]>([]);
     const [selectedContact, setSelectedContact] = useState<User | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
@@ -300,8 +300,8 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
                                             return (
                                                 <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} group`}>
                                                     <div className={`max-w-[85%] md:max-w-[70%] p-3 rounded-2xl shadow-sm relative group ${isMe
-                                                            ? 'bg-indigo-600 text-white rounded-br-none'
-                                                            : 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-bl-none border border-zinc-200 dark:border-zinc-600'
+                                                        ? 'bg-indigo-600 text-white rounded-br-none'
+                                                        : 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-bl-none border border-zinc-200 dark:border-zinc-600'
                                                         }`}>
                                                         <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
                                                         <div className={`text-[10px] flex items-center justify-end gap-1 mt-1 ${isMe ? 'text-indigo-200' : 'text-zinc-400'}`}>

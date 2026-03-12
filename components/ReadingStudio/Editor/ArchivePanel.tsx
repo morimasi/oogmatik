@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useReadingStudio } from '../../../context/ReadingStudioContext';
+import { useReadingStore } from '../../../store/useReadingStore';
 
 export const ArchivePanel = () => {
-    const { setStoryData, setLayout, setConfig } = useReadingStudio();
+    const { setStoryData, setLayout, setConfig } = useReadingStore();
     const [savedProjects, setSavedProjects] = useState<any[]>([]);
 
     useEffect(() => {
@@ -16,7 +16,7 @@ export const ArchivePanel = () => {
                 console.error("Archive loading error", e);
             }
         };
-        
+
         loadArchive();
         // Custom event listener for updates
         window.addEventListener('reading_studio_saved', loadArchive);

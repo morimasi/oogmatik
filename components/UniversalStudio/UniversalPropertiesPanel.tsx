@@ -1,9 +1,9 @@
 // @ts-nocheck
 import React from 'react';
-import { useUniversalStudio } from '../../context/UniversalStudioContext';
+import { useCreativeStore } from '../../store/useCreativeStore';
 
 export const UniversalPropertiesPanel = () => {
-    const { layout, selectedId, updateComponent } = useUniversalStudio();
+    const { layout, selectedId, updateComponent } = useCreativeStore();
 
     const selectedItem = layout.find(item => item.instanceId === selectedId);
 

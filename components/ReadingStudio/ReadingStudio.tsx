@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ReadingStudioProvider, useReadingStudio } from '../../context/ReadingStudioContext';
+import { useReadingStore } from '../../store/useReadingStore';
 import { printService } from '../../utils/printService';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
 import { ReadingStudioContentRenderer } from './ReadingStudioContentRenderer';
@@ -23,7 +23,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         config, setStoryData, layout, setLayout,
         isLoading, setIsLoading, designMode, setDesignMode,
         storyData, setSelectedId, undo, redo, canUndo, canRedo
-    } = useReadingStudio();
+    } = useReadingStore();
 
     const [sidebarTab, setSidebarTab] = useState('production' as 'production' | 'library' | 'styling' | 'content' | 'archive');
     const [canvasScale, setCanvasScale] = useState(0.85);
@@ -256,9 +256,5 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
 };
 
 export const ReadingStudio = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps) => {
-    return (
-        <ReadingStudioProvider>
-            <ReadingStudioInner onBack={onBack} onAddToWorkbook={onAddToWorkbook} />
-        </ReadingStudioProvider>
-    );
+    return <ReadingStudioInner onBack={onBack} onAddToWorkbook={onAddToWorkbook} />;
 };
