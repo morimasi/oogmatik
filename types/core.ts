@@ -9,9 +9,6 @@ import { User, UserRole, UserStatus } from './user';
 import { Student, StudentProfile } from './student';
 import { LayoutItem, LayoutSectionId } from './studio';
 
-export { ActivityType };
-export type { Activity, ActivityCategory, WorksheetBlock, User, UserRole, UserStatus, Student, StudentProfile, LayoutItem, LayoutSectionId, CognitiveErrorTag };
-
 export interface BaseActivityData {
   title: string;
   instruction: string;

@@ -40,15 +40,6 @@ export interface LayoutItem {
     groupId?: string;
 }
 
-export interface InteractiveStoryData {
-    title: string;
-    story: string;
-    vocabulary: { word: string; meaning: string }[];
-    questions_5n1k: { question: string; answer: string }[];
-    logic_puzzle: { scenario: string; question: string; answer: string };
-    inference_questions: { question: string; answer: string }[];
-}
-
 export interface ReadingStudioConfig {
     gradeLevel: string;
     studentId?: string;

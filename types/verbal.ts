@@ -1,18 +1,17 @@
 import { BaseActivityData, ActivityType, Student } from './core';
 
-export * from './core';
 
 export interface StoryQuestion {
   type:
-    | 'multiple-choice'
-    | 'true-false'
-    | 'open-ended'
-    | 'who'
-    | 'where'
-    | 'when'
-    | 'what'
-    | 'why'
-    | 'how';
+  | 'multiple-choice'
+  | 'true-false'
+  | 'open-ended'
+  | 'who'
+  | 'where'
+  | 'when'
+  | 'what'
+  | 'why'
+  | 'how';
   question: string;
   options?: string[];
   answer: string;
