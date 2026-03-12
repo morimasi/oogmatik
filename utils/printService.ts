@@ -127,19 +127,32 @@ export const printService = {
         const oel = originalElements[idx] as HTMLElement;
         if (!oel) return;
 
-        // 1. Ekran ölçeklendirmelerini temizle
+        // 1. Ekran ölçeklendirmelerini ve zoom etkilerini kesin temizle
         cel.style.setProperty('transform', 'none', 'important');
         cel.style.setProperty('scale', '1', 'important');
         cel.style.setProperty('zoom', '1', 'important');
+        cel.style.setProperty('-webkit-text-size-adjust', '100%', 'important');
         if (cel.hasAttribute('data-scaled')) cel.removeAttribute('data-scaled');
 
-        // 2. Viewport bazlı genişlikleri (vw/vh) temizle (Klon henüz DOM'da değil, orijinalden bakıyoruz)
+        // 2. Viewport ve Taşma Normalizasyonu (v5)
         const oStyle = window.getComputedStyle(oel);
-        if (oStyle.width.includes('vw')) cel.style.width = '100%';
-        if (oStyle.maxWidth.includes('vw')) cel.style.maxWidth = '100%';
+        const computedWidth = parseFloat(oStyle.width) || 0;
+
+        // Eğer içerik kağıt genişliğinden (794px ≈ 210mm) genişse, 100%'e çek (Taşmayı ve dolayısıyla küçülmeyi önler)
+        if (computedWidth > 794 || oStyle.width.includes('vw')) {
+          cel.style.setProperty('width', '100%', 'important');
+          cel.style.setProperty('max-width', '100%', 'important');
+        }
+
+        // 3. Flex ve Grid Alanlarını Sabitle
+        if (oStyle.display === 'flex' || oStyle.display === 'grid') {
+          cel.style.setProperty('max-width', '100%', 'important');
+          cel.style.setProperty('overflow', 'visible', 'important');
+        }
+
         if (oStyle.height.includes('vh')) cel.style.height = 'auto';
 
-        // 3. Taşmayı önle
+        // 4. Görünürlük ve Taşma
         if (oStyle.overflow === 'hidden' || oStyle.overflow === 'auto') {
           cel.style.setProperty('overflow', 'visible', 'important');
         }
