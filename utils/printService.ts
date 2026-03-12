@@ -98,27 +98,27 @@ export const printService = {
         (btn as HTMLElement).style.setProperty('display', 'none', 'important');
       });
 
-      // A4 için transform ve boyut sıfırlama (v4: Absolute Physical Standard)
+      // A4 için transform ve boyut sıfırlama (v6: Precision A4)
       clone.style.setProperty('transform', 'none', 'important');
       clone.style.setProperty('scale', '1', 'important');
       clone.style.setProperty('zoom', '1', 'important');
-      clone.style.setProperty('margin', '0 auto', 'important'); // Ortala
+      clone.style.setProperty('margin', '0', 'important');
       clone.style.setProperty('box-shadow', 'none', 'important');
       clone.style.setProperty('position', 'relative', 'important');
-      clone.style.setProperty('width', '100%', 'important'); // Konteyner genişliğine yayıl
+      clone.style.setProperty('width', '100%', 'important'); // 200mm Printable Area
       clone.style.setProperty('max-width', '100%', 'important');
-      clone.style.setProperty('padding', '5mm', 'important'); // v5: Minimum boşluk (Kullanıcı talebi)
-      clone.style.setProperty('min-height', '296mm', 'important');
-      clone.style.setProperty('height', 'auto', 'important'); // İçerik uzadıkça uzasın (Pagination)
+      clone.style.setProperty('padding', '0', 'important'); // Margin @page'den gelir
+      clone.style.setProperty('min-height', '287mm', 'important'); // 297-10=287mm
+      clone.style.setProperty('height', 'auto', 'important');
       clone.style.setProperty('box-sizing', 'border-box', 'important');
-      clone.style.setProperty('display', 'block', 'important'); // Flex yerine Block (Akış için)
-      clone.style.setProperty('overflow', 'visible', 'important'); // Taşmalara izin ver (Sonraki sayfaya aksın)
+      clone.style.setProperty('display', 'block', 'important');
+      clone.style.setProperty('overflow', 'visible', 'important');
       clone.style.setProperty('page-break-after', 'always', 'important');
       clone.style.setProperty('break-after', 'page', 'important');
       clone.style.setProperty('background', 'white', 'important');
       clone.style.setProperty('color', 'black', 'important');
 
-      // --- DEEP STYLE CLEANING (v5: Smart Pagination) ---
+      // --- DEEP STYLE CLEANING (v6: MM-Based Calculation) ---
       const originalElements = el.querySelectorAll('*');
       const cloneElements = clone.querySelectorAll('*');
 
@@ -134,21 +134,26 @@ export const printService = {
         cel.style.setProperty('-webkit-text-size-adjust', '100%', 'important');
         if (cel.hasAttribute('data-scaled')) cel.removeAttribute('data-scaled');
 
-        // 2. Viewport ve Taşma Normalizasyonu (v5: Smart Fit)
+        // 2. Viewport ve Taşma Normalizasyonu (v6: 200mm Limit)
         const oStyle = window.getComputedStyle(oel);
         const computedWidth = parseFloat(oStyle.width) || 0;
 
-        // Geniş içerikleri A4 genişliğine (≈794px) sığdır
-        // "Küçültme" yerine "Sığdırma" (width: 100%) yapıyoruz
-        if (computedWidth > 790 || oStyle.width.includes('vw')) {
+        // Printable Area Width: 200mm ≈ 755px (@96dpi)
+        // Eğer içerik bu değerden genişse, %100'e çek
+        if (computedWidth > 750 || oStyle.width.includes('vw')) {
           cel.style.setProperty('width', '100%', 'important');
           cel.style.setProperty('max-width', '100%', 'important');
           cel.style.setProperty('box-sizing', 'border-box', 'important');
           cel.style.setProperty('margin-left', '0', 'important');
           cel.style.setProperty('margin-right', '0', 'important');
-          // Overflow hidden YERİNE visible yapıyoruz ki içerik aşağı aksın
           cel.style.setProperty('overflow', 'visible', 'important'); 
           cel.style.setProperty('white-space', 'normal', 'important');
+        }
+
+        // Resim ve Canvas Koruması
+        if (cel.tagName === 'IMG' || cel.tagName === 'CANVAS' || cel.tagName === 'SVG') {
+             cel.style.setProperty('max-width', '100%', 'important');
+             cel.style.setProperty('height', 'auto', 'important');
         }
 
         // 3. Flex ve Grid Alanlarını Blok Haline Getir (Pagination Dostu)

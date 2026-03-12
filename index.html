@@ -523,11 +523,11 @@
       page-break-inside: avoid !important;
     }
 
-    /* --- ULTRA PRINT ENGINE v5: ZERO-TOLERANCE --- */
+    /* --- ULTRA PRINT ENGINE v6: PRECISION A4 --- */
     @media print {
       @page {
         size: A4 portrait;
-        margin: 0mm !important;
+        margin: 5mm !important; /* Kullanıcı Talebi: Tam 5mm kenar boşluğu */
       }
 
       /* 1. Asıl Arayüzü (Root) Tamamen Yok Et */
@@ -538,8 +538,8 @@
       /* 2. Viewport Reset & Zoom Blokajı */
       html,
       body {
-        width: 100% !important; /* Tarayıcı genişliğine yayıl */
-        height: auto !important; /* Yükseklik serbest (Çoklu sayfa için kritik) */
+        width: 100% !important;
+        height: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
         background: white !important;
@@ -552,11 +552,10 @@
 
       /* 3. Print Container: Tek Hakim */
       #print-container {
-        position: relative !important; /* Absolute yerine Relative (Akış için) */
-        width: 210mm !important;
-        max-width: 210mm !important;
-        margin: 0 auto !important; /* Ortala */
-        padding: 0 !important;
+        position: relative !important;
+        width: 100% !important; /* Printable Area'yı (200mm) tam doldur */
+        margin: 0 !important;
+        padding: 0 !important; /* Margin zaten @page tarafından veriliyor */
         z-index: 9999999 !important;
         background: white !important;
         display: block !important;
@@ -566,13 +565,11 @@
       .ultra-print-page,
       .worksheet-page {
         position: relative !important;
-        width: 210mm !important;
-        /* Yükseklik serbest bırakıldı - İçerik kadar uzasın ve doğal bölünsün */
-        min-height: 297mm !important; 
+        width: 100% !important; /* Printable Area'yı tam doldur */
+        min-height: 287mm !important; /* 297mm - 10mm margin = 287mm printable height */
         height: auto !important;
         margin: 0 !important;
-        /* Kullanıcı Talebi: Minimum boşluk (5mm) */
-        padding: 5mm !important; 
+        padding: 0 !important;
         
         /* Sayfa Sonu Yönetimi */
         page-break-after: always !important;
@@ -582,29 +579,17 @@
         overflow: visible !important;
         background: white !important;
         box-sizing: border-box !important;
-        display: block !important; /* Flex yerine Block (Akış için) */
+        display: block !important;
         
         /* Ölçeklendirme Sıfırlama */
         transform: none !important;
         zoom: 1 !important;
       }
 
-      /* Yüksek flex yapıları blok moduna çevirerek sayfalama kırılmalarını engelle (çoklu sayfa desteği) */
-      .worksheet-page>.flex-1,
-      .worksheet-page>.flex-col {
-        display: block !important;
-        height: auto !important;
-        min-height: 0 !important;
-      }
-
-      /* ═══════════════════════════════════════════
-         KOMPAKT MOD — Daha fazla içerik sığdır
-         #print-container.compact-print ile etkinleşir
-      ═══════════════════════════════════════════ */
+      /* Kompakt mod için override gerekmez, çünkü padding 0 */
       #print-container.compact-print .ultra-print-page,
       #print-container.compact-print .worksheet-page {
-        padding: 2mm 3mm !important;
-        /* Çok daha dar boşluk - premium & ekonomik görünüm */
+        padding: 0 !important;
       }
 
       #print-container.compact-print .pedagogical-header h3 {
