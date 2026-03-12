@@ -4,10 +4,12 @@ declare global {
   }
 }
 
-import { ActivityType, Activity, ActivityCategory, WorksheetBlock, CognitiveErrorTag } from './activity';
-import { User, UserRole, UserStatus } from './user';
-import { Student, StudentProfile } from './student';
-import { LayoutItem, LayoutSectionId } from './studio';
+export { ActivityType } from './activity';
+export type { Activity, ActivityCategory, WorksheetBlock, CognitiveErrorTag } from './activity';
+export { UserRole, UserStatus } from './user';
+export type { User } from './user';
+export type { Student, StudentProfile } from './student';
+export type { LayoutItem, LayoutSectionId, ReadingStudioConfig } from './studio';
 
 export interface BaseActivityData {
   title: string;
