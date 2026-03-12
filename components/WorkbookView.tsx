@@ -96,7 +96,7 @@ const SortablePageItem = React.memo(({
 
 export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }: WorkbookViewProps) => {
     const { user } = useAuthStore();
-    const { activeStudent } = useStudentStore();
+    const { activeStudent, students } = useStudentStore();
     const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
     const [activeTab, setActiveTab] = useState<'content' | 'design' | 'assign'>('content');
     const [isSaving, setIsSaving] = useState(false);
@@ -606,14 +606,27 @@ Ton:
                                         )}
 
                                         <div className={`grid grid-cols-2 gap-3 ${settings.isAiGeneratedCover ? 'opacity-50 pointer-events-none' : ''}`}>
-                                            {['modern', 'classic', 'fun', 'minimal', 'academic', 'artistic', 'space', 'nature', 'geometric'].map(t => (
+                                            {[
+                                                { id: 'modern', icon: 'fa-clapperboard' },
+                                                { id: 'classic', icon: 'fa-monument' },
+                                                { id: 'minimal', icon: 'fa-leaf' },
+                                                { id: 'academic', icon: 'fa-graduation-cap' },
+                                                { id: 'artistic', icon: 'fa-palette' },
+                                                { id: 'space', icon: 'fa-shuttle-space' },
+                                                { id: 'nature', icon: 'fa-tree' },
+                                                { id: 'cyber', icon: 'fa-microchip' },
+                                                { id: 'luxury', icon: 'fa-gem' },
+                                                { id: 'playful', icon: 'fa-child-reaching' }
+                                            ].map(t => (
                                                 <button
-                                                    key={t}
-                                                    onClick={() => setSettings((s: WorkbookSettings) => ({ ...s, theme: t as any }))}
-                                                    className={`p-3 rounded-xl border-2 text-sm font-bold capitalize transition-all text-left flex items-center gap-2 ${settings.theme === t ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300' : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-700 text-zinc-600 hover:border-zinc-300'}`}
+                                                    key={t.id}
+                                                    onClick={() => setSettings((s: WorkbookSettings) => ({ ...s, theme: t.id as any }))}
+                                                    className={`p-3 rounded-xl border-2 text-sm font-bold capitalize transition-all text-left flex items-center gap-3 ${settings.theme === t.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 shadow-md' : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-700 text-zinc-600 hover:border-zinc-300'}`}
                                                 >
-                                                    <div className={`w-3 h-3 rounded-full ${settings.theme === t ? 'bg-indigo-500' : 'bg-zinc-300'}`}></div>
-                                                    {t}
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${settings.theme === t.id ? 'bg-indigo-600 text-white' : 'bg-zinc-100 dark:bg-zinc-600 text-zinc-400'}`}>
+                                                        <i className={`fa-solid ${t.icon} text-xs`}></i>
+                                                    </div>
+                                                    {t.id}
                                                 </button>
                                             ))}
                                         </div>
@@ -657,16 +670,51 @@ Ton:
                                     {/* Cover Layout */}
                                     <div>
                                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">Kapak Düzeni</label>
-                                        <div className="flex bg-zinc-100 dark:bg-zinc-700 p-1 rounded-lg">
-                                            {['centered', 'left', 'split'].map(layout => (
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {[
+                                                { id: 'centered', label: 'Merkezi' },
+                                                { id: 'left', label: 'Sol' },
+                                                { id: 'split', label: 'Bölünmüş' },
+                                                { id: 'hero', label: 'Görsel Odaklı' },
+                                                { id: 'minimalist', label: 'Minimal' }
+                                            ].map(layout => (
                                                 <button
-                                                    key={layout}
-                                                    onClick={() => setSettings(s => ({ ...s, coverStyle: layout as any }))}
-                                                    className={`flex-1 py-2 text-xs font-bold uppercase rounded-md transition-all ${settings.coverStyle === layout ? 'bg-white shadow-sm text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'}`}
+                                                    key={layout.id}
+                                                    onClick={() => setSettings(s => ({ ...s, coverStyle: layout.id as any }))}
+                                                    className={`py-2 px-3 text-[10px] font-black uppercase rounded-xl border-2 transition-all ${settings.coverStyle === layout.id ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-zinc-100 bg-zinc-50 text-zinc-400 hover:border-zinc-200'}`}
                                                 >
-                                                    {layout}
+                                                    {layout.label}
                                                 </button>
                                             ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Premium Typography & Density */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Yazı Tipi</label>
+                                            <select
+                                                value={settings.fontFamily || 'OpenDyslexic'}
+                                                onChange={e => setSettings(s => ({ ...s, fontFamily: e.target.value }))}
+                                                className="w-full p-2.5 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-xs font-bold outline-none"
+                                            >
+                                                <option value="OpenDyslexic">OpenDyslexic</option>
+                                                <option value="Inter">Inter (Sade)</option>
+                                                <option value="Lexend">Lexend</option>
+                                                <option value="Comic Neue">Comic Neue</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Yoğunluk</label>
+                                            <select
+                                                value={settings.layoutDensity || 'comfortable'}
+                                                onChange={e => setSettings(s => ({ ...s, layoutDensity: e.target.value as any }))}
+                                                className="w-full p-2.5 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-xs font-bold outline-none"
+                                            >
+                                                <option value="compact">Sıkı</option>
+                                                <option value="comfortable">Rahat</option>
+                                                <option value="spacious">Geniş</option>
+                                            </select>
                                         </div>
                                     </div>
 
@@ -766,10 +814,10 @@ Ton:
                                                         {analysisResult.analysis.map((item: any, idx: number) => (
                                                             <li key={idx} className="flex gap-2">
                                                                 <span className={`mt-0.5 text-[10px] ${item.type === 'success'
-                                                                        ? 'text-emerald-500'
-                                                                        : item.type === 'warning'
-                                                                            ? 'text-amber-500'
-                                                                            : 'text-red-500'
+                                                                    ? 'text-emerald-500'
+                                                                    : item.type === 'warning'
+                                                                        ? 'text-amber-500'
+                                                                        : 'text-red-500'
                                                                     }`}>
                                                                     <i className="fa-solid fa-circle"></i>
                                                                 </span>

@@ -451,9 +451,12 @@ export interface WorkbookSettings {
   | 'artistic'
   | 'space'
   | 'nature'
-  | 'geometric';
+  | 'geometric'
+  | 'cyber'
+  | 'luxury'
+  | 'playful';
   accentColor: string;
-  coverStyle: 'centered' | 'left' | 'split';
+  coverStyle: 'centered' | 'left' | 'split' | 'hero' | 'minimalist';
   showTOC: boolean;
   showPageNumbers: boolean;
   showWatermark: boolean;
@@ -463,6 +466,10 @@ export interface WorkbookSettings {
   aiPreface?: string;
   isAiGeneratedCover?: boolean;
   aiCoverConcept?: string;
+  fontFamily?: string;
+  layoutDensity?: 'compact' | 'comfortable' | 'spacious';
+  showHeaderOnEveryPage?: boolean;
+  customBackCoverNote?: string;
 }
 
 export interface WorksheetBlock {
