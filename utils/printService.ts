@@ -167,9 +167,13 @@ export const printService = {
 
         await Promise.all(imagePromises);
 
-        // 7. Tarayıcı düzen motorunun yerleşmesini bekle (Dinamik)
-        const layoutDelay = options.compact ? 400 : 700;
-        await new Promise(resolve => setTimeout(resolve, layoutDelay));
+        // 7. Tarayıcı düzen motorunun (Layout) tam oturduğundan emin ol
+        await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, options.compact ? 800 : 1200)));
+
+        // Kontrol: Fontlar hala yüklenmemiş olabilir mi?
+        if (document.fonts) {
+            await document.fonts.ready;
+        }
 
         // 8. Yazdır
         const originalTitle = document.title;

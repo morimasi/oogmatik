@@ -628,7 +628,7 @@ export const ImageDisplay = React.memo(
           <PremiumPlaceholder />
         ) : (
           <>
-            {isLoading && !base64 && (
+            {isLoading && !base64 && !document.getElementById('print-container') && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-50/80 backdrop-blur-sm z-10">
                 <i className="fa-solid fa-wand-magic-sparkles fa-bounce text-indigo-500 text-2xl mb-2"></i>
                 <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest animate-pulse">
@@ -639,7 +639,8 @@ export const ImageDisplay = React.memo(
             <img
               src={url}
               alt={description}
-              className={`w-full h-full  object-contain transition-all duration-1000 ${isLoading && !base64 ? 'opacity-0 scale-95 blur-lg' : 'opacity-100 scale-100 blur-0'}`}
+              decoding="sync"
+              className={`w-full h-full object-contain transition-all duration-1000 ${isLoading && !base64 && !document.getElementById('print-container') ? 'opacity-0 scale-95 blur-lg' : 'opacity-100 scale-100 blur-0'}`}
               onLoad={() => !base64 && setIsLoading(false)}
               onError={handleError}
             />

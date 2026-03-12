@@ -80,9 +80,9 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
                                         x1={line[0][0] * cellSize} y1={line[0][1] * cellSize}
                                         x2={line[1][0] * cellSize} y2={line[1][1] * cellSize}
                                         stroke="#0f172a"
-                                        strokeWidth={cellSize > 30 ? "5" : "3.5"}
+                                        strokeWidth={cellSize > 30 ? "6" : "4.5"}
                                         strokeLinecap="round"
-                                        className="drop-shadow-sm"
+                                        className="print:drop-shadow-none drop-shadow-sm"
                                     />
                                 );
                             })}

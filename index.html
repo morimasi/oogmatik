@@ -797,7 +797,55 @@
         overflow: visible !important;
       }
 
-      /* Flex içindeki taşmaları wrap ile koru */
+      /* Yazı Karakteri ve İç İçe Geçme Onarımı */
+      * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+
+      /* SVG ve IZGARA KONTRAST ONARIMI */
+      svg line,
+      svg path,
+      svg circle,
+      svg rect {
+        stroke-opacity: 1 !important;
+        vector-effect: non-scaling-stroke !important;
+      }
+
+      /* Silik çıkan ızgaraları baskıda koyulaştır */
+      [class*="border-zinc-100"],
+      [class*="border-zinc-200"],
+      [class*="stroke-zinc-100"],
+      [class*="stroke-zinc-200"] {
+        border-color: #94a3b8 !important;
+        /* Baskıda görünür gri */
+        stroke: #94a3b8 !important;
+      }
+
+      /* Tablo Kenarlıkları */
+      table,
+      th,
+      td {
+        border-color: #000000 !important;
+        border-width: 1pt !important;
+      }
+
+      /* Görsel Silikleşmesini Önle */
+      img,
+      canvas {
+        filter: none !important;
+        -webkit-filter: none !important;
+        image-rendering: -webkit-optimize-contrast !important;
+      }
+
+      /* Çakışan metinleri engellemek için satır yüksekliğini normalize et */
+      p,
+      span,
+      div {
+        line-height: normal !important;
+      }
+
       .flex.overflow-x-auto {
         flex-wrap: wrap !important;
       }
