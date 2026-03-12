@@ -544,18 +544,23 @@ KRİTİK KURALLAR:
                                             <button onClick={handleClearAll} className="text-xs text-red-500 hover:underline font-bold">Tümünü Sil</button>
                                         </div>
 
-                                        <div className="mb-4 grid grid-cols-2 gap-2">
+                                        <div className="mb-6 grid grid-cols-1 gap-3">
                                             <button
                                                 onClick={() => setIsImporterOpen(true)}
-                                                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-95"
+                                                className="group w-full py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-[1.25rem] font-black text-sm flex items-center justify-center gap-3 shadow-lg shadow-indigo-600/20 transition-all active:scale-[0.98]"
                                             >
-                                                <i className="fa-solid fa-cloud-arrow-down"></i> Kütüphaneden Ekle
+                                                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                    <i className="fa-solid fa-cloud-arrow-down text-sm"></i>
+                                                </div>
+                                                KÜTÜPHANEDEN EKLE
                                             </button>
+
                                             <button
                                                 onClick={handleAddDivider}
-                                                className="w-full py-2 border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95"
+                                                className="w-full py-3.5 border-2 border-dashed border-zinc-200 dark:border-zinc-700 hover:border-indigo-400 dark:hover:border-indigo-500 bg-white dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-[1.25rem] font-bold text-xs flex items-center justify-center gap-3 transition-all hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 active:scale-[0.98]"
                                             >
-                                                <i className="fa-solid fa-bookmark"></i> Bölüm Kapağı
+                                                <i className="fa-solid fa-bookmark opacity-60"></i>
+                                                YENİ BÖLÜM KAPAĞI
                                             </button>
                                         </div>
 
