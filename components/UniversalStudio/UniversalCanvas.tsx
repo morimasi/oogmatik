@@ -23,7 +23,7 @@ const DraggableItem = ({ item, children }: DraggableItemProps) => {
     const isLocked = lockedItems.includes(item.instanceId);
     const isSelected = selectedId === item.instanceId || selectedIds.includes(item.instanceId);
     const isInGroup = !!item.groupId;
-    const groupColor = isInGroup ? getGroupColor(item.groupId!, groupedItems) : null;
+    const groupColor = isInGroup ? getGroupColor(item.groupId!, groupedItems) : undefined;
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (isLocked) return;
