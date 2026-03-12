@@ -776,48 +776,6 @@ const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlo
     }
   }
 
-  if (block.type === 'table') {
-    const rows = content.rows || content.data || [];
-    const header = content.headers || [];
-    const chunkSize = Math.max(1, Math.floor((maxWeight - 50) / 28));
-    if (rows.length > chunkSize) {
-      const chunks: WorksheetBlock[] = [];
-      for (let i = 0; i < rows.length; i += chunkSize) {
-        chunks.push({
-          ...block,
-          content: {
-            ...content,
-            rows: rows.slice(i, i + chunkSize),
-            data: rows.slice(i, i + chunkSize),
-            headers: i === 0 ? header : (content.repeatHeader ? header : []),
-            isContinuation: i > 0,
-          },
-        });
-      }
-      return chunks;
-    }
-  }
-
-  if (block.type === 'grid') {
-    const cells = content.cells || [];
-    const cols = content.cols || 4;
-    const chunkSize = Math.max(1, Math.floor((maxWeight - 40) / 32) * cols);
-    if (cells.length > chunkSize) {
-      const chunks: WorksheetBlock[] = [];
-      for (let i = 0; i < cells.length; i += chunkSize) {
-        chunks.push({
-          ...block,
-          content: {
-            ...content,
-            cells: cells.slice(i, i + chunkSize),
-            isContinuation: i > 0,
-          },
-        });
-      }
-      return chunks;
-    }
-  }
-
   if (block.type === 'categorical_sorting') {
     const cats: string[] = content.categories || [];
     const items: any[] = content.items || [];
@@ -1022,200 +980,166 @@ export const SheetRenderer = React.memo(
       );
     }
 
-    // Geleneksel modülleri profesyonel baskı sarmalayıcısı ile paketle
-    const wrapLegacy = (content: React.ReactNode) => (
-      <div className="w-full flex flex-col items-center gap-10 no-scrollbar" id="sheet-renderer-container">
-        <div className="worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden flex flex-col">
-          {settings?.showStudentInfo && (
-            <div className="w-full px-6 py-4 flex justify-between items-end border-b-2 border-zinc-900 mb-6 font-lexend">
-              <div className="flex gap-12">
-                <div className="flex flex-col">
-                  <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">Öğrenci Adı Soyadı</span>
-                  <div className="h-6 border-b border-zinc-200 min-w-[180px] font-black text-sm uppercase text-black">
-                    {studentProfile?.name || '....................................'}
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">Çalışma Tarihi</span>
-                <div className="h-6 border-b border-zinc-200 min-w-[80px] font-black text-sm text-right text-black">
-                  {new Date().toLocaleDateString('tr-TR')}
-                </div>
-              </div>
-            </div>
-          )}
-          {content}
-          <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.4em] text-zinc-400">
-            <div className="flex items-center gap-2">
-              <span className="bg-black text-white px-1.5 py-0.5 rounded font-black">AI</span>
-              <span>Bursa Disleksi AI • Nöro-Mimari Motoru v7.1</span>
-            </div>
-            <span>SAYFA 1 / 1</span>
-          </div>
-        </div>
-      </div>
-    );
-
     // Geleneksel modül renderları
     switch (activityType) {
       case ActivityType.ALGORITHM_GENERATOR:
-        return wrapLegacy(<AlgorithmSheet data={data as unknown as AlgorithmData} />);
+        return <AlgorithmSheet data={data as unknown as AlgorithmData} />;
       case ActivityType.MATH_PUZZLE:
-        return wrapLegacy(<MathPuzzleSheet data={data as unknown as MathPuzzleData} />);
+        return <MathPuzzleSheet data={data as unknown as MathPuzzleData} />;
       case ActivityType.NUMBER_PATTERN:
-        return wrapLegacy(<NumberPatternSheet data={data as unknown as NumberPatternData} />);
+        return <NumberPatternSheet data={data as unknown as NumberPatternData} />;
       case ActivityType.REAL_LIFE_MATH_PROBLEMS:
-        return wrapLegacy(<RealLifeMathProblemsSheet data={data as unknown as RealLifeProblemData} />);
+        return <RealLifeMathProblemsSheet data={data as unknown as RealLifeProblemData} />;
       case ActivityType.LOGIC_GRID_PUZZLE:
-        return wrapLegacy(<LogicGridPuzzleSheet data={data as unknown as LogicGridPuzzleData} />);
+        return <LogicGridPuzzleSheet data={data as unknown as LogicGridPuzzleData} />;
       case ActivityType.FUTOSHIKI:
-        return wrapLegacy(<FutoshikiSheet data={data as unknown as FutoshikiData} />);
+        return <FutoshikiSheet data={data as unknown as FutoshikiData} />;
       case ActivityType.NUMBER_PYRAMID:
-        return wrapLegacy(<NumberPyramidSheet data={data as unknown as NumberPyramidData} />);
+        return <NumberPyramidSheet data={data as unknown as NumberPyramidData} />;
       case ActivityType.ODD_ONE_OUT:
-        return wrapLegacy(<OddOneOutSheet data={data as unknown as OddOneOutData} />);
+        return <OddOneOutSheet data={data as unknown as OddOneOutData} />;
       case ActivityType.NUMBER_LOGIC_RIDDLES:
-        return wrapLegacy(<NumberLogicRiddleSheet data={data as unknown as NumberLogicRiddleData} />);
+        return <NumberLogicRiddleSheet data={data as unknown as NumberLogicRiddleData} />;
       case ActivityType.NUMBER_PATH_LOGIC:
-        return wrapLegacy(<NumberPathLogicSheet data={data as unknown as NumberPathLogicData} />);
+        return <NumberPathLogicSheet data={data as unknown as NumberPathLogicData} />;
       case ActivityType.VISUAL_ARITHMETIC:
-        return wrapLegacy(<VisualArithmeticSheet data={data as unknown as VisualArithmeticData} />);
+        return <VisualArithmeticSheet data={data as unknown as VisualArithmeticData} />;
       case ActivityType.CLOCK_READING:
-        return wrapLegacy(<ClockReadingSheet data={data as unknown as ClockReadingData} />);
+        return <ClockReadingSheet data={data as unknown as ClockReadingData} />;
       case ActivityType.NUMBER_SENSE:
-        return wrapLegacy(<NumberSenseSheet data={data as unknown as NumberSenseData} />);
+        return <NumberSenseSheet data={data as unknown as NumberSenseData} />;
       case ActivityType.MONEY_COUNTING:
-        return wrapLegacy(<MoneyCountingSheet data={data as unknown as MoneyCountingData} />);
+        return <MoneyCountingSheet data={data as unknown as MoneyCountingData} />;
       case ActivityType.APARTMENT_LOGIC_PUZZLE:
-        return wrapLegacy(<ApartmentLogicSheet data={data as any} />);
+        return <ApartmentLogicSheet data={data as any} />;
       case ActivityType.FINANCIAL_MARKET_CALCULATOR:
-        return wrapLegacy(<FinancialMarketSheet data={data as any} />);
+        return <FinancialMarketSheet data={data as any} />;
       case ActivityType.MATH_MEMORY_CARDS:
-        return wrapLegacy(<MathMemoryCardsSheet data={data as unknown as MathMemoryCardsData} />);
+        return <MathMemoryCardsSheet data={data as unknown as MathMemoryCardsData} />;
       case ActivityType.SPATIAL_GRID:
-        return wrapLegacy(<SpatialGridSheet data={data as unknown as SpatialGridData} />);
+        return <SpatialGridSheet data={data as unknown as SpatialGridData} />;
       case ActivityType.CONCEPT_MATCH:
-        return wrapLegacy(<ConceptMatchSheet data={data as unknown as ConceptMatchData} />);
+        return <ConceptMatchSheet data={data as unknown as ConceptMatchData} />;
       case ActivityType.ESTIMATION:
-        return wrapLegacy(<EstimationSheet data={data as unknown as EstimationData} />);
+        return <EstimationSheet data={data as unknown as EstimationData} />;
       case ActivityType.ABC_CONNECT:
-        return wrapLegacy(<AbcConnectSheet data={data as unknown as AbcConnectData} />);
+        return <AbcConnectSheet data={data as unknown as AbcConnectData} />;
       case ActivityType.ODD_EVEN_SUDOKU:
-        return wrapLegacy(<OddEvenSudokuSheet data={data as unknown as OddEvenSudokuData} />);
+        return <OddEvenSudokuSheet data={data as unknown as OddEvenSudokuData} />;
       case ActivityType.MAGIC_PYRAMID:
-        return wrapLegacy(<MagicPyramidSheet data={data as unknown as MagicPyramidData} />);
+        return <MagicPyramidSheet data={data as unknown as MagicPyramidData} />;
       case ActivityType.CAPSULE_GAME:
-        return wrapLegacy(<CapsuleGameSheet data={data as unknown as NumberCapsuleData} />);
+        return <CapsuleGameSheet data={data as unknown as NumberCapsuleData} />;
       case ActivityType.WORD_MEMORY:
-        return wrapLegacy(<WordMemorySheet data={data as unknown as WordMemoryData} />);
+        return <WordMemorySheet data={data as unknown as WordMemoryData} />;
       case ActivityType.VISUAL_MEMORY:
-        return wrapLegacy(<VisualMemorySheet data={data as unknown as VisualMemoryData} />);
+        return <VisualMemorySheet data={data as unknown as VisualMemoryData} />;
       case ActivityType.CHARACTER_MEMORY:
-        return wrapLegacy(<CharacterMemorySheet data={data as unknown as CharacterMemoryData} />);
+        return <CharacterMemorySheet data={data as unknown as CharacterMemoryData} />;
       case ActivityType.COLOR_WHEEL_MEMORY:
-        return wrapLegacy(<ColorWheelSheet data={data as unknown as ColorWheelMemoryData} />);
+        return <ColorWheelSheet data={data as unknown as ColorWheelMemoryData} />;
       case ActivityType.IMAGE_COMPREHRENSION:
-        return wrapLegacy(<ImageComprehensionSheet data={data as unknown as ImageComprehensionData} />);
+        return <ImageComprehensionSheet data={data as unknown as ImageComprehensionData} />;
       case ActivityType.STROOP_TEST:
-        return wrapLegacy(<StroopTestSheet data={data as unknown as StroopTestData} />);
+        return <StroopTestSheet data={data as unknown as StroopTestData} />;
       case ActivityType.BURDON_TEST:
-        return wrapLegacy(<BurdonTestSheet data={data as unknown as LetterGridTestData} />);
+        return <BurdonTestSheet data={data as unknown as LetterGridTestData} />;
       case ActivityType.NUMBER_SEARCH:
-        return wrapLegacy(<NumberSearchSheet data={data as unknown as NumberSearchData} />);
+        return <NumberSearchSheet data={data as unknown as NumberSearchData} />;
       case ActivityType.CHAOTIC_NUMBER_SEARCH:
-        return wrapLegacy(<ChaoticNumberSearchSheet data={data as unknown as ChaoticNumberSearchData} />);
+        return <ChaoticNumberSearchSheet data={data as unknown as ChaoticNumberSearchData} />;
       case ActivityType.ATTENTION_DEVELOPMENT:
-        return wrapLegacy(<AttentionDevelopmentSheet data={data as unknown as AttentionDevelopmentData} />);
+        return <AttentionDevelopmentSheet data={data as unknown as AttentionDevelopmentData} />;
       case ActivityType.ATTENTION_FOCUS:
-        return wrapLegacy(<AttentionFocusSheet data={data as unknown as AttentionFocusData} />);
+        return <AttentionFocusSheet data={data as unknown as AttentionFocusData} />;
       case ActivityType.FIND_IDENTICAL_WORD:
-        return wrapLegacy(<FindDuplicateSheet data={data as unknown as FindDuplicateData} />);
+        return <FindDuplicateSheet data={data as unknown as FindDuplicateData} />;
       case ActivityType.LETTER_GRID_TEST:
-        return wrapLegacy(<LetterGridTestSheet data={data as unknown as LetterGridTestData} />);
+        return <LetterGridTestSheet data={data as unknown as LetterGridTestData} />;
       case ActivityType.FIND_LETTER_PAIR:
-        return wrapLegacy(<FindLetterPairSheet data={data as unknown as FindLetterPairData} />);
+        return <FindLetterPairSheet data={data as unknown as FindLetterPairData} />;
       case ActivityType.TARGET_SEARCH:
-        return wrapLegacy(<TargetSearchSheet data={data as unknown as TargetSearchData} />);
+        return <TargetSearchSheet data={data as unknown as TargetSearchData} />;
       case ActivityType.STORY_COMPREHENSION:
-        return wrapLegacy(<StoryComprehensionSheet data={data as unknown as InteractiveStoryData} />);
+        return <StoryComprehensionSheet data={data as unknown as InteractiveStoryData} />;
       case ActivityType.FIVE_W_ONE_H:
-        return wrapLegacy(<FiveWOneHSheet data={data as any} />);
+        return <FiveWOneHSheet data={data as any} />;
       case ActivityType.COLORFUL_SYLLABLE_READING:
-        return wrapLegacy(<ColorfulSyllableReadingSheet data={data as any} />);
+        return <ColorfulSyllableReadingSheet data={data as any} />;
       case ActivityType.SYLLABLE_MASTER_LAB:
-        return wrapLegacy(<SyllableMasterLabSheet data={data as unknown as SyllableMasterLabData} />);
+        return <SyllableMasterLabSheet data={data as unknown as SyllableMasterLabData} />;
       case ActivityType.READING_SUDOKU:
-        return wrapLegacy(<ReadingSudokuSheet data={data as unknown as ReadingSudokuData} />);
+        return <ReadingSudokuSheet data={data as unknown as ReadingSudokuData} />;
       case ActivityType.READING_STROOP:
-        return wrapLegacy(<ReadingStroopSheet data={data as unknown as ReadingStroopData} />);
+        return <ReadingStroopSheet data={data as unknown as ReadingStroopData} />;
       case ActivityType.SYNONYM_ANTONYM_MATCH:
-        return wrapLegacy(<SynonymAntonymMatchSheet data={data as unknown as SynonymAntonymMatchData} />);
+        return <SynonymAntonymMatchSheet data={data as unknown as SynonymAntonymMatchData} />;
       case ActivityType.SYLLABLE_WORD_BUILDER:
-        return wrapLegacy(<SyllableWordBuilderSheet data={data as unknown as SyllableWordBuilderData} />);
+        return <SyllableWordBuilderSheet data={data as unknown as SyllableWordBuilderData} />;
       case ActivityType.LETTER_VISUAL_MATCHING:
-        return wrapLegacy(<LetterVisualMatchingSheet data={data as unknown as LetterVisualMatchingData} />);
+        return <LetterVisualMatchingSheet data={data as unknown as LetterVisualMatchingData} />;
       case ActivityType.FAMILY_TREE_MATRIX:
-        return wrapLegacy(<FamilyTreeMatrixSheet data={data as any} />);
+        return <FamilyTreeMatrixSheet data={data as any} />;
       case ActivityType.FAMILY_RELATIONS:
-        return wrapLegacy(<FamilyRelationsSheet data={data as unknown as FamilyRelationsData} />);
+        return <FamilyRelationsSheet data={data as unknown as FamilyRelationsData} />;
       case ActivityType.FAMILY_LOGIC_TEST:
-        return wrapLegacy(<FamilyLogicSheet data={data as unknown as FamilyLogicTestData} />);
+        return <FamilyLogicSheet data={data as unknown as FamilyLogicTestData} />;
       case ActivityType.MORPHOLOGY_MATRIX:
-        return wrapLegacy(<MorphologyMatrixSheet data={data as unknown as MorphologyMatrixData} />);
+        return <MorphologyMatrixSheet data={data as unknown as MorphologyMatrixData} />;
       case ActivityType.READING_PYRAMID:
-        return wrapLegacy(<ReadingPyramidSheet data={data as unknown as ReadingPyramidData} />);
+        return <ReadingPyramidSheet data={data as unknown as ReadingPyramidData} />;
       case ActivityType.READING_FLOW:
-        return wrapLegacy(<ReadingFlowSheet data={data as unknown as ReadingFlowData} />);
+        return <ReadingFlowSheet data={data as unknown as ReadingFlowData} />;
       case ActivityType.PHONOLOGICAL_AWARENESS:
-        return wrapLegacy(<PhonologicalAwarenessSheet data={data as unknown as PhonologicalAwarenessData} />);
+        return <PhonologicalAwarenessSheet data={data as unknown as PhonologicalAwarenessData} />;
       case ActivityType.RAPID_NAMING:
-        return wrapLegacy(<RapidNamingSheet data={data as unknown as RapidNamingData} />);
+        return <RapidNamingSheet data={data as unknown as RapidNamingData} />;
       case ActivityType.LETTER_DISCRIMINATION:
-        return wrapLegacy(<LetterDiscriminationSheet data={data as unknown as LetterDiscriminationData} />);
+        return <LetterDiscriminationSheet data={data as unknown as LetterDiscriminationData} />;
       case ActivityType.MIRROR_LETTERS:
-        return wrapLegacy(<MirrorLettersSheet data={data as unknown as MirrorLettersData} />);
+        return <MirrorLettersSheet data={data as unknown as MirrorLettersData} />;
       case ActivityType.SYLLABLE_TRAIN:
-        return wrapLegacy(<SyllableTrainSheet data={data as unknown as SyllableTrainData} />);
+        return <SyllableTrainSheet data={data as unknown as SyllableTrainData} />;
       case ActivityType.VISUAL_TRACKING_LINES:
-        return wrapLegacy(<VisualTrackingLinesSheet data={data as unknown as VisualTrackingLineData} />);
+        return <VisualTrackingLinesSheet data={data as unknown as VisualTrackingLineData} />;
       case ActivityType.BACKWARD_SPELLING:
-        return wrapLegacy(<BackwardSpellingSheet data={data as unknown as BackwardSpellingData} />);
+        return <BackwardSpellingSheet data={data as unknown as BackwardSpellingData} />;
       case ActivityType.CODE_READING:
-        return wrapLegacy(<CodeReadingSheet data={data as unknown as CodeReadingData} />);
+        return <CodeReadingSheet data={data as unknown as CodeReadingData} />;
       case ActivityType.ATTENTION_TO_QUESTION:
-        return wrapLegacy(<AttentionToQuestionSheet data={data as unknown as AttentionToQuestionData} />);
+        return <AttentionToQuestionSheet data={data as unknown as AttentionToQuestionData} />;
       case ActivityType.HANDWRITING_PRACTICE:
-        return wrapLegacy(<HandwritingPracticeSheet data={data as unknown as HandwritingPracticeData} />);
+        return <HandwritingPracticeSheet data={data as unknown as HandwritingPracticeData} />;
       case ActivityType.MAP_INSTRUCTION:
-        return wrapLegacy(<MapDetectiveSheet data={data as unknown as MapInstructionData} />);
+        return <MapDetectiveSheet data={data as unknown as MapInstructionData} />;
       case ActivityType.DIRECTIONAL_CODE_READING:
-        return wrapLegacy(<DirectionalCodeReadingSheet data={data as any} />);
+        return <DirectionalCodeReadingSheet data={data as any} />;
       case ActivityType.LOGIC_ERROR_HUNTER:
-        return wrapLegacy(<LogicErrorHunterSheet data={data as any} />);
+        return <LogicErrorHunterSheet data={data as any} />;
       case ActivityType.PATTERN_COMPLETION:
-        return wrapLegacy(<PatternCompletionSheet data={data as any} />);
+        return <PatternCompletionSheet data={data as any} />;
       case ActivityType.FIND_THE_DIFFERENCE:
-        return wrapLegacy(<FindTheDifferenceSheet data={data as unknown as FindTheDifferenceData} />);
+        return <FindTheDifferenceSheet data={data as unknown as FindTheDifferenceData} />;
       case ActivityType.VISUAL_ODD_ONE_OUT:
-        return wrapLegacy(<VisualOddOneOutSheet data={data as unknown as VisualOddOneOutData} />);
+        return <VisualOddOneOutSheet data={data as unknown as VisualOddOneOutData} />;
       case ActivityType.GRID_DRAWING:
-        return wrapLegacy(<GridDrawingSheet data={data as unknown as GridDrawingData} />);
+        return <GridDrawingSheet data={data as unknown as GridDrawingData} />;
       case ActivityType.SYMMETRY_DRAWING:
-        return wrapLegacy(<SymmetryDrawingSheet data={data as unknown as SymmetryDrawingData} />);
+        return <SymmetryDrawingSheet data={data as unknown as SymmetryDrawingData} />;
       case ActivityType.SHAPE_COUNTING:
-        return wrapLegacy(<ShapeCountingSheet data={data as unknown as ShapeCountingData} />);
+        return <ShapeCountingSheet data={data as unknown as ShapeCountingData} />;
       case ActivityType.DIRECTIONAL_TRACKING:
-        return wrapLegacy(<DirectionalTrackingSheet data={data as unknown as DirectionalTrackingData} />);
+        return <DirectionalTrackingSheet data={data as unknown as DirectionalTrackingData} />;
       case ActivityType.HIDDEN_PASSWORD_GRID:
-        return wrapLegacy(<HiddenPasswordGridSheet data={data as unknown as HiddenPasswordGridData} />);
+        return <HiddenPasswordGridSheet data={data as unknown as HiddenPasswordGridData} />;
       case ActivityType.WORD_SEARCH:
-        return wrapLegacy(<WordSearchSheet data={data as unknown as WordSearchData} />);
+        return <WordSearchSheet data={data as unknown as WordSearchData} />;
       case ActivityType.ANAGRAM:
-        return wrapLegacy(<AnagramSheet data={data as unknown as AnagramsData} />);
+        return <AnagramSheet data={data as unknown as AnagramsData} />;
       case ActivityType.CROSSWORD:
-        return wrapLegacy(<CrosswordSheet data={data as unknown as CrosswordData} />);
+        return <CrosswordSheet data={data as unknown as CrosswordData} />;
       case ActivityType.BOX_MATH:
-        return wrapLegacy(<BoxMathSheet data={data as any} />);
+        return <BoxMathSheet data={data as any} />;
       case activityType as any: // Herhangi bir modül blok yapısı içeriyorsa pagination desteği alabilir
 
       default:

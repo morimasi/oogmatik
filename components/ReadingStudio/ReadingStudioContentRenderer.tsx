@@ -33,28 +33,18 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
                 const heightDiff = newH - initialStyle.h;
 
                 setLayout(initialLayout.current.map(l => {
-                    let updatedItem = l;
                     if (l.instanceId === item.instanceId) {
-                        updatedItem = { ...l, style: { ...l.style, w: newW, h: newH } };
-                    } else if (l.pageIndex === item.pageIndex && l.style.y >= (initialStyle.y + initialStyle.h - 10)) {
-                        // Akıllı Boşluk Doldurma: Alt öğeleri kaydır
-                        updatedItem = { ...l, style: { ...l.style, y: l.style.y + heightDiff } };
+                        return { ...l, style: { ...l.style, w: newW, h: newH } };
                     }
 
-                    // v7.1: Otomatik Sayfa Akış (Auto-Flow) Kontrolü
-                    const MARGIN_BOTTOM = 60;
-                    const THRESHOLD = A4_HEIGHT_PX - MARGIN_BOTTOM;
-
-                    if (updatedItem.style.y > THRESHOLD) {
-                        const extraPages = Math.floor(updatedItem.style.y / THRESHOLD);
-                        updatedItem = {
-                            ...updatedItem,
-                            pageIndex: (updatedItem.pageIndex || 0) + extraPages,
-                            style: { ...updatedItem.style, y: updatedItem.style.y % THRESHOLD + 20 }
+                    // Akıllı Boşluk Doldurma: Boyutu değişen öğenin BİR ALTINDA kalan tüm öğeleri kaydır
+                    if (l.pageIndex === item.pageIndex && l.style.y >= (initialStyle.y + initialStyle.h - 10)) {
+                        return {
+                            ...l,
+                            style: { ...l.style, y: l.style.y + heightDiff }
                         };
                     }
-
-                    return updatedItem;
+                    return l;
                 }));
             } else {
                 let newX = Math.round((initialStyle.x + dx) / 8) * 8;
@@ -76,26 +66,10 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
                 }
 
                 setLayout(initialLayout.current.map(l => {
-                    let updatedItem = l;
                     if (l.instanceId === item.instanceId) {
-                        updatedItem = { ...l, style: { ...l.style, x: newX, y: newY } };
+                        return { ...l, style: { ...l.style, x: newX, y: newY } };
                     }
-
-                    // v7.1: Otomatik Sayfa Akış (Auto-Flow) Kontrolü
-                    // Eğer bir öğe sayfa sınırını (A4_HEIGHT_PX) aşarsa sonraki sayfaya pasla
-                    const MARGIN_BOTTOM = 60;
-                    const THRESHOLD = A4_HEIGHT_PX - MARGIN_BOTTOM;
-
-                    if (updatedItem.style.y > THRESHOLD) {
-                        const extraPages = Math.floor(updatedItem.style.y / THRESHOLD);
-                        updatedItem = {
-                            ...updatedItem,
-                            pageIndex: (updatedItem.pageIndex || 0) + extraPages,
-                            style: { ...updatedItem.style, y: updatedItem.style.y % THRESHOLD + 20 }
-                        };
-                    }
-
-                    return updatedItem;
+                    return l;
                 }));
             }
         };
