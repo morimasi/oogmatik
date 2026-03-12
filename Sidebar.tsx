@@ -6,7 +6,10 @@ import * as generators from './services/generators';
 import * as offlineGenerators from './services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
 import { statsService } from './services/statsService';
-import { useStudent } from './context/StudentContext';
+import { useAuthStore } from './store/useAuthStore';
+import { useStudentStore } from './store/useStudentStore';
+
+// useAuth and useStudent are now handled via Zustand stores directly in components
 
 /**
  * Normalizasyon: ID'yi CamelCase fonksiyon ismine çevirir.

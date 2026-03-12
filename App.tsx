@@ -7,8 +7,8 @@ import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
 import DyslexiaLogo from './components/DyslexiaLogo';
 import GlobalSearch from './components/GlobalSearch';
 import { FeedbackModal } from './components/FeedbackModal';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { StudentProvider, useStudent } from './context/StudentContext';
+// import { AuthProvider, useAuth } from './context/AuthContext';
+// import { StudentProvider, useStudent } from './context/StudentContext';
 import { AuthModal } from './components/AuthModal';
 import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
@@ -266,9 +266,28 @@ const DropdownItem = ({ icon, label, onClick, badge }: { icon: string, label: st
     </button>
 );
 
+import { useAuthStore } from './store/useAuthStore';
+import { useStudentStore } from './store/useStudentStore';
+
 const AppContent = () => {
-    const { user, logout } = useAuth();
-    const { activeStudent, setActiveStudent, students } = useStudent();
+    const authStore = useAuthStore();
+    const studentStore = useStudentStore();
+
+    // Global Initialization
+    useEffect(() => {
+        const unsubscribeAuth = authStore.initialize();
+        return () => unsubscribeAuth();
+    }, []);
+
+    useEffect(() => {
+        if (!authStore.user) return;
+        const unsubscribeStudents = studentStore.fetchStudents(authStore.user.id);
+        return () => unsubscribeStudents();
+    }, [authStore.user]);
+
+    const { user, logout } = authStore;
+    const { activeStudent, setActiveStudent, students } = studentStore;
+
     const [currentView, setCurrentView] = useState('generator' as ExtendedView);
     const [viewHistory, setViewHistory] = useState([] as ExtendedView[]);
     const [selectedActivity, setSelectedActivity] = useState(null as ActivityType | null);
@@ -670,11 +689,5 @@ const AppContent = () => {
 };
 
 export const App = () => {
-    return (
-        <AuthProvider>
-            <StudentProvider>
-                <AppContent />
-            </StudentProvider>
-        </AuthProvider>
-    );
+    return <AppContent />;
 };
