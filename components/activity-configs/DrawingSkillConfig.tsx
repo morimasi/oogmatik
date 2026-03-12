@@ -23,8 +23,8 @@ export const DrawingSkillConfig = ({ options, onChange }: { options: GeneratorOp
             <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-4">
                 <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black text-zinc-400 uppercase">Koordinat Sistemi</span>
-                    <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${(options as any).showCoordinates !== false ? 'bg-indigo-600' : 'bg-zinc-300'}`} onClick={() => onChange('showCoordinates', (options as any).showCoordinates === false)}>
-                        <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${(options as any).showCoordinates !== false ? 'left-4.5' : 'left-0.5'}`}></div>
+                    <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${options.showCoordinates !== false ? 'bg-indigo-600' : 'bg-zinc-300'}`} onClick={() => onChange('showCoordinates', options.showCoordinates === false)}>
+                        <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${options.showCoordinates !== false ? 'left-4.5' : 'left-0.5'}`}></div>
                     </div>
                 </div>
 

@@ -5,7 +5,7 @@ interface Props {
     data: ColorfulSyllableReadingData;
 }
 
-export const ColorfulSyllableReadingSheet: React.FC<Props> = ({ data }) => {
+export const ColorfulSyllableReadingSheet = ({ data }: Props) => {
     const { colorPalette, wpmTarget, highlightType } = data.settings || {};
 
     // Uygulanacak renk haritası

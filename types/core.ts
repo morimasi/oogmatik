@@ -1,6 +1,6 @@
 declare global {
   namespace JSX {
-    interface IntrinsicElements extends Record<string, any> {}
+    interface IntrinsicElements extends Record<string, any> { }
   }
 }
 
@@ -257,15 +257,15 @@ export interface GeneratorOptions {
   hintLevel?: 'low' | 'medium' | 'high' | 'none';
   textLength?: 'kısa' | 'orta' | 'uzun';
   questionStyle?:
-    | 'test_and_open'
-    | 'only_test'
-    | 'only_open_ended'
-    | 'mixed'
-    | '5n1k'
-    | 'detail'
-    | 'inference'
-    | 'true_false'
-    | 'open_ended';
+  | 'test_and_open'
+  | 'only_test'
+  | 'only_open_ended'
+  | 'mixed'
+  | '5n1k'
+  | 'detail'
+  | 'inference'
+  | 'true_false'
+  | 'open_ended';
   syllableColoring?: boolean;
   wpmTarget?: number;
   colorPalette?: 'red_blue' | 'contrast' | 'pastel';
@@ -292,6 +292,11 @@ export interface GeneratorOptions {
   cognitiveLoad?: number;
   includeClinicalNotes?: boolean;
   classLevel?: number;
+  showCoordinates?: boolean;
+  showSymmetryLine?: boolean;
+  pathType?: 'straight' | 'curved' | 'angular';
+  connectDots?: boolean;
+  showPoints?: boolean;
 }
 
 export type ShapeType =
@@ -436,15 +441,15 @@ export interface WorkbookSettings {
   year: string;
   teacherNote: string;
   theme:
-    | 'modern'
-    | 'classic'
-    | 'fun'
-    | 'minimal'
-    | 'academic'
-    | 'artistic'
-    | 'space'
-    | 'nature'
-    | 'geometric';
+  | 'modern'
+  | 'classic'
+  | 'fun'
+  | 'minimal'
+  | 'academic'
+  | 'artistic'
+  | 'space'
+  | 'nature'
+  | 'geometric';
   accentColor: string;
   coverStyle: 'centered' | 'left' | 'split';
   showTOC: boolean;
@@ -460,21 +465,21 @@ export interface WorkbookSettings {
 
 export interface WorksheetBlock {
   type:
-    | 'header'
-    | 'text'
-    | 'grid'
-    | 'table'
-    | 'svg_shape'
-    | 'dual_column'
-    | 'image'
-    | 'question'
-    | 'logic_card'
-    | 'footer_validation'
-    | 'cloze_test'
-    | 'categorical_sorting'
-    | 'match_columns'
-    | 'visual_clue_card'
-    | 'neuro_marker';
+  | 'header'
+  | 'text'
+  | 'grid'
+  | 'table'
+  | 'svg_shape'
+  | 'dual_column'
+  | 'image'
+  | 'question'
+  | 'logic_card'
+  | 'footer_validation'
+  | 'cloze_test'
+  | 'categorical_sorting'
+  | 'match_columns'
+  | 'visual_clue_card'
+  | 'neuro_marker';
   content: any;
   style?: {
     textAlign?: string;

@@ -87,7 +87,7 @@ export const AlgorithmSheet = ({ data }: { data: AlgorithmData }) => {
 
             <div className="flex-1 flex flex-col items-center gap-0 relative py-8 print:py-2 w-full max-w-3xl mx-auto">
                 {steps.length > 0 ? (
-                    steps.map((step, idx) => (
+                    steps.map((step: AlgorithmStep, idx: number) => (
                         <React.Fragment key={step.id}>
                             <div className="w-full flex justify-center animate-in fade-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${idx * 150}ms` }}>
                                 <StepShape step={step} />

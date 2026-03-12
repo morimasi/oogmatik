@@ -18,7 +18,7 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
     <div className="space-y-1">
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block tracking-wider">{label}</label>
         <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700">
-            {options.map((opt) => (
+            {options.map((opt: ToggleOption) => (
                 <button
                     key={opt.value}
                     onClick={() => onChange(opt.value)}

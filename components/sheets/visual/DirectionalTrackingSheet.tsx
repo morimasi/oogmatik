@@ -56,7 +56,7 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
       <div
         className={`grid ${gridCols} ${isSingle ? 'gap-12 print:gap-6 mt-8' : isCompact ? 'gap-4 print:gap-2 mt-4' : 'gap-8 print:gap-6 mt-6'} flex-1 content-start items-start pb-6`}
       >
-        {puzzles.map((puzzle, idx) => {
+        {puzzles.map((puzzle: DirectionalTrackingData['puzzles'][number], idx: number) => {
           const rows = puzzle.grid.length;
           const cols = puzzle.grid[0].length;
 
@@ -95,7 +95,7 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
                   >
                     {/* Koordinat Harfleri (Üst) */}
                     <div className={`flex ${isCompact ? 'mb-1 ml-4' : 'mb-2 ml-6'}`}>
-                      {puzzle.grid[0].map((_, c) => (
+                      {puzzle.grid[0].map((_cell: string, c: number) => (
                         <span
                           key={c}
                           className={`${cellSize.split(' ')[0]} ${isCompact ? 'text-[8px]' : 'text-[10px]'} font-black text-zinc-400 text-center uppercase`}
@@ -110,7 +110,7 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
                       <div
                         className={`flex flex-col justify-around ${isCompact ? 'mr-1' : 'mr-2'}`}
                       >
-                        {puzzle.grid.map((_, r) => (
+                        {puzzle.grid.map((_row: string[], r: number) => (
                           <span
                             key={r}
                             className={`${cellSize.split(' ')[1]} ${isCompact ? 'text-[8px]' : 'text-[10px]'} font-black text-zinc-400 flex items-center justify-center`}
@@ -122,8 +122,8 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
 
                       {/* Grid Cells */}
                       <div className="grid bg-zinc-200 gap-px border-2 border-zinc-900 rounded-xl overflow-hidden shadow-inner" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-                        {puzzle.grid.map((row, r) => (
-                          row.map((cell, c) => {
+                        {puzzle.grid.map((row: string[], r: number) => (
+                          row.map((cell: string, c: number) => {
                             const isStart = r === puzzle.startPos.r && c === puzzle.startPos.c;
                             return (
                               <div
