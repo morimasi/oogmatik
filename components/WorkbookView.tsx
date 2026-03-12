@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useCallback } from 'react';
-import { CollectionItem, WorkbookSettings, StyleSettings, ActivityType } from '../types';
+import { CollectionItem, WorkbookSettings, StyleSettings, ActivityType, StudentProfile } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
 import { printService } from '../utils/printService';
@@ -485,12 +485,12 @@ KRİTİK KURALLAR:
                                             <i className="fa-solid fa-user-plus"></i> Öğrenci Atama
                                         </h4>
                                         <select
-                                            value={students.find((s: StudentProfile) => s.name === settings.studentName)?.id || 'anonymous'}
+                                            value={students.find((s: any) => s.name === settings.studentName)?.id || 'anonymous'}
                                             onChange={(e) => handleStudentAssign(e.target.value)}
                                             className="w-full p-3 bg-white dark:bg-zinc-800 border border-amber-200 dark:border-amber-700 rounded-xl text-sm font-bold outline-none focus:ring-2 ring-amber-500/20"
                                         >
                                             <option value="anonymous">Misafir / Atanmamış</option>
-                                            {students.map((s: StudentProfile) => <option key={s.id || s.name} value={s.id || s.name}>{s.name} ({s.grade})</option>)}
+                                            {students.map((s: any) => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
                                         </select>
                                         <p className="text-[10px] text-amber-500 mt-2 italic font-medium leading-tight">
                                             * Bir öğrenci seçtiğinizde kapak ve sayfa künyeleri otomatik güncellenir.

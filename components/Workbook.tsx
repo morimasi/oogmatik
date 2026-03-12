@@ -214,6 +214,67 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
                         </div>
                     );
 
+                case 'artistic':
+                    return (
+                        <div className="w-full h-full bg-[#fcfcfc] flex flex-col relative overflow-hidden">
+                            <div className="art-brush-stroke top-0 left-0 rotate-12" style={{ backgroundColor: accent }}></div>
+                            <div className="art-brush-stroke bottom-20 right-[-50px] -rotate-12" style={{ backgroundColor: accent, opacity: 0.1 }}></div>
+                            <div className="p-20 h-full flex flex-col justify-between relative z-10">
+                                <div className="flex justify-between items-center">
+                                    <div className="p-4 border-2 border-zinc-900 rotate-3">{logo}</div>
+                                    <span className="font-serif italic text-zinc-400">{settings.year}</span>
+                                </div>
+                                <div className="space-y-6">
+                                    <h1 className="text-8xl font-serif italic text-zinc-900 leading-[0.8] tracking-tighter">
+                                        {settings.title}
+                                    </h1>
+                                    <div className="h-0.5 w-40 bg-zinc-900"></div>
+                                    <h2 className="text-4xl font-light text-zinc-600 tracking-widest uppercase">{settings.studentName}</h2>
+                                </div>
+                                <div className="flex items-end justify-between">
+                                    <div className="text-[10px] uppercase tracking-widest font-bold text-zinc-300">
+                                        Art & Pedagogy Collective // {settings.schoolName}
+                                    </div>
+                                    <div className="w-12 h-12 border border-zinc-200 flex items-center justify-center rounded-full text-zinc-300">
+                                        <i className="fa-solid fa-palette"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+
+                case 'geometric':
+                    return (
+                        <div className="w-full h-full bg-white flex flex-col relative overflow-hidden">
+                            <div className="geo-pattern absolute inset-0"></div>
+                            <div className="absolute top-0 right-0 w-1/2 h-full bg-zinc-50 z-0"></div>
+                            <div className="p-24 h-full flex flex-col justify-between relative z-10">
+                                <div className="flex flex-col gap-2">
+                                    <div className="w-16 h-4" style={{ backgroundColor: accent }}></div>
+                                    {logo}
+                                </div>
+                                <div className="relative">
+                                    <div className="absolute -left-10 top-0 w-2 h-full" style={{ backgroundColor: accent }}></div>
+                                    <h1 className="text-6xl font-black text-zinc-900 leading-none uppercase mb-4">
+                                        {settings.title}
+                                    </h1>
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-zinc-400 font-mono">CODE: {settings.year}</span>
+                                        <div className="flex-1 h-px bg-zinc-100"></div>
+                                    </div>
+                                    <h2 className="text-5xl font-black text-zinc-900 mt-10 tracking-tighter">{settings.studentName}</h2>
+                                </div>
+                                <div className="flex justify-between items-end border-t-8 border-zinc-900 pt-10">
+                                    <div className="space-y-1">
+                                        <p className="font-black text-sm uppercase tracking-tighter">{settings.schoolName}</p>
+                                        <p className="text-[10px] font-bold text-zinc-400">STRUCTURAL LEARNING ENGINE v4.0</p>
+                                    </div>
+                                    <div className="text-4xl font-black opacity-10" style={{ color: accent }}>{settings.year.slice(-2)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+
                 default: // Modern - baştan aşağı yenilendi
                     return (
                         <div className="w-full h-full flex flex-col bg-white overflow-hidden relative" style={{ borderLeft: `25mm solid ${accent}` }}>

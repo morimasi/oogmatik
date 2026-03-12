@@ -165,8 +165,7 @@ export const evaluateContent = async (content: any) => {
     const apiKey = getApiKey();
     if (!apiKey) throw new Error("API Key eksik");
 
-    const url = `https://generativelanguage.googleapis.com/v1alpha/models/gemini-3-flash-preview:generateContent?key=${apiKey}`; // Denetim için de aynı model
-
+    const url = `https://generativelanguage.googleapis.com/v1alpha/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
     const prompt = `
     [ANALİZ EDİLECEK İÇERİK]
@@ -175,6 +174,27 @@ export const evaluateContent = async (content: any) => {
     Lütfen yukarıdaki materyali disleksi dostu tasarım ilkelerine göre acımasızca eleştir ve puanla.
     `;
 
+    const schema = {
+        type: "OBJECT",
+        properties: {
+            score: { type: "NUMBER" },
+            verdict: { type: "STRING", enum: ["Mükemmel", "İyi", "Riskli", "Kritik"] },
+            analysis: {
+                type: "ARRAY",
+                items: {
+                    type: "OBJECT",
+                    properties: {
+                        type: { type: "STRING", enum: ["success", "warning", "error"] },
+                        message: { type: "STRING" },
+                        suggestion: { type: "STRING" }
+                    },
+                    required: ["type", "message", "suggestion"]
+                }
+            }
+        },
+        required: ["score", "verdict", "analysis"]
+    };
+
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -182,7 +202,10 @@ export const evaluateContent = async (content: any) => {
             body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
                 systemInstruction: { parts: [{ text: PEDAGOGICAL_AUDITOR_INSTRUCTION }] },
-                generationConfig: { responseMimeType: "application/json" }
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: schema
+                }
             })
         });
 
@@ -192,7 +215,7 @@ export const evaluateContent = async (content: any) => {
         return tryRepairJson(rawText);
     } catch (e) {
         console.error("Pedagojik analiz hatası:", e);
-        return null; // Analiz başarısız olsa bile akışı bozma
+        return null;
     }
 };
 
