@@ -100,16 +100,17 @@ export const printService = {
                 (btn as HTMLElement).style.setProperty('display', 'none', 'important');
             });
 
-            // A4 için transform ve boyut sıfırlama
+            // A4 için transform ve boyut sıfırlama (Force Reset)
             clone.style.setProperty('transform', 'none', 'important');
+            clone.style.setProperty('scale', '1', 'important');
+            clone.style.setProperty('zoom', '1', 'important');
             clone.style.setProperty('margin', '0 auto', 'important');
             clone.style.setProperty('box-shadow', 'none', 'important');
             clone.style.setProperty('position', 'relative', 'important');
-            clone.style.setProperty('width', '100%', 'important');
-            clone.style.setProperty('max-width', 'none', 'important');
-            clone.style.setProperty('min-height', 'auto', 'important'); // Sınırları tamamen serbest bıraktık
-            clone.style.setProperty('height', 'auto', 'important');     // Taşmayı önle
-            clone.style.setProperty('max-height', 'none', 'important'); // Sınırları kaldır
+            clone.style.setProperty('width', '210mm', 'important');
+            clone.style.setProperty('max-width', '210mm', 'important');
+            clone.style.setProperty('min-height', '296mm', 'important');
+            clone.style.setProperty('height', 'auto', 'important');
             clone.style.setProperty('box-sizing', 'border-box', 'important');
             clone.style.setProperty('display', 'block', 'important');
             clone.style.setProperty('overflow', 'visible', 'important');
@@ -118,11 +119,16 @@ export const printService = {
             clone.style.setProperty('background', 'white', 'important');
             clone.style.setProperty('color', 'black', 'important');
 
-            // Hatalı flex-box uzamalarını içeriden de engelle
+            // Hatalı flex-box ve transform uzamalarını içeriden de engelle
             const allElements = clone.querySelectorAll('*');
             allElements.forEach(child => {
                 const el = child as HTMLElement;
-                // scroll ve gizli overflowları görünür yap (kağıtta scroll olmaz)
+                // Kalan transformları temizle
+                el.style.transform = 'none';
+                el.style.scale = 'none';
+                if (el.hasAttribute('data-scaled')) el.removeAttribute('data-scaled');
+
+                // scroll ve gizli overflowları görünür yap
                 if (el.style.overflow === 'hidden' || el.style.overflow === 'auto' || el.style.overflowY === 'auto') {
                     el.style.setProperty('overflow', 'visible', 'important');
                 }
