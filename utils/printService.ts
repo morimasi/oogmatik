@@ -98,11 +98,14 @@ export const printService = {
         (btn as HTMLElement).style.setProperty('display', 'none', 'important');
       });
 
-      // A4 için transform ve boyut sıfırlama (v6: Precision A4)
+      // A4 için transform ve boyut sıfırlama (v6.1: Force Left Align)
       clone.style.setProperty('transform', 'none', 'important');
       clone.style.setProperty('scale', '1', 'important');
       clone.style.setProperty('zoom', '1', 'important');
       clone.style.setProperty('margin', '0', 'important');
+      clone.style.setProperty('left', '0', 'important');
+      clone.style.setProperty('right', 'auto', 'important');
+      clone.style.setProperty('text-align', 'left', 'important');
       clone.style.setProperty('box-shadow', 'none', 'important');
       clone.style.setProperty('position', 'relative', 'important');
       clone.style.setProperty('width', '100%', 'important'); // 200mm Printable Area
