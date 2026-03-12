@@ -107,6 +107,7 @@ export const printService = {
             clone.style.setProperty('position', 'relative', 'important');
             clone.style.setProperty('width', '210mm', 'important');
             clone.style.setProperty('max-width', '210mm', 'important');
+            clone.style.setProperty('padding', '10mm', 'important'); // v4.1: Tam 1cm marjin
             clone.style.setProperty('min-height', '296.7mm', 'important');
             clone.style.setProperty('height', 'auto', 'important');
             clone.style.setProperty('box-sizing', 'border-box', 'important');
