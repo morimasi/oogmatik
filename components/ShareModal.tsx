@@ -12,7 +12,7 @@ interface ShareModalProps {
     isSending?: boolean;
 }
 
-export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, onShare, worksheetTitle, isSending }) => {
+export const ShareModal = ({ isOpen, onClose, onShare, worksheetTitle, isSending }: ShareModalProps) => {
     const { user } = useAuth();
     const [contacts, setContacts] = useState<User[]>([]);
     const [searchTerm, setSearchTerm] = useState('');

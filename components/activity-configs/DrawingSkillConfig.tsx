@@ -2,7 +2,7 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-export const DrawingSkillConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: any) => void }) => {
+export const DrawingSkillConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: any) => void }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             <div className="p-4 bg-zinc-900 text-white rounded-[2rem] border border-zinc-800 shadow-2xl">
@@ -32,7 +32,7 @@ export const DrawingSkillConfig = ({ options, onChange }: { options: GeneratorOp
                     <label className="text-[10px] font-bold text-zinc-500 uppercase block">Transformasyon</label>
                     <select
                         value={options.concept || 'copy'}
-                        onChange={(e: any) => onChange('concept', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('concept', e.target.value)}
                         className="w-full p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold"
                     >
                         <option value="copy">Birebir Kopyalama</option>

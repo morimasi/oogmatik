@@ -12,7 +12,7 @@ interface LineChartProps {
     height?: number;
 }
 
-export const LineChart: React.FC<LineChartProps> = ({ data, lines, height = 250 }) => {
+export const LineChart = ({ data, lines, height = 250 }: LineChartProps) => {
     if (!data || data.length < 2) {
         return (
             <div className="flex items-center justify-center text-zinc-400 text-sm italic" style={{ height }}>

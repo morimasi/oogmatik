@@ -9,9 +9,9 @@ export const ReadingFlowSheet = ({ data }: { data: ReadingFlowData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction="Metni önce heceleyerek, sonra akıcı bir şekilde oku." note={data.pedagogicalNote} />
         <div className="mt-10 print:mt-3 p-12 print:p-3 print:p-4 print:p-1 bg-zinc-50 border-4 border-zinc-100 rounded-[3.5rem] shadow-inner flex-1 flex flex-col justify-center">
-            {(data.text?.paragraphs || []).map((p, pIdx) => (
+            {(data.text?.paragraphs || []).map((p: any, pIdx: number) => (
                 <div key={pIdx} className="mb-8 print:mb-2 last:mb-0">
-                    {(p.sentences || []).map((s, sIdx) => (
+                    {(p.sentences || []).map((s: any, sIdx: number) => (
                         <p key={sIdx} className="text-3xl leading-[2.5] font-dyslexic text-zinc-800 text-justify tracking-wide mb-6 print:mb-2">
                             {(s.syllables || []).map((syl: { text: string }, sylIdx: number) => (
                                 <span key={sylIdx} className="hover:bg-yellow-100 px-1 rounded transition-colors cursor-help border-b-2 border-zinc-200">{syl.text}</span>
@@ -28,7 +28,7 @@ export const PhonologicalAwarenessSheet = ({ data }: { data: PhonologicalAwarene
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-6 mt-8 print:mt-2">
-            {(data.exercises || []).map((ex, i) => (
+            {(data.exercises || []).map((ex: any, i: number) => (
                 <div key={i} className="p-8 print:p-2 print:p-3 bg-white border-[3px] border-zinc-900 rounded-[2.5rem] flex justify-between items-center group hover:bg-zinc-50 transition-all shadow-sm">
                     <div className="flex-1">
                         <p className="text-2xl font-black text-zinc-800 tracking-tight leading-none mb-3"><EditableText value={ex.question} tag="span" /></p>
@@ -54,9 +54,9 @@ export const RapidNamingSheet = ({ data }: { data: RapidNamingData }) => {
             />
 
             <div className={`mt-8 print:mt-2 flex-1 content-start ${isRows ? 'flex flex-col gap-6 print:gap-2' : 'grid grid-cols-1 gap-4 print:gap-1'}`}>
-                {(data.grid || []).map((row, rIdx) => (
+                {(data.grid || []).map((row: any, rIdx: number) => (
                     <div key={rIdx} className="flex justify-around items-center p-6 print:p-2 bg-zinc-50 border-2 border-zinc-100 rounded-[2.5rem] shadow-sm group hover:border-indigo-200 hover:bg-white transition-all">
-                        {row.items.map((item, iIdx) => (
+                        {row.items.map((item: any, iIdx: number) => (
                             <div key={iIdx} className="flex flex-col items-center group/item cursor-pointer">
                                 <div className="w-16 h-16 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-zinc-100 group-hover/item:scale-110 group-hover/item:border-indigo-500 transition-all duration-300">
                                     <span className={`font-black text-zinc-900 ${item.value.length > 2 ? 'text-2xl' : 'text-4xl'}`}>
@@ -104,13 +104,13 @@ export const LetterDiscriminationSheet = ({ data }: { data: LetterDiscrimination
         <div className="mt-6 print:mt-2 text-center mb-8 print:mb-2">
             <div className="inline-flex gap-4 print:gap-1 p-4 print:p-1 bg-zinc-900 rounded-[2rem] border-4 border-white shadow-2xl">
                 <span className="text-xs font-black text-indigo-400 self-center mr-2 uppercase tracking-widest">Hedefler:</span>
-                {(data.targetLetters || []).map((l, i) => (
+                {(data.targetLetters || []).map((l: string, i: number) => (
                     <span key={i} className="w-12 h-12 rounded-xl bg-white text-zinc-900 flex items-center justify-center font-black text-2xl shadow-inner">{l}</span>
                 ))}
             </div>
         </div>
         <div className="flex-1 bg-white border-2 border-zinc-100 rounded-[3rem] p-10 print:p-3 print:p-4 print:p-1 font-mono text-3xl tracking-[0.6em] leading-[4rem] text-center select-none shadow-inner overflow-hidden">
-            {(data.rows || []).map((row, i) => (
+            {(data.rows || []).map((row: any, i: number) => (
                 <div key={i} className="mb-2 border-b border-zinc-50 pb-1 hover:bg-zinc-50 transition-colors">{row.letters.join('')}</div>
             ))}
         </div>
@@ -137,10 +137,10 @@ export const MirrorLettersSheet = ({ data }: { data: MirrorLettersData }) => {
             </div>
 
             <div className={`space-y-4 flex-1 content-start ${isCompact ? 'grid grid-cols-2 gap-4 print:gap-1 space-y-0' : ''}`}>
-                {(data.rows || []).map((row, i) => (
+                {(data.rows || []).map((row: any, i: number) => (
                     <div key={i} className="flex justify-around items-center p-8 print:p-2 print:p-3 border-2 border-zinc-100 rounded-[3rem] bg-zinc-50/50 group hover:bg-white hover:border-rose-200 transition-all shadow-sm break-inside-avoid relative">
                         <div className="absolute top-4 left-6 text-[8px] font-black text-zinc-300 uppercase tracking-widest">SET {i + 1}</div>
-                        {row.items.map((item, j) => (
+                        {row.items.map((item: any, j: number) => (
                             <div key={j} className="flex flex-col items-center gap-3">
                                 <div
                                     className="text-6xl font-black text-zinc-900 transition-all duration-500 group-hover:scale-110 cursor-pointer select-none drop-shadow-sm"
@@ -183,12 +183,12 @@ export const SyllableTrainSheet = ({ data }: { data: SyllableTrainData }) => (
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction="Heceleri birleştirerek lokomotifin arkasındaki vagonları tamamla." note={data.pedagogicalNote} />
         <div className="space-y-12 mt-10 print:mt-3 flex-1 content-start">
-            {(data.trains || []).map((train, i) => (
+            {(data.trains || []).map((train: any, i: number) => (
                 <div key={i} className="flex items-center gap-3 overflow-x-auto pb-6 print:pb-2 scrollbar-hide break-inside-avoid">
                     <div className="w-24 h-20 bg-zinc-900 rounded-l-[2rem] rounded-r-xl flex items-center justify-center text-white text-3xl shrink-0 shadow-2xl border-r-8 border-indigo-500">
                         <i className="fa-solid fa-train-subway"></i>
                     </div>
-                    {train.syllables.map((syl, j) => (
+                    {train.syllables.map((syl: string, j: number) => (
                         <div key={j} className="flex items-center gap-2 shrink-0">
                             <div className="w-24 h-20 bg-white border-[3px] border-zinc-900 rounded-2xl flex items-center justify-center font-black text-2xl shadow-md group hover:border-indigo-500 transition-colors">
                                 <EditableText value={syl} tag="span" />
@@ -228,7 +228,7 @@ export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineDat
                         </filter>
                     </defs>
 
-                    {(data.paths || []).map((path) => (
+                    {(data.paths || []).map((path: any) => (
                         <g key={path.id} className="group/path">
                             <path
                                 d={path.d}
@@ -290,7 +290,7 @@ export const BackwardSpellingSheet = ({ data }: { data: BackwardSpellingData }) 
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction="Kelimeleri son harfinden başlayarak geriye doğru yaz." note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3 mt-10 print:mt-3 flex-1 content-start">
-            {(data.items || []).map((item, i) => (
+            {(data.items || []).map((item: any, i: number) => (
                 <EditableElement key={i} className="p-8 print:p-2 print:p-3 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm flex flex-col gap-5 print:gap-1 group hover:border-indigo-500 transition-all break-inside-avoid">
                     <p className="text-3xl font-black text-zinc-900 text-center tracking-[0.3em] bg-zinc-50 py-6 print:py-2 rounded-[2rem] border-2 border-zinc-100 group-hover:bg-indigo-50/30 transition-colors">
                         <EditableText value={item.original} tag="span" />
@@ -309,7 +309,7 @@ export const CodeReadingSheet = ({ data }: { data: CodeReadingData }) => (
             <div className="absolute top-0 right-0 p-4 print:p-1 opacity-5 rotate-12"><i className="fa-solid fa-key text-[8rem]"></i></div>
             <h4 className="text-[11px] font-black uppercase text-indigo-400 mb-6 print:mb-2 tracking-[0.4em] flex items-center gap-3"><i className="fa-solid fa-lock-open"></i> ŞİFRE ANAHTARI</h4>
             <div className="flex flex-wrap gap-5 print:gap-1 justify-center relative z-10">
-                {(data.keyMap || []).map((m, i) => (
+                {(data.keyMap || []).map((m: any, i: number) => (
                     <div key={i} className="flex flex-col items-center p-3 bg-white border-2 border-zinc-800 rounded-2xl shadow-xl min-w-[70px] transform hover:scale-110 transition-transform">
                         <span className="text-4xl mb-2" style={{ color: m.color }}>{m.symbol}</span>
                         <div className="w-full h-0.5 bg-zinc-100 mb-2"></div>
@@ -319,10 +319,10 @@ export const CodeReadingSheet = ({ data }: { data: CodeReadingData }) => (
             </div>
         </div>
         <div className="space-y-10 flex-1 content-start">
-            {(data.codesToSolve || []).map((code, i) => (
+            {(data.codesToSolve || []).map((code: any, i: number) => (
                 <div key={i} className="flex items-center gap-6 print:gap-2 p-2 group break-inside-avoid">
                     <div className="flex gap-3">
-                        {code.sequence.map((sym, j) => (
+                        {code.sequence.map((sym: string, j: number) => (
                             <div key={j} className="w-16 h-16 border-[3px] border-zinc-900 rounded-2xl flex items-center justify-center text-3xl bg-white shadow-lg group-hover:scale-105 transition-transform">{sym}</div>
                         ))}
                     </div>
@@ -342,7 +342,7 @@ export const AttentionToQuestionSheet = ({ data }: { data: AttentionToQuestionDa
                 <div className="space-y-8">
                     <div className="flex gap-6 print:gap-2 justify-center">
                         <span className="text-xs font-black text-zinc-400 self-center uppercase tracking-widest">İptal Edilecekler:</span>
-                        {data.targetChars?.map((c, i) => <span key={i} className="w-12 h-12 bg-rose-600 text-white rounded-2xl flex items-center justify-center font-black text-2xl shadow-xl border-4 border-white">{c}</span>)}
+                        {data.targetChars?.map((c: string, i: number) => <span key={i} className="w-12 h-12 bg-rose-600 text-white rounded-2xl flex items-center justify-center font-black text-2xl shadow-xl border-4 border-white">{c}</span>)}
                     </div>
                     <div className="border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl bg-white p-2">
                         <GridComponent grid={data.grid} cellClassName="w-12 h-12 text-2xl font-black font-mono border-zinc-100" />
@@ -357,7 +357,7 @@ export const HandwritingPracticeSheet = ({ data }: { data: HandwritingPracticeDa
     <div className="flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-16 mt-12 print:mt-3 flex-1">
-            {(data.lines || []).map((line, i) => (
+            {(data.lines || []).map((line: any, i: number) => (
                 <div key={i} className="flex gap-8 print:gap-2 print:gap-3 print:p-3 items-start break-inside-avoid group">
                     <div className="w-24 h-24 bg-zinc-900 rounded-[2rem] flex items-center justify-center overflow-hidden shadow-2xl shrink-0 group-hover:rotate-6 transition-transform">
                         {line.imagePrompt ? <ImageDisplay prompt={line.imagePrompt} className="w-full h-full  object-cover opacity-80" /> : <i className="fa-solid fa-feather-pointed text-white text-3xl"></i>}

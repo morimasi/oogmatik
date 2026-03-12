@@ -3,7 +3,15 @@ import { BoxMathData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableText, EditableElement } from '../../Editable';
 
-export const BoxMathSheet = ({ data }: { data: BoxMathData }) => {
+// Define the type for a single problem within BoxMathData
+interface BoxMathProblem {
+  expression: string;
+  targetValue?: string; // Optional, used in 'reverse' mode
+  givenValue?: string; // Optional, used in 'substitution' mode
+  // Add other properties if they exist in your BoxMathData problem structure
+}
+
+export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
   return (
     <div className="flex flex-col bg-white p-2 text-black font-lexend overflow-visible">
       <PedagogicalHeader
@@ -15,7 +23,7 @@ export const BoxMathSheet = ({ data }: { data: BoxMathData }) => {
       <div className="flex flex-col gap-6 print:gap-2 mt-4 print:mt-1">
         {/* 2 Sütunlu Izgara Düzeni - A4 Verimliliği İçin */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-          {(data.problems || []).map((prob, idx) => (
+          {(data.problems || []).map((prob: BoxMathProblem, idx: number) => (
             <EditableElement
               key={idx}
               className="flex items-center justify-between p-4 print:p-1 border-2 border-zinc-100 bg-zinc-50/30 rounded-[2rem] hover:bg-white hover:border-indigo-200 transition-all group"

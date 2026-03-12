@@ -31,7 +31,7 @@ interface ConfigProps {
     onChange: (key: keyof GeneratorOptions, value: any) => void;
 }
 
-export const PatternCompletionConfig: React.FC<ConfigProps> = ({ options, onChange }) => {
+export const PatternCompletionConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: any) => void }) => {
     return (
         <div className="space-y-4 animate-in fade-in duration-300">
             <div className="p-4 bg-sky-50/50 dark:bg-sky-900/10 rounded-[2rem] border border-sky-100 dark:border-sky-800/30">

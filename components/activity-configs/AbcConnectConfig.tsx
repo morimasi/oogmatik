@@ -31,7 +31,7 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
     </div>
 );
 
-export const AbcConnectConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: any) => void }> = ({ options, onChange }) => {
+export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: any) => void }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="p-5 bg-cyan-50/30 dark:bg-cyan-900/10 rounded-[2.5rem] border border-cyan-100 dark:border-cyan-800/30 shadow-sm">

@@ -10,7 +10,7 @@ export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (
     <div className="h-full  flex flex-col font-lexend p-2">
         <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex-1 bg-white border-2 border-zinc-100 rounded-3xl p-8 print:p-2 print:p-3 font-mono text-xl leading-[3rem] tracking-[0.5em] text-justify select-none shadow-inner mt-4 print:mt-1">
-            {(data.grid || []).map((row, i) => (
+            {(data.grid || []).map((row: string[], i: number) => (
                 <div key={i} className="flex items-center border-b border-zinc-50 pb-1">
                     <span className="w-10 text-[10px] font-black text-zinc-300 pr-2 border-r mr-4">{i + 1}</span>
                     <div className="flex-1 text-center font-bold text-zinc-800">{row.join('')}</div>
@@ -33,7 +33,7 @@ export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchDa
                 </div>
             </div>
             <div className="absolute inset-0 top-16 p-8 print:p-2 print:p-3">
-                {(data.numbers || []).map((num, i) => (
+                {(data.numbers || []).map((num: any, i: number) => (
                     <EditableElement key={i} className="absolute flex items-center justify-center font-black select-none leading-none hover:text-indigo-600 transition-colors"
                         style={{ left: `${num.x}%`, top: `${num.y}%`, transform: `rotate(${num.rotation}deg) scale(${num.size})`, color: 'black', fontSize: '1.4rem', zIndex: Math.floor(Math.random() * 20) }}>
                         {num.value}
@@ -48,7 +48,7 @@ export const NumberSearchSheet = ({ data }: { data: NumberSearchData }) => (
     <div className="h-full  flex flex-col font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="flex-1 flex flex-wrap gap-4 print:gap-1 justify-center p-10 print:p-3 print:p-4 print:p-1 border-4 border-zinc-900 rounded-[3rem] bg-white shadow-xl mt-6 print:mt-2">
-            {(data.numbers || []).map((n, i) => (
+            {(data.numbers || []).map((n: number | string, i: number) => (
                 <div key={i} className="w-12 h-12 flex items-center justify-center border-2 border-zinc-100 rounded-xl font-black text-lg hover:border-indigo-50 hover:bg-indigo-50 transition-all cursor-default">
                     {n}
                 </div>
@@ -61,11 +61,11 @@ export const FindDuplicateSheet = ({ data }: { data: FindDuplicateData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="space-y-4 mt-6 print:mt-2">
-            {(data.rows || []).map((row, i) => (
+            {(data.rows || []).map((row: string[], i: number) => (
                 <EditableElement key={i} className="flex justify-between items-center p-4 print:p-1 border-2 border-zinc-900 rounded-2xl bg-white shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
                     <span className="w-8 h-8 bg-zinc-900 text-white rounded-lg flex items-center justify-center font-black text-xs mr-4 group-hover:bg-indigo-600">{i + 1}</span>
                     <div className="flex-1 flex justify-between font-mono text-xl tracking-[0.5em] font-black text-zinc-800">
-                        {row.map((char, j) => <span key={j} className="hover:text-indigo-600 transition-colors">{char}</span>)}
+                        {row.map((char: string, j: number) => <span key={j} className="hover:text-indigo-600 transition-colors">{char}</span>)}
                     </div>
                 </EditableElement>
             ))}
@@ -78,7 +78,7 @@ export const LetterGridTestSheet = ({ data }: { data: LetterGridTestData }) => (
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="bg-white border-[3px] border-zinc-900 p-8 print:p-2 print:p-3 rounded-[2.5rem] shadow-sm mt-6 print:mt-2">
             <div className="font-mono text-lg leading-[3rem] tracking-[0.8em] text-center select-none text-zinc-900">
-                {(data.grid || []).map((row, i) => (
+                {(data.grid || []).map((row: string[], i: number) => (
                     <div key={i} className="mb-2 border-b border-zinc-50 pb-1">{row.join('')}</div>
                 ))}
             </div>
@@ -90,7 +90,7 @@ export const TargetSearchSheet = ({ data }: { data: TargetSearchData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="bg-white border-[3px] border-zinc-900 p-10 print:p-3 print:p-4 print:p-1 rounded-[3rem] text-zinc-900 font-mono text-2xl tracking-[1em] text-center leading-[3.5rem] shadow-sm mt-6 print:mt-2">
-            {(data.grid || []).map((row, i) => (
+            {(data.grid || []).map((row: string[], i: number) => (
                 <div key={i} className="hover:bg-zinc-50 transition-colors">{row.join('')}</div>
             ))}
         </div>
@@ -107,13 +107,13 @@ export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopment
     <div className="space-y-8 font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3 mt-6 print:mt-2">
-            {(data.puzzles || []).map((p, i) => (
+            {(data.puzzles || []).map((p: any, i: number) => (
                 <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 print:p-2 print:p-3 shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
                     <div className="bg-zinc-900 text-white p-5 print:p-1 rounded-2xl mb-8 print:mb-2 font-bold text-center italic shadow-inner">
                         <EditableText value={p.riddle} tag="p" />
                     </div>
                     <div className="flex justify-center gap-6 print:gap-2 mb-8 print:mb-2 items-center">
-                        {p.boxes.map((b, bi) => (
+                        {p.boxes.map((b: any, bi: number) => (
                             <div key={bi} className="border-2 border-zinc-200 p-4 print:p-1 rounded-2xl min-w-[100px] text-center bg-zinc-50 group-hover:bg-white transition-colors">
                                 {b.label && <span className="text-[10px] font-black block mb-2 text-indigo-500 uppercase tracking-widest">{b.label}</span>}
                                 <span className="font-mono font-black text-2xl text-zinc-800">{b.numbers.join(', ')}</span>
@@ -121,7 +121,7 @@ export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopment
                         ))}
                     </div>
                     <div className="flex justify-around border-t pt-6 print:pt-2">
-                        {p.options.map((o, oi) => (
+                        {p.options.map((o: string, oi: number) => (
                             <div key={oi} className="flex flex-col items-center gap-2 cursor-pointer group/opt">
                                 <div className="w-10 h-10 rounded-2xl border-2 border-zinc-200 flex items-center justify-center font-black text-zinc-400 group-hover/opt:border-indigo-500 group-hover/opt:text-indigo-600 transition-all">{String.fromCharCode(65 + oi)}</div>
                                 <span className="font-black text-zinc-700">{o}</span>
@@ -138,23 +138,23 @@ export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => (
     <div className="font-lexend p-2">
         <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3 mt-6 print:mt-2">
-            {(data.puzzles || []).map((puzzle, i) => (
+            {(data.puzzles || []).map((puzzle: any, i: number) => (
                 <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 print:p-2 print:p-3 shadow-sm break-inside-avoid flex flex-col group hover:border-indigo-50 transition-all">
                     <div className="bg-amber-50 border-2 border-amber-200 p-5 print:p-1 rounded-2xl mb-8 print:mb-2 text-center shadow-inner">
                         <p className="text-xl font-bold text-amber-900 font-dyslexic italic"><EditableText value={puzzle.riddle} tag="span" /></p>
                     </div>
                     <div className="flex gap-4 print:gap-1 justify-center mb-8 print:mb-2 flex-1 items-stretch">
-                        {puzzle.boxes.map((box, bIdx) => (
+                        {puzzle.boxes.map((box: any, bIdx: number) => (
                             <div key={bIdx} className="border-2 border-zinc-800 p-4 print:p-1 min-w-[120px] text-center bg-zinc-50 rounded-2xl group-hover:bg-white transition-colors">
                                 {box.title && <div className="text-[10px] text-indigo-500 mb-3 uppercase tracking-[0.2em] font-black border-b pb-2">{box.title}</div>}
                                 <ul className="space-y-2 text-lg font-black text-zinc-800">
-                                    {box.items.map((item, nIdx) => <li key={nIdx}><EditableText value={item} tag="span" /></li>)}
+                                    {box.items.map((item: string, nIdx: number) => <li key={nIdx}><EditableText value={item} tag="span" /></li>)}
                                 </ul>
                             </div>
                         ))}
                     </div>
                     <div className="border-t pt-6 print:pt-2 flex flex-wrap justify-center gap-4 print:gap-1">
-                        {puzzle.options.map((opt, oIdx) => (
+                        {puzzle.options.map((opt: string, oIdx: number) => (
                             <div key={oIdx} className="flex items-center gap-3 bg-zinc-100 px-4 print:px-1 py-2 rounded-2xl border-2 border-transparent hover:border-indigo-400 hover:bg-white transition-all cursor-pointer group/choice">
                                 <div className="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-black text-xs group-hover/choice:bg-indigo-600">{String.fromCharCode(65 + oIdx)}</div>
                                 <span className="font-black text-sm text-zinc-700">{opt}</span>

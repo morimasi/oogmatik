@@ -5,7 +5,7 @@ import { useReadingStudio } from '../../../context/ReadingStudioContext';
 export const AIProductionPanel = () => {
     const { config, setConfig, isLoading } = useReadingStudio();
 
-    const update = (updates: any) => setConfig({ ...config, ...updates });
+    const update = (updates: Partial<typeof config>) => setConfig({ ...config, ...updates });
 
     return (
         <div className="space-y-6">
@@ -15,7 +15,7 @@ export const AIProductionPanel = () => {
                     <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1.5">Konu / Tema</label>
                     <textarea
                         value={config.topic}
-                        onChange={(e: any) => update({ topic: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => update({ topic: e.target.value })}
                         className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white min-h-[80px] focus:border-indigo-500/50 transition-all"
                         placeholder="Örn: Ormanda kaybolan bir yavru sincabın arkadaşlarıyla yardımlaşarak yolunu bulması..."
                     />
@@ -24,13 +24,13 @@ export const AIProductionPanel = () => {
                 <div className="grid grid-cols-2 gap-3">
                     <div>
                         <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1.5">Tür</label>
-                        <select value={config.genre} onChange={(e: any) => update({ genre: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white">
+                        <select value={config.genre} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ genre: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white">
                             {['Macera', 'Masal', 'Gizem', 'Bilim Kurgu', 'Sosyal Öykü', 'Fabl'].map(g => <option key={g} value={g}>{g}</option>)}
                         </select>
                     </div>
                     <div>
                         <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1.5">Anlatım Tonu</label>
-                        <select value={config.tone} onChange={(e: any) => update({ tone: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white">
+                        <select value={config.tone} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ tone: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white">
                             {['Eğlenceli', 'Eğitici', 'Merak Uyandırıcı', 'Dramatik', 'Sakin'].map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
                     </div>
@@ -45,7 +45,7 @@ export const AIProductionPanel = () => {
                     <input
                         type="text"
                         value={config.phonemeFocus || ''}
-                        onChange={(e: any) => update({ phonemeFocus: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => update({ phonemeFocus: e.target.value })}
                         className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white font-mono placeholder:opacity-30"
                         placeholder="Örn: b-d, s-z, p-b"
                     />
@@ -59,7 +59,7 @@ export const AIProductionPanel = () => {
                         <i className="fa-solid fa-layer-group mr-2"></i>
                         Heceleme Modu
                     </button>
-                    <select value={config.textComplexity} onChange={(e: any) => update({ textComplexity: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white">
+                    <select value={config.textComplexity} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ textComplexity: e.target.value })} className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white">
                         <option value="simple">Basit Yapı</option>
                         <option value="moderate">Standart</option>
                         <option value="advanced">Zengin Dil</option>
@@ -72,11 +72,11 @@ export const AIProductionPanel = () => {
                 <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col gap-2">
                         <label className="text-[10px] font-bold text-zinc-500 uppercase px-1">5N1K</label>
-                        <input type="number" min="0" max="6" value={config.include5N1K ? 6 : 0} onChange={(e: any) => update({ include5N1K: parseInt(e.target.value) > 0 })} className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-white" />
+                        <input type="number" min="0" max="6" value={config.include5N1K ? 6 : 0} onChange={(e: React.ChangeEvent<HTMLInputElement>) => update({ include5N1K: parseInt(e.target.value) > 0 })} className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-white" />
                     </div>
                     <div className="flex flex-col gap-2">
                         <label className="text-[10px] font-bold text-zinc-500 uppercase px-1">Mantık</label>
-                        <input type="number" min="0" max="3" value={config.countLogic} onChange={(e: any) => update({ countLogic: parseInt(e.target.value) })} className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-white" />
+                        <input type="number" min="0" max="3" value={config.countLogic} onChange={(e: React.ChangeEvent<HTMLInputElement>) => update({ countLogic: parseInt(e.target.value) })} className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-white" />
                     </div>
                 </div>
                 {config.countLogic > 0 && (

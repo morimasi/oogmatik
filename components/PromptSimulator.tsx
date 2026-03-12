@@ -26,7 +26,7 @@ interface PromptSimulatorProps {
     prompt: PromptTemplate;
 }
 
-export const PromptSimulator: React.FC<PromptSimulatorProps> = ({ prompt }) => {
+export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
     const [variables, setVariables] = useState<Record<string, string>>({});
     const [result, setResult] = useState<any>(null);
     const [loading, setLoading] = useState(false);
