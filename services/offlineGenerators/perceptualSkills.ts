@@ -325,49 +325,102 @@ export const generateOfflineFindTheDifference = async (
 export const generateOfflineDirectionalTracking = async (
   options: GeneratorOptions
 ): Promise<DirectionalTrackingData[]> => {
-  const { worksheetCount, difficulty, codeLength = 5 } = options;
+  const {
+    worksheetCount,
+    difficulty,
+    codeLength = 5,
+    itemCount = 2,
+    concept = 'letters',
+  } = options;
   const results: DirectionalTrackingData[] = [];
 
+  const rows = options.gridRows || options.gridSize || 6;
+  const cols = options.gridCols || options.gridSize || 6;
+
   for (let p = 0; p < worksheetCount; p++) {
-    const size = 6;
-    const grid: string[][] = Array.from({ length: size }, () =>
-      Array.from({ length: size }, () => getRandomItems(turkishAlphabet.split(''), 1)[0])
-    );
+    const puzzles: any[] = [];
 
-    const path: { r: number; c: number; char: string; direction: string }[] = [];
-    let cr = getRandomInt(0, size - 3),
-      cc = getRandomInt(0, size - 3);
+    for (let q = 0; q < itemCount; q++) {
+      // İçerik havuzu belirleme (Harfler vs Sayılar)
+      let pool = turkishAlphabet.split('');
+      if (concept === 'numbers') {
+        pool = Array.from({ length: 10 }, (_, i) => String(i));
+      }
 
-    const directions = [
-      { label: 'SAĞ', dr: 0, dc: 1, icon: 'fa-arrow-right' },
-      { label: 'SOL', dr: 0, dc: -1, icon: 'fa-arrow-left' },
-      { label: 'AŞAĞI', dr: 1, dc: 0, icon: 'fa-arrow-down' },
-      { label: 'YUKARI', dr: -1, dc: 0, icon: 'fa-arrow-up' },
-    ];
+      const grid: string[][] = Array.from({ length: rows }, () =>
+        Array.from({ length: cols }, () => getRandomItems(pool, 1)[0])
+      );
 
-    for (let i = 0; i < codeLength; i++) {
-      const move = directions[getRandomInt(0, 3)];
-      const nr = Math.max(0, Math.min(size - 1, cr + move.dr));
-      const nc = Math.max(0, Math.min(size - 1, cc + move.dc));
-      path.push({ r: nr, c: nc, char: grid[nr][nc], direction: move.label });
-      cr = nr;
-      cc = nc;
+      const path: { r: number; c: number; char: string; direction: string }[] = [];
+
+      // Başlangıç noktasını grid'in biraz daha iç kısımlarından seçerek çok fazla kenara çarpmayı engelle
+      let cr = getRandomInt(0, rows - 1);
+      let cc = getRandomInt(0, cols - 1);
+
+      const directions = [
+        { label: 'right', dr: 0, dc: 1, icon: 'fa-arrow-right' },
+        { label: 'left', dr: 0, dc: -1, icon: 'fa-arrow-left' },
+        { label: 'down', dr: 1, dc: 0, icon: 'fa-arrow-down' },
+        { label: 'up', dr: -1, dc: 0, icon: 'fa-arrow-up' },
+      ];
+
+      // Başlangıç noktasını da path'e (0. adım olarak) ekleyelim, sadece yönü "start" olsun
+      path.push({ r: cr, c: cc, char: grid[cr][cc], direction: 'start' });
+
+      for (let i = 0; i < codeLength; i++) {
+        // Geçerli bir yön bulana kadar dene (grid sınırları dışına çıkmamak için)
+        let validMoves = directions.filter((d) => {
+          const nr = cr + d.dr;
+          const nc = cc + d.dc;
+          return nr >= 0 && nr < rows && nc >= 0 && nc < cols;
+        });
+
+        if (validMoves.length === 0) break; // Sıkışırsa dur (normalde olmaz ama tedbir)
+
+        const move = getRandomItems(validMoves, 1)[0];
+        cr += move.dr;
+        cc += move.dc;
+
+        path.push({ r: cr, c: cc, char: grid[cr][cc], direction: move.label });
+      }
+
+      puzzles.push({
+        title: `ŞİFRE BLOĞU 0${q + 1}`,
+        grid,
+        // İlk eleman (start) yön içermediği için yörünge adımlarından (1. elemandan itibaren) yönleri alıyoruz
+        path: path.slice(1).map((p) => p.direction),
+        startPos: { r: path[0].r, c: path[0].c },
+        // Başlangıç harfi + takip eden harfler hedef şifreyi oluşturur
+        targetWord: path.map((pt) => pt.char).join(''),
+        clinicalMeta: {
+          perceptualLoad: 0.6 + (rows * cols) / 200,
+          attentionShiftCount: codeLength,
+        },
+      });
     }
 
+    // Grid boyutuna ve soru sayısına göre layout belirleme
+    let layout = 'single';
+    if (itemCount === 2) layout = 'grid_2x1';
+    else if (itemCount > 2) layout = 'grid_compact';
+
     results.push({
-      title: 'Yönsel İz Sürme',
+      title: 'YÖNSEL İZ SÜRME & ŞİFRE ÇÖZÜCÜ',
       instruction:
-        'Okları ve yönergeleri takip ederek ızgara üzerindeki harfleri topla ve gizli şifreyi oluştur.',
-      pedagogicalNote: 'Yönsel algı, takip ve mekansal kodlama becerilerini destekler.',
-      puzzles: [
-        {
-          title: 'Rota 1',
-          grid,
-          path: path.map((p) => p.direction),
-          startPos: { r: path[0].r, c: path[0].c },
-          targetWord: path.map((pt) => pt.char).join(''),
-        },
-      ],
+        'İşaretli başlangıç vektöründen okların yönünü adım adım takip edin ve bulduğunuz karakterleri sırasıyla şifre alanına yazın.',
+      pedagogicalNote:
+        'Görsel-mekansal algı, ardışık işlemleme (sequential processing) ve çalışma belleğini zorlayan profesyonel nöro-bilişsel egzersiz.',
+      settings: {
+        difficulty: mapDifficulty(difficulty || 'Orta'),
+        layout: layout as any,
+        rotationEnabled: false,
+        pathComplexity: codeLength,
+        isProfessionalMode: true,
+        showClinicalNotes: true,
+        gridSize: rows,
+        contentType: concept as any,
+      },
+      puzzles,
     });
   }
   return results;
