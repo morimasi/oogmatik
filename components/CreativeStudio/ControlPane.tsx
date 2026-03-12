@@ -31,7 +31,14 @@ interface ControlPaneProps {
     statusMessage: string;
 }
 
-const ParameterGroup = ({ label, icon, children, description }: any) => (
+interface ParameterGroupProps {
+    label: string;
+    icon: string;
+    children: React.ReactNode;
+    description?: string;
+}
+
+const ParameterGroup = ({ label, icon, children, description }: ParameterGroupProps) => (
     <div className="space-y-3 p-5 bg-black/20 rounded-[2rem] border border-white/5 shadow-inner">
         <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
@@ -48,7 +55,14 @@ const ParameterGroup = ({ label, icon, children, description }: any) => (
     </div>
 );
 
-const SegmentButton = ({ active, onClick, label, color = "indigo" }: any) => (
+interface SegmentButtonProps {
+    active: boolean;
+    onClick: () => void;
+    label: string;
+    color?: string;
+}
+
+const SegmentButton = ({ active, onClick, label, color = "indigo" }: SegmentButtonProps) => (
     <button
         onClick={onClick}
         className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all duration-300 ${active

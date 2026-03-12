@@ -3,7 +3,7 @@ import { DirectionalTrackingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-// Fix: Typed as React.FC to handle React-specific props like 'key' in maps
+// Fix: Explicitly defining props type for clarity and resolving implicit 'any' error
 const ArrowIcon: React.FC<{ dir: string; compact?: boolean }> = ({ dir, compact = false }) => {
   const rotations: Record<string, number> = {
     right: 0,
@@ -120,29 +120,25 @@ export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingDa
                         ))}
                       </div>
 
-                                            {/* Grid Cells */}
-                                            <div className="grid bg-zinc-200 gap-px border-2 border-zinc-900 rounded-xl overflow-hidden shadow-inner" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-                                                {puzzle.grid.map((row, r) => (
-                                                    row.map((cell, c) => {
-                                                        const isStart = r === puzzle.startPos.r && c === puzzle.startPos.c;
-                                                        return (
-                                                            <div
-                                                                key={`${r}-${c}`}
-                                                                className={`${cellSize} bg-white flex items-center justify-center font-black relative ${isStart ? 'text-white' : 'text-zinc-800'} transition-all`}
-                                                            >
-                                                                {isStart && <div className="absolute inset-0 bg-indigo-600 rounded-lg scale-90 border-2 border-indigo-900"></div>}
-                                                                <span className="relative z-10">{cell}</span>
-                                                                
-                                                                {/* Crosshairs Effect on hover */}
-                                                                <div className="absolute inset-0 border-2 border-amber-400 opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none"></div>
-                                                            </div>
-                                                        );
-                                                    })
-                                                ))}
-                                            </div>
+                      {/* Grid Cells */}
+                      <div className="grid bg-zinc-200 gap-px border-2 border-zinc-900 rounded-xl overflow-hidden shadow-inner" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+                        {puzzle.grid.map((row, r) => (
+                          row.map((cell, c) => {
+                            const isStart = r === puzzle.startPos.r && c === puzzle.startPos.c;
+                            return (
+                              <div
+                                key={`${r}-${c}`}
+                                className={`${cellSize} bg-white flex items-center justify-center font-black relative ${isStart ? 'text-white' : 'text-zinc-800'} transition-all`}
+                              >
+                                {isStart && <div className="absolute inset-0 bg-indigo-600 rounded-lg scale-90 border-2 border-indigo-900"></div>}
+                                <span className="relative z-10">{cell}</span>
+
+                                {/* Crosshairs Effect on hover */}
+                                <div className="absolute inset-0 border-2 border-amber-400 opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none"></div>
+                              </div>
                             );
                           })
-                        )}
+                        ))}
                       </div>
                     </div>
 

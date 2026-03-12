@@ -20,7 +20,7 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
           </label>
           <select
             value={options.topic || 'daily_life'}
-            onChange={(e) => onChange('topic', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('topic', e.target.value)}
             className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
           >
             <option value="daily_life">Günlük Yaşam (Ev, Okul, Park)</option>
@@ -41,7 +41,7 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
           </label>
           <select
             value={options.visualStyle || 'illustration'}
-            onChange={(e) => onChange('visualStyle', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('visualStyle', e.target.value)}
             className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
           >
             <option value="illustration">Renkli İllüstrasyon</option>
@@ -60,7 +60,7 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
           </label>
           <select
             value={options.questionStyle || 'mixed'}
-            onChange={(e) => onChange('questionStyle', e.target.value as any)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('questionStyle', e.target.value as any)}
             className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
           >
             <option value="mixed">Karışık (Önerilen)</option>
@@ -79,7 +79,7 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
           </label>
           <select
             value={options.difficulty || 'Orta'}
-            onChange={(e) => onChange('difficulty', e.target.value as any)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('difficulty', e.target.value as any)}
             className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
           >
             <option value="Başlangıç">Başlangıç (Az Detay)</option>
@@ -99,7 +99,7 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
             min="1"
             max="10"
             value={options.itemCount || 5}
-            onChange={(e) => onChange('itemCount', parseInt(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('itemCount', parseInt(e.target.value))}
             className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
           />
         </div>
@@ -111,7 +111,7 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
           <input
             type="checkbox"
             checked={options.includeClinicalNotes}
-            onChange={(e) => onChange('includeClinicalNotes', e.target.checked)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('includeClinicalNotes', e.target.checked)}
             className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 border-zinc-300"
           />
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -126,7 +126,7 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
           <input
             type="checkbox"
             checked={options.syllableColoring}
-            onChange={(e) => onChange('syllableColoring', e.target.checked)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('syllableColoring', e.target.checked)}
             className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 border-zinc-300"
           />
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
