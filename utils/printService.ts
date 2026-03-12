@@ -52,7 +52,7 @@ export const printService = {
         printContainer.style.setProperty('position', 'absolute', 'important');
         printContainer.style.setProperty('top', '0', 'important');
         printContainer.style.setProperty('left', '0', 'important');
-        printContainer.style.setProperty('width', '100%', 'important');
+        printContainer.style.setProperty('width', '210mm', 'important'); // Genişlik 210mm olarak ayarlandı
         printContainer.style.setProperty('max-width', '210mm', 'important');
         printContainer.style.setProperty('margin', '0 auto', 'important');
         printContainer.style.setProperty('padding', '0', 'important');
