@@ -6,6 +6,7 @@ export interface PrintOptions {
   compact?: boolean;
   columnsPerPage?: 1 | 2;
   fontSize?: 10 | 11 | 12;
+  paperSize?: PaperSize;
 }
 
 export type PaperSize = 'A4' | 'Letter' | 'Legal';
@@ -172,8 +173,9 @@ export const printService = {
       const safeTitle = title || 'Bursa_Disleksi_AI_Etkinlik';
       document.title = safeTitle.replace(/[^a-z0-9ğüşıöç]/gi, '_');
 
-      // Call the new print method with selector
-      printService.print(elementSelector);
+      // Determine paper size and call the print method with selector
+      const paperSize: PaperSize = (options && options.paperSize) || 'A4';
+      printService.print(elementSelector, paperSize);
 
       // Restore title after print dialog is closed
       // We rely on the 'afterprint' event listener below for cleanup,
