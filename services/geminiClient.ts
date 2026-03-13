@@ -1,7 +1,8 @@
 import { Type } from "@google/genai";
 
-// Model Seçimi: Uygulamanın tüm yapısında Gemini 3 Flash Preview (Thinking Enabled) kullanılacak
-const MASTER_MODEL = 'gemini-3-flash-preview';
+// Model Seçimi: Gemini 2.5 Flash — Yapısal JSON çıkışı ve multimodal destek için optimize edilmiş
+// NOT: Model adı .env'den okunabilir: VITE_GEMINI_MODEL
+const MASTER_MODEL = (import.meta as any).env?.VITE_GEMINI_MODEL || 'gemini-2.5-flash-preview-04-17';
 
 // ============================================================
 // JSON ONARIM MOTORU (3 Katmanlı Strateji)
@@ -139,18 +140,19 @@ export interface MultimodalFile {
 
 declare var process: any;
 
-const getApiKey = () => {
-    // 1. Vercel / Build Environment variables (via vite.config.ts define)
+const getApiKey = (): string | null => {
+    // 1. Vite Env Variables (birincil kaynak)
+    try {
+        const viteKey = (import.meta as any).env?.VITE_GOOGLE_API_KEY;
+        if (viteKey) return viteKey;
+    } catch (e) { }
+
+    // 2. Vercel / Build ortam değişkenleri (vite.config.ts define üzerinden)
     try {
         if (process.env.API_KEY) return process.env.API_KEY;
     } catch (e) { }
 
-    // 2. Vite Env Variables
-    try {
-        if ((import.meta as any).env?.VITE_GOOGLE_API_KEY) return (import.meta as any).env.VITE_GOOGLE_API_KEY;
-    } catch (e) { }
-
-    // 3. Local Storage fallback
+    // 3. localStorage fallback (ayarlar ekranından kullanıcı tarafından eklenen anahtar)
     try {
         return localStorage.getItem('gemini_api_key');
     } catch (e) { }

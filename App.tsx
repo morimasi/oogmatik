@@ -1,5 +1,6 @@
-// @ts-nocheck
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+import { useToastStore } from './store/useToastStore';
+import { ToastContainer } from './components/ToastContainer';
 import {
   ActivityType,
   WorksheetData,
@@ -118,6 +119,9 @@ const initialUiSettings: UiSettings = {
   letterSpacing: 'normal',
   lineHeight: 1.6,
   saturation: 100,
+  compactMode: false,
+  premiumIntensity: 60,
+  contrastLevel: 50,
 };
 
 type ModalType = 'settings' | 'history' | 'about' | 'developer';
@@ -290,7 +294,7 @@ const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                 <i className="fa-solid fa-microchip text-3xl text-zinc-400"></i>
               </div>
               <div className="text-4xl font-black text-zinc-900 dark:text-white tracking-tighter mb-1">
-                v2.4.0
+                v1.0.3
               </div>
               <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-100 dark:bg-zinc-900 px-3 py-1 rounded-full">
                 Güncel Sürüm
@@ -313,8 +317,8 @@ const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                   { name: 'TypeScript', icon: 'fa-brands fa-js text-blue-600' },
                   { name: 'Tailwind', icon: 'fa-solid fa-wind text-cyan-500' },
                   { name: 'Firebase', icon: 'fa-solid fa-fire text-yellow-500' },
-                  { name: 'OpenAI', icon: 'fa-solid fa-brain text-emerald-500' },
-                  { name: 'Node.js', icon: 'fa-brands fa-node-js text-green-600' },
+                  { name: 'Gemini AI', icon: 'fa-solid fa-brain text-emerald-500' },
+                  { name: 'Vite', icon: 'fa-solid fa-bolt text-purple-500' },
                 ].map((tech) => (
                   <div
                     key={tech.name}
@@ -453,7 +457,6 @@ const DropdownItem = ({
   </button>
 );
 
-import { useAuthStore } from './store/useAuthStore';
 import { useStudentStore } from './store/useStudentStore';
 import { useAppStore } from './store/useAppStore';
 
@@ -461,6 +464,7 @@ const AppContent = () => {
   const authStore = useAuthStore();
   const studentStore = useStudentStore();
   const { isEditMode, zoomScale } = useAppStore();
+  const toast = useToastStore();
 
   // Global PaperSize initialization glue to App root (to be implemented in root-level effect later)
 
@@ -738,9 +742,9 @@ const AppContent = () => {
         studentProfile || undefined,
         studentProfile?.studentId
       );
-      alert(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
+      toast.success(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
     } catch (e: any) {
-      alert(`Kaydedilirken bir hata oluştu: ${e.message}.`);
+      toast.error(`Kaydedilirken bir hata oluştu: ${(e as Error).message}.`);
     }
   };
 
@@ -844,9 +848,9 @@ const AppContent = () => {
       );
       setActiveCurriculumSession(null);
       navigateTo('curriculum');
-      alert('Harika! Aktivite tamamlandı ve plana işlendi.');
+      toast.success('Harika! Aktivite tamamlandı ve plana işlendi.');
     } catch (e) {
-      alert('Bir hata oluştu.');
+      toast.error('Bir hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setIsLoading(false);
     }
@@ -959,7 +963,7 @@ const AppContent = () => {
           'Bu kitapçık, yapılan değerlendirme sonucunda belirlenen ihtiyaçlara yönelik olarak yapay zeka tarafından otomatik oluşturulmuştur.',
       }));
     } catch (e) {
-      alert('Otomatik kitapçık oluşturulurken bir hata meydana geldi.');
+      toast.error('Otomatik kitaçık oluşturulurken bir hata meydana geldi.');
     } finally {
       setIsLoading(false);
     }
@@ -1379,6 +1383,7 @@ export const App = () => {
     <>
       <PaperSizeInitializer />
       <AppContent />
+      <ToastContainer />
     </>
   );
 };
