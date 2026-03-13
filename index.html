@@ -624,6 +624,24 @@
           image-rendering: high-quality;
           max-width: 100% !important;
         }
+        /* Paper size pulse animation helper */
+        @keyframes paperSizePulse {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.05);
+            opacity: 0.95;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        .paperSizePulse {
+          animation: paperSizePulse 350ms ease;
+        }
 
         /* Crisp Borders for Tables and Grids */
         table,
