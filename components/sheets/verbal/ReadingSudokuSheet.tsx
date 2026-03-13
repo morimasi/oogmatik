@@ -54,7 +54,7 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
           </table>
         </div>
 
-        <div className="w-full md:w-56 space-y-8">
+        <div className="w-full md:w-56 space-y-8 no-print">
           <div className="p-6 print:p-2 bg-zinc-900 text-white rounded-[2.5rem] shadow-xl border-4 border-white">
             <h5 className="text-[10px] font-black uppercase tracking-widest mb-6 print:mb-2 text-indigo-400 text-center">
               SEMBOL HAVUZU
@@ -86,6 +86,3 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
     </div>
   );
 };
-
-
-
