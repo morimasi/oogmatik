@@ -19,10 +19,18 @@ export const printService = {
     // 1. Add printing class to body to trigger CSS overrides
     document.body.classList.add('printing-mode');
 
-    // 2. Wait for a moment to ensure styles are applied and layout is recalculated
-    setTimeout(() => {
+    // 2. Force layout recalculation
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    document.body.offsetHeight;
+    window.dispatchEvent(new Event('resize'));
+
+    // 3. Call print synchronously to avoid popup blockers
+    try {
       window.print();
-    }, 100);
+    } catch (e) {
+      console.error("Print failed", e);
+      document.body.classList.remove('printing-mode');
+    }
   },
 
   /**
@@ -33,25 +41,37 @@ export const printService = {
     title: string = "Bursa_Disleksi_AI_Etkinlik",
     options?: PrintOptions
   ) => {
-    // Set document title temporarily for the print dialog
-    const originalTitle = document.title;
-    document.title = title.replace(/[^a-z0-9ğüşıöç]/gi, '_');
+    try {
+      // Set document title temporarily for the print dialog
+      const originalTitle = document.title;
+      const safeTitle = title || "Bursa_Disleksi_AI_Etkinlik";
+      document.title = safeTitle.replace(/[^a-z0-9ğüşıöç]/gi, '_');
 
-    // Call the new print method
-    printService.print();
+      // Call the new print method
+      printService.print();
 
-    // Restore title after print dialog is closed
-    // We use a timeout because window.print() is blocking in some browsers
-    // but we want to ensure the title is restored after the dialog closes.
-    setTimeout(() => {
-      document.title = originalTitle;
-    }, 1000);
+      // Restore title after print dialog is closed
+      setTimeout(() => {
+        document.title = originalTitle;
+      }, 1000);
+    } catch (error) {
+      console.error("PDF Generation Error:", error);
+      // Ensure cleanup on error
+      document.body.classList.remove('printing-mode');
+    }
   }
 };
 
 // Listen for afterprint to cleanup
 if (typeof window !== 'undefined') {
-  window.addEventListener('afterprint', () => {
+  const cleanup = () => {
     document.body.classList.remove('printing-mode');
+  };
+  window.addEventListener('afterprint', cleanup);
+  
+  // Fallback for browsers that block print or don't fire afterprint
+  window.addEventListener('focus', () => {
+    // Small delay to ensure afterprint has a chance to fire first
+    setTimeout(cleanup, 500);
   });
 }

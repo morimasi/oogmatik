@@ -242,16 +242,16 @@ export const WorkbookView = ({ items, setItems, settings, setSettings, onBack }:
 
     const handleAction = async (action: 'print' | 'download') => {
         setIsPrinting(true);
-        setTimeout(async () => {
-            try {
-                await printService.generatePdf('.workbook-container .worksheet-page', settings.title || 'Kitapcik', { action });
-            } catch (error) {
-                console.error("Kitapçık oluşturma hatası:", error);
-                alert("Kitapçık oluşturulurken bir hata meydana geldi.");
-            } finally {
-                setIsPrinting(false);
-            }
-        }, 100);
+        try {
+            // Allow React to render the loading state before blocking the thread
+            await new Promise(resolve => setTimeout(resolve, 50));
+            await printService.generatePdf('.workbook-container .worksheet-page', settings.title || 'Kitapcik', { action });
+        } catch (error) {
+            console.error("Kitapçık oluşturma hatası:", error);
+            alert("Kitapçık oluşturulurken bir hata meydana geldi.");
+        } finally {
+            setIsPrinting(false);
+        }
     };
 
     const handleGeneratePreface = async () => {
