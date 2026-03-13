@@ -138,6 +138,52 @@ const LoadingSpinner = () => (
   </div>
 );
 
+const Modal = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}) => {
+  if (!isOpen) return null;
+  return (
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClose();
+      }}
+    >
+      <div
+        className="bg-[var(--bg-paper)] rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-[var(--border-color)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {title && (
+          <div className="flex items-center justify-between p-6 border-b border-[var(--border-color)]">
+            <h2 className="text-xl font-black text-[var(--accent-color)] tracking-tight">
+              {title}
+            </h2>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+            >
+              <i className="fa-solid fa-times text-xl"></i>
+            </button>
+          </div>
+        )}
+        <div className="p-6">{children}</div>
+      </div>
+    </div>
+  );
+};
+
 const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   if (!isOpen) return null;
   return (
