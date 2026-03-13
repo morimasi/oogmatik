@@ -376,9 +376,14 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           <IconButton
             icon="fa-print"
             title="Yazdır (PDF)"
-            onClick={async () =>
-              await printService.generatePdf('.worksheet-page', settings.title, { action: 'print' })
-            }
+            onClick={async () => {
+              try {
+                await new Promise(resolve => setTimeout(resolve, 50));
+                await printService.generatePdf('.worksheet-page', settings.title, { action: 'print' });
+              } catch (e) {
+                console.error(e);
+              }
+            }}
           />
           <IconButton
             icon="fa-camera"

@@ -124,7 +124,12 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     };
 
     const handlePrint = async (action: 'print' | 'download') => {
-        try { await printService.generatePdf('#canvas-root .a4-page', 'Hikaye', { action }); } catch (e) { }
+        try { 
+            await new Promise(resolve => setTimeout(resolve, 50));
+            await printService.generatePdf('#canvas-root .a4-page', 'Hikaye', { action }); 
+        } catch (e) { 
+            console.error(e);
+        }
     };
 
     const handleSave = () => {

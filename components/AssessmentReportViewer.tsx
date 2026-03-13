@@ -123,16 +123,16 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
 
     const handleAction = async (action: 'print' | 'download') => {
         setIsPrinting(true);
-        setTimeout(async () => {
-            try {
-                await printService.generatePdf('#report-content-area', `${assessment.studentName}-Rapor`, { action });
-            } catch (error) {
-                console.error("Rapor yazdırma hatası:", error);
-                alert("Rapor yazdırılırken bir hata oluştu.");
-            } finally {
-                setIsPrinting(false);
-            }
-        }, 100);
+        try {
+            // Allow React to render the loading state before blocking the thread
+            await new Promise(resolve => setTimeout(resolve, 50));
+            await printService.generatePdf('#report-content-area', `${assessment.studentName}-Rapor`, { action });
+        } catch (error) {
+            console.error("Rapor yazdırma hatası:", error);
+            alert("Rapor yazdırılırken bir hata oluştu.");
+        } finally {
+            setIsPrinting(false);
+        }
     };
 
     const labelMap: Record<string, string> = {

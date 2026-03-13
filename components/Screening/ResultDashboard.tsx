@@ -154,7 +154,12 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
 
     const handlePrint = async () => {
         // Trigger specific print for the hidden report container
-        await printService.generatePdf('#printable-report', `Disleksi_Tarama_${result.studentName}`, { action: 'print' });
+        try {
+            await printService.generatePdf('#printable-report', `Disleksi_Tarama_${result.studentName}`, { action: 'print' });
+        } catch (error) {
+            console.error("Yazdırma hatası:", error);
+            alert("Yazdırma işlemi başlatılamadı.");
+        }
     };
 
     const handleAddToWorkbookClick = () => {

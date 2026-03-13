@@ -210,15 +210,15 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
 
     const handlePrint = async (action: 'print' | 'download') => {
         setIsPrinting(true);
-        setTimeout(async () => {
-            try {
-                await printService.generatePdf('.curriculum-plan-content', `${formData.name}-EgitimPlani`, { action });
-            } catch (e) {
-                console.error(e);
-            } finally {
-                setIsPrinting(false);
-            }
-        }, 100);
+        try {
+            // Allow React to render the loading state before blocking the thread
+            await new Promise(resolve => setTimeout(resolve, 50));
+            await printService.generatePdf('.curriculum-plan-content', `${formData.name}-EgitimPlani`, { action });
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsPrinting(false);
+        }
     };
 
     const handleToggleActivity = async (day: number, actId: string) => {

@@ -18,14 +18,19 @@ export const PrintPreviewModal = ({ isOpen, onClose, worksheetData, title }: Pri
 
     const pageCount = Array.isArray(worksheetData) ? worksheetData.length : 1;
 
-    const handlePrint = () => {
+    const handlePrint = async () => {
         setIsPrinting(true);
-        // Wait for UI to update
-        setTimeout(() => {
+        // Wait for UI to update before blocking
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        try {
             printService.print();
+        } catch (error) {
+            console.error("Print error:", error);
+        } finally {
             setIsPrinting(false);
             // Optional: onClose(); // Keep open or close? Usually keep open in case they want to try again.
-        }, 500);
+        }
     };
 
     return (

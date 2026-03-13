@@ -80,15 +80,15 @@ export const useExportActions = (deps: ExportDeps) => {
 
     const handlePrint = useCallback(async (action: 'print' | 'download') => {
         setIsPrinting(true);
-        setTimeout(async () => {
-            try {
-                await printService.generatePdf('#math-canvas-container .math-canvas-page', deps.pageConfig.title, { action });
-            } catch (e) {
-                console.error(e);
-            } finally {
-                setIsPrinting(false);
-            }
-        }, 100);
+        try {
+            // Allow React to render the loading state before blocking the thread
+            await new Promise(resolve => setTimeout(resolve, 50));
+            await printService.generatePdf('#math-canvas-container .math-canvas-page', deps.pageConfig.title, { action });
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsPrinting(false);
+        }
     }, [deps.pageConfig.title]);
 
     const handleAddToWorkbook = useCallback(() => {
