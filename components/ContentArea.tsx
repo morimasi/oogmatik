@@ -94,6 +94,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   onBackToGenerator,
   activityType,
   worksheetData,
+  setWorksheetData,
   isLoading,
   error,
   styleSettings,
