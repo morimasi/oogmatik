@@ -237,7 +237,10 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock; key?: any
 
     case 'text':
       return (
-        <div className="block-text text-lg leading-relaxed mb-4 print:mb-1 font-dyslexic" style={blockStyle}>
+        <div
+          className="block-text text-lg leading-relaxed mb-4 print:mb-1 font-dyslexic"
+          style={blockStyle}
+        >
           <EditableText value={recursiveSafeText(content.text || content)} tag="div" />
         </div>
       );
@@ -863,83 +866,93 @@ const UnifiedContentRenderer = ({
     }
   });
 
-  const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => (
-    <div
-      key={pageIdx}
-      data-page-idx={pageIdx}
-      className={`worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden flex flex-col`}
-      style={{ backgroundColor: 'white', color: 'black', colorScheme: 'light' as any }}
-    >
-      {/* Ekranda Sayfa Numarası (Print'te gizli) */}
-      <div className="page-indicator-screen no-print">SAYFA {pageIdx + 1}</div>
+  const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => {
+    const isLandscape = settings?.orientation === 'landscape';
+    const pageClass = `worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden flex flex-col ${isLandscape ? 'landscape landscape-print' : ''}`;
 
-      {/* Sayfa Üstü Marj (Hassas Simetri Kontrolü) */}
-      <div className="print-top-margin h-0" />
-
-      {/* Öğrenci Bilgi Şeridi */}
-      {settings?.showStudentInfo && (
-        <div className="w-full px-6 py-4 flex justify-between items-end border-b-2 border-zinc-900 mb-6 font-lexend">
-          <div className="flex gap-12">
-            <div className="flex flex-col">
-              <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
-                Öğrenci Adı Soyadı
-              </span>
-              <div className="h-6 border-b border-zinc-200 min-w-[180px] font-black text-sm uppercase text-black">
-                {studentProfile?.name || '....................................'}
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
-                Sınıf / Grup
-              </span>
-              <div className="h-6 border-b border-zinc-200 min-w-[60px] font-black text-sm text-center text-black">
-                {studentProfile?.grade || '........'}
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
-              Çalışma Tarihi
-            </span>
-            <div className="h-6 border-b border-zinc-200 min-w-[80px] font-black text-sm text-right text-black">
-              {new Date().toLocaleDateString('tr-TR')}
-            </div>
-          </div>
-        </div>
-      )}
-
-      <PedagogicalHeader
-        title={pageIdx === 0 ? data.title : `${data.title} (Dvm.)`}
-        instruction={pageIdx === 0 ? data.instruction : 'Lütfen çalışmaya devam edin.'}
-        note={pageIdx === 0 ? data.pedagogicalNote : ''}
-        data={data}
-      />
-
+    return (
       <div
-        className={`print-content-area mt-4 ${cols > 1 ? 'grid' : 'flex flex-col'}`}
-        style={
-          cols > 1 ? { gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '6mm' } : { gap: '6mm' }
-        }
+        key={pageIdx}
+        data-page-idx={pageIdx}
+        className={pageClass}
+        style={{
+          backgroundColor: 'white',
+          color: 'black',
+          colorScheme: 'light' as any,
+          padding: settings?.margin ? `${settings.margin}mm` : '15mm',
+        }}
       >
-        {pageBlocks.map((block, idx) => (
-          <div key={idx} className="block-container">
-            <BlockRenderer block={block} />
-          </div>
-        ))}
-      </div>
+        {/* Ekranda Sayfa Numarası (Print'te gizli) */}
+        <div className="page-indicator-screen no-print">SAYFA {pageIdx + 1}</div>
 
-      {/* Profesyonel Footer */}
-      <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.4em] text-zinc-400">
-        <div className="flex items-center gap-2">
-          <span className="bg-black text-white px-1.5 py-0.5 rounded font-black">AI</span>
-          <span>Bursa Disleksi AI • Nöro-Mimari Motoru v7.0</span>
+        {/* Sayfa Üstü Marj (Hassas Simetri Kontrolü) */}
+        <div className="print-top-margin h-0" />
+
+        {/* Öğrenci Bilgi Şeridi */}
+        {settings?.showStudentInfo && (
+          <div className="w-full px-6 py-4 flex justify-between items-end border-b-2 border-zinc-900 mb-6 font-lexend">
+            <div className="flex gap-12">
+              <div className="flex flex-col">
+                <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
+                  Öğrenci Adı Soyadı
+                </span>
+                <div className="h-6 border-b border-zinc-200 min-w-[180px] font-black text-sm uppercase text-black">
+                  {studentProfile?.name || '....................................'}
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
+                  Sınıf / Grup
+                </span>
+                <div className="h-6 border-b border-zinc-200 min-w-[60px] font-black text-sm text-center text-black">
+                  {studentProfile?.grade || '........'}
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
+                Çalışma Tarihi
+              </span>
+              <div className="h-6 border-b border-zinc-200 min-w-[80px] font-black text-sm text-right text-black">
+                {new Date().toLocaleDateString('tr-TR')}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <PedagogicalHeader
+          title={pageIdx === 0 ? data.title : `${data.title} (Dvm.)`}
+          instruction={pageIdx === 0 ? data.instruction : 'Lütfen çalışmaya devam edin.'}
+          note={pageIdx === 0 ? data.pedagogicalNote : ''}
+          data={data}
+        />
+
+        <div
+          className={`print-content-area mt-4 ${cols > 1 ? 'grid' : 'flex flex-col'}`}
+          style={
+            cols > 1 ? { gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '6mm' } : { gap: '6mm' }
+          }
+        >
+          {pageBlocks.map((block, idx) => (
+            <div key={idx} className="block-container">
+              <BlockRenderer block={block} />
+            </div>
+          ))}
         </div>
-        <span>
-          SAYFA {pageIdx + 1} / {pages.length}
-        </span>
+
+        {/* Profesyonel Footer */}
+        <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.4em] text-zinc-400">
+          <div className="flex items-center gap-2">
+            <span className="bg-black text-white px-1.5 py-0.5 rounded font-black">AI</span>
+            <span>Bursa Disleksi AI • Nöro-Mimari Motoru v7.0</span>
+          </div>
+          <span>
+            SAYFA {pageIdx + 1} / {pages.length}
+          </span>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="w-full flex flex-col items-center gap-10 no-scrollbar" id="print-container">

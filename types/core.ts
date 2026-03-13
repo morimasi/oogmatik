@@ -1,18 +1,43 @@
 declare global {
   namespace JSX {
-    interface IntrinsicElements extends Record<string, any> { }
+    interface IntrinsicElements extends Record<string, any> {}
   }
 }
 
-import { Activity, ActivityCategory, WorksheetBlock, CognitiveErrorTag, ActivityType } from './activity';
+import {
+  Activity,
+  ActivityCategory,
+  WorksheetBlock,
+  CognitiveErrorTag,
+  ActivityType,
+} from './activity';
 import { User, UserRole, UserStatus } from './user';
 import { Student, StudentProfile } from './student';
 import { LayoutItem, LayoutSectionId, ReadingStudioConfig } from './studio';
 
 export { ActivityType };
-export type { Activity, ActivityCategory, WorksheetBlock, CognitiveErrorTag, User, UserRole, UserStatus, Student, StudentProfile, LayoutItem, LayoutSectionId, ReadingStudioConfig };
+export type {
+  Activity,
+  ActivityCategory,
+  WorksheetBlock,
+  CognitiveErrorTag,
+  User,
+  UserRole,
+  UserStatus,
+  Student,
+  StudentProfile,
+  LayoutItem,
+  LayoutSectionId,
+  ReadingStudioConfig,
+};
 
-import type { StyleSettings, BaseActivityData, CognitiveDomain, ShapeType, VisualMathType } from './common';
+import type {
+  StyleSettings,
+  BaseActivityData,
+  CognitiveDomain,
+  ShapeType,
+  VisualMathType,
+} from './common';
 
 export type { StyleSettings, BaseActivityData, CognitiveDomain, ShapeType, VisualMathType };
 
@@ -79,15 +104,15 @@ export interface GeneratorOptions {
   hintLevel?: 'low' | 'medium' | 'high' | 'none';
   textLength?: 'kısa' | 'orta' | 'uzun';
   questionStyle?:
-  | 'test_and_open'
-  | 'only_test'
-  | 'only_open_ended'
-  | 'mixed'
-  | '5n1k'
-  | 'detail'
-  | 'inference'
-  | 'true_false'
-  | 'open_ended';
+    | 'test_and_open'
+    | 'only_test'
+    | 'only_open_ended'
+    | 'mixed'
+    | '5n1k'
+    | 'detail'
+    | 'inference'
+    | 'true_false'
+    | 'open_ended';
   syllableColoring?: boolean;
   wpmTarget?: number;
   colorPalette?: 'red_blue' | 'contrast' | 'pastel';
@@ -121,12 +146,6 @@ export interface GeneratorOptions {
   showPoints?: boolean;
   [key: string]: any;
 }
-
-
-
-
-
-
 
 export interface OverlayItem {
   id: string;
@@ -233,18 +252,18 @@ export interface WorkbookSettings {
   year: string;
   teacherNote: string;
   theme:
-  | 'modern'
-  | 'classic'
-  | 'fun'
-  | 'minimal'
-  | 'academic'
-  | 'artistic'
-  | 'space'
-  | 'nature'
-  | 'geometric'
-  | 'cyber'
-  | 'luxury'
-  | 'playful';
+    | 'modern'
+    | 'classic'
+    | 'fun'
+    | 'minimal'
+    | 'academic'
+    | 'artistic'
+    | 'space'
+    | 'nature'
+    | 'geometric'
+    | 'cyber'
+    | 'luxury'
+    | 'playful';
   accentColor: string;
   coverStyle: 'centered' | 'left' | 'split' | 'hero' | 'minimalist';
   showTOC: boolean;
@@ -260,11 +279,9 @@ export interface WorkbookSettings {
   layoutDensity?: 'compact' | 'comfortable' | 'spacious';
   showHeaderOnEveryPage?: boolean;
   customBackCoverNote?: string;
+  orientation?: 'portrait' | 'landscape';
+  margin?: number;
 }
-
-
-
-
 
 export interface SubTestResult {
   testId: CognitiveDomain;
@@ -486,9 +503,3 @@ export interface OCRResult {
   quality?: 'high' | 'medium' | 'low';
   warnings?: string[];
 }
-
-
-
-
-
-

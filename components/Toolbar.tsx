@@ -47,10 +47,11 @@ const IconButton = ({
     onClick={onClick}
     disabled={disabled || isLoading}
     title={title}
-    className={`relative w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${active
+    className={`relative w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${
+      active
         ? 'bg-[var(--accent-color)] text-[var(--bg-primary)] shadow-md transform scale-105'
         : `text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] ${colorClass || 'hover:text-[var(--text-primary)]'}`
-      } ${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+    } ${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
   >
     {isLoading ? (
       <i className="fa-solid fa-circle-notch fa-spin"></i>
@@ -69,10 +70,11 @@ const MenuButton = ({ icon, label, onClick, active, isOpen }: any) => (
   <button
     onClick={onClick}
     data-dropdown-trigger
-    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all border select-none ${active || isOpen
+    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all border select-none ${
+      active || isOpen
         ? 'bg-[var(--accent-muted)] border-[var(--accent-color)]/30 text-[var(--accent-color)]'
         : 'bg-[var(--bg-paper)] border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:border-[var(--border-color)]'
-      }`}
+    }`}
   >
     <i
       className={`fa-solid ${icon} ${active || isOpen ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}
@@ -332,20 +334,67 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           />
           {activeMenu === 'layout' && (
             <DropdownPanel
-              title="Mizanpaj Ayarları"
+              title="Mizanpaj ve Kağıt Ayarları"
               onClose={() => setActiveMenu(null)}
-              className="w-64"
+              className="w-80"
             >
-              <Toggle
-                label="Etkinlik Başlığını Göster"
-                checked={settings.showTitle !== false}
-                onChange={(v: any) => updateSetting('showTitle', v)}
-              />
-              <Toggle
-                label="Yönergeyi Göster"
-                checked={settings.showInstruction !== false}
-                onChange={(v: any) => updateSetting('showInstruction', v)}
-              />
+              <div className="space-y-4">
+                <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
+                  <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-3 block">
+                    <i className="fa-solid fa-scroll mr-1"></i> Kağıt Yönlendirmesi
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => updateSetting('orientation', 'portrait')}
+                      className={`flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all ${
+                        settings.orientation !== 'landscape'
+                          ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--text-primary)] shadow-sm'
+                          : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-secondary)] hover:bg-[var(--bg-paper)]'
+                      }`}
+                    >
+                      <i className="fa-solid fa-file-lines text-xl mb-1"></i>
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Dikey</span>
+                    </button>
+                    <button
+                      onClick={() => updateSetting('orientation', 'landscape')}
+                      className={`flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all ${
+                        settings.orientation === 'landscape'
+                          ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--text-primary)] shadow-sm'
+                          : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-secondary)] hover:bg-[var(--bg-paper)]'
+                      }`}
+                    >
+                      <i className="fa-solid fa-file-lines text-xl mb-1 rotate-90 transform origin-center"></i>
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Yatay</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
+                  <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
+                    <i className="fa-solid fa-grip-vertical mr-1"></i> İçerik Yapısı
+                  </label>
+                  <Toggle
+                    label="Etkinlik Başlığını Göster"
+                    checked={settings.showTitle !== false}
+                    onChange={(v: any) => updateSetting('showTitle', v)}
+                  />
+                  <Toggle
+                    label="Yönergeyi Göster"
+                    checked={settings.showInstruction !== false}
+                    onChange={(v: any) => updateSetting('showInstruction', v)}
+                  />
+                  <div className="pt-2 mt-2 border-t border-[var(--border-color)]">
+                    <NumberControl
+                      label="Sayfa Marjı (mm)"
+                      value={settings.margin || 15}
+                      onChange={(v: any) => updateSetting('margin', v)}
+                      min={5}
+                      max={40}
+                      step={1}
+                    />
+                  </div>
+                </div>
+              </div>
             </DropdownPanel>
           )}
         </div>
@@ -378,8 +427,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             title="Yazdır (PDF)"
             onClick={async () => {
               try {
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await printService.generatePdf('.worksheet-page', settings.title, { action: 'print' });
+                await new Promise((resolve) => setTimeout(resolve, 50));
+                await printService.generatePdf('.worksheet-page', settings.title, {
+                  action: 'print',
+                });
               } catch (e) {
                 console.error(e);
               }
@@ -401,7 +452,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           />
         )}
       </div>
-
     </div>
   );
 };

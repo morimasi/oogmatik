@@ -456,7 +456,15 @@
         flex-direction: column;
         box-sizing: border-box;
         border: 1px solid #e5e7eb;
-        transition: transform 0.3s ease;
+        transition:
+          transform 0.3s ease,
+          width 0.3s ease,
+          min-height 0.3s ease;
+      }
+
+      .worksheet-page.landscape {
+        width: 297mm;
+        min-height: 210mm;
       }
 
       .worksheet-page:hover {
@@ -562,7 +570,6 @@
         border: none !important;
         width: 210mm !important;
         min-height: 297mm !important;
-        padding: 15mm !important;
         background: white !important;
         display: flex !important;
         flex-direction: column !important;
@@ -570,11 +577,26 @@
         break-after: always !important;
       }
 
+      body.printing-mode #print-overlay .worksheet-page.landscape {
+        width: 297mm !important;
+        min-height: 210mm !important;
+      }
+
       /* 2. Native Print Media Query */
       @media print {
         @page {
           size: A4 portrait;
           margin: 15mm 10mm; /* Reliable paper margin for all pages */
+        }
+
+        @page landscape {
+          size: A4 landscape;
+          margin: 10mm 15mm;
+        }
+
+        /* If body or worksheet has landscape class, apply landscape page size */
+        .landscape-print {
+          page: landscape;
         }
 
         /* Global Resets for High-Quality Premium Printing */
