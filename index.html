@@ -523,9 +523,19 @@
       page-break-inside: avoid !important;
     }
 
-    /* --- PREMIUM PRINT ENGINE v5.0 --- */
-    /* WYSIWYG & Multi-Page Support */
-    
+    /* --- PREMIUM PRINT ENGINE v6.0 --- */
+    /* Overlay Based Isolation & Multi-Page Support */
+
+    #print-overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 99999;
+      background: white;
+    }
+
     /* 1. Printing Mode State (JS triggers this class) */
     body.printing-mode {
       overflow: visible !important;
@@ -534,41 +544,33 @@
     }
 
     body.printing-mode #root {
-      overflow: visible !important;
-      height: auto !important;
+      display: none !important; /* Completely hide the app UI */
     }
 
-    /* Hide UI when printing mode is active */
-    body.printing-mode header,
-    body.printing-mode .sidebar-container,
-    body.printing-mode .no-print,
-    body.printing-mode .overlay-ui,
-    body.printing-mode button,
-    body.printing-mode .fixed {
-      display: none !important;
-    }
-
-    /* Force content to flow */
-    body.printing-mode .flex-1.overflow-hidden {
-      overflow: visible !important;
-      height: auto !important;
+    body.printing-mode #print-overlay {
       display: block !important;
     }
 
-    body.printing-mode .worksheet-page {
-      margin: 0 !important;
+    /* Force worksheet style in overlay */
+    body.printing-mode #print-overlay .worksheet-page {
+      margin: 0 auto !important;
       box-shadow: none !important;
       border: none !important;
-      width: 100% !important;
-      min-height: 0 !important;
-      height: auto !important;
+      width: 210mm !important;
+      min-height: 297mm !important;
+      padding: 15mm !important;
+      background: white !important;
+      display: flex !important;
+      flex-direction: column !important;
+      page-break-after: always !important;
+      break-after: always !important;
     }
 
     /* 2. Native Print Media Query */
     @media print {
       @page {
         size: A4 portrait;
-        margin: 5mm;
+        margin: 0; /* Let worksheet padding handle margins */
       }
 
       /* Global Resets */
@@ -586,68 +588,43 @@
         padding: 0 !important;
         overflow: visible !important;
         background: white !important;
-        font-size: 12pt; /* Base print size */
       }
 
-      /* Hide everything by default */
-      body > * {
+      /* Hide everything except overlay */
+      body > *:not(#print-overlay) {
         display: none !important;
       }
 
-      /* Show only the root app */
-      body > #root {
+      #print-overlay {
         display: block !important;
-        width: 100% !important;
-        height: auto !important;
-        overflow: visible !important;
+        position: static !important;
       }
 
-      /* Hide App Shell Components */
-      header,
-      .sidebar-container,
-      .no-print,
-      .overlay-ui,
-      button,
-      .fixed,
-      [class*="backdrop-blur"],
-      [class*="shadow-"],
-      ::-webkit-scrollbar {
-        display: none !important;
-      }
-
-      /* Main Content Area */
-      .flex-1, .flex-col, .overflow-hidden {
-        overflow: visible !important;
-        height: auto !important;
-        display: block !important; /* Break flex locks */
-      }
-
-      /* Worksheet Container */
-      .worksheet-page, 
-      [class*="worksheet-page"] {
+      /* Worksheet Page Formatting */
+      #print-overlay .worksheet-page {
         width: 100% !important;
         max-width: 100% !important;
         margin: 0 !important;
-        padding: 0 !important;
+        padding: 15mm !important; /* Professional A4 margin */
         border: none !important;
         box-shadow: none !important;
-        min-height: 0 !important;
+        min-height: 297mm !important;
         height: auto !important;
         background: white !important;
         display: block !important;
         position: relative !important;
-        left: auto !important;
-        top: auto !important;
-        transform: none !important;
+        page-break-after: always !important;
+        break-after: always !important;
       }
 
-      /* Pagination Logic */
+      /* Multi-page break protection */
       .break-inside-avoid,
       [class*="break-inside-avoid"],
       .card,
       .box,
       .grid > div,
       table,
+      tr,
       img,
       svg,
       canvas {
@@ -655,17 +632,6 @@
         page-break-inside: avoid !important;
       }
 
-      h1, h2, h3, h4, h5, h6 {
-        break-after: avoid !important;
-        page-break-after: avoid !important;
-      }
-
-      /* Grid Adjustments for A4 */
-      .grid {
-        display: grid !important;
-        /* Ensure grids don't collapse */
-      }
-      
       /* Typography Scaling Reset */
       :root {
         --ui-scale: 1 !important;
