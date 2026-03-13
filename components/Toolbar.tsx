@@ -34,6 +34,27 @@ interface ToolbarProps {
 
 const Divider = () => <div className="h-8 w-px bg-[var(--border-color)] mx-2 self-center"></div>;
 
+// Paper size state for print (A4 default) – used to drive dynamic margins
+// Note: kept local to UI for now; if needed, this can be hoisted to a global store
+const PaperSizeSelectorInline = ({
+  value,
+  onChange,
+}: {
+  value: PaperSize;
+  onChange: (p: PaperSize) => void;
+}) => (
+  <select
+    value={value}
+    onChange={(e) => onChange(e.target.value as PaperSize)}
+    className="ml-2 p-1 rounded bg-white border border-zinc-200 text-xs"
+    aria-label="Kağıt Boyutu"
+  >
+    <option value="A4">A4</option>
+    <option value="Letter">Letter</option>
+    <option value="Legal">Legal</option>
+  </select>
+);
+
 // Basic paper size state for print (A4 default)
 const usePaperSizeState = () => {
   // Local to this module; can be lifted to global store if needed
@@ -476,6 +497,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               }
             }}
           />
+          {/* Paper size selector (dynamic margins) */}
+          <PaperSizeSelectorInline value={paperSize} onChange={(p) => setPaperSize(p)} />
           <IconButton
             icon="fa-camera"
             title="Görüntü Olarak Kaydet"
