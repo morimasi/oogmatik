@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSettings, WorksheetData } from '../types';
-import { printService } from '../utils/printService';
+import { printService, PaperSize } from '../utils/printService';
 import { snapshotService } from '../utils/snapshotService';
 import { useA4EditorStore } from '../store/useA4EditorStore';
 
@@ -66,6 +66,24 @@ const IconButton = ({
     )}
   </button>
 );
+
+// Paper size for print (A4, Letter, Legal) - default A4
+const PaperSizeSelector = () => {
+  const [size, setSize] = useState<PaperSize>('A4');
+  // Expose setter via closure for quick binding if needed in print actions
+  return (
+    <select
+      value={size}
+      onChange={(e) => setSize(e.target.value as PaperSize)}
+      className="ml-2 p-1 rounded bg-white border border-zinc-200 text-xs"
+      aria-label="Kağıt Boyutu"
+    >
+      <option value="A4">A4</option>
+      <option value="Letter">Letter</option>
+      <option value="Legal">Legal</option>
+    </select>
+  );
+};
 
 const MenuButton = ({ icon, label, onClick, active, isOpen }: any) => (
   <button

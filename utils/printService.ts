@@ -8,13 +8,21 @@ export interface PrintOptions {
   fontSize?: 10 | 11 | 12;
 }
 
+export type PaperSize = 'A4' | 'Letter' | 'Legal';
+export type PaperMargins = { top: string; bottom: string; left?: string; right?: string };
+const PAPER_MARGINS: Record<PaperSize, PaperMargins> = {
+  A4: { top: '15mm', bottom: '10mm' },
+  Letter: { top: '12mm', bottom: '12mm' },
+  Legal: { top: '15mm', bottom: '15mm' },
+};
+
 export const printService = {
   /**
    * Premium Print Engine v6.0 (Overlay Mode)
    * Creates a dedicated overlay for printing to ensure 100% isolation from UI.
    * Supports multi-page content, canvas cloning, and input preservation.
    */
-  print: (elementSelector: string = '.worksheet-page') => {
+  print: (elementSelector: string = '.worksheet-page', paperSize: PaperSize = 'A4') => {
     // 1. Find the target content
     const originalContent = document.querySelector(elementSelector);
     if (!originalContent) {
@@ -36,12 +44,12 @@ export const printService = {
     // 3. Clone the content deeply
     const clonedContent = originalContent.cloneNode(true) as HTMLElement;
 
-    // Dinamik margin (padding) değerini oku, böylece kullanıcı özel marj seçtiyse koruyalım
-    const computedStyle = window.getComputedStyle(originalContent);
-    const topPadding = computedStyle.paddingTop || '15mm';
-    const bottomPadding = computedStyle.paddingBottom || '15mm';
+    // Use dynamic margins per paper size
+    const marginsForThisSize = PAPER_MARGINS[paperSize];
+    const top = marginsForThisSize.top;
+    const bottom = marginsForThisSize.bottom;
 
-    // Clone'un padding değerlerini sıfırla ki THEAD ile çakışıp ilk sayfada 2 kat boşluk yapmasın!
+    // Reset padding to ensure header/footer margins are respected
     clonedContent.style.paddingTop = '0px';
     clonedContent.style.paddingBottom = '0px';
 
@@ -99,8 +107,7 @@ export const printService = {
     const thead = document.createElement('thead');
     const trHead = document.createElement('tr');
     const tdHead = document.createElement('td');
-    // Use dynamic padding from the worksheet
-    tdHead.innerHTML = `<div style="height: ${topPadding}; overflow: hidden; background: transparent;">&nbsp;</div>`;
+    tdHead.innerHTML = `<div style="height: ${top}; overflow: hidden; background: transparent;">&nbsp;</div>`;
     tdHead.style.border = 'none';
     tdHead.style.padding = '0';
     trHead.appendChild(tdHead);
@@ -123,7 +130,7 @@ export const printService = {
     const trFoot = document.createElement('tr');
     const tdFoot = document.createElement('td');
     // Use dynamic padding from the worksheet
-    tdFoot.innerHTML = `<div style="height: ${bottomPadding}; overflow: hidden; background: transparent;">&nbsp;</div>`;
+    tdFoot.innerHTML = `<div style="height: ${bottom}; overflow: hidden; background: transparent;">&nbsp;</div>`;
     tdFoot.style.border = 'none';
     tdFoot.style.padding = '0';
     trFoot.appendChild(tdFoot);
