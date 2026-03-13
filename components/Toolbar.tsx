@@ -431,7 +431,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             onClick={async () => {
               try {
                 await new Promise((resolve) => setTimeout(resolve, 50));
-                await printService.generatePdf('.worksheet-page', settings.title, {
+
+                // Eğer #print-container varsa (çoklu sayfa render ediliyorsa) onu al, yoksa .worksheet-page'i al
+                const targetSelector = document.getElementById('print-container')
+                  ? '#print-container'
+                  : '.worksheet-page';
+
+                await printService.generatePdf(targetSelector, settings.title, {
                   action: 'print',
                 });
               } catch (e) {

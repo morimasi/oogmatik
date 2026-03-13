@@ -564,12 +564,15 @@
       }
 
       /* Force worksheet style in overlay */
-      body.printing-mode #print-overlay .worksheet-page {
+      body.printing-mode #print-overlay .worksheet-page,
+      body.printing-mode #print-overlay .a4-page {
         margin: 0 auto !important;
         box-shadow: none !important;
         border: none !important;
-        width: 210mm !important;
+        width: 100% !important;
+        max-width: 100% !important;
         min-height: 297mm !important;
+        height: auto !important;
         background: white !important;
         display: flex !important;
         flex-direction: column !important;
@@ -577,7 +580,8 @@
         break-after: always !important;
       }
 
-      body.printing-mode #print-overlay .worksheet-page.landscape {
+      body.printing-mode #print-overlay .worksheet-page.landscape,
+      body.printing-mode #print-overlay .a4-page.landscape {
         width: 297mm !important;
         min-height: 210mm !important;
       }

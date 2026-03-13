@@ -36,6 +36,15 @@ export const printService = {
     // 3. Clone the content deeply
     const clonedContent = originalContent.cloneNode(true) as HTMLElement;
 
+    // Dinamik margin (padding) değerini oku, böylece kullanıcı özel marj seçtiyse koruyalım
+    const computedStyle = window.getComputedStyle(originalContent);
+    const topPadding = computedStyle.paddingTop || '15mm';
+    const bottomPadding = computedStyle.paddingBottom || '15mm';
+
+    // Clone'un padding değerlerini sıfırla ki THEAD ile çakışıp ilk sayfada 2 kat boşluk yapmasın!
+    clonedContent.style.paddingTop = '0px';
+    clonedContent.style.paddingBottom = '0px';
+
     // 3.1. Preserve Canvas Content (cloning doesn't copy canvas state)
     const originalCanvases = originalContent.querySelectorAll('canvas');
     const clonedCanvases = clonedContent.querySelectorAll('canvas');
@@ -75,10 +84,53 @@ export const printService = {
       }
     });
 
-    // 4. Directly append the cloned content to the overlay
-    // Removed the "Table Header Hack" because it breaks CSS Grids, Flexbox layouts,
-    // and causes SVG/Canvas clipping or margin loss on subsequent pages in modern browsers.
-    overlay.appendChild(clonedContent);
+    // 4. Wrap clone in Table Structure for Guaranteed Margins (The "Table Header Hack")
+    // This is the ONLY 100% reliable way to force a top margin on every page
+    // when a continuous element (like a CSS grid) breaks across multiple pages in Chrome,
+    // especially if the user selects "Margin: None" in the print dialog.
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse';
+    table.style.margin = '0';
+    table.style.padding = '0';
+    table.style.border = 'none';
+
+    // Header (Top Margin Spacer)
+    const thead = document.createElement('thead');
+    const trHead = document.createElement('tr');
+    const tdHead = document.createElement('td');
+    // Use dynamic padding from the worksheet
+    tdHead.innerHTML = `<div style="height: ${topPadding}; overflow: hidden; background: transparent;">&nbsp;</div>`;
+    tdHead.style.border = 'none';
+    tdHead.style.padding = '0';
+    trHead.appendChild(tdHead);
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    // Body (Content)
+    const tbody = document.createElement('tbody');
+    const trBody = document.createElement('tr');
+    const tdBody = document.createElement('td');
+    tdBody.style.border = 'none';
+    tdBody.style.padding = '0';
+    tdBody.appendChild(clonedContent);
+    trBody.appendChild(tdBody);
+    tbody.appendChild(trBody);
+    table.appendChild(tbody);
+
+    // Footer (Bottom Margin Spacer)
+    const tfoot = document.createElement('tfoot');
+    const trFoot = document.createElement('tr');
+    const tdFoot = document.createElement('td');
+    // Use dynamic padding from the worksheet
+    tdFoot.innerHTML = `<div style="height: ${bottomPadding}; overflow: hidden; background: transparent;">&nbsp;</div>`;
+    tdFoot.style.border = 'none';
+    tdFoot.style.padding = '0';
+    trFoot.appendChild(tdFoot);
+    tfoot.appendChild(trFoot);
+    table.appendChild(tfoot);
+
+    overlay.appendChild(table);
 
     // 5. Add printing class to body to trigger CSS overrides
     document.body.classList.add('printing-mode');
