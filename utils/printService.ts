@@ -76,8 +76,51 @@ export const printService = {
       }
     });
 
-    // 4. Append clone to overlay
-    overlay.appendChild(clonedContent);
+    // 4. Wrap clone in Table Structure for Guaranteed Margins (The "Table Header Hack")
+    // This forces the browser to repeat the header space on every new page
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse';
+    table.style.margin = '0';
+    table.style.padding = '0';
+    
+    // Header (Top Margin Spacer)
+    const thead = document.createElement('thead');
+    const trHead = document.createElement('tr');
+    const tdHead = document.createElement('td');
+    // 10mm height spacer
+    tdHead.innerHTML = '<div style="height: 10mm; overflow: hidden;">&nbsp;</div>'; 
+    tdHead.style.border = 'none';
+    tdHead.style.padding = '0';
+    trHead.appendChild(tdHead);
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    // Body (Content)
+    const tbody = document.createElement('tbody');
+    const trBody = document.createElement('tr');
+    const tdBody = document.createElement('td');
+    tdBody.style.border = 'none';
+    tdBody.style.padding = '0';
+    tdBody.appendChild(clonedContent);
+    trBody.appendChild(tdBody);
+    tbody.appendChild(trBody);
+    table.appendChild(tbody);
+
+    // Footer (Bottom Margin Spacer)
+    const tfoot = document.createElement('tfoot');
+    const trFoot = document.createElement('tr');
+    const tdFoot = document.createElement('td');
+    // 10mm height spacer
+    tdFoot.innerHTML = '<div style="height: 10mm; overflow: hidden;">&nbsp;</div>';
+    tdFoot.style.border = 'none';
+    tdFoot.style.padding = '0';
+    trFoot.appendChild(tdFoot);
+    tfoot.appendChild(trFoot);
+    table.appendChild(tfoot);
+
+    // Append table to overlay instead of raw content
+    overlay.appendChild(table);
 
     // 5. Add printing class to body to trigger CSS overrides
     document.body.classList.add('printing-mode');
