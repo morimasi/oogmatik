@@ -34,6 +34,18 @@ interface ToolbarProps {
 
 const Divider = () => <div className="h-8 w-px bg-[var(--border-color)] mx-2 self-center"></div>;
 
+// Basic paper size state for print (A4 default)
+const usePaperSizeState = () => {
+  // Local to this module; can be lifted to global store if needed
+  const [paperSize, setPaperSize] = useState<PaperSize>('A4');
+  return { paperSize, setPaperSize };
+};
+
+// IconButton component already defined above; we add a small hook here for dynamic paper size (A4 default)
+// Note: this is safely placed at module scope; can be integrated into the component if needed
+const PAPER_SIZE_DEFAULT: PaperSize = 'A4';
+const ICON_PAPER_SIZE_HOOK = () => PAPER_SIZE_DEFAULT;
+
 const IconButton = ({
   icon,
   onClick,
@@ -457,6 +469,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
                 await printService.generatePdf(targetSelector, settings.title, {
                   action: 'print',
+                  paperSize: 'A4' as PaperSize,
                 });
               } catch (e) {
                 console.error(e);
