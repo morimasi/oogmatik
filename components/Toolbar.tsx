@@ -36,73 +36,6 @@ interface ToolbarProps {
 
 const Divider = () => <div className="h-8 w-px bg-[var(--border-color)] mx-2 self-center"></div>;
 
-// Paper size state for print (A4 default) – used to drive dynamic margins
-// Render a small premium dropdown with icon and tooltip
-const PaperSizeSelectorInline = ({
-  value,
-  onChange,
-}: {
-  value: PaperSize;
-  onChange: (p: PaperSize) => void;
-}) => {
-  const showToast = (msg: string) => {
-    try {
-      const t = document.createElement('div');
-      t.textContent = msg;
-      t.style.position = 'fixed';
-      t.style.top = '12px';
-      t.style.right = '12px';
-      t.style.background = 'rgba(0,0,0,0.85)';
-      t.style.color = '#fff';
-      t.style.padding = '10px 14px';
-      t.style.borderRadius = '6px';
-      t.style.fontSize = '12px';
-      t.style.zIndex = '9999';
-      t.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-      t.style.maxWidth = '260px';
-      t.style.whiteSpace = 'nowrap';
-      t.style.textOverflow = 'ellipsis';
-      t.style.overflow = 'hidden';
-      document.body.appendChild(t);
-      setTimeout(() => t.remove(), 1800);
-    } catch {
-      // ignore
-    }
-  };
-  return (
-    <div className="flex items-center">
-      <span title="Kağıt Boyutu" className="mr-1 text-xs text-[var(--text-muted)]">
-        <i className="fa-solid fa-ruler-vertical"></i>
-      </span>
-      <select
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value as PaperSize);
-          showToast(`Paper size set to ${e.target.value}`);
-        }}
-        className="ml-2 p-1 rounded bg-white border border-zinc-200 text-xs"
-        aria-label="Kağıt Boyutu"
-      >
-        <option value="A4">A4</option>
-        <option value="Letter">Letter</option>
-        <option value="Legal">Legal</option>
-      </select>
-    </div>
-  );
-};
-
-// Basic paper size state for print (A4 default)
-const usePaperSizeState = () => {
-  // Local to this module; can be lifted to global store if needed
-  const [paperSize, setPaperSize] = useState<PaperSize>('A4');
-  return { paperSize, setPaperSize };
-};
-
-// IconButton component already defined above; we add a small hook here for dynamic paper size (A4 default)
-// Note: this is safely placed at module scope; can be integrated into the component if needed
-const PAPER_SIZE_DEFAULT: PaperSize = 'A4';
-const ICON_PAPER_SIZE_HOOK = () => PAPER_SIZE_DEFAULT;
-
 const IconButton = ({
   icon,
   onClick,
@@ -138,12 +71,11 @@ const IconButton = ({
 
 // Paper size for print (A4, Letter, Legal) - default A4
 const PaperSizeSelector = () => {
-  const [size, setSize] = useState<PaperSize>('A4');
-  // Expose setter via closure for quick binding if needed in print actions
+  const { paperSize, setPaperSize } = usePaperSizeStore();
   return (
     <select
-      value={size}
-      onChange={(e) => setSize(e.target.value as PaperSize)}
+      value={paperSize}
+      onChange={(e) => setPaperSize(e.target.value as PaperSize)}
       className="ml-2 p-1 rounded bg-white border border-zinc-200 text-xs"
       aria-label="Kağıt Boyutu"
     >

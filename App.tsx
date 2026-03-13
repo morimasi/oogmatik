@@ -37,11 +37,6 @@ import { PaperSize } from './utils/printService';
 import { StudentInfoModal } from './components/StudentInfoModal';
 import { HistoryView } from './components/HistoryView';
 import { PaperSizeInitializer } from './components/PaperSizeInitializer';
-import { PaperSizeInitializer } from './components/PaperSizeInitializer';
-// Initialize PaperSize on startup (server + localStorage) and keep in sync with login/logout
-const _paperSizeStore = usePaperSizeStore();
-const _auth = useAuthStore((s: any) => s);
-import { useEffect } from 'react';
 import { useAuthStore } from './store/useAuthStore';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
 import * as offlineGenerators from './services/offlineGenerators';
@@ -83,9 +78,6 @@ const ScreeningModule = lazy(() =>
 const AssessmentModule = lazy(() =>
   import('./components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
 );
-
-// Cleanup: duplicate initialization blocks removed; kept core logic in a single patch to be merged
-// Patch end
 
 const initialStyleSettings: StyleSettings = {
   fontSize: 18,
@@ -145,84 +137,6 @@ const LoadingSpinner = () => (
     <div className="w-10 h-10 border-4 border-[var(--accent-muted)] border-t-[var(--accent-color)] rounded-full animate-spin"></div>
   </div>
 );
-
-const Modal = ({
-  isOpen,
-  onClose,
-  title,
-  children,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  children: React.ReactNode;
-}) => {
-  if (!isOpen) return null;
-  // PaperSize initialization will be handled at App root via global store and server integration
-
-  // Initialize/persist PaperSize with server/localStorage, per user session
-  const paperSizeStore = usePaperSizeStore();
-  const auth = useAuthStore((s: any) => s);
-  React.useEffect(() => {
-    (async () => {
-      const user = auth?.user;
-      if (user?.id) {
-        const serverSize = await loadCurrentUserPaperSize();
-        if (serverSize) {
-          paperSizeStore.setPaperSize(serverSize);
-          localStorage.setItem('oogmatik.paperSize', serverSize);
-        } else {
-          const local = localStorage.getItem('oogmatik.paperSize');
-          if (local) paperSizeStore.setPaperSize(local as PaperSize);
-        }
-      } else {
-        const local = localStorage.getItem('oogmatik.paperSize');
-        if (local) paperSizeStore.setPaperSize(local as PaperSize);
-      }
-    })();
-  }, [auth?.user?.id]);
-  useEffect(() => {
-    if (!auth?.user) {
-      paperSizeStore.setPaperSize('A4');
-      localStorage.removeItem('oogmatik.paperSize');
-    }
-  }, [auth?.user]);
-
-  return (
-    <>
-      <PaperSizeInitializer />
-    <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300"
-      onClick={(e) => {
-        e.stopPropagation();
-        onClose();
-      }}
-    >
-      <div
-        className="bg-[var(--bg-paper)] rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-[var(--border-color)]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {title && (
-          <div className="flex items-center justify-between p-6 border-b border-[var(--border-color)]">
-            <h2 className="text-xl font-black text-[var(--accent-color)] tracking-tight">
-              {title}
-            </h2>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onClose();
-              }}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--surface-glass)] text-[var(--text-secondary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all"
-            >
-              <i className="fa-solid fa-times"></i>
-            </button>
-          </div>
-        )}
-        <div className="p-6">{children}</div>
-      </div>
-    </div>
-  );
-};
 
 const DeveloperModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   if (!isOpen) return null;
@@ -1006,9 +920,7 @@ const AppContent = () => {
   };
 
   return (
-    <>
-      <PaperSizeInitializer />
-      <div className="flex flex-col h-screen bg-[var(--bg-primary)] font-sans transition-colors duration-300">
+    <div className="flex flex-col h-screen bg-[var(--bg-primary)] font-sans transition-colors duration-300">
       <header
         className={`relative bg-[var(--bg-paper)]/80 backdrop-blur-md border-b border-[var(--border-color)] shadow-sm z-50 transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
       >
@@ -1417,5 +1329,10 @@ const AppContent = () => {
 };
 
 export const App = () => {
-  return <AppContent />;
+  return (
+    <>
+      <PaperSizeInitializer />
+      <AppContent />
+    </>
+  );
 };
