@@ -37,7 +37,7 @@ import { PaperSize } from './utils/printService';
 import { useAuthStore } from './store/useAuthStore';
 import { StudentInfoModal } from './components/StudentInfoModal';
 import { HistoryView } from './components/HistoryView';
-import { initPaperSizeForCurrentUser } from './store/usePaperSizeStore';
+// Init PaperSize on startup will be handled in a dedicated effect below
 import { useEffect } from 'react';
 import { useAuthStore } from './store/useAuthStore';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
