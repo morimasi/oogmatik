@@ -34,10 +34,12 @@ import { TourGuide, TourStep } from './components/TourGuide';
 import { loadCurrentUserPaperSize } from './services/paperSizeApi';
 import { usePaperSizeStore } from './store/usePaperSizeStore';
 import { PaperSize } from './utils/printService';
-import { useAuthStore } from './store/useAuthStore';
 import { StudentInfoModal } from './components/StudentInfoModal';
 import { HistoryView } from './components/HistoryView';
-// Init PaperSize on startup will be handled in a dedicated effect below
+import { PaperSizeInitializer } from './components/PaperSizeInitializer';
+// Initialize PaperSize on startup (server + localStorage) and keep in sync with login/logout
+const _paperSizeStore = usePaperSizeStore();
+const _auth = useAuthStore((s: any) => s);
 import { useEffect } from 'react';
 import { useAuthStore } from './store/useAuthStore';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
@@ -80,6 +82,9 @@ const ScreeningModule = lazy(() =>
 const AssessmentModule = lazy(() =>
   import('./components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
 );
+
+// Cleanup: duplicate initialization blocks removed; kept core logic in a single patch to be merged
+// Patch end
 
 const initialStyleSettings: StyleSettings = {
   fontSize: 18,
@@ -152,32 +157,35 @@ const Modal = ({
   children: React.ReactNode;
 }) => {
   if (!isOpen) return null;
-  // Initialize PaperSize on login/logout events will be handled in App's main scope below
+  // PaperSize initialization will be handled at App root via global store and server integration
 
-  // Global PaperSize initialization on startup (best-effort)
-  // Try to load from server on first render if user context exists
-  const initPaper = async () => {
-    try {
-      const { usePaperSizeStore } = require('./store/usePaperSizeStore');
-      const paperStore = require('./store/usePaperSizeStore').usePaperSizeStore;
-      const currentUser =
-        (typeof window !== 'undefined' && (window as any).__oogmatik_current_user) || null;
-      if (currentUser) {
-        const serverSize = await loadCurrentUserPaperSize();
-        if (serverSize) paperStore.getState().setPaperSize(serverSize as any);
-      } else {
-        // No user context, rely on localStorage
-        const saved = localStorage.getItem('oogmatik.paperSize');
-        if (saved) paperStore.getState().setPaperSize(saved as any);
-      }
-    } catch {
-      // ignore
-    }
-  };
-
+  // Initialize/persist PaperSize with server/localStorage, per user session
+  const paperSizeStore = usePaperSizeStore();
+  const auth = useAuthStore((s: any) => s);
   React.useEffect(() => {
-    initPaper();
-  }, []);
+    (async () => {
+      const user = auth?.user;
+      if (user?.id) {
+        const serverSize = await loadCurrentUserPaperSize();
+        if (serverSize) {
+          paperSizeStore.setPaperSize(serverSize);
+          localStorage.setItem('oogmatik.paperSize', serverSize);
+        } else {
+          const local = localStorage.getItem('oogmatik.paperSize');
+          if (local) paperSizeStore.setPaperSize(local as PaperSize);
+        }
+      } else {
+        const local = localStorage.getItem('oogmatik.paperSize');
+        if (local) paperSizeStore.setPaperSize(local as PaperSize);
+      }
+    })();
+  }, [auth?.user?.id]);
+  useEffect(() => {
+    if (!auth?.user) {
+      paperSizeStore.setPaperSize('A4');
+      localStorage.removeItem('oogmatik.paperSize');
+    }
+  }, [auth?.user]);
 
   return (
     <div
@@ -491,40 +499,7 @@ const AppContent = () => {
   const studentStore = useStudentStore();
   const { isEditMode, zoomScale } = useAppStore();
 
-  // Global PaperSize initialization glue (server + localStorage)
-  const paperSizeStore = usePaperSizeStore();
-  const auth = useAuthStore((s: any) => s);
-  React.useEffect(() => {
-    (async () => {
-      const user = auth?.user;
-      if (user?.id) {
-        try {
-          const serverSize = await loadCurrentUserPaperSize();
-          if (serverSize) {
-            paperSizeStore.setPaperSize(serverSize);
-            localStorage.setItem('oogmatik.paperSize', serverSize);
-          } else {
-            const local = localStorage.getItem('oogmatik.paperSize');
-            if (local) paperSizeStore.setPaperSize(local as PaperSize);
-          }
-        } catch {
-          const local = localStorage.getItem('oogmatik.paperSize');
-          if (local) paperSizeStore.setPaperSize(local as PaperSize);
-        }
-      } else {
-        const local = localStorage.getItem('oogmatik.paperSize');
-        if (local) paperSizeStore.setPaperSize(local as PaperSize);
-      }
-    })();
-  }, [auth?.user?.id]);
-
-  // Auto reset on logout
-  React.useEffect(() => {
-    if (!auth?.user) {
-      paperSizeStore.setPaperSize('A4');
-      localStorage.removeItem('oogmatik.paperSize');
-    }
-  }, [auth?.user]);
+  // Global PaperSize initialization glue to App root (to be implemented in root-level effect later)
 
   // Global Initialization
   useEffect(() => {

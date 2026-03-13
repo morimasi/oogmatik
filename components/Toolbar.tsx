@@ -5,6 +5,7 @@ import { StyleSettings, WorksheetData } from '../types';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { printService, PaperSize } from '../utils/printService';
 import { snapshotService } from '../utils/snapshotService';
+import { PremiumPaperSizeSelector } from './PremiumPaperSizeSelector';
 import { useA4EditorStore } from '../store/useA4EditorStore';
 
 interface ToolbarProps {
@@ -536,7 +537,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             }}
           />
           {/* Paper size selector (dynamic margins) */}
-          <PaperSizeSelectorInline
+          <PremiumPaperSizeSelector
             value={paperSize}
             onChange={(p: PaperSize) => paperSizeStore.setPaperSize(p)}
           />
