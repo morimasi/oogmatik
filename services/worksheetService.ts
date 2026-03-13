@@ -113,7 +113,11 @@ export const worksheetService = {
 
             const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
             const userRef = doc(db, "users", userId);
-            updateDoc(userRef, { worksheetCount: increment(1) }).catch(console.warn);
+            try {
+                await updateDoc(userRef, { worksheetCount: increment(1) });
+            } catch (countErr) {
+                console.warn("worksheetCount güncellenemedi:", countErr);
+            }
 
             return {
                 ...mapDbToWorksheet(payload, docRef.id),

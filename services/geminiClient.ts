@@ -1,8 +1,8 @@
 import { Type } from "@google/genai";
 
-// Model Seçimi: Gemini 2.5 Flash — Yapısal JSON çıkışı ve multimodal destek için optimize edilmiş
+// Model Seçimi: Gemini 3 Pro — Multimodal thinking ve muhakeme motoru desteği
 // NOT: Model adı .env'den okunabilir: VITE_GEMINI_MODEL
-const MASTER_MODEL = (import.meta as any).env?.VITE_GEMINI_MODEL || 'gemini-2.5-flash-preview-04-17';
+const MASTER_MODEL = (import.meta as any).env?.VITE_GEMINI_MODEL || 'gemini-3-pro';
 
 // ============================================================
 // JSON ONARIM MOTORU (3 Katmanlı Strateji)
@@ -167,7 +167,7 @@ export const evaluateContent = async (content: any) => {
     const apiKey = getApiKey();
     if (!apiKey) throw new Error("API Key eksik");
 
-    const url = `https://generativelanguage.googleapis.com/v1alpha/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1alpha/models/gemini-3-pro:generateContent?key=${apiKey}`;
 
     const prompt = `
     [ANALİZ EDİLECEK İÇERİK]

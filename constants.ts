@@ -401,3 +401,18 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     ],
   },
 ];
+
+// LocalStorage Keys
+export const STORAGE_KEYS = {
+  GEMINI_API_KEY: 'gemini_api_key',
+  USER_FAVORITES: 'user_favorites',
+  USER_HISTORY: 'user_history',
+  PAPER_SIZE: 'oogmatik.paperSize',
+  APP_SIDEBAR_WIDTH: 'app-sidebar-width',
+  APP_THEME: 'app-theme',
+  APP_UI_SETTINGS: 'app-ui-settings',
+  ADMIN_ACTIVE_TAB: 'admin_active_tab',
+  READING_STUDIO_ARCHIVE: 'reading_studio_archive',
+  AUDIT_LOGS: 'audit_logs',
+  ACTIVITY_SETTINGS_PREFIX: 'settings_',
+};

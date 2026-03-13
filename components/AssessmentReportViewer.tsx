@@ -16,6 +16,7 @@ interface AssessmentReportViewerProps {
     onAddToWorkbook?: (assessment: SavedAssessment) => void;
     onAutoGenerateWorkbook?: (report: AssessmentReport) => void;
     onSelectActivity?: (id: ActivityType) => void;
+    onGeneratePlan?: (name: string, age: number, weaknesses: string[], context?: string) => void;
 }
 
 // Risk seviyesi badge

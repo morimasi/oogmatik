@@ -12,7 +12,7 @@ const mapDbUserToAppUser = (docData: any, uid: string, email: string): User => (
     email: email,
     name: docData.name || email?.split('@')[0] || 'Kullanıcı',
     // ROLE IS NOW SOLELY DETERMINED BY DATABASE
-    role: docData.role || 'user', 
+    role: docData.role || 'user',
     avatar: docData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
     createdAt: docData.createdAt || new Date().toISOString(),
     lastLogin: docData.lastLogin || new Date().toISOString(),
@@ -40,7 +40,7 @@ export const authService = {
             let userData = userDocSnap.exists() ? userDocSnap.data() : {};
 
             // Son giriş tarihini güncelle
-            await setDoc(userDocRef, { 
+            await setDoc(userDocRef, {
                 lastLogin: new Date().toISOString(),
                 email: user.email // Ensure email is synced
             }, { merge: true });
@@ -75,7 +75,7 @@ export const authService = {
             const newUserProfile = {
                 name: name,
                 email: email,
-                role: 'user', 
+                role: 'user',
                 createdAt: new Date().toISOString(),
                 lastLogin: new Date().toISOString(),
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
@@ -110,7 +110,7 @@ export const authService = {
         try {
             const userDocRef = doc(db, "users", currentUser.uid);
             const userDocSnap = await getDoc(userDocRef);
-            
+
             if (userDocSnap.exists()) {
                 return mapDbUserToAppUser(userDocSnap.data(), currentUser.uid, currentUser.email!);
             } else {
@@ -141,7 +141,7 @@ export const authService = {
 
     updateProfile: async (userId: string, updates: Partial<User>): Promise<User> => {
         const userDocRef = doc(db, "users", userId);
-        
+
         const dbUpdates: any = {};
         if (updates.name) dbUpdates.name = updates.name;
         if (updates.avatar) dbUpdates.avatar = updates.avatar;
@@ -153,7 +153,7 @@ export const authService = {
         if (updates.bio !== undefined) dbUpdates.bio = updates.bio;
 
         await updateDoc(userDocRef, dbUpdates);
-        
+
         const updatedSnap = await getDoc(userDocRef);
         return mapDbUserToAppUser(updatedSnap.data(), userId, auth.currentUser?.email || '');
     },
@@ -186,12 +186,15 @@ export const authService = {
 
     getContacts: async (currentUserId: string): Promise<User[]> => {
         try {
+            // Güvenlik Önlemi: Tüm veritabanını çekmek yerine limitli sorgu (FAZ 2)
+            // İdeal Senaryo: Yalnızca "onaylı bağlantılar" veya "aynı kurumdaki kullanıcılar"
             const q = query(collection(db, "users"), limit(50));
             const querySnapshot = await getDocs(q);
             const users: User[] = [];
             querySnapshot.forEach((doc) => {
                 if (doc.id !== currentUserId) {
                     const data = doc.data() as any;
+                    // Askıya alınmış veya admin olmayanları gizle (opsiyonel mantık)
                     if (data.status !== 'suspended') {
                         users.push(mapDbUserToAppUser(data, doc.id, data.email));
                     }
@@ -225,9 +228,19 @@ export const authService = {
     // --- ADMIN ACTIONS ---
 
     deleteUser: async (userId: string): Promise<void> => {
-        // Note: Deleting user from Auth requires Cloud Functions or Admin SDK.
-        // Here we just delete the Firestore document.
+        // Güvenlik Uyarısı (FAZ 2)
+        // Client-side SDK üzerinden başka bir kullanıcının Auth kaydı SİLİNEMEZ.
+        // Şimdilik sadece firestore belgesini siliyoruz. 
+        // DOĞRU YÖNTEM: Firebase Cloud Functions `httpsCallable` ile backend'de admin.auth().deleteUser(uid) çağırmak.
+
         await deleteDoc(doc(db, "users", userId));
+
+        /* Örnek Cloud Function Entegrasyonu:
+        import { getFunctions, httpsCallable } from 'firebase/functions';
+        const functions = getFunctions(app, 'europe-west1');
+        const deleteAuthUser = httpsCallable(functions, 'deleteAuthUser');
+        await deleteAuthUser({ uid: userId });
+        */
     },
 
     toggleUserStatus: async (userId: string, currentStatus: string): Promise<void> => {

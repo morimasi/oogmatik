@@ -46,6 +46,8 @@ interface SidebarProps {
   onOpenMathStudio?: () => void;
   onOpenScreening?: () => void; // Added Prop
   activeCurriculumSession?: ActiveCurriculumSession | null;
+  width?: number;
+  onWidthChange?: (width: number) => void;
 }
 
 const StudioMenuItem = ({ icon, label, onClick, color, isExpanded }: any) => (

@@ -472,14 +472,13 @@ const AppContent = () => {
   useEffect(() => {
     const unsubscribeAuth = authStore.initialize();
     return () => unsubscribeAuth();
-  }, []);
+  }, [authStore.initialize]);
 
   useEffect(() => {
     if (!authStore.user) return;
     const unsubscribeStudents = studentStore.fetchStudents(authStore.user.id);
     return () => unsubscribeStudents();
-  }, [authStore.user]);
-
+  }, [authStore.user, studentStore.fetchStudents]);
   const { user, logout } = authStore;
   const { activeStudent, setActiveStudent, students } = studentStore;
 
@@ -677,7 +676,8 @@ const AppContent = () => {
   useEffect(() => {
     localStorage.setItem('user_history', JSON.stringify(historyItems));
   }, [historyItems]);
-  const addToHistory = (activityType: ActivityType, data: SingleWorksheetData[]) => {
+  const addToHistory = (activityType: ActivityType, data: WorksheetData) => {
+    if (!data) return;
     const activity = ACTIVITIES.find((a) => a.id === activityType);
     const category = ACTIVITY_CATEGORIES.find((c) => c.activities.includes(activityType));
     if (!activity || !category) return;
