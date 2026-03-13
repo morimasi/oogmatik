@@ -37,6 +37,7 @@ import { PaperSize } from './utils/printService';
 import { StudentInfoModal } from './components/StudentInfoModal';
 import { HistoryView } from './components/HistoryView';
 import { PaperSizeInitializer } from './components/PaperSizeInitializer';
+import { PaperSizeInitializer } from './components/PaperSizeInitializer';
 // Initialize PaperSize on startup (server + localStorage) and keep in sync with login/logout
 const _paperSizeStore = usePaperSizeStore();
 const _auth = useAuthStore((s: any) => s);
@@ -188,6 +189,8 @@ const Modal = ({
   }, [auth?.user]);
 
   return (
+    <>
+      <PaperSizeInitializer />
     <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300"
       onClick={(e) => {
@@ -1003,7 +1006,9 @@ const AppContent = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[var(--bg-primary)] font-sans transition-colors duration-300">
+    <>
+      <PaperSizeInitializer />
+      <div className="flex flex-col h-screen bg-[var(--bg-primary)] font-sans transition-colors duration-300">
       <header
         className={`relative bg-[var(--bg-paper)]/80 backdrop-blur-md border-b border-[var(--border-color)] shadow-sm z-50 transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
       >
