@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { UiSettings, StyleSettings } from '../types';
+import { UiSettings, StyleSettings, AppTheme } from '../types';
 
 export interface UIStoreState {
-    theme: 'light' | 'dark';
+    theme: AppTheme;
     sidebarWidth: number;
     zenMode: boolean;
     isSidebarOpen: boolean;
@@ -13,7 +13,7 @@ export interface UIStoreState {
     showDeveloperModal: boolean;
 
     // Actions
-    setTheme: (theme: 'light' | 'dark') => void;
+    setTheme: (theme: AppTheme) => void;
     setSidebarWidth: (width: number) => void;
     setZenMode: (enabled: boolean) => void;
     setIsSidebarOpen: (isOpen: boolean) => void;
@@ -71,7 +71,7 @@ const initialUiSettings: UiSettings = {
 export const useUIStore = create<UIStoreState>()(
     persist(
         (set) => ({
-            theme: 'light',
+            theme: 'anthracite',
             sidebarWidth: 320,
             zenMode: false,
             isSidebarOpen: false,

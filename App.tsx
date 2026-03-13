@@ -41,6 +41,7 @@ import { PaperSizeInitializer } from './components/PaperSizeInitializer';
 import { useAuthStore } from './store/useAuthStore';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
 import * as offlineGenerators from './services/offlineGenerators';
+import { useUIStore } from './store/useUIStore';
 
 // Lazy Loaded Components
 const ProfileView = lazy(() =>
@@ -111,17 +112,6 @@ const initialStyleSettings: StyleSettings = {
   rulerColor: '#6366f1',
   rulerHeight: 80,
   maskOpacity: 0.4,
-};
-
-const initialUiSettings: UiSettings = {
-  fontFamily: 'Lexend',
-  fontSizeScale: 1,
-  letterSpacing: 'normal',
-  lineHeight: 1.6,
-  saturation: 100,
-  compactMode: false,
-  premiumIntensity: 60,
-  contrastLevel: 50,
 };
 
 type ModalType = 'settings' | 'history' | 'about' | 'developer';
@@ -336,17 +326,17 @@ const AppContent = () => {
     null as ActiveCurriculumSession | null
   );
   const [loadedCurriculum, setLoadedCurriculum] = useState(null as Curriculum | null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const {
+    theme, setTheme,
+    sidebarWidth, setSidebarWidth,
+    zenMode, setZenMode,
+    isSidebarOpen, setIsSidebarOpen,
+    isTourActive, setIsTourActive,
+    uiSettings, updateUiSettings
+  } = useUIStore();
+
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
-  const [sidebarWidth, setSidebarWidth] = useState(() => {
-    try {
-      const stored = localStorage.getItem('app-sidebar-width');
-      return stored ? parseInt(stored) : 320;
-    } catch (e) {
-      return 320;
-    }
-  });
-  const [zenMode, setZenMode] = useState(false);
   const [openModal, setOpenModal] = useState(null as ModalType | null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -375,27 +365,6 @@ const AppContent = () => {
   // Screening to Plan Bridge
   const [screeningPlanData, setScreeningPlanData] = useState(
     null as { name: string; age: number; weaknesses: string[]; diagnosisContext?: string } | null
-  );
-
-  const [theme, setTheme] = useState(
-    (() => {
-      try {
-        const storedTheme = localStorage.getItem('app-theme');
-        return (storedTheme as AppTheme) || 'anthracite';
-      } catch (e) {
-        return 'anthracite';
-      }
-    })() as AppTheme
-  );
-  const [uiSettings, setUiSettings] = useState(
-    (() => {
-      try {
-        const stored = localStorage.getItem('app-ui-settings');
-        return stored ? { ...initialUiSettings, ...JSON.parse(stored) } : initialUiSettings;
-      } catch (e) {
-        return initialUiSettings;
-      }
-    })() as UiSettings
   );
 
   // Apply UI settings to document root when they change
@@ -428,8 +397,6 @@ const AppContent = () => {
     document.body.style.lineHeight = uiSettings.lineHeight.toString();
     document.body.style.letterSpacing = uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal';
     document.body.style.filter = `saturate(${uiSettings.saturation}%)`;
-
-    localStorage.setItem('app-ui-settings', JSON.stringify(uiSettings));
   }, [uiSettings]);
 
   // Theme effect
@@ -459,12 +426,10 @@ const AppContent = () => {
     );
     // Add selected theme class
     document.documentElement.classList.add(`theme-${theme}`);
-    localStorage.setItem('app-theme', theme);
   }, [theme]);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
-    localStorage.setItem('app-sidebar-width', sidebarWidth.toString());
   }, [sidebarWidth]);
   const [styleSettings, setStyleSettings] = useState(initialStyleSettings as StyleSettings);
   const [historyItems, setHistoryItems] = useState(
@@ -918,7 +883,7 @@ const AppContent = () => {
               <DropdownItem
                 icon="fa-circle-play"
                 label="Tur Başlat"
-                onClick={() => setIsTourOpen(true)}
+                onClick={() => setIsTourActive(true)}
               />
               <DropdownItem
                 icon="fa-headset"
@@ -1108,8 +1073,8 @@ const AppContent = () => {
               onLoadSaved={loadSavedWorksheet}
               theme={theme}
               uiSettings={uiSettings}
-              onUpdateTheme={setTheme}
-              onUpdateUiSettings={setUiSettings}
+              onUpdateTheme={(t) => setTheme(t as any)}
+              onUpdateUiSettings={(s) => updateUiSettings(s as any)}
               onOpenSettingsModal={() => setOpenModal('settings')}
             />
           </Suspense>
@@ -1157,7 +1122,7 @@ const AppContent = () => {
         </div>
       )}
 
-      <TourGuide steps={tourSteps} isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
+      <TourGuide steps={tourSteps} isOpen={isTourActive} onClose={() => setIsTourActive(false)} />
       <FeedbackModal
         isOpen={isFeedbackOpen}
         onClose={() => setIsFeedbackOpen(false)}
@@ -1178,9 +1143,9 @@ const AppContent = () => {
         isOpen={openModal === 'settings'}
         onClose={() => setOpenModal(null)}
         uiSettings={uiSettings}
-        onUpdateUiSettings={setUiSettings}
+        onUpdateUiSettings={(s) => updateUiSettings(s as any)}
         theme={theme}
-        onUpdateTheme={setTheme}
+        onUpdateTheme={(t) => setTheme(t as any)}
       />
       <DeveloperModal isOpen={openModal === 'developer'} onClose={() => setOpenModal(null)} />
       <AssessmentReportViewer
