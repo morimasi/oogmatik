@@ -33,6 +33,7 @@ export const printService = {
     }
 
     // 2. Create or clear the print overlay
+    if (typeof window !== 'undefined') (window as any).__oogmatik_print_paper_size__ = paperSize;
     let overlay = document.getElementById('print-overlay');
     if (overlay) {
       overlay.innerHTML = '';

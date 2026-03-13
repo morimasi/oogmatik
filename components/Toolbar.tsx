@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSettings, WorksheetData } from '../types';
+import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { printService, PaperSize } from '../utils/printService';
 import { snapshotService } from '../utils/snapshotService';
 import { useA4EditorStore } from '../store/useA4EditorStore';
@@ -43,16 +44,27 @@ const PaperSizeSelectorInline = ({
   value: PaperSize;
   onChange: (p: PaperSize) => void;
 }) => (
-  <select
-    value={value}
-    onChange={(e) => onChange(e.target.value as PaperSize)}
-    className="ml-2 p-1 rounded bg-white border border-zinc-200 text-xs"
-    aria-label="Kağıt Boyutu"
-  >
-    <option value="A4">A4</option>
-    <option value="Letter">Letter</option>
-    <option value="Legal">Legal</option>
-  </select>
+  <div className={`flex items-center ${false ? 'paperSizePulse' : ''}`}>
+    <span title="Kağıt Boyutu" className="mr-1 text-xs text-[var(--text-muted)]">
+      <i className="fa-solid fa-ruler-vertical"></i>
+    </span>
+    <select
+      value={value}
+      onChange={(e) => {
+        onChange(e.target.value as PaperSize);
+        // visual pulse on change
+        const el = (e.target as HTMLElement).closest('div') as any;
+        if (el) el.classList.add('paperSizePulse');
+        setTimeout(() => el && el.classList.remove('paperSizePulse'), 350);
+      }}
+      className="ml-0 p-1 rounded bg-white border border-zinc-200 text-xs"
+      aria-label="Kağıt Boyutu"
+    >
+      <option value="A4">A4</option>
+      <option value="Letter">Letter</option>
+      <option value="Legal">Legal</option>
+    </select>
+  </div>
 );
 
 // Basic paper size state for print (A4 default)
@@ -241,7 +253,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onCompleteCurriculumTask,
 }) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [paperSize, setPaperSize] = useState<PaperSize>('A4');
+  const paperSizeStore = usePaperSizeStore();
+  const paperSize = paperSizeStore.paperSize;
+  const setPaperSize = paperSizeStore.setPaperSize;
   const { isEditorOpen, setEditorOpen } = useA4EditorStore();
 
   const updateSetting = (key: keyof StyleSettings, value: any) => {
@@ -499,7 +513,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             }}
           />
           {/* Paper size selector (dynamic margins) */}
-          <PaperSizeSelectorInline value={paperSize} onChange={(p) => setPaperSize(p)} />
+          <PaperSizeSelectorInline
+            value={paperSize}
+            onChange={(p: PaperSize) => paperSizeStore.setPaperSize(p)}
+          />
           <IconButton
             icon="fa-camera"
             title="Görüntü Olarak Kaydet"
