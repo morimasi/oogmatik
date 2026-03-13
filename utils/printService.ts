@@ -1,4 +1,3 @@
-
 export interface PrintOptions {
   action?: 'print' | 'download';
   selectedPages?: number[];
@@ -76,51 +75,10 @@ export const printService = {
       }
     });
 
-    // 4. Wrap clone in Table Structure for Guaranteed Margins (The "Table Header Hack")
-    // This forces the browser to repeat the header space on every new page
-    const table = document.createElement('table');
-    table.style.width = '100%';
-    table.style.borderCollapse = 'collapse';
-    table.style.margin = '0';
-    table.style.padding = '0';
-    
-    // Header (Top Margin Spacer)
-    const thead = document.createElement('thead');
-    const trHead = document.createElement('tr');
-    const tdHead = document.createElement('td');
-    // 10mm height spacer
-    tdHead.innerHTML = '<div style="height: 10mm; overflow: hidden;">&nbsp;</div>'; 
-    tdHead.style.border = 'none';
-    tdHead.style.padding = '0';
-    trHead.appendChild(tdHead);
-    thead.appendChild(trHead);
-    table.appendChild(thead);
-
-    // Body (Content)
-    const tbody = document.createElement('tbody');
-    const trBody = document.createElement('tr');
-    const tdBody = document.createElement('td');
-    tdBody.style.border = 'none';
-    tdBody.style.padding = '0';
-    tdBody.appendChild(clonedContent);
-    trBody.appendChild(tdBody);
-    tbody.appendChild(trBody);
-    table.appendChild(tbody);
-
-    // Footer (Bottom Margin Spacer)
-    const tfoot = document.createElement('tfoot');
-    const trFoot = document.createElement('tr');
-    const tdFoot = document.createElement('td');
-    // 10mm height spacer
-    tdFoot.innerHTML = '<div style="height: 10mm; overflow: hidden;">&nbsp;</div>';
-    tdFoot.style.border = 'none';
-    tdFoot.style.padding = '0';
-    trFoot.appendChild(tdFoot);
-    tfoot.appendChild(trFoot);
-    table.appendChild(tfoot);
-
-    // Append table to overlay instead of raw content
-    overlay.appendChild(table);
+    // 4. Directly append the cloned content to the overlay
+    // Removed the "Table Header Hack" because it breaks CSS Grids, Flexbox layouts,
+    // and causes SVG/Canvas clipping or margin loss on subsequent pages in modern browsers.
+    overlay.appendChild(clonedContent);
 
     // 5. Add printing class to body to trigger CSS overrides
     document.body.classList.add('printing-mode');
@@ -134,7 +92,7 @@ export const printService = {
       try {
         window.print();
       } catch (e) {
-        console.error("Print failed", e);
+        console.error('Print failed', e);
         document.body.classList.remove('printing-mode');
         if (overlay) overlay.innerHTML = ''; // Cleanup immediately on error
       }
@@ -146,29 +104,29 @@ export const printService = {
    */
   generatePdf: async (
     elementSelector: string,
-    title: string = "Bursa_Disleksi_AI_Etkinlik",
+    title: string = 'Bursa_Disleksi_AI_Etkinlik',
     options?: PrintOptions
   ) => {
     try {
       // Set document title temporarily for the print dialog
       const originalTitle = document.title;
-      const safeTitle = title || "Bursa_Disleksi_AI_Etkinlik";
+      const safeTitle = title || 'Bursa_Disleksi_AI_Etkinlik';
       document.title = safeTitle.replace(/[^a-z0-9ğüşıöç]/gi, '_');
 
       // Call the new print method with selector
       printService.print(elementSelector);
 
       // Restore title after print dialog is closed
-      // We rely on the 'afterprint' event listener below for cleanup, 
+      // We rely on the 'afterprint' event listener below for cleanup,
       // but title restoration is safe here.
       setTimeout(() => {
         document.title = originalTitle;
       }, 1000);
     } catch (error) {
-      console.error("PDF Generation Error:", error);
+      console.error('PDF Generation Error:', error);
       document.body.classList.remove('printing-mode');
     }
-  }
+  },
 };
 
 // Listen for afterprint to cleanup
@@ -179,12 +137,12 @@ if (typeof window !== 'undefined') {
     if (overlay) {
       overlay.innerHTML = ''; // Clear content to save memory
       // We keep the container to avoid recreating it
-      overlay.style.display = 'none'; 
+      overlay.style.display = 'none';
     }
   };
-  
+
   window.addEventListener('afterprint', cleanup);
-  
+
   // Fallback for browsers that block print or don't fire afterprint
   window.addEventListener('focus', () => {
     // Small delay to ensure afterprint has a chance to fire first
