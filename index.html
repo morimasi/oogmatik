@@ -525,6 +525,12 @@
 
     /* --- ULTRA PRINT ENGINE v6: PRECISION A4 --- */
     @media print {
+      :root {
+        --ui-scale: 1 !important;
+        --app-font-size-scale: 1 !important;
+        --ui-saturation: 100% !important;
+      }
+
       @page {
         size: A4 portrait;
         margin: 5mm !important; /* Kullanıcı Talebi: Tam 5mm kenar boşluğu */

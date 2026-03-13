@@ -50,9 +50,9 @@ export const printService = {
 
     // Temel stiller
     printContainer.style.setProperty('position', 'relative', 'important'); // v4: relative yaparak doğal sayfa akışını sağla
-    printContainer.style.setProperty('width', '210mm', 'important');
-    printContainer.style.setProperty('max-width', '210mm', 'important');
-    printContainer.style.setProperty('margin', '0 auto', 'important');
+    printContainer.style.setProperty('width', '100%', 'important'); // v7: 210mm yerine 100% kullan (marginler düşüldükten sonraki alan)
+    printContainer.style.setProperty('max-width', '100%', 'important');
+    printContainer.style.setProperty('margin', '0', 'important');
     printContainer.style.setProperty('padding', '0', 'important');
     printContainer.style.setProperty('background', 'white', 'important');
     printContainer.style.setProperty('z-index', '9999999', 'important');
@@ -89,7 +89,7 @@ export const printService = {
       const uiGarbage = clone.querySelectorAll(
         '.edit-handle, .page-navigator, .no-print, .overlay-ui, ' +
         '[data-testid="edit-btn"], .page-label-container, ' +
-        '.print-toolbar, .print-controls, [class*="backdrop-blur"]'
+        '.print-toolbar, .print-controls'
       );
       uiGarbage.forEach(e => (e as HTMLElement).remove());
 
