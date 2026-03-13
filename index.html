@@ -47,6 +47,28 @@
         },
       };
     </script>
+    <script>
+      (async function () {
+        try {
+          const res = await fetch('/user/paperSize', {
+            method: 'GET',
+            credentials: 'include',
+            headers: { Accept: 'application/json' },
+          });
+          if (res && res.ok) {
+            const data = await res.json();
+            const size = data?.paperSize;
+            if (size) {
+              localStorage.setItem('oogmatik.paperSize', size);
+              const ev = new CustomEvent('oogmatik.paperSize.loaded', { detail: size });
+              window.dispatchEvent(ev);
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+      })();
+    </script>
     <!-- Font Awesome 6.5.1 -->
     <link
       rel="stylesheet"

@@ -31,8 +31,15 @@ import { worksheetService } from './services/worksheetService';
 import { curriculumService } from './services/curriculumService';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
+import { loadCurrentUserPaperSize } from './services/paperSizeApi';
+import { usePaperSizeStore } from './store/usePaperSizeStore';
+import { PaperSize } from './utils/printService';
+import { useAuthStore } from './store/useAuthStore';
 import { StudentInfoModal } from './components/StudentInfoModal';
 import { HistoryView } from './components/HistoryView';
+import { initPaperSizeForCurrentUser } from './store/usePaperSizeStore';
+import { useEffect } from 'react';
+import { useAuthStore } from './store/useAuthStore';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
 import * as offlineGenerators from './services/offlineGenerators';
 
@@ -145,6 +152,33 @@ const Modal = ({
   children: React.ReactNode;
 }) => {
   if (!isOpen) return null;
+  // Initialize PaperSize on login/logout events will be handled in App's main scope below
+
+  // Global PaperSize initialization on startup (best-effort)
+  // Try to load from server on first render if user context exists
+  const initPaper = async () => {
+    try {
+      const { usePaperSizeStore } = require('./store/usePaperSizeStore');
+      const paperStore = require('./store/usePaperSizeStore').usePaperSizeStore;
+      const currentUser =
+        (typeof window !== 'undefined' && (window as any).__oogmatik_current_user) || null;
+      if (currentUser) {
+        const serverSize = await loadCurrentUserPaperSize();
+        if (serverSize) paperStore.getState().setPaperSize(serverSize as any);
+      } else {
+        // No user context, rely on localStorage
+        const saved = localStorage.getItem('oogmatik.paperSize');
+        if (saved) paperStore.getState().setPaperSize(saved as any);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  React.useEffect(() => {
+    initPaper();
+  }, []);
+
   return (
     <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300"
@@ -456,6 +490,41 @@ const AppContent = () => {
   const authStore = useAuthStore();
   const studentStore = useStudentStore();
   const { isEditMode, zoomScale } = useAppStore();
+
+  // Global PaperSize initialization glue (server + localStorage)
+  const paperSizeStore = usePaperSizeStore();
+  const auth = useAuthStore((s: any) => s);
+  React.useEffect(() => {
+    (async () => {
+      const user = auth?.user;
+      if (user?.id) {
+        try {
+          const serverSize = await loadCurrentUserPaperSize();
+          if (serverSize) {
+            paperSizeStore.setPaperSize(serverSize);
+            localStorage.setItem('oogmatik.paperSize', serverSize);
+          } else {
+            const local = localStorage.getItem('oogmatik.paperSize');
+            if (local) paperSizeStore.setPaperSize(local as PaperSize);
+          }
+        } catch {
+          const local = localStorage.getItem('oogmatik.paperSize');
+          if (local) paperSizeStore.setPaperSize(local as PaperSize);
+        }
+      } else {
+        const local = localStorage.getItem('oogmatik.paperSize');
+        if (local) paperSizeStore.setPaperSize(local as PaperSize);
+      }
+    })();
+  }, [auth?.user?.id]);
+
+  // Auto reset on logout
+  React.useEffect(() => {
+    if (!auth?.user) {
+      paperSizeStore.setPaperSize('A4');
+      localStorage.removeItem('oogmatik.paperSize');
+    }
+  }, [auth?.user]);
 
   // Global Initialization
   useEffect(() => {
