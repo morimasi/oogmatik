@@ -404,12 +404,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
       <div className="flex items-center gap-1">
         <IconButton
-          icon="fa-pen-to-square"
-          title="Editör Modu"
-          active={isEditMode}
-          onClick={onToggleEdit}
-        />
-        <IconButton
           icon={isSpeaking ? 'fa-stop' : 'fa-volume-high'}
           title="Sesli Oku"
           active={isSpeaking}
