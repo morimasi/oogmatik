@@ -241,6 +241,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onCompleteCurriculumTask,
 }) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [paperSize, setPaperSize] = useState<PaperSize>('A4');
   const { isEditorOpen, setEditorOpen } = useA4EditorStore();
 
   const updateSetting = (key: keyof StyleSettings, value: any) => {
@@ -490,7 +491,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
                 await printService.generatePdf(targetSelector, settings.title, {
                   action: 'print',
-                  paperSize: 'A4' as PaperSize,
+                  paperSize: paperSize,
                 });
               } catch (e) {
                 console.error(e);
