@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { StyleSettings, WorksheetData } from '../types';
 import { printService } from '../utils/printService';
 import { snapshotService } from '../utils/snapshotService';
+import { useA4EditorStore } from '../store/useA4EditorStore';
 
 interface ToolbarProps {
   settings: StyleSettings;
@@ -189,6 +190,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onCompleteCurriculumTask,
 }) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const { isEditorOpen, setEditorOpen } = useA4EditorStore();
 
   const updateSetting = (key: keyof StyleSettings, value: any) => {
     onSettingsChange({ ...settings, [key]: value });
@@ -403,6 +405,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       <Divider />
 
       <div className="flex items-center gap-1">
+        <IconButton
+          icon="fa-wand-magic-sparkles"
+          title="A4 Tasarımcısı"
+          active={isEditorOpen}
+          onClick={() => setEditorOpen(!isEditorOpen)}
+          colorClass={isEditorOpen ? 'bg-indigo-600 !text-white' : ''}
+        />
         <IconButton
           icon={isSpeaking ? 'fa-stop' : 'fa-volume-high'}
           title="Sesli Oku"

@@ -172,6 +172,7 @@ import { BoxMathSheet } from './sheets/math/BoxMathSheet';
 import { PedagogicalHeader, ImageDisplay } from './sheets/common';
 
 import { EditableText } from './Editable';
+import { useA4EditorStore } from '../store/useA4EditorStore';
 
 const recursiveSafeText = (val: any): string => {
   if (val === null || val === undefined) return '';
@@ -806,6 +807,7 @@ const UnifiedContentRenderer = ({
   studentProfile?: StudentProfile | null;
   settings?: StyleSettings;
 }) => {
+  const { isEditorOpen, selectedBlockId, setSelectedBlockId } = useA4EditorStore();
   const architecture = data.layoutArchitecture;
   const rawBlocks: WorksheetBlock[] = architecture?.blocks || data.blocks || [];
   const cols = architecture?.cols || 1;
@@ -934,7 +936,24 @@ const UnifiedContentRenderer = ({
           }
         >
           {pageBlocks.map((block, idx) => (
-            <div key={idx} className="block-container">
+            <div
+              key={block.id || idx}
+              onClick={(e) => {
+                if (isEditorOpen && block.id) {
+                  e.stopPropagation();
+                  setSelectedBlockId(block.id);
+                }
+              }}
+              className={`block-container transition-all duration-200 ${
+                isEditorOpen
+                  ? 'cursor-pointer hover:ring-2 hover:ring-indigo-300 hover:shadow-md'
+                  : ''
+              } ${
+                isEditorOpen && selectedBlockId === block.id
+                  ? 'ring-2 ring-indigo-500 shadow-lg bg-indigo-50/10'
+                  : ''
+              }`}
+            >
               <BlockRenderer block={block} />
             </div>
           ))}
@@ -955,7 +974,13 @@ const UnifiedContentRenderer = ({
   };
 
   return (
-    <div className="w-full flex flex-col items-center gap-10 no-scrollbar" id="print-container">
+    <div
+      className="w-full flex flex-col items-center gap-10 no-scrollbar"
+      id="print-container"
+      onClick={() => {
+        if (isEditorOpen) setSelectedBlockId(null);
+      }}
+    >
       {pages.map((p, i) => renderPage(p, i))}
     </div>
   );

@@ -27,12 +27,14 @@ import { useAppStore } from '../store/useAppStore';
 import { paginationService } from '../services/paginationService';
 
 import { UniversalWorksheetWrapper } from './UniversalStudio/UniversalWorksheetWrapper';
+import { A4EditorPanel } from './A4Editor/A4EditorPanel';
 
 interface ContentAreaProps {
   currentView: View;
   onBackToGenerator: () => void;
   activityType: ActivityType | null;
   worksheetData: WorksheetData;
+  setWorksheetData?: React.Dispatch<React.SetStateAction<WorksheetData>>;
   isLoading: boolean;
   error: string | null;
   styleSettings: StyleSettings;
@@ -126,7 +128,17 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       setProcessedData([]);
       return;
     }
-    const safeData = Array.isArray(worksheetData) ? worksheetData : [worksheetData];
+    const safeData = Array.isArray(worksheetData) ? [...worksheetData] : [{ ...worksheetData }];
+
+    // Assign IDs to blocks if they don't have one, to allow editor selection
+    safeData.forEach((ws) => {
+      const blocks = ws.layoutArchitecture?.blocks || ws.blocks || [];
+      blocks.forEach((block: any, idx: number) => {
+        if (!block.id)
+          block.id = `block_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 5)}`;
+      });
+    });
+
     const isRichContent =
       activityType === ActivityType.AI_WORKSHEET_CONVERTER ||
       activityType === ActivityType.OCR_CONTENT ||
@@ -241,89 +253,96 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         )}
       </div>
 
-      {/* VIEWPORT - THE DESK SURFACE */}
-      <div
-        ref={scrollContainerRef}
-        className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar transition-colors duration-500 ${
-          zenMode ? 'bg-[#050505]' : 'bg-[var(--bg-secondary)]'
-        }`}
-      >
-        {/* justify-start and items-start for fixed top anchoring */}
-        <div className="w-full flex flex-col items-center justify-start min-h-full py-0">
-          {currentView === 'generator' ? (
-            <>
-              {isLoading && (
-                <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in">
-                  <SkeletonLoader />
-                  <p className="mt-6 font-black text-indigo-600 animate-pulse uppercase tracking-[0.3em]">
-                    AI Hazırlıyor...
-                  </p>
-                </div>
-              )}
-
-              {!isLoading && processedData.length === 0 && !error ? (
-                <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in duration-1000">
-                  <LandingText />
-                  <div className="relative group/logo mt-12">
-                    <img
-                      src="/assets/logo.png"
-                      alt="Logo"
-                      className="h-32 w-auto relative z-10 transition-all duration-700 cursor-pointer select-none star-glow hover:scale-125 animate-breathing-logo"
-                    />
-
-                    {/* Minimalist Parıltı Efektleri */}
-                    <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2s_infinite] transition-opacity" />
-                    <div className="absolute bottom-4 left-0 w-1 h-1 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2.5s_infinite_0.5s] transition-opacity" />
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* VIEWPORT - THE DESK SURFACE */}
+        <div
+          ref={scrollContainerRef}
+          className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar transition-colors duration-500 ${
+            zenMode ? 'bg-[#050505]' : 'bg-[var(--bg-secondary)]'
+          }`}
+        >
+          {/* justify-start and items-start for fixed top anchoring */}
+          <div className="w-full flex flex-col items-center justify-start min-h-full py-0">
+            {currentView === 'generator' ? (
+              <>
+                {isLoading && (
+                  <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in">
+                    <SkeletonLoader />
+                    <p className="mt-6 font-black text-indigo-600 animate-pulse uppercase tracking-[0.3em]">
+                      AI Hazırlıyor...
+                    </p>
                   </div>
-                </div>
-              ) : null}
+                )}
 
-              {error && (
-                <div className="bg-red-50 p-10 rounded-[3rem] border-2 border-red-100 text-center max-w-lg mt-20">
-                  <i className="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-4"></i>
-                  <p className="text-red-700 font-bold">{error}</p>
-                </div>
-              )}
+                {!isLoading && processedData.length === 0 && !error ? (
+                  <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in duration-1000">
+                    <LandingText />
+                    <div className="relative group/logo mt-12">
+                      <img
+                        src="/assets/logo.png"
+                        alt="Logo"
+                        className="h-32 w-auto relative z-10 transition-all duration-700 cursor-pointer select-none star-glow hover:scale-125 animate-breathing-logo"
+                      />
 
-              {/* FIXED TOP CENTERING SCALING */}
-              {processedData.length > 0 && !isLoading && (
-                <div className="w-full h-full">
-                  <UniversalWorksheetWrapper
-                    activityType={activityType}
-                    worksheetData={processedData}
-                    scale={zoomScale}
-                    styleSettings={styleSettings}
+                      {/* Minimalist Parıltı Efektleri */}
+                      <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2s_infinite] transition-opacity" />
+                      <div className="absolute bottom-4 left-0 w-1 h-1 bg-white rounded-full opacity-0 group-hover/logo:opacity-100 group-hover/logo:animate-[star-sparkle_2.5s_infinite_0.5s] transition-opacity" />
+                    </div>
+                  </div>
+                ) : null}
+
+                {error && (
+                  <div className="bg-red-50 p-10 rounded-[3rem] border-2 border-red-100 text-center max-w-lg mt-20">
+                    <i className="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-4"></i>
+                    <p className="text-red-700 font-bold">{error}</p>
+                  </div>
+                )}
+
+                {/* FIXED TOP CENTERING SCALING */}
+                {processedData.length > 0 && !isLoading && (
+                  <div className="w-full h-full">
+                    <UniversalWorksheetWrapper
+                      activityType={activityType}
+                      worksheetData={processedData}
+                      scale={zoomScale}
+                      styleSettings={styleSettings}
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="p-8 w-full max-w-7xl h-full">
+                {currentView === 'savedList' ? (
+                  <SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
+                ) : currentView === 'workbook' ? (
+                  <WorkbookView
+                    items={workbookItems}
+                    setItems={setWorkbookItems}
+                    settings={workbookSettings}
+                    setSettings={setWorkbookSettings}
+                    onBack={onBackToGenerator}
                   />
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="p-8 w-full max-w-7xl h-full">
-              {currentView === 'savedList' ? (
-                <SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
-              ) : currentView === 'workbook' ? (
-                <WorkbookView
-                  items={workbookItems}
-                  setItems={setWorkbookItems}
-                  settings={workbookSettings}
-                  setSettings={setWorkbookSettings}
-                  onBack={onBackToGenerator}
-                />
-              ) : currentView === 'favorites' ? (
-                <FavoritesSection onSelectActivity={onSelectActivity!} onBack={onBackToGenerator} />
-              ) : currentView === 'shared' ? (
-                <SharedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
-              ) : null}
+                ) : currentView === 'favorites' ? (
+                  <FavoritesSection
+                    onSelectActivity={onSelectActivity!}
+                    onBack={onBackToGenerator}
+                  />
+                ) : currentView === 'shared' ? (
+                  <SharedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
+                ) : null}
+              </div>
+            )}
+          </div>
+
+          {/* ZOOM INDICATOR - THEMED */}
+          {processedData.length > 0 && !isLoading && currentView === 'generator' && (
+            <div className="fixed bottom-10 left-10 z-50 bg-[var(--bg-paper)] text-[var(--text-primary)] px-5 py-2.5 rounded-2xl text-xs font-black shadow-2xl border border-[var(--border-color)] animate-in slide-in-from-left-4 backdrop-blur-md opacity-80 hover:opacity-100 transition-opacity">
+              BOYUT: %{Math.round(zoomScale * 100)}
             </div>
           )}
         </div>
 
-        {/* ZOOM INDICATOR - THEMED */}
-        {processedData.length > 0 && !isLoading && currentView === 'generator' && (
-          <div className="fixed bottom-10 left-10 z-50 bg-[var(--bg-paper)] text-[var(--text-primary)] px-5 py-2.5 rounded-2xl text-xs font-black shadow-2xl border border-[var(--border-color)] animate-in slide-in-from-left-4 backdrop-blur-md opacity-80 hover:opacity-100 transition-opacity">
-            BOYUT: %{Math.round(zoomScale * 100)}
-          </div>
-        )}
+        <A4EditorPanel worksheetData={worksheetData} setWorksheetData={setWorksheetData} />
       </div>
 
       {currentView === 'assessment' && (
