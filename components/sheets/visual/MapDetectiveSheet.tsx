@@ -1,4 +1,5 @@
 
+// @ts-ignore
 import React from 'react';
 import { MapInstructionData } from '../../../types';
 import { PedagogicalHeader } from '../common';

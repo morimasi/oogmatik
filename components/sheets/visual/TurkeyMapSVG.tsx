@@ -1,3 +1,4 @@
+// @ts-ignore
 import React, { useState } from 'react';
 import { turkeyMapPaths } from './turkeyMapPaths';
 import { TURKEY_REGIONS } from './turkeyRegions';
@@ -39,7 +40,7 @@ const REGION_LABEL_POSITIONS: Record<string, { x: number; y: number }> = {
     'Güneydoğu': { x: 745, y: 319 },
 };
 
-export const TurkeyMapSVG: React.FC<TurkeyMapSVGProps> = ({
+export const TurkeyMapSVG = ({
     emphasizedRegion,
     width = '100%',
     height = '100%',
