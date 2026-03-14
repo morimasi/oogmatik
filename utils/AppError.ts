@@ -19,7 +19,8 @@ export class AppError extends Error {
      * Error'ı JSON'a dönüştür (logging için)
      */
     toJSON() {
-        const isDev = typeof import.meta !== 'undefined' && (import.meta as any).env?.MODE === 'development';
+        const isDev = (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') ||
+            (typeof import.meta !== 'undefined' && (import.meta as any).env?.MODE === 'development');
         return {
             name: this.name,
             code: this.code,
@@ -200,19 +201,19 @@ export function toAppError(error: unknown): AppError {
         // Firebase Authentication hatası
         if ('code' in error) {
             const code = (error as any).code;
-            
+
             if (code === 'auth/invalid-credential' || code === 'auth/user-not-found' || code === 'auth/wrong-password') {
                 return new AuthenticationError('E-posta veya şifre hatalı.');
             }
-            
+
             if (code === 'auth/email-already-in-use') {
                 return new ValidationError('Bu e-posta adresi zaten kayıtlı.');
             }
-            
+
             if (code === 'auth/weak-password') {
                 return new ValidationError('Şifre en az 6 karakter olmalıdır.');
             }
-            
+
             if (code === 'auth/network-request-failed') {
                 return new NetworkError('Sunucuya ulaşılamadı.');
             }
@@ -234,7 +235,8 @@ export function toAppError(error: unknown): AppError {
         }
 
         // Default: Generic error
-        const isDev = typeof import.meta !== 'undefined' && (import.meta as any).env?.MODE === 'development';
+        const isDev = (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') ||
+            (typeof import.meta !== 'undefined' && (import.meta as any).env?.MODE === 'development');
         return new InternalServerError(
             isDev ? error.message : undefined
         );

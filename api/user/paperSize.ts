@@ -21,6 +21,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { userId } = extractUserInfo(req);
 
+    // Ensure we handle JSON body correctly
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+
     if (!userId) {
       // For demo: use a default key if not authenticated
       const demoKey = 'demo-user';
@@ -32,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       if (req.method === 'POST') {
-        const { paperSize } = req.body || {};
+        const { paperSize } = body;
         if (!paperSize || !['A4', 'Letter', 'Legal'].includes(paperSize)) {
           res.status(400).json({
             error: { message: 'Invalid paper size', code: 'BAD_REQUEST' },
@@ -43,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.status(200).json({
           success: true,
           paperSize,
-          message: 'Paper size preference saved',
+          message: 'Paper size preference saved (demo mode)',
         });
         return;
       }
@@ -63,7 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'POST') {
-      const { paperSize } = req.body || {};
+      const { paperSize } = body;
 
       if (!paperSize || !['A4', 'Letter', 'Legal'].includes(paperSize)) {
         res.status(400).json({
@@ -86,8 +89,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     res.status(405).json({ error: { message: 'Method not allowed', code: 'METHOD_NOT_ALLOWED' } });
-  } catch (error) {
+  } catch (error: any) {
     console.error('PaperSize API error:', error);
-    res.status(500).json({ error: { message: 'Internal server error', code: 'INTERNAL_ERROR' } });
+    res.status(500).json({
+      error: {
+        message: 'Internal server error: ' + (error?.message || 'Unknown error'),
+        code: 'INTERNAL_ERROR',
+        details: error?.stack
+      }
+    });
   }
 }
