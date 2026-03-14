@@ -180,7 +180,9 @@ export interface SavedWorksheet {
   category: { id: string; title: string };
   sharedBy?: string;
   sharedByName?: string;
-  sharedWith?: string;
+  sharedWith?: string | string[];
+  originalWorksheetId?: string;
+  isPrivate?: boolean;
   styleSettings?: StyleSettings;
   studentProfile?: StudentProfile;
   workbookItems?: CollectionItem[];
@@ -352,7 +354,8 @@ export interface SavedAssessment {
   report: AssessmentReport;
   sharedBy?: string;
   sharedByName?: string;
-  sharedWith?: string;
+  sharedWith?: string | string[];
+  originalAssessmentId?: string;
 }
 
 export interface AssessmentReport {

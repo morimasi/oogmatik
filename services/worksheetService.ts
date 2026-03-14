@@ -191,9 +191,10 @@ export const worksheetService = {
 
     getSharedWithMe: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
         try {
+            // Updated to use array-contains for sharedWith to support multiple receivers
             const q = query(
                 collection(db, "saved_worksheets"),
-                where("sharedWith", "==", userId),
+                where("sharedWith", "array-contains", userId),
                 orderBy("createdAt", "desc"),
                 limit(pageSize)
             );
@@ -205,38 +206,47 @@ export const worksheetService = {
             return { items, count: null };
         } catch (error) {
             console.warn("Firestore Shared Query Error:", error);
+            // Fallback for missing index
             const qFallback = query(
-                collection(db, "saved_worksheets"),
-                where("sharedWith", "==", userId)
+                collection(db, "saved_worksheets")
             );
             const querySnapshot = await getDocs(qFallback);
             const items: SavedWorksheet[] = [];
             querySnapshot.forEach((doc) => {
-                items.push(mapDbToWorksheet(doc.data(), doc.id));
+                const data = doc.data() as any;
+                const sharedWith = data.sharedWith;
+                if (sharedWith === userId || (Array.isArray(sharedWith) && sharedWith.includes(userId))) {
+                    items.push(mapDbToWorksheet(data, doc.id));
+                }
             });
             items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return { items: items.slice(page * pageSize, (page + 1) * pageSize), count: items.length };
         }
     },
 
-    shareWorksheet: async (worksheet: any, senderId: string, senderName: string, receiverId: string): Promise<void> => {
-        const payload = {
-            ...worksheet,
-            userId: senderId,
+    shareWorksheet: async (worksheetId: string, senderId: string, senderName: string, receiverIds: string | string[]): Promise<void> => {
+        const docRef = doc(db, "saved_worksheets", worksheetId);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            throw new NotFoundError('Paylaşılacak çalışma sayfası bulunamadı');
+        }
+
+        const data = docSnap.data();
+        const currentSharedWith = data.sharedWith || [];
+        const receivers = Array.isArray(receiverIds) ? receiverIds : [receiverIds];
+
+        // Merge receivers into sharedWith array, avoiding duplicates
+        const updatedSharedWith = Array.isArray(currentSharedWith)
+            ? [...new Set([...currentSharedWith, ...receivers])]
+            : [...new Set([currentSharedWith, ...receivers])].filter(i => i);
+
+        await updateDoc(docRef, {
+            sharedWith: updatedSharedWith,
             sharedBy: senderId,
             sharedByName: senderName,
-            sharedWith: receiverId,
-            createdAt: new Date().toISOString()
-        };
-
-        if (Array.isArray(payload.worksheetData)) {
-            payload.worksheetData = serializeData(payload.worksheetData);
-        }
-        if (Array.isArray(payload.workbookItems)) {
-            payload.workbookItems = serializeData(payload.workbookItems);
-        }
-
-        await addDoc(collection(db, "saved_worksheets"), payload);
+            updatedAt: new Date().toISOString()
+        });
     },
 
     /**
