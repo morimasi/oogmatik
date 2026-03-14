@@ -3,14 +3,14 @@
  * Error transformation, retry logic, logging
  */
 
-import { 
-    AppError, 
-    toAppError, 
-    NetworkError, 
+import {
+    AppError,
+    toAppError,
+    NetworkError,
     TimeoutError,
     RateLimitError,
     InternalServerError,
-    isAppError 
+    isAppError
 } from './AppError';
 
 /**
@@ -26,7 +26,10 @@ export const logError = (error: AppError, context?: Record<string, any>) => {
     };
 
     // Console'da debug
-    if (typeof import.meta !== 'undefined' && (import.meta as any).env?.MODE === 'development') {
+    const isDev = (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') ||
+        (typeof import.meta !== 'undefined' && (import.meta as any).env?.MODE === 'development');
+
+    if (isDev) {
         console.error('[AppError]', errorLog);
     }
 
@@ -91,7 +94,7 @@ export const retryWithBackoff = async <T>(
                 initialDelay * Math.pow(backoffMultiplier, attempt),
                 maxDelay
             );
-            
+
             // Jitter: ±10% rastgelelik
             const jitter = exponentialDelay * 0.1 * (Math.random() * 2 - 1);
             const finalDelay = Math.max(100, exponentialDelay + jitter);
@@ -225,7 +228,7 @@ export class CircuitBreaker {
     constructor(
         private failureThreshold: number = 5,     // Kaç hata sonra aç?
         private resetTimeoutMs: number = 60000    // Ne kadar sonra resetle?
-    ) {}
+    ) { }
 
     canAttempt(): boolean {
         const now = Date.now();
