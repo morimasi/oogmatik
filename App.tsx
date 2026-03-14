@@ -69,6 +69,9 @@ const ReadingStudio = lazy(() =>
 const MathStudio = lazy(() =>
   import('./components/MathStudio/MathStudio').then((module) => ({ default: module.MathStudio }))
 );
+const TurkceSuperStudyo = lazy(() =>
+  import('./src/app/(studios)/turkce-super-studyo').then((module) => ({ default: module.default }))
+);
 const StudentDashboard = lazy(() =>
   import('./components/Student/StudentDashboard').then((module) => ({
     default: module.StudentDashboard,
@@ -237,26 +240,41 @@ const AppContent = () => {
   const { activeStudent, setActiveStudent, students } = studentStore;
 
   const {
-    currentView, setCurrentView,
-    viewHistory, addHistoryView, popHistoryView,
-    selectedActivity, setSelectedActivity,
-    worksheetData, setWorksheetData,
-    activeCurriculumSession, setActiveCurriculumSession,
-    activeWorksheetId, setActiveWorksheet,
-    isLoading, setIsLoading,
-    error, setError,
-    resetGeneratorContext
+    currentView,
+    setCurrentView,
+    viewHistory,
+    addHistoryView,
+    popHistoryView,
+    selectedActivity,
+    setSelectedActivity,
+    worksheetData,
+    setWorksheetData,
+    activeCurriculumSession,
+    setActiveCurriculumSession,
+    activeWorksheetId,
+    setActiveWorksheet,
+    isLoading,
+    setIsLoading,
+    error,
+    setError,
+    resetGeneratorContext,
   } = useWorksheetStore();
 
   const [loadedCurriculum, setLoadedCurriculum] = useState(null as Curriculum | null);
 
   const {
-    theme, setTheme,
-    sidebarWidth, setSidebarWidth,
-    zenMode, setZenMode,
-    isSidebarOpen, setIsSidebarOpen,
-    isTourActive, setIsTourActive,
-    uiSettings, updateUiSettings
+    theme,
+    setTheme,
+    sidebarWidth,
+    setSidebarWidth,
+    zenMode,
+    setZenMode,
+    isSidebarOpen,
+    setIsSidebarOpen,
+    isTourActive,
+    setIsTourActive,
+    uiSettings,
+    updateUiSettings,
   } = useUIStore();
 
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);

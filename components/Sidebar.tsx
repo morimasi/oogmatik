@@ -44,6 +44,7 @@ interface SidebarProps {
   onOpenCurriculum?: () => void;
   onOpenReadingStudio?: () => void;
   onOpenMathStudio?: () => void;
+  onOpenTurkceSuperStudyo?: () => void;
   onOpenScreening?: () => void; // Added Prop
   activeCurriculumSession?: ActiveCurriculumSession | null;
   width?: number;
@@ -89,6 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenCurriculum,
   onOpenReadingStudio,
   onOpenMathStudio,
+  onOpenTurkceSuperStudyo,
   onOpenScreening,
   activeCurriculumSession,
 }) => {
@@ -136,6 +138,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: 'fa-calculator',
       color: 'bg-blue-500',
       onClick: onOpenMathStudio,
+    },
+    {
+      id: 'turkce',
+      label: 'Türkçe Süper Stüdyo',
+      icon: 'fa-language',
+      color: 'bg-indigo-600',
+      onClick: onOpenTurkceSuperStudyo,
     },
     {
       id: 'screening',
@@ -461,7 +470,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                       <div
                         className="premium-popup-menu"
                         onMouseEnter={handlePopupMouseEnter}
-
                         onMouseLeave={handlePopupMouseLeave}
                         role="menu"
                         aria-label="Stüdyolar menüsü"
