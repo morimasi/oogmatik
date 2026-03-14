@@ -25,7 +25,7 @@ export interface WorksheetStoreState {
     resetGeneratorContext: () => void;
 }
 
-export const useWorksheetStore = create<WorksheetStoreState>()((set, get) => ({
+export const useWorksheetStore = create<WorksheetStoreState>()((set: any, get: any) => ({
     currentView: 'generator',
     viewHistory: [],
     selectedActivity: null,
@@ -37,7 +37,7 @@ export const useWorksheetStore = create<WorksheetStoreState>()((set, get) => ({
     error: null,
 
     setCurrentView: (view: View) => set({ currentView: view }),
-    addHistoryView: (view: View) => set((state) => ({ viewHistory: [...state.viewHistory, view] })),
+    addHistoryView: (view: View) => set((state: WorksheetStoreState) => ({ viewHistory: [...state.viewHistory, view] })),
     popHistoryView: () => {
         const state = get();
         if (state.viewHistory.length === 0) return undefined;

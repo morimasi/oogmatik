@@ -139,14 +139,14 @@ const Modal = ({
   return (
     <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300"
-      onClick={(e) => {
+      onClick={(e: React.MouseEvent) => {
         e.stopPropagation();
         onClose();
       }}
     >
       <div
         className="bg-[var(--bg-paper)] rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-[var(--border-color)]"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
         {title && (
           <div className="flex items-center justify-between p-6 border-b border-[var(--border-color)]">
@@ -154,7 +154,7 @@ const Modal = ({
               {title}
             </h2>
             <button
-              onClick={(e) => {
+              onClick={(e: React.MouseEvent) => {
                 e.stopPropagation();
                 onClose();
               }}
@@ -706,7 +706,7 @@ const AppContent = () => {
       <AppHeader
         workbookItemsCount={workbookItems.length}
         unreadCount={unreadCount}
-        onOpenModal={(modal) => setOpenModal(modal)}
+        onOpenModal={(modal: ModalType) => setOpenModal(modal)}
         onOpenFeedback={() => setIsFeedbackOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onSelectActivity={handleSelectActivity}
@@ -835,8 +835,8 @@ const AppContent = () => {
               onLoadSaved={loadSavedWorksheet}
               theme={theme}
               uiSettings={uiSettings}
-              onUpdateTheme={(t) => setTheme(t as any)}
-              onUpdateUiSettings={(s) => updateUiSettings(s as any)}
+              onUpdateTheme={(t: AppTheme) => setTheme(t)}
+              onUpdateUiSettings={(s: UiSettings) => updateUiSettings(s)}
               onOpenSettingsModal={() => setOpenModal('settings')}
             />
           </Suspense>
@@ -905,9 +905,9 @@ const AppContent = () => {
         isOpen={openModal === 'settings'}
         onClose={() => setOpenModal(null)}
         uiSettings={uiSettings}
-        onUpdateUiSettings={(s) => updateUiSettings(s as any)}
+        onUpdateUiSettings={(s: UiSettings) => updateUiSettings(s)}
         theme={theme}
-        onUpdateTheme={(t) => setTheme(t as any)}
+        onUpdateTheme={(t: AppTheme) => setTheme(t)}
       />
       <DeveloperModal isOpen={openModal === 'developer'} onClose={() => setOpenModal(null)} />
       <AssessmentReportViewer
