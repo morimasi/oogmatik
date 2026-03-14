@@ -564,7 +564,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
   const contentStartPage = settings.showTOC ? 3 : 2;
 
   return (
-    <div className="workbook-container w-full flex flex-col items-center gap-12 bg-zinc-100 dark:bg-zinc-900 py-12 print:p-0 print:gap-0 print:bg-white">
+    <div className={`workbook-container w-full flex flex-col items-center gap-12 bg-zinc-100 dark:bg-zinc-900 py-12 print:p-0 print:gap-0 print:bg-white ${isLandscape ? 'orientation-landscape' : 'orientation-portrait'}`}>
       {renderCover()}
       {renderTableOfContents()}
 

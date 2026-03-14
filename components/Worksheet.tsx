@@ -109,8 +109,8 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
         } as React.CSSProperties;
     }, [settings]);
 
+    const isLandscape = settings.orientation === 'landscape';
     const pageStyle = useMemo(() => {
-        const isLandscape = settings.orientation === 'landscape';
         return {
             width: isLandscape ? '297mm' : '210mm',
             minHeight: isLandscape ? '210mm' : '297mm',
@@ -123,7 +123,7 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
             boxShadow: '0 40px 100px -20px rgba(0,0,0,0.2)',
             ...getBorderCSS(settings.themeBorder || 'simple', settings.borderColor, settings.borderWidth)
         };
-    }, [settings.orientation, settings.themeBorder, settings.borderColor, settings.borderWidth]);
+    }, [isLandscape, settings.themeBorder, settings.borderColor, settings.borderWidth]);
 
     if (!data || !activityType) return null;
 
@@ -133,7 +133,7 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
     if (worksheets.length === 0) return null;
 
     return (
-        <div className="flex flex-col items-center w-full" style={variableStyle}>
+        <div className={`flex flex-col items-center w-full ${isLandscape ? 'orientation-landscape' : 'orientation-portrait'}`} style={variableStyle}>
             {worksheets.map((ws, idx) => (
                 <ErrorBoundary key={ws.id || idx}>
                     <SheetRenderer
