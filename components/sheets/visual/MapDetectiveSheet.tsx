@@ -85,14 +85,13 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                         className="w-full h-full  absolute inset-0 z-20 pointer-events-none"
                         style={{ top: 0, left: 0, position: 'absolute' }}
                     >
-                        <style>
-                            {`
+                        <style dangerouslySetInnerHTML={{
+                            __html: `
                             @media print {
                                 .print-grid-line { stroke: rgba(0,0,0,0.4) !important; stroke-width: 2.5px !important; }
                                 .print-grid-text { fill: rgba(0,0,0,0.8) !important; font-weight: 900 !important; }
                             }
-                            `}
-                        </style>
+                        ` }} />
 
                         {/* GRID SİSTEMİ ÇİZİMİ */}
                         {data.settings?.useGridSystem && (() => {

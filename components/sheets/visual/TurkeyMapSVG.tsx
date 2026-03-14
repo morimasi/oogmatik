@@ -78,8 +78,8 @@ export const TurkeyMapSVG: React.FC<TurkeyMapSVGProps> = ({
             xmlns="http://www.w3.org/2000/svg"
             style={{ background: 'transparent', userSelect: 'none', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
         >
-            <style>
-                {`
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 .harita-grup { filter: url(#mapShadow); }
                 @media print {
                     .harita-grup { filter: none !important; }
@@ -92,8 +92,7 @@ export const TurkeyMapSVG: React.FC<TurkeyMapSVGProps> = ({
                         -webkit-print-color-adjust: exact;
                     }
                 }
-                `}
-            </style>
+            ` }} />
             <defs>
                 {/* Deniz gradient */}
                 <radialGradient id="seaGradient" cx="50%" cy="50%" r="60%">
