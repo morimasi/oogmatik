@@ -125,7 +125,7 @@ export const retryWithBackoff = async <T>(
 export const withTimeout = async <T>(
     promise: Promise<T>,
     timeoutMs: number,
-    operationName: string = 'Operation'
+    operationName: string = 'İşlem'
 ): Promise<T> => {
     return Promise.race([
         promise,

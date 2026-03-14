@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { AdvancedStudentManager } from './AdvancedStudentManager';
 import { StudentContext } from '../../context/StudentContext';
-import { vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 // Mock Student Data
 const mockStudent = {
