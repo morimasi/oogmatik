@@ -47,7 +47,7 @@ export const TurkeyMapSVG: React.FC<TurkeyMapSVGProps> = ({
     showRegionLabels = true,
     onRegionClick,
     interactive = false
-}) => {
+}: TurkeyMapSVGProps) => {
     const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
 
     const isEmphasized = (region: string) => {
