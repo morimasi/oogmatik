@@ -80,7 +80,7 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
     };
 
     const schema = { type: Type.ARRAY, items: singleSchema };
-    // Fix: Using stable gemini-2.0-flash for latest multimodal performance
+    // Fix: Using stable gemini-3-flash for maximum speed and cost efficiency
     return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData[]>;
 };
 

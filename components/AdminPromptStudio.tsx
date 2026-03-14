@@ -115,7 +115,7 @@ export const AdminPromptStudio = () => {
                 systemInstruction: 'Sen bir MÖES (Multisensoriyel Özel Eğitim Sistemi) uzmanısın. Disleksi klinik ilkeleriyle düşünür, kısa ve net hedefler koyarsın.',
                 template: adminService.getInitialPromptForActivity(act.id),
                 variables: [], tags: [], updatedAt: new Date().toISOString(), version: 1, history: [],
-                modelConfig: { temperature: 0.1, modelName: 'gemini-2.0-flash', thinkingBudget: 0 }
+                modelConfig: { temperature: 0.1, modelName: 'gemini-3-flash', thinkingBudget: 0 }
             };
         }
         setSelected(p);
@@ -315,7 +315,7 @@ export const AdminPromptStudio = () => {
                                 <div className="w-px h-6 bg-zinc-800"></div>
                                 <div className="flex flex-col">
                                     <span className="text-[8px] text-zinc-600 font-black uppercase mb-0.5 tracking-widest">Model Engine</span>
-                                    <span className="text-[10px] text-zinc-400 font-mono tracking-wider">{selected.modelConfig?.modelName || 'gemini-2.0-flash'}</span>
+                                    <span className="text-[10px] text-zinc-400 font-mono tracking-wider">{selected.modelConfig?.modelName || 'gemini-3-flash'}</span>
                                 </div>
                             </div>
                             <button

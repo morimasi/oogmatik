@@ -103,6 +103,6 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
         required: ['instruction', 'problems']
     };
 
-    // Fix: Using stable gemini-2.0-flash for latest multimodal performance
+    // Fix: Using stable gemini-3-flash for maximum speed and cost efficiency
     return await generateWithSchema(prompt, schema);
 };

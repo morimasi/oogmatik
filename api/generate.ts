@@ -11,11 +11,11 @@ import { retryWithBackoff, logError } from '../utils/errorHandler';
 export type VercelRequest = any;
 export type VercelResponse = any;
 
-const MASTER_MODEL = "gemini-2.0-flash";
+const MASTER_MODEL = "gemini-3-flash";
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
-MODEL: Gemini 2.0 Flash (Thinking & Multimodal Enabled).
+MODEL: Gemini 3 Flash (High-Speed & Cost-Efficient).
 Görevin: Klinik hassasiyetle eğitim materyali üretmek.
 KURAL: Yanıtın SADECE geçerli bir JSON olmalıdır. Üretimden önce mimari DNA'yı ve pedagojik hedefleri derinlemesine düşün.
 `;
