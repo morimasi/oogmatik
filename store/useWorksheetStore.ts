@@ -1,22 +1,5 @@
 import { create } from 'zustand';
-import { ActivityType, WorksheetData, ActiveCurriculumSession } from '../types';
-
-export type View =
-    | 'generator'
-    | 'savedList'
-    | 'workbook'
-    | 'favorites'
-    | 'shared'
-    | 'admin'
-    | 'profile'
-    | 'messages'
-    | 'assessment'
-    | 'screening'
-    | 'ocr'
-    | 'curriculum'
-    | 'reading-studio'
-    | 'math-studio'
-    | 'students';
+import { ActivityType, WorksheetData, ActiveCurriculumSession, View } from '../types';
 
 export interface WorksheetStoreState {
     currentView: View;

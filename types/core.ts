@@ -1,6 +1,6 @@
 declare global {
   namespace JSX {
-    interface IntrinsicElements extends Record<string, any> {}
+    interface IntrinsicElements extends Record<string, any> { }
   }
 }
 
@@ -104,15 +104,15 @@ export interface GeneratorOptions {
   hintLevel?: 'low' | 'medium' | 'high' | 'none';
   textLength?: 'kısa' | 'orta' | 'uzun';
   questionStyle?:
-    | 'test_and_open'
-    | 'only_test'
-    | 'only_open_ended'
-    | 'mixed'
-    | '5n1k'
-    | 'detail'
-    | 'inference'
-    | 'true_false'
-    | 'open_ended';
+  | 'test_and_open'
+  | 'only_test'
+  | 'only_open_ended'
+  | 'mixed'
+  | '5n1k'
+  | 'detail'
+  | 'inference'
+  | 'true_false'
+  | 'open_ended';
   syllableColoring?: boolean;
   wpmTarget?: number;
   colorPalette?: 'red_blue' | 'contrast' | 'pastel';
@@ -217,7 +217,12 @@ export type View =
   | 'profile'
   | 'messages'
   | 'assessment'
-  | 'screening';
+  | 'screening'
+  | 'ocr'
+  | 'curriculum'
+  | 'reading-studio'
+  | 'math-studio'
+  | 'students';
 
 export interface UiSettings {
   fontFamily: string;
@@ -252,18 +257,18 @@ export interface WorkbookSettings {
   year: string;
   teacherNote: string;
   theme:
-    | 'modern'
-    | 'classic'
-    | 'fun'
-    | 'minimal'
-    | 'academic'
-    | 'artistic'
-    | 'space'
-    | 'nature'
-    | 'geometric'
-    | 'cyber'
-    | 'luxury'
-    | 'playful';
+  | 'modern'
+  | 'classic'
+  | 'fun'
+  | 'minimal'
+  | 'academic'
+  | 'artistic'
+  | 'space'
+  | 'nature'
+  | 'geometric'
+  | 'cyber'
+  | 'luxury'
+  | 'playful';
   accentColor: string;
   coverStyle: 'centered' | 'left' | 'split' | 'hero' | 'minimalist';
   showTOC: boolean;
