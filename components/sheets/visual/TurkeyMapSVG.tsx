@@ -74,10 +74,26 @@ export const TurkeyMapSVG: React.FC<TurkeyMapSVGProps> = ({
             viewBox="0 0 1000 500"
             width={width}
             height={height}
-            className={className}
+            className={`print:!filter-none print:transform-none ${className}`}
             xmlns="http://www.w3.org/2000/svg"
-            style={{ background: 'transparent', userSelect: 'none' }}
+            style={{ background: 'transparent', userSelect: 'none', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
         >
+            <style>
+                {`
+                .harita-grup { filter: url(#mapShadow); }
+                @media print {
+                    .harita-grup { filter: none !important; }
+                    .sehir-path {
+                        stroke-width: 1.5 !important;
+                        stroke-opacity: 1 !important;
+                    }
+                    svg {
+                        print-color-adjust: exact;
+                        -webkit-print-color-adjust: exact;
+                    }
+                }
+                `}
+            </style>
             <defs>
                 {/* Deniz gradient */}
                 <radialGradient id="seaGradient" cx="50%" cy="50%" r="60%">
@@ -94,20 +110,34 @@ export const TurkeyMapSVG: React.FC<TurkeyMapSVGProps> = ({
             </defs>
 
             {/* Deniz zemin */}
-            <rect x="0" y="0" width="1000" height="500" fill="url(#seaGradient)" rx="20" />
+            <rect x="0" y="0" width="1000" height="500" fill="url(#seaGradient)" rx="20" className="print:fill-slate-50" />
 
             {/* İllerin çizimi */}
-            <g filter="url(#mapShadow)">
+            <g className="harita-grup">
                 {turkeyMapPaths.map((cityData) => {
                     const region = TURKEY_REGIONS[cityData.plate];
                     const active = isEmphasized(region);
+                    // Print için daha belirgin stroke renkleri (daha koyu)
+                    const enhancedColor = {
+                        'Marmara': { fill: '#e0e7ff', stroke: '#6366f1' },       // indigo-500
+                        'Ege': { fill: '#dcfce7', stroke: '#22c55e' },           // green-500
+                        'Akdeniz': { fill: '#fef3c7', stroke: '#eab308' },       // yellow-500
+                        'İç Anadolu': { fill: '#fce7f3', stroke: '#ec4899' },    // pink-500
+                        'Karadeniz': { fill: '#d1fae5', stroke: '#10b981' },     // emerald-500
+                        'Doğu Anadolu': { fill: '#e0e7ff', stroke: '#8b5cf6' },  // violet-500
+                        'Güneydoğu': { fill: '#fee2e2', stroke: '#ef4444' }      // red-500
+                    };
                     const colors = REGION_COLORS[region] || { fill: '#f4f4f5', stroke: '#d4d4d8', label: '' };
+                    const printColors = enhancedColor[region as keyof typeof enhancedColor] || colors;
 
                     const isHovered = hoveredRegion === region;
-                    const fillOpacity = active ? (isHovered ? 1 : 0.9) : 0.4;
+
+                    // Önemli: printte soluk çıkmaması için opaklıklar artırıldı
+                    const fillOpq = active ? (isHovered ? 1 : 0.9) : 0.6;
+
                     const fillColor = active ? colors.fill : '#e4e4e7';
-                    const strokeColor = active ? colors.stroke : '#d4d4d8';
-                    const strokeWidth = isHovered ? 1.5 : 1;
+                    const strokeColor = active ? printColors.stroke : '#a1a1aa'; // aktif değilse bile belirgin (zinc-400)
+                    const strokeWidth = isHovered ? 2 : 1.2;
 
                     return (
                         <path
@@ -117,9 +147,10 @@ export const TurkeyMapSVG: React.FC<TurkeyMapSVGProps> = ({
                             fill={fillColor}
                             stroke={strokeColor}
                             strokeWidth={strokeWidth}
-                            opacity={fillOpacity}
+                            fillOpacity={fillOpq}
+                            strokeOpacity={1}
                             filter={isHovered ? 'url(#hoverShadow)' : undefined}
-                            className="transition-all duration-300 ease-in-out"
+                            className="transition-all duration-300 ease-in-out sehir-path"
                             style={{
                                 cursor: interactive ? 'pointer' : 'default',
                                 outline: 'none'

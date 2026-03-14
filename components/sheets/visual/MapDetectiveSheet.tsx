@@ -85,6 +85,15 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                         className="w-full h-full  absolute inset-0 z-20 pointer-events-none"
                         style={{ top: 0, left: 0, position: 'absolute' }}
                     >
+                        <style>
+                            {`
+                            @media print {
+                                .print-grid-line { stroke: rgba(0,0,0,0.4) !important; stroke-width: 2.5px !important; }
+                                .print-grid-text { fill: rgba(0,0,0,0.8) !important; font-weight: 900 !important; }
+                            }
+                            `}
+                        </style>
+
                         {/* GRID SİSTEMİ ÇİZİMİ */}
                         {data.settings?.useGridSystem && (() => {
                             const cols = data.gridConfig?.cols || 10;
@@ -94,18 +103,18 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                             const gridLines = [];
 
                             for (let i = 0; i <= cols; i++) {
-                                gridLines.push(<line key={`v${i}`} x1={i * colWidth} y1={0} x2={i * colWidth} y2={500} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" />);
+                                gridLines.push(<line key={`v${i}`} x1={i * colWidth} y1={0} x2={i * colWidth} y2={500} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" className="print-grid-line" />);
                                 if (i < cols) {
-                                    gridLines.push(<text key={`c${i}`} x={i * colWidth + colWidth / 2} y={20} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle">{String.fromCharCode(65 + i)}</text>);
-                                    gridLines.push(<text key={`c${i}_b`} x={i * colWidth + colWidth / 2} y={490} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle">{String.fromCharCode(65 + i)}</text>);
+                                    gridLines.push(<text key={`c${i}`} x={i * colWidth + colWidth / 2} y={20} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{String.fromCharCode(65 + i)}</text>);
+                                    gridLines.push(<text key={`c${i}_b`} x={i * colWidth + colWidth / 2} y={490} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{String.fromCharCode(65 + i)}</text>);
                                 }
                             }
 
                             for (let i = 0; i <= rows; i++) {
-                                gridLines.push(<line key={`h${i}`} x1={0} y1={i * rowHeight} x2={1000} y2={i * rowHeight} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" />);
+                                gridLines.push(<line key={`h${i}`} x1={0} y1={i * rowHeight} x2={1000} y2={i * rowHeight} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" className="print-grid-line" />);
                                 if (i < rows) {
-                                    gridLines.push(<text key={`r${i}`} x={20} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle">{i + 1}</text>);
-                                    gridLines.push(<text key={`r${i}_r`} x={980} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle">{i + 1}</text>);
+                                    gridLines.push(<text key={`r${i}`} x={20} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{i + 1}</text>);
+                                    gridLines.push(<text key={`r${i}_r`} x={980} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{i + 1}</text>);
                                 }
                             }
                             return gridLines;
