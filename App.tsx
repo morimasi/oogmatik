@@ -756,6 +756,7 @@ const AppContent = () => {
             onOpenCurriculum={() => handleOpenStudio('curriculum')}
             onOpenReadingStudio={() => handleOpenStudio('reading-studio')}
             onOpenMathStudio={() => handleOpenStudio('math-studio')}
+            onOpenTurkceSuperStudyo={() => handleOpenStudio('turkce-super-studyo')}
             onOpenScreening={() => handleOpenStudio('screening')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
@@ -834,6 +835,12 @@ const AppContent = () => {
             <MathStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
           </Suspense>
         </div>
+      )}
+
+      {currentView === 'turkce-super-studyo' && (
+        <Suspense fallback={<LoadingSpinner />}>
+          <TurkceSuperStudyo onBack={handleGoBack} />
+        </Suspense>
       )}
 
       {currentView === 'ocr' && (
