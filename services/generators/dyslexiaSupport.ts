@@ -1,13 +1,13 @@
 
 import { Type } from "@google/genai";
 import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, LetterVisualMatchingData, SyllableMasterLabData } from '../../types';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, LetterVisualMatchingData, SyllableMasterLabData, Student } from '../../types';
 import { getAttentionPrompt, getDyslexiaPrompt } from './prompts';
 
 // Comprehensive Syllable Master Lab - UPDATED FOR COMPACT MODE (NO IMAGES)
 export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {
     const { worksheetCount, difficulty, itemCount, topic, variant = 'split', case: letterCase, syllableRange = '2-3' } = options;
-    
+
     const specifics = `
     - ÇALIŞMA MODU: ${variant} (split, combine, complete, rainbow, scrambled)
     - KONU: ${topic || 'Karma'}
@@ -24,9 +24,9 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
        DİKKAT: İki ünlü arasındaki tek ünsüz sağdaki heceye geçer.
     4. RAINBOW RENKLERİ: Her hece için farklı, yüksek kontrastlı hex kodları üret.
     `;
-    
-    const prompt = getDyslexiaPrompt("Hece Ustası Laboratuvarı (Yüksek Yoğunluklu)", difficulty, specifics, options.studentContext);
-    
+
+    const prompt = getDyslexiaPrompt("Hece Ustası Laboratuvarı (Yüksek Yoğunluklu)", difficulty, specifics, options.studentContext as Student | undefined);
+
     const singleSchema = {
         type: Type.OBJECT,
         properties: {
@@ -51,8 +51,58 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
         },
         required: ['title', 'instruction', 'items', 'pedagogicalNote']
     };
-    
+
     return await generateWithSchema(prompt, { type: Type.ARRAY, items: singleSchema }) as any;
 };
 
-// ... remaining generators stay same ...
+// Letter-Visual Matching (AI Generator)
+export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptions): Promise<LetterVisualMatchingData[]> => {
+    const { difficulty, itemCount, topic, case: letterCase = 'mixed' } = options;
+
+    const specifics = `
+    - KONU/TEMA: ${topic || 'Karma (Hayvanlar, Eşyalar, Meyveler vb.)'}
+    - ADET: ${itemCount || 10} çift (harf-kelime-görsel eşleşmesi).
+    - HARF TİPİ: ${letterCase}.
+    - ZORLUK: ${difficulty}.
+    
+    ÜRETİM KURALLARI:
+    1. Harfler ve kelimeler disleksi eğitimine uygun, somut nesnelerden seçilmeli (Örn: A -> Arı, B -> Balık).
+    2. "imagePrompt" alanı disleksi dostu bir görsel için detaylı bir İNGİLİZCE prompt içermeli.
+    3. Eğer kelime çok basit bir geometrik şekil ise (Örn: Kare, Yıldız) veya sembol ise, "imageBase64" alanına doğrudan 100x100 koordinatlı <svg> kodu yazabilirsin.
+    `;
+
+    const prompt = getDyslexiaPrompt("Harf-Görsel Eşleme", difficulty, specifics, options.studentContext as Student | undefined);
+
+    const singleSchema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            settings: {
+                type: Type.OBJECT,
+                properties: {
+                    showTracing: { type: Type.BOOLEAN },
+                    showWord: { type: Type.BOOLEAN }
+                },
+                required: ['showTracing', 'showWord']
+            },
+            pairs: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        letter: { type: Type.STRING },
+                        word: { type: Type.STRING },
+                        imagePrompt: { type: Type.STRING },
+                        imageBase64: { type: Type.STRING, nullable: true }
+                    },
+                    required: ['letter', 'word', 'imagePrompt']
+                }
+            }
+        },
+        required: ['title', 'instruction', 'pedagogicalNote', 'settings', 'pairs']
+    };
+
+    return await generateWithSchema(prompt, { type: Type.ARRAY, items: singleSchema }) as any;
+};

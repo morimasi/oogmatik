@@ -331,6 +331,62 @@ export const detectMimeType = (base64: string): 'image/jpeg' | 'image/png' | 'im
     return 'image/jpeg';
 };
 
+/**
+ * Generates raw SVG code from a prompt using Gemini
+ */
+export const generateSvgCode = async (prompt: string): Promise<string> => {
+    const systemPrompt = `
+    Sen bir SVG uzmanısın. Kullanıcının istediği konuya uygun, basit, yüksek kontrastlı ve disleksi dostu bir SVG ikonu üret.
+    KURALLAR:
+    - SADECE ham <svg> kodunu döndür. Açıklama veya markdown ( \`\`\` ) kullanma.
+    - Görsel 100x100 viewbox içinde olmalı.
+    - Tasarım minimalist, net çizgili ve dolgulu olmalı.
+    - Arka plan şeffaf olmalı.
+    - Renk paleti: #000000 (siyah) veya #4f46e5 (indigo) kullan.
+  `;
+
+    try {
+        const apiKey = getApiKey();
+        const url = `https://generativelanguage.googleapis.com/v1alpha/models/${MASTER_MODEL}:generateContent?key=${apiKey}`;
+
+        const body = {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.2,
+                maxOutputTokens: 2000,
+                responseMimeType: "text/plain",
+            },
+            systemInstruction: {
+                parts: [{ text: systemPrompt }]
+            }
+        };
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) throw new Error("Gemini SVG generation failed");
+
+        const data = await response.json();
+        let svgCode = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+        // Clean up markdown if AI accidentally included it
+        svgCode = svgCode.replace(/```svg/g, '').replace(/```/g, '').trim();
+
+        if (!svgCode.includes('<svg')) {
+            throw new Error("Geçerli bir SVG üretilemedi");
+        }
+
+        return svgCode;
+    } catch (error) {
+        console.error("SVG Generation Error:", error);
+        // Generic fallback SVG (a simple circle)
+        return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="#000" stroke-width="4" fill="none"/></svg>';
+    }
+};
+
 export const analyzeImage = async (image: string, prompt: string, schema: any) => {
     const mimeType = detectMimeType(image);
     return await generateCreativeMultimodal({

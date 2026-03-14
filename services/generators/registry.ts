@@ -46,7 +46,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
         offline: offlineGenerators.generateOfflineSynonymAntonymMatch
     },
     [ActivityType.LETTER_VISUAL_MATCHING]: {
-        ai: undefined,
+        ai: aiGenerators.generateLetterVisualMatchingFromAI,
         offline: offlineGenerators.generateOfflineLetterVisualMatching
     },
     [ActivityType.SYLLABLE_WORD_BUILDER]: {
