@@ -18,7 +18,7 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
   const imageBlock = blocks.find((b: any) => b.type === 'image');
   const questionsBlock = blocks.find((b: any) => b.type === 'question' || b.type === 'questions');
 
-  const imagePrompt = imageBlock?.content?.prompt || 'Beautiful educational scene for children';
+  const imagePrompt = imageBlock?.content?.prompt || 'Beautiful educational scene for children, minimalist flat vector art';
   const questions = questionsBlock?.content?.items || [];
 
   return (

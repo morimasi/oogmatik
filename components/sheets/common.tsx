@@ -409,6 +409,8 @@ export const FlowArrow = () => (
   </div>
 );
 
+import { imageService } from '../../services/imageService';
+
 export const ImageDisplay = React.memo(
   ({
     prompt,
@@ -422,11 +424,11 @@ export const ImageDisplay = React.memo(
     description?: string;
   }) => {
     const [isLoading, setIsLoading] = useState(!base64);
+    const [imageUrl, setImageUrl] = useState<string | null>(base64 || null);
     const [hasError, setHasError] = useState(false);
     const [useInlineSvg, setUseInlineSvg] = useState(false);
     const [svgContent, setSvgContent] = useState<string | null>(null);
 
-    // Effect to detect if base64 is actually an SVG string
     useEffect(() => {
       if (base64 && base64.trim().startsWith('<svg')) {
         setSvgContent(base64);
@@ -435,14 +437,30 @@ export const ImageDisplay = React.memo(
       }
     }, [base64]);
 
-    const query = encodeURIComponent(prompt || 'educational illustration');
-    const seed = useRef(Math.floor(Math.random() * 1000000));
+    useEffect(() => {
+      if (!base64 && prompt) {
+        let isMounted = true;
+        setIsLoading(true);
 
-    // Pollinations with specific educational parameters
-    const url = base64 ||
-      `https://image.pollinations.ai/prompt/${query},high_contrast,minimalist,flat_vector_art,white_background?width=512&height=512&nologo=true&seed=${seed.current}`;
+        imageService.generateImage({ prompt })
+          .then(url => {
+            if (isMounted) {
+              setImageUrl(url);
+              setIsLoading(false);
+            }
+          })
+          .catch(() => {
+            if (isMounted) {
+              setHasError(true);
+              setIsLoading(false);
+            }
+          });
 
-    const handleError = () => {
+        return () => { isMounted = false; };
+      }
+    }, [prompt, base64]);
+
+    const getFallbackSvg = (p: string) => {
       if (!base64) {
         setHasError(true);
         setUseInlineSvg(true);
@@ -524,18 +542,17 @@ export const ImageDisplay = React.memo(
         ) : (
           <>
             {isLoading && !base64 && !document.getElementById('print-container') && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-50/80 backdrop-blur-sm z-10">
-                <i className="fa-solid fa-wand-magic-sparkles fa-bounce text-indigo-500 text-2xl mb-2"></i>
-                <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest animate-pulse">
-                  AI Oluşturuyor...
-                </span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-50 z-10 animate-pulse">
+                <div className="w-16 h-16 bg-zinc-200 rounded-full mb-4"></div>
+                <div className="w-32 h-4 bg-zinc-200 rounded mb-2"></div>
+                <div className="w-24 h-2 bg-zinc-100 rounded"></div>
               </div>
             )}
             <img
-              src={url}
+              src={imageUrl || ''}
               alt={description}
               loading="lazy"
-              className={`w-full h-full object-contain transition-all duration-700 ${isLoading && !base64 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100 blur-0'}`}
+              className={`w-full h-full object-contain transition-all duration-700 ${isLoading || !imageUrl ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100 blur-0'}`}
               onLoad={() => setIsLoading(false)}
               onError={handleError}
             />

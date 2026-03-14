@@ -21,7 +21,10 @@ export const LetterVisualMatchingSheet = ({ data }: { data: LetterVisualMatching
           </div>
           <div className="flex-1">
             <div className="h-28 bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-200 mb-4 print:mb-1 overflow-hidden">
-              <ImageDisplay prompt={pair.imagePrompt} className="w-full h-full  object-contain" />
+              <ImageDisplay
+                prompt={`${pair.letter} harfi ile başlayan ${pair.imagePrompt || 'nesne'}, boyama sayfası stili, sade çizim`}
+                className="w-full h-full object-contain"
+              />
             </div>
             {data.settings.showTracing && (
               <HandwritingGuide height={60}>
