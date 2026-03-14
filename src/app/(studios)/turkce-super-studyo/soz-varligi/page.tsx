@@ -1,19 +1,21 @@
 'use client';
 import React, { useState } from 'react';
-import { FlipCardGame } from '../../../../modules/turkce-super-studyo/components/organisms/vocabulary/FlipCardGame';
+import { FlipCardGame, CardItem } from '../../../../modules/turkce-super-studyo/components/organisms/vocabulary/FlipCardGame';
 import { Library, Sparkles, RefreshCw } from 'lucide-react';
 
 export default function SozVarligiPage() {
     const [isGenerating, setIsGenerating] = useState(false);
 
     // Mock veri
-    const mockCards = [
-        { id: 'v1', front: 'Eş Anlamlısı: Yanıt', back: 'Cevap' },
-        { id: 'v2', front: 'Zıt Anlamlısı: Siyah', back: 'Beyaz' },
-        { id: 'v3', front: 'Eş Anlamlısı: Mektep', back: 'Okul' },
-        { id: 'v4', front: 'Zıt Anlamlısı: Çalışkan', back: 'Tembel' },
-        { id: 'v5', front: 'Eş Anlamlısı: Hediye', back: 'Armağan' },
-        { id: 'v6', front: 'Zıt Anlamlısı: Küçük', back: 'Büyük' },
+    const mockCards: CardItem[] = [
+        { id: 'v1', type: 'word', content: 'Yanıt', matchId: 'v2' },
+        { id: 'v2', type: 'meaning', content: 'Cevap', matchId: 'v1' },
+        { id: 'v3', type: 'word', content: 'Siyah', matchId: 'v4' },
+        { id: 'v4', type: 'meaning', content: 'Beyaz', matchId: 'v3' },
+        { id: 'v5', type: 'word', content: 'Mektep', matchId: 'v6' },
+        { id: 'v6', type: 'meaning', content: 'Okul', matchId: 'v5' },
+        { id: 'v7', type: 'word', content: 'Hediye', matchId: 'v8' },
+        { id: 'v8', type: 'meaning', content: 'Armağan', matchId: 'v7' },
     ];
 
     return (
@@ -44,8 +46,9 @@ export default function SozVarligiPage() {
 
             <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border-2 border-emerald-50 min-h-[500px]">
                 <FlipCardGame
+                    instruction="Birbirinin eş anlamlısı olan kelime kartlarını eşleştir."
                     cards={mockCards}
-                    onComplete={(score) => console.log('Vocabulary game completed! Score:', score)}
+                    onComplete={(moves) => console.log('Vocabulary game completed! Moves:', moves)}
                 />
             </div>
         </div>
