@@ -1,6 +1,8 @@
 
 // @ts-ignore
 import React from 'react';
+// @ts-ignore
+import * as _React from 'react';
 import { MapInstructionData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
