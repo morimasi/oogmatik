@@ -2,7 +2,7 @@ import { Type } from "@google/genai";
 
 // Model Seçimi: Gemini 3 Flash — Multimodal thinking ve muhakeme motoru desteği
 // NOT: Model adı .env'den okunabilir: VITE_GEMINI_MODEL
-const MASTER_MODEL = (import.meta as any).env?.VITE_GEMINI_MODEL || 'gemini-3-flash';
+const MASTER_MODEL = (import.meta as any).env?.VITE_GEMINI_MODEL || 'gemini-3-flash-preview';
 
 // ============================================================
 // JSON ONARIM MOTORU (3 Katmanlı Strateji)
