@@ -117,8 +117,55 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   onCompleteCurriculumActivity,
   onAddDirectToWorkbook,
 }) => {
-  const { user, isEditMode, setEditMode, zoomScale, setZoomScale } = useAppStore();
+  const { user } = useAuthStore();
+  const {
+    activeWorksheetId,
+    activeWorksheetTitle,
+    setActiveWorksheet,
+    setCurrentView,
+    addHistoryView,
+  } = useWorksheetStore();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isShareSending, setIsShareSending] = useState(false);
+
+  // Sharing logic
+  const handleShare = async (receiverIds: string[]) => {
+    if (!user) {
+      onOpenAuth?.();
+      return;
+    }
+
+    setIsShareSending(true);
+    try {
+      let currentId = activeWorksheetId;
+
+      // If not saved yet, save it first
+      if (!currentId && worksheetData) {
+        const title =
+          activeWorksheetTitle ||
+          (Array.isArray(worksheetData) ? worksheetData[0]?.title : (worksheetData as any)?.title) ||
+          'Yeni Etkinlik';
+        currentId = await onSave!(title, activityType!, worksheetData);
+        if (currentId) {
+          setActiveWorksheet(currentId, title);
+        }
+      }
+
+      if (currentId) {
+        await worksheetService.shareWorksheet(currentId, user.id, user.name, receiverIds);
+        alert('Çalışma başarıyla paylaşıldı!');
+        setIsShareModalOpen(false);
+      } else {
+        alert('Önce çalışmayı kaydetmelisiniz.');
+      }
+    } catch (error: any) {
+      console.error('Share error:', error);
+      alert(`Paylaşım başarısız: ${error.message}`);
+    } finally {
+      setIsShareSending(false);
+    }
+  };
+  const { isEditMode, setEditMode, zoomScale, setZoomScale } = useAppStore();
   const [processedData, setProcessedData] = useState<SingleWorksheetData[]>([]);
 
   // Scroller container ref

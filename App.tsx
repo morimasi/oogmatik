@@ -242,6 +242,7 @@ const AppContent = () => {
     selectedActivity, setSelectedActivity,
     worksheetData, setWorksheetData,
     activeCurriculumSession, setActiveCurriculumSession,
+    activeWorksheetId, setActiveWorksheet,
     isLoading, setIsLoading,
     error, setError,
     resetGeneratorContext
@@ -458,7 +459,7 @@ const AppContent = () => {
     const category = ACTIVITY_CATEGORIES.find((c) => c.activities.includes(activityType));
     if (!activity || !category) return;
     try {
-      await worksheetService.saveWorksheet(
+      const saved = await worksheetService.saveWorksheet(
         user.id,
         name,
         activityType,
@@ -470,8 +471,10 @@ const AppContent = () => {
         studentProfile?.studentId
       );
       toast.success(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
+      return saved.id;
     } catch (e: any) {
       toast.error(`Kaydedilirken bir hata oluştu: ${(e as Error).message}.`);
+      return null;
     }
   };
 
@@ -495,6 +498,7 @@ const AppContent = () => {
     }
     setSelectedActivity(item.activityType);
     setWorksheetData(item.worksheetData);
+    setActiveWorksheet(item.id, item.name);
     if (item.styleSettings) setStyleSettings(item.styleSettings);
     if (item.studentProfile) {
       setStudentProfile(item.studentProfile);
@@ -515,6 +519,7 @@ const AppContent = () => {
     setActiveCurriculumSession(null);
     setSelectedActivity(activityType);
     setWorksheetData(null);
+    setActiveWorksheet(null);
     setError(null);
     setCurrentView('generator');
     if (isSidebarOpen) setIsSidebarOpen(false);

@@ -7,6 +7,8 @@ export interface WorksheetStoreState {
     selectedActivity: ActivityType | null;
     worksheetData: WorksheetData | null;
     activeCurriculumSession: ActiveCurriculumSession | null;
+    activeWorksheetId: string | null;
+    activeWorksheetTitle: string;
     isLoading: boolean;
     error: string | null;
 
@@ -17,22 +19,25 @@ export interface WorksheetStoreState {
     setSelectedActivity: (activity: ActivityType | null) => void;
     setWorksheetData: (data: WorksheetData | null) => void;
     setActiveCurriculumSession: (session: ActiveCurriculumSession | null) => void;
+    setActiveWorksheet: (id: string | null, title?: string) => void;
     setIsLoading: (isLoading: boolean) => void;
     setError: (error: string | null) => void;
     resetGeneratorContext: () => void;
 }
 
-export const useWorksheetStore = create<WorksheetStoreState>((set, get) => ({
+export const useWorksheetStore = create<WorksheetStoreState>()((set, get) => ({
     currentView: 'generator',
     viewHistory: [],
     selectedActivity: null,
     worksheetData: null,
     activeCurriculumSession: null,
+    activeWorksheetId: null,
+    activeWorksheetTitle: '',
     isLoading: false,
     error: null,
 
-    setCurrentView: (view) => set({ currentView: view }),
-    addHistoryView: (view) => set((state) => ({ viewHistory: [...state.viewHistory, view] })),
+    setCurrentView: (view: View) => set({ currentView: view }),
+    addHistoryView: (view: View) => set((state) => ({ viewHistory: [...state.viewHistory, view] })),
     popHistoryView: () => {
         const state = get();
         if (state.viewHistory.length === 0) return undefined;
@@ -41,14 +46,20 @@ export const useWorksheetStore = create<WorksheetStoreState>((set, get) => ({
         set({ viewHistory: newHistory });
         return lastView;
     },
-    setSelectedActivity: (activity) => set({ selectedActivity: activity }),
-    setWorksheetData: (data) => set({ worksheetData: data }),
-    setActiveCurriculumSession: (session) => set({ activeCurriculumSession: session }),
-    setIsLoading: (isLoading) => set({ isLoading }),
-    setError: (error) => set({ error }),
+    setSelectedActivity: (activity: ActivityType | null) => set({ selectedActivity: activity }),
+    setWorksheetData: (data: WorksheetData | null) => set({ worksheetData: data }),
+    setActiveCurriculumSession: (session: ActiveCurriculumSession | null) => set({ activeCurriculumSession: session }),
+    setActiveWorksheet: (id: string | null, title?: string) => set({
+        activeWorksheetId: id,
+        activeWorksheetTitle: title || ''
+    }),
+    setIsLoading: (isLoading: boolean) => set({ isLoading }),
+    setError: (error: string | null) => set({ error }),
     resetGeneratorContext: () => set({
         selectedActivity: null,
         worksheetData: null,
-        activeCurriculumSession: null
+        activeCurriculumSession: null,
+        activeWorksheetId: null,
+        activeWorksheetTitle: ''
     })
 }));
