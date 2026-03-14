@@ -460,7 +460,7 @@ export const ImageDisplay = React.memo(
       }
     }, [prompt, base64]);
 
-    const getFallbackSvg = (p: string) => {
+    const handleError = () => {
       if (!base64) {
         setHasError(true);
         setUseInlineSvg(true);
