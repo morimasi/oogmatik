@@ -24,6 +24,7 @@ import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
 import { WorkbookView } from './WorkbookView';
 import { useAppStore } from '../store/useAppStore';
+import { useWorksheetStore } from '../store/useWorksheetStore';
 import { paginationService } from '../services/paginationService';
 
 import { UniversalWorksheetWrapper } from './UniversalStudio/UniversalWorksheetWrapper';

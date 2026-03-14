@@ -34,7 +34,7 @@ export const initPaperSizeForCurrentUser = async (user: any) => {
       const serverSize = await (async () => {
         try {
           // Load size from server; if endpoint is unavailable, fall back to localStorage
-          const res = (await fetch('/user/paperSize', {
+          const res = (await fetch('/api/user/paperSize', {
             method: 'GET',
             credentials: 'include',
             headers: { Accept: 'application/json' },
