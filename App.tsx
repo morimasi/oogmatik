@@ -42,6 +42,7 @@ import { useAuthStore } from './store/useAuthStore';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
 import * as offlineGenerators from './services/offlineGenerators';
 import { useUIStore } from './store/useUIStore';
+import { useWorksheetStore, View, ExtendedView } from './store/useWorksheetStore';
 
 // Lazy Loaded Components
 const ProfileView = lazy(() =>
@@ -115,16 +116,6 @@ const initialStyleSettings: StyleSettings = {
 };
 
 type ModalType = 'settings' | 'history' | 'about' | 'developer';
-type ExtendedView =
-  | View
-  | 'ocr'
-  | 'curriculum'
-  | 'reading-studio'
-  | 'math-studio'
-  | 'students'
-  | 'assessment'
-  | 'screening'
-  | 'profile';
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center h-full w-full min-h-[200px]">
@@ -316,15 +307,17 @@ const AppContent = () => {
   const { user, logout } = authStore;
   const { activeStudent, setActiveStudent, students } = studentStore;
 
-  const [currentView, setCurrentView] = useState('generator' as ExtendedView);
-  const [viewHistory, setViewHistory] = useState([] as ExtendedView[]);
-  const [selectedActivity, setSelectedActivity] = useState(null as ActivityType | null);
-  const [worksheetData, setWorksheetData] = useState(null as WorksheetData);
-  const [isLoading, setIsLoading] = useState(false as boolean);
-  const [error, setError] = useState(null as string | null);
-  const [activeCurriculumSession, setActiveCurriculumSession] = useState(
-    null as ActiveCurriculumSession | null
-  );
+  const {
+    currentView, setCurrentView,
+    viewHistory, addHistoryView, popHistoryView,
+    selectedActivity, setSelectedActivity,
+    worksheetData, setWorksheetData,
+    activeCurriculumSession, setActiveCurriculumSession,
+    isLoading, setIsLoading,
+    error, setError,
+    resetGeneratorContext
+  } = useWorksheetStore();
+
   const [loadedCurriculum, setLoadedCurriculum] = useState(null as Curriculum | null);
 
   const {
@@ -445,7 +438,7 @@ const AppContent = () => {
 
   const navigateTo = (view: ExtendedView) => {
     if (currentView === view) return;
-    setViewHistory((prev: ExtendedView[]) => [...prev, currentView]);
+    addHistoryView(currentView);
     setCurrentView(view);
   };
   const handleGoBack = () => {
@@ -454,11 +447,9 @@ const AppContent = () => {
       navigateTo('curriculum');
       return;
     }
-    if (viewHistory.length > 0) {
-      const newHistory = [...viewHistory];
-      const prevView = newHistory.pop();
-      setViewHistory(newHistory);
-      if (prevView) setCurrentView(prevView);
+    const prevView = popHistoryView();
+    if (prevView) {
+      setCurrentView(prevView);
     } else {
       setCurrentView('generator');
     }
@@ -466,9 +457,7 @@ const AppContent = () => {
 
   // --- NAVIGATION HELPERS (Resets state before switching view) ---
   const handleOpenStudio = (viewName: ExtendedView) => {
-    setSelectedActivity(null);
-    setWorksheetData(null);
-    setActiveCurriculumSession(null);
+    resetGeneratorContext();
     navigateTo(viewName);
   };
 

@@ -34,7 +34,7 @@ interface ContentAreaProps {
   onBackToGenerator: () => void;
   activityType: ActivityType | null;
   worksheetData: WorksheetData;
-  setWorksheetData?: React.Dispatch<React.SetStateAction<WorksheetData>>;
+  setWorksheetData?: (data: WorksheetData | null) => void;
   isLoading: boolean;
   error: string | null;
   styleSettings: StyleSettings;
@@ -258,9 +258,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         {/* VIEWPORT - THE DESK SURFACE */}
         <div
           ref={scrollContainerRef}
-          className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar transition-colors duration-500 ${
-            zenMode ? 'bg-[#050505]' : 'bg-[var(--bg-secondary)]'
-          }`}
+          className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar transition-colors duration-500 ${zenMode ? 'bg-[#050505]' : 'bg-[var(--bg-secondary)]'
+            }`}
         >
           {/* justify-start and items-start for fixed top anchoring */}
           <div className="w-full flex flex-col items-center justify-start min-h-full py-0">
@@ -386,7 +385,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
-        onShare={() => {}}
+        onShare={() => { }}
       />
     </main>
   );
