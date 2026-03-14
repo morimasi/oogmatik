@@ -1,5 +1,6 @@
 // @ts-ignore
-import React, { useState } from 'react';
+import React from 'react';
+import { useState } from 'react';
 // @ts-ignore
 import * as _React from 'react';
 import { turkeyMapPaths } from './turkeyMapPaths';
