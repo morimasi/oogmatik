@@ -385,7 +385,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
-        onShare={() => { }}
+        onShare={handleShare}
+        worksheetId={activeWorksheetId || ''}
+        worksheetTitle={activeWorksheetTitle}
+        isSending={isShareSending}
       />
     </main>
   );
