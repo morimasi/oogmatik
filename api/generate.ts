@@ -11,7 +11,7 @@ import { retryWithBackoff, logError } from '../utils/errorHandler';
 export type VercelRequest = any;
 export type VercelResponse = any;
 
-const MASTER_MODEL = "gemini-2.0-flash";
+const MASTER_MODEL = "gemini-3-flash-preview";
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
