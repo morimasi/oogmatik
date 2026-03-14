@@ -1,3 +1,4 @@
+import { generateCreativeMultimodal } from '../geminiClient';
 import { ActivityType, GeneratorOptions, WorksheetData } from '../../types';
 import { BaseGenerator } from './core/BaseGenerator';
 
@@ -7,54 +8,54 @@ export class BrainTeasersGenerator extends BaseGenerator<any> {
   }
 
   protected async execute(options: GeneratorOptions): Promise<WorksheetData> {
-    // AI Generator implementation
-    const prompt = `
-            Lütfen bir "Zeka ve Mantık Oyunları" çalışma kağıdı oluştur.
-            
-            Konu: ${options.topic || 'Genel Mantık'}
-            Zorluk: ${options.difficulty}
-            Soru Tipi: ${options.questionStyle || 'mixed'}
-            
-            Çıktı Formatı (JSON):
-            {
-                "puzzles": [
-                    {
-                        "type": "riddle" | "logic_grid" | "pattern" | "math_trick",
-                        "question": "Soru metni",
-                        "visualData": "Gerekirse görsel verisi (ASCII veya SVG path)",
-                        "answer": "Cevap",
-                        "hint": "İpucu"
-                    }
-                ]
-            }
-        `;
+    const difficulty = options.difficulty || 'Orta';
+    const topic = options.topic || 'Genel Mantık';
+    const puzzleCount = options.puzzleCount || (difficulty === 'Zor' ? 4 : 3);
 
-    // Mock response
+    const prompt = `
+      Sen "Zeka ve Mantık Oyunları" üzerine uzmanlaşmış bir eğitmen ve içerik üreticisisin.
+      Öğrencilerin bilişsel becerilerini, problem çözme yeteneklerini ve yanal düşünme (lateral thinking) kapasitelerini geliştirecek ${puzzleCount} farklı zeka sorusu üret.
+
+      PARAMETRELER:
+      - Konu: ${topic}
+      - Zorluk: ${difficulty}
+      - Dil: %100 Türkçe
+      
+      SORU TİPLERİ (Karışık Üret):
+      1. riddle (Mantıksal bilmece)
+      2. logic_grid (Basit mantık ızgarası veya sözel çıkarım)
+      3. pattern (Sayısal veya görsel örüntü kuralı)
+      4. math_trick (Şaşırtıcı matematiksel paradoks veya işlem mantığı)
+
+      ÇIKTI FORMATI (JSON):
+      {
+          "title": "Kafayı Çalıştır: Zeka Oyunları",
+          "instruction": "Soruları dikkatlice oku ve yaratıcı düşünerek çözmeye çalış.",
+          "puzzles": [
+              {
+                  "type": "riddle" | "logic_grid" | "pattern" | "math_trick",
+                  "q": "Soru metni",
+                  "a": "Cevap",
+                  "hint": "Küçük bir ipucu"
+              }
+          ]
+      }
+    `;
+
+    const parsedData = await generateCreativeMultimodal({
+      prompt: prompt,
+      temperature: 0.7
+    });
+
     return {
-      title: 'Kafayı Çalıştır',
-      instruction: 'Soruları dikkatlice oku ve mantığını kullanarak çöz.',
+      title: parsedData.title || 'Kafayı Çalıştır',
+      instruction: parsedData.instruction || 'Soruları dikkatlice oku ve mantığını kullanarak çöz.',
       layoutArchitecture: {
         blocks: [
           {
             type: 'puzzles',
             content: {
-              items: [
-                {
-                  type: 'riddle',
-                  q: 'Benim şehirlerim var ama evlerim yok. Dağlarım var ama ağaçlarım yok. Sularım var ama balıklarım yok. Ben neyim?',
-                  a: 'Harita',
-                },
-                {
-                  type: 'math_trick',
-                  q: 'Bir sepette 5 elma var. 5 çocuğa birer elma verdin ama sepette hala bir elma kaldı. Bu nasıl mümkün oldu?',
-                  a: 'Son çocuğa elmayı sepetle birlikte verdin.',
-                },
-                {
-                  type: 'pattern',
-                  q: 'Sıradaki şekil hangisi olmalı? 🟥 🟦 🟥 🟦 ...',
-                  a: '🟥',
-                },
-              ],
+              items: parsedData.puzzles || []
             },
           },
         ],

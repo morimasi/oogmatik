@@ -5,11 +5,11 @@ import {
   GridDrawingData,
   SymmetryDrawingData,
   ShapeCountingData,
-  DirectionalTrackingData,
-  GeneratorOptions,
   SearchFieldItem,
   ShapeType,
 } from '../../types';
+import { DirectionalCodeReadingData } from '../../types/visual';
+import { GeneratorOptions } from '../../types/core';
 import {
   getRandomInt,
   shuffle,
@@ -79,16 +79,19 @@ const TURKISH_WORDS_HARD = [
 export const generateOfflineShapeCounting = async (
   options: GeneratorOptions
 ): Promise<ShapeCountingData[]> => {
-  const { worksheetCount, difficulty, itemCount = 30 } = options;
+  const worksheetCount = options.worksheetCount || 1;
+  const difficulty = options.difficulty || 'Orta';
+  const itemCount = options.itemCount || 30;
   const results: ShapeCountingData[] = [];
 
   // Zorluk seviyesine göre hedef/çeldirici oranı
-  const config = {
+  const difficultyConfigs: Record<string, { targetRatio: number; types: string[] }> = {
     Başlangıç: { targetRatio: 0.4, types: ['circle', 'square', 'triangle'] },
     Orta: { targetRatio: 0.3, types: ['circle', 'square', 'triangle', 'star', 'hexagon'] },
     Zor: { targetRatio: 0.2, types: SHAPE_TYPES },
     Uzman: { targetRatio: 0.15, types: SHAPE_TYPES },
-  }[difficulty] || { targetRatio: 0.3, types: ['circle', 'square', 'triangle', 'star'] };
+  };
+  const config = difficultyConfigs[difficulty] || difficultyConfigs['Orta'];
 
   for (let p = 0; p < worksheetCount; p++) {
     // A4 sayfasında tek bir ana bölge oluştur (Geniş Bakış Açısı için)
@@ -104,9 +107,9 @@ export const generateOfflineShapeCounting = async (
         const type = isTarget
           ? 'triangle'
           : getRandomItems(
-              config.types.filter((t) => t !== 'triangle'),
-              1
-            )[0];
+            config.types.filter((t) => t !== 'triangle'),
+            1
+          )[0];
 
         if (type === 'triangle') targetCount++;
 
@@ -152,7 +155,10 @@ export const generateOfflineShapeCounting = async (
 export const generateOfflineGridDrawing = async (
   options: GeneratorOptions
 ): Promise<GridDrawingData[]> => {
-  const { worksheetCount, difficulty, gridSize = 8, concept = 'copy' } = options;
+  const worksheetCount = options.worksheetCount || 1;
+  const difficulty = options.difficulty || 'Orta';
+  const gridSize = options.gridSize || 8;
+  const concept = options.concept || 'copy';
   const results: GridDrawingData[] = [];
 
   for (let p = 0; p < worksheetCount; p++) {
@@ -190,7 +196,10 @@ export const generateOfflineGridDrawing = async (
 export const generateOfflineSymmetryDrawing = async (
   options: GeneratorOptions
 ): Promise<SymmetryDrawingData[]> => {
-  const { worksheetCount, difficulty, gridSize = 8, concept = 'mirror_v' } = options;
+  const worksheetCount = options.worksheetCount || 1;
+  const difficulty = options.difficulty || 'Orta';
+  const gridSize = options.gridSize || 8;
+  const concept = options.concept || 'mirror_v';
   const results: SymmetryDrawingData[] = [];
 
   for (let p = 0; p < worksheetCount; p++) {
@@ -232,7 +241,10 @@ export const generateOfflineSymmetryDrawing = async (
 export const generateOfflineFindTheDifference = async (
   options: GeneratorOptions
 ): Promise<FindTheDifferenceData[]> => {
-  const { worksheetCount, difficulty, itemCount = 5, findDiffType = 'visual' } = options;
+  const worksheetCount = options.worksheetCount || 1;
+  const difficulty = options.difficulty || 'Orta';
+  const itemCount = options.itemCount || 5;
+  const findDiffType = options.findDiffType || 'visual';
   const results: FindTheDifferenceData[] = [];
 
   const EMOJIS = [
@@ -303,28 +315,28 @@ export const generateOfflineFindTheDifference = async (
         itemType: findDiffType as any,
         isProfessionalMode: true,
         showClinicalNotes: true,
+        differenceType: findDiffType as any,
       },
-      // GridA ve GridB'yi taşıyacak yapı
       gridA,
       gridB,
       diffCount: itemCount,
-      // Legacy render desteği için rows (opsiyonel)
-      rows: gridB.map((row, r) => ({
+      rows: gridB.map((row) => ({
         items: row,
         correctIndex: -1,
+        visualDistractionLevel: 'medium',
         clinicalMeta: {
           errorType: 'Görsel Fark',
-          isMirrorTask: false,
+          isMirrored: false,
         },
       })),
-    } as any);
+    });
   }
   return results;
 };
 
 export const generateOfflineDirectionalTracking = async (
   options: GeneratorOptions
-): Promise<DirectionalTrackingData[]> => {
+): Promise<DirectionalCodeReadingData[]> => {
   const {
     worksheetCount,
     difficulty,
@@ -332,13 +344,23 @@ export const generateOfflineDirectionalTracking = async (
     itemCount = 2,
     concept = 'letters',
   } = options;
-  const results: DirectionalTrackingData[] = [];
+  const results: DirectionalCodeReadingData[] = [];
 
   const rows = options.gridRows || options.gridSize || 6;
   const cols = options.gridCols || options.gridSize || 6;
 
   for (let p = 0; p < worksheetCount; p++) {
     const puzzles: any[] = [];
+
+    // 2. Determine Difficulty Parameters
+    const configMap: Record<string, { pathLength: number; obstacles: number }> = {
+      'Başlangıç': { pathLength: 4, obstacles: 0.1 },
+      'Orta': { pathLength: 6, obstacles: 0.2 },
+      'Zor': { pathLength: 9, obstacles: 0.25 },
+      'Uzman': { pathLength: 12, obstacles: 0.3 }
+    };
+    const difficultyKey = difficulty as string;
+    const config = configMap[difficultyKey] || configMap['Orta'];
 
     for (let q = 0; q < itemCount; q++) {
       // İçerik havuzu belirleme (Harfler vs Sayılar)
@@ -367,7 +389,7 @@ export const generateOfflineDirectionalTracking = async (
       // Başlangıç noktasını da path'e (0. adım olarak) ekleyelim, sadece yönü "start" olsun
       path.push({ r: cr, c: cc, char: grid[cr][cc], direction: 'start' });
 
-      for (let i = 0; i < codeLength; i++) {
+      for (let i = 0; i < config.pathLength; i++) {
         // Geçerli bir yön bulana kadar dene (grid sınırları dışına çıkmamak için)
         let validMoves = directions.filter((d) => {
           const nr = cr + d.dr;
@@ -394,7 +416,7 @@ export const generateOfflineDirectionalTracking = async (
         targetWord: path.map((pt) => pt.char).join(''),
         clinicalMeta: {
           perceptualLoad: 0.6 + (rows * cols) / 200,
-          attentionShiftCount: codeLength,
+          attentionShiftCount: config.pathLength,
         },
       });
     }
@@ -414,7 +436,7 @@ export const generateOfflineDirectionalTracking = async (
         difficulty: mapDifficulty(difficulty || 'Orta'),
         layout: layout as any,
         rotationEnabled: false,
-        pathComplexity: codeLength,
+        pathComplexity: config.pathLength,
         isProfessionalMode: true,
         showClinicalNotes: true,
         gridSize: rows,
@@ -429,47 +451,32 @@ export const generateOfflineDirectionalTracking = async (
 export const generateOfflineVisualOddOneOut = async (
   options: GeneratorOptions
 ): Promise<VisualOddOneOutData[]> => {
-  const { worksheetCount, difficulty } = options;
+  const worksheetCount = options.worksheetCount || 1;
+  const difficulty = options.difficulty || 'Orta';
   const results: VisualOddOneOutData[] = [];
 
   // Görsel benzerlik ve yön karışıklığı yaratan setler (Özellikle disleksi için)
   const letterSets = [
-    ['b', 'd'],
-    ['p', 'q'],
-    ['m', 'n'],
-    ['s', 'ş'],
-    ['c', 'ç'],
-    ['O', 'Q'],
-    ['E', 'F'],
-    ['6', '9'],
-    ['3', 'E'],
-    ['5', 'S'],
-    ['u', 'n'],
-    ['f', 't'],
+    ['b', 'd'], ['p', 'q'], ['m', 'n'], ['s', 'ş'], ['c', 'ç'], ['O', 'Q'],
+    ['E', 'F'], ['6', '9'], ['3', 'E'], ['5', 'S'], ['u', 'n'], ['f', 't'],
+    ['v', 'y'], ['a', 'e'], ['g', 'ğ'], ['ı', 'i'], ['o', 'ö'], ['u', 'ü']
   ];
 
   const emojiSets = [
-    ['🙂', '🙃'],
-    ['🚗', '🚙'],
-    ['🍎', '🍅'],
-    ['☀️', '🏵️'],
-    ['🌲', '🌳'],
-    ['🐶', '🐻'],
-    ['⚽', '🏀'],
-    ['🎈', '🪀'],
+    ['🙂', '🙃'], ['🚗', '🚙'], ['🍎', '🍅'], ['☀️', '🏵️'], ['🌲', '🌳'],
+    ['🐶', '🐻'], ['⚽', '🏀'], ['🎈', '🪀'], ['🏠', '🏡'], ['🚲', '🛵'],
+    ['🐱', '🐯'], ['🐟', '🐬'], ['🚀', '🛸'], ['🌜', '🌛'], ['🌻', '🌷']
   ];
 
   for (let p = 0; p < worksheetCount; p++) {
     const rows: any[] = [];
 
-    // Profesyonel bol içerik: Satır sayısı başlangıçta 8'den başlasın, uzman seviyesinde 15'e çıksın.
-    const rowCount = difficulty === 'Başlangıç' ? 8 : difficulty === 'Orta' ? 12 : 15;
-    // Sütun (öğe) sayısı zorluğa göre artabilir
+    // Profesyonel bol içerik: A4'ü dolduracak şekilde optimize edildi
+    const rowCount = difficulty === 'Başlangıç' ? 10 : difficulty === 'Orta' ? 14 : 18;
     const itemCount = difficulty === 'Başlangıç' ? 5 : difficulty === 'Orta' ? 6 : 8;
 
     for (let r = 0; r < rowCount; r++) {
-      // Karışık olarak harf veya emoji seti seç
-      const useEmoji = Math.random() > 0.7;
+      const useEmoji = Math.random() > 0.6;
       const set = getRandomItems(useEmoji ? emojiSets : letterSets, 1)[0];
       const isReversed = Math.random() > 0.5;
       const baseChar = isReversed ? set[1] : set[0];
@@ -481,7 +488,7 @@ export const generateOfflineVisualOddOneOut = async (
       for (let i = 0; i < itemCount; i++) {
         items.push({
           label: i === correctIndex ? oddChar : baseChar,
-          rotation: difficulty === 'Uzman' && !useEmoji ? getRandomInt(-15, 15) : 0,
+          rotation: (difficulty === 'Zor' || difficulty === 'Uzman') && !useEmoji ? getRandomInt(-10, 10) : 0,
           scale: 1,
           isMirrored: false,
         });
@@ -492,22 +499,24 @@ export const generateOfflineVisualOddOneOut = async (
         correctIndex,
         reason: `'${baseChar}' arasına '${oddChar}' gizlenmiş.`,
         clinicalMeta: {
-          discriminationFactor: 0.9,
-          isMirrorTask: ['b', 'd', 'p', 'q', 'u', 'n', '3', 'E'].includes(baseChar),
+          discriminationFactor: 0.85,
+          isMirrorTask: ['b', 'd', 'p', 'q', 'u', 'n', '3', 'E', '6', '9'].includes(baseChar),
           targetCognitiveSkill: 'Visual Discrimination',
+          errorType: 'Görsel Farklılık'
         },
       });
     }
 
     results.push({
-      title: 'GÖRSEL AYRIŞTIRMA VE KETLEME',
+      activityType: 'VISUAL_ODD_ONE_OUT' as any,
+      title: 'GÖRSEL AYRIŞTIRMA VE KETLEME (Premium)',
       instruction:
         'Her satırda diğerlerinden farklı (yönü, şekli veya türü değişik) olan öğeyi bularak işaretleyin.',
       pedagogicalNote:
         'Görsel ayırt etme, yön tayini (spatial orientation) ve ketleme (inhibition) becerilerini geliştiren klinik materyal.',
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
-        layout: itemCount >= 6 ? 'ultra_dense' : 'grid_compact',
+        layout: itemCount >= 7 ? 'ultra_dense' : 'grid_compact',
         itemType: 'character',
         isProfessionalMode: true,
         showClinicalNotes: true,
