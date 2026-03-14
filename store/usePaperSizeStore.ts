@@ -7,7 +7,7 @@ type PaperSizeState = {
   setPaperSize: (p: PaperSize) => void;
 };
 
-export const usePaperSizeStore = create<PaperSizeState>((set) => ({
+export const usePaperSizeStore = create<PaperSizeState>((set: any) => ({
   paperSize:
     (typeof window !== 'undefined'
       ? (localStorage.getItem('oogmatik.paperSize') as PaperSize)

@@ -24,7 +24,7 @@ interface AppState {
  * Zustand kullanılarak yüksek performanslı ve basit durum yönetimi sağlar.
  * Named export 'create' kullanılarak eski versiyon uyarıları engellenmiştir.
  */
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set: any) => ({
     // Initial State
     isSidebarOpen: true,
     activeModule: null,
@@ -33,15 +33,15 @@ export const useAppStore = create<AppState>((set) => ({
     lastNotification: null,
 
     // Methods
-    toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+    toggleSidebar: () => set((state: AppState) => ({ isSidebarOpen: !state.isSidebarOpen })),
 
-    setActiveModule: (module) => set({ activeModule: module }),
+    setActiveModule: (module: string | null) => set({ activeModule: module }),
 
-    setEditMode: (mode) => set({ isEditMode: mode }),
+    setEditMode: (mode: boolean) => set({ isEditMode: mode }),
 
-    setZoomScale: (scale) => set({ zoomScale: scale }),
+    setZoomScale: (scale: number) => set({ zoomScale: scale }),
 
-    notify: (message, type = 'info') => set({
+    notify: (message: string, type: 'success' | 'error' | 'info' = 'info') => set({
         lastNotification: { message, type }
     }),
 
