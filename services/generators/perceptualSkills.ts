@@ -80,7 +80,7 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
     };
 
     const schema = { type: Type.ARRAY, items: singleSchema };
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+    // Fix: Using stable gemini-2.0-flash for latest multimodal performance
     return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData[]>;
 };
 

@@ -40,8 +40,15 @@ Görsel üretim robotuna şu talimatları içerecek şekilde komut ver:
 - "Composition: Wide shot, intricate background details that contain hidden educational clues."
 - "Focus: ${topic} temalı sahnede, öğrencinin dikkatini çekecek 5 spesifik nesne veya olay kurgula."
 
-AŞAMA 2: PEDAGOJİK SORULAR VE ANALİZ
-Sorular, görseldeki spesifik detaylara (Örn: "Duvardaki saatin yelkovanı hangi sayıyı gösteriyor?", "Mavi çantalı çocuk neden şaşkın bakıyor?") odaklanmalıdır.
+AŞAMA 2: PEDAGOJİK SORULAR VE 5N1K ANALİZİ
+Sorular, görseldeki spesifik detaylara odaklanmalı ve şu 5N1K yapısını mutlaka içermelidir:
+- KİM: Görseldeki karakterlerin kimliği veya rolleri.
+- NE: Gerçekleşen olay veya nesnelerin işlevi.
+- NEREDE: Mekan analizi ve konum ipuçları.
+- NE ZAMAN: Zaman dilimi, mevsim veya günün saati ipuçları.
+- NASIL/NİÇİN: Olayların oluş biçimi ve karakterlerin duygu durumları/motivasyonları.
+
+Sorular disleksi dostu, kısa ve net olmalıdır.
 
 JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
 {

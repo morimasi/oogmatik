@@ -103,6 +103,6 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
         required: ['instruction', 'problems']
     };
 
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+    // Fix: Using stable gemini-2.0-flash for latest multimodal performance
     return await generateWithSchema(prompt, schema);
 };

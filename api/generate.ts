@@ -11,11 +11,11 @@ import { retryWithBackoff, logError } from '../utils/errorHandler';
 export type VercelRequest = any;
 export type VercelResponse = any;
 
-const MASTER_MODEL = "gemini-3-flash-preview";
+const MASTER_MODEL = "gemini-2.0-flash";
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun yapay zeka motorusun.
-MODEL: Gemini 3 Flash (Thinking & Multimodal Enabled).
+MODEL: Gemini 2.0 Flash (Thinking & Multimodal Enabled).
 Görevin: Klinik hassasiyetle eğitim materyali üretmek.
 KURAL: Yanıtın SADECE geçerli bir JSON olmalıdır. Üretimden önce mimari DNA'yı ve pedagojik hedefleri derinlemesine düşün.
 `;
@@ -113,7 +113,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // ===== 6. SEND SUCCESSFUL RESPONSE =====
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-        
+
         return res.status(200).send(result.text);
 
     } catch (error: any) {
@@ -161,13 +161,13 @@ async function callGeminiAPI(
         }
 
         let parts: any[] = [];
-        
+
         // Add image if provided
         if (image) {
             if (!mimeType || !['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(mimeType)) {
                 throw new ValidationError('Geçersiz resim formatı. JPEG, PNG, GIF veya WebP kullanınız.');
             }
-            
+
             parts.push({
                 inlineData: {
                     mimeType: mimeType || 'image/jpeg',
@@ -217,7 +217,7 @@ function handleError(res: VercelResponse, error: AppError | Error): VercelRespon
 
     // Send error response
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    
+
     return res.status(appError.httpStatus).json({
         error: {
             message: appError.userMessage,

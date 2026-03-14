@@ -66,6 +66,7 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
         }
     };
 
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
-    return await generateWithSchema(prompt, schema);
+    // Using stable gemini-1.5-flash for reliability
+    const result = await generateWithSchema(prompt, schema);
+    return result;
 };
