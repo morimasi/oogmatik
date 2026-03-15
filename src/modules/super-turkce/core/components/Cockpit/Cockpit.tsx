@@ -187,7 +187,60 @@ const Cockpit: React.FC = () => {
                 </div>
             </div>
 
-            {/* İleriki Fazlarda Format Seçimleri Buraya Gelecek */}
+            {/* Çıktı Formatı Seçimi */}
+            <div className="space-y-3 pt-4 border-t border-slate-200">
+                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block">Çıktı Formatı (A4 Şablonu)</label>
+                <div className="space-y-2">
+                    {[
+                        { id: 'SUPER_TURKCE_MATCHING', icon: 'fa-link', label: 'Eşleştirme (Çizgi Çekme)' },
+                        { id: 'FILL_IN_THE_BLANKS', icon: 'fa-language', label: 'Boşluk Doldurma' },
+                        { id: 'FIVE_W_ONE_H', icon: 'fa-newspaper', label: '5N1K Haber Analizi' },
+                        { id: 'CREATIVE_WRITING', icon: 'fa-pen-fancy', label: 'Yaratıcı Yazarlık' }
+                    ].map(format => (
+                        <div
+                            key={format.id}
+                            onClick={() => useSuperTurkceStore.getState().toggleActivityType(format.id as any)}
+                            className={`flex items-center gap-3 p-3 rounded-xl border text-sm cursor-pointer transition-all ${useSuperTurkceStore.getState().selectedActivityTypes.includes(format.id as any)
+                                    ? 'bg-brand-50 border-brand-500 text-brand-700 shadow-sm'
+                                    : 'bg-white border-slate-200 text-slate-600 hover:border-brand-300'
+                                }`}
+                        >
+                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${useSuperTurkceStore.getState().selectedActivityTypes.includes(format.id as any)
+                                    ? 'bg-brand-500 text-white'
+                                    : 'bg-slate-100 text-slate-400'
+                                }`}>
+                                <i className={`fa-solid ${format.icon} text-xs`}></i>
+                            </div>
+                            <span className="font-medium tracking-tight">{format.label}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Sihirli Üret (Generate) Butonu */}
+            <div className="mt-auto pt-6 pb-2">
+                <button
+                    onClick={() => {
+                        const types = useSuperTurkceStore.getState().selectedActivityTypes;
+                        if (types.length === 0) {
+                            alert('Lütfen en az bir çıktı formatı seçiniz.');
+                            return;
+                        }
+                        // İlerki versiyonda AI servisi burada tetiklenecek. 
+                        // Şimdilik sadece toast mesajı veya loading animasyonu olabilir.
+                        alert('PDF Üretim Simülasyonu Başlatıldı! Sağ taraftaki önizleme alanını kontrol edin.');
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-brand-500/20 transition-all hover:-translate-y-0.5"
+                >
+                    <i className="fa-solid fa-wand-magic-sparkles"></i>
+                    Sihirli A4 Üret
+                </button>
+                <p className="text-center text-[10px] text-slate-400 mt-2">
+                    {useSuperTurkceStore.getState().engineMode === 'fast'
+                        ? 'Algoritmik motor anında üretir.'
+                        : 'AI motoru kredinizden 1 jeton kullanacaktır.'}
+                </p>
+            </div>
 
         </div>
     );

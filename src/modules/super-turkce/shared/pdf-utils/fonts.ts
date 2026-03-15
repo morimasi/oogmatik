@@ -6,8 +6,8 @@ export const registerPdfFonts = () => {
     Font.register({
         family: 'Lexend',
         fonts: [
-            { src: 'https://fonts.gstatic.com/s/lexend/v17/wlpygwzFsyE4jcWLs1DZmOI.woff2' }, // Normal
-            { src: 'https://fonts.gstatic.com/s/lexend/v17/wlpygwzFsyE4jcWLs1DZmOI.woff2', fontWeight: 'bold' }
+            { src: 'https://fonts.gstatic.com/s/lexend/v17/wlpygwzFsyE4jcWLs1DZmOI.ttf' }, // Normal
+            { src: 'https://fonts.gstatic.com/s/lexend/v17/wlpygwzFsyE4jcWLs1DZmOI.ttf', fontWeight: 'bold' }
         ]
     });
 

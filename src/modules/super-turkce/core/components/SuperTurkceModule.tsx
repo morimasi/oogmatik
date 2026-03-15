@@ -5,6 +5,10 @@ import Cockpit from './Cockpit/Cockpit';
 import { MatchingLinesPdf } from '../../features/matching-lines/MatchingLinesPdf';
 import { useSuperTurkceStore } from '../store';
 import { ActivityType } from '../../../../../types';
+import { registerPdfFonts } from '../../shared/pdf-utils/fonts';
+
+// Fontları uygulamanın başlangıcında kaydediyoruz
+registerPdfFonts();
 
 interface SuperTurkceModuleProps {
     onBack?: () => void;
