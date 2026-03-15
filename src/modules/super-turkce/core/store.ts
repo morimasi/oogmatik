@@ -10,6 +10,9 @@ import {
 } from './types';
 
 export interface SuperTurkceState {
+    // Navigasyon (Yeni V2 Mimarisi)
+    activeCategory: string | null;
+
     // Seçilen Rotasyon (Müfredat)
     selectedGrade: GradeLevel | null;
     selectedUnitId: string | null;
@@ -36,6 +39,7 @@ export interface SuperTurkceState {
     includeIllustration: boolean;
 
     // Aksiyonlar
+    setActiveCategory: (categoryId: string | null) => void;
     setGrade: (grade: GradeLevel) => void;
     setUnitId: (unitId: string | null) => void;
     setObjective: (objective: Objective | null) => void;
@@ -63,6 +67,7 @@ export interface SuperTurkceState {
 export const useSuperTurkceStore = create<SuperTurkceState>()(
     persist(
         (set) => ({
+            activeCategory: null,
             selectedGrade: null,
             selectedUnitId: null,
             selectedObjective: null,
@@ -82,6 +87,7 @@ export const useSuperTurkceStore = create<SuperTurkceState>()(
             institutionName: 'Oogmatik Eğitim Kurumları',
             includeIllustration: true,
 
+            setActiveCategory: (categoryId: string | null) => set({ activeCategory: categoryId }),
             setGrade: (grade: GradeLevel) => set({ selectedGrade: grade, selectedUnitId: null, selectedObjective: null }),
             setUnitId: (unitId: string | null) => set({ selectedUnitId: unitId, selectedObjective: null }),
             setObjective: (objective: Objective | null) => set({ selectedObjective: objective }),
@@ -115,6 +121,7 @@ export const useSuperTurkceStore = create<SuperTurkceState>()(
             setIncludeIllustration: (include: boolean) => set({ includeIllustration: include }),
 
             resetStore: () => set({
+                activeCategory: null,
                 selectedGrade: null,
                 selectedUnitId: null,
                 selectedObjective: null,
