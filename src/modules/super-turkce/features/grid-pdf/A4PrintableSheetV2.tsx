@@ -148,6 +148,96 @@ const styles = StyleSheet.create({
     }
 });
 
+// Dinamik PDF Component Haritalayıcı (Element Mapper)
+// Sadece yazıları JSON olarak basmak yerine, draft type'ına göre şık bir görsel bileşen çizer
+const renderComponentByType = (type: string, draft: any) => {
+    switch (type) {
+        case '5N1K_NEWS':
+        case '5N1K':
+            return (
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 5 }}>
+                    <View style={{ width: 80, height: 60, backgroundColor: '#cbd5e1', borderRadius: 4 }} />
+                    <View style={{ flex: 1, gap: 4 }}>
+                        <Text style={{ fontFamily: 'Lexend', fontSize: 12, fontWeight: 'bold' }}>"UZAYDA İLK TÜRK ASTRONOT"</Text>
+                        <Text style={{ fontSize: 9, color: '#475569', lineHeight: 1.4 }}>
+                            Türkiye'nin ilk insanlı uzay misyonu kapsamında Alper Gezeravcı, Uluslararası Uzay İstasyonu'na başarıyla ulaştı.
+                            14 gün sürecek olan görevde 13 farklı bilimsel deney gerçekleştirilecek.
+                        </Text>
+                        <View style={{ flexDirection: 'row', gap: 10, marginTop: 5 }}>
+                            <Text style={{ fontSize: 8, color: '#0284c7', fontWeight: 'bold' }}>Kim?</Text>
+                            <Text style={{ fontSize: 8, color: '#0284c7', fontWeight: 'bold' }}>Nerede?</Text>
+                            <Text style={{ fontSize: 8, color: '#0284c7', fontWeight: 'bold' }}>Ne Zaman?</Text>
+                        </View>
+                    </View>
+                </View>
+            );
+        case 'SUPER_TURKCE_MATCHING':
+        case 'SEBEP_SONUC_ESLESTIR':
+        case 'KAVRAM_ESLESTIRME':
+        case 'ESLESTIRME':
+            return (
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, marginTop: 10, gap: 40 }}>
+                    <View style={{ gap: 10, flex: 1 }}>
+                        {['Aniden kuvvetli yağmur yağdı', 'Son haftalarda çok sıkı çalıştı', 'Kar yolları tamamen kapattı'].map((l, i) => (
+                            <View key={`l-${i}`} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Text style={{ fontSize: 10, color: '#334155' }}>{l}</Text>
+                                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#cbd5e1' }} />
+                            </View>
+                        ))}
+                    </View>
+                    <View style={{ gap: 10, flex: 1 }}>
+                        {['Okullar valilik tarafından tatil edildi', 'Yıl sonu sınavlarını başarıyla kazandı', 'Dışarıdaki herkes sırılsıklam oldu'].map((r, i) => (
+                            <View key={`r-${i}`} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#cbd5e1' }} />
+                                <Text style={{ fontSize: 10, color: '#334155' }}>{r}</Text>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+            );
+        case 'MULTIPLE_CHOICE':
+        case 'DIL_BILGISI_TEST':
+        case 'PARAGRAF_MANTIK_TEST':
+        case 'STANDART_TEST':
+        case 'YENI_NESIL':
+            return (
+                <View style={{ marginTop: 5, gap: 8 }}>
+                    <Text style={{ fontSize: 10, color: '#0f172a', fontWeight: 'bold' }}>Soru 1: Aşağıdaki cümlelerin hangisinde terim anlamlı bir sözcük kullanılmıştır?</Text>
+                    <View style={{ gap: 4, paddingLeft: 10 }}>
+                        {['A) Babam bahçedeki yaşlı ağacın dallarını budadı.', 'B) İkizkenar üçgenin iç açıları toplamı 180 derecedir.', 'C) Bugün hava dışarı çıkılmayacak kadar çok sıcak olacak.', 'D) Kardeşimle parkta saatlerce oyunlar oynadık.'].map((opt, i) => (
+                            <Text key={i} style={{ fontSize: 9, color: '#475569' }}>{opt}</Text>
+                        ))}
+                    </View>
+                </View>
+            );
+        case 'FILL_IN_THE_BLANKS':
+        case 'BOSLUK_CEKIM_EKI':
+        case 'BOSLUK_DOLDURMA':
+            return (
+                <View style={{ marginTop: 5, gap: 8 }}>
+                    <View style={{ flexDirection: 'row', gap: 5, flexWrap: 'wrap', backgroundColor: '#f1f5f9', padding: 8, borderRadius: 4 }}>
+                        {['kitap', 'okul', 'öğretmen', 'sınav'].map(w => <Text key={w} style={{ fontSize: 9, fontWeight: 'bold', color: '#0284c7' }}>[{w}]</Text>)}
+                    </View>
+                    <View style={{ gap: 6 }}>
+                        <Text style={{ fontSize: 10, color: '#334155', lineHeight: 1.5 }}>1. Dün akşam kütüphaneden aldığım ____________ hiç elimden bırakmadım çünkü çok akıcıydı.</Text>
+                        <Text style={{ fontSize: 10, color: '#334155', lineHeight: 1.5 }}>2. Yarın sabah erkenden kalkıp ____________ gitmem gerekiyor, önemli bir tören var.</Text>
+                    </View>
+                </View>
+            );
+        default:
+            return (
+                <View style={{ gap: 4, marginTop: 5 }}>
+                    <View style={[styles.mockLine]} />
+                    <View style={[styles.mockLine]} />
+                    <View style={[styles.mockLine, styles.mockLineShort]} />
+                    <Text style={{ fontSize: 8, color: '#94a3b8', fontStyle: 'italic', marginTop: 4 }}>
+                        ({draft.type} bileşeni {draft.settings?.engineMode === 'ai' ? 'Yapay Zeka' : 'Algoritmik'} motor tarafından doldurulacaktır. İnce ayarlar uygulandı.)
+                    </Text>
+                </View>
+            );
+    }
+}
+
 // A4 Matbaa Dizgi Motoru (PDF Rendering)
 export const A4PrintableSheetV2: React.FC = () => {
     // Tüm güncel state ve taslak üretim verisi store'dan alınır
@@ -218,16 +308,19 @@ export const A4PrintableSheetV2: React.FC = () => {
                                     <Text style={styles.blockBadge}>Puan: ____</Text>
                                 </View>
 
-                                {/* Placeholder / Mock İçerik (AI Motorundan "data" geldiğinde değiştirilecek) */}
+                                {/* Gerçekçi Görsel Bileşen (Element Mapper) */}
                                 {draft.data ? (
-                                    <Text style={{ fontSize: fontStyle.fontSize, color: '#334155' }}>{JSON.stringify(draft.data)}</Text>
+                                    <View>
+                                        <Text style={{ fontSize: 8, color: '#10b981', fontWeight: 'bold', marginBottom: 6 }}>✓ {draft.settings?.engineMode === 'ai' ? 'Yapay Zeka (AI)' : 'Hızlı'} Üretimi Başarılı</Text>
+                                        {renderComponentByType(draft.type, draft)}
+                                    </View>
                                 ) : (
                                     <View style={{ gap: 4, marginTop: 5 }}>
                                         <View style={[styles.mockLine]} />
                                         <View style={[styles.mockLine]} />
                                         <View style={[styles.mockLine, styles.mockLineShort]} />
-                                        <Text style={{ fontSize: 8, color: '#m94a3b8', fontStyle: 'italic', marginTop: 4 }}>
-                                            (Bu alan {draft.settings?.engineMode === 'ai' ? 'Yapay Zeka' : 'Algoritmik'} motor tarafından doldurulacaktır. İnce ayarlar uygulandı.)
+                                        <Text style={{ fontSize: 8, color: '#94a3b8', fontStyle: 'italic', marginTop: 4 }}>
+                                            Üretim bekliyor... (Sihirli butona basıldığında otomatik dolacaktır)
                                         </Text>
                                     </View>
                                 )}

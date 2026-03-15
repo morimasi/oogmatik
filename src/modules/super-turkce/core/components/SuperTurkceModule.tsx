@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PDFViewer } from '@react-pdf/renderer';
+import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import Cockpit from './Cockpit/Cockpit';
 import { CategoryDashboard } from './CategoryDashboard/CategoryDashboard';
 import { A4PrintableSheetV2 } from '../../features/grid-pdf/A4PrintableSheetV2';
@@ -94,9 +94,18 @@ const SuperTurkceModule: React.FC<SuperTurkceModuleProps> = ({ onBack, onAddToWo
                         <button onClick={handleAddWorkbook} className="flex items-center gap-2 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl text-xs font-bold transition-all">
                             <i className="fa-solid fa-book-medical"></i> Kitapçığa Ekle
                         </button>
-                        <button onClick={() => alert('PDF bilgisayarınıza iniyor...')} className="flex items-center gap-2 px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition-all">
-                            <i className="fa-solid fa-file-arrow-down"></i> İndir
-                        </button>
+                        <PDFDownloadLink
+                            document={<A4PrintableSheetV2 />}
+                            fileName={`Super_Turkce_V2_${selectedObjective?.id || 'Karma'}.pdf`}
+                            className="flex items-center gap-2 px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition-all"
+                        >
+                            {({ loading }: any) => (
+                                <>
+                                    <i className={`fa-solid ${loading ? 'fa-circle-notch fa-spin' : 'fa-file-arrow-down'}`}></i>
+                                    {loading ? 'Dizgi Yapılıyor...' : 'İndir'}
+                                </>
+                            )}
+                        </PDFDownloadLink>
                         <button onClick={() => onShareToCommunity ? onShareToCommunity() : alert('Topluluk paylaşımı yakında aktif edilecek.')} className="flex items-center gap-2 px-4 py-2 bg-sky-50 hover:bg-sky-100 text-sky-600 rounded-xl text-xs font-bold transition-all">
                             <i className="fa-solid fa-share-nodes"></i> Toplulukta Paylaş
                         </button>

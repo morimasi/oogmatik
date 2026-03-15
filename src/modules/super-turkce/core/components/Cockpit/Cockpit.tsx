@@ -109,6 +109,17 @@ const Cockpit: React.FC = () => {
         useSuperTurkceStore.getState().setDraftComponents(draftItems);
 
         alert(`🎉 HARİKA! Seçili formatlar eklendi: Toplam ${draftItems.length} taslak bileşeni oluşturuldu.\nMatbaa kalitesinde karma PDF (Okul Koridoru formatı) oluşturuluyor...`);
+
+        // Faz 5: E2E Canlı Veri Simülasyonu
+        // 1.5 saniye sonra AI / Hızlı Motor verisi geliyormuş gibi yap
+        setTimeout(() => {
+            draftItems.forEach((draft: any) => {
+                const mockOutput = engineMode === 'ai'
+                    ? `[✨ AI YAPAY ZEKA] ${draft.type.replace(/_/g, ' ')} formatı için yapay zeka tarafından ${difficulty} seviyesine uygun benzersiz etkinlik türetildi.`
+                    : `[⚡ HIZLI MOTOR] ${draft.type.replace(/_/g, ' ')} formatı için Oogmatik havuzundan anında eşleşen hazır içerik çekildi.`;
+                useSuperTurkceStore.getState().updateDraftData(draft.id, mockOutput);
+            });
+        }, 1500);
     };
 
     return (
