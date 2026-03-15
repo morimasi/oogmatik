@@ -47,6 +47,22 @@ interface SidebarProps {
 
   onOpenScreening?: () => void; // Added Prop
   activeCurriculumSession?: ActiveCurriculumSession | null;
+  isExpanded?: boolean;
+  onOpenOCR: () => void;
+  onOpenCurriculum: () => void;
+  onOpenReadingStudio: () => void;
+  onOpenMathStudio: () => void;
+  onOpenSuperTurkce: () => void;
+
+  onOpenScreening?: () => void;
+  activeCurriculumSession: null | {
+    planId: string;
+    day: number;
+    activityId: string;
+    studentName: string;
+    activityTitle: string;
+    studentId?: string;
+  };
   width?: number;
   onWidthChange?: (width: number) => void;
 }
@@ -90,6 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenCurriculum,
   onOpenReadingStudio,
   onOpenMathStudio,
+  onOpenSuperTurkce,
 
   onOpenScreening,
   activeCurriculumSession,
@@ -138,6 +155,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: 'fa-calculator',
       color: 'bg-blue-500',
       onClick: onOpenMathStudio,
+    },
+    {
+      id: 'super-turkce',
+      label: 'Süper Türkçe',
+      icon: 'fa-language',
+      color: 'bg-orange-500',
+      onClick: onOpenSuperTurkce,
     },
 
     {

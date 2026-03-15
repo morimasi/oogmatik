@@ -100,6 +100,7 @@ export enum ActivityType {
   VISUAL_INTERPRETATION = 'VISUAL_INTERPRETATION',
   BRAIN_TEASERS = 'BRAIN_TEASERS',
   BOX_MATH = 'BOX_MATH',
+  SUPER_TURKCE_MATCHING = 'SUPER_TURKCE_MATCHING',
 }
 
 export interface Activity {
@@ -121,21 +122,21 @@ export interface ActivityCategory {
 
 export interface WorksheetBlock {
   type:
-    | 'header'
-    | 'text'
-    | 'grid'
-    | 'table'
-    | 'svg_shape'
-    | 'dual_column'
-    | 'image'
-    | 'question'
-    | 'logic_card'
-    | 'footer_validation'
-    | 'cloze_test'
-    | 'categorical_sorting'
-    | 'match_columns'
-    | 'visual_clue_card'
-    | 'neuro_marker';
+  | 'header'
+  | 'text'
+  | 'grid'
+  | 'table'
+  | 'svg_shape'
+  | 'dual_column'
+  | 'image'
+  | 'question'
+  | 'logic_card'
+  | 'footer_validation'
+  | 'cloze_test'
+  | 'categorical_sorting'
+  | 'match_columns'
+  | 'visual_clue_card'
+  | 'neuro_marker';
   content: any;
   id?: string;
   style?: {
