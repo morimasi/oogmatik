@@ -1,14 +1,16 @@
 import { Objective } from '../../core/types';
 import { getFormatById } from '../activity-formats/registry';
+import { generateActivityWithGemini } from '../../core/ai/geminiClient';
 
 // Seçilen Müfredata, Formata ve Formata Özel Ayarlara Göre Dinamik İçerik Üretir
-// Faz 8: Artık registry'deki formatın kendi fastGenerate() veya buildAiPrompt() fonksiyonunu çağırıyor
-export const generateDynamicMockData = (
+// Faz 8+9: Hızlı modda senkron, AI modda asenkron Gemini API çalıştırır
+export const generateDynamicMockData = async (
     type: string,
     grade: number | null,
     objective: Objective | null,
     engineMode: 'ai' | 'fast',
     difficulty: string,
+    audience: 'normal' | 'hafif_disleksi' | 'derin_disleksi' = 'normal',
     formatSettings?: Record<string, any>  // Formata özel ultra ince ayarlar
 ) => {
     const topic = objective ? objective.title : `Genel ${grade || ''}. Sınıf Tekrarı`;
@@ -24,16 +26,19 @@ export const generateDynamicMockData = (
         const mergedSettings = { ...defaults, ...(formatSettings || {}) };
 
         if (isAi) {
-            // AI Motor: Prompt üret (Gemini bağlanınca bu prompt gönderilecek; şimdilik metadata döner)
+            // AI Motor: Gemini API üzerinden gerçek üretim
             const aiPrompt = formatDef.buildAiPrompt(mergedSettings, grade, topic);
-            return {
-                _aiPrompt: aiPrompt,
-                _engineMode: 'ai',
-                _formatId: type,
-                title: `✨ AI Üretimi: ${formatDef.label}`,
-                content: `AI Motor bu içeriği şu prompt ile üretecek:\n"${aiPrompt.substring(0, 120)}..."`,
-                text: aiPrompt,
-            };
+            try {
+                const aiResult = await generateActivityWithGemini(aiPrompt, audience, type);
+                return aiResult;
+            } catch (error: any) {
+                console.error('AI Üretim Hatası:', error);
+                // Fallback olarak o sorunun Hızlı Mod çıktısını dön (sistem kilitlenmesin)
+                return {
+                    ...formatDef.fastGenerate(mergedSettings, grade, topic),
+                    _error: 'AI üretim başarısız oldu, hızlı motor fallback kullanıldı.'
+                };
+            }
         } else {
             // Hızlı Motor: fastGenerate() ile ayar değerlerini kullanarak anında üret
             return formatDef.fastGenerate(mergedSettings, grade, topic);

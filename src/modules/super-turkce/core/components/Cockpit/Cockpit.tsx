@@ -31,6 +31,8 @@ const Cockpit: React.FC = () => {
     const activeFormats = activeCategory ? getFormatsByCategory(activeCategory) : [];
     // Seçili format aktif ayarlar state'i — her format id'si için defaults'dan ayar değerleri tutar
     const [formatSettings, setFormatSettings] = useState<Record<string, Record<string, any>>>({});
+    // Üretim aşamasında UI kilitleme state'i
+    const [isGenerating, setIsGenerating] = useState(false);
 
     // Belirli bir format için bir ayarın değerini güncelle
     const updateFormatSetting = (formatId: string, key: string, value: any) => {
@@ -52,7 +54,7 @@ const Cockpit: React.FC = () => {
     const currentCurriculum = selectedGrade ? MEB_CURRICULUM[selectedGrade as GradeLevel] : null;
     const currentUnit = currentCurriculum?.units.find((u: any) => u.id === selectedUnitId);
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
         if (!selectedGrade || !selectedObjective) {
             alert('Lütfen önce müfredat (Sınıf, Tema ve Kazanım) ayarlarını tamamlayın.');
             return;
@@ -62,40 +64,48 @@ const Cockpit: React.FC = () => {
             return;
         }
 
-        // Faz 8: Draft'lara formatın kendi settings'i ve aktif UI ayarları gömülür
-        const draftItems = selectedActivityTypes.map((type: string) => ({
-            id: Date.now().toString(36) + Math.random().toString(36).substring(2),
-            type,
-            settings: {
-                difficulty,
-                audience,
-                engineMode,
-                // Formata özel ultra ayarlar
-                ...getSettingsFor(type)
-            },
-            data: null
-        }));
+        setIsGenerating(true);
 
-        useSuperTurkceStore.getState().setDraftComponents(draftItems);
-
-        alert(`🎉 HARİKA! Seçili formatlar eklendi: Toplam ${draftItems.length} taslak bileşeni oluşturuldu.\nMatbaa kalitesinde karma PDF (Okul Koridoru formatı) oluşturuluyor...`);
-
-        // Faz 7: Dinamik & Müfredata Bağlı Mock (AI / Hızlı Motor)
-        // 1.5 saniye sonra AI / Hızlı Motor verisi geliyormuş gibi yap, ama bu sefer DİNAMİK JSON olacak.
-        setTimeout(() => {
-            draftItems.forEach((draft: any) => {
-                const dynamicData = generateDynamicMockData(
-                    draft.type,
-                    selectedGrade,
-                    selectedObjective,
-                    engineMode,
+        try {
+            // Faz 8: Draft'lara formatın kendi settings'i ve aktif UI ayarları gömülür
+            const draftItems = selectedActivityTypes.map((type: string) => ({
+                id: Date.now().toString(36) + Math.random().toString(36).substring(2),
+                type,
+                settings: {
                     difficulty,
-                    draft.settings   // ← Formata özel ince ayarlar (soruSayisi, haberTuru vb.)
-                );
-                useSuperTurkceStore.getState().updateDraftData(draft.id, dynamicData);
-            });
-        }, 1500);
+                    audience,
+                    engineMode,
+                    // Formata özel ultra ayarlar
+                    ...getSettingsFor(type)
+                },
+                data: null
+            }));
 
+            // Draft kabuklarını ekrana bas (yükleniyor iskeleti)
+            useSuperTurkceStore.getState().setDraftComponents(draftItems);
+
+            // Faz 9: Tüm seçili etkinlikler için Paralel (Promise.all) API Üretimi At
+            await Promise.all(
+                draftItems.map(async (draft: any) => {
+                    const dynamicData = await generateDynamicMockData(
+                        draft.type,
+                        selectedGrade,
+                        selectedObjective,
+                        engineMode,
+                        difficulty,
+                        audience,
+                        draft.settings   // ← Formata özel ince ayarlar
+                    );
+                    useSuperTurkceStore.getState().updateDraftData(draft.id, dynamicData);
+                })
+            );
+
+        } catch (error: any) {
+            console.error('Üretim hatası:', error);
+            alert(`Üretim sırasında bir hata oluştu: ${error?.message || 'Bilinmeyen Hata'}`);
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     return (
@@ -322,13 +332,23 @@ const Cockpit: React.FC = () => {
             <div className="p-5 border-t border-slate-200 bg-white">
                 <button
                     onClick={handleGenerate}
-                    className="w-full flex flex-col items-center justify-center py-3 bg-slate-900 hover:bg-black text-white rounded-xl shadow-xl transition-all hover:-translate-y-0.5 group"
+                    disabled={isGenerating || selectedActivityTypes.length === 0}
+                    className={`w-full flex flex-col items-center justify-center py-3 rounded-xl shadow-xl transition-all group ${isGenerating
+                        ? 'bg-slate-500 cursor-not-allowed text-slate-200'
+                        : selectedActivityTypes.length > 0 ? 'bg-slate-900 hover:bg-black text-white hover:-translate-y-0.5' : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                        }`}
                 >
                     <div className="flex items-center gap-2 font-black tracking-wide">
-                        <i className="fa-solid fa-layer-group text-brand-400 group-hover:scale-110 transition-transform"></i>
-                        A4 KOMPAKT ÇIKTI ÜRET
+                        {isGenerating ? (
+                            <i className="fa-solid fa-circle-notch fa-spin text-brand-400"></i>
+                        ) : (
+                            <i className="fa-solid fa-layer-group text-brand-400 group-hover:scale-110 transition-transform"></i>
+                        )}
+                        {isGenerating ? 'YAPAY ZEKA ÜRETİYOR...' : 'A4 KOMPAKT ÇIKTI ÜRET'}
                     </div>
-                    <span className="text-[10px] text-slate-300 mt-1 font-semibold">{selectedActivityTypes.length} Farklı Etkinlik Şablonu İşlenecek</span>
+                    <span className="text-[10px] mt-1 font-semibold opacity-70">
+                        {isGenerating ? 'Lütfen bekleyin, veriler işleniyor.' : `${selectedActivityTypes.length} Farklı Etkinlik Şablonu İşlenecek`}
+                    </span>
                 </button>
             </div>
 
