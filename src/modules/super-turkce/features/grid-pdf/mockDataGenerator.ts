@@ -1,80 +1,84 @@
 import { Objective } from '../../core/types';
+import { getFormatById } from '../activity-formats/registry';
 
-// Seçilen Müfredata ve Formata Göre Dinamik Sahte Veri Üretir (AI Bağlanana Kadar Akıllı Mock)
+// Seçilen Müfredata, Formata ve Formata Özel Ayarlara Göre Dinamik İçerik Üretir
+// Faz 8: Artık registry'deki formatın kendi fastGenerate() veya buildAiPrompt() fonksiyonunu çağırıyor
 export const generateDynamicMockData = (
     type: string,
     grade: number | null,
     objective: Objective | null,
     engineMode: 'ai' | 'fast',
-    difficulty: string
+    difficulty: string,
+    formatSettings?: Record<string, any>  // Formata özel ultra ince ayarlar
 ) => {
-    // Tema/Kazanım Etiketi
     const topic = objective ? objective.title : `Genel ${grade || ''}. Sınıf Tekrarı`;
     const difficultyLabel = difficulty.toUpperCase();
     const isAi = engineMode === 'ai';
 
+    // === ADIM 1: Registry'de tanımlı format var mı? ===
+    const formatDef = getFormatById(type);
+    if (formatDef) {
+        // Defaults'dan ayarları birleştir + kullanıcının değiştirdiği ayarları override et
+        const defaults: Record<string, any> = {};
+        formatDef.settings.forEach(s => { defaults[s.key] = s.defaultValue; });
+        const mergedSettings = { ...defaults, ...(formatSettings || {}) };
+
+        if (isAi) {
+            // AI Motor: Prompt üret (Gemini bağlanınca bu prompt gönderilecek; şimdilik metadata döner)
+            const aiPrompt = formatDef.buildAiPrompt(mergedSettings, grade, topic);
+            return {
+                _aiPrompt: aiPrompt,
+                _engineMode: 'ai',
+                _formatId: type,
+                title: `✨ AI Üretimi: ${formatDef.label}`,
+                content: `AI Motor bu içeriği şu prompt ile üretecek:\n"${aiPrompt.substring(0, 120)}..."`,
+                text: aiPrompt,
+            };
+        } else {
+            // Hızlı Motor: fastGenerate() ile ayar değerlerini kullanarak anında üret
+            return formatDef.fastGenerate(mergedSettings, grade, topic);
+        }
+    }
+
+    // === ADIM 2: Registry'de yoksa eski switch mantığına dön (geriye dönük uyumluluk) ===
     switch (type) {
         case '5N1K_NEWS':
-        case '5N1K':
             return {
                 title: isAi ? `✨ ${grade}. SINIF AI HABER: Okyanusun Gizemleri` : `⚡ ${grade}. SINIF HABER: Başarıya Giden Yol`,
-                content: isAi
-                    ? `(${topic} odaklı) Derin sularda keşfedilen yeni bir canlı türü, bilim insanlarını şaşkına çevirdi. Zorluk seviyesi: ${difficultyLabel}. Yeni türün DNA'sı, daha önce bilinen hiçbir deniz canlısıyla eşleşmiyor.`
-                    : `(${topic} odaklı) Okyanus bilimciler geçtiğimiz günlerde dev bir mercan kayalığı buldu. Bu keşif ekosistemimiz için büyük umut vadediyor. Zorluk: ${difficultyLabel}.`,
+                content: `(${topic} odaklı) ${isAi ? 'AI' : 'Hızlı Motor'} ile üretildi. Zorluk: ${difficultyLabel}.`,
                 questions: ['Kim / Ne?', 'Nerede?', 'Ne Zaman?']
             };
 
         case 'SUPER_TURKCE_MATCHING':
-        case 'SEBEP_SONUC_ESLESTIR':
-        case 'KAVRAM_ESLESTIRME':
-        case 'ESLESTIRME':
+        case 'ESLESTIRME': {
             const leftList = [
                 `Kazanım: ${topic.substring(0, 15)}... nedeniyle`,
                 `Zorluk düzeyi ${difficultyLabel} olduğu için`,
-                `${isAi ? 'Yapay Zeka' : 'Hızlı Motor'} ile üretildi ancak`
+                `${isAi ? 'Yapay Zeka' : 'Hızlı Motor'} ile üretildi`
             ];
-            const rightList = [
-                `hemen sisteme entegre edildi.`,
-                `hızla çözüme ulaştık.`,
-                `beklenen performansı gösteremedi.`
-            ];
-            // Basit bir shuffle (karıştırma)
-            const shuffledRight = [...rightList].sort(() => Math.random() - 0.5);
-
-            return {
-                left: leftList,
-                right: shuffledRight
-            };
+            const rightList = ['hemen entegre edildi.', 'hızla çözüme ulaştık.', 'performans arttı.'];
+            return { left: leftList, right: [...rightList].sort(() => Math.random() - 0.5) };
+        }
 
         case 'MULTIPLE_CHOICE':
-        case 'DIL_BILGISI_TEST':
-        case 'PARAGRAF_MANTIK_TEST':
         case 'STANDART_TEST':
         case 'YENI_NESIL':
             return {
-                question: `${grade}. Sınıf (${difficultyLabel}): Aşağıdakilerden hangisi "${topic}" konusu ile doğrudan ilişkilidir?`,
-                options: [
-                    'A) Öğrencinin ders çalışma saatlerini artırması.',
-                    'B) Kitap okuma alışkanlığının dil becerilerine katkısı.',
-                    'C) Yeni nesil sorulara (${isAi ? "Yapay Zeka" : "Klasik"} destekli) adapte olunması.',
-                    'D) Test çözme tekniklerinin sürekli tekrar edilmesi.'
-                ]
+                question: `${grade}. Sınıf (${difficultyLabel}): "${topic}" konusuyla ilgili hangisi doğrudur?`,
+                options: ['A) Birinci seçenek.', 'B) İkinci seçenek.', 'C) Üçüncü seçenek.', 'D) Dördüncü seçenek.']
             };
 
         case 'FILL_IN_THE_BLANKS':
-        case 'BOSLUK_CEKIM_EKI':
         case 'BOSLUK_DOLDURMA':
             return {
                 words: ['başarı', 'çalışmak', 'zeka', grade?.toString() || 'öğrenci'],
-                sentences: [
-                    `Bu yıl ${grade ? grade + '. sınıfa' : 'okula'} geçecek öğrencilerin en çok ihtiyacı olan şey planlı ____________ dır.`,
-                    `"${topic}" hedefine ulaşmak için salt ____________ yeterli olmaz, azim de gerekir.`
-                ]
+                sentences: [`"${topic}" hedefine ulaşmak için ____________ gereklidir.`]
             };
 
         default:
             return {
-                text: `${type} formatı için üretilen dinamik içerik. Seviye: ${grade}. Sınıf, Mod: ${isAi ? 'AI' : 'HIZLI'}, Konu: ${topic}`
+                text: `${type} formatı — Seviye: ${grade}. Sınıf | Mod: ${isAi ? 'AI ✨' : 'Hızlı ⚡'} | Konu: ${topic}`
             };
     }
 };
+

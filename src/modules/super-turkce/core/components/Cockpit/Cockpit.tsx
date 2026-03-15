@@ -1,62 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSuperTurkceStore } from '../../store';
 import { MEB_CURRICULUM, GradeLevel } from '../../types';
 import { generateDynamicMockData } from '../../../features/grid-pdf/mockDataGenerator';
+import { getFormatsByCategory, getFormatById } from '../../../features/activity-formats/registry';
 
-// O kategoriye ait 10+ Soru Tipi Jeneratörü Listesi (Veritabanı)
-const FORMAT_REGISTRY: Record<string, { id: string, icon: string, label: string, settings: string[] }[]> = {
-    'okuma_anlama': [
-        { id: '5N1K', icon: 'fa-newspaper', label: '5N1K Haber Analizi', settings: ['Soru Sayısı', 'Metin Uzunluğu'] },
-        { id: 'ANA_DUSUNCE', icon: 'fa-lightbulb', label: 'Paragrafta Ana Düşünce', settings: ['Çeldirici Şık Oranı', 'Çoklu Paragraf'] },
-        { id: 'CIKARIM_YAPMA', icon: 'fa-magnifying-glass', label: 'Metinden Çıkarım Yapma', settings: ['Zorluk', 'Yorum Sayısı'] },
-        { id: 'METIN_KARSILASTIRMA', icon: 'fa-scale-balanced', label: 'İki Metni Karşılaştırma', settings: ['Benzerlik/Zıtlık', 'Tablo Çıktısı'] },
-        { id: 'OLAY_SIRALAMA', icon: 'fa-arrow-down-1-9', label: 'Olay Örgüsü Sıralama', settings: ['Cümle Sayısı', 'Kafa Karıştırıcı Cümle'] },
-        { id: 'BASLIK_BULMA', icon: 'fa-heading', label: 'En Uygun Başlığı Seç', settings: ['Seçenek Sayısı'] },
-        { id: 'SIIR_INCELEME', icon: 'fa-feather', label: 'Şiir İnceleme ve Duygu', settings: ['Mısra Sayısı', 'Duygu/Tema Analizi'] },
-        { id: 'KARAKTER_ANALIZI', icon: 'fa-users', label: 'Karakter ve Varlık Analizi', settings: ['Tablolu Yapı', 'Detay Seviyesi'] },
-        { id: 'SOZ_SANATLARI', icon: 'fa-masks-theater', label: 'Metindeki Söz Sanatları', settings: ['Teşbih/Mübalağa vs.', 'Soru Tipi'] },
-        { id: 'OKUDUGUNU_CIZ', icon: 'fa-palette', label: 'Okuduğunu Resmet (Açık Uçlu)', settings: ['Boşluk Alanı', 'Kılavuz Çizgi'] },
-    ],
-    'mantik_muhakeme': [
-        { id: 'SOZEL_MANTIK_TABLO', icon: 'fa-table', label: 'Sözel Mantık (Tablolu)', settings: ['Değişken Sayısı', 'Kişi Sayısı'] },
-        { id: 'SEBEP_SONUC_ESLESTIR', icon: 'fa-link', label: 'Sebep-Sonuç Eşleştirme', settings: ['Soru Sayısı', 'Zorluk'] },
-        { id: 'PARAGRAF_MANTIK_TEST', icon: 'fa-list-check', label: 'Yeni Nesil LGS Mantık Testi', settings: ['Uzunluk', 'Görsel Ekle'] },
-        { id: 'MANTIKSIZLIGI_BUL', icon: 'fa-magnifying-glass-xmark', label: 'Mantıksız Cümleyi Bul', settings: ['Gizli Hata', 'Açık Hata'] },
-        { id: 'KODLAMA_SIFRE', icon: 'fa-key', label: 'Şifreli Metin Çözümü', settings: ['Algoritma Tipi', 'Zorluk'] },
-        { id: 'GORSEL_OKUMA', icon: 'fa-image', label: 'Görsel Yorumlama', settings: ['İnfografik Tipi', 'Soru Sayısı'] },
-        { id: 'HIKAYE_TAMAMLAMA', icon: 'fa-pen', label: 'Yarım Kalan Mantığı Tamamla', settings: ['Çoklu Seçenek', 'Açık Uçlu'] },
-        { id: 'YONERGE_TAKIBI', icon: 'fa-map-location', label: 'Kaynaktan Hedefe Yönerge', settings: ['Adım Sayısı', 'Labirent Ekle'] },
-        { id: 'KAVRAM_HARITASI', icon: 'fa-diagram-project', label: 'Kavram Haritası Doldurma', settings: ['Düğüm Sayısı'] },
-        { id: 'BILMECELİ_DUSUNME', icon: 'fa-question', label: 'Bilmeceli Mantık Yürütme', settings: ['Kategori', 'Seviye'] },
-    ],
-    'dil_bilgisi': [
-        { id: 'DIL_BILGISI_TEST', icon: 'fa-list-check', label: 'Çoktan Seçmeli Test', settings: ['Öğe Filtresi', 'Soru Sayısı', 'Şık Sayısı'] },
-        { id: 'HATALI_SOZCUK', icon: 'fa-bug', label: 'Hatalı Sözcüğü Bul/İşaretle', settings: ['Kategori (Ek, Kök)', 'Yoğunluk'] },
-        { id: 'BOSLUK_CEKIM_EKI', icon: 'fa-puzzle-piece', label: 'Boşlukları Eklerle Doldur', settings: ['Yapım/Çekim Eki Odaklı', 'Zorluk'] },
-        { id: 'KAVRAM_ESLESTIRME', icon: 'fa-link', label: 'Tanım - Örnek Eşleştir', settings: ['Çizgi Tipi', 'Kelime Sayısı'] },
-        { id: 'CUMLE_OGESI_AYIRMA', icon: 'fa-scissors', label: 'Cümle Ögelerine Ayırma', settings: ['Bölme Çizgisi Ekle', 'Zor Cümleler'] },
-        { id: 'TRUE_FALSE_DIL', icon: 'fa-check-double', label: 'Doğru / Yanlış Tablosu', settings: ['Madde Sayısı', 'Karmaşık Kurallar'] },
-        { id: 'CUMLE_DONUSTUR', icon: 'fa-rotate', label: 'Cümle Çatısını Dönüştür', settings: ['Etken-Edilgen', 'İsim-Fiil Cümlesi'] },
-        { id: 'TABLODA_HATA_AVI', icon: 'fa-table-cells', label: 'Tablolu Hata Avı (Boyama)', settings: ['Izgara Boyutu', 'Çeldirici Rengi'] },
-        { id: 'BULMACA_DILBILGISI', icon: 'fa-border-all', label: 'Çapraz Bulmaca', settings: ['Terimler', 'Kolay İpuçları'] },
-        { id: 'KURALLI_METIN_YAZ', icon: 'fa-pen-fancy', label: 'Kurallı Metin Yazdır', settings: ['Zorunlu Kullanılacak Ekler', 'Kelime Limiti'] },
-    ]
-};
+// FORMAT_REGISTRY artık modular registry'den geliyor; bu alan temizlendi.
 
-// Diğer kategoriler için varsayılan fallback
-const DEFAULT_FORMATS = [
-    { id: 'STANDART_TEST', icon: 'fa-list', label: 'Çoktan Seçmeli Test', settings: ['Soru Sayısı'] },
-    { id: 'BOSLUK_DOLDURMA', icon: 'fa-language', label: 'Geleneksel Boşluk Doldurma', settings: ['Kelime Havuzu'] },
-    { id: 'ESLESTIRME', icon: 'fa-link', label: 'Klasik Eşleştirme', settings: ['Çizgi Çaprazlaması'] },
-    { id: 'DOGRU_YANLIS', icon: 'fa-check', label: 'Doğru / Yanlış Seçimi', settings: ['Madde Sayısı'] },
-    { id: 'ACIK_UCLU', icon: 'fa-pen', label: 'Açık Uçlu Soru', settings: ['Satır Sayısı'] },
-    { id: 'TABLO_ANALIZ', icon: 'fa-table', label: 'Tablo Yorumlama', settings: ['Görsel Ağırlığı'] },
-    { id: 'KISA_CEVAP', icon: 'fa-font', label: 'Kısa Cevaplı Sorular', settings: ['Zorluk'] },
-    { id: 'SIRALAMA', icon: 'fa-sort', label: 'Doğru Sıraya Koyma', settings: ['Eleman Sayısı'] },
-    { id: 'GRUP_SINIFLAMA', icon: 'fa-object-group', label: 'Gruplama ve Sınıflandırma', settings: ['Kategori Sayısı'] },
-    { id: 'YENI_NESIL', icon: 'fa-star', label: 'Yeni Nesil (Karma) Soru', settings: ['LGS Formatı Odaklı'] },
-];
 
 const Cockpit: React.FC = () => {
     const {
@@ -77,10 +27,27 @@ const Cockpit: React.FC = () => {
         toggleActivityType
     } = useSuperTurkceStore();
 
-    // Seçili kategoriye ait 10+ Soru Formatını al
-    const activeFormats = activeCategory && FORMAT_REGISTRY[activeCategory]
-        ? FORMAT_REGISTRY[activeCategory]
-        : DEFAULT_FORMATS;
+    // Aktif kategoriye ait formatları modüler registry'den al
+    const activeFormats = activeCategory ? getFormatsByCategory(activeCategory) : [];
+    // Seçili format aktif ayarlar state'i — her format id'si için defaults'dan ayar değerleri tutar
+    const [formatSettings, setFormatSettings] = useState<Record<string, Record<string, any>>>({});
+
+    // Belirli bir format için bir ayarın değerini güncelle
+    const updateFormatSetting = (formatId: string, key: string, value: any) => {
+        setFormatSettings(prev => ({
+            ...prev,
+            [formatId]: { ...(prev[formatId] || {}), [key]: value }
+        }));
+    };
+
+    // Bir format için tüm ayarları getir (yoksa defaults'dan doldur)
+    const getSettingsFor = (formatId: string): Record<string, any> => {
+        const formatDef = getFormatById(formatId);
+        if (!formatDef) return {};
+        const defaults: Record<string, any> = {};
+        formatDef.settings.forEach(s => { defaults[s.key] = s.defaultValue; });
+        return { ...defaults, ...(formatSettings[formatId] || {}) };
+    };
 
     const currentCurriculum = selectedGrade ? MEB_CURRICULUM[selectedGrade as GradeLevel] : null;
     const currentUnit = currentCurriculum?.units.find((u: any) => u.id === selectedUnitId);
@@ -95,16 +62,18 @@ const Cockpit: React.FC = () => {
             return;
         }
 
-        // 3.3 Draft (Taslak) Dizi Oluşumu
+        // Faz 8: Draft'lara formatın kendi settings'i ve aktif UI ayarları gömülür
         const draftItems = selectedActivityTypes.map((type: string) => ({
             id: Date.now().toString(36) + Math.random().toString(36).substring(2),
             type,
             settings: {
                 difficulty,
                 audience,
-                engineMode
+                engineMode,
+                // Formata özel ultra ayarlar
+                ...getSettingsFor(type)
             },
-            data: null // Veriler AI modda JSON üretilince dolacak (Şu an Mock veya boş)
+            data: null
         }));
 
         useSuperTurkceStore.getState().setDraftComponents(draftItems);
@@ -250,12 +219,52 @@ const Cockpit: React.FC = () => {
                                                 <div className="bg-white rounded-lg p-2.5 border border-brand-100 shadow-sm space-y-2">
                                                     <label className="text-[10px] font-bold text-brand-600 uppercase">🔧 Bu Motora Özel İnce Ayarlar</label>
                                                     <div className="flex flex-wrap gap-2">
-                                                        {format.settings.map((setting, idx) => (
-                                                            <div key={idx} className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2 py-1 rounded text-[10px] text-slate-600">
-                                                                <input type="checkbox" defaultChecked className="w-3 h-3 text-brand-500 rounded-sm outline-none" />
-                                                                {setting}
-                                                            </div>
-                                                        ))}
+                                                        {format.settings.map((setting, idx) => {
+                                                            const currentVal = (formatSettings[format.id] || {})[setting.key] ?? setting.defaultValue;
+                                                            return (
+                                                                <div key={idx} className="flex flex-col gap-0.5 bg-slate-50 border border-slate-200 px-2 py-1.5 rounded text-[10px] text-slate-600 w-full">
+                                                                    <label className="font-semibold text-slate-500">{setting.label}</label>
+                                                                    {/* type: toggle */}
+                                                                    {setting.type === 'toggle' && (
+                                                                        <button
+                                                                            onClick={() => updateFormatSetting(format.id, setting.key, !currentVal)}
+                                                                            className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors ${currentVal ? 'bg-brand-500' : 'bg-slate-300'
+                                                                                }`}
+                                                                        >
+                                                                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${currentVal ? 'translate-x-4' : 'translate-x-1'
+                                                                                }`} />
+                                                                        </button>
+                                                                    )}
+                                                                    {/* type: select */}
+                                                                    {setting.type === 'select' && (
+                                                                        <select
+                                                                            value={String(currentVal)}
+                                                                            onChange={e => updateFormatSetting(format.id, setting.key, e.target.value)}
+                                                                            className="text-[10px] bg-white border border-slate-200 rounded px-1 py-0.5 text-slate-700 outline-none"
+                                                                        >
+                                                                            {(setting.options || []).map(opt => (
+                                                                                <option key={opt} value={opt}>{opt}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    )}
+                                                                    {/* type: range or number */}
+                                                                    {(setting.type === 'range' || setting.type === 'number') && (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <input
+                                                                                type="range"
+                                                                                min={setting.min ?? 1}
+                                                                                max={setting.max ?? 10}
+                                                                                step={setting.step ?? 1}
+                                                                                value={Number(currentVal)}
+                                                                                onChange={e => updateFormatSetting(format.id, setting.key, Number(e.target.value))}
+                                                                                className="flex-1 h-1 accent-brand-500"
+                                                                            />
+                                                                            <span className="text-brand-600 font-bold w-4 text-center">{currentVal}</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
                                                     </div>
                                                 </div>
                                             </motion.div>
