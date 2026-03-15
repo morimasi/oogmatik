@@ -98,15 +98,15 @@ export const mantikMuhakemeFormats: ActivityFormatDef[] = [
         difficulty: 'hard',
         settings: [
             { key: 'algoritma', label: 'Şifreleme Algoritması', type: 'select', defaultValue: 'ceasar', options: ['Caesar (+3)', 'Ayna Yansıma', 'Sayı-Harf'] },
-            { key: 'kelimiAdedi', label: 'Kelime Sayısı', type: 'range', defaultValue: 5, min: 3, max: 8 },
+            { key: 'kelimeAdedi', label: 'Kelime Sayısı', type: 'range', defaultValue: 5, min: 3, max: 8 },
         ],
         fastGenerate: (s, grade, topic) => ({
-            sifre: `Şifrelenmiş metin: [${Array.from({ length: s.kelimiAdedi }, (_, i) => `SFRE${i}`).join('-')}]`,
+            sifre: `Şifrelenmiş metin: [${Array.from({ length: s.kelimeAdedi || 5 }, (_, i) => `SFRE${i}`).join('-')}]`,
             ipucu: `Algoritma: ${s.algoritma}. "${topic}" konusuyla ilgili gizli mesaj.`,
             cevap: `Çözüm: "${topic}" konusundaki gizli mesaj burada yazardı.`,
         }),
         buildAiPrompt: (s, grade, topic) =>
-            `${grade}. sınıf için "${topic}" konusunda ${s.kelimiAdedi} kelimelik bir mesaj oluştur. ` +
+            `${grade}. sınıf için "${topic}" konusunda ${s.kelimeAdedi} kelimelik bir mesaj oluştur. ` +
             `Bu mesajı ${s.algoritma} algoritmasıyla şifrele. Öğrenci şifreyi çözsün.`,
     },
     {
@@ -141,7 +141,10 @@ export const mantikMuhakemeFormats: ActivityFormatDef[] = [
         ],
         fastGenerate: (s, grade, topic) => ({
             hikaye: Array.from({ length: s.cumleAdedi }, (_, i) => `Hikâye cümlesi ${i + 1}: "${topic}" bağlamında.`).join(' ') + ' ???',
-            sorular: s.format === 'Çoktan Seçmeli' ? ['A) Mantıksal son', 'B) Mantıksız son', 'C) Konu dışı son', 'D) Tutarsız son'] : null,
+            sorular: s.format === 'Çoktan Seçmeli'
+                ? ['A) Mantıksal son', 'B) Mantıksız son', 'C) Konu dışı son', 'D) Tutarsız son']
+                : [],  // null yerine boş dizi — PDF renderer null kabul etmiyor
+            acikUclu: s.format !== 'Çoktan Seçmeli',
         }),
         buildAiPrompt: (s, grade, topic) =>
             `${grade}. sınıf için "${topic}" konusunda ${s.cumleAdedi} cümlelik yarım bir hikâye yaz. ` +

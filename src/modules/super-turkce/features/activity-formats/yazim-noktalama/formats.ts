@@ -56,7 +56,7 @@ export const yazimNoktalamaFormats: ActivityFormatDef[] = [
         difficulty: 'medium',
         settings: [
             { key: 'hataSayisi', label: 'Hata Sayısı', type: 'range', defaultValue: 4, min: 2, max: 8 },
-            { key: 'hataYeri', label: 'Hata Türü', type: 'select', defaultValue: 'karis ik', options: ['Yalnız Büyük Harf', 'Yalnız Birleşik Yazım', 'Karışık'] },
+            { key: 'hataYeri', label: 'Hata Türü', type: 'select', defaultValue: 'karisik', options: ['Yalnız Büyük Harf', 'Yalnız Birleşik Yazım', 'Karışık'] },
         ],
         fastGenerate: (s, grade, topic) => ({
             metin: `Bu metin "${topic}" konusunu işlemektedir. İçinde ${s.hataSayisi} adet ${s.hataYeri} yazım hatası bulunmaktadır. Öğrenci hataları bulup düzeltmelidir.`,

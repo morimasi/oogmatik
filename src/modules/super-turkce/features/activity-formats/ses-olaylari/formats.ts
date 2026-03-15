@@ -79,13 +79,13 @@ export const sesOlaylariFormats: ActivityFormatDef[] = [
         difficulty: 'hard',
         settings: [
             { key: 'benzeşmeTuru', label: 'Benzeşme Türü', type: 'select', defaultValue: 'hepsi', options: ['Süreksiz Ünsüz (p/ç/t/k)', 'Sürekli Ünsüz (f/s/ş/h)', 'Hepsi'] },
-            { key: 'ornek Sayisi', label: 'Örnek Sayısı', type: 'range', defaultValue: 5, min: 3, max: 8 },
+            { key: 'ornekSayisi', label: 'Örnek Sayısı', type: 'range', defaultValue: 5, min: 3, max: 8 },
         ],
         fastGenerate: (s, grade, topic) => ({
-            ornekler: Array.from({ length: s['ornek Sayisi'] || 5 }, (_, i) => ({
-                temel: `sözcük${i}`,
+            ornekler: Array.from({ length: s.ornekSayisi || 5 }, (_, i) => ({
+                temel: `sözcük${i + 1}`,
                 ek: '-de/-da ekini al',
-                sonuc: `sözcük${i} + ek benzeşme sonucu`,
+                sonuc: `sözcük${i + 1} + ek → benzeşme sonucu`,
                 kural: s.benzeşmeTuru,
             })),
         }),
@@ -175,7 +175,7 @@ export const sesOlaylariFormats: ActivityFormatDef[] = [
             kelimeler: Array.from({ length: s.kelimeSayisi }, (_, i) => ({
                 kelime: `${topic.split(' ')[0] || 'türkçe'}${i + 1}`,
                 dogru: `he-ce-${i + 1}`,
-                yanlis: s.yanlisCevapli && i % 3 === 0 ? `h-ece${i + 1} (yanlış)` : null,
+                yanlis: s.yanlisCevapli && i % 3 === 0 ? `h-ece${i + 1} (yanlış)` : '',
             })),
         }),
         buildAiPrompt: (s, grade, topic) =>

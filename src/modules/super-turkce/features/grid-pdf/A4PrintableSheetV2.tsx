@@ -436,7 +436,7 @@ const renderComponentByType = (type: string, draft: any) => {
         case 'OKUDUGUNU_CIZ':
         case 'YARATICI_CUMLE':
         case 'ACIK_UCLU': {
-            const yonerge = safeText(data.yonerge || data.text, 'Cevabınızı aşağıya yazınız:');
+            const yonerge = safeText(data.yonerge || data.text || data.kelimeler?.map((k: any) => safeText(k?.kelime || k, '')).join(', '), 'Cevabınızı aşağıya yazınız:');
             const satirSayisi = Number(data.satirSayisi || data.cizgiSayisi || 4);
             return (
                 <View style={{ gap: 6, marginTop: 4 }}>
@@ -449,6 +449,170 @@ const renderComponentByType = (type: string, draft: any) => {
                 </View>
             );
         }
+
+        // ---- SÖZEL MANTIK TABLO / DİĞER MANTIK ----
+        case 'SOZEL_MANTIK_TABLO':
+        case 'KAVRAM_HARITASI':
+        case 'YONERGE_TAKIBI': {
+            // kisiler + degiskenler mantık tablosu
+            const kisiler = safeArray(data.kisiler || data.dallar || []);
+            const degiskenler = safeArray(data.degiskenler || []);
+            const merkez = safeText(data.merkez || data.merkezKelime, '');
+            const ipuclari = safeArray(data.ipuclari || data.yonlendirmeler || []);
+            return (
+                <View style={{ gap: 5, marginTop: 4 }}>
+                    {merkez ? <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0f172a', textAlign: 'center' }}>{merkez}</Text> : null}
+                    {ipuclari.length > 0 && (
+                        <View style={{ gap: 3, marginBottom: 4 }}>
+                            {ipuclari.map((ip: any, i: number) => (
+                                <Text key={i} style={{ fontSize: 8, color: '#64748b' }}>• {safeText(ip, `İpucu ${i + 1}`)}</Text>
+                            ))}
+                        </View>
+                    )}
+                    {degiskenler.length > 0 ? (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
+                            {kisiler.map((k: any, i: number) => (
+                                <View key={i} style={{ borderWidth: 1, borderColor: '#e2e8f0', padding: 4, borderRadius: 4, minWidth: 60 }}>
+                                    <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#334155' }}>{safeText(k, `Kişi ${i + 1}`)}</Text>
+                                    {degiskenler.map((_: any, j: number) => (
+                                        <View key={j} style={{ width: '100%', height: 1, backgroundColor: '#f1f5f9', marginTop: 3 }} />
+                                    ))}
+                                </View>
+                            ))}
+                        </View>
+                    ) : (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                            {kisiler.map((dal: any, i: number) => (
+                                <View key={i} style={{ backgroundColor: '#f1f5f9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
+                                    <Text style={{ fontSize: 8, color: '#334155' }}>{safeText(typeof dal === 'string' ? dal : dal?.dal, `Kavram ${i + 1}`)}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    )}
+                </View>
+            );
+        }
+
+        // ---- ANLATIM BOZUKLUĞU / CÜMLE DÖNÜŞTÜRME ----
+        case 'ANLATIM_BOZUKLUGU':
+        case 'HATALI_SOZCUK':
+        case 'CUMLE_DONUSTUR':
+        case 'CUMLE_OGESI_AYIRMA': {
+            const cumleler = safeArray(data.cumleler || []);
+            const paragraf = safeText(data.paragraf || data.metin, '');
+            return (
+                <View style={{ gap: 5, marginTop: 4 }}>
+                    {paragraf ? (
+                        <Text style={{ fontSize: 9, color: '#334155', lineHeight: 1.5, backgroundColor: '#fff7ed', padding: 6, borderRadius: 4, borderLeftWidth: 3, borderLeftColor: '#f97316' }}>
+                            {paragraf}
+                        </Text>
+                    ) : null}
+                    {cumleler.length > 0 && (
+                        <View style={{ gap: 6 }}>
+                            {cumleler.map((c: any, i: number) => {
+                                const bozukMetin = safeText(typeof c === 'string' ? c : c?.bozuk || c?.cumle, `Cümle ${i + 1}`);
+                                const duzgun = safeText(c?.duzgun, '');
+                                return (
+                                    <View key={i} style={{ borderWidth: 1, borderColor: '#fecaca', borderRadius: 4, padding: 5 }}>
+                                        <Text style={{ fontSize: 9, color: '#991b1b' }}>{i + 1}. {bozukMetin}</Text>
+                                        {duzgun ? (
+                                            <View style={{ height: 12, borderBottomWidth: 1, borderBottomColor: '#d1d5db', marginTop: 4 }} />
+                                        ) : null}
+                                    </View>
+                                );
+                            })}
+                        </View>
+                    )}
+                    {cumleler.length === 0 && !paragraf && emptyLines}
+                </View>
+            );
+        }
+
+        // ---- TABLOLU FORMATLAR (Tablo Hata Avı, Kısaltma, Sözlük, Yazım Panosu) ----
+        case 'TABLODA_HATA_AVI':
+        case 'KISALTMA_SEMBOL':
+        case 'OKUMALIK_SOZLUK':
+        case 'YAZIM_KURALI_PANO': {
+            // Genel amaçlı tablo renderer
+            const kurallar = safeArray(data.kurallar || data.kisaltmalar || data.sozluk || []);
+            const tablo = safeArray(data.tablo || []);
+            if (tablo.length > 0) {
+                return (
+                    <View style={{ gap: 2, marginTop: 4 }}>
+                        {tablo.map((row: any[], r: number) => (
+                            <View key={r} style={{ flexDirection: 'row', gap: 2 }}>
+                                {safeArray(row).map((cell: any, c: number) => (
+                                    <View key={c} style={{ flex: 1, borderWidth: 1, borderColor: '#e2e8f0', padding: 3, borderRadius: 2 }}>
+                                        <Text style={{ fontSize: 7, color: '#334155' }}>{safeText(cell, '')}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        ))}
+                    </View>
+                );
+            }
+            if (kurallar.length > 0) {
+                return (
+                    <View style={{ gap: 5, marginTop: 4 }}>
+                        {kurallar.map((k: any, i: number) => (
+                            <View key={i} style={{ flexDirection: 'row', gap: 6, alignItems: 'flex-start' }}>
+                                <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#0284c7', width: 14 }}>{i + 1}.</Text>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ fontSize: 9, color: '#0f172a', fontWeight: 'bold' }}>
+                                        {safeText(k?.kural || k?.kisaltma || k?.kelime, `Madde ${i + 1}`)}
+                                    </Text>
+                                    {k?.dogru && <Text style={{ fontSize: 8, color: '#16a34a' }}>✓ {safeText(k.dogru)}</Text>}
+                                    {k?.yanlis && <Text style={{ fontSize: 8, color: '#dc2626' }}>✗ {safeText(k.yanlis)}</Text>}
+                                    {k?.acilimi && <Text style={{ fontSize: 8, color: '#64748b' }}>{safeText(k.acilimi)}</Text>}
+                                    {k?.tanim && <Text style={{ fontSize: 8, color: '#475569' }}>{safeText(k.tanim)}</Text>}
+                                </View>
+                            </View>
+                        ))}
+                    </View>
+                );
+            }
+            return emptyLines;
+        }
+
+        // ---- DEYİM / ATASÖZLERİ DETAY ----
+        case 'DEYIM_CUMLE':
+        case 'OZDEYIS_ANALIZ': {
+            const deyimler = safeArray(data.deyimler || data.ozdeyisler || []);
+            return (
+                <View style={{ gap: 6, marginTop: 4 }}>
+                    {(deyimler.length > 0 ? deyimler : [{ deyim: 'Deyim', bosluk: '______' }]).map((d: any, i: number) => (
+                        <View key={i} style={{ borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 4, padding: 6 }}>
+                            <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#0f172a' }}>{safeText(d.deyim || d.ozdeyis, `${i + 1}. Deyim`)}</Text>
+                            {d.anlam && <Text style={{ fontSize: 8, color: '#64748b', marginTop: 1 }}>({safeText(d.anlam)})</Text>}
+                            <View style={{ height: 12, borderBottomWidth: 1, borderBottomColor: '#cbd5e1', marginTop: 6 }} />
+                        </View>
+                    ))}
+                </View>
+            );
+        }
+
+        // ---- SES OLAYLARI DETAY ----
+        case 'SES_OLAY_TANI':
+        case 'UNSUZ_BENZEŞMESI':
+        case 'SES_DUSME_TUREME':
+        case 'KAYNAŞTIRMA': {
+            const ornekler = safeArray(data.ornekler || data.kelimeler || []);
+            return (
+                <View style={{ gap: 4, marginTop: 4 }}>
+                    {(ornekler.length > 0 ? ornekler : [{ temel: 'Örnek', ek: '(ek)' }]).map((o: any, i: number) => (
+                        <View key={i} style={{ flexDirection: 'row', gap: 8, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#f1f5f9', paddingBottom: 3 }}>
+                            <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#1e40af', width: 70 }}>
+                                {safeText(o?.temel || o?.kelime || o?.kok, `Sözcük ${i + 1}`)}
+                            </Text>
+                            <Text style={{ fontSize: 8, color: '#64748b' }}>{safeText(o?.ek || o?.dogru, '+ek')}</Text>
+                            <Text style={{ fontSize: 8, color: '#059669' }}>→ {safeText(o?.sonuc || o?.dogru || o?.olay, '...')}</Text>
+                        </View>
+                    ))}
+                </View>
+            );
+        }
+
+
 
         // ---- DEFAULT (Bilinmeyen Format) ----
         default: {

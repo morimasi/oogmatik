@@ -4,7 +4,6 @@
 // Kategori, ikonlar, açıklamalar ve render ayarları bu tip üzerinden taşınır.
 // =============================================================================
 
-import React from 'react';
 
 // 6 Ana Stüdyo Kategorisi
 export type StudioCategory =

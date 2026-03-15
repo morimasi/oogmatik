@@ -32,17 +32,17 @@ export const sozVarligiFormats: ActivityFormatDef[] = [
         description: 'Atasözünü uygun olduğu durumla eşleştir.',
         difficulty: 'medium',
         settings: [
-            { key: 'atasozu Sayisi', label: 'Atasözü Sayısı', type: 'range', defaultValue: 4, min: 3, max: 6 },
+            { key: 'atasozuSayisi', label: 'Atasözü Sayısı', type: 'range', defaultValue: 4, min: 3, max: 6 },
             { key: 'formatTuru', label: 'Format', type: 'select', defaultValue: 'durum_eslestir', options: ['Durum Eşleştir', 'Anlamını Seç', 'Hangi Durumda Kullanılır'] },
         ],
         fastGenerate: (s, grade, topic) => ({
-            atasozleri: Array.from({ length: s['atasozu Sayisi'] || 4 }, (_, i) => ({
+            atasozleri: Array.from({ length: s.atasozuSayisi || 4 }, (_, i) => ({
                 atasoz: `Atasözü ${i + 1}: "${topic}" konusuyla ilgili geleneksel atasözü.`,
                 durum: `Durum ${i + 1}: Bu atasözünün kullanıldığı gerçek hayat örneği.`,
             })),
         }),
         buildAiPrompt: (s, grade, topic) =>
-            `"${topic}" konusuyla ilişkili ${s['atasozu Sayisi'] || 4} Türk atasözü seç. ` +
+            `"${topic}" konusuyla ilişkili ${s.atasozuSayisi || 4} Türk atasözü seç. ` +
             `${grade}. sınıf için ${s.formatTuru} aktivitesi hazırla.`,
     },
     {
