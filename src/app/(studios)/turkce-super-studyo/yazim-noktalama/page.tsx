@@ -1,49 +1,92 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { InlineTextEditor } from '../../../../modules/turkce-super-studyo/components/organisms/spelling/InlineTextEditor';
 import { SpellCheck, Sparkles, Loader2, RefreshCw } from 'lucide-react';
 import { generateCreativeMultimodal } from '../../../../../services/geminiClient';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface SpellingExercise {
-    initialText: string;
-    correctedText: string;
+interface ErrorToken {
+    id: string;
+    originalText: string;
+    correctText: string;
+    isPunctuationError: boolean;
+    type: 'spelling' | 'punctuation';
+    indexInText: number;
 }
 
+interface SpellingExercise {
+    instruction: string;
+    textParts: string[];
+    errors: ErrorToken[];
+}
+
+// Fallback exercises using the real InlineTextEditor API
 const FALLBACK_EXERCISES: SpellingExercise[] = [
     {
-        initialText: 'Bugun hava cok guzel degilmi? Annem ile bırlıkte pazara gıttık. Oradan Elma, armut ve kıraz aldık.',
-        correctedText: 'Bugün hava çok güzel değil mi? Annem ile birlikte pazara gittik. Oradan elma, armut ve kiraz aldık.',
+        instruction: 'Aşağıdaki cümlelerdeki yazım ve büyük harf hatalarını düzeltin.',
+        textParts: [
+            'Bugun ',     // 0 — normal
+            'hava',       // 1 — error (Bugün)
+            ' cok ',      // 2 — normal
+            'guzel',      // 3 — error (güzel)
+            ' degilmi? Annem ile birlıkte pazara gittik.',  // 4 — normal
+        ],
+        errors: [
+            { id: 'e1', originalText: 'Bugun', correctText: 'Bugün', isPunctuationError: false, type: 'spelling', indexInText: 0 },
+            { id: 'e2', originalText: 'guzel', correctText: 'güzel', isPunctuationError: false, type: 'spelling', indexInText: 3 },
+        ],
     },
     {
-        initialText: 'cocuklar okula gıttıler. ogretmen tahtaya yazı yazdı. hepsı dıkkatli dınledı.',
-        correctedText: 'Çocuklar okula gittiler. Öğretmen tahtaya yazı yazdı. Hepsi dikkatli dinledi.',
+        instruction: 'Büyük harf ve noktalama hatalarını bulup düzeltin.',
+        textParts: [
+            'cocuklar ',  // 0 — error (Çocuklar)
+            'okula gittiler. Öğretmen tahtaya yazı yazdı. hepsı ',  // 1 — normal
+            'dıkkatli',  // 2 — error (dikkatli)
+            ' dinledi.',  // 3 — normal
+        ],
+        errors: [
+            { id: 'f1', originalText: 'cocuklar', correctText: 'Çocuklar', isPunctuationError: false, type: 'spelling', indexInText: 0 },
+            { id: 'f2', originalText: 'dıkkatli', correctText: 'dikkatli', isPunctuationError: false, type: 'spelling', indexInText: 2 },
+        ],
     },
 ];
 
-async function generateSpellingExercise(gradeLevel: number): Promise<SpellingExercise> {
-    const prompt = `
-Sen, Türkçe yazım ve noktalama öğreten bir öğretmensin.
-${gradeLevel}. sınıf seviyesinde bir disleksili öğrencinin çalışması için:
-1. Kasıtlı yazım, büyük harf ve noktalama hataları içeren 2-3 kısa cümle üret
-2. Aynı cümlelerin doğru versiyonunu üret
+/**
+ * Parse AI output into InlineTextEditor's format.
+ * AI returns a sentence with errors; we split it into textParts + errors.
+ */
+function parseAIExercise(raw: any): SpellingExercise {
+    if (
+        raw?.instruction &&
+        Array.isArray(raw.textParts) &&
+        Array.isArray(raw.errors)
+    ) {
+        return raw as SpellingExercise;
+    }
+    throw new Error('Invalid AI format');
+}
 
-JSON formatında dön:
+async function generateExercise(gradeLevel: number): Promise<SpellingExercise> {
+    const prompt = `Sen bir Türkçe öğretmenisin. ${gradeLevel}. sınıf seviyesi için yazım/noktalama egzersizi oluştur.
+
+JSON formatında döndür:
 {
-  "initialText": "hatalı metin buraya...",
-  "correctedText": "doğru metin buraya..."
+  "instruction": "Aşağıdaki cümlelerdeki yazım ve noktalama hatalarını düzeltin.",
+  "textParts": ["Normal metin ", "HATALI_KELİME", " devam ediyor ", "HATALI_KELİME2", " son kısım."],
+  "errors": [
+    { "id": "e1", "originalText": "HATALI_KELİME", "correctText": "doğru_kelime", "isPunctuationError": false, "type": "spelling", "indexInText": 1 },
+    { "id": "e2", "originalText": "HATALI_KELİME2", "correctText": "doğru_kelime2", "isPunctuationError": false, "type": "spelling", "indexInText": 3 }
+  ]
 }
 
 Kurallar:
-- Türkçe karakterleri (ğ, ü, ş, ı, ö, ç) bazı yerlerde atlat
-- Büyük harf kullanılması gereken yerlere küçük harf koy
-- Gereksiz büyük harf kullan
-- Noktalama işaretlerini yanlış kullan veya eksik bırak
-- Cümleler kısa ve çocuk seviyesinde olsun
-`;
+- textParts dizisinde hatalı kelimeler tek eleman olarak ayrılmış olmalı
+- errors.indexInText → textParts dizisindeki o hatanın index numarası
+- Türkçe karakterler (ğ, ü, ş, ı, ö, ç) ile ilgili hatalar olsun
+- Kısa cümleler, ${gradeLevel}. sınıf seviyesinde`;
+
     const result = await generateCreativeMultimodal({ prompt, temperature: 0.7 });
-    if (result?.initialText && result?.correctedText) return result as SpellingExercise;
-    throw new Error('Invalid AI response');
+    return parseAIExercise(result);
 }
 
 export default function YazimNoktalamaPage() {
@@ -51,23 +94,26 @@ export default function YazimNoktalamaPage() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [gradeLevel, setGradeLevel] = useState<1 | 2 | 3 | 4>(2);
     const [completedCount, setCompletedCount] = useState(0);
+    const [fallbackIdx, setFallbackIdx] = useState(0);
 
-    const handleGenerate = async () => {
+    const handleGenerate = useCallback(async () => {
         setIsGenerating(true);
         try {
-            const newExercise = await generateSpellingExercise(gradeLevel);
+            const newExercise = await generateExercise(gradeLevel);
             setExercise(newExercise);
         } catch {
             // Rotate through fallbacks
-            setExercise(FALLBACK_EXERCISES[completedCount % FALLBACK_EXERCISES.length]);
+            const nextIdx = (fallbackIdx + 1) % FALLBACK_EXERCISES.length;
+            setFallbackIdx(nextIdx);
+            setExercise(FALLBACK_EXERCISES[nextIdx]);
         } finally {
             setIsGenerating(false);
         }
-    };
+    }, [gradeLevel, fallbackIdx]);
 
-    const handleComplete = () => {
+    const handleComplete = useCallback((correctCount: number) => {
         setCompletedCount((c) => c + 1);
-    };
+    }, []);
 
     return (
         <div className="max-w-5xl mx-auto space-y-8">
@@ -79,7 +125,7 @@ export default function YazimNoktalamaPage() {
                         Yazım & Noktalama Stüdyosu
                     </h1>
                     <p className="text-gray-600 font-medium mt-1">
-                        Hatalı metni düzelt, doğru yazımı öğren.
+                        Hatalı kelimelere tıkla, doğrusunu yaz, Kontrol Et butonuna bas.
                     </p>
                 </div>
 
@@ -99,7 +145,7 @@ export default function YazimNoktalamaPage() {
                         ))}
                     </select>
 
-                    {/* Tamamlanan */}
+                    {/* Tamamlanan sayacı */}
                     {completedCount > 0 && (
                         <motion.div
                             initial={{ opacity: 0, scale: 0.8 }}
@@ -130,21 +176,21 @@ export default function YazimNoktalamaPage() {
             {/* Alıştırma */}
             <AnimatePresence mode="wait">
                 <motion.div
-                    key={`${exercise.initialText.slice(0, 20)}`}
+                    key={exercise.instruction.slice(0, 30)}
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
-                    className="bg-white rounded-[2.5rem] p-8 shadow-sm border-2 border-amber-50 min-h-[300px]"
                 >
                     {isGenerating ? (
-                        <div className="flex flex-col items-center justify-center h-48 text-amber-500 gap-4">
+                        <div className="bg-white rounded-[2.5rem] p-10 flex flex-col items-center justify-center min-h-[200px] border-2 border-amber-50 shadow-sm text-amber-500 gap-4">
                             <Loader2 size={40} className="animate-spin" />
                             <p className="text-lg font-bold">Gemini AI yeni alıştırma oluşturuyor...</p>
                         </div>
                     ) : (
                         <InlineTextEditor
-                            initialText={exercise.initialText}
-                            correctedText={exercise.correctedText}
+                            instruction={exercise.instruction}
+                            textParts={exercise.textParts}
+                            errors={exercise.errors}
                             onComplete={handleComplete}
                         />
                     )}
