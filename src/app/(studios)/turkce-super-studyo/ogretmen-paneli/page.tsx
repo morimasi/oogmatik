@@ -4,7 +4,7 @@ import {
   generateQuestionsFromText,
 } from '../../../../modules/turkce-super-studyo/ai/magicGenerator';
 import { simplifyText, calculateReadabilityScore } from '../../../../modules/turkce-super-studyo/ai/textSimplifier';
-import { Sparkles, Wand2, ArrowDownToLine, Loader2, RefreshCcw, Save, Check, BookOpen, BarChart2 } from 'lucide-react';
+import { Sparkles, Wand2, ArrowDownToLine, Loader2, RefreshCcw, Save, Check, BookOpen, BarChart2, FileDown } from 'lucide-react';
 import { Question } from '../../../../modules/turkce-super-studyo/types/schemas';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -26,6 +26,7 @@ export default function OgretmenPaneliPage() {
   const [savedDraft, setSavedDraft] = useState<Draft | null>(null);
   const [draftSaved, setDraftSaved] = useState(false);
   const [readabilityScore, setReadabilityScore] = useState<number | null>(null);
+  const [fasikulBridged, setFasikulBridged] = useState(false);
 
   // Load any existing draft on mount
   useEffect(() => {
@@ -98,6 +99,21 @@ export default function OgretmenPaneliPage() {
     setText(savedDraft.text);
     setGradeLevel(savedDraft.gradeLevel as 1 | 2 | 3 | 4);
     setQuestions(savedDraft.questions || []);
+  };
+
+  // FAZ D2: Fasikül bridge — soruları calisma-kagidi'ne localStorage üzerinden taşı
+  const handleCreateFasikul = () => {
+    if (questions.length === 0 || !text.trim()) return;
+    const bridgeData = {
+      passage: { title: 'Öğretmen Paneli Metni', content: text, gradeLevel },
+      questions,
+      createdAt: new Date().toISOString(),
+    };
+    try {
+      localStorage.setItem('fasikul_bridge_data', JSON.stringify(bridgeData));
+      setFasikulBridged(true);
+      setTimeout(() => setFasikulBridged(false), 3000);
+    } catch { /* storage full */ }
   };
 
   const scoreColor =
@@ -305,11 +321,13 @@ export default function OgretmenPaneliPage() {
               </motion.button>
               {questions.length > 0 && (
                 <motion.button
+                  onClick={handleCreateFasikul}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
+                  className={`flex-1 py-3 flex items-center justify-center gap-2 font-bold rounded-xl transition-all shadow-sm ${fasikulBridged ? 'bg-green-500 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                  title={fasikulBridged ? 'Çalışma Kağıdı stüdyosuna geçerek fasiküli oluşturabilirsiniz.' : 'Soruları Çalışma Kağıdına aktar'}
                 >
-                  Fasikül Oluştur
+                  {fasikulBridged ? <><Check size={18} /> Çalışma Kağıdı'na Aktarıldı!</> : <><FileDown size={18} /> Fasikül Oluştur</>}
                 </motion.button>
               )}
             </div>

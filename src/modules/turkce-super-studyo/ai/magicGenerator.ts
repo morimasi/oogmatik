@@ -9,60 +9,10 @@ interface GenerateOptions {
   gradeLevel?: 1 | 2 | 3 | 4;
 }
 
-const questionSchema = {
-  type: 'array',
-  items: {
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      textId: { type: 'string' },
-      type: { type: 'string', enum: ['MCQ', 'FILL_BLANK', 'TRUE_FALSE'] },
-      instruction: { type: 'string' },
-      difficulty: { type: 'string', enum: ['KOLAY', 'ORTA', 'ZOR'] },
-      targetSkill: {
-        type: 'string',
-        enum: ['ANA_FIKIR', 'SEBEP_SONUC', 'SOZ_VARLIGI', 'YAZIM_NOKTALAMA', 'MANTIK'],
-      },
-      learningOutcomes: { type: 'array', items: { type: 'string' } },
-      feedback: {
-        type: 'object',
-        properties: {
-          correct: { type: 'string' },
-          incorrect: { type: 'string' },
-        },
-      },
-      // MCQ fields
-      options: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            id: { type: 'string' },
-            text: { type: 'string' },
-            isCorrect: { type: 'boolean' },
-          },
-        },
-      },
-      // FILL_BLANK fields
-      template: { type: 'string' },
-      blanks: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            id: { type: 'string' },
-            correctValue: { type: 'string' },
-            acceptedValues: { type: 'array', items: { type: 'string' } },
-          },
-        },
-      },
-      wordBank: { type: 'array', items: { type: 'string' } },
-    },
-    required: ['id', 'textId', 'type', 'instruction', 'difficulty', 'targetSkill', 'feedback'],
-  },
-};
+// In-memory cache: topic+grade → activity (FAZ E performans)
+const activityCache = new Map<string, { passage: TextPassage; questions: Question[] }>();
 
-// Mock fallback questions for when API is unavailable
+// Mock fallback questions (tüm tipler dahil)
 const getMockQuestions = (difficulty: 'KOLAY' | 'ORTA' | 'ZOR' = 'ORTA'): Question[] => [
   {
     id: `q-mcq-${Date.now()}`,
@@ -83,26 +33,41 @@ const getMockQuestions = (difficulty: 'KOLAY' | 'ORTA' | 'ZOR' = 'ORTA'): Questi
     ],
   },
   {
-    id: `q-blank-${Date.now() + 1}`,
+    id: `q-tf-${Date.now() + 1}`,
+    textId: 'generated-text-id',
+    type: 'TRUE_FALSE',
+    instruction: 'Aşağıdaki cümle doğru mu, yanlış mı?',
+    difficulty,
+    targetSkill: 'ANA_FIKIR',
+    learningOutcomes: ['T.2.3.2'],
+    feedback: {
+      correct: 'Tebrikler, doğru bildin!',
+      incorrect: 'Metni tekrar oku ve dikkatli düşün.',
+    },
+    statement: 'Metinde anlatılan hikaye bir çocuk hakkındadır.',
+    isTrue: true,
+  },
+  {
+    id: `q-blank-${Date.now() + 2}`,
     textId: 'generated-text-id',
     type: 'FILL_BLANK',
-    instruction: 'Aşağıdaki cümleyi metne uygun şekilde tamamla.',
+    instruction: 'Aşağıdaki cümleyi uygun kelimeyle tamamla.',
     difficulty,
     targetSkill: 'SOZ_VARLIGI',
     learningOutcomes: ['T.2.4.1'],
     feedback: {
-      correct: 'Kelimeleri yerine çok iyi yerleştirdin!',
+      correct: 'Kelimeyi yerine çok iyi yerleştirdin!',
       incorrect: 'İpucu: Kelime havuzunu kullanabilirsin.',
     },
-    template: 'Doğayı korumak için {blank_1} çok dikkatli davranmalıyız.',
+    template: 'Doğayı korumak için {blank_1} dikkatli davranmalıyız.',
     blanks: [{ id: 'blank_1', correctValue: 'hepimiz', acceptedValues: ['Hepimiz', 'hepimiz'] }],
     wordBank: ['hepimiz', 'sadece sen', 'hiçbirimiz'],
   },
 ];
 
 /**
- * Magic Generator: Gerçek Gemini API ile metin üzerinden disleksi dostu sorular üretir.
- * API'ye erişilemeyen durumlarda otomatik olarak mock veriye düşer (Graceful Degradation).
+ * Magic Generator — Few-Shot Prompting ile Gemini API Entegrasyonu
+ * Tüm soru tiplerini (MCQ, TRUE_FALSE, FILL_BLANK, OPEN_ENDED) üretir.
  */
 export const generateQuestionsFromText = async (options: GenerateOptions): Promise<Question[]> => {
   const count = options.count || 5;
@@ -121,13 +86,72 @@ ${options.text}
 - Zorluk seviyesi: ${difficulty}
 - Sınıf seviyesi: ${options.gradeLevel || 2}. sınıf
 - Cümleler kısa, net ve basit olmalı (disleksi dostu)
-- Her soruda "id" alanı benzersiz bir UUID formatında olmalı (örn: "q-${Date.now()}-1")
-- textId alanını "generated-text-id" olarak ayarla
-- Talimatlar Türkçe, anlaşılır ve model bir öğrenci için uygun olmalı
-- Çoktan seçmeli sorularda mutlaka bir "isCorrect: true" olan seçenek olmalı
-- Boşluk doldurma sorularında "{blank_1}" gibi placeholder kullan
-- En az 1 MCQ, 1 FILL_BLANK soru üret. Kalan sorular için uygun tip seç.
+- Her soruda "id" alanı benzersiz olmalı (örn: "q-001", "q-002")
+- textId = "generated-text-id"
 - Odaklanan beceriler: ${(options.skills || ['ANA_FIKIR', 'SOZ_VARLIGI']).join(', ')}
+- En az 1 MCQ ve 1 TRUE_FALSE soru üret
+
+**SORU TİPLERİ ve ÖRNEKLER:**
+
+Tip 1 — MCQ (Çoktan Seçmeli):
+{
+  "id": "q-001",
+  "textId": "generated-text-id",  
+  "type": "MCQ",
+  "instruction": "Metne göre güvercinin kanatları nasıldır?",
+  "difficulty": "KOLAY",
+  "targetSkill": "ANA_FIKIR",
+  "learningOutcomes": ["T.2.3.1"],
+  "feedback": { "correct": "Süper!", "incorrect": "Tekrar dene." },
+  "options": [
+    { "id": "o1", "text": "Altın renkli", "isCorrect": false },
+    { "id": "o2", "text": "Gümüş renkli", "isCorrect": true },
+    { "id": "o3", "text": "Siyah", "isCorrect": false }
+  ]
+}
+
+Tip 2 — TRUE_FALSE (Doğru/Yanlış): MUTLAKA "statement" ve "isTrue" alanı ekle:
+{
+  "id": "q-002",
+  "textId": "generated-text-id",
+  "type": "TRUE_FALSE",
+  "instruction": "Aşağıdaki cümle doğru mu?",
+  "difficulty": "KOLAY",
+  "targetSkill": "ANA_FIKIR",
+  "learningOutcomes": ["T.2.3.2"],
+  "feedback": { "correct": "Harika bildin!", "incorrect": "Metni tekrar oku." },
+  "statement": "Güvercin çocuğun penceresine konmuştur.",
+  "isTrue": true
+}
+
+Tip 3 — FILL_BLANK (Boşluk Doldurma): "template", "blanks", "wordBank" alanları gerekli:
+{
+  "id": "q-003",
+  "textId": "generated-text-id",
+  "type": "FILL_BLANK",
+  "instruction": "Boşluğu uygun kelimeyle doldur.",
+  "difficulty": "KOLAY",
+  "targetSkill": "SOZ_VARLIGI",
+  "learningOutcomes": ["T.2.4.1"],
+  "feedback": { "correct": "Doğru!", "incorrect": "Kelime havuzuna bak." },
+  "template": "Güvercinin kanatları {blank_1} gibi parlıyordu.",
+  "blanks": [{ "id": "blank_1", "correctValue": "gümüş", "acceptedValues": ["gümüş", "Gümüş"] }],
+  "wordBank": ["gümüş", "altın", "demir"]
+}
+
+Tip 4 — OPEN_ENDED (Açık Uçlu): "sampleAnswer" alanı gerekli:
+{
+  "id": "q-004",
+  "textId": "generated-text-id",
+  "type": "OPEN_ENDED",
+  "instruction": "Güvercinin çocuğu ziyaret etmesinin sebebi ne olabilir? Kendi cümlelerinle yaz.",
+  "difficulty": "ORTA",
+  "targetSkill": "SEBEP_SONUC",
+  "learningOutcomes": ["T.2.5.1"],
+  "feedback": { "correct": "Harika fikir!", "incorrect": "Neden-sonuç ilişkisini düşün." },
+  "sampleAnswer": "Güvercin çocuğun ilgisini çekmek ve onunla arkadaş olmak istemiştir.",
+  "minWords": 5
+}
 
 Sadece JSON array döndür, başka açıklama ekleme.
 `;
@@ -136,12 +160,10 @@ Sadece JSON array döndür, başka açıklama ekleme.
     console.log(`[MagicGenerator] Gemini'ye ${count} soru üretme isteği gönderiliyor...`);
     const result = await generateCreativeMultimodal({
       prompt,
-      schema: questionSchema,
-      temperature: 0.3,
-      thinkingBudget: 1000,
+      temperature: 0.35,
+      thinkingBudget: 1500,
     });
 
-    // Ensure result is an array
     const questions: Question[] = Array.isArray(result) ? result : result?.questions || [];
     if (questions.length === 0) throw new Error('Boş soru listesi döndü');
 
@@ -154,22 +176,30 @@ Sadece JSON array döndür, başka açıklama ekleme.
 };
 
 /**
- * Konu ve sınıf seviyesine göre tam bir TextPassage + sorular üretir.
+ * Konu ve sınıf seviyesine göre tam TextPassage + sorular üretir.
+ * In-memory cache: aynı topic+grade için cache'den döner (FAZ E).
  */
 export const generateFullStudioActivity = async (
   topic: string,
   gradeLevel: 1 | 2 | 3 | 4
 ): Promise<{ passage: TextPassage; questions: Question[] }> => {
+  // Cache kontrolü (FAZ E — E3)
+  const cacheKey = `${topic}-${gradeLevel}`;
+  if (activityCache.has(cacheKey)) {
+    console.log(`[MagicGenerator] Cache hit: ${cacheKey}`);
+    return activityCache.get(cacheKey)!;
+  }
+
   const prompt = `
 Sen, Türkçe ilkokul eğitim materyalleri üretme konusunda uzman bir yapay zekasın.
 "${topic}" konusunda ${gradeLevel}. sınıf disleksili öğrenciler için:
 1. Kısa, basit cümleli bir okuma metni (50-80 kelime, disleksi dostu)
-2. 3 adet anlama sorusu
+2. 3 adet anlama sorusu (1 MCQ, 1 TRUE_FALSE, 1 FILL_BLANK)
 
 JSON formatında şu yapıyı döndür:
 {
   "passage": {
-    "id": "text-[timestamp]",
+    "id": "text-001",
     "title": "Metin başlığı",
     "content": "Metin içeriği...",
     "metadata": {
@@ -182,24 +212,52 @@ JSON formatında şu yapıyı döndür:
     },
     "learningOutcomes": ["T.${gradeLevel}.2.1"]
   },
-  "questions": []
+  "questions": [
+    {
+      "id": "q-001", "textId": "text-001", "type": "MCQ",
+      "instruction": "...", "difficulty": "KOLAY", "targetSkill": "ANA_FIKIR",
+      "learningOutcomes": ["T.${gradeLevel}.3.1"],
+      "feedback": { "correct": "...", "incorrect": "..." },
+      "options": [
+        { "id": "o1", "text": "...", "isCorrect": true },
+        { "id": "o2", "text": "...", "isCorrect": false },
+        { "id": "o3", "text": "...", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q-002", "textId": "text-001", "type": "TRUE_FALSE",
+      "instruction": "Aşağıdaki cümle doğru mu?",
+      "difficulty": "KOLAY", "targetSkill": "ANA_FIKIR",
+      "learningOutcomes": ["T.${gradeLevel}.3.2"],
+      "feedback": { "correct": "...", "incorrect": "..." },
+      "statement": "...",
+      "isTrue": true
+    },
+    {
+      "id": "q-003", "textId": "text-001", "type": "FILL_BLANK",
+      "instruction": "Boşluğu doldur.", "difficulty": "KOLAY", "targetSkill": "SOZ_VARLIGI",
+      "learningOutcomes": ["T.${gradeLevel}.4.1"],
+      "feedback": { "correct": "...", "incorrect": "..." },
+      "template": "... {blank_1} ...",
+      "blanks": [{ "id": "blank_1", "correctValue": "...", "acceptedValues": ["..."] }],
+      "wordBank": ["...", "...", "..."]
+    }
+  ]
 }
 `;
 
   try {
-    const result = await generateCreativeMultimodal({ prompt, temperature: 0.5 });
+    const result = await generateCreativeMultimodal({ prompt, temperature: 0.4 });
     const passage = result?.passage;
     if (!passage?.title) throw new Error('Geçersiz passage yapısı');
 
-    // Sonradan sorular üret
-    const questions = await generateQuestionsFromText({
-      text: passage.content,
-      count: 3,
-      difficulty: 'KOLAY',
-      gradeLevel,
-    });
+    const questions: Question[] = Array.isArray(result?.questions)
+      ? result.questions
+      : await generateQuestionsFromText({ text: passage.content, count: 3, difficulty: 'KOLAY', gradeLevel });
 
-    return { passage, questions };
+    const activity = { passage, questions };
+    activityCache.set(cacheKey, activity);
+    return activity;
   } catch (error: any) {
     console.warn('[MagicGenerator] Gemini API hatası, fallback veriye düşülüyor:', error?.message);
     return {

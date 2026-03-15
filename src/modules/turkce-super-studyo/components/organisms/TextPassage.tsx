@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import { ReadingRuler } from '../atoms/ReadingRuler';
 import { TextPassage as TextPassageType } from '../../types/schemas';
@@ -13,58 +13,65 @@ interface TextPassageProps {
   enableRuler?: boolean;
 }
 
-interface WordDefinition {
-  word: string;
-  definition: string;
-  isLoading: boolean;
-}
+// FAZ C — C2: In-session kelime tanımı cache (Map)
+const definitionCache = new Map<string, string>();
+
+// FAZ C — C3: prefers-reduced-motion kontrolü
+const prefersReducedMotion =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export const TextPassage: React.FC<TextPassageProps> = ({ passage, enableRuler = false }) => {
   const [rulerActive, setRulerActive] = useState(enableRuler);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [selectedWord, setSelectedWord] = useState<WordDefinition | null>(null);
+  const [selectedWord, setSelectedWord] = useState<{ word: string; definition: string; isLoading: boolean } | null>(null);
 
-  // Gemini ile bağlamsal sözlük
+  // FAZ C — C2: debounce ref (500ms)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // FAZ E — E1: useMemo kelime listesi (her render'da split etme)
+  const words = useMemo(() => passage.content.split(' '), [passage.content]);
+
+  // FAZ C — C2: Debounce + cache ile Gemini bağlamsal sözlük
   const fetchWordDefinition = useCallback(
-    async (word: string) => {
-      const cleanWord = word.replace(/[.,!?"';:()]/g, '');
-      if (!cleanWord) return;
+    (word: string) => {
+      const cleanWord = word.replace(/[.,!?'"';:()]/g, '').trim();
+      if (!cleanWord || cleanWord.length < 2) return;
+
+      // Cache kontrolü
+      if (definitionCache.has(cleanWord)) {
+        setSelectedWord({ word: cleanWord, definition: definitionCache.get(cleanWord)!, isLoading: false });
+        return;
+      }
 
       setSelectedWord({ word: cleanWord, definition: '', isLoading: true });
 
-      try {
-        const prompt = `
-Bir öğretmen olarak, "${cleanWord}" kelimesinin aşağıdaki metindeki bağlamsal anlamını
-disleksili bir 2. sınıf öğrencisine açıkla.
+      // Mevcut debounce'u iptal et
+      if (debounceRef.current) clearTimeout(debounceRef.current);
 
-**METİN BAĞLAMI:**
-"${passage.content.substring(0, 300)}"
+      debounceRef.current = setTimeout(async () => {
+        try {
+          const prompt = `Bir öğretmen olarak, "${cleanWord}" kelimesinin aşağıdaki metindeki bağlamsal anlamını disleksili bir 2. sınıf öğrencisine açıkla.\n\nMETİN BAĞLAMI: "${passage.content.substring(0, 300)}"\n\nSadece 1-2 kısa, anlaşılır cümle döndür.`;
+          const result = await generateCreativeMultimodal({ prompt, temperature: 0.5 });
+          const definition =
+            typeof result === 'string'
+              ? result
+              : result?.definition || result?.text || result?.content || String(result);
+          const cleaned = String(definition).replace(/^["']|["']$/g, '').trim();
 
-Sadece 1-2 kısa, anlaşılır cümle döndür. Teknik terim kullanma.
-`;
-        const result = await generateCreativeMultimodal({ prompt, temperature: 0.5 });
-        const definition =
-          typeof result === 'string'
-            ? result
-            : result?.definition || result?.text || result?.content || String(result);
-
-        setSelectedWord({
-          word: cleanWord,
-          definition: String(definition).replace(/^["']|["']$/g, '').trim(),
-          isLoading: false,
-        });
-      } catch {
-        setSelectedWord({
-          word: cleanWord,
-          definition: `"${cleanWord}" kelimesi bu metinde bağlamsal bir anlam taşımaktadır.`,
-          isLoading: false,
-        });
-      }
+          // Cache'e ekle
+          definitionCache.set(cleanWord, cleaned);
+          setSelectedWord({ word: cleanWord, definition: cleaned, isLoading: false });
+        } catch {
+          const fallback = `"${cleanWord}" kelimesi bu metinde önemli bir anlam taşımaktadır.`;
+          definitionCache.set(cleanWord, fallback);
+          setSelectedWord({ word: cleanWord, definition: fallback, isLoading: false });
+        }
+      }, 500); // 500ms debounce
     },
     [passage.content]
   );
 
-  // TTS: Metni sesli oku
   const handleSpeak = () => {
     if (isSpeaking) {
       ttsService.stopNative();
@@ -79,13 +86,14 @@ Sadece 1-2 kısa, anlaşılır cümle döndür. Teknik terim kullanma.
     );
   };
 
-  const renderClickableWords = (text: string) => {
-    const words = text.split(' ');
+  // FAZ E — E1: words useMemo'dan geliyor, yeniden split edilmiyor
+  const renderClickableWords = () => {
     return words.map((word, idx) => (
       <Popover.Root key={idx} onOpenChange={(open) => open && fetchWordDefinition(word)}>
         <Popover.Trigger asChild>
           <motion.button
-            whileHover={{ backgroundColor: '#fef08a', scale: 1.02 }}
+            // FAZ C — C3: reduced-motion desteği
+            whileHover={prefersReducedMotion ? {} : { backgroundColor: '#fef08a', scale: 1.02 }}
             className="inline rounded px-0.5 transition-colors outline-none cursor-pointer mr-[0.2em] mb-1"
             aria-label={`${word} kelimesinin anlamını gör`}
           >
@@ -99,17 +107,16 @@ Sadece 1-2 kısa, anlaşılır cümle döndür. Teknik terim kullanma.
             align="center"
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col gap-3"
             >
               <div className="flex items-center gap-2 text-indigo-700 font-bold border-b-2 border-indigo-50 pb-2">
                 <BookA size={22} />
                 <span className="text-xl">{selectedWord?.word}</span>
-                {selectedWord?.isLoading && (
+                {selectedWord?.isLoading ? (
                   <Loader2 size={16} className="animate-spin text-indigo-400 ml-auto" />
-                )}
-                {!selectedWord?.isLoading && (
+                ) : (
                   <Sparkles size={14} className="text-indigo-400 ml-auto" />
                 )}
               </div>
@@ -136,39 +143,32 @@ Sadece 1-2 kısa, anlaşılır cümle döndür. Teknik terim kullanma.
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
           {passage.title}
         </h2>
-
         <div className="flex items-center gap-3 shrink-0 ml-4">
-          {/* Reading Ruler Toggle */}
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setRulerActive(!rulerActive)}
-            className={`p-4 rounded-2xl transition-all flex items-center justify-center shadow-sm border-2 ${rulerActive ? 'bg-indigo-100 border-indigo-300 text-indigo-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'}`}
+            className={`p-4 rounded-2xl transition-all flex items-center justify-center shadow-sm border-2 ${rulerActive ? 'bg-indigo-100 border-indigo-300 text-indigo-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+              }`}
             title="Okuma Çubuğunu Aç/Kapat"
             aria-pressed={rulerActive}
           >
             <Eye size={24} />
           </motion.button>
-
-          {/* TTS Button — always visible, uses native browser TTS */}
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleSpeak}
-            className={`p-4 rounded-2xl border-2 transition-all shadow-sm flex items-center justify-center gap-2 ${isSpeaking ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300'}`}
+            className={`p-4 rounded-2xl border-2 transition-all shadow-sm flex items-center justify-center gap-2 ${isSpeaking
+                ? 'bg-blue-100 border-blue-300 text-blue-700'
+                : 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100'
+              }`}
             title={isSpeaking ? 'Durdur' : 'Sesli Oku'}
-            aria-label={isSpeaking ? 'Sesli okumayı durdur' : 'Metni sesli oku'}
           >
             {isSpeaking ? (
-              <>
-                <VolumeX size={22} />
-                <span className="text-sm font-bold hidden sm:inline">Durdur</span>
-              </>
+              <><VolumeX size={22} /><span className="text-sm font-bold hidden sm:inline">Durdur</span></>
             ) : (
-              <>
-                <Volume2 size={22} />
-                <span className="text-sm font-bold hidden sm:inline">Sesli Oku</span>
-              </>
+              <><Volume2 size={22} /><span className="text-sm font-bold hidden sm:inline">Sesli Oku</span></>
             )}
           </motion.button>
         </div>
@@ -178,10 +178,9 @@ Sadece 1-2 kısa, anlaşılır cümle döndür. Teknik terim kullanma.
         className="text-xl md:text-2xl text-gray-800 font-medium relative z-10 leading-relaxed"
         style={{ fontFamily: 'var(--dyslexia-font-family)', lineHeight: 'var(--dyslexia-line-height, 1.8)' }}
       >
-        {renderClickableWords(passage.content)}
+        {renderClickableWords()}
       </div>
 
-      {/* Helper tip */}
       <p className="mt-6 text-sm font-medium text-gray-400 relative z-10 flex items-center gap-1.5">
         <BookA size={14} />
         Herhangi bir kelimeye tıklayarak anlamını öğrenebilirsin.

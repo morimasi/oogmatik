@@ -56,14 +56,29 @@ Sadeleştirilmiş metni döndür, başka açıklama ekleme.
 };
 
 /**
- * Türkçe okunabilirlik skoru hesaplama (Flesch-Kincaid uyarlaması).
- * Daha kısa cümle = daha yüksek skor (daha kolay).
+ * Türkçe Okunabilirlik Skoru — Ateşman-Çetinkaya Formülü (FAZ B)
+ * R = 198.825 - (40.175 × hece/kelime) - (2.610 × cümle/100kelime)
+ * Sınıf kılavuzu: R>90→1.sınıf, 70-90→2, 50-70→3, <50→4.+
  */
+const countTurkishSyllables = (word: string): number => {
+  // Türkçe sesli harfler
+  const vowels = word.match(/[aeıioöuü]/gi) || [];
+  return Math.max(1, vowels.length);
+};
+
 export const calculateReadabilityScore = (text: string): number => {
   if (!text?.trim()) return 0;
-  const words = text.trim().split(/\s+/).length;
-  const sentences = (text.match(/[.!?]+/g) || []).length || 1;
-  const avgSentenceLength = words / sentences;
-  // Türkçe uyarlaması: kısa cümle aralığı = yüksek puan
-  return Math.max(0, Math.min(100, Math.round(100 - avgSentenceLength * 4.5)));
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  const wordCount = words.length;
+  if (wordCount === 0) return 0;
+
+  const sentenceCount = Math.max(1, (text.match(/[.!?]+/g) || []).length);
+  const totalSyllables = words.reduce((sum, w) => sum + countTurkishSyllables(w.replace(/[^a-zA-ZığüşöçĞÜŞÖÇ]/g, '')), 0);
+
+  const avgSyllablesPerWord = totalSyllables / wordCount;
+  const sentencesPer100Words = (sentenceCount / wordCount) * 100;
+
+  const score = 198.825 - (40.175 * avgSyllablesPerWord) - (2.610 * sentencesPer100Words);
+  return Math.max(0, Math.min(100, Math.round(score)));
 };
+
