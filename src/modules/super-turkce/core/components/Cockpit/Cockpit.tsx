@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSuperTurkceStore } from '../../store';
 import { MEB_CURRICULUM, GradeLevel } from '../../types';
+import { generateDynamicMockData } from '../../../features/grid-pdf/mockDataGenerator';
 
 // O kategoriye ait 10+ Soru Tipi Jeneratörü Listesi (Veritabanı)
 const FORMAT_REGISTRY: Record<string, { id: string, icon: string, label: string, settings: string[] }[]> = {
@@ -110,14 +111,18 @@ const Cockpit: React.FC = () => {
 
         alert(`🎉 HARİKA! Seçili formatlar eklendi: Toplam ${draftItems.length} taslak bileşeni oluşturuldu.\nMatbaa kalitesinde karma PDF (Okul Koridoru formatı) oluşturuluyor...`);
 
-        // Faz 5: E2E Canlı Veri Simülasyonu
-        // 1.5 saniye sonra AI / Hızlı Motor verisi geliyormuş gibi yap
+        // Faz 7: Dinamik & Müfredata Bağlı Mock (AI / Hızlı Motor)
+        // 1.5 saniye sonra AI / Hızlı Motor verisi geliyormuş gibi yap, ama bu sefer DİNAMİK JSON olacak.
         setTimeout(() => {
             draftItems.forEach((draft: any) => {
-                const mockOutput = engineMode === 'ai'
-                    ? `[✨ AI YAPAY ZEKA] ${draft.type.replace(/_/g, ' ')} formatı için yapay zeka tarafından ${difficulty} seviyesine uygun benzersiz etkinlik türetildi.`
-                    : `[⚡ HIZLI MOTOR] ${draft.type.replace(/_/g, ' ')} formatı için Oogmatik havuzundan anında eşleşen hazır içerik çekildi.`;
-                useSuperTurkceStore.getState().updateDraftData(draft.id, mockOutput);
+                const dynamicData = generateDynamicMockData(
+                    draft.type,
+                    selectedGrade,
+                    selectedObjective,
+                    engineMode,
+                    difficulty
+                );
+                useSuperTurkceStore.getState().updateDraftData(draft.id, dynamicData);
             });
         }, 1500);
     };
