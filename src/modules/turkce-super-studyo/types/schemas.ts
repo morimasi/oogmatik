@@ -96,53 +96,18 @@ export const fillBlankQuestionSchema = baseQuestionSchema.extend({
   wordBank: z.array(z.string()).optional(),
 });
 
-// True/False Soru Şeması
-export const trueFalseQuestionSchema = baseQuestionSchema.extend({
-  type: z.literal('TRUE_FALSE'),
-  statement: z.string(),
-  isTrue: z.boolean(),
-});
-
-// Açık Uçlu Soru Şeması
-export const openEndedQuestionSchema = baseQuestionSchema.extend({
-  type: z.literal('OPEN_ENDED'),
-  sampleAnswer: z.string(),
-  minWords: z.number().int().nonnegative().optional(),
-});
-
-// Yazım Düzeltme Soru Şeması
-export const spellingCorrectQuestionSchema = baseQuestionSchema.extend({
-  type: z.literal('SPELLING_CORRECT'),
-  textParts: z.array(z.string()),
-  errors: z.array(
-    z.object({
-      id: z.string(),
-      originalText: z.string(),
-      correctText: z.string(),
-      isPunctuationError: z.boolean(),
-      type: z.enum(['spelling', 'punctuation']),
-      indexInText: z.number().int(),
-    })
-  ),
-});
-
 // Tüm Soru Tipleri İçin Union Şema
 export const questionSchema = z.discriminatedUnion('type', [
   mcqQuestionSchema,
   dragDropQuestionSchema,
   fillBlankQuestionSchema,
-  trueFalseQuestionSchema,
-  openEndedQuestionSchema,
-  spellingCorrectQuestionSchema,
+  // İleride diğer soru tipleri de eklenebilir. Şimdilik bu üçü yeterli (MVP için)
 ]);
 
 export type BaseQuestion = z.infer<typeof baseQuestionSchema>;
 export type MCQQuestion = z.infer<typeof mcqQuestionSchema>;
 export type DragDropQuestion = z.infer<typeof dragDropQuestionSchema>;
 export type FillBlankQuestion = z.infer<typeof fillBlankQuestionSchema>;
-export type TrueFalseQuestion = z.infer<typeof trueFalseQuestionSchema>;
-export type OpenEndedQuestion = z.infer<typeof openEndedQuestionSchema>;
-export type SpellingCorrectQuestion = z.infer<typeof spellingCorrectQuestionSchema>;
 export type Question = z.infer<typeof questionSchema>;
 
 // ==========================================

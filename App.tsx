@@ -70,7 +70,7 @@ const MathStudio = lazy(() =>
   import('./components/MathStudio/MathStudio').then((module) => ({ default: module.MathStudio }))
 );
 const TurkceSuperStudyo = lazy(() =>
-  import('./src/app/studios/turkce-super-studyo/index').then((module) => ({ default: module.default }))
+  import('./src/app/(studios)/turkce-super-studyo').then((module) => ({ default: module.default }))
 );
 const StudentDashboard = lazy(() =>
   import('./components/Student/StudentDashboard').then((module) => ({
