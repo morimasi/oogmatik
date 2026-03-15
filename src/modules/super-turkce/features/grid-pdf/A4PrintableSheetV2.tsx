@@ -148,110 +148,328 @@ const styles = StyleSheet.create({
     }
 });
 
-// Dinamik PDF Component Haritalayıcı (Element Mapper)
-// Sadece yazıları JSON olarak basmak yerine, draft type'ına göre şık bir görsel bileşen çizer
-const renderComponentByType = (type: string, draft: any) => {
-    const data = draft.data;
+// =========================================================
+// Dinamik PDF Element Haritalayıcı — NULL-SAFE, Faz 8 Uyumlu
+// @react-pdf/renderer içinde null döndürmek TypeError'a yol açar.
+// Tüm alanlar güvenli fallback ile korunuyor.
+// =========================================================
+const safeText = (val: any, fallback = '') =>
+    typeof val === 'string' ? val : (val != null ? String(val) : fallback);
 
-    // Eğer veri henüz yoksa mock çizgileri göster
-    if (!data) {
-        return (
-            <View style={{ gap: 4, marginTop: 5 }}>
-                <View style={[styles.mockLine]} />
-                <View style={[styles.mockLine]} />
-                <View style={[styles.mockLine, styles.mockLineShort]} />
+const safeArray = (val: any): any[] => Array.isArray(val) ? val : [];
+
+const renderComponentByType = (type: string, draft: any) => {
+    const data = draft.data ?? {};  // null/undefined'ı boş objeyle kapat
+
+    // --- Boş Veri Çizgileri (İçerik henüz üretilmedi) ---
+    const emptyLines = (
+        <View style={{ gap: 4, marginTop: 5 }}>
+            <View style={[styles.mockLine]} />
+            <View style={[styles.mockLine]} />
+            <View style={[styles.mockLine, styles.mockLineShort]} />
+            <Text style={{ fontSize: 7, color: '#94a3b8', marginTop: 4 }}>Üretim bekleniyor...</Text>
+        </View>
+    );
+
+    // --- Generic soru listesi render ---
+    const renderQuestionList = (questions: any[]) => (
+        <View style={{ gap: 6, marginTop: 4 }}>
+            {questions.map((q: any, i: number) => {
+                const soruText = typeof q === 'string' ? q : safeText(q?.soru || q?.question, `Soru ${i + 1}`);
+                const opts: string[] = safeArray(q?.options || q?.seçenekler);
+                return (
+                    <View key={i} style={{ gap: 3 }}>
+                        <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#0f172a' }}>{i + 1}. {soruText}</Text>
+                        {opts.length > 0 && (
+                            <View style={{ paddingLeft: 12, gap: 2 }}>
+                                {opts.map((opt: string, j: number) => (
+                                    <Text key={j} style={{ fontSize: 8, color: '#475569' }}>{opt}</Text>
+                                ))}
+                            </View>
+                        )}
+                    </View>
+                );
+            })}
+        </View>
+    );
+
+    // --- Sol/Sağ Eşleştirme render ---
+    const renderMatching = (left: any[], right: any[]) => (
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8, gap: 20 }}>
+            <View style={{ gap: 8, flex: 1 }}>
+                {left.map((l: any, i: number) => (
+                    <View key={`l-${i}`} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text style={{ fontSize: 9, color: '#334155' }}>{safeText(l, `Sol ${i + 1}`)}</Text>
+                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#cbd5e1' }} />
+                    </View>
+                ))}
             </View>
-        );
-    }
+            <View style={{ gap: 8, flex: 1 }}>
+                {right.map((r: any, i: number) => (
+                    <View key={`r-${i}`} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#cbd5e1' }} />
+                        <Text style={{ fontSize: 9, color: '#334155' }}>{safeText(r, `Sağ ${i + 1}`)}</Text>
+                    </View>
+                ))}
+            </View>
+        </View>
+    );
+
+    // --- Cümle listesi render ---
+    const renderSentenceList = (sentences: any[]) => (
+        <View style={{ gap: 5, marginTop: 4 }}>
+            {sentences.map((s: any, i: number) => (
+                <Text key={i} style={{ fontSize: 9, color: '#334155', lineHeight: 1.5 }}>
+                    {i + 1}. {safeText(typeof s === 'string' ? s : s?.cumle || s?.bozuk || s?.kelime || '', `Cümle ${i + 1}`)}
+                </Text>
+            ))}
+        </View>
+    );
 
     switch (type) {
+        // ---- OKUMA ANLAMA ----
         case '5N1K_NEWS':
-        case '5N1K':
+        case '5N1K': {
+            const title = safeText(data.title, 'Haber Başlığı');
+            const content = safeText(data.content, 'Haber içeriği yükleniyor...');
+            const questions = safeArray(data.questions);
             return (
                 <View style={{ flexDirection: 'row', gap: 10, marginTop: 5 }}>
                     <View style={{ width: 80, height: 60, backgroundColor: '#cbd5e1', borderRadius: 4 }} />
                     <View style={{ flex: 1, gap: 4 }}>
-                        <Text style={{ fontFamily: 'Lexend', fontSize: 11, fontWeight: 'bold' }}>{data.title || "Haber Başlığı"}</Text>
-                        <Text style={{ fontSize: 9, color: '#475569', lineHeight: 1.4 }}>
-                            {data.content || "Haber içeriği yükleniyor..."}
-                        </Text>
-                        <View style={{ flexDirection: 'row', gap: 10, marginTop: 5 }}>
-                            {(data.questions || ['Kim?', 'Nerede?', 'Ne zaman?']).map((q: string, i: number) => (
-                                <Text key={i} style={{ fontSize: 8, color: '#0284c7', fontWeight: 'bold' }}>{q}</Text>
+                        <Text style={{ fontFamily: 'Lexend', fontSize: 11, fontWeight: 'bold' }}>{title}</Text>
+                        <Text style={{ fontSize: 9, color: '#475569', lineHeight: 1.4 }}>{content}</Text>
+                        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+                            {(questions.length > 0 ? questions : ['Kim?', 'Ne?', 'Nerede?']).map((q: any, i: number) => (
+                                <Text key={i} style={{ fontSize: 8, color: '#0284c7', fontWeight: 'bold' }}>{safeText(q, `S${i + 1}`)}</Text>
                             ))}
                         </View>
                     </View>
                 </View>
             );
+        }
+
+        case 'ANA_DUSUNCE': {
+            const paragraf = safeText(data.paragraf || data.content, 'Paragraf yükleniyor...');
+            const question = safeText(data.question || data.soru, 'Ana düşünce sorusu');
+            const options = safeArray(data.options);
+            return (
+                <View style={{ gap: 6, marginTop: 4 }}>
+                    <Text style={{ fontSize: 9, color: '#334155', lineHeight: 1.4, backgroundColor: '#f8fafc', padding: 6 }}>{paragraf}</Text>
+                    <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#0f172a' }}>{question}</Text>
+                    {options.length > 0 && (
+                        <View style={{ gap: 3, paddingLeft: 10 }}>
+                            {options.map((o: string, i: number) => <Text key={i} style={{ fontSize: 8, color: '#475569' }}>{o}</Text>)}
+                        </View>
+                    )}
+                </View>
+            );
+        }
+
+        case 'OLAY_SIRALAMA': {
+            const shuffled = safeArray(data.shuffled);
+            return (
+                <View style={{ gap: 5, marginTop: 4 }}>
+                    <Text style={{ fontSize: 8, color: '#64748b', marginBottom: 2 }}>Aşağıdaki cümleleri doğru sıraya koyunuz:</Text>
+                    {(shuffled.length > 0 ? shuffled : ['Cümle 1', 'Cümle 2', 'Cümle 3']).map((s: any, i: number) => (
+                        <View key={i} style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+                            <View style={{ width: 16, height: 12, borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 2 }} />
+                            <Text style={{ fontSize: 9, color: '#334155', flex: 1 }}>{safeText(s, `Cümle ${i + 1}`)}</Text>
+                        </View>
+                    ))}
+                </View>
+            );
+        }
+
+        // ---- EŞLEŞTIRME GRUBu ----
         case 'SUPER_TURKCE_MATCHING':
         case 'SEBEP_SONUC_ESLESTIR':
         case 'KAVRAM_ESLESTIRME':
+        case 'DEYIM_ANLAM':
+        case 'ATASOZI_ESLESTIR':
+        case 'ES_ANLAMLI_ZITLIK':
         case 'ESLESTIRME':
+        case 'DOLDUR_DEYIM':
+        case 'KELIME_ANLAM': {
+            const left = safeArray(data.left || data.deyimler?.map((d: any) => d.deyim) || data.kelimeler?.map((k: any) => k.kelime) || []);
+            const right = safeArray(data.right || data.deyimler?.map((d: any) => d.anlam) || data.kelimeler?.map((k: any) => k.esAnlamli) || []);
+            const words = safeArray(data.words);
             return (
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, marginTop: 10, gap: 40 }}>
-                    <View style={{ gap: 10, flex: 1 }}>
-                        {(data.left || []).map((l: string, i: number) => (
-                            <View key={`l-${i}`} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Text style={{ fontSize: 9, color: '#334155' }}>{l}</Text>
-                                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#cbd5e1' }} />
-                            </View>
-                        ))}
-                    </View>
-                    <View style={{ gap: 10, flex: 1 }}>
-                        {(data.right || []).map((r: string, i: number) => (
-                            <View key={`r-${i}`} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#cbd5e1' }} />
-                                <Text style={{ fontSize: 9, color: '#334155' }}>{r}</Text>
-                            </View>
-                        ))}
-                    </View>
+                <View style={{ gap: 6, marginTop: 4 }}>
+                    {words.length > 0 && (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, padding: 5, backgroundColor: '#f1f5f9', borderRadius: 3, marginBottom: 4 }}>
+                            {words.map((w: string, i: number) => (
+                                <Text key={i} style={{ fontSize: 8, fontWeight: 'bold', color: '#0284c7' }}>[{safeText(w)}]</Text>
+                            ))}
+                        </View>
+                    )}
+                    {(left.length > 0 || right.length > 0) ? renderMatching(left, right) : emptyLines}
                 </View>
             );
+        }
+
+        // ---- ÇOKTAN SEÇMELİ SORULAR ----
         case 'MULTIPLE_CHOICE':
         case 'DIL_BILGISI_TEST':
         case 'PARAGRAF_MANTIK_TEST':
         case 'STANDART_TEST':
         case 'YENI_NESIL':
+        case 'SES_ETKIN_QUIZ':
+        case 'UNLU_UYUMU':
+        case 'BASLIK_BULMA':
+        case 'BILMECELI_DUSUNME': {
+            // Hem tekil soru hem sorular[] dizisi destekleniyor
+            if (data.sorular || data.questions) {
+                const sorular = safeArray(data.sorular || data.questions);
+                return sorular.length > 0 ? renderQuestionList(sorular) : emptyLines;
+            }
+            const question = safeText(data.question || data.soru, 'Soru metni yükleniyor...');
+            const options = safeArray(data.options || data.seçenekler);
             return (
-                <View style={{ marginTop: 5, gap: 8 }}>
-                    <Text style={{ fontSize: 10, color: '#0f172a', fontWeight: 'bold' }}>{data.question || "Soru metni yükleniyor..."}</Text>
-                    <View style={{ gap: 4, paddingLeft: 10 }}>
-                        {(data.options || []).map((opt: string, i: number) => (
-                            <Text key={i} style={{ fontSize: 9, color: '#475569' }}>{opt}</Text>
+                <View style={{ gap: 6, marginTop: 4 }}>
+                    <Text style={{ fontSize: 10, color: '#0f172a', fontWeight: 'bold' }}>{question}</Text>
+                    <View style={{ gap: 3, paddingLeft: 10 }}>
+                        {(options.length > 0 ? options : ['A) ...', 'B) ...', 'C) ...', 'D) ...']).map((opt: string, i: number) => (
+                            <Text key={i} style={{ fontSize: 9, color: '#475569' }}>{safeText(opt)}</Text>
                         ))}
                     </View>
                 </View>
             );
+        }
+
+        // ---- BOŞLUK DOLDURMA ----
         case 'FILL_IN_THE_BLANKS':
         case 'BOSLUK_CEKIM_EKI':
         case 'BOSLUK_DOLDURMA':
+        case 'SOZCUK_SIRALA':
+        case 'KELIME_TAHMINI':
+        case 'ULASMA': {
+            const words = safeArray(data.words || data.kelimeler?.map((k: any) => safeText(k?.kelime || k, '')) || []);
+            const sentences = safeArray(data.sentences || data.cumleler || []);
             return (
-                <View style={{ marginTop: 5, gap: 8 }}>
-                    <View style={{ flexDirection: 'row', gap: 5, flexWrap: 'wrap', backgroundColor: '#f1f5f9', padding: 6, borderRadius: 4 }}>
-                        {(data.words || []).map((w: string, i: number) => (
-                            <Text key={i} style={{ fontSize: 8, fontWeight: 'bold', color: '#0284c7' }}>[{w}]</Text>
-                        ))}
-                    </View>
-                    <View style={{ gap: 6 }}>
-                        {(data.sentences || []).map((s: string, i: number) => (
-                            <Text key={i} style={{ fontSize: 9, color: '#334155', lineHeight: 1.5 }}>{i + 1}. {s}</Text>
+                <View style={{ gap: 6, marginTop: 4 }}>
+                    {words.length > 0 && (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, padding: 5, backgroundColor: '#f1f5f9', borderRadius: 3 }}>
+                            {words.map((w: any, i: number) => (
+                                <Text key={i} style={{ fontSize: 8, fontWeight: 'bold', color: '#0284c7' }}>[{safeText(w)}]</Text>
+                            ))}
+                        </View>
+                    )}
+                    {sentences.length > 0 ? renderSentenceList(sentences) : emptyLines}
+                </View>
+            );
+        }
+
+        // ---- METİN PARÇASI (okuma paragrafı) ----
+        case 'CIKARIM_YAPMA':
+        case 'METIN_KARSILASTIRMA':
+        case 'SIIR_INCELEME':
+        case 'GORSEL_OKUMA':
+        case 'HIKAYE_TAMAMLAMA':
+        case 'DIKTE_CALISMA':
+        case 'METIN_DUZELT':
+        case 'YAZIM_HATASI_BUL': {
+            const metin = safeText(data.metin || data.text || data.content || data.siir, '');
+            const sorular = safeArray(data.sorular || data.questions || []);
+            return (
+                <View style={{ gap: 6, marginTop: 4 }}>
+                    {metin ? (
+                        <Text style={{ fontSize: 9, color: '#334155', lineHeight: 1.5, backgroundColor: '#f8fafc', padding: 8, borderRadius: 4 }}>{metin}</Text>
+                    ) : (
+                        <View style={{ height: 50, backgroundColor: '#f1f5f9', borderRadius: 4, justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={{ fontSize: 8, color: '#94a3b8' }}>Metin alanı</Text>
+                        </View>
+                    )}
+                    {sorular.length > 0 && renderQuestionList(sorular)}
+                </View>
+            );
+        }
+
+        // ---- DOĞRU/YANLIŞ ----
+        case 'TRUE_FALSE_DIL':
+        case 'MANTIKSIZLIGI_BUL': {
+            const maddeler = safeArray(data.maddeler || data.cumleler || []);
+            return (
+                <View style={{ gap: 5, marginTop: 4 }}>
+                    {(maddeler.length > 0 ? maddeler : ['İfade 1', 'İfade 2', 'İfade 3']).map((m: any, i: number) => (
+                        <View key={i} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                            <View style={{ flexDirection: 'row', gap: 4 }}>
+                                <View style={{ width: 14, height: 10, borderWidth: 1, borderColor: '#60a5fa', borderRadius: 2, justifyContent: 'center', alignItems: 'center' }}>
+                                    <Text style={{ fontSize: 6, color: '#3b82f6' }}>D</Text>
+                                </View>
+                                <View style={{ width: 14, height: 10, borderWidth: 1, borderColor: '#f87171', borderRadius: 2, justifyContent: 'center', alignItems: 'center' }}>
+                                    <Text style={{ fontSize: 6, color: '#ef4444' }}>Y</Text>
+                                </View>
+                            </View>
+                            <Text style={{ fontSize: 9, color: '#334155', flex: 1 }}>
+                                {safeText(typeof m === 'string' ? m : m?.ifade || m?.cumle || m?.bozuk, `İfade ${i + 1}`)}
+                            </Text>
+                        </View>
+                    ))}
+                </View>
+            );
+        }
+
+        // ---- HECE / SES OLAYLARI ----
+        case 'HECE_YAPI':
+        case 'HECE_BOLME':
+        case 'BUYUK_KUCUK_HARF':
+        case 'KELIME_ANALIZI':
+        case 'RADYOAKTIF_HARF': {
+            const kelimeler = safeArray(data.kelimeler || []);
+            return (
+                <View style={{ gap: 5, marginTop: 4 }}>
+                    {(kelimeler.length > 0 ? kelimeler : ['kelime1', 'kelime2', 'kelime3']).map((k: any, i: number) => (
+                        <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                            <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#334155', width: 80 }}>
+                                {safeText(k?.kelime || k, `Kelime ${i + 1}`)}
+                            </Text>
+                            <View style={{ flex: 1, height: 1, backgroundColor: '#e2e8f0' }} />
+                            <View style={{ width: 40, height: 12, borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 2 }} />
+                        </View>
+                    ))}
+                </View>
+            );
+        }
+
+        // ---- AÇIK UÇLU / ÇİZİM ALANI ----
+        case 'OKUDUGUNU_CIZ':
+        case 'YARATICI_CUMLE':
+        case 'ACIK_UCLU': {
+            const yonerge = safeText(data.yonerge || data.text, 'Cevabınızı aşağıya yazınız:');
+            const satirSayisi = Number(data.satirSayisi || data.cizgiSayisi || 4);
+            return (
+                <View style={{ gap: 6, marginTop: 4 }}>
+                    <Text style={{ fontSize: 9, color: '#334155' }}>{yonerge}</Text>
+                    <View style={{ gap: 8, marginTop: 4 }}>
+                        {Array.from({ length: Math.max(2, Math.min(satirSayisi, 8)) }).map((_, i) => (
+                            <View key={i} style={{ height: 1, backgroundColor: '#d1d5db', width: '100%' }} />
                         ))}
                     </View>
                 </View>
             );
-        default:
+        }
+
+        // ---- DEFAULT (Bilinmeyen Format) ----
+        default: {
+            const text = safeText(data.text || data.content || data.metin, '');
+            const sorular = safeArray(data.sorular || data.questions || data.bilmeceler || []);
             return (
                 <View style={{ gap: 4, marginTop: 5 }}>
-                    <Text style={{ fontSize: 9, color: '#334155' }}>
-                        {data.text || `${type} için veri üretildi.`}
-                    </Text>
+                    {text ? (
+                        <Text style={{ fontSize: 9, color: '#334155', lineHeight: 1.5 }}>{text}</Text>
+                    ) : null}
+                    {sorular.length > 0 ? renderQuestionList(sorular) : (text ? null : emptyLines)}
                     <Text style={{ fontSize: 7, color: '#94a3b8', marginTop: 4 }}>
-                        ({draft.type} bileşeni {draft.settings?.engineMode === 'ai' ? 'AI' : 'Fast'} modunda üretildi.)
+                        ({safeText(draft.type, '?')} — {draft.settings?.engineMode === 'ai' ? 'AI ✨' : 'Hızlı ⚡'})
                     </Text>
                 </View>
             );
+        }
     }
-}
+};
+
+
 
 // A4 Matbaa Dizgi Motoru (PDF Rendering)
 export const A4PrintableSheetV2: React.FC = () => {
