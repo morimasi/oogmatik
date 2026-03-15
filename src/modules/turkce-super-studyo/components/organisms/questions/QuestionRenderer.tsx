@@ -45,12 +45,15 @@ export function QuestionRenderer({ question, onAnswer }: QuestionRendererProps) 
             );
 
         case 'OPEN_ENDED':
+            // OpenEndedQuestion.onAnswer signature: (answer: string) => void
+            // Açık uçlu sorularda gönderim "doğru" kabul edilir (pedagojik)
             return (
                 <OpenEndedQuestion
                     question={question as any}
-                    onAnswer={(isCorrect: boolean) => onAnswer(isCorrect)}
+                    onAnswer={(answer: string) => onAnswer(answer.trim().length > 0)}
                 />
             );
+
 
         case 'FILL_BLANK':
             // FillBlankQuestion: onAnswer(isCorrect: boolean, answers: Record<string,string>)
