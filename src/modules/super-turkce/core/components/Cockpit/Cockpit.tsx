@@ -89,11 +89,13 @@ const Cockpit: React.FC = () => {
                     selectedGrade,
                     selectedObjective,
                     engineMode,
-                    difficulty
+                    difficulty,
+                    draft.settings   // ← Formata özel ince ayarlar (soruSayisi, haberTuru vb.)
                 );
                 useSuperTurkceStore.getState().updateDraftData(draft.id, dynamicData);
             });
         }, 1500);
+
     };
 
     return (
