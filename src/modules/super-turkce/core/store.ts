@@ -6,7 +6,8 @@ import {
     DifficultyLevel,
     TargetAudience,
     ActivityType,
-    EngineMode
+    EngineMode,
+    DraftComponent
 } from './types';
 
 export interface SuperTurkceState {
@@ -30,6 +31,9 @@ export interface SuperTurkceState {
 
     // Çıktı Formatları (FSD Alt Modülleri)
     selectedActivityTypes: ActivityType[];
+
+    // Taslak (Draft) Bileşenleri (Faz 3)
+    draftComponents: DraftComponent[];
 
     // Premium Ayarlar: Branding, Tema vb.
     themeColor: 'eco-black' | 'vibrant' | 'minimalist';
@@ -60,6 +64,10 @@ export interface SuperTurkceState {
     setInstitutionName: (name: string) => void;
     setIncludeIllustration: (include: boolean) => void;
 
+    // Taslak İşlemleri (Faz 3)
+    setDraftComponents: (components: DraftComponent[]) => void;
+    updateDraftData: (id: string, data: any) => void;
+
     // Modülü Sıfırlama
     resetStore: () => void;
 }
@@ -80,6 +88,7 @@ export const useSuperTurkceStore = create<SuperTurkceState>()(
             avoidLetters: [],
 
             selectedActivityTypes: [], // Başlangıçta boş
+            draftComponents: [], // Başlangıçta taslak yok
 
             themeColor: 'eco-black',
             includeWatermark: true,
@@ -119,6 +128,11 @@ export const useSuperTurkceStore = create<SuperTurkceState>()(
             setThemeColor: (theme: 'eco-black' | 'vibrant' | 'minimalist') => set({ themeColor: theme }),
             setIncludeWatermark: (include: boolean) => set({ includeWatermark: include }),
             setIncludeIllustration: (include: boolean) => set({ includeIllustration: include }),
+
+            setDraftComponents: (components: DraftComponent[]) => set({ draftComponents: components }),
+            updateDraftData: (id: string, data: any) => set((state: SuperTurkceState) => ({
+                draftComponents: state.draftComponents.map(comp => comp.id === id ? { ...comp, data } : comp)
+            })),
 
             resetStore: () => set({
                 activeCategory: null,

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PDFViewer } from '@react-pdf/renderer';
 import Cockpit from './Cockpit/Cockpit';
 import { CategoryDashboard } from './CategoryDashboard/CategoryDashboard';
-import { MatchingLinesPdf } from '../../features/matching-lines/MatchingLinesPdf';
+import { A4PrintableSheetV2 } from '../../features/grid-pdf/A4PrintableSheetV2';
 import { useSuperTurkceStore } from '../store';
 import { ActivityType } from '../../../../../types';
 import { registerPdfFonts } from '../../shared/pdf-utils/fonts';
@@ -137,7 +137,7 @@ const SuperTurkceModule: React.FC<SuperTurkceModuleProps> = ({ onBack, onAddToWo
                                 {selectedObjective ? (
                                     <div className="flex-1 rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-white">
                                         <PDFViewer width="100%" height="100%" className="border-none">
-                                            <MatchingLinesPdf />
+                                            <A4PrintableSheetV2 />
                                         </PDFViewer>
                                     </div>
                                 ) : (

@@ -170,10 +170,19 @@ export const ACTIVITY_TYPES = [
     'CREATIVE_WRITING',   // Yaratıcı Yazarlık Yönergeleri
     'COLOR_CODED_TABLE',  // Renk/Şekil Kodlu Tablo
     '5N1K_NEWS',          // 5N1K Haber Tasarımı
-    'OPEN_RESPONSE'       // Açık Uçlu (Münazara vs)
+    'OPEN_RESPONSE',      // Açık Uçlu (Münazara vs)
+    'SUPER_TURKCE_MATCHING' // Eşleştirme Modülü
 ] as const;
 
-export type ActivityType = typeof ACTIVITY_TYPES[number];
+export type ActivityType = string; // V2 mimarisindeki esnek formatları desteklemek için genişletildi.
+
+// Faz 3: Draft (Taslak) Bileşeni
+export interface DraftComponent {
+    id: string;            // Benzersiz bileşen ID'si (Örn: uuid)
+    type: string;          // Eşleştirilen format tipi (Örn: SOZEL_MANTIK_TABLO)
+    settings: Record<string, any>; // O formata özel ince ultra ayarlar
+    data: any | null;      // AI/Hızlı motordan dönen JSON veri (üretim sonrası dolar)
+}
 
 // Ortak Çift Çekirdek (Dual Engine) Seçimi
 export type EngineMode = 'fast' | 'ai';
