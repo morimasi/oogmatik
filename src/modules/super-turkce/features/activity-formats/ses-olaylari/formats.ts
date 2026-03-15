@@ -20,7 +20,7 @@ export const sesOlaylariFormats: ActivityFormatDef[] = [
             kelimeler: Array.from({ length: s.kelimeSayisi }, (_, i) => ({
                 kelime: `${topic.split(' ')[0] || 'kelime'}${i + 1}`,
                 heceler: [],
-                yapisi: s.heceYapisi ? '(Açık/Kapalı analizi)' : null,
+                yapisi: s.heceYapisi ? '(Açık/Kapalı analizi)' : '',
             })),
         }),
         buildAiPrompt: (s, grade, topic) =>
@@ -90,7 +90,7 @@ export const sesOlaylariFormats: ActivityFormatDef[] = [
             })),
         }),
         buildAiPrompt: (s, grade, topic) =>
-            `${grade}. sınıf için ${s.benzeşmeTuru} ünsüz benzeşmesine ${s['ornek Sayisi'] || 5} örnek ver. ` +
+            `${grade}. sınıf için ${s.benzeşmeTuru} ünsüz benzeşmesine ${s.ornekSayisi || 5} örnek ver. ` +
             `"${topic}" bağlamında. Öğrenci benzeşme kuralını açıklasın.`,
     },
     {

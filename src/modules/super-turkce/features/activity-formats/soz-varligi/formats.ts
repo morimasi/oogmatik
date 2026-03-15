@@ -81,8 +81,8 @@ export const sozVarligiFormats: ActivityFormatDef[] = [
         fastGenerate: (s, grade, topic) => ({
             kelimeler: Array.from({ length: s.kelimeSayisi }, (_, i) => ({
                 kelime: `Kelime ${i + 1} (${topic})`,
-                esAnlamli: s.format !== 'Yalnız Zıt Anlamlı' ? `Eş anlamlı ${i + 1}` : null,
-                zitAnlamli: s.format !== 'Yalnız Eş Anlamlı' ? `Zıt anlamlı ${i + 1}` : null,
+                esAnlamli: s.format !== 'Yalnız Zıt Anlamlı' ? `Eş anlamlı ${i + 1}` : '',
+                zitAnlamli: s.format !== 'Yalnız Eş Anlamlı' ? `Zıt anlamlı ${i + 1}` : '',
             })),
         }),
         buildAiPrompt: (s, grade, topic) =>
@@ -103,7 +103,7 @@ export const sozVarligiFormats: ActivityFormatDef[] = [
         fastGenerate: (s, grade, topic) => ({
             deyimler: Array.from({ length: s.deyimSayisi }, (_, i) => ({
                 deyim: `Deyim ${i + 1}: ${topic} temalı gerçek deyim`,
-                anlam: s.yardimli ? `Anlamı: Deyim ${i + 1} açıklaması` : null,
+                anlam: s.yardimli ? `Anlamı: Deyim ${i + 1} açıklaması` : '',
                 bosluk: `_________ cümleyi tamamla.`,
             })),
         }),
@@ -166,8 +166,8 @@ export const sozVarligiFormats: ActivityFormatDef[] = [
             sozluk: Array.from({ length: s.kelimeSayisi }, (_, i) => ({
                 kelime: `${topic} Kelime ${i + 1}`,
                 tanim: `Tanım: Bu sözcüğün anlamı...`,
-                ornek: s.icerik !== 'Yalnız Tanım' ? `Örnek: Bu kelimeyi kullanan cümle.` : null,
-                esAnlamli: s.icerik === 'Tanım + Eş Anlamlı + Örnek' ? `Eş anlamlısı` : null,
+                ornek: s.icerik !== 'Yalnız Tanım' ? `Örnek: Bu kelimeyi kullanan cümle.` : '',
+                esAnlamli: s.icerik === 'Tanım + Eş Anlamlı + Örnek' ? `Eş anlamlısı` : '',
             })),
         }),
         buildAiPrompt: (s, grade, topic) =>

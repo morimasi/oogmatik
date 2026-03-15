@@ -163,7 +163,7 @@ export const yazimNoktalamaFormats: ActivityFormatDef[] = [
             kisaltmalar: Array.from({ length: s.kisaltmaSayisi }, (_, i) => ({
                 kisaltma: `KSLT${i + 1}`,
                 acilimi: `Kısaltma${i + 1} açılımı`,
-                cumle: s.cumleIceEkle ? `Bu kısaltmayı "${topic}" konusunda kullanan örnek cümle.` : null,
+                cumle: s.cumleIceEkle ? `Bu kısaltmayı "${topic}" konusunda kullanan örnek cümle.` : '',
             })),
         }),
         buildAiPrompt: (s, grade, topic) =>
@@ -207,7 +207,7 @@ export const yazimNoktalamaFormats: ActivityFormatDef[] = [
                 kural: `Yazım Kuralı ${i + 1} (${topic} bağlamında)`,
                 dogru: `Doğru kullanım ${i + 1}`,
                 yanlis: `Yanlış kullanım ${i + 1}`,
-                ornek: s.ornekliMi ? `Örnek cümle ${i + 1}` : null,
+                ornek: s.ornekliMi ? `Örnek cümle ${i + 1}` : '',
             })),
         }),
         buildAiPrompt: (s, grade, topic) =>
