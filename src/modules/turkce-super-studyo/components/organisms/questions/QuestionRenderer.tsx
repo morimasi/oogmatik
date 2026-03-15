@@ -14,18 +14,21 @@ interface QuestionRendererProps {
 
 /**
  * Evrensel Soru Renderer — tüm soru tiplerini otomatik doğru bileşenle açar.
- * onAnswer her zaman (isCorrect: boolean) olarak normalize edilir.
+ * Her bileşenin farklı onAnswer signature'ı normalize edilerek (isCorrect: boolean) olarak döndürülür.
  */
 export function QuestionRenderer({ question, onAnswer }: QuestionRendererProps) {
-    // Normalize: bileşenler farklı signature kullanabilir — hepsini (isCorrect) olarak sarar
-    const handleAnswer = (isCorrect: boolean, ..._rest: unknown[]) => onAnswer(isCorrect);
-
     switch (question.type) {
         case 'MCQ':
-            return <MCQQuestion question={question as any} onAnswer={handleAnswer} />;
+            // MCQQuestion: onAnswer(isCorrect: boolean, selectedOptionId: string)
+            return (
+                <MCQQuestion
+                    question={question as any}
+                    onAnswer={(isCorrect: boolean) => onAnswer(isCorrect)}
+                />
+            );
 
         case 'DRAG_DROP':
-            // DragDropQuestion: onAnswer(isCorrect: boolean, orderedIds: string[])
+            // DragDropQuestion: onAnswer(isCorrect: boolean, orderedIds?: string[])
             return (
                 <DragDropQuestion
                     question={question as any}
@@ -34,13 +37,23 @@ export function QuestionRenderer({ question, onAnswer }: QuestionRendererProps) 
             );
 
         case 'TRUE_FALSE':
-            return <TrueFalseQuestion question={question as any} onAnswer={handleAnswer} />;
+            return (
+                <TrueFalseQuestion
+                    question={question as any}
+                    onAnswer={(isCorrect: boolean) => onAnswer(isCorrect)}
+                />
+            );
 
         case 'OPEN_ENDED':
-            return <OpenEndedQuestion question={question as any} onAnswer={handleAnswer} />;
+            return (
+                <OpenEndedQuestion
+                    question={question as any}
+                    onAnswer={(isCorrect: boolean) => onAnswer(isCorrect)}
+                />
+            );
 
         case 'FILL_BLANK':
-            // FillBlankQuestion: onAnswer(isCorrect: boolean, answers: Record<string, string>)
+            // FillBlankQuestion: onAnswer(isCorrect: boolean, answers: Record<string,string>)
             return (
                 <FillBlankQuestion
                     question={question as any}
@@ -49,7 +62,12 @@ export function QuestionRenderer({ question, onAnswer }: QuestionRendererProps) 
             );
 
         case 'SPELLING_CORRECT':
-            return <SpellingCorrectQuestion question={question as any} onAnswer={handleAnswer} />;
+            return (
+                <SpellingCorrectQuestion
+                    question={question as any}
+                    onAnswer={(isCorrect: boolean) => onAnswer(isCorrect)}
+                />
+            );
 
         default:
             return (
