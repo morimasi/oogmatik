@@ -6,8 +6,8 @@ export const registerPdfFonts = () => {
     Font.register({
         family: 'Lexend',
         fonts: [
-            { src: 'https://fonts.gstatic.com/s/lexend/v17/wlpygwzFsyE4jcWLs1DZmOI.ttf' }, // Normal
-            { src: 'https://fonts.gstatic.com/s/lexend/v17/wlpygwzFsyE4jcWLs1DZmOI.ttf', fontWeight: 'bold' }
+            { src: 'https://cdn.jsdelivr.net/fontsource/fonts/lexend@latest/latin-400-normal.ttf' }, // Normal
+            { src: 'https://cdn.jsdelivr.net/fontsource/fonts/lexend@latest/latin-700-normal.ttf', fontWeight: 'bold' }
         ]
     });
 
@@ -24,8 +24,8 @@ export const registerPdfFonts = () => {
     Font.register({
         family: 'Roboto',
         fonts: [
-            { src: 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5WZLCzYlKw.ttf' }, // Normal
-            { src: 'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmWUlvAx05IsDqlA.ttf', fontWeight: 'bold' } // Bold
+            { src: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-normal.ttf' }, // Normal
+            { src: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-700-normal.ttf', fontWeight: 'bold' } // Bold
         ]
     });
 };

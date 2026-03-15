@@ -230,7 +230,7 @@ const renderComponentByType = (type: string, draft: any) => {
                     <View style={[styles.mockLine]} />
                     <View style={[styles.mockLine]} />
                     <View style={[styles.mockLine, styles.mockLineShort]} />
-                    <Text style={{ fontSize: 8, color: '#94a3b8', fontStyle: 'italic', marginTop: 4 }}>
+                    <Text style={{ fontSize: 8, color: '#94a3b8', marginTop: 4 }}>
                         ({draft.type} bileşeni {draft.settings?.engineMode === 'ai' ? 'Yapay Zeka' : 'Algoritmik'} motor tarafından doldurulacaktır. İnce ayarlar uygulandı.)
                     </Text>
                 </View>
@@ -319,7 +319,7 @@ export const A4PrintableSheetV2: React.FC = () => {
                                         <View style={[styles.mockLine]} />
                                         <View style={[styles.mockLine]} />
                                         <View style={[styles.mockLine, styles.mockLineShort]} />
-                                        <Text style={{ fontSize: 8, color: '#94a3b8', fontStyle: 'italic', marginTop: 4 }}>
+                                        <Text style={{ fontSize: 8, color: '#94a3b8', marginTop: 4 }}>
                                             Üretim bekliyor... (Sihirli butona basıldığında otomatik dolacaktır)
                                         </Text>
                                     </View>
