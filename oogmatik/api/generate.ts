@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { prompt, schema, image, mimeType, userId, systemInstruction, model: requestedModel } = req.body;
+    const { prompt, schema, image, mimeType, userId, systemInstruction, model } = req.body;
 
     // 1. Validation
     try {
@@ -70,13 +70,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 4. AI Call with Direct REST API (No SDK)
     const result = await retryWithBackoff(
       async () => {
-        const ALLOWED_MODELS = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash-exp'];
-        let selectedModel = MASTER_MODEL;
-
-        if (requestedModel && ALLOWED_MODELS.includes(requestedModel)) {
-          selectedModel = requestedModel;
+        let selectedModel = model || MASTER_MODEL;
+        // Eski önbelleklenmiş verilerden gelebilecek kullanım dışı modelleri engelle
+        if (selectedModel.includes('gemini-2.0') || selectedModel.includes('gemini-1.5') || selectedModel.includes('gemini-3')) {
+          selectedModel = MASTER_MODEL;
         }
-
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
 
         const contents = [

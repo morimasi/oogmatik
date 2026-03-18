@@ -1,6 +1,5 @@
-// Model Seçimi: Gemini 2.5 Flash — Performanslı ve güncel model
+// Model Seçimi: Gemini 2.0 Flash — Performanslı ve güncel model
 const MASTER_MODEL = 'gemini-2.5-flash';
-const DEEP_ANALYSIS_MODEL = 'gemini-2.5-pro';
 
 // ============================================================
 // JSON ONARIM MOTORU (3 Katmanlı Strateji)
@@ -199,7 +198,7 @@ export const evaluateContent = async (content: any) => {
         prompt,
         systemInstruction: PEDAGOGICAL_AUDITOR_INSTRUCTION,
         schema,
-        model: DEEP_ANALYSIS_MODEL,
+        model: MASTER_MODEL,
       }),
     });
 
@@ -228,8 +227,7 @@ export const generateCreativeMultimodal = async (params: {
   const url = '/api/generate';
 
   let safeModel = params.model || MASTER_MODEL;
-  const BLOCKED_MODELS = ['gemini-3', 'gemini-1.5-flash', 'gemini-1.0', 'gemini-2.0-flash'];
-  if (BLOCKED_MODELS.some((bad) => safeModel.startsWith(bad))) {
+  if (safeModel.includes('gemini-2.0') || safeModel.includes('gemini-3')) {
     safeModel = MASTER_MODEL;
   }
 

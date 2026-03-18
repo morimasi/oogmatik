@@ -2,7 +2,7 @@
  * AI Üretim Servisi - V3 Prompt Engineering Engine
  * 
  * FAZ 3'ün tüm bileşenlerini birleştirerek production-ready AI içerik üretimi sağlar.
- * Gemini 2.0 Flash entegrasyonu ile multimodal desteği sunar.
+ * Gemini 2.5 Flash entegrasyonu ile multimodal desteği sunar.
  */
 
 import { GradeLevel, Objective, DifficultyLevel, TargetAudience, EngineMode } from '@/modules/super-turkce/core/types';

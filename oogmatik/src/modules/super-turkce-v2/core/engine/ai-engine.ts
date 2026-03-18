@@ -1,7 +1,7 @@
 import { GradeLevel, TargetAudience, EngineMode } from '../types';
 import { generateCreativeMultimodal } from '../../../../services/geminiClient';
 
-// V2 Yeni Standart: Gemini 2.5 Flash kullanıyoruz
+// V2 Yeni Standart: Sadece 2.5 Flash kullanıyoruz
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 export interface AIEngineRequest {
