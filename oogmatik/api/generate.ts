@@ -94,26 +94,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
 
+        // Insert system instruction into the user prompt to maintain AI behavior
+        const combinedPrompt = `[SİSTEM TALİMATI BAŞLANGICI]\n${systemInstruction || SYSTEM_INSTRUCTION}\n[SİSTEM TALİMATI BİTİŞİ]\n\n[KULLANICI İSTEĞİ]:\n${prompt}`;
+
         // Text prompt
-        contents[0].parts.push({ text: prompt });
+        contents[0].parts.push({ text: combinedPrompt });
 
         const requestBody = {
           contents,
-          systemInstruction: {
-            parts: [{ text: systemInstruction || SYSTEM_INSTRUCTION }],
-          },
           generationConfig: {
-            responseMimeType: 'application/json',
-            responseSchema: schema,
             temperature: 0.1,
-            maxOutputTokens: 12000,
-          },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
-          ],
+            maxOutputTokens: 8192,
+          }
         };
 
         const response = await fetch(url, {
