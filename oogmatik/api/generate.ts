@@ -72,7 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       async () => {
         let selectedModel = model || MASTER_MODEL;
         // Sadece gerçekten eski / geçersiz model adlarını engelle
-        const BLOCKED_PREFIXES = ['gemini-3', 'gemini-1.5-flash', 'gemini-1.0', 'gemini-2.0'];
+        const BLOCKED_PREFIXES = ['gemini-3', 'gemini-1.5-flash', 'gemini-1.0'];
         if (BLOCKED_PREFIXES.some((bad) => selectedModel.startsWith(bad))) {
           selectedModel = MASTER_MODEL;
         }
@@ -100,12 +100,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const requestBody = {
           contents,
-          systemInstruction: {
+          system_instruction: {
             parts: [{ text: systemInstruction || SYSTEM_INSTRUCTION }],
           },
-          generationConfig: {
-            responseMimeType: 'application/json',
-            responseSchema: schema,
+          generation_config: {
+            response_mime_type: 'application/json',
+            response_schema: schema,
             temperature: 0.1,
             maxOutputTokens: 12000,
           },
