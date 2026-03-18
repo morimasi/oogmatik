@@ -6,19 +6,19 @@ import {
   RateLimitError,
   InternalServerError,
   toAppError,
-} from '../src/utils/AppError.js';
-import { validateGenerateActivityRequest } from '../src/utils/schemas.js';
-import { RateLimiter } from '../src/services/rateLimiter.js';
-import { retryWithBackoff, logError } from '../src/utils/errorHandler.js';
+} from '../utils/AppError.js';
+import { validateGenerateActivityRequest } from '../utils/schemas.js';
+import { RateLimiter } from '../services/rateLimiter.js';
+import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 
 // Fallback types for non-Vercel environments
 export type VercelRequest = any;
 export type VercelResponse = any;
 
-const MASTER_MODEL = 'gemini-1.5-flash-latest';
+const MASTER_MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_INSTRUCTION = `
-Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın. [Build: 20260318-v2]
+Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın.
 MİSYON: 4-8. sınıf seviyesinde, MEB 2024-2025 müfredatıyla %100 uyumlu, LGS/PISA standartlarında "Premium" içerik üretmek.
 PEDAGOJİK DNA:
 1. Disleksi hassasiyeti: Cümleler net, yönergeler adım adım ve görselleştirilebilir olmalı.
@@ -70,9 +70,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 4. AI Call with Direct REST API (No SDK)
     const result = await retryWithBackoff(
       async () => {
-        // ALWAYS use MASTER_MODEL regardless of what client sends to ensure compatibility
-        const selectedModel = MASTER_MODEL;
-        const url = `https://generativelanguage.googleapis.com/v1/models/${selectedModel}:generateContent?key=${apiKey}`;
+        let selectedModel = model || MASTER_MODEL;
+        // Eski önbelleklenmiş verilerden gelebilecek kullanım dışı modelleri engelle
+        if (selectedModel.includes('gemini-2.0') || selectedModel.includes('gemini-3')) {
+          selectedModel = MASTER_MODEL;
+        }
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
 
         const contents = [
           {
@@ -120,13 +123,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
         if (!response.ok) {
-          const errJson: any = await response.json().catch(() => ({}));
+          const errJson = await response.json().catch(() => ({}));
           throw new InternalServerError(
             `Gemini API Hatası: ${errJson.error?.message || response.statusText}`
           );
         }
 
-        const data: any = await response.json();
+        const data = await response.json();
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!text) {
@@ -139,7 +142,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
 
     // 5. Success
-    res.setHeader('X-Oogmatik-Model', MASTER_MODEL);
     return res.status(200).json(JSON.parse(result.text));
   } catch (error: any) {
     return handleError(res, toAppError(error));

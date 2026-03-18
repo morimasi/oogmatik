@@ -13,7 +13,6 @@ import {
   Polygon,
 } from '@react-pdf/renderer';
 import { useSuperTurkceStore } from '../../core/store';
-import { Student } from '../../core/types';
 
 // Ultra-Kompakt Matbaa Tarzı A4 Düzeni (Minimum Boşluk, Maksimum Verim)
 const styles = StyleSheet.create({
@@ -166,11 +165,8 @@ const styles = StyleSheet.create({
 // @react-pdf/renderer içinde null döndürmek TypeError'a yol açar.
 // Tüm alanlar güvenli fallback ile korunuyor.
 // =========================================================
-const safeText = (val: any, fallback = '') => {
-  if (val === null || val === undefined) return fallback;
-  const str = String(val);
-  return str.trim() === '' ? fallback : str;
-};
+const safeText = (val: any, fallback = '') =>
+  typeof val === 'string' ? val : val != null ? String(val) : fallback;
 
 const safeArray = (val: any): any[] => (Array.isArray(val) ? val : []);
 
@@ -188,12 +184,10 @@ const renderComponentByType = (type: string, draft: any, audience: string = 'nor
   // --- Boş Veri Çizgileri (İçerik henüz üretilmedi) ---
   const emptyLines = (
     <View style={{ gap: 4, marginTop: 5 }}>
-      <View style={[styles.mockLine, { opacity: 0.3 }]} />
-      <View style={[styles.mockLine, { opacity: 0.2 }]} />
-      <View style={[styles.mockLine, styles.mockLineShort, { opacity: 0.1 }]} />
-      <Text style={{ fontSize: 7, color: '#94a3b8', marginTop: 4, fontStyle: 'italic' }}>
-        İçerik planlandı. Sol paneldeki butona basıldığında gerçek verilerle doldurulacaktır.
-      </Text>
+      <View style={[styles.mockLine]} />
+      <View style={[styles.mockLine]} />
+      <View style={[styles.mockLine, styles.mockLineShort]} />
+      <Text style={{ fontSize: 7, color: '#94a3b8', marginTop: 4 }}>Üretim bekleniyor...</Text>
     </View>
   );
 
@@ -498,15 +492,15 @@ const renderComponentByType = (type: string, draft: any, audience: string = 'nor
     case 'KELIME_ANLAM': {
       const left = safeArray(
         data.left ||
-        data.deyimler?.map((d: any) => d.deyim) ||
-        data.kelimeler?.map((k: any) => k.kelime) ||
-        []
+          data.deyimler?.map((d: any) => d.deyim) ||
+          data.kelimeler?.map((k: any) => k.kelime) ||
+          []
       );
       const right = safeArray(
         data.right ||
-        data.deyimler?.map((d: any) => d.anlam) ||
-        data.kelimeler?.map((k: any) => k.esAnlamli) ||
-        []
+          data.deyimler?.map((d: any) => d.anlam) ||
+          data.kelimeler?.map((k: any) => k.esAnlamli) ||
+          []
       );
       const words = safeArray(data.words);
       return (
@@ -735,8 +729,8 @@ const renderComponentByType = (type: string, draft: any, audience: string = 'nor
     case 'ACIK_UCLU': {
       const yonerge = safeText(
         data.yonerge ||
-        data.text ||
-        data.kelimeler?.map((k: any) => safeText(k?.kelime || k, '')).join(', '),
+          data.text ||
+          data.kelimeler?.map((k: any) => safeText(k?.kelime || k, '')).join(', '),
         'Cevabınızı aşağıya yazınız:'
       );
 
@@ -1235,16 +1229,7 @@ export const A4PrintableSheetV2: React.FC = () => {
     selectedObjective,
     draftComponents,
     audience,
-    studentSelection,
-    selectedStudentId,
-    students,
-    manualStudentName,
-    manualStudentClass
   } = useSuperTurkceStore();
-
-  const selectedStudent = students.find((s: Student) => s.id === selectedStudentId);
-  const displayName = studentSelection === 'existing' ? selectedStudent?.name : studentSelection === 'manual' ? manualStudentName : '';
-  const displayClass = studentSelection === 'existing' ? selectedStudent?.className : studentSelection === 'manual' ? manualStudentClass : '';
 
   // Dinamik Font Kararı (Disleksi modlarına özel fontlar)
   const fontStyle = {
@@ -1274,15 +1259,11 @@ export const A4PrintableSheetV2: React.FC = () => {
           <View style={styles.studentInfoBox}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Adı Soyadı:</Text>
-              <View style={styles.infoLine}>
-                {displayName ? <Text style={{ fontSize: 9, marginBottom: 2, color: '#1e293b', fontWeight: 'bold' }}>{displayName}</Text> : null}
-              </View>
+              <View style={styles.infoLine}></View>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Sınıf / No:</Text>
-              <View style={[styles.infoLine, { width: 80 }]}>
-                {displayClass ? <Text style={{ fontSize: 9, marginBottom: 2, color: '#1e293b', fontWeight: 'bold' }}>{displayClass}</Text> : null}
-              </View>
+              <View style={[styles.infoLine, { width: 80 }]}></View>
             </View>
           </View>
         </View>
@@ -1300,7 +1281,7 @@ export const A4PrintableSheetV2: React.FC = () => {
 
         {/* 3. Taslak Bileşenlerin (Drafts) Sütunlu Grid Render'ı */}
         <View style={styles.gridContainer}>
-          {(!draftComponents || draftComponents.length === 0) ? (
+          {draftComponents.length === 0 ? (
             <View
               style={[
                 styles.componentBlock,
@@ -1313,51 +1294,46 @@ export const A4PrintableSheetV2: React.FC = () => {
               ]}
             >
               <Text style={{ fontSize: 14, color: '#94a3b8', fontFamily: 'Lexend' }}>
-                Lütfen kokpitten modülleri seçip "Taslağı Üret" butonuna basın.
+                Lütfen kokpitten modülleri seçip "Sihirli Üret" butonuna basın.
               </Text>
             </View>
           ) : (
-            draftComponents.filter(Boolean).map((draft: any, idx: number) => {
-              if (!draft || !draft.type) return null;
-              
-              return (
-                <View key={draft.id || idx} style={styles.componentBlock} wrap={false}>
-                  <View style={styles.componentHeader}>
-                    <Text style={styles.blockTitle}>
-                      {idx + 1}. {safeText(draft.type).replace(/_/g, ' ')}
-                    </Text>
-                    <Text style={styles.blockBadge}>Puan: ____</Text>
-                  </View>
-
-                  {/* Gerçekçi Görsel Bileşen (Element Mapper) */}
-                  {draft.data ? (
-                    <View>
-                      <Text
-                        style={{ fontSize: 8, color: '#10b981', fontWeight: 'bold', marginBottom: 6 }}
-                      >
-                        ✓ {draft.settings?.engineMode === 'ai' ? 'Yapay Zeka (AI)' : 'Hızlı'} Üretimi
-                        Başarılı
-                      </Text>
-                      {renderComponentByType(draft.type, draft, audience)}
-                    </View>
-                  ) : (
-                    <View style={{ gap: 4, marginTop: 5 }}>
-                      <View style={[styles.mockLine, { opacity: 0.3 }]} />
-                      <View style={[styles.mockLine, { opacity: 0.2 }]} />
-                      <View style={[styles.mockLine, styles.mockLineShort, { opacity: 0.1 }]} />
-                      <Text style={{ fontSize: 7, color: '#94a3b8', marginTop: 4, fontStyle: 'italic' }}>
-                        İçerik planlandı. Sol paneldeki butona basıldığında gerçek verilerle doldurulacaktır.
-                      </Text>
-                    </View>
-                  )}
+            draftComponents.map((draft: any, idx: number) => (
+              <View key={draft.id} style={styles.componentBlock} wrap={false}>
+                <View style={styles.componentHeader}>
+                  <Text style={styles.blockTitle}>
+                    {idx + 1}. {draft.type.replace(/_/g, ' ')}
+                  </Text>
+                  <Text style={styles.blockBadge}>Puan: ____</Text>
                 </View>
-              );
-            })
+
+                {/* Gerçekçi Görsel Bileşen (Element Mapper) */}
+                {draft.data ? (
+                  <View>
+                    <Text
+                      style={{ fontSize: 8, color: '#10b981', fontWeight: 'bold', marginBottom: 6 }}
+                    >
+                      ✓ {draft.settings?.engineMode === 'ai' ? 'Yapay Zeka (AI)' : 'Hızlı'} Üretimi
+                      Başarılı
+                    </Text>
+                    {renderComponentByType(draft.type, draft, audience)}
+                  </View>
+                ) : (
+                  <View style={{ gap: 4, marginTop: 5 }}>
+                    <View style={[styles.mockLine]} />
+                    <View style={[styles.mockLine]} />
+                    <View style={[styles.mockLine, styles.mockLineShort]} />
+                    <Text style={{ fontSize: 8, color: '#94a3b8', marginTop: 4 }}>
+                      Üretim bekliyor... (Sihirli butona basıldığında otomatik dolacaktır)
+                    </Text>
+                  </View>
+                )}
+              </View>
+            ))
           )}
         </View>
 
         {/* 4. Alt Bilgi (Footer) */}
-
         <View style={styles.footer} fixed>
           <Text style={styles.footerText}>
             Üretim Kimliği: #{Math.random().toString(36).substring(2, 10).toUpperCase()}
