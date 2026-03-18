@@ -85,7 +85,7 @@ export const CockpitPanel: React.FC = () => {
                         <select
                             className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 w-24 outline-none focus:border-emerald-500"
                             value={store.grade || ''}
-                            onChange={e => store.setGrade(Number(e.target.value) as any)}
+                            onChange={(e: any) => store.setGrade(Number(e.target.value) as any)}
                         >
                             <option value="">Sınıf</option>
                             {[4, 5, 6, 7, 8].map(g => <option key={g} value={g}>{g}. Sınıf</option>)}
@@ -94,7 +94,7 @@ export const CockpitPanel: React.FC = () => {
                             className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none focus:border-emerald-500"
                             placeholder="Örn: Uzay Kampı Metni..."
                             value={store.objective?.title || ''}
-                            onChange={e => store.setObjective({ id: 'custom', title: e.target.value })}
+                            onChange={(e: any) => store.setObjective({ id: 'custom', title: e.target.value })}
                         />
                     </div>
                 </div>
@@ -129,7 +129,7 @@ export const CockpitPanel: React.FC = () => {
                                 type="checkbox"
                                 className="w-4 h-4 rounded border-slate-300 text-brand-500 focus:ring-brand-500 cursor-pointer"
                                 checked={!!store.printSettings?.highContrast}
-                                onChange={e => store.updatePrintSettings({ highContrast: e.target.checked })}
+                                onChange={(e: any) => store.updatePrintSettings({ highContrast: e.target.checked })}
                             />
                             <span className="text-sm text-slate-700 font-medium group-hover:text-brand-600 transition-colors">Yüksek Kontrast (Sarı Zemin)</span>
                         </label>
@@ -138,7 +138,7 @@ export const CockpitPanel: React.FC = () => {
                                 type="checkbox"
                                 className="w-4 h-4 rounded border-slate-300 text-brand-500 focus:ring-brand-500 cursor-pointer"
                                 checked={store.printSettings?.fontFamily === 'OpenDyslexic'}
-                                onChange={e => store.updatePrintSettings({ fontFamily: e.target.checked ? 'OpenDyslexic' : 'Inter' })}
+                                onChange={(e: any) => store.updatePrintSettings({ fontFamily: e.target.checked ? 'OpenDyslexic' : 'Inter' })}
                             />
                             <span className="text-sm text-slate-700 font-medium group-hover:text-brand-600 transition-colors">Disleksi Fontu (OpenDyslexic)</span>
                         </label>
@@ -150,7 +150,7 @@ export const CockpitPanel: React.FC = () => {
                             <input
                                 type="range" min="1.2" max="2.5" step="0.1"
                                 value={store.printSettings?.lineHeight !== 'normal' ? parseFloat(store.printSettings?.lineHeight || '1.5') : 1.5}
-                                onChange={e => store.updatePrintSettings({ lineHeight: e.target.value.toString() })}
+                                onChange={(e: any) => store.updatePrintSettings({ lineHeight: e.target.value.toString() })}
                                 className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-500"
                             />
                         </div>
