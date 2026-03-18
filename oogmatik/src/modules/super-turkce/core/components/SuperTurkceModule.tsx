@@ -117,20 +117,6 @@ const SuperTurkceModule: React.FC<SuperTurkceModuleProps> = ({
             >
               <i className="fa-solid fa-book-medical"></i> Kitapçığa Ekle
             </button>
-            <PDFDownloadLink
-              document={<A4PrintableSheetV2 />}
-              fileName={`Super_Turkce_V2_${selectedObjective?.id || 'Karma'}.pdf`}
-              className="flex items-center gap-2 px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition-all"
-            >
-              {({ loading }: any) => (
-                <>
-                  <i
-                    className={`fa-solid ${loading ? 'fa-circle-notch fa-spin' : 'fa-file-arrow-down'}`}
-                  ></i>
-                  {loading ? 'Dizgi Yapılıyor...' : 'İndir'}
-                </>
-              )}
-            </PDFDownloadLink>
             <button
               onClick={() =>
                 onShareToCommunity
@@ -204,6 +190,8 @@ const SuperTurkceModule: React.FC<SuperTurkceModuleProps> = ({
                 DocumentComponent={A4PrintableSheetV2}
                 emptyStateTitle="Çalışma Kağıdı Üretimi"
                 emptyStateDescription="Sol panelden sınıf ve konu parametrelerini seçip, çıktı formatını belirleyerek A4 üretimini başlatabilirsiniz."
+                fileName={`Super_Turkce_V1_${selectedObjective?.id || 'Karma'}.pdf`}
+                title={getStudioName()}
               />
             </motion.div>
           )}

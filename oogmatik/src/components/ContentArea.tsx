@@ -28,6 +28,7 @@ import { worksheetService } from '@/services/worksheetService';
 
 import { UniversalWorksheetWrapper } from '@/components/UniversalStudio/UniversalWorksheetWrapper';
 import { A4EditorPanel } from '@/components/A4Editor/A4EditorPanel';
+import { UniversalPreviewFrame } from '@/components/shared/UniversalPreviewFrame';
 
 interface ContentAreaProps {
   currentView: View;
@@ -116,7 +117,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   activeCurriculumSession,
   onCompleteCurriculumActivity,
   onAddDirectToWorkbook,
-}) => {
+}: any) => {
   const { user } = useAuthStore();
   const {
     activeWorksheetId,
@@ -347,13 +348,22 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
                 {/* FIXED TOP CENTERING SCALING */}
                 {processedData.length > 0 && !isLoading && (
-                  <div className="w-full h-full">
-                    <UniversalWorksheetWrapper
-                      activityType={activityType}
-                      worksheetData={processedData}
-                      scale={zoomScale}
-                      styleSettings={styleSettings}
-                    />
+                  <div className="w-full h-full flex-1 min-h-0 bg-transparent overflow-hidden">
+                    <UniversalPreviewFrame
+                      mode="html"
+                      title={activeWorksheetTitle || ACTIVITIES.find((a: any) => a.id === activityType)?.title || 'Yeni Etkinlik'}
+                      zoom={zoomScale}
+                      onZoomChange={setZoomScale}
+                      showDownload={true}
+                      bgClass="bg-transparent"
+                    >
+                      <UniversalWorksheetWrapper
+                        activityType={activityType}
+                        worksheetData={processedData}
+                        scale={1} // Zoom'u artık frame yönetiyor
+                        styleSettings={styleSettings}
+                      />
+                    </UniversalPreviewFrame>
                   </div>
                 )}
               </>

@@ -1,56 +1,13 @@
 import React from 'react';
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import { A4FactorySheet } from '../shared/pdf/A4FactorySheet';
 import { useSuperTurkceV2Store } from '../core/store';
 import { ArchiveDrawer } from './components/ArchiveDrawer';
+import { UniversalWorksheetViewer } from '../../../shared/components/UniversalWorksheetViewer';
 
 import { CockpitPanel } from './components/CockpitPanel';
 
 // ===============================================
-// 2. SAĞ PANEL (PREVIEW CANVAS)
-// ===============================================
-const PreviewCanvas: React.FC = () => {
-    return (
-        <div className="flex-1 bg-slate-200/50 h-full relative flex flex-col items-center p-8 overflow-hidden">
-
-            {/* Araç Çubuğu */}
-            <div className="absolute top-6 right-8 flex items-center bg-white rounded-xl shadow-sm border border-slate-200 p-1 z-10">
-                <button className="px-4 py-2 hover:bg-slate-50 text-slate-600 rounded-lg text-sm font-bold transition-colors">
-                    <i className="fa-solid fa-magnifying-glass-plus mr-1"></i> Yaklaş
-                </button>
-                <div className="w-px h-6 bg-slate-200 mx-1"></div>
-
-                <PDFDownloadLink
-                    document={<A4FactorySheet />}
-                    fileName="SuperTurkce_V2_Uretim.pdf"
-                    className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"
-                >
-                    {({ loading }: any) => (
-                        <>
-                            <i className={`fa-solid ${loading ? 'fa-spinner fa-spin' : 'fa-download'}`}></i>
-                            {loading ? 'Dizgi Yapılıyor...' : 'PDF İndir'}
-                        </>
-                    )}
-                </PDFDownloadLink>
-            </div>
-
-            {/* A4 Kağıt Gösterimi */}
-            <div className="w-full h-full max-w-4xl bg-white shadow-2xl rounded-sm overflow-hidden flex flex-col mt-12">
-                {/* 
-                    NOT: PDFViewer componenti React-PDF'te web ortamı için native bir tag'dir. 
-                    Iframe gibi davranarak canlı PDF mockup'ı oluşturur. 
-                */}
-                <PDFViewer style={{ width: '100%', height: '100%', border: 'none' }} showToolbar={false}>
-                    <A4FactorySheet />
-                </PDFViewer>
-            </div>
-
-        </div>
-    );
-};
-
-// ===============================================
-// 3. ANA LAYOUT (STUDIO)
+// ANA LAYOUT (STUDIO)
 // ===============================================
 interface Props {
     onBack: () => void;
@@ -89,7 +46,12 @@ export const StudioLayout: React.FC<Props> = ({ onBack }: any) => {
             {/* İçerik Bölümü: Sol ve Sağ */}
             <div className="flex-1 flex overflow-hidden">
                 <CockpitPanel />
-                <PreviewCanvas />
+                <UniversalWorksheetViewer 
+                    isReady={true}
+                    DocumentComponent={<A4FactorySheet />}
+                    fileName={`Oogmatik_${activeStudioId || 'Uretim'}.pdf`}
+                    title={`${activeStudioId?.replace('-', ' ').toUpperCase() || 'ÇALIŞMA KAĞIDI'}`}
+                />
             </div>
 
             {/* Arşiv Çekmecesi */}
