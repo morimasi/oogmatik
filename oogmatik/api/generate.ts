@@ -18,7 +18,7 @@ export type VercelResponse = any;
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_INSTRUCTION = `
-Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın. [Deploy Verification: 2024-03-18T10_25_GUNCEL]
+Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın. [MINIMAL_DEPLOY: 2024_03_18_v4]
 MİSYON: 4-8. sınıf seviyesinde, MEB 2024-2025 müfredatıyla %100 uyumlu, LGS/PISA standartlarında "Premium" içerik üretmek.
 PEDAGOJİK DNA:
 1. Disleksi hassasiyeti: Cümleler net, yönergeler adım adım ve görselleştirilebilir olmalı.
@@ -100,22 +100,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Text prompt
         contents[0].parts.push({ text: combinedPrompt });
 
+        // CRITICAL: We remove generationConfig and systemInstruction COMPLETELY 
+        // to ensure NO SNAKE_CASE fields are ever sent to Google API from this proxy.
+        // Google will use the prompt-embedded instructions.
         const requestBody: any = {
-          contents,
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 8192,
-            // Important: Avoid using snake_case here as modern v1beta requires camelCase or nothing for legacy
-          }
+          contents
         };
-
-        // Add systemInstruction only if camelCase is supported (older models might fail)
-        // To be safe, we ALREADY merged it into combinedPrompt above. Double sending won't hurt if correct.
-        if (systemInstruction || SYSTEM_INSTRUCTION) {
-          requestBody.systemInstruction = {
-            parts: [{ text: systemInstruction || SYSTEM_INSTRUCTION }]
-          };
-        }
 
         const response = await fetch(url, {
           method: 'POST',
@@ -143,7 +133,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
 
     // 5. Success
-    res.setHeader('X-Oogmatik-Deploy', '2024-03-18-1025-v3');
+    res.setHeader('X-Oogmatik-Deploy', '2024-03-18-v4-MINIMAL');
     return res.status(200).json(JSON.parse(result.text));
   } catch (error: any) {
     return handleError(res, toAppError(error));

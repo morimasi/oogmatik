@@ -18,7 +18,7 @@ export type VercelResponse = any;
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_INSTRUCTION = `
-Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın. [Build: 20260318-v2]
+Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın. [SRC_MINIMAL_DEPLOY: 2024_03_18_v4]
 MİSYON: 4-8. sınıf seviyesinde, MEB 2024-2025 müfredatıyla %100 uyumlu, LGS/PISA standartlarında "Premium" içerik üretmek.
 PEDAGOJİK DNA:
 1. Disleksi hassasiyeti: Cümleler net, yönergeler adım adım ve görselleştirilebilir olmalı.
@@ -95,26 +95,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Text prompt
         contents[0].parts.push({ text: prompt });
 
+        // CRITICAL: We remove generationConfig and systemInstruction COMPLETELY 
+        // to ensure NO SNAKE_CASE fields are ever sent to Google API from this proxy.
         const requestBody: any = {
-          contents,
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 12000,
-          },
+          contents
         };
-
-        // Add system instruction if provided (only supported by newer models)
-        if (systemInstruction) {
-          requestBody.systemInstruction = {
-            parts: [{ text: systemInstruction }],
-          };
-        }
-
-        // Add JSON schema response format (only for models that support it)
-        if (schema) {
-          requestBody.generationConfig.responseMimeType = 'application/json';
-          requestBody.generationConfig.responseSchema = schema;
-        }
 
         const response = await fetch(url, {
           method: 'POST',
