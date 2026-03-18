@@ -1,5 +1,5 @@
 // Model Seçimi: Gemini 2.0 Flash — Performanslı ve güncel model
-const MASTER_MODEL = 'gemini-1.5-flash-latest';
+const MASTER_MODEL = 'gemini-2.0-flash';
 
 // ============================================================
 // JSON ONARIM MOTORU (3 Katmanlı Strateji)

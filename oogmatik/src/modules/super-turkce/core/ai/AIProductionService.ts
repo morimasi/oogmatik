@@ -206,7 +206,7 @@ export class AIProductionService {
         systemInstruction: enrichedSystemInstruction,
         files,
         temperature: 0.1, // Daha stabil ve tutarlı çıktılar için düşürüldü
-        model: 'gemini-1.5-flash-latest'
+        model: 'gemini-2.0-flash'
       });
 
       if (!response) throw new Error('API yanıtı boş döndü.');

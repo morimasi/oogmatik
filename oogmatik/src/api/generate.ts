@@ -15,7 +15,7 @@ import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 export type VercelRequest = any;
 export type VercelResponse = any;
 
-const MASTER_MODEL = 'gemini-1.5-flash-latest';
+const MASTER_MODEL = 'gemini-2.0-flash';
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın. [Build: 20260318-v2]
@@ -72,9 +72,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       async () => {
         // ALWAYS use MASTER_MODEL regardless of what client sends to ensure compatibility
         const selectedModel = MASTER_MODEL;
-        const url = `https://generativelanguage.googleapis.com/v1/models/${selectedModel}:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
 
-        const contents = [
+        // Build contents array
+        const contents: any[] = [
           {
             role: 'user',
             parts: [] as any[],
@@ -84,8 +85,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Image support
         if (image) {
           contents[0].parts.push({
-            inline_data: {
-              mime_type: mimeType || 'image/jpeg',
+            inlineData: {
+              mimeType: mimeType || 'image/jpeg',
               data: image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, ''),
             },
           });
@@ -94,24 +95,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Text prompt
         contents[0].parts.push({ text: prompt });
 
-        const requestBody = {
+        const requestBody: any = {
           contents,
-          system_instruction: {
-            parts: [{ text: systemInstruction || SYSTEM_INSTRUCTION }],
-          },
-          generation_config: {
-            response_mime_type: 'application/json',
-            response_schema: schema,
+          generationConfig: {
             temperature: 0.1,
-            max_output_tokens: 12000,
+            maxOutputTokens: 12000,
           },
-          safety_settings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
-          ],
         };
+
+        // Add system instruction if provided (only supported by newer models)
+        if (systemInstruction) {
+          requestBody.systemInstruction = {
+            parts: [{ text: systemInstruction }],
+          };
+        }
+
+        // Add JSON schema response format (only for models that support it)
+        if (schema) {
+          requestBody.generationConfig.responseMimeType = 'application/json';
+          requestBody.generationConfig.responseSchema = schema;
+        }
 
         const response = await fetch(url, {
           method: 'POST',

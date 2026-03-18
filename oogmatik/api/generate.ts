@@ -87,8 +87,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Image support
         if (image) {
           contents[0].parts.push({
-            inline_data: {
-              mime_type: mimeType || 'image/jpeg',
+            inlineData: {
+              mimeType: mimeType || 'image/jpeg',
               data: image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, ''),
             },
           });
@@ -99,16 +99,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const requestBody = {
           contents,
-          system_instruction: {
+          systemInstruction: {
             parts: [{ text: systemInstruction || SYSTEM_INSTRUCTION }],
           },
-          generation_config: {
-            response_mime_type: 'application/json',
-            response_schema: schema,
+          generationConfig: {
+            responseMimeType: 'application/json',
+            responseSchema: schema,
             temperature: 0.1,
-            max_output_tokens: 12000,
+            maxOutputTokens: 12000,
           },
-          safety_settings: [
+          safetySettings: [
             { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
             { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
             { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
