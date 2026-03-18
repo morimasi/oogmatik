@@ -29,6 +29,7 @@ import { paginationService } from '../services/paginationService';
 
 import { UniversalWorksheetWrapper } from './UniversalStudio/UniversalWorksheetWrapper';
 import { A4EditorPanel } from './A4Editor/A4EditorPanel';
+import { UniversalPreviewFrame } from '../src/components/shared/UniversalPreviewFrame';
 
 interface ContentAreaProps {
   currentView: View;
@@ -144,7 +145,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       if (!currentId && worksheetData) {
         const title =
           activeWorksheetTitle ||
-          (Array.isArray(worksheetData) ? worksheetData[0]?.title : (worksheetData as any)?.title) ||
+          (Array.isArray(worksheetData)
+            ? worksheetData[0]?.title
+            : (worksheetData as any)?.title) ||
           'Yeni Etkinlik';
         currentId = await onSave!(title, activityType!, worksheetData);
         if (currentId) {
@@ -306,11 +309,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         {/* VIEWPORT - THE DESK SURFACE */}
         <div
           ref={scrollContainerRef}
-          className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar transition-colors duration-500 ${zenMode ? 'bg-[#050505]' : 'bg-[var(--bg-secondary)]'
-            }`}
+          className={`flex-1 relative overflow-hidden transition-colors duration-500 ${zenMode ? 'bg-[#050505]' : 'bg-slate-200/50'}`}
         >
           {/* justify-start and items-start for fixed top anchoring */}
-          <div className="w-full flex flex-col items-center justify-start min-h-full py-0">
+          <div className="w-full h-full flex flex-col items-center justify-start py-0">
             {currentView === 'generator' ? (
               <>
                 {isLoading && (
@@ -348,13 +350,45 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
                 {/* FIXED TOP CENTERING SCALING */}
                 {processedData.length > 0 && !isLoading && (
-                  <div className="w-full h-full">
-                    <UniversalWorksheetWrapper
-                      activityType={activityType}
-                      worksheetData={processedData}
-                      scale={zoomScale}
-                      styleSettings={styleSettings}
-                    />
+                  <div className="w-full h-full flex-1 min-h-0 bg-transparent overflow-hidden">
+                    <UniversalPreviewFrame
+                      mode="html"
+                      title={
+                        activeWorksheetTitle ||
+                        ACTIVITIES.find((a: any) => a.id === activityType)?.title ||
+                        'Yeni Etkinlik'
+                      }
+                      zoom={zoomScale}
+                      onZoomChange={setZoomScale}
+                      downloadLink={
+                        <button
+                          onClick={() => {
+                            const targetSelector = document.getElementById('print-container')
+                              ? '#print-container'
+                              : '.worksheet-page';
+                            import('../utils/printService').then((m) =>
+                              m.printService.generatePdf(
+                                targetSelector,
+                                activeWorksheetTitle || 'Etkinlik',
+                                { action: 'print', paperSize: 'A4' }
+                              )
+                            );
+                          }}
+                          className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm"
+                        >
+                          <i className="fa-solid fa-download"></i>
+                          PDF İndir
+                        </button>
+                      }
+                      bgClass="bg-transparent"
+                    >
+                      <UniversalWorksheetWrapper
+                        activityType={activityType}
+                        worksheetData={processedData}
+                        scale={1}
+                        styleSettings={styleSettings}
+                      />
+                    </UniversalPreviewFrame>
                   </div>
                 )}
               </>
