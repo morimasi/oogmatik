@@ -52,8 +52,8 @@ export const generateDynamicMockData = async (
 
     if (isAi) {
       // AI Motor: Gemini API üzerinden gerçek üretim
-      const aiPrompt = formatDef.buildAiPrompt(mergedSettings, grade, topic);
       try {
+        const aiPrompt = formatDef.buildAiPrompt(mergedSettings, grade, topic);
         const aiResult = await generateActivityWithGemini(
           aiPrompt,
           audience,
@@ -70,8 +70,8 @@ export const generateDynamicMockData = async (
           );
           return {
             ...formatDef.fastGenerate(mergedSettings, grade, topic),
-            _error:
-              'Yapay zeka çıktısı pedagojik denetimden geçemedi, hızlı motor fallback kullanıldı.',
+            _isFallback: true,
+            _error: 'Yapay zeka çıktısı pedagojik denetimden geçemedi (Fazla karmaşık veya uygunsuz). Hızlı motor verisi kullanıldı.',
             _auditWarnings: auditReport.warnings,
           };
         } else if (auditReport.warnings.length > 0) {
@@ -84,20 +84,21 @@ export const generateDynamicMockData = async (
 
         // Faz 10: Yeni Üretilen Kelimeleri Kumbaraya At
         harvestVocabulary(aiResult, topic);
-        return aiResult;
+        return { ...aiResult, _isAi: true };
       } catch (error: any) {
         console.error('AI Üretim Hatası:', error);
         // Fallback olarak o sorunun Hızlı Mod çıktısını dön (sistem kilitlenmesin)
         return {
           ...formatDef.fastGenerate(mergedSettings, grade, topic),
-          _error: 'AI üretim başarısız oldu, hızlı motor fallback kullanıldı.',
+          _isFallback: true,
+          _error: `AI üretim hatası (${error.message || 'Bilinmeyen'}). Hızlı motor verisi kullanıldı.`,
         };
       }
     } else {
       // Hızlı Motor: fastGenerate() ile ayar değerlerini kullanarak anında üret
       const fastData = formatDef.fastGenerate(mergedSettings, grade, topic);
       harvestVocabulary(fastData, topic);
-      return fastData;
+      return { ...fastData, _isFast: true };
     }
   }
 

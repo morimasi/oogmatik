@@ -37,7 +37,7 @@ export const generateActivityWithGemini = async (
           prompt,
           systemInstruction,
           schema,
-          model: 'gemini-2.0-flash',
+          model: 'gemini-1.5-flash-latest',
         }),
       });
 

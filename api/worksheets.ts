@@ -12,12 +12,12 @@
  * GET    /api/worksheets/shared/with-me - getSharedWithMe
  */
 
-import { worksheetService } from '../services/worksheetService';
-import { permissionService } from '../middleware/permissionValidator';
-import { validateSaveWorksheetRequest } from '../utils/schemas';
-import { AppError, toAppError } from '../utils/AppError';
-import { logError } from '../utils/errorHandler';
-import { hasPermission } from '../services/rbac';
+import { worksheetService } from '../src/services/worksheetService.js';
+import { permissionService } from '../src/middleware/permissionValidator.js';
+import { validateSaveWorksheetRequest } from '../src/utils/schemas.js';
+import { AppError, toAppError } from '../src/utils/AppError.js';
+import { logError } from '../src/utils/errorHandler.js';
+import { hasPermission } from '../src/services/rbac.js';
 
 type ResponseBody = {
     success?: boolean;
@@ -88,7 +88,7 @@ const createWorksheet = async (req: any, res: any): Promise<void> => {
 
         // 3. Validate input
         const { name, activityType, data, icon, category, styleSettings, studentProfile, studentId } = req.body;
-        
+
         try {
             validateSaveWorksheetRequest({
                 name,
@@ -233,7 +233,7 @@ const getWorksheet = async (req: any, res: any): Promise<void> => {
         // 3. Get worksheet
         const worksheetId = req.query.id as string;
         const worksheet = await worksheetService.getWorksheetById(worksheetId, user.userId);
-        
+
         return res.status(200).json({
             success: true,
             data: worksheet,
@@ -341,7 +341,7 @@ const deleteWorksheet = async (req: any, res: any): Promise<void> => {
         // 3. Delete worksheet
         const worksheetId = req.query.id as string;
         await worksheetService.deleteWorksheet(worksheetId, user.userId);
-        
+
         return res.status(200).json({
             success: true,
             message: 'Çalışma başarıyla silindi',

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
-import { useToastStore } from './store/useToastStore';
-import { ToastContainer } from './components/ToastContainer';
+import { useToastStore } from '@/store/useToastStore';
+import { ToastContainer } from '@/components/ToastContainer';
 import {
   ActivityType,
   WorksheetData,
@@ -19,70 +19,72 @@ import {
   SavedAssessment,
   Curriculum,
   ActiveCurriculumSession,
-} from './types';
-import Sidebar from './components/Sidebar';
-import ContentArea from './components/ContentArea';
-import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
-import DyslexiaLogo from './components/DyslexiaLogo';
-import GlobalSearch from './components/GlobalSearch';
-import { FeedbackModal } from './components/FeedbackModal';
-import { AuthModal } from './components/AuthModal';
-import { messagingService } from './services/messagingService';
-import { worksheetService } from './services/worksheetService';
-import { curriculumService } from './services/curriculumService';
-import { SettingsModal } from './components/SettingsModal';
-import { TourGuide, TourStep } from './components/TourGuide';
-import { loadCurrentUserPaperSize } from './services/paperSizeApi';
-import { usePaperSizeStore } from './store/usePaperSizeStore';
-import { PaperSize } from './utils/printService';
-import { StudentInfoModal } from './components/StudentInfoModal';
-import { HistoryView } from './components/HistoryView';
-import { PaperSizeInitializer } from './components/PaperSizeInitializer';
-import { useAuthStore } from './store/useAuthStore';
-import { AssessmentReportViewer } from './components/AssessmentReportViewer';
-import * as offlineGenerators from './services/offlineGenerators';
-import { useUIStore } from './store/useUIStore';
-import { useWorksheetStore } from './store/useWorksheetStore';
-import { AppHeader } from './components/AppHeader';
+} from '@/types';
+import Sidebar from '@/components/Sidebar';
+import ContentArea from '@/components/ContentArea';
+import { ACTIVITIES, ACTIVITY_CATEGORIES } from '@/constants';
+import DyslexiaLogo from '@/components/DyslexiaLogo';
+import GlobalSearch from '@/components/GlobalSearch';
+import { FeedbackModal } from '@/components/FeedbackModal';
+import { AuthModal } from '@/components/AuthModal';
+import { messagingService } from '@/services/messagingService';
+import { worksheetService } from '@/services/worksheetService';
+import { curriculumService } from '@/services/curriculumService';
+import { SettingsModal } from '@/components/SettingsModal';
+import { TourGuide, TourStep } from '@/components/TourGuide';
+import { loadCurrentUserPaperSize } from '@/services/paperSizeApi';
+import { usePaperSizeStore } from '@/store/usePaperSizeStore';
+import { PaperSize } from '@/utils/printService';
+import { StudentInfoModal } from '@/components/StudentInfoModal';
+import { HistoryView } from '@/components/HistoryView';
+import { PaperSizeInitializer } from '@/components/PaperSizeInitializer';
+import { useAuthStore } from '@/store/useAuthStore';
+import { AssessmentReportViewer } from '@/components/AssessmentReportViewer';
+import * as offlineGenerators from '@/services/offlineGenerators';
+import { useUIStore } from '@/store/useUIStore';
+import { useWorksheetStore } from '@/store/useWorksheetStore';
+import { AppHeader } from '@/components/AppHeader';
 
 // Lazy Loaded Components
 const ProfileView = lazy(() =>
-  import('./components/ProfileView').then((module) => ({ default: module.ProfileView }))
+  import('@/components/ProfileView').then((module) => ({ default: module.ProfileView }))
 );
 const AdminDashboard = lazy(() =>
-  import('./components/AdminDashboard').then((module) => ({ default: module.AdminDashboard }))
+  import('@/components/AdminDashboard').then((module) => ({ default: module.AdminDashboard }))
 );
 const MessagesView = lazy(() =>
-  import('./components/MessagesView').then((module) => ({ default: module.MessagesView }))
+  import('@/components/MessagesView').then((module) => ({ default: module.MessagesView }))
 );
 const OCRScanner = lazy(() =>
-  import('./components/OCRScanner').then((module) => ({ default: module.OCRScanner }))
+  import('@/components/OCRScanner').then((module) => ({ default: module.OCRScanner }))
 );
 const CurriculumView = lazy(() =>
-  import('./components/CurriculumView').then((module) => ({ default: module.CurriculumView }))
+  import('@/components/CurriculumView').then((module) => ({ default: module.CurriculumView }))
 );
 const ReadingStudio = lazy(() =>
-  import('./components/ReadingStudio/ReadingStudio').then((module) => ({
+  import('@/components/ReadingStudio/ReadingStudio').then((module) => ({
     default: module.ReadingStudio,
   }))
 );
 const MathStudio = lazy(() =>
-  import('./components/MathStudio/MathStudio').then((module) => ({ default: module.MathStudio }))
+  import('@/components/MathStudio/MathStudio').then((module) => ({ default: module.MathStudio }))
 );
-const SuperTurkceModule = lazy(() => import('./src/modules/super-turkce/index').then((m) => ({ default: m.SuperTurkceModule })));
+const SuperTurkceModule = lazy(() =>
+  import('@/modules/super-turkce').then((m) => ({ default: m.SuperTurkceModule }))
+);
 
 const StudentDashboard = lazy(() =>
-  import('./components/Student/StudentDashboard').then((module) => ({
+  import('@/components/Student/StudentDashboard').then((module) => ({
     default: module.StudentDashboard,
   }))
 );
 const ScreeningModule = lazy(() =>
-  import('./components/Screening/ScreeningModule').then((module) => ({
+  import('@/components/Screening/ScreeningModule').then((module) => ({
     default: module.ScreeningModule,
   }))
 );
 const AssessmentModule = lazy(() =>
-  import('./components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
+  import('@/components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
 );
 
 const initialStyleSettings: StyleSettings = {
@@ -172,7 +174,7 @@ const Modal = ({
   );
 };
 
-import { DeveloperModal } from './components/DeveloperModal';
+import { DeveloperModal } from '@/components/DeveloperModal';
 
 const tourSteps: TourStep[] = [
   {
@@ -213,8 +215,8 @@ const tourSteps: TourStep[] = [
   },
 ];
 
-import { useStudentStore } from './store/useStudentStore';
-import { useAppStore } from './store/useAppStore';
+import { useStudentStore } from '@/store/useStudentStore';
+import { useAppStore } from '@/store/useAppStore';
 
 const AppContent = () => {
   const authStore = useAuthStore();
@@ -423,8 +425,8 @@ const AppContent = () => {
   }, [historyItems]);
   const addToHistory = (activityType: ActivityType, data: WorksheetData) => {
     if (!data) return;
-    const activity = ACTIVITIES.find((a) => a.id === activityType);
-    const category = ACTIVITY_CATEGORIES.find((c) => c.activities.includes(activityType));
+    const activity = ACTIVITIES.find((a: any) => a.id === activityType);
+    const category = ACTIVITY_CATEGORIES.find((c: any) => c.activities.includes(activityType));
     if (!activity || !category) return;
     const newItem: HistoryItem = {
       id: Date.now().toString() + Math.random(),
@@ -451,7 +453,7 @@ const AppContent = () => {
       activityType: item.activityType,
       worksheetData: item.data,
       createdAt: item.timestamp,
-      icon: ACTIVITIES.find((a) => a.id === item.activityType)?.icon || 'fa-file',
+      icon: ACTIVITIES.find((a: any) => a.id === item.activityType)?.icon || 'fa-file',
       category: item.category,
     });
     setOpenModal(null);
@@ -520,7 +522,7 @@ const AppContent = () => {
     if (item.studentProfile) {
       setStudentProfile(item.studentProfile);
       if (item.studentId) {
-        const s = students.find((x: { id: string }) => x.id === item.studentId);
+        const s = students.find((x: any) => x.id === item.studentId);
         if (s) setActiveStudent(s);
       }
     } else {
@@ -613,7 +615,7 @@ const AppContent = () => {
         activityType: activityType,
         data: sheet,
         settings: { ...styleSettings },
-        title: sheet.title || ACTIVITIES.find((a) => a.id === activityType)?.title || 'Etkinlik',
+        title: sheet.title || ACTIVITIES.find((a: any) => a.id === activityType)?.title || 'Etkinlik',
       }));
       setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
       const btn = document.getElementById('add-to-wb-btn');
@@ -695,7 +697,7 @@ const AppContent = () => {
                 activityType: activityId,
                 data: sheet,
                 settings: { ...styleSettings },
-                title: ACTIVITIES.find((a) => a.id === activityId)?.title || activityId,
+                title: ACTIVITIES.find((a: any) => a.id === activityId)?.title || activityId,
               });
             });
           } catch (genErr) {
@@ -756,7 +758,6 @@ const AppContent = () => {
             onOpenReadingStudio={() => handleOpenStudio('reading-studio')}
             onOpenMathStudio={() => handleOpenStudio('math-studio')}
             onOpenSuperTurkce={() => handleOpenStudio('super-turkce')}
-
             onOpenScreening={() => handleOpenStudio('screening')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
@@ -848,8 +849,6 @@ const AppContent = () => {
           </Suspense>
         </div>
       )}
-
-
 
       {currentView === 'ocr' && (
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">

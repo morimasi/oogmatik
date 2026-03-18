@@ -2,97 +2,102 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useSuperTurkceStore } from '../../store';
 import { ArchiveItem } from '../../types';
+import { SuperTypography, SuperButton, SuperBadge } from '../../../shared/ui/atoms';
+import { SuperCard } from '../../../shared/ui/organisms';
 
 export const ArchivePanel: React.FC = () => {
     const { archiveHistory, deleteFromArchive, setActiveCategory, setDraftComponents, setGrade, setObjective, setEngineMode } = useSuperTurkceStore();
 
     const handleRestore = (item: ArchiveItem) => {
-        // Eski arşivi tekrar Cockpit üretimine taşı (Tüm state'leri o anki hale getir)
         setGrade(item.grade);
         setObjective({ id: 'restored', title: item.objectiveTitle });
         setEngineMode(item.engineMode);
         setDraftComponents(item.drafts);
-        // Pdf'i görebilmek için rastgele bir kategoriye geçir
         setActiveCategory('okuma_anlama');
     };
 
     return (
-        <div className="flex-1 bg-slate-50 p-8 overflow-y-auto w-full h-full relative">
+        <div className="flex-1 bg-[#0a0a0b] p-8 overflow-y-auto w-full h-full relative custom-scrollbar">
             <button
                 onClick={() => setActiveCategory(null)}
-                className="absolute top-8 left-8 w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-500 hover:text-brand-600 hover:shadow-md transition-all"
+                className="absolute top-8 left-8 w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 z-20"
             >
                 <i className="fa-solid fa-arrow-left"></i>
             </button>
 
-            <div className="max-w-5xl mx-auto mt-4">
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center text-indigo-600 text-xl">
+            <div className="max-w-6xl mx-auto mt-4 space-y-10">
+                <div className="flex items-center gap-5">
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-2xl shadow-xl shadow-indigo-500/5">
                         <i className="fa-solid fa-box-archive"></i>
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Geçmiş Arşivim</h1>
-                        <p className="text-slate-500 text-sm mt-1">Daha önce ürettiğiniz {archiveHistory.length} çalışma yaprağı burada saklanıyor.</p>
+                        <SuperTypography variant="h2" weight="extrabold">Geçmiş Arşivim</SuperTypography>
+                        <SuperTypography variant="body" color="muted" className="mt-1">
+                            Daha önce ürettiğiniz <span className="text-zinc-100 font-bold">{archiveHistory.length}</span> çalışma yaprağı burada güvenle saklanıyor.
+                        </SuperTypography>
                     </div>
                 </div>
 
                 {archiveHistory.length === 0 ? (
-                    <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm border-dashed">
-                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300 text-3xl">
+                    <div className="text-center py-24 bg-white/5 rounded-3xl border border-white/10 border-dashed">
+                        <div className="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-6 text-zinc-700 text-3xl">
                             <i className="fa-solid fa-ghost"></i>
                         </div>
-                        <h3 className="text-lg font-bold text-slate-700">Arşiviniz henüz boş.</h3>
-                        <p className="text-slate-500 text-sm max-w-sm mx-auto mt-2">
+                        <SuperTypography variant="h4" weight="bold">Arşiviniz henüz boş.</SuperTypography>
+                        <SuperTypography variant="body" color="muted" className="max-w-sm mx-auto mt-2">
                             Kokpit ekranından yapay zeka veya hızlı motorla PDF ürettiğinizde otomatik olarak buraya kaydedilir.
-                        </p>
+                        </SuperTypography>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {archiveHistory.map((item: ArchiveItem, idx: number) => (
                             <motion.div
                                 key={item.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: idx * 0.05 }}
-                                className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
                             >
-                                <div>
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className={`text-[10px] font-bold px-2 py-1 rounded-md ${item.engineMode === 'ai' ? 'bg-brand-50 text-brand-600' : 'bg-amber-50 text-amber-600'}`}>
-                                            <i className={`fa-solid ${item.engineMode === 'ai' ? 'fa-wand-magic-sparkles' : 'fa-bolt'} mr-1`}></i>
-                                            {item.engineMode === 'ai' ? 'Yapay Zeka (Gemini)' : 'Hızlı Motor'}
-                                        </span>
-                                        <span className="text-xs text-slate-400 font-medium">
-                                            {new Date(item.createdAt).toLocaleDateString('tr-TR')} • {new Date(item.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
-                                    </div>
-                                    <h3 className="text-base font-bold text-slate-800 line-clamp-1">{item.objectiveTitle}</h3>
-                                    <p className="text-sm text-slate-500 mt-1">{item.grade}. Sınıf Müfredatı</p>
-
-                                    <div className="mt-4 flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 text-xs">
-                                            <i className="fa-regular fa-file-pdf"></i>
+                                <SuperCard
+                                    title={item.objectiveTitle}
+                                    subtitle={`${item.grade}. Sınıf Müfredatı`}
+                                    badge={item.engineMode === 'ai' ? 'Gemini AI' : 'Hızlı'}
+                                    className="h-full border-none ring-1 ring-white/10"
+                                    footer={
+                                        <div className="flex items-center gap-3">
+                                            <SuperButton
+                                                variant="primary"
+                                                size="sm"
+                                                className="flex-1"
+                                                leftIcon={<i className="fa-solid fa-arrow-rotate-left"></i>}
+                                                onClick={() => handleRestore(item)}
+                                            >
+                                                Yeniden Düzenle
+                                            </SuperButton>
+                                            <SuperButton
+                                                variant="secondary"
+                                                size="sm"
+                                                className="!bg-red-500/10 !text-red-400 border border-red-500/20 hover:!bg-red-500/20"
+                                                onClick={() => deleteFromArchive(item.id)}
+                                            >
+                                                <i className="fa-solid fa-trash-can"></i>
+                                            </SuperButton>
                                         </div>
-                                        <span className="text-xs font-semibold text-slate-600">{item.totalActivities} Karma Etkinlik Parçası</span>
+                                    }
+                                >
+                                    <div className="flex items-center justify-between mt-2 mb-4">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-zinc-500">
+                                                <i className="fa-regular fa-file-pdf"></i>
+                                            </div>
+                                            <SuperTypography variant="caption" color="secondary" weight="semibold">
+                                                {item.totalActivities} Dinamik Modül
+                                            </SuperTypography>
+                                        </div>
+                                        <SuperTypography variant="caption" color="muted" weight="bold">
+                                            {new Date(item.createdAt).toLocaleDateString('tr-TR')}
+                                        </SuperTypography>
                                     </div>
-                                </div>
-
-                                <div className="mt-6 flex items-center gap-2 pt-4 border-t border-slate-100">
-                                    <button
-                                        onClick={() => handleRestore(item)}
-                                        className="flex-1 bg-slate-900 hover:bg-black text-white text-sm font-semibold py-2.5 rounded-xl transition-all"
-                                    >
-                                        <i className="fa-solid fa-arrow-rotate-left mr-2"></i>
-                                        Yeniden Taşı / Düzenle
-                                    </button>
-                                    <button
-                                        onClick={() => deleteFromArchive(item.id)}
-                                        className="w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl transition-all"
-                                        title="Arşivden Sil"
-                                    >
-                                        <i className="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </div>
+                                </SuperCard>
                             </motion.div>
                         ))}
                     </div>

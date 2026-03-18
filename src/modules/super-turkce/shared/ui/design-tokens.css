@@ -1,0 +1,61 @@
+/* 
+ * Super Production Platform - Design Tokens
+ * 
+ * Bu dosya platformun görsel kimliğini belirleyen CSS değişkenlerini içerir.
+ */
+
+:root {
+  /* Colors - Ultra Premium Palette */
+  --s-bg-primary: #0a0a0b;
+  --s-bg-secondary: #121214;
+  --s-bg-paper: #1a1a1c;
+  
+  --s-text-primary: #f8fafc;
+  --s-text-secondary: #94a3b8;
+  --s-text-muted: #64748b;
+  
+  --s-accent: #6366f1; /* Indigo */
+  --s-accent-hover: #4f46e5;
+  --s-accent-soft: rgba(99, 102, 241, 0.1);
+  
+  --s-success: #10b981;
+  --s-warning: #f59e0b;
+  --s-danger: #ef4444;
+  
+  /* Borders */
+  --s-border: rgba(255, 255, 255, 0.08);
+  --s-border-hover: rgba(255, 255, 255, 0.15);
+  
+  /* Radii */
+  --s-radius-sm: 8px;
+  --s-radius-md: 12px;
+  --s-radius-lg: 16px;
+  --s-radius-xl: 24px;
+  --s-radius-full: 9999px;
+  
+  /* Effects */
+  --s-shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  --s-blur-glass: 12px;
+  --s-surface-glass: rgba(255, 255, 255, 0.03);
+  
+  /* Typography */
+  --s-font-heading: 'Lexend', sans-serif;
+  --s-font-ui: 'Inter', sans-serif;
+  --s-font-mono: 'JetBrains Mono', monospace;
+  
+  /* Animations */
+  --s-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Theme - Vibrant (High Contrast) */
+.theme-vibrant {
+  --s-bg-primary: #050505;
+  --s-accent: #ec4899; /* Pink */
+  --s-accent-hover: #db2777;
+}
+
+/* Theme - Nature */
+.theme-nature {
+  --s-accent: #10b981; /* Emerald */
+  --s-accent-hover: #059669;
+}

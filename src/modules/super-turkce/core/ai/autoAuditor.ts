@@ -22,40 +22,57 @@ export const auditActivityContent = (
 
   if (audience === 'normal') return report;
 
-  // Hedef kitle disleksi ise metin uzunluklarını ve kelime karmaşıklığını denetle
+  // Disleksi dostu kontroller
   const maxWordsPerSentence = audience === 'derin_disleksi' ? 8 : 15;
-  const maxWordLength = audience === 'derin_disleksi' ? 12 : 15; // Çok uzun kelimeler derin dislekside zorlar
+  const maxWordLength = audience === 'derin_disleksi' ? 12 : 15;
+  const maxSyllablesPerWord = audience === 'derin_disleksi' ? 4 : 6;
+
+  // Sesli harf tabanlı basit hece sayacı
+  const countSyllables = (word: string) => {
+    const vowels = word.match(/[aeıioöuüAEIİOÖUÜ]/g);
+    return vowels ? vowels.length : 0;
+  };
 
   const checkString = (text: string, context: string) => {
     if (!text || typeof text !== 'string') return;
 
-    const words = text.split(/\s+/);
+    const words = text.split(/\s+/).filter(w => w.length > 0);
+    if (words.length === 0) return;
+
+    // Paragraf blok kontrolü
+    if (words.length > 40 && audience === 'derin_disleksi') {
+      report.score -= 15;
+      report.warnings.push(`[${context}] Paragraf bloğu çok yoğun (${words.length} kelime). Lütfen daha kısa parçalara bölün.`);
+    }
 
     // Cümle uzunluğu kontrolü
-    if (words.length > maxWordsPerSentence && text.includes('.')) {
-      // Eğer içinde nokta varsa birden fazla cümle olabilir, kabaca bölüp bakalım
-      const sentences = text.split('.').filter((s) => s.trim().length > 0);
+    if (text.includes('.')) {
+      const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
       for (const sentence of sentences) {
-        if (sentence.split(/\s+/).length > maxWordsPerSentence) {
-          report.score -= 5;
+        const sentenceWords = sentence.trim().split(/\s+/);
+        if (sentenceWords.length > maxWordsPerSentence) {
+          report.score -= 8;
           report.warnings.push(
-            `[${context}] Cümle çok uzun (${sentence.split(/\s+/).length} kelime). İdeal: ${maxWordsPerSentence}`
+            `[${context}] Cümle disleksi için çok uzun (${sentenceWords.length} kelime).`
           );
         }
       }
-    } else if (words.length > maxWordsPerSentence * 2) {
-      // Noktasız çok uzun metin (örneğin paragraf)
-      report.score -= 10;
-      report.warnings.push(`[${context}] Metin bloğu çok uzun.`);
     }
 
-    // Kelime uzunluğu kontrolü (çok heceli/karmasik kelimeler)
-    const longWords = words.filter((w) => w.replace(/[.,!?]/g, '').length > maxWordLength);
-    if (longWords.length > 0) {
-      report.score -= 2 * longWords.length;
-      report.warnings.push(
-        `[${context}] Çok uzun karmaşık kelimeler tespit edildi: ${longWords.join(', ')}`
-      );
+    // Kelime karmaşıklığı (Hece sayısı ve uzunluk)
+    for (const w of words) {
+      const cleanWord = w.replace(/[.,!?":;]/g, '');
+      const syllCount = countSyllables(cleanWord);
+
+      if (syllCount > maxSyllablesPerWord) {
+        report.score -= 3;
+        report.warnings.push(`[${context}] Karmaşık sözcük (${syllCount} hece): ${cleanWord}`);
+      }
+
+      if (cleanWord.length > maxWordLength) {
+        report.score -= 2;
+        report.warnings.push(`[${context}] Çok uzun sözcük: ${cleanWord}`);
+      }
     }
   };
 

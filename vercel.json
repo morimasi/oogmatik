@@ -1,7 +1,12 @@
 {
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" }
+  ],
   "functions": {
-    "api/generate.ts": {
-      "maxDuration": 300
+    "api/*.ts": {
+      "memory": 1024,
+      "maxDuration": 30
     }
-  }
+  },
+  "outputDirectory": "dist"
 }
