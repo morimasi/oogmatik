@@ -15,7 +15,7 @@ import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 export type VercelRequest = any;
 export type VercelResponse = any;
 
-const MASTER_MODEL = 'gemini-2.5-flash';
+const MASTER_MODEL = 'gemini-2.5-flash-preview-05-20';
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın.
@@ -71,8 +71,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const result = await retryWithBackoff(
       async () => {
         let selectedModel = model || MASTER_MODEL;
-        // Eski önbelleklenmiş verilerden gelebilecek kullanım dışı modelleri engelle
-        if (selectedModel.includes('gemini-2.0') || selectedModel.includes('gemini-3')) {
+        // Sadece gerçekten eski / geçersiz model adlarını engelle
+        const BLOCKED_PREFIXES = ['gemini-3', 'gemini-1.5-flash', 'gemini-1.0', 'gemini-2.0'];
+        if (BLOCKED_PREFIXES.some((bad) => selectedModel.startsWith(bad))) {
           selectedModel = MASTER_MODEL;
         }
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
