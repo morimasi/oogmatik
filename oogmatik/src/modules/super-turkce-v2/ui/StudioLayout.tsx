@@ -2,30 +2,9 @@ import React from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import { A4FactorySheet } from '../shared/pdf/A4FactorySheet';
 import { useSuperTurkceV2Store } from '../core/store';
+import { ArchiveDrawer } from './components/ArchiveDrawer';
 
-// ===============================================
-// 1. SOL PANEL (COCKPIT)
-// ===============================================
-const CockpitPanel: React.FC = () => {
-    // Gelecekte SettingsPanel bileşenini buraya yedireceğiz
-    return (
-        <div className="w-1/3 min-w-[320px] max-w-[450px] bg-white border-r border-slate-200 h-full flex flex-col p-6 overflow-y-auto">
-            <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3">
-                <i className="fa-solid fa-sliders text-brand-500"></i> Fabrika Ayarları
-            </h2>
-
-            <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl mb-4 text-center">
-                <i className="fa-solid fa-person-digging text-3xl mb-3 text-slate-400"></i>
-                <p className="text-sm font-semibold text-slate-600">Ayarlar paneli dizgi aşamasında...</p>
-                <p className="text-xs text-slate-400 mt-2">Daha sonra buraya sınıf, zorluk ve disleksi parametreleri eklenecek.</p>
-            </div>
-
-            <button className="mt-auto w-full py-4 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold shadow-lg shadow-brand-500/30 transition-all flex items-center justify-center gap-2">
-                <i className="fa-solid fa-wand-magic-sparkles"></i> Matbaayı Çalıştır (Üret)
-            </button>
-        </div>
-    );
-};
+import { CockpitPanel } from './components/CockpitPanel';
 
 // ===============================================
 // 2. SAĞ PANEL (PREVIEW CANVAS)
@@ -77,8 +56,9 @@ interface Props {
     onBack: () => void;
 }
 
-export const StudioLayout: React.FC<Props> = ({ onBack }) => {
-    const activeStudioId = useSuperTurkceV2Store(state => state.activeStudioId);
+export const StudioLayout: React.FC<Props> = ({ onBack }: any) => {
+    const activeStudioId = useSuperTurkceV2Store((state: any) => state.activeStudioId);
+    const [isArchiveOpen, setIsArchiveOpen] = React.useState(false);
 
     if (!activeStudioId) {
         onBack();
@@ -96,6 +76,14 @@ export const StudioLayout: React.FC<Props> = ({ onBack }) => {
                     <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Üretim Bandı</h2>
                     <span className="text-xs text-slate-500 font-medium">Stüdyo: {activeStudioId.replace('-', ' ')}</span>
                 </div>
+                <div className="ml-auto">
+                    <button
+                        onClick={() => setIsArchiveOpen(true)}
+                        className="px-4 py-2 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-600 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
+                    >
+                        <i className="fa-solid fa-box-archive"></i> Üretim Arşivi
+                    </button>
+                </div>
             </div>
 
             {/* İçerik Bölümü: Sol ve Sağ */}
@@ -103,6 +91,9 @@ export const StudioLayout: React.FC<Props> = ({ onBack }) => {
                 <CockpitPanel />
                 <PreviewCanvas />
             </div>
+
+            {/* Arşiv Çekmecesi */}
+            <ArchiveDrawer isOpen={isArchiveOpen} onClose={() => setIsArchiveOpen(false)} />
         </div>
     );
 };
