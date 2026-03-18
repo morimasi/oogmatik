@@ -15,7 +15,7 @@ import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 export type VercelRequest = any;
 export type VercelResponse = any;
 
-const MASTER_MODEL = 'gemini-2.0-flash';
+const MASTER_MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın.
@@ -71,9 +71,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const result = await retryWithBackoff(
       async () => {
         let selectedModel = model || MASTER_MODEL;
-        // Sadece gerçekten eski / geçersiz model adlarını engelle
-        const BLOCKED_PREFIXES = ['gemini-3', 'gemini-1.5-flash', 'gemini-1.0'];
-        if (BLOCKED_PREFIXES.some((bad) => selectedModel.startsWith(bad))) {
+        // Eski önbelleklenmiş verilerden gelebilecek kullanım dışı modelleri engelle
+        if (selectedModel.includes('gemini-2.0') || selectedModel.includes('gemini-3')) {
           selectedModel = MASTER_MODEL;
         }
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
@@ -88,8 +87,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Image support
         if (image) {
           contents[0].parts.push({
-            inlineData: {
-              mimeType: mimeType || 'image/jpeg',
+            inline_data: {
+              mime_type: mimeType || 'image/jpeg',
               data: image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, ''),
             },
           });
@@ -107,9 +106,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             response_mime_type: 'application/json',
             response_schema: schema,
             temperature: 0.1,
-            maxOutputTokens: 12000,
+            max_output_tokens: 12000,
           },
-          safetySettings: [
+          safety_settings: [
             { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
             { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
             { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },

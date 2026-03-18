@@ -72,9 +72,6 @@ const MathStudio = lazy(() =>
 const SuperTurkceModule = lazy(() =>
   import('./src/modules/super-turkce').then((m) => ({ default: m.SuperTurkceModule }))
 );
-const SuperTurkceV2Portal = lazy(() =>
-  import('./src/modules/super-turkce-v2/SuperTurkceV2Portal').then((m) => ({ default: m.SuperTurkceV2Portal }))
-);
 
 const StudentDashboard = lazy(() =>
   import('./components/Student/StudentDashboard').then((module) => ({
@@ -760,7 +757,7 @@ const AppContent = () => {
             onOpenCurriculum={() => handleOpenStudio('curriculum')}
             onOpenReadingStudio={() => handleOpenStudio('reading-studio')}
             onOpenMathStudio={() => handleOpenStudio('math-studio')}
-            onOpenSuperTurkce={() => handleOpenStudio('super-turkce-v2')}
+            onOpenSuperTurkce={() => handleOpenStudio('super-turkce')}
             onOpenScreening={() => handleOpenStudio('screening')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
