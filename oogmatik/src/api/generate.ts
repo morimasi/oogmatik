@@ -15,7 +15,7 @@ import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 export type VercelRequest = any;
 export type VercelResponse = any;
 
-const MASTER_MODEL = 'gemini-2.0-flash';
+const MASTER_MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın. [Build: 20260318-v2]
@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { prompt, schema, image, mimeType, userId, systemInstruction, model } = req.body;
+    const { prompt, schema, image, mimeType, userId, systemInstruction, model: requestedModel } = req.body;
 
     // 1. Validation
     try {
@@ -70,8 +70,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 4. AI Call with Direct REST API (No SDK)
     const result = await retryWithBackoff(
       async () => {
-        // ALWAYS use MASTER_MODEL regardless of what client sends to ensure compatibility
-        const selectedModel = MASTER_MODEL;
+        // Allow client to request specific models, fallback to MASTER_MODEL
+        const ALLOWED_MODELS = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash-exp'];
+        let selectedModel = MASTER_MODEL;
+
+        if (requestedModel && ALLOWED_MODELS.includes(requestedModel)) {
+          selectedModel = requestedModel;
+        }
+
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
 
         // Build contents array

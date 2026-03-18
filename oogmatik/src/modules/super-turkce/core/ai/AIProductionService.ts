@@ -174,7 +174,7 @@ export class AIProductionService {
   }
 
   /**
-   * AI Üretimi (Gemini 2.0 Flash - Ultra Optimized)
+   * AI Üretimi (Gemini 2.5 Flash - Ultra Optimized)
    */
   private async aiGenerate(
     prompt: string,
@@ -182,12 +182,12 @@ export class AIProductionService {
     timeoutMs: number,
     files?: MultimodalFile[]
   ): Promise<any> {
-    console.log('🤖 Gemini 2.0 Flash Multimodal API çağrılıyor (V3 Engine)...');
+    console.log('🤖 Gemini 2.5 Flash Multimodal API çağrılıyor (V3 Engine)...');
 
     // Sistem talimatını daha agresif ve net hale getiriyoruz
     const enrichedSystemInstruction = `
       Sen ultra-profesyonel bir Süper Türkçe Eğitim Materyali Üretim Uzmanısın.
-      Gemini 2.0 Flash mimarisini kullanarak %100 pedagojik, kültürel hassasiyeti yüksek ve hatasız içerik üretirsin.
+      Gemini 2.5 Flash mimarisini kullanarak %100 pedagojik, kültürel hassasiyeti yüksek ve hatasız içerik üretirsin.
       
       KRİTİK KURALLAR:
       1. Çıktı kesinlikle geçerli bir JSON olmalıdır.
@@ -206,7 +206,7 @@ export class AIProductionService {
         systemInstruction: enrichedSystemInstruction,
         files,
         temperature: 0.1, // Daha stabil ve tutarlı çıktılar için düşürüldü
-        model: 'gemini-2.0-flash'
+        model: 'gemini-2.5-flash'
       });
 
       if (!response) throw new Error('API yanıtı boş döndü.');
@@ -214,7 +214,7 @@ export class AIProductionService {
       // JSON güvenliğini kontrol et (Gerekirse Parse temizliği yap)
       return typeof response === 'string' ? JSON.parse(response.replace(/```json|```/g, '')) : response;
     } catch (error: any) {
-      console.error('❌ Gemini 2.0 Flash Hatası:', error);
+      console.error('❌ Gemini 2.5 Flash Hatası:', error);
       throw error;
     }
   }

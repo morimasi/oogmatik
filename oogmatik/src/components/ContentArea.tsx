@@ -357,7 +357,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 {processedData.length > 0 && !isLoading && (
                   <div className="w-full h-full flex-1 min-h-0 bg-transparent overflow-hidden">
                     <UniversalPreviewFrame
-                      mode="html"
+                      mode="pdf"
                       title={
                         activeWorksheetTitle ||
                         ACTIVITIES.find((a: any) => a.id === activityType)?.title ||
