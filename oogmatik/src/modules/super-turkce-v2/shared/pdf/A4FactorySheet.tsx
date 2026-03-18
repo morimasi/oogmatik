@@ -8,6 +8,10 @@ import { useSuperTurkceV2Store } from '../../core/store';
 // Dynamic Renderers (Sadece tamamlanmış 2 stüdyoyu dahil ettik)
 import { OkumaAnlamaRenderer } from '../../studios/1-okuma-anlama/pdf-components/OkumaAnlamaRenderer';
 import { MantikMuhakemeRenderer } from '../../studios/2-mantik-muhakeme/pdf-components/MantikMuhakemeRenderer';
+import { DilBilgisiRenderer } from '../../studios/3-dil-bilgisi/pdf-components/DilBilgisiRenderer';
+import { YazimNoktalamaRenderer } from '../../studios/4-yazim-noktalama/pdf-components/YazimNoktalamaRenderer';
+import { DeyimlerAtasozleriRenderer } from '../../studios/5-deyimler/pdf-components/DeyimlerAtasozleriRenderer';
+import { SesOlaylariRenderer } from '../../studios/6-ses-olaylari/pdf-components/SesOlaylariRenderer';
 
 // Örnek Stüdyo Listesi (Gerçekte config veya store'dan gelebilir)
 const STUDIO_DATA: Record<string, StudioDef> = {
@@ -24,6 +28,34 @@ const STUDIO_DATA: Record<string, StudioDef> = {
         description: '',
         icon: 'fa-brain',
         colorHex: '#8B5CF6'
+    },
+    'dil-bilgisi': {
+        id: 'dil-bilgisi',
+        title: 'Dil Bilgisi',
+        description: '',
+        icon: 'fa-spell-check',
+        colorHex: '#10B981'
+    },
+    'yazim-noktalama': {
+        id: 'yazim-noktalama',
+        title: 'Yazım ve Noktalama',
+        description: '',
+        icon: 'fa-pen-clip',
+        colorHex: '#EF4444'
+    },
+    'deyimler': {
+        id: 'deyimler',
+        title: 'Deyimler ve Atasözleri',
+        description: '',
+        icon: 'fa-comments',
+        colorHex: '#F59E0B'
+    },
+    'ses-olaylari': {
+        id: 'ses-olaylari',
+        title: 'Hece ve Ses Olayları',
+        description: '',
+        icon: 'fa-music',
+        colorHex: '#EC4899'
     }
 };
 
@@ -63,6 +95,14 @@ export const A4FactorySheet: React.FC<Props> = ({ worksheet }) => {
                 return <OkumaAnlamaRenderer data={data} templateId={templateId} settings={printSettingsSnapshot} />;
             case 'mantik-muhakeme':
                 return <MantikMuhakemeRenderer data={data} templateId={templateId} settings={printSettingsSnapshot} />;
+            case 'dil-bilgisi':
+                return <DilBilgisiRenderer data={data} templateId={templateId} settings={printSettingsSnapshot} />;
+            case 'yazim-noktalama':
+                return <YazimNoktalamaRenderer data={data} templateId={templateId} settings={printSettingsSnapshot} />;
+            case 'deyimler':
+                return <DeyimlerAtasozleriRenderer data={data} templateId={templateId} settings={printSettingsSnapshot} />;
+            case 'ses-olaylari':
+                return <SesOlaylariRenderer data={data} templateId={templateId} settings={printSettingsSnapshot} />;
             default:
                 return (
                     <View style={coreStyles.card}>
