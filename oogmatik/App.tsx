@@ -722,6 +722,10 @@ const AppContent = () => {
 
   return (
     <div className="flex flex-col h-screen bg-[var(--bg-primary)] font-sans transition-colors duration-300">
+      {/* VERCEL DEPLOYMENT VERIFICATION MARKER */}
+      <div style={{ position: 'fixed', top: '10px', right: '10px', backgroundColor: 'red', color: 'white', padding: '5px 10px', borderRadius: '5px', zIndex: 9999, fontSize: '12px', fontWeight: 'bold' }}>
+        DESTEK MODU AKTİF: BUILD 2026.03.18-v5
+      </div>
       <AppHeader
         workbookItemsCount={workbookItems.length}
         unreadCount={unreadCount}
