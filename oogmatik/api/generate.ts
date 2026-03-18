@@ -15,7 +15,7 @@ import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 export type VercelRequest = any;
 export type VercelResponse = any;
 
-const MASTER_MODEL = 'gemini-2.5-flash-preview-05-20';
+const MASTER_MODEL = 'gemini-2.0-flash';
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın.

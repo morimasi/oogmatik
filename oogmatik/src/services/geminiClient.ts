@@ -1,5 +1,5 @@
-// Model Seçimi: Gemini 2.5 Flash Preview — En güncel ve stabil model
-const MASTER_MODEL = 'gemini-2.5-flash-preview-05-20';
+// Model Seçimi: Gemini 2.0 Flash — En güncel ve stabil model
+const MASTER_MODEL = 'gemini-2.0-flash';
 
 // ============================================================
 // JSON ONARIM MOTORU (3 Katmanlı Strateji)
