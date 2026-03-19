@@ -4,15 +4,9 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-<<<<<<< HEAD
 import { AppError, AuthenticationError, AuthorizationError } from '../utils/AppError.js';
 import { hasPermission, hasRole, UserRole, Permission } from '../services/rbac.js';
 import { logError } from '../utils/errorHandler.js';
-=======
-import { AppError, AuthenticationError, AuthorizationError } from '../utils/AppError';
-import { hasPermission, hasRole, UserRole, Permission } from '../services/rbac';
-import { logError } from '../utils/errorHandler';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 /**
  * Extract user info from request headers or JWT token

@@ -13,12 +13,7 @@ import { Toolbar } from './Toolbar';
 import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
 import { ActivityImporterModal } from './ActivityImporterModal';
-<<<<<<< HEAD
 import { evaluateContent, generateWithSchema } from '../services/geminiClient.js';
-=======
-import { evaluateContent, generateWithSchema } from '../services/geminiClient';
-import { Type } from '@google/genai';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 interface WorkbookViewProps {
   items: CollectionItem[];
@@ -68,11 +63,7 @@ const SortablePageItem = React.memo(
       <div
         draggable
         onDragStart={() => onDragStart(index)}
-<<<<<<< HEAD
         onDragOver={(e: React.DragEvent) => onDragOver(e, index)}
-=======
-        onDragOver={(e) => onDragOver(e, index)}
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
         onDragEnd={onDragEnd}
         className={`group flex items-center gap-3 p-3 border rounded-xl shadow-sm cursor-grab active:cursor-grabbing hover:border-indigo-400 transition-all ${isDragging ? 'opacity-50 border-dashed border-indigo-500' : ''} ${isDivider ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800' : 'bg-white dark:bg-zinc-700 border-zinc-200 dark:border-zinc-600'}`}
       >
@@ -332,15 +323,9 @@ export const WorkbookView = ({
         .map((entry) => entry[0].replace(/_/g, ' '));
 
       const schema = {
-<<<<<<< HEAD
         type: 'OBJECT',
         properties: {
           preface: { type: 'STRING' },
-=======
-        type: Type.OBJECT,
-        properties: {
-          preface: { type: Type.STRING },
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
         },
         required: ['preface'],
       };
@@ -388,13 +373,8 @@ KRİTİK KURALLAR:
         prefaceText = fallback;
       }
 
-<<<<<<< HEAD
       setSettings((s: any) => ({ ...s, teacherNote: prefaceText, aiPreface: prefaceText }));
     } catch (e: any) {
-=======
-      setSettings((s) => ({ ...s, teacherNote: prefaceText, aiPreface: prefaceText }));
-    } catch (e) {
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
       console.error('AI Error:', e);
     } finally {
       setIsGeneratingPreface(false);
@@ -459,17 +439,10 @@ KRİTİK KURALLAR:
     } else {
       const s = students.find((x: any) => x.id === sid);
       if (s) {
-<<<<<<< HEAD
         setSettings((prev: any) => ({
           ...prev,
           studentName: s.name,
           schoolName: s.learningStyle || (prev as any).schoolName,
-=======
-        setSettings((prev: WorkbookSettings) => ({
-          ...prev,
-          studentName: s.name,
-          schoolName: s.learningStyle || prev.schoolName,
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
         }));
       }
     }
@@ -590,11 +563,7 @@ KRİTİK KURALLAR:
                         students.find((s: any) => s.name === settings.studentName)?.id ||
                         'anonymous'
                       }
-<<<<<<< HEAD
                       onChange={(e: any) => handleStudentAssign(e.target.value)}
-=======
-                      onChange={(e) => handleStudentAssign(e.target.value)}
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                       className="w-full p-3 bg-white dark:bg-zinc-800 border border-amber-200 dark:border-amber-700 rounded-xl text-sm font-bold outline-none focus:ring-2 ring-amber-500/20"
                     >
                       <option value="anonymous">Misafir / Atanmamış</option>
@@ -621,13 +590,8 @@ KRİTİK KURALLAR:
                       <input
                         type="text"
                         value={settings.title}
-<<<<<<< HEAD
                         onChange={(e: any) =>
                           setSettings((s: any) => ({ ...s, title: e.target.value }))
-=======
-                        onChange={(e) =>
-                          setSettings((s: WorkbookSettings) => ({ ...s, title: e.target.value }))
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                         }
                         className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
                         placeholder="Örn: Tatil Kitabım"
@@ -641,13 +605,8 @@ KRİTİK KURALLAR:
                         <input
                           type="text"
                           value={settings.studentName}
-<<<<<<< HEAD
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setSettings((s: WorkbookSettings) => ({ ...s, studentName: e.target.value }))
-=======
-                          onChange={(e) =>
-                            setSettings((s) => ({ ...s, studentName: e.target.value }))
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                           }
                           className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
                           placeholder="Ad Soyad"
@@ -686,13 +645,8 @@ KRİTİK KURALLAR:
                       </div>
                       <textarea
                         value={settings.teacherNote}
-<<<<<<< HEAD
                         onChange={(e: any) =>
                           setSettings((s: any) => ({ ...s, teacherNote: e.target.value }))
-=======
-                        onChange={(e) =>
-                          setSettings((s) => ({ ...s, teacherNote: e.target.value }))
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                         }
                         className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none h-32 resize-none"
                         placeholder="Öğrenciye veya veliye bir not bırakın..."
@@ -795,13 +749,8 @@ KRİTİK KURALLAR:
                           <input
                             type="checkbox"
                             checked={settings.isAiGeneratedCover}
-<<<<<<< HEAD
                             onChange={(e: any) =>
                               setSettings((s: any) => ({
-=======
-                            onChange={(e) =>
-                              setSettings((s: WorkbookSettings) => ({
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                                 ...s,
                                 isAiGeneratedCover: e.target.checked,
                               }))
@@ -823,11 +772,7 @@ KRİTİK KURALLAR:
                         <input
                           type="text"
                           value={settings.aiCoverConcept || ''}
-<<<<<<< HEAD
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-=======
-                          onChange={(e) =>
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                             setSettings((s: WorkbookSettings) => ({
                               ...s,
                               aiCoverConcept: e.target.value,
@@ -1160,22 +1105,12 @@ KRİTİK KURALLAR:
                               {analysisResult.analysis.map((item: any, idx: number) => (
                                 <li key={idx} className="flex gap-2">
                                   <span
-<<<<<<< HEAD
                                     className={`mt-0.5 text-[10px] ${item.type === 'success'
                                       ? 'text-emerald-500'
                                       : item.type === 'warning'
                                         ? 'text-amber-500'
                                         : 'text-red-500'
                                       }`}
-=======
-                                    className={`mt-0.5 text-[10px] ${
-                                      item.type === 'success'
-                                        ? 'text-emerald-500'
-                                        : item.type === 'warning'
-                                          ? 'text-amber-500'
-                                          : 'text-red-500'
-                                    }`}
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                                   >
                                     <i className="fa-solid fa-circle"></i>
                                   </span>
@@ -1243,13 +1178,8 @@ KRİTİK KURALLAR:
                     : editingItem.settings
                 }
                 onSettingsChange={handleStyleUpdate}
-<<<<<<< HEAD
                 onSave={() => { }}
                 onTogglePreview={() => { }}
-=======
-                onSave={() => {}}
-                onTogglePreview={() => {}}
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                 isPreviewMode={false}
                 isEditMode={false}
                 worksheetData={[editingItem.data]}
