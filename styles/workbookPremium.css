@@ -1,0 +1,82 @@
+/* Premium Workbook Animations & Effects */
+
+.premium-glow {
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+}
+
+.cyber-grid {
+    background-image: linear-gradient(rgba(18, 16, 35, 0.8) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(18, 16, 35, 0.8) 2px, transparent 2px);
+    background-size: 40px 40px;
+}
+
+.luxury-gradient {
+    background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.text-gradient-gold {
+    background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.animate-float {
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Orientation Styles for Print */
+.orientation-portrait {
+    --page-width: 210mm;
+    --page-height: 297mm;
+}
+
+.orientation-landscape {
+    --page-width: 297mm;
+    --page-height: 210mm;
+}
+
+@media print {
+    .orientation-portrait {
+        width: 210mm !important;
+        height: 297mm !important;
+    }
+    .orientation-landscape {
+        width: 297mm !important;
+        height: 210mm !important;
+    }
+}
+
+.orientation-portrait {
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+}
+
+.orientation-landscape {
+    @page {
+        size: A4 landscape;
+        margin: 0;
+    }
+}
