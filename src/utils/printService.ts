@@ -7,6 +7,8 @@ export interface PrintOptions {
   columnsPerPage?: 1 | 2;
   fontSize?: 10 | 11 | 12;
   paperSize?: PaperSize;
+  /** html2canvas capture modu: true = her sayfayı canvas olarak yakala (varsayılan: true) */
+  useCapture?: boolean;
 }
 
 export type PaperSize = 'A4' | 'Letter' | 'Legal';
@@ -259,29 +261,157 @@ export const printService = {
   },
 
   /**
-   * Backward compatibility for existing components calling generatePdf
+   * html2canvas tabanlı capture + print (Premium Engine v7.0)
+   *
+   * Her .worksheet-page / .universal-mode-canvas / .math-canvas-page / .reading-canvas-page
+   * öğesini ekrandaki görünümüyle birebir yakalar (html2canvas) ve
+   * 210mm × 297mm boyutunda new window üzerinden basar ya da PNG blob indirir.
+   *
+   * Neden html2canvas? printService.print() DOM klonu yaklaşımında px tabanlı
+   * absolute-positioned içerikler yüksek DPI yazdırıcılarda küçülüp boş görünüyor.
+   * html2canvas doğrudan piksel bufferını alır → DPI bağımsız, ekrandakinin kopyası.
+   */
+  captureAndPrint: async (
+    rootSelector: string,
+    title: string = 'Oogmatik_Etkinlik',
+    action: 'print' | 'download' = 'print',
+    paperSize: PaperSize = 'A4'
+  ): Promise<void> => {
+    const roots = Array.from(document.querySelectorAll(rootSelector)) as HTMLElement[];
+    if (roots.length === 0) {
+      console.warn(`captureAndPrint: "${rootSelector}" bulunamadı, fallback print()`);
+      printService.print(rootSelector, paperSize);
+      return;
+    }
+
+    // Sayfaları bul — A4 canvas sınıflarından herhangi birini içeren öğeler
+    const PAGE_SELECTORS = [
+      '.worksheet-page',
+      '.universal-mode-canvas',
+      '.math-canvas-page',
+      '.reading-canvas-page',
+      '.a4-page',
+      '.print-page',
+    ];
+    const pageSelectorText = PAGE_SELECTORS.join(',');
+    const pages: HTMLElement[] = [];
+
+    // Her eşleşen root içinde sayfaları topla.
+    // Root doğrudan bir sayfaysa kendisini yakalar.
+    roots.forEach((root) => {
+      if (root.matches(pageSelectorText)) {
+        pages.push(root);
+        return;
+      }
+
+      const nestedPages = Array.from(root.querySelectorAll(pageSelectorText)) as HTMLElement[];
+      if (nestedPages.length > 0) {
+        pages.push(...nestedPages);
+      } else {
+        pages.push(root);
+      }
+    });
+
+    // Dinamik import ile html2canvas yükle (kod bölme)
+    const { default: html2canvas } = await import('html2canvas');
+
+    const dataUrls: string[] = [];
+
+    for (const page of pages) {
+      const canvas = await html2canvas(page, {
+        scale: 2, // 2x -> yüksek kaliteli yazdırma
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        // Tasarım modu seçim çerçevelerini bastır
+        ignoreElements: (el) => {
+          const htmlEl = el as HTMLElement;
+          return (
+            htmlEl.classList?.contains('resize-handle') ||
+            htmlEl.classList?.contains('action-button') ||
+            htmlEl.hasAttribute?.('data-design-only')
+          );
+        },
+      });
+      dataUrls.push(canvas.toDataURL('image/png', 1.0));
+    }
+
+    if (action === 'download') {
+      // Tek sayfa: doğrudan indir; çok sayfa: her biri ayrı dosya
+      dataUrls.forEach((url, i) => {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${title.replace(/[^a-z0-9ğüşıöçA-Z]/g, '_')}${dataUrls.length > 1 ? `_sayfa_${i + 1}` : ''}.png`;
+        a.click();
+      });
+      return;
+    }
+
+    // Print: yeni pencerede A4 ebatlarında resimler + window.print()
+    const dims = PAPER_DIMENSIONS[paperSize];
+    const printWin = window.open('', '_blank', 'width=900,height=700');
+    if (!printWin) {
+      alert('Pop-up engellendi. Lütfen tarayıcı pop-up ayarlarını kontrol edin.');
+      return;
+    }
+
+    const imgTags = dataUrls
+      .map(
+        (url) =>
+          `<img src="${url}" style="width:${dims.width};height:${dims.height};display:block;page-break-after:always;max-width:100%;" />`
+      )
+      .join('');
+
+    printWin.document.write(`<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>${title}</title>
+<style>
+  @page { size: ${paperSize}; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #fff; }
+  img:last-child { page-break-after: auto; }
+</style>
+</head><body>${imgTags}</body></html>`);
+    printWin.document.close();
+
+    printWin.onload = () => {
+      setTimeout(() => {
+        printWin.focus();
+        printWin.print();
+        printWin.onafterprint = () => printWin.close();
+        // Fallback: bazı tarayıcılar onafterprint tetiklemiyor
+        setTimeout(() => { try { printWin.close(); } catch (_) {} }, 3000);
+      }, 300);
+    };
+  },
+
+  /**
+   * Backward compatibility — mevcut bileşenler bu metodu çağırıyor.
+   * useCapture: false geçilirse eski overlay modunu kullanır (MathStudio gibi tam sayfa DOM render).
    */
   generatePdf: async (
     elementSelector: string,
-    title: string = 'Bursa_Disleksi_AI_Etkinlik',
+    title: string = 'Oogmatik_Etkinlik',
     options?: PrintOptions
   ) => {
     try {
-      // Set document title temporarily for the print dialog
-      const originalTitle = document.title;
-      const safeTitle = title || 'Bursa_Disleksi_AI_Etkinlik';
-      document.title = safeTitle.replace(/[^a-z0-9ğüşıöç]/gi, '_');
+      const paperSize: PaperSize = options?.paperSize || 'A4';
+      const useCapture = options?.useCapture !== false; // varsayılan: html2canvas mod
 
-      // Determine paper size and call the print method with selector
-      const paperSize: PaperSize = (options && options.paperSize) || 'A4';
-      printService.print(elementSelector, paperSize);
-
-      // Restore title after print dialog is closed
-      // We rely on the 'afterprint' event listener below for cleanup,
-      // but title restoration is safe here.
-      setTimeout(() => {
-        document.title = originalTitle;
-      }, 1000);
+      if (useCapture) {
+        await printService.captureAndPrint(
+          elementSelector,
+          title,
+          options?.action || 'print',
+          paperSize
+        );
+      } else {
+        const originalTitle = document.title;
+        document.title = (title || 'Oogmatik').replace(/[^a-z0-9ğüşıöç]/gi, '_');
+        printService.print(elementSelector, paperSize);
+        setTimeout(() => { document.title = originalTitle; }, 1000);
+      }
     } catch (error) {
       console.error('PDF Generation Error:', error);
       document.body.classList.remove('printing-mode');

@@ -28,7 +28,7 @@ import { worksheetService } from '@/services/worksheetService';
 
 import { UniversalWorksheetWrapper } from '@/components/UniversalStudio/UniversalWorksheetWrapper';
 import { A4EditorPanel } from '@/components/A4Editor/A4EditorPanel';
-import { UniversalPreviewFrame } from '@/components/shared/UniversalPreviewFrame';
+import { UniversalWorksheetViewer } from '@/shared/components/UniversalWorksheetViewer';
 
 interface ContentAreaProps {
   currentView: View;
@@ -356,43 +356,25 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 {/* FIXED TOP CENTERING SCALING */}
                 {processedData.length > 0 && !isLoading && (
                   <div className="w-full h-full flex-1 min-h-0 bg-transparent overflow-hidden">
-                    <UniversalPreviewFrame
-                      mode="html"
+                    <UniversalWorksheetViewer
+                      mode="dom"
+                      isReady={processedData.length > 0}
                       title={
                         activeWorksheetTitle ||
                         ACTIVITIES.find((a: any) => a.id === activityType)?.title ||
                         'Yeni Etkinlik'
                       }
-                      zoom={zoomScale}
-                      onZoomChange={setZoomScale}
-                      downloadLink={
-                        <button
-                          onClick={() => {
-                            const targetSelector = document.getElementById('print-container')
-                              ? '#print-container'
-                              : '.worksheet-page';
-                            import('../utils/printService').then((m) =>
-                              m.printService.generatePdf(
-                                targetSelector,
-                                activeWorksheetTitle || 'Etkinlik',
-                                { action: 'print', paperSize: 'A4' }
-                              )
-                            );
-                          }}
-                          className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm"
-                        >
-                          <i className="fa-solid fa-download"></i>
-                          PDF İndir
-                        </button>
+                      fileName={`${activeWorksheetTitle || 'Etkinlik'}.pdf`}
+                      printSelector="#universal-worksheet-dom-print"
+                      htmlContent={
+                        <UniversalWorksheetWrapper
+                          activityType={activityType}
+                          worksheetData={processedData}
+                          scale={1} // Zoom'u artık frame yönetiyor
+                          styleSettings={styleSettings}
+                        />
                       }
-                    >
-                      <UniversalWorksheetWrapper
-                        activityType={activityType}
-                        worksheetData={processedData}
-                        scale={1} // Zoom'u artık frame yönetiyor
-                        styleSettings={styleSettings}
-                      />
-                    </UniversalPreviewFrame>
+                    />
                   </div>
                 )}
               </>

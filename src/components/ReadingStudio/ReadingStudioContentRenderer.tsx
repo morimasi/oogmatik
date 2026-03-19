@@ -329,7 +329,7 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
                 return (
                     <div
                         key={pageIndex}
-                        className={`a4-page relative bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid' : ''}`}
+                        className={`a4-page worksheet-page print-page relative bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid' : ''}`}
                         style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: 0 }}
                     >
                         {pageItems.map((item: any) => (

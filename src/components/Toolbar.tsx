@@ -454,10 +454,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               try {
                 await new Promise((resolve) => setTimeout(resolve, 50));
 
-                // Eğer #print-container varsa (çoklu sayfa render ediliyorsa) onu al, yoksa .worksheet-page'i al
-                const targetSelector = document.getElementById('print-container')
-                  ? '#print-container'
-                  : '.worksheet-page';
+                // Yeni universal viewer hedefini önceliklendir, yoksa legacy hedeflere geri dön.
+                const targetSelector = document.getElementById('universal-worksheet-dom-print')
+                  ? '#universal-worksheet-dom-print'
+                  : document.getElementById('print-container')
+                    ? '#print-container'
+                    : '.worksheet-page';
 
                 await printService.generatePdf(targetSelector, settings.title, {
                   action: 'print',

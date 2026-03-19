@@ -6,7 +6,13 @@ import { UniversalPreviewFrame } from '../../components/shared/UniversalPreviewF
 interface UniversalWorksheetViewerProps {
   isReady: boolean;
   /** Render edilecek PDF bileşeni (React.FC) veya React Element'i */
-  DocumentComponent: React.ComponentType<any> | React.ReactElement<any>;
+  DocumentComponent?: React.ComponentType<any> | React.ReactElement<any>;
+  /** DOM/HTML modu için render içeriği */
+  htmlContent?: React.ReactNode;
+  /** Çalışma modu */
+  mode?: 'pdf' | 'dom';
+  /** DOM modu yazdırma hedef seçicisi */
+  printSelector?: string;
   emptyStateIcon?: string;
   emptyStateTitle?: string;
   emptyStateDescription?: string;
@@ -18,6 +24,9 @@ interface UniversalWorksheetViewerProps {
 export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> = ({
   isReady,
   DocumentComponent,
+  htmlContent,
+  mode = 'pdf',
+  printSelector = '#universal-worksheet-dom-print',
   emptyStateIcon = 'fa-regular fa-file-pdf',
   emptyStateTitle = 'Çalışma Kağıdı Üretimi',
   emptyStateDescription = 'Sol panelden ayarlarınızı yapın...',
@@ -28,13 +37,17 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
   const [zoom, setZoom] = useState(1);
 
   // DocumentComponent bir fonksiyon/sınıf bileşeni mi yoksa React elementi mi (jsx) olduğunu kontrol et
-  const Document = React.isValidElement(DocumentComponent)
-    ? DocumentComponent
-    : React.createElement(DocumentComponent as React.ComponentType<any>);
+  const Document =
+    mode === 'pdf' && DocumentComponent
+      ? React.isValidElement(DocumentComponent)
+        ? DocumentComponent
+        : React.createElement(DocumentComponent as React.ComponentType<any>)
+      : null;
 
   // PDF İndirme Butonu (Süper Türkçe V2'den alındı)
   const downloadLink =
     isReady && !isLoading ? (
+      mode === 'pdf' && Document ? (
       <PDFDownloadLink
         document={Document}
         fileName={fileName}
@@ -47,6 +60,7 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
           </>
         )}
       </PDFDownloadLink>
+      ) : null
     ) : null;
 
   if (isLoading) {
@@ -77,20 +91,28 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
 
   return (
     <UniversalPreviewFrame
-      mode="pdf"
+      mode={mode === 'pdf' ? 'pdf' : 'html'}
       title={title}
       zoom={zoom}
       onZoomChange={setZoom}
       downloadLink={downloadLink}
+      printSelector={mode === 'dom' ? printSelector : undefined}
+      printFileName={fileName.replace(/\.pdf$/i, '')}
       bgClass="bg-slate-200/50"
     >
-      <div className="w-full h-full shadow-2xl">
-        <ErrorBoundary>
-          <PDFViewer style={{ width: '100%', height: '100%', border: 'none' }} showToolbar={false}>
-            {Document}
-          </PDFViewer>
-        </ErrorBoundary>
-      </div>
+      {mode === 'pdf' ? (
+        <div className="w-full h-full shadow-2xl">
+          <ErrorBoundary>
+            <PDFViewer style={{ width: '100%', height: '100%', border: 'none' }} showToolbar={false}>
+              {Document}
+            </PDFViewer>
+          </ErrorBoundary>
+        </div>
+      ) : (
+        <div id={printSelector.replace('#', '')} className="w-fit max-w-none">
+          {htmlContent}
+        </div>
+      )}
     </UniversalPreviewFrame>
   );
 };

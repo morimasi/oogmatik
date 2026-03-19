@@ -15,6 +15,10 @@ interface UniversalPreviewFrameProps {
     showDownload?: boolean;
     /** İndirme butonu için React-PDF'in <PDFDownloadLink> bileşeni (Opsiyonel) */
     downloadLink?: React.ReactNode;
+    /** DOM modunda html2canvas yazdırma için hedef seçici */
+    printSelector?: string;
+    /** DOM modunda dosya adı */
+    printFileName?: string;
     /** Arka plan rengi sınıfı (Tailwind) */
     bgClass?: string;
     /** Sayfa başlığı */
@@ -31,12 +35,28 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
     children,
     showDownload = true,
     downloadLink,
+    printSelector,
+    printFileName = 'Oogmatik_Etkinlik',
     bgClass = "bg-slate-200/50",
     title,
     zoom = 1,
     onZoomChange,
     mode = 'html'
 }) => {
+
+    const handleCapturePrint = () => {
+        if (!printSelector) { window.print(); return; }
+        import('../../utils/printService').then((m) =>
+            m.printService.captureAndPrint(printSelector, printFileName, 'print', 'A4')
+        );
+    };
+
+    const handleCaptureDownload = () => {
+        if (!printSelector) return;
+        import('../../utils/printService').then((m) =>
+            m.printService.captureAndPrint(printSelector, printFileName, 'download', 'A4')
+        );
+    };
 
     const handleZoomIn = () => onZoomChange?.(Math.min(zoom + 0.1, 2));
     const handleZoomOut = () => onZoomChange?.(Math.max(zoom - 0.1, 0.5));
@@ -100,9 +120,32 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
 
                 {/* Sağ: Aksiyonlar */}
                 <div className="flex items-center gap-1 px-1">
+                    {/* PDF modu: dışarıdan geçirilen link */}
                     {showDownload && downloadLink}
 
-                    {!downloadLink && showDownload && (
+                    {/* DOM modu: html2canvas tabanlı Yazdır + İndir */}
+                    {!downloadLink && printSelector && mode === 'html' && (
+                        <>
+                            <button
+                                onClick={handleCapturePrint}
+                                className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm"
+                                title="Sayfayı yazdır"
+                            >
+                                <i className="fa-solid fa-print"></i>
+                                Yazdır
+                            </button>
+                            <button
+                                onClick={handleCaptureDownload}
+                                className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm"
+                                title="PNG olarak indir"
+                            >
+                                <i className="fa-solid fa-download"></i>
+                                İndir
+                            </button>
+                        </>
+                    )}
+
+                    {!downloadLink && !printSelector && showDownload && (
                         <button className="px-4 py-2 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-lg shadow-slate-200">
                             <i className="fa-solid fa-download"></i>
                             İndir
