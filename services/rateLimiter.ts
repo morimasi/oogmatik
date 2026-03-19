@@ -3,11 +3,7 @@
  * Token Bucket Algorithm - Per-user request limits
  */
 
-<<<<<<< HEAD
 import { RateLimitError } from '../utils/AppError.js';
-=======
-import { RateLimitError } from '../utils/AppError';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 /**
  * Token Bucket: Her user'ın belirli süre içinde yapabileceği request sayısı

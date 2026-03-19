@@ -1,5 +1,4 @@
 
-<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions, MathMemoryCardsData } from '../../types.js';
 import { getMathPrompt } from './prompts.js';
@@ -11,20 +10,6 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
     [GÖREV: MATEMATİK HAFIZA KARTLARI ÜRET]
     ZORLUK: ${difficulty} (Sayı menzili ve işlem karmaşıklığı buna göre belirlensin).
     TOPLAM KART SAYISI: ${itemCount || 16} (Yani ${Math.floor((itemCount || 16) / 2)} Çift).
-=======
-import { Type } from "@google/genai";
-import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, MathMemoryCardsData } from '../../types';
-import { getMathPrompt } from './prompts';
-
-export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): Promise<MathMemoryCardsData[]> => {
-    const { difficulty, itemCount, variant, selectedOperations, studentContext, visualStyle, showNumbers } = options;
-    
-    const rule = `
-    [GÖREV: MATEMATİK HAFIZA KARTLARI ÜRET]
-    ZORLUK: ${difficulty} (Sayı menzili ve işlem karmaşıklığı buna göre belirlensin).
-    TOPLAM KART SAYISI: ${itemCount || 16} (Yani ${Math.floor((itemCount || 16)/2)} Çift).
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     EŞLEŞTİRME MODU: ${variant} 
     - 'op-res': Sol kart işlem (2+2), Sağ kart sonuç (4).
     - 'vis-num': Sol kart görsel miktar (SVG veya sembol), Sağ kart rakam (4).
@@ -43,7 +28,6 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
     const prompt = getMathPrompt("Hafıza Atölyesi: Matematik Kartları", difficulty, rule, studentContext);
 
     const schema = {
-<<<<<<< HEAD
         type: 'ARRAY',
         items: {
             type: 'OBJECT',
@@ -62,26 +46,6 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
                             content: { type: 'STRING' },
                             visualType: { type: 'STRING', nullable: true },
                             numValue: { type: 'NUMBER' }
-=======
-        type: Type.ARRAY,
-        items: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                instruction: { type: Type.STRING },
-                pedagogicalNote: { type: Type.STRING },
-                cards: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            id: { type: Type.STRING },
-                            pairId: { type: Type.STRING },
-                            type: { type: Type.STRING, enum: ['operation', 'number', 'visual', 'text'] },
-                            content: { type: Type.STRING },
-                            visualType: { type: Type.STRING, nullable: true },
-                            numValue: { type: Type.NUMBER }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                         },
                         required: ['id', 'pairId', 'type', 'content', 'numValue']
                     }

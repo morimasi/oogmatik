@@ -1,19 +1,10 @@
 
-<<<<<<< HEAD
 import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
 import { ActivityType, ActivityStats, Activity } from '../types.js';
 import { ACTIVITIES } from '../constants.js';
 import { authService } from './authService.js';
 import { auth } from './firebaseClient.js';
-=======
-import { db } from './firebaseClient';
-import * as firestore from "firebase/firestore";
-import { ActivityType, ActivityStats, Activity } from '../types';
-import { ACTIVITIES } from '../constants';
-import { authService } from './authService';
-import { auth } from './firebaseClient';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 const { collection, doc, setDoc, getDocs, updateDoc, increment, getDoc } = firestore;
 
@@ -23,19 +14,11 @@ export const statsService = {
         try {
             const querySnapshot = await getDocs(collection(db, "activity_stats"));
             const stats: ActivityStats[] = [];
-<<<<<<< HEAD
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data() as any;
                 stats.push({
                     activityId: doc.id as ActivityType,
-=======
-            
-            querySnapshot.forEach((doc) => {
-                const data = doc.data() as any;
-                stats.push({
-                    activityId: doc.id as ActivityType, 
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     title: data.title,
                     generationCount: data.generationCount,
                     lastGenerated: data.lastGenerated,
@@ -55,11 +38,7 @@ export const statsService = {
             const activity = ACTIVITIES.find(a => a.id === activityId);
             const title = activity ? activity.title : activityId;
             const statRef = doc(db, "activity_stats", activityId);
-<<<<<<< HEAD
 
-=======
-            
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             const docSnap = await getDoc(statRef);
 
             if (docSnap.exists()) {
@@ -83,7 +62,6 @@ export const statsService = {
     // En popüler etkinlikleri getir (Favoriler için)
     getTopActivities: async (limit: number = 10, forceDefaults: boolean = false): Promise<(Activity & { stats: ActivityStats })[]> => {
         let stats: ActivityStats[] = [];
-<<<<<<< HEAD
 
         if (!forceDefaults) {
             stats = await statsService.getAllStats();
@@ -93,17 +71,6 @@ export const statsService = {
 
         const result: (Activity & { stats: ActivityStats })[] = [];
 
-=======
-        
-        if (!forceDefaults) {
-            stats = await statsService.getAllStats();
-        }
-        
-        const sortedStats = stats.sort((a, b) => b.generationCount - a.generationCount).slice(0, limit);
-        
-        const result: (Activity & { stats: ActivityStats })[] = [];
-        
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
         sortedStats.forEach(stat => {
             const activityDef = ACTIVITIES.find(a => a.id === stat.activityId);
             if (activityDef) {
@@ -113,11 +80,7 @@ export const statsService = {
                 });
             }
         });
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
         // Eğer yeterli veri yoksa, varsayılanları ekle
         if (result.length < limit) {
             const defaults = [
@@ -142,11 +105,7 @@ export const statsService = {
                         stats: {
                             activityId: def.id,
                             title: def.title,
-<<<<<<< HEAD
                             generationCount: 0,
-=======
-                            generationCount: 0, 
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                             lastGenerated: new Date().toISOString(),
                             avgCompletionTime: 10
                         }
@@ -171,21 +130,13 @@ export const statsService = {
             const favs = statsService.getFavorites();
             const newFavs = favs.includes(id) ? favs.filter(f => f !== id) : [...favs, id];
             localStorage.setItem('user_favorites', JSON.stringify(newFavs));
-<<<<<<< HEAD
 
-=======
-            
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             // Sync with Firebase if user is logged in
             const currentUser = auth.currentUser;
             if (currentUser) {
                 authService.updateProfile(currentUser.uid, { favorites: newFavs }).catch(console.error);
             }
-<<<<<<< HEAD
 
-=======
-            
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             return newFavs;
         } catch { return []; }
     },

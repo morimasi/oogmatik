@@ -127,9 +127,6 @@ dist
 # Operating System Files
 .DS_Store
 Thumbs.db
-<<<<<<< HEAD
 
 .vercel
 .env*.local
-=======
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060

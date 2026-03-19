@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { GeneratorOptions, ActivityType } from '../../types.js';
 import { generateFromRichPrompt } from './newActivities.js';
-=======
-import { GeneratorOptions, ActivityType } from '../../types';
-import { generateFromRichPrompt } from './newActivities';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 const TEMPLATES: Record<string, string> = {
     'cloze': `[

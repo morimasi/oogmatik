@@ -1,16 +1,8 @@
 
-<<<<<<< HEAD
 import { generateWithSchema } from './geminiClient.js';
 import { Curriculum, ActivityType, CurriculumDay, CurriculumActivityStatus, Student } from '../types.js';
 import { ACTIVITIES } from '../constants.js';
 import { db } from './firebaseClient.js';
-=======
-import { generateWithSchema } from './geminiClient';
-import { Type } from "@google/genai";
-import { Curriculum, ActivityType, CurriculumDay, CurriculumActivityStatus, Student } from '../types';
-import { ACTIVITIES } from '../constants';
-import { db } from './firebaseClient';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 import * as firestore from "firebase/firestore";
 
 const { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc, getDoc } = firestore;
@@ -80,7 +72,6 @@ export const curriculumService = {
         `;
 
         const schema = {
-<<<<<<< HEAD
             type: 'OBJECT',
             properties: {
                 goals: { type: 'ARRAY', items: { type: 'STRING' } },
@@ -102,29 +93,6 @@ export const curriculumService = {
                                         duration: { type: 'INTEGER' },
                                         goal: { type: 'STRING' },
                                         difficultyLevel: { type: 'STRING', enum: ['Easy', 'Medium', 'Hard'] }
-=======
-            type: Type.OBJECT,
-            properties: {
-                goals: { type: Type.ARRAY, items: { type: Type.STRING } },
-                note: { type: Type.STRING },
-                schedule: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            day: { type: Type.INTEGER },
-                            focus: { type: Type.STRING },
-                            activities: {
-                                type: Type.ARRAY,
-                                items: {
-                                    type: Type.OBJECT,
-                                    properties: {
-                                        activityId: { type: Type.STRING },
-                                        title: { type: Type.STRING },
-                                        duration: { type: Type.INTEGER },
-                                        goal: { type: Type.STRING },
-                                        difficultyLevel: { type: Type.STRING, enum: ['Easy', 'Medium', 'Hard'] }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                                     },
                                     required: ['activityId', 'title', 'duration', 'goal', 'difficultyLevel']
                                 }

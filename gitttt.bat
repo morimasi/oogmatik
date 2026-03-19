@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 @echo off
 echo --- Git Islemi Baslatiliyor (Cakisma Cozumu Dahil) ---
 git add .
@@ -11,10 +10,3 @@ echo.
 echo Islem tamamlandi. 
 echo Hata mesajini gormek icin pencereyi kapatmadan once yukariyi kontrol edin.
 pause
-=======
-git add .
-
-git commit -m "feat(ai): guncel"
-
-git push
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060

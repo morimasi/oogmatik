@@ -1,12 +1,6 @@
 
-<<<<<<< HEAD
 import { generateCreativeMultimodal, generateWithSchema, MultimodalFile } from '../geminiClient.js';
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
-=======
-import { Type } from "@google/genai";
-import { generateCreativeMultimodal, generateWithSchema, MultimodalFile } from '../geminiClient';
-import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 /**
  * analyzeReferenceFiles: GÖRSELİN MİMARİ DNA'SINI ÇIKARIR (Thinking Mode)
@@ -27,17 +21,10 @@ export const analyzeReferenceFiles = async (files: MultimodalFile[], currentProm
     `;
 
   const schema = {
-<<<<<<< HEAD
     type: 'OBJECT',
     properties: {
       analysis: { type: 'STRING' },
       blueprintPrompt: { type: 'STRING' }
-=======
-    type: Type.OBJECT,
-    properties: {
-      analysis: { type: Type.STRING },
-      blueprintPrompt: { type: Type.STRING }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     },
     required: ['analysis', 'blueprintPrompt']
   };
@@ -138,7 +125,6 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
     `;
 
   const schema = {
-<<<<<<< HEAD
     type: 'OBJECT',
     properties: {
       title: { type: 'STRING' },
@@ -155,24 +141,6 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
               properties: {
                 type: {
                   type: 'STRING',
-=======
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING },
-      instruction: { type: Type.STRING },
-      pedagogicalNote: { type: Type.STRING },
-      layoutArchitecture: {
-        type: Type.OBJECT,
-        properties: {
-          cols: { type: Type.INTEGER },
-          blocks: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                type: {
-                  type: Type.STRING,
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                   enum: [
                     'header', 'text', 'grid', 'table', 'logic_card',
                     'footer_validation', 'image', 'cloze_test',
@@ -180,13 +148,8 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
                     'visual_clue_card', 'neuro_marker'
                   ]
                 },
-<<<<<<< HEAD
                 content: { type: 'OBJECT' },
                 weight: { type: 'INTEGER' }
-=======
-                content: { type: Type.OBJECT },
-                weight: { type: Type.INTEGER }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
               },
               required: ['type', 'content']
             }
@@ -216,10 +179,6 @@ export const refinePromptWithAI = async (currentPrompt: string, mode: 'expand' |
     İSTEM: "${currentPrompt}"
     MOD: ${mode}
     `;
-<<<<<<< HEAD
   const result = await generateWithSchema(prompt, { type: 'OBJECT', properties: { refined: { type: 'STRING' } }, required: ['refined'] });
-=======
-  const result = await generateWithSchema(prompt, { type: Type.OBJECT, properties: { refined: { type: Type.STRING } }, required: ['refined'] });
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
   return result.refined;
 };

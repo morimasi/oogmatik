@@ -1,15 +1,8 @@
 
-<<<<<<< HEAD
 import { auth, db } from './firebaseClient.js';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile as updateAuthProfile } from "firebase/auth";
 import * as firestore from "firebase/firestore";
 import { User, UserRole, UserStatus, ActivityType } from '../types.js';
-=======
-import { auth, db } from './firebaseClient';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile as updateAuthProfile } from "firebase/auth";
-import * as firestore from "firebase/firestore";
-import { User, UserRole, UserStatus, ActivityType } from '../types';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment } = firestore;
 

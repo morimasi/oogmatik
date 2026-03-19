@@ -3,19 +3,11 @@
  * Firestore CRUD + Error Handling + Permission Validation
  */
 
-<<<<<<< HEAD
 import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types.js';
 import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
 import { logError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';
-=======
-import { db } from './firebaseClient';
-import * as firestore from "firebase/firestore";
-import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types';
-import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError';
-import { logError, retryWithBackoff, withTimeout } from '../utils/errorHandler';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, startAfter } = firestore;
 

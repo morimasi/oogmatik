@@ -1,12 +1,6 @@
 
-<<<<<<< HEAD
 import { analyzeImage } from './geminiClient.js';
 import { OCRResult, OCRBlueprint, OCRDetectedType } from '../types.js';
-=======
-import { Type } from "@google/genai";
-import { analyzeImage } from './geminiClient';
-import { OCRResult, OCRBlueprint, OCRDetectedType } from '../types';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 // Blueprint kalitesini ölçen minimum karakter eşiği
 const BLUEPRINT_MIN_LENGTH = 50;
@@ -106,7 +100,6 @@ export const ocrService = {
         `;
 
         const schema = {
-<<<<<<< HEAD
             type: 'OBJECT',
             properties: {
                 title: {
@@ -127,28 +120,6 @@ export const ocrService = {
                         columns: { type: 'NUMBER', description: "Sayfadaki sütun sayısı (1-4)" },
                         hasImages: { type: 'BOOLEAN', description: "Görseller içeriyor mu?" },
                         questionCount: { type: 'NUMBER', description: "Tahmini soru/madde sayısı" }
-=======
-            type: Type.OBJECT,
-            properties: {
-                title: {
-                    type: Type.STRING,
-                    description: "Çalışma sayfasının başlığı veya konusu"
-                },
-                detectedType: {
-                    type: Type.STRING,
-                    description: "MATH_WORKSHEET | READING_COMPREHENSION | FILL_IN_THE_BLANK | MATCHING | TRUE_FALSE | MULTIPLE_CHOICE | OTHER"
-                },
-                worksheetBlueprint: {
-                    type: Type.STRING,
-                    description: "BLUEPRINT_V1.0 formatında teknik mimari DNA — sütunlar, bloklar, soru tipleri, yerleşim mantığı"
-                },
-                layoutHints: {
-                    type: Type.OBJECT,
-                    properties: {
-                        columns: { type: Type.NUMBER, description: "Sayfadaki sütun sayısı (1-4)" },
-                        hasImages: { type: Type.BOOLEAN, description: "Görseller içeriyor mu?" },
-                        questionCount: { type: Type.NUMBER, description: "Tahmini soru/madde sayısı" }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     },
                     required: ['columns', 'hasImages', 'questionCount']
                 }

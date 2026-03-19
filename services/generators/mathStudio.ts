@@ -1,12 +1,6 @@
 
-<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { MathProblemConfig } from '../../types/math.js';
-=======
-import { Type } from "@google/genai";
-import { generateWithSchema } from '../geminiClient';
-import { MathProblemConfig } from '../../types/math';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 export const generateMathProblemsAI = async (config: MathProblemConfig) => {
     // Operations text build
@@ -85,7 +79,6 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
     `;
 
     const schema = {
-<<<<<<< HEAD
         type: 'OBJECT',
         properties: {
             instruction: { type: 'STRING' },
@@ -101,23 +94,6 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
                         imagePrompt: { type: 'STRING' },
                         options: { type: 'ARRAY', items: { type: 'STRING' } },
                         steps: { type: 'ARRAY', items: { type: 'STRING' } }
-=======
-        type: Type.OBJECT,
-        properties: {
-            instruction: { type: Type.STRING },
-            problems: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        text: { type: Type.STRING },
-                        answer: { type: Type.STRING },
-                        operationHint: { type: Type.STRING },
-                        type: { type: Type.STRING },
-                        imagePrompt: { type: Type.STRING },
-                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        steps: { type: Type.ARRAY, items: { type: Type.STRING } }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     },
                     required: ['text', 'answer', 'operationHint', 'type']
                 }

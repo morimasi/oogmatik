@@ -11,11 +11,7 @@ import {
   RateLimitError,
   InternalServerError,
   isAppError,
-<<<<<<< HEAD
 } from './AppError.js';
-=======
-} from './AppError';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 /**
  * LOGGING: Centralized error logging
@@ -233,11 +229,7 @@ export class CircuitBreaker {
   constructor(
     private failureThreshold: number = 5, // Kaç hata sonra aç?
     private resetTimeoutMs: number = 60000 // Ne kadar sonra resetle?
-<<<<<<< HEAD
   ) { }
-=======
-  ) {}
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
   canAttempt(): boolean {
     const now = Date.now();

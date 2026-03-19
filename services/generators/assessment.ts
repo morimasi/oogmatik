@@ -1,5 +1,4 @@
 
-<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { AdaptiveQuestion, TestCategory, Student } from '../../types.js';
 import { PEDAGOGICAL_BASE } from './prompts.js';
@@ -10,19 +9,6 @@ export const generateAdaptiveQuestionsFromAI = async (
     student?: Student // Added student context
 ): Promise<Record<string, AdaptiveQuestion[]>> => {
 
-=======
-import { Type } from "@google/genai";
-import { generateWithSchema } from '../geminiClient';
-import { AdaptiveQuestion, TestCategory, Student } from '../../types';
-import { PEDAGOGICAL_BASE } from './prompts';
-
-export const generateAdaptiveQuestionsFromAI = async (
-    skills: TestCategory[], 
-    countPerSkill: number = 3,
-    student?: Student // Added student context
-): Promise<Record<string, AdaptiveQuestion[]>> => {
-    
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     const studentContext = student ? `
     ÖĞRENCİ BİLGİSİ:
     - Tanı: ${student.diagnosis?.join(', ') || 'Belirtilmemiş'}
@@ -55,7 +41,6 @@ export const generateAdaptiveQuestionsFromAI = async (
     `;
 
     const questionSchema = {
-<<<<<<< HEAD
         type: 'OBJECT',
         properties: {
             id: { type: 'STRING' },
@@ -70,36 +55,14 @@ export const generateAdaptiveQuestionsFromAI = async (
                 description: "Map of Option Text to Error Tag Key",
                 nullable: true
             }
-=======
-        type: Type.OBJECT,
-        properties: {
-            id: { type: Type.STRING },
-            text: { type: Type.STRING },
-            options: { type: Type.ARRAY, items: { type: Type.STRING } },
-            correct: { type: Type.STRING },
-            difficulty: { type: Type.INTEGER },
-            skill: { type: Type.STRING },
-            subSkill: { type: Type.STRING },
-            errorTags: { 
-                type: Type.OBJECT,
-                description: "Map of Option Text to Error Tag Key",
-                nullable: true 
-            } 
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
         },
         required: ['text', 'options', 'correct', 'difficulty', 'skill', 'errorTags']
     };
 
     const schema = {
-<<<<<<< HEAD
         type: 'OBJECT',
         properties: skills.reduce((acc, skill) => {
             acc[skill] = { type: 'ARRAY', items: questionSchema };
-=======
-        type: Type.OBJECT,
-        properties: skills.reduce((acc, skill) => {
-            acc[skill] = { type: Type.ARRAY, items: questionSchema };
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             return acc;
         }, {} as any)
     };
@@ -107,17 +70,12 @@ export const generateAdaptiveQuestionsFromAI = async (
     try {
         const rawData = await generateWithSchema(prompt, schema);
         const result: Record<string, AdaptiveQuestion[]> = {};
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
         Object.keys(rawData).forEach(key => {
             if (skills.includes(key as any)) {
                 result[key] = rawData[key].map((q: any, idx: number) => ({
                     ...q,
                     id: `${key}_ai_${Date.now()}_${idx}`,
-<<<<<<< HEAD
                     skill: key
                 }));
             }
@@ -127,17 +85,6 @@ export const generateAdaptiveQuestionsFromAI = async (
     } catch (error) {
         console.error("AI Assessment Generation Failed:", error);
         throw error;
-=======
-                    skill: key 
-                }));
-            }
-        });
-        
-        return result;
-    } catch (error) {
-        console.error("AI Assessment Generation Failed:", error);
-        throw error; 
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     }
 };
 

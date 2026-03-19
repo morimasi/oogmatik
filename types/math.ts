@@ -1,10 +1,6 @@
 import { BaseActivityData, ShapeType, VisualMathType } from './common';
 import { ActivityType, Student } from './core';
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 export interface NumberLogicRiddleData extends BaseActivityData {
   sumTarget: number;
   sumMessage?: string;
@@ -449,7 +445,6 @@ export interface FinancialMarketData extends BaseActivityData {
   };
 }
 
-<<<<<<< HEAD
 export interface NumberSenseData extends BaseActivityData {
   exercises: {
     type: 'missing' | 'comparison' | 'ordering';
@@ -461,8 +456,6 @@ export interface NumberSenseData extends BaseActivityData {
   layout?: string;
 }
 
-=======
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 export interface BoxMathProblem {
   id: string;
   expression: string;

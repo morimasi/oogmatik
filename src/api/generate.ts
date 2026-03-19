@@ -15,17 +15,10 @@ import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 export type VercelRequest = any;
 export type VercelResponse = any;
 
-<<<<<<< HEAD
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın. [SRC_MINIMAL_DEPLOY: 2024_03_18_v4]
-=======
-const MASTER_MODEL = 'gemini-1.5-flash-latest';
-
-const SYSTEM_INSTRUCTION = `
-Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın. [Build: 20260318-v2]
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 MİSYON: 4-8. sınıf seviyesinde, MEB 2024-2025 müfredatıyla %100 uyumlu, LGS/PISA standartlarında "Premium" içerik üretmek.
 PEDAGOJİK DNA:
 1. Disleksi hassasiyeti: Cümleler net, yönergeler adım adım ve görselleştirilebilir olmalı.
@@ -79,16 +72,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       async () => {
         // ALWAYS use MASTER_MODEL regardless of what client sends to ensure compatibility
         const selectedModel = MASTER_MODEL;
-<<<<<<< HEAD
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
 
         // Build contents array
         const contents: any[] = [
-=======
-        const url = `https://generativelanguage.googleapis.com/v1/models/${selectedModel}:generateContent?key=${apiKey}`;
-
-        const contents = [
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
           {
             role: 'user',
             parts: [] as any[],
@@ -98,13 +85,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Image support
         if (image) {
           contents[0].parts.push({
-<<<<<<< HEAD
             inlineData: {
               mimeType: mimeType || 'image/jpeg',
-=======
-            inline_data: {
-              mime_type: mimeType || 'image/jpeg',
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
               data: image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, ''),
             },
           });
@@ -113,30 +95,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Text prompt
         contents[0].parts.push({ text: prompt });
 
-<<<<<<< HEAD
         // CRITICAL: We remove generationConfig and systemInstruction COMPLETELY 
         // to ensure NO SNAKE_CASE fields are ever sent to Google API from this proxy.
         const requestBody: any = {
           contents
-=======
-        const requestBody = {
-          contents,
-          system_instruction: {
-            parts: [{ text: systemInstruction || SYSTEM_INSTRUCTION }],
-          },
-          generation_config: {
-            response_mime_type: 'application/json',
-            response_schema: schema,
-            temperature: 0.1,
-            max_output_tokens: 12000,
-          },
-          safety_settings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
-          ],
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
         };
 
         const response = await fetch(url, {

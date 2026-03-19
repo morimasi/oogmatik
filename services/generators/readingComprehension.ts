@@ -1,12 +1,6 @@
 
-<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions, StoryData, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData } from '../../types.js';
-=======
-import { Type } from "@google/genai";
-import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, StoryData, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData } from '../../types';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 const PEDAGOGICAL_PROMPT = `
 [ROL: KIDEMLİ ÖZEL EĞİTİM UZMANI & PSİKOMETRİST]
@@ -16,11 +10,7 @@ Tasarım: Sözel Stroop Testi (Verbal Stroop) bir A4 sayfasını dolduracak yoğ
 
 export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Promise<ReadingSudokuData[]> => {
     const { difficulty, worksheetCount, variant = 'letters', gridSize = 4 } = options;
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     const variantDesc = {
         'letters': 'Dislekside sık karıştırılan harf çiftleri (b-d, p-q, m-n vb.) veya sesli harfler.',
         'words': 'Aynı temaya ait (uzay, meyveler, duygular) kısa ve somut kelimeler.',
@@ -46,7 +36,6 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
     `;
 
     const schema = {
-<<<<<<< HEAD
         type: 'ARRAY',
         items: {
             type: 'OBJECT',
@@ -64,25 +53,6 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
                             value: { type: 'STRING' },
                             label: { type: 'STRING' },
                             imagePrompt: { type: 'STRING' }
-=======
-        type: Type.ARRAY,
-        items: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                instruction: { type: Type.STRING },
-                pedagogicalNote: { type: Type.STRING },
-                grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING, nullable: true } } },
-                solution: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
-                symbols: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            value: { type: Type.STRING },
-                            label: { type: Type.STRING },
-                            imagePrompt: { type: Type.STRING }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                         },
                         required: ['value']
                     }
@@ -105,15 +75,9 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
 
 export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOptions): Promise<SynonymAntonymMatchData[]> => {
     const { difficulty, worksheetCount, variant = 'mixed', itemCount = 6 } = options;
-<<<<<<< HEAD
 
     const modeDesc = variant === 'synonym' ? 'Sadece Eş Anlamlılar' : variant === 'antonym' ? 'Sadece Zıt Anlamlılar' : 'Eş ve Zıt Anlamlı Karışık';
 
-=======
-    
-    const modeDesc = variant === 'synonym' ? 'Sadece Eş Anlamlılar' : variant === 'antonym' ? 'Sadece Zıt Anlamlılar' : 'Eş ve Zıt Anlamlı Karışık';
-    
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     const prompt = `
     [ROL: UZMAN EĞİTİM MATERYALİ TASARIMCISI]
     GÖREV: "${difficulty}" seviyesinde, disleksi dostu bir "Eş ve Zıt Anlamlı Kelime Bulmacası" oluştur.
@@ -131,7 +95,6 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
     `;
 
     const schema = {
-<<<<<<< HEAD
         type: 'ARRAY',
         items: {
             type: 'OBJECT',
@@ -148,30 +111,11 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
                             source: { type: 'STRING' },
                             target: { type: 'STRING' },
                             type: { type: 'STRING' }
-=======
-        type: Type.ARRAY,
-        items: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                instruction: { type: Type.STRING },
-                pedagogicalNote: { type: Type.STRING },
-                mode: { type: Type.STRING },
-                pairs: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            source: { type: Type.STRING },
-                            target: { type: Type.STRING },
-                            type: { type: Type.STRING }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                         },
                         required: ['source', 'target', 'type']
                     }
                 },
                 sentences: {
-<<<<<<< HEAD
                     type: 'ARRAY',
                     items: {
                         type: 'OBJECT',
@@ -180,16 +124,6 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
                             word: { type: 'STRING' },
                             target: { type: 'STRING' },
                             type: { type: 'STRING' }
-=======
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            text: { type: Type.STRING },
-                            word: { type: Type.STRING },
-                            target: { type: Type.STRING },
-                            type: { type: Type.STRING }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                         },
                         required: ['text', 'word', 'target', 'type']
                     }
@@ -204,11 +138,7 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
 
 export const generateReadingStroopFromAI = async (options: GeneratorOptions): Promise<ReadingStroopData[]> => {
     const { difficulty, worksheetCount, itemCount = 40, variant } = options;
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     const wordTypeMap: Record<string, string> = {
         'colors': 'Temel Renk Adları (Mavi, Kırmızı, Yeşil vb.)',
         'semantic': 'Renk çağrıştıran doğa nesneleri (Limon, Deniz, Çilek, Gece vb.)',
@@ -237,7 +167,6 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
     `;
 
     const schema = {
-<<<<<<< HEAD
         type: 'ARRAY',
         items: {
             type: 'OBJECT',
@@ -252,22 +181,6 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
                         properties: {
                             text: { type: 'STRING' },
                             color: { type: 'STRING' }
-=======
-        type: Type.ARRAY,
-        items: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                instruction: { type: Type.STRING },
-                pedagogicalNote: { type: Type.STRING },
-                grid: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            text: { type: Type.STRING },
-                            color: { type: Type.STRING }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                         },
                         required: ['text', 'color']
                     }
@@ -291,7 +204,6 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
 
 export const generateStoryComprehensionFromAI = async (options: GeneratorOptions): Promise<StoryData[]> => {
     const { topic, difficulty, worksheetCount } = options;
-<<<<<<< HEAD
 
     const constraints = difficulty === 'Başlangıç'
         ? '50-80 kelime. Basit cümleler. Somut olaylar.'
@@ -299,15 +211,6 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
             ? '100-150 kelime. Diyalog içerebilir. Günlük maceralar.'
             : '200+ kelime. Betimlemeler, sebep-sonuç ilişkileri.';
 
-=======
-    
-    const constraints = difficulty === 'Başlangıç' 
-        ? '50-80 kelime. Basit cümleler. Somut olaylar.' 
-        : difficulty === 'Orta' 
-            ? '100-150 kelime. Diyalog içerebilir. Günlük maceralar.' 
-            : '200+ kelime. Betimlemeler, sebep-sonuç ilişkileri.';
-    
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     const prompt = `
     "${topic}" konusunda, ${difficulty} seviyesinde (${constraints}) özgün bir hikaye yaz.
     
@@ -326,7 +229,6 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
     `;
 
     const singleSchema = {
-<<<<<<< HEAD
         type: 'OBJECT',
         properties: {
             title: { type: 'STRING' },
@@ -343,29 +245,10 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
                     properties: {
                         word: { type: 'STRING' },
                         definition: { type: 'STRING' }
-=======
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING },
-            story: { type: Type.STRING },
-            pedagogicalNote: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-            mainIdea: { type: Type.STRING },
-            characters: { type: Type.ARRAY, items: { type: Type.STRING } },
-            setting: { type: Type.STRING },
-            vocabulary: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        word: { type: Type.STRING },
-                        definition: { type: Type.STRING }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     },
                     required: ['word', 'definition']
                 }
             },
-<<<<<<< HEAD
             creativeTask: { type: 'STRING' },
             questions: {
                 type: 'ARRAY',
@@ -377,19 +260,6 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
                         options: { type: 'ARRAY', items: { type: 'STRING' }, nullable: true },
                         answer: { type: 'STRING' },
                         isTrue: { type: 'BOOLEAN', nullable: true }
-=======
-            creativeTask: { type: Type.STRING },
-            questions: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        type: { type: Type.STRING, enum: ['multiple-choice', 'true-false', 'open-ended'] },
-                        question: { type: Type.STRING },
-                        options: { type: Type.ARRAY, items: { type: Type.STRING }, nullable: true },
-                        answer: { type: Type.STRING },
-                        isTrue: { type: Type.BOOLEAN, nullable: true }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     },
                     required: ['type', 'question', 'answer']
                 }
@@ -398,21 +268,12 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
         required: ['title', 'story', 'imagePrompt', 'mainIdea', 'characters', 'setting', 'questions', 'pedagogicalNote', 'vocabulary', 'creativeTask']
     };
 
-<<<<<<< HEAD
     const schema = { type: 'ARRAY', items: singleSchema };
 
     return generateWithSchema(prompt, schema) as Promise<StoryData[]>;
 };
 
 export const generateStoryAnalysisFromAI = async (o: GeneratorOptions) => [] as any;
-=======
-    const schema = { type: Type.ARRAY, items: singleSchema };
-    
-    return generateWithSchema(prompt, schema) as Promise<StoryData[]>;
-};
-
-export const generateStoryAnalysisFromAI = async (o: GeneratorOptions) => [] as any; 
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 export const generateStoryCreationPromptFromAI = async (o: GeneratorOptions) => [] as any;
 export const generateWordsInStoryFromAI = async (o: GeneratorOptions) => [] as any;
 export const generateStorySequencingFromAI = async (o: GeneratorOptions) => [] as any;

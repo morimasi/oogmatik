@@ -1,8 +1,0 @@
-{
-  "name": "Bursa Disleksi A V3",
-  "description": "Bursa Disleksi Ai, Gemini 3 Pro 'Thinking' motoruyla donatılmış, görsel hiyerarşiyi ve pedagojik DNA'yı klonlayabilen dünyanın en gelişmiş özel eğitim materyal üretim platformudur.",
-  "requestFramePermissions": [
-    "camera",
-    "microphone"
-  ]
-}

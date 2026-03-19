@@ -1,12 +1,6 @@
 
-<<<<<<< HEAD
 import { generateWithSchema } from './geminiClient.js';
 import { AssessmentProfile, AssessmentReport } from '../types.js';
-=======
-import { generateWithSchema } from './geminiClient';
-import { Type } from "@google/genai";
-import { AssessmentProfile, AssessmentReport } from '../types';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 /**
  * FAZ 3: Klinik AI Rapor Motoru
@@ -60,7 +54,6 @@ DILE getir: Türkçe, profesyonel, net.
 `;
 
     const schema = {
-<<<<<<< HEAD
         type: 'OBJECT',
         properties: {
             overallSummary: { type: 'STRING', description: "3-4 cümlelik klinik özet" },
@@ -82,52 +75,20 @@ DILE getir: Türkçe, profesyonel, net.
                         label: { type: 'STRING' },
                         value: { type: 'INTEGER' },
                         fullMark: { type: 'INTEGER' }
-=======
-        type: Type.OBJECT,
-        properties: {
-            overallSummary: { type: Type.STRING, description: "3-4 cümlelik klinik özet" },
-            scores: {
-                type: Type.OBJECT,
-                properties: {
-                    linguistic: { type: Type.INTEGER },
-                    logical: { type: Type.INTEGER },
-                    spatial: { type: Type.INTEGER },
-                    attention: { type: Type.INTEGER },
-                    phonological: { type: Type.INTEGER }
-                }
-            },
-            chartData: {
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        label: { type: Type.STRING },
-                        value: { type: Type.INTEGER },
-                        fullMark: { type: Type.INTEGER }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     },
                     required: ['label', 'value', 'fullMark']
                 }
             },
             analysis: {
-<<<<<<< HEAD
                 type: 'OBJECT',
                 properties: {
                     strengths: { type: 'ARRAY', items: { type: 'STRING' } },
                     weaknesses: { type: 'ARRAY', items: { type: 'STRING' } },
                     errorAnalysis: { type: 'ARRAY', items: { type: 'STRING' } }
-=======
-                type: Type.OBJECT,
-                properties: {
-                    strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    weaknesses: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    errorAnalysis: { type: Type.ARRAY, items: { type: Type.STRING } }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                 },
                 required: ['strengths', 'weaknesses', 'errorAnalysis']
             },
             roadmap: {
-<<<<<<< HEAD
                 type: 'ARRAY',
                 items: {
                     type: 'OBJECT',
@@ -135,15 +96,6 @@ DILE getir: Türkçe, profesyonel, net.
                         activityId: { type: 'STRING' },
                         reason: { type: 'STRING', description: "Pedagojik gerekçe, öğrenciye özel" },
                         frequency: { type: 'STRING', description: "Haftada X kez formatında" }
-=======
-                type: Type.ARRAY,
-                items: {
-                    type: Type.OBJECT,
-                    properties: {
-                        activityId: { type: Type.STRING },
-                        reason: { type: Type.STRING, description: "Pedagojik gerekçe, öğrenciye özel" },
-                        frequency: { type: Type.STRING, description: "Haftada X kez formatında" }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     },
                     required: ['activityId', 'reason', 'frequency']
                 }

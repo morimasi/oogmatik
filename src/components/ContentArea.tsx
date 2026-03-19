@@ -28,10 +28,7 @@ import { worksheetService } from '@/services/worksheetService';
 
 import { UniversalWorksheetWrapper } from '@/components/UniversalStudio/UniversalWorksheetWrapper';
 import { A4EditorPanel } from '@/components/A4Editor/A4EditorPanel';
-<<<<<<< HEAD
 import { UniversalPreviewFrame } from '@/components/shared/UniversalPreviewFrame';
-=======
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 interface ContentAreaProps {
   currentView: View;
@@ -120,11 +117,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   activeCurriculumSession,
   onCompleteCurriculumActivity,
   onAddDirectToWorkbook,
-<<<<<<< HEAD
 }: any) => {
-=======
-}) => {
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
   const { user } = useAuthStore();
   const {
     activeWorksheetId,
@@ -151,13 +144,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       if (!currentId && worksheetData) {
         const title =
           activeWorksheetTitle ||
-<<<<<<< HEAD
           (Array.isArray(worksheetData)
             ? (worksheetData[0] as any)?.title
             : (worksheetData as any)?.title) ||
-=======
-          (Array.isArray(worksheetData) ? (worksheetData[0] as any)?.title : (worksheetData as any)?.title) ||
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
           'Yeni Etkinlik';
         currentId = await onSave!(title, activityType!, worksheetData);
         if (currentId) {
@@ -190,13 +179,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       setProcessedData([]);
       return;
     }
-<<<<<<< HEAD
     const safeData = Array.isArray(worksheetData)
       ? [...(worksheetData as any)]
       : [{ ...(worksheetData as any) } as any];
-=======
-    const safeData = Array.isArray(worksheetData) ? [...(worksheetData as any)] : [({ ...(worksheetData as any) } as any)];
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
     // Assign IDs to blocks if they don't have one, to allow editor selection
     safeData.forEach((ws) => {
@@ -272,13 +257,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     import('@/components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
   );
   const ScreeningModule = React.lazy(() =>
-<<<<<<< HEAD
     import('@/components/Screening/ScreeningModule').then((module) => ({
       default: module.ScreeningModule,
     }))
-=======
-    import('@/components/Screening/ScreeningModule').then((module) => ({ default: module.ScreeningModule }))
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
   );
 
   return (
@@ -331,20 +312,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         {/* VIEWPORT - THE DESK SURFACE */}
         <div
           ref={scrollContainerRef}
-<<<<<<< HEAD
           className={`flex-1 relative overflow-hidden transition-colors duration-500 ${
             zenMode ? 'bg-[#050505]' : 'bg-slate-200/50'
           }`}
         >
           {/* justify-start and items-start for fixed top anchoring */}
           <div className="w-full h-full flex flex-col items-center justify-start py-0">
-=======
-          className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar transition-colors duration-500 ${zenMode ? 'bg-[#050505]' : 'bg-[var(--bg-secondary)]'
-            }`}
-        >
-          {/* justify-start and items-start for fixed top anchoring */}
-          <div className="w-full flex flex-col items-center justify-start min-h-full py-0">
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             {currentView === 'generator' ? (
               <>
                 {isLoading && (
@@ -382,7 +355,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
                 {/* FIXED TOP CENTERING SCALING */}
                 {processedData.length > 0 && !isLoading && (
-<<<<<<< HEAD
                   <div className="w-full h-full flex-1 min-h-0 bg-transparent overflow-hidden">
                     <UniversalPreviewFrame
                       mode="pdf"
@@ -421,15 +393,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                         styleSettings={styleSettings}
                       />
                     </UniversalPreviewFrame>
-=======
-                  <div className="w-full h-full">
-                    <UniversalWorksheetWrapper
-                      activityType={activityType}
-                      worksheetData={processedData}
-                      scale={zoomScale}
-                      styleSettings={styleSettings}
-                    />
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                   </div>
                 )}
               </>

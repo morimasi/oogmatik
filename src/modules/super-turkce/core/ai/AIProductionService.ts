@@ -2,11 +2,7 @@
  * AI Üretim Servisi - V3 Prompt Engineering Engine
  * 
  * FAZ 3'ün tüm bileşenlerini birleştirerek production-ready AI içerik üretimi sağlar.
-<<<<<<< HEAD
  * Gemini 2.5 Flash entegrasyonu ile multimodal desteği sunar.
-=======
- * Gemini 2.0 Flash entegrasyonu ile multimodal desteği sunar.
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
  */
 
 import { GradeLevel, Objective, DifficultyLevel, TargetAudience, EngineMode } from '@/modules/super-turkce/core/types';
@@ -178,11 +174,7 @@ export class AIProductionService {
   }
 
   /**
-<<<<<<< HEAD
    * AI Üretimi (Gemini 2.5 Flash - Ultra Optimized)
-=======
-   * AI Üretimi (Gemini 2.0 Flash - Ultra Optimized)
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
    */
   private async aiGenerate(
     prompt: string,
@@ -190,20 +182,12 @@ export class AIProductionService {
     timeoutMs: number,
     files?: MultimodalFile[]
   ): Promise<any> {
-<<<<<<< HEAD
     console.log('🤖 Gemini 2.5 Flash Multimodal API çağrılıyor (V3 Engine)...');
-=======
-    console.log('🤖 Gemini 2.0 Flash Multimodal API çağrılıyor (V3 Engine)...');
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
     // Sistem talimatını daha agresif ve net hale getiriyoruz
     const enrichedSystemInstruction = `
       Sen ultra-profesyonel bir Süper Türkçe Eğitim Materyali Üretim Uzmanısın.
-<<<<<<< HEAD
       Gemini 2.5 Flash mimarisini kullanarak %100 pedagojik, kültürel hassasiyeti yüksek ve hatasız içerik üretirsin.
-=======
-      Gemini 2.0 Flash mimarisini kullanarak %100 pedagojik, kültürel hassasiyeti yüksek ve hatasız içerik üretirsin.
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
       
       KRİTİK KURALLAR:
       1. Çıktı kesinlikle geçerli bir JSON olmalıdır.
@@ -222,11 +206,7 @@ export class AIProductionService {
         systemInstruction: enrichedSystemInstruction,
         files,
         temperature: 0.1, // Daha stabil ve tutarlı çıktılar için düşürüldü
-<<<<<<< HEAD
         model: 'gemini-2.5-flash'
-=======
-        model: 'gemini-1.5-flash-latest'
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
       });
 
       if (!response) throw new Error('API yanıtı boş döndü.');
@@ -234,11 +214,7 @@ export class AIProductionService {
       // JSON güvenliğini kontrol et (Gerekirse Parse temizliği yap)
       return typeof response === 'string' ? JSON.parse(response.replace(/```json|```/g, '')) : response;
     } catch (error: any) {
-<<<<<<< HEAD
       console.error('❌ Gemini 2.5 Flash Hatası:', error);
-=======
-      console.error('❌ Gemini 2.0 Flash Hatası:', error);
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
       throw error;
     }
   }

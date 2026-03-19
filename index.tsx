@@ -2,10 +2,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
-<<<<<<< HEAD
-=======
-import './src/styles/tailwind.css';
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

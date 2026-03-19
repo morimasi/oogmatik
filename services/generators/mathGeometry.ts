@@ -1,5 +1,4 @@
 
-<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions, ShapeCountingData } from '../../types.js';
 import { PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE } from './prompts.js';
@@ -8,26 +7,11 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
     const {
         difficulty,
         itemCount = 24,
-=======
-import { Type } from "@google/genai";
-import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, ShapeCountingData } from '../../types';
-import { PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE } from './prompts';
-
-export const generateShapeCountingFromAI = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
-    const { 
-        difficulty, 
-        itemCount = 24, 
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
         targetShape = 'triangle',
         distractionLevel = 'medium',
         variant = 'standard' // 'standard' (grid) vs 'mixed' (chaotic)
     } = options as any;
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     const prompt = `
     ${PEDAGOGICAL_BASE}
     
@@ -48,7 +32,6 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
     `;
 
     const schema = {
-<<<<<<< HEAD
         type: 'ARRAY',
         items: {
             type: 'OBJECT',
@@ -78,46 +61,11 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
                             size: { type: 'NUMBER' },
                             x: { type: 'NUMBER' },
                             y: { type: 'NUMBER' }
-=======
-        type: Type.ARRAY,
-        items: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                instruction: { type: Type.STRING },
-                pedagogicalNote: { type: Type.STRING },
-                correctCount: { type: Type.INTEGER },
-                settings: {
-                    type: Type.OBJECT,
-                    properties: {
-                        difficulty: { type: Type.STRING },
-                        itemCount: { type: Type.NUMBER },
-                        targetShape: { type: Type.STRING },
-                        layoutType: { type: Type.STRING }
-                    }
-                },
-                searchField: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            id: { type: Type.STRING },
-                            type: { type: Type.STRING },
-                            color: { type: Type.STRING },
-                            rotation: { type: Type.NUMBER },
-                            size: { type: Type.NUMBER },
-                            x: { type: Type.NUMBER },
-                            y: { type: Type.NUMBER }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                         },
                         required: ['type', 'color', 'x', 'y']
                     }
                 },
-<<<<<<< HEAD
                 clues: { type: 'ARRAY', items: { type: 'STRING' } }
-=======
-                clues: { type: Type.ARRAY, items: { type: Type.STRING } }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             },
             required: ['title', 'instruction', 'searchField', 'correctCount']
         }

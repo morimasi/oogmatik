@@ -1,20 +1,10 @@
 
-<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions, NumberLogicRiddleData } from '../../types.js';
 import { getMathPrompt } from './prompts.js';
 
 export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
     const { difficulty = 'Orta', itemCount = 6, gridSize = 3, studentContext } = options;
-=======
-import { Type } from "@google/genai";
-import { generateWithSchema } from '../geminiClient';
-import { GeneratorOptions, NumberLogicRiddleData } from '../../types';
-import { getMathPrompt } from './prompts';
-
-export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
-    const { difficulty, itemCount = 6, gridSize = 3, studentContext } = options;
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
     const rule = `
     [KRİTİK GÖREV: YÜKSEK HASSASİYETLİ SAYİSAL ANALİZ]
@@ -35,7 +25,6 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
     const prompt = getMathPrompt(`Sayısal Dedektiflik Lab (Soru: ${itemCount}, İpucu: ${gridSize})`, difficulty, rule, studentContext);
 
     const schema = {
-<<<<<<< HEAD
         type: 'ARRAY',
         items: {
             type: 'OBJECT',
@@ -60,47 +49,14 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
                                         text: { type: 'STRING', description: "Kısa ve eylemsel ipucu cümlesi." },
                                         icon: { type: 'STRING', description: "FontAwesome ikon kodu (örn: fa-microchip, fa-dna)" },
                                         type: { type: 'STRING', enum: ['parity', 'digits', 'comparison', 'arithmetic', 'range'] }
-=======
-        type: Type.ARRAY,
-        items: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                instruction: { type: Type.STRING },
-                pedagogicalNote: { type: Type.STRING },
-                sumTarget: { type: Type.INTEGER },
-                puzzles: {
-                    type: Type.ARRAY,
-                    description: `Dizi uzunluğu tam olarak ${itemCount} olmalı.`,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            id: { type: Type.STRING },
-                            riddleParts: {
-                                type: Type.ARRAY,
-                                description: `BU DİZİ TAM OLARAK ${gridSize} ADET OBJE İÇERMELİDİR.`,
-                                items: {
-                                    type: Type.OBJECT,
-                                    properties: {
-                                        text: { type: Type.STRING, description: "Kısa ve eylemsel ipucu cümlesi." },
-                                        icon: { type: Type.STRING, description: "FontAwesome ikon kodu (örn: fa-microchip, fa-dna)" },
-                                        type: { type: Type.STRING, enum: ['parity', 'digits', 'comparison', 'arithmetic', 'range'] }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                                     },
                                     required: ['text', 'icon', 'type']
                                 }
                             },
-<<<<<<< HEAD
                             visualDistraction: { type: 'ARRAY', items: { type: 'INTEGER' }, description: "Arka plan için 5-6 adet rastgele sayı." },
                             options: { type: 'ARRAY', items: { type: 'STRING' }, description: "4 adet birbirine yakın seçenek." },
                             answer: { type: 'STRING' },
                             answerValue: { type: 'INTEGER' }
-=======
-                            visualDistraction: { type: Type.ARRAY, items: { type: Type.INTEGER }, description: "Arka plan için 5-6 adet rastgele sayı." },
-                            options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 adet birbirine yakın seçenek." },
-                            answer: { type: Type.STRING },
-                            answerValue: { type: Type.INTEGER }
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                         },
                         required: ['riddleParts', 'options', 'answer', 'answerValue', 'visualDistraction']
                     }

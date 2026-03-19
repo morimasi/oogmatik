@@ -1,5 +1,4 @@
 import { generateCreativeMultimodal } from '../geminiClient';
-<<<<<<< HEAD
 import { GeneratorOptions } from '../../types/core';
 import { LogicErrorHunterData } from '../../types/verbal';
 
@@ -27,29 +26,6 @@ export const generateLogicErrorHunterFromAI = async (
   }
 
   const prompt = `
-=======
-import { GeneratorOptions, LogicErrorHunterData } from '../../types/verbal';
-
-export const generateLogicErrorHunterFromAI = async (options: GeneratorOptions): Promise<LogicErrorHunterData> => {
-    const difficulty = options.difficulty || 'Orta';
-    const absurdityDegree = options.absurdityDegree || 'obvious';
-    const errorCount = options.errorCount || 3;
-    const student = options.studentContext;
-
-    let degreeInstruction = 'Çok açık, herkesin kolayca fark edebileceği günlük mantık hataları kullan (Örn: Suyu çatalla içti, Güneş gece doğdu).';
-    if (absurdityDegree === 'minimal') {
-        degreeInstruction = 'Daha ince, dikkat gerektiren ve okuduğunu anlamaya dayalı ufak mantık hataları kullan (Örn: Havuza atladığında elbisesi kupkuruydu, çok terlediği için kazak giydi).';
-    } else if (absurdityDegree === 'surreal') {
-        degreeInstruction = 'Gerçeküstü, fantastik düzeyde absürt ve komik hatalar içeren ancak yapısal olarak doğru olan cümleler kur (Örn: Uçan inekler trafik sıkışıklığına yol açtı).';
-    }
-
-    let studentContextInfo = '';
-    if (student) {
-        studentContextInfo = `Öğrenci Profili: ${student.age} yaşında. Konuları öğrencinin ilgisini çekecek yaş grubuna uygun (hayvanlar, okul, oyun, kahramanlar vs) belirle. Eğitsel ancak eğlenceli olsun.`;
-    }
-
-    const prompt = `
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 Sen disleksi ve okuduğunu anlama zorluğu yaşayan çocuklar için "Mantık Hataları Avcısı" (Absürt Hikayeler) etkinliği oluşturan uzman bir yapay zekasın.
 Görev: Yaklaşık ${errorCount * 2} - ${errorCount * 3} cümlelik tek parça bir kısa hikaye oluşturmak ve bu hikayenin içine TAM OLARAK ${errorCount} ADET mantık hatası gizlemek.
 
@@ -107,7 +83,6 @@ TASARIM KURALLARI:
 }
 `;
 
-<<<<<<< HEAD
   const parsedData = await generateCreativeMultimodal({
     prompt: prompt,
     temperature: 0.8, // Hikaye üretimi için yaratıcılığı artırıyoruz ama formatı koruması lazım
@@ -115,12 +90,3 @@ TASARIM KURALLARI:
 
   return parsedData as LogicErrorHunterData;
 };
-=======
-    const parsedData = await generateCreativeMultimodal({
-        prompt: prompt,
-        temperature: 0.8, // Hikaye üretimi için yaratıcılığı artırıyoruz ama formatı koruması lazım
-    });
-
-    return parsedData as LogicErrorHunterData;
-}
->>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
