@@ -42,6 +42,17 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
     const handleZoomOut = () => onZoomChange?.(Math.max(zoom - 0.1, 0.5));
     const handleResetZoom = () => onZoomChange?.(1);
 
+    const previewStageStyle: React.CSSProperties = mode === 'html'
+        ? {
+            zoom,
+            transformOrigin: 'top center',
+        }
+        : {
+            transformOrigin: 'top center',
+            transform: `scale(${zoom})`,
+            height: '100%',
+        };
+
     return (
         <div className={`flex-1 ${bgClass} h-full relative flex flex-col items-center p-8 overflow-hidden transition-all duration-500`}>
 
@@ -108,13 +119,9 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
                 <div
                     className={`
                         transition-transform duration-200 ease-out will-change-transform
-                        ${mode === 'html' ? 'bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-sm' : 'w-full h-full max-w-5xl'}
+                        ${mode === 'html' ? 'inline-flex flex-col items-center justify-start w-fit max-w-none bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-sm overflow-visible' : 'w-full h-full max-w-5xl'}
                     `}
-                    style={{
-                        transformOrigin: 'top center',
-                        transform: `scale(${zoom})`,
-                        ...(mode === 'html' ? { width: '210mm', minHeight: '297mm' } : { height: '100%' })
-                    }}
+                    style={previewStageStyle}
                 >
                     {children}
                 </div>

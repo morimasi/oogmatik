@@ -137,14 +137,16 @@ const UniversalWorksheetInner = ({
   }, [worksheetData, activityType, setLayout, styleSettings]);
 
   return (
-    <div className="flex w-full h-full">
-      <div className="flex-1 overflow-auto flex justify-center relative">
+    <div className={`flex max-w-full ${designMode ? 'w-full h-full' : 'w-fit h-auto max-w-none flex-col items-center'}`}>
+      <div
+        className={`relative flex justify-center ${designMode ? 'flex-1 overflow-auto' : 'w-fit max-w-none overflow-visible'}`}
+      >
         {/* Design Mode Toolbar */}
         <DesignModeToolbar />
 
         {!isAdapterRunning && (
           <div
-            className="transition-transform duration-100 ease-out will-change-transform mt-20 mb-20"
+            className="transition-transform duration-100 ease-out will-change-transform mt-20 mb-20 w-fit max-w-none"
             style={{
               transform: `scale(${scale})`,
               transformOrigin: 'top center',

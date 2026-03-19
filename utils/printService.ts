@@ -17,6 +17,81 @@ const PAPER_MARGINS: Record<PaperSize, PaperMargins> = {
   Legal: { top: '15mm', bottom: '15mm' },
 };
 
+const PAPER_DIMENSIONS: Record<PaperSize, { width: string; height: string }> = {
+  A4: { width: '210mm', height: '297mm' },
+  Letter: { width: '216mm', height: '279mm' },
+  Legal: { width: '216mm', height: '356mm' },
+};
+
+const PRINT_STYLE_ID = 'oogmatik-print-style';
+
+const ensurePrintStyle = (paperSize: PaperSize) => {
+  if (typeof document === 'undefined') return;
+
+  const pageSize = paperSize === 'A4' ? 'A4' : paperSize;
+  const dims = PAPER_DIMENSIONS[paperSize];
+  const styleText = `
+    @page { size: ${pageSize}; margin: 0; }
+    @media print {
+      html, body {
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+      }
+
+      body.printing-mode > *:not(#print-overlay) {
+        display: none !important;
+      }
+
+      #print-overlay {
+        display: none;
+      }
+
+      body.printing-mode #print-overlay {
+        display: block !important;
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 2147483647 !important;
+        overflow: visible !important;
+        background: #fff !important;
+      }
+
+      body.printing-mode #print-overlay table,
+      body.printing-mode #print-overlay tbody,
+      body.printing-mode #print-overlay tr,
+      body.printing-mode #print-overlay td {
+        width: 100% !important;
+        border: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+      }
+
+      body.printing-mode #print-overlay .worksheet-page,
+      body.printing-mode #print-overlay .print-page,
+      body.printing-mode #print-overlay .universal-mode-canvas {
+        width: ${dims.width} !important;
+        min-height: ${dims.height} !important;
+        max-width: ${dims.width} !important;
+        margin: 0 auto !important;
+        box-shadow: none !important;
+        break-inside: avoid-page !important;
+        page-break-inside: avoid !important;
+      }
+    }
+  `;
+
+  let styleEl = document.getElementById(PRINT_STYLE_ID) as HTMLStyleElement | null;
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = PRINT_STYLE_ID;
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = styleText;
+};
+
 export const printService = {
   /**
    * Premium Print Engine v6.0 (Overlay Mode)
@@ -24,6 +99,8 @@ export const printService = {
    * Supports multi-page content, canvas cloning, and input preservation.
    */
   print: (elementSelector: string = '.worksheet-page', paperSize: PaperSize = 'A4') => {
+    ensurePrintStyle(paperSize);
+
     // 1. Find the target content
     const originalContent = document.querySelector(elementSelector);
     if (!originalContent) {
@@ -37,11 +114,18 @@ export const printService = {
     let overlay = document.getElementById('print-overlay');
     if (overlay) {
       overlay.innerHTML = '';
+      overlay.style.display = 'block';
     } else {
       overlay = document.createElement('div');
       overlay.id = 'print-overlay';
       document.body.appendChild(overlay);
     }
+
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.background = 'white';
+    overlay.style.zIndex = '2147483647';
+    overlay.style.overflow = 'auto';
 
     // 3. Clone the content deeply
     const clonedContent = originalContent.cloneNode(true) as HTMLElement;
@@ -54,6 +138,9 @@ export const printService = {
     // Reset padding to ensure header/footer margins are respected
     clonedContent.style.paddingTop = '0px';
     clonedContent.style.paddingBottom = '0px';
+    const dims = PAPER_DIMENSIONS[paperSize];
+    clonedContent.style.maxWidth = dims.width;
+    clonedContent.style.margin = '0 auto';
 
     // 3.1. Preserve Canvas Content (cloning doesn't copy canvas state)
     const originalCanvases = originalContent.querySelectorAll('canvas');

@@ -66,17 +66,3 @@
         height: 210mm !important;
     }
 }
-
-.orientation-portrait {
-    @page {
-        size: A4 portrait;
-        margin: 0;
-    }
-}
-
-.orientation-landscape {
-    @page {
-        size: A4 landscape;
-        margin: 0;
-    }
-}
