@@ -139,11 +139,11 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
         }
     };
 
-    const handleShare = async (receiverId: string) => {
+    const handleShare = async (receiverIds: string[]) => {
         if (!user) return;
         try {
             const data = mapToSavedAssessment();
-            await assessmentService.shareAssessment(data, user.id, user.name, receiverId);
+            await Promise.all(receiverIds.map((receiverId) => assessmentService.shareAssessment(data, user.id, user.name, receiverId)));
             setIsSharing(false);
             alert("Rapor paylaşıldı.");
         } catch (e) {

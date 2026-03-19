@@ -1,5 +1,7 @@
 import { PrintSettings, FontStyle, SpacingLevel } from '../types';
 
+export type { PrintSettings } from '../types';
+
 export const FONT_MAP: Record<FontStyle, string> = {
     Arial: 'Arial, sans-serif', // React-PDF'te custom register edilecek
     Verdana: 'Verdana, sans-serif',
@@ -48,8 +50,9 @@ export const getPdfTextStyles = (settings: PrintSettings, isHeading = false) => 
  * Vektörel PDF manipülasyonu için kelime bazlı split sağlar.
  * Kullanımı: <Text>{applyDyslexiaSpacing("merdiven", settings.b_d_spacing)}</Text>
  */
-export const applyDyslexiaSpacing = (text: string, isActive: boolean): string => {
-    if (!isActive || !text) return text;
+export const applyDyslexiaSpacing = (text: string, isActive: boolean | { b_d_spacing?: boolean }): string => {
+    const active = typeof isActive === 'boolean' ? isActive : !!isActive?.b_d_spacing;
+    if (!active || !text) return text;
 
     // Sadece b,d,p,q,g harflerinin arkasına algısal bir boşluk (em-space / thin-space) atar
     return text.replace(/([bdpqg])/gi, '$1\u200A'); // U+200A (Hair Space) ekle

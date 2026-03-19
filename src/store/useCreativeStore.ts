@@ -36,7 +36,7 @@ interface CreativeState {
  * useCreativeStore - UniversalStudio Merkezi Deposu
  * Context API'den Zustand'a taşınmış, optimize edilmiş state yönetimi.
  */
-export const useCreativeStore = create<CreativeState>((set, get) => ({
+const creativeStoreCreator = (set: any, get: any) => ({
     // Initial State
     layout: [],
     selectedId: null,
@@ -148,4 +148,6 @@ export const useCreativeStore = create<CreativeState>((set, get) => ({
         }));
         clearSelection();
     }
-}));
+});
+
+export const useCreativeStore = create<CreativeState>(creativeStoreCreator);

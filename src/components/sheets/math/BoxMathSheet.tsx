@@ -1,15 +1,8 @@
 import React from 'react';
 import { BoxMathData } from '../../../types';
+import type { BoxMathProblem } from '../../../types/math';
 import { PedagogicalHeader } from '../common';
 import { EditableText, EditableElement } from '../../Editable';
-
-// Define the type for a single problem within BoxMathData
-interface BoxMathProblem {
-  expression: string;
-  targetValue?: string; // Optional, used in 'reverse' mode
-  givenValue?: string; // Optional, used in 'substitution' mode
-  // Add other properties if they exist in your BoxMathData problem structure
-}
 
 export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
   return (

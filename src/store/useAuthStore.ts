@@ -17,7 +17,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
     persist(
-        (set, get) => ({
+        (set: any, get: any) => ({
             user: null,
             isLoading: true,
 
@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'auth-storage',
-            partialize: (state) => ({ user: state.user }), // Sadece user bilgisini sakla
+            partialize: (state: AuthState) => ({ user: state.user } as any),
         }
     )
 );

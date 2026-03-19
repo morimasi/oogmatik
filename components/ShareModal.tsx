@@ -7,8 +7,8 @@ import { authService } from '../services/authService';
 interface ShareModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onShare: (receiverIds: string[]) => void;
-    worksheetId: string;
+    onShare: (receiverIds: string[]) => void | Promise<void>;
+    worksheetId?: string;
     worksheetTitle?: string;
     isSending?: boolean;
 }
@@ -37,7 +37,7 @@ export const ShareModal = ({ isOpen, onClose, onShare, worksheetId, worksheetTit
     };
 
     const handleCopyLink = () => {
-        const shareUrl = `${window.location.origin}?share=${worksheetId}`;
+        const shareUrl = worksheetId ? `${window.location.origin}?share=${worksheetId}` : window.location.origin;
         navigator.clipboard.writeText(shareUrl);
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
@@ -162,7 +162,7 @@ export const ShareModal = ({ isOpen, onClose, onShare, worksheetId, worksheetTit
                             </div>
 
                             <div className="w-full bg-zinc-100 dark:bg-zinc-900/50 p-2 rounded-xl flex items-center gap-2 border border-zinc-200 dark:border-zinc-700">
-                                <span className="flex-1 text-xs text-zinc-500 truncate px-2 font-mono">{window.location.origin}?share={worksheetId}</span>
+                                <span className="flex-1 text-xs text-zinc-500 truncate px-2 font-mono">{worksheetId ? `${window.location.origin}?share=${worksheetId}` : window.location.origin}</span>
                                 <button
                                     onClick={handleCopyLink}
                                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${copySuccess ? 'bg-green-500 text-white' : 'bg-zinc-800 dark:bg-zinc-700 text-white hover:bg-black'}`}
@@ -177,7 +177,7 @@ export const ShareModal = ({ isOpen, onClose, onShare, worksheetId, worksheetTit
                         <div className="flex flex-col items-center justify-center h-full py-4 text-center space-y-5">
                             <div className="p-5 bg-white rounded-3xl shadow-xl border-4 border-zinc-50 relative group">
                                 <img
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(window.location.origin + '?share=' + worksheetId)}`}
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(worksheetId ? `${window.location.origin}?share=${worksheetId}` : window.location.origin)}`}
                                     alt="QR Code"
                                     className="w-44 h-44 mix-blend-multiply"
                                 />

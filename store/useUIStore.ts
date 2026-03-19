@@ -68,9 +68,7 @@ const initialUiSettings: UiSettings = {
 };
 
 // theme, sidebarWidth ve uiSettings gibi değerleri persist edeceğiz.
-export const useUIStore = create<UIStoreState>()(
-    persist(
-        (set) => ({
+const uiStoreCreator = (set: any) => ({
             theme: 'anthracite',
             sidebarWidth: 320,
             zenMode: false,
@@ -85,17 +83,21 @@ export const useUIStore = create<UIStoreState>()(
             setZenMode: (zenMode) => set({ zenMode }),
             setIsSidebarOpen: (isSidebarOpen) => set({ isSidebarOpen }),
             setIsTourActive: (isTourActive) => set({ isTourActive }),
-            updateUiSettings: (newSettings) => set((state) => ({ uiSettings: { ...state.uiSettings, ...newSettings } })),
-            updateStyleSettings: (newSettings) => set((state) => ({ styleSettings: { ...state.styleSettings, ...newSettings } })),
+            updateUiSettings: (newSettings) => set((state: UIStoreState) => ({ uiSettings: { ...state.uiSettings, ...newSettings } })),
+            updateStyleSettings: (newSettings) => set((state: UIStoreState) => ({ styleSettings: { ...state.styleSettings, ...newSettings } })),
             setShowDeveloperModal: (show) => set({ showDeveloperModal: show }),
-        }),
+        });
+
+export const useUIStore = create<UIStoreState>()(
+    persist(
+        uiStoreCreator,
         {
             name: 'app-ui-storage', // localStorage key
-            partialize: (state) => ({
+            partialize: (state: UIStoreState) => ({
                 theme: state.theme,
                 sidebarWidth: state.sidebarWidth,
                 uiSettings: state.uiSettings,
-            }),
+            } as any),
         }
     )
 );

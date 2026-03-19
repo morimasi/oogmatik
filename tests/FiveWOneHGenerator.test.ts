@@ -29,7 +29,14 @@ describe('FiveWOneHGenerator', () => {
         title: 'AI Story',
         content: { title: 'T', text: 'T', paragraphs: [] },
         questions: [],
-        settings: {}
+        settings: {
+            difficulty: 'orta',
+            topic: 'Genel',
+            textLength: 'kısa',
+            syllableColoring: false,
+            fontFamily: 'OpenDyslexic',
+            questionStyle: 'test_and_open'
+        }
     };
 
     const mockOfflineData: FiveWOneHData[] = [{
@@ -38,7 +45,14 @@ describe('FiveWOneHGenerator', () => {
         title: 'Offline Story',
         content: { title: 'T', text: 'T', paragraphs: [] },
         questions: [],
-        settings: {}
+        settings: {
+            difficulty: 'orta',
+            topic: 'Genel',
+            textLength: 'kısa',
+            syllableColoring: false,
+            fontFamily: 'OpenDyslexic',
+            questionStyle: 'test_and_open'
+        }
     }];
 
     beforeEach(() => {

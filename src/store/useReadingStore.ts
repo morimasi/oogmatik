@@ -34,7 +34,7 @@ interface ReadingState {
     canRedo: () => boolean;
 }
 
-export const useReadingStore = create<ReadingState>((set, get) => ({
+const readingStoreCreator = (set: any, get: any) => ({
     config: {
         gradeLevel: '3. Sınıf', studentName: '', topic: '', genre: 'Macera', tone: 'Eğlenceli',
         length: 'medium', layoutDensity: 'comfortable', textComplexity: 'moderate',
@@ -136,4 +136,6 @@ export const useReadingStore = create<ReadingState>((set, get) => ({
 
     canUndo: () => get().past.length > 0,
     canRedo: () => get().future.length > 0
-}));
+});
+
+export const useReadingStore = create<ReadingState>(readingStoreCreator);

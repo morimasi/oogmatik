@@ -35,7 +35,7 @@ const sanitizeStudent = (data: any): Partial<Student> => {
     };
 };
 
-export const useStudentStore = create<StudentState>((set, get) => ({
+export const useStudentStore = create<StudentState>((set: any, get: any) => ({
     students: [],
     activeStudent: null,
     isLoading: false,
@@ -60,8 +60,6 @@ export const useStudentStore = create<StudentState>((set, get) => ({
                     ...sanitizeStudent(data)
                 } as Student);
             });
-
-            studentList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             set({ students: studentList, isLoading: false });
 
             const { activeStudent } = get();

@@ -35,7 +35,7 @@ const sanitizeStudent = (data: any): Partial<Student> => {
     };
 };
 
-export const useStudentStore = create<StudentState>((set, get) => ({
+const studentStoreCreator = (set: any, get: any) => ({
     students: [],
     activeStudent: null,
     isLoading: false,
@@ -97,4 +97,6 @@ export const useStudentStore = create<StudentState>((set, get) => ({
     deleteStudent: async (id) => {
         await deleteDoc(doc(db, "students", id));
     }
-}));
+});
+
+export const useStudentStore = create<StudentState>(studentStoreCreator);

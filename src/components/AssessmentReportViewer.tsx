@@ -110,10 +110,10 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
     const roadmap = report?.roadmap ?? [];
     const professionalData = report?.professionalData;
 
-    const handleShareReport = async (receiverId: string) => {
+    const handleShareReport = async (receiverIds: string[]) => {
         if (!assessment || !user) return;
         try {
-            await assessmentService.shareAssessment(assessment, user.id, user.name, receiverId);
+            await Promise.all(receiverIds.map((receiverId) => assessmentService.shareAssessment(assessment, user.id, user.name, receiverId)));
             alert('Rapor başarıyla paylaşıldı.');
             setIsShareModalOpen(false);
         } catch (e) {
@@ -389,7 +389,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                 </div>
             </div>
 
-            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleShareReport} />
+            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleShareReport} worksheetId={assessment.id} />
         </div>
     );
 };

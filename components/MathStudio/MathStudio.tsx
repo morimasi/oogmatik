@@ -97,8 +97,8 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
         showToast(result.success ? 'Çalışma başarıyla kaydedildi.' : (result.error || 'Hata'), result.success ? 'success' : 'error');
     };
 
-    const handleShare = async (receiverId: string) => {
-        const result = await exportActions.handleShare(receiverId);
+    const handleShare = async (receiverIds: string[]) => {
+        const result = await exportActions.handleShare(receiverIds[0]);
         if (result.success) {
             setIsShareModalOpen(false);
             showToast('Paylaşıldı.', 'success');

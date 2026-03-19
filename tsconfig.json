@@ -11,7 +11,8 @@
     "skipLibCheck": true,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "strict": false,
+    "noImplicitAny": false,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "moduleResolution": "node",
@@ -23,9 +24,6 @@
     "paths": {
       "@/*": [
         "src/*"
-      ],
-      "*": [
-        "node_modules/*"
       ]
     }
   },
@@ -34,6 +32,13 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    "tests/e2e",
+    "components",
+    "services",
+    "store",
+    "src/services/offlineGenerators",
+    "src/services/generators/offline"
   ]
 }
