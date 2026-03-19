@@ -1,6 +1,12 @@
 
+<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions, HiddenPasswordGridData } from '../../types.js';
+=======
+import { Type } from "@google/genai";
+import { generateWithSchema } from '../geminiClient';
+import { GeneratorOptions, HiddenPasswordGridData } from '../../types';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 const PEDAGOGICAL_PROMPT = `
 [ROL: KIDEMLİ EĞİTİM MATERYALİ TASARIMCISI]
@@ -31,6 +37,7 @@ export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions
     `;
 
     const schema = {
+<<<<<<< HEAD
         type: 'ARRAY',
         items: {
             type: 'OBJECT',
@@ -55,6 +62,32 @@ export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions
                             targetLetter: { type: 'STRING' },
                             hiddenWord: { type: 'STRING' },
                             grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } }
+=======
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                settings: {
+                    type: Type.OBJECT,
+                    properties: {
+                        gridSize: { type: Type.NUMBER },
+                        itemCount: { type: Type.NUMBER },
+                        cellStyle: { type: Type.STRING },
+                        letterCase: { type: Type.STRING }
+                    }
+                },
+                grids: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            targetLetter: { type: Type.STRING },
+                            hiddenWord: { type: Type.STRING },
+                            grid: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                         },
                         required: ['targetLetter', 'hiddenWord', 'grid']
                     }

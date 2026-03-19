@@ -210,7 +210,10 @@ export interface HistoryItem {
 }
 
 export type View =
+<<<<<<< HEAD
   | 'premium_studio'
+=======
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
   | 'generator'
   | 'savedList'
   | 'workbook'

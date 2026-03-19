@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions } from '../../types.js';
+=======
+import { Type } from '@google/genai';
+import { generateWithSchema } from '../geminiClient';
+import { GeneratorOptions } from '../../types';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 /**
  * Kutularla Matematik (Ters İşlem & Yerine Koyma) AI Üretici
@@ -46,6 +52,7 @@ export const generateBoxMathFromAI = async (options: GeneratorOptions) => {
     `;
 
   const schema = {
+<<<<<<< HEAD
     type: 'OBJECT',
     properties: {
       instruction: { type: 'STRING' },
@@ -58,6 +65,20 @@ export const generateBoxMathFromAI = async (options: GeneratorOptions) => {
             targetValue: { type: 'NUMBER' },
             givenValue: { type: 'NUMBER' },
             answer: { type: 'NUMBER' },
+=======
+    type: Type.OBJECT,
+    properties: {
+      instruction: { type: Type.STRING },
+      problems: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            expression: { type: Type.STRING },
+            targetValue: { type: Type.NUMBER },
+            givenValue: { type: Type.NUMBER },
+            answer: { type: Type.NUMBER },
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
           },
           required: ['expression', 'answer'],
         },

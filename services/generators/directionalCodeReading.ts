@@ -1,4 +1,5 @@
 import { generateCreativeMultimodal } from '../geminiClient';
+<<<<<<< HEAD
 import { GeneratorOptions } from '../../types/core';
 import { DirectionalCodeReadingData } from '../../types/visual';
 
@@ -18,6 +19,24 @@ export const generateDirectionalCodeReadingFromAI = async (
   }
 
   const prompt = `
+=======
+import { GeneratorOptions, DirectionalCodeReadingData } from '../../types/visual';
+
+export const generateDirectionalCodeReadingFromAI = async (options: GeneratorOptions): Promise<DirectionalCodeReadingData> => {
+    const difficulty = options.difficulty || 'Orta';
+    const gridSize = options.gridSize || 6;
+    const obstacleDensity = options.obstacleDensity || 20;
+    const cipherType = options.cipherType || 'arrows';
+    const puzzleCount = options.puzzleCount || (difficulty === 'Zor' ? 1 : 2);
+    const student = options.studentContext;
+
+    let systemContext = '';
+    if (student) {
+        systemContext = `Öğrenci Profili: ${student.age} yaşında. Senaryoyu öğrencinin ilgisini çekecek (Uzay, Gizli Ajan, Define Avı vb.) bir temaya oturt.`;
+    }
+
+    const prompt = `
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 Sen "Şifreli Kod Okuma / Rota Labirenti" üzerine uzmanlaşmış bir OÖG (Özel Öğrenme Güçlüğü) etkinlik jeneratörüsün.
 Bireyin algoritmik düşünme, uzamsal planlama ve yönetici işlevlerini geliştirecek ${puzzleCount} farklı bulmaca (puzzles) üret.
 
@@ -61,6 +80,7 @@ Aşağıdaki JSON formatında (DirectionalCodeReadingData) çıktı ver:
 }
 `;
 
+<<<<<<< HEAD
   const parsedData = await generateCreativeMultimodal({
     prompt: prompt,
     temperature: 0.5,
@@ -68,3 +88,12 @@ Aşağıdaki JSON formatında (DirectionalCodeReadingData) çıktı ver:
 
   return parsedData as DirectionalCodeReadingData;
 };
+=======
+    const parsedData = await generateCreativeMultimodal({
+        prompt: prompt,
+        temperature: 0.5,
+    });
+
+    return parsedData as DirectionalCodeReadingData;
+}
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060

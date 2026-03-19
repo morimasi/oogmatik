@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 // Model Seçimi: Gemini 2.5 Flash — En güncel ve stabil model
 const MASTER_MODEL = 'gemini-2.5-flash';
+=======
+// Model Seçimi: Gemini 2.0 Flash — Performanslı ve güncel model
+const MASTER_MODEL = 'gemini-1.5-flash-latest';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 // ============================================================
 // JSON ONARIM MOTORU (3 Katmanlı Strateji)
@@ -227,9 +232,13 @@ export const generateCreativeMultimodal = async (params: {
   const url = '/api/generate';
 
   let safeModel = params.model || MASTER_MODEL;
+<<<<<<< HEAD
   // Sadece gerçekten eski / geçersiz model adlarını engelle (kendi MASTER_MODEL'i asla engelleme)
   const BLOCKED_MODELS = ['gemini-3', 'gemini-2.0', 'gemini-1.5', 'gemini-1.0'];
   if (BLOCKED_MODELS.some((bad) => safeModel.startsWith(bad))) {
+=======
+  if (safeModel.includes('3') || safeModel.includes('2') || safeModel === 'gemini-1.5-flash') {
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     safeModel = MASTER_MODEL;
   }
 

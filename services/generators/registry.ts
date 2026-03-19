@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import { ActivityType, GeneratorOptions } from '../../types/core.js';
 import * as aiGenerators from './index.js';
 import * as offlineGenerators from '../offlineGenerators/index.js';
+=======
+import { ActivityType, GeneratorOptions } from '../../types/core';
+import * as aiGenerators from './index';
+import * as offlineGenerators from '../offlineGenerators/index';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 /**
  * Aktivite Jeneratör Haritası

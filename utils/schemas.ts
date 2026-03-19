@@ -3,7 +3,11 @@
  * Basit validators (Zod'a geçilirse daha gelişkin hale getirilecek)
  */
 
+<<<<<<< HEAD
 import { ValidationError } from './AppError.js';
+=======
+import { ValidationError } from './AppError';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 /**
  * ============================================================

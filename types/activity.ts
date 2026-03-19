@@ -101,8 +101,11 @@ export enum ActivityType {
   BRAIN_TEASERS = 'BRAIN_TEASERS',
   BOX_MATH = 'BOX_MATH',
   SUPER_TURKCE_MATCHING = 'SUPER_TURKCE_MATCHING',
+<<<<<<< HEAD
   PREMIUM_STUDIO = 'PREMIUM_STUDIO',
   SUPER_TURKCE_V2 = 'SUPER_TURKCE_V2',
+=======
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 }
 
 export interface Activity {

@@ -9,13 +9,29 @@ import {
     EngineMode,
     DraftComponent,
     ArchiveItem,
+<<<<<<< HEAD
     VocabularyItem
+=======
+    VocabularyItem,
+    Student,
+    StudentSelectionType
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 } from './types';
 
 export interface SuperTurkceState {
     // Navigasyon (Yeni V2 Mimarisi)
     activeCategory: string | null;
 
+<<<<<<< HEAD
+=======
+    // Öğrenci Yönetimi (Faz 4)
+    studentSelection: StudentSelectionType;
+    selectedStudentId: string | null;
+    manualStudentName: string;
+    manualStudentClass: string;
+    students: Student[];
+
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     // Seçilen Rotasyon (Müfredat)
     selectedGrade: GradeLevel | null;
     selectedUnitId: string | null;
@@ -48,12 +64,28 @@ export interface SuperTurkceState {
     archiveHistory: ArchiveItem[];
     vocabularyBank: VocabularyItem[];
 
+<<<<<<< HEAD
+=======
+    // Üretim Kontrolü (Yeni)
+    isGenerating: boolean;
+    setIsGenerating: (val: boolean) => void;
+
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     // Aksiyonlar
     setActiveCategory: (categoryId: string | null) => void;
     setGrade: (grade: GradeLevel) => void;
     setUnitId: (unitId: string | null) => void;
     setObjective: (objective: Objective | null) => void;
 
+<<<<<<< HEAD
+=======
+    // Öğrenci Aksiyonları
+    setStudentSelection: (type: StudentSelectionType) => void;
+    setSelectedStudentId: (id: string | null) => void;
+    setManualStudentInfo: (name: string, className: string) => void;
+    addStudent: (student: Student) => void;
+
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     setEngineMode: (mode: EngineMode) => void;
 
     setDifficulty: (level: DifficultyLevel) => void;
@@ -109,15 +141,43 @@ export const useSuperTurkceStore = create<SuperTurkceState>()(
             institutionName: 'Oogmatik Eğitim Kurumları',
             includeIllustration: true,
 
+<<<<<<< HEAD
+=======
+            // Öğrenci Başlangıç Değerleri
+            studentSelection: 'blank',
+            selectedStudentId: null,
+            manualStudentName: '',
+            manualStudentClass: '',
+            students: [
+                { id: '1', name: 'Ali Yılmaz', grade: 4, className: '4-A' },
+                { id: '2', name: 'Ayşe Demir', grade: 5, className: '5-B' },
+                { id: '3', name: 'Mehmet Kaya', grade: 6, className: '6-C' }
+            ],
+
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             // Faz 10 - Persist Arrays
             archiveHistory: [],
             vocabularyBank: [],
 
+<<<<<<< HEAD
+=======
+            isGenerating: false, // Varsayılan olarak üretim kapalı
+            setIsGenerating: (val: boolean) => set({ isGenerating: val }),
+
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             setActiveCategory: (categoryId: string | null) => set({ activeCategory: categoryId }),
             setGrade: (grade: GradeLevel) => set({ selectedGrade: grade, selectedUnitId: null, selectedObjective: null }),
             setUnitId: (unitId: string | null) => set({ selectedUnitId: unitId, selectedObjective: null }),
             setObjective: (objective: Objective | null) => set({ selectedObjective: objective }),
 
+<<<<<<< HEAD
+=======
+            setStudentSelection: (type: StudentSelectionType) => set({ studentSelection: type }),
+            setSelectedStudentId: (id: string | null) => set({ selectedStudentId: id }),
+            setManualStudentInfo: (name: string, className: string) => set({ manualStudentName: name, manualStudentClass: className }),
+            addStudent: (student: Student) => set((state) => ({ students: [...state.students, student] })),
+
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             setEngineMode: (mode: EngineMode) => set({ engineMode: mode }),
 
             setDifficulty: (level: DifficultyLevel) => set({ difficulty: level }),
@@ -147,8 +207,13 @@ export const useSuperTurkceStore = create<SuperTurkceState>()(
             setIncludeIllustration: (include: boolean) => set({ includeIllustration: include }),
 
             setDraftComponents: (components: DraftComponent[]) => set({ draftComponents: components }),
+<<<<<<< HEAD
             updateDraftData: (id: string, data: any) => set((state: SuperTurkceState) => ({
                 draftComponents: state.draftComponents.map(comp => comp.id === id ? { ...comp, data } : comp)
+=======
+            updateDraftData: (id: string, data: unknown) => set((state: SuperTurkceState) => ({ // Changed 'any' to 'unknown'
+                draftComponents: state.draftComponents.map((comp: DraftComponent) => comp.id === id ? { ...comp, data: data as DraftComponent['data'] } : comp) // Type assertion for data
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             })),
 
             // Faz 10: Arşiv Kaydetme
@@ -212,7 +277,15 @@ export const useSuperTurkceStore = create<SuperTurkceState>()(
                 selectedActivityTypes: [],
                 themeColor: 'eco-black',
                 includeWatermark: true,
+<<<<<<< HEAD
                 includeIllustration: true
+=======
+                includeIllustration: true,
+                studentSelection: 'blank',
+                selectedStudentId: null,
+                manualStudentName: '',
+                manualStudentClass: ''
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             }),
         }),
         {

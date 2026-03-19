@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, LetterVisualMatchingData, SyllableMasterLabData, Student } from '../../types.js';
 import { getAttentionPrompt, getDyslexiaPrompt } from './prompts.js';
@@ -6,6 +7,16 @@ import { getAttentionPrompt, getDyslexiaPrompt } from './prompts.js';
 // Comprehensive Syllable Master Lab - UPDATED FOR COMPACT MODE (NO IMAGES)
 export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {
     const { worksheetCount, difficulty = 'Orta', itemCount, topic, variant = 'split', case: letterCase, syllableRange = '2-3' } = options;
+=======
+import { Type } from "@google/genai";
+import { generateWithSchema } from '../geminiClient';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, LetterVisualMatchingData, SyllableMasterLabData, Student } from '../../types';
+import { getAttentionPrompt, getDyslexiaPrompt } from './prompts';
+
+// Comprehensive Syllable Master Lab - UPDATED FOR COMPACT MODE (NO IMAGES)
+export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {
+    const { worksheetCount, difficulty, itemCount, topic, variant = 'split', case: letterCase, syllableRange = '2-3' } = options;
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
     const specifics = `
     - ÇALIŞMA MODU: ${variant} (split, combine, complete, rainbow, scrambled)
@@ -27,6 +38,7 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
     const prompt = getDyslexiaPrompt("Hece Ustası Laboratuvarı (Yüksek Yoğunluklu)", difficulty, specifics, options.studentContext as Student | undefined);
 
     const singleSchema = {
+<<<<<<< HEAD
         type: 'OBJECT',
         properties: {
             title: { type: 'STRING' },
@@ -43,6 +55,24 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
                         missingIndex: { type: 'INTEGER', nullable: true },
                         scrambledIndices: { type: 'ARRAY', items: { type: 'INTEGER' }, nullable: true },
                         syllableCount: { type: 'INTEGER' }
+=======
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            mode: { type: Type.STRING },
+            items: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        word: { type: Type.STRING },
+                        syllables: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        missingIndex: { type: Type.INTEGER, nullable: true },
+                        scrambledIndices: { type: Type.ARRAY, items: { type: Type.INTEGER }, nullable: true },
+                        syllableCount: { type: Type.INTEGER }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     },
                     required: ['word', 'syllables', 'syllableCount']
                 }
@@ -51,12 +81,20 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
         required: ['title', 'instruction', 'items', 'pedagogicalNote']
     };
 
+<<<<<<< HEAD
     return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as any;
+=======
+    return await generateWithSchema(prompt, { type: Type.ARRAY, items: singleSchema }) as any;
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 };
 
 // Letter-Visual Matching (AI Generator)
 export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptions): Promise<LetterVisualMatchingData[]> => {
+<<<<<<< HEAD
     const { difficulty = 'Orta', itemCount, topic, case: letterCase = 'mixed' } = options;
+=======
+    const { difficulty, itemCount, topic, case: letterCase = 'mixed' } = options;
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
     const specifics = `
     - KONU/TEMA: ${topic || 'Karma (Hayvanlar, Eşyalar, Meyveler vb.)'}
@@ -73,6 +111,7 @@ export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptio
     const prompt = getDyslexiaPrompt("Harf-Görsel Eşleme", difficulty, specifics, options.studentContext as Student | undefined);
 
     const singleSchema = {
+<<<<<<< HEAD
         type: 'OBJECT',
         properties: {
             title: { type: 'STRING' },
@@ -83,10 +122,23 @@ export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptio
                 properties: {
                     showTracing: { type: 'BOOLEAN' },
                     showWord: { type: 'BOOLEAN' }
+=======
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            settings: {
+                type: Type.OBJECT,
+                properties: {
+                    showTracing: { type: Type.BOOLEAN },
+                    showWord: { type: Type.BOOLEAN }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                 },
                 required: ['showTracing', 'showWord']
             },
             pairs: {
+<<<<<<< HEAD
                 type: 'ARRAY',
                 items: {
                     type: 'OBJECT',
@@ -95,6 +147,16 @@ export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptio
                         word: { type: 'STRING' },
                         imagePrompt: { type: 'STRING' },
                         imageBase64: { type: 'STRING', nullable: true }
+=======
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        letter: { type: Type.STRING },
+                        word: { type: Type.STRING },
+                        imagePrompt: { type: Type.STRING },
+                        imageBase64: { type: Type.STRING, nullable: true }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     },
                     required: ['letter', 'word', 'imagePrompt']
                 }
@@ -103,5 +165,9 @@ export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptio
         required: ['title', 'instruction', 'pedagogicalNote', 'settings', 'pairs']
     };
 
+<<<<<<< HEAD
     return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as any;
+=======
+    return await generateWithSchema(prompt, { type: Type.ARRAY, items: singleSchema }) as any;
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 };

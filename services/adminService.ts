@@ -1,9 +1,18 @@
 
+<<<<<<< HEAD
 import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
 import { DynamicActivity, PromptTemplate, PromptSnippet, StaticContentItem, ActivityDraft, PromptVersion } from '../types/admin.js';
 import { UserRole, UserStatus } from '../types/core.js';
 import { generateWithSchema, evaluateContent } from './geminiClient.js';
+=======
+import { db } from './firebaseClient';
+import * as firestore from "firebase/firestore";
+import { DynamicActivity, PromptTemplate, PromptSnippet, StaticContentItem, ActivityDraft, PromptVersion } from '../types/admin';
+import { UserRole, UserStatus } from '../types/core';
+import { generateWithSchema, evaluateContent } from './geminiClient';
+import { Type } from "@google/genai";
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 const { collection, doc, getDocs, setDoc, query, where, updateDoc, deleteDoc, getDoc } = firestore;
 
@@ -13,12 +22,20 @@ export const adminService = {
         try {
             const snapshot = await getDocs(collection(db, "config_activities"));
             return snapshot.docs
+<<<<<<< HEAD
                 .map((d: any) => {
+=======
+                .map(d => {
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     const data = d.data();
                     if (!data) return null;
                     return { ...data, id: d.id } as DynamicActivity;
                 })
+<<<<<<< HEAD
                 .filter((a: any): a is DynamicActivity => !!a && !!a.id);
+=======
+                .filter((a): a is DynamicActivity => !!a && !!a.id);
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
         } catch (e) {
             console.error("Dinamik aktiviteler yüklenemedi", e);
             return [];
@@ -47,12 +64,20 @@ export const adminService = {
     getAllPrompts: async (): Promise<PromptTemplate[]> => {
         const snapshot = await getDocs(collection(db, "config_prompts"));
         return snapshot.docs
+<<<<<<< HEAD
             .map((d: any) => {
+=======
+            .map(d => {
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                 const data = d.data();
                 if (!data) return null;
                 return { ...data, id: d.id } as PromptTemplate;
             })
+<<<<<<< HEAD
             .filter((p: any): p is PromptTemplate => !!p && !!p.id);
+=======
+            .filter((p): p is PromptTemplate => !!p && !!p.id);
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     },
 
     getPromptTemplate: async (id: string): Promise<PromptTemplate | null> => {
@@ -90,7 +115,11 @@ export const adminService = {
         });
 
         // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
+<<<<<<< HEAD
         return await generateWithSchema(appliedTemplate, { type: 'OBJECT' });
+=======
+        return await generateWithSchema(appliedTemplate, { type: Type.OBJECT });
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     },
 
     auditActivity: async (content: any) => {
@@ -100,7 +129,11 @@ export const adminService = {
     // --- SNIPPETS ---
     getAllSnippets: async (): Promise<PromptSnippet[]> => {
         const snapshot = await getDocs(collection(db, "config_snippets"));
+<<<<<<< HEAD
         return snapshot.docs.map((d: any) => ({ ...d.data(), id: d.id } as PromptSnippet));
+=======
+        return snapshot.docs.map(d => ({ ...d.data(), id: d.id } as PromptSnippet));
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     },
 
     saveSnippet: async (snippet: PromptSnippet) => {
@@ -112,12 +145,20 @@ export const adminService = {
     getAllStaticContent: async (): Promise<StaticContentItem[]> => {
         const snapshot = await getDocs(collection(db, "config_static_content"));
         return snapshot.docs
+<<<<<<< HEAD
             .map((d: any) => {
+=======
+            .map(d => {
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                 const data = d.data();
                 if (!data) return null;
                 return { ...data, id: d.id } as StaticContentItem;
             })
+<<<<<<< HEAD
             .filter((i: any): i is StaticContentItem => !!i && !!i.id);
+=======
+            .filter((i): i is StaticContentItem => !!i && !!i.id);
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     },
 
     saveStaticContent: async (item: StaticContentItem, note?: string) => {
@@ -156,12 +197,20 @@ export const adminService = {
     getAllDrafts: async (): Promise<ActivityDraft[]> => {
         const snapshot = await getDocs(collection(db, "activity_drafts"));
         return snapshot.docs
+<<<<<<< HEAD
             .map((d: any) => {
+=======
+            .map(d => {
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                 const data = d.data();
                 if (!data) return null;
                 return { ...data, id: d.id } as ActivityDraft;
             })
+<<<<<<< HEAD
             .filter((d: any): d is ActivityDraft => !!d && !!d.id);
+=======
+            .filter((d): d is ActivityDraft => !!d && !!d.id);
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     },
 
     publishDraft: async (draft: ActivityDraft, config: any) => {
@@ -201,6 +250,7 @@ export const adminService = {
         `;
 
         const result = await generateWithSchema(prompt, {
+<<<<<<< HEAD
             type: 'OBJECT',
             properties: {
                 title: { type: 'STRING' },
@@ -210,6 +260,17 @@ export const adminService = {
                 learningObjectives: { type: 'ARRAY', items: { type: 'STRING' } },
                 themeColor: { type: 'STRING' },
                 icon: { type: 'STRING' }
+=======
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                description: { type: Type.STRING },
+                category: { type: Type.STRING },
+                targetSkills: { type: Type.ARRAY, items: { type: Type.STRING } },
+                learningObjectives: { type: Type.ARRAY, items: { type: Type.STRING } },
+                themeColor: { type: Type.STRING },
+                icon: { type: Type.STRING }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             },
             required: ["title", "description", "category"]
         });

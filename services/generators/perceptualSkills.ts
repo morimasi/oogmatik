@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions } from '../../types.js';
 import {
@@ -6,6 +7,16 @@ import {
 } from '../../types';
 import { ocrService } from '../ocrService.js';
 import { MAP_DETECTIVE_PROMPT, PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
+=======
+import { Type } from "@google/genai";
+import { generateWithSchema } from '../geminiClient';
+import { GeneratorOptions } from '../../types';
+import {
+    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, CoordinateCipherData, WordConnectData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData, MapInstructionData
+} from '../../types';
+import { ocrService } from '../ocrService';
+import { MAP_DETECTIVE_PROMPT, PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { difficulty, worksheetCount, visualType, distractionLevel, gridSize, studentContext } = options;
@@ -40,6 +51,7 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
     `;
 
     const singleSchema = {
+<<<<<<< HEAD
         type: 'OBJECT',
         properties: {
             title: { type: 'STRING' },
@@ -69,6 +81,37 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
                             properties: {
                                 targetedError: { type: 'STRING' },
                                 cognitiveLoad: { type: 'NUMBER' }
+=======
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            rows: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        items: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    svgPaths: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { d: { type: Type.STRING }, fill: { type: Type.STRING }, stroke: { type: Type.STRING } } } },
+                                    label: { type: Type.STRING },
+                                    rotation: { type: Type.NUMBER },
+                                    isMirrored: { type: Type.BOOLEAN }
+                                }
+                            }
+                        },
+                        correctIndex: { type: Type.INTEGER },
+                        reason: { type: Type.STRING },
+                        clinicalMeta: {
+                            type: Type.OBJECT,
+                            properties: {
+                                targetedError: { type: Type.STRING },
+                                cognitiveLoad: { type: Type.NUMBER }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                             }
                         }
                     }
@@ -78,7 +121,11 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
         required: ["title", "instruction", "rows", "pedagogicalNote"]
     };
 
+<<<<<<< HEAD
     const schema = { type: 'ARRAY', items: singleSchema };
+=======
+    const schema = { type: Type.ARRAY, items: singleSchema };
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     // Fix: Using stable gemini-3-flash for maximum speed and cost efficiency
     return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData[]>;
 };
@@ -115,6 +162,7 @@ export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions)
     `;
 
     const singleSchema = {
+<<<<<<< HEAD
         type: 'OBJECT',
         properties: {
             title: { type: 'STRING' },
@@ -130,6 +178,23 @@ export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions)
                     properties: {
                         items: { type: 'ARRAY', items: { type: 'STRING' } },
                         clinicalMeta: { type: 'OBJECT', properties: { errorType: { type: 'STRING' } } }
+=======
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            instruction: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING },
+            gridA: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            gridB: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } },
+            diffCount: { type: Type.INTEGER },
+            rows: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        items: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        clinicalMeta: { type: Type.OBJECT, properties: { errorType: { type: Type.STRING } } }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     }
                 }
             }
@@ -137,7 +202,11 @@ export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions)
         required: ["title", "instruction", "gridA", "gridB", "diffCount"]
     };
 
+<<<<<<< HEAD
     const schema = { type: 'ARRAY', items: singleSchema };
+=======
+    const schema = { type: Type.ARRAY, items: singleSchema };
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     return generateWithSchema(prompt, schema) as Promise<FindTheDifferenceData[]>;
 };
 

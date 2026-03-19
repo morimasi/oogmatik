@@ -1,5 +1,9 @@
 // Model Seçimi: Gemini 2.0 Flash — Performanslı ve güncel model
+<<<<<<< HEAD
 const MASTER_MODEL = 'gemini-2.5-flash';
+=======
+const MASTER_MODEL = 'gemini-2.0-flash';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 // ============================================================
 // JSON ONARIM MOTORU (3 Katmanlı Strateji)
@@ -10,6 +14,7 @@ const MASTER_MODEL = 'gemini-2.5-flash';
  * Örnek: { "a": [1, 2 → { "a": [1, 2]}
  */
 const balanceBraces = (str: string): string => {
+<<<<<<< HEAD
   // Önce string içlerindeki parantezleri yoksay
   const stack: string[] = [];
   let inString = false;
@@ -44,6 +49,33 @@ const balanceBraces = (str: string): string => {
   // Kalan açık parantezleri ters sırayla kapat
   while (stack.length > 0) str += stack.pop();
   return str;
+=======
+    // Önce string içlerindeki parantezleri yoksay
+    const stack: string[] = [];
+    let inString = false;
+    let escaped = false;
+
+    for (let i = 0; i < str.length; i++) {
+        const ch = str[i];
+        if (escaped) { escaped = false; continue; }
+        if (ch === '\\' && inString) { escaped = true; continue; }
+        if (ch === '"') { inString = !inString; continue; }
+        if (inString) continue;
+
+        if (ch === '{') stack.push('}');
+        else if (ch === '[') stack.push(']');
+        else if ((ch === '}' || ch === ']') && stack.length > 0) {
+            if (stack[stack.length - 1] === ch) stack.pop();
+            else stack.pop(); // yanlış kapanış → tüket (tolerans)
+        }
+    }
+
+    // Açık string varsa kapat
+    if (inString) str += '"';
+    // Kalan açık parantezleri ters sırayla kapat
+    while (stack.length > 0) str += stack.pop();
+    return str;
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 };
 
 /**
@@ -51,6 +83,7 @@ const balanceBraces = (str: string): string => {
  * Örnek: { "a": 1, "b": { → { "a": 1 }
  */
 const truncateToLastValidEntry = (str: string): string => {
+<<<<<<< HEAD
   // Son tam virgülü bul ve oradan kes
   const lastComma = str.lastIndexOf(',');
   if (lastComma > 0) {
@@ -58,6 +91,15 @@ const truncateToLastValidEntry = (str: string): string => {
     return balanceBraces(candidate);
   }
   return balanceBraces(str);
+=======
+    // Son tam virgülü bul ve oradan kes
+    const lastComma = str.lastIndexOf(',');
+    if (lastComma > 0) {
+        const candidate = str.substring(0, lastComma);
+        return balanceBraces(candidate);
+    }
+    return balanceBraces(str);
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 };
 
 /**
@@ -65,6 +107,7 @@ const truncateToLastValidEntry = (str: string): string => {
  * Sırasıyla 3 strateji uygular; birincisi başarısız olursa sonrakine geçer.
  */
 const tryRepairJson = (jsonStr: string): any => {
+<<<<<<< HEAD
   if (!jsonStr) throw new Error('AI yanıt dönmedi.');
 
   // 1. Görünmez karakterleri ve markdown bloklarını temizle
@@ -117,6 +160,49 @@ const tryRepairJson = (jsonStr: string): any => {
     cleaned.substring(0, 500)
   );
   throw new Error('AI verisi işlenemedi. JSON formatı bozuk veya yanıt çok kısa.');
+=======
+    if (!jsonStr) throw new Error("AI yanıt dönmedi.");
+
+    // 1. Görünmez karakterleri ve markdown bloklarını temizle
+    let cleaned = jsonStr.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+    cleaned = cleaned
+        .replace(/^```json[\s\S]*?\n/, '')  // başındaki ```json ... satırını sil
+        .replace(/^```\s*/m, '')             // başındaki ``` sil
+        .replace(/```\s*$/m, '')             // sonundaki ``` sil
+        .trim();
+
+    // JSON başlangıcını bul (bazen model önüne açıklama ekler)
+    const firstBrace = cleaned.indexOf('{');
+    const firstBracket = cleaned.indexOf('[');
+    let startIndex = -1;
+    if (firstBrace !== -1 && firstBracket !== -1) startIndex = Math.min(firstBrace, firstBracket);
+    else if (firstBrace !== -1) startIndex = firstBrace;
+    else if (firstBracket !== -1) startIndex = firstBracket;
+    if (startIndex > 0) cleaned = cleaned.substring(startIndex);
+
+    // STRATEJİ 1: Direkt parse
+    try {
+        return JSON.parse(cleaned);
+    } catch (_e1) { /* devam */ }
+
+    // STRATEJİ 2: Eksik parantezleri tamamlayarak parse
+    try {
+        const balanced = balanceBraces(cleaned);
+        return JSON.parse(balanced);
+    } catch (_e2) { /* devam */ }
+
+    // STRATEJİ 3: Son geçerli girişe kadar kes, sonra tamamla
+    try {
+        const truncated = truncateToLastValidEntry(cleaned);
+        const result = JSON.parse(truncated);
+        console.warn('[GeminiClient] JSON truncated & repaired. Yanıt token sınırına çarpmış olabilir.');
+        return result;
+    } catch (_e3) { /* tüm stratejiler başarısız */ }
+
+    // Tüm stratejiler başarısız → orijinal ham metni logla
+    console.error('[GeminiClient] JSON Parse tamamen başarısız. Ham metin:', cleaned.substring(0, 500));
+    throw new Error('AI verisi işlenemedi. JSON formatı bozuk veya yanıt çok kısa.');
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 };
 
 const SYSTEM_INSTRUCTION = `
@@ -152,23 +238,35 @@ DENETİM KRİTERLERİ:
 
 // Pedagojik Analiz Tipleri
 export interface MultimodalFile {
+<<<<<<< HEAD
   data: string;
   mimeType: string;
+=======
+    data: string;
+    mimeType: string;
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 }
 
 /**
  * AI PEDAGOG: İçerik Denetimi Yapar (Proxy üzerinden)
  */
 export const evaluateContent = async (content: any) => {
+<<<<<<< HEAD
   const url = `/api/generate`;
 
   const prompt = `
+=======
+    const url = `/api/generate`;
+
+    const prompt = `
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     [ANALİZ EDİLECEK İÇERİK]
     ${JSON.stringify(content)}
     
     Lütfen yukarıdaki materyali disleksi dostu tasarım ilkelerine göre acımasızca eleştir ve puanla.
     `;
 
+<<<<<<< HEAD
   const schema = {
     type: 'OBJECT',
     properties: {
@@ -209,12 +307,55 @@ export const evaluateContent = async (content: any) => {
     console.error('Pedagojik analiz hatası:', e);
     return null;
   }
+=======
+    const schema = {
+        type: "OBJECT",
+        properties: {
+            score: { type: "NUMBER" },
+            verdict: { type: "STRING", enum: ["Mükemmel", "İyi", "Riskli", "Kritik"] },
+            analysis: {
+                type: "ARRAY",
+                items: {
+                    type: "OBJECT",
+                    properties: {
+                        type: { type: "STRING", enum: ["success", "warning", "error"] },
+                        message: { type: "STRING" },
+                        suggestion: { type: "STRING" }
+                    },
+                    required: ["type", "message", "suggestion"]
+                }
+            }
+        },
+        required: ["score", "verdict", "analysis"]
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt,
+                systemInstruction: PEDAGOGICAL_AUDITOR_INSTRUCTION,
+                schema,
+                model: MASTER_MODEL
+            })
+        });
+
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data;
+    } catch (e) {
+        console.error("Pedagojik analiz hatası:", e);
+        return null;
+    }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 };
 
 /**
  * REST API Proxy Tabanlı Gemini İstemcisi (Güvenli)
  */
 export const generateCreativeMultimodal = async (params: {
+<<<<<<< HEAD
   prompt: string;
   schema?: any;
   files?: MultimodalFile[];
@@ -292,13 +433,88 @@ export const detectMimeType = (
     if (base64.includes('image/png')) return 'image/png';
   }
   return 'image/jpeg';
+=======
+    prompt: string,
+    schema?: any,
+    files?: MultimodalFile[],
+    temperature?: number,
+    thinkingBudget?: number,
+    systemInstruction?: string,
+    model?: string
+}) => {
+    // API Proxy endpoint
+    const url = '/api/generate';
+
+    const body: any = {
+        prompt: params.prompt,
+        schema: params.schema,
+        temperature: params.temperature ?? 0.1,
+        systemInstruction: params.systemInstruction || SYSTEM_INSTRUCTION,
+        model: params.model || MASTER_MODEL
+    };
+
+    // Multimodal veri hazırlığı (Proxy'nin beklediği formatta)
+    if (params.files && params.files.length > 0) {
+        const file = params.files[0]; // Proxy şu an tek resim destekliyor
+        body.image = file.data.includes(',') ? file.data.split(',')[1] : file.data;
+        body.mimeType = file.mimeType;
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({ error: { message: 'Bilinmeyen hata' } }));
+            throw new Error(errData.error?.message || `API Hatası (${response.status})`);
+        }
+
+        const data = await response.json();
+        return data; // Proxy zaten JSON parse edilmiş veriyi döndürür
+
+    } catch (error: any) {
+        console.error("Gemini Proxy İstek Hatası:", error);
+        throw error;
+    }
+};
+
+export const generateWithSchema = async (prompt: string, schema: any) => {
+    return await generateCreativeMultimodal({ prompt, schema });
+};
+
+// MIME Type Helper
+export const detectMimeType = (base64: string): 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif' => {
+    const raw = base64.split(',')[1] || base64;
+    const prefix = raw.substring(0, 8);
+    try {
+        const bytes = atob(prefix);
+        const b0 = bytes.charCodeAt(0);
+        const b1 = bytes.charCodeAt(1);
+        if (b0 === 0xFF && b1 === 0xD8) return 'image/jpeg';
+        if (b0 === 0x89 && b1 === 0x50) return 'image/png';
+        if (b0 === 0x52 && b1 === 0x49) return 'image/webp';
+        if (b0 === 0x47 && b1 === 0x49) return 'image/gif';
+    } catch {
+        if (base64.includes('image/png')) return 'image/png';
+    }
+    return 'image/jpeg';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 };
 
 /**
  * Generates raw SVG code from a prompt using Gemini (Proxy üzerinden)
  */
 export const generateSvgCode = async (prompt: string): Promise<string> => {
+<<<<<<< HEAD
   const systemPrompt = `
+=======
+    const systemPrompt = `
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     Sen bir SVG uzmanısın. Kullanıcının istediği konuya uygun, basit, yüksek kontrastlı ve disleksi dostu bir SVG ikonu üret.
     KURALLAR:
     - SADECE ham <svg> kodunu döndür. Açıklama veya markdown ( \`\`\` ) kullanma.
@@ -308,6 +524,7 @@ export const generateSvgCode = async (prompt: string): Promise<string> => {
     - Renk paleti: #000000 (siyah) veya #4f46e5 (indigo) kullan.
   `;
 
+<<<<<<< HEAD
   try {
     const url = `/api/generate`;
 
@@ -352,4 +569,47 @@ export const analyzeImage = async (image: string, prompt: string, schema: any) =
     schema,
     files: [{ data: image, mimeType }],
   });
+=======
+    try {
+        const url = `/api/generate`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt,
+                systemInstruction: systemPrompt,
+                model: MASTER_MODEL
+            })
+        });
+
+        if (!response.ok) throw new Error("Gemini SVG generation failed");
+
+        const data = await response.json();
+        // SVG durumunda proxy json dönemezse veya string dönerse handle et
+        let svgCode = typeof data === 'string' ? data : (data.svg || data.code || "");
+
+        // Clean up markdown if AI accidentally included it
+        svgCode = svgCode.replace(/```svg/g, '').replace(/```/g, '').trim();
+
+        if (!svgCode.includes('<svg')) {
+            throw new Error("Geçerli bir SVG üretilemedi");
+        }
+
+        return svgCode;
+    } catch (error) {
+        console.error("SVG Generation Error:", error);
+        // Generic fallback SVG (a simple circle)
+        return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="#000" stroke-width="4" fill="none"/></svg>';
+    }
+};
+
+export const analyzeImage = async (image: string, prompt: string, schema: any) => {
+    const mimeType = detectMimeType(image);
+    return await generateCreativeMultimodal({
+        prompt,
+        schema,
+        files: [{ data: image, mimeType }]
+    });
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 };

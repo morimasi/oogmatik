@@ -1,6 +1,12 @@
 
+<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { InteractiveStoryData, ReadingStudioConfig } from '../../types.js';
+=======
+import { Type } from "@google/genai";
+import { generateWithSchema } from '../geminiClient';
+import { InteractiveStoryData, ReadingStudioConfig } from '../../types';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 export const generateInteractiveStory = async (config: ReadingStudioConfig): Promise<InteractiveStoryData> => {
 
@@ -71,6 +77,7 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     `;
 
     const schema = {
+<<<<<<< HEAD
         type: 'OBJECT',
         properties: {
             title: { type: 'STRING' },
@@ -96,11 +103,39 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
                         type: { type: 'STRING', enum: ['who', 'where', 'when', 'what', 'why', 'how'] },
                         question: { type: 'STRING' },
                         answer: { type: 'STRING' }
+=======
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING },
+            story: { type: Type.STRING },
+            genre: { type: Type.STRING },
+            gradeLevel: { type: Type.STRING },
+            pedagogicalNote: { type: Type.STRING, description: "Hangi bilişsel becerinin hedeflendiği (Disleksi uzmanı bakışıyla)" },
+            imagePrompt: { type: Type.STRING },
+            vocabulary: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: { word: { type: Type.STRING }, definition: { type: Type.STRING } },
+                    required: ['word', 'definition']
+                }
+            },
+            creativeTask: { type: Type.STRING },
+            fiveW1H: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        type: { type: Type.STRING, enum: ['who', 'where', 'when', 'what', 'why', 'how'] },
+                        question: { type: Type.STRING },
+                        answer: { type: Type.STRING }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     },
                     required: ['type', 'question', 'answer']
                 }
             },
             multipleChoice: {
+<<<<<<< HEAD
                 type: 'ARRAY',
                 items: {
                     type: 'OBJECT',
@@ -108,39 +143,76 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
                         question: { type: 'STRING' },
                         options: { type: 'ARRAY', items: { type: 'STRING' } },
                         answer: { type: 'STRING' }
+=======
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        question: { type: Type.STRING },
+                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                        answer: { type: Type.STRING }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     },
                     required: ['question', 'options', 'answer']
                 }
             },
             trueFalse: {
+<<<<<<< HEAD
                 type: 'ARRAY',
                 items: {
                     type: 'OBJECT',
                     properties: { question: { type: 'STRING' }, answer: { type: 'BOOLEAN' } },
+=======
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: { question: { type: Type.STRING }, answer: { type: Type.BOOLEAN } },
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     required: ['question', 'answer']
                 }
             },
             fillBlanks: {
+<<<<<<< HEAD
                 type: 'ARRAY',
                 items: {
                     type: 'OBJECT',
                     properties: { sentence: { type: 'STRING' }, answer: { type: 'STRING' } },
+=======
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: { sentence: { type: Type.STRING }, answer: { type: Type.STRING } },
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     required: ['sentence', 'answer']
                 }
             },
             logicQuestions: {
+<<<<<<< HEAD
                 type: 'ARRAY',
                 items: {
                     type: 'OBJECT',
                     properties: { question: { type: 'STRING' }, answer: { type: 'STRING' }, hint: { type: 'STRING' } },
+=======
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: { question: { type: Type.STRING }, answer: { type: Type.STRING }, hint: { type: Type.STRING } },
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     required: ['question', 'answer', 'hint']
                 }
             },
             inferenceQuestions: {
+<<<<<<< HEAD
                 type: 'ARRAY',
                 items: {
                     type: 'OBJECT',
                     properties: { question: { type: 'STRING' }, answer: { type: 'STRING' } },
+=======
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: { question: { type: Type.STRING }, answer: { type: Type.STRING } },
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                     required: ['question', 'answer']
                 }
             }

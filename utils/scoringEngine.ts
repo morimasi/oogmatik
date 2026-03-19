@@ -1,6 +1,11 @@
 
+<<<<<<< HEAD
 import { ScreeningResult, EvaluationCategory } from '../types/screening.js';
 import { SCREENING_QUESTIONS, CATEGORY_LABELS, CATEGORY_COLORS } from '../data/screeningQuestions.js';
+=======
+import { ScreeningResult, EvaluationCategory } from '../types/screening';
+import { SCREENING_QUESTIONS, CATEGORY_LABELS, CATEGORY_COLORS } from '../data/screeningQuestions';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 export const scoringEngine = {
     calculate: (
@@ -34,7 +39,11 @@ export const scoringEngine = {
 
             const value = answers[q.id] || 0; // 0: Hiç - 4: Her Zaman
             const maxVal = 4;
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
             // Add to category
             scores[q.category].rawScore += (value * q.weight);
             scores[q.category].maxScore += (maxVal * q.weight);

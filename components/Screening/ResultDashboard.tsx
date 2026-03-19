@@ -4,7 +4,12 @@ import { ScreeningResult, EvaluationCategory } from '../../types/screening';
 import { SavedAssessment, AssessmentReport } from '../../types';
 import { CATEGORY_LABELS } from '../../data/screeningQuestions';
 import { RadarChart } from '../RadarChart';
+<<<<<<< HEAD
 import { generateWithSchema } from '../../services/geminiClient.js';
+=======
+import { generateWithSchema } from '../../services/geminiClient';
+import { Type } from "@google/genai";
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 import { printService } from '../../utils/printService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { assessmentService } from '../../services/assessmentService';
@@ -18,7 +23,11 @@ interface Props {
     onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
 }
 
+<<<<<<< HEAD
 export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectActivity, onAddToWorkbook, onGeneratePlan }: Props) => {
+=======
+export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectActivity, onAddToWorkbook, onGeneratePlan }) => {
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     const { user } = useAuthStore();
     const [aiAnalysis, setAiAnalysis] = useState<any>(null);
     const [loadingAi, setLoadingAi] = useState(false);
@@ -64,10 +73,17 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
             `;
 
             const schema = {
+<<<<<<< HEAD
                 type: 'OBJECT',
                 properties: {
                     letter: { type: 'STRING' },
                     actionSteps: { type: 'ARRAY', items: { type: 'STRING' } }
+=======
+                type: Type.OBJECT,
+                properties: {
+                    letter: { type: Type.STRING },
+                    actionSteps: { type: Type.ARRAY, items: { type: Type.STRING } }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                 },
                 required: ['letter', 'actionSteps']
             };

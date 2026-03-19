@@ -1,7 +1,21 @@
 {
+<<<<<<< HEAD
   "functions": {
     "api/generate.ts": {
       "maxDuration": 300
     }
   }
 }
+=======
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" }
+  ],
+  "functions": {
+    "api/*.ts": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
+  "outputDirectory": "dist"
+}
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
