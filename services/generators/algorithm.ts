@@ -1,6 +1,12 @@
 
+<<<<<<< HEAD
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions, AlgorithmData } from '../../types.js';
+=======
+import { Type } from "@google/genai";
+import { generateWithSchema } from '../geminiClient';
+import { GeneratorOptions, AlgorithmData } from '../../types';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions): Promise<AlgorithmData[]> => {
     const { topic, difficulty, studentContext } = options;
@@ -27,6 +33,7 @@ export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions
     `;
 
     const schema = {
+<<<<<<< HEAD
         type: 'ARRAY',
         items: {
             type: 'OBJECT',
@@ -44,6 +51,25 @@ export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions
                             id: { type: 'INTEGER' },
                             type: { type: 'STRING', enum: ['start', 'process', 'decision', 'input', 'output', 'end'] },
                             text: { type: 'STRING', description: "Adımın eylem cümlesi" }
+=======
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                title: { type: Type.STRING },
+                instruction: { type: Type.STRING },
+                pedagogicalNote: { type: Type.STRING },
+                challenge: { type: Type.STRING, description: "Algoritmanın çözdüğü temel problem/senaryo" },
+                steps: {
+                    type: Type.ARRAY,
+                    minItems: 5,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            id: { type: Type.INTEGER },
+                            type: { type: Type.STRING, enum: ['start', 'process', 'decision', 'input', 'output', 'end'] },
+                            text: { type: Type.STRING, description: "Adımın eylem cümlesi" }
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                         },
                         required: ['id', 'type', 'text']
                     }

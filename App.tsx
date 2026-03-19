@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+<<<<<<< HEAD
 import { useToastStore } from './store/useToastStore';
 import { ToastContainer } from './components/ToastContainer';
+=======
+import { useToastStore } from '@/store/useToastStore';
+import { ToastContainer } from '@/components/ToastContainer';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 import {
   ActivityType,
   WorksheetData,
@@ -19,6 +24,7 @@ import {
   SavedAssessment,
   Curriculum,
   ActiveCurriculumSession,
+<<<<<<< HEAD
 } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
@@ -63,10 +69,57 @@ const CurriculumView = lazy(() =>
 );
 const ReadingStudio = lazy(() =>
   import('./components/ReadingStudio/ReadingStudio').then((module) => ({
+=======
+} from '@/types';
+import Sidebar from '@/components/Sidebar';
+import ContentArea from '@/components/ContentArea';
+import { ACTIVITIES, ACTIVITY_CATEGORIES } from '@/constants';
+import DyslexiaLogo from '@/components/DyslexiaLogo';
+import GlobalSearch from '@/components/GlobalSearch';
+import { FeedbackModal } from '@/components/FeedbackModal';
+import { AuthModal } from '@/components/AuthModal';
+import { messagingService } from '@/services/messagingService';
+import { worksheetService } from '@/services/worksheetService';
+import { curriculumService } from '@/services/curriculumService';
+import { SettingsModal } from '@/components/SettingsModal';
+import { TourGuide, TourStep } from '@/components/TourGuide';
+import { loadCurrentUserPaperSize } from '@/services/paperSizeApi';
+import { usePaperSizeStore } from '@/store/usePaperSizeStore';
+import { PaperSize } from '@/utils/printService';
+import { StudentInfoModal } from '@/components/StudentInfoModal';
+import { HistoryView } from '@/components/HistoryView';
+import { PaperSizeInitializer } from '@/components/PaperSizeInitializer';
+import { useAuthStore } from '@/store/useAuthStore';
+import { AssessmentReportViewer } from '@/components/AssessmentReportViewer';
+import * as offlineGenerators from '@/services/offlineGenerators';
+import { useUIStore } from '@/store/useUIStore';
+import { useWorksheetStore } from '@/store/useWorksheetStore';
+import { AppHeader } from '@/components/AppHeader';
+
+// Lazy Loaded Components
+const ProfileView = lazy(() =>
+  import('@/components/ProfileView').then((module) => ({ default: module.ProfileView }))
+);
+const AdminDashboard = lazy(() =>
+  import('@/components/AdminDashboard').then((module) => ({ default: module.AdminDashboard }))
+);
+const MessagesView = lazy(() =>
+  import('@/components/MessagesView').then((module) => ({ default: module.MessagesView }))
+);
+const OCRScanner = lazy(() =>
+  import('@/components/OCRScanner').then((module) => ({ default: module.OCRScanner }))
+);
+const CurriculumView = lazy(() =>
+  import('@/components/CurriculumView').then((module) => ({ default: module.CurriculumView }))
+);
+const ReadingStudio = lazy(() =>
+  import('@/components/ReadingStudio/ReadingStudio').then((module) => ({
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     default: module.ReadingStudio,
   }))
 );
 const MathStudio = lazy(() =>
+<<<<<<< HEAD
   import('./components/MathStudio/MathStudio').then((module) => ({ default: module.MathStudio }))
 );
 const SuperTurkceModule = lazy(() =>
@@ -75,16 +128,34 @@ const SuperTurkceModule = lazy(() =>
 
 const StudentDashboard = lazy(() =>
   import('./components/Student/StudentDashboard').then((module) => ({
+=======
+  import('@/components/MathStudio/MathStudio').then((module) => ({ default: module.MathStudio }))
+);
+const SuperTurkceModule = lazy(() =>
+  import('@/modules/super-turkce').then((m) => ({ default: m.SuperTurkceModule }))
+);
+
+const StudentDashboard = lazy(() =>
+  import('@/components/Student/StudentDashboard').then((module) => ({
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     default: module.StudentDashboard,
   }))
 );
 const ScreeningModule = lazy(() =>
+<<<<<<< HEAD
   import('./components/Screening/ScreeningModule').then((module) => ({
+=======
+  import('@/components/Screening/ScreeningModule').then((module) => ({
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     default: module.ScreeningModule,
   }))
 );
 const AssessmentModule = lazy(() =>
+<<<<<<< HEAD
   import('./components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
+=======
+  import('@/components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 );
 
 const initialStyleSettings: StyleSettings = {
@@ -174,7 +245,11 @@ const Modal = ({
   );
 };
 
+<<<<<<< HEAD
 import { DeveloperModal } from './components/DeveloperModal';
+=======
+import { DeveloperModal } from '@/components/DeveloperModal';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 const tourSteps: TourStep[] = [
   {
@@ -215,8 +290,13 @@ const tourSteps: TourStep[] = [
   },
 ];
 
+<<<<<<< HEAD
 import { useStudentStore } from './store/useStudentStore';
 import { useAppStore } from './store/useAppStore';
+=======
+import { useStudentStore } from '@/store/useStudentStore';
+import { useAppStore } from '@/store/useAppStore';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 const AppContent = () => {
   const authStore = useAuthStore();
@@ -425,8 +505,13 @@ const AppContent = () => {
   }, [historyItems]);
   const addToHistory = (activityType: ActivityType, data: WorksheetData) => {
     if (!data) return;
+<<<<<<< HEAD
     const activity = ACTIVITIES.find((a) => a.id === activityType);
     const category = ACTIVITY_CATEGORIES.find((c) => c.activities.includes(activityType));
+=======
+    const activity = ACTIVITIES.find((a: any) => a.id === activityType);
+    const category = ACTIVITY_CATEGORIES.find((c: any) => c.activities.includes(activityType));
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
     if (!activity || !category) return;
     const newItem: HistoryItem = {
       id: Date.now().toString() + Math.random(),
@@ -453,7 +538,11 @@ const AppContent = () => {
       activityType: item.activityType,
       worksheetData: item.data,
       createdAt: item.timestamp,
+<<<<<<< HEAD
       icon: ACTIVITIES.find((a) => a.id === item.activityType)?.icon || 'fa-file',
+=======
+      icon: ACTIVITIES.find((a: any) => a.id === item.activityType)?.icon || 'fa-file',
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
       category: item.category,
     });
     setOpenModal(null);
@@ -522,7 +611,11 @@ const AppContent = () => {
     if (item.studentProfile) {
       setStudentProfile(item.studentProfile);
       if (item.studentId) {
+<<<<<<< HEAD
         const s = students.find((x: { id: string }) => x.id === item.studentId);
+=======
+        const s = students.find((x: any) => x.id === item.studentId);
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
         if (s) setActiveStudent(s);
       }
     } else {
@@ -615,7 +708,11 @@ const AppContent = () => {
         activityType: activityType,
         data: sheet,
         settings: { ...styleSettings },
+<<<<<<< HEAD
         title: sheet.title || ACTIVITIES.find((a) => a.id === activityType)?.title || 'Etkinlik',
+=======
+        title: sheet.title || ACTIVITIES.find((a: any) => a.id === activityType)?.title || 'Etkinlik',
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
       }));
       setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
       const btn = document.getElementById('add-to-wb-btn');
@@ -697,7 +794,11 @@ const AppContent = () => {
                 activityType: activityId,
                 data: sheet,
                 settings: { ...styleSettings },
+<<<<<<< HEAD
                 title: ACTIVITIES.find((a) => a.id === activityId)?.title || activityId,
+=======
+                title: ACTIVITIES.find((a: any) => a.id === activityId)?.title || activityId,
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
               });
             });
           } catch (genErr) {
@@ -722,10 +823,13 @@ const AppContent = () => {
 
   return (
     <div className="flex flex-col h-screen bg-[var(--bg-primary)] font-sans transition-colors duration-300">
+<<<<<<< HEAD
       {/* VERCEL DEPLOYMENT VERIFICATION MARKER */}
       <div style={{ position: 'fixed', top: '10px', right: '10px', backgroundColor: 'red', color: 'white', padding: '5px 10px', borderRadius: '5px', zIndex: 9999, fontSize: '12px', fontWeight: 'bold' }}>
         DESTEK MODU AKTİF: BUILD 2026.03.18-v5
       </div>
+=======
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
       <AppHeader
         workbookItemsCount={workbookItems.length}
         unreadCount={unreadCount}

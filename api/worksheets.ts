@@ -12,12 +12,21 @@
  * GET    /api/worksheets/shared/with-me - getSharedWithMe
  */
 
+<<<<<<< HEAD
 import { worksheetService } from '../services/worksheetService.js';
 import { permissionService } from '../middleware/permissionValidator.js';
 import { validateSaveWorksheetRequest } from '../utils/schemas.js';
 import { AppError, toAppError } from '../utils/AppError.js';
 import { logError } from '../utils/errorHandler.js';
 import { hasPermission } from '../services/rbac.js';
+=======
+import { worksheetService } from '../src/services/worksheetService.js';
+import { permissionService } from '../src/middleware/permissionValidator.js';
+import { validateSaveWorksheetRequest } from '../src/utils/schemas.js';
+import { AppError, toAppError } from '../src/utils/AppError.js';
+import { logError } from '../src/utils/errorHandler.js';
+import { hasPermission } from '../src/services/rbac.js';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 type ResponseBody = {
     success?: boolean;

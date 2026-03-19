@@ -1,0 +1,37 @@
+--- src/components/ContentArea.tsx
++++ src/components/ContentArea.tsx
+@@ -306,12 +306,11 @@
+         {/* VIEWPORT - THE DESK SURFACE */}
+         <div
+           ref={scrollContainerRef}
+-          className={`flex-1 relative overflow-y-auto overflow-x-hidden scroll-smooth custom-scrollbar transition-colors duration-500 ${zenMode ? 'bg-[#050505]' : 'bg-[var(--bg-secondary)]'
+-            }`}
++          className={`flex-1 relative overflow-hidden transition-colors duration-500 ${zenMode ? 'bg-[#050505]' : 'bg-slate-200/50'}`}
+         >
+           {/* justify-start and items-start for fixed top anchoring */}
+-          <div className="w-full flex flex-col items-center justify-start min-h-full py-0">
++          <div className="w-full h-full flex flex-col items-center justify-start py-0">
+             {currentView === 'generator' ? (
+               <>
+                 {isLoading && (
+@@ -355,8 +354,16 @@
+                       title={activeWorksheetTitle || ACTIVITIES.find((a: any) => a.id === activityType)?.title || 'Yeni Etkinlik'}
+                       zoom={zoomScale}
+                       onZoomChange={setZoomScale}
+-                      showDownload={true}
+-                      bgClass="bg-transparent"
++                      downloadLink={
++                        <button 
++                          onClick={() => {
++                            const targetSelector = document.getElementById('print-container') ? '#print-container' : '.worksheet-page';
++                            import('@/utils/printService').then(m => m.printService.generatePdf(targetSelector, activeWorksheetTitle || 'Etkinlik', { action: 'print', paperSize: 'A4' }));
++                          }}
++                          className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm"
++                        >
++                          <i className="fa-solid fa-download"></i>
++                          PDF İndir
++                        </button>
++                      }
++                      bgClass="bg-transparent"
+                     >
+                       <UniversalWorksheetWrapper

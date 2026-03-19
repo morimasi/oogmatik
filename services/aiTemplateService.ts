@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import { generateWithSchema } from './geminiClient.js';
 import { ActivityType } from '../types.js';
+=======
+import { generateWithSchema } from './geminiClient';
+import { Type } from '@google/genai';
+import { ActivityType } from '../types';
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
 
 /**
  * AI-Powered Template Suggestions Service
@@ -132,6 +138,7 @@ UYARI:
 `;
 
       const schema = {
+<<<<<<< HEAD
         type: 'OBJECT',
         properties: {
           templates: {
@@ -149,10 +156,30 @@ UYARI:
                     spacing: { type: 'STRING' },
                     fontSize: { type: 'INTEGER' },
                     orientation: { type: 'STRING' },
+=======
+        type: Type.OBJECT,
+        properties: {
+          templates: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                id: { type: Type.STRING },
+                title: { type: Type.STRING },
+                description: { type: Type.STRING },
+                layout: {
+                  type: Type.OBJECT,
+                  properties: {
+                    columns: { type: Type.INTEGER },
+                    spacing: { type: Type.STRING },
+                    fontSize: { type: Type.INTEGER },
+                    orientation: { type: Type.STRING },
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
                   },
                   required: ['columns', 'spacing', 'fontSize', 'orientation'],
                 },
                 focusAreas: {
+<<<<<<< HEAD
                   type: 'ARRAY',
                   items: { type: 'STRING' },
                 },
@@ -167,6 +194,22 @@ UYARI:
                 },
                 difficulty: { type: 'STRING' },
                 teacherNotes: { type: 'STRING' },
+=======
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                },
+                dyslexiaFriendly: {
+                  type: Type.OBJECT,
+                  properties: {
+                    font: { type: Type.STRING },
+                    colorContrast: { type: Type.STRING },
+                    visualClutter: { type: Type.STRING },
+                  },
+                  required: ['font', 'colorContrast', 'visualClutter'],
+                },
+                difficulty: { type: Type.STRING },
+                teacherNotes: { type: Type.STRING },
+>>>>>>> 37d1d96381135fd8bf93ebaa9b295311cd2c5060
               },
               required: [
                 'id',
