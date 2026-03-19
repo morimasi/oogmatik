@@ -1,7 +1,0 @@
-DEPLOY_STATUS_CHECK_2024-03-18_v5_SUCCESS_IF_VISIBLE
-REPO: https://github.com/morimasi/oogmatik
-COMMIT: feat: final deploy fix
-TIME: 15:52
----
-If you see this file at https://oogmatik.vercel.app/deploy-status.txt, then Vercel IS updating.
-If you get a 404, then Vercel is NOT linked to this branch/repo effectively.
