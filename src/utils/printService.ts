@@ -53,8 +53,8 @@ const ensurePrintStyle = (paperSize: PaperSize) => {
 
       body.printing-mode #print-overlay {
         display: block !important;
-        position: fixed !important;
-        inset: 0 !important;
+        position: static !important;
+        width: 100% !important;
         z-index: 2147483647 !important;
         overflow: visible !important;
         background: #fff !important;
