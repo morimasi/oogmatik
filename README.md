@@ -1,83 +1,117 @@
-# 🧠 Bursa Disleksi AI v2.0
+# Oogmatik
 
-**Bursa Disleksi AI**, özel öğrenme güçlüğü (disleksi, diskalkuli, disgrafi) ve DEHB tanılı bireyler için yapay zeka destekli, kişiselleştirilmiş ve bilimsel temelli eğitim materyalleri üreten kapsamlı bir platformdur.
+Oogmatik, yapay zeka destekli etkinlik ve çalışma sayfası üretimi için geliştirilmiş bir web uygulamasıdır.
+Proje; içerik üretimi, düzenleme, önizleme, yazdırma ve yönetim ekranlarını tek bir React uygulaması içinde sunar.
 
-Google Gemini AI teknolojisini kullanarak saniyeler içinde zengin içerikli çalışma sayfaları, akıllı eğitim planları ve bilişsel değerlendirme raporları oluşturur.
+## Amaç
 
----
+- Öğretmenler, uzmanlar ve içerik üreticileri için hızlı çalışma kağıdı üretimi
+- Farklı etkinlik türleri için modüler bileşen mimarisi
+- AI destekli üretim akışlarını mevcut editör/önizleme altyapısına entegre etmek
 
-## 🚀 Öne Çıkan Özellikler
+## Teknoloji Yığını
 
-*   **100+ Akıllı Etkinlik Türü:** Okuma anlama, matematik labirenti, görsel dikkat, mantıksal çıkarım ve daha fazlası.
-*   **AI Tasarım Klonlayıcı (OCR):** Mevcut bir çalışma sayfasının fotoğrafını çekin; AI tasarımı analiz etsin ve benzer yapıda tamamen yeni sorularla dijitalleştirsin.
-*   **Akıllı Eğitim Koçu:** Öğrencinin ihtiyaçlarına ve ilgi alanlarına göre 7-30 günlük "Spiral Öğrenme" modelli çalışma programları üretir.
-*   **Bilişsel Değerlendirme Bataryası:** İnteraktif testler (Stroop, RAN, Matrix) ile öğrencinin güçlü ve zayıf yönlerini analiz eder, "Akıllı Rota" önerir.
-*   **Reading & Math Studio:** Kendi çalışma kağıdınızı profesyonel araçlarla sıfırdan tasarlayın.
-*   **Gelişmiş Editör:** Üretilen her metni, görseli ve bileşeni sayfa üzerinde sürükle-bırak yöntemiyle düzenleyin.
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- Firebase (Auth/Firestore)
+- Vitest + Testing Library
 
----
+## Proje Yapısı
 
-## 🛠 Teknoloji Yığını
+Depo içinde kademeli bir mimari geçişi olduğu için hem kök klasörde hem de src altında benzer alanlar bulunabilir.
 
-*   **Frontend:** React 19, TypeScript, Tailwind CSS
-*   **AI Engine:** Google Gemini 3.0 Flash & Pro (GenAI SDK)
-*   **Backend & Database:** Firebase (Auth, Firestore)
-*   **Deployment:** Vercel
-*   **Araçlar:** html2canvas (Görüntüleme), jsPDF (Baskı), PDF.js (Analiz)
+Temel dizinler:
 
----
+- api: Vercel serverless fonksiyonları ve API uçları
+- src: Güncel istemci tarafı bileşenleri, stiller ve yardımcılar
+- components: Eski/taşınma sürecindeki bileşenler
+- services, utils, hooks, store: Uygulama servisleri ve paylaşılan mantık
+- tests: Test dosyaları
+- docs: Teknik dokümantasyon ve planlar
 
-## 📦 Kurulum ve Dağıtım
+## Gereksinimler
 
-Bu uygulama **Vercel** üzerinde çalışmak üzere optimize edilmiştir. Sorunsuz çalışma için aşağıdaki ortam değişkenlerinin (Environment Variables) tanımlanması zorunludur.
+- Node.js 20+
+- npm 10+
 
-### 1. Ortam Değişkenlerini Ayarlayın
-
-| Anahtar (Key) | Açıklama |
-| :--- | :--- |
-| `API_KEY` | **Google AI Studio**'dan alınan Gemini API Anahtarı |
-| `FIREBASE_API_KEY` | Firebase Proje Ayarları > Web Uygulaması Anahtarı |
-| `FIREBASE_PROJECT_ID` | Firebase Proje ID'si |
-| `FIREBASE_AUTH_DOMAIN` | Proje-id.firebaseapp.com |
-| `FIREBASE_APP_ID` | Uygulama Kimlik Numarası |
-
-### 2. Yerel Çalıştırma
+## Kurulum
 
 ```bash
-# Bağımlılıkları yükle
 npm install
-
-# Geliştirme modunda başlat
-npm run dev
-
-# Üretim için derle
-npm run build
 ```
 
----
+## Ortam Değişkenleri
 
-## 🧩 Modül Detayları
+Uygulama Vite yapılandırması üzerinden bazı değişkenleri istemciye tanımlar.
 
-### 📸 Akıllı Tarayıcı (OCR)
-Fiziksel materyalleri dijitalleştirir. Sadece metni değil, sayfa düzenini (tablo, kutu, grafik) algılayarak AI'ya "Tasarım Klonlama" emri verir.
+Gerekli başlıca değişkenler:
 
-### 🎓 Kişisel Müfredat
-Öğrencinin tanı bilgisini (örn: Disleksi) ve hobilerini (örn: Uzay) birleştirir. Motivasyonu yüksek tutan, kademeli zorlaşan günlük görevler atar.
+- API_KEY
+- FIREBASE_API_KEY
+- FIREBASE_AUTH_DOMAIN
+- FIREBASE_PROJECT_ID
+- FIREBASE_STORAGE_BUCKET
+- FIREBASE_MESSAGING_SENDER_ID
+- FIREBASE_APP_ID
 
-### 📊 Değerlendirme Viewer
-Öğrencinin interaktif testlerdeki hata paternlerini (ters okuma, işlem karıştırma vb.) analiz eder ve profesyonel bir gelişim raporu sunar.
+Yerelde çalışmak için proje köküne .env dosyası oluşturup değerleri ekleyin.
 
-### 📖 Reading Studio
-Görsel ve metin dengesini ayarlayabildiğiniz, 5N1K ve yaratıcı görevlerle zenginleştirilmiş akıcı okuma materyalleri tasarlamanıza olanak tanır.
+## Komutlar
 
----
+```bash
+# geliştirme sunucusu
+npm run dev
 
-## 🛡 Güvenlik ve Gizlilik
+# production build
+npm run build
 
-*   Kullanıcı verileri Firebase Firestore üzerinde güvenli bir şekilde saklanır.
-*   Yönetici (Admin) paneli üzerinden içerikler ve kullanıcı durumları kontrol edilebilir.
-*   Geri bildirim sistemi ile hatalar anlık olarak raporlanabilir.
+# build önizleme
+npm run preview
 
----
+# lint
+npm run lint
 
-**Bursa Disleksi AI** - *Her şey tersti, sen farkında olana kadar...*
+# format
+npm run format
+
+# test (watch)
+npm run test
+
+# test (tek çalıştırma)
+npm run test:run
+```
+
+## Geliştirme Notları
+
+- Path alias: @/* -> src/*
+- Çıktı paketleme: vendor chunk ayırımı yapılandırılmıştır
+- Bazı modüller kök dizin ve src altında paralel olarak bulunabilir; yeni geliştirmelerde src önceliklendirilmelidir
+
+## Dağıtım
+
+Proje Vercel uyumlu olacak şekilde yapılandırılmıştır.
+
+Önerilen akış:
+
+1. Ortam değişkenlerini Vercel proje ayarlarına ekleyin.
+2. main branch'e push edin.
+3. Vercel otomatik build/deploy sürecini tamamlasın.
+
+## Güvenlik
+
+- Hassas anahtarları repoya commit etmeyin.
+- API anahtarlarını sadece ortam değişkenleri üzerinden yönetin.
+- Ayrıntılı politika için SECURITY.md dosyasını inceleyin.
+
+## Katkı
+
+1. Yeni bir branch oluşturun.
+2. Değişikliği yapın ve testleri çalıştırın.
+3. Commit mesajını açık ve kısa yazın.
+4. Pull request açın.
+
+## Lisans
+
+Depoda ayrı bir lisans dosyası bulunmuyorsa tüm haklar saklıdır yaklaşımı geçerlidir. Açık kaynak lisanslama planlanıyorsa LICENSE dosyası eklenmelidir.
