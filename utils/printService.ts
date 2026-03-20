@@ -1,5 +1,64 @@
 export type PdfQuality = 'standard' | 'high' | 'print';
 
+/**
+ * html2canvas yakalamadan önce tüm web fontlarını (özellikle Lexend) yükler.
+ * Font yüklenmeden yakalama yapılırsa metin bozuk, boşluklar kaybolmuş çıkar.
+ */
+const preloadFontsForCapture = async (): Promise<void> => {
+  if (typeof document === 'undefined') return;
+  try {
+    // 1. Tarayıcıdaki tüm @font-face tanımlarının yüklenmesini bekle
+    await document.fonts.ready;
+
+    // 2. Kullanılan font ailelerini ve ağırlıklarını açıkça yükle
+    const fontFamilies = ['Lexend', 'Inter', 'Comic Neue', 'Lora'];
+    const weights = ['400', '600', '700', '800'];
+    const testText = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZabcçdefgğhıijklmnoöprsştuüvyz0123456789';
+    const loadPromises: Promise<unknown>[] = [];
+    for (const family of fontFamilies) {
+      for (const weight of weights) {
+        loadPromises.push(
+          document.fonts.load(`${weight} 16px "${family}"`, testText).catch(() => null)
+        );
+      }
+    }
+    await Promise.allSettled(loadPromises);
+
+    // 3. Tarayıcıya iki kare boyama süresi ver (font metrics stabileşsin)
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    );
+  } catch (e) {
+    // Font yüklenemese bile yakalamaya devam et
+    console.warn('[printService] Font ön-yükleme uyarısı:', e);
+  }
+};
+
+/**
+ * html2canvas onclone callback — klon dokümana stil sayfalarını ve fontları kopyalar.
+ * Olmadığında Google Fonts klon dokümana aktarılmaz → metin bozuk çıkar.
+ */
+const onCloneForCapture = (clonedDoc: Document): void => {
+  try {
+    // Tüm <link rel="stylesheet"> etiketlerini kopyala (Google Fonts dahil)
+    document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+      clonedDoc.head.appendChild(link.cloneNode(true));
+    });
+    // Tüm <style> etiketlerini kopyala (Tailwind inline, custom CSS dahil)
+    document.querySelectorAll('style').forEach((style) => {
+      clonedDoc.head.appendChild(style.cloneNode(true));
+    });
+    // Yazdırma için renk doğruluğu garanti altına al
+    const extra = clonedDoc.createElement('style');
+    extra.textContent =
+      '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }' +
+      ' body { background: #ffffff !important; }';
+    clonedDoc.head.appendChild(extra);
+  } catch (e) {
+    console.warn('[printService] onClone uyarısı:', e);
+  }
+};
+
 export interface PrintOptions {
   action?: 'print' | 'download';
   selectedPages?: number[];
@@ -35,7 +94,7 @@ const PRINT_STYLE_ID = 'oogmatik-print-style';
 
 const waitForOverlayImages = async (
   overlay: HTMLElement,
-  timeoutMs: number = 2500
+  timeoutMs: number = 5000
 ): Promise<void> => {
   const images = Array.from(overlay.querySelectorAll('img')) as HTMLImageElement[];
   if (images.length === 0) return;
@@ -45,13 +104,19 @@ const waitForOverlayImages = async (
       (img) =>
         new Promise<void>((resolve) => {
           if (img.complete && img.naturalWidth > 0) {
-            resolve();
+            // Görsel yüklenmiş; decode() ile piksel verisinin hazır olmasını bekle
+            img.decode().then(resolve).catch(resolve);
             return;
           }
 
-          const done = () => resolve();
-          img.addEventListener('load', done, { once: true });
-          img.addEventListener('error', done, { once: true });
+          img.addEventListener(
+            'load',
+            () => {
+              img.decode().then(resolve).catch(resolve);
+            },
+            { once: true }
+          );
+          img.addEventListener('error', () => resolve(), { once: true });
         })
     )
   ).then(() => undefined);
@@ -358,7 +423,7 @@ export const printService = {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     document.body.offsetHeight;
 
-    // 7. Call print
+    // 7. Call print — 350ms bekle: tablet/Safari'de görseller render edilsin
     setTimeout(() => {
       try {
         window.print();
@@ -367,7 +432,7 @@ export const printService = {
         document.body.classList.remove('printing-mode');
         if (overlay) overlay.innerHTML = ''; // Cleanup immediately on error
       }
-    }, 100); // Small delay to allow DOM to settle
+    }, 350);
   },
 
   /**
@@ -422,6 +487,9 @@ export const printService = {
       }
     });
 
+    // Fontların yüklenmesini bekle (aksi hâlde metin bozuk çıkar)
+    await preloadFontsForCapture();
+
     // Dinamik import ile html2canvas yükle (kod bölme)
     const { default: html2canvas } = await import('html2canvas');
 
@@ -434,6 +502,9 @@ export const printService = {
         allowTaint: true,
         logging: false,
         backgroundColor: '#ffffff',
+        windowWidth: document.documentElement.offsetWidth,
+        windowHeight: document.documentElement.offsetHeight,
+        onclone: (_clonedDoc: Document) => onCloneForCapture(_clonedDoc),
         // Tasarım modu seçim çerçevelerini bastır
         ignoreElements: (el) => {
           const htmlEl = el as HTMLElement;
@@ -609,6 +680,9 @@ export const printService = {
 
     onProgress?.(10, `${pages.length} sayfa bulundu, hazırlanıyor...`);
 
+    // Fontların yüklenmesini bekle
+    await preloadFontsForCapture();
+
     // Dinamik import — kod bölme
     const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
       import('html2canvas'),
@@ -648,6 +722,9 @@ export const printService = {
           allowTaint: true,
           logging: false,
           backgroundColor: '#ffffff',
+          windowWidth: document.documentElement.offsetWidth,
+          windowHeight: document.documentElement.offsetHeight,
+          onclone: (_clonedDoc: Document) => onCloneForCapture(_clonedDoc),
           ignoreElements: (el) => {
             const htmlEl = el as HTMLElement;
             return (
