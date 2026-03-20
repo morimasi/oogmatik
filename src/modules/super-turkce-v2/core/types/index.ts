@@ -80,6 +80,7 @@ export interface Objective {
     id: string; // Örn: 'T(4).3.7'
     title: string;
     description?: string;
+    unitHint?: string; // Serbest metin ünite adı (Örn: "3. Ünite: Değerlerimiz")
     tier2Words?: string[]; // Akademik (orta seviye) kelimeler
     tier3Words?: string[]; // Alana özgü (terim) kelimeler
 }

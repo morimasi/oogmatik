@@ -88,6 +88,7 @@ export const A4FactorySheet: React.FC<Props> = ({ worksheet }) => {
 
     const topicTitle = storeObjective?.title || data.title || 'Uygulama Çalışması';
     const gradeLabel = storeGrade ? `${storeGrade}. Sınıf` : 'Değerlendirme';
+    const unitHint = storeObjective?.unitHint || '';
 
     const renderStudioContent = () => {
         switch (storeStudioId) {
@@ -124,6 +125,7 @@ export const A4FactorySheet: React.FC<Props> = ({ worksheet }) => {
                     studio={studioDef}
                     topicTitle={topicTitle}
                     gradeLabel={gradeLabel}
+                    unitHint={unitHint}
                     settings={printSettingsSnapshot}
                 />
 

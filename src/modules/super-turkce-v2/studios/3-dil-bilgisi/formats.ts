@@ -93,7 +93,6 @@ export const grammarFormats: TemplateDef[] = [
             ]
         })
     },
-    // Kalan 8 grammar formatı, sistem gereksinimlerine göre eklenebilir. Basitlik açısından temel olanları tanımlıyorum.
     {
         id: 'GRAM_03_ADJECTIVE_HUNT',
         studioId: 'dil-bilgisi',
@@ -135,6 +134,333 @@ export const grammarFormats: TemplateDef[] = [
                 { noun: "köpek", adjective: "sevimli", type: "Niteleme" },
                 { noun: "gündür", adjective: "üç", type: "Belirtme (Asıl Sayı)" },
                 { noun: "köpek", adjective: "o", type: "Belirtme (İşaret)" }
+            ]
+        })
+    },
+    {
+        id: 'GRAM_04_NOUN_CASES',
+        studioId: 'dil-bilgisi',
+        label: 'İsim Hâlleri Tablosu',
+        description: 'Bir ismin tüm çekim hâllerini tablo içinde doldurma.',
+        icon: 'fa-table',
+        difficulty: 'orta',
+        settings: [
+            { key: 'kelimeSayisi', label: 'Kelime Sayısı', type: 'range', defaultValue: 3, min: 2, max: 5 }
+        ],
+        schema: {
+            type: "OBJECT",
+            properties: {
+                words: {
+                    type: "ARRAY",
+                    items: {
+                        type: "OBJECT",
+                        properties: {
+                            root: { type: "STRING", description: "Yalın hali" },
+                            genitive: { type: "STRING", description: "İlgi hali (ın/in/un/ün)" },
+                            dative: { type: "STRING", description: "Yönelme hali (a/e)" },
+                            accusative: { type: "STRING", description: "Belirtme hali (ı/i/u/ü)" },
+                            locative: { type: "STRING", description: "Bulunma hali (da/de/ta/te)" },
+                            ablative: { type: "STRING", description: "Ayrılma hali (dan/den/tan/ten)" }
+                        },
+                        required: ["root", "genitive", "dative", "accusative", "locative", "ablative"]
+                    }
+                }
+            },
+            required: ["words"]
+        },
+        buildAiPrompt: (s: any, grade: any, topic: any) => `
+      "${topic}" konusuyla ilgili ${s.kelimeSayisi} adet somut isim (tek heceli ve iki heceli karışık) seç.
+      Her isim için tüm isim hâli çekimlerini (yalın, ilgi, yönelme, belirtme, bulunma, ayrılma) ver.
+      Ünlü uyumu kurallarına kesinlikle uy. Sınıf: ${grade}.
+    `,
+        fastGenerate: () => ({
+            words: [
+                { root: "dağ", genitive: "dağın", dative: "dağa", accusative: "dağı", locative: "dağda", ablative: "dağdan" },
+                { root: "göl", genitive: "gölün", dative: "göle", accusative: "gölü", locative: "gölde", ablative: "gölden" },
+                { root: "orman", genitive: "ormanın", dative: "ormana", accusative: "ormanı", locative: "ormanda", ablative: "ormandan" }
+            ]
+        })
+    },
+    {
+        id: 'GRAM_05_COMPOUND_WORDS',
+        studioId: 'dil-bilgisi',
+        label: 'Birleşik Kelime Fabrikası',
+        description: 'İki ayrı sözcükten yeni anlamlı birleşik kelimeler üretme.',
+        icon: 'fa-puzzle-piece',
+        difficulty: 'kolay',
+        settings: [
+            { key: 'kelimeSayisi', label: 'Kelime Çifti Sayısı', type: 'range', defaultValue: 6, min: 4, max: 10 },
+            { key: 'birlesimTuru', label: 'Birleşim Türü', type: 'select', defaultValue: 'Karma', options: ['Karma', 'Kalıplaşmış', 'Belirtisiz İsim T.', 'Sıfat T.'] }
+        ],
+        schema: {
+            type: "OBJECT",
+            properties: {
+                pairs: {
+                    type: "ARRAY",
+                    items: {
+                        type: "OBJECT",
+                        properties: {
+                            word1: { type: "STRING" },
+                            word2: { type: "STRING" },
+                            compound: { type: "STRING" },
+                            type: { type: "STRING" },
+                            meaning: { type: "STRING" }
+                        },
+                        required: ["word1", "word2", "compound", "type", "meaning"]
+                    }
+                }
+            },
+            required: ["pairs"]
+        },
+        buildAiPrompt: (s: any, grade: any, topic: any) => `
+      "${topic}" temasıyla bağlantılı ${s.kelimeSayisi} adet birleşik kelime üret. Tür: ${s.birlesimTuru}. Sınıf: ${grade}.
+      Her kelime için iki bileşen sözcüğü (word1, word2), birleşik halini (compound), tür adını (type) ve kısa anlamını (meaning) ver.
+    `,
+        fastGenerate: () => ({
+            pairs: [
+                { word1: "gece", word2: "yarı", compound: "geceyarısı", type: "Kalıplaşmış", meaning: "Gece 12.00 zamanı" },
+                { word1: "el", word2: "yaz", compound: "el yazısı", type: "Belirtisiz İsim T.", meaning: "Elle yazılmış yazı" },
+                { word1: "kara", word2: "kuru", compound: "karakuru", type: "Sıfat Tamlaması", meaning: "Esmer, zayıf" }
+            ]
+        })
+    },
+    {
+        id: 'GRAM_06_PRONOUN_FINDER',
+        studioId: 'dil-bilgisi',
+        label: 'Zamir (Adıl) Dedektifi',
+        description: 'Metindeki kişi, işaret, soru ve belirsizlik zamirlerini ayırma.',
+        icon: 'fa-magnifying-glass',
+        difficulty: 'orta',
+        settings: [
+            { key: 'odakZamir', label: 'Zamir Türü', type: 'select', defaultValue: 'Karma', options: ['Karma', 'Sadece Kişi', 'Sadece İşaret', 'Sadece Soru'] }
+        ],
+        schema: {
+            type: "OBJECT",
+            properties: {
+                text: { type: "STRING" },
+                pronouns: {
+                    type: "ARRAY",
+                    items: {
+                        type: "OBJECT",
+                        properties: {
+                            pronoun: { type: "STRING" },
+                            type: { type: "STRING", description: "Kişi, İşaret, Soru, Belgisiz" },
+                            refersTo: { type: "STRING", description: "Neyin/kimin yerini tutuyor?" }
+                        },
+                        required: ["pronoun", "type", "refersTo"]
+                    }
+                }
+            },
+            required: ["text", "pronouns"]
+        },
+        buildAiPrompt: (s: any, grade: any, topic: any) => `
+      ${grade}. sınıf düzeyinde "${topic}" ekseninde kısa bir diyalog veya paragraf yaz.
+      İçine ${s.odakZamir} türünde zamirler yerleştir. 
+      pronouns dizisinde her zamiri, türünü ve neyin/kimin yerini tuttuğunu belirt.
+    `,
+        fastGenerate: () => ({
+            text: "Bu kitabı okuyan o çocuk kimdi? Ben onu tanımıyorum ama herkes ondan söz ediyor.",
+            pronouns: [
+                { pronoun: "Bu", type: "İşaret", refersTo: "Yakın nesne (kitap)" },
+                { pronoun: "o", type: "İşaret", refersTo: "Uzak nesne (çocuk)" },
+                { pronoun: "kimdi", type: "Soru", refersTo: "Kimliği bilinmeyen kişi" },
+                { pronoun: "Ben", type: "Kişi", refersTo: "1. tekil kişi (konuşan)" },
+                { pronoun: "onu", type: "Kişi", refersTo: "3. tekil kişi (çocuk)" },
+                { pronoun: "herkes", type: "Belgisiz", refersTo: "Belirsiz bir grup" },
+                { pronoun: "ondan", type: "Kişi", refersTo: "3. tekil (çocuk)" }
+            ]
+        })
+    },
+    {
+        id: 'GRAM_07_SENTENCE_TRANSFORM',
+        studioId: 'dil-bilgisi',
+        label: 'Cümle Dönüştürme Atölyesi',
+        description: 'Olumlu cümleyi olumsuz, soru ve ünlem cümlelerine çevirme.',
+        icon: 'fa-arrows-rotate',
+        difficulty: 'kolay',
+        settings: [
+            { key: 'cumleAdedi', label: 'Cümle Adedi', type: 'range', defaultValue: 4, min: 3, max: 6 }
+        ],
+        schema: {
+            type: "OBJECT",
+            properties: {
+                sentences: {
+                    type: "ARRAY",
+                    items: {
+                        type: "OBJECT",
+                        properties: {
+                            positive: { type: "STRING", description: "Olumlu cümle" },
+                            negative: { type: "STRING", description: "Olumsuz hali" },
+                            question: { type: "STRING", description: "Soru hali" },
+                            exclamation: { type: "STRING", description: "Ünlem hali" }
+                        },
+                        required: ["positive", "negative", "question", "exclamation"]
+                    }
+                }
+            },
+            required: ["sentences"]
+        },
+        buildAiPrompt: (s: any, grade: any, topic: any) => `
+      "${topic}" konusunu içeren ${s.cumleAdedi} adet olumlu cümle kur (Sınıf: ${grade}).
+      Her cümlenin olumsuz, soru ve ünlem biçimlerini de yaz.
+      Çekimler dil bilgisi kurallarına tam uyumlu olsun.
+    `,
+        fastGenerate: () => ({
+            sentences: [
+                { positive: "Kuşlar güney ülkelerine göç eder.", negative: "Kuşlar güney ülkelerine göç etmez.", question: "Kuşlar güney ülkelerine göç eder mi?", exclamation: "Kuşlar güney ülkelerine göç eder!" },
+                { positive: "Çocuklar bahçede oyun oynuyor.", negative: "Çocuklar bahçede oyun oynamıyor.", question: "Çocuklar bahçede oyun oynuyor mu?", exclamation: "Çocuklar bahçede oyun oynuyor!" }
+            ]
+        })
+    },
+    {
+        id: 'GRAM_08_PASSIVE_VOICE',
+        studioId: 'dil-bilgisi',
+        label: 'Edilgen Çatı Dönüşümü',
+        description: 'Etken cümleyi edilgen yapıya dönüştürme ve farkı kavrama.',
+        icon: 'fa-right-left',
+        difficulty: 'zor',
+        settings: [
+            { key: 'cumleAdedi', label: 'Cümle Adedi', type: 'range', defaultValue: 4, min: 3, max: 6 }
+        ],
+        schema: {
+            type: "OBJECT",
+            properties: {
+                exercises: {
+                    type: "ARRAY",
+                    items: {
+                        type: "OBJECT",
+                        properties: {
+                            active: { type: "STRING", description: "Etken cümle" },
+                            passive: { type: "STRING", description: "Edilgen cümle" },
+                            note: { type: "STRING", description: "Dönüşüm kuralı notu" }
+                        },
+                        required: ["active", "passive", "note"]
+                    }
+                }
+            },
+            required: ["exercises"]
+        },
+        buildAiPrompt: (s: any, grade: any, topic: any) => `
+      "${topic}" konusuna uygun ${s.cumleAdedi} adet etken cümle yaz (Sınıf: ${grade}).
+      Her cümleyi edilgen yapıya dönüştür ve dönüşüm sırasında uygulanan kuralı kısaca not olarak açıkla.
+    `,
+        fastGenerate: () => ({
+            exercises: [
+                { active: "Mühendisler köprüyü inşa etti.", passive: "Köprü mühendisler tarafından inşa edildi.", note: "Nesne özne oldu; özneye 'tarafından' eklendi; fiil '-il/-in' eki aldı." },
+                { active: "Öğretmen tahtaya soruyu yazdı.", passive: "Soru tahtaya öğretmen tarafından yazıldı.", note: "Nesne başa alındı; etken özne 'tarafından' ile belirtildi." }
+            ]
+        })
+    },
+    {
+        id: 'GRAM_09_WORD_FAMILY',
+        studioId: 'dil-bilgisi',
+        label: 'Kelime Ailesi Ağacı',
+        description: 'Kök sözcükten türetilmiş tüm aile üyelerini ağaç şeklinde gösterme.',
+        icon: 'fa-sitemap',
+        difficulty: 'orta',
+        settings: [
+            { key: 'aileSayisi', label: 'Kelime Ailesi Sayısı', type: 'range', defaultValue: 2, min: 1, max: 4 }
+        ],
+        schema: {
+            type: "OBJECT",
+            properties: {
+                families: {
+                    type: "ARRAY",
+                    items: {
+                        type: "OBJECT",
+                        properties: {
+                            root: { type: "STRING" },
+                            members: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        word: { type: "STRING" },
+                                        suffix: { type: "STRING", description: "Hangi ek alındı" },
+                                        type: { type: "STRING", description: "İsim, Sıfat, Fiil, Zarf" },
+                                        exampleSentence: { type: "STRING" }
+                                    },
+                                    required: ["word", "suffix", "type", "exampleSentence"]
+                                }
+                            }
+                        },
+                        required: ["root", "members"]
+                    }
+                }
+            },
+            required: ["families"]
+        },
+        buildAiPrompt: (s: any, grade: any, topic: any) => `
+      "${topic}" konusuyla ilişkili ${s.aileSayisi} adet kök sözcük seç.
+      Her kök sözcükten en az 4 türemiş kelime üret (İsim, Sıfat, Fiil, Zarf).
+      Her türemiş kelime için hangi eki aldığını, kelime türünü ve kısa bir örnek cümle ver. Sınıf: ${grade}.
+    `,
+        fastGenerate: () => ({
+            families: [
+                {
+                    root: "yaz",
+                    members: [
+                        { word: "yazı", suffix: "-ı", type: "İsim", exampleSentence: "Onun yazısı çok güzel." },
+                        { word: "yazılı", suffix: "-ılı", type: "Sıfat", exampleSentence: "Yazılı sınav başlıyor." },
+                        { word: "yazdır", suffix: "-dır", type: "Ettirgen Fiil", exampleSentence: "Öğretmen tahtayı yazdırdı." },
+                        { word: "yazılım", suffix: "-ılım", type: "İsim", exampleSentence: "Bilgisayar yazılımı güncellendi." }
+                    ]
+                }
+            ]
+        })
+    },
+    {
+        id: 'GRAM_10_CONJUNCTION_BRIDGE',
+        studioId: 'dil-bilgisi',
+        label: 'Bağlaç Köprüsü',
+        description: 'İki cümleyi doğru bağlaçla birleştirme ve anlam farkını kavrama.',
+        icon: 'fa-link',
+        difficulty: 'orta',
+        settings: [
+            { key: 'egzersizSayisi', label: 'Egzersiz Sayısı', type: 'range', defaultValue: 5, min: 3, max: 8 },
+            { key: 'baglaçTuru', label: 'Bağlaç Türü', type: 'select', defaultValue: 'Karma', options: ['Karma', 'Bağlama (ve/da)', 'Karşıtlık (ama/fakat)', 'Neden-Sonuç (çünkü/onun için)'] }
+        ],
+        schema: {
+            type: "OBJECT",
+            properties: {
+                exercises: {
+                    type: "ARRAY",
+                    items: {
+                        type: "OBJECT",
+                        properties: {
+                            sentence1: { type: "STRING" },
+                            sentence2: { type: "STRING" },
+                            correctConjunction: { type: "STRING" },
+                            combined: { type: "STRING" },
+                            options: { type: "ARRAY", items: { type: "STRING" }, description: "3-4 seçenek bağlaç" }
+                        },
+                        required: ["sentence1", "sentence2", "correctConjunction", "combined", "options"]
+                    }
+                }
+            },
+            required: ["exercises"]
+        },
+        buildAiPrompt: (s: any, grade: any, topic: any) => `
+      "${topic}" konusunu içeren ${s.egzersizSayisi} adet çift cümle hazırla. Bağlaç türü: ${s.baglaçTuru}. Sınıf: ${grade}.
+      Her egzersizde iki ayrı cümle ver. Doğru bağlacı (correctConjunction) ve üç yanlış seçeneği (options) listele.
+      Birleştirilmiş doğru cümleyi de yaz (combined).
+    `,
+        fastGenerate: () => ({
+            exercises: [
+                {
+                    sentence1: "Hava soğudu.",
+                    sentence2: "Çocuklar içeri girdi.",
+                    correctConjunction: "bunun için",
+                    combined: "Hava soğudu, bunun için çocuklar içeri girdi.",
+                    options: ["ve", "ama", "bunun için", "ya da"]
+                },
+                {
+                    sentence1: "Ödevimi bitirdim.",
+                    sentence2: "Dışarı çıkamadım.",
+                    correctConjunction: "ama",
+                    combined: "Ödevimi bitirdim ama dışarı çıkamadım.",
+                    options: ["çünkü", "ama", "ve", "ne… ne de"]
+                }
             ]
         })
     }
