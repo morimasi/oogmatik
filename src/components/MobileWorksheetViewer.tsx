@@ -178,11 +178,7 @@ export const MobileWorksheetViewer: React.FC<MobileWorksheetViewerProps> = ({
         onRedo={ws.redo}
         onSave={() => {
             const result = onSave?.(ws.worksheet);
-            if (result && typeof result.then === 'function') {
-              void result.then(() => ws.markSaved());
-            } else {
-              ws.markSaved();
-            }
+            void Promise.resolve(result).then(() => ws.markSaved());
           }}
         onExport={() => setShowExportPanel(true)}
         onPreview={() => setShowPreview((p) => !p)}
