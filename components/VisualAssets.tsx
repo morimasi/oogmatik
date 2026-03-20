@@ -83,46 +83,56 @@ export const MascotCat = ({ className }: { className?: string }) => (
 
 // --- BORDERS ---
 
+// Premium tema renk haritası — köşe süslemeleri ve gradient border'lar için
+const themeBorderColors: Record<string, { primary: string; secondary: string; gradient: string }> = {
+    math:   { primary: '#6366f1', secondary: '#ef4444', gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6, #ef4444)' },
+    verbal: { primary: '#10b981', secondary: '#f59e0b', gradient: 'linear-gradient(135deg, #10b981, #34d399, #f59e0b)' },
+    stars:  { primary: '#fbbf24', secondary: '#f97316', gradient: 'linear-gradient(135deg, #fbbf24, #f59e0b, #f97316)' },
+    geo:    { primary: '#8b5cf6', secondary: '#ec4899', gradient: 'linear-gradient(135deg, #8b5cf6, #a78bfa, #ec4899)' },
+};
+
 export const getBorderCSS = (type: string, color: string = '#3f3f46', width: number = 4) => {
     if (type === 'none') return {};
     
-    // Simple borders use the dynamic color directly
     if (type === 'simple') return {
         border: `${width}px solid ${color}`,
         borderRadius: '0px'
     };
 
     let svgData = '';
-
-    // Thematic borders use SVG. We use 'width' to control border thickness.
-    // Colors are generally fixed for themes but could be parameterized if needed.
-    // For now, we respect the width setting.
+    const themeColors = themeBorderColors[type];
 
     if (type === 'math') {
         svgData = `
             <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                <text x="15" y="40" font-family="monospace" font-weight="bold" font-size="24" fill="%236366f1" opacity="0.3">+</text>
-                <text x="45" y="20" font-family="monospace" font-weight="bold" font-size="20" fill="%23ef4444" opacity="0.3">123</text>
+                <text x="5" y="30" font-family="monospace" font-weight="bold" font-size="18" fill="%236366f1" opacity="0.35">+</text>
+                <text x="25" y="50" font-family="monospace" font-weight="bold" font-size="14" fill="%238b5cf6" opacity="0.25">÷</text>
+                <text x="42" y="18" font-family="monospace" font-weight="bold" font-size="16" fill="%23ef4444" opacity="0.3">×</text>
+                <circle cx="50" cy="45" r="6" stroke="%236366f1" fill="none" stroke-width="1.5" opacity="0.2"/>
             </svg>
         `;
     } else if (type === 'verbal') {
         svgData = `
             <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                <text x="10" y="40" font-family="serif" font-weight="bold" font-size="28" fill="%2310b981" opacity="0.3">A</text>
-                <text x="40" y="20" font-family="serif" font-weight="bold" font-size="28" fill="%23f59e0b" opacity="0.3">b</text>
+                <text x="5" y="35" font-family="serif" font-weight="bold" font-size="22" fill="%2310b981" opacity="0.3">A</text>
+                <text x="30" y="20" font-family="serif" font-style="italic" font-size="18" fill="%23f59e0b" opacity="0.25">b</text>
+                <text x="42" y="50" font-family="serif" font-size="16" fill="%2334d399" opacity="0.2">c</text>
             </svg>
         `;
     } else if (type === 'stars') {
         svgData = `
             <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                <polygon points="20,5 24,15 35,15 26,22 29,32 20,26 11,32 14,22 5,15 16,15" fill="%23fbbf24" opacity="0.4"/>
+                <polygon points="20,5 24,15 35,15 26,22 29,32 20,26 11,32 14,22 5,15 16,15" fill="%23fbbf24" opacity="0.35"/>
+                <circle cx="8" cy="8" r="2" fill="%23f97316" opacity="0.3"/>
+                <circle cx="35" cy="6" r="1.5" fill="%23fbbf24" opacity="0.25"/>
             </svg>
         `;
     } else if (type === 'geo') {
         svgData = `
             <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-                <rect x="5" y="5" width="20" height="20" stroke="%238b5cf6" fill="none" stroke-width="2" opacity="0.3"/>
-                <circle cx="35" cy="35" r="10" stroke="%23ec4899" fill="none" stroke-width="2" opacity="0.3"/>
+                <rect x="5" y="5" width="18" height="18" rx="2" stroke="%238b5cf6" fill="none" stroke-width="1.8" opacity="0.3"/>
+                <circle cx="38" cy="38" r="9" stroke="%23ec4899" fill="none" stroke-width="1.8" opacity="0.3"/>
+                <polygon points="38,8 44,18 32,18" stroke="%238b5cf6" fill="none" stroke-width="1.5" opacity="0.2"/>
             </svg>
         `;
     }
@@ -133,6 +143,10 @@ export const getBorderCSS = (type: string, color: string = '#3f3f46', width: num
         border: `${width}px solid transparent`,
         borderImageSource: encoded,
         borderImageSlice: 30,
-        borderImageRepeat: 'round'
-    };
+        borderImageRepeat: 'round',
+        // CSS class adını aktarmak yerine CSS variable olarak tema bilgisini geçiyoruz
+        '--theme-border-type': type,
+        '--theme-primary': themeColors?.primary || color,
+        '--theme-secondary': themeColors?.secondary || color,
+    } as Record<string, string | number>;
 };

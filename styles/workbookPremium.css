@@ -66,3 +66,97 @@
         height: 210mm !important;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════ */
+/* PREMIUM BORDER THEMES — Köşe süslemeleri ve gradient'ler   */
+/* ═══════════════════════════════════════════════════════════ */
+
+/* Tematik kenarlık köşe süslemeleri — dört köşede dekoratif elementler */
+.worksheet-page[style*="--theme-border-type: math"]::before,
+.worksheet-page[style*="--theme-border-type: verbal"]::before,
+.worksheet-page[style*="--theme-border-type: stars"]::before,
+.worksheet-page[style*="--theme-border-type: geo"]::before {
+    /* Watermark ::before zaten kullanılıyor, bu nedenle corner'lar ayrı */
+}
+
+/* Gradient border glow efekti — tematik kenarlıklarda hafif parıldama */
+.worksheet-page[style*="--theme-border-type: math"] {
+    box-shadow:
+        0 10px 40px -8px rgba(99, 102, 241, 0.15),
+        0 4px 12px -2px rgba(99, 102, 241, 0.08),
+        inset 3px 0 8px -3px rgba(99, 102, 241, 0.06) !important;
+}
+
+.worksheet-page[style*="--theme-border-type: verbal"] {
+    box-shadow:
+        0 10px 40px -8px rgba(16, 185, 129, 0.15),
+        0 4px 12px -2px rgba(16, 185, 129, 0.08),
+        inset 3px 0 8px -3px rgba(16, 185, 129, 0.06) !important;
+}
+
+.worksheet-page[style*="--theme-border-type: stars"] {
+    box-shadow:
+        0 10px 40px -8px rgba(251, 191, 36, 0.15),
+        0 4px 12px -2px rgba(251, 191, 36, 0.08),
+        inset 3px 0 8px -3px rgba(251, 191, 36, 0.06) !important;
+}
+
+.worksheet-page[style*="--theme-border-type: geo"] {
+    box-shadow:
+        0 10px 40px -8px rgba(139, 92, 246, 0.15),
+        0 4px 12px -2px rgba(139, 92, 246, 0.08),
+        inset 3px 0 8px -3px rgba(139, 92, 246, 0.06) !important;
+}
+
+/* Hover'da glow güçlenir */
+.worksheet-page[style*="--theme-border-type: math"]:hover {
+    box-shadow:
+        0 25px 50px -12px rgba(99, 102, 241, 0.22),
+        0 8px 20px -4px rgba(99, 102, 241, 0.12),
+        inset 3px 0 8px -3px rgba(99, 102, 241, 0.08) !important;
+}
+
+.worksheet-page[style*="--theme-border-type: verbal"]:hover {
+    box-shadow:
+        0 25px 50px -12px rgba(16, 185, 129, 0.22),
+        0 8px 20px -4px rgba(16, 185, 129, 0.12),
+        inset 3px 0 8px -3px rgba(16, 185, 129, 0.08) !important;
+}
+
+.worksheet-page[style*="--theme-border-type: stars"]:hover {
+    box-shadow:
+        0 25px 50px -12px rgba(251, 191, 36, 0.22),
+        0 8px 20px -4px rgba(251, 191, 36, 0.12),
+        inset 3px 0 8px -3px rgba(251, 191, 36, 0.08) !important;
+}
+
+.worksheet-page[style*="--theme-border-type: geo"]:hover {
+    box-shadow:
+        0 25px 50px -12px rgba(139, 92, 246, 0.22),
+        0 8px 20px -4px rgba(139, 92, 246, 0.12),
+        inset 3px 0 8px -3px rgba(139, 92, 246, 0.08) !important;
+}
+
+/* Page curl efekti tema renk eşleştirmesi */
+.worksheet-page[style*="--theme-border-type: math"]::after {
+    background: linear-gradient(135deg, transparent 50%, #eef2ff 50%, #e0e7ff 100%) !important;
+}
+
+.worksheet-page[style*="--theme-border-type: verbal"]::after {
+    background: linear-gradient(135deg, transparent 50%, #ecfdf5 50%, #d1fae5 100%) !important;
+}
+
+.worksheet-page[style*="--theme-border-type: stars"]::after {
+    background: linear-gradient(135deg, transparent 50%, #fffbeb 50%, #fef3c7 100%) !important;
+}
+
+.worksheet-page[style*="--theme-border-type: geo"]::after {
+    background: linear-gradient(135deg, transparent 50%, #f5f3ff 50%, #ede9fe 100%) !important;
+}
+
+/* Yazdırmada tema gölgesi kaldırılır */
+@media print {
+    .worksheet-page[style*="--theme-border-type"] {
+        box-shadow: none !important;
+    }
+}

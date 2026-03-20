@@ -418,6 +418,86 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     />
                   </div>
                 </div>
+
+                {/* Kenarlık Teması */}
+                <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
+                  <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
+                    <i className="fa-solid fa-border-all mr-1"></i> Kenarlık Teması
+                  </label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {([
+                      { value: 'none', label: 'Yok', icon: 'fa-xmark' },
+                      { value: 'simple', label: 'Düz', icon: 'fa-square' },
+                      { value: 'math', label: 'Matematik', icon: 'fa-calculator' },
+                      { value: 'verbal', label: 'Sözel', icon: 'fa-book' },
+                      { value: 'stars', label: 'Yıldız', icon: 'fa-star' },
+                      { value: 'geo', label: 'Geometri', icon: 'fa-shapes' },
+                    ] as const).map(b => (
+                      <button
+                        key={b.value}
+                        onClick={() => updateSetting('themeBorder', b.value)}
+                        className={`flex flex-col items-center py-2 rounded-lg border transition-all text-[10px] ${
+                          settings.themeBorder === b.value
+                            ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--text-primary)] shadow-sm font-bold'
+                            : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-secondary)]'
+                        }`}
+                      >
+                        <i className={`fa-solid ${b.icon} text-sm mb-0.5`}></i>
+                        {b.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Renk Paleti */}
+                <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
+                  <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
+                    <i className="fa-solid fa-palette mr-1"></i> Kenarlık Rengi
+                  </label>
+                  <div className="flex gap-2 flex-wrap">
+                    {[
+                      { color: '#3f3f46', label: 'Klasik' },
+                      { color: '#1e40af', label: 'Okyanus' },
+                      { color: '#166534', label: 'Orman' },
+                      { color: '#c2410c', label: 'Gün batımı' },
+                      { color: '#581c87', label: 'Uzay' },
+                      { color: '#be185d', label: 'Gül' },
+                    ].map(p => (
+                      <button
+                        key={p.color}
+                        title={p.label}
+                        onClick={() => updateSetting('borderColor', p.color)}
+                        className={`w-7 h-7 rounded-full border-2 transition-all ${
+                          settings.borderColor === p.color
+                            ? 'border-[var(--text-primary)] scale-125 shadow-md'
+                            : 'border-transparent hover:scale-110'
+                        }`}
+                        style={{ backgroundColor: p.color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Altbilgi Özelleştirme */}
+                <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
+                  <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
+                    <i className="fa-solid fa-shoe-prints mr-1"></i> Altbilgi
+                  </label>
+                  <Toggle
+                    label="Altbilgiyi Göster"
+                    checked={settings.showFooter !== false}
+                    onChange={(v: any) => updateSetting('showFooter', v)}
+                  />
+                  {settings.showFooter !== false && (
+                    <input
+                      type="text"
+                      placeholder="Özel altbilgi metni..."
+                      value={settings.footerText || ''}
+                      onChange={(e) => updateSetting('footerText', e.target.value)}
+                      className="mt-2 w-full px-2 py-1.5 rounded border border-[var(--border-color)] bg-[var(--bg-paper)] text-[11px] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
+                    />
+                  )}
+                </div>
               </div>
             </DropdownPanel>
           )}
@@ -454,12 +534,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               try {
                 await new Promise((resolve) => setTimeout(resolve, 50));
 
-                // Yeni universal viewer hedefini önceliklendir, yoksa legacy hedeflere geri dön.
-                const targetSelector = document.getElementById('universal-worksheet-dom-print')
-                  ? '#universal-worksheet-dom-print'
-                  : document.getElementById('print-container')
-                    ? '#print-container'
-                    : '.worksheet-page';
+                // Eğer #print-container varsa (çoklu sayfa render ediliyorsa) onu al, yoksa .worksheet-page'i al
+                const targetSelector = document.getElementById('print-container')
+                  ? '#print-container'
+                  : '.worksheet-page';
 
                 await printService.generatePdf(targetSelector, settings.title, {
                   action: 'print',

@@ -434,7 +434,7 @@ export const printService = {
 
     for (const page of pages) {
       const canvas = await html2canvas(page, {
-        scale: 2, // 2x -> yüksek kaliteli yazdırma
+        scale: action === 'download' ? 1.5 : 2, // İndirme: 1.5x (hız), yazdırma: 2x (kalite)
         useCORS: true,
         allowTaint: true,
         logging: false,

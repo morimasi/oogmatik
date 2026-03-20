@@ -19,6 +19,7 @@ export interface StyleSettings {
     showInstruction: boolean;
     showImage: boolean;
     showFooter: boolean;
+    footerText: string;
     smartPagination: boolean;
     fontFamily: string;
     lineHeight: number;

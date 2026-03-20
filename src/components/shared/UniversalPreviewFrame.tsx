@@ -1,35 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 /**
- * UniversalPreviewFrame: Uygulamanın her yerinde kullanılacak premium A4/PDF önizleme çerçevesi.
- * 
- * Bu bileşen:
- * 1.  PDFViewer (React-PDF) barındırabilir.
- * 2.  Normal HTML/React bileşenlerini (A4 simülasyonu) barındırabilir.
+ * UniversalPreviewFrame v2.0: Premium A4/PDF önizleme çerçevesi.
+ * - Export Dropdown Menü (PNG, PDF, Panoya Kopyala)
+ * - Akıllı Zoom Bar (slider + presetler + sayfaya sığdır)
+ * - Sayfa Navigasyonu (thumbnail strip)
+ * - Responsive zoom (tablet / mobil uyumlu)
  */
 
 interface UniversalPreviewFrameProps {
-    /** İçerik: <PDFViewer> veya herhangi bir <div /> */
     children: React.ReactNode;
-    /** PDF indirme butonu gösterilsin mi? (Sadece mod: 'pdf' ise anlamlıdır) */
     showDownload?: boolean;
-    /** İndirme butonu için React-PDF'in <PDFDownloadLink> bileşeni (Opsiyonel) */
     downloadLink?: React.ReactNode;
-    /** DOM modunda html2canvas yazdırma için hedef seçici */
     printSelector?: string;
-    /** DOM modunda dosya adı */
     printFileName?: string;
-    /** Arka plan rengi sınıfı (Tailwind) */
     bgClass?: string;
-    /** Sayfa başlığı */
     title?: string;
-    /** Zoom değeri (1 = %100) */
     zoom?: number;
-    /** Zoom değişim callback'i */
     onZoomChange?: (newZoom: number) => void;
-    /** PDF modu mu? (Iframe/Viewer yönetimi için) */
     mode?: 'pdf' | 'html';
 }
+
+const ZOOM_PRESETS = [
+    { label: '%50', value: 0.5 },
+    { label: '%75', value: 0.75 },
+    { label: '%100', value: 1 },
+    { label: '%125', value: 1.25 },
+    { label: '%150', value: 1.5 },
+];
 
 export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
     children,
@@ -43,8 +41,57 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
     onZoomChange,
     mode = 'html'
 }) => {
+    const [exportOpen, setExportOpen] = useState(false);
+    const [zoomBarOpen, setZoomBarOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+    const [copySuccess, setCopySuccess] = useState(false);
+    const exportRef = useRef<HTMLDivElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Sayfa sayısını hesapla
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            const pages = document.querySelectorAll('.worksheet-page');
+            if (pages.length > 0) setTotalPages(pages.length);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [children]);
+
+    // Scroll'da aktif sayfayı takip et
+    useEffect(() => {
+        const container = scrollRef.current;
+        if (!container) return;
+        const handleScroll = () => {
+            const pages = container.querySelectorAll('.worksheet-page');
+            if (pages.length === 0) return;
+            const containerTop = container.scrollTop + container.offsetTop;
+            let closest = 0;
+            let minDist = Infinity;
+            pages.forEach((page, i) => {
+                const el = page as HTMLElement;
+                const dist = Math.abs(el.offsetTop - containerTop - 80);
+                if (dist < minDist) { minDist = dist; closest = i; }
+            });
+            setCurrentPage(closest);
+        };
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Dışarı tıklayınca dropdown kapat
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (exportRef.current && !exportRef.current.contains(e.target as Node)) {
+                setExportOpen(false);
+            }
+        };
+        if (exportOpen) document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [exportOpen]);
 
     const handleCapturePrint = () => {
+        setExportOpen(false);
         if (!printSelector) { window.print(); return; }
         import('../../utils/printService').then((m) =>
             m.printService.captureAndPrint(printSelector, printFileName, 'print', 'A4')
@@ -52,117 +99,239 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
     };
 
     const handleCaptureDownload = () => {
+        setExportOpen(false);
         if (!printSelector) return;
         import('../../utils/printService').then((m) =>
             m.printService.captureAndPrint(printSelector, printFileName, 'download', 'A4')
         );
     };
 
-    const handleZoomIn = () => onZoomChange?.(Math.min(zoom + 0.1, 2));
-    const handleZoomOut = () => onZoomChange?.(Math.max(zoom - 0.1, 0.5));
-    const handleResetZoom = () => onZoomChange?.(1);
+    const handleCopyToClipboard = async () => {
+        setExportOpen(false);
+        try {
+            const { default: html2canvas } = await import('html2canvas');
+            const target = document.querySelector(printSelector || '.worksheet-page') as HTMLElement;
+            if (!target) return;
+            const canvas = await html2canvas(target, { scale: 2, useCORS: true, backgroundColor: '#fff' });
+            canvas.toBlob(async (blob) => {
+                if (!blob) return;
+                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                setCopySuccess(true);
+                setTimeout(() => setCopySuccess(false), 2000);
+            }, 'image/png');
+        } catch { /* clipboard API not supported */ }
+    };
 
-    const previewStageStyle: React.CSSProperties = mode === 'html'
-        ? {
-            zoom,
-            transformOrigin: 'top center',
+    const scrollToPage = (pageIdx: number) => {
+        const container = scrollRef.current;
+        if (!container) return;
+        const pages = container.querySelectorAll('.worksheet-page');
+        if (pages[pageIdx]) {
+            (pages[pageIdx] as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        : {
-            transformOrigin: 'top center',
-            transform: `scale(${zoom})`,
-            height: '100%',
-        };
+    };
+
+    // Sayfaya sığdır hesabı
+    const handleFitToPage = useCallback(() => {
+        const container = scrollRef.current;
+        if (!container) return;
+        const containerWidth = container.clientWidth - 64; // padding
+        const pageWidthMM = 210; // A4 portrait mm
+        const pageWidthPx = pageWidthMM * 3.7795; // mm -> px approx
+        const fitZoom = Math.min(containerWidth / pageWidthPx, 1.5);
+        onZoomChange?.(Math.round(fitZoom * 100) / 100);
+    }, [onZoomChange]);
+
+    const handleZoomIn = () => onZoomChange?.(Math.min(zoom + 0.1, 2));
+    const handleZoomOut = () => onZoomChange?.(Math.max(zoom - 0.1, 0.3));
+
+    // Responsive: tablet'te transform: scale, PC'de zoom
+    const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    const previewStageStyle: React.CSSProperties = mode === 'html'
+        ? isTouchDevice
+            ? { transform: `scale(${zoom})`, transformOrigin: 'top center', width: `${100 / zoom}%` }
+            : { zoom, transformOrigin: 'top center' }
+        : { transformOrigin: 'top center', transform: `scale(${zoom})`, height: '100%' };
 
     return (
-        <div className={`flex-1 ${bgClass} h-full relative flex flex-col items-center p-8 overflow-hidden transition-all duration-500`}>
+        <div className={`flex-1 ${bgClass} h-full relative flex flex-col items-center overflow-hidden transition-all duration-500`}>
 
-            {/* Üst Araç Çubuğu (Toolbar) */}
-            <div className="absolute top-6 right-8 flex items-center bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/40 p-1.5 z-40 animate-in slide-in-from-right-4">
+            {/* ═══ ÜST ARAÇ ÇUBUĞU ═══ */}
+            <div className="absolute top-4 right-4 left-4 flex items-center justify-between z-40 animate-in slide-in-from-top-2 pointer-events-none">
 
-                {/* Sol Taraf: Bilgi */}
-                {title && (
-                    <>
-                        <div className="px-3 py-1 flex flex-col justify-center border-r border-slate-200">
-                            <span className="text-[10px] font-black text-slate-400 uppercase leading-none mb-0.5">Belge</span>
-                            <span className="text-xs font-bold text-slate-700 leading-none truncate max-w-[120px]">{title}</span>
+                {/* Sol: Belge Bilgisi + Sayfa Nav */}
+                <div className="flex items-center gap-2 pointer-events-auto">
+                    {title && (
+                        <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/40 px-3 py-1.5 flex items-center gap-2">
+                            <i className="fa-solid fa-file-lines text-indigo-400 text-xs"></i>
+                            <span className="text-xs font-bold text-slate-700 truncate max-w-[140px]">{title}</span>
                         </div>
-                    </>
-                )}
-
-                {/* Orta: Zoom Kontrolleri */}
-                <div className="flex items-center gap-1 px-2">
-                    <button
-                        onClick={handleZoomOut}
-                        disabled={zoom <= 0.5}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 disabled:opacity-30 transition-all"
-                        title="Uzaklaştır"
-                    >
-                        <i className="fa-solid fa-minus text-xs"></i>
-                    </button>
-                    <button
-                        onClick={handleResetZoom}
-                        className="px-2 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-700 text-[10px] font-black min-w-[50px] transition-all"
-                        title="Sıfırla"
-                    >
-                        %{Math.round(zoom * 100)}
-                    </button>
-                    <button
-                        onClick={handleZoomIn}
-                        disabled={zoom >= 2}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 disabled:opacity-30 transition-all"
-                        title="Yakınlaştır"
-                    >
-                        <i className="fa-solid fa-plus text-xs"></i>
-                    </button>
+                    )}
+                    {totalPages > 1 && (
+                        <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/40 px-2 py-1 flex items-center gap-1">
+                            <button
+                                onClick={() => scrollToPage(Math.max(0, currentPage - 1))}
+                                disabled={currentPage === 0}
+                                className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 disabled:opacity-30 transition-all"
+                            >
+                                <i className="fa-solid fa-chevron-up text-[10px]"></i>
+                            </button>
+                            <span className="text-[10px] font-black text-slate-600 min-w-[36px] text-center">
+                                {currentPage + 1} / {totalPages}
+                            </span>
+                            <button
+                                onClick={() => scrollToPage(Math.min(totalPages - 1, currentPage + 1))}
+                                disabled={currentPage === totalPages - 1}
+                                className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 disabled:opacity-30 transition-all"
+                            >
+                                <i className="fa-solid fa-chevron-down text-[10px]"></i>
+                            </button>
+                        </div>
+                    )}
                 </div>
 
-                <div className="w-px h-6 bg-slate-200 mx-1"></div>
+                {/* Sağ: Zoom + Export */}
+                <div className="flex items-center gap-2 pointer-events-auto">
 
-                {/* Sağ: Aksiyonlar */}
-                <div className="flex items-center gap-1 px-1">
-                    {/* PDF modu: dışarıdan geçirilen link */}
-                    {showDownload && downloadLink}
-
-                    {/* DOM modu: html2canvas tabanlı Yazdır + İndir */}
-                    {!downloadLink && printSelector && mode === 'html' && (
-                        <>
-                            <button
-                                onClick={handleCapturePrint}
-                                className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm"
-                                title="Sayfayı yazdır"
-                            >
-                                <i className="fa-solid fa-print"></i>
-                                Yazdır
-                            </button>
-                            <button
-                                onClick={handleCaptureDownload}
-                                className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm"
-                                title="PNG olarak indir"
-                            >
-                                <i className="fa-solid fa-download"></i>
-                                İndir
-                            </button>
-                        </>
-                    )}
-
-                    {!downloadLink && !printSelector && showDownload && (
-                        <button className="px-4 py-2 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-lg shadow-slate-200">
-                            <i className="fa-solid fa-download"></i>
-                            İndir
+                    {/* Zoom Bar */}
+                    <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/40 p-1 flex items-center gap-0.5 relative">
+                        <button
+                            onClick={handleZoomOut}
+                            disabled={zoom <= 0.3}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 disabled:opacity-30 transition-all"
+                            title="Uzaklaştır"
+                        >
+                            <i className="fa-solid fa-minus text-[10px]"></i>
                         </button>
-                    )}
+
+                        {/* Zoom yüzde — tıklayınca preset menü */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setZoomBarOpen(!zoomBarOpen)}
+                                className="px-2 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-700 text-[10px] font-black min-w-[42px] transition-all"
+                                title="Zoom preset seç"
+                            >
+                                %{Math.round(zoom * 100)}
+                            </button>
+                            {zoomBarOpen && (
+                                <div className="absolute top-full mt-1 right-0 bg-white rounded-xl shadow-2xl border border-slate-200 p-1 min-w-[120px] z-50 animate-in fade-in zoom-in-95 duration-150">
+                                    {ZOOM_PRESETS.map((p) => (
+                                        <button
+                                            key={p.value}
+                                            onClick={() => { onZoomChange?.(p.value); setZoomBarOpen(false); }}
+                                            className={`w-full px-3 py-1.5 text-left text-xs font-bold rounded-lg transition-all ${zoom === p.value ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50'}`}
+                                        >
+                                            {p.label}
+                                        </button>
+                                    ))}
+                                    <div className="border-t border-slate-100 mt-1 pt-1">
+                                        <button
+                                            onClick={() => { handleFitToPage(); setZoomBarOpen(false); }}
+                                            className="w-full px-3 py-1.5 text-left text-xs font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all flex items-center gap-2"
+                                        >
+                                            <i className="fa-solid fa-expand text-[10px]"></i>
+                                            Sayfaya Sığdır
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <button
+                            onClick={handleZoomIn}
+                            disabled={zoom >= 2}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 disabled:opacity-30 transition-all"
+                            title="Yakınlaştır"
+                        >
+                            <i className="fa-solid fa-plus text-[10px]"></i>
+                        </button>
+
+                        {/* Zoom slider (geniş ekranlarda) */}
+                        <div className="hidden md:flex items-center px-1">
+                            <input
+                                type="range"
+                                min="30"
+                                max="200"
+                                value={Math.round(zoom * 100)}
+                                onChange={(e) => onZoomChange?.(parseInt(e.target.value) / 100)}
+                                className="w-20 h-1 accent-indigo-500 cursor-pointer"
+                                title={`Zoom: %${Math.round(zoom * 100)}`}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Export Dropdown */}
+                    <div className="relative" ref={exportRef}>
+                        {showDownload && downloadLink && !exportOpen && downloadLink}
+
+                        {!downloadLink && printSelector && mode === 'html' && (
+                            <>
+                                <button
+                                    onClick={() => setExportOpen(!exportOpen)}
+                                    className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/40 px-3 py-1.5 flex items-center gap-2 text-xs font-black text-slate-700 hover:bg-white transition-all"
+                                >
+                                    <i className="fa-solid fa-share-from-square text-indigo-500"></i>
+                                    Dışa Aktar
+                                    <i className={`fa-solid fa-chevron-down text-[8px] text-slate-400 transition-transform ${exportOpen ? 'rotate-180' : ''}`}></i>
+                                </button>
+
+                                {exportOpen && (
+                                    <div className="absolute top-full mt-1.5 right-0 bg-white rounded-2xl shadow-2xl border border-slate-200 p-1.5 min-w-[200px] z-50 animate-in fade-in zoom-in-95 duration-150">
+                                        <button
+                                            onClick={handleCapturePrint}
+                                            className="w-full px-3 py-2.5 flex items-center gap-3 text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-all"
+                                        >
+                                            <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center">
+                                                <i className="fa-solid fa-print text-indigo-600 text-[10px]"></i>
+                                            </div>
+                                            <div className="text-left">
+                                                <div>Yazdır</div>
+                                                <div className="text-[9px] text-slate-400 font-normal">PDF olarak yazdır</div>
+                                            </div>
+                                        </button>
+                                        <button
+                                            onClick={handleCaptureDownload}
+                                            className="w-full px-3 py-2.5 flex items-center gap-3 text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-all"
+                                        >
+                                            <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                                <i className="fa-solid fa-download text-emerald-600 text-[10px]"></i>
+                                            </div>
+                                            <div className="text-left">
+                                                <div>PNG İndir</div>
+                                                <div className="text-[9px] text-slate-400 font-normal">Görüntü olarak kaydet</div>
+                                            </div>
+                                        </button>
+                                        <div className="border-t border-slate-100 my-1"></div>
+                                        <button
+                                            onClick={handleCopyToClipboard}
+                                            className="w-full px-3 py-2.5 flex items-center gap-3 text-xs font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 rounded-xl transition-all"
+                                        >
+                                            <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
+                                                <i className={`fa-solid ${copySuccess ? 'fa-check' : 'fa-copy'} text-amber-600 text-[10px]`}></i>
+                                            </div>
+                                            <div className="text-left">
+                                                <div>{copySuccess ? 'Kopyalandı!' : 'Panoya Kopyala'}</div>
+                                                <div className="text-[9px] text-slate-400 font-normal">Görüntüyü panoya kopyala</div>
+                                            </div>
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            {/* A4 "Masa Üstü" Alanı */}
+            {/* ═══ A4 "MASA ÜSTÜ" ALANI ═══ */}
             <div
-                className={`w-full h-full flex flex-col items-center justify-start overflow-auto custom-scrollbar pt-16 pb-32 transition-all duration-300`}
+                ref={scrollRef}
+                className="w-full h-full flex flex-col items-center justify-start overflow-auto custom-scrollbar pt-14 pb-32 transition-all duration-300 scroll-smooth"
                 style={{ perspective: '1000px' }}
             >
                 <div
                     className={`
                         transition-transform duration-200 ease-out will-change-transform
-                        ${mode === 'html' ? 'inline-flex flex-col items-center justify-start w-fit max-w-none bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-sm overflow-visible' : 'w-full h-full max-w-5xl'}
+                        ${mode === 'html' ? 'inline-flex flex-col items-center justify-start w-fit max-w-none overflow-visible' : 'w-full h-full max-w-5xl'}
                     `}
                     style={previewStageStyle}
                 >
@@ -170,12 +339,38 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
                 </div>
             </div>
 
-            {/* Alt Bilgi (Watermark/Brand) */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-30 select-none grayscale pointer-events-none">
-                <img src="/assets/logo.png" alt="Oogmatik" className="h-4 w-auto" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800">Oogmatik Production Engine</span>
+            {/* ═══ ALT SAYFA THUMBNAIL STRIP ═══ */}
+            {totalPages > 1 && (
+                <div className="absolute bottom-14 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/40 px-2 py-1.5 z-30">
+                    {Array.from({ length: totalPages }, (_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => scrollToPage(i)}
+                            className={`w-6 h-8 rounded border transition-all flex items-center justify-center text-[7px] font-black ${
+                                currentPage === i
+                                    ? 'bg-indigo-500 text-white border-indigo-600 shadow-md scale-110'
+                                    : 'bg-white text-slate-400 border-slate-200 hover:border-indigo-300 hover:text-indigo-500'
+                            }`}
+                            title={`Sayfa ${i + 1}`}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {/* ═══ ALT BİLGİ (WATERMARK) ═══ */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-20 select-none grayscale pointer-events-none">
+                <img src="/assets/logo.png" alt="Oogmatik" className="h-3.5 w-auto" />
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-800">Oogmatik Production Engine</span>
             </div>
 
+            {/* Copy success toast */}
+            {copySuccess && (
+                <div className="fixed bottom-8 right-8 bg-emerald-500 text-white px-4 py-2 rounded-xl shadow-2xl text-xs font-bold z-50 animate-in slide-in-from-bottom-4">
+                    <i className="fa-solid fa-check mr-2"></i>Panoya kopyalandı!
+                </div>
+            )}
         </div>
     );
 };

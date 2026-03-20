@@ -1,5 +1,19 @@
 // @ts-nocheck
-import React from 'react';
+import React, { useState, useCallback } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   ActivityType,
   SingleWorksheetData,
@@ -812,6 +826,11 @@ const UnifiedContentRenderer = ({
   const rawBlocks: WorksheetBlock[] = architecture?.blocks || data.blocks || [];
   const cols = architecture?.cols || 1;
 
+  // DnD sensors — editor modunda blok sıralama için
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
+
   // ══════════════════════════════════════════════
   // AKILLI SAYFALAMA — Bölme + Ağırlık Sistemi
   // ══════════════════════════════════════════════
@@ -929,59 +948,169 @@ const UnifiedContentRenderer = ({
           data={data}
         />
 
-        <div
-          className={`print-content-area mt-4 ${cols > 1 ? 'grid' : 'flex flex-col'}`}
-          style={
-            cols > 1 ? { gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '6mm' } : { gap: '6mm' }
-          }
-        >
-          {pageBlocks.map((block, idx) => (
+        <DndContext sensors={sensors} collisionDetection={closestCenter}>
+          <SortableContext
+            items={pageBlocks.map((b, idx) => b.id || `block-${idx}`)}
+            strategy={verticalListSortingStrategy}
+          >
             <div
-              key={block.id || idx}
-              onClick={(e) => {
-                if (isEditorOpen && block.id) {
-                  e.stopPropagation();
-                  setSelectedBlockId(block.id);
-                }
-              }}
-              className={`block-container transition-all duration-200 ${
-                isEditorOpen
-                  ? 'cursor-pointer hover:ring-2 hover:ring-indigo-300 hover:shadow-md'
-                  : ''
-              } ${
-                isEditorOpen && selectedBlockId === block.id
-                  ? 'ring-2 ring-indigo-500 shadow-lg bg-indigo-50/10'
-                  : ''
-              }`}
+              className={`print-content-area mt-4 ${cols > 1 ? 'grid' : 'flex flex-col'}`}
+              style={
+                cols > 1 ? { gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '6mm' } : { gap: '6mm' }
+              }
             >
-              <BlockRenderer block={block} />
+              {pageBlocks.map((block, idx) => (
+                <SortableBlockItem
+                  key={block.id || `b-${pageIdx}-${idx}`}
+                  block={block}
+                  idx={idx}
+                  isEditorOpen={isEditorOpen}
+                  selectedBlockId={selectedBlockId}
+                  setSelectedBlockId={setSelectedBlockId}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
 
-        {/* Profesyonel Footer */}
-        <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.4em] text-zinc-400">
-          <div className="flex items-center gap-2">
-            <span className="bg-black text-white px-1.5 py-0.5 rounded font-black">AI</span>
-            <span>Bursa Disleksi AI • Nöro-Mimari Motoru v7.0</span>
+        {/* Profesyonel Footer — Özelleştirilebilir */}
+        {settings?.showFooter !== false && (
+          <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.4em] text-zinc-400">
+            <div className="flex items-center gap-2">
+              <span className="bg-black text-white px-1.5 py-0.5 rounded font-black">AI</span>
+              <span>{settings?.footerText || 'Bursa Disleksi AI • Nöro-Mimari Motoru v7.0'}</span>
+            </div>
+            <span>
+              SAYFA {pageIdx + 1} / {pages.length}
+            </span>
           </div>
-          <span>
-            SAYFA {pageIdx + 1} / {pages.length}
-          </span>
-        </div>
+        )}
       </div>
     );
   };
 
   return (
     <div
-      className="w-full flex flex-col items-center gap-10 no-scrollbar"
+      className="w-full flex flex-col items-center gap-10 no-scrollbar scroll-smooth"
       id="print-container"
       onClick={() => {
         if (isEditorOpen) setSelectedBlockId(null);
       }}
     >
-      {pages.map((p, i) => renderPage(p, i))}
+      {pages.map((p, i) => (
+        <LazyPage key={i} pageIdx={i} totalPages={pages.length}>
+          {renderPage(p, i)}
+        </LazyPage>
+      ))}
+    </div>
+  );
+};
+
+/** SortableBlockItem: Editor modunda sürüklenebilir blok, normal modda statik */
+const SortableBlockItem: React.FC<{
+  block: any;
+  idx: number;
+  isEditorOpen: boolean;
+  selectedBlockId: string | null;
+  setSelectedBlockId: (id: string | null) => void;
+}> = ({ block, idx, isEditorOpen, selectedBlockId, setSelectedBlockId }) => {
+  const sortableId = block.id || `block-${idx}`;
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: sortableId, disabled: !isEditorOpen });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      onClick={(e) => {
+        if (isEditorOpen && block.id) {
+          e.stopPropagation();
+          setSelectedBlockId(block.id);
+        }
+      }}
+      className={`block-container transition-all duration-200 ${
+        isEditorOpen
+          ? 'cursor-pointer hover:ring-2 hover:ring-indigo-300 hover:shadow-md relative group/block'
+          : ''
+      } ${
+        isEditorOpen && selectedBlockId === block.id
+          ? 'ring-2 ring-indigo-500 shadow-lg bg-indigo-50/10'
+          : ''
+      }`}
+    >
+      {isEditorOpen && (
+        <button
+          {...attributes}
+          {...listeners}
+          className="absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover/block:opacity-100 transition-opacity cursor-grab active:cursor-grabbing bg-white shadow rounded p-1 z-10 no-print"
+          title="Sürükle"
+        >
+          <i className="fa-solid fa-grip-vertical text-xs text-zinc-400"></i>
+        </button>
+      )}
+      <BlockRenderer block={block} />
+    </div>
+  );
+};
+
+/** Lazy Page: Viewport dışındaki sayfalar placeholder, girince fade-in animasyonu */
+const LazyPage: React.FC<{ children: React.ReactNode; pageIdx: number; totalPages: number }> = ({ children, pageIdx, totalPages }) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = React.useState(pageIdx < 2); // İlk 2 sayfa hemen render
+  const [hasAnimated, setHasAnimated] = React.useState(pageIdx < 2);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || isVisible) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px 0px', threshold: 0.01 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isVisible]);
+
+  React.useEffect(() => {
+    if (isVisible && !hasAnimated) {
+      requestAnimationFrame(() => setHasAnimated(true));
+    }
+  }, [isVisible, hasAnimated]);
+
+  if (!isVisible) {
+    return (
+      <div ref={ref} className="w-[210mm] min-h-[297mm] bg-slate-50 rounded border border-slate-200 flex items-center justify-center mb-8">
+        <div className="text-center opacity-40">
+          <i className="fa-regular fa-file text-4xl text-slate-300 mb-2 block"></i>
+          <span className="text-xs font-bold text-slate-400">Sayfa {pageIdx + 1} / {totalPages}</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-500 ease-out ${hasAnimated ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-[0.98]'}`}
+    >
+      {children}
     </div>
   );
 };
