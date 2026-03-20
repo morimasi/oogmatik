@@ -27,6 +27,94 @@ const PAPER_DIMENSIONS: Record<PaperSize, { width: string; height: string }> = {
 
 const PRINT_STYLE_ID = 'oogmatik-print-style';
 
+const waitForOverlayImages = async (
+  overlay: HTMLElement,
+  timeoutMs: number = 2500
+): Promise<void> => {
+  const images = Array.from(overlay.querySelectorAll('img')) as HTMLImageElement[];
+  if (images.length === 0) return;
+
+  const loadPromise = Promise.all(
+    images.map(
+      (img) =>
+        new Promise<void>((resolve) => {
+          if (img.complete && img.naturalWidth > 0) {
+            resolve();
+            return;
+          }
+
+          const done = () => resolve();
+          img.addEventListener('load', done, { once: true });
+          img.addEventListener('error', done, { once: true });
+        })
+    )
+  ).then(() => undefined);
+
+  const timeoutPromise = new Promise<void>((resolve) => {
+    setTimeout(resolve, timeoutMs);
+  });
+
+  await Promise.race([loadPromise, timeoutPromise]);
+};
+
+const buildCapturedPrintOverlay = (
+  dataUrls: string[],
+  paperSize: PaperSize,
+  title: string
+): HTMLElement | null => {
+  if (typeof document === 'undefined') return null;
+
+  ensurePrintStyle(paperSize);
+  document.title = (title || 'Oogmatik').replace(/[^a-z0-9ğüşıöç]/gi, '_');
+
+  let overlay = document.getElementById('print-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'print-overlay';
+    document.body.appendChild(overlay);
+  }
+
+  overlay.innerHTML = '';
+  overlay.style.display = 'block';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'white';
+  overlay.style.zIndex = '2147483647';
+  overlay.style.overflow = 'auto';
+
+  const dims = PAPER_DIMENSIONS[paperSize];
+
+  dataUrls.forEach((url) => {
+    const page = document.createElement('div');
+    page.className = 'print-page';
+    page.style.width = dims.width;
+    page.style.minHeight = dims.height;
+    page.style.maxWidth = dims.width;
+    page.style.margin = '0 auto';
+    page.style.background = '#fff';
+    page.style.pageBreakAfter = 'always';
+    page.style.breakAfter = 'page';
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'print-page';
+    img.style.display = 'block';
+    img.style.width = '100%';
+    img.style.height = 'auto';
+
+    page.appendChild(img);
+    overlay.appendChild(page);
+  });
+
+  const lastPage = overlay.lastElementChild as HTMLElement | null;
+  if (lastPage) {
+    lastPage.style.pageBreakAfter = 'auto';
+    lastPage.style.breakAfter = 'auto';
+  }
+
+  return overlay;
+};
+
 const ensurePrintStyle = (paperSize: PaperSize) => {
   if (typeof document === 'undefined') return;
 
@@ -54,7 +142,9 @@ const ensurePrintStyle = (paperSize: PaperSize) => {
       body.printing-mode #print-overlay {
         display: block !important;
         position: static !important;
+inset: auto !important;
         width: 100% !important;
+        min-height: 100vh !important;
         z-index: 2147483647 !important;
         overflow: visible !important;
         background: #fff !important;
@@ -81,6 +171,20 @@ const ensurePrintStyle = (paperSize: PaperSize) => {
         box-shadow: none !important;
         break-inside: avoid-page !important;
         page-break-inside: avoid !important;
+      }
+
+      body.printing-mode #print-overlay .print-page {
+        overflow: hidden !important;
+      }
+
+      body.printing-mode #print-overlay img {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
       }
     }
   `;
@@ -348,42 +452,33 @@ export const printService = {
       return;
     }
 
-    // Print: yeni pencerede A4 ebatlarında resimler + window.print()
-    const dims = PAPER_DIMENSIONS[paperSize];
-    const printWin = window.open('', '_blank', 'width=900,height=700');
-    if (!printWin) {
-      alert('Pop-up engellendi. Lütfen tarayıcı pop-up ayarlarını kontrol edin.');
-      return;
-    }
+    // Tablet/iOS/Safari popup kısıtlarında beyaz sayfayı önlemek için
+    // yazdırmayı aynı sekmede #print-overlay üzerinden çalıştır.
+    const overlay = buildCapturedPrintOverlay(dataUrls, paperSize, title);
+    if (!overlay) return;
 
-    const imgTags = dataUrls
-      .map(
-        (url) =>
-          `<img src="${url}" style="width:${dims.width};height:${dims.height};display:block;page-break-after:always;max-width:100%;" />`
-      )
-      .join('');
+    // Özellikle tablet/Safari'de data URL görseller decode edilmeden print() çağrılırsa
+    // boş beyaz sayfa çıkabiliyor; görsellerin yüklenmesini bekle.
+    await waitForOverlayImages(overlay);
 
-    printWin.document.write(`<!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<title>${title}</title>
-<style>
-  @page { size: ${paperSize}; margin: 0; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #fff; }
-  img:last-child { page-break-after: auto; }
-</style>
-</head><body>${imgTags}</body></html>`);
-    printWin.document.close();
+    // Tarayıcıya en az bir frame paint süresi ver.
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve());
+    });
 
-    printWin.onload = () => {
-      setTimeout(() => {
-        printWin.focus();
-        printWin.print();
-        printWin.onafterprint = () => printWin.close();
-        // Fallback: bazı tarayıcılar onafterprint tetiklemiyor
-        setTimeout(() => { try { printWin.close(); } catch (_) {} }, 3000);
-      }, 300);
-    };
+    document.body.classList.add('printing-mode');
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    document.body.offsetHeight;
+
+    setTimeout(() => {
+      try {
+        window.print();
+      } catch (e) {
+        console.error('Capture print failed', e);
+        document.body.classList.remove('printing-mode');
+        overlay.innerHTML = '';
+      }
+    }, 120);
   },
 
   /**
