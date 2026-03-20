@@ -1,3 +1,5 @@
+export type PdfQuality = 'standard' | 'high' | 'print';
+
 export interface PrintOptions {
   action?: 'print' | 'download';
   selectedPages?: number[];
@@ -9,6 +11,10 @@ export interface PrintOptions {
   paperSize?: PaperSize;
   /** html2canvas capture modu: true = her sayfayı canvas olarak yakala (varsayılan: true) */
   useCapture?: boolean;
+  /** PDF kalitesi */
+  quality?: PdfQuality;
+  /** İlerleme callback'i (0-100 arasında yüzde) */
+  onProgress?: (percent: number, message: string) => void;
 }
 
 export type PaperSize = 'A4' | 'Letter' | 'Legal';
@@ -29,7 +35,7 @@ const PRINT_STYLE_ID = 'oogmatik-print-style';
 
 const waitForOverlayImages = async (
   overlay: HTMLElement,
-  timeoutMs: number = 5000
+  timeoutMs: number = 2500
 ): Promise<void> => {
   const images = Array.from(overlay.querySelectorAll('img')) as HTMLImageElement[];
   if (images.length === 0) return;
@@ -39,24 +45,13 @@ const waitForOverlayImages = async (
       (img) =>
         new Promise<void>((resolve) => {
           if (img.complete && img.naturalWidth > 0) {
-            // Image loaded; use decode() for full pixel-ready guarantee (tablet/Safari)
-            if (typeof img.decode === 'function') {
-              img.decode().then(() => resolve()).catch(() => resolve());
-            } else {
-              resolve();
-            }
+            resolve();
             return;
           }
 
-          const done = () => {
-            if (typeof img.decode === 'function') {
-              img.decode().then(() => resolve()).catch(() => resolve());
-            } else {
-              resolve();
-            }
-          };
+          const done = () => resolve();
           img.addEventListener('load', done, { once: true });
-          img.addEventListener('error', () => resolve(), { once: true });
+          img.addEventListener('error', done, { once: true });
         })
     )
   ).then(() => undefined);
@@ -363,7 +358,7 @@ export const printService = {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     document.body.offsetHeight;
 
-    // 7. Call print — tablet'lerde DOM settle için daha uzun bekleme
+    // 7. Call print
     setTimeout(() => {
       try {
         window.print();
@@ -372,7 +367,7 @@ export const printService = {
         document.body.classList.remove('printing-mode');
         if (overlay) overlay.innerHTML = ''; // Cleanup immediately on error
       }
-    }, 350); // Tablet-safe delay to allow DOM + images to settle
+    }, 100); // Small delay to allow DOM to settle
   },
 
   /**
@@ -434,7 +429,7 @@ export const printService = {
 
     for (const page of pages) {
       const canvas = await html2canvas(page, {
-        scale: action === 'download' ? 1.5 : 2, // İndirme: 1.5x (hız), yazdırma: 2x (kalite)
+        scale: 2, // 2x -> yüksek kaliteli yazdırma
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -453,41 +448,13 @@ export const printService = {
     }
 
     if (action === 'download') {
-      // Tablet-safe download: data URL → Blob → Object URL
-      for (let i = 0; i < dataUrls.length; i++) {
-        const url = dataUrls[i];
-        const fileName = `${title.replace(/[^a-z0-9ğüşıöçA-Z]/g, '_')}${dataUrls.length > 1 ? `_sayfa_${i + 1}` : ''}.png`;
-        try {
-          // Data URL'yi Blob'a çevir (tablet tarayıcılarda büyük data URL'ler çalışmaz)
-          const res = await fetch(url);
-          const blob = await res.blob();
-          const blobUrl = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = blobUrl;
-          a.download = fileName;
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          // Cleanup after a delay
-          setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(blobUrl);
-          }, 500);
-        } catch {
-          // Fallback: direct data URL download
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = fileName;
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(() => document.body.removeChild(a), 500);
-        }
-        // Çoklu dosyada tarayıcının engellememesi için arada bekle
-        if (dataUrls.length > 1 && i < dataUrls.length - 1) {
-          await new Promise((r) => setTimeout(r, 300));
-        }
-      }
+      // Tek sayfa: doğrudan indir; çok sayfa: her biri ayrı dosya
+      dataUrls.forEach((url, i) => {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${title.replace(/[^a-z0-9ğüşıöçA-Z]/g, '_')}${dataUrls.length > 1 ? `_sayfa_${i + 1}` : ''}.png`;
+        a.click();
+      });
       return;
     }
 
@@ -500,26 +467,46 @@ export const printService = {
     // boş beyaz sayfa çıkabiliyor; görsellerin yüklenmesini bekle.
     await waitForOverlayImages(overlay);
 
-    // Tarayıcıya birden fazla frame paint süresi ver (tablet'lerde tek frame yetmez).
-    for (let f = 0; f < 3; f++) {
-      await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => resolve());
-      });
-    }
+    // Tarayıcıya en az bir frame paint süresi ver.
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve());
+    });
 
     document.body.classList.add('printing-mode');
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     document.body.offsetHeight;
 
-    // Tablet tarayıcıları için daha uzun gecikme (image decode + layout)
-    await new Promise<void>((resolve) => setTimeout(resolve, 350));
+    setTimeout(() => {
+      try {
+        window.print();
+      } catch (e) {
+        console.error('Capture print failed', e);
+        document.body.classList.remove('printing-mode');
+        overlay.innerHTML = '';
+      }
+    }, 120);
 
-    try {
-      window.print();
-    } catch (e) {
-      console.error('Capture print failed', e);
-      document.body.classList.remove('printing-mode');
-      overlay.innerHTML = '';
+    // Mobil cihazlarda print dialog gelmezse fallback: PDF olarak yeni sekmede aç
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      setTimeout(async () => {
+        // Eğer 3 saniye sonra hâlâ printing-mode aktifse, print dialog açılmamış demektir
+        if (document.body.classList.contains('printing-mode')) {
+          document.body.classList.remove('printing-mode');
+          if (overlay) { overlay.innerHTML = ''; overlay.style.display = 'none'; }
+          // Fallback: PDF üret ve yeni sekmede aç
+          try {
+            const blob = await printService.generateRealPdf(rootSelector, title, { paperSize });
+            if (blob) {
+              const blobUrl = URL.createObjectURL(blob);
+              window.open(blobUrl, '_blank');
+              setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+            }
+          } catch (fallbackErr) {
+            console.error('Mobile print fallback failed', fallbackErr);
+          }
+        }
+      }, 3000);
     }
   },
 
@@ -534,15 +521,18 @@ export const printService = {
   ) => {
     try {
       const paperSize: PaperSize = options?.paperSize || 'A4';
-      const useCapture = options?.useCapture !== false; // varsayılan: html2canvas mod
+      const action = options?.action || 'print';
+      const useCapture = options?.useCapture !== false;
 
-      if (useCapture) {
-        await printService.captureAndPrint(
-          elementSelector,
-          title,
-          options?.action || 'print',
-          paperSize
-        );
+      if (action === 'download') {
+        // GERÇEK PDF ÜRETİMİ — jsPDF ile tek dosya
+        await printService.generateRealPdf(elementSelector, title, {
+          paperSize,
+          quality: options?.quality || 'high',
+          onProgress: options?.onProgress,
+        });
+      } else if (useCapture) {
+        await printService.captureAndPrint(elementSelector, title, 'print', paperSize);
       } else {
         const originalTitle = document.title;
         document.title = (title || 'Oogmatik').replace(/[^a-z0-9ğüşıöç]/gi, '_');
@@ -553,6 +543,173 @@ export const printService = {
       console.error('PDF Generation Error:', error);
       document.body.classList.remove('printing-mode');
     }
+  },
+
+  /**
+   * GERÇEK PDF MOTORU v1.0
+   * html2canvas ile her sayfayı yakalar → jsPDF ile tek PDF dosyasına birleştirir.
+   * Tüm platformlarda çalışır: PC, Tablet, Telefon.
+   */
+  generateRealPdf: async (
+    rootSelector: string,
+    title: string = 'Oogmatik_Etkinlik',
+    options?: {
+      paperSize?: PaperSize;
+      quality?: PdfQuality;
+      onProgress?: (percent: number, message: string) => void;
+    }
+  ): Promise<Blob | null> => {
+    const paperSize = options?.paperSize || 'A4';
+    const quality = options?.quality || 'high';
+    const onProgress = options?.onProgress;
+
+    const SCALE_MAP: Record<PdfQuality, number> = {
+      standard: 1.5,
+      high: 2,
+      print: 3,
+    };
+    const captureScale = SCALE_MAP[quality];
+
+    // Kağıt boyutları (mm)
+    const dims = PAPER_DIMENSIONS[paperSize];
+    const pageW = parseFloat(dims.width);
+    const pageH = parseFloat(dims.height);
+
+    onProgress?.(5, 'Sayfalar taranıyor...');
+
+    // Sayfaları bul
+    const PAGE_SELECTORS = [
+      '.worksheet-page',
+      '.universal-mode-canvas',
+      '.math-canvas-page',
+      '.reading-canvas-page',
+      '.a4-page',
+      '.print-page',
+    ];
+    const roots = Array.from(document.querySelectorAll(rootSelector)) as HTMLElement[];
+    const pages: HTMLElement[] = [];
+
+    roots.forEach((root) => {
+      if (root.matches(PAGE_SELECTORS.join(','))) {
+        pages.push(root);
+        return;
+      }
+      const nested = Array.from(root.querySelectorAll(PAGE_SELECTORS.join(','))) as HTMLElement[];
+      if (nested.length > 0) {
+        pages.push(...nested);
+      } else {
+        pages.push(root);
+      }
+    });
+
+    if (pages.length === 0) {
+      console.warn('generateRealPdf: Sayfa bulunamadı');
+      return null;
+    }
+
+    onProgress?.(10, `${pages.length} sayfa bulundu, hazırlanıyor...`);
+
+    // Dinamik import — kod bölme
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+      import('html2canvas'),
+      import('jspdf'),
+    ]);
+
+    // PDF oluştur
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: [pageW, pageH],
+      compress: true,
+    });
+
+    // UI öğelerini geçici olarak gizle
+    const uiElements = document.querySelectorAll(
+      '.edit-handle, .page-navigator, .no-print, .overlay-ui, .resize-handle, .action-button'
+    );
+    uiElements.forEach((el: any) => {
+      el.dataset.origDisplay = el.style.display;
+      el.style.display = 'none';
+    });
+
+    try {
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+        const progressPercent = 10 + Math.round((i / pages.length) * 80);
+        onProgress?.(progressPercent, `Sayfa ${i + 1}/${pages.length} işleniyor...`);
+
+        // Arka plan garantisi
+        const origBg = page.style.backgroundColor;
+        page.style.backgroundColor = '#ffffff';
+
+        const canvas = await html2canvas(page, {
+          scale: captureScale,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          ignoreElements: (el) => {
+            const htmlEl = el as HTMLElement;
+            return (
+              htmlEl.classList?.contains('resize-handle') ||
+              htmlEl.classList?.contains('action-button') ||
+              htmlEl.classList?.contains('no-print') ||
+              htmlEl.hasAttribute?.('data-design-only')
+            );
+          },
+        });
+
+        page.style.backgroundColor = origBg;
+
+        // Canvas → JPEG data URL (PNG'den daha küçük PDF boyutu)
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+        // İlk sayfa zaten oluşturuldu, sonrakiler için yeni sayfa ekle
+        if (i > 0) {
+          pdf.addPage([pageW, pageH], 'portrait');
+        }
+
+        // Görüntüyü tam sayfa olarak ekle
+        pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH, undefined, 'FAST');
+      }
+    } finally {
+      // UI öğelerini geri getir
+      uiElements.forEach((el: any) => {
+        el.style.display = el.dataset.origDisplay || '';
+        delete el.dataset.origDisplay;
+      });
+    }
+
+    onProgress?.(95, 'PDF dosyası oluşturuluyor...');
+
+    // PDF blob oluştur
+    const pdfBlob = pdf.output('blob');
+    const safeName = (title || 'Oogmatik').replace(/[^a-z0-9ğüşıöçA-ZĞÜŞİÖÇ\s]/g, '_').trim();
+
+    // İndirme — Platform uyumlu
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    if (isIOS || isSafari) {
+      // iOS/Safari: Blob URL'yi yeni sekmede aç (download attribute çalışmıyor)
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    } else {
+      // Android/Desktop: download attribute ile indir
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `${safeName}.pdf`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    }
+
+    onProgress?.(100, 'PDF başarıyla indirildi!');
+    return pdfBlob;
   },
 };
 

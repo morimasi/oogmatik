@@ -4,9 +4,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { StyleSettings, WorksheetData } from '../types';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { printService, PaperSize } from '../utils/printService';
-import { snapshotService } from '../utils/snapshotService';
+import { snapshotService, SnapshotAction } from '../utils/snapshotService';
 import { PremiumPaperSizeSelector } from './PremiumPaperSizeSelector';
+import { ExportProgressModal } from './ExportProgressModal';
 import { useA4EditorStore } from '../store/useA4EditorStore';
+import { useToastStore } from '../store/useToastStore';
 
 interface ToolbarProps {
   settings: StyleSettings;
@@ -209,10 +211,26 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onCompleteCurriculumTask,
 }) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [snapshotMenuOpen, setSnapshotMenuOpen] = useState(false);
+  const [exportProgress, setExportProgress] = useState({ open: false, percent: 0, message: '' });
+  const snapshotMenuRef = useRef<HTMLDivElement>(null);
   const paperSizeStore = usePaperSizeStore();
+  const toast = useToastStore();
   const paperSize = paperSizeStore.paperSize;
   const setPaperSize = paperSizeStore.setPaperSize;
   const { isEditorOpen, setEditorOpen } = useA4EditorStore();
+
+  // Snapshot dropdown dışarı tıklanınca kapat
+  useEffect(() => {
+    if (!snapshotMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (snapshotMenuRef.current && !snapshotMenuRef.current.contains(e.target as Node)) {
+        setSnapshotMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [snapshotMenuOpen]);
 
   const updateSetting = (key: keyof StyleSettings, value: any) => {
     onSettingsChange({ ...settings, [key]: value });
@@ -533,15 +551,23 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             title="PDF Olarak İndir"
             onClick={async () => {
               try {
+                setExportProgress({ open: true, percent: 0, message: 'Hazırlanıyor...' });
                 const targetSelector = document.getElementById('print-container')
                   ? '#print-container'
                   : '.worksheet-page';
                 await printService.generatePdf(targetSelector, settings.title, {
                   action: 'download',
                   paperSize: paperSize,
+                  onProgress: (percent, message) => {
+                    setExportProgress({ open: true, percent, message });
+                  },
                 });
+                toast.success('PDF başarıyla indirildi!');
               } catch (e) {
                 console.error(e);
+                toast.error('PDF oluşturulamadı.');
+              } finally {
+                setTimeout(() => setExportProgress({ open: false, percent: 0, message: '' }), 800);
               }
             }}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
@@ -566,6 +592,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 });
               } catch (e) {
                 console.error(e);
+                toast.error('Yazdırma başlatılamadı.');
               }
             }}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
@@ -576,17 +603,45 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <i className="fa-solid fa-print text-sm"></i>
             <span className="hidden lg:inline">Yazdır</span>
           </button>
-          <button
-            title="Ekran Görüntüsü Al"
-            onClick={() => snapshotService.takeSnapshot('.worksheet-page', 'etkinlik')}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
-              bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-400
-              hover:from-purple-500/20 hover:to-pink-500/20 hover:text-purple-300 hover:shadow-md hover:scale-[1.02]
-              active:scale-95"
-          >
-            <i className="fa-solid fa-camera text-sm"></i>
-            <span className="hidden lg:inline">Görüntü</span>
-          </button>
+          <div className="relative" ref={snapshotMenuRef}>
+            <button
+              title="Ekran Görüntüsü"
+              onClick={() => setSnapshotMenuOpen(!snapshotMenuOpen)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+                bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-400
+                hover:from-purple-500/20 hover:to-pink-500/20 hover:text-purple-300 hover:shadow-md hover:scale-[1.02]
+                active:scale-95"
+            >
+              <i className="fa-solid fa-camera text-sm"></i>
+              <span className="hidden lg:inline">Görüntü</span>
+              <i className={`fa-solid fa-chevron-down text-[8px] ml-0.5 transition-transform ${snapshotMenuOpen ? 'rotate-180' : ''}`}></i>
+            </button>
+            {snapshotMenuOpen && (
+              <div className="absolute top-full mt-1.5 right-0 bg-[var(--panel-bg)] border border-[var(--border-color)] rounded-xl shadow-2xl z-50 p-1.5 min-w-[180px] animate-in fade-in zoom-in-95 backdrop-blur-xl">
+                <button
+                  onClick={() => { setSnapshotMenuOpen(false); snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'download'); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)] transition-all"
+                >
+                  <i className="fa-solid fa-download text-purple-400 w-4 text-center"></i>
+                  PNG Olarak İndir
+                </button>
+                <button
+                  onClick={async () => { setSnapshotMenuOpen(false); const ok = await snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'clipboard'); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)] transition-all"
+                >
+                  <i className="fa-solid fa-clipboard text-blue-400 w-4 text-center"></i>
+                  Panoya Kopyala
+                </button>
+                <button
+                  onClick={() => { setSnapshotMenuOpen(false); snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'share'); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)] transition-all"
+                >
+                  <i className="fa-solid fa-share-nodes text-green-400 w-4 text-center"></i>
+                  Paylaş
+                </button>
+              </div>
+            )}
+          </div>
           {/* Kağıt Boyutu */}
           <PremiumPaperSizeSelector
             value={paperSize}
@@ -598,7 +653,14 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <div className="flex items-center bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl p-1 gap-0.5 shadow-lg backdrop-blur-sm">
           <button
             title="Arşive Kaydet"
-            onClick={onSave}
+            onClick={async () => {
+              try {
+                await onSave();
+                toast.success('Etkinlik arşive kaydedildi!');
+              } catch {
+                toast.error('Kaydetme başarısız.');
+              }
+            }}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
               bg-gradient-to-r from-amber-500/10 to-yellow-500/10 text-amber-400
               hover:from-amber-500/20 hover:to-yellow-500/20 hover:text-amber-300 hover:shadow-md hover:scale-[1.02]
@@ -626,7 +688,19 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           {onShare && (
             <button
               title="Paylaş"
-              onClick={onShare}
+              onClick={async () => {
+                // Web Share API varsa ve dosya paylaşım destekliyorsa, snapshot ile paylaş
+                if (navigator.share) {
+                  try {
+                    await snapshotService.takeSnapshot('.worksheet-page', settings.title || 'etkinlik', 'share');
+                  } catch {
+                    // Fallback: orijinal onShare çağır
+                    onShare();
+                  }
+                } else {
+                  onShare();
+                }
+              }}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
                 bg-gradient-to-r from-sky-500/10 to-blue-500/10 text-sky-400
                 hover:from-sky-500/20 hover:to-blue-500/20 hover:text-sky-300 hover:shadow-md hover:scale-[1.02]
@@ -638,6 +712,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           )}
         </div>
       </div>
+
+      {/* Export Progress Modal */}
+      <ExportProgressModal
+        isOpen={exportProgress.open}
+        percent={exportProgress.percent}
+        message={exportProgress.message}
+      />
     </div>
   );
 };

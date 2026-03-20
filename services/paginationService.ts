@@ -2,13 +2,16 @@
 import { WorksheetData, ActivityType, StyleSettings, WorksheetBlock } from '../types';
 
 /**
- * Sayfa Kapasite Mantığı v2.0:
- * Artık sadece item sayısına değil, blokların fiziksel 'weight' (yükseklik) değerlerine bakar.
+ * Sayfa Kapasite Mantığı v3.0:
+ * - Blokların fiziksel 'weight' (yükseklik) değerlerine bakar
+ * - Devam sayfalarına otomatik mini-header ekler
+ * - Sayfa numarası ve toplam sayfa bilgisi ekler
  */
 
-const MAX_PAGE_WEIGHT = 1188; // 297mm * 4 (A4 Tam Boy)
+const MAX_PAGE_WEIGHT = 1100; // A4 yüksekliğinin güvenli kullanılabilir alanı (header+footer marjları çıkarılarak)
 const HEADER_COST = 160;   // PedagogicalHeader ortalama maliyeti (40mm)
 const STUDENT_INFO_COST = 60; // Öğrenci bilgi şeridi (15mm)
+const CONTINUATION_HEADER_COST = 80; // Devam sayfası mini-header maliyeti
 
 const recursiveSafeText = (val: any): string => {
     if (typeof val === 'string') return val;
@@ -60,47 +63,61 @@ export const paginationService = {
         if (!data || !Array.isArray(data) || data.length === 0) return [];
         if (settings && settings.smartPagination === false) return data;
 
-        const newPages: any[] = [];
+        const allPages: any[] = [];
 
         data.forEach((originalPageData) => {
-            // Eğer veride 'blocks' varsa yeni sistem, yoksa eski listelere (puzzles, operations vb.) bak
             const listKey = originalPageData.blocks ? 'blocks' : (originalPageData.puzzles ? 'puzzles' : (originalPageData.operations ? 'operations' : (originalPageData.steps ? 'steps' : (originalPageData.problems ? 'problems' : (originalPageData.items ? 'items' : null)))));
 
             if (listKey && Array.isArray(originalPageData[listKey])) {
                 let currentItems: any[] = [];
                 let currentWeight = 0;
+                let pageIndex = 0;
+
+                // İlk sayfa: tam header maliyeti
+                let availableWeight = MAX_PAGE_WEIGHT;
 
                 originalPageData[listKey].forEach((item: any) => {
-                    // Blok ağırlığı hesapla
-                    const weight = originalPageData.blocks ? getBlockWeight(item) : 10; // Fallback for old items
+                    const weight = originalPageData.blocks ? getBlockWeight(item) : 10;
 
-                    if (currentWeight + weight > MAX_PAGE_WEIGHT && currentItems.length > 0) {
-                        newPages.push({
+                    if (currentWeight + weight > availableWeight && currentItems.length > 0) {
+                        allPages.push({
                             ...originalPageData,
                             [listKey]: currentItems,
-                            isContinuation: newPages.length > 0,
-                            pageTotalWeight: currentWeight
+                            isContinuation: pageIndex > 0,
+                            pageTotalWeight: currentWeight,
+                            _pageIndex: pageIndex,
                         });
                         currentItems = [];
                         currentWeight = 0;
+                        pageIndex++;
+                        // Devam sayfaları: mini-header maliyeti düş
+                        availableWeight = MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST;
                     }
                     currentItems.push(item);
                     currentWeight += weight;
                 });
 
                 if (currentItems.length > 0) {
-                    newPages.push({
+                    allPages.push({
                         ...originalPageData,
                         [listKey]: currentItems,
-                        isContinuation: newPages.length > 0,
-                        pageTotalWeight: currentWeight
+                        isContinuation: pageIndex > 0,
+                        pageTotalWeight: currentWeight,
+                        _pageIndex: pageIndex,
                     });
                 }
             } else {
-                newPages.push(originalPageData);
+                allPages.push(originalPageData);
             }
         });
 
-        return newPages;
+        // Toplam sayfa sayısını her sayfaya ekle + sayfa numarası
+        const totalPages = allPages.length;
+        allPages.forEach((page, i) => {
+            page._totalPages = totalPages;
+            page._currentPage = i + 1;
+        });
+
+        return allPages;
     }
 };

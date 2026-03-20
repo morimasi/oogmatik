@@ -1,3 +1,5 @@
+export type PdfQuality = 'standard' | 'high' | 'print';
+
 export interface PrintOptions {
   action?: 'print' | 'download';
   selectedPages?: number[];
@@ -9,6 +11,10 @@ export interface PrintOptions {
   paperSize?: PaperSize;
   /** html2canvas capture modu: true = her sayfayı canvas olarak yakala (varsayılan: true) */
   useCapture?: boolean;
+  /** PDF kalitesi */
+  quality?: PdfQuality;
+  /** İlerleme callback'i (0-100 arasında yüzde) */
+  onProgress?: (percent: number, message: string) => void;
 }
 
 export type PaperSize = 'A4' | 'Letter' | 'Legal';
@@ -479,6 +485,29 @@ export const printService = {
         overlay.innerHTML = '';
       }
     }, 120);
+
+    // Mobil cihazlarda print dialog gelmezse fallback: PDF olarak yeni sekmede aç
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      setTimeout(async () => {
+        // Eğer 3 saniye sonra hâlâ printing-mode aktifse, print dialog açılmamış demektir
+        if (document.body.classList.contains('printing-mode')) {
+          document.body.classList.remove('printing-mode');
+          if (overlay) { overlay.innerHTML = ''; overlay.style.display = 'none'; }
+          // Fallback: PDF üret ve yeni sekmede aç
+          try {
+            const blob = await printService.generateRealPdf(rootSelector, title, { paperSize });
+            if (blob) {
+              const blobUrl = URL.createObjectURL(blob);
+              window.open(blobUrl, '_blank');
+              setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+            }
+          } catch (fallbackErr) {
+            console.error('Mobile print fallback failed', fallbackErr);
+          }
+        }
+      }, 3000);
+    }
   },
 
   /**
@@ -492,15 +521,18 @@ export const printService = {
   ) => {
     try {
       const paperSize: PaperSize = options?.paperSize || 'A4';
-      const useCapture = options?.useCapture !== false; // varsayılan: html2canvas mod
+      const action = options?.action || 'print';
+      const useCapture = options?.useCapture !== false;
 
-      if (useCapture) {
-        await printService.captureAndPrint(
-          elementSelector,
-          title,
-          options?.action || 'print',
-          paperSize
-        );
+      if (action === 'download') {
+        // GERÇEK PDF ÜRETİMİ — jsPDF ile tek dosya
+        await printService.generateRealPdf(elementSelector, title, {
+          paperSize,
+          quality: options?.quality || 'high',
+          onProgress: options?.onProgress,
+        });
+      } else if (useCapture) {
+        await printService.captureAndPrint(elementSelector, title, 'print', paperSize);
       } else {
         const originalTitle = document.title;
         document.title = (title || 'Oogmatik').replace(/[^a-z0-9ğüşıöç]/gi, '_');
@@ -511,6 +543,173 @@ export const printService = {
       console.error('PDF Generation Error:', error);
       document.body.classList.remove('printing-mode');
     }
+  },
+
+  /**
+   * GERÇEK PDF MOTORU v1.0
+   * html2canvas ile her sayfayı yakalar → jsPDF ile tek PDF dosyasına birleştirir.
+   * Tüm platformlarda çalışır: PC, Tablet, Telefon.
+   */
+  generateRealPdf: async (
+    rootSelector: string,
+    title: string = 'Oogmatik_Etkinlik',
+    options?: {
+      paperSize?: PaperSize;
+      quality?: PdfQuality;
+      onProgress?: (percent: number, message: string) => void;
+    }
+  ): Promise<Blob | null> => {
+    const paperSize = options?.paperSize || 'A4';
+    const quality = options?.quality || 'high';
+    const onProgress = options?.onProgress;
+
+    const SCALE_MAP: Record<PdfQuality, number> = {
+      standard: 1.5,
+      high: 2,
+      print: 3,
+    };
+    const captureScale = SCALE_MAP[quality];
+
+    // Kağıt boyutları (mm)
+    const dims = PAPER_DIMENSIONS[paperSize];
+    const pageW = parseFloat(dims.width);
+    const pageH = parseFloat(dims.height);
+
+    onProgress?.(5, 'Sayfalar taranıyor...');
+
+    // Sayfaları bul
+    const PAGE_SELECTORS = [
+      '.worksheet-page',
+      '.universal-mode-canvas',
+      '.math-canvas-page',
+      '.reading-canvas-page',
+      '.a4-page',
+      '.print-page',
+    ];
+    const roots = Array.from(document.querySelectorAll(rootSelector)) as HTMLElement[];
+    const pages: HTMLElement[] = [];
+
+    roots.forEach((root) => {
+      if (root.matches(PAGE_SELECTORS.join(','))) {
+        pages.push(root);
+        return;
+      }
+      const nested = Array.from(root.querySelectorAll(PAGE_SELECTORS.join(','))) as HTMLElement[];
+      if (nested.length > 0) {
+        pages.push(...nested);
+      } else {
+        pages.push(root);
+      }
+    });
+
+    if (pages.length === 0) {
+      console.warn('generateRealPdf: Sayfa bulunamadı');
+      return null;
+    }
+
+    onProgress?.(10, `${pages.length} sayfa bulundu, hazırlanıyor...`);
+
+    // Dinamik import — kod bölme
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+      import('html2canvas'),
+      import('jspdf'),
+    ]);
+
+    // PDF oluştur
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: [pageW, pageH],
+      compress: true,
+    });
+
+    // UI öğelerini geçici olarak gizle
+    const uiElements = document.querySelectorAll(
+      '.edit-handle, .page-navigator, .no-print, .overlay-ui, .resize-handle, .action-button'
+    );
+    uiElements.forEach((el: any) => {
+      el.dataset.origDisplay = el.style.display;
+      el.style.display = 'none';
+    });
+
+    try {
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+        const progressPercent = 10 + Math.round((i / pages.length) * 80);
+        onProgress?.(progressPercent, `Sayfa ${i + 1}/${pages.length} işleniyor...`);
+
+        // Arka plan garantisi
+        const origBg = page.style.backgroundColor;
+        page.style.backgroundColor = '#ffffff';
+
+        const canvas = await html2canvas(page, {
+          scale: captureScale,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          ignoreElements: (el) => {
+            const htmlEl = el as HTMLElement;
+            return (
+              htmlEl.classList?.contains('resize-handle') ||
+              htmlEl.classList?.contains('action-button') ||
+              htmlEl.classList?.contains('no-print') ||
+              htmlEl.hasAttribute?.('data-design-only')
+            );
+          },
+        });
+
+        page.style.backgroundColor = origBg;
+
+        // Canvas → JPEG data URL (PNG'den daha küçük PDF boyutu)
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+        // İlk sayfa zaten oluşturuldu, sonrakiler için yeni sayfa ekle
+        if (i > 0) {
+          pdf.addPage([pageW, pageH], 'portrait');
+        }
+
+        // Görüntüyü tam sayfa olarak ekle
+        pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH, undefined, 'FAST');
+      }
+    } finally {
+      // UI öğelerini geri getir
+      uiElements.forEach((el: any) => {
+        el.style.display = el.dataset.origDisplay || '';
+        delete el.dataset.origDisplay;
+      });
+    }
+
+    onProgress?.(95, 'PDF dosyası oluşturuluyor...');
+
+    // PDF blob oluştur
+    const pdfBlob = pdf.output('blob');
+    const safeName = (title || 'Oogmatik').replace(/[^a-z0-9ğüşıöçA-ZĞÜŞİÖÇ\s]/g, '_').trim();
+
+    // İndirme — Platform uyumlu
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    if (isIOS || isSafari) {
+      // iOS/Safari: Blob URL'yi yeni sekmede aç (download attribute çalışmıyor)
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    } else {
+      // Android/Desktop: download attribute ile indir
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `${safeName}.pdf`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    }
+
+    onProgress?.(100, 'PDF başarıyla indirildi!');
+    return pdfBlob;
   },
 };
 
