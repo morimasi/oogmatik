@@ -143,11 +143,11 @@ export function useExportEngine(options: UseExportEngineOptions): UseExportEngin
             url = await doExportJson(document, settings, onProgress);
             break;
           default:
-            throw new Error(`Bilinmeyen format: ${format}`);
+            throw new Error(`Desteklenmeyen dışa aktarma formatı: "${format}". Geçerli formatlar: pdf, png, docx, json`);
         }
 
         if (cancelledRef.current.has(jobId)) {
-          const cancelledJob: ExportJob = { ...job, status: 'error', error: 'İptal edildi', progress: 0 };
+          const cancelledJob: ExportJob = { ...job, status: 'error', error: 'Kullanıcı tarafından iptal edildi', progress: 0 };
           updateJob(jobId, cancelledJob);
           return cancelledJob;
         }
@@ -156,7 +156,8 @@ export function useExportEngine(options: UseExportEngineOptions): UseExportEngin
         updateJob(jobId, doneJob);
         return doneJob;
       } catch (err) {
-        const errMsg = err instanceof Error ? err.message : 'Bilinmeyen hata';
+        const errMsg = err instanceof Error ? err.message : `${format.toUpperCase()} dışa aktarma sırasında bilinmeyen bir hata oluştu`;
+        console.error(`[useExportEngine] ${format} export failed (jobId=${jobId}):`, err);
         const failedJob: ExportJob = { ...job, status: 'error', error: errMsg, completedAt: nowIso() };
         updateJob(jobId, failedJob);
         return failedJob;
@@ -175,7 +176,7 @@ export function useExportEngine(options: UseExportEngineOptions): UseExportEngin
 
   const cancelJob = useCallback((jobId: string) => {
     cancelledRef.current.add(jobId);
-    updateJob(jobId, { status: 'error', error: 'İptal edildi' });
+    updateJob(jobId, { status: 'error', error: 'Kullanıcı tarafından iptal edildi' });
   }, [updateJob]);
 
   const clearJobs = useCallback(() => {
