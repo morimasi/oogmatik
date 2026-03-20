@@ -94,7 +94,7 @@ const PRINT_STYLE_ID = 'oogmatik-print-style';
 
 const waitForOverlayImages = async (
   overlay: HTMLElement,
-  timeoutMs: number = 2500
+  timeoutMs: number = 5000
 ): Promise<void> => {
   const images = Array.from(overlay.querySelectorAll('img')) as HTMLImageElement[];
   if (images.length === 0) return;
@@ -104,13 +104,19 @@ const waitForOverlayImages = async (
       (img) =>
         new Promise<void>((resolve) => {
           if (img.complete && img.naturalWidth > 0) {
-            resolve();
+            // Görsel yüklenmiş; decode() ile piksel verisinin hazır olmasını bekle
+            img.decode().then(resolve).catch(resolve);
             return;
           }
 
-          const done = () => resolve();
-          img.addEventListener('load', done, { once: true });
-          img.addEventListener('error', done, { once: true });
+          img.addEventListener(
+            'load',
+            () => {
+              img.decode().then(resolve).catch(resolve);
+            },
+            { once: true }
+          );
+          img.addEventListener('error', () => resolve(), { once: true });
         })
     )
   ).then(() => undefined);
@@ -417,7 +423,7 @@ export const printService = {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     document.body.offsetHeight;
 
-    // 7. Call print
+    // 7. Call print — 350ms bekle: tablet/Safari'de görseller render edilsin
     setTimeout(() => {
       try {
         window.print();
@@ -426,7 +432,7 @@ export const printService = {
         document.body.classList.remove('printing-mode');
         if (overlay) overlay.innerHTML = ''; // Cleanup immediately on error
       }
-    }, 100); // Small delay to allow DOM to settle
+    }, 350);
   },
 
   /**
