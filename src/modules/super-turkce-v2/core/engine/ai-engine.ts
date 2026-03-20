@@ -7,6 +7,7 @@ const MASTER_MODEL = 'gemini-2.5-flash';
 export interface AIEngineRequest {
     grade: GradeLevel;
     topic: string; // Öğrenme Kazanımı (Objective)
+    unitHint?: string; // Ünite adı (opsiyonel)
     audience: TargetAudience;
     promptText: string;
     schema: any;
@@ -37,6 +38,7 @@ export class SuperTurkceAIEngine {
             // 2. Özel Prompt İçine Detay Ekleme
             const finalPrompt = `
 Sınıf Seviyesi: ${req.grade}. Sınıf
+${req.unitHint ? `Ünite: ${req.unitHint}` : ''}
 Konu/Kazanım: ${req.topic}
 Kitle Hassasiyeti: ${this.getAudienceProfile(req.audience)}
 

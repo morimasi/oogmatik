@@ -8,6 +8,7 @@ interface PdfHeaderProps {
     studio: StudioDef;
     topicTitle: string;
     gradeLabel: string;
+    unitHint?: string;
     settings: PrintSettings;
 }
 
@@ -15,6 +16,7 @@ export const PdfHeader: React.FC<PdfHeaderProps> = ({
     studio,
     topicTitle,
     gradeLabel,
+    unitHint,
     settings
 }) => {
     return (
@@ -27,27 +29,29 @@ export const PdfHeader: React.FC<PdfHeaderProps> = ({
                     {topicTitle}
                 </Text>
                 <Text style={[coreStyles.titleSub, getPdfTextStyles(settings)]}>
-                    {gradeLabel} • Beceri Temelli Çalışma Kağıdı
+                    {gradeLabel}{unitHint ? ` • ${unitHint}` : ''} • Beceri Temelli Çalışma Kağıdı
                 </Text>
             </View>
 
-            {/* 
-        İsim Soyisim vs. için Sağ Blok
-      */}
-            <View style={{ width: 150, borderLeftWidth: 1, borderLeftColor: '#E2E8F0', paddingLeft: 10 }}>
-                <View style={{ marginBottom: 12 }}>
+            {/* İsim Soyisim vs. için Sağ Blok */}
+            <View style={{ width: 155, borderLeftWidth: 1, borderLeftColor: '#E2E8F0', paddingLeft: 10 }}>
+                <View style={{ marginBottom: 10 }}>
                     <Text style={{ fontSize: 8, color: '#94A3B8', marginBottom: 2, fontFamily: 'Inter' }}>Adı Soyadı</Text>
                     <View style={{ borderBottomWidth: 1, borderBottomStyle: 'dashed', borderBottomColor: '#CBD5E1', height: 12 }} />
                 </View>
-                <View style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
                     <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: 8, color: '#94A3B8', marginBottom: 2, fontFamily: 'Inter' }}>Sınıf/No</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8', marginBottom: 2, fontFamily: 'Inter' }}>Sınıf / No</Text>
                         <View style={{ borderBottomWidth: 1, borderBottomStyle: 'dashed', borderBottomColor: '#CBD5E1', height: 12 }} />
                     </View>
                     <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 8, color: '#94A3B8', marginBottom: 2, fontFamily: 'Inter' }}>Tarih</Text>
                         <View style={{ borderBottomWidth: 1, borderBottomStyle: 'dashed', borderBottomColor: '#CBD5E1', height: 12 }} />
                     </View>
+                </View>
+                <View style={{ marginTop: 8 }}>
+                    <Text style={{ fontSize: 8, color: '#94A3B8', marginBottom: 2, fontFamily: 'Inter' }}>Puan</Text>
+                    <View style={{ borderBottomWidth: 1, borderBottomStyle: 'dashed', borderBottomColor: '#CBD5E1', height: 12 }} />
                 </View>
             </View>
         </View>
