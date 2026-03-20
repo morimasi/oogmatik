@@ -1,195 +1,214 @@
-// ── Worksheet Type System ────────────────────────────────────────────────────
+// ─── Worksheet Types ──────────────────────────────────────────────────────────
 
-export type WorksheetCategory = 'math' | 'language' | 'science' | 'social' | 'custom';
+export type WorksheetContentBlockType =
+  | 'text'
+  | 'heading'
+  | 'math'
+  | 'image'
+  | 'table'
+  | 'list'
+  | 'divider';
 
-export type ExportFormat = 'pdf' | 'png' | 'docx' | 'json';
-
-export type DyslexiaFont = 'default' | 'OpenDyslexic' | 'ReadingFont';
-
-export type WorksheetOrientation = 'portrait' | 'landscape';
-
-export type WorksheetPageSize = 'A4' | 'A5' | 'Letter' | 'Legal';
-
-export type ZoomLevel = 50 | 75 | 100 | 125 | 150 | 200;
-
-// ── Content Blocks ───────────────────────────────────────────────────────────
-
-export type BlockType = 'text' | 'heading' | 'image' | 'math' | 'divider' | 'blank';
-
-export interface TextBlock {
+export interface WorksheetContentBlock {
   id: string;
-  type: 'text' | 'heading';
+  type: WorksheetContentBlockType;
   content: string;
-  level?: 1 | 2 | 3;
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
+  /** Raw LaTeX string (for math blocks) */
+  mathRaw?: string;
+  /** Image URL or base64 data (for image blocks) */
+  imageUrl?: string;
+  /** Table rows/columns (for table blocks) */
+  tableData?: string[][];
+  /** List items (for list blocks) */
+  listItems?: string[];
+  /** Heading level 1–6 (for heading blocks) */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+  /** Inline styles */
+  styles?: Record<string, string>;
 }
 
-export interface ImageBlock {
-  id: string;
-  type: 'image';
-  src: string;
-  alt: string;
-  width?: number;
-  height?: number;
-}
-
-export interface MathBlock {
-  id: string;
-  type: 'math';
-  expression: string;
-  rendered?: string;
-}
-
-export interface DividerBlock {
-  id: string;
-  type: 'divider';
-}
-
-export interface BlankBlock {
-  id: string;
-  type: 'blank';
-  lines: number;
-  label?: string;
-}
-
-export type WorksheetBlock = TextBlock | ImageBlock | MathBlock | DividerBlock | BlankBlock;
-
-// ── Worksheet Document ───────────────────────────────────────────────────────
-
-export interface WorksheetMeta {
+export interface WorksheetMetadata {
   id: string;
   title: string;
-  subject: string;
-  grade: string;
-  category: WorksheetCategory;
-  tags: string[];
+  description?: string;
+  subject?: string;
+  grade?: string;
+  author?: string;
   createdAt: string;
   updatedAt: string;
-  authorId?: string;
+  tags?: string[];
+  templateId?: string;
 }
 
 export interface WorksheetContent {
-  blocks: WorksheetBlock[];
-  studentInfoVisible: boolean;
-  titleVisible: boolean;
-  instructionText: string;
-  footerText: string;
+  blocks: WorksheetContentBlock[];
 }
 
-export interface WorksheetDocument {
-  meta: WorksheetMeta;
+export interface Worksheet {
+  metadata: WorksheetMetadata;
   content: WorksheetContent;
-  version: number;
 }
 
-// ── Template ─────────────────────────────────────────────────────────────────
+// ─── Dyslexia / Accessibility Settings ───────────────────────────────────────
+
+export const WORKSHEET_FONT_FAMILIES = ['default', 'OpenDyslexic', 'ReadingFont'] as const;
+export type WorksheetFontFamily = (typeof WORKSHEET_FONT_FAMILIES)[number];
+
+export const CONTRAST_MODES = ['normal', 'high', 'inverted'] as const;
+export type ContrastMode = (typeof CONTRAST_MODES)[number];
+
+export interface DyslexiaSettings {
+  fontFamily: WorksheetFontFamily;
+  lineHeight: number;
+  letterSpacing: number;
+  contrastMode: ContrastMode;
+  backgroundColor: string;
+  fontSize: number;
+}
+
+// ─── Export Settings ──────────────────────────────────────────────────────────
+
+export type ExportFormat = 'pdf' | 'png' | 'docx' | 'json';
+export type PageSize = 'A4' | 'Letter' | 'Legal' | 'A3' | 'Custom';
+export type PageOrientation = 'portrait' | 'landscape';
+
+export interface ExportSettings {
+  format: ExportFormat;
+  pageSize: PageSize;
+  orientation: PageOrientation;
+  includeHeader: boolean;
+  includeFooter: boolean;
+  headerText?: string;
+  footerText?: string;
+  /** PNG-specific: resolution in DPI */
+  pngDpi?: number;
+  /** Custom page dimensions in mm (only when pageSize === 'Custom') */
+  customWidth?: number;
+  customHeight?: number;
+  /** Page margin in mm */
+  marginMm?: number;
+}
+
+export interface ExportJob {
+  id: string;
+  worksheetId: string;
+  format: ExportFormat;
+  status: 'pending' | 'processing' | 'done' | 'error';
+  progress: number;
+  url?: string;
+  error?: string;
+  createdAt: string;
+}
+
+// ─── Template ─────────────────────────────────────────────────────────────────
+
+export type TemplateCategory = 'math' | 'language' | 'science' | 'social' | 'art' | 'custom';
 
 export interface WorksheetTemplate {
   id: string;
   name: string;
   description: string;
-  category: WorksheetCategory;
+  category: TemplateCategory;
   thumbnail?: string;
-  document: WorksheetDocument;
+  content: WorksheetContent;
   isBuiltIn: boolean;
-  isCustom?: boolean;
+  createdAt: string;
 }
 
-// ── Editor State ─────────────────────────────────────────────────────────────
+// ─── Editor State ─────────────────────────────────────────────────────────────
 
-export interface EditorSettings {
-  zoom: ZoomLevel;
-  showPageBreaks: boolean;
-  showRuler: boolean;
-  autoSave: boolean;
-  autoSaveIntervalMs: number;
-}
-
-export interface DyslexiaSettings {
-  fontFamily: DyslexiaFont;
-  lineHeight: number;
-  letterSpacing: number;
-  highContrast: boolean;
-  backgroundColor: string;
-  reducedMotion: boolean;
-}
-
-export interface ExportSettings {
-  format: ExportFormat;
-  pageSize: WorksheetPageSize;
-  orientation: WorksheetOrientation;
-  quality: number;
-  includeAnswerKey: boolean;
-  watermark?: string;
-}
-
-export interface WorksheetEditorState {
-  document: WorksheetDocument;
-  editorSettings: EditorSettings;
-  dyslexiaSettings: DyslexiaSettings;
-  exportSettings: ExportSettings;
+export interface EditorState {
   selectedBlockId: string | null;
   isDirty: boolean;
-  isSaving: boolean;
+  isAutoSaving: boolean;
   lastSavedAt: string | null;
-  history: WorksheetDocument[];
-  historyIndex: number;
+  zoom: number;
+  isPrintMode: boolean;
+  showPreview: boolean;
+  showExportPanel: boolean;
+  showTemplateSelector: boolean;
+  showDyslexiaControls: boolean;
 }
 
-// ── Export Job ────────────────────────────────────────────────────────────────
+// ─── Undo/Redo ────────────────────────────────────────────────────────────────
 
-export type ExportStatus = 'idle' | 'pending' | 'processing' | 'done' | 'error';
+export interface HistoryEntry {
+  content: WorksheetContent;
+  timestamp: string;
+  description?: string;
+}
 
-export interface ExportJob {
+// ─── Export Presets ───────────────────────────────────────────────────────────
+
+export interface ExportPreset {
   id: string;
+  name: string;
+  settings: ExportSettings;
+  createdAt: string;
+}
+
+// ─── Export History ───────────────────────────────────────────────────────────
+
+export interface ExportHistoryEntry {
+  id: string;
+  worksheetId: string;
+  worksheetTitle: string;
   format: ExportFormat;
-  status: ExportStatus;
-  progress: number;
+  settings: ExportSettings;
+  status: 'done' | 'error';
+  fileSize?: number;
   url?: string;
   error?: string;
-  startedAt?: string;
+  exportedAt: string;
+}
+
+// ─── Batch Export ─────────────────────────────────────────────────────────────
+
+export interface BatchExportItem {
+  worksheetId: string;
+  worksheetTitle: string;
+  content: WorksheetContent;
+  metadata: WorksheetMetadata;
+}
+
+export interface BatchExportJob {
+  id: string;
+  items: BatchExportItem[];
+  settings: ExportSettings;
+  status: 'pending' | 'processing' | 'done' | 'error' | 'cancelled';
+  progress: number;
+  completedCount: number;
+  failedCount: number;
+  results: Array<{ worksheetId: string; status: 'done' | 'error'; url?: string; error?: string }>;
+  createdAt: string;
   completedAt?: string;
 }
 
-// ── Hook Return Types ─────────────────────────────────────────────────────────
+// ─── Cloud Storage ────────────────────────────────────────────────────────────
 
-export interface UseWorksheetStateReturn {
-  state: WorksheetEditorState;
-  setDocument: (doc: WorksheetDocument) => void;
-  updateContent: (content: Partial<WorksheetContent>) => void;
-  addBlock: (block: WorksheetBlock) => void;
-  updateBlock: (id: string, updates: Partial<WorksheetBlock>) => void;
-  removeBlock: (id: string) => void;
-  moveBlock: (id: string, direction: 'up' | 'down') => void;
-  selectBlock: (id: string | null) => void;
-  updateEditorSettings: (settings: Partial<EditorSettings>) => void;
-  updateDyslexiaSettings: (settings: Partial<DyslexiaSettings>) => void;
-  updateExportSettings: (settings: Partial<ExportSettings>) => void;
-  undo: () => void;
-  redo: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
-  save: () => Promise<void>;
-  reset: () => void;
+export type CloudProvider = 'google_drive' | 'dropbox' | 'onedrive';
+
+export interface CloudStorageConfig {
+  provider: CloudProvider;
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt?: number;
+  userEmail?: string;
+  userId?: string;
+  folderId?: string;
+  folderName?: string;
+  autoSync: boolean;
 }
 
-export interface UseExportEngineReturn {
-  jobs: ExportJob[];
-  exportDocument: (format: ExportFormat, settings?: Partial<ExportSettings>) => Promise<ExportJob>;
-  batchExport: (formats: ExportFormat[]) => Promise<ExportJob[]>;
-  cancelJob: (jobId: string) => void;
-  clearJobs: () => void;
-  isExporting: boolean;
+export interface CloudFile {
+  id: string;
+  name: string;
+  mimeType: string;
+  size?: number;
+  modifiedAt: string;
+  webViewLink?: string;
+  downloadUrl?: string;
+  provider: CloudProvider;
 }
 
-export interface UseTemplateManagerReturn {
-  templates: WorksheetTemplate[];
-  customTemplates: WorksheetTemplate[];
-  loadTemplate: (template: WorksheetTemplate) => void;
-  saveAsTemplate: (name: string, description: string, category: WorksheetCategory) => WorksheetTemplate;
-  deleteTemplate: (id: string) => void;
-  searchTemplates: (query: string) => WorksheetTemplate[];
-  filterByCategory: (category: WorksheetCategory | 'all') => WorksheetTemplate[];
-}
+export type CloudSyncStatus = 'idle' | 'syncing' | 'synced' | 'error' | 'offline';

@@ -1,211 +1,295 @@
-import React, { useState } from 'react';
-import type { ExportFormat, ExportSettings } from './types/worksheet';
-import type { UseExportEngineReturn } from './types/worksheet';
+import React from 'react';
 import styles from './UniversalWorksheetViewer.module.css';
+import type { ExportSettings, ExportJob, ExportFormat, PageSize, PageOrientation, ExportHistoryEntry } from './types/worksheet';
 
 interface ExportPanelProps {
-  exportEngine: UseExportEngineReturn;
-  exportSettings: ExportSettings;
-  onSettingsChange: (settings: Partial<ExportSettings>) => void;
+  settings: ExportSettings;
+  jobs: ExportJob[];
+  isExporting: boolean;
+  onUpdateSettings: (patch: Partial<ExportSettings>) => void;
+  onExport: () => void;
+  onCancel: () => void;
+  onClearJobs: () => void;
+  /** Export history entries */
+  history?: ExportHistoryEntry[];
+  onClearHistory?: () => void;
+  /** Opens the batch export manager */
+  onOpenBatchExport?: () => void;
+  /** Opens the cloud storage panel */
+  onOpenCloudStorage?: () => void;
+  /** Cloud sync status indicator (compact) */
+  cloudStatusNode?: React.ReactNode;
 }
 
 const FORMAT_LABELS: Record<ExportFormat, string> = {
   pdf: 'PDF',
-  png: 'PNG Görüntü',
-  docx: 'Word (DOCX)',
-  json: 'JSON Veri',
+  png: 'PNG Görsel',
+  docx: 'DOCX / TXT',
+  json: 'JSON Verisi',
 };
 
-const FORMAT_ICONS: Record<ExportFormat, string> = {
-  pdf: '📄',
-  png: '🖼️',
-  docx: '📝',
-  json: '{ }',
+const PAGE_SIZE_LABELS: Record<PageSize, string> = {
+  A4: 'A4 (210×297 mm)',
+  Letter: 'Letter (216×279 mm)',
+  Legal: 'Legal (216×356 mm)',
+  A3: 'A3 (297×420 mm)',
+  Custom: 'Özel Boyut',
 };
 
-const PAGE_SIZES = ['A4', 'A5', 'Letter', 'Legal'] as const;
-const ORIENTATIONS = [
-  { value: 'portrait', label: 'Dikey' },
-  { value: 'landscape', label: 'Yatay' },
-] as const;
+const STATUS_LABELS: Record<ExportJob['status'], string> = {
+  pending: '⏳ Bekliyor',
+  processing: '🔄 İşleniyor',
+  done: '✅ Tamamlandı',
+  error: '❌ Hata',
+};
 
-export function ExportPanel({ exportEngine, exportSettings, onSettingsChange }: ExportPanelProps) {
-  const { jobs, exportDocument, batchExport, cancelJob, clearJobs, isExporting } = exportEngine;
-  const [batchFormats, setBatchFormats] = useState<Set<ExportFormat>>(new Set(['pdf']));
+export const ExportPanel: React.FC<ExportPanelProps> = React.memo(
+  ({
+    settings,
+    jobs,
+    isExporting,
+    onUpdateSettings,
+    onExport,
+    onCancel,
+    onClearJobs,
+    history = [],
+    onClearHistory,
+    onOpenBatchExport,
+    onOpenCloudStorage,
+    cloudStatusNode,
+  }) => {
+    return (
+      <div
+        className={styles.exportPanel}
+        role="region"
+        aria-label="Dışa aktarma paneli"
+      >
+        <h3 className={styles.panelTitle}>Dışa Aktar</h3>
 
-  const toggleBatchFormat = (format: ExportFormat) => {
-    setBatchFormats((prev) => {
-      const next = new Set(prev);
-      if (next.has(format)) next.delete(format);
-      else next.add(format);
-      return next;
-    });
-  };
-
-  const handleSingleExport = async (format: ExportFormat) => {
-    const job = await exportDocument(format, exportSettings);
-    if (job.status === 'done' && job.url) {
-      const link = window.document.createElement('a');
-      link.href = job.url;
-      link.download = `calisma-sayfasi.${format}`;
-      link.click();
-    }
-  };
-
-  const handleBatchExport = async () => {
-    const formats = Array.from(batchFormats);
-    const completedJobs = await batchExport(formats);
-    completedJobs.forEach((job) => {
-      if (job.status === 'done' && job.url) {
-        const link = window.document.createElement('a');
-        link.href = job.url;
-        link.download = `calisma-sayfasi.${job.format}`;
-        link.click();
-      }
-    });
-  };
-
-  return (
-    <aside className={styles.exportPanel} aria-label="Dışa aktarma paneli">
-      <h2 className={styles.exportPanelTitle}>Dışa Aktar</h2>
-
-      {/* Format buttons */}
-      <section className={styles.exportSection} aria-labelledby="export-formats-label">
-        <h3 id="export-formats-label" className={styles.exportSectionTitle}>Hızlı Dışa Aktar</h3>
-        <div className={styles.exportFormatGrid} role="list">
-          {(Object.keys(FORMAT_LABELS) as ExportFormat[]).map((format) => (
-            <button
-              key={format}
-              className={styles.exportFormatBtn}
-              onClick={() => handleSingleExport(format)}
-              disabled={isExporting}
-              aria-label={`${FORMAT_LABELS[format]} olarak dışa aktar`}
-              role="listitem"
-            >
-              <span className={styles.exportFormatIcon} aria-hidden="true">{FORMAT_ICONS[format]}</span>
-              <span className={styles.exportFormatLabel}>{FORMAT_LABELS[format]}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Export settings */}
-      <section className={styles.exportSection} aria-labelledby="export-settings-label">
-        <h3 id="export-settings-label" className={styles.exportSectionTitle}>Ayarlar</h3>
-        <div className={styles.exportSettingsGrid}>
-          <label className={styles.exportSettingLabel}>
-            Sayfa Boyutu
-            <select
-              className={styles.exportSettingSelect}
-              value={exportSettings.pageSize}
-              onChange={(e) => onSettingsChange({ pageSize: e.target.value as typeof exportSettings.pageSize })}
-              aria-label="Sayfa boyutu"
-            >
-              {PAGE_SIZES.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </label>
-          <label className={styles.exportSettingLabel}>
-            Yönlendirme
-            <select
-              className={styles.exportSettingSelect}
-              value={exportSettings.orientation}
-              onChange={(e) => onSettingsChange({ orientation: e.target.value as typeof exportSettings.orientation })}
-              aria-label="Yönlendirme"
-            >
-              {ORIENTATIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-          </label>
-          <label className={`${styles.exportSettingLabel} ${styles.exportCheckLabel}`}>
-            <input
-              type="checkbox"
-              checked={exportSettings.includeAnswerKey}
-              onChange={(e) => onSettingsChange({ includeAnswerKey: e.target.checked })}
-              aria-label="Cevap anahtarı dahil et"
-            />
-            Cevap Anahtarı
-          </label>
-        </div>
-      </section>
-
-      {/* Batch export */}
-      <section className={styles.exportSection} aria-labelledby="batch-export-label">
-        <h3 id="batch-export-label" className={styles.exportSectionTitle}>Toplu Dışa Aktar</h3>
-        <div className={styles.batchFormatPicker} role="group" aria-label="Toplu format seçimi">
-          {(Object.keys(FORMAT_LABELS) as ExportFormat[]).map((format) => (
-            <label key={format} className={styles.batchFormatOption}>
-              <input
-                type="checkbox"
-                checked={batchFormats.has(format)}
-                onChange={() => toggleBatchFormat(format)}
-                aria-label={FORMAT_LABELS[format]}
-              />
-              {FORMAT_ICONS[format]} {FORMAT_LABELS[format]}
-            </label>
-          ))}
-        </div>
-        <button
-          className={styles.batchExportBtn}
-          onClick={handleBatchExport}
-          disabled={isExporting || batchFormats.size === 0}
-          aria-label="Seçili formatları dışa aktar"
-        >
-          {isExporting ? 'Dışa Aktarılıyor...' : `${batchFormats.size} Format Dışa Aktar`}
-        </button>
-      </section>
-
-      {/* Job history */}
-      {jobs.length > 0 && (
-        <section className={styles.exportSection} aria-labelledby="export-jobs-label">
-          <div className={styles.exportJobsHeader}>
-            <h3 id="export-jobs-label" className={styles.exportSectionTitle}>İşlem Geçmişi</h3>
-            <button className={styles.clearJobsBtn} onClick={clearJobs} aria-label="Geçmişi temizle">
-              Temizle
-            </button>
-          </div>
-          <ul className={styles.exportJobList} aria-label="Dışa aktarma işleri" role="list">
-            {jobs.map((job) => (
-              <li key={job.id} className={styles.exportJobItem} role="listitem">
-                <span className={styles.exportJobFormat}>{FORMAT_ICONS[job.format]} {FORMAT_LABELS[job.format]}</span>
-                <span className={`${styles.exportJobStatus} ${styles[`jobStatus_${job.status}`]}`} aria-label={`Durum: ${job.status}`}>
-                  {job.status === 'done' && '✓ Tamamlandı'}
-                  {job.status === 'error' && `✗ Hata: ${job.error}`}
-                  {(job.status === 'pending' || job.status === 'processing') && (
-                    <>
-                      <span className={styles.exportProgressBar} role="progressbar" aria-valuenow={job.progress} aria-valuemin={0} aria-valuemax={100}>
-                        <span style={{ width: `${job.progress}%` }} className={styles.exportProgressFill} />
-                      </span>
-                      {job.progress}%
-                    </>
-                  )}
-                </span>
-                {(job.status === 'pending' || job.status === 'processing') && (
-                  <button
-                    className={styles.cancelJobBtn}
-                    onClick={() => cancelJob(job.id)}
-                    aria-label="İptal et"
-                  >
-                    İptal
-                  </button>
-                )}
-                {job.status === 'done' && job.url && (
-                  <a
-                    href={job.url}
-                    download={`calisma-sayfasi.${job.format}`}
-                    className={styles.downloadLink}
-                    aria-label="İndir"
-                  >
-                    İndir
-                  </a>
-                )}
-              </li>
+        {/* Format selection */}
+        <fieldset className={styles.fieldset}>
+          <legend className={styles.fieldsetLegend}>Format</legend>
+          <div className={styles.radioGroup}>
+            {(Object.keys(FORMAT_LABELS) as ExportFormat[]).map((fmt) => (
+              <label key={fmt} className={styles.radioLabel}>
+                <input
+                  type="radio"
+                  name="export-format"
+                  value={fmt}
+                  checked={settings.format === fmt}
+                  onChange={() => onUpdateSettings({ format: fmt })}
+                />
+                {FORMAT_LABELS[fmt]}
+              </label>
             ))}
-          </ul>
-        </section>
-      )}
-    </aside>
-  );
-}
+          </div>
+        </fieldset>
+
+        {/* Page settings (PDF only) */}
+        {settings.format === 'pdf' && (
+          <>
+            <fieldset className={styles.fieldset}>
+              <legend className={styles.fieldsetLegend}>Sayfa Boyutu</legend>
+              <select
+                className={styles.select}
+                value={settings.pageSize}
+                onChange={(e) => onUpdateSettings({ pageSize: e.target.value as PageSize })}
+                aria-label="Sayfa boyutu"
+              >
+                {(Object.keys(PAGE_SIZE_LABELS) as PageSize[]).map((size) => (
+                  <option key={size} value={size}>
+                    {PAGE_SIZE_LABELS[size]}
+                  </option>
+                ))}
+              </select>
+            </fieldset>
+
+            {settings.pageSize === 'Custom' && (
+              <fieldset className={styles.fieldset}>
+                <legend className={styles.fieldsetLegend}>Özel Boyut (mm)</legend>
+                <div className={styles.row}>
+                  <label className={styles.inputLabel}>
+                    Genişlik
+                    <input
+                      type="number"
+                      className={styles.numberInput}
+                      value={settings.customWidth ?? 210}
+                      min={50}
+                      max={1000}
+                      onChange={(e) => onUpdateSettings({ customWidth: Number(e.target.value) })}
+                    />
+                  </label>
+                  <label className={styles.inputLabel}>
+                    Yükseklik
+                    <input
+                      type="number"
+                      className={styles.numberInput}
+                      value={settings.customHeight ?? 297}
+                      min={50}
+                      max={1500}
+                      onChange={(e) => onUpdateSettings({ customHeight: Number(e.target.value) })}
+                    />
+                  </label>
+                </div>
+              </fieldset>
+            )}
+
+            <fieldset className={styles.fieldset}>
+              <legend className={styles.fieldsetLegend}>Yön</legend>
+              <div className={styles.radioGroup}>
+                {(['portrait', 'landscape'] as PageOrientation[]).map((o) => (
+                  <label key={o} className={styles.radioLabel}>
+                    <input
+                      type="radio"
+                      name="export-orientation"
+                      value={o}
+                      checked={settings.orientation === o}
+                      onChange={() => onUpdateSettings({ orientation: o })}
+                    />
+                    {o === 'portrait' ? 'Dikey' : 'Yatay'}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset className={styles.fieldset}>
+              <legend className={styles.fieldsetLegend}>Üst/Alt Bilgi</legend>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={settings.includeHeader}
+                  onChange={(e) => onUpdateSettings({ includeHeader: e.target.checked })}
+                />
+                Üst bilgi ekle
+              </label>
+              {settings.includeHeader && (
+                <input
+                  className={styles.textInput}
+                  value={settings.headerText ?? ''}
+                  onChange={(e) => onUpdateSettings({ headerText: e.target.value })}
+                  placeholder="Üst bilgi metni..."
+                  aria-label="Üst bilgi metni"
+                />
+              )}
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={settings.includeFooter}
+                  onChange={(e) => onUpdateSettings({ includeFooter: e.target.checked })}
+                />
+                Alt bilgi ekle
+              </label>
+              {settings.includeFooter && (
+                <input
+                  className={styles.textInput}
+                  value={settings.footerText ?? ''}
+                  onChange={(e) => onUpdateSettings({ footerText: e.target.value })}
+                  placeholder="Alt bilgi metni..."
+                  aria-label="Alt bilgi metni"
+                />
+              )}
+            </fieldset>
+          </>
+        )}
+
+        {/* PNG DPI */}
+        {settings.format === 'png' && (
+          <fieldset className={styles.fieldset}>
+            <legend className={styles.fieldsetLegend}>Çözünürlük (DPI)</legend>
+            <input
+              type="number"
+              className={styles.numberInput}
+              value={settings.pngDpi ?? 150}
+              min={72}
+              max={600}
+              step={1}
+              onChange={(e) => onUpdateSettings({ pngDpi: Number(e.target.value) })}
+              aria-label="PNG DPI çözünürlüğü"
+            />
+          </fieldset>
+        )}
+
+        {/* Action buttons */}
+        <div className={styles.exportActions}>
+          {isExporting ? (
+            <button className={styles.cancelBtn} onClick={onCancel}>
+              ⏹ İptal Et
+            </button>
+          ) : (
+            <button className={styles.exportBtn} onClick={onExport}>
+              ⬇ İndir
+            </button>
+          )}
+          {onOpenBatchExport && (
+            <button className={styles.toolbarBtn} onClick={onOpenBatchExport} title="Toplu dışa aktarma">
+              📦 Toplu
+            </button>
+          )}
+          {onOpenCloudStorage && (
+            <button className={styles.toolbarBtn} onClick={onOpenCloudStorage} title="Bulut depolama">
+              ☁️ Bulut
+            </button>
+          )}
+        </div>
+
+        {/* Cloud status node */}
+        {cloudStatusNode && <div className={styles.cloudStatusInline}>{cloudStatusNode}</div>}
+
+        {/* Job history */}
+        {jobs.length > 0 && (
+          <div className={styles.jobHistory}>
+            <div className={styles.jobHistoryHeader}>
+              <span className={styles.jobHistoryTitle}>İşlemler</span>
+              <button className={styles.clearJobsBtn} onClick={onClearJobs}>
+                Temizle
+              </button>
+            </div>
+            {[...jobs].reverse().map((job) => (
+              <div key={job.id} className={`${styles.jobRow} ${styles[`job-${job.status}`]}`}>
+                <span>{FORMAT_LABELS[job.format]}</span>
+                <span>{STATUS_LABELS[job.status]}</span>
+                {job.status === 'processing' && (
+                  <div
+                    className={styles.progressBar}
+                    role="progressbar"
+                    aria-valuenow={job.progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    <div className={styles.progressFill} style={{ width: `${job.progress}%` }} />
+                  </div>
+                )}
+                {job.error && <span className={styles.jobError}>{job.error}</span>}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Export history */}
+        {history.length > 0 && (
+          <div className={styles.jobHistory}>
+            <div className={styles.jobHistoryHeader}>
+              <span className={styles.jobHistoryTitle}>📋 Geçmiş ({history.length})</span>
+              {onClearHistory && (
+                <button className={styles.clearJobsBtn} onClick={onClearHistory}>
+                  Temizle
+                </button>
+              )}
+            </div>
+            {history.slice(0, 10).map((entry) => (
+              <div key={entry.id} className={`${styles.jobRow} ${styles[`job-${entry.status}`]}`}>
+                <span>{entry.worksheetTitle}</span>
+                <span>{FORMAT_LABELS[entry.format]}</span>
+                <span style={{ fontSize: '0.7em', color: '#94a3b8' }}>
+                  {new Date(entry.exportedAt).toLocaleTimeString('tr-TR')}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  },
+);
+
+ExportPanel.displayName = 'ExportPanel';

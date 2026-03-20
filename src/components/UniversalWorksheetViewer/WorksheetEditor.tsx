@@ -1,358 +1,336 @@
-import React, { useCallback, useRef, KeyboardEvent } from 'react';
-import type { WorksheetContent, WorksheetBlock, TextBlock, BlankBlock } from './types/worksheet';
-import type { UseWorksheetStateReturn } from './types/worksheet';
+import React, { useCallback, useRef } from 'react';
 import styles from './UniversalWorksheetViewer.module.css';
+import type { WorksheetContent, WorksheetContentBlock, WorksheetContentBlockType } from './types/worksheet';
 
 interface WorksheetEditorProps {
-  worksheetState: UseWorksheetStateReturn;
+  content: WorksheetContent;
+  selectedBlockId: string | null;
+  onUpdateContent: (content: WorksheetContent, description?: string) => void;
+  onAddBlock: (block: Omit<WorksheetContentBlock, 'id'>) => void;
+  onUpdateBlock: (id: string, patch: Partial<WorksheetContentBlock>) => void;
+  onRemoveBlock: (id: string) => void;
+  onMoveBlock: (id: string, direction: 'up' | 'down') => void;
+  onSelectBlock: (id: string | null) => void;
 }
 
-function makeId(): string {
-  return Math.random().toString(36).slice(2, 10);
+const BLOCK_TYPE_LABELS: Record<WorksheetContentBlockType, string> = {
+  text: 'Metin',
+  heading: 'Başlık',
+  math: 'Matematik',
+  image: 'Görsel',
+  table: 'Tablo',
+  list: 'Liste',
+  divider: 'Ayırıcı',
+};
+
+function BlockToolbar({
+  block,
+  isFirst,
+  isLast,
+  onUpdate,
+  onRemove,
+  onMove,
+}: {
+  block: WorksheetContentBlock;
+  isFirst: boolean;
+  isLast: boolean;
+  onUpdate: (patch: Partial<WorksheetContentBlock>) => void;
+  onRemove: () => void;
+  onMove: (dir: 'up' | 'down') => void;
+}) {
+  return (
+    <div className={styles.blockToolbar} role="toolbar" aria-label="Blok araçları">
+      <button
+        className={styles.blockToolbarBtn}
+        onClick={() => onMove('up')}
+        disabled={isFirst}
+        aria-label="Yukarı taşı"
+        title="Yukarı taşı"
+      >
+        ↑
+      </button>
+      <button
+        className={styles.blockToolbarBtn}
+        onClick={() => onMove('down')}
+        disabled={isLast}
+        aria-label="Aşağı taşı"
+        title="Aşağı taşı"
+      >
+        ↓
+      </button>
+      {block.type === 'heading' && (
+        <select
+          className={styles.blockToolbarSelect}
+          value={block.headingLevel ?? 2}
+          onChange={(e) => onUpdate({ headingLevel: parseInt(e.target.value) as 1 | 2 | 3 })}
+          aria-label="Başlık seviyesi"
+        >
+          <option value={1}>H1</option>
+          <option value={2}>H2</option>
+          <option value={3}>H3</option>
+        </select>
+      )}
+      <button
+        className={`${styles.blockToolbarBtn} ${styles.blockToolbarBtnDanger}`}
+        onClick={onRemove}
+        aria-label="Bloğu sil"
+        title="Sil"
+      >
+        ✕
+      </button>
+    </div>
+  );
 }
 
-// ── Block Editor Components ───────────────────────────────────────────────────
-
-interface TextBlockEditorProps {
-  block: TextBlock;
+function TextBlock({
+  block,
+  isSelected,
+  onUpdate,
+  onSelect,
+}: {
+  block: WorksheetContentBlock;
   isSelected: boolean;
-  onUpdate: (updates: Partial<TextBlock>) => void;
+  onUpdate: (patch: Partial<WorksheetContentBlock>) => void;
   onSelect: () => void;
-  onDelete: () => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-}
-
-function TextBlockEditor({ block, isSelected, onUpdate, onSelect, onDelete, onMoveUp, onMoveDown }: TextBlockEditorProps) {
-  const Tag = block.type === 'heading' ? (`h${block.level ?? 1}` as 'h1' | 'h2' | 'h3') : 'p';
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
-    if (e.key === 'Delete' && e.ctrlKey) { e.preventDefault(); onDelete(); }
-    if (e.key === 'ArrowUp' && e.altKey) { e.preventDefault(); onMoveUp(); }
-    if (e.key === 'ArrowDown' && e.altKey) { e.preventDefault(); onMoveDown(); }
-  };
-
+}) {
   return (
     <div
-      className={`${styles.editorBlock} ${isSelected ? styles.editorBlockSelected : ''}`}
+      className={`${styles.block} ${isSelected ? styles.blockSelected : ''}`}
       onClick={onSelect}
-      role="group"
-      aria-label={block.type === 'heading' ? `Başlık bloğu` : 'Metin bloğu'}
     >
-      {isSelected && (
-        <div className={styles.blockToolbar} role="toolbar" aria-label="Blok araçları">
-          <button
-            className={styles.blockToolbarBtn}
-            onClick={(e) => { e.stopPropagation(); onUpdate({ bold: !block.bold }); }}
-            aria-label="Kalın"
-            aria-pressed={block.bold}
-            title="Kalın (Ctrl+B)"
-          >
-            <strong>B</strong>
-          </button>
-          <button
-            className={styles.blockToolbarBtn}
-            onClick={(e) => { e.stopPropagation(); onUpdate({ italic: !block.italic }); }}
-            aria-label="İtalik"
-            aria-pressed={block.italic}
-            title="İtalik (Ctrl+I)"
-          >
-            <em>I</em>
-          </button>
-          <button
-            className={styles.blockToolbarBtn}
-            onClick={(e) => { e.stopPropagation(); onUpdate({ underline: !block.underline }); }}
-            aria-label="Altı Çizili"
-            aria-pressed={block.underline}
-            title="Altı Çizili (Ctrl+U)"
-          >
-            <u>U</u>
-          </button>
-          <span className={styles.blockToolbarSep} />
-          <button
-            className={styles.blockToolbarBtn}
-            onClick={(e) => { e.stopPropagation(); onMoveUp(); }}
-            aria-label="Yukarı Taşı"
-            title="Yukarı Taşı (Alt+↑)"
-          >↑</button>
-          <button
-            className={styles.blockToolbarBtn}
-            onClick={(e) => { e.stopPropagation(); onMoveDown(); }}
-            aria-label="Aşağı Taşı"
-            title="Aşağı Taşı (Alt+↓)"
-          >↓</button>
-          <span className={styles.blockToolbarSep} />
-          <button
-            className={`${styles.blockToolbarBtn} ${styles.blockToolbarBtnDanger}`}
-            onClick={(e) => { e.stopPropagation(); onDelete(); }}
-            aria-label="Bloğu Sil"
-            title="Sil (Ctrl+Delete)"
-          >✕</button>
-        </div>
-      )}
-      <Tag
-        contentEditable
-        suppressContentEditableWarning
-        className={styles.editableText}
-        style={{
-          fontWeight: block.bold ? 'bold' : undefined,
-          fontStyle: block.italic ? 'italic' : undefined,
-          textDecoration: block.underline ? 'underline' : undefined,
-        }}
-        onBlur={(e) => onUpdate({ content: e.currentTarget.textContent ?? '' })}
-        onKeyDown={handleKeyDown}
-        aria-label={block.type === 'heading' ? 'Başlık metni' : 'İçerik metni'}
-        dangerouslySetInnerHTML={{ __html: block.content }}
+      <textarea
+        className={styles.blockTextarea}
+        value={block.content}
+        onChange={(e) => onUpdate({ content: e.target.value })}
+        placeholder="Metin girin..."
+        rows={3}
+        aria-label="Metin bloğu"
       />
     </div>
   );
 }
 
-interface BlankBlockEditorProps {
-  block: BlankBlock;
+function HeadingBlock({
+  block,
+  isSelected,
+  onUpdate,
+  onSelect,
+}: {
+  block: WorksheetContentBlock;
   isSelected: boolean;
-  onUpdate: (updates: Partial<BlankBlock>) => void;
+  onUpdate: (patch: Partial<WorksheetContentBlock>) => void;
   onSelect: () => void;
-  onDelete: () => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-}
-
-function BlankBlockEditor({ block, isSelected, onUpdate, onSelect, onDelete, onMoveUp, onMoveDown }: BlankBlockEditorProps) {
+}) {
+  const level = block.headingLevel ?? 2;
   return (
     <div
-      className={`${styles.editorBlock} ${isSelected ? styles.editorBlockSelected : ''}`}
+      className={`${styles.block} ${isSelected ? styles.blockSelected : ''}`}
       onClick={onSelect}
-      role="group"
-      aria-label="Boş alan bloğu"
     >
-      {isSelected && (
-        <div className={styles.blockToolbar} role="toolbar" aria-label="Blok araçları">
-          <label className={styles.blockToolbarLabel}>
-            Satır sayısı:
-            <input
-              type="number"
-              min={1}
-              max={20}
-              value={block.lines}
-              onChange={(e) => onUpdate({ lines: parseInt(e.target.value, 10) || 1 })}
-              className={styles.blockToolbarInput}
-              aria-label="Satır sayısı"
-            />
-          </label>
-          <label className={styles.blockToolbarLabel}>
-            Etiket:
-            <input
-              type="text"
-              value={block.label ?? ''}
-              onChange={(e) => onUpdate({ label: e.target.value })}
-              className={styles.blockToolbarInput}
-              aria-label="Alan etiketi"
-            />
-          </label>
-          <span className={styles.blockToolbarSep} />
-          <button className={styles.blockToolbarBtn} onClick={(e) => { e.stopPropagation(); onMoveUp(); }} aria-label="Yukarı Taşı">↑</button>
-          <button className={styles.blockToolbarBtn} onClick={(e) => { e.stopPropagation(); onMoveDown(); }} aria-label="Aşağı Taşı">↓</button>
-          <span className={styles.blockToolbarSep} />
-          <button className={`${styles.blockToolbarBtn} ${styles.blockToolbarBtnDanger}`} onClick={(e) => { e.stopPropagation(); onDelete(); }} aria-label="Sil">✕</button>
+      <input
+        className={`${styles.blockHeadingInput} ${styles[`heading${level}`]}`}
+        value={block.content}
+        onChange={(e) => onUpdate({ content: e.target.value })}
+        placeholder={`Başlık H${level}...`}
+        aria-label={`H${level} başlık`}
+      />
+    </div>
+  );
+}
+
+function MathBlock({
+  block,
+  isSelected,
+  onUpdate,
+  onSelect,
+}: {
+  block: WorksheetContentBlock;
+  isSelected: boolean;
+  onUpdate: (patch: Partial<WorksheetContentBlock>) => void;
+  onSelect: () => void;
+}) {
+  return (
+    <div
+      className={`${styles.block} ${isSelected ? styles.blockSelected : ''}`}
+      onClick={onSelect}
+    >
+      <label className={styles.blockLabel}>LaTeX:</label>
+      <input
+        className={styles.blockMathInput}
+        value={block.mathRaw ?? block.content}
+        onChange={(e) => onUpdate({ mathRaw: e.target.value, content: e.target.value })}
+        placeholder="Örn: x^2 + y^2 = r^2"
+        aria-label="LaTeX matematik girişi"
+      />
+      <div className={styles.blockMathPreview} aria-label="Matematik önizleme">
+        <code>{block.mathRaw ?? block.content}</code>
+      </div>
+    </div>
+  );
+}
+
+function ListBlock({
+  block,
+  isSelected,
+  onUpdate,
+  onSelect,
+}: {
+  block: WorksheetContentBlock;
+  isSelected: boolean;
+  onUpdate: (patch: Partial<WorksheetContentBlock>) => void;
+  onSelect: () => void;
+}) {
+  const items = block.listItems ?? [''];
+
+  const updateItem = (idx: number, value: string) => {
+    const newItems = [...items];
+    newItems[idx] = value;
+    onUpdate({ listItems: newItems });
+  };
+
+  const addItem = () => onUpdate({ listItems: [...items, ''] });
+  const removeItem = (idx: number) =>
+    onUpdate({ listItems: items.filter((_, i) => i !== idx) });
+
+  return (
+    <div
+      className={`${styles.block} ${isSelected ? styles.blockSelected : ''}`}
+      onClick={onSelect}
+    >
+      {items.map((item, idx) => (
+        <div key={idx} className={styles.listItemRow}>
+          <span className={styles.listBullet}>•</span>
+          <input
+            className={styles.listItemInput}
+            value={item}
+            onChange={(e) => updateItem(idx, e.target.value)}
+            placeholder="Liste öğesi..."
+            aria-label={`Liste öğesi ${idx + 1}`}
+          />
+          <button
+            className={styles.listItemRemove}
+            onClick={(e) => { e.stopPropagation(); removeItem(idx); }}
+            aria-label="Öğeyi kaldır"
+          >
+            ✕
+          </button>
         </div>
-      )}
-      {block.label && <span className={styles.blankLabel}>{block.label}</span>}
-      <div className={styles.blankLines}>
-        {Array.from({ length: block.lines }).map((_, i) => (
-          <div key={i} className={styles.blankLine} aria-hidden="true" />
+      ))}
+      <button className={styles.addListItemBtn} onClick={(e) => { e.stopPropagation(); addItem(); }}>
+        + Öğe Ekle
+      </button>
+    </div>
+  );
+}
+
+export const WorksheetEditor: React.FC<WorksheetEditorProps> = React.memo(({
+  content,
+  selectedBlockId,
+  onAddBlock,
+  onUpdateBlock,
+  onRemoveBlock,
+  onMoveBlock,
+  onSelectBlock,
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleAddBlock = useCallback((type: WorksheetContentBlockType) => {
+    const defaults: Partial<WorksheetContentBlock> = {};
+    if (type === 'heading') defaults.headingLevel = 2;
+    if (type === 'list') defaults.listItems = [''];
+    onAddBlock({ type, content: '', ...defaults });
+  }, [onAddBlock]);
+
+  const renderBlock = (block: WorksheetContentBlock, idx: number) => {
+    const isSelected = selectedBlockId === block.id;
+    const isFirst = idx === 0;
+    const isLast = idx === content.blocks.length - 1;
+
+    const commonProps = {
+      block,
+      isSelected,
+      onUpdate: (patch: Partial<WorksheetContentBlock>) => onUpdateBlock(block.id, patch),
+      onSelect: () => onSelectBlock(block.id),
+    };
+
+    return (
+      <div key={block.id} className={styles.blockWrapper}>
+        {isSelected && (
+          <BlockToolbar
+            block={block}
+            isFirst={isFirst}
+            isLast={isLast}
+            onUpdate={(patch) => onUpdateBlock(block.id, patch)}
+            onRemove={() => onRemoveBlock(block.id)}
+            onMove={(dir) => onMoveBlock(block.id, dir)}
+          />
+        )}
+        {block.type === 'text' && <TextBlock {...commonProps} />}
+        {block.type === 'heading' && <HeadingBlock {...commonProps} />}
+        {block.type === 'math' && <MathBlock {...commonProps} />}
+        {block.type === 'list' && <ListBlock {...commonProps} />}
+        {block.type === 'divider' && (
+          <div
+            className={`${styles.block} ${isSelected ? styles.blockSelected : ''}`}
+            onClick={() => onSelectBlock(block.id)}
+          >
+            <hr className={styles.dividerBlock} aria-label="Ayırıcı" />
+          </div>
+        )}
+        {block.type === 'image' && (
+          <div
+            className={`${styles.block} ${isSelected ? styles.blockSelected : ''}`}
+            onClick={() => onSelectBlock(block.id)}
+          >
+            {block.imageUrl ? (
+              <img src={block.imageUrl} alt={block.content || 'Görsel'} className={styles.imageBlock} />
+            ) : (
+              <div className={styles.imagePlaceholder}>
+                <span>🖼️ Görsel URL'si</span>
+                <input
+                  className={styles.imageUrlInput}
+                  value={block.content}
+                  onChange={(e) => onUpdateBlock(block.id, { content: e.target.value, imageUrl: e.target.value })}
+                  placeholder="https://..."
+                  aria-label="Görsel URL"
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className={styles.worksheetEditor}
+      role="region"
+      aria-label="Çalışma kağıdı düzenleyici"
+      onClick={(e) => {
+        if (e.target === containerRef.current) onSelectBlock(null);
+      }}
+    >
+      <div className={styles.blocksContainer}>
+        {content.blocks.map((block, idx) => renderBlock(block, idx))}
+      </div>
+
+      <div className={styles.addBlockBar} role="toolbar" aria-label="Blok ekle">
+        <span className={styles.addBlockLabel}>+ Blok Ekle:</span>
+        {(Object.keys(BLOCK_TYPE_LABELS) as WorksheetContentBlockType[]).map((type) => (
+          <button
+            key={type}
+            className={styles.addBlockBtn}
+            onClick={() => handleAddBlock(type)}
+            aria-label={`${BLOCK_TYPE_LABELS[type]} bloğu ekle`}
+          >
+            {BLOCK_TYPE_LABELS[type]}
+          </button>
         ))}
       </div>
     </div>
   );
-}
+});
 
-// ── Add Block Toolbar ─────────────────────────────────────────────────────────
-
-interface AddBlockToolbarProps {
-  onAdd: (block: WorksheetBlock) => void;
-}
-
-function AddBlockToolbar({ onAdd }: AddBlockToolbarProps) {
-  const addText = () => onAdd({ id: makeId(), type: 'text', content: 'Yeni metin bloğu...' });
-  const addHeading = () => onAdd({ id: makeId(), type: 'heading', content: 'Yeni Başlık', level: 2 });
-  const addBlank = () => onAdd({ id: makeId(), type: 'blank', lines: 4, label: '' });
-  const addDivider = () => onAdd({ id: makeId(), type: 'divider' });
-
-  return (
-    <div className={styles.addBlockToolbar} role="toolbar" aria-label="Blok ekle">
-      <span className={styles.addBlockLabel}>Blok Ekle:</span>
-      <button className={styles.addBlockBtn} onClick={addHeading} aria-label="Başlık ekle" title="Başlık ekle">
-        <span aria-hidden="true">H</span> Başlık
-      </button>
-      <button className={styles.addBlockBtn} onClick={addText} aria-label="Metin ekle" title="Metin ekle">
-        <span aria-hidden="true">¶</span> Metin
-      </button>
-      <button className={styles.addBlockBtn} onClick={addBlank} aria-label="Boş alan ekle" title="Boş alan ekle">
-        <span aria-hidden="true">_</span> Boş Alan
-      </button>
-      <button className={styles.addBlockBtn} onClick={addDivider} aria-label="Ayırıcı ekle" title="Ayırıcı ekle">
-        <span aria-hidden="true">—</span> Ayırıcı
-      </button>
-    </div>
-  );
-}
-
-// ── Main WorksheetEditor ──────────────────────────────────────────────────────
-
-export function WorksheetEditor({ worksheetState }: WorksheetEditorProps) {
-  const { state, addBlock, updateBlock, removeBlock, moveBlock, selectBlock, updateContent } = worksheetState;
-  const { document: doc, selectedBlockId } = state;
-  const { content } = doc;
-  const editorRef = useRef<HTMLDivElement>(null);
-
-  const handleBlockUpdate = useCallback(
-    (id: string, updates: Partial<WorksheetBlock>) => {
-      updateBlock(id, updates);
-    },
-    [updateBlock],
-  );
-
-  const renderBlock = (block: WorksheetBlock) => {
-    const isSelected = selectedBlockId === block.id;
-    const commonProps = {
-      isSelected,
-      onSelect: () => selectBlock(block.id),
-      onDelete: () => removeBlock(block.id),
-      onMoveUp: () => moveBlock(block.id, 'up'),
-      onMoveDown: () => moveBlock(block.id, 'down'),
-    };
-
-    switch (block.type) {
-      case 'text':
-      case 'heading':
-        return (
-          <TextBlockEditor
-            key={block.id}
-            block={block}
-            onUpdate={(u) => handleBlockUpdate(block.id, u)}
-            {...commonProps}
-          />
-        );
-      case 'blank':
-        return (
-          <BlankBlockEditor
-            key={block.id}
-            block={block}
-            onUpdate={(u) => handleBlockUpdate(block.id, u)}
-            {...commonProps}
-          />
-        );
-      case 'divider':
-        return (
-          <div
-            key={block.id}
-            className={`${styles.editorBlock} ${styles.dividerBlock} ${isSelected ? styles.editorBlockSelected : ''}`}
-            onClick={() => selectBlock(block.id)}
-            role="separator"
-            aria-label="Ayırıcı"
-          >
-            <hr className={styles.dividerLine} />
-            {isSelected && (
-              <div className={styles.blockToolbar}>
-                <button
-                  className={`${styles.blockToolbarBtn} ${styles.blockToolbarBtnDanger}`}
-                  onClick={(e) => { e.stopPropagation(); removeBlock(block.id); }}
-                  aria-label="Ayırıcıyı Sil"
-                >✕</button>
-              </div>
-            )}
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <section className={styles.editorPane} aria-label="Çalışma sayfası editörü">
-      <header className={styles.editorHeader}>
-        <div className={styles.editorMetaRow}>
-          <input
-            type="text"
-            className={styles.titleInput}
-            value={doc.meta.title}
-            onChange={(e) => {
-              const updated = { ...doc, meta: { ...doc.meta, title: e.target.value } };
-              worksheetState.setDocument(updated);
-            }}
-            placeholder="Çalışma sayfası başlığı..."
-            aria-label="Başlık"
-          />
-        </div>
-        <div className={styles.editorMetaRow}>
-          <input
-            type="text"
-            className={styles.metaInput}
-            value={doc.meta.subject}
-            onChange={(e) => {
-              const updated = { ...doc, meta: { ...doc.meta, subject: e.target.value } };
-              worksheetState.setDocument(updated);
-            }}
-            placeholder="Ders..."
-            aria-label="Ders"
-          />
-          <input
-            type="text"
-            className={styles.metaInput}
-            value={doc.meta.grade}
-            onChange={(e) => {
-              const updated = { ...doc, meta: { ...doc.meta, grade: e.target.value } };
-              worksheetState.setDocument(updated);
-            }}
-            placeholder="Sınıf..."
-            aria-label="Sınıf"
-          />
-        </div>
-        <textarea
-          className={styles.instructionInput}
-          value={content.instructionText}
-          onChange={(e) => updateContent({ instructionText: e.target.value })}
-          placeholder="Talimat metni..."
-          rows={2}
-          aria-label="Talimat"
-        />
-      </header>
-
-      <div
-        ref={editorRef}
-        className={styles.blocksContainer}
-        role="list"
-        aria-label="İçerik blokları"
-        onClick={(e) => {
-          if (e.target === editorRef.current) selectBlock(null);
-        }}
-      >
-        {content.blocks.length === 0 ? (
-          <div className={styles.emptyEditor} role="status">
-            Başlamak için aşağıdan bir blok ekleyin.
-          </div>
-        ) : (
-          content.blocks.map((block) => (
-            <div key={block.id} role="listitem">
-              {renderBlock(block)}
-            </div>
-          ))
-        )}
-      </div>
-
-      <AddBlockToolbar onAdd={addBlock} />
-
-      {state.isDirty && (
-        <div className={styles.dirtyIndicator} role="status" aria-live="polite">
-          {state.isSaving ? 'Kaydediliyor...' : 'Kaydedilmemiş değişiklikler'}
-        </div>
-      )}
-      {state.lastSavedAt && !state.isDirty && (
-        <div className={styles.savedIndicator} role="status" aria-live="polite">
-          Son kaydedilme: {new Date(state.lastSavedAt).toLocaleTimeString('tr-TR')}
-        </div>
-      )}
-    </section>
-  );
-}
+WorksheetEditor.displayName = 'WorksheetEditor';

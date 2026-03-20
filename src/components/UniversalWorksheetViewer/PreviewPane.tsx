@@ -1,177 +1,125 @@
-import React, { useRef } from 'react';
-import type { WorksheetDocument, DyslexiaSettings, EditorSettings } from './types/worksheet';
+import React from 'react';
 import styles from './UniversalWorksheetViewer.module.css';
+import type { Worksheet, DyslexiaSettings } from './types/worksheet';
 
 interface PreviewPaneProps {
-  document: WorksheetDocument;
+  worksheet: Worksheet;
   dyslexiaSettings: DyslexiaSettings;
-  editorSettings: EditorSettings;
-  onZoomChange: (zoom: number) => void;
+  zoom: number;
+  isPrintMode: boolean;
 }
 
-const ZOOM_OPTIONS = [50, 75, 100, 125, 150, 200] as const;
+const fontFamilyMap: Record<string, string> = {
+  default: 'inherit',
+  OpenDyslexic: '"OpenDyslexic", sans-serif',
+  ReadingFont: '"Lexend", "Atkinson Hyperlegible", sans-serif',
+};
 
-export function PreviewPane({ document: doc, dyslexiaSettings, editorSettings, onZoomChange }: PreviewPaneProps) {
-  const { content, meta } = doc;
-  const printRef = useRef<HTMLDivElement>(null);
+const contrastStyles: Record<string, React.CSSProperties> = {
+  normal: {},
+  high: { filter: 'contrast(1.5)' },
+  inverted: { filter: 'invert(1)' },
+};
 
-  const fontFamilyStyle =
-    dyslexiaSettings.fontFamily === 'default'
-      ? 'inherit'
-      : dyslexiaSettings.fontFamily === 'OpenDyslexic'
-        ? '"OpenDyslexic", sans-serif'
-        : '"Arial", "Helvetica", sans-serif';
+export const PreviewPane: React.FC<PreviewPaneProps> = React.memo(
+  ({ worksheet, dyslexiaSettings, zoom, isPrintMode }) => {
+    const contentStyle: React.CSSProperties = {
+      fontFamily: fontFamilyMap[dyslexiaSettings.fontFamily] ?? 'inherit',
+      lineHeight: dyslexiaSettings.lineHeight,
+      letterSpacing: `${dyslexiaSettings.letterSpacing}px`,
+      fontSize: `${dyslexiaSettings.fontSize}px`,
+      backgroundColor: dyslexiaSettings.backgroundColor,
+      ...contrastStyles[dyslexiaSettings.contrastMode],
+      transform: `scale(${zoom / 100})`,
+      transformOrigin: 'top center',
+    };
 
-  const previewStyle: React.CSSProperties = {
-    fontFamily: fontFamilyStyle,
-    lineHeight: dyslexiaSettings.lineHeight,
-    letterSpacing: `${dyslexiaSettings.letterSpacing}px`,
-    backgroundColor: dyslexiaSettings.backgroundColor,
-    color: dyslexiaSettings.highContrast ? '#000000' : 'inherit',
-    transform: `scale(${editorSettings.zoom / 100})`,
-    transformOrigin: 'top center',
-  };
+    const renderBlock = (block: (typeof worksheet.content.blocks)[0]) => {
+      switch (block.type) {
+        case 'heading': {
+          const level = block.headingLevel ?? 2;
+          const Tag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+          return (
+            <Tag key={block.id} className={styles[`previewH${level}`]}>
+              {block.content}
+            </Tag>
+          );
+        }
+        case 'text':
+          return (
+            <p key={block.id} className={styles.previewText}>
+              {block.content}
+            </p>
+          );
+        case 'math':
+          return (
+            <div key={block.id} className={styles.previewMath}>
+              <code>{block.mathRaw ?? block.content}</code>
+            </div>
+          );
+        case 'divider':
+          return <hr key={block.id} className={styles.previewDivider} />;
+        case 'list':
+          return (
+            <ul key={block.id} className={styles.previewList}>
+              {(block.listItems ?? []).map((item, idx) => (
+                <li key={idx}>{item}</li>
+              ))}
+            </ul>
+          );
+        case 'image':
+          return block.imageUrl ? (
+            <figure key={block.id} className={styles.previewImage}>
+              <img src={block.imageUrl} alt={block.content || 'Görsel'} />
+            </figure>
+          ) : null;
+        case 'table':
+          return (
+            <table key={block.id} className={styles.previewTable}>
+              <tbody>
+                {(block.tableData ?? []).map((row, ri) => (
+                  <tr key={ri}>
+                    {row.map((cell, ci) => (
+                      <td key={ci}>{cell}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          );
+        default:
+          return null;
+      }
+    };
 
-  return (
-    <section className={styles.previewPane} aria-label="Önizleme">
-      <header className={styles.previewHeader}>
-        <span className={styles.previewTitle}>Önizleme</span>
-        <div className={styles.zoomControls} role="group" aria-label="Zoom kontrolleri">
-          <button
-            className={styles.zoomBtn}
-            onClick={() => {
-              const idx = ZOOM_OPTIONS.indexOf(editorSettings.zoom as typeof ZOOM_OPTIONS[number]);
-              if (idx > 0) onZoomChange(ZOOM_OPTIONS[idx - 1]);
-            }}
-            aria-label="Uzaklaştır"
-            disabled={editorSettings.zoom <= 50}
-            title="Uzaklaştır"
-          >
-            −
-          </button>
-          <select
-            className={styles.zoomSelect}
-            value={editorSettings.zoom}
-            onChange={(e) => onZoomChange(Number(e.target.value))}
-            aria-label="Zoom seviyesi"
-          >
-            {ZOOM_OPTIONS.map((z) => (
-              <option key={z} value={z}>
-                {z}%
-              </option>
-            ))}
-          </select>
-          <button
-            className={styles.zoomBtn}
-            onClick={() => {
-              const idx = ZOOM_OPTIONS.indexOf(editorSettings.zoom as typeof ZOOM_OPTIONS[number]);
-              if (idx < ZOOM_OPTIONS.length - 1) onZoomChange(ZOOM_OPTIONS[idx + 1]);
-            }}
-            aria-label="Yaklaştır"
-            disabled={editorSettings.zoom >= 200}
-            title="Yaklaştır"
-          >
-            +
-          </button>
-        </div>
-      </header>
-
-      <div className={styles.previewScrollContainer}>
+    return (
+      <div
+        className={`${styles.previewPane} ${isPrintMode ? styles.printMode : ''}`}
+        role="region"
+        aria-label="Çalışma kağıdı önizlemesi"
+      >
         <div
-          className={`${styles.previewPage} ${dyslexiaSettings.highContrast ? styles.highContrast : ''}`}
-          style={previewStyle}
-          ref={printRef}
-          aria-label="Çalışma sayfası önizlemesi"
+          id="worksheet-preview-root"
+          className={styles.previewPage}
+          style={contentStyle}
         >
-          {/* Student info row */}
-          {content.studentInfoVisible && (
-            <div className={styles.previewStudentInfo} aria-label="Öğrenci bilgisi">
-              <span>Ad Soyad: ___________________________</span>
-              <span>Tarih: _______________</span>
-            </div>
+          <h1 className={styles.previewTitle}>{worksheet.metadata.title}</h1>
+          {worksheet.metadata.description && (
+            <p className={styles.previewDescription}>{worksheet.metadata.description}</p>
           )}
-
-          {/* Title */}
-          {content.titleVisible && meta.title && (
-            <h1 className={styles.previewDocTitle}>{meta.title}</h1>
-          )}
-
-          {/* Meta: subject + grade */}
-          {(meta.subject || meta.grade) && (
-            <div className={styles.previewMeta}>
-              {meta.subject && <span>{meta.subject}</span>}
-              {meta.subject && meta.grade && <span className={styles.previewMetaSep}>·</span>}
-              {meta.grade && <span>{meta.grade}</span>}
-            </div>
-          )}
-
-          {/* Instruction */}
-          {content.instructionText && (
-            <p className={styles.previewInstruction}>{content.instructionText}</p>
-          )}
-
-          {/* Content blocks */}
-          <div className={styles.previewBlocks}>
-            {content.blocks.map((block) => {
-              switch (block.type) {
-                case 'heading': {
-                  const Tag = (`h${block.level ?? 2}`) as 'h1' | 'h2' | 'h3';
-                  return (
-                    <Tag key={block.id} className={styles.previewHeading}>
-                      {block.content}
-                    </Tag>
-                  );
-                }
-                case 'text':
-                  return (
-                    <p
-                      key={block.id}
-                      className={styles.previewText}
-                      style={{
-                        fontWeight: block.bold ? 'bold' : undefined,
-                        fontStyle: block.italic ? 'italic' : undefined,
-                        textDecoration: block.underline ? 'underline' : undefined,
-                      }}
-                    >
-                      {block.content}
-                    </p>
-                  );
-                case 'blank':
-                  return (
-                    <div key={block.id} className={styles.previewBlank}>
-                      {block.label && <span className={styles.previewBlankLabel}>{block.label}:</span>}
-                      {Array.from({ length: block.lines }).map((_, i) => (
-                        <div key={i} className={styles.previewBlankLine} aria-hidden="true" />
-                      ))}
-                    </div>
-                  );
-                case 'divider':
-                  return <hr key={block.id} className={styles.previewDivider} aria-hidden="true" />;
-                case 'image':
-                  return (
-                    <div key={block.id} className={styles.previewImageBlock}>
-                      <img src={block.src} alt={block.alt} style={{ maxWidth: '100%', height: 'auto' }} />
-                    </div>
-                  );
-                default:
-                  return null;
-              }
-            })}
+          <div className={styles.previewContent}>
+            {worksheet.content.blocks.map(renderBlock)}
           </div>
-
-          {/* Footer */}
-          {content.footerText && (
-            <footer className={styles.previewFooter}>{content.footerText}</footer>
-          )}
-
-          {/* Page break indicator */}
-          {editorSettings.showPageBreaks && (
-            <div className={styles.pageBreakIndicator} aria-hidden="true">
-              ─── Sayfa Sonu ───
-            </div>
-          )}
+          <div className={styles.previewMeta}>
+            {worksheet.metadata.author && (
+              <span>Hazırlayan: {worksheet.metadata.author}</span>
+            )}
+            {worksheet.metadata.grade && <span>Sınıf: {worksheet.metadata.grade}</span>}
+          </div>
         </div>
       </div>
-    </section>
-  );
-}
+    );
+  },
+);
+
+PreviewPane.displayName = 'PreviewPane';

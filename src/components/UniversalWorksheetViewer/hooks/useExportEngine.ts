@@ -1,190 +1,239 @@
 import { useState, useCallback, useRef } from 'react';
-import type {
-  ExportJob,
-  ExportFormat,
-  ExportSettings,
-  WorksheetDocument,
-  UseExportEngineReturn,
-} from '../types/worksheet';
+import type { Worksheet, ExportSettings, ExportJob, ExportFormat } from '../types/worksheet';
 
-function makeJobId(): string {
-  return `job_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+interface UseExportEngineReturn {
+  jobs: ExportJob[];
+  activeJob: ExportJob | null;
+  isExporting: boolean;
+  exportWorksheet: (worksheet: Worksheet, settings: ExportSettings) => Promise<void>;
+  cancelExport: () => void;
+  clearJobs: () => void;
 }
 
-function nowIso(): string {
-  return new Date().toISOString();
+function generateJobId() {
+  return `job-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-// ── Simulated export implementations ─────────────────────────────────────────
-// In production these would call real export libraries (jsPDF, html2canvas, etc.)
+async function exportAsPdf(worksheet: Worksheet, settings: ExportSettings): Promise<string> {
+  // Dynamically import jsPDF to keep the bundle lean
+  const { default: jsPDF } = await import('jspdf');
 
-async function doExportPdf(
-  document: WorksheetDocument,
-  settings: ExportSettings,
-  onProgress: (p: number) => void,
-): Promise<string> {
-  // Simulate progressive export
-  for (let i = 10; i <= 90; i += 20) {
-    onProgress(i);
-    await new Promise<void>((r) => setTimeout(r, 80));
+  const orientation = settings.orientation === 'landscape' ? 'l' : 'p';
+  const customFormat: [number, number] = [settings.customWidth ?? 210, settings.customHeight ?? 297];
+  const format = settings.pageSize === 'Custom' ? customFormat : settings.pageSize.toLowerCase();
+
+  const doc = new jsPDF({ orientation, unit: 'mm', format });
+
+  const marginX = 20;
+  let y = 20;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const maxWidth = pageWidth - marginX * 2;
+
+  if (settings.includeHeader && settings.headerText) {
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(settings.headerText, marginX, 12, { maxWidth });
   }
-  // In a real implementation we'd use jsPDF / @react-pdf/renderer here
-  const blob = new Blob(
-    [JSON.stringify({ document, settings, exportedAt: nowIso() }, null, 2)],
-    { type: 'application/pdf' },
-  );
-  const url = URL.createObjectURL(blob);
-  onProgress(100);
-  return url;
-}
 
-async function doExportPng(
-  document: WorksheetDocument,
-  settings: ExportSettings,
-  onProgress: (p: number) => void,
-): Promise<string> {
-  for (let i = 10; i <= 90; i += 30) {
-    onProgress(i);
-    await new Promise<void>((r) => setTimeout(r, 60));
+  doc.setFontSize(20);
+  doc.setTextColor(30, 30, 30);
+  doc.text(worksheet.metadata.title, marginX, y, { maxWidth });
+  y += 12;
+
+  for (const block of worksheet.content.blocks) {
+    if (y > doc.internal.pageSize.getHeight() - 25) {
+      doc.addPage();
+      y = 20;
+    }
+
+    switch (block.type) {
+      case 'heading': {
+        const level = block.headingLevel ?? 2;
+        const size = level === 1 ? 16 : level === 2 ? 14 : 12;
+        doc.setFontSize(size);
+        doc.setTextColor(30, 30, 30);
+        const lines = doc.splitTextToSize(block.content, maxWidth);
+        doc.text(lines, marginX, y);
+        y += lines.length * (size * 0.4) + 4;
+        break;
+      }
+      case 'text': {
+        doc.setFontSize(11);
+        doc.setTextColor(50, 50, 50);
+        const lines = doc.splitTextToSize(block.content, maxWidth);
+        doc.text(lines, marginX, y);
+        y += lines.length * 5 + 4;
+        break;
+      }
+      case 'divider': {
+        doc.setDrawColor(180, 180, 180);
+        doc.line(marginX, y, pageWidth - marginX, y);
+        y += 6;
+        break;
+      }
+      case 'list': {
+        doc.setFontSize(11);
+        doc.setTextColor(50, 50, 50);
+        for (const item of block.listItems ?? []) {
+          const lines = doc.splitTextToSize(`• ${item}`, maxWidth - 5);
+          doc.text(lines, marginX + 5, y);
+          y += lines.length * 5 + 2;
+          if (y > doc.internal.pageSize.getHeight() - 25) {
+            doc.addPage();
+            y = 20;
+          }
+        }
+        y += 4;
+        break;
+      }
+      case 'math': {
+        doc.setFontSize(11);
+        doc.setFont('courier', 'normal');
+        doc.setTextColor(30, 30, 30);
+        const lines = doc.splitTextToSize(block.mathRaw ?? block.content, maxWidth);
+        doc.text(lines, marginX, y);
+        doc.setFont('helvetica', 'normal');
+        y += lines.length * 5 + 4;
+        break;
+      }
+    }
   }
-  // In a real implementation we'd use html2canvas here
-  const blob = new Blob(
-    [JSON.stringify({ document, settings, exportedAt: nowIso() })],
-    { type: 'image/png' },
-  );
-  const url = URL.createObjectURL(blob);
-  onProgress(100);
-  return url;
-}
 
-async function doExportDocx(
-  document: WorksheetDocument,
-  settings: ExportSettings,
-  onProgress: (p: number) => void,
-): Promise<string> {
-  for (let i = 10; i <= 90; i += 25) {
-    onProgress(i);
-    await new Promise<void>((r) => setTimeout(r, 70));
+  if (settings.includeFooter && settings.footerText) {
+    const pageH = doc.internal.pageSize.getHeight();
+    doc.setFontSize(9);
+    doc.setTextColor(120, 120, 120);
+    doc.text(settings.footerText, marginX, pageH - 8, { maxWidth });
   }
-  const blob = new Blob(
-    [JSON.stringify({ document, settings, exportedAt: nowIso() })],
-    { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
-  );
-  const url = URL.createObjectURL(blob);
-  onProgress(100);
-  return url;
+
+  return doc.output('datauristring');
 }
 
-async function doExportJson(
-  document: WorksheetDocument,
-  settings: ExportSettings,
-  onProgress: (p: number) => void,
-): Promise<string> {
-  onProgress(50);
-  await new Promise<void>((r) => setTimeout(r, 30));
-  const blob = new Blob([JSON.stringify({ document, settings, exportedAt: nowIso() }, null, 2)], {
-    type: 'application/json',
-  });
-  const url = URL.createObjectURL(blob);
-  onProgress(100);
-  return url;
+async function exportAsPng(worksheet: Worksheet): Promise<string> {
+  const { default: html2canvas } = await import('html2canvas');
+  const el = document.getElementById('worksheet-preview-root');
+  if (!el) throw new Error('Önizleme elementi bulunamadı. Lütfen önizleme panelini açın.');
+  const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+  return canvas.toDataURL('image/png');
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
-
-interface UseExportEngineOptions {
-  document: WorksheetDocument;
-  defaultSettings: ExportSettings;
+function exportAsJson(worksheet: Worksheet): string {
+  const json = JSON.stringify(worksheet, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  return URL.createObjectURL(blob);
 }
 
-export function useExportEngine(options: UseExportEngineOptions): UseExportEngineReturn {
-  const { document, defaultSettings } = options;
+function triggerDownload(url: string, filename: string) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+}
+
+function sanitizeFilename(name: string): string {
+  return name.replace(/[^a-z0-9türçşğüöıİĞÜŞÖÇ\s_-]/gi, '').trim().replace(/\s+/g, '_') || 'calisma_kagidi';
+}
+
+export function useExportEngine(): UseExportEngineReturn {
   const [jobs, setJobs] = useState<ExportJob[]>([]);
-  const cancelledRef = useRef<Set<string>>(new Set());
+  const [activeJob, setActiveJob] = useState<ExportJob | null>(null);
+  const abortRef = useRef(false);
 
-  const updateJob = useCallback((id: string, updates: Partial<ExportJob>) => {
-    setJobs((prev) => prev.map((j) => (j.id === id ? { ...j, ...updates } : j)));
+  const updateJob = useCallback((id: string, patch: Partial<ExportJob>) => {
+    setJobs((prev) => prev.map((j) => (j.id === id ? { ...j, ...patch } : j)));
+    setActiveJob((prev) => (prev?.id === id ? { ...prev, ...patch } : prev));
   }, []);
 
-  const exportDocument = useCallback(
-    async (format: ExportFormat, settingsOverride?: Partial<ExportSettings>): Promise<ExportJob> => {
-      const settings: ExportSettings = { ...defaultSettings, ...settingsOverride, format };
-      const jobId = makeJobId();
+  const exportWorksheet = useCallback(
+    async (worksheet: Worksheet, settings: ExportSettings) => {
+      abortRef.current = false;
       const job: ExportJob = {
-        id: jobId,
-        format,
+        id: generateJobId(),
+        worksheetId: worksheet.metadata.id,
+        format: settings.format,
         status: 'pending',
         progress: 0,
-        startedAt: nowIso(),
+        createdAt: new Date().toISOString(),
       };
-      setJobs((prev) => [...prev, job]);
 
-      const onProgress = (p: number) => {
-        if (!cancelledRef.current.has(jobId)) {
-          updateJob(jobId, { progress: p, status: 'processing' });
-        }
-      };
+      setJobs((prev) => [...prev, job]);
+      setActiveJob(job);
 
       try {
-        updateJob(jobId, { status: 'processing' });
+        updateJob(job.id, { status: 'processing', progress: 10 });
 
-        let url: string;
-        switch (format) {
-          case 'pdf':
-            url = await doExportPdf(document, settings, onProgress);
+        let url = '';
+        const filename = sanitizeFilename(worksheet.metadata.title);
+
+        switch (settings.format as ExportFormat) {
+          case 'pdf': {
+            updateJob(job.id, { progress: 40 });
+            url = await exportAsPdf(worksheet, settings);
+            updateJob(job.id, { progress: 90 });
+            triggerDownload(url, `${filename}.pdf`);
             break;
-          case 'png':
-            url = await doExportPng(document, settings, onProgress);
+          }
+          case 'png': {
+            updateJob(job.id, { progress: 40 });
+            url = await exportAsPng(worksheet);
+            updateJob(job.id, { progress: 90 });
+            triggerDownload(url, `${filename}.png`);
             break;
-          case 'docx':
-            url = await doExportDocx(document, settings, onProgress);
+          }
+          case 'json': {
+            updateJob(job.id, { progress: 60 });
+            url = exportAsJson(worksheet);
+            updateJob(job.id, { progress: 90 });
+            triggerDownload(url, `${filename}.json`);
             break;
-          case 'json':
-            url = await doExportJson(document, settings, onProgress);
+          }
+          case 'docx': {
+            // Minimal DOCX via plain-text for now (full library integration optional)
+            updateJob(job.id, { progress: 50 });
+            const textContent = worksheet.content.blocks
+              .map((b) => {
+                if (b.type === 'list') return (b.listItems ?? []).map((i) => `• ${i}`).join('\n');
+                if (b.type === 'divider') return '───────────────────────────────';
+                return b.content;
+              })
+              .join('\n\n');
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            url = URL.createObjectURL(blob);
+            updateJob(job.id, { progress: 90 });
+            triggerDownload(url, `${filename}.txt`);
             break;
-          default:
-            throw new Error(`Desteklenmeyen dışa aktarma formatı: "${format}". Geçerli formatlar: pdf, png, docx, json`);
+          }
         }
 
-        if (cancelledRef.current.has(jobId)) {
-          const cancelledJob: ExportJob = { ...job, status: 'error', error: 'Kullanıcı tarafından iptal edildi', progress: 0 };
-          updateJob(jobId, cancelledJob);
-          return cancelledJob;
-        }
-
-        const doneJob: ExportJob = { ...job, status: 'done', progress: 100, url, completedAt: nowIso() };
-        updateJob(jobId, doneJob);
-        return doneJob;
+        updateJob(job.id, { status: 'done', progress: 100, url });
       } catch (err) {
-        const errMsg = err instanceof Error ? err.message : `${format.toUpperCase()} dışa aktarma sırasında bilinmeyen bir hata oluştu`;
-        console.error(`[useExportEngine] ${format} export failed (jobId=${jobId}):`, err);
-        const failedJob: ExportJob = { ...job, status: 'error', error: errMsg, completedAt: nowIso() };
-        updateJob(jobId, failedJob);
-        return failedJob;
+        const message = err instanceof Error ? err.message : 'Bilinmeyen hata';
+        updateJob(job.id, { status: 'error', error: message });
+      } finally {
+        setActiveJob(null);
       }
     },
-    [document, defaultSettings, updateJob],
+    [updateJob],
   );
 
-  const batchExport = useCallback(
-    async (formats: ExportFormat[]): Promise<ExportJob[]> => {
-      const results = await Promise.all(formats.map((f) => exportDocument(f)));
-      return results;
-    },
-    [exportDocument],
-  );
-
-  const cancelJob = useCallback((jobId: string) => {
-    cancelledRef.current.add(jobId);
-    updateJob(jobId, { status: 'error', error: 'Kullanıcı tarafından iptal edildi' });
-  }, [updateJob]);
+  const cancelExport = useCallback(() => {
+    abortRef.current = true;
+    if (activeJob) {
+      updateJob(activeJob.id, { status: 'error', error: 'İptal edildi' });
+      setActiveJob(null);
+    }
+  }, [activeJob, updateJob]);
 
   const clearJobs = useCallback(() => {
     setJobs([]);
-    cancelledRef.current.clear();
   }, []);
 
-  const isExporting = jobs.some((j) => j.status === 'pending' || j.status === 'processing');
-
-  return { jobs, exportDocument, batchExport, cancelJob, clearJobs, isExporting };
+  return {
+    jobs,
+    activeJob,
+    isExporting: activeJob !== null,
+    exportWorksheet,
+    cancelExport,
+    clearJobs,
+  };
 }

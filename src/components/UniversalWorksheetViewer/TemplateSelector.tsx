@@ -1,118 +1,96 @@
-import React, { useState, useCallback } from 'react';
-import type { WorksheetTemplate, WorksheetCategory } from './types/worksheet';
-import type { UseTemplateManagerReturn } from './types/worksheet';
-import { TEMPLATE_CATEGORIES } from './constants/templates';
+import React from 'react';
 import styles from './UniversalWorksheetViewer.module.css';
+import type { WorksheetTemplate, TemplateCategory } from './types/worksheet';
+import { TEMPLATE_CATEGORY_LABELS } from './constants/templates';
 
 interface TemplateSelectorProps {
-  templateManager: UseTemplateManagerReturn;
-  onClose: () => void;
+  templates: WorksheetTemplate[];
+  selectedCategory: TemplateCategory | 'all';
+  onSelectCategory: (category: TemplateCategory | 'all') => void;
+  onApplyTemplate: (template: WorksheetTemplate) => void;
+  onDeleteTemplate?: (id: string) => void;
 }
 
-export function TemplateSelector({ templateManager, onClose }: TemplateSelectorProps) {
-  const { templates, customTemplates, loadTemplate, deleteTemplate, saveAsTemplate, searchTemplates, filterByCategory } = templateManager;
-  const [activeCategory, setActiveCategory] = useState<WorksheetCategory | 'all'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [saveMode, setSaveMode] = useState(false);
-  const [saveName, setSaveName] = useState('');
-  const [saveDesc, setSaveDesc] = useState('');
-  const [saveCategory, setSaveCategory] = useState<WorksheetCategory>('custom');
+export const TemplateSelector: React.FC<TemplateSelectorProps> = React.memo(
+  ({ templates, selectedCategory, onSelectCategory, onApplyTemplate, onDeleteTemplate }) => {
+    const categories: Array<TemplateCategory | 'all'> = [
+      'all',
+      'math',
+      'language',
+      'science',
+      'social',
+      'art',
+      'custom',
+    ];
 
-  const displayedTemplates: WorksheetTemplate[] = searchQuery.trim()
-    ? searchTemplates(searchQuery)
-    : filterByCategory(activeCategory);
-
-  const handleLoad = useCallback(
-    (template: WorksheetTemplate) => {
-      loadTemplate(template);
-      onClose();
-    },
-    [loadTemplate, onClose],
-  );
-
-  const handleSave = useCallback(() => {
-    if (!saveName.trim()) return;
-    saveAsTemplate(saveName.trim(), saveDesc.trim(), saveCategory);
-    setSaveMode(false);
-    setSaveName('');
-    setSaveDesc('');
-  }, [saveName, saveDesc, saveCategory, saveAsTemplate]);
-
-  const handleDelete = useCallback(
-    (e: React.MouseEvent, id: string) => {
-      e.stopPropagation();
-      deleteTemplate(id);
-    },
-    [deleteTemplate],
-  );
-
-  return (
-    <div className={styles.templateOverlay} role="dialog" aria-modal="true" aria-label="Şablon Seçici">
-      <div className={styles.templatePanel}>
-        <header className={styles.templateHeader}>
-          <h2 className={styles.templateTitle}>Şablon Seç</h2>
-          <button className={styles.templateCloseBtn} onClick={onClose} aria-label="Kapat">✕</button>
-        </header>
-
-        {/* Search */}
-        <div className={styles.templateSearch}>
-          <input
-            type="search"
-            className={styles.templateSearchInput}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Şablon ara..."
-            aria-label="Şablon ara"
-          />
-        </div>
+    return (
+      <div
+        className={styles.templateSelector}
+        role="region"
+        aria-label="Şablon seçici"
+      >
+        <h3 className={styles.panelTitle}>Şablonlar</h3>
 
         {/* Category tabs */}
-        <nav className={styles.templateCategoryNav} aria-label="Şablon kategorileri">
-          {TEMPLATE_CATEGORIES.map((cat) => (
+        <div className={styles.categoryTabs} role="tablist" aria-label="Şablon kategorileri">
+          {categories.map((cat) => (
             <button
-              key={cat.value}
-              className={`${styles.templateCategoryTab} ${activeCategory === cat.value ? styles.templateCategoryTabActive : ''}`}
-              onClick={() => { setActiveCategory(cat.value); setSearchQuery(''); }}
-              aria-pressed={activeCategory === cat.value}
-              aria-label={cat.label}
+              key={cat}
+              role="tab"
+              aria-selected={selectedCategory === cat}
+              className={`${styles.categoryTab} ${selectedCategory === cat ? styles.categoryTabActive : ''}`}
+              onClick={() => onSelectCategory(cat)}
             >
-              {cat.label}
+              {cat === 'all' ? 'Tümü' : TEMPLATE_CATEGORY_LABELS[cat] ?? cat}
             </button>
           ))}
-        </nav>
+        </div>
 
         {/* Template grid */}
-        <div className={styles.templateGrid} role="list" aria-label="Şablonlar">
-          {displayedTemplates.length === 0 ? (
-            <p className={styles.templateEmpty} role="status">Şablon bulunamadı.</p>
+        <div
+          className={styles.templateGrid}
+          role="tabpanel"
+          aria-label={`${selectedCategory === 'all' ? 'Tüm' : TEMPLATE_CATEGORY_LABELS[selectedCategory as TemplateCategory]} şablonları`}
+        >
+          {templates.length === 0 ? (
+            <p className={styles.emptyState}>Bu kategoride şablon bulunamadı.</p>
           ) : (
-            displayedTemplates.map((template) => (
-              <div
-                key={template.id}
-                className={`${styles.templateCard} ${hoveredId === template.id ? styles.templateCardHovered : ''}`}
-                role="listitem"
-                onMouseEnter={() => setHoveredId(template.id)}
-                onMouseLeave={() => setHoveredId(null)}
-              >
+            templates.map((tpl) => (
+              <div key={tpl.id} className={styles.templateCard}>
+                {tpl.thumbnail ? (
+                  <img
+                    src={tpl.thumbnail}
+                    alt={tpl.name}
+                    className={styles.templateThumbnail}
+                  />
+                ) : (
+                  <div
+                    className={styles.templateThumbnailPlaceholder}
+                    aria-hidden="true"
+                  >
+                    📄
+                  </div>
+                )}
                 <div className={styles.templateCardBody}>
-                  <h3 className={styles.templateCardName}>{template.name}</h3>
-                  <p className={styles.templateCardDesc}>{template.description}</p>
-                  <span className={styles.templateCardCategory}>{template.category}</span>
+                  <span className={styles.templateName}>{tpl.name}</span>
+                  <span className={styles.templateDesc}>{tpl.description}</span>
+                  <span className={styles.templateCategory}>
+                    {TEMPLATE_CATEGORY_LABELS[tpl.category] ?? tpl.category}
+                  </span>
                 </div>
                 <div className={styles.templateCardActions}>
                   <button
-                    className={styles.templateLoadBtn}
-                    onClick={() => handleLoad(template)}
-                    aria-label={`${template.name} şablonunu yükle`}
+                    className={styles.applyTemplateBtn}
+                    onClick={() => onApplyTemplate(tpl)}
+                    aria-label={`${tpl.name} şablonunu uygula`}
                   >
-                    Yükle
+                    Uygula
                   </button>
-                  {template.isCustom && (
+                  {!tpl.isBuiltIn && onDeleteTemplate && (
                     <button
-                      className={styles.templateDeleteBtn}
-                      onClick={(e) => handleDelete(e, template.id)}
-                      aria-label={`${template.name} şablonunu sil`}
+                      className={styles.deleteTemplateBtn}
+                      onClick={() => onDeleteTemplate(tpl.id)}
+                      aria-label={`${tpl.name} şablonunu sil`}
                     >
                       Sil
                     </button>
@@ -122,66 +100,9 @@ export function TemplateSelector({ templateManager, onClose }: TemplateSelectorP
             ))
           )}
         </div>
-
-        {/* Save as template */}
-        <footer className={styles.templateFooter}>
-          {!saveMode ? (
-            <button className={styles.templateSaveBtn} onClick={() => setSaveMode(true)} aria-label="Mevcut sayfayı şablon olarak kaydet">
-              + Şablon Olarak Kaydet
-            </button>
-          ) : (
-            <div className={styles.templateSaveForm} role="form" aria-label="Şablon kaydetme formu">
-              <input
-                type="text"
-                className={styles.templateSaveInput}
-                value={saveName}
-                onChange={(e) => setSaveName(e.target.value)}
-                placeholder="Şablon adı *"
-                aria-label="Şablon adı"
-                required
-              />
-              <input
-                type="text"
-                className={styles.templateSaveInput}
-                value={saveDesc}
-                onChange={(e) => setSaveDesc(e.target.value)}
-                placeholder="Açıklama (opsiyonel)"
-                aria-label="Şablon açıklaması"
-              />
-              <select
-                className={styles.templateSaveSelect}
-                value={saveCategory}
-                onChange={(e) => setSaveCategory(e.target.value as WorksheetCategory)}
-                aria-label="Kategori"
-              >
-                {TEMPLATE_CATEGORIES.filter((c) => c.value !== 'all').map((c) => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
-                ))}
-              </select>
-              <div className={styles.templateSaveActions}>
-                <button
-                  className={styles.templateSaveConfirmBtn}
-                  onClick={handleSave}
-                  disabled={!saveName.trim()}
-                  aria-label="Kaydet"
-                >
-                  Kaydet
-                </button>
-                <button
-                  className={styles.templateSaveCancelBtn}
-                  onClick={() => setSaveMode(false)}
-                  aria-label="İptal"
-                >
-                  İptal
-                </button>
-              </div>
-            </div>
-          )}
-          <p className={styles.templateCustomCount} aria-live="polite">
-            {customTemplates.length} özel şablon kaydedildi
-          </p>
-        </footer>
       </div>
-    </div>
-  );
-}
+    );
+  },
+);
+
+TemplateSelector.displayName = 'TemplateSelector';

@@ -1,17 +1,12 @@
 import { useState, useCallback } from 'react';
-import type {
-  WorksheetTemplate,
-  WorksheetDocument,
-  WorksheetCategory,
-  UseTemplateManagerReturn,
-} from '../types/worksheet';
-import { BUILT_IN_TEMPLATES, STORAGE_KEY_CUSTOM_TEMPLATES } from '../constants/templates';
+import type { WorksheetTemplate, TemplateCategory } from '../types/worksheet';
+import { BUILT_IN_TEMPLATES } from '../constants/templates';
 
-// ── Persistence helpers ───────────────────────────────────────────────────────
+const STORAGE_KEY = 'uwv_custom_templates';
 
 function loadCustomTemplates(): WorksheetTemplate[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY_CUSTOM_TEMPLATES);
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     return JSON.parse(raw) as WorksheetTemplate[];
   } catch {
@@ -19,56 +14,43 @@ function loadCustomTemplates(): WorksheetTemplate[] {
   }
 }
 
-function saveCustomTemplates(templates: WorksheetTemplate[]): void {
+function saveCustomTemplates(templates: WorksheetTemplate[]) {
   try {
-    localStorage.setItem(STORAGE_KEY_CUSTOM_TEMPLATES, JSON.stringify(templates));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
   } catch {
-    // Storage might be full or unavailable; fail silently
+    // Storage quota or access errors are silently ignored
   }
 }
 
-function makeId(): string {
-  return `custom_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+export interface UseTemplateManagerReturn {
+  templates: WorksheetTemplate[];
+  customTemplates: WorksheetTemplate[];
+  selectedCategory: TemplateCategory | 'all';
+  filteredTemplates: WorksheetTemplate[];
+  setSelectedCategory: (category: TemplateCategory | 'all') => void;
+  saveCustomTemplate: (template: Omit<WorksheetTemplate, 'id' | 'isBuiltIn' | 'createdAt'>) => WorksheetTemplate;
+  deleteCustomTemplate: (id: string) => void;
+  getTemplate: (id: string) => WorksheetTemplate | undefined;
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
-
-interface UseTemplateManagerOptions {
-  currentDocument: WorksheetDocument;
-  onLoadTemplate: (document: WorksheetDocument) => void;
-}
-
-export function useTemplateManager(options: UseTemplateManagerOptions): UseTemplateManagerReturn {
-  const { currentDocument, onLoadTemplate } = options;
+export function useTemplateManager(): UseTemplateManagerReturn {
   const [customTemplates, setCustomTemplates] = useState<WorksheetTemplate[]>(loadCustomTemplates);
+  const [selectedCategory, setSelectedCategory] = useState<TemplateCategory | 'all'>('all');
 
-  const templates = [...BUILT_IN_TEMPLATES, ...customTemplates];
+  const templates: WorksheetTemplate[] = [...BUILT_IN_TEMPLATES, ...customTemplates];
 
-  const loadTemplate = useCallback(
-    (template: WorksheetTemplate) => {
-      onLoadTemplate(template.document);
-    },
-    [onLoadTemplate],
-  );
+  const filteredTemplates =
+    selectedCategory === 'all'
+      ? templates
+      : templates.filter((t) => t.category === selectedCategory);
 
-  const saveAsTemplate = useCallback(
-    (name: string, description: string, category: WorksheetCategory): WorksheetTemplate => {
+  const saveCustomTemplate = useCallback(
+    (tpl: Omit<WorksheetTemplate, 'id' | 'isBuiltIn' | 'createdAt'>): WorksheetTemplate => {
       const newTemplate: WorksheetTemplate = {
-        id: makeId(),
-        name,
-        description,
-        category,
+        ...tpl,
+        id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         isBuiltIn: false,
-        isCustom: true,
-        document: {
-          ...currentDocument,
-          meta: {
-            ...currentDocument.meta,
-            title: name,
-            category,
-            updatedAt: new Date().toISOString(),
-          },
-        },
+        createdAt: new Date().toISOString(),
       };
       setCustomTemplates((prev) => {
         const updated = [...prev, newTemplate];
@@ -77,10 +59,10 @@ export function useTemplateManager(options: UseTemplateManagerOptions): UseTempl
       });
       return newTemplate;
     },
-    [currentDocument],
+    [],
   );
 
-  const deleteTemplate = useCallback((id: string) => {
+  const deleteCustomTemplate = useCallback((id: string) => {
     setCustomTemplates((prev) => {
       const updated = prev.filter((t) => t.id !== id);
       saveCustomTemplates(updated);
@@ -88,35 +70,19 @@ export function useTemplateManager(options: UseTemplateManagerOptions): UseTempl
     });
   }, []);
 
-  const searchTemplates = useCallback(
-    (query: string): WorksheetTemplate[] => {
-      if (!query.trim()) return templates;
-      const q = query.toLowerCase();
-      return templates.filter(
-        (t) =>
-          t.name.toLowerCase().includes(q) ||
-          t.description.toLowerCase().includes(q) ||
-          t.category.toLowerCase().includes(q),
-      );
-    },
-    [templates],
-  );
-
-  const filterByCategory = useCallback(
-    (category: WorksheetCategory | 'all'): WorksheetTemplate[] => {
-      if (category === 'all') return templates;
-      return templates.filter((t) => t.category === category);
-    },
+  const getTemplate = useCallback(
+    (id: string): WorksheetTemplate | undefined => templates.find((t) => t.id === id),
     [templates],
   );
 
   return {
     templates,
     customTemplates,
-    loadTemplate,
-    saveAsTemplate,
-    deleteTemplate,
-    searchTemplates,
-    filterByCategory,
+    selectedCategory,
+    filteredTemplates,
+    setSelectedCategory,
+    saveCustomTemplate,
+    deleteCustomTemplate,
+    getTemplate,
   };
 }

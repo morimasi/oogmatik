@@ -1,124 +1,201 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
+import styles from './UniversalWorksheetViewer.module.css';
 import { WorksheetEditor } from './WorksheetEditor';
 import { PreviewPane } from './PreviewPane';
 import { ExportPanel } from './ExportPanel';
 import { TemplateSelector } from './TemplateSelector';
 import { DyslexiaControls } from './DyslexiaControls';
+import { BatchExportManager } from './BatchExportManager';
+import { CloudStorageIntegration } from './CloudStorageIntegration';
 import { useWorksheetState } from './hooks/useWorksheetState';
 import { useExportEngine } from './hooks/useExportEngine';
 import { useTemplateManager } from './hooks/useTemplateManager';
-import styles from './UniversalWorksheetViewer.module.css';
+import { useExportHistory } from './hooks/useExportHistory';
+import { useBatchExport } from './hooks/useBatchExport';
+import { useCloudStorage } from './hooks/useCloudStorage';
+import type { Worksheet, WorksheetTemplate, CloudProvider } from './types/worksheet';
 
 export interface UniversalWorksheetViewerProps {
-  /** Optional initial document title */
-  initialTitle?: string;
-  /** Whether to show the export panel by default */
-  showExportPanel?: boolean;
-  /** Whether to show dyslexia controls by default */
-  showDyslexiaControls?: boolean;
-  /** Additional CSS class */
-  className?: string;
-  /** Aria label override */
-  ariaLabel?: string;
+  /** Initial worksheet to load. Omit to start with a blank worksheet. */
+  initialWorksheet?: Partial<Worksheet>;
+  /** Called whenever the worksheet is auto-saved or manually saved. */
+  onSave?: (worksheet: Worksheet) => void | Promise<void>;
+  /** Auto-save debounce in milliseconds (default: 2000). Set 0 to disable. */
+  autoSaveMs?: number;
+  /** If true, show the preview pane side-by-side by default */
+  defaultShowPreview?: boolean;
 }
 
-type PanelId = 'export' | 'dyslexia' | 'templates' | null;
+/**
+ * UniversalWorksheetViewer
+ *
+ * Full-featured worksheet viewer and editor with:
+ * - Block-based editing (text, heading, math, image, list, divider, table)
+ * - Live preview with dyslexia-friendly options
+ * - Multi-format export (PDF, PNG, JSON, DOCX/TXT)
+ * - Template library (built-in + custom)
+ * - Advanced accessibility controls (WCAG AA)
+ * - Keyboard shortcuts (Ctrl+Z/Y, Ctrl+P, Ctrl+S, Ctrl+E)
+ * - Undo / redo stack
+ * - Auto-save with configurable debounce
+ */
+export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> = ({
+  initialWorksheet,
+  onSave,
+  autoSaveMs = 2000,
+  defaultShowPreview = false,
+}) => {
+  const ws = useWorksheetState(initialWorksheet);
+  const exportEngine = useExportEngine();
+  const templateMgr = useTemplateManager();
+  const exportHistory = useExportHistory();
+  const batchExport = useBatchExport();
+  const cloudStorage = useCloudStorage();
 
-export function UniversalWorksheetViewer({
-  initialTitle: _initialTitle,
-  showExportPanel = false,
-  showDyslexiaControls = false,
-  className,
-  ariaLabel = 'Evrensel Çalışma Sayfası Görüntüleyici',
-}: UniversalWorksheetViewerProps) {
-  const worksheetState = useWorksheetState();
-  const { state, undo, redo, canUndo, canRedo, save, updateEditorSettings, updateDyslexiaSettings, updateExportSettings, setDocument } = worksheetState;
+  // Track active side panel extension
+  const [activeSidePanelExt, setActiveSidePanelExt] = React.useState<'batch' | 'cloud' | null>(null);
 
-  const exportEngine = useExportEngine({
-    document: state.document,
-    defaultSettings: state.exportSettings,
-  });
+  // ── Auto-save ──────────────────────────────────────────────────────────────
 
-  const templateManager = useTemplateManager({
-    currentDocument: state.document,
-    onLoadTemplate: setDocument,
-  });
-
-  const [activePanel, setActivePanel] = useState<PanelId>(
-    showExportPanel ? 'export' : showDyslexiaControls ? 'dyslexia' : null,
-  );
-  const [isPrintView, setIsPrintView] = useState(false);
-  const mainRef = useRef<HTMLDivElement>(null);
-
-  // ── Keyboard shortcuts ────────────────────────────────────────────────────
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const ctrlOrMeta = e.ctrlKey || e.metaKey;
-      if (!ctrlOrMeta) return;
+    if (!autoSaveMs || !ws.editorState.isDirty || !onSave) return;
+
+    ws.setAutoSaving(true);
+    const timer = setTimeout(async () => {
+      try {
+        await onSave(ws.worksheet);
+        ws.markSaved();
+      } catch {
+        ws.setAutoSaving(false);
+      }
+    }, autoSaveMs);
+
+    return () => clearTimeout(timer);
+  }, [ws.editorState.isDirty, ws.worksheet, autoSaveMs, onSave]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Default preview visibility ─────────────────────────────────────────────
+
+  useEffect(() => {
+    if (defaultShowPreview && !ws.editorState.showPreview) {
+      ws.togglePreview();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Keyboard shortcuts ─────────────────────────────────────────────────────
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const ctrl = e.ctrlKey || e.metaKey;
+      if (!ctrl) return;
 
       switch (e.key.toLowerCase()) {
         case 'z':
-          if (!e.shiftKey) { e.preventDefault(); undo(); }
+          e.preventDefault();
+          if (e.shiftKey) ws.redo();
+          else ws.undo();
           break;
         case 'y':
           e.preventDefault();
-          redo();
+          ws.redo();
           break;
         case 's':
           e.preventDefault();
-          save();
+          if (onSave) {
+            ws.setAutoSaving(true);
+            void Promise.resolve(onSave(ws.worksheet)).then(() => ws.markSaved()).catch(() => ws.setAutoSaving(false));
+          }
           break;
         case 'p':
           e.preventDefault();
-          setIsPrintView((v) => !v);
+          ws.togglePrintMode();
           break;
         case 'e':
           e.preventDefault();
-          setActivePanel((p) => (p === 'export' ? null : 'export'));
-          break;
-        default:
+          handleToggleExportPanel();
           break;
       }
-    };
+    },
+    [ws, onSave],
+  );
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, save]);
+  // ── Template apply ─────────────────────────────────────────────────────────
 
-  // ── Panel toggle helper ───────────────────────────────────────────────────
-  const togglePanel = useCallback((id: PanelId) => {
-    setActivePanel((current) => (current === id ? null : id));
-  }, []);
+  const handleApplyTemplate = useCallback(
+    (tpl: WorksheetTemplate) => {
+      ws.updateContent(
+        { blocks: tpl.content.blocks.map((b) => ({ ...b, id: `${b.id}-${Date.now()}` })) },
+        `Şablon uygulandı: ${tpl.name}`,
+      );
+      ws.toggleTemplateSelector();
+    },
+    [ws],
+  );
 
-  // ── Print handler ─────────────────────────────────────────────────────────
-  const handlePrint = useCallback(() => {
-    window.print();
-  }, []);
+  // ── Export ─────────────────────────────────────────────────────────────────
 
-  if (isPrintView) {
+  const handleExport = useCallback(async () => {
+    await exportEngine.exportWorksheet(ws.worksheet, ws.exportSettings);
+    exportHistory.addEntry({
+      worksheetId: ws.worksheet.metadata.id,
+      worksheetTitle: ws.worksheet.metadata.title,
+      format: ws.exportSettings.format,
+      settings: ws.exportSettings,
+      status: 'done',
+    });
+  }, [exportEngine, ws.worksheet, ws.exportSettings, exportHistory]);
+
+  const handleSaveToCloud = useCallback(
+    async (provider: CloudProvider) => {
+      const content = JSON.stringify(ws.worksheet, null, 2);
+      await cloudStorage.uploadFile(provider, `${ws.worksheet.metadata.title}.json`, content, 'application/json');
+    },
+    [cloudStorage, ws.worksheet],
+  );
+
+  // ── Save status text ───────────────────────────────────────────────────────
+
+  const saveStatusText = ws.editorState.isAutoSaving
+    ? 'Kaydediliyor...'
+    : ws.editorState.isDirty
+    ? 'Kaydedilmemiş değişiklikler'
+    : ws.editorState.lastSavedAt
+    ? `Kaydedildi ${new Date(ws.editorState.lastSavedAt).toLocaleTimeString('tr-TR')}`
+    : '';
+
+  // ── Determine which side panel to show ────────────────────────────────────
+
+  const activeSidePanel: 'export' | 'template' | 'dyslexia' | null =
+    ws.editorState.showExportPanel
+      ? 'export'
+      : ws.editorState.showTemplateSelector
+      ? 'template'
+      : ws.editorState.showDyslexiaControls
+      ? 'dyslexia'
+      : null;
+
+  // Close ext panel when main panel changes
+  const handleToggleExportPanel = useCallback(() => {
+    setActiveSidePanelExt(null);
+    ws.toggleExportPanel();
+  }, [ws]);
+
+  // ── Print mode overlay ─────────────────────────────────────────────────────
+
+  if (ws.editorState.isPrintMode) {
     return (
-      <div className={styles.printView} aria-label="Yazdırma görünümü">
-        <div className={styles.printViewToolbar}>
-          <button
-            className={styles.printViewBtn}
-            onClick={handlePrint}
-            aria-label="Yazdır"
-          >
-            🖨️ Yazdır
-          </button>
-          <button
-            className={styles.printViewBtn}
-            onClick={() => setIsPrintView(false)}
-            aria-label="Editöre geri dön"
-          >
-            ← Editöre Geri Dön
-          </button>
-        </div>
+      <div className={styles.printOverlay} role="dialog" aria-label="Yazdırma görünümü">
+        <button
+          className={styles.printOverlayClose}
+          onClick={ws.togglePrintMode}
+          aria-label="Yazdırma görünümünü kapat"
+        >
+          ✕ Kapat
+        </button>
         <PreviewPane
-          document={state.document}
-          dyslexiaSettings={state.dyslexiaSettings}
-          editorSettings={state.editorSettings}
-          onZoomChange={(z) => updateEditorSettings({ zoom: z as typeof state.editorSettings.zoom })}
+          worksheet={ws.worksheet}
+          dyslexiaSettings={ws.dyslexiaSettings}
+          zoom={100}
+          isPrintMode
         />
       </div>
     );
@@ -126,153 +203,202 @@ export function UniversalWorksheetViewer({
 
   return (
     <div
-      ref={mainRef}
-      className={`${styles.uwvRoot} ${className ?? ''}`}
-      aria-label={ariaLabel}
+      className={styles.viewer}
+      onKeyDown={handleKeyDown}
       role="application"
+      aria-label="Çalışma kağıdı editörü"
     >
-      {/* ── Top toolbar ───────────────────────────────────────────────── */}
-      <header className={styles.uwvToolbar} role="toolbar" aria-label="Araç çubuğu">
-        {/* Undo / Redo */}
-        <div className={styles.toolbarGroup}>
-          <button
-            className={styles.toolbarBtn}
-            onClick={undo}
-            disabled={!canUndo}
-            aria-label="Geri Al (Ctrl+Z)"
-            title="Geri Al (Ctrl+Z)"
-          >
-            ↩
-          </button>
-          <button
-            className={styles.toolbarBtn}
-            onClick={redo}
-            disabled={!canRedo}
-            aria-label="İleri Al (Ctrl+Y)"
-            title="İleri Al (Ctrl+Y)"
-          >
-            ↪
-          </button>
+      {/* ── Toolbar ── */}
+      <div className={styles.toolbar} role="toolbar" aria-label="Düzenleyici araç çubuğu">
+        {/* Title */}
+        <div className={styles.toolbarTitle}>
+          <input
+            className={styles.toolbarTitleInput}
+            value={ws.worksheet.metadata.title}
+            onChange={(e) => ws.updateTitle(e.target.value)}
+            aria-label="Çalışma kağıdı başlığı"
+            placeholder="Başlık..."
+          />
         </div>
 
-        <span className={styles.toolbarSep} aria-hidden="true" />
+        {/* Undo/Redo */}
+        <button
+          className={styles.toolbarBtn}
+          onClick={ws.undo}
+          disabled={!ws.canUndo}
+          aria-label="Geri al (Ctrl+Z)"
+          title="Geri al (Ctrl+Z)"
+        >
+          ↩
+        </button>
+        <button
+          className={styles.toolbarBtn}
+          onClick={ws.redo}
+          disabled={!ws.canRedo}
+          aria-label="Yeniden yap (Ctrl+Y)"
+          title="Yeniden yap (Ctrl+Y)"
+        >
+          ↪
+        </button>
 
-        {/* Save */}
-        <div className={styles.toolbarGroup}>
-          <button
-            className={styles.toolbarBtn}
-            onClick={save}
-            aria-label="Kaydet (Ctrl+S)"
-            title="Kaydet (Ctrl+S)"
-            disabled={state.isSaving}
-          >
-            {state.isSaving ? '⏳' : '💾'} {state.isSaving ? 'Kaydediliyor...' : 'Kaydet'}
-          </button>
-        </div>
+        <span className={styles.toolbarSep} />
 
-        <span className={styles.toolbarSep} aria-hidden="true" />
-
-        {/* Templates */}
-        <div className={styles.toolbarGroup}>
-          <button
-            className={`${styles.toolbarBtn} ${activePanel === 'templates' ? styles.toolbarBtnActive : ''}`}
-            onClick={() => togglePanel('templates')}
-            aria-label="Şablon seç"
-            aria-pressed={activePanel === 'templates'}
-            title="Şablonlar"
-          >
-            📋 Şablonlar
-          </button>
-        </div>
-
-        <span className={styles.toolbarSep} aria-hidden="true" />
-
-        {/* Export */}
-        <div className={styles.toolbarGroup}>
-          <button
-            className={`${styles.toolbarBtn} ${activePanel === 'export' ? styles.toolbarBtnActive : ''}`}
-            onClick={() => togglePanel('export')}
-            aria-label="Dışa aktar paneli (Ctrl+E)"
-            aria-pressed={activePanel === 'export'}
-            title="Dışa Aktar (Ctrl+E)"
-          >
-            📤 Dışa Aktar
-          </button>
-        </div>
-
-        <span className={styles.toolbarSep} aria-hidden="true" />
-
-        {/* Dyslexia */}
-        <div className={styles.toolbarGroup}>
-          <button
-            className={`${styles.toolbarBtn} ${activePanel === 'dyslexia' ? styles.toolbarBtnActive : ''}`}
-            onClick={() => togglePanel('dyslexia')}
-            aria-label="Erişilebilirlik ayarları"
-            aria-pressed={activePanel === 'dyslexia'}
-            title="Erişilebilirlik"
-          >
-            ♿ Erişilebilirlik
-          </button>
-        </div>
-
-        <span className={styles.toolbarSep} aria-hidden="true" />
+        {/* Preview */}
+        <button
+          className={`${styles.toolbarBtn} ${ws.editorState.showPreview ? styles.toolbarBtnActive : ''}`}
+          onClick={ws.togglePreview}
+          aria-label="Önizlemeyi aç/kapat"
+          aria-pressed={ws.editorState.showPreview}
+          title="Önizleme"
+        >
+          👁 <span>Önizleme</span>
+        </button>
 
         {/* Print */}
-        <div className={styles.toolbarGroup}>
-          <button
-            className={styles.toolbarBtn}
-            onClick={() => setIsPrintView(true)}
-            aria-label="Yazdırma görünümü (Ctrl+P)"
-            title="Yazdırma Görünümü (Ctrl+P)"
-          >
-            🖨️ Yazdır
-          </button>
-        </div>
+        <button
+          className={styles.toolbarBtn}
+          onClick={ws.togglePrintMode}
+          aria-label="Yazdırma görünümü (Ctrl+P)"
+          title="Yazdır (Ctrl+P)"
+        >
+          🖨 <span>Yazdır</span>
+        </button>
 
-        {/* Dirty indicator */}
-        <div className={styles.toolbarStatus} role="status" aria-live="polite">
-          {state.isDirty && !state.isSaving && (
-            <span className={styles.unsavedBadge} title="Kaydedilmemiş değişiklikler">●</span>
-          )}
-        </div>
-      </header>
+        <span className={styles.toolbarSep} />
 
-      {/* ── Main layout ───────────────────────────────────────────────── */}
-      <div className={styles.uwvBody}>
-        {/* Editor pane */}
-        <WorksheetEditor worksheetState={worksheetState} />
+        {/* Templates */}
+        <button
+          className={`${styles.toolbarBtn} ${ws.editorState.showTemplateSelector ? styles.toolbarBtnActive : ''}`}
+          onClick={ws.toggleTemplateSelector}
+          aria-label="Şablon seç"
+          aria-pressed={ws.editorState.showTemplateSelector}
+          title="Şablonlar"
+        >
+          📋 <span>Şablon</span>
+        </button>
 
-        {/* Preview pane */}
-        <PreviewPane
-          document={state.document}
-          dyslexiaSettings={state.dyslexiaSettings}
-          editorSettings={state.editorSettings}
-          onZoomChange={(z) => updateEditorSettings({ zoom: z as typeof state.editorSettings.zoom })}
+        {/* Accessibility */}
+        <button
+          className={`${styles.toolbarBtn} ${ws.editorState.showDyslexiaControls ? styles.toolbarBtnActive : ''}`}
+          onClick={ws.toggleDyslexiaControls}
+          aria-label="Erişilebilirlik ayarları"
+          aria-pressed={ws.editorState.showDyslexiaControls}
+          title="Erişilebilirlik"
+        >
+          ♿ <span>Erişilebilirlik</span>
+        </button>
+
+        {/* Export */}
+        <button
+          className={`${styles.toolbarBtn} ${ws.editorState.showExportPanel ? styles.toolbarBtnActive : ''} ${styles.toolbarBtnPrimary}`}
+          onClick={handleToggleExportPanel}
+          aria-label="Dışa aktarma seçenekleri (Ctrl+E)"
+          aria-pressed={ws.editorState.showExportPanel}
+          title="Dışa aktar (Ctrl+E)"
+        >
+          ⬇ <span>Dışa Aktar</span>
+        </button>
+
+        {/* Cloud sync status */}
+        <CloudStorageIntegration
+          {...cloudStorage}
+          onSaveToCloud={handleSaveToCloud}
+          compact
         />
 
-        {/* Side panels */}
-        {activePanel === 'export' && (
-          <ExportPanel
-            exportEngine={exportEngine}
-            exportSettings={state.exportSettings}
-            onSettingsChange={updateExportSettings}
-          />
-        )}
-        {activePanel === 'dyslexia' && (
-          <DyslexiaControls
-            settings={state.dyslexiaSettings}
-            onChange={updateDyslexiaSettings}
-          />
+        {/* Save status */}
+        {saveStatusText && (
+          <span className={styles.saveStatus} aria-live="polite">
+            {saveStatusText}
+          </span>
         )}
       </div>
 
-      {/* Template selector modal */}
-      {activePanel === 'templates' && (
-        <TemplateSelector
-          templateManager={templateManager}
-          onClose={() => setActivePanel(null)}
-        />
-      )}
+      {/* ── Main area ── */}
+      <div className={styles.main}>
+        {/* Editor column */}
+        <div className={styles.editorCol}>
+          <WorksheetEditor
+            content={ws.worksheet.content}
+            selectedBlockId={ws.editorState.selectedBlockId}
+            onUpdateContent={ws.updateContent}
+            onAddBlock={ws.addBlock}
+            onUpdateBlock={ws.updateBlock}
+            onRemoveBlock={ws.removeBlock}
+            onMoveBlock={ws.moveBlock}
+            onSelectBlock={ws.selectBlock}
+          />
+        </div>
+
+        {/* Preview column */}
+        {ws.editorState.showPreview && (
+          <div className={styles.previewCol}>
+            <PreviewPane
+              worksheet={ws.worksheet}
+              dyslexiaSettings={ws.dyslexiaSettings}
+              zoom={ws.editorState.zoom}
+              isPrintMode={false}
+            />
+          </div>
+        )}
+
+        {/* Side panel */}
+        {(activeSidePanel || activeSidePanelExt) && (
+          <div className={styles.sidePanel} role="complementary">
+            {activeSidePanel === 'export' && activeSidePanelExt === null && (
+              <ExportPanel
+                settings={ws.exportSettings}
+                jobs={exportEngine.jobs}
+                isExporting={exportEngine.isExporting}
+                onUpdateSettings={ws.updateExportSettings}
+                onExport={handleExport}
+                onCancel={exportEngine.cancelExport}
+                onClearJobs={exportEngine.clearJobs}
+                history={exportHistory.history}
+                onClearHistory={exportHistory.clearHistory}
+                onOpenBatchExport={() => setActiveSidePanelExt('batch')}
+                onOpenCloudStorage={() => setActiveSidePanelExt('cloud')}
+              />
+            )}
+            {activeSidePanel === 'export' && activeSidePanelExt === 'batch' && (
+              <BatchExportManager
+                settings={ws.exportSettings}
+                currentJob={batchExport.currentJob}
+                isRunning={batchExport.isRunning}
+                onStart={batchExport.startBatchExport}
+                onCancel={batchExport.cancelBatchExport}
+                onRetryFailed={batchExport.retryFailed}
+                onClearJob={batchExport.clearJob}
+                onUpdateSettings={ws.updateExportSettings}
+              />
+            )}
+            {activeSidePanelExt === 'cloud' && (
+              <CloudStorageIntegration
+                {...cloudStorage}
+                onSaveToCloud={handleSaveToCloud}
+              />
+            )}
+            {activeSidePanel === 'template' && activeSidePanelExt === null && (
+              <TemplateSelector
+                templates={templateMgr.filteredTemplates}
+                selectedCategory={templateMgr.selectedCategory}
+                onSelectCategory={templateMgr.setSelectedCategory}
+                onApplyTemplate={handleApplyTemplate}
+                onDeleteTemplate={templateMgr.deleteCustomTemplate}
+              />
+            )}
+            {activeSidePanel === 'dyslexia' && activeSidePanelExt === null && (
+              <DyslexiaControls
+                settings={ws.dyslexiaSettings}
+                onUpdate={ws.updateDyslexiaSettings}
+                onReset={ws.resetDyslexiaSettings}
+              />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+UniversalWorksheetViewer.displayName = 'UniversalWorksheetViewer';
