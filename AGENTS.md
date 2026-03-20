@@ -1,7 +1,8 @@
 # OOGMATIK — Evrensel AI Ekip Koordinasyonu
 
-> Bu dosya OpenCode, Aider, Continue, Codeium ve benzeri araçlar tarafından okunur.
+> Bu dosya OpenCode, Aider, Continue, Codeium, **Google Antigravity** ve benzeri araçlar tarafından okunur.
 > Proje klasöründe herhangi bir AI aracını kullandığında bu kurallar geçerlidir.
+> Google Antigravity özel yapılandırması: `.idx/dev.nix` (IDX ortamı) · `.agents/rules/oogmatik-core.md` (agent kuralları)
 
 ---
 
