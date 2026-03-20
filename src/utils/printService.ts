@@ -29,7 +29,7 @@ const PRINT_STYLE_ID = 'oogmatik-print-style';
 
 const waitForOverlayImages = async (
   overlay: HTMLElement,
-  timeoutMs: number = 2500
+  timeoutMs: number = 5000
 ): Promise<void> => {
   const images = Array.from(overlay.querySelectorAll('img')) as HTMLImageElement[];
   if (images.length === 0) return;
@@ -39,13 +39,24 @@ const waitForOverlayImages = async (
       (img) =>
         new Promise<void>((resolve) => {
           if (img.complete && img.naturalWidth > 0) {
-            resolve();
+            // Image loaded; use decode() for full pixel-ready guarantee (tablet/Safari)
+            if (typeof img.decode === 'function') {
+              img.decode().then(() => resolve()).catch(() => resolve());
+            } else {
+              resolve();
+            }
             return;
           }
 
-          const done = () => resolve();
+          const done = () => {
+            if (typeof img.decode === 'function') {
+              img.decode().then(() => resolve()).catch(() => resolve());
+            } else {
+              resolve();
+            }
+          };
           img.addEventListener('load', done, { once: true });
-          img.addEventListener('error', done, { once: true });
+          img.addEventListener('error', () => resolve(), { once: true });
         })
     )
   ).then(() => undefined);
@@ -352,7 +363,7 @@ export const printService = {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     document.body.offsetHeight;
 
-    // 7. Call print
+    // 7. Call print — tablet'lerde DOM settle için daha uzun bekleme
     setTimeout(() => {
       try {
         window.print();
@@ -361,7 +372,7 @@ export const printService = {
         document.body.classList.remove('printing-mode');
         if (overlay) overlay.innerHTML = ''; // Cleanup immediately on error
       }
-    }, 100); // Small delay to allow DOM to settle
+    }, 350); // Tablet-safe delay to allow DOM + images to settle
   },
 
   /**
@@ -442,13 +453,41 @@ export const printService = {
     }
 
     if (action === 'download') {
-      // Tek sayfa: doğrudan indir; çok sayfa: her biri ayrı dosya
-      dataUrls.forEach((url, i) => {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${title.replace(/[^a-z0-9ğüşıöçA-Z]/g, '_')}${dataUrls.length > 1 ? `_sayfa_${i + 1}` : ''}.png`;
-        a.click();
-      });
+      // Tablet-safe download: data URL → Blob → Object URL
+      for (let i = 0; i < dataUrls.length; i++) {
+        const url = dataUrls[i];
+        const fileName = `${title.replace(/[^a-z0-9ğüşıöçA-Z]/g, '_')}${dataUrls.length > 1 ? `_sayfa_${i + 1}` : ''}.png`;
+        try {
+          // Data URL'yi Blob'a çevir (tablet tarayıcılarda büyük data URL'ler çalışmaz)
+          const res = await fetch(url);
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = fileName;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          // Cleanup after a delay
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(blobUrl);
+          }, 500);
+        } catch {
+          // Fallback: direct data URL download
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => document.body.removeChild(a), 500);
+        }
+        // Çoklu dosyada tarayıcının engellememesi için arada bekle
+        if (dataUrls.length > 1 && i < dataUrls.length - 1) {
+          await new Promise((r) => setTimeout(r, 300));
+        }
+      }
       return;
     }
 
@@ -461,24 +500,27 @@ export const printService = {
     // boş beyaz sayfa çıkabiliyor; görsellerin yüklenmesini bekle.
     await waitForOverlayImages(overlay);
 
-    // Tarayıcıya en az bir frame paint süresi ver.
-    await new Promise<void>((resolve) => {
-      requestAnimationFrame(() => resolve());
-    });
+    // Tarayıcıya birden fazla frame paint süresi ver (tablet'lerde tek frame yetmez).
+    for (let f = 0; f < 3; f++) {
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      });
+    }
 
     document.body.classList.add('printing-mode');
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     document.body.offsetHeight;
 
-    setTimeout(() => {
-      try {
-        window.print();
-      } catch (e) {
-        console.error('Capture print failed', e);
-        document.body.classList.remove('printing-mode');
-        overlay.innerHTML = '';
-      }
-    }, 120);
+    // Tablet tarayıcıları için daha uzun gecikme (image decode + layout)
+    await new Promise<void>((resolve) => setTimeout(resolve, 350));
+
+    try {
+      window.print();
+    } catch (e) {
+      console.error('Capture print failed', e);
+      document.body.classList.remove('printing-mode');
+      overlay.innerHTML = '';
+    }
   },
 
   /**
