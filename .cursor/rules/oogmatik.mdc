@@ -74,6 +74,18 @@ required: ['title', 'instruction', 'pedagogicalNote']
 | `types/creativeStudio.ts` | LearningDisabilityProfile | Klinik tip standardı |
 | `types/student-advanced.ts` | StudentAIProfile, BEP | Klinik onay gerekli |
 | `hooks/useWorksheets.ts` | Frontend-API köprüsü | getAuthHeaders() pattern |
+| `components/AdminActivityManager.tsx` | Drag-and-Drop müfredat | saveActivitiesBulk ile atomik kayıt |
+| `components/AdminDraftReview.tsx` | Gemini Vision OCR | category/targetSkills auto-fill |
+| `components/AdminStaticContent.tsx` | Snapshot sistemi | 10 versiyon, JSON export/import |
+| `antigravity_report.md` | Sprint 5 referans raporu | Admin tasarım/teknik kararlar |
+
+### 🎨 Admin Bileşeni Tasarım Kuralları (Anti-Gravity / Ozel Protokol)
+```
+Dark Glassmorphism: backdrop-blur + ultra-ince border + 2.5rem border-radius
+Font: Lexend (içerik) + Inter (admin UI) — karıştırma yasak
+Micro-interactions: hover scale, smooth-scroll, animasyon geçişleri
+Qualified React Namespacing: tip güvenliği kırılmaz
+```
 
 ---
 

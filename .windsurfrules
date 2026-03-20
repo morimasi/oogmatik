@@ -55,7 +55,20 @@ services/rateLimiter.ts  ← Yeni endpoint'lerde kullan
 types/creativeStudio.ts  ← LearningDisabilityProfile, AgeGroup (klinik tipler)
 types/student-advanced.ts← StudentAIProfile, BEP tipleri
 hooks/useWorksheets.ts   ← Frontend-API: getAuthHeaders() pattern
+
+[Admin Modülü — Anti-Gravity Sprint 5]
+components/AdminActivityManager.tsx ← Drag-and-Drop müfredat + saveActivitiesBulk
+components/AdminDraftReview.tsx     ← Gemini Vision OCR + AI category/targetSkills auto-fill
+components/AdminStaticContent.tsx   ← 10-versiyonluk snapshot + JSON export/import
+antigravity_report.md               ← Sprint 5 tasarım/teknik kararların referans belgesi
 ```
+
+### 🎨 Admin UI Tasarım Standardı (Ozel Protokol)
+Admin bileşenleri değiştirilirken koru:
+- **Dark Glassmorphism**: `backdrop-blur` + ultra-ince border + 2.5rem `border-radius`
+- **Font çifti**: `Lexend` (pedagojik içerik) + `Inter` (admin UI) — karıştırma yasak
+- **Micro-interactions**: hover scale, smooth-scroll, animasyon geçişleri
+- **Qualified React Namespacing**: tip güvenliğini kırma
 
 ---
 

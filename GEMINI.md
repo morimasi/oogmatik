@@ -66,9 +66,15 @@ oogmatik/
 ├── types/                  ← TypeScript tip tanımları (18 dosya)
 │   ├── student-advanced.ts ← StudentAIProfile, BEP tipleri
 │   └── creativeStudio.ts   ← LearningDisabilityProfile, AgeGroup
+├── components/
+│   ├── AdminActivityManager.tsx  ← Drag-and-Drop müfredat yönetimi
+│   ├── AdminDraftReview.tsx      ← Gemini Vision OCR + AI auto-fill
+│   ├── AdminStaticContent.tsx    ← 10-versiyonluk snapshot sistemi
+│   └── AdminDashboardV2.tsx      ← Dark Glassmorphism admin paneli
 ├── utils/
 │   ├── AppError.ts         ← Merkezi hata yönetimi
 │   └── schemas.ts          ← Zod validation
+├── antigravity_report.md   ← Sprint 5 Admin Modülü referans raporu
 └── tests/                  ← Vitest test suite
 ```
 

@@ -74,6 +74,11 @@ oogmatik/
 │   ├── aiTemplateService.ts
 │   └── rateLimiter.ts      ← Rate limiting servisi
 ├── components/             ← React bileşenleri (50+)
+│   ├── AdminActivityManager.tsx  ← Müfredat aktivite yönetimi (Drag-and-Drop)
+│   ├── AdminDraftReview.tsx      ← Gemini Vision entegrasyonlu AI taslak rafinerisi
+│   ├── AdminStaticContent.tsx    ← 10-versiyonluk snapshot + Export/Import
+│   ├── AdminDashboardV2.tsx      ← Admin ana panel (Dark Glassmorphism)
+│   └── AdminPromptStudio.tsx     ← Prompt yönetim stüdyosu
 ├── hooks/                  ← Custom React hooks
 │   └── useWorksheets.ts    ← API entegrasyon hook'u
 ├── types/                  ← TypeScript tip tanımları
@@ -89,8 +94,23 @@ oogmatik/
 ├── src/
 │   └── modules/super-turkce/ ← Türkçe dil modülü
 │       └── core/ai/          ← PromptEngine, geminiClient
+├── antigravity_report.md   ← Sprint 5 Admin Modülü başarı raporu (referans)
 └── tests/                  ← Vitest test suite
 ```
+
+### 🎨 Admin Modülü & Tasarım Sistemi (Anti-Gravity Sprint 5)
+
+Admin paneli bileşenleri **"Ozel" Protokol** tasarım diline uygun geliştirilmiştir:
+
+- **Dark Glassmorphism**: `backdrop-blur`, ultra-ince border'lar, 2.5rem `border-radius`
+- **Tipografi**: `Lexend` (disleksi-dostu içerik) + `Inter` (admin arayüzü) — karıştırma
+- **Micro-interactions**: hover scale, smooth-scroll, geçiş animasyonları
+- **`AdminActivityManager`**: HTML5 Drag-and-Drop + `adminService.saveActivitiesBulk`
+- **`AdminDraftReview`**: Gemini Vision OCR → `category`, `targetSkills`, `learningObjectives` auto-fill
+- **`AdminStaticContent`**: 10-versiyonluk snapshot + JSON export/import
+- Tüm admin bileşenlerinde **Qualified React Namespacing** (tip güvenliği en üst seviye)
+
+> `antigravity_report.md` bu bileşenlerin tasarım ve teknik kararlarının kayıt altına alınmış referansıdır.
 
 ### Kritik Tip Tanımları
 
