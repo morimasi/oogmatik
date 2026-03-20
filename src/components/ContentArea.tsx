@@ -313,7 +313,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         <div
           ref={scrollContainerRef}
           className={`flex-1 relative overflow-hidden transition-colors duration-500 ${
-            zenMode ? 'bg-[#050505]' : 'bg-slate-200/50'
+            zenMode ? 'viewport-surface-zen' : 'viewport-surface'
           }`}
         >
           {/* justify-start and items-start for fixed top anchoring */}

@@ -525,20 +525,41 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
       <Divider />
 
+      {/* ═══════ PREMIUM AKSİYON ÇUBUĞU ═══════ */}
       <div className="flex items-center gap-2">
-        <div className="flex bg-[var(--bg-secondary)] border border-[var(--border-color)] p-1 rounded-xl shadow-inner">
-          <IconButton
-            icon="fa-print"
-            title="Yazdır (PDF)"
+        {/* Dışa Aktarma Grubu */}
+        <div className="flex items-center bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl p-1 gap-0.5 shadow-lg backdrop-blur-sm">
+          <button
+            title="PDF Olarak İndir"
             onClick={async () => {
               try {
-                await new Promise((resolve) => setTimeout(resolve, 50));
-
-                // Eğer #print-container varsa (çoklu sayfa render ediliyorsa) onu al, yoksa .worksheet-page'i al
                 const targetSelector = document.getElementById('print-container')
                   ? '#print-container'
                   : '.worksheet-page';
-
+                await printService.generatePdf(targetSelector, settings.title, {
+                  action: 'download',
+                  paperSize: paperSize,
+                });
+              } catch (e) {
+                console.error(e);
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+              bg-gradient-to-r from-red-500/10 to-orange-500/10 text-red-400
+              hover:from-red-500/20 hover:to-orange-500/20 hover:text-red-300 hover:shadow-md hover:scale-[1.02]
+              active:scale-95"
+          >
+            <i className="fa-solid fa-file-pdf text-sm"></i>
+            <span className="hidden lg:inline">PDF</span>
+          </button>
+          <button
+            title="Yazdır"
+            onClick={async () => {
+              try {
+                await new Promise((resolve) => setTimeout(resolve, 50));
+                const targetSelector = document.getElementById('print-container')
+                  ? '#print-container'
+                  : '.worksheet-page';
                 await printService.generatePdf(targetSelector, settings.title, {
                   action: 'print',
                   paperSize: paperSize,
@@ -547,27 +568,75 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 console.error(e);
               }
             }}
-          />
-          {/* Paper size selector (dynamic margins) */}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+              bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-400
+              hover:from-blue-500/20 hover:to-cyan-500/20 hover:text-blue-300 hover:shadow-md hover:scale-[1.02]
+              active:scale-95"
+          >
+            <i className="fa-solid fa-print text-sm"></i>
+            <span className="hidden lg:inline">Yazdır</span>
+          </button>
+          <button
+            title="Ekran Görüntüsü Al"
+            onClick={() => snapshotService.takeSnapshot('.worksheet-page', 'etkinlik')}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+              bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-400
+              hover:from-purple-500/20 hover:to-pink-500/20 hover:text-purple-300 hover:shadow-md hover:scale-[1.02]
+              active:scale-95"
+          >
+            <i className="fa-solid fa-camera text-sm"></i>
+            <span className="hidden lg:inline">Görüntü</span>
+          </button>
+          {/* Kağıt Boyutu */}
           <PremiumPaperSizeSelector
             value={paperSize}
             onChange={(p: PaperSize) => paperSizeStore.setPaperSize(p)}
           />
-          <IconButton
-            icon="fa-camera"
-            title="Görüntü Olarak Kaydet"
-            onClick={() => snapshotService.takeSnapshot('.worksheet-page', 'etkinlik')}
-          />
-          <IconButton icon="fa-save" title="Arşive Kaydet" onClick={onSave} />
         </div>
-        {onShare && (
-          <IconButton
-            icon="fa-share-nodes"
-            title="Paylaş"
-            onClick={onShare}
-            colorClass="bg-[var(--accent-color)] !text-[var(--bg-primary)] hover:!bg-[var(--accent-hover)]"
-          />
-        )}
+
+        {/* Kaydetme & Paylaşma Grubu */}
+        <div className="flex items-center bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl p-1 gap-0.5 shadow-lg backdrop-blur-sm">
+          <button
+            title="Arşive Kaydet"
+            onClick={onSave}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+              bg-gradient-to-r from-amber-500/10 to-yellow-500/10 text-amber-400
+              hover:from-amber-500/20 hover:to-yellow-500/20 hover:text-amber-300 hover:shadow-md hover:scale-[1.02]
+              active:scale-95"
+          >
+            <i className="fa-solid fa-bookmark text-sm"></i>
+            <span className="hidden lg:inline">Kaydet</span>
+          </button>
+          <button
+            title="Kitapçığa Ekle"
+            onClick={onAddToWorkbook}
+            className="relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+              bg-gradient-to-r from-indigo-500/10 to-violet-500/10 text-indigo-400
+              hover:from-indigo-500/20 hover:to-violet-500/20 hover:text-indigo-300 hover:shadow-md hover:scale-[1.02]
+              active:scale-95"
+          >
+            <i className="fa-solid fa-book-medical text-sm"></i>
+            <span className="hidden lg:inline">Kitapçık</span>
+            {workbookItemCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-[var(--accent-color)] text-[var(--bg-primary)] text-[9px] font-black h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center border-2 border-[var(--bg-secondary)] shadow-sm">
+                {workbookItemCount}
+              </span>
+            )}
+          </button>
+          {onShare && (
+            <button
+              title="Paylaş"
+              onClick={onShare}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+                bg-gradient-to-r from-sky-500/10 to-blue-500/10 text-sky-400
+                hover:from-sky-500/20 hover:to-blue-500/20 hover:text-sky-300 hover:shadow-md hover:scale-[1.02]
+                active:scale-95"
+            >
+              <i className="fa-solid fa-share-nodes text-sm"></i>
+              <span className="hidden lg:inline">Paylaş</span>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

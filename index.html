@@ -107,6 +107,8 @@
         --radius-premium: 16px;
         --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
         --blur-premium: 20px;
+        --bg-viewport: rgb(22, 22, 26);
+        --bg-viewport-dot: rgba(255, 255, 255, 0.04);
 
         --ui-font: var(--app-font-family, 'Lexend', sans-serif);
         --ui-scale: var(--app-font-size-scale, 1);
@@ -136,6 +138,8 @@
         --accent-hover: #4338ca;
         --accent-muted: rgba(79, 70, 229, 0.08);
         --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        --bg-viewport: rgb(226, 232, 240);
+        --bg-viewport-dot: rgba(0, 0, 0, 0.04);
       }
 
       :root.theme-dark {
@@ -152,6 +156,8 @@
         --accent-color: #818cf8;
         --accent-hover: #6366f1;
         --accent-muted: rgba(129, 140, 248, 0.1);
+        --bg-viewport: rgb(12, 12, 14);
+        --bg-viewport-dot: rgba(255, 255, 255, 0.03);
       }
 
       :root.theme-anthracite-gold {
@@ -161,6 +167,8 @@
         --accent-hover: #f59e0b;
         --accent-muted: rgba(251, 191, 36, 0.1);
         --border-color: rgba(251, 191, 36, 0.15);
+        --bg-viewport: rgb(20, 18, 14);
+        --bg-viewport-dot: rgba(251, 191, 36, 0.05);
       }
 
       :root.theme-anthracite-cyber {
@@ -173,6 +181,8 @@
         --border-color: rgba(236, 72, 153, 0.2);
         --accent-muted: rgba(236, 72, 153, 0.1);
         --shadow-premium: 0 0 20px rgba(236, 72, 153, 0.15);
+        --bg-viewport: rgb(8, 3, 8);
+        --bg-viewport-dot: rgba(236, 72, 153, 0.04);
       }
 
       :root.theme-space {
@@ -184,6 +194,8 @@
         --text-primary: #f1f5f9;
         --border-color: rgba(56, 189, 248, 0.1);
         --accent-muted: rgba(56, 189, 248, 0.05);
+        --bg-viewport: rgb(4, 10, 32);
+        --bg-viewport-dot: rgba(56, 189, 248, 0.04);
       }
 
       :root.theme-nature {
@@ -195,6 +207,8 @@
         --text-primary: #f0fdf4;
         --border-color: rgba(74, 222, 128, 0.1);
         --accent-muted: rgba(74, 222, 128, 0.08);
+        --bg-viewport: rgb(3, 30, 18);
+        --bg-viewport-dot: rgba(74, 222, 128, 0.05);
       }
 
       :root.theme-ocean {
@@ -206,6 +220,19 @@
         --text-primary: #f0f9ff;
         --border-color: rgba(14, 165, 233, 0.1);
         --accent-muted: rgba(14, 165, 233, 0.08);
+        --bg-viewport: rgb(5, 35, 55);
+        --bg-viewport-dot: rgba(14, 165, 233, 0.05);
+      }
+
+      /* Viewport surface pattern (the desk area around A4) */
+      .viewport-surface {
+        background-color: var(--bg-viewport);
+        background-image: radial-gradient(circle, var(--bg-viewport-dot) 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      .viewport-surface-zen {
+        background-color: #050505;
+        background-image: none;
       }
 
       /* Global Reset & Body Styles */
