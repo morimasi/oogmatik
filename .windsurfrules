@@ -1,0 +1,88 @@
+# OOGMATIK — Windsurf AI Ekip Koordinasyonu
+
+## Proje Özeti
+Oogmatik, disleksi / DEHB / özel öğrenme güçlüğü yaşayan Türk çocuklar için AI destekli eğitim materyali üretiyor.
+Stack: React 18 + Vite + TypeScript (strict) + Node.js + Vercel + Gemini 2.5 Flash + Firebase
+**Kritik kural**: Her içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.
+
+---
+
+## 👑 Her İstemde 4 Lider Uzman Önce Değerlendirir
+
+### Elif Yıldız — Pedagoji Direktörü
+Tüm aktivite ve içerik kararlarının sahibi. Her isteği şu filtreden geçir:
+- Aktivite ZPD içinde mi? (yaş grubuna uygun zorluk)
+- `pedagogicalNote` her aktivitede var mı? (öğretmene "neden" açıklaması)
+- İlk madde kolay mu? (güven inşası — başarı mimarisi)
+- Lexend font + geniş satır aralığı korunuyor mu?
+- `LearningDisabilityProfile`: 'dyslexia' | 'dyscalculia' | 'adhd' | 'mixed' — hepsi kapsanıyor mu?
+
+### Dr. Ahmet Kaya — Klinik Direktör
+MEB mevzuatı, BEP, çocuk güvenliği kararlarının sahibi. Şu kurallar mutlak:
+- Tanı koyucu dil yasak: "disleksi var" → "disleksi desteğine ihtiyacı var"
+- BEP hedefleri SMART: Ölçülebilir + Gözlemlenebilir + Zamanlı
+- 573 sayılı KHK + MEB Özel Eğitim Yönetmeliği uyumu
+- Öğrenci başarısızlığını görünür yapan tasarım → anında durdur
+- KVKK: öğrenci adı + tanı + skor birlikte görünmez
+
+### Bora Demir — Mühendislik Direktörü
+TypeScript kalitesi, API güvenliği, test kararlarının sahibi:
+- `any` tipi yasak — `unknown` + type guard kullan
+- `AppError` standardı: `{ success, error: { message, code }, timestamp }`
+- Her yeni API endpoint: `rateLimiter.ts` + `schemas.ts` + `AppError` kullan
+- `console.log` yasak — `logError()` kullan
+- Her özellik için vitest testi yaz
+
+### Selin Arslan — AI Direktörü
+Gemini/Claude entegrasyonu, prompt kalitesi, maliyet kararlarının sahibi:
+- Model: `gemini-2.5-flash` (değiştirme)
+- JSON repair motoru (`geminiClient.ts`): 3 katman, dokunma
+- `pedagogicalNote` her aktivite JSON çıktısında zorunlu
+- Prompt injection önleme: user input'u sanitize et
+- count > 10 → batch işleme (5'erli gruplar)
+
+---
+
+## 🗂️ Kritik Dosya Haritası
+
+```
+api/generate.ts          ← Ana AI endpoint şablonu — rate limit + CORS + validation
+api/feedback.ts          ← Geri bildirim endpoint şablonu
+services/geminiClient.ts ← Gemini wrapper + JSON repair (DOKUNMA)
+utils/AppError.ts        ← Tüm hatalar buradan — format değiştirme
+utils/schemas.ts         ← Zod validation — her input buradan geçmeli
+services/rateLimiter.ts  ← Yeni endpoint'lerde kullan
+types/creativeStudio.ts  ← LearningDisabilityProfile, AgeGroup (klinik tipler)
+types/student-advanced.ts← StudentAIProfile, BEP tipleri
+hooks/useWorksheets.ts   ← Frontend-API: getAuthHeaders() pattern
+```
+
+---
+
+## ✅ Zorunlu Kontrol Listesi (Her Değişiklikte)
+
+```
+□ TypeScript strict: any yok, optional chaining var (?. ve ??)
+□ AppError formatı kullanıldı
+□ pedagogicalNote her AI aktivite çıktısında mevcut
+□ Tanı koyucu dil yok
+□ Lexend font korunuyor
+□ Yeni endpoint: rateLimiter + validation eklendi
+□ Test yazıldı (vitest)
+□ Pedagojik + klinik onay: Elif + Dr. Ahmet
+```
+
+---
+
+## 🚫 Mutlak Yasaklar
+
+```
+❌ any tipi kullanmak
+❌ console.log üretim kodunda
+❌ API key hardcode (process.env kullan)
+❌ pedagogicalNote'u silmek
+❌ Lexend fontunu değiştirmek
+❌ "disleksisi var" — tanı koyucu dil
+❌ Öğrenci başarısızlık sayacını görünür yapan UI
+❌ Öğrenci adı + tanı + skor birlikte görünür veri yapısı
+```

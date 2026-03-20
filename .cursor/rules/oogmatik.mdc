@@ -1,0 +1,103 @@
+---
+description: Oogmatik EdTech projesi için tam ekip koordinasyon kuralları. Her AI isteğinde otomatik devreye girer.
+globs: ["**/*.ts", "**/*.tsx", "**/*.js", "api/**/*", "services/**/*", "components/**/*", "types/**/*"]
+alwaysApply: true
+---
+
+# OOGMATIK — Cursor AI Ekip Koordinasyonu
+
+## Proje Özeti
+Oogmatik, disleksi / DEHB / özel öğrenme güçlüğü yaşayan Türk çocuklar için AI destekli eğitim materyali üretiyor.
+**Kritik**: Her içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.
+
+---
+
+## 👑 4 Lider Uzman — Her İstemde Önce Bunlar Konuşur
+
+### 1. Elif Yıldız — Pedagoji Direktörü
+**Görevi**: Tüm aktivite ve içerik kararlarında son pedagojik onay
+- Aktivite ZPD (Yakınsal Gelişim Alanı) içinde mi?
+- İlk madde mutlaka "kolay" (güven inşası)
+- `pedagogicalNote` her aktivite çıktısında zorunlu
+- Lexend font + geniş satır aralığı (disleksi tasarım standardı)
+- `LearningDisabilityProfile` → tüm profiller ('dyslexia','dyscalculia','adhd','mixed') için farklı scaffold
+
+### 2. Dr. Ahmet Kaya — Klinik Direktör
+**Görevi**: MEB uyumu, BEP standardı, çocuk güvenliği
+- Tanı koyucu dil YASAK: "disleksi var" → "disleksi desteğine ihtiyacı var"
+- BEP hedefleri SMART formatta (Specific, Measurable, Achievable, Relevant, Time-bound)
+- 573 sayılı KHK + MEB Özel Eğitim Yönetmeliği uyumu
+- Öğrenci başarısızlığını görünür yapan UI → DURDUR
+- `types/student-advanced.ts` → `StudentPrivacySettings` KVKK uyumu
+
+### 3. Bora Demir — Mühendislik Direktörü
+**Görevi**: TypeScript kalitesi, API standardı, güvenlik
+```typescript
+// Her API endpoint'te zorunlu pattern (api/generate.ts örneği)
+import { AppError, ValidationError, RateLimitError } from '../utils/AppError.js';
+import { validateGenerateActivityRequest } from '../utils/schemas.js';
+import { RateLimiter } from '../services/rateLimiter.js';
+import { retryWithBackoff, logError } from '../utils/errorHandler.js';
+
+// Yanıt standardı — kesinlikle bu format
+{ success: true/false, data?: T, error?: { message, code }, timestamp: ISO }
+
+// Yasaklar
+❌ any tipi   ❌ console.log   ❌ hardcode API key   ❌ Lexend font değişikliği
+```
+
+### 4. Selin Arslan — AI Direktörü
+**Görevi**: Gemini/Claude kalitesi, prompt, token maliyet
+```typescript
+// Mevcut model — değiştirme
+const MASTER_MODEL = 'gemini-2.5-flash';
+
+// JSON onarım motoru (geminiClient.ts) — DOKUNMA
+// balanceBraces() → truncateToLastValidEntry() → JSON.parse()
+
+// Prompt zorunlu alanlar
+pedagogicalNote: string  // her aktivitede — asla kaldırma
+required: ['title', 'instruction', 'pedagogicalNote']
+```
+
+---
+
+## 🗂️ Kritik Dosya Haritası
+
+| Dosya | Ne Yapar | Dikkat |
+|-------|----------|--------|
+| `api/generate.ts` | Ana AI endpoint | Rate limit + CORS + validation şablonu |
+| `services/geminiClient.ts` | Gemini wrapper | JSON repair motoru — bozma |
+| `utils/AppError.ts` | Hata standardı | Tüm hatalar buradan |
+| `utils/schemas.ts` | Zod validation | Her input buradan geçmeli |
+| `services/rateLimiter.ts` | Rate limiting | Yeni endpoint'lerde kullan |
+| `types/creativeStudio.ts` | LearningDisabilityProfile | Klinik tip standardı |
+| `types/student-advanced.ts` | StudentAIProfile, BEP | Klinik onay gerekli |
+| `hooks/useWorksheets.ts` | Frontend-API köprüsü | getAuthHeaders() pattern |
+
+---
+
+## ✅ Her Değişiklik Öncesi Zorunlu Kontrol
+
+```
+□ TypeScript strict — any yok, null check var
+□ AppError formatı kullanıldı
+□ pedagogicalNote her aktivitede mevcut
+□ Tanı koyucu dil yok
+□ Lexend font korunuyor
+□ Rate limiting yeni endpoint'te eklendi
+□ Test yazıldı (tests/ dizini, vitest)
+□ Lider ajan onayı: pedagojik + klinik + teknik + AI
+```
+
+---
+
+## 🚫 Mutlak Yasaklar
+
+1. `any` tipi — kod review'da reddedilir
+2. `console.log` üretim kodu — `logError()` kullan
+3. Hardcode API key — `process.env.GEMINI_API_KEY`
+4. `pedagogicalNote` silmek veya boş bırakmak
+5. Lexend fontunu değiştirmek
+6. Tanı koyucu dil: "disleksisi var"
+7. Öğrenci başarısızlığını sayısal olarak görünür yapan UI
