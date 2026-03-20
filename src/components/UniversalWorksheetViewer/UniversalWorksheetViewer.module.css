@@ -995,3 +995,250 @@
 
   .toolbarBtn span { display: none; }
 }
+
+/* ─── Export Settings ────────────────────────────────────────────────────── */
+
+.exportSettings {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.presetList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.presetItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.presetLoadBtn {
+  flex: 1;
+  text-align: left;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  border: 1px solid var(--uwv-border, #e2e8f0);
+  border-radius: 4px;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.presetLoadBtn:hover {
+  background: #eff6ff;
+}
+
+.presetDeleteBtn {
+  padding: 4px 6px;
+  font-size: 0.75rem;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  background: #fff;
+  color: #ef4444;
+  cursor: pointer;
+}
+
+/* ─── Batch Export Manager ───────────────────────────────────────────────── */
+
+.batchManager {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.batchItemList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--uwv-border, #e2e8f0);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.batchResults {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+}
+
+.emptyState {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-align: center;
+  padding: 12px;
+}
+
+/* ─── Cloud Storage ──────────────────────────────────────────────────────── */
+
+.cloudPanel {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cloudCompact {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.cloudSyncStatus {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.cloudProviderCard {
+  border: 1px solid var(--uwv-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cloudProviderHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cloudProviderIcon {
+  font-size: 1.2rem;
+}
+
+.cloudProviderLabel {
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.cloudProviderEmail {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.cloudProviderActions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.cloudFileBrowser {
+  border-top: 1px solid var(--uwv-border, #e2e8f0);
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.cloudLoading {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  padding: 8px 0;
+}
+
+.cloudFileRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--uwv-border, #e2e8f0);
+}
+
+.cloudFileName {
+  flex: 1;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cloudFileMeta {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.cloudFileActions {
+  display: flex;
+  gap: 2px;
+}
+
+.shareLink {
+  font-size: 0.7rem;
+  color: #22c55e;
+}
+
+.cloudStatusInline {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--uwv-border, #e2e8f0);
+}
+
+/* ─── Mobile breakpoints (< 640px) ──────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .toolbar {
+    padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .toolbarBtn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 8px;
+    font-size: 1rem;
+    justify-content: center;
+  }
+
+  .toolbarBtn span {
+    display: none;
+  }
+
+  .main {
+    flex-direction: column;
+  }
+
+  .sidePanel {
+    width: 100%;
+    max-width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--uwv-border, #e2e8f0);
+  }
+
+  .cloudProviderHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cloudProviderActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .toolbarBtn,
+  .exportBtn,
+  .cancelBtn,
+  .progressFill {
+    transition: none !important;
+  }
+}

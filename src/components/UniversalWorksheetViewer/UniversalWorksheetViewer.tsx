@@ -5,10 +5,15 @@ import { PreviewPane } from './PreviewPane';
 import { ExportPanel } from './ExportPanel';
 import { TemplateSelector } from './TemplateSelector';
 import { DyslexiaControls } from './DyslexiaControls';
+import { BatchExportManager } from './BatchExportManager';
+import { CloudStorageIntegration } from './CloudStorageIntegration';
 import { useWorksheetState } from './hooks/useWorksheetState';
 import { useExportEngine } from './hooks/useExportEngine';
 import { useTemplateManager } from './hooks/useTemplateManager';
-import type { Worksheet, WorksheetTemplate } from './types/worksheet';
+import { useExportHistory } from './hooks/useExportHistory';
+import { useBatchExport } from './hooks/useBatchExport';
+import { useCloudStorage } from './hooks/useCloudStorage';
+import type { Worksheet, WorksheetTemplate, CloudProvider } from './types/worksheet';
 
 export interface UniversalWorksheetViewerProps {
   /** Initial worksheet to load. Omit to start with a blank worksheet. */
@@ -43,6 +48,12 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
   const ws = useWorksheetState(initialWorksheet);
   const exportEngine = useExportEngine();
   const templateMgr = useTemplateManager();
+  const exportHistory = useExportHistory();
+  const batchExport = useBatchExport();
+  const cloudStorage = useCloudStorage();
+
+  // Track active side panel extension
+  const [activeSidePanelExt, setActiveSidePanelExt] = React.useState<'batch' | 'cloud' | null>(null);
 
   // ── Auto-save ──────────────────────────────────────────────────────────────
 
@@ -100,7 +111,7 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
           break;
         case 'e':
           e.preventDefault();
-          ws.toggleExportPanel();
+          handleToggleExportPanel();
           break;
       }
     },
@@ -122,9 +133,24 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
 
   // ── Export ─────────────────────────────────────────────────────────────────
 
-  const handleExport = useCallback(() => {
-    exportEngine.exportWorksheet(ws.worksheet, ws.exportSettings);
-  }, [exportEngine, ws.worksheet, ws.exportSettings]);
+  const handleExport = useCallback(async () => {
+    await exportEngine.exportWorksheet(ws.worksheet, ws.exportSettings);
+    exportHistory.addEntry({
+      worksheetId: ws.worksheet.metadata.id,
+      worksheetTitle: ws.worksheet.metadata.title,
+      format: ws.exportSettings.format,
+      settings: ws.exportSettings,
+      status: 'done',
+    });
+  }, [exportEngine, ws.worksheet, ws.exportSettings, exportHistory]);
+
+  const handleSaveToCloud = useCallback(
+    async (provider: CloudProvider) => {
+      const content = JSON.stringify(ws.worksheet, null, 2);
+      await cloudStorage.uploadFile(provider, `${ws.worksheet.metadata.title}.json`, content, 'application/json');
+    },
+    [cloudStorage, ws.worksheet],
+  );
 
   // ── Save status text ───────────────────────────────────────────────────────
 
@@ -146,6 +172,12 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
       : ws.editorState.showDyslexiaControls
       ? 'dyslexia'
       : null;
+
+  // Close ext panel when main panel changes
+  const handleToggleExportPanel = useCallback(() => {
+    setActiveSidePanelExt(null);
+    ws.toggleExportPanel();
+  }, [ws]);
 
   // ── Print mode overlay ─────────────────────────────────────────────────────
 
@@ -259,13 +291,20 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
         {/* Export */}
         <button
           className={`${styles.toolbarBtn} ${ws.editorState.showExportPanel ? styles.toolbarBtnActive : ''} ${styles.toolbarBtnPrimary}`}
-          onClick={ws.toggleExportPanel}
+          onClick={handleToggleExportPanel}
           aria-label="Dışa aktarma seçenekleri (Ctrl+E)"
           aria-pressed={ws.editorState.showExportPanel}
           title="Dışa aktar (Ctrl+E)"
         >
           ⬇ <span>Dışa Aktar</span>
         </button>
+
+        {/* Cloud sync status */}
+        <CloudStorageIntegration
+          {...cloudStorage}
+          onSaveToCloud={handleSaveToCloud}
+          compact
+        />
 
         {/* Save status */}
         {saveStatusText && (
@@ -304,9 +343,9 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
         )}
 
         {/* Side panel */}
-        {activeSidePanel && (
+        {(activeSidePanel || activeSidePanelExt) && (
           <div className={styles.sidePanel} role="complementary">
-            {activeSidePanel === 'export' && (
+            {activeSidePanel === 'export' && activeSidePanelExt === null && (
               <ExportPanel
                 settings={ws.exportSettings}
                 jobs={exportEngine.jobs}
@@ -315,9 +354,31 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
                 onExport={handleExport}
                 onCancel={exportEngine.cancelExport}
                 onClearJobs={exportEngine.clearJobs}
+                history={exportHistory.history}
+                onClearHistory={exportHistory.clearHistory}
+                onOpenBatchExport={() => setActiveSidePanelExt('batch')}
+                onOpenCloudStorage={() => setActiveSidePanelExt('cloud')}
               />
             )}
-            {activeSidePanel === 'template' && (
+            {activeSidePanel === 'export' && activeSidePanelExt === 'batch' && (
+              <BatchExportManager
+                settings={ws.exportSettings}
+                currentJob={batchExport.currentJob}
+                isRunning={batchExport.isRunning}
+                onStart={batchExport.startBatchExport}
+                onCancel={batchExport.cancelBatchExport}
+                onRetryFailed={batchExport.retryFailed}
+                onClearJob={batchExport.clearJob}
+                onUpdateSettings={ws.updateExportSettings}
+              />
+            )}
+            {activeSidePanelExt === 'cloud' && (
+              <CloudStorageIntegration
+                {...cloudStorage}
+                onSaveToCloud={handleSaveToCloud}
+              />
+            )}
+            {activeSidePanel === 'template' && activeSidePanelExt === null && (
               <TemplateSelector
                 templates={templateMgr.filteredTemplates}
                 selectedCategory={templateMgr.selectedCategory}
@@ -326,7 +387,7 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
                 onDeleteTemplate={templateMgr.deleteCustomTemplate}
               />
             )}
-            {activeSidePanel === 'dyslexia' && (
+            {activeSidePanel === 'dyslexia' && activeSidePanelExt === null && (
               <DyslexiaControls
                 settings={ws.dyslexiaSettings}
                 onUpdate={ws.updateDyslexiaSettings}
