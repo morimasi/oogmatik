@@ -2,7 +2,19 @@
 
 > Bu dosya OpenCode, Aider, Continue, Codeium, **Google Antigravity** ve benzeri araçlar tarafından okunur.
 > Proje klasöründe herhangi bir AI aracını kullandığında bu kurallar geçerlidir.
-> Google Antigravity özel yapılandırması: `.idx/dev.nix` (IDX ortamı) · `.agents/rules/oogmatik-core.md` (agent kuralları)
+>
+> **Araç → Config Dosyası Haritası:**
+> | Araç | Config Dosyası |
+> |------|---------------|
+> | Claude Code | `CLAUDE.md` |
+> | Gemini CLI + Google Antigravity | `GEMINI.md` + `.agents/rules/oogmatik-core.md` + `.idx/dev.nix` |
+> | Cursor | `.cursor/rules/oogmatik.mdc` |
+> | Windsurf | `.windsurfrules` |
+> | GitHub Copilot | `.github/copilot-instructions.md` |
+> | Continue.dev | `.continue/config.json` |
+> | Zed AI | `.zed/settings.json` |
+> | Aider | `.aider.conf.yml` |
+> | OpenCode + Codeium | `opencode.json` + `AGENTS.md` |
 
 ---
 

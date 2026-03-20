@@ -1,0 +1,64 @@
+{
+  "assistant": {
+    "default_model": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-5"
+    },
+    "version": "2"
+  },
+  "system_prompt": "Sen Oogmatik EdTech platformunda çalışan bir AI asistansın.\n\nPROJE: Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar için AI destekli eğitim materyali üretim platformu. Stack: React 18 + TypeScript strict + Vite + Vercel Serverless + Gemini 2.5 Flash + Firebase. Kural #0: Her içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.\n\n4 LİDER UZMAN PROTOKOLÜ:\n- Elif Yıldız (Pedagoji): pedagogicalNote her aktivitede zorunlu, ZPD uyumu, Lexend font değişmez\n- Dr. Ahmet Kaya (Klinik/MEB): tanı koyucu dil yasak, BEP SMART formatta, KVKK uyumu zorunlu\n- Bora Demir (Mühendislik): any yasak → unknown + type guard, AppError standardı, Vitest zorunlu\n- Selin Arslan (AI): model=gemini-2.5-flash sabit, JSON repair motoru dokunulmamalı, batch >10\n\nMUTLAK YASAKLAR: any tipi | console.log üretimde | hardcode API key | pedagogicalNote silmek | Lexend değiştirmek | AppError bypass | tanı koyucu dil | KVKK ihlali\n\nTEMEL KRİTİK DOSYALAR:\n- api/generate.ts → ana endpoint şablonu\n- services/geminiClient.ts → JSON repair motoru [DOKUNMA]\n- utils/AppError.ts → merkezi hata standardı\n- utils/schemas.ts → Zod validation\n- services/rateLimiter.ts → hız sınırlama\n- types/creativeStudio.ts → LearningDisabilityProfile, AgeGroup\n- types/student-advanced.ts → StudentAIProfile, BEP tipleri\n- hooks/useWorksheets.ts → frontend-API köprüsü\n\nAdmin UI: Dark Glassmorphism (backdrop-blur + 2.5rem border-radius + Lexend/Inter)",
+  "languages": {
+    "TypeScript": {
+      "format_on_type": true
+    },
+    "TSX": {
+      "format_on_type": true
+    }
+  },
+  "formatter": {
+    "TypeScript": {
+      "external": {
+        "command": "npx",
+        "arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
+      }
+    },
+    "TSX": {
+      "external": {
+        "command": "npx",
+        "arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
+      }
+    }
+  },
+  "lsp": [
+    {
+      "name": "typescript-language-server",
+      "binary": {
+        "path_lookup": ["typescript-language-server"],
+        "arguments": ["--stdio"]
+      },
+      "initialization_options": {
+        "preferences": {
+          "importModuleSpecifierPreference": "relative"
+        }
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "label": "Vitest - Tüm Testler",
+      "command": "npx vitest run",
+      "cwd": null
+    },
+    {
+      "label": "TypeScript Kontrol",
+      "command": "npx tsc --noEmit",
+      "cwd": null
+    },
+    {
+      "label": "Dev Server Başlat",
+      "command": "npm run dev",
+      "cwd": null,
+      "allow_concurrent_runs": false
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "models": [
+    {
+      "title": "Claude Sonnet (Oogmatik)",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-5",
+      "apiKey": "$ANTHROPIC_API_KEY",
+      "systemMessage": "Sen Oogmatik EdTech platformunda çalışan bir AI asistansın.\n\nPROJE: Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar için AI destekli eğitim materyali üretim platformu.\nStack: React 18 + TypeScript (strict) + Vite + Vercel Serverless + Gemini 2.5 Flash + Firebase\nKural #0: Her içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.\n\n4 LİDER UZMAN PROTOKOLÜ — Her değişiklikte bu uzmanları simüle et:\n1. Elif Yıldız (Pedagoji): pedagogicalNote her aktivitede zorunlu, ZPD uyumu şart, Lexend font değişmez\n2. Dr. Ahmet Kaya (Klinik/MEB): tanı koyucu dil yasak, BEP SMART formatta, KVKK uyumu\n3. Bora Demir (Mühendislik): any yasak → unknown + type guard, AppError standardı, Vitest zorunlu\n4. Selin Arslan (AI): model=gemini-2.5-flash sabit, JSON repair motoru dokunma, batch >10 items\n\nMUTLAK YASAKLAR: any tipi | console.log üretimde | hardcode API key | pedagogicalNote silmek | Lexend değiştirmek | AppError bypass | tanı koyucu dil | KVKK ihlali\n\nKRİTİK DOSYALAR:\n- api/generate.ts → rate limit + CORS + Zod validation şablonu\n- services/geminiClient.ts → Gemini wrapper + JSON repair [DOKUNMA]\n- utils/AppError.ts → merkezi hata standardı\n- types/creativeStudio.ts → LearningDisabilityProfile('dyslexia'|'dyscalculia'|'adhd'|'mixed'), AgeGroup('5-7'|'8-10'|'11-13'|'14+')\n- types/student-advanced.ts → StudentAIProfile, BEPGoal, StudentPrivacySettings\n- hooks/useWorksheets.ts → getAuthHeaders() pattern\n\nAdmin UI standardı: Dark Glassmorphism — backdrop-blur + 2.5rem border-radius + Lexend(içerik)/Inter(admin)"
+    },
+    {
+      "title": "Gemini Flash (Oogmatik)",
+      "provider": "google",
+      "model": "gemini-2.5-flash",
+      "apiKey": "$GEMINI_API_KEY",
+      "systemMessage": "Sen Oogmatik EdTech platformunda çalışan bir AI asistansın. Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar için AI destekli eğitim materyali üretim platformunun kodbasesini yönetiyorsun. Stack: React 18 + TypeScript (strict) + Vite + Vercel + Firebase. KURAL: any tipi yasak, pedagogicalNote her aktivitede zorunlu, AppError standardı koru, Lexend font değiştirme, tanı koyucu dil yasak."
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "Gemini Flash Autocomplete",
+    "provider": "google",
+    "model": "gemini-2.5-flash",
+    "apiKey": "$GEMINI_API_KEY"
+  },
+  "contextProviders": [
+    {
+      "name": "file",
+      "params": {}
+    },
+    {
+      "name": "codebase",
+      "params": {
+        "nRetrieve": 10,
+        "nFinal": 5,
+        "useReranking": true
+      }
+    },
+    {
+      "name": "docs",
+      "params": {}
+    },
+    {
+      "name": "diff",
+      "params": {}
+    },
+    {
+      "name": "terminal",
+      "params": {}
+    }
+  ],
+  "slashCommands": [
+    {
+      "name": "edit",
+      "description": "Seçili kodu düzenle"
+    },
+    {
+      "name": "test",
+      "description": "Vitest testi oluştur"
+    },
+    {
+      "name": "fix",
+      "description": "Hata düzelt (AppError standardına uy)"
+    },
+    {
+      "name": "aktivite",
+      "description": "Yeni AI aktivite generatörü oluştur (pedagogicalNote dahil)"
+    }
+  ],
+  "allowAnonymousTelemetry": false,
+  "docs": [
+    {
+      "title": "Oogmatik Proje Kuralları",
+      "startUrl": "file://./CLAUDE.md"
+    }
+  ]
+}

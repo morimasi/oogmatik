@@ -48,50 +48,147 @@ Son kontrol: ilgili lider doğrular
 
 ---
 
-## 🏗️ Proje Mimarisi
+## 🏗️ Proje Mimarisi — TAM KAPSAM
 
 ```
 oogmatik/
-├── api/                    ← Vercel Serverless Functions
-│   ├── generate.ts         ← Ana AI endpoint (POST /api/generate)
-│   ├── feedback.ts         ← Geri bildirim
-│   └── worksheets.ts       ← CRUD
+├── api/                              ← Vercel Serverless Functions
+│   ├── generate.ts                   ← Ana AI endpoint — RateLimiter + CORS + Zod validation
+│   ├── feedback.ts                   ← POST /api/feedback
+│   ├── worksheets.ts                 ← CRUD /api/worksheets
+│   ├── export-pdf.ts                 ← POST /api/export-pdf
+│   ├── ai/generate-image.ts          ← Gemini Vision görsel üretimi
+│   └── user/paperSize.ts             ← Kullanıcı kâğıt boyutu tercihi
+│
 ├── services/
-│   ├── geminiClient.ts     ← Gemini 2.5 Flash wrapper + JSON repair engine
-│   ├── generators/         ← AI aktivite üreticileri (15+ generatör)
-│   │   ├── dyslexiaSupport.ts
-│   │   ├── readingComprehension.ts
-│   │   └── clinicalTemplates.ts
-│   ├── rateLimiter.ts
-│   └── worksheetService.ts
-├── types/                  ← TypeScript tip tanımları (18 dosya)
-│   ├── student-advanced.ts ← StudentAIProfile, BEP tipleri
-│   └── creativeStudio.ts   ← LearningDisabilityProfile, AgeGroup
-├── components/
-│   ├── AdminActivityManager.tsx  ← Drag-and-Drop müfredat yönetimi
-│   ├── AdminDraftReview.tsx      ← Gemini Vision OCR + AI auto-fill
-│   ├── AdminStaticContent.tsx    ← 10-versiyonluk snapshot sistemi
-│   └── AdminDashboardV2.tsx      ← Dark Glassmorphism admin paneli
+│   ├── geminiClient.ts               ← Gemini 2.5 Flash wrapper + JSON onarım motoru [DOKUNMA]
+│   │                                    (balanceBraces → truncateToValid → JSON.parse)
+│   ├── generators/                   ← 40 adet AI aktivite üreticisi
+│   │   ├── index.ts, registry.ts, core/
+│   │   ├── dyslexiaSupport.ts, readingComprehension.ts, readingStudio.ts
+│   │   ├── mathStudio.ts, creativeStudio.ts, clinicalTemplates.ts
+│   │   ├── dyscalculia.ts, assessment.ts, visualPerception.ts
+│   │   ├── memoryAttention.ts, wordGames.ts, algorithm.ts
+│   │   ├── brainTeasers.ts, patternCompletion.ts, logicProblems.ts
+│   │   ├── familyTreeMatrix.ts, financialMarket.ts, fiveWOneH.ts
+│   │   ├── colorfulSyllable.ts, directionalCodeReading.ts
+│   │   ├── logicErrorHunter.ts, mapInstruction.ts, promptLibrary.ts
+│   │
+│   ├── offlineGenerators/            ← 25 adet AI gerektirmeyen offline üretici
+│   │   ├── index.ts, helpers.ts
+│   │   ├── dyslexiaSupport.ts, mathStudio.ts, readingComprehension.ts
+│   │   ├── visualPerception.ts, wordGames.ts, memoryAttention.ts
+│   │   ├── dyscalculia.ts, patternCompletion.ts, assessment.ts
+│   │   ├── algorithm.ts, clockReading.ts, capsuleGame.ts
+│   │   ├── futoshiki.ts, oddEvenSudoku.ts, magicPyramid.ts
+│   │   └── financialMarket.ts, mapDetective.ts, abcConnect.ts
+│   │
+│   ├── adminService.ts               ← Admin CRUD + saveActivitiesBulk
+│   ├── aiContentService.ts           ← AI içerik üretimi (batch, cache-aware)
+│   ├── aiTemplateService.ts          ← AI şablon yönetimi
+│   ├── assessmentService.ts          ← Değerlendirme motoru + puanlama
+│   ├── assessmentGenerator.ts        ← Değerlendirme sorusu üreticisi
+│   ├── authService.ts                ← Firebase Auth
+│   ├── cacheService.ts               ← IndexedDB önbellek (üretim + taslak)
+│   ├── curriculumService.ts          ← MEB müfredat verisi
+│   ├── firebaseClient.ts             ← Firebase/Firestore bağlantı + CRUD
+│   ├── imageService.ts               ← Görsel yükleme + Gemini Vision
+│   ├── jwtService.ts                 ← JWT üretim + doğrulama
+│   ├── messagingService.ts           ← Mesajlaşma servisi
+│   ├── ocrService.ts                 ← Gemini Vision OCR (fotoğraf → metin)
+│   ├── rateLimiter.ts                ← Hız sınırlama (IP + kullanıcı bazlı)
+│   ├── rbac.ts                       ← Rol tabanlı erişim
+│   ├── statsService.ts               ← İstatistik + analitik
+│   ├── templateCacheService.ts       ← Şablon önbelleği
+│   ├── worksheetService.ts           ← Çalışma kâğıdı CRUD + Firestore sync
+│   └── ActivityService.ts            ← Aktivite türü yönetimi
+│
+├── components/                       ← 65+ React bileşeni
+│   ├── [Admin — Dark Glassmorphism]
+│   │   ├── AdminDashboardV2.tsx      ← Admin ana paneli (sekme navigasyonu)
+│   │   ├── AdminActivityManager.tsx  ← HTML5 Drag-and-Drop + saveActivitiesBulk
+│   │   ├── AdminDraftReview.tsx      ← Gemini Vision OCR + category/targetSkills auto-fill
+│   │   ├── AdminStaticContent.tsx    ← 10-versiyonluk snapshot + JSON export/import
+│   │   ├── AdminPromptStudio.tsx     ← Prompt yönetimi + test arayüzü
+│   │   ├── AdminAnalytics.tsx        ← Kullanım istatistikleri
+│   │   ├── AdminFeedback.tsx         ← Geri bildirim yönetimi
+│   │   └── AdminUserManagement.tsx   ← Kullanıcı rol yönetimi (RBAC)
+│   ├── [Stüdyolar]
+│   │   ├── MathStudio/               ← Matematik (MathStudio.tsx + hooks/ + panels/ + components/)
+│   │   ├── ReadingStudio/            ← Okuma (ReadingStudio.tsx + Editor/ + ContentRenderer)
+│   │   ├── CreativeStudio/           ← Yaratıcı yazarlık (index + ControlPane + EditorPane + Library)
+│   │   ├── A4Editor/                 ← A4 editörü (A4EditorPanel + ComponentLibrary + ContentPanel + StylePanel)
+│   │   └── UniversalStudio/          ← Evrensel adaptör (Canvas + Adapter + Properties + Wrapper)
+│   ├── [Değerlendirme]
+│   │   ├── AssessmentModule.tsx, AssessmentReportViewer.tsx
+│   │   ├── assessment/AssessmentEngine.tsx
+│   │   └── Screening/ (ScreeningModule + ScreeningIntro + QuestionnaireForm + ResultDashboard)
+│   ├── [Öğrenci Yönetimi]
+│   │   ├── Student/ (AdvancedStudentManager + StudentDashboard + StudentSelector + modules/)
+│   │   └── StudentInfoModal.tsx
+│   ├── [Çalışma Kâğıtları]
+│   │   ├── GeneratorView.tsx, ContentArea.tsx, Worksheet.tsx
+│   │   ├── WorkbookView.tsx, Workbook.tsx, SheetRenderer.tsx
+│   │   ├── PrintPreviewModal.tsx, ExportProgressModal.tsx
+│   │   └── CurriculumView.tsx, SavedWorksheetsView.tsx, HistoryView.tsx
+│   └── [UI]
+│       ├── AppHeader.tsx, Sidebar.tsx, Toolbar.tsx, AuthModal.tsx
+│       ├── GlobalSearch.tsx, ToastContainer.tsx, ErrorBoundary.tsx
+│       └── OCRScanner.tsx, DrawLayer.tsx, LineChart.tsx, RadarChart.tsx
+│
+├── store/                            ← 10 Zustand store
+│   ├── useAppStore.ts                ← currentView, sidebar, modal state
+│   ├── useAuthStore.ts               ← user, role, isAuthenticated
+│   ├── useWorksheetStore.ts          ← çalışma kâğıdı listesi + aktif
+│   ├── useA4EditorStore.ts           ← A4 canvas state
+│   ├── useCreativeStore.ts, useReadingStore.ts, useStudentStore.ts
+│   └── usePaperSizeStore.ts, useToastStore.ts, useUIStore.ts
+│
+├── types/                            ← 14 TypeScript tip dosyası
+│   ├── index.ts (barrel), core.ts, activity.ts, common.ts
+│   ├── student.ts, student-advanced.ts, creativeStudio.ts
+│   ├── math.ts, verbal.ts, visual.ts, studio.ts
+│   └── screening.ts, admin.ts, user.ts
+│
+├── hooks/
+│   ├── useWorksheets.ts              ← API entegrasyon (getAuthHeaders pattern)
+│   └── useActivitySettings.ts
+│
 ├── utils/
-│   ├── AppError.ts         ← Merkezi hata yönetimi
-│   └── schemas.ts          ← Zod validation
-├── antigravity_report.md   ← Sprint 5 Admin Modülü referans raporu
-└── tests/                  ← Vitest test suite
+│   ├── AppError.ts                   ← AppError, ValidationError, RateLimitError [MERKEZİ]
+│   ├── errorHandler.ts               ← retryWithBackoff, logError, wrapAsync
+│   ├── schemas.ts                    ← Zod şemaları (tüm API giriş doğrulama)
+│   ├── scoringEngine.ts, snapshotService.ts, speechService.ts
+│   └── printService.ts, layoutConstants.ts, validator.ts
+│
+├── middleware/
+│   └── permissionValidator.ts        ← API RBAC doğrulama
+│
+├── src/modules/
+│   ├── super-turkce/                 ← Türkçe Dil Modülü v1 (4 Faz tamamlandı)
+│   └── super-turkce-v2/              ← Türkçe Dil Modülü v2
+│
+├── antigravity_report.md             ← Sprint 5 Admin Modülü referans raporu
+└── tests/                            ← Vitest + Playwright E2E
 ```
 
 ---
 
 ## ⚡ Tech Stack
 
-```
-Frontend:  React 18, Vite, TypeScript (strict), Tailwind CSS
-Backend:   Node.js, Vercel Serverless Functions
-AI:        Google Gemini 2.5 Flash (gemini-2.5-flash)
-Database:  Firebase/Firestore
-Test:      Vitest
-Font:      Lexend (disleksi-dostu — DEĞİŞTİRME)
-Deploy:    Vercel
-```
+| Katman | Teknoloji |
+|--------|-----------|
+| Frontend | React 18, Vite 5, TypeScript (strict), Tailwind CSS, Framer Motion |
+| State | Zustand (10 store) |
+| UI | Radix UI, @dnd-kit (drag-and-drop), lucide-react |
+| Backend | Node.js, Vercel Serverless Functions |
+| AI | Google Gemini 2.5 Flash — `gemini-2.5-flash` (sabit — değiştirme) |
+| DB | Firebase/Firestore + IndexedDB (önbellek) |
+| Validation | Zod |
+| Test | Vitest + Playwright (E2E) |
+| Export | jsPDF, @react-pdf/renderer, html2canvas |
+| Font | **Lexend** (disleksi-dostu içerik — ASLA değiştirme) + Inter (admin UI) |
+| Deploy | Vercel |
 
 ---
 
@@ -127,17 +224,53 @@ Deploy:    Vercel
 // Tüm özel öğrenme profilleri
 type LearningDisabilityProfile = 'dyslexia' | 'dyscalculia' | 'adhd' | 'mixed';
 
-// Yaş grupları
+// Yaş grupları — ZPD uyumu için zorunlu
 type AgeGroup = '5-7' | '8-10' | '11-13' | '14+';
 
-// Standart hata — bu formatın dışına çıkma
-class AppError { userMessage, code, httpStatus, details, isRetryable }
+// Zorluk seviyeleri
+type Difficulty = 'Kolay' | 'Orta' | 'Zor';
 
-// API yanıt standardı
-interface ApiResponse<T> { success: boolean; data?: T; error?: { message: string; code: string } }
+// Kullanıcı rolleri — RBAC
+type UserRole = 'admin' | 'teacher' | 'parent' | 'student';
 
-// Mevcut AI modeli
-const MASTER_MODEL = 'gemini-2.5-flash'; // değiştirme
+// Standart hata sınıfı — BU FORMATIN DIŞINA ÇIKMA
+class AppError {
+  userMessage: string;    // Türkçe kullanıcı mesajı
+  code: string;           // 'RATE_LIMIT_EXCEEDED' vb.
+  httpStatus: number;
+  details?: unknown;
+  isRetryable: boolean;
+}
+
+// API yanıt standardı — tüm endpoint'ler bu formatı döndürmeli
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: { message: string; code: string };
+  timestamp: string;      // ISO 8601
+}
+
+// Aktivite çıktısı — pedagogicalNote ZORUNLU
+interface ActivityOutput {
+  items: ActivityItem[];
+  pedagogicalNote: string;  // Öğretmene "neden bu aktivite" açıklaması
+  difficultyLevel: Difficulty;
+  targetSkills: string[];
+  ageGroup: AgeGroup;
+  profile: LearningDisabilityProfile;
+}
+
+// BEP hedefi — SMART formatında
+interface BEPGoal {
+  objective: string;              // Ölçülebilir hedef
+  targetDate: string;             // ISO tarih
+  measurableIndicator: string;    // Başarı göstergesi
+  supportStrategies: string[];    // Destek stratejileri
+  progress: 'not_started' | 'in_progress' | 'achieved';
+}
+
+// Sabit model — değiştirme
+const MASTER_MODEL = 'gemini-2.5-flash';
 ```
 
 ---

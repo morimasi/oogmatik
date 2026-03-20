@@ -2,7 +2,7 @@
 
 ## Proje Özeti
 Oogmatik, disleksi / DEHB / özel öğrenme güçlüğü yaşayan Türk çocuklar için AI destekli eğitim materyali üretiyor.
-Stack: React 18 + Vite + TypeScript (strict) + Node.js + Vercel + Gemini 2.5 Flash + Firebase
+**Stack**: React 18 + Vite + TypeScript (strict) + Node.js + Vercel + Gemini 2.5 Flash + Firebase  
 **Kritik kural**: Her içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.
 
 ---
@@ -38,29 +38,92 @@ Gemini/Claude entegrasyonu, prompt kalitesi, maliyet kararlarının sahibi:
 - Model: `gemini-2.5-flash` (değiştirme)
 - JSON repair motoru (`geminiClient.ts`): 3 katman, dokunma
 - `pedagogicalNote` her aktivite JSON çıktısında zorunlu
-- Prompt injection önleme: user input'u sanitize et
-- count > 10 → batch işleme (5'erli gruplar)
+- Prompt injection önleme: user input'u sanitize et, max 2000 karakter
+- count > 10 → batch işleme (5'erli gruplar, cacheService.ts)
 
 ---
 
-## 🗂️ Kritik Dosya Haritası
+## 🗂️ Tam Kritik Dosya Haritası
 
 ```
-api/generate.ts          ← Ana AI endpoint şablonu — rate limit + CORS + validation
-api/feedback.ts          ← Geri bildirim endpoint şablonu
-services/geminiClient.ts ← Gemini wrapper + JSON repair (DOKUNMA)
+[API Katmanı — 6 endpoint]
+api/generate.ts          ← Ana AI endpoint — rate limit + CORS + validation şablonu
+api/feedback.ts          ← Geri bildirim endpoint
+api/worksheets.ts        ← CRUD — RBAC + validation
+api/export-pdf.ts        ← PDF dışa aktarma
+api/ai/generate-image.ts ← Gemini Vision görsel üretimi
+api/user/paperSize.ts    ← Kullanıcı kâğıt tercihi
+
+[Servis Katmanı]
+services/geminiClient.ts          ← Gemini wrapper + JSON repair (DOKUNMA)
+services/generators/              ← 40 AI aktivite üreticisi
+services/offlineGenerators/       ← 25 offline üretici (AI gerektirmiyor)
+services/adminService.ts          ← Admin CRUD + saveActivitiesBulk
+services/cacheService.ts          ← IndexedDB önbellek (batch >10 burada)
+services/rateLimiter.ts           ← Hız sınırlama — yeni endpoint'lerde kullan
+services/rbac.ts                  ← Rol tabanlı erişim
+services/worksheetService.ts      ← CRUD + Firestore sync
+services/authService.ts           ← Firebase Auth
+services/imageService.ts          ← Görsel yükleme + Gemini Vision
+services/ocrService.ts            ← Gemini Vision OCR
+
+[Tip Tanımları — 14 dosya]
+types/creativeStudio.ts  ← LearningDisabilityProfile, AgeGroup (klinik tipler)
+types/student-advanced.ts← StudentAIProfile, BEP tipleri, StudentPrivacySettings
+types/activity.ts        ← ActivityType enum (40+ aktivite tipi)
+types/common.ts          ← ApiResponse<T> standardı
+types/user.ts            ← UserRole('admin'|'teacher'|'parent'|'student')
+types/index.ts           ← Barrel export (buradan import et)
+
+[Util Katmanı]
 utils/AppError.ts        ← Tüm hatalar buradan — format değiştirme
 utils/schemas.ts         ← Zod validation — her input buradan geçmeli
-services/rateLimiter.ts  ← Yeni endpoint'lerde kullan
-types/creativeStudio.ts  ← LearningDisabilityProfile, AgeGroup (klinik tipler)
-types/student-advanced.ts← StudentAIProfile, BEP tipleri
-hooks/useWorksheets.ts   ← Frontend-API: getAuthHeaders() pattern
+utils/errorHandler.ts    ← retryWithBackoff, logError (console.log yasak)
+
+[State — 10 Zustand Store]
+store/useAppStore.ts     ← currentView, sidebar, modal state
+store/useAuthStore.ts    ← user, role, isAuthenticated
+store/useWorksheetStore.ts  ← çalışma kâğıdı listesi + aktif
+store/useA4EditorStore.ts   ← A4 canvas state
+store/useCreativeStore.ts, useReadingStore.ts, useStudentStore.ts
+store/usePaperSizeStore.ts, useToastStore.ts, useUIStore.ts
+
+[Frontend-API Köprüsü]
+hooks/useWorksheets.ts   ← getAuthHeaders() pattern — şablona bak
+hooks/useActivitySettings.ts
+
+[Middleware]
+middleware/permissionValidator.ts  ← API RBAC doğrulama
 
 [Admin Modülü — Anti-Gravity Sprint 5]
-components/AdminActivityManager.tsx ← Drag-and-Drop müfredat + saveActivitiesBulk
+components/AdminActivityManager.tsx ← Drag-and-Drop + saveActivitiesBulk
 components/AdminDraftReview.tsx     ← Gemini Vision OCR + AI category/targetSkills auto-fill
 components/AdminStaticContent.tsx   ← 10-versiyonluk snapshot + JSON export/import
+components/AdminDashboardV2.tsx     ← Ana admin paneli (sekme navigasyonu)
+components/AdminPromptStudio.tsx    ← Prompt yönetimi + test arayüzü
+components/AdminAnalytics.tsx       ← Kullanım istatistikleri
+components/AdminFeedback.tsx        ← Geri bildirim yönetimi
+components/AdminUserManagement.tsx  ← Kullanıcı rol yönetimi
 antigravity_report.md               ← Sprint 5 tasarım/teknik kararların referans belgesi
+
+[Stüdyo Modülleri]
+components/MathStudio/   ← Matematik (MathStudio.tsx + hooks/ + panels/ + components/)
+components/ReadingStudio/← Okuma (ReadingStudio.tsx + Editor/ + ContentRenderer)
+components/CreativeStudio/ ← Yaratıcı (index + ControlPane + EditorPane + Library)
+components/A4Editor/     ← A4 editörü (A4EditorPanel + ComponentLibrary + StylePanel)
+components/UniversalStudio/ ← Evrensel adaptör (Canvas + Adapter + Properties)
+
+[Değerlendirme]
+components/AssessmentModule.tsx, AssessmentReportViewer.tsx
+components/assessment/AssessmentEngine.tsx
+components/Screening/ (ScreeningModule + ScreeningIntro + QuestionnaireForm + ResultDashboard)
+
+[Öğrenci Yönetimi]
+components/Student/ (AdvancedStudentManager + StudentDashboard + StudentSelector + modules/)
+
+[Türkçe Dil Modülü]
+src/modules/super-turkce/    ← v1 (4 Faz tamamlandı)
+src/modules/super-turkce-v2/ ← v2 (studios + features)
 ```
 
 ### 🎨 Admin UI Tasarım Standardı (Ozel Protokol)
@@ -69,6 +132,30 @@ Admin bileşenleri değiştirilirken koru:
 - **Font çifti**: `Lexend` (pedagojik içerik) + `Inter` (admin UI) — karıştırma yasak
 - **Micro-interactions**: hover scale, smooth-scroll, animasyon geçişleri
 - **Qualified React Namespacing**: tip güvenliğini kırma
+
+---
+
+## 🔑 Kritik Tip Tanımları
+
+```typescript
+type LearningDisabilityProfile = 'dyslexia' | 'dyscalculia' | 'adhd' | 'mixed';
+type AgeGroup = '5-7' | '8-10' | '11-13' | '14+';
+type Difficulty = 'Kolay' | 'Orta' | 'Zor';
+type UserRole = 'admin' | 'teacher' | 'parent' | 'student';
+
+class AppError { userMessage: string; code: string; httpStatus: number; details?: unknown; isRetryable: boolean; }
+interface ApiResponse<T> { success: boolean; data?: T; error?: { message: string; code: string }; timestamp: string; }
+
+// pedagogicalNote ZORUNLU
+interface ActivityOutput {
+  items: ActivityItem[];
+  pedagogicalNote: string;   // ASLA KALDIRMA
+  difficultyLevel: Difficulty;
+  targetSkills: string[];
+  ageGroup: AgeGroup;
+  profile: LearningDisabilityProfile;
+}
+```
 
 ---
 
@@ -90,12 +177,12 @@ Admin bileşenleri değiştirilirken koru:
 ## 🚫 Mutlak Yasaklar
 
 ```
-❌ any tipi kullanmak
-❌ console.log üretim kodunda
-❌ API key hardcode (process.env kullan)
-❌ pedagogicalNote'u silmek
-❌ Lexend fontunu değiştirmek
-❌ "disleksisi var" — tanı koyucu dil
-❌ Öğrenci başarısızlık sayacını görünür yapan UI
-❌ Öğrenci adı + tanı + skor birlikte görünür veri yapısı
+❌ any tipi kullanmak            → unknown + type guard
+❌ console.log üretim kodunda    → logError() kullan
+❌ API key hardcode               → process.env.GEMINI_API_KEY
+❌ pedagogicalNote'u silmek      → her aktivitede zorunlu
+❌ Lexend fontunu değiştirmek    → disleksi uyumluluğu için kritik
+❌ "disleksisi var"               → "disleksi desteğine ihtiyacı var"
+❌ Öğrenci başarısızlık sayacı   → görünür yapma
+❌ Ad + tanı + skor birlikte     → KVKK ihlali
 ```

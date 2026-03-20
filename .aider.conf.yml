@@ -1,0 +1,40 @@
+# OOGMATIK — Aider CLI Yapılandırması
+# Bu dosya `aider` komutunu çalıştırdığında otomatik yüklenir.
+# Proje kuralları AGENTS.md üzerinden her oturumda bağlam olarak eklenir.
+
+# Proje kurallarını bağlama ekle (düzenleme yapmaz, sadece okur)
+read:
+  - AGENTS.md
+  - CLAUDE.md
+
+# Varsayılan AI modeli
+model: gemini/gemini-2.5-flash
+
+# Editör tercihi
+editor: auto
+
+# Git commit mesajlarını otomatik yaz
+auto-commits: true
+commit-prompt: "feat/fix/refactor(oogmatik): {}"
+
+# TypeScript strict için lint kontrolü
+lint-cmd: npx tsc --noEmit
+
+# Test komutu
+test-cmd: npx vitest run
+
+# Otomatik test çalıştırma (değişiklik sonrası)
+auto-test: false
+
+# Aider'ın önerileri sormadan uygulaması
+yes: false
+
+# Kod bloklarını göster
+pretty: true
+
+# Türkçe mesajlar için encoding
+encoding: utf-8
+
+# Yorum tarzı — Türkçe proje için
+attribute-author: false
+attribute-committer: false

@@ -1,6 +1,6 @@
 ---
 description: Oogmatik EdTech projesi için tam ekip koordinasyon kuralları. Her AI isteğinde otomatik devreye girer.
-globs: ["**/*.ts", "**/*.tsx", "**/*.js", "api/**/*", "services/**/*", "components/**/*", "types/**/*"]
+globs: ["**/*.ts", "**/*.tsx", "**/*.js", "api/**/*", "services/**/*", "components/**/*", "types/**/*", "store/**/*", "hooks/**/*", "utils/**/*", "middleware/**/*"]
 alwaysApply: true
 ---
 
@@ -8,6 +8,7 @@ alwaysApply: true
 
 ## Proje Özeti
 Oogmatik, disleksi / DEHB / özel öğrenme güçlüğü yaşayan Türk çocuklar için AI destekli eğitim materyali üretiyor.
+**Stack**: React 18 + TypeScript (strict) + Vite + Node.js + Vercel Serverless + Gemini 2.5 Flash + Firebase  
 **Kritik**: Her içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.
 
 ---
@@ -62,18 +63,35 @@ required: ['title', 'instruction', 'pedagogicalNote']
 
 ---
 
-## 🗂️ Kritik Dosya Haritası
+## 🗂️ Tam Kritik Dosya Haritası
 
 | Dosya | Ne Yapar | Dikkat |
 |-------|----------|--------|
 | `api/generate.ts` | Ana AI endpoint | Rate limit + CORS + validation şablonu |
+| `api/feedback.ts` | Geri bildirim | Rate limit şablonu |
+| `api/worksheets.ts` | CRUD | RBAC + validation |
+| `api/export-pdf.ts` | PDF dışa aktarma | Rate limit |
+| `api/ai/generate-image.ts` | Gemini Vision görsel | Rate limit |
+| `api/user/paperSize.ts` | Kâğıt boyutu | Auth gerekli |
 | `services/geminiClient.ts` | Gemini wrapper | JSON repair motoru — bozma |
+| `services/generators/` | 40 AI generatör | Her birinde pedagogicalNote zorunlu |
+| `services/offlineGenerators/` | 25 offline üretici | AI gerektirmiyor |
+| `services/adminService.ts` | Admin CRUD | saveActivitiesBulk atomik |
+| `services/cacheService.ts` | IndexedDB önbellek | Batch >10 burada |
+| `services/rateLimiter.ts` | Rate limiting | Yeni endpoint'lerde kullan |
+| `services/rbac.ts` | Rol tabanlı erişim | admin/teacher/parent/student |
 | `utils/AppError.ts` | Hata standardı | Tüm hatalar buradan |
 | `utils/schemas.ts` | Zod validation | Her input buradan geçmeli |
-| `services/rateLimiter.ts` | Rate limiting | Yeni endpoint'lerde kullan |
+| `utils/errorHandler.ts` | retryWithBackoff | logError() — console.log değil |
 | `types/creativeStudio.ts` | LearningDisabilityProfile | Klinik tip standardı |
 | `types/student-advanced.ts` | StudentAIProfile, BEP | Klinik onay gerekli |
+| `types/activity.ts` | ActivityType enum | 40+ aktivite tipi |
+| `types/common.ts` | ApiResponse<T> | Yanıt standardı |
 | `hooks/useWorksheets.ts` | Frontend-API köprüsü | getAuthHeaders() pattern |
+| `store/useAppStore.ts` | Global app state | currentView, sidebar |
+| `store/useAuthStore.ts` | Auth state | user, role, isAuthenticated |
+| `store/useWorksheetStore.ts` | Çalışma kâğıtları | liste + aktif |
+| `middleware/permissionValidator.ts` | API RBAC | Her endpoint için |
 | `components/AdminActivityManager.tsx` | Drag-and-Drop müfredat | saveActivitiesBulk ile atomik kayıt |
 | `components/AdminDraftReview.tsx` | Gemini Vision OCR | category/targetSkills auto-fill |
 | `components/AdminStaticContent.tsx` | Snapshot sistemi | 10 versiyon, JSON export/import |
@@ -89,10 +107,50 @@ Qualified React Namespacing: tip güvenliği kırılmaz
 
 ---
 
+## 🏗️ Proje Mimarisi — TAM KAPSAM
+
+```
+oogmatik/
+├── api/                              ← 6 Vercel Serverless endpoint
+├── services/
+│   ├── geminiClient.ts               ← Gemini + JSON repair [DOKUNMA]
+│   ├── generators/                   ← 40 AI generatör
+│   ├── offlineGenerators/            ← 25 offline generatör
+│   └── (25 servis dosyası)
+├── components/                       ← 65+ React bileşeni
+│   ├── Admin* (8 bileşen — Dark Glassmorphism)
+│   ├── MathStudio/, ReadingStudio/, CreativeStudio/
+│   ├── A4Editor/, UniversalStudio/
+│   ├── AssessmentModule, Screening/
+│   └── Student/ (AdvancedStudentManager + BEP)
+├── store/                            ← 10 Zustand store
+│   └── useAppStore, useAuthStore, useWorksheetStore,
+│       useA4EditorStore, useCreativeStore, useReadingStore,
+│       useStudentStore, usePaperSizeStore, useToastStore, useUIStore
+├── types/                            ← 14 tip dosyası
+│   └── core, activity, common, student, student-advanced,
+│       creativeStudio, math, verbal, visual, studio,
+│       screening, admin, user + index(barrel)
+├── hooks/
+│   ├── useWorksheets.ts              ← getAuthHeaders() pattern
+│   └── useActivitySettings.ts
+├── utils/
+│   ├── AppError.ts                   ← MERKEZİ hata standardı
+│   ├── schemas.ts                    ← Zod validation
+│   └── errorHandler, scoringEngine, snapshotService, validator...
+├── middleware/permissionValidator.ts ← API RBAC
+├── src/modules/
+│   ├── super-turkce/                 ← Türkçe v1 (4 Faz)
+│   └── super-turkce-v2/              ← Türkçe v2
+└── tests/                            ← Vitest + Playwright E2E
+```
+
+---
+
 ## ✅ Her Değişiklik Öncesi Zorunlu Kontrol
 
 ```
-□ TypeScript strict — any yok, null check var
+□ TypeScript strict — any yok, null check var (?. ve ??)
 □ AppError formatı kullanıldı
 □ pedagogicalNote her aktivitede mevcut
 □ Tanı koyucu dil yok
@@ -113,3 +171,4 @@ Qualified React Namespacing: tip güvenliği kırılmaz
 5. Lexend fontunu değiştirmek
 6. Tanı koyucu dil: "disleksisi var"
 7. Öğrenci başarısızlığını sayısal olarak görünür yapan UI
+8. KVKK ihlali: öğrenci adı + tanı + skor aynı görünümde
