@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './UniversalWorksheetViewer.module.css';
-import type { ExportSettings, ExportJob, ExportFormat, PageSize, PageOrientation } from './types/worksheet';
+import type { ExportSettings, ExportJob, ExportFormat, PageSize, PageOrientation, ExportHistoryEntry } from './types/worksheet';
 
 interface ExportPanelProps {
   settings: ExportSettings;
@@ -10,6 +10,15 @@ interface ExportPanelProps {
   onExport: () => void;
   onCancel: () => void;
   onClearJobs: () => void;
+  /** Export history entries */
+  history?: ExportHistoryEntry[];
+  onClearHistory?: () => void;
+  /** Opens the batch export manager */
+  onOpenBatchExport?: () => void;
+  /** Opens the cloud storage panel */
+  onOpenCloudStorage?: () => void;
+  /** Cloud sync status indicator (compact) */
+  cloudStatusNode?: React.ReactNode;
 }
 
 const FORMAT_LABELS: Record<ExportFormat, string> = {
@@ -35,7 +44,20 @@ const STATUS_LABELS: Record<ExportJob['status'], string> = {
 };
 
 export const ExportPanel: React.FC<ExportPanelProps> = React.memo(
-  ({ settings, jobs, isExporting, onUpdateSettings, onExport, onCancel, onClearJobs }) => {
+  ({
+    settings,
+    jobs,
+    isExporting,
+    onUpdateSettings,
+    onExport,
+    onCancel,
+    onClearJobs,
+    history = [],
+    onClearHistory,
+    onOpenBatchExport,
+    onOpenCloudStorage,
+    cloudStatusNode,
+  }) => {
     return (
       <div
         className={styles.exportPanel}
@@ -198,13 +220,26 @@ export const ExportPanel: React.FC<ExportPanelProps> = React.memo(
               ⬇ İndir
             </button>
           )}
+          {onOpenBatchExport && (
+            <button className={styles.toolbarBtn} onClick={onOpenBatchExport} title="Toplu dışa aktarma">
+              📦 Toplu
+            </button>
+          )}
+          {onOpenCloudStorage && (
+            <button className={styles.toolbarBtn} onClick={onOpenCloudStorage} title="Bulut depolama">
+              ☁️ Bulut
+            </button>
+          )}
         </div>
+
+        {/* Cloud status node */}
+        {cloudStatusNode && <div className={styles.cloudStatusInline}>{cloudStatusNode}</div>}
 
         {/* Job history */}
         {jobs.length > 0 && (
           <div className={styles.jobHistory}>
             <div className={styles.jobHistoryHeader}>
-              <span className={styles.jobHistoryTitle}>Geçmiş</span>
+              <span className={styles.jobHistoryTitle}>İşlemler</span>
               <button className={styles.clearJobsBtn} onClick={onClearJobs}>
                 Temizle
               </button>
@@ -225,6 +260,29 @@ export const ExportPanel: React.FC<ExportPanelProps> = React.memo(
                   </div>
                 )}
                 {job.error && <span className={styles.jobError}>{job.error}</span>}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Export history */}
+        {history.length > 0 && (
+          <div className={styles.jobHistory}>
+            <div className={styles.jobHistoryHeader}>
+              <span className={styles.jobHistoryTitle}>📋 Geçmiş ({history.length})</span>
+              {onClearHistory && (
+                <button className={styles.clearJobsBtn} onClick={onClearHistory}>
+                  Temizle
+                </button>
+              )}
+            </div>
+            {history.slice(0, 10).map((entry) => (
+              <div key={entry.id} className={`${styles.jobRow} ${styles[`job-${entry.status}`]}`}>
+                <span>{entry.worksheetTitle}</span>
+                <span>{FORMAT_LABELS[entry.format]}</span>
+                <span style={{ fontSize: '0.7em', color: '#94a3b8' }}>
+                  {new Date(entry.exportedAt).toLocaleTimeString('tr-TR')}
+                </span>
               </div>
             ))}
           </div>

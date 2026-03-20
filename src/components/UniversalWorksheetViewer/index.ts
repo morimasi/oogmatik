@@ -6,6 +6,9 @@ export type { UniversalWorksheetViewerProps } from './UniversalWorksheetViewer';
 export { WorksheetEditor } from './WorksheetEditor';
 export { PreviewPane } from './PreviewPane';
 export { ExportPanel } from './ExportPanel';
+export { ExportSettingsPanel } from './ExportSettings';
+export { BatchExportManager } from './BatchExportManager';
+export { CloudStorageIntegration } from './CloudStorageIntegration';
 export { TemplateSelector } from './TemplateSelector';
 export { DyslexiaControls } from './DyslexiaControls';
 
@@ -16,6 +19,15 @@ export { useExportEngine } from './hooks/useExportEngine';
 
 export { useTemplateManager } from './hooks/useTemplateManager';
 export type { UseTemplateManagerReturn } from './hooks/useTemplateManager';
+
+export { useExportHistory } from './hooks/useExportHistory';
+export type { UseExportHistoryReturn, ExportStats } from './hooks/useExportHistory';
+
+export { useBatchExport } from './hooks/useBatchExport';
+export type { UseBatchExportReturn } from './hooks/useBatchExport';
+
+export { useCloudStorage } from './hooks/useCloudStorage';
+export type { UseCloudStorageReturn } from './hooks/useCloudStorage';
 
 export {
   BUILT_IN_TEMPLATES,
@@ -47,4 +59,12 @@ export type {
   TemplateCategory,
   EditorState,
   HistoryEntry,
+  ExportPreset,
+  ExportHistoryEntry,
+  BatchExportItem,
+  BatchExportJob,
+  CloudProvider,
+  CloudStorageConfig,
+  CloudFile,
+  CloudSyncStatus,
 } from './types/worksheet';

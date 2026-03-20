@@ -85,6 +85,8 @@ export interface ExportSettings {
   /** Custom page dimensions in mm (only when pageSize === 'Custom') */
   customWidth?: number;
   customHeight?: number;
+  /** Page margin in mm */
+  marginMm?: number;
 }
 
 export interface ExportJob {
@@ -135,3 +137,78 @@ export interface HistoryEntry {
   timestamp: string;
   description?: string;
 }
+
+// ─── Export Presets ───────────────────────────────────────────────────────────
+
+export interface ExportPreset {
+  id: string;
+  name: string;
+  settings: ExportSettings;
+  createdAt: string;
+}
+
+// ─── Export History ───────────────────────────────────────────────────────────
+
+export interface ExportHistoryEntry {
+  id: string;
+  worksheetId: string;
+  worksheetTitle: string;
+  format: ExportFormat;
+  settings: ExportSettings;
+  status: 'done' | 'error';
+  fileSize?: number;
+  url?: string;
+  error?: string;
+  exportedAt: string;
+}
+
+// ─── Batch Export ─────────────────────────────────────────────────────────────
+
+export interface BatchExportItem {
+  worksheetId: string;
+  worksheetTitle: string;
+  content: WorksheetContent;
+  metadata: WorksheetMetadata;
+}
+
+export interface BatchExportJob {
+  id: string;
+  items: BatchExportItem[];
+  settings: ExportSettings;
+  status: 'pending' | 'processing' | 'done' | 'error' | 'cancelled';
+  progress: number;
+  completedCount: number;
+  failedCount: number;
+  results: Array<{ worksheetId: string; status: 'done' | 'error'; url?: string; error?: string }>;
+  createdAt: string;
+  completedAt?: string;
+}
+
+// ─── Cloud Storage ────────────────────────────────────────────────────────────
+
+export type CloudProvider = 'google_drive' | 'dropbox' | 'onedrive';
+
+export interface CloudStorageConfig {
+  provider: CloudProvider;
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt?: number;
+  userEmail?: string;
+  userId?: string;
+  folderId?: string;
+  folderName?: string;
+  autoSync: boolean;
+}
+
+export interface CloudFile {
+  id: string;
+  name: string;
+  mimeType: string;
+  size?: number;
+  modifiedAt: string;
+  webViewLink?: string;
+  downloadUrl?: string;
+  provider: CloudProvider;
+}
+
+export type CloudSyncStatus = 'idle' | 'syncing' | 'synced' | 'error' | 'offline';
