@@ -1,117 +1,45 @@
-# Oogmatik
+# Universal Worksheet Viewer
 
-Oogmatik, yapay zeka destekli etkinlik ve çalışma sayfası üretimi için geliştirilmiş bir web uygulamasıdır.
-Proje; içerik üretimi, düzenleme, önizleme, yazdırma ve yönetim ekranlarını tek bir React uygulaması içinde sunar.
+## Overview
+The Universal Worksheet Viewer allows users to view and interact with various worksheet formats seamlessly. This tool is designed with user-friendly features to enhance productivity.
 
-## Amaç
+## Features
+### FAZA 1-5 Features
+- **FAZA 1**: Basic viewing capabilities for standard worksheet formats.
+- **FAZA 2**: Enhanced performance for large files with quick rendering.
+- **FAZA 3**: Multi-format support including CSV, XLSX, and PDF.
+- **FAZA 4**: Collaborative features that allow for multiple users to view and edit documents in real-time.
+- **FAZA 5**: Export options to various formats following user preferences.
 
-- Öğretmenler, uzmanlar ve içerik üreticileri için hızlı çalışma kağıdı üretimi
-- Farklı etkinlik türleri için modüler bileşen mimarisi
-- AI destekli üretim akışlarını mevcut editör/önizleme altyapısına entegre etmek
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/morimasi/oogmatik.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd oogmatik
+   ```
+3. Install the required dependencies:
+   ```bash
+   npm install
+   ```
+4. Start the application:
+   ```bash
+   npm start
+   ```
 
-## Teknoloji Yığını
+## Usage
+To use the Universal Worksheet Viewer:
+1. Open the application in your web browser.
+2. Upload your worksheet file.
+3. Utilize the interactive features to view and edit as necessary.
 
-- React 19
-- TypeScript
-- Vite
-- Tailwind CSS
-- Firebase (Auth/Firestore)
-- Vitest + Testing Library
+## Technology Stack
+- **Frontend**: React.js
+- **Backend**: Node.js with Express
+- **Database**: MongoDB
+- **Deployment**: Docker for containerization
 
-## Proje Yapısı
-
-Depo içinde kademeli bir mimari geçişi olduğu için hem kök klasörde hem de src altında benzer alanlar bulunabilir.
-
-Temel dizinler:
-
-- api: Vercel serverless fonksiyonları ve API uçları
-- src: Güncel istemci tarafı bileşenleri, stiller ve yardımcılar
-- components: Eski/taşınma sürecindeki bileşenler
-- services, utils, hooks, store: Uygulama servisleri ve paylaşılan mantık
-- tests: Test dosyaları
-- docs: Teknik dokümantasyon ve planlar
-
-## Gereksinimler
-
-- Node.js 20+
-- npm 10+
-
-## Kurulum
-
-```bash
-npm install
-```
-
-## Ortam Değişkenleri
-
-Uygulama Vite yapılandırması üzerinden bazı değişkenleri istemciye tanımlar.
-
-Gerekli başlıca değişkenler:
-
-- API_KEY
-- FIREBASE_API_KEY
-- FIREBASE_AUTH_DOMAIN
-- FIREBASE_PROJECT_ID
-- FIREBASE_STORAGE_BUCKET
-- FIREBASE_MESSAGING_SENDER_ID
-- FIREBASE_APP_ID
-
-Yerelde çalışmak için proje köküne .env dosyası oluşturup değerleri ekleyin.
-
-## Komutlar
-
-```bash
-# geliştirme sunucusu
-npm run dev
-
-# production build
-npm run build
-
-# build önizleme
-npm run preview
-
-# lint
-npm run lint
-
-# format
-npm run format
-
-# test (watch)
-npm run test
-
-# test (tek çalıştırma)
-npm run test:run
-```
-
-## Geliştirme Notları
-
-- Path alias: @/* -> src/*
-- Çıktı paketleme: vendor chunk ayırımı yapılandırılmıştır
-- Bazı modüller kök dizin ve src altında paralel olarak bulunabilir; yeni geliştirmelerde src önceliklendirilmelidir
-
-## Dağıtım
-
-Proje Vercel uyumlu olacak şekilde yapılandırılmıştır.
-
-Önerilen akış:
-
-1. Ortam değişkenlerini Vercel proje ayarlarına ekleyin.
-2. main branch'e push edin.
-3. Vercel otomatik build/deploy sürecini tamamlasın.
-
-## Güvenlik
-
-- Hassas anahtarları repoya commit etmeyin.
-- API anahtarlarını sadece ortam değişkenleri üzerinden yönetin.
-- Ayrıntılı politika için SECURITY.md dosyasını inceleyin.
-
-## Katkı
-
-1. Yeni bir branch oluşturun.
-2. Değişikliği yapın ve testleri çalıştırın.
-3. Commit mesajını açık ve kısa yazın.
-4. Pull request açın.
-
-## Lisans
-
-Depoda ayrı bir lisans dosyası bulunmuyorsa tüm haklar saklıdır yaklaşımı geçerlidir. Açık kaynak lisanslama planlanıyorsa LICENSE dosyası eklenmelidir.
+---
+For more information, check the documentation or contact the support team.
