@@ -112,7 +112,21 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
             const { default: html2canvas } = await import('html2canvas');
             const target = document.querySelector(printSelector || '.worksheet-page') as HTMLElement;
             if (!target) return;
-            const canvas = await html2canvas(target, { scale: 2, useCORS: true, backgroundColor: '#fff' });
+            const canvas = await html2canvas(target, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              logging: false,
+              backgroundColor: '#fff',
+              windowWidth: document.documentElement.offsetWidth,
+              windowHeight: document.documentElement.offsetHeight,
+              onclone: (clonedDoc: Document) => {
+                try {
+                  document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => clonedDoc.head.appendChild(l.cloneNode(true)));
+                  document.querySelectorAll('style').forEach((s) => clonedDoc.head.appendChild(s.cloneNode(true)));
+                } catch { /* devam et */ }
+              },
+            });
             canvas.toBlob(async (blob) => {
                 if (!blob) return;
                 await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);

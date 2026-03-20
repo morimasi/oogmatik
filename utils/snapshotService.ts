@@ -3,6 +3,48 @@
 
 export type SnapshotAction = 'download' | 'clipboard' | 'share';
 
+/** Yakalama öncesi fontları yükler */
+const preloadFontsForCapture = async (): Promise<void> => {
+  if (typeof document === 'undefined') return;
+  try {
+    await document.fonts.ready;
+    const fontFamilies = ['Lexend', 'Inter', 'Comic Neue', 'Lora'];
+    const weights = ['400', '600', '700', '800'];
+    const testText = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZabcçdefgğhıijklmnoöprsştuüvyz0123456789';
+    const loadPromises: Promise<unknown>[] = [];
+    for (const family of fontFamilies) {
+      for (const weight of weights) {
+        loadPromises.push(document.fonts.load(`${weight} 16px "${family}"`, testText).catch(() => null));
+      }
+    }
+    await Promise.allSettled(loadPromises);
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    );
+  } catch (e) {
+    console.warn('[snapshotService] Font ön-yükleme uyarısı:', e);
+  }
+};
+
+/** html2canvas klon dokümana stil sayfalarını kopyalar */
+const onCloneForCapture = (clonedDoc: Document): void => {
+  try {
+    document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+      clonedDoc.head.appendChild(link.cloneNode(true));
+    });
+    document.querySelectorAll('style').forEach((style) => {
+      clonedDoc.head.appendChild(style.cloneNode(true));
+    });
+    const extra = clonedDoc.createElement('style');
+    extra.textContent =
+      '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }' +
+      ' body { background: #ffffff !important; }';
+    clonedDoc.head.appendChild(extra);
+  } catch (e) {
+    console.warn('[snapshotService] onClone uyarısı:', e);
+  }
+};
+
 const PAGE_SELECTORS = [
   '.worksheet-page',
   '.universal-mode-canvas',
@@ -37,6 +79,9 @@ const capturePages = async (elementSelector: string): Promise<HTMLCanvasElement[
   const origBgs: string[] = [];
   const canvases: HTMLCanvasElement[] = [];
 
+  // Fontların yüklenmesini bekle
+  await preloadFontsForCapture();
+
   try {
     for (const page of pages) {
       origBgs.push(page.style.backgroundColor);
@@ -48,6 +93,9 @@ const capturePages = async (elementSelector: string): Promise<HTMLCanvasElement[
         allowTaint: true,
         logging: false,
         backgroundColor: '#ffffff',
+        windowWidth: document.documentElement.offsetWidth,
+        windowHeight: document.documentElement.offsetHeight,
+        onclone: (_clonedDoc: Document) => onCloneForCapture(_clonedDoc),
         ignoreElements: (el) => {
           const h = el as HTMLElement;
           return h.classList?.contains('no-print') || h.classList?.contains('edit-handle') ||

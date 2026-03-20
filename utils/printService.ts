@@ -481,6 +481,9 @@ export const printService = {
       }
     });
 
+    // Fontların yüklenmesini bekle (aksi hâlde metin bozuk çıkar)
+    await preloadFontsForCapture();
+
     // Dinamik import ile html2canvas yükle (kod bölme)
     const { default: html2canvas } = await import('html2canvas');
 
@@ -493,6 +496,9 @@ export const printService = {
         allowTaint: true,
         logging: false,
         backgroundColor: '#ffffff',
+        windowWidth: document.documentElement.offsetWidth,
+        windowHeight: document.documentElement.offsetHeight,
+        onclone: (_clonedDoc: Document) => onCloneForCapture(_clonedDoc),
         // Tasarım modu seçim çerçevelerini bastır
         ignoreElements: (el) => {
           const htmlEl = el as HTMLElement;
@@ -668,6 +674,9 @@ export const printService = {
 
     onProgress?.(10, `${pages.length} sayfa bulundu, hazırlanıyor...`);
 
+    // Fontların yüklenmesini bekle
+    await preloadFontsForCapture();
+
     // Dinamik import — kod bölme
     const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
       import('html2canvas'),
@@ -707,6 +716,9 @@ export const printService = {
           allowTaint: true,
           logging: false,
           backgroundColor: '#ffffff',
+          windowWidth: document.documentElement.offsetWidth,
+          windowHeight: document.documentElement.offsetHeight,
+          onclone: (_clonedDoc: Document) => onCloneForCapture(_clonedDoc),
           ignoreElements: (el) => {
             const htmlEl = el as HTMLElement;
             return (

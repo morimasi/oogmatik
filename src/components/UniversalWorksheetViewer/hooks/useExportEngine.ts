@@ -109,11 +109,38 @@ async function exportAsPdf(worksheet: Worksheet, settings: ExportSettings): Prom
   return doc.output('datauristring');
 }
 
-async function exportAsPng(worksheet: Worksheet): Promise<string> {
+async function exportAsPng(_worksheet: Worksheet): Promise<string> {
+  // Fontların yüklenmesini bekle
+  if (typeof document !== 'undefined') {
+    try {
+      await document.fonts.ready;
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      );
+    } catch { /* devam et */ }
+  }
   const { default: html2canvas } = await import('html2canvas');
   const el = document.getElementById('worksheet-preview-root');
   if (!el) throw new Error('Önizleme elementi bulunamadı. Lütfen önizleme panelini açın.');
-  const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+  const canvas = await html2canvas(el, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    logging: false,
+    backgroundColor: '#ffffff',
+    windowWidth: document.documentElement.offsetWidth,
+    windowHeight: document.documentElement.offsetHeight,
+    onclone: (clonedDoc: Document) => {
+      try {
+        document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+          clonedDoc.head.appendChild(link.cloneNode(true));
+        });
+        document.querySelectorAll('style').forEach((style) => {
+          clonedDoc.head.appendChild(style.cloneNode(true));
+        });
+      } catch { /* devam et */ }
+    },
+  });
   return canvas.toDataURL('image/png');
 }
 
