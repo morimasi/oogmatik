@@ -29,6 +29,26 @@ The Universal Worksheet Viewer allows users to view and interact with various wo
    npm start
    ```
 
+## vibecosystem Kurulumu
+
+[vibecosystem](https://github.com/vibeeval/vibecosystem), Claude Code'u 119 özelleşmiş ajandan oluşan tam bir yapay zeka ekibine dönüştürür.
+
+Kurulum için:
+```bash
+git clone https://github.com/morimasi/oogmatik.git
+cd oogmatik
+./install.sh
+```
+
+### Seçenekler
+
+| Parametre | Açıklama |
+|-----------|----------|
+| `--force` | Mevcut dosyaların üzerine yazar |
+| `--help`  | Yardım mesajını gösterir |
+
+> **Not:** Kurulum `~/.claude/` dizinine ajanlar, beceriler, hook'lar ve kurallar ekler. Mevcut dosyalarınız varsayılan olarak korunur.
+
 ## Usage
 To use the Universal Worksheet Viewer:
 1. Open the application in your web browser.
