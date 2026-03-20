@@ -51,6 +51,133 @@ cd oogmatik
 
 ---
 
+## 🧑‍💼 Oogmatik'e Özel Ekip Ajanları
+
+Oogmatik, vibecosystem'in 119 genel ajanına ek olarak bu projeye özgü **4 özel ekip üyesi** içerir. Bu ajanlar `.claude/agents/` dizininde tanımlıdır ve Claude Code ile bu projede çalışırken otomatik olarak devreye girer.
+
+| Ajan | Kimlik | Ne Zaman Devreye Girer |
+|------|--------|------------------------|
+| **özel-öğrenme-uzmanı** | Elif Yıldız — Pedagoji Danışmanı | Aktivite tasarımı, içerik kalitesi, öğrenme stili uyumu |
+| **özel-eğitim-uzmanı** | Dr. Ahmet Kaya — Klinik Danışman | BEP modülü, disleksi/DEHB protokolleri, MEB mevzuatı |
+| **yazılım-mühendisi** | Bora Demir — Full-Stack Mühendis | API geliştirme, test, TypeScript mimarisi, güvenlik |
+| **ai-mühendisi** | Selin Arslan — AI Mimarı | Gemini/Claude entegrasyonu, prompt engineering, AI kalitesi |
+
+---
+
+## 📍 Bu Ajanlar Nerede ve Ne Zaman Çalışır?
+
+### Kapsam: Sadece Oogmatik Projesi İçinde
+
+`.claude/agents/` dizinindeki ajanlar **yalnızca bu projenin klasöründe** Claude Code kullanırken aktiftir. Başka bir projede ya da farklı bir klasörde Claude açtığında bu ajanlar **görünmez**.
+
+```
+~/Desktop/
+├── oogmatik/           ← 🟢 Burada açarsan: tüm ajanlar aktif
+│   └── .claude/
+│       └── agents/     ← proje ajanları buradan okunur
+│
+├── baska-proje/        ← 🔴 Burada açarsan: oogmatik ajanları yok
+└── belgeler/           ← 🔴 Burada açarsan: oogmatik ajanları yok
+```
+
+`~/.claude/agents/` (vibecosystem ajanları) ise **her yerde** çalışır — o ajanlar global.
+
+---
+
+### 🖥️ Adım Adım Kullanım Kılavuzu
+
+#### 1. Claude Code'u Oogmatik Klasöründe Aç
+
+```bash
+cd oogmatik          # önce projenin klasörüne gir
+claude               # sonra Claude Code'u başlat
+```
+
+> ⚠️ `claude` komutunu `~/Desktop` veya `Documents` gibi başka bir yerden açarsan oogmatik ajanlarını bulamazsın. **Her zaman önce `cd oogmatik` yap.**
+
+#### 2. Ajanı Çağır
+
+İki yol var:
+
+**Yol A — Claude'un Otomatik Seçmesine Bırak (Önerilen)**
+
+Normal Türkçe ile yaz, Claude doğru ajanı kendisi seçer:
+
+```
+Sen: "Disleksi için yeni bir hece birleştirme aktivitesi ekle"
+→ Claude: özel-öğrenme-uzmanı + yazılım-mühendisi devreye girer
+```
+
+```
+Sen: "BEP modülündeki hedef yazımı MEB standartlarına uygun mu?"
+→ Claude: özel-eğitim-uzmanı devreye girer
+```
+
+```
+Sen: "Gemini API çağrısı çok yavaş, optimize et"
+→ Claude: ai-mühendisi devreye girer
+```
+
+**Yol B — Direkt Ajan Belirt**
+
+```
+Sen: "@ozel-ogrenme-uzmani bu aktivitenin zorluk seviyesi 3. sınıf için uygun mu?"
+Sen: "@yazilim-muhendisi api/generate.ts dosyasındaki güvenlik açıklarını kontrol et"
+Sen: "@ai-muhendisi mevcut prompt'u daha az token kullanacak şekilde düzenle"
+```
+
+#### 3. Sık Kullanım Örnekleri
+
+| İstediğin | Ne Yazacaksın |
+|-----------|---------------|
+| Yeni aktivite türü ekle | `"okuma akıcılığı için yeni bir aktivite generatörü yaz"` |
+| Pedagojik kontrol | `"@ozel-ogrenme-uzmani bu çalışma sayfası DEHB'li öğrenciler için uygun mu?"` |
+| API güvenlik denetimi | `"@yazilim-muhendisi yeni endpoint'i güvenlik açısından incele"` |
+| Prompt iyileştirme | `"@ai-muhendisi dyslexiaSupport.ts'deki promptları kalite açısından değerlendir"` |
+| BEP dokümanı | `"@ozel-egitim-uzmani 3. sınıf disleksili öğrenci için örnek BEP hedefleri oluştur"` |
+
+---
+
+### 🌍 Global Ajan Kurmak İstersen
+
+Bir ajanın **tüm projelerinde** çalışmasını istiyorsan `~/.claude/agents/` klasörüne kopyala:
+
+```bash
+# Sadece ai-mühendisini her projede kullanmak istiyorum:
+cp .claude/agents/ai-muhendisi.md ~/.claude/agents/ai-muhendisi.md
+```
+
+Bu işlemden sonra herhangi bir klasörde Claude Code açsan bile `@ai-muhendisi` çağrılabilir olur.
+
+---
+
+### Yeni Ajan Eklemek
+
+Proje ekibine yeni bir uzman eklemek için `.claude/agents/` dizinine bir `.md` dosyası oluştur:
+
+```markdown
+---
+name: uzman-adi
+description: Kısa açıklama — ne yapar, ne zaman çağrılır
+model: opus  # veya sonnet, haiku
+tools: [Read, Edit, Write, Bash, Grep, Glob]
+---
+
+# Uzman Adı — Karakter İsmi
+
+[Kişilik ve geçmiş hikayesi]
+
+## Uzmanlık Alanları
+[Liste]
+
+## Oogmatik'e Özel Görevler
+[Proje bağlamına özel talimatlar]
+```
+
+Dosyayı kaydet — Claude Code'u yeniden başlatmana gerek yok, bir sonraki konuşmada ajan hemen aktif olur.
+
+---
+
 ## 🚀 vibecosystem'in Oogmatik Uygulamasına Etkisi
 
 ### ✅ Uygulamaya Doğrudan Etkisi Yok
