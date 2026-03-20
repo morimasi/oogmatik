@@ -1,0 +1,1505 @@
+/* ============================================================
+   UniversalWorksheetViewer — CSS Module
+   ============================================================ */
+
+/* ── Root ────────────────────────────────────────────────────── */
+.uwvRoot {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 600px;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  font-family: inherit;
+  color: #1e293b;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────── */
+.uwvToolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  z-index: 20;
+  min-height: 3rem;
+}
+
+.toolbarGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.toolbarSep {
+  width: 1px;
+  height: 1.5rem;
+  background: #e2e8f0;
+  margin: 0 0.25rem;
+}
+
+.toolbarBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  background: #f8fafc;
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.toolbarBtn:hover:not(:disabled) {
+  background: #e0f2fe;
+  border-color: #0ea5e9;
+  color: #0369a1;
+}
+
+.toolbarBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.toolbarBtnActive {
+  background: #dbeafe;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.toolbarStatus {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.unsavedBadge {
+  color: #f59e0b;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* ── Body layout ─────────────────────────────────────────────── */
+.uwvBody {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 0;
+}
+
+/* ── Editor Pane ─────────────────────────────────────────────── */
+.editorPane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 1rem;
+  background: #f1f5f9;
+  border-right: 1px solid #e2e8f0;
+  min-width: 0;
+}
+
+.editorHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.editorMetaRow {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.titleInput {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  background: transparent;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.titleInput:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.metaInput {
+  flex: 1;
+  min-width: 100px;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #374151;
+  background: transparent;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.metaInput:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.instructionInput {
+  width: 100%;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #374151;
+  background: transparent;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+
+.instructionInput:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+/* ── Blocks ──────────────────────────────────────────────────── */
+.blocksContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.emptyEditor {
+  text-align: center;
+  color: #94a3b8;
+  padding: 2rem;
+  font-size: 0.875rem;
+  border: 2px dashed #cbd5e1;
+  border-radius: 0.5rem;
+}
+
+.editorBlock {
+  position: relative;
+  padding: 0.625rem 0.75rem;
+  background: #ffffff;
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.editorBlock:hover {
+  border-color: #bfdbfe;
+}
+
+.editorBlockSelected {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+/* Block toolbar */
+.blockToolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.blockToolbarBtn {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.25rem;
+  background: #f8fafc;
+  color: #374151;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.blockToolbarBtn:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.blockToolbarBtnDanger:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.blockToolbarSep {
+  width: 1px;
+  height: 1.25rem;
+  background: #e2e8f0;
+  margin: 0 0.125rem;
+}
+
+.blockToolbarLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.blockToolbarInput {
+  padding: 0.125rem 0.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  width: 80px;
+}
+
+/* Editable text */
+.editableText {
+  outline: none;
+  min-height: 1.5em;
+  width: 100%;
+  word-break: break-word;
+}
+
+/* Blank block */
+.blankLabel {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.blankLines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.blankLine {
+  height: 1px;
+  background: #94a3b8;
+  width: 100%;
+}
+
+/* Divider block */
+.dividerBlock {
+  padding: 0.25rem 0.75rem;
+}
+
+.dividerLine {
+  border: none;
+  border-top: 2px solid #d1d5db;
+  margin: 0;
+}
+
+/* Add block toolbar */
+.addBlockToolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  background: #ffffff;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.addBlockLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.addBlockBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: #f8fafc;
+  color: #374151;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.addBlockBtn:hover {
+  background: #ecfdf5;
+  border-color: #6ee7b7;
+  color: #047857;
+}
+
+/* Dirty / Saved indicators */
+.dirtyIndicator {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #f59e0b;
+  text-align: right;
+}
+
+.savedIndicator {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #22c55e;
+  text-align: right;
+}
+
+/* ── Preview Pane ─────────────────────────────────────────────── */
+.previewPane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #e5e7eb;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.previewTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.zoomControls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.zoomBtn {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  background: #f8fafc;
+  color: #374151;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.zoomBtn:hover:not(:disabled) {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.zoomBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.zoomSelect {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  background: #f8fafc;
+  color: #374151;
+  cursor: pointer;
+}
+
+.previewScrollContainer {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.previewPage {
+  background: #ffffff;
+  width: 21cm;
+  min-height: 29.7cm;
+  padding: 2cm;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+  transform-origin: top center;
+}
+
+.previewPage.highContrast {
+  background: #000;
+  color: #fff;
+}
+
+.previewStudentInfo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: #374151;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.previewDocTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin: 0 0 0.5rem;
+  color: #111827;
+}
+
+.previewMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+  justify-content: center;
+}
+
+.previewMetaSep {
+  color: #d1d5db;
+}
+
+.previewInstruction {
+  font-size: 0.875rem;
+  color: #374151;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+  border-left: 3px solid #3b82f6;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.previewBlocks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.previewHeading {
+  font-weight: 700;
+  color: #111827;
+  margin: 0.5rem 0 0;
+}
+
+.previewText {
+  margin: 0;
+  color: #374151;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.previewBlank {
+  margin: 0.25rem 0;
+}
+
+.previewBlankLabel {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.375rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.previewBlankLine {
+  height: 1px;
+  background: #94a3b8;
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.previewDivider {
+  border: none;
+  border-top: 2px solid #e2e8f0;
+  margin: 0.5rem 0;
+}
+
+.previewImageBlock {
+  display: flex;
+  justify-content: center;
+}
+
+.previewFooter {
+  margin-top: 2rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.pageBreakIndicator {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px dashed #d1d5db;
+}
+
+/* ── Export Panel ─────────────────────────────────────────────── */
+.exportPanel {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  padding: 1rem;
+}
+
+.exportPanelTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.75rem;
+}
+
+.exportSection {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.exportSectionTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.5rem;
+}
+
+.exportFormatGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.exportFormatBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  font-size: 0.8125rem;
+  color: #374151;
+}
+
+.exportFormatBtn:hover:not(:disabled) {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.exportFormatBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.exportFormatIcon {
+  font-size: 1.25rem;
+}
+
+.exportFormatLabel {
+  font-weight: 500;
+}
+
+.exportSettingsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.exportSettingLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.exportCheckLabel {
+  flex-direction: row;
+  align-items: center;
+}
+
+.exportSettingSelect {
+  padding: 0.375rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  background: #f8fafc;
+  color: #374151;
+}
+
+.batchFormatPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.batchFormatOption {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.batchExportBtn {
+  width: 100%;
+  padding: 0.5rem;
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.batchExportBtn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.batchExportBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.exportJobsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.clearJobsBtn {
+  font-size: 0.75rem;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.exportJobList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.exportJobItem {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  padding: 0.375rem 0.5rem;
+  background: #f8fafc;
+  border-radius: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.exportJobFormat {
+  font-weight: 600;
+  color: #374151;
+}
+
+.exportJobStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #6b7280;
+  flex: 1;
+}
+
+.jobStatus_done { color: #22c55e; }
+.jobStatus_error { color: #ef4444; }
+.jobStatus_processing, .jobStatus_pending { color: #f59e0b; }
+
+.exportProgressBar {
+  display: inline-block;
+  width: 60px;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.exportProgressFill {
+  display: block;
+  height: 100%;
+  background: #f59e0b;
+  transition: width 0.2s;
+  border-radius: 3px;
+}
+
+.cancelJobBtn {
+  font-size: 0.7rem;
+  color: #ef4444;
+  background: none;
+  border: 1px solid #fca5a5;
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  cursor: pointer;
+}
+
+.downloadLink {
+  font-size: 0.7rem;
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+/* ── Dyslexia Controls ───────────────────────────────────────── */
+.dyslexiaControls {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  padding: 1rem;
+}
+
+.dyslexiaTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.75rem;
+}
+
+.dyslexiaFieldset {
+  border: 1px solid #f1f5f9;
+  border-radius: 0.5rem;
+  padding: 0.625rem;
+  margin-bottom: 0.75rem;
+}
+
+.dyslexiaLegend {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 0 0.25rem;
+}
+
+.dyslexiaFontOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-top: 0.25rem;
+}
+
+.dyslexiaFontOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #374151;
+  background: #f8fafc;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.dyslexiaFontOption:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.dyslexiaFontOptionActive {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.dyslexiaSlider {
+  width: 100%;
+  accent-color: #3b82f6;
+  margin: 0.375rem 0 0.125rem;
+}
+
+.dyslexiaSliderLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
+
+/* Toggle switch */
+.dyslexiaToggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+
+.dyslexiaToggle {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.dyslexiaToggleSlider {
+  position: relative;
+  display: inline-block;
+  width: 2.5rem;
+  height: 1.375rem;
+  background: #d1d5db;
+  border-radius: 1rem;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.dyslexiaToggle:checked + .dyslexiaToggleSlider {
+  background: #3b82f6;
+}
+
+.dyslexiaToggleSlider::after {
+  content: '';
+  position: absolute;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 1rem;
+  height: 1rem;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.dyslexiaToggle:checked + .dyslexiaToggleSlider::after {
+  transform: translateX(1.125rem);
+}
+
+.dyslexiaToggleText {
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+/* Background color swatches */
+.dyslexiaBgColors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.375rem;
+  align-items: center;
+}
+
+.dyslexiaBgSwatch {
+  cursor: pointer;
+}
+
+.dyslexiaBgSwatchColor {
+  display: block;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.dyslexiaBgSwatch:hover .dyslexiaBgSwatchColor {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+
+.dyslexiaBgSwatchActive .dyslexiaBgSwatchColor {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.dyslexiaBgCustomLabel {
+  cursor: pointer;
+  position: relative;
+}
+
+.dyslexiaBgCustomInput {
+  opacity: 0;
+  position: absolute;
+  width: 1.75rem;
+  height: 1.75rem;
+  cursor: pointer;
+}
+
+.dyslexiaBgCustomIcon {
+  display: block;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  text-align: center;
+  width: 1.75rem;
+}
+
+.dyslexiaResetBtn {
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  color: #374151;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.12s;
+}
+
+.dyslexiaResetBtn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* ── Template Selector ────────────────────────────────────────── */
+.templateOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.templatePanel {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.templateHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.templateTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.templateCloseBtn {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  background: #f8fafc;
+  color: #374151;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.12s;
+}
+
+.templateCloseBtn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.templateSearch {
+  padding: 0.75rem 1.25rem 0.5rem;
+}
+
+.templateSearchInput {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #374151;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.templateSearchInput:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.templateCategoryNav {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  padding: 0 1.25rem 0.75rem;
+}
+
+.templateCategoryTab {
+  padding: 0.3125rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 2rem;
+  background: #f8fafc;
+  font-size: 0.8125rem;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.templateCategoryTab:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.templateCategoryTabActive {
+  background: #dbeafe;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.templateGrid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  padding: 0 1.25rem 1rem;
+}
+
+.templateEmpty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  padding: 2rem;
+}
+
+.templateCard {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  background: #f8fafc;
+}
+
+.templateCardHovered {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.templateCardBody {
+  padding: 0.75rem;
+  flex: 1;
+}
+
+.templateCardName {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.25rem;
+}
+
+.templateCardDesc {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+}
+
+.templateCardCategory {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #3b82f6;
+  background: #dbeafe;
+  padding: 0.125rem 0.5rem;
+  border-radius: 2rem;
+}
+
+.templateCardActions {
+  display: flex;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.templateLoadBtn {
+  flex: 1;
+  padding: 0.375rem;
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.templateLoadBtn:hover {
+  background: #2563eb;
+}
+
+.templateDeleteBtn {
+  padding: 0.375rem 0.625rem;
+  border: 1px solid #fca5a5;
+  border-radius: 0.375rem;
+  background: #fff5f5;
+  color: #dc2626;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.templateDeleteBtn:hover {
+  background: #fee2e2;
+}
+
+.templateFooter {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.templateSaveBtn {
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed #3b82f6;
+  border-radius: 0.375rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.templateSaveBtn:hover {
+  background: #dbeafe;
+}
+
+.templateSaveForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.templateSaveInput {
+  padding: 0.375rem 0.625rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #374151;
+  outline: none;
+}
+
+.templateSaveInput:focus {
+  border-color: #3b82f6;
+}
+
+.templateSaveSelect {
+  padding: 0.375rem 0.625rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.templateSaveActions {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.templateSaveConfirmBtn {
+  flex: 1;
+  padding: 0.375rem;
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.templateSaveConfirmBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.templateSaveCancelBtn {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  background: #f8fafc;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.templateCustomCount {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin: 0;
+  text-align: right;
+}
+
+/* ── Print view ───────────────────────────────────────────────── */
+.printView {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: #e5e7eb;
+}
+
+.printViewToolbar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #1e293b;
+  flex-shrink: 0;
+}
+
+.printViewBtn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: #3b82f6;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.printViewBtn:hover {
+  background: #2563eb;
+}
+
+/* ── Screen reader utilities ──────────────────────────────────── */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .exportPanel {
+    width: 220px;
+  }
+  .dyslexiaControls {
+    width: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .uwvBody {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .previewPane {
+    min-height: 400px;
+    border-right: none;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .exportPanel,
+  .dyslexiaControls {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
+    max-height: 300px;
+  }
+
+  .previewPage {
+    width: 100%;
+    min-height: unset;
+    padding: 1rem;
+  }
+
+  .toolbarBtn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* ── Dark mode ────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .uwvRoot {
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+
+  .uwvToolbar {
+    background: #1e293b;
+    border-bottom-color: #334155;
+  }
+
+  .toolbarBtn {
+    background: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .toolbarBtn:hover:not(:disabled) {
+    background: #1e3a5f;
+    border-color: #3b82f6;
+    color: #93c5fd;
+  }
+
+  .editorPane {
+    background: #0f172a;
+    border-right-color: #334155;
+  }
+
+  .editorHeader,
+  .editorBlock,
+  .addBlockToolbar {
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  .titleInput,
+  .metaInput,
+  .instructionInput {
+    color: #e2e8f0;
+  }
+
+  .previewPane {
+    background: #0f172a;
+  }
+
+  .previewHeader {
+    background: #1e293b;
+    border-bottom-color: #334155;
+  }
+
+  .previewPage {
+    background: #1e293b;
+    color: #e2e8f0;
+  }
+
+  .exportPanel,
+  .dyslexiaControls {
+    background: #1e293b;
+    border-left-color: #334155;
+  }
+}
+
+/* ── Print styles ─────────────────────────────────────────────── */
+@media print {
+  .uwvToolbar,
+  .editorPane,
+  .exportPanel,
+  .dyslexiaControls,
+  .printViewToolbar {
+    display: none !important;
+  }
+
+  .uwvBody {
+    overflow: visible;
+  }
+
+  .previewPane {
+    flex: 1;
+    border: none;
+  }
+
+  .previewScrollContainer {
+    overflow: visible;
+    padding: 0;
+  }
+
+  .previewPage {
+    box-shadow: none;
+    border-radius: 0;
+    width: 100%;
+    min-height: unset;
+    padding: 1cm;
+  }
+
+  .pageBreakIndicator {
+    display: none;
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
