@@ -31,6 +31,19 @@ export interface StyleSettings {
     rulerHeight: number;
     maskOpacity: number;
     title?: string;
+    // Premium & Engineering Enhancements
+    bionicReading?: boolean;
+    colorOverlay?: string;
+    overlayOpacity?: number;
+    showPrintMarks?: boolean;
+    bleed?: number;
+    gridSystem?: 'none' | 'rule' | 'grid' | 'dot';
+    gridSize?: number;
+    highContrast?: boolean;
+    letterCase?: 'none' | 'uppercase' | 'lowercase' | 'capitalize';
+    lineFocus?: boolean;
+    syllableHighlight?: boolean;
+    readingSpeed?: number;
 }
 
 export interface BaseActivityData {
