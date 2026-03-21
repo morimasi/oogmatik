@@ -20,7 +20,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
  *   Binary PDF (application/pdf) or JSON error
  */
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -102,11 +102,14 @@ export default async function handler(req: any, res: any) {
     const pageTotal = Math.max(1, Math.min(typeof pageCount === 'number' ? pageCount : 1, 50));
 
     // Build page content from blocks or create a single page
-    const contentBlocks = Array.isArray(blocks)
-      ? blocks.slice(0, 200).map((b: any) => ({
-          type: String(b?.type || 'içerik').slice(0, 50),
-          content: String(b?.content || '').slice(0, 5000),
-        }))
+    const contentBlocks: Array<{ type: string; content: string }> = Array.isArray(blocks)
+      ? blocks.slice(0, 200).map((b: unknown) => {
+          const block = b as Record<string, unknown>;
+          return {
+            type: String(block?.type || 'içerik').slice(0, 50),
+            content: String(block?.content || '').slice(0, 5000),
+          };
+        })
       : [];
 
     const pages = [];
@@ -117,7 +120,7 @@ export default async function handler(req: any, res: any) {
           i === 0 ? h(Text, { style: styles.header }, safeTitleText) : null,
           // Blocks
           contentBlocks.length > 0
-            ? contentBlocks.map((block: any, idx: number) =>
+            ? contentBlocks.map((block, idx) =>
                 h(View, { key: idx, style: styles.block },
                   h(Text, { style: styles.blockType }, block.type),
                   h(Text, { style: styles.blockContent }, block.content)
@@ -146,7 +149,7 @@ export default async function handler(req: any, res: any) {
     res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(safeTitleText)}.pdf"`);
     res.setHeader('Content-Length', pdfBuffer.length);
     return res.status(200).end(pdfBuffer);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Export PDF error:', error);
     return res.status(500).json({
       error: 'Internal server error',

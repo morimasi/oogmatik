@@ -193,9 +193,8 @@ describe('Request Validators', () => {
     it('should validate correct generation request', () => {
       const result = validateGenerateActivityRequest({
         prompt: 'Create a reading exercise',
-        schema: { type: 'object' },
-        mimeType: 'image/jpeg',
-        useSearch: false,
+        activityType: 'reading-comprehension',
+        studentAge: 10,
       });
 
       expect(result.valid).toBe(true);
@@ -203,41 +202,47 @@ describe('Request Validators', () => {
 
     it('should reject missing prompt', () => {
       const result = validateGenerateActivityRequest({
-        schema: { type: 'object' },
+        activityType: 'reading-comprehension',
       });
 
       expect(result.valid).toBe(false);
       expect(result.errors.prompt).toBeDefined();
     });
 
-    it('should reject missing schema', () => {
+    it('should reject missing activityType', () => {
       const result = validateGenerateActivityRequest({
         prompt: 'Create content',
       });
 
       expect(result.valid).toBe(false);
-      expect(result.errors.schema).toBeDefined();
+      expect(result.errors.activityType).toBeDefined();
     });
 
     it('should validate image format if provided', () => {
       const result = validateGenerateActivityRequest({
         prompt: 'Process image',
-        schema: { type: 'object' },
-        mimeType: 'invalid/format',
+        activityType: 'visual-perception',
+        image: {
+          data: 'base64data',
+          mimeType: 'invalid/format',
+        },
       });
 
       expect(result.valid).toBe(false);
-      expect(result.errors.mimeType).toBeDefined();
+      expect(result.errors.imageMimeType).toBeDefined();
     });
 
     it('should allow valid image formats', () => {
-      const validFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      const validFormats = ['image/jpeg', 'image/png', 'image/webp'];
 
       validFormats.forEach((format) => {
         const result = validateGenerateActivityRequest({
           prompt: 'Create content',
-          schema: { type: 'object' },
-          mimeType: format,
+          activityType: 'visual-perception',
+          image: {
+            data: 'base64data',
+            mimeType: format,
+          },
         });
 
         expect(result.valid).toBe(true);
