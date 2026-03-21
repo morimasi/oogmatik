@@ -20,7 +20,7 @@ export class AppError extends Error {
    */
   toJSON() {
     let isDev = false;
-    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+    if (typeof process !== 'undefined' && (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       isDev = true;
     } else if (typeof window !== 'undefined' && (window as any).__VITE_IS_DEV__) {
       isDev = true;
@@ -204,7 +204,7 @@ export function toAppError(error: unknown): AppError {
 
     // Default: Generic error
     let isDev = false;
-    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+    if (typeof process !== 'undefined' && (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       isDev = true;
     } else if (typeof window !== 'undefined' && (window as any).__VITE_IS_DEV__) {
       isDev = true;
