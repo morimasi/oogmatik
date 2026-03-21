@@ -18,6 +18,24 @@ AI destekli kişiselleştirilmiş eğitim materyalleri üreten bir EdTech platfo
 
 ---
 
+## 📖 ZORUNLU: Uygulama Modül Bilgisi
+
+**HER GÖREV ÖNCESİ**: `/.claude/MODULE_KNOWLEDGE.md` dosyasını oku.
+
+Bu belge, platformun TÜM modüllerini kapsamlı olarak açıklar:
+- 65+ React bileşeni (MathStudio, ReadingStudio, CreativeStudio, Admin panelleri)
+- 40+ AI generatör + 25 offline generatör
+- 10 Zustand store (state management)
+- API endpoint'leri ve servisler
+
+**Kod değişikliği öncesi zorunlu adımlar**:
+1. MODULE_KNOWLEDGE.md'deki ilgili modül bölümünü oku
+2. Modülün amacını, işlevlerini ve entegrasyonlarını anla
+3. İlgili ajan kullanım kılavuzu bölümünü kontrol et
+4. Sonra değişikliğe başla
+
+---
+
 ## 👑 EKİP LİDERLİĞİ YAPISI
 
 Bu projede 4 uzman lider ajan görev yapar. **Her geliştirme isteğinde** bu liderler önce değerlendirme yapar, sonra uygulama başlar.

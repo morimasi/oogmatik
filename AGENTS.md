@@ -22,8 +22,22 @@
 
 Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar için AI destekli kişiselleştirilmiş eğitim materyali üretim platformu.
 
-**Stack**: React 18 + TypeScript (strict) + Vite + Node.js + Vercel Serverless + Gemini 2.5 Flash + Firebase  
+**Stack**: React 18 + TypeScript (strict) + Vite + Node.js + Vercel Serverless + Gemini 2.5 Flash + Firebase
 **Kural #0**: Her içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.
+
+---
+
+## 📖 ZORUNLU: Uygulama Modül Bilgisi
+
+**HER GÖREV ÖNCESİ**: `/.claude/MODULE_KNOWLEDGE.md` dosyasını oku.
+
+Bu belge, tüm uygulama modüllerinin (stüdyolar, admin panelleri, API'ler, servisler) kapsamlı açıklamasını içerir.
+
+**Kod değişikliği yapmadan önce**:
+1. MODULE_KNOWLEDGE.md'deki ilgili modül bölümünü oku
+2. Modülün amacını ve entegrasyonlarını anla
+3. Ajan kullanım kılavuzunu kontrol et
+4. Değişikliğe başla
 
 ---
 
