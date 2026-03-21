@@ -177,7 +177,8 @@ export interface StudentAIProfile {
 export interface AdvancedStudent extends Student {
     // Extended Personal Info
     personalInfo?: {
-        tcNo?: string;
+        tcNoHash?: string;
+        tcNoLastFour?: string;
         birthDate?: string;
         gender?: string;
         bloodType?: string;
