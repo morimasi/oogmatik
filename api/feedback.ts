@@ -5,6 +5,8 @@ import { AppError, ValidationError, RateLimitError, toAppError } from '../utils/
 import { validateFeedbackRequest } from '../utils/schemas.js';
 import { RateLimiter } from '../services/rateLimiter.js';
 import { logError } from '../utils/errorHandler.js';
+import { corsMiddleware } from '../utils/cors.js';
+import { logger } from '../utils/logger.js';
 
 // Fallback types for non-Vercel environments
 export type VercelRequest = any;
@@ -17,15 +19,12 @@ const rateLimiter = new RateLimiter();
  * Enhanced Feedback API with validation and rate limiting
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+    // CORS Security - NO WILDCARD
+    if (!corsMiddleware(req, res)) {
+        return;
     }
+
+    res.setHeader('X-Content-Type-Options', 'nosniff');
 
     if (req.method !== 'POST') {
         return handleError(
@@ -78,14 +77,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // ===== 3. LOG FEEDBACK =====
-        console.log("--- YENİ GERİ BİLDİRİM ALINDI ---");
-        console.log("Hedef:", "morimasi@gmail.com");
-        console.log("Zaman:", timestamp || new Date().toISOString());
-        console.log("Etkinlik:", activityTitle, `(${activityType})`);
-        console.log("Puan:", rating);
-        console.log("Kimden:", email || "Anonim");
-        console.log("Mesaj:", message);
-        console.log("---------------------------------");
+        // KVKK UYARI: Kisisel veri (email, mesaj icerigi) ASLA production'da loglanmamali
+        // Logger servisi otomatik olarak production'da hassas veri loglamaz
+        logger.audit('feedback_received', actualUserId, 'submit_feedback', {
+            activityType,
+            activityTitle,
+            rating,
+            // email ve message KASITLI OLARAK loglanmiyor (KVKK)
+        });
 
         // ===== 4. SEND RESPONSE =====
         res.setHeader('Content-Type', 'application/json; charset=utf-8');

@@ -16,6 +16,7 @@ import {
   quickThreatCheck,
   DEFAULT_MAX_LENGTH,
 } from '../utils/promptSecurity.js';
+import { corsMiddleware } from '../utils/cors.js';
 
 // Fallback types for non-Vercel environments
 export type VercelRequest = any;
@@ -36,12 +37,13 @@ KURAL: Yanıtın SADECE geçerli bir JSON olmalıdır. Üretimden önce içeriğ
 const rateLimiter = new RateLimiter();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS Headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  // CORS Security - Origin validation (NO WILDCARD!)
+  // Muhendislik Direktoru Bora Demir: Wildcard (*) YASAK
+  if (!corsMiddleware(req, res)) {
+    // CORS failed or OPTIONS handled
+    return;
+  }
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') {
     return handleError(res, new AppError('Sadece POST kabul edilir.', 'METHOD_NOT_ALLOWED', 405));
   }
@@ -113,9 +115,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       throw error;
     }
 
-    // 4. API Key
+    // 4. API Key (Server-side only - NO VITE_ prefix!)
+    // Muhendislik Direktoru Bora Demir: VITE_ prefix browser'a expose eder!
     const apiKey =
-      process.env.VITE_GEMINI_API_KEY || process.env.VITE_GOOGLE_API_KEY || process.env.API_KEY;
+      process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY;
     if (!apiKey) {
       throw new InternalServerError('API Key bulunamadi (Sunucu Yapilandirma Hatasi).');
     }
