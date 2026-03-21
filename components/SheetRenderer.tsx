@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -226,7 +226,8 @@ const recursiveSafeText = (val: any): string => {
   return String(val);
 };
 
-export const BlockRenderer = ({ block, key }: { block: WorksheetBlock; key?: any }) => {
+// BOLT OPTIMIZATION: Memoize BlockRenderer to prevent unnecessary re-renders of individual blocks
+export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) => {
   const content: any = block.content;
   if (!content) return null;
 
@@ -657,7 +658,7 @@ export const BlockRenderer = ({ block, key }: { block: WorksheetBlock; key?: any
         </div>
       );
   }
-};
+});
 
 const getBlockWeight = (block: WorksheetBlock): number => {
   const type = block.type;
@@ -837,55 +838,58 @@ const UnifiedContentRenderer = ({
   // ══════════════════════════════════════════════
   // AKILLI SAYFALAMA — Bölme + Ağırlık Sistemi
   // ══════════════════════════════════════════════
-  const PAGE_MAX_WEIGHT = 1188; // 297mm * 4 (Milimetrik Standart)
-  const STUDENT_INFO_RESERVE = settings?.showStudentInfo ? 80 : 0;
-  const HEADER_RESERVE = 180; // PedagogicalHeader için güvenli alan (45mm)
-  const FOOTER_RESERVE = 60; // Sayfa altı güvenli alan (15mm)
-  const USABLE_PAGE_HEIGHT = PAGE_MAX_WEIGHT - STUDENT_INFO_RESERVE - FOOTER_RESERVE;
+  // BOLT OPTIMIZATION: Memoize pagination logic to avoid expensive recalculations on every render
+  const pages = useMemo(() => {
+    const PAGE_MAX_WEIGHT = 1188; // 297mm * 4 (Milimetrik Standart)
+    const STUDENT_INFO_RESERVE = settings?.showStudentInfo ? 80 : 0;
+    const HEADER_RESERVE = 180; // PedagogicalHeader için güvenli alan (45mm)
+    const FOOTER_RESERVE = 60; // Sayfa altı güvenli alan (15mm)
 
-  // 1. Önce çok büyük blokları böl (Recursive bölme gerekebilir, şimdilik tek seviye)
-  let allBlocks: WorksheetBlock[] = [];
-  rawBlocks.forEach((block) => {
-    const weight = getBlockWeight(block);
-    if (weight > PAGE_MAX_WEIGHT - HEADER_RESERVE) {
-      allBlocks.push(...splitLargeBlock(block, PAGE_MAX_WEIGHT - HEADER_RESERVE));
-    } else {
-      allBlocks.push(block);
-    }
-  });
-
-  // 2. Sayfalara dağıt (Milimetrik Greedy Algoritması)
-  const pages: WorksheetBlock[][] = [[]];
-  let currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE;
-
-  allBlocks.forEach((block: WorksheetBlock) => {
-    const weight = getBlockWeight(block);
-
-    // Eğer blok tek başına bir sayfadan büyükse (artık allBlocks splitten geçtiği için bu nadirdir)
-    // ya da mevcut sayfaya sığmıyorsa
-    if (currentWeight + weight > PAGE_MAX_WEIGHT - FOOTER_RESERVE) {
-      // Sığmayan bloğu tekrar bölmeyi dene (Son dakika greedy split)
-      const remainingSpace = PAGE_MAX_WEIGHT - FOOTER_RESERVE - currentWeight;
-
-      if (remainingSpace > 150) {
-        // En az 37mm yer varsa bölmeye çalış
-        const splitResults = splitLargeBlock(block, remainingSpace);
-        if (splitResults.length > 1) {
-          pages[pages.length - 1].push(splitResults[0]);
-          pages.push([splitResults[1]]);
-          currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE + getBlockWeight(splitResults[1]);
-          return;
-        }
+    // 1. Önce çok büyük blokları böl (Recursive bölme gerekebilir, şimdilik tek seviye)
+    let allBlocks: WorksheetBlock[] = [];
+    rawBlocks.forEach((block) => {
+      const weight = getBlockWeight(block);
+      if (weight > PAGE_MAX_WEIGHT - HEADER_RESERVE) {
+        allBlocks.push(...splitLargeBlock(block, PAGE_MAX_WEIGHT - HEADER_RESERVE));
+      } else {
+        allBlocks.push(block);
       }
+    });
 
-      // Bölünemiyorsa veya yer çok azsa direkt yeni sayfaya at
-      pages.push([block]);
-      currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE + weight;
-    } else {
-      pages[pages.length - 1].push(block);
-      currentWeight += weight;
-    }
-  });
+    // 2. Sayfalara dağıt (Milimetrik Greedy Algoritması)
+    const pagesResult: WorksheetBlock[][] = [[]];
+    let currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE;
+
+    allBlocks.forEach((block: WorksheetBlock) => {
+      const weight = getBlockWeight(block);
+
+      // Eğer blok tek başına bir sayfadan büyükse (artık allBlocks splitten geçtiği için bu nadirdir)
+      // ya da mevcut sayfaya sığmıyorsa
+      if (currentWeight + weight > PAGE_MAX_WEIGHT - FOOTER_RESERVE) {
+        // Sığmayan bloğu tekrar bölmeyi dene (Son dakika greedy split)
+        const remainingSpace = PAGE_MAX_WEIGHT - FOOTER_RESERVE - currentWeight;
+
+        if (remainingSpace > 150) {
+          // En az 37mm yer varsa bölmeye çalış
+          const splitResults = splitLargeBlock(block, remainingSpace);
+          if (splitResults.length > 1) {
+            pagesResult[pagesResult.length - 1].push(splitResults[0]);
+            pagesResult.push([splitResults[1]]);
+            currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE + getBlockWeight(splitResults[1]);
+            return;
+          }
+        }
+
+        // Bölünemiyorsa veya yer çok azsa direkt yeni sayfaya at
+        pagesResult.push([block]);
+        currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE + weight;
+      } else {
+        pagesResult[pagesResult.length - 1].push(block);
+        currentWeight += weight;
+      }
+    });
+    return pagesResult;
+  }, [rawBlocks, settings?.showStudentInfo]);
 
   const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => {
     const isLandscape = settings?.orientation === 'landscape';
