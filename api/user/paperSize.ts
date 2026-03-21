@@ -1,4 +1,5 @@
 /**
+import type { VercelRequest, VercelResponse } from '@vercel/node';
  * OOGMATIK - User PaperSize API (Bypassing external dependencies for debug)
  */
 
@@ -49,7 +50,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(405).json({ error: 'Yöntem izni yok' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(error, { context: 'PaperSize API' });
     return res.status(500).json({
       error: 'Server Error',

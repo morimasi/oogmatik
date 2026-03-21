@@ -94,7 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             timestamp: new Date().toISOString()
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         const appError = toAppError(error);
         logError(appError, {
             context: 'Feedback API Handler Unhandled Error',

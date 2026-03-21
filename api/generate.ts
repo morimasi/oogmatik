@@ -160,7 +160,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // CRITICAL: We remove generationConfig and systemInstruction COMPLETELY
         // to ensure NO SNAKE_CASE fields are ever sent to Google API from this proxy.
         // Google will use the prompt-embedded instructions.
-        const requestBody: any = {
+        const requestBody: Record<string, unknown> = {
           contents
         };
 
@@ -193,7 +193,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader('X-Oogmatik-Deploy', '2024-03-18-v4-MINIMAL');
     res.setHeader('X-Prompt-Security', 'validated');
     return res.status(200).json(JSON.parse(result.text));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return handleError(res, toAppError(error));
   }
 }
