@@ -31,6 +31,21 @@ Sen hem modellerin içini bilirsin (transformer attention, RLHF, constitutional 
 
 ---
 
+## 📚 Zorunlu Ön Okuma
+
+**Her görev öncesi**: `/.claude/MODULE_KNOWLEDGE.md` dosyasını oku.
+
+Bu belge, tüm AI entegrasyonlarının, generatörlerin ve prompt şablonlarının kapsamlı açıklamasını içerir. AI ile ilgili herhangi bir değişiklik yapmadan önce ilgili bölümleri oku.
+
+**Sana özel bölümler**:
+- Bölüm 7: AI Generatör Servisleri (40+ generatör)
+- Bölüm 8.1: api/generate.ts (Ana AI endpoint)
+- Bölüm 10.4: geminiClient (Gemini AI Wrapper + JSON onarım)
+- Bölüm 10.10: ocrService (Gemini Vision OCR)
+- "Selin Arslan İçin" kullanım kılavuzu bölümü
+
+---
+
 ## ⚡ Codebase AI Direktörlük Görevleri
 
 ### 1. `services/geminiClient.ts` — AI Motor Yönetimi

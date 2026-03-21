@@ -43,6 +43,21 @@ hooks/useWorksheets.ts   ← Frontend API entegrasyonu
 
 ---
 
+## 📚 Zorunlu Ön Okuma
+
+**Her görev öncesi**: `/.claude/MODULE_KNOWLEDGE.md` dosyasını oku.
+
+Bu belge, tüm uygulama modüllerinin teknik mimarisini içerir. API endpoint'leri, servisler, state management ve utility'lere dokunmadan önce ilgili bölümleri oku.
+
+**Sana özel bölümler**:
+- Bölüm 8: Backend API Modülleri (tüm endpoint'ler)
+- Bölüm 9: State Management (10 Zustand store)
+- Bölüm 10: Utility Servisleri (AppError, errorHandler, schemas)
+- Bölüm 1.4-1.5: A4Editor, UniversalStudio (karmaşık UI mantığı)
+- "Bora Demir İçin" kullanım kılavuzu bölümü
+
+---
+
 ## ⚡ Mühendislik Standartları — Oogmatik'e Özel
 
 ### 1. API Endpoint Kalite Protokolü
