@@ -110,6 +110,12 @@ const INJECTION_PATTERNS: Array<{
     description: 'Memory wipe attempt',
   },
   {
+    pattern: /forget\s+all\s+your\s+instructions?/gi,
+    category: 'MEMORY_MANIPULATION',
+    level: 'critical',
+    description: 'Complete instruction erasure attempt',
+  },
+  {
     pattern: /override\s+(?:your|all|the)\s+(?:rules?|instructions?|guidelines?|safety)/gi,
     category: 'INSTRUCTION_OVERRIDE',
     level: 'critical',
@@ -126,10 +132,16 @@ const INJECTION_PATTERNS: Array<{
     description: 'Role reassignment attempt',
   },
   {
-    pattern: /act\s+as\s+(?:if\s+)?(?:you\s+(?:are|were)\s+)?(?:a|an|the)?\s*(?:different|new|another)/gi,
+    pattern: /act\s+as\s+(?:if\s+)?(?:you\s+(?:are|were)\s+)?(?:a|an|the)?\s*(?:different|new|another|human|person)/gi,
     category: 'ROLE_MANIPULATION',
     level: 'high',
     description: 'Actor mode manipulation',
+  },
+  {
+    pattern: /from\s+now\s+on\s+you\s+(?:will|are|should)/gi,
+    category: 'ROLE_MANIPULATION',
+    level: 'high',
+    description: 'Future behavior manipulation',
   },
   {
     pattern: /pretend\s+(?:to\s+be|you\s+are|that)\s+/gi,
@@ -178,7 +190,7 @@ const INJECTION_PATTERNS: Array<{
     description: 'System prompt extraction attempt',
   },
   {
-    pattern: /(?:show|reveal|display|print|output)\s+(?:your|the)\s+(?:system\s+)?(?:prompt|instructions?)/gi,
+    pattern: /(?:show|reveal|display|print|output|tell\s+me)\s+(?:your|the)\s+(?:system\s+)?(?:prompt|instructions?|guidelines?)/gi,
     category: 'SYSTEM_PROMPT_EXTRACTION',
     level: 'medium',
     description: 'Prompt reveal attempt',
@@ -212,7 +224,7 @@ const INJECTION_PATTERNS: Array<{
     description: 'Fake system tag injection',
   },
   {
-    pattern: /#{3,}\s*(?:SYSTEM|INSTRUCTIONS?|OVERRIDE|NEW\s+TASK)/gi,
+    pattern: /#{3,}\s*(?:SYSTEM|INSTRUCTIONS?|OVERRIDE|NEW\s+(?:TASK|INSTRUCTIONS?)|IGNORE\s+ABOVE)/gi,
     category: 'DELIMITER_INJECTION',
     level: 'medium',
     description: 'Delimiter injection',

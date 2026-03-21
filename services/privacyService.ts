@@ -302,8 +302,9 @@ export class PrivacyService {
         return text.length > 20 ? text.slice(0, 20) + '...[MASKELENDI]' : text;
 
       case 'family':
-        // Aile bilgisi: isimleri maskele
-        return text.replace(/\b[A-ZÇĞIÖŞÜ][a-zçğıöşü]+\b/g, '[AD_MASKELENDI]');
+        // Aile bilgisi: isimleri maskele (5+ karakter olan isimleri)
+        // "Baba:", "Anne:" gibi aile rollerini korur
+        return text.replace(/\b[A-ZÇĞIÖŞÜ][a-zçğıöşü]{4,}\b/g, '[AD_MASKELENDI]');
 
       default:
         return text;
