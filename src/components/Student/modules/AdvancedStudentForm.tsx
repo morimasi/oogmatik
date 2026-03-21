@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdvancedStudent } from '../../../types/student-advanced';
+import { PrivacyService } from '../../../services/privacyService';
 
 interface AdvancedStudentFormProps {
   onSave: (student: Partial<AdvancedStudent>) => void;
@@ -74,6 +75,20 @@ export const AdvancedStudentForm: React.FC<AdvancedStudentFormProps> = ({ onSave
   };
 
   const handleSubmit = () => {
+    // Hash TC No for KVKK compliance if provided
+    let tcNoHash = undefined;
+    let tcNoLastFour = undefined;
+
+    if (formData.tcNo && formData.tcNo.length === 11) {
+      try {
+        const result = PrivacyService.hashTcNo(formData.tcNo);
+        tcNoHash = result.hash;
+        tcNoLastFour = result.lastFour;
+      } catch (error) {
+        console.error('TC No hashing error:', error);
+      }
+    }
+
     // Map form data to AdvancedStudent structure
     // Note: This is a partial mapping, a real app would need more robust mapping
     const newStudent: Partial<AdvancedStudent> = {
@@ -82,7 +97,8 @@ export const AdvancedStudentForm: React.FC<AdvancedStudentFormProps> = ({ onSave
       grade: formData.grade,
       // @ts-ignore - Extending core type with extra fields (mock)
       personalInfo: {
-        tcNo: formData.tcNo,
+        tcNoHash,
+        tcNoLastFour,
         birthDate: formData.birthDate,
         gender: formData.gender,
         bloodType: formData.bloodType,
