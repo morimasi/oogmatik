@@ -43,6 +43,7 @@ export interface ValidationResult {
     sizeInMB: number;
     type: string;
     estimatedProcessingTime: number; // ms
+    warnings?: string[];
   };
 }
 
@@ -260,6 +261,90 @@ export const assessImageQuality = async (base64: string): Promise<ImageQualityRe
 
     img.src = base64;
   });
+};
+
+// ─── BASE64 IMAGE VALIDATION ────────────────────────────────────────────
+
+/**
+ * Base64 encoded image string doğrulama
+ * API endpoint'leri için kullanılır
+ */
+export const validateBase64Image = (base64: string): ValidationResult => {
+  // Base64 header check
+  const headerMatch = base64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/);
+
+  if (!headerMatch) {
+    return {
+      valid: false,
+      reason: 'Geçersiz base64 formatı. Data URL header eksik.',
+      file: new File([], 'unknown'),
+      metadata: {
+        sizeInMB: base64.length / (1024 * 1024),
+        type: 'unknown',
+        estimatedProcessingTime: 0
+      }
+    };
+  }
+
+  const mimeType = headerMatch[1];
+
+  // MIME type check
+  if (!ALL_ALLOWED_TYPES.includes(mimeType as any)) {
+    return {
+      valid: false,
+      reason: `Desteklenmeyen format: ${mimeType}. Desteklenen: JPG, PNG, WebP, GIF, PDF`,
+      file: new File([], 'unknown'),
+      metadata: {
+        sizeInMB: base64.length / (1024 * 1024),
+        type: mimeType,
+        estimatedProcessingTime: 0
+      }
+    };
+  }
+
+  // Base64 boyut tahmini (base64 ~33% daha büyük)
+  const base64Data = base64.split(',')[1] || '';
+  const estimatedSize = (base64Data.length * 3) / 4;
+  const estimatedSizeMB = estimatedSize / (1024 * 1024);
+
+  // Size limit check
+  const isImage = ALLOWED_MIME_TYPES.images.includes(mimeType as any);
+  const sizeLimit = isImage ? FILE_SIZE_LIMITS.image : FILE_SIZE_LIMITS.pdf;
+  const limitMB = (sizeLimit / (1024 * 1024)).toFixed(0);
+
+  if (estimatedSize > sizeLimit) {
+    return {
+      valid: false,
+      reason: `Görsel çok büyük (~${estimatedSizeMB.toFixed(2)}MB, max ${limitMB}MB). Lütfen daha küçük bir dosya kullanın.`,
+      file: new File([], 'unknown'),
+      metadata: {
+        sizeInMB: estimatedSizeMB,
+        type: mimeType,
+        estimatedProcessingTime: 0
+      }
+    };
+  }
+
+  // Estimated processing time
+  const estimatedTime = isImage ? estimatedSizeMB * 200 : estimatedSizeMB * 500;
+
+  const warnings: string[] = [];
+
+  // Size warning
+  if (estimatedSizeMB > 10) {
+    warnings.push('Büyük dosya boyutu. İşlem süresi uzun olabilir.');
+  }
+
+  return {
+    valid: true,
+    file: new File([], 'base64-image'),
+    metadata: {
+      sizeInMB: estimatedSizeMB,
+      type: mimeType,
+      estimatedProcessingTime: estimatedTime,
+      warnings
+    }
+  };
 };
 
 // ─── DYSLEXIA-SAFE DIGIT VALIDATION ────────────────────────────────────
