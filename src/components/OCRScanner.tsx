@@ -60,9 +60,10 @@ const ProgressTracker = ({ phase, startTime, retryCount, variantCount = 1, activ
         return () => clearInterval(timer);
     }, [startTime]);
 
-    // Tahmini süreler (ms)
-    const estimatedTime = phase === 'analyzing' ? 8000 : (12000 * variantCount);
-    const progress = Math.min(95, (elapsed / estimatedTime) * 100);
+    // Tahmini süreler (ms) - Analiz genelde 12-15s sürer, varyant üretimi ise 20-30s
+    const estimatedTime = phase === 'analyzing' ? 15000 : (25000 * variantCount);
+    // 92% sınırında beklet (stuck at 95% hissiyatını azaltmak için)
+    const progress = Math.min(92, (elapsed / estimatedTime) * 100);
     const elapsedSec = Math.floor(elapsed / 1000);
 
     const phases = phase === 'analyzing'
@@ -224,16 +225,26 @@ const convertPDFToImages = (file: File): Promise<string[]> => {
                 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
                 const pdf = await pdfjsLib.getDocument({ data: uint8 }).promise;
                 const images: string[] = [];
-                const pageCount = Math.min(pdf.numPages, 5); // Maks 5 sayfa
+                const pageCount = Math.min(pdf.numPages, 10); // Maks 10 sayfa
+
                 for (let i = 1; i <= pageCount; i++) {
                     const page = await pdf.getPage(i);
                     const viewport = page.getViewport({ scale: 2 });
                     const canvas = document.createElement('canvas');
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
+
                     const ctx = canvas.getContext('2d')!;
                     await page.render({ canvasContext: ctx, viewport }).promise;
-                    images.push(canvas.toDataURL('image/jpeg', 0.85));
+
+                    // Dinamik kalite ayarı: Büyük görseller için kaliteyi koru
+                    const quality = canvas.width > 2000 ? 0.92 : 0.85;
+                    images.push(canvas.toDataURL('image/jpeg', quality));
+
+                    // Memory Cleanup: Belleği serbest bırakmak için canvas'ı temizle
+                    canvas.width = 0;
+                    canvas.height = 0;
+                    canvas.remove();
                 }
                 resolve(images);
             } catch {
@@ -277,6 +288,39 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         setToast({ message, type });
         setTimeout(() => setToast(null), 6000);
     }, []);
+
+    /**
+     * Assesses image quality (brightness) to warn user if it might fail OCR
+     */
+    const assessImageQuality = (base64: string) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d')!;
+            // Sample a small version for speed
+            canvas.width = 100;
+            canvas.height = 100;
+            ctx.drawImage(img, 0, 0, 100, 100);
+
+            const imageData = ctx.getImageData(0, 0, 100, 100).data;
+            let brightness = 0;
+            for (let i = 0; i < imageData.length; i += 4) {
+                brightness += (imageData[i] + imageData[i+1] + imageData[i+2]) / 3;
+            }
+            brightness = brightness / (imageData.length / 4);
+
+            if (brightness < 40) {
+                showToast('Görsel çok karanlık görünüyor. Analiz kalitesi düşük olabilir.', 'warning');
+            } else if (brightness > 240) {
+                showToast('Görsel çok parlak veya boş görünüyor.', 'warning');
+            }
+
+            canvas.width = 0;
+            canvas.height = 0;
+            canvas.remove();
+        };
+        img.src = base64;
+    };
 
     // ─── Dosya İşleme (hem file input hem drag&drop) ──────
     // ─── File Size Constraints ─────────────────────────────────
@@ -425,6 +469,9 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         const allNewImages = [...loadedImages, ...pdfImages];
 
         if (allNewImages.length === 0) return;
+
+        // Perform quality assessment on new images
+        allNewImages.forEach(img => assessImageQuality(img));
 
         const maxAllowed = 5 - images.length;
         const toAdd = allNewImages.slice(0, maxAllowed);
@@ -600,11 +647,21 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         setStep('generating');
         setProgressStartTime(Date.now());
         try {
+            // Student-based difficulty override logic
+            let finalDifficulty = difficulty;
+            if (activeStudent) {
+                // If student grade is high (8+) default to Hard
+                const isHighGrade = parseInt(activeStudent.grade) >= 8;
+                if (isHighGrade) {
+                    finalDifficulty = 'Zor';
+                }
+            }
+
             const blueprintToUse = isEditingBlueprint ? editedBlueprint : blueprintData.worksheetBlueprint;
             const titleToUse = editedTitle || blueprintData.title;
             const options: any = {
                 mode: 'ai',
-                difficulty,
+                difficulty: finalDifficulty,
                 worksheetCount: variantCount,
                 itemCount: itemCount,
                 topic: concept ? `${titleToUse} (${concept} bağlamında)` : titleToUse,

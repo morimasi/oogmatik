@@ -31,21 +31,32 @@ const hashBase64 = (base64: string): string => {
 const getCachedResult = (base64: string): OCRResult | null => {
     const key = hashBase64(base64);
     const cached = blueprintCache.get(key);
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        return cached.result;
+
+    if (cached) {
+        if (Date.now() - cached.timestamp < CACHE_TTL) {
+            // LRU logic: re-insert to move to the end (newest)
+            blueprintCache.delete(key);
+            blueprintCache.set(key, cached);
+            return cached.result;
+        } else {
+            blueprintCache.delete(key); // TTL expired
+        }
     }
-    if (cached) blueprintCache.delete(key); // TTL geçmiş, sil
     return null;
 };
 
 const setCacheResult = (base64: string, result: OCRResult): void => {
     const key = hashBase64(base64);
-    blueprintCache.set(key, { result, timestamp: Date.now() });
-    // Maks 20 önbellek girişi tut
-    if (blueprintCache.size > 20) {
+
+    if (blueprintCache.has(key)) {
+        blueprintCache.delete(key);
+    } else if (blueprintCache.size >= 20) {
+        // Remove the oldest (first inserted) item
         const oldest = blueprintCache.keys().next().value;
-        if (oldest) blueprintCache.delete(oldest);
+        if (oldest !== undefined) blueprintCache.delete(oldest);
     }
+
+    blueprintCache.set(key, { result, timestamp: Date.now() });
 };
 
 /**
@@ -59,7 +70,7 @@ const validateBlueprint = (blueprint: string): { isValid: boolean; quality: 'hig
     }
 
     if (blueprint.trim().length < BLUEPRINT_MIN_LENGTH) {
-        warnings.push(`Blueprint çok kısa (${blueprint.trim().length} karakter). Daha net bir görsel deneyin.`);
+        warnings.push('Görselde çok az içerik tespit edildi. Daha net veya daha yakından çekilmiş bir görsel deneyin.');
         return { isValid: true, quality: 'low', warnings };
     }
 
@@ -68,7 +79,7 @@ const validateBlueprint = (blueprint: string): { isValid: boolean; quality: 'hig
     const hasKeywords = meaningfulKeywords.some(kw => lowerBlueprint.includes(kw));
 
     if (!hasKeywords && blueprint.trim().length < 200) {
-        warnings.push('Blueprint yapısal anahtar kelimeler içermiyor. Analiz kalitesi düşük olabilir.');
+        warnings.push('Belge yapısı belirsiz görünüyor. Analiz kalitesi düşük olabilir.');
         return { isValid: true, quality: 'medium', warnings };
     }
 
@@ -77,6 +88,11 @@ const validateBlueprint = (blueprint: string): { isValid: boolean; quality: 'hig
 
 export const ocrService = {
     processImage: async (base64Image: string): Promise<OCRResult> => {
+        // Network connectivity check
+        if (typeof window !== 'undefined' && !navigator.onLine) {
+            throw new Error('İnternet bağlantınız kesildi. Lütfen kontrol edin.');
+        }
+
         // Önbellek kontrolü
         const cached = getCachedResult(base64Image);
         if (cached) {
@@ -121,10 +137,10 @@ export const ocrService = {
                         hasImages: { type: 'BOOLEAN', description: "Görseller içeriyor mu?" },
                         questionCount: { type: 'NUMBER', description: "Tahmini soru/madde sayısı" }
                     },
-                    required: ['columns', 'hasImages', 'questionCount']
+                    required: [] // Relaxed schema
                 }
             },
-            required: ['title', 'detectedType', 'worksheetBlueprint', 'layoutHints']
+            required: ['title', 'detectedType', 'worksheetBlueprint']
         };
 
         try {
@@ -135,6 +151,13 @@ export const ocrService = {
                 throw new Error(validation.warnings.join(' '));
             }
 
+            // Provide default values for optional layoutHints
+            const layoutHints = {
+                columns: result.layoutHints?.columns || 1,
+                hasImages: result.layoutHints?.hasImages || false,
+                questionCount: result.layoutHints?.questionCount || 0
+            };
+
             const ocrResult: OCRResult = {
                 rawText: result.worksheetBlueprint,
                 detectedType: (result.detectedType as OCRDetectedType) || 'ARCH_CLONE',
@@ -143,6 +166,7 @@ export const ocrService = {
                 generatedTemplate: result.worksheetBlueprint,
                 structuredData: {
                     ...result,
+                    layoutHints,
                     detectedType: (result.detectedType as OCRDetectedType) || 'OTHER'
                 },
                 baseType: 'OCR_CONTENT',
