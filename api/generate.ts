@@ -10,6 +10,12 @@ import {
 import { validateGenerateActivityRequest } from '../utils/schemas.js';
 import { RateLimiter } from '../services/rateLimiter.js';
 import { retryWithBackoff, logError } from '../utils/errorHandler.js';
+import {
+  validatePromptSecurity,
+  sanitizePromptInput,
+  quickThreatCheck,
+  DEFAULT_MAX_LENGTH,
+} from '../utils/promptSecurity.js';
 
 // Fallback types for non-Vercel environments
 export type VercelRequest = any;
@@ -43,15 +49,62 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { prompt, schema, image, mimeType, userId, systemInstruction, model } = req.body;
 
-    // 1. Validation
+    // 1. Basic Validation
     try {
       validateGenerateActivityRequest({ prompt, schema, image, mimeType });
     } catch (error) {
       return handleError(res, toAppError(error));
     }
 
-    // 2. Rate Limiting
+    // 2. Prompt Injection Security Check
+    // AI Direktoru Selin Arslan: Her prompt AI'a gonderilmeden once guvenlik kontrolunden gecmeli
     const actualUserId = userId || (req.headers['x-user-id'] as string) || 'anonymous';
+    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
+                     (req.headers['x-real-ip'] as string) ||
+                     'unknown';
+
+    // Quick threat check for fast rejection of obvious attacks
+    if (quickThreatCheck(prompt)) {
+      logError(new ValidationError('Prompt injection attempt detected (quick check)', {
+        userId: actualUserId,
+        ip: clientIp,
+        prompt: prompt?.substring(0, 100),
+      }));
+    }
+
+    // Full security validation
+    const securityResult = validatePromptSecurity(prompt, {
+      maxLength: DEFAULT_MAX_LENGTH,
+      enableLogging: true,
+      blockOnThreat: true,
+      threatThreshold: 'medium',
+    }, {
+      userId: actualUserId,
+      ipAddress: clientIp,
+    });
+
+    if (!securityResult.isSafe) {
+      const threatCategories = [...new Set(securityResult.threats.map(t => t.category))];
+      logError(new ValidationError('Prompt injection blocked', {
+        userId: actualUserId,
+        ip: clientIp,
+        threatCount: securityResult.threats.length,
+        categories: threatCategories,
+      }));
+
+      return handleError(res, new ValidationError(
+        'Guvenlik kontrolunden gecemeyen ifadeler tespit edildi. Lutfen talebinizi yeniden duzenleyin.',
+        {
+          code: 'PROMPT_INJECTION_DETECTED',
+          threatCount: securityResult.threats.length,
+        }
+      ));
+    }
+
+    // Use sanitized prompt for AI call
+    const sanitizedPrompt = securityResult.sanitizedInput;
+
+    // 3. Rate Limiting
     const userTier = (req.headers['x-user-tier'] as string) || 'free';
     try {
       await rateLimiter.enforceLimit(actualUserId, userTier as any, 'apiGeneration');
@@ -60,18 +113,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       throw error;
     }
 
-    // 3. API Key
+    // 4. API Key
     const apiKey =
       process.env.VITE_GEMINI_API_KEY || process.env.VITE_GOOGLE_API_KEY || process.env.API_KEY;
     if (!apiKey) {
-      throw new InternalServerError('API Key bulunamadı (Sunucu Yapılandırma Hatası).');
+      throw new InternalServerError('API Key bulunamadi (Sunucu Yapilandirma Hatasi).');
     }
 
-    // 4. AI Call with Direct REST API (No SDK)
+    // 5. AI Call with Direct REST API (No SDK)
     const result = await retryWithBackoff(
       async () => {
         let selectedModel = model || MASTER_MODEL;
-        // Eski önbelleklenmiş verilerden gelebilecek kullanım dışı modelleri engelle
+        // Eski onbelleklenmis verilerden gelebilecek kullanim disi modelleri engelle
         if (selectedModel.includes('gemini-2.0') || selectedModel.includes('gemini-1.5') || selectedModel.includes('gemini-3')) {
           selectedModel = MASTER_MODEL;
         }
@@ -95,12 +148,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // Insert system instruction into the user prompt to maintain AI behavior
-        const combinedPrompt = `[SİSTEM TALİMATI BAŞLANGICI]\n${systemInstruction || SYSTEM_INSTRUCTION}\n[SİSTEM TALİMATI BİTİŞİ]\n\n[KULLANICI İSTEĞİ]:\n${prompt}`;
+        // IMPORTANT: Use sanitizedPrompt instead of raw prompt
+        const combinedPrompt = `[SISTEM TALIMATI BASLANGICI]\n${systemInstruction || SYSTEM_INSTRUCTION}\n[SISTEM TALIMATI BITISI]\n\n[KULLANICI ISTEGI]:\n${sanitizedPrompt}`;
 
         // Text prompt
         contents[0].parts.push({ text: combinedPrompt });
 
-        // CRITICAL: We remove generationConfig and systemInstruction COMPLETELY 
+        // CRITICAL: We remove generationConfig and systemInstruction COMPLETELY
         // to ensure NO SNAKE_CASE fields are ever sent to Google API from this proxy.
         // Google will use the prompt-embedded instructions.
         const requestBody: any = {
@@ -116,7 +170,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (!response.ok) {
           const errJson = await response.json().catch(() => ({}));
           throw new InternalServerError(
-            `Gemini API Hatası: ${errJson.error?.message || response.statusText}`
+            `Gemini API Hatasi: ${errJson.error?.message || response.statusText}`
           );
         }
 
@@ -124,7 +178,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!text) {
-          throw new InternalServerError('AI yanıtı boş dönderdi.');
+          throw new InternalServerError('AI yaniti bos donderdi.');
         }
 
         return { text };
@@ -132,8 +186,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       { maxRetries: 2 }
     );
 
-    // 5. Success
+    // 6. Success
     res.setHeader('X-Oogmatik-Deploy', '2024-03-18-v4-MINIMAL');
+    res.setHeader('X-Prompt-Security', 'validated');
     return res.status(200).json(JSON.parse(result.text));
   } catch (error: any) {
     return handleError(res, toAppError(error));
