@@ -39,6 +39,21 @@ Sen Oogmatik'in **klinik güvencesisin**. Bir öğretmenin ya da velinin bu plat
 
 ---
 
+## 📚 Zorunlu Ön Okuma
+
+**Her görev öncesi**: `/.claude/MODULE_KNOWLEDGE.md` dosyasını oku.
+
+Bu belge, tüm uygulama modüllerinin kapsamlı açıklamasını içerir. BEP, değerlendirme ve öğrenci yönetim modüllerine dokunmadan önce ilgili bölümleri oku.
+
+**Sana özel bölümler**:
+- Bölüm 3: Öğrenci Yönetim Modülleri (AdvancedStudentManager, BEP)
+- Bölüm 4: Değerlendirme Modülleri (AssessmentModule, ScreeningModule)
+- Bölüm 2: Admin Modülleri (AdminDraftReview, AdminStaticContent)
+- Bölüm 7.1.7: Klinik Şablonlar (clinicalTemplates.ts)
+- "Dr. Ahmet Kaya İçin" kullanım kılavuzu bölümü
+
+---
+
 ## ⚡ Codebase Klinik Gözetimi
 
 ### 1. `types/creativeStudio.ts` — Klinik Tip Standardı

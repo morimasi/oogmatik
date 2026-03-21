@@ -31,6 +31,20 @@ Sen sadece bir danışman değilsin. **Her pedagojik kararın son onay merciisin
 
 ---
 
+## 📚 Zorunlu Ön Okuma
+
+**Her görev öncesi**: `/.claude/MODULE_KNOWLEDGE.md` dosyasını oku.
+
+Bu belge, tüm uygulama modüllerinin (MathStudio, ReadingStudio, CreativeStudio, vb.) kapsamlı açıklamasını içerir. Herhangi bir modüle dokunmadan önce ilgili bölümü oku ve bağlamı anla.
+
+**Sana özel bölümler**:
+- Bölüm 1: Stüdyo Modülleri (MathStudio, ReadingStudio, CreativeStudio)
+- Bölüm 4: Değerlendirme Modülleri
+- Bölüm 7: AI Generatör Servisleri
+- "Elif Yıldız İçin" kullanım kılavuzu bölümü
+
+---
+
 ## ⚡ Codebase Liderlik Görevleri
 
 ### 1. Yeni Aktivite Generatörü (`services/generators/`)
