@@ -50,9 +50,10 @@ const VERCEL_PREVIEW_PATTERN = /^https:\/\/oogmatik-git-[a-z0-9-]+-[a-z0-9]+\.ve
  */
 export function isAllowedOrigin(origin: string | undefined): boolean {
   if (!origin) {
-    // Origin header yoksa (same-origin requests veya bazı araçlar)
-    // Geliştirme ortamında izin ver, production'da reddet
-    return process.env.NODE_ENV === 'development';
+    // Origin header yoksa: same-origin request veya server-to-server çağrı
+    // Tarayıcı same-origin requestlerde Origin göndermez → bu güvenlidir
+    // Not: CORS sadece cross-origin istekleri düzenler, same-origin her zaman geçerlidir
+    return true;
   }
 
   // Exact match kontrolü

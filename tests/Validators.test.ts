@@ -209,9 +209,18 @@ describe('Request Validators', () => {
       expect(result.errors.prompt).toBeDefined();
     });
 
-    it('should reject missing activityType', () => {
+    it('should allow missing activityType (optional field)', () => {
       const result = validateGenerateActivityRequest({
         prompt: 'Create content',
+      });
+
+      expect(result.valid).toBe(true);
+    });
+
+    it('should reject invalid activityType format', () => {
+      const result = validateGenerateActivityRequest({
+        prompt: 'Create content',
+        activityType: 123, // must be string if provided
       });
 
       expect(result.valid).toBe(false);

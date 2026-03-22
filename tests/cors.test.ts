@@ -74,14 +74,14 @@ describe('CORS Validation System', () => {
       expect(isAllowedOrigin('https://oogmatik.com.evil.com')).toBe(false);
     });
 
-    it('origin header yoksa development izin verir', () => {
+    it('origin header yoksa (same-origin) her ortamda izin verir', () => {
       const originalEnv = process.env.NODE_ENV;
 
       process.env.NODE_ENV = 'development';
       expect(isAllowedOrigin(undefined)).toBe(true);
 
       process.env.NODE_ENV = 'production';
-      expect(isAllowedOrigin(undefined)).toBe(false);
+      expect(isAllowedOrigin(undefined)).toBe(true);
 
       process.env.NODE_ENV = originalEnv;
     });
