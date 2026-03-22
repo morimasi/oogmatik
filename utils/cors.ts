@@ -23,7 +23,7 @@ const ALLOWED_ORIGINS = [
   'https://oogmatik.vercel.app',
 
   // Preview deployments (Vercel pattern)
-  /^https:\/\/oogmatik-[a-z0-9]+-[a-z0-9]+\.vercel\.app$/,
+  /^https:\/\/oogmatik.*\.vercel\.app$/,
 
   // Development
   'http://localhost:5173',     // Vite default
@@ -40,7 +40,7 @@ const ALLOWED_ORIGINS = [
  * Vercel preview deployment pattern matcher
  * Örnek: https://oogmatik-git-feature-user.vercel.app
  */
-const VERCEL_PREVIEW_PATTERN = /^https:\/\/oogmatik-git-[a-z0-9-]+-[a-z0-9]+\.vercel\.app$/;
+const VERCEL_PREVIEW_PATTERN = /^https:\/\/oogmatik.*\.vercel\.app$/;
 
 /**
  * Origin'in izin verilen listede olup olmadığını kontrol eder
@@ -57,17 +57,19 @@ export function isAllowedOrigin(origin: string | undefined): boolean {
   }
 
   // Exact match kontrolü
-  if (ALLOWED_ORIGINS.some(allowed => typeof allowed === 'string' && allowed === origin)) {
+  const cleanOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
+
+  if (ALLOWED_ORIGINS.some(allowed => typeof allowed === 'string' && allowed === cleanOrigin)) {
     return true;
   }
 
   // Regex pattern kontrolü
-  if (ALLOWED_ORIGINS.some(allowed => allowed instanceof RegExp && allowed.test(origin))) {
+  if (ALLOWED_ORIGINS.some(allowed => allowed instanceof RegExp && allowed.test(cleanOrigin))) {
     return true;
   }
 
   // Vercel preview deployment kontrolü
-  if (VERCEL_PREVIEW_PATTERN.test(origin)) {
+  if (VERCEL_PREVIEW_PATTERN.test(cleanOrigin)) {
     return true;
   }
 

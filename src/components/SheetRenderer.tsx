@@ -892,6 +892,8 @@ const UnifiedContentRenderer = React.memo(({
         data-page-idx={pageIdx}
         className={pageClass}
         style={{
+          width: isLandscape ? '297mm' : '210mm',
+          minHeight: isLandscape ? '210mm' : '297mm',
           backgroundColor: 'white',
           color: 'black',
           colorScheme: 'light' as any,
@@ -993,7 +995,7 @@ const UnifiedContentRenderer = React.memo(({
       }}
     >
       {pages.map((p, i) => (
-        <LazyPage key={i} pageIdx={i} totalPages={pages.length}>
+        <LazyPage key={i} pageIdx={i} totalPages={pages.length} isLandscape={settings?.orientation === 'landscape'}>
           {renderPage(p, i)}
         </LazyPage>
       ))}
@@ -1036,15 +1038,13 @@ const SortableBlockItem: React.FC<{
           setSelectedBlockId(block.id);
         }
       }}
-      className={`block-container transition-all duration-200 ${
-        isEditorOpen
+      className={`block-container transition-all duration-200 ${isEditorOpen
           ? 'cursor-pointer hover:ring-2 hover:ring-indigo-300 hover:shadow-md relative group/block'
           : ''
-      } ${
-        isEditorOpen && selectedBlockId === block.id
+        } ${isEditorOpen && selectedBlockId === block.id
           ? 'ring-2 ring-indigo-500 shadow-lg bg-indigo-50/10'
           : ''
-      }`}
+        }`}
     >
       {isEditorOpen && (
         <button
@@ -1062,7 +1062,7 @@ const SortableBlockItem: React.FC<{
 });
 
 /** Lazy Page: Viewport dışındaki sayfalar placeholder, girince fade-in animasyonu */
-const LazyPage: React.FC<{ children: React.ReactNode; pageIdx: number; totalPages: number }> = ({ children, pageIdx, totalPages }) => {
+const LazyPage: React.FC<{ children: React.ReactNode; pageIdx: number; totalPages: number; isLandscape?: boolean }> = ({ children, pageIdx, totalPages, isLandscape }) => {
   const ref = React.useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = React.useState(pageIdx < 2); // İlk 2 sayfa hemen render
   const [hasAnimated, setHasAnimated] = React.useState(pageIdx < 2);
@@ -1090,8 +1090,10 @@ const LazyPage: React.FC<{ children: React.ReactNode; pageIdx: number; totalPage
   }, [isVisible, hasAnimated]);
 
   if (!isVisible) {
+    const widthClass = isLandscape ? 'w-[297mm]' : 'w-[210mm]';
+    const heightClass = isLandscape ? 'min-h-[210mm]' : 'min-h-[297mm]';
     return (
-      <div ref={ref} className="w-[210mm] min-h-[297mm] bg-slate-50 rounded border border-slate-200 flex items-center justify-center mb-8">
+      <div ref={ref} className={`${widthClass} ${heightClass} bg-slate-50 rounded border border-slate-200 flex items-center justify-center mb-8`}>
         <div className="text-center opacity-40">
           <i className="fa-regular fa-file text-4xl text-slate-300 mb-2 block"></i>
           <span className="text-xs font-bold text-slate-400">Sayfa {pageIdx + 1} / {totalPages}</span>

@@ -47,15 +47,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { prompt, schema, image, mimeType, userId, systemInstruction, model } = req.body;
-
     // 1. Basic Validation
-    const validation = validateGenerateActivityRequest(req.body);
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const { prompt, schema, image, mimeType, userId, systemInstruction, model } = body;
+
+    const validation = validateGenerateActivityRequest(body);
     if (!validation.valid) {
-      return handleError(res, new ValidationError(
-        Object.values(validation.errors).join(', '),
-        validation.errors
-      ));
+      logError(new ValidationError("Generate Payload Validation Warning/Error: " + JSON.stringify(validation.errors)));
+      // Sadece prompt eksik veya hatali ise uretimi durdur, activityType vs. eksikse tolere et
+      if (validation.errors.prompt || !prompt) {
+        return handleError(res, new ValidationError(
+          validation.errors.prompt || 'Prompt (Talimat) eksik veya geçersiz.',
+          validation.errors
+        ));
+      }
     }
 
     // 2. Prompt Injection Security Check
