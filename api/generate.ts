@@ -18,9 +18,7 @@ import {
 } from '../utils/promptSecurity.js';
 import { corsMiddleware } from '../utils/cors.js';
 
-// Fallback types for non-Vercel environments
-export type VercelRequest = any;
-export type VercelResponse = any;
+// Types are imported from @vercel/node above
 
 const MASTER_MODEL = 'gemini-2.5-flash';
 
@@ -52,18 +50,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { prompt, schema, image, mimeType, userId, systemInstruction, model } = req.body;
 
     // 1. Basic Validation
-    try {
-      validateGenerateActivityRequest({ prompt, schema, image, mimeType });
-    } catch (error) {
-      return handleError(res, toAppError(error));
+    const validation = validateGenerateActivityRequest(req.body);
+    if (!validation.valid) {
+      return handleError(res, new ValidationError(
+        Object.values(validation.errors).join(', '),
+        validation.errors
+      ));
     }
 
     // 2. Prompt Injection Security Check
     // AI Direktoru Selin Arslan: Her prompt AI'a gonderilmeden once guvenlik kontrolunden gecmeli
     const actualUserId = userId || (req.headers['x-user-id'] as string) || 'anonymous';
     const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
-                     (req.headers['x-real-ip'] as string) ||
-                     'unknown';
+      (req.headers['x-real-ip'] as string) ||
+      'unknown';
 
     // Quick threat check for fast rejection of obvious attacks
     if (quickThreatCheck(prompt)) {

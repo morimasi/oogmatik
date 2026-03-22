@@ -1,9 +1,7 @@
 /**
-import type { VercelRequest, VercelResponse } from '@vercel/node';
- * OOGMATIK - User PaperSize API (Bypassing external dependencies for debug)
+ * OOGMATIK - User PaperSize API
  */
-
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { corsMiddleware } from '../../utils/cors.js';
 import { logger } from '../../utils/logger.js';
 
@@ -51,11 +49,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(405).json({ error: 'Yöntem izni yok' });
   } catch (error: unknown) {
-    logger.error(error, { context: 'PaperSize API' });
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const err = error instanceof Error ? error : new Error(String(error));
+    logger.error(err, { context: 'PaperSize API' });
     return res.status(500).json({
       error: 'Server Error',
-      message: errorMessage
+      message: err.message
     });
   }
 }

@@ -3,7 +3,7 @@
  * KVKK uyumlu loglama - Kişisel veri loglamayı engeller
  */
 
-import { AppError } from './AppError';
+import { AppError } from './AppError.js';
 
 type LogLevel = 'info' | 'warn' | 'error' | 'audit';
 
@@ -155,10 +155,10 @@ export const logger = new Logger();
  * Sadece error ve warn'a izin ver
  */
 export const disableConsoleInProduction = (): void => {
-  if (typeof window !== 'undefined' && import.meta.env.PROD) {
-    console.log = () => {};
-    console.info = () => {};
-    console.debug = () => {};
+  if (typeof window !== 'undefined' && typeof import.meta !== 'undefined' && (import.meta as any).env?.PROD) {
+    console.log = () => { };
+    console.info = () => { };
+    console.debug = () => { };
     // console.error ve console.warn'a dokunma - bunlar kritik
   }
 };
