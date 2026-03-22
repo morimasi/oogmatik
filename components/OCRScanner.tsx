@@ -224,7 +224,7 @@ const convertPDFToImages = (file: File): Promise<string[]> => {
                 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
                 const pdf = await pdfjsLib.getDocument({ data: uint8 }).promise;
                 const images: string[] = [];
-                const pageCount = Math.min(pdf.numPages, 5); // Maks 5 sayfa
+                const pageCount = Math.min(pdf.numPages, 10); // Maks 10 sayfa (Limit artırıldı)
                 for (let i = 1; i <= pageCount; i++) {
                     const page = await pdf.getPage(i);
                     const viewport = page.getViewport({ scale: 2 });
@@ -233,7 +233,15 @@ const convertPDFToImages = (file: File): Promise<string[]> => {
                     canvas.height = viewport.height;
                     const ctx = canvas.getContext('2d')!;
                     await page.render({ canvasContext: ctx, viewport }).promise;
-                    images.push(canvas.toDataURL('image/jpeg', 0.85));
+
+                    // Dinamik Kalite: Genişlik > 2000 ise 0.90, değilse 0.80
+                    const quality = viewport.width > 2000 ? 0.90 : 0.80;
+                    images.push(canvas.toDataURL('image/jpeg', quality));
+
+                    // Memory Leak Önlemi: Canvas temizliği
+                    canvas.width = 0;
+                    canvas.height = 0;
+                    canvas.remove();
                 }
                 resolve(images);
             } catch {
@@ -501,6 +509,12 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     };
 
     const startAnalysis = async (img: string, attemptNumber: number = 1) => {
+        // Network check
+        if (!navigator.onLine) {
+            showToast('İnternet bağlantınız kesildi. Lütfen kontrol edin.', 'error');
+            return;
+        }
+
         setStep('analyzing');
         setProgressStartTime(Date.now());
 
@@ -602,9 +616,21 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         try {
             const blueprintToUse = isEditingBlueprint ? editedBlueprint : blueprintData.worksheetBlueprint;
             const titleToUse = editedTitle || blueprintData.title;
+
+            // Student personalization: Adjust difficulty based on learningStyle if student is active
+            let effectiveDifficulty = difficulty;
+            if (activeStudent) {
+                // If student is selected and it's not a manual 'Zor' setting,
+                // we can bias towards their profile or just ensure context is passed.
+                // For now, let's implement a simple mapping as suggested in the audit.
+                if (activeStudent.learningStyle === 'Görsel' && difficulty === 'Başlangıç') {
+                    effectiveDifficulty = 'Orta'; // Visual learners might handle more structure
+                }
+            }
+
             const options: any = {
                 mode: 'ai',
-                difficulty,
+                difficulty: effectiveDifficulty,
                 worksheetCount: variantCount,
                 itemCount: itemCount,
                 topic: concept ? `${titleToUse} (${concept} bağlamında)` : titleToUse,
