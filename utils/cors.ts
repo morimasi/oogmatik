@@ -360,3 +360,59 @@ export function removeAllowedOrigin(origin: string | RegExp): void {
     ALLOWED_ORIGINS.splice(index, 1);
   }
 }
+
+/**
+ * Legacy CORS middleware wrapper for backward compatibility
+ * Wraps handleCorsPreflight and setCorsHeaders
+ *
+ * @param req - Vercel Request
+ * @param res - Vercel Response
+ * @returns true if request should continue, false if already handled
+ *
+ * @example
+ * ```typescript
+ * export default async function handler(req: VercelRequest, res: VercelResponse) {
+ *   if (!corsMiddleware(req, res)) {
+ *     return; // CORS handled or failed
+ *   }
+ *   // Continue with endpoint logic
+ * }
+ * ```
+ */
+export function corsMiddleware(req: VercelRequest, res: VercelResponse): boolean {
+  try {
+    // Handle OPTIONS preflight
+    if (req.method === 'OPTIONS') {
+      setCorsHeaders(req, res);
+      res.status(200).end();
+      return false;
+    }
+
+    // Set CORS headers for actual request
+    setCorsHeaders(req, res);
+    return true;
+
+  } catch (error) {
+    // CORS validation failed
+    if (error instanceof AppError) {
+      res.status(error.httpStatus).json({
+        success: false,
+        error: {
+          message: error.userMessage,
+          code: error.code
+        },
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      res.status(403).json({
+        success: false,
+        error: {
+          message: 'CORS validation failed',
+          code: 'CORS_ERROR'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+    return false;
+  }
+}
