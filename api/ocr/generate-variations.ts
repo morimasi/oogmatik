@@ -110,19 +110,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // OCR varyasyon üretimi için GENERATE limiti kullanılır
     // 10 varyasyon = 1 generation olarak sayılır (batch efficiency)
-    const allowed = await rateLimiter.checkLimit(userId, 'GENERATE');
-    if (!allowed) {
-      throw new AppError(
-        'Günlük aktivite üretim limitiniz doldu. 24 saat sonra tekrar deneyiniz.',
-        'RATE_LIMIT_EXCEEDED',
-        429,
-        {
-          userId,
-          action: 'OCR_GENERATE_VARIATIONS',
-          retryAfter: 86400 // 24 saat
-        },
-        true // retryable
-      );
+    const userTier = (req.headers['x-user-tier'] as string) || 'free';
+    try {
+      await rateLimiter.enforceLimit(userId, userTier as any, 'apiGeneration');
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw error;
     }
 
     // ─── VARIATION GENERATION ────────────────────────────────────────────

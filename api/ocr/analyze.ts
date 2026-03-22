@@ -83,15 +83,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // ─── RATE LIMITING ───────────────────────────────────────────────────
 
-    const allowed = await rateLimiter.checkLimit(userId, 'OCR_ANALYZE');
-    if (!allowed) {
-      throw new AppError(
-        'OCR analiz limitine ulaştınız. Lütfen 60 dakika sonra tekrar deneyin.',
-        'RATE_LIMIT_EXCEEDED',
-        429,
-        { userId, action: 'OCR_ANALYZE' },
-        true // retryable
-      );
+    const userTier = (req.headers['x-user-tier'] as string) || 'free';
+    try {
+      await rateLimiter.enforceLimit(userId, userTier as any, 'ocrScan');
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw error;
     }
 
     // ─── IMAGE VALIDATION ────────────────────────────────────────────────
