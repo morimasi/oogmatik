@@ -52,9 +52,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Yöntem izni yok' });
   } catch (error: unknown) {
     logger.error(error, { context: 'PaperSize API' });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return res.status(500).json({
       error: 'Server Error',
-      message: error?.message || 'Unknown'
+      message: errorMessage
     });
   }
 }
