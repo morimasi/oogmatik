@@ -32,6 +32,8 @@ const getCachedResult = (base64: string): OCRResult | null => {
     const key = hashBase64(base64);
     const cached = blueprintCache.get(key);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        // LRU: Son erişim zamanını güncelle
+        cached.timestamp = Date.now();
         return cached.result;
     }
     if (cached) blueprintCache.delete(key); // TTL geçmiş, sil
@@ -41,10 +43,14 @@ const getCachedResult = (base64: string): OCRResult | null => {
 const setCacheResult = (base64: string, result: OCRResult): void => {
     const key = hashBase64(base64);
     blueprintCache.set(key, { result, timestamp: Date.now() });
-    // Maks 20 önbellek girişi tut
+
+    // Maks 20 önbellek girişi tut (LRU Tahliye Stratejisi)
     if (blueprintCache.size > 20) {
-        const oldest = blueprintCache.keys().next().value;
-        if (oldest) blueprintCache.delete(oldest);
+        const entries = Array.from(blueprintCache.entries());
+        const oldest = entries.sort((a, b) => a[1].timestamp - b[1].timestamp)[0];
+        if (oldest) {
+            blueprintCache.delete(oldest[0]);
+        }
     }
 };
 
@@ -121,10 +127,10 @@ export const ocrService = {
                         hasImages: { type: 'BOOLEAN', description: "Görseller içeriyor mu?" },
                         questionCount: { type: 'NUMBER', description: "Tahmini soru/madde sayısı" }
                     },
-                    required: ['columns', 'hasImages', 'questionCount']
+                    required: [] // Hiçbiri zorunlu değil (Robusti artırır)
                 }
             },
-            required: ['title', 'detectedType', 'worksheetBlueprint', 'layoutHints']
+            required: ['title', 'detectedType', 'worksheetBlueprint']
         };
 
         try {
