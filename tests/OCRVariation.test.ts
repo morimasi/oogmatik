@@ -222,7 +222,7 @@ describe('OCR Variation Service - Generation', () => {
     const mockVariations = Array.from({ length: 3 }, (_, i) => ({
       title: `Test ${i + 1}`,
       type: 'MATH_STUDIO',
-      content: '<div>Test content with sufficient length for validation</div>',
+      content: '<div>Test content with sufficient length for validation and quality assessment to exceed the 100 character minimum requirement.</div>',
       pedagogicalNote: 'This is a complete pedagogical note that meets the minimum character requirement for quality validation.',
       difficultyLevel: 'Kolay',
       targetSkills: ['Skill 1', 'Skill 2'],
@@ -259,7 +259,7 @@ describe('OCR Variation Service - Quality Validation', () => {
     const variation = {
       title: 'Perfect Activity',
       type: 'MATH_STUDIO',
-      content: '<div>This is a complete activity with sufficient content length</div>',
+      content: '<div>This is a complete activity with sufficient content length to meet the 100 character minimum requirement for quality validation scoring system.</div>',
       pedagogicalNote:
         'This pedagogical note is comprehensive and provides clear guidance to teachers about the educational objectives.',
       difficultyLevel: 'Orta',
