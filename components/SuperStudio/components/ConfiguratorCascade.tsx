@@ -6,7 +6,7 @@ import { TemplateSettingsRegistry, GenericTemplateSettings } from '../templates'
 export const ConfiguratorCascade: React.FC = () => {
     const {
         selectedTemplates, templateSettings, generationMode, grade, difficulty, studentId,
-        setIsGenerating, isGenerating, clearGeneratedContents, addGeneratedContent
+        setIsGenerating, isGenerating, clearGeneratedContents, addGeneratedContent, setTemplateSetting
     } = useSuperStudioStore();
 
     const handleGenerate = async () => {
