@@ -4,9 +4,9 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { exactCloneService } from '../../services/exactCloneService.js';
-import { activityApprovalService } from '../../services/activityApprovalService.js';
-import type { ExactCloneRequest } from '../../types/ocr-activity.js';
+import { exactCloneService } from '../src/../services/exactCloneService.js';
+import { activityApprovalService } from '../src/../services/activityApprovalService.js';
+import type { ExactCloneRequest } from '../src/../types/ocr-activity.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // CORS

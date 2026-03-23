@@ -4,9 +4,9 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { promptActivityService } from '../../services/promptActivityService.js';
-import { activityApprovalService } from '../../services/activityApprovalService.js';
-import type { PromptGenerationRequest } from '../../types/ocr-activity.js';
+import { promptActivityService } from '../src/../services/promptActivityService.js';
+import { activityApprovalService } from '../src/../services/activityApprovalService.js';
+import type { PromptGenerationRequest } from '../src/../types/ocr-activity.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // CORS

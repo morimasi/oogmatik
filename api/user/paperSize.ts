@@ -2,8 +2,8 @@
  * OOGMATIK - User PaperSize API
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { corsMiddleware } from '../../utils/cors.js';
-import { logger } from '../../utils/logger.js';
+import { corsMiddleware } from '../src/../utils/cors.js';
+import { logger } from '../src/../utils/logger.js';
 
 // Persistence simulator (in-memory)
 const paperSizeStore = new Map<string, string>();

@@ -6,17 +6,17 @@ import {
   RateLimitError,
   InternalServerError,
   toAppError,
-} from '../utils/AppError.js';
-import { validateGenerateActivityRequest } from '../utils/schemas.js';
-import { RateLimiter } from '../services/rateLimiter.js';
-import { retryWithBackoff, logError } from '../utils/errorHandler.js';
+} from '../src/utils/AppError.js';
+import { validateGenerateActivityRequest } from '../src/utils/schemas.js';
+import { RateLimiter } from '../src/services/rateLimiter.js';
+import { retryWithBackoff, logError } from '../src/utils/errorHandler.js';
 import {
   validatePromptSecurity,
   sanitizePromptInput,
   quickThreatCheck,
   DEFAULT_MAX_LENGTH,
-} from '../utils/promptSecurity.js';
-import { corsMiddleware } from '../utils/cors.js';
+} from '../src/utils/promptSecurity.js';
+import { corsMiddleware } from '../src/utils/cors.js';
 
 // ============================================================
 // JSON ONARIM MOTORU (api/generate.ts — server-side)
