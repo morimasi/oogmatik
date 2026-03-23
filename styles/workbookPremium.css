@@ -72,13 +72,7 @@
 /* PREMIUM BORDER THEMES — Köşe süslemeleri ve gradient'ler   */
 /* ═══════════════════════════════════════════════════════════ */
 
-/* Tematik kenarlık köşe süslemeleri — dört köşede dekoratif elementler */
-.worksheet-page[style*="--theme-border-type: math"]::before,
-.worksheet-page[style*="--theme-border-type: verbal"]::before,
-.worksheet-page[style*="--theme-border-type: stars"]::before,
-.worksheet-page[style*="--theme-border-type: geo"]::before {
-    /* Watermark ::before zaten kullanılıyor, bu nedenle corner'lar ayrı */
-}
+
 
 /* Gradient border glow efekti — tematik kenarlıklarda hafif parıldama */
 .worksheet-page[style*="--theme-border-type: math"] {
