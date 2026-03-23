@@ -9,6 +9,7 @@ import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, Stude
 import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
 import { logError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';
 
+// @ts-ignore - Vercel TS build might not resolve firebase types correctly with node resolution
 const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, startAfter } = firestore;
 
 /**

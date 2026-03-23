@@ -1,6 +1,9 @@
 
+// @ts-ignore
 import { initializeApp, getApp, getApps } from "firebase/app";
+// @ts-ignore
 import { getAuth } from "firebase/auth";
+// @ts-ignore
 import {
   initializeFirestore,
   persistentLocalCache,
