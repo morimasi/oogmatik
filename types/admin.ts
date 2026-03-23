@@ -103,4 +103,26 @@ export interface ActivityDraft {
     createdBy: string;
     createdAt: string;
     customInstructions: string;
+    // OCR Activity Generation fields
+    productionMode?: 'architecture_clone' | 'prompt_generation' | 'exact_clone';
+    status?: 'draft' | 'pending_review' | 'approved' | 'rejected';
+    version?: string;
+    metadata?: {
+        subject?: string;
+        gradeLevel?: number;
+        ageGroup?: string;
+        difficulty?: string;
+        estimatedDuration?: number;
+        targetSkills?: string[];
+        learningObjectives?: string[];
+        pedagogicalNote?: string;
+        curriculumCode?: string;
+    };
+    templateId?: string;
+    rejectionReason?: string;
+    approvedBy?: string;
+    approvedAt?: string;
+    /** Klonlama/versiyonlama: üst etkinlik ID'si */
+    parentId?: string;
+    updatedAt?: string;
 }
