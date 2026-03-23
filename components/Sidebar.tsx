@@ -44,6 +44,7 @@ interface SidebarProps {
   onOpenCurriculum?: () => void;
   onOpenReadingStudio?: () => void;
   onOpenMathStudio?: () => void;
+  onOpenSuperTurkce?: () => void;
 
   onOpenScreening?: () => void; // Added Prop
   activeCurriculumSession?: ActiveCurriculumSession | null;
@@ -105,6 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenReadingStudio,
   onOpenMathStudio,
   onOpenScreening,
+  onOpenSuperTurkce,
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -151,6 +153,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: 'fa-calculator',
       color: 'bg-blue-500',
       onClick: onOpenMathStudio,
+    },
+    {
+      id: 'super-turkce',
+      label: 'Süper Türkçe Stüdyosu',
+      icon: 'fa-wand-magic-sparkles',
+      color: 'bg-teal-500',
+      onClick: onOpenSuperTurkce,
     },
     {
       id: 'screening',

@@ -141,6 +141,13 @@ const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       id: 'super-turkce',
+      label: 'Süper Türkçe Stüdyosu',
+      icon: 'fa-wand-magic-sparkles',
+      color: 'bg-teal-500',
+      onClick: onOpenSuperTurkce,
+    },
+    {
+      id: 'super-turkce',
       label: 'Süper Türkçe',
       icon: 'fa-language',
       color: 'bg-orange-500',
