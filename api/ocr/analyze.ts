@@ -102,8 +102,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Warnings varsa loglayalım
-    if (validation.metadata && validation.warnings) {
-      console.log('[OCR Analyze] Image warnings:', validation.warnings);
+    if (validation.metadata?.warnings && validation.metadata.warnings.length > 0) {
+      console.log('[OCR Analyze] Image warnings:', validation.metadata.warnings);
     }
 
     // ─── OCR PROCESSING ──────────────────────────────────────────────────

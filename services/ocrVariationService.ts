@@ -281,8 +281,7 @@ export const generateVariations = async (
 
         if (!apiResult || !Array.isArray((apiResult as any).variations)) {
           throw new InternalServerError(
-            'Gemini API geçersiz varyasyon yanıtı döndü.',
-            { apiResult }
+            'Gemini API geçersiz varyasyon yanıtı döndü.'
           );
         }
 
@@ -298,7 +297,7 @@ export const generateVariations = async (
 
     // Post-processing ve validation
     const allWarnings: string[] = [];
-    const processedVariations: WorksheetData = result.variations.map((variation, index) => {
+    const processedVariations: WorksheetData[0][] = result.variations.map((variation, index) => {
       const warnings = validateVariation(variation, index);
       allWarnings.push(...warnings);
       return postProcessVariation(variation, index, request);
@@ -325,7 +324,7 @@ export const generateVariations = async (
     const processingTimeMs = Date.now() - startTime;
 
     return {
-      variations: processedVariations,
+      variations: processedVariations as unknown as WorksheetData[],
       metadata: {
         requestedCount: request.count,
         successfulCount,
