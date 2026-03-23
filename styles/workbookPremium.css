@@ -61,6 +61,7 @@
         width: 210mm !important;
         height: 297mm !important;
     }
+
     .orientation-landscape {
         width: 297mm !important;
         height: 210mm !important;
@@ -158,5 +159,265 @@
 @media print {
     .worksheet-page[style*="--theme-border-type"] {
         box-shadow: none !important;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* OOGMATIK PREMIUM PRINT STYLESHEET v2.0                                 */
+/* Lider: Bora Demir (Mühendislik)  Onay: Elif Yıldız (Pedagoji)         */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── 1. TEMEL SAYFA YAPISI ─────────────────────────────────────────── */
+@media print {
+
+    /* @page: Kenar boşluğu sıfırla — printService overlay kendi margin'ini yönetir */
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+
+    /* HTML & Body: Sıfırla */
+    html,
+    body {
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        /* Renk doğruluğu — arka plan renklerini zorla */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* ─── 2. UI ELEMENTLERİNİ GİZLE ─────────────────────────────────── */
+
+    /* Genel no-print sınıfı */
+    .no-print,
+    [data-no-print],
+    [data-design-only] {
+        display: none !important;
+    }
+
+    /* Navbar, Sidebar, Header, Footer, Butonlar */
+    nav,
+    header,
+    footer,
+    aside,
+    .sidebar,
+    .app-header,
+    .toolbar,
+    .controls,
+    .action-bar,
+    .print-controls,
+    .page-navigator,
+    .zoom-controls,
+    .edit-handle,
+    .resize-handle,
+    .action-button,
+    .toast-container,
+    .modal-backdrop,
+    .overlay-ui,
+    .tooltip,
+    [role="toolbar"],
+    [role="navigation"],
+    [role="dialog"] {
+        display: none !important;
+    }
+
+    /* Okuma cetvelini gizle */
+    .reading-ruler-overlay,
+    [class*="ruler"],
+    [class*="focus-mode"] {
+        display: none !important;
+    }
+
+    /* Sürükle-bırak tutma noktaları */
+    .drag-handle,
+    [class*="dnd"],
+    [class*="sortable-ghost"] {
+        display: none !important;
+    }
+
+    /* Tailwind screen-only yardımcıları */
+    .print\:hidden {
+        display: none !important;
+    }
+
+    /* ─── 3. ÇALIŞMA KAĞIDI SAYFA YAPISI ────────────────────────────── */
+
+    /* Her worksheet-page tam A4 sayfa olarak basılır */
+    .worksheet-page,
+    .universal-mode-canvas,
+    .math-canvas-page,
+    .reading-canvas-page,
+    .a4-page,
+    .print-page {
+        width: 210mm !important;
+        min-height: 297mm !important;
+        max-width: 210mm !important;
+        margin: 0 auto !important;
+        padding: 15mm !important;
+        box-sizing: border-box !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        position: relative !important;
+        /* Sayfa kırılma kuralları */
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        /* Renk doğruluğu */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Son sayfa: sonrasına sayfa kırılması ekleme */
+    .worksheet-page:last-child,
+    .print-page:last-child,
+    .a4-page:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
+    }
+
+    /* Yatay (landscape) sayfalar */
+    .orientation-landscape .worksheet-page,
+    .orientation-landscape.worksheet-page {
+        width: 297mm !important;
+        min-height: 210mm !important;
+        max-width: 297mm !important;
+    }
+
+    /* ─── 4. ÇOKLU SAYFA YATAY ARALIĞI ─────────────────────────────── */
+
+    /* Worksheets arasındaki ekran boşluğunu kaldır */
+    .orientation-portrait>*,
+    .orientation-landscape>* {
+        margin-bottom: 0 !important;
+    }
+
+    /* ─── 5. TİPOGRAFİ & FONT ─────────────────────────────────────── */
+
+    /* Lexend fontu mutlaka korunmalı (disleksi uyumluluğu) */
+    .worksheet-page *,
+    .print-page * {
+        font-family: 'Lexend', 'Lexend Deca', sans-serif !important;
+    }
+
+    /* Baskıda varsayılan metin boyutu iyileştirmesi */
+    .worksheet-page {
+        font-size: 11pt !important;
+        line-height: 1.5 !important;
+    }
+
+    /* ─── 6. İÇERİK BLOKLARI SAYFA KIRMA KONTROLLERİ ─────────────── */
+
+    /* Blok içinden sayfa kırılmasını engelle */
+    .break-inside-avoid,
+    [class*="break-inside-avoid"],
+    .block-logic-card,
+    .block-match,
+    .block-table-container,
+    .block-cloze,
+    .block-categorical,
+    .block-footer-val,
+    .block-clue-card {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Block'lar arası sayfa kırılmasına izin ver */
+    .block-header,
+    .block-text,
+    .block-grid-container {
+        page-break-before: auto !important;
+        break-before: auto !important;
+    }
+
+    /* Tablo satırları sayfaya bölünmesin */
+    tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Resimler sayfaya bölünmesin */
+    img,
+    svg,
+    canvas,
+    figure {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        max-width: 100% !important;
+        height: auto !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* ─── 7. RENKLERİ & ARKA PLANLARI KORU ──────────────────────── */
+
+    /* Tüm arka plan renklerini ve gradyanları koruma altına al */
+    *,
+    *::before,
+    *::after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Çok koyu arka planlar beyaza dönüşmesin */
+    .bg-zinc-900,
+    .bg-black,
+    .bg-gray-900 {
+        background-color: #18181b !important;
+        color: #ffffff !important;
+    }
+
+    /* ─── 8. PRINTING-MODE OVERLAY (printService.ts ile uyum) ──────── */
+
+    /* printService printing-mode aktifken diğer tüm içerikleri gizle */
+    body.printing-mode>*:not(#print-overlay) {
+        display: none !important;
+    }
+
+    body.printing-mode #print-overlay {
+        display: block !important;
+        position: static !important;
+        inset: auto !important;
+        width: 100% !important;
+        overflow: visible !important;
+        background: #ffffff !important;
+    }
+
+    /* Overlay içindeki sayfa düzeni */
+    body.printing-mode #print-overlay .print-page,
+    body.printing-mode #print-overlay .worksheet-page {
+        margin: 0 auto !important;
+        padding: 15mm !important;
+    }
+
+    /* Overlay içindeki görseller */
+    body.printing-mode #print-overlay img {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* ─── 9. SAYFANIN SON SATIRI (Footer) ──────────────────────────── */
+
+    /* Yazdırmada footer gizle, sadece oogmatik damgası göster */
+    .worksheet-footer,
+    .sheet-footer {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Pedagojik not sadece öğretmen baskısında görünsün */
+    .pedagogical-note-print-hide {
+        display: none !important;
     }
 }
