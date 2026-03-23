@@ -52,8 +52,6 @@ interface SidebarProps {
   onOpenCurriculum: () => void;
   onOpenReadingStudio: () => void;
   onOpenMathStudio: () => void;
-  onOpenSuperTurkce: () => void;
-
   onOpenScreening?: () => void;
   activeCurriculumSession: null | {
     planId: string;
@@ -106,8 +104,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenCurriculum,
   onOpenReadingStudio,
   onOpenMathStudio,
-  onOpenSuperTurkce,
-
   onOpenScreening,
   activeCurriculumSession,
 }) => {
@@ -156,14 +152,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       color: 'bg-blue-500',
       onClick: onOpenMathStudio,
     },
-    {
-      id: 'super-turkce',
-      label: 'Süper Türkçe',
-      icon: 'fa-language',
-      color: 'bg-orange-500',
-      onClick: onOpenSuperTurkce,
-    },
-
     {
       id: 'screening',
       label: 'Tarama & Analiz',

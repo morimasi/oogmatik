@@ -69,9 +69,7 @@ const ReadingStudio = lazy(() =>
 const MathStudio = lazy(() =>
   import('./components/MathStudio/MathStudio').then((module) => ({ default: module.MathStudio }))
 );
-const SuperTurkceModule = lazy(() =>
-  import('./src/modules/super-turkce').then((m) => ({ default: m.SuperTurkceModule }))
-);
+
 
 const StudentDashboard = lazy(() =>
   import('./components/Student/StudentDashboard').then((module) => ({
@@ -757,7 +755,6 @@ const AppContent = () => {
             onOpenCurriculum={() => handleOpenStudio('curriculum')}
             onOpenReadingStudio={() => handleOpenStudio('reading-studio')}
             onOpenMathStudio={() => handleOpenStudio('math-studio')}
-            onOpenSuperTurkce={() => handleOpenStudio('super-turkce')}
             onOpenScreening={() => handleOpenStudio('screening')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
@@ -838,17 +835,7 @@ const AppContent = () => {
         </div>
       )}
 
-      {currentView === 'super-turkce' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <SuperTurkceModule
-              onBack={handleGoBack}
-              onAddToWorkbook={handleAddToWorkbookGeneral as any}
-              onSave={addSavedWorksheet}
-            />
-          </Suspense>
-        </div>
-      )}
+
 
       {currentView === 'ocr' && (
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
