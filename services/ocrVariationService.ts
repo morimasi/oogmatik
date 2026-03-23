@@ -6,7 +6,6 @@
  * yeni aktivite varyantları üretir.
  */
 
-import { analyzeImage } from './geminiClient.js';
 import { ValidationError, InternalServerError } from '../utils/AppError.js';
 import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 import type {
@@ -17,6 +16,69 @@ import type {
   AgeGroup,
   Difficulty
 } from '../types.js';
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────
+
+const MASTER_MODEL = 'gemini-2.5-flash';
+
+// ─── DIRECT GEMINI CALLER (server-side only) ─────────────────────────────
+
+/**
+ * Server-side Gemini REST API çağrısı.
+ * analyzeImage (frontend proxy) sunucu tarafında çalışmaz, bu yüzden doğrudan REST API kullanılır.
+ */
+const callGeminiDirect = async (prompt: string): Promise<unknown> => {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY;
+  if (!apiKey) throw new InternalServerError('API Key bulunamadı.');
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MASTER_MODEL}:generateContent?key=${apiKey}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }]
+    }),
+  });
+
+  if (!response.ok) {
+    const errJson = await response.json().catch(() => ({}));
+    throw new InternalServerError(
+      `Gemini API Hatası (varyasyon): ${(errJson as any)?.error?.message || response.statusText}`
+    );
+  }
+
+  const data = await response.json();
+  const text = (data as any)?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new InternalServerError('Gemini boş yanıt döndürdü (varyasyon).');
+
+  // JSON repair
+  let cleaned = text.replace(/[\u200B-\u200D\uFEFF]/g, '').trim()
+    .replace(/^```json[\s\S]*?\n/, '')
+    .replace(/^```\s*/m, '')
+    .replace(/```\s*$/m, '')
+    .trim();
+  const idx = Math.min(
+    cleaned.indexOf('{') === -1 ? Infinity : cleaned.indexOf('{'),
+    cleaned.indexOf('[') === -1 ? Infinity : cleaned.indexOf('[')
+  );
+  if (idx > 0 && idx !== Infinity) cleaned = cleaned.substring(idx);
+
+  try { return JSON.parse(cleaned); } catch { /* devam */ }
+  // Parantez tamamlama
+  const stack: string[] = []; let inStr = false; let esc = false;
+  for (const ch of cleaned) {
+    if (esc) { esc = false; continue; }
+    if (ch === '\\' && inStr) { esc = true; continue; }
+    if (ch === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (ch === '{') stack.push('}'); else if (ch === '[') stack.push(']');
+    else if ((ch === '}' || ch === ']') && stack.length > 0) stack.pop();
+  }
+  if (inStr) cleaned += '"';
+  while (stack.length > 0) cleaned += stack.pop();
+  return JSON.parse(cleaned);
+};
 
 // ─── TYPE DEFINITIONS ────────────────────────────────────────────────────
 
@@ -273,11 +335,7 @@ export const generateVariations = async (
     // Gemini API'ye tek seferde gönder (batch generation)
     const result = await retryWithBackoff<{ variations: any[] }>(
       async () => {
-        const apiResult = await analyzeImage(
-          request.blueprint.rawText, // Blueprint'i tekrar görsel yerine metin olarak gönder
-          prompt,
-          schema
-        );
+        const apiResult = await callGeminiDirect(prompt);
 
         if (!apiResult || !Array.isArray((apiResult as any).variations)) {
           throw new InternalServerError(

@@ -18,6 +18,65 @@ import {
 } from '../utils/promptSecurity.js';
 import { corsMiddleware } from '../utils/cors.js';
 
+// ============================================================
+// JSON ONARIM MOTORU (api/generate.ts — server-side)
+// geminiClient.ts ile aynı 3-katmanlı strateji
+// ============================================================
+
+const balanceBraces = (str: string): string => {
+  const stack: string[] = [];
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if (escaped) { escaped = false; continue; }
+    if (ch === '\\' && inString) { escaped = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === '{') stack.push('}');
+    else if (ch === '[') stack.push(']');
+    else if ((ch === '}' || ch === ']') && stack.length > 0) stack.pop();
+  }
+  if (inString) str += '"';
+  while (stack.length > 0) str += stack.pop();
+  return str;
+};
+
+const tryRepairJson = (jsonStr: string): unknown => {
+  if (!jsonStr) throw new Error('AI yanit bos.');
+
+  let cleaned = jsonStr.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+  // Markdown code block temizle
+  cleaned = cleaned
+    .replace(/^```json[\s\S]*?\n/, '')
+    .replace(/^```\s*/m, '')
+    .replace(/```\s*$/m, '')
+    .trim();
+
+  // JSON baslangicini bul
+  const firstBrace = cleaned.indexOf('{');
+  const firstBracket = cleaned.indexOf('[');
+  let startIndex = -1;
+  if (firstBrace !== -1 && firstBracket !== -1) startIndex = Math.min(firstBrace, firstBracket);
+  else if (firstBrace !== -1) startIndex = firstBrace;
+  else if (firstBracket !== -1) startIndex = firstBracket;
+  if (startIndex > 0) cleaned = cleaned.substring(startIndex);
+
+  // Strateji 1: Direkt parse
+  try { return JSON.parse(cleaned); } catch { /* devam */ }
+
+  // Strateji 2: Eksik parantezleri tamamla
+  try { return JSON.parse(balanceBraces(cleaned)); } catch { /* devam */ }
+
+  // Strateji 3: Son virgule kadar kes, tamamla
+  try {
+    const lastComma = cleaned.lastIndexOf(',');
+    if (lastComma > 0) return JSON.parse(balanceBraces(cleaned.substring(0, lastComma)));
+  } catch { /* devam */ }
+
+  throw new Error('JSON parse tamamen basarisiz. Ham: ' + cleaned.substring(0, 200));
+};
+
 // Types are imported from @vercel/node above
 
 const MASTER_MODEL = 'gemini-2.5-flash';
@@ -194,10 +253,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       { maxRetries: 2 }
     );
 
-    // 6. Success
+    // 6. Success — JSON Repair Engine ile parse et
     res.setHeader('X-Oogmatik-Deploy', '2024-03-18-v4-MINIMAL');
     res.setHeader('X-Prompt-Security', 'validated');
-    return res.status(200).json(JSON.parse(result.text));
+    try {
+      const parsed = tryRepairJson(result.text);
+      return res.status(200).json(parsed);
+    } catch {
+      // Gemini düz metin döndürdüyse (SVG gibi) string olarak dön
+      return res.status(200).json({ text: result.text });
+    }
   } catch (error: unknown) {
     return handleError(res, toAppError(error));
   }
