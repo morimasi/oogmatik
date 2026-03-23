@@ -2,13 +2,14 @@
 import { WorksheetData, ActivityType, StyleSettings, WorksheetBlock } from '../types';
 
 /**
- * Sayfa Kapasite Mantığı v3.0:
+ * Sayfa Kapasite Mantığı v4.0 (Print Optimize):
  * - Blokların fiziksel 'weight' (yükseklik) değerlerine bakar
  * - Devam sayfalarına otomatik mini-header ekler
  * - Sayfa numarası ve toplam sayfa bilgisi ekler
+ * - A4 ebatlarına tam oturması için taşma limitleri daraltıldı
  */
 
-const MAX_PAGE_WEIGHT = 1100; // A4 yüksekliğinin güvenli kullanılabilir alanı (header+footer marjları çıkarılarak)
+const MAX_PAGE_WEIGHT = 950; // Önceden 1100'dü, A4 tam baskıda sayfada taşmaları önlemek için 950'ye düşürüldü
 const HEADER_COST = 160;   // PedagogicalHeader ortalama maliyeti (40mm)
 const STUDENT_INFO_COST = 60; // Öğrenci bilgi şeridi (15mm)
 const CONTINUATION_HEADER_COST = 80; // Devam sayfası mini-header maliyeti
@@ -24,37 +25,37 @@ const getBlockWeight = (block: WorksheetBlock): number => {
     const content: any = block.content || {};
 
     switch (block.type) {
-        case 'header': return 60;
+        case 'header': return 80;
         case 'text': {
             const text = recursiveSafeText(content.text || content);
-            const lines = Math.ceil(text.length / 85);
-            return 15 + (lines * 22);
+            const lines = Math.ceil(text.length / 75); // Geniş font nedeniyle 85'ten 75'e düşürdüm (daha fazla satır)
+            return 25 + (lines * 28); // Ekstra padding/margin payları
         }
         case 'grid': {
             const rows = Math.ceil((content.cells?.length || 0) / (content.cols || 4));
-            return 35 + (rows * 32);
+            return 45 + (rows * 40);
         }
         case 'table': {
             const rows = (content.rows || content.data || []).length;
-            return 40 + (rows * 28);
+            return 50 + (rows * 35);
         }
-        case 'image': return content.height || 260;
+        case 'image': return content.height || 300;
         case 'cloze_test': {
             const text = recursiveSafeText(content.text || '');
-            const lines = Math.ceil(text.length / 80);
-            return 60 + (lines * 24);
+            const lines = Math.ceil(text.length / 70);
+            return 70 + (lines * 30);
         }
-        case 'categorical_sorting': return 60 + (content.categories?.length || 0) * 45;
+        case 'categorical_sorting': return 80 + (content.categories?.length || 0) * 55;
         case 'match_columns': {
             const leftLen = (content.leftColumn || content.left || []).length;
-            return 50 + leftLen * 35;
+            return 60 + leftLen * 45;
         }
-        case 'visual_clue_card': return 80;
-        case 'neuro_marker': return 45;
-        case 'logic_card': return 140;
-        case 'footer_validation': return 100;
-        case 'svg_shape': return content.height || 100;
-        default: return 70;
+        case 'visual_clue_card': return 100;
+        case 'neuro_marker': return 60;
+        case 'logic_card': return 160;
+        case 'footer_validation': return 120;
+        case 'svg_shape': return content.height || 120;
+        default: return 85;
     }
 };
 

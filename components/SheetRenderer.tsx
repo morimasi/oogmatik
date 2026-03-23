@@ -244,7 +244,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
     case 'header':
       return (
         <h2
-          className="block-header text-3xl font-black uppercase text-center mb-4 print:mb-2 border-b-4 border-black pb-2 print:pb-1"
+          className="block-header text-3xl font-black uppercase text-center mb-4 print:mb-2 border-b-4 border-black pb-2 print:pb-1 break-inside-avoid print:break-inside-avoid"
           style={blockStyle}
         >
           <EditableText value={recursiveSafeText(content.text || content)} tag="span" />
@@ -254,7 +254,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
     case 'text':
       return (
         <div
-          className="block-text text-lg leading-relaxed mb-4 print:mb-1 font-dyslexic"
+          className="block-text text-lg leading-relaxed mb-4 print:mb-1 font-dyslexic break-inside-avoid print:break-inside-avoid"
           style={blockStyle}
         >
           <EditableText value={recursiveSafeText(content.text || content)} tag="div" />
@@ -265,7 +265,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
       const cells = content.cells || content.items || content.data || [];
       const cols = content.cols || content.columns || 4;
       return (
-        <div className="block-svg-shape flex justify-center mb-4 print:mb-2">
+        <div className="block-svg-shape flex justify-center mb-4 print:mb-2 break-inside-avoid print:break-inside-avoid">
           <div
             className="block-grid-container grid gap-2 border-4 border-black p-4 print:p-2 bg-zinc-50 rounded-2xl"
             style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
@@ -287,7 +287,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
       const headers: string[] = content.headers || content.columns || [];
       const rows: any[][] = content.rows || content.data || content.items || [];
       return (
-        <div className="block-table-container overflow-hidden border-4 border-black rounded-2xl mb-4 print:mb-2 bg-white mx-auto max-w-full shadow-sm">
+        <div className="block-table-container overflow-hidden border-4 border-black rounded-2xl mb-4 print:mb-2 bg-white mx-auto max-w-full shadow-sm break-inside-avoid print:break-inside-avoid">
           <table className="w-full border-collapse">
             {headers.length > 0 && (
               <thead className="bg-zinc-100">
@@ -324,7 +324,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
 
     case 'logic_card':
       return (
-        <div className="block-logic-card p-5 print:p-2 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm flex flex-col gap-3 print:gap-1 mb-3 print:mb-1 break-inside-avoid">
+        <div className="block-logic-card p-5 print:p-2 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm flex flex-col gap-3 print:gap-1 mb-3 print:mb-1 break-inside-avoid print:break-inside-avoid">
           <div className="logic-text-box bg-zinc-900 text-white p-3 rounded-2xl text-center text-sm font-bold italic mb-1">
             <EditableText value={recursiveSafeText(content.text)} tag="p" />
           </div>
@@ -361,7 +361,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
 
     case 'footer_validation':
       return (
-        <div className="block-footer-val mt-4 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 break-inside-avoid">
+        <div className="block-footer-val mt-4 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 break-inside-avoid print:break-inside-avoid">
           <div className="flex-1">
             <h4 className="text-xl font-black tracking-tight mb-1 uppercase">
               KONTROL VE DOĞRULAMA
@@ -392,7 +392,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
 
     case 'svg_shape':
       return (
-        <div className="block-svg-shape flex justify-center mb-4">
+        <div className="block-svg-shape flex justify-center mb-4 break-inside-avoid print:break-inside-avoid">
           <div className="svg-container w-32 h-32 p-2 border-2 border-zinc-100 rounded-2xl bg-white shadow-sm">
             <svg viewBox={content.viewBox || '0 0 100 100'} className="w-full h-full text-black">
               {(content.paths || []).map((p: string, i: number) => (
@@ -415,7 +415,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
       const parts = rawText.split(/(\[.*?\])/g);
       return (
         <div
-          className="block-cloze p-5 print:p-2 bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-[2rem] mb-4 print:mb-1 relative break-inside-avoid"
+          className="block-cloze p-5 print:p-2 bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-[2rem] mb-4 print:mb-1 relative break-inside-avoid print:break-inside-avoid"
           style={{ lineHeight: '2.4', fontSize: '11px' }}
         >
           <div className="flex items-center gap-2 mb-2">
@@ -454,7 +454,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
       const unassigned = items.filter((it: any) => !it.category);
       const colCount = Math.min(cats.length || 2, 4);
       return (
-        <div className="block-categorical mb-4 break-inside-avoid">
+        <div className="block-categorical mb-4 break-inside-avoid print:break-inside-avoid">
           {unassigned.length > 0 && (
             <div className="block-cat-bank mb-3 p-3 bg-white border-2 border-zinc-100 rounded-xl">
               <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-2">
@@ -520,7 +520,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
       const leftItems: any[] = content.leftColumn || content.left || [];
       const rightItems: any[] = content.rightColumn || content.right || [];
       return (
-        <div className="block-match mb-4 print:mb-1 break-inside-avoid p-4 print:p-2 bg-white border-2 border-zinc-100 rounded-[2rem] shadow-sm">
+        <div className="block-match mb-4 print:mb-1 break-inside-avoid print:break-inside-avoid p-4 print:p-2 bg-white border-2 border-zinc-100 rounded-[2rem] shadow-sm">
           <div className="flex gap-3">
             <div className="flex-1 flex flex-col gap-1.5">
               <p className="block-match-label text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1 text-center">
@@ -568,7 +568,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
 
     case 'visual_clue_card':
       return (
-        <div className="block-clue-card p-4 bg-gradient-to-br from-indigo-50 to-white border-2 border-indigo-100 rounded-[1.5rem] mb-3 flex items-start gap-3 border-l-4 border-l-indigo-500 break-inside-avoid">
+        <div className="block-clue-card p-4 bg-gradient-to-br from-indigo-50 to-white border-2 border-indigo-100 rounded-[1.5rem] mb-3 flex items-start gap-3 border-l-4 border-l-indigo-500 break-inside-avoid print:break-inside-avoid">
           <div className="clue-icon w-10 h-10 bg-indigo-500 text-white rounded-xl flex items-center justify-center text-base shadow-sm flex-shrink-0">
             <i className={`fa-solid ${content.icon || 'fa-lightbulb'}`}></i>
           </div>
@@ -643,7 +643,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
 
     case 'image':
       return (
-        <div className="block-svg-shape mb-4 flex justify-center">
+        <div className="block-svg-shape mb-4 flex justify-center break-inside-avoid print:break-inside-avoid">
           <ImageDisplay
             prompt={content.prompt}
             className="w-full h-48 rounded-[2rem] shadow-md border-4 border-white"
@@ -667,46 +667,45 @@ const getBlockWeight = (block: WorksheetBlock): number => {
 
   switch (type) {
     case 'header':
-      return 40;
+      return 80;
     case 'text': {
       const text = recursiveSafeText(content.text || content);
-      // Her satır ~80 karakter varsayımıyla (11pt font, 15mm padding)
-      const lines = Math.ceil(text.length / 85);
-      return 15 + lines * 22;
+      const lines = Math.ceil(text.length / 75);
+      return 25 + lines * 28;
     }
     case 'grid': {
       const rows = Math.ceil((content.cells?.length || 0) / (content.cols || 4));
-      return 35 + rows * 32;
+      return 45 + rows * 40;
     }
     case 'table': {
       const rows = (content.rows || content.data || []).length;
-      return 40 + rows * 28;
+      return 50 + rows * 35;
     }
     case 'image':
-      return content.height || 260; // Dinamik yükseklik desteği
+      return content.height || 300; // Dinamik yükseklik desteği
     case 'cloze_test': {
       const text = recursiveSafeText(content.text || '');
-      const lines = Math.ceil(text.length / 80);
-      return 60 + lines * 24;
+      const lines = Math.ceil(text.length / 70);
+      return 70 + lines * 30;
     }
     case 'categorical_sorting':
-      return 60 + (content.categories?.length || 0) * 45;
+      return 80 + (content.categories?.length || 0) * 55;
     case 'match_columns': {
       const leftLen = (content.leftColumn || content.left || []).length;
-      return 50 + leftLen * 35;
+      return 60 + leftLen * 45;
     }
     case 'visual_clue_card':
-      return 80;
-    case 'neuro_marker':
-      return 45;
-    case 'logic_card':
-      return 140;
-    case 'footer_validation':
       return 100;
-    case 'svg_shape':
-      return content.height || 100;
-    default:
+    case 'neuro_marker':
       return 60;
+    case 'logic_card':
+      return 160;
+    case 'footer_validation':
+      return 120;
+    case 'svg_shape':
+      return content.height || 120;
+    default:
+      return 85;
   }
 };
 
@@ -1045,15 +1044,13 @@ const SortableBlockItem: React.FC<{
           setSelectedBlockId(block.id);
         }
       }}
-      className={`block-container transition-all duration-200 ${
-        isEditorOpen
+      className={`block-container transition-all duration-200 ${isEditorOpen
           ? 'cursor-pointer hover:ring-2 hover:ring-indigo-300 hover:shadow-md relative group/block'
           : ''
-      } ${
-        isEditorOpen && selectedBlockId === block.id
+        } ${isEditorOpen && selectedBlockId === block.id
           ? 'ring-2 ring-indigo-500 shadow-lg bg-indigo-50/10'
           : ''
-      }`}
+        }`}
     >
       {isEditorOpen && (
         <button

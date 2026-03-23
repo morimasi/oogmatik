@@ -25,9 +25,11 @@ const preloadFontsForCapture = async (): Promise<void> => {
     await Promise.allSettled(loadPromises);
 
     // 3. Tarayıcıya iki kare boyama süresi ver (font metrics stabileşsin)
-    await new Promise<void>((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-    );
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        setTimeout(resolve, 150); // Ekstra bekleme süresi, html2canvas capture öncesi Lexend tarzı fontlar için kritik
+      }))
+    });
   } catch (e) {
     // Font yüklenemese bile yakalamaya devam et
     console.warn('[printService] Font ön-yükleme uyarısı:', e);
@@ -51,7 +53,7 @@ const onCloneForCapture = (clonedDoc: Document): void => {
     // Yazdırma için renk doğruluğu garanti altına al
     const extra = clonedDoc.createElement('style');
     extra.textContent =
-      '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }' +
+      '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; text-rendering: optimizeSpeed !important; }' +
       ' body { background: #ffffff !important; }';
     clonedDoc.head.appendChild(extra);
   } catch (e) {
@@ -279,8 +281,8 @@ export const printService = {
     ensurePrintStyle(paperSize);
 
     // 1. Find the target content
-    const originalContent = document.querySelector(elementSelector);
-    if (!originalContent) {
+    const originalContents = Array.from(document.querySelectorAll(elementSelector));
+    if (originalContents.length === 0) {
       console.warn(`Print target "${elementSelector}" not found, falling back to window.print()`);
       window.print();
       return;
@@ -304,117 +306,118 @@ export const printService = {
     overlay.style.zIndex = '2147483647';
     overlay.style.overflow = 'auto';
 
-    // 3. Clone the content deeply
-    const clonedContent = originalContent.cloneNode(true) as HTMLElement;
-
-    // Use dynamic margins per paper size
     const marginsForThisSize = PAPER_MARGINS[paperSize];
     const top = marginsForThisSize.top;
     const bottom = marginsForThisSize.bottom;
-
-    // Reset padding to ensure header/footer margins are respected
-    clonedContent.style.paddingTop = '0px';
-    clonedContent.style.paddingBottom = '0px';
     const dims = PAPER_DIMENSIONS[paperSize];
-    const isLandscape = clonedContent.classList.contains('landscape');
-    const effectiveDims = isLandscape
-      ? { width: dims.height, height: dims.width }
-      : dims;
 
-    clonedContent.style.width = effectiveDims.width;
-    clonedContent.style.minHeight = effectiveDims.height;
-    clonedContent.style.maxWidth = effectiveDims.width;
-    clonedContent.style.margin = '0 auto';
-    clonedContent.style.boxSizing = 'border-box';
+    originalContents.forEach((originalContent) => {
+      // 3. Clone the content deeply
+      const clonedContent = originalContent.cloneNode(true) as HTMLElement;
 
-    // 3.1. Preserve Canvas Content (cloning doesn't copy canvas state)
-    const originalCanvases = originalContent.querySelectorAll('canvas');
-    const clonedCanvases = clonedContent.querySelectorAll('canvas');
-    originalCanvases.forEach((orig, i) => {
-      const dest = clonedCanvases[i];
-      if (dest) {
-        const ctx = dest.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(orig, 0, 0);
-        } else {
-          // Fallback: Convert to image if context is not available (e.g. webgl)
-          try {
-            const dataUrl = orig.toDataURL();
-            const img = document.createElement('img');
-            img.src = dataUrl;
-            img.style.width = '100%';
-            img.style.height = 'auto';
-            dest.parentNode?.replaceChild(img, dest);
-          } catch (e) {
-            console.warn('Canvas clone failed', e);
+      // Reset padding to ensure header/footer margins are respected
+      clonedContent.style.paddingTop = '0px';
+      clonedContent.style.paddingBottom = '0px';
+
+      const isLandscape = clonedContent.classList.contains('landscape');
+      const effectiveDims = isLandscape
+        ? { width: dims.height, height: dims.width }
+        : dims;
+
+      clonedContent.style.width = effectiveDims.width;
+      clonedContent.style.minHeight = effectiveDims.height;
+      clonedContent.style.maxWidth = effectiveDims.width;
+      clonedContent.style.margin = '0 auto';
+      clonedContent.style.boxSizing = 'border-box';
+      clonedContent.style.pageBreakAfter = 'always';
+
+      // 3.1. Preserve Canvas Content (cloning doesn't copy canvas state)
+      const originalCanvases = originalContent.querySelectorAll('canvas');
+      const clonedCanvases = clonedContent.querySelectorAll('canvas');
+      originalCanvases.forEach((orig, i) => {
+        const dest = clonedCanvases[i];
+        if (dest) {
+          const ctx = dest.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(orig, 0, 0);
+          } else {
+            // Fallback: Convert to image if context is not available (e.g. webgl)
+            try {
+              const dataUrl = orig.toDataURL();
+              const img = document.createElement('img');
+              img.src = dataUrl;
+              img.style.width = '100%';
+              img.style.height = 'auto';
+              dest.parentNode?.replaceChild(img, dest);
+            } catch (e) {
+              console.warn('Canvas clone failed', e);
+            }
           }
         }
-      }
-    });
+      });
 
-    // 3.2. Preserve Form Inputs (textarea, select, input)
-    const originalInputs = originalContent.querySelectorAll('input, textarea, select');
-    const clonedInputs = clonedContent.querySelectorAll('input, textarea, select');
-    originalInputs.forEach((orig: any, i) => {
-      const dest: any = clonedInputs[i];
-      if (dest) {
-        if (orig.type === 'checkbox' || orig.type === 'radio') {
-          dest.checked = orig.checked;
-        } else {
-          dest.value = orig.value;
+      // 3.2. Preserve Form Inputs (textarea, select, input)
+      const originalInputs = originalContent.querySelectorAll('input, textarea, select');
+      const clonedInputs = clonedContent.querySelectorAll('input, textarea, select');
+      originalInputs.forEach((orig: any, i) => {
+        const dest: any = clonedInputs[i];
+        if (dest) {
+          if (orig.type === 'checkbox' || orig.type === 'radio') {
+            dest.checked = orig.checked;
+          } else {
+            dest.value = orig.value;
+          }
         }
-      }
+      });
+
+      // 4. Wrap clone in Table Structure for Guaranteed Margins (The "Table Header Hack")
+      const table = document.createElement('table');
+      table.style.width = '100%';
+      table.style.maxWidth = '100%';
+      table.style.borderCollapse = 'collapse';
+      table.style.margin = '0';
+      table.style.padding = '0';
+      table.style.border = 'none';
+      table.style.pageBreakInside = 'avoid';
+      table.style.pageBreakAfter = 'always';
+
+      // Header (Top Margin Spacer)
+      const thead = document.createElement('thead');
+      const trHead = document.createElement('tr');
+      const tdHead = document.createElement('td');
+      tdHead.innerHTML = `<div style="height: ${top}; overflow: hidden; background: transparent;">&nbsp;</div>`;
+      tdHead.style.border = 'none';
+      tdHead.style.padding = '0';
+      trHead.appendChild(tdHead);
+      thead.appendChild(trHead);
+      table.appendChild(thead);
+
+      // Body (Content)
+      const tbody = document.createElement('tbody');
+      const trBody = document.createElement('tr');
+      const tdBody = document.createElement('td');
+      tdBody.style.border = 'none';
+      tdBody.style.padding = '0';
+      tdBody.style.width = '100%';
+      tdBody.style.verticalAlign = 'top';
+      tdBody.appendChild(clonedContent);
+      trBody.appendChild(tdBody);
+      tbody.appendChild(trBody);
+      table.appendChild(tbody);
+
+      // Footer (Bottom Margin Spacer)
+      const tfoot = document.createElement('tfoot');
+      const trFoot = document.createElement('tr');
+      const tdFoot = document.createElement('td');
+      tdFoot.innerHTML = `<div style="height: ${bottom}; overflow: hidden; background: transparent;">&nbsp;</div>`;
+      tdFoot.style.border = 'none';
+      tdFoot.style.padding = '0';
+      trFoot.appendChild(tdFoot);
+      tfoot.appendChild(trFoot);
+      table.appendChild(tfoot);
+
+      if (overlay) overlay.appendChild(table);
     });
-
-    // 4. Wrap clone in Table Structure for Guaranteed Margins (The "Table Header Hack")
-    // This is the ONLY 100% reliable way to force a top margin on every page
-    // when a continuous element (like a CSS grid) breaks across multiple pages in Chrome,
-    // especially if the user selects "Margin: None" in the print dialog.
-    const table = document.createElement('table');
-    table.style.width = '100%';
-    table.style.maxWidth = '100%';
-    table.style.borderCollapse = 'collapse';
-    table.style.margin = '0';
-    table.style.padding = '0';
-    table.style.border = 'none';
-
-    // Header (Top Margin Spacer)
-    const thead = document.createElement('thead');
-    const trHead = document.createElement('tr');
-    const tdHead = document.createElement('td');
-    tdHead.innerHTML = `<div style="height: ${top}; overflow: hidden; background: transparent;">&nbsp;</div>`;
-    tdHead.style.border = 'none';
-    tdHead.style.padding = '0';
-    trHead.appendChild(tdHead);
-    thead.appendChild(trHead);
-    table.appendChild(thead);
-
-    // Body (Content)
-    const tbody = document.createElement('tbody');
-    const trBody = document.createElement('tr');
-    const tdBody = document.createElement('td');
-    tdBody.style.border = 'none';
-    tdBody.style.padding = '0';
-    tdBody.style.width = '100%';
-    tdBody.style.verticalAlign = 'top';
-    tdBody.appendChild(clonedContent);
-    trBody.appendChild(tdBody);
-    tbody.appendChild(trBody);
-    table.appendChild(tbody);
-
-    // Footer (Bottom Margin Spacer)
-    const tfoot = document.createElement('tfoot');
-    const trFoot = document.createElement('tr');
-    const tdFoot = document.createElement('td');
-    // Use dynamic padding from the worksheet
-    tdFoot.innerHTML = `<div style="height: ${bottom}; overflow: hidden; background: transparent;">&nbsp;</div>`;
-    tdFoot.style.border = 'none';
-    tdFoot.style.padding = '0';
-    trFoot.appendChild(tdFoot);
-    tfoot.appendChild(trFoot);
-    table.appendChild(tfoot);
-
-    overlay.appendChild(table);
 
     // 5. Add printing class to body to trigger CSS overrides
     document.body.classList.add('printing-mode');
