@@ -35,7 +35,7 @@ const sanitizeStudent = (data: any): Partial<Student> => {
     };
 };
 
-const studentStoreCreator = (set: any, get: any) => ({
+export const useStudentStore = create<StudentState>((set: any, get: any) => ({
     students: [],
     activeStudent: null,
     isLoading: false,
@@ -60,8 +60,6 @@ const studentStoreCreator = (set: any, get: any) => ({
                     ...sanitizeStudent(data)
                 } as Student);
             });
-
-            studentList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             set({ students: studentList, isLoading: false });
 
             const { activeStudent } = get();
@@ -97,6 +95,4 @@ const studentStoreCreator = (set: any, get: any) => ({
     deleteStudent: async (id) => {
         await deleteDoc(doc(db, "students", id));
     }
-});
-
-export const useStudentStore = create<StudentState>(studentStoreCreator);
+}));

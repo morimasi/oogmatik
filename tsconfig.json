@@ -35,10 +35,6 @@
     "node_modules",
     "dist",
     "tests/e2e",
-    "components",
-    "services",
-    "store",
-    "src/services/offlineGenerators",
-    "src/services/generators/offline"
+    "src_old"
   ]
 }

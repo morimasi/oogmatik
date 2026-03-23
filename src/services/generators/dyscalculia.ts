@@ -55,7 +55,7 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
         }
     };
 
-    // Fix: Using stable gemini-1.5-flash-latest for maximum reliability
+    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
     const result = await generateWithSchema(prompt, schema);
     return result.map((p: any) => ({
         ...p,

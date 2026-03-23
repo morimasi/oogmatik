@@ -6,6 +6,9 @@ import { generateFromRichPrompt } from '../services/generators/newActivities';
 import { CreativeStudio } from './CreativeStudio/index';
 import { useStudentStore } from '../store/useStudentStore';
 import { useReadingStore } from '../store/useReadingStore';
+import { VariationResultsView } from './VariationResultsView';
+import { useAuthStore } from '../store/useAuthStore';
+import { validateBase64Image } from '../utils/imageValidator';
 
 const PREVIEW_SETTINGS: StyleSettings = {
     fontSize: 16, scale: 0.65, borderColor: '#d4d4d8', borderWidth: 1, margin: 5, columns: 1, gap: 10,
@@ -60,10 +63,9 @@ const ProgressTracker = ({ phase, startTime, retryCount, variantCount = 1, activ
         return () => clearInterval(timer);
     }, [startTime]);
 
-    // Tahmini süreler (ms) - Analiz genelde 12-15s sürer, varyant üretimi ise 20-30s
-    const estimatedTime = phase === 'analyzing' ? 15000 : (25000 * variantCount);
-    // 92% sınırında beklet (stuck at 95% hissiyatını azaltmak için)
-    const progress = Math.min(92, (elapsed / estimatedTime) * 100);
+    // Tahmini süreler (ms)
+    const estimatedTime = phase === 'analyzing' ? 8000 : (12000 * variantCount);
+    const progress = Math.min(95, (elapsed / estimatedTime) * 100);
     const elapsedSec = Math.floor(elapsed / 1000);
 
     const phases = phase === 'analyzing'
@@ -225,23 +227,21 @@ const convertPDFToImages = (file: File): Promise<string[]> => {
                 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
                 const pdf = await pdfjsLib.getDocument({ data: uint8 }).promise;
                 const images: string[] = [];
-                const pageCount = Math.min(pdf.numPages, 10); // Maks 10 sayfa
-
+                const pageCount = Math.min(pdf.numPages, 10); // Maks 10 sayfa (Limit artırıldı)
                 for (let i = 1; i <= pageCount; i++) {
                     const page = await pdf.getPage(i);
                     const viewport = page.getViewport({ scale: 2 });
                     const canvas = document.createElement('canvas');
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
-
                     const ctx = canvas.getContext('2d')!;
                     await page.render({ canvasContext: ctx, viewport }).promise;
 
-                    // Dinamik kalite ayarı: Büyük görseller için kaliteyi koru
-                    const quality = canvas.width > 2000 ? 0.92 : 0.85;
+                    // Dinamik Kalite: Genişlik > 2000 ise 0.90, değilse 0.80
+                    const quality = viewport.width > 2000 ? 0.90 : 0.80;
                     images.push(canvas.toDataURL('image/jpeg', quality));
 
-                    // Memory Cleanup: Belleği serbest bırakmak için canvas'ı temizle
+                    // Memory Leak Önlemi: Canvas temizliği
                     canvas.width = 0;
                     canvas.height = 0;
                     canvas.remove();
@@ -264,7 +264,8 @@ interface OCRScannerProps {
 export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     const { activeStudent, students, setActiveStudent } = useStudentStore();
 
-    const [step, setStep] = (React as any).useState('upload' as 'upload' | 'analyzing' | 'studio' | 'generating' | 'result' | 'creative');
+    const { user } = useAuthStore();
+    const [step, setStep] = (React as any).useState('upload' as 'upload' | 'analyzing' | 'studio' | 'generating' | 'result' | 'creative' | 'variations');
     const [images, setImages] = (React as any).useState([] as string[]);
     const [activeImageIndex, setActiveImageIndex] = (React as any).useState(0);
     const [blueprintData, setBlueprintData] = (React as any).useState(null as any);
@@ -283,44 +284,14 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     const [isDragOver, setIsDragOver] = (React as any).useState(false);
     const fileInputRef = (React as any).useRef(null as HTMLInputElement | null);
     const dropZoneRef = (React as any).useRef(null as HTMLDivElement | null);
+    // OCR Variation states
+    const [variationResults, setVariationResults] = (React as any).useState(null as any);
+    const [variationCount, setVariationCount] = (React as any).useState(3);
 
     const showToast = (React as any).useCallback((message: string, type: ToastType = 'error') => {
         setToast({ message, type });
         setTimeout(() => setToast(null), 6000);
     }, []);
-
-    /**
-     * Assesses image quality (brightness) to warn user if it might fail OCR
-     */
-    const assessImageQuality = (base64: string) => {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d')!;
-            // Sample a small version for speed
-            canvas.width = 100;
-            canvas.height = 100;
-            ctx.drawImage(img, 0, 0, 100, 100);
-
-            const imageData = ctx.getImageData(0, 0, 100, 100).data;
-            let brightness = 0;
-            for (let i = 0; i < imageData.length; i += 4) {
-                brightness += (imageData[i] + imageData[i+1] + imageData[i+2]) / 3;
-            }
-            brightness = brightness / (imageData.length / 4);
-
-            if (brightness < 40) {
-                showToast('Görsel çok karanlık görünüyor. Analiz kalitesi düşük olabilir.', 'warning');
-            } else if (brightness > 240) {
-                showToast('Görsel çok parlak veya boş görünüyor.', 'warning');
-            }
-
-            canvas.width = 0;
-            canvas.height = 0;
-            canvas.remove();
-        };
-        img.src = base64;
-    };
 
     // ─── Dosya İşleme (hem file input hem drag&drop) ──────
     // ─── File Size Constraints ─────────────────────────────────
@@ -470,9 +441,6 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
 
         if (allNewImages.length === 0) return;
 
-        // Perform quality assessment on new images
-        allNewImages.forEach(img => assessImageQuality(img));
-
         const maxAllowed = 5 - images.length;
         const toAdd = allNewImages.slice(0, maxAllowed);
         if (allNewImages.length > maxAllowed) {
@@ -548,6 +516,12 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     };
 
     const startAnalysis = async (img: string, attemptNumber: number = 1) => {
+        // Network check
+        if (!navigator.onLine) {
+            showToast('İnternet bağlantınız kesildi. Lütfen kontrol edin.', 'error');
+            return;
+        }
+
         setStep('analyzing');
         setProgressStartTime(Date.now());
 
@@ -642,26 +616,85 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         }
     };
 
+    // ─── Varyasyon Üretimi (New API Endpoint) ────────────────────
+    const handleGenerateVariations = async () => {
+        setStep('generating');
+        setProgressStartTime(Date.now());
+
+        try {
+            // Validation kullan
+            const validation = validateBase64Image(images[activeImageIndex]);
+            if (!validation.valid) {
+                showToast(validation.reason || 'Görsel geçersiz.', 'error');
+                setStep('studio');
+                return;
+            }
+
+            const response = await fetch('/api/ocr/generate-variations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    blueprint: blueprintData,
+                    count: variationCount,
+                    userId: user?.uid || 'anonymous',
+                    config: {
+                        targetProfile: activeStudent?.learningDisabilities?.[0] || 'mixed',
+                        ageGroup: activeStudent?.age
+                            ? (activeStudent.age <= 7 ? '5-7' : activeStudent.age <= 10 ? '8-10' : activeStudent.age <= 13 ? '11-13' : '14+')
+                            : '8-10',
+                        difficultyLevel: difficulty as 'Kolay' | 'Orta' | 'Zor',
+                        preserveLayout: true,
+                        preserveStructure: true,
+                    },
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'Varyasyon üretimi başarısız oldu.');
+            }
+
+            const result = await response.json();
+
+            if (result.success && result.data) {
+                setVariationResults(result.data);
+                setStep('variations');
+                showToast(`✅ ${result.data.metadata.successfulCount} varyasyon başarıyla üretildi!`, 'success');
+            } else {
+                throw new Error('Geçersiz yanıt formatı.');
+            }
+        } catch (e: unknown) {
+            const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen hata.';
+            showToast(`❌ Varyasyon üretimi başarısız: ${errorMessage}`, 'error');
+            console.error('[OCR Variation] Generation failed:', errorMessage);
+            setStep('studio');
+        }
+    };
+
     // ─── Klonlama ──────────────────────────────────
     const handleClone = async (isExact: boolean = false) => {
         setStep('generating');
         setProgressStartTime(Date.now());
         try {
-            // Student-based difficulty override logic
-            let finalDifficulty = difficulty;
+            const blueprintToUse = isEditingBlueprint ? editedBlueprint : blueprintData.worksheetBlueprint;
+            const titleToUse = editedTitle || blueprintData.title;
+
+            // Student personalization: Adjust difficulty based on learningStyle if student is active
+            let effectiveDifficulty = difficulty;
             if (activeStudent) {
-                // If student grade is high (8+) default to Hard
-                const isHighGrade = parseInt(activeStudent.grade) >= 8;
-                if (isHighGrade) {
-                    finalDifficulty = 'Zor';
+                // If student is selected and it's not a manual 'Zor' setting,
+                // we can bias towards their profile or just ensure context is passed.
+                // For now, let's implement a simple mapping as suggested in the audit.
+                if (activeStudent.learningStyle === 'Görsel' && difficulty === 'Başlangıç') {
+                    effectiveDifficulty = 'Orta'; // Visual learners might handle more structure
                 }
             }
 
-            const blueprintToUse = isEditingBlueprint ? editedBlueprint : blueprintData.worksheetBlueprint;
-            const titleToUse = editedTitle || blueprintData.title;
             const options: any = {
                 mode: 'ai',
-                difficulty: finalDifficulty,
+                difficulty: effectiveDifficulty,
                 worksheetCount: variantCount,
                 itemCount: itemCount,
                 topic: concept ? `${titleToUse} (${concept} bağlamında)` : titleToUse,
@@ -911,17 +944,51 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                                     )}
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                                    <button onClick={() => handleClone(false)} className="py-6 bg-indigo-600 text-white font-black rounded-3xl hover:bg-indigo-700 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 text-sm group border-2 border-indigo-400/20">
+                                <div className="space-y-3 mt-6">
+                                    {/* Variation Count Selector */}
+                                    <div>
+                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Varyasyon Sayısı (Yeni API)</label>
+                                        <div className="flex gap-2">
+                                            {[3, 5, 7, 10].map((n: number) => (
+                                                <button
+                                                    key={n}
+                                                    onClick={() => setVariationCount(n)}
+                                                    className={`flex-1 h-12 rounded-xl border font-black text-sm transition-all ${
+                                                        variationCount === n
+                                                            ? 'bg-purple-500/20 border-purple-500/40 text-purple-400'
+                                                            : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'
+                                                    }`}
+                                                >
+                                                    {n}×
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* New Variation API Button */}
+                                    <button
+                                        onClick={handleGenerateVariations}
+                                        className="w-full py-5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-black rounded-3xl hover:from-purple-700 hover:to-pink-700 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 text-sm group border-2 border-purple-400/20"
+                                    >
                                         <i className="fa-solid fa-wand-magic-sparkles group-hover:rotate-12 transition-transform"></i>
-                                        {variantCount > 1 ? `${variantCount} FARKLI VARYANT ÜRET` : 'YENİ İÇERİKLE KLONLA'}
+                                        {variationCount} VARYASYON ÜRET (YENİ API)
+                                        <span className="px-2 py-0.5 bg-white/20 rounded-full text-[10px] font-black">BETA</span>
                                     </button>
 
-                                    <button onClick={() => handleClone(true)} className="py-6 bg-white text-indigo-950 font-black rounded-3xl hover:bg-slate-100 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 text-sm group border-2 border-slate-200">
-                                        <i className="fa-solid fa-copy group-hover:-translate-y-1 transition-transform"></i>
-                                        BİREBİR AYNI ÜRET (1:1)
-                                    </button>
+                                    {/* Original Clone Buttons */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <button onClick={() => handleClone(false)} className="py-6 bg-indigo-600 text-white font-black rounded-3xl hover:bg-indigo-700 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 text-sm group border-2 border-indigo-400/20">
+                                            <i className="fa-solid fa-wand-magic-sparkles group-hover:rotate-12 transition-transform"></i>
+                                            {variantCount > 1 ? `${variantCount} FARKLI VARYANT ÜRET` : 'YENİ İÇERİKLE KLONLA'}
+                                        </button>
+
+                                        <button onClick={() => handleClone(true)} className="py-6 bg-white text-indigo-950 font-black rounded-3xl hover:bg-slate-100 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 text-sm group border-2 border-slate-200">
+                                            <i className="fa-solid fa-copy group-hover:-translate-y-1 transition-transform"></i>
+                                            BİREBİR AYNI ÜRET (1:1)
+                                        </button>
+                                    </div>
                                 </div>
+
                                 <button onClick={() => setStep('upload')} className="w-full mt-4 py-3 text-slate-500 font-bold hover:text-white transition-colors text-sm uppercase tracking-widest">Farklı Görsel Seç</button>
                             </div>
                         </div>
@@ -954,6 +1021,19 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                             <Worksheet activityType={ActivityType.OCR_CONTENT} data={finalData} settings={PREVIEW_SETTINGS} />
                         </div>
                     </div>
+                )}
+
+                {/* ═══════ VARIATIONS (New API) ═══════ */}
+                {step === 'variations' && variationResults && (
+                    <VariationResultsView
+                        variations={variationResults.variations}
+                        metadata={variationResults.metadata}
+                        onBack={() => setStep('studio')}
+                        onAddToWorksheet={(variation) => {
+                            onResult(variation);
+                            showToast('✅ Varyasyon çalışma kâğıdına eklendi!', 'success');
+                        }}
+                    />
                 )}
             </div>
 

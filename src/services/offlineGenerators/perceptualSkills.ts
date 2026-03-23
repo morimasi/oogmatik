@@ -441,9 +441,9 @@ export const generateOfflineDirectionalTracking = async (
         showClinicalNotes: true,
         gridSize: rows,
         contentType: concept as any,
-      },
+      } as any,
       puzzles,
-    });
+    } as any);
   }
   return results;
 };
@@ -523,7 +523,7 @@ export const generateOfflineVisualOddOneOut = async (
         subType: 'character_discrimination',
       },
       rows,
-    });
+    } as any);
   }
   return results;
 };

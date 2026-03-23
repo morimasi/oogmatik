@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { activityApprovalService } from '../services/activityApprovalService';
-import type { ActivityTemplate } from '../types/ocr-activity';
+import { activityApprovalService } from '@/services/activityApprovalService';
+import type { ActivityTemplate } from '@/types/ocr-activity';
 
 // Mock template for testing
 function createMockTemplate(overrides?: Partial<ActivityTemplate>): ActivityTemplate {

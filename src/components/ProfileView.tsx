@@ -51,31 +51,31 @@ const BentoCard: React.FC<{
   iconColor = 'bg-zinc-100 text-zinc-500',
   action,
 }) => (
-    <div
-      className={`bg-white dark:bg-zinc-800 p-6 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col group ${className}`}
-    >
-      {(title || icon || action) && (
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            {icon && (
-              <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-inner transition-transform group-hover:scale-110 duration-300 ${iconColor}`}
-              >
-                <i className={icon}></i>
-              </div>
-            )}
-            {title && (
-              <h3 className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em]">
-                {title}
-              </h3>
-            )}
-          </div>
-          {action && <div>{action}</div>}
+  <div
+    className={`bg-white dark:bg-zinc-800 p-6 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col group ${className}`}
+  >
+    {(title || icon || action) && (
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          {icon && (
+            <div
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-inner transition-transform group-hover:scale-110 duration-300 ${iconColor}`}
+            >
+              <i className={icon}></i>
+            </div>
+          )}
+          {title && (
+            <h3 className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em]">
+              {title}
+            </h3>
+          )}
         </div>
-      )}
-      <div className="flex-1 flex flex-col">{children}</div>
-    </div>
-  );
+        {action && <div>{action}</div>}
+      </div>
+    )}
+    <div className="flex-1 flex flex-col">{children}</div>
+  </div>
+);
 
 const StatValue: React.FC<{
   value: string | number;
@@ -92,10 +92,11 @@ const StatValue: React.FC<{
     )}
     {subValue && (
       <div
-        className={`text-[10px] font-black px-2 py-1 rounded-full inline-flex items-center gap-1 mt-3 w-fit ${trend === 'up'
-          ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20'
-          : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-700'
-          }`}
+        className={`text-[10px] font-black px-2 py-1 rounded-full inline-flex items-center gap-1 mt-3 w-fit ${
+          trend === 'up'
+            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20'
+            : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-700'
+        }`}
       >
         {trend === 'up' && <i className="fa-solid fa-arrow-trend-up"></i>}
         {subValue}
@@ -112,10 +113,11 @@ const TabPill: React.FC<{ active: boolean; onClick: () => void; label: string; i
 }) => (
   <button
     onClick={onClick}
-    className={`px-6 py-3.5 rounded-2xl text-xs font-black flex items-center gap-3 transition-all duration-300 uppercase tracking-widest border-2 ${active
-      ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white shadow-2xl scale-105 z-10'
-      : 'bg-white dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 border-transparent hover:border-zinc-100 dark:hover:border-zinc-700'
-      }`}
+    className={`px-6 py-3.5 rounded-2xl text-xs font-black flex items-center gap-3 transition-all duration-300 uppercase tracking-widest border-2 ${
+      active
+        ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white shadow-2xl scale-105 z-10'
+        : 'bg-white dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 border-transparent hover:border-zinc-100 dark:hover:border-zinc-700'
+    }`}
   >
     <i className={`${icon} ${active ? 'animate-bounce' : ''}`}></i>
     <span>{label}</span>
@@ -197,7 +199,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   >('profile');
 
   const [aiSettings, setAiSettings] = useState({
-    model: 'gemini-1.5-pro',
+    model: 'gemini-2.5-pro',
     creativity: 75,
     autoSuggest: true,
     analysisDepth: 'detailed',
@@ -744,7 +746,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                             {Math.round(
                               (plan.schedule.filter((d) => d.isCompleted).length /
                                 plan.schedule.length) *
-                              100
+                                100
                             )}
                           </span>
                         </div>
@@ -762,7 +764,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                           PLANA GİT
                         </button>
                         <button
-                          onClick={() => { }}
+                          onClick={() => {}}
                           className="w-14 h-14 bg-zinc-100 dark:bg-zinc-700 rounded-2xl flex items-center justify-center text-zinc-500"
                         >
                           <i className="fa-solid fa-print"></i>
@@ -1189,8 +1191,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                                 }
                                 className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
                               >
-                                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash</option>
+                                <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                                 <option value="internal-pro">Oogmatik Pro</option>
                               </select>
                             </div>

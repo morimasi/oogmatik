@@ -7,7 +7,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { AppError, AuthenticationError, AuthorizationError } from '../utils/AppError.js';
 import { hasPermission, hasRole, UserRole, Permission } from '../services/rbac.js';
 import { logError } from '../utils/errorHandler.js';
-import { JWTService, extractTokenFromHeader } from '../services/jwtService.js';
 
 /**
  * Extract user info from request headers or JWT token
@@ -17,32 +16,20 @@ export const extractUserInfo = (req: VercelRequest): {
     role: UserRole | null;
 } => {
     try {
-        // SECURITY: Prioritize JWT verification over unverified headers
-        const authHeader = req.headers.authorization as string;
-        const token = extractTokenFromHeader(authHeader);
-
-        if (token) {
-            try {
-                const decoded = JWTService.verifyToken(token);
-                return {
-                    userId: decoded.userId,
-                    role: decoded.role as UserRole,
-                };
-            } catch (jwtError) {
-                // Token invalid or expired - we don't fallback to unverified headers if a token was present
-                console.warn('[Auth] Invalid JWT token provided:', jwtError);
-                return { userId: null, role: null };
-            }
-        }
-
-        // Fallback to headers (only allowed in non-production or for specific development needs)
-        // In a strictly secure production app, you might want to disable this fallback entirely.
-        if (process.env.NODE_ENV === 'production') {
-            return { userId: null, role: null };
-        }
-
+        // Try to get from headers
         const userId = req.headers['x-user-id'] as string;
         const role = req.headers['x-user-role'] as UserRole;
+
+        // TODO: Verify JWT token from Authorization header
+        // const authHeader = req.headers.authorization;
+        // if (authHeader?.startsWith('Bearer ')) {
+        //     const token = authHeader.substring(7);
+        //     const decoded = verifyToken(token);
+        //     return {
+        //         userId: decoded.userId,
+        //         role: decoded.role,
+        //     };
+        // }
 
         return {
             userId: userId || null,

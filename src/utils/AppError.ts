@@ -20,7 +20,7 @@ export class AppError extends Error {
    */
   toJSON() {
     let isDev = false;
-    if (typeof process !== 'undefined' && (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
       isDev = true;
     } else if (typeof window !== 'undefined' && (window as any).__VITE_IS_DEV__) {
       isDev = true;
@@ -160,33 +160,33 @@ export function toAppError(error: unknown): AppError {
     return error;
   }
 
-  // Standart Error nesnesi
-  if (error instanceof Error) {
-    // Firebase Authentication hatası
-    if ('code' in error) {
-      const code = (error as any).code;
+  // Firebase Authentication hatası (plain object veya Error olabilir)
+  if (typeof error === 'object' && error !== null && 'code' in error) {
+    const code = (error as any).code;
 
-      if (
-        code === 'auth/invalid-credential' ||
-        code === 'auth/user-not-found' ||
-        code === 'auth/wrong-password'
-      ) {
-        return new AuthenticationError('E-posta veya şifre hatalı.');
-      }
-
-      if (code === 'auth/email-already-in-use') {
-        return new ValidationError('Bu e-posta adresi zaten kayıtlı.');
-      }
-
-      if (code === 'auth/weak-password') {
-        return new ValidationError('Şifre en az 6 karakter olmalıdır.');
-      }
-
-      if (code === 'auth/network-request-failed') {
-        return new NetworkError('Sunucuya ulaşılamadı.');
-      }
+    if (
+      code === 'auth/invalid-credential' ||
+      code === 'auth/user-not-found' ||
+      code === 'auth/wrong-password'
+    ) {
+      return new AuthenticationError('E-posta veya şifre hatalı.');
     }
 
+    if (code === 'auth/email-already-in-use') {
+      return new ValidationError('Bu e-posta adresi zaten kayıtlı.');
+    }
+
+    if (code === 'auth/weak-password') {
+      return new ValidationError('Şifre en az 6 karakter olmalıdır.');
+    }
+
+    if (code === 'auth/network-request-failed') {
+      return new NetworkError('Sunucuya ulaşılamadı.');
+    }
+  }
+
+  // Standart Error nesnesi
+  if (error instanceof Error) {
     // Network hatası
     if (error.message.includes('fetch') || error.message.includes('network')) {
       return new NetworkError();
@@ -204,7 +204,7 @@ export function toAppError(error: unknown): AppError {
 
     // Default: Generic error
     let isDev = false;
-    if (typeof process !== 'undefined' && (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
       isDev = true;
     } else if (typeof window !== 'undefined' && (window as any).__VITE_IS_DEV__) {
       isDev = true;

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ActivityService } from '../services/generators/ActivityService';
-import { ActivityType, GeneratorOptions } from '../types';
+import { ActivityService } from '@/services/generators/ActivityService';
+import { ActivityType, GeneratorOptions } from '@/types';
 
 // Mock Registry to avoid real dependencies
 vi.mock('../services/generators/registry', () => ({

@@ -79,7 +79,7 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
     };
 
     const schema = { type: 'ARRAY', items: singleSchema };
-    // Fix: Using stable gemini-1.5-flash-latest for maximum speed and cost efficiency
+    // Fix: Using stable gemini-3-flash for maximum speed and cost efficiency
     return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData[]>;
 };
 

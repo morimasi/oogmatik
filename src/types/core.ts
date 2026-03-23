@@ -47,6 +47,11 @@ export interface SingleWorksheetData extends BaseActivityData {
     gap?: number;
     blocks: WorksheetBlock[];
   };
+  metadata?: Record<string, unknown>;
+  id?: string;
+  type?: ActivityType | string;
+  puzzles?: unknown[];
+  items?: unknown[];
   [key: string]: any;
 }
 export type WorksheetData = SingleWorksheetData[] | null;
@@ -513,3 +518,96 @@ export interface OCRResult {
   quality?: 'high' | 'medium' | 'low';
   warnings?: string[];
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// OCR VARIATION SYSTEM - Pedagojik Güvenli Varyasyon Üretimi
+// ─────────────────────────────────────────────────────────────────────────
+
+export interface DifficultyMetrics {
+  digitCount?: number;
+  carryOperations?: number;
+  maxDigitValue?: number;
+  workingMemoryLoad: 'low' | 'medium' | 'high';
+  estimatedSolveTime: number; // dakika cinsinden
+  difficultyScore: number; // 0-100 arası
+  cognitiveSteps: number; // İşlem adım sayısı
+}
+
+export interface VariantContext {
+  dayNumber: number; // 1-5 arası (haftalık döngü)
+  prerequisiteSkills: string[];
+  targetSkill: string;
+  nextStepIfSuccess: string;
+  nextStepIfStruggle: string;
+  estimatedCompletionMinutes: number;
+}
+
+export interface VariantPedagogicalNotes {
+  seriesNote: string; // Tüm varyasyon serisi için genel not
+  variantNote: string; // Bu spesifik varyant için not
+  observationGuide: {
+    successIndicators: string[];
+    warningSignals: string[];
+    differentiationTips: string[];
+  };
+}
+
+export interface VariantGenerationConfig {
+  baseActivity: SingleWorksheetData;
+  variantCount: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+  difficultyProgression: 'static' | 'gradual' | 'adaptive';
+  progressionRate: number; // 0.10 - 0.15 (her varyant için zorluk artış oranı)
+
+  // Disleksi/ADHD güvenlik
+  avoidConfusableDigits: boolean; // 6/9, 2/5, 3/8 gibi karıştırılabilir rakamları kullanma
+  maxCognitiveSteps: number; // ADHD için maksimum adım sayısı
+  estimatedCompletionMinutes: number; // Tahmini tamamlanma süresi
+
+  // Pedagojik garantiler
+  firstVariantEasier: boolean; // İlk varyant %20-30 daha kolay olmalı
+  ensurePedagogicalNotes: boolean; // Her varyant için ayrı pedagojik not
+}
+
+export interface VariationRequest {
+  blueprintId: string; // OCR'dan çıkarılan blueprint hash'i
+  teacherId: string;
+  targetStudentProfile?: Student;
+  targetAgeGroup?: '5-7' | '8-10' | '11-13' | '14+';
+  bepGoalId?: string; // BEP hedefi ile ilişkilendirme (opsiyonel)
+
+  config: VariantGenerationConfig;
+
+  // Koruma bayrakları
+  preserveDifficulty: boolean; // Orijinal zorluk korunsun mu?
+  preserveStructure: 'strict' | 'flexible';
+
+  // Disleksi uyumu
+  applyDyslexiaFormatting: {
+    lexendFont: true; // ASLA değiştirilemez
+    lineSpacing: number; // Minimum 1.5
+    syllableHighlighting: boolean;
+    contrastMode: 'high' | 'normal';
+  };
+}
+
+export interface VariationResult {
+  variants: SingleWorksheetData[];
+  metadata: {
+    totalTokensUsed: number;
+    totalCost: number; // USD
+    generationTime: number; // ms
+    successRate: number; // 0-1
+    failedIndices: number[];
+  };
+  pedagogicalNotes: VariantPedagogicalNotes;
+  difficultyMetrics: DifficultyMetrics[];
+  variantContexts: VariantContext[];
+}
+
+// Disleksi-güvenli rakam kontrol çiftleri
+export const CONFUSABLE_DIGIT_PAIRS = [
+  ['6', '9'],
+  ['2', '5'],
+  ['3', '8'],
+  ['1', '7']
+] as const;

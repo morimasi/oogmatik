@@ -83,8 +83,8 @@ const uiStoreCreator = (set: any) => ({
             setZenMode: (zenMode) => set({ zenMode }),
             setIsSidebarOpen: (isSidebarOpen) => set({ isSidebarOpen }),
             setIsTourActive: (isTourActive) => set({ isTourActive }),
-            updateUiSettings: (newSettings) => set((state) => ({ uiSettings: { ...state.uiSettings, ...newSettings } })),
-            updateStyleSettings: (newSettings) => set((state) => ({ styleSettings: { ...state.styleSettings, ...newSettings } })),
+            updateUiSettings: (newSettings) => set((state: UIStoreState) => ({ uiSettings: { ...state.uiSettings, ...newSettings } })),
+            updateStyleSettings: (newSettings) => set((state: UIStoreState) => ({ styleSettings: { ...state.styleSettings, ...newSettings } })),
             setShowDeveloperModal: (show) => set({ showDeveloperModal: show }),
         });
 

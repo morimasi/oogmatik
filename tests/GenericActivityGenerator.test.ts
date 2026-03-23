@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { GenericActivityGenerator } from '../services/generators/core/GenericActivityGenerator';
-import { GeneratorMode } from '../services/generators/core/types';
-import { GeneratorOptions } from '../types';
+import { GenericActivityGenerator } from '@/services/generators/core/GenericActivityGenerator';
+import { GeneratorMode } from '@/services/generators/core/types';
+import { GeneratorOptions } from '@/types';
 
 describe('GenericActivityGenerator', () => {
     

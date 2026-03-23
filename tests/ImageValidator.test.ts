@@ -13,7 +13,7 @@ import {
   filterConfusableDigitsInBatch,
   FILE_SIZE_LIMITS,
   ALLOWED_MIME_TYPES,
-} from '../utils/imageValidator';
+} from '@/utils/imageValidator';
 
 describe('ImageValidator - Single File Validation', () => {
   it('should accept valid JPEG file', () => {

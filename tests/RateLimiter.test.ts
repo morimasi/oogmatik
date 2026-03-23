@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { RateLimiter } from '../services/rateLimiter';
-import { RateLimitError } from '../utils/AppError';
+import { RateLimiter } from '@/services/rateLimiter';
+import { RateLimitError } from '@/utils/AppError';
 
 /**
  * RateLimiter Tests - Token Bucket Algorithm

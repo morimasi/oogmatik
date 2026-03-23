@@ -1,6 +1,98 @@
 
-import { analyzeImage } from './geminiClient.js';
+import { InternalServerError } from '../utils/AppError.js';
 import { OCRResult, OCRBlueprint, OCRDetectedType } from '../types.js';
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────
+const MASTER_MODEL = 'gemini-2.5-flash';
+
+// ─── DIRECT GEMINI WITH IMAGE (server-side only) ──────────────────────────
+/**
+ * Doğrudan Gemini REST API çağrısı (görsel destekli).
+ * analyzeImage (frontend proxy) /api/ocr/analyze endpoint'inden çağrıldığında
+ * /api/generate'e yönlendirir → circular / cross-request sorun yaratır.
+ * Bu yüzden server-side'da REST API doğrudan çağrılır.
+ */
+const callGeminiWithImage = async (
+    base64Image: string,
+    prompt: string
+): Promise<unknown> => {
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY;
+    if (!apiKey) throw new InternalServerError('API Key bulunamadı (ocrService).');
+
+    // Base64 prefix temizle
+    const imageData = base64Image.includes(',')
+        ? base64Image.split(',')[1]
+        : base64Image;
+
+    // MIME type tespiti
+    let mimeType: string = 'image/jpeg';
+    try {
+        const prefix = imageData.substring(0, 8);
+        const bytes = atob(prefix);
+        const b0 = bytes.charCodeAt(0), b1 = bytes.charCodeAt(1);
+        if (b0 === 0x89 && b1 === 0x50) mimeType = 'image/png';
+        else if (b0 === 0x52 && b1 === 0x49) mimeType = 'image/webp';
+    } catch { /* fallback jpeg */ }
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MASTER_MODEL}:generateContent?key=${apiKey}`;
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{
+                role: 'user',
+                parts: [
+                    { inlineData: { mimeType, data: imageData } },
+                    { text: prompt }
+                ]
+            }]
+        })
+    });
+
+    if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new InternalServerError(
+            `Gemini API Hatası (OCR): ${(errJson as any)?.error?.message || response.statusText}`
+        );
+    }
+
+    const data = await response.json();
+    const text = (data as any)?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new InternalServerError('Gemini boş yanıt döndürdü (OCR).');
+
+    // JSON repair motoru
+    let cleaned = text.replace(/[\u200B-\u200D\uFEFF]/g, '').trim()
+        .replace(/^```json[\s\S]*?\n/, '')
+        .replace(/^```\s*/m, '')
+        .replace(/```\s*$/m, '')
+        .trim();
+
+    const fb = cleaned.indexOf('{');
+    const fl = cleaned.indexOf('[');
+    let si = -1;
+    if (fb !== -1 && fl !== -1) si = Math.min(fb, fl);
+    else if (fb !== -1) si = fb;
+    else if (fl !== -1) si = fl;
+    if (si > 0) cleaned = cleaned.substring(si);
+
+    try { return JSON.parse(cleaned); } catch { /* devam */ }
+
+    // Parantez tamamlama
+    const stack: string[] = []; let inStr = false; let esc = false;
+    let fixedStr = cleaned;
+    for (const ch of fixedStr) {
+        if (esc) { esc = false; continue; }
+        if (ch === '\\' && inStr) { esc = true; continue; }
+        if (ch === '"') { inStr = !inStr; continue; }
+        if (inStr) continue;
+        if (ch === '{') stack.push('}'); else if (ch === '[') stack.push(']');
+        else if ((ch === '}' || ch === ']') && stack.length > 0) stack.pop();
+    }
+    if (inStr) fixedStr += '"';
+    while (stack.length > 0) fixedStr += stack.pop();
+    return JSON.parse(fixedStr);
+};
 
 // Blueprint kalitesini ölçen minimum karakter eşiği
 const BLUEPRINT_MIN_LENGTH = 50;
@@ -31,32 +123,27 @@ const hashBase64 = (base64: string): string => {
 const getCachedResult = (base64: string): OCRResult | null => {
     const key = hashBase64(base64);
     const cached = blueprintCache.get(key);
-
-    if (cached) {
-        if (Date.now() - cached.timestamp < CACHE_TTL) {
-            // LRU logic: re-insert to move to the end (newest)
-            blueprintCache.delete(key);
-            blueprintCache.set(key, cached);
-            return cached.result;
-        } else {
-            blueprintCache.delete(key); // TTL expired
-        }
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        // LRU: Son erişim zamanını güncelle
+        cached.timestamp = Date.now();
+        return cached.result;
     }
+    if (cached) blueprintCache.delete(key); // TTL geçmiş, sil
     return null;
 };
 
 const setCacheResult = (base64: string, result: OCRResult): void => {
     const key = hashBase64(base64);
-
-    if (blueprintCache.has(key)) {
-        blueprintCache.delete(key);
-    } else if (blueprintCache.size >= 20) {
-        // Remove the oldest (first inserted) item
-        const oldest = blueprintCache.keys().next().value;
-        if (oldest !== undefined) blueprintCache.delete(oldest);
-    }
-
     blueprintCache.set(key, { result, timestamp: Date.now() });
+
+    // Maks 20 önbellek girişi tut (LRU Tahliye Stratejisi)
+    if (blueprintCache.size > 20) {
+        const entries = Array.from(blueprintCache.entries());
+        const oldest = entries.sort((a, b) => a[1].timestamp - b[1].timestamp)[0];
+        if (oldest) {
+            blueprintCache.delete(oldest[0]);
+        }
+    }
 };
 
 /**
@@ -70,7 +157,7 @@ const validateBlueprint = (blueprint: string): { isValid: boolean; quality: 'hig
     }
 
     if (blueprint.trim().length < BLUEPRINT_MIN_LENGTH) {
-        warnings.push('Görselde çok az içerik tespit edildi. Daha net veya daha yakından çekilmiş bir görsel deneyin.');
+        warnings.push(`Blueprint çok kısa (${blueprint.trim().length} karakter). Daha net bir görsel deneyin.`);
         return { isValid: true, quality: 'low', warnings };
     }
 
@@ -79,7 +166,7 @@ const validateBlueprint = (blueprint: string): { isValid: boolean; quality: 'hig
     const hasKeywords = meaningfulKeywords.some(kw => lowerBlueprint.includes(kw));
 
     if (!hasKeywords && blueprint.trim().length < 200) {
-        warnings.push('Belge yapısı belirsiz görünüyor. Analiz kalitesi düşük olabilir.');
+        warnings.push('Blueprint yapısal anahtar kelimeler içermiyor. Analiz kalitesi düşük olabilir.');
         return { isValid: true, quality: 'medium', warnings };
     }
 
@@ -88,11 +175,6 @@ const validateBlueprint = (blueprint: string): { isValid: boolean; quality: 'hig
 
 export const ocrService = {
     processImage: async (base64Image: string): Promise<OCRResult> => {
-        // Network connectivity check
-        if (typeof window !== 'undefined' && !navigator.onLine) {
-            throw new Error('İnternet bağlantınız kesildi. Lütfen kontrol edin.');
-        }
-
         // Önbellek kontrolü
         const cached = getCachedResult(base64Image);
         if (cached) {
@@ -137,26 +219,19 @@ export const ocrService = {
                         hasImages: { type: 'BOOLEAN', description: "Görseller içeriyor mu?" },
                         questionCount: { type: 'NUMBER', description: "Tahmini soru/madde sayısı" }
                     },
-                    required: [] // Relaxed schema
+                    required: [] // Hiçbiri zorunlu değil (Robusti artırır)
                 }
             },
             required: ['title', 'detectedType', 'worksheetBlueprint']
         };
 
         try {
-            const result = await analyzeImage(base64Image, prompt, schema) as OCRBlueprint;
+            const result = await callGeminiWithImage(base64Image, prompt) as OCRBlueprint;
             const validation = validateBlueprint(result.worksheetBlueprint);
 
             if (!validation.isValid) {
                 throw new Error(validation.warnings.join(' '));
             }
-
-            // Provide default values for optional layoutHints
-            const layoutHints = {
-                columns: result.layoutHints?.columns || 1,
-                hasImages: result.layoutHints?.hasImages || false,
-                questionCount: result.layoutHints?.questionCount || 0
-            };
 
             const ocrResult: OCRResult = {
                 rawText: result.worksheetBlueprint,
@@ -166,7 +241,6 @@ export const ocrService = {
                 generatedTemplate: result.worksheetBlueprint,
                 structuredData: {
                     ...result,
-                    layoutHints,
                     detectedType: (result.detectedType as OCRDetectedType) || 'OTHER'
                 },
                 baseType: 'OCR_CONTENT',

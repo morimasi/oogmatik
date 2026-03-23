@@ -9,6 +9,7 @@ import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, Stude
 import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
 import { logError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';
 
+// @ts-ignore - Vercel TS build might not resolve firebase types correctly with node resolution
 const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, startAfter } = firestore;
 
 /**
@@ -131,56 +132,45 @@ export const worksheetService = {
 
     getUserWorksheets: async (userId: string, page: number, pageSize: number, categoryId?: string): Promise<{ items: SavedWorksheet[], count: number | null }> => {
         try {
-            // Single-field query (userId only) to avoid composite index requirement
-            // sharedWith and category filtering done client-side
-            const q = query(
+            // Only fetch private (not shared) worksheets for this user
+            let q = query(
                 collection(db, "saved_worksheets"),
                 where("userId", "==", userId),
-                orderBy("createdAt", "desc")
+                where("sharedWith", "==", null)
             );
 
+            if (categoryId && categoryId !== 'all') {
+                q = query(q, where("category.id", "==", categoryId));
+            }
+
+            q = query(q, orderBy("createdAt", "desc"), limit(pageSize));
+
+            // Note: This needs a composite index in Firestore (userId, sharedWith, category.id, createdAt)
             const querySnapshot = await getDocs(q);
-            let items: SavedWorksheet[] = [];
+            const items: SavedWorksheet[] = [];
             querySnapshot.forEach((doc) => {
-                const data = doc.data() as any;
-                // Client-side filter: exclude shared worksheets
-                if (!data.sharedWith || (Array.isArray(data.sharedWith) && data.sharedWith.length === 0)) {
-                    items.push(mapDbToWorksheet(data, doc.id));
-                }
+                items.push(mapDbToWorksheet(doc.data(), doc.id));
             });
 
-            // Client-side category filter
-            if (categoryId && categoryId !== 'all') {
-                items = items.filter(i => i.category?.id === categoryId);
-            }
-
-            // Client-side pagination
-            const total = items.length;
-            const paged = items.slice(page * pageSize, (page + 1) * pageSize);
-            return { items: paged, count: total };
+            return { items, count: null };
         } catch (error) {
-            console.warn("Firestore getUserWorksheets Error:", error);
-            // Ultimate fallback: fetch all and filter
-            try {
-                const qFallback = query(collection(db, "saved_worksheets"), where("userId", "==", userId));
-                const querySnapshot = await getDocs(qFallback);
-                let items: SavedWorksheet[] = [];
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data() as any;
-                    if (!data.sharedWith || (Array.isArray(data.sharedWith) && data.sharedWith.length === 0)) {
-                        items.push(mapDbToWorksheet(data, doc.id));
-                    }
-                });
+            console.warn("Firestore Query Error (Index likely missing):", error);
+            // Fallback to client-side filter if index is missing
+            const qFallback = query(collection(db, "saved_worksheets"), where("userId", "==", userId));
+            const querySnapshot = await getDocs(qFallback);
+            const items: SavedWorksheet[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data() as any;
+                if (!data.sharedWith) items.push(mapDbToWorksheet(data, doc.id));
+            });
 
-                if (categoryId && categoryId !== 'all') {
-                    items = items.filter(i => i.category?.id === categoryId);
-                }
-                items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-                return { items: items.slice(page * pageSize, (page + 1) * pageSize), count: items.length };
-            } catch (fallbackError) {
-                console.error("Firestore getUserWorksheets Fallback Error:", fallbackError);
-                return { items: [], count: 0 };
+            let filtered = items;
+            if (categoryId && categoryId !== 'all') {
+                filtered = items.filter(i => i.category?.id === categoryId);
             }
+
+            filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            return { items: filtered.slice(page * pageSize, (page + 1) * pageSize), count: filtered.length };
         }
     },
 
@@ -202,26 +192,36 @@ export const worksheetService = {
 
     getSharedWithMe: async (userId: string, page: number, pageSize: number): Promise<{ items: SavedWorksheet[], count: number | null }> => {
         try {
-            // Single-field query (array-contains only) to avoid composite index requirement
-            // Ordering done client-side
+            // Updated to use array-contains for sharedWith to support multiple receivers
             const q = query(
                 collection(db, "saved_worksheets"),
-                where("sharedWith", "array-contains", userId)
+                where("sharedWith", "array-contains", userId),
+                orderBy("createdAt", "desc"),
+                limit(pageSize)
             );
             const querySnapshot = await getDocs(q);
             const items: SavedWorksheet[] = [];
             querySnapshot.forEach((doc) => {
                 items.push(mapDbToWorksheet(doc.data(), doc.id));
             });
-            // Client-side sort by createdAt descending
-            items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-            // Client-side pagination
-            const total = items.length;
-            const paged = items.slice(page * pageSize, (page + 1) * pageSize);
-            return { items: paged, count: total };
+            return { items, count: null };
         } catch (error) {
-            console.warn("Firestore getSharedWithMe Error:", error);
-            return { items: [], count: 0 };
+            console.warn("Firestore Shared Query Error:", error);
+            // Fallback for missing index
+            const qFallback = query(
+                collection(db, "saved_worksheets")
+            );
+            const querySnapshot = await getDocs(qFallback);
+            const items: SavedWorksheet[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data() as any;
+                const sharedWith = data.sharedWith;
+                if (sharedWith === userId || (Array.isArray(sharedWith) && sharedWith.includes(userId))) {
+                    items.push(mapDbToWorksheet(data, doc.id));
+                }
+            });
+            items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            return { items: items.slice(page * pageSize, (page + 1) * pageSize), count: items.length };
         }
     },
 

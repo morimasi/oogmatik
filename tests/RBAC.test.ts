@@ -9,7 +9,7 @@ import {
     hasHigherPrivilege,
     ROLE_PERMISSIONS,
     UserRole,
-} from '../services/rbac';
+} from '@/services/rbac';
 
 /**
  * RBAC Tests

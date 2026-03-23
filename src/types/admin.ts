@@ -103,132 +103,26 @@ export interface ActivityDraft {
     createdBy: string;
     createdAt: string;
     customInstructions: string;
-}
-
-// ─── New Admin Types for FAZA 5 ────────────────────────────────────────────
-
-export type UserRoleType = 'admin' | 'teacher' | 'student' | 'parent' | 'guest';
-
-export type PermissionKey =
-  | 'users.view' | 'users.create' | 'users.edit' | 'users.delete'
-  | 'worksheets.view' | 'worksheets.create' | 'worksheets.edit' | 'worksheets.delete' | 'worksheets.export'
-  | 'analytics.view' | 'analytics.export'
-  | 'admin.access' | 'admin.settings' | 'admin.audit'
-  | 'cloud.upload' | 'cloud.sync' | 'batch.export';
-
-export const PERMISSION_LABELS: Record<PermissionKey, string> = {
-  'users.view': 'Kullanıcıları Görüntüle',
-  'users.create': 'Kullanıcı Oluştur',
-  'users.edit': 'Kullanıcı Düzenle',
-  'users.delete': 'Kullanıcı Sil',
-  'worksheets.view': 'Çalışmaları Görüntüle',
-  'worksheets.create': 'Çalışma Oluştur',
-  'worksheets.edit': 'Çalışma Düzenle',
-  'worksheets.delete': 'Çalışma Sil',
-  'worksheets.export': 'Çalışma Dışa Aktar',
-  'analytics.view': 'Analitikleri Görüntüle',
-  'analytics.export': 'Analitikleri Dışa Aktar',
-  'admin.access': 'Admin Paneline Eriş',
-  'admin.settings': 'Admin Ayarları',
-  'admin.audit': 'Denetim Günlüğü',
-  'cloud.upload': 'Buluta Yükle',
-  'cloud.sync': 'Bulut Senkronizasyon',
-  'batch.export': 'Toplu Dışa Aktar',
-};
-
-export interface UserRoleDefinition {
-  id: string;
-  name: UserRoleType;
-  label: string;
-  description: string;
-  permissions: PermissionKey[];
-  createdAt: string;
-}
-
-export interface AdminStats {
-  totalUsers: number;
-  activeUsers: number;
-  totalWorksheets: number;
-  exportsToday: number;
-  exportsThisWeek: number;
-  storageUsedMb: number;
-  systemUptime: number;
-  errorRatePercent: number;
-  avgResponseMs: number;
-  activeSessionsCount: number;
-}
-
-export interface AdminStatTrend {
-  date: string;
-  value: number;
-}
-
-export type AuditAction =
-  | 'user.created' | 'user.updated' | 'user.deleted' | 'user.login' | 'user.logout' | 'user.role_changed'
-  | 'worksheet.created' | 'worksheet.updated' | 'worksheet.deleted' | 'worksheet.exported'
-  | 'permission.granted' | 'permission.revoked'
-  | 'system.settings_changed' | 'system.backup'
-  | 'cloud.sync' | 'batch.export';
-
-export interface AuditLogEntry {
-  id: string;
-  action: AuditAction;
-  actorId: string;
-  actorName: string;
-  actorRole: UserRoleType;
-  targetId?: string;
-  targetType?: 'user' | 'worksheet' | 'permission' | 'system';
-  targetLabel?: string;
-  details?: Record<string, unknown>;
-  ipAddress?: string;
-  userAgent?: string;
-  timestamp: string;
-  severity: 'info' | 'warning' | 'error';
-}
-
-export interface ManagedUser {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRoleType;
-  status: 'active' | 'inactive' | 'suspended';
-  createdAt: string;
-  lastLoginAt?: string;
-  worksheetCount: number;
-  exportCount: number;
-  avatarUrl?: string;
-}
-
-export interface WorksheetAnalyticEntry {
-  templateId: string;
-  templateName: string;
-  useCount: number;
-  exportCount: number;
-  avgSessionMinutes: number;
-  popularityRank: number;
-}
-
-export interface ExportAnalyticEntry {
-  date: string;
-  format: string;
-  count: number;
-}
-
-export type ServiceStatus = 'operational' | 'degraded' | 'down';
-
-export interface ServiceHealth {
-  name: string;
-  status: ServiceStatus;
-  latencyMs?: number;
-  lastCheckedAt: string;
-  message?: string;
-}
-
-export interface SystemHealthReport {
-  overall: ServiceStatus;
-  services: ServiceHealth[];
-  cpuUsagePercent: number;
-  memUsagePercent: number;
-  diskUsagePercent: number;
-  generatedAt: string;
+    // OCR Activity Generation fields
+    productionMode?: 'architecture_clone' | 'prompt_generation' | 'exact_clone';
+    status?: 'draft' | 'pending_review' | 'approved' | 'rejected';
+    version?: string;
+    metadata?: {
+        subject?: string;
+        gradeLevel?: number;
+        ageGroup?: string;
+        difficulty?: string;
+        estimatedDuration?: number;
+        targetSkills?: string[];
+        learningObjectives?: string[];
+        pedagogicalNote?: string;
+        curriculumCode?: string;
+    };
+    templateId?: string;
+    rejectionReason?: string;
+    approvedBy?: string;
+    approvedAt?: string;
+    /** Klonlama/versiyonlama: üst etkinlik ID'si */
+    parentId?: string;
+    updatedAt?: string;
 }

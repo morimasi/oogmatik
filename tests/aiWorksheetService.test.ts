@@ -4,9 +4,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { aiWorksheetService } from '../services/aiWorksheetService';
-import { Student } from '../types/student';
-import { WorksheetGenerationParams } from '../services/aiWorksheetService';
+import { aiWorksheetService } from '@/services/aiWorksheetService';
+import { Student } from '@/types/student';
+import { WorksheetGenerationParams } from '@/services/aiWorksheetService';
 
 describe('AI Worksheet Service', () => {
   const mockStudent: Student = {

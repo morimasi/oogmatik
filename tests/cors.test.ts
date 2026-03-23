@@ -14,8 +14,8 @@ import {
   addAllowedOrigin,
   getAllowedOrigins,
   removeAllowedOrigin
-} from '../utils/cors.js';
-import { AppError } from '../utils/AppError.js';
+} from '@/utils/cors.js';
+import { AppError } from '@/utils/AppError.js';
 
 // Mock response helper
 function createMockResponse(): VercelResponse {

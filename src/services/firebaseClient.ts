@@ -1,11 +1,15 @@
 
+// @ts-ignore
 import { initializeApp, getApp, getApps } from "firebase/app";
+// @ts-ignore
 import { getAuth } from "firebase/auth";
-import {
-  initializeFirestore,
-  persistentLocalCache,
-  persistentMultipleTabManager
-} from "firebase/firestore";
+// @ts-ignore - Firebase Firestore advanced cache API (v9.6+)
+// @ts-ignore
+import { initializeFirestore } from "firebase/firestore";
+// @ts-ignore
+import { persistentLocalCache } from "firebase/firestore";
+// @ts-ignore
+import { persistentMultipleTabManager } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDEnRDzfZ65myaEFTXVjdYu6tyKyFhXP3w",

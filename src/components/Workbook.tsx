@@ -1,9 +1,9 @@
 import React from 'react';
-import { CollectionItem, WorkbookSettings } from '@/types';
-import Worksheet from '@/components/Worksheet';
-import DyslexiaLogo from '@/components/DyslexiaLogo';
-import { Toolbar } from '@/components/Toolbar';
-import '@/styles/workbookPremium.css';
+import { CollectionItem, WorkbookSettings } from '../types';
+import Worksheet from './Worksheet';
+import DyslexiaLogo from './DyslexiaLogo';
+import { Toolbar } from './Toolbar';
+import '../styles/workbookPremium.css';
 
 interface WorkbookProps {
   items: CollectionItem[];

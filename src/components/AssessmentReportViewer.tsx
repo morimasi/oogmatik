@@ -389,7 +389,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                 </div>
             </div>
 
-            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleShareReport} worksheetId={assessment.id} />
+            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={handleShareReport} />
         </div>
     );
 };

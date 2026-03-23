@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { FiveWOneHGenerator } from '../services/generators/FiveWOneHGenerator';
-import { GeneratorMode } from '../services/generators/core/types';
-import { GeneratorOptions, FiveWOneHData } from '../types';
+import { FiveWOneHGenerator } from '@/services/generators/FiveWOneHGenerator';
+import { GeneratorMode } from '@/services/generators/core/types';
+import { GeneratorOptions, FiveWOneHData } from '@/types';
 
 // Mock Dependencies
 vi.mock('../services/generators/fiveWOneH', () => ({
@@ -13,8 +13,8 @@ vi.mock('../services/offlineGenerators/fiveWOneH', () => ({
 }));
 
 // Import mocked functions to assert calls
-import { generateFiveWOneHFromAI } from '../services/generators/fiveWOneH';
-import { generateOfflineFiveWOneH } from '../services/offlineGenerators/fiveWOneH';
+import { generateFiveWOneHFromAI } from '@/services/generators/fiveWOneH';
+import { generateOfflineFiveWOneH } from '@/services/offlineGenerators/fiveWOneH';
 
 describe('FiveWOneHGenerator', () => {
     

@@ -3,9 +3,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { templateEngine } from '../services/templateEngine';
-import type { OCRBlueprint } from '../types/core';
-import type { ActivityTemplate } from '../types/ocr-activity';
+import { templateEngine } from '@/services/templateEngine';
+import type { OCRBlueprint } from '@/types/core';
+import type { ActivityTemplate } from '@/types/ocr-activity';
 
 describe('Template Engine - extractTemplate', () => {
     const mockBlueprint: OCRBlueprint = {

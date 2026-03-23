@@ -8,7 +8,7 @@ import {
   NetworkError,
   InternalServerError,
   toAppError,
-} from '../utils/AppError';
+} from '@/utils/AppError';
 
 /**
  * AppError Class Tests

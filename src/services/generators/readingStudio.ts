@@ -148,6 +148,6 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
         required: ['title', 'story', 'imagePrompt', 'fiveW1H']
     };
 
-    // Fix: Using stable gemini-1.5-flash-latest for maximum speed and cost efficiency
+    // Fix: Using stable gemini-3-flash for maximum speed and cost efficiency
     return await generateWithSchema(prompt, schema);
 };

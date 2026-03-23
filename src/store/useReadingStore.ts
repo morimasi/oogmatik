@@ -34,7 +34,7 @@ interface ReadingState {
     canRedo: () => boolean;
 }
 
-const readingStoreCreator = (set: any, get: any) => ({
+export const useReadingStore = create<ReadingState>((set: any, get: any) => ({
     config: {
         gradeLevel: '3. Sınıf', studentName: '', topic: '', genre: 'Macera', tone: 'Eğlenceli',
         length: 'medium', layoutDensity: 'comfortable', textComplexity: 'moderate',
@@ -57,7 +57,7 @@ const readingStoreCreator = (set: any, get: any) => ({
     // Methods
     setConfig: (config) => set({ config }),
     setStoryData: (storyData) => set({ storyData }),
-    setLayout: (layoutUpdate) => set((state) => ({
+    setLayout: (layoutUpdate) => set((state: ReadingState) => ({
         layout: typeof layoutUpdate === 'function' ? layoutUpdate(state.layout) : layoutUpdate
     })),
     setSelectedId: (selectedId) => set({ selectedId }),
@@ -73,8 +73,8 @@ const readingStoreCreator = (set: any, get: any) => ({
             const nextPast = [...past.slice(-19), layout];
             set({ past: nextPast, future: [] });
         }
-        set((state) => ({
-            layout: state.layout.map(item => item.instanceId === instanceId ? { ...item, ...updates } : item)
+        set((state: ReadingState) => ({
+            layout: state.layout.map((item: LayoutItem) => item.instanceId === instanceId ? { ...item, ...updates } : item)
         }));
     },
 
@@ -82,9 +82,9 @@ const readingStoreCreator = (set: any, get: any) => ({
         const { layout, past } = get();
         set({ past: [...past.slice(-19), layout], future: [] });
 
-        const lastPage = layout.length > 0 ? Math.max(...layout.map(l => l.pageIndex || 0)) : 0;
-        const itemsOnLastPage = layout.filter(l => (l.pageIndex || 0) === lastPage);
-        let lastY = itemsOnLastPage.length > 0 ? Math.max(...itemsOnLastPage.map(l => (l.style.y || 0) + (l.style.h || 0))) : 0;
+        const lastPage = layout.length > 0 ? Math.max(...layout.map((l: LayoutItem) => l.pageIndex || 0)) : 0;
+        const itemsOnLastPage = layout.filter((l: LayoutItem) => (l.pageIndex || 0) === lastPage);
+        let lastY = itemsOnLastPage.length > 0 ? Math.max(...itemsOnLastPage.map((l: LayoutItem) => (l.style.y || 0) + (l.style.h || 0))) : 0;
 
         let newPageIndex = lastPage;
         if (lastY + 100 > A4_HEIGHT_PX - 40) {
@@ -106,7 +106,7 @@ const readingStoreCreator = (set: any, get: any) => ({
             },
             specificData: {}
         };
-        set((state) => ({
+        set((state: ReadingState) => ({
             layout: [...state.layout, newComp],
             selectedId: newComp.instanceId
         }));
@@ -136,6 +136,4 @@ const readingStoreCreator = (set: any, get: any) => ({
 
     canUndo: () => get().past.length > 0,
     canRedo: () => get().future.length > 0
-});
-
-export const useReadingStore = create<ReadingState>(readingStoreCreator);
+}));

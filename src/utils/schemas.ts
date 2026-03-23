@@ -116,8 +116,8 @@ export const validateGenerateActivityRequest = (data: any): { valid: boolean; er
         errors.prompt = 'Geçersiz ifade kullanıldı';
     }
 
-    if (!data.activityType || typeof data.activityType !== 'string') {
-        errors.activityType = 'Aktivite türü gereklidir';
+    if (data.activityType && typeof data.activityType !== 'string') {
+        errors.activityType = 'Aktivite türü metin olmalı';
     }
 
     if (data.studentAge && (typeof data.studentAge !== 'number' || data.studentAge < 5 || data.studentAge > 18)) {

@@ -20,7 +20,7 @@ export interface NumberLogicRiddleData extends BaseActivityData {
     answerValue: number;
     // logicProblems.ts and other generators might use these
     riddle?: string;
-    boxes?: any[];
+    boxes?: unknown[];
     visualHint?: string;
   }[];
 }
@@ -58,7 +58,7 @@ export interface ShapeNumberPatternData extends BaseActivityData {
 }
 
 export interface FutoshikiData extends BaseActivityData {
-  puzzles: { size: number; grid: (number | string | null)[][]; constraints?: any[] }[];
+  puzzles: { size: number; grid: (number | string | null)[][]; constraints?: unknown[] }[];
 }
 
 export interface NumberPyramidData extends BaseActivityData {
@@ -86,23 +86,23 @@ export interface ArithmeticConnectData extends BaseActivityData {
 }
 
 export interface KendokuData extends BaseActivityData {
-  puzzles: any[];
+  puzzles: unknown[];
 }
 
 export interface OperationSquareFillInData extends BaseActivityData {
-  items: any[];
+  items: unknown[];
 }
 
 export interface MultiplicationWheelData extends BaseActivityData {
-  items: any[];
+  items: unknown[];
 }
 
 export interface TargetNumberData extends BaseActivityData {
-  items: any[];
+  items: unknown[];
 }
 
 export interface ShapeSudokuData extends BaseActivityData {
-  puzzles: any[];
+  puzzles: unknown[];
 }
 
 export interface RealLifeProblemData extends BaseActivityData {
@@ -349,23 +349,23 @@ export interface OddOneOutData extends BaseActivityData {
 }
 
 export interface RomanNumeralStarHuntData extends BaseActivityData {
-  items: any[];
+  items: unknown[];
 }
 
 export interface RoundingConnectData extends BaseActivityData {
-  items: any[];
+  items: unknown[];
 }
 
 export interface RomanNumeralMultiplicationData extends BaseActivityData {
-  items: any[];
+  items: unknown[];
 }
 
 export interface RomanNumeralConnectData extends BaseActivityData {
-  items: any[];
+  items: unknown[];
 }
 
 export interface OperationSquareData extends BaseActivityData {
-  items: any[];
+  items: unknown[];
 }
 
 export interface AbcConnectData extends BaseActivityData {
@@ -469,3 +469,4 @@ export interface BoxMathData extends BaseActivityData {
   mode: 'reverse' | 'substitution' | 'simplification';
   problems: BoxMathProblem[];
 }
+

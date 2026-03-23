@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useStudent } from '../../context/StudentContext';
+import { useStudentStore } from '../../store/useStudentStore';
 import { AdvancedStudent } from '../../types/student-advanced';
 import { OverviewModule } from './modules/OverviewModule';
 import { IEPModule } from './modules/IEPModule';
@@ -135,8 +135,7 @@ const ManagerSidebar: React.FC<{
 
 // Main Manager Component
 export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const studentContext = useStudent();
-  const { activeStudent, students, setActiveStudent, updateStudent } = studentContext || {};
+  const { activeStudent, students, setActiveStudent, addStudent, updateStudent, deleteStudent } = useStudentStore();
   const [selectedModule, setSelectedModule] = useState('overview');
   const [visibleModules, setVisibleModules] = useState<string[]>(Object.keys(MODULE_ICONS));
 

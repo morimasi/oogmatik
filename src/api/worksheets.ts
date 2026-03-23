@@ -1,7 +1,7 @@
 /**
  * OOGMATIK - Worksheets API
  * CRUD operations with permission validation
- * 
+ *
  * Vercel API endpoint routes:
  * POST   /api/worksheets          - createWorksheet
  * GET    /api/worksheets          - getUserWorksheets
@@ -12,6 +12,7 @@
  * GET    /api/worksheets/shared/with-me - getSharedWithMe
  */
 
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { worksheetService } from '../services/worksheetService.js';
 import { permissionService } from '../middleware/permissionValidator.js';
 import { validateSaveWorksheetRequest } from '../utils/schemas.js';
@@ -22,7 +23,7 @@ import { hasPermission } from '../services/rbac.js';
 type ResponseBody = {
     success?: boolean;
     error?: { message: string; code: string };
-    data?: any;
+    data?: unknown;
     message?: string;
     timestamp?: string;
 };
@@ -30,7 +31,7 @@ type ResponseBody = {
 /**
  * Main API handler - routes requests to appropriate handler
  */
-export default async function handler(req: any, res: any): Promise<void> {
+export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
     res.setHeader('Content-Type', 'application/json');
 
     try {
@@ -67,7 +68,7 @@ export default async function handler(req: any, res: any): Promise<void> {
  * POST /api/worksheets - Create worksheet
  * Permission: create:worksheet
  */
-const createWorksheet = async (req: any, res: any): Promise<void> => {
+const createWorksheet = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
     try {
         // 1. Authenticate
         let user;
@@ -147,7 +148,7 @@ const createWorksheet = async (req: any, res: any): Promise<void> => {
  * GET /api/worksheets - Get user's worksheets
  * Permission: read:worksheet
  */
-const getUserWorksheets = async (req: any, res: any): Promise<void> => {
+const getUserWorksheets = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
     try {
         // 1. Authenticate
         let user;
@@ -211,7 +212,7 @@ const getUserWorksheets = async (req: any, res: any): Promise<void> => {
  * GET /api/worksheets/:id - Get single worksheet
  * Permission: read:worksheet
  */
-const getWorksheet = async (req: any, res: any): Promise<void> => {
+const getWorksheet = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
     try {
         // 1. Authenticate
         let user;
@@ -262,7 +263,7 @@ const getWorksheet = async (req: any, res: any): Promise<void> => {
  * Permission: update:worksheet
  * Owner check: Must be worksheet owner
  */
-const updateWorksheet = async (req: any, res: any): Promise<void> => {
+const updateWorksheet = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
     try {
         // 1. Authenticate
         let user;
@@ -319,7 +320,7 @@ const updateWorksheet = async (req: any, res: any): Promise<void> => {
  * Permission: delete:worksheet
  * Owner check: Must be worksheet owner
  */
-const deleteWorksheet = async (req: any, res: any): Promise<void> => {
+const deleteWorksheet = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
     try {
         // 1. Authenticate
         let user;
@@ -370,7 +371,7 @@ const deleteWorksheet = async (req: any, res: any): Promise<void> => {
  * Permission: share:worksheet
  * Owner check: Must be worksheet owner
  */
-const shareWorksheet = async (req: any, res: any): Promise<void> => {
+const shareWorksheet = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
     try {
         // 1. Authenticate
         let user;
@@ -427,7 +428,7 @@ const shareWorksheet = async (req: any, res: any): Promise<void> => {
  * GET /api/worksheets/shared/with-me - Get worksheets shared with user
  * Permission: read:worksheet
  */
-const getSharedWithMe = async (req: any, res: any): Promise<void> => {
+const getSharedWithMe = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
     try {
         // 1. Authenticate
         let user;

@@ -79,14 +79,8 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
     ${profileSection}
     ${formatSection}
     
-    [ULTRA-CREATIVE MISSION: PEDAGOGICAL ASSESSMENT GENERATION]
-    GÖREV: Aşağıdaki BLUEPRINT'i kullanarak, klinik derinliği maksimize edilmiş, BENTO-GRID düzeninde profesyonel bir DEĞERLENDİRME MATERYALİ üret.
-    
-    [KRİTİK İÇERİK KURALLARI - ASLA İHLAL ETME]:
-    1. ASLA "Seçenek A", "İkinci Seçenek", "Örnek Soru", "Placeholder" gibi ifadeler kullanma.
-    2. TÜM İÇERİK GERÇEK OLMALIDIR: Seçilen konu (Örn: Yazım Kuralları) neyse, o konuda öğrencinin bilgisini ölçecek gerçek sorular, gerçek cümleler ve gerçek kelimeler üret.
-    3. ÇELDİRİCİ MANTIĞI: Yanlış seçenekler rastgele olmamalıdır. Hedeflenen yaş grubunun ve klinik profilin yapabileceği "mantıklı hataları" (Örn: de/da yazımı, benzer sesli harf karışıklıkları b-d-p) içermelidir.
-    4. EĞİTSEL TUTARLILIK: Üretilen her blok, bir kazanımı ölçmelidir. Bir çalışma kağıdı değil, profesyonel bir "Klinik Değerlendirme Testi" ciddiyetinde içerik üret.
+    [ULTRA-CREATIVE MISSION: NEURO-ARCHITECTURAL GENERATION]
+    GÖREV: Aşağıdaki BLUEPRINT'i kullanarak, klinik derinliği maksimize edilmiş, BENTO-GRID düzeninde profesyonel bir çalışma sayfası üret.
     
     [GİRDİ BLUEPRINT]:
     ${enrichedPrompt}

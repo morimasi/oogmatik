@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { agentService, AGENT_PROFILES, AgentRole } from '../services/agentService';
+import { agentService, AGENT_PROFILES, AgentRole } from '@/services/agentService';
 
 describe('Agent Service', () => {
   describe('AGENT_PROFILES', () => {

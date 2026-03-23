@@ -89,7 +89,7 @@ export const adminService = {
             appliedTemplate = appliedTemplate.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), v);
         });
 
-        // Fix: Using stable gemini-1.5-flash for reliability
+        // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
         return await generateWithSchema(appliedTemplate, { type: 'OBJECT' });
     },
 

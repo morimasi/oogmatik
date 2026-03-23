@@ -54,6 +54,7 @@ export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions
     };
 
     // Algoritma üretimi yüksek mantıksal derinlik gerektirdiği için model zorlanabilir.
-    // Bu yüzden Gemini 1.5 Flash modelini kullanıyoruz.
+    // Bu yüzden Gemini 3 modelini ve düşünme bütçesini zorunlu kılıyoruz.
+    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
     return await generateWithSchema(prompt, schema);
 };

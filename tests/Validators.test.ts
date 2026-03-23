@@ -13,8 +13,8 @@ import {
   sanitizeHtml,
   throwValidationError,
   validateOrThrow,
-} from '../utils/schemas';
-import { ValidationError } from '../utils/AppError';
+} from '@/utils/schemas';
+import { ValidationError } from '@/utils/AppError';
 
 /**
  * Input Validators Tests

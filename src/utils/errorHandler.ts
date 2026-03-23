@@ -27,7 +27,7 @@ export const logError = (error: AppError, context?: Record<string, any>) => {
 
   // Console'da debug
   let isDev = false;
-  if (typeof process !== 'undefined' && (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
+  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
     isDev = true;
   } else if (typeof window !== 'undefined' && (window as any).__VITE_IS_DEV__) {
     isDev = true;
@@ -88,7 +88,7 @@ export const retryWithBackoff = async <T>(
       }
 
       // Son denemeyse hata fırlat
-      if (attempt >= maxRetries - 1) {
+      if (attempt === maxRetries - 1) {
         logError(appError, { attempt: attempt + 1, maxRetries });
         throw appError;
       }

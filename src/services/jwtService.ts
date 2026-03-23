@@ -18,18 +18,7 @@ export interface TokenPayload {
  * JWT Service for token generation and verification
  */
 export class JWTService {
-    private static get SECRET_KEY(): string {
-        const secret = process.env.JWT_SECRET;
-        if (!secret) {
-            // SECURITY: Never use a hardcoded fallback in production.
-            // In dev, you might want a fallback, but it's safer to enforce env vars.
-            if (process.env.NODE_ENV === 'production') {
-                throw new Error('JWT_SECRET environment variable is missing in production!');
-            }
-            return 'dev-secret-key-do-not-use-in-production';
-        }
-        return secret;
-    }
+    private static readonly SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
     private static readonly EXPIRATION_TIME = '24h'; // 24 hours
     private static readonly REFRESH_EXPIRATION = '7d'; // 7 days
 

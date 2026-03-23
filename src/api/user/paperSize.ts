@@ -1,23 +1,21 @@
 /**
- * OOGMATIK - User PaperSize API (Bypassing external dependencies for debug)
+ * OOGMATIK - User PaperSize API
  */
-
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { corsMiddleware } from '../../utils/cors.js';
+import { logger } from '../../utils/logger.js';
 
 // Persistence simulator (in-memory)
 const paperSizeStore = new Map<string, string>();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    // Standard headers
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-user-id');
-
-    if (req.method === 'OPTIONS') {
-      return res.status(200).end();
+    // CORS Security - NO WILDCARD
+    if (!corsMiddleware(req, res)) {
+      return;
     }
+
+    res.setHeader('Content-Type', 'application/json');
 
     // Identify user
     const userId = (req.headers['x-user-id'] as string) || 'anonymous';
@@ -50,11 +48,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(405).json({ error: 'Yöntem izni yok' });
-  } catch (error: any) {
-    console.error('API Error:', error);
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    logger.error(err, { context: 'PaperSize API' });
     return res.status(500).json({
       error: 'Server Error',
-      message: error?.message || 'Unknown'
+      message: err.message
     });
   }
 }

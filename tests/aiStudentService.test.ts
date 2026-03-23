@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { aiStudentService } from '../services/aiStudentService';
-import { Student } from '../types/student';
+import { aiStudentService } from '@/services/aiStudentService';
+import { Student } from '@/types/student';
 
 describe('AI Student Service', () => {
   const mockStudent: Student = {

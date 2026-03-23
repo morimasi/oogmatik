@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { RateLimiter } from '../services/rateLimiter';
-import { AppError, ValidationError, RateLimitError, TimeoutError } from '../utils/AppError';
-import { retryWithBackoff, logError, withTimeout } from '../utils/errorHandler';
+import { RateLimiter } from '@/services/rateLimiter';
+import { AppError, ValidationError, RateLimitError, TimeoutError } from '@/utils/AppError';
+import { retryWithBackoff, logError, withTimeout } from '@/utils/errorHandler';
 
 /**
  * Error Handler Tests

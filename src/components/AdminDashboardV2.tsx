@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import AdminAgentManagement from './AdminAgentManagement';
 
 interface User {
     id: string;
@@ -49,7 +50,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
     const [newRole, setNewRole] = useState<string>('student');
     const [filterRole, setFilterRole] = useState<string>('');
     const [filterStatus, setFilterStatus] = useState<string>('all');
-    const [activeTab, setActiveTab] = useState<'users' | 'permissions' | 'logs'>('users');
+    const [activeTab, setActiveTab] = useState<'users' | 'permissions' | 'logs' | 'agents'>('users');
 
     // Only allow admin access
     if (currentUserRole !== 'admin') {
@@ -140,7 +141,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-4 mb-6 border-b border-gray-200">
+            <div className="flex gap-4 mb-6 border-b border-gray-200 overflow-x-auto">
                 <button
                     onClick={() => setActiveTab('users')}
                     className={`pb-3 px-4 font-medium transition-colors ${
@@ -160,6 +161,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
                     }`}
                 >
                     <i className="fa-solid fa-shield mr-2"></i>İzinler
+                </button>
+                <button
+                    onClick={() => setActiveTab('agents')}
+                    className={`pb-3 px-4 font-medium transition-colors ${
+                        activeTab === 'agents'
+                            ? 'text-blue-600 border-b-2 border-blue-600'
+                            : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                >
+                    <i className="fa-solid fa-robot mr-2"></i>AI Ajanlar
                 </button>
                 <button
                     onClick={() => setActiveTab('logs')}
@@ -297,6 +308,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
                             </tbody>
                         </table>
                     </div>
+                </div>
+            )}
+
+            {/* AI Agents Tab */}
+            {activeTab === 'agents' && (
+                <div>
+                    <AdminAgentManagement />
                 </div>
             )}
 
