@@ -13,4 +13,5 @@ export interface GeneratedContentPayload {
     templateId: string;
     pages: any[]; // A4 sayfa datalarını tutacak
     createdAt: number;
+    fromCache?: boolean; // Cache'ten geldi mi?
 }
