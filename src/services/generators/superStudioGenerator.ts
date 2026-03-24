@@ -1,17 +1,6 @@
 import { GenerationMode, SuperStudioDifficulty, GeneratedContentPayload } from '../../types/superStudio';
 import { AppError } from '../../utils/AppError';
-import { z } from 'zod';
-
-// Pedagojik onaylı şablon çıktı şemaları
-const ParagraphSchema = z.object({
-    title: z.string(),
-    text: z.string(),
-    questions: z.array(z.object({
-        question: z.string(),
-        answer: z.string()
-    })),
-    pedagogicalNote: z.string()
-});
+import { generateWithSchema } from '../geminiClient.js';
 
 interface GenerateParams {
     templates: string[];
@@ -22,11 +11,269 @@ interface GenerateParams {
     studentId: string | null;
 }
 
+/**
+ * Şablon tipine göre prompt oluşturur
+ */
+const buildPromptForTemplate = (
+    templateId: string,
+    settings: any,
+    grade: string | null,
+    difficulty: SuperStudioDifficulty
+): string => {
+    const gradeInfo = grade || 'Orta düzey';
+
+    switch (templateId) {
+        case 'okuma-anlama':
+            const length = settings.length || 'kisa';
+            const questionCount = settings.questionCount || 3;
+            const lengthMap = {
+                'kisa': '100-150 kelime',
+                'orta': '150-250 kelime',
+                'uzun': '250-350 kelime'
+            };
+
+            return `
+[ROL: UZMAN ÖZEL EĞİTİM İÇERİK TASARIMCISI - TÜRKÇE DİL BECERİLERİ]
+
+GÖREV: ${gradeInfo} seviyesinde, "${difficulty}" zorluk derecesinde OKUMA ANLAMA ETKİNLİĞİ üret.
+
+GEREKSINIMLER:
+1. Metin Özellikleri:
+   - Uzunluk: ${lengthMap[length as keyof typeof lengthMap]}
+   - Disleksi dostu: Kısa cümleler (max 12-15 kelime), net anlatım
+   - Lexend font kullanımına uygun (1.8+ satır aralığı)
+   - İlgi çekici, güncel ve öğrencinin yaşantısına yakın tema
+
+2. Soru Özellikleri:
+   - ${questionCount} adet soru (5N1K dağılımlı)
+   - İlk soru KOLAY (metin içinde açıkça yazılı bilgi)
+   - Orta sorular: çıkarım ve anlam kurma
+   - Son soru: metni bütüncül değerlendirme
+   - Her sorunun cevabı kısa ve net olmalı
+
+3. Pedagojik Özellikler:
+   - ZPD (Yakınsal Gelişim Alanı) uyumlu
+   - Başarı odaklı: Öğrenci ilk soruyu mutlaka yapabilmeli
+   - Kelime dağarcığı geliştirici
+
+4. Disleksi Tasarım Standartları:
+   - Yönerge tek cümle, maksimum 2 cümle
+   - Negatif dil YASAK ("yapma", "etme" gibi)
+   - Görsel yük minimal
+
+Sınıf: ${gradeInfo}
+Zorluk: ${difficulty}
+
+ÇIKTI: Tek bir metin ve ${questionCount} soru içeren etkinlik.
+            `;
+
+        case 'dilbilgisi':
+            return `
+[ROL: UZMAN ÖZEL EĞİTİM İÇERİK TASARIMCISI - DİLBİLGİSİ]
+
+GÖREV: ${gradeInfo} seviyesinde, "${difficulty}" zorluk derecesinde DİLBİLGİSİ ETKİNLİĞİ üret.
+
+GEREKSINIMLER:
+1. Konu Seçimi:
+   - ${gradeInfo} müfredatına uygun dilbilgisi konusu (isim, fiil, sıfat, zarf, cümle öğeleri, noktalama vb.)
+   - Somut örneklerle açıklama
+
+2. Etkinlik Yapısı:
+   - Kısa kural hatırlatıcı (2-3 madde)
+   - 5-8 adet uygulama sorusu
+   - Disleksi dostu: Görsel destek, renkli vurgular önerileri
+
+3. Pedagojik Özellikler:
+   - Sarmal öğrenme: Önceki bilgileri pekiştir
+   - Adım adım zorluk artışı
+   - Başarı hissi uyandıracak ilk örnek
+
+Sınıf: ${gradeInfo}
+Zorluk: ${difficulty}
+
+ÇIKTI: Dilbilgisi kuralı + uygulamalı sorular.
+            `;
+
+        case 'mantik-muhakeme':
+            return `
+[ROL: UZMAN ÖZEL EĞİTİM İÇERİK TASARIMCISI - MANTIK VE MUHAKEME]
+
+GÖREV: ${gradeInfo} seviyesinde, "${difficulty}" zorluk derecesinde MANTIK-MUHAKEME ETKİNLİĞİ üret.
+
+GEREKSINIMLER:
+1. Aktivite Türü:
+   - Mantık problemleri, örüntü tamamlama, sebep-sonuç ilişkileri
+   - Sözel ve görsel mantık soruları karışımı
+
+2. Etkinlik Yapısı:
+   - 4-6 adet problem
+   - Her problemde adım adım düşünme ipuçları
+   - Disleksi dostu sunum
+
+3. Pedagojik Özellikler:
+   - Bilişsel yük dengelemesi
+   - Eleştirel düşünme becerisini geliştirici
+   - ZPD uyumlu zorluk
+
+Sınıf: ${gradeInfo}
+Zorluk: ${difficulty}
+
+ÇIKTI: Mantık ve muhakeme problemleri seti.
+            `;
+
+        default:
+            return `
+[ROL: UZMAN ÖZEL EĞİTİM İÇERİK TASARIMCISI]
+
+GÖREV: ${gradeInfo} seviyesinde, "${difficulty}" zorluk derecesinde "${templateId}" ETKİNLİĞİ üret.
+
+GEREKSINIMLER:
+1. MEB müfredatı uyumu
+2. Disleksi dostu tasarım (kısa cümleler, net yönergeler)
+3. ZPD uyumlu zorluk
+4. Pedagojik değer taşıyan içerik
+
+Sınıf: ${gradeInfo}
+Zorluk: ${difficulty}
+
+ÇIKTI: ${templateId} etkinliği.
+            `;
+    }
+};
+
+/**
+ * Şablon tipine göre Gemini API şeması oluşturur
+ */
+const buildSchemaForTemplate = (templateId: string): any => {
+    // Ortak base şema - tüm şablonlar için geçerli
+    const baseSchema = {
+        type: 'OBJECT',
+        properties: {
+            title: { type: 'STRING' },
+            content: { type: 'STRING' },
+            pedagogicalNote: { type: 'STRING' }
+        },
+        required: ['title', 'content', 'pedagogicalNote']
+    };
+
+    switch (templateId) {
+        case 'okuma-anlama':
+            return {
+                type: 'OBJECT',
+                properties: {
+                    title: { type: 'STRING' },
+                    text: { type: 'STRING' },
+                    questions: {
+                        type: 'ARRAY',
+                        items: {
+                            type: 'OBJECT',
+                            properties: {
+                                question: { type: 'STRING' },
+                                answer: { type: 'STRING' }
+                            },
+                            required: ['question', 'answer']
+                        }
+                    },
+                    pedagogicalNote: { type: 'STRING' }
+                },
+                required: ['title', 'text', 'questions', 'pedagogicalNote']
+            };
+
+        case 'dilbilgisi':
+            return {
+                type: 'OBJECT',
+                properties: {
+                    title: { type: 'STRING' },
+                    topic: { type: 'STRING' },
+                    rules: {
+                        type: 'ARRAY',
+                        items: { type: 'STRING' }
+                    },
+                    exercises: {
+                        type: 'ARRAY',
+                        items: {
+                            type: 'OBJECT',
+                            properties: {
+                                question: { type: 'STRING' },
+                                answer: { type: 'STRING' }
+                            },
+                            required: ['question', 'answer']
+                        }
+                    },
+                    pedagogicalNote: { type: 'STRING' }
+                },
+                required: ['title', 'topic', 'rules', 'exercises', 'pedagogicalNote']
+            };
+
+        case 'mantik-muhakeme':
+            return {
+                type: 'OBJECT',
+                properties: {
+                    title: { type: 'STRING' },
+                    problems: {
+                        type: 'ARRAY',
+                        items: {
+                            type: 'OBJECT',
+                            properties: {
+                                question: { type: 'STRING' },
+                                hint: { type: 'STRING' },
+                                answer: { type: 'STRING' }
+                            },
+                            required: ['question', 'answer']
+                        }
+                    },
+                    pedagogicalNote: { type: 'STRING' }
+                },
+                required: ['title', 'problems', 'pedagogicalNote']
+            };
+
+        default:
+            return baseSchema;
+    }
+};
+
+/**
+ * AI yanıtını A4 içeriğine dönüştürür
+ */
+const formatContentForA4 = (templateId: string, aiResponse: any): string => {
+    switch (templateId) {
+        case 'okuma-anlama':
+            const questions = aiResponse.questions
+                .map((q: any, i: number) => `${i + 1}. ${q.question}\n   Cevap: ${q.answer}`)
+                .join('\n\n');
+            return `${aiResponse.text}\n\n📝 SORULAR:\n\n${questions}`;
+
+        case 'dilbilgisi':
+            const rules = aiResponse.rules
+                .map((r: string, i: number) => `${i + 1}. ${r}`)
+                .join('\n');
+            const exercises = aiResponse.exercises
+                .map((e: any, i: number) => `${i + 1}. ${e.question}\n   Cevap: ${e.answer}`)
+                .join('\n\n');
+            return `📌 ${aiResponse.topic}\n\n✅ KURALLAR:\n${rules}\n\n📝 ALIŞTIRMALAR:\n\n${exercises}`;
+
+        case 'mantik-muhakeme':
+            const problems = aiResponse.problems
+                .map((p: any, i: number) => {
+                    const hint = p.hint ? `\n   💡 İpucu: ${p.hint}` : '';
+                    return `${i + 1}. ${p.question}${hint}\n   Cevap: ${p.answer}`;
+                })
+                .join('\n\n');
+            return `🧩 MANTIK VE MUHAKEME\n\n${problems}`;
+
+        default:
+            return aiResponse.content || JSON.stringify(aiResponse, null, 2);
+    }
+};
+
+/**
+ * Super Türkçe Stüdyosu için AI destekli içerik üretici
+ */
 export const generateSuperStudioContent = async (
     params: GenerateParams
 ): Promise<GeneratedContentPayload[]> => {
     try {
-        const { templates, mode, grade, difficulty } = params;
+        const { templates, settings, mode, grade, difficulty } = params;
 
         if (!templates || templates.length === 0) {
             throw new AppError('En az bir şablon seçilmelidir.', 'NO_TEMPLATE_SELECTED', 400, undefined, false);
@@ -34,24 +281,60 @@ export const generateSuperStudioContent = async (
 
         const results: GeneratedContentPayload[] = [];
 
-        // Bu bir simülasyon/mock altyapısıdır (Gerçek Gemini çağrıları api/generate.ts üzerinden yapılacak)
-        // Burada şablon özelinde batch iş akışı simüle ediliyor.
-        for (const tpl of templates) {
-            // Yapay Gecikme (UX için)
-            await new Promise(resolve => setTimeout(resolve, mode === 'ai' ? 1500 : 500));
+        // Fast mode: Offline/mock üretim (maliyet sıfır, hızlı)
+        if (mode === 'fast') {
+            for (const tpl of templates) {
+                await new Promise(resolve => setTimeout(resolve, 300));
 
-            results.push({
-                id: `gen-${Date.now()}-${tpl}`,
-                templateId: tpl,
-                pages: [
-                    {
-                        title: `${tpl === 'okuma-anlama' ? '📚 Okuma Anlama Parçası' : tpl.toUpperCase()} Etkinliği`,
-                        content: `${grade || 'Belirsiz'} Seviyesi / ${difficulty} Zorluk. \n\nMod: ${mode.toUpperCase()} \n\nBu alan gerçek üretimde API tarafından Zod şablonuyla döndürülecek ${tpl} verisini içerecektir. Öğrencide başarı hissi uyandıracak disleksi uyumlu minimal boşluk bırakılmış A4 metni burada yer alır.`,
-                        pedagogicalNote: `Bu etkinlik, öğrencinin yakınsal gelişim alanına (ZPD) uygun biçimde '${tpl}' becerilerini geliştirmek için ${mode.toUpperCase()} modunda yapılandırılmıştır.`
-                    }
-                ],
-                createdAt: Date.now()
-            });
+                results.push({
+                    id: `gen-${Date.now()}-${tpl}`,
+                    templateId: tpl,
+                    pages: [
+                        {
+                            title: `${tpl === 'okuma-anlama' ? '📚 Okuma Anlama Parçası' : tpl.replace('-', ' ').toUpperCase()} Etkinliği`,
+                            content: `[HIZLI MOD - ÖRNEKLENDİRME]\n\n${grade || 'Orta Düzey'} / ${difficulty} Zorluk\n\nBu içerik, hızlı mod için örnek içeriktir. Gerçek içerik üretimi için "AI Mod (Gemini)" seçeneğini kullanın.\n\nHızlı modda deterministik şablonlar kullanılır ve maliyet sıfırdır. Öğretmen tarafından manuel düzenleme yapılabilir.`,
+                            pedagogicalNote: `Hızlı mod: ${tpl} aktivitesi için temel şablon üretildi. AI Mod ile pedagojik açıdan optimize edilmiş içerik alabilirsiniz.`
+                        }
+                    ],
+                    createdAt: Date.now()
+                });
+            }
+            return results;
+        }
+
+        // AI mode: Gemini ile gerçek içerik üretimi
+        for (const tpl of templates) {
+            const templateSettings = settings[tpl] || {};
+            const prompt = buildPromptForTemplate(tpl, templateSettings, grade, difficulty);
+            const schema = buildSchemaForTemplate(tpl);
+
+            try {
+                const aiResponse = await generateWithSchema(prompt, schema);
+
+                const content = formatContentForA4(tpl, aiResponse);
+
+                results.push({
+                    id: `gen-${Date.now()}-${tpl}`,
+                    templateId: tpl,
+                    pages: [
+                        {
+                            title: aiResponse.title || `${tpl.replace('-', ' ').toUpperCase()} Etkinliği`,
+                            content: content,
+                            pedagogicalNote: aiResponse.pedagogicalNote || `${tpl} etkinliği başarıyla üretildi.`
+                        }
+                    ],
+                    createdAt: Date.now()
+                });
+            } catch (apiError: any) {
+                // AI hatası durumunda fallback
+                throw new AppError(
+                    `${tpl} şablonu için AI üretimi başarısız: ${apiError.message}`,
+                    'AI_GENERATION_FAILED',
+                    500,
+                    apiError,
+                    true
+                );
+            }
         }
 
         return results;
