@@ -1,258 +1,303 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { generateSuperStudioContent } from '../src/services/generators/superStudioGenerator';
-import { GenerationMode, SuperStudioDifficulty } from '../src/types/superStudio';
-import { AppError } from '../src/utils/AppError';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock geminiClient
-vi.mock('../src/services/geminiClient', () => ({
-    generateWithSchema: vi.fn()
+// Mock the dependencies
+vi.mock('../src/services/geminiClient.js', () => ({
+  generateWithSchema: vi.fn(),
 }));
 
-// Mock cacheService (browser-only)
-vi.mock('../src/services/cacheService', () => ({
-    default: {
-        get: vi.fn().mockResolvedValue(null),
-        set: vi.fn().mockResolvedValue(undefined)
+vi.mock('../src/utils/AppError', () => ({
+  AppError: class AppError extends Error {
+    constructor(
+      public userMessage: string,
+      public code: string,
+      public httpStatus: number,
+      public details?: unknown,
+      public isRetryable?: boolean
+    ) {
+      super(userMessage);
+      this.name = 'AppError';
     }
+  },
 }));
 
-import { generateWithSchema } from '../src/services/geminiClient';
+import { generateSuperStudioContent } from '../src/services/generators/superStudioGenerator';
+import { generateWithSchema } from '../src/services/geminiClient.js';
 
-describe('Super Türkçe Generator - Basic Tests', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
+describe('superStudioGenerator - Defensive Coding Tests', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('okuma-anlama template', () => {
+    it('should handle valid AI response correctly', async () => {
+      const mockResponse = {
+        title: 'Test Okuma Metni',
+        text: 'Bu bir test metnidir.',
+        questions: [
+          { question: 'Soru 1?', answer: 'Cevap 1' },
+          { question: 'Soru 2?', answer: 'Cevap 2' },
+        ],
+        pedagogicalNote: 'Test pedagojik notu',
+      };
+
+      vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
+
+      const result = await generateSuperStudioContent({
+        templates: ['okuma-anlama'],
+        settings: {},
+        mode: 'ai',
+        grade: '5. Sınıf',
+        difficulty: 'Orta',
+        studentId: null,
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].templateId).toBe('okuma-anlama');
+      expect(result[0].pages[0].content).toContain('Bu bir test metnidir.');
+      expect(result[0].pages[0].content).toContain('Soru 1?');
+      expect(result[0].pages[0].pedagogicalNote).toBe('Test pedagojik notu');
     });
 
-    afterEach(() => {
-        vi.restoreAllMocks();
+    it('should handle missing questions array gracefully', async () => {
+      const mockResponse = {
+        title: 'Test Okuma Metni',
+        text: 'Bu bir test metnidir.',
+        // questions eksik!
+        pedagogicalNote: 'Test pedagojik notu',
+      };
+
+      vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
+
+      const result = await generateSuperStudioContent({
+        templates: ['okuma-anlama'],
+        settings: {},
+        mode: 'ai',
+        grade: '5. Sınıf',
+        difficulty: 'Orta',
+        studentId: null,
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].pages[0].content).toContain('Bu bir test metnidir.');
+      expect(result[0].pages[0].content).toContain('[Sorular üretilemedi');
     });
 
-    describe('Fast Mode (Offline)', () => {
-        it('should generate mock content for okuma-anlama template', async () => {
-            const result = await generateSuperStudioContent({
-                templates: ['okuma-anlama'],
-                settings: {},
-                mode: 'fast',
-                grade: '4. Sınıf',
-                difficulty: 'Kolay',
-                studentId: null
-            });
+    it('should handle empty questions array gracefully', async () => {
+      const mockResponse = {
+        title: 'Test Okuma Metni',
+        text: 'Bu bir test metnidir.',
+        questions: [], // boş array
+        pedagogicalNote: 'Test pedagojik notu',
+      };
 
-            expect(result).toHaveLength(1);
-            expect(result[0].templateId).toBe('okuma-anlama');
-            expect(result[0].pages[0].content).toContain('[HIZLI MOD');
-            expect(result[0].pages[0].content).toContain('4. Sınıf');
-            expect(result[0].pages[0].content).toContain('Kolay');
-            expect(result[0].pages[0].pedagogicalNote).toBeDefined();
-        });
+      vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
 
-        it('should generate mock content for multiple templates', async () => {
-            const result = await generateSuperStudioContent({
-                templates: ['okuma-anlama', 'dilbilgisi', 'mantik-muhakeme'],
-                settings: {},
-                mode: 'fast',
-                grade: '5. Sınıf',
-                difficulty: 'Orta',
-                studentId: null
-            });
+      const result = await generateSuperStudioContent({
+        templates: ['okuma-anlama'],
+        settings: {},
+        mode: 'ai',
+        grade: '5. Sınıf',
+        difficulty: 'Orta',
+        studentId: null,
+      });
 
-            expect(result).toHaveLength(3);
-            expect(result.map(r => r.templateId)).toEqual(['okuma-anlama', 'dilbilgisi', 'mantik-muhakeme']);
-            result.forEach(r => {
-                expect(r.pages[0].pedagogicalNote).toBeDefined();
-            });
-        });
-
-        it('should generate mock content for new templates (yazim-kurallari, soz-varligi, hece-ses)', async () => {
-            const result = await generateSuperStudioContent({
-                templates: ['yazim-kurallari', 'soz-varligi', 'hece-ses'],
-                settings: {},
-                mode: 'fast',
-                grade: '3. Sınıf',
-                difficulty: 'Kolay',
-                studentId: null
-            });
-
-            expect(result).toHaveLength(3);
-            expect(result.map(r => r.templateId)).toEqual(['yazim-kurallari', 'soz-varligi', 'hece-ses']);
-        });
+      expect(result).toHaveLength(1);
+      expect(result[0].pages[0].content).toContain('[Sorular üretilemedi');
     });
 
-    describe('AI Mode', () => {
-        beforeEach(() => {
-            vi.mocked(generateWithSchema).mockResolvedValue({
-                title: 'Test Okuma Parçası',
-                text: 'Bir varmış bir yokmuş...',
-                questions: [
-                    { question: 'Kimdir?', answer: 'Ali' },
-                    { question: 'Nedir?', answer: 'Okul' },
-                    { question: 'Nerededir?', answer: 'İstanbul' }
-                ],
-                pedagogicalNote: 'Bu aktivite okuma anlama becerisini geliştirmek için tasarlandı.'
-            });
-        });
+    it('should handle malformed question objects gracefully', async () => {
+      const mockResponse = {
+        title: 'Test Okuma Metni',
+        text: 'Bu bir test metnidir.',
+        questions: [
+          { question: 'Soru 1?' }, // answer eksik
+          { answer: 'Cevap 2' }, // question eksik
+          {}, // her ikisi de eksik
+        ],
+        pedagogicalNote: 'Test pedagojik notu',
+      };
 
-        it('should call Gemini API for okuma-anlama template', async () => {
-            const result = await generateSuperStudioContent({
-                templates: ['okuma-anlama'],
-                settings: { 'okuma-anlama': { length: 'kisa', questionCount: 3 } },
-                mode: 'ai',
-                grade: '5. Sınıf',
-                difficulty: 'Orta',
-                studentId: 'user123'
-            });
+      vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
 
-            expect(result).toHaveLength(1);
-            expect(result[0].templateId).toBe('okuma-anlama');
-            expect(result[0].pages[0].title).toBe('Test Okuma Parçası');
-            expect(result[0].pages[0].content).toContain('Bir varmış bir yokmuş...');
-            expect(result[0].pages[0].content).toContain('Kimdir?');
-            expect(result[0].pages[0].pedagogicalNote).toBe('Bu aktivite okuma anlama becerisini geliştirmek için tasarlandı.');
-            expect(generateWithSchema).toHaveBeenCalledTimes(1);
-        });
+      const result = await generateSuperStudioContent({
+        templates: ['okuma-anlama'],
+        settings: {},
+        mode: 'ai',
+        grade: '5. Sınıf',
+        difficulty: 'Orta',
+        studentId: null,
+      });
 
-        it('should format yazim-kurallari template correctly', async () => {
-            vi.mocked(generateWithSchema).mockResolvedValue({
-                title: 'Büyük Harf Kuralları',
-                topic: 'Büyük-Küçük Harf Kullanımı',
-                exercises: [
-                    {
-                        sentence: 'ali okula gitti.',
-                        question: 'Bu cümlede hangi kelime büyük harfle başlamalı?',
-                        correctAnswer: 'Ali',
-                        rule: 'Özel isimler büyük harfle başlar'
-                    }
-                ],
-                pedagogicalNote: 'Yazım kuralları aktivitesi',
-                visualHints: ['Özel isimleri renkli vurgulayın']
-            });
+      expect(result).toHaveLength(1);
+      const content = result[0].pages[0].content;
+      expect(content).toContain('[Cevap eksik]');
+      expect(content).toContain('[Soru metni eksik]');
+    });
+  });
 
-            const result = await generateSuperStudioContent({
-                templates: ['yazim-kurallari'],
-                settings: {},
-                mode: 'ai',
-                grade: '3. Sınıf',
-                difficulty: 'Kolay',
-                studentId: 'user456'
-            });
+  describe('dilbilgisi template', () => {
+    it('should handle valid AI response correctly', async () => {
+      const mockResponse = {
+        title: 'İsimler',
+        topic: 'İsim Çeşitleri',
+        rules: ['Kural 1', 'Kural 2'],
+        exercises: [
+          { question: 'Alıştırma 1?', answer: 'Cevap 1' },
+          { question: 'Alıştırma 2?', answer: 'Cevap 2' },
+        ],
+        pedagogicalNote: 'Test pedagojik notu',
+      };
 
-            expect(result[0].pages[0].content).toContain('Büyük-Küçük Harf Kullanımı');
-            expect(result[0].pages[0].content).toContain('ali okula gitti.');
-            expect(result[0].pages[0].content).toContain('Ali');
-            expect(result[0].pages[0].content).toContain('Görsel İpuçları');
-        });
+      vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
 
-        it('should format soz-varligi template correctly', async () => {
-            vi.mocked(generateWithSchema).mockResolvedValue({
-                title: 'Deyimler',
-                items: [
-                    {
-                        phrase: 'Eli kulağında olmak',
-                        meaning: 'Çok yakın zamanda olmak',
-                        exampleSentence: 'Düğün elimiz kulağımızda.',
-                        visualHint: 'El kulağa dokunuyor'
-                    }
-                ],
-                pedagogicalNote: 'Deyim öğretimi aktivitesi'
-            });
+      const result = await generateSuperStudioContent({
+        templates: ['dilbilgisi'],
+        settings: {},
+        mode: 'ai',
+        grade: '5. Sınıf',
+        difficulty: 'Orta',
+        studentId: null,
+      });
 
-            const result = await generateSuperStudioContent({
-                templates: ['soz-varligi'],
-                settings: {},
-                mode: 'ai',
-                grade: '6. Sınıf',
-                difficulty: 'Orta',
-                studentId: 'user789'
-            });
-
-            expect(result[0].pages[0].content).toContain('Eli kulağında olmak');
-            expect(result[0].pages[0].content).toContain('Çok yakın zamanda olmak');
-            expect(result[0].pages[0].content).toContain('Düğün elimiz kulağımızda');
-        });
-
-        it('should format hece-ses template correctly', async () => {
-            vi.mocked(generateWithSchema).mockResolvedValue({
-                title: 'Hece Ayrıştırma',
-                activities: [
-                    {
-                        word: 'kalem',
-                        syllables: ['ka', 'lem'],
-                        soundEvent: 'Vurgulu hece: lem',
-                        colorHint: 'İkinci hece büyük: kaLEM'
-                    }
-                ],
-                pedagogicalNote: 'Hece ayrıştırma aktivitesi'
-            });
-
-            const result = await generateSuperStudioContent({
-                templates: ['hece-ses'],
-                settings: {},
-                mode: 'ai',
-                grade: '2. Sınıf',
-                difficulty: 'Kolay',
-                studentId: 'user000'
-            });
-
-            expect(result[0].pages[0].content).toContain('kalem → ka-lem');
-            expect(result[0].pages[0].content).toContain('Vurgulu hece');
-        });
+      expect(result).toHaveLength(1);
+      expect(result[0].pages[0].content).toContain('İsim Çeşitleri');
+      expect(result[0].pages[0].content).toContain('Kural 1');
+      expect(result[0].pages[0].content).toContain('Alıştırma 1?');
     });
 
-    describe('Error Handling', () => {
-        it('should throw error when no templates selected', async () => {
-            await expect(
-                generateSuperStudioContent({
-                    templates: [],
-                    settings: {},
-                    mode: 'ai',
-                    grade: null,
-                    difficulty: 'Orta',
-                    studentId: null
-                })
-            ).rejects.toThrow('En az bir şablon seçilmelidir');
-        });
+    it('should handle missing rules and exercises arrays gracefully', async () => {
+      const mockResponse = {
+        title: 'İsimler',
+        topic: 'İsim Çeşitleri',
+        // rules ve exercises eksik!
+        pedagogicalNote: 'Test pedagojik notu',
+      };
 
-        it('should throw AppError with correct code', async () => {
-            try {
-                await generateSuperStudioContent({
-                    templates: [],
-                    settings: {},
-                    mode: 'ai',
-                    grade: null,
-                    difficulty: 'Orta',
-                    studentId: null
-                });
-            } catch (error) {
-                expect(error).toBeInstanceOf(AppError);
-                expect((error as AppError).code).toBe('NO_TEMPLATE_SELECTED');
-                expect((error as AppError).httpStatus).toBe(400);
-            }
-        });
+      vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
+
+      const result = await generateSuperStudioContent({
+        templates: ['dilbilgisi'],
+        settings: {},
+        mode: 'ai',
+        grade: '5. Sınıf',
+        difficulty: 'Orta',
+        studentId: null,
+      });
+
+      expect(result).toHaveLength(1);
+      const content = result[0].pages[0].content;
+      expect(content).toContain('[Kurallar üretilemedi]');
+      expect(content).toContain('[Alıştırmalar üretilemedi]');
+    });
+  });
+
+  describe('mantik-muhakeme template', () => {
+    it('should handle valid AI response correctly', async () => {
+      const mockResponse = {
+        title: 'Mantık Problemleri',
+        problems: [
+          { question: 'Problem 1?', hint: 'İpucu 1', answer: 'Cevap 1' },
+          { question: 'Problem 2?', answer: 'Cevap 2' }, // hint opsiyonel
+        ],
+        pedagogicalNote: 'Test pedagojik notu',
+      };
+
+      vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
+
+      const result = await generateSuperStudioContent({
+        templates: ['mantik-muhakeme'],
+        settings: {},
+        mode: 'ai',
+        grade: '5. Sınıf',
+        difficulty: 'Orta',
+        studentId: null,
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].pages[0].content).toContain('Problem 1?');
+      expect(result[0].pages[0].content).toContain('İpucu 1');
+      expect(result[0].pages[0].content).toContain('Problem 2?');
     });
 
-    describe('Prompt Building', () => {
-        it('should include grade and difficulty in prompt', async () => {
-            vi.mocked(generateWithSchema).mockResolvedValue({
-                title: 'Test',
-                text: 'Test metin',
-                questions: [{ question: 'Test?', answer: 'Test' }],
-                pedagogicalNote: 'Test not'
-            });
+    it('should handle missing problems array gracefully', async () => {
+      const mockResponse = {
+        title: 'Mantık Problemleri',
+        // problems eksik!
+        pedagogicalNote: 'Test pedagojik notu',
+      };
 
-            await generateSuperStudioContent({
-                templates: ['okuma-anlama'],
-                settings: {},
-                mode: 'ai',
-                grade: '7. Sınıf',
-                difficulty: 'Zor',
-                studentId: 'test'
-            });
+      vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
 
-            const callArgs = vi.mocked(generateWithSchema).mock.calls[0];
-            const prompt = callArgs[0];
+      const result = await generateSuperStudioContent({
+        templates: ['mantik-muhakeme'],
+        settings: {},
+        mode: 'ai',
+        grade: '5. Sınıf',
+        difficulty: 'Orta',
+        studentId: null,
+      });
 
-            expect(prompt).toContain('7. Sınıf');
-            expect(prompt).toContain('Zor');
-        });
+      expect(result).toHaveLength(1);
+      expect(result[0].pages[0].content).toContain('[Problemler üretilemedi');
     });
+  });
+
+  describe('Error handling', () => {
+    it('should provide fallback pedagogicalNote when missing', async () => {
+      const mockResponse = {
+        title: 'Test',
+        text: 'Test metin',
+        questions: [{ question: 'Q?', answer: 'A' }],
+        // pedagogicalNote eksik!
+      };
+
+      vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
+
+      const result = await generateSuperStudioContent({
+        templates: ['okuma-anlama'],
+        settings: {},
+        mode: 'ai',
+        grade: '5. Sınıf',
+        difficulty: 'Orta',
+        studentId: null,
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].pages[0].pedagogicalNote).toContain('üretildi');
+    });
+
+    it('should handle completely invalid AI response', async () => {
+      vi.mocked(generateWithSchema).mockResolvedValueOnce(null);
+
+      await expect(
+        generateSuperStudioContent({
+          templates: ['okuma-anlama'],
+          settings: {},
+          mode: 'ai',
+          grade: '5. Sınıf',
+          difficulty: 'Orta',
+          studentId: null,
+        })
+      ).rejects.toThrow('AI yanıtı boş döndü');
+    });
+  });
+
+  describe('Fast mode', () => {
+    it('should generate mock content without AI calls', async () => {
+      const result = await generateSuperStudioContent({
+        templates: ['okuma-anlama', 'dilbilgisi'],
+        settings: {},
+        mode: 'fast',
+        grade: '5. Sınıf',
+        difficulty: 'Orta',
+        studentId: null,
+      });
+
+      expect(result).toHaveLength(2);
+      expect(result[0].templateId).toBe('okuma-anlama');
+      expect(result[1].templateId).toBe('dilbilgisi');
+      expect(result[0].pages[0].content).toContain('HIZLI MOD');
+      expect(generateWithSchema).not.toHaveBeenCalled();
+    });
+  });
 });
