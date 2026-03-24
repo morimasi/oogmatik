@@ -1,6 +1,7 @@
 import { GenerationMode, SuperStudioDifficulty, GeneratedContentPayload } from '../../types/superStudio';
 import { AppError } from '../../utils/AppError';
 import { generateWithSchema } from '../geminiClient.js';
+import { createHash } from 'crypto';
 
 interface GenerateParams {
     templates: string[];
@@ -10,6 +11,25 @@ interface GenerateParams {
     difficulty: SuperStudioDifficulty;
     studentId: string | null;
 }
+
+/**
+ * Cache key oluşturur (hash tabanlı)
+ */
+const generateCacheKey = (
+    templateId: string,
+    settings: any,
+    grade: string | null,
+    difficulty: SuperStudioDifficulty
+): string => {
+    const data = JSON.stringify({
+        templateId,
+        settings,
+        grade,
+        difficulty
+    });
+    const hash = createHash('sha256').update(data).digest('hex').substring(0, 16);
+    return `super-turkce:${hash}`;
+};
 
 /**
  * Şablon tipine göre prompt oluşturur
@@ -121,6 +141,91 @@ Zorluk: ${difficulty}
 ÇIKTI: Mantık ve muhakeme problemleri seti.
             `;
 
+        case 'yazim-kurallari':
+            return `
+[ROL: KIDEMLİ TÜRKÇE ÖĞRETMENİ - YAZIM VE NOKTALAMA UZMANI]
+MEB 2024-2025 ${gradeInfo} müfredatına tam hakimsin.
+
+[ÖĞRENCİ PROFİLİ]
+Tanı: Disleksi desteğine ihtiyaç duyan öğrenci
+Yaş Grubu: ${gradeInfo}
+
+[GÖREV]
+"${difficulty}" zorluk derecesinde YAZIM KURALLARI VE NOKTALAMA etkinliği üret.
+
+[KISITLAR]
+1. Sorular YALNIZCA Türkçe yazım kurallarına odaklanmalı:
+   - Büyük-küçük harf kuralları
+   - Kesme işareti kullanımı
+   - Bitişik-ayrı yazılan kelimeler
+   - Noktalama işaretleri (nokta, virgül, soru işareti, ünlem)
+2. Her soru için örnek cümle içerisinde uygulama
+3. Disleksi dostu: Kısa cümleler (max 12 kelime), net yönergeler
+4. Görsel ipuçları önerisi (renk kodlama, vurgulama)
+5. İLK 2 SORU MUTLAKA KOLAY (başarı garantisi)
+6. Yönergeler max 2 cümle
+
+[ÇIKTI]
+8-10 adet yazım/noktalama sorusu, her soru için cevap anahtarı ve kısa kural hatırlatıcı.
+
+Sınıf: ${gradeInfo}
+Zorluk: ${difficulty}
+            `;
+
+        case 'soz-varligi':
+            return `
+[ROL: KIDEMLİ TÜRKÇE ÖĞRETMENİ - SÖZ VARLIĞI UZMANI]
+MEB 2024-2025 ${gradeInfo} müfredatına tam hakimsin.
+
+[ÖĞRENCİ PROFİLİ]
+Tanı: Disleksi desteğine ihtiyaç duyan öğrenci
+
+[GÖREV]
+"${difficulty}" zorluk derecesinde SÖZ VARLIĞI (deyim, atasözü, mecaz) etkinliği üret.
+
+[KISITLAR]
+1. ${gradeInfo} seviyesine uygun deyimler ve atasözleri seç
+2. Her deyim/atasözü için ZORUNLU:
+   - Anlamı (kısa, net - max 1 cümle)
+   - Örnek cümle (bağlamsal öğrenme)
+   - Görsel çağrışım önerisi
+3. Disleksi dostu: Somut anlamlar, güncel örnekler
+4. Karmaşık mecazlardan kaçın (soyut düşünme yükünü azalt)
+5. İLK 2 DEYIM günlük yaşamdan (okul, aile, oyun)
+
+[ÇIKTI]
+10-12 adet deyim/atasözü etkinliği, her biri anlam + örnek cümle + görsel ipucu ile.
+
+Sınıf: ${gradeInfo}
+Zorluk: ${difficulty}
+            `;
+
+        case 'hece-ses':
+            return `
+[ROL: KIDEMLİ TÜRKÇE ÖĞRETMENİ - FONOLOJİK FARKINDALIK UZMANI]
+Disleksi alanında uzmanlaşmış, hece ve ses olaylarına hakim.
+
+[ÖĞRENCİ PROFİLİ]
+Tanı: Disleksi - fonolojik farkındalık desteği gerekli
+
+[GÖREV]
+"${difficulty}" zorluk derecesinde HECE VE SES OLAYLARI etkinliği üret.
+
+[KISITLAR]
+1. Hece ayrıştırma egzersizleri (örn: ka-lem, o-kul)
+2. Ses olayları (yumuşama, sertleşme, ses düşmesi, ünlü daralması)
+3. Renkli hece vurgulama önerileri (örn: kalEM - vurgulu hece büyük)
+4. Multisensory yaklaşım: işitsel + görsel destekli
+5. ZPD uyumlu: Basit hecelemeden karmaşık ses olaylarına
+6. İLK 3 KELİME 2 heceli, kolay (ma-sa, e-le-ma gibi)
+
+[ÇIKTI]
+8-10 adet hece/ses olayları aktivitesi, her kelime için hece ayrımı + ses olayı açıklaması.
+
+Sınıf: ${gradeInfo}
+Zorluk: ${difficulty}
+            `;
+
         default:
             return `
 [ROL: UZMAN ÖZEL EĞİTİM İÇERİK TASARIMCISI]
@@ -227,6 +332,83 @@ const buildSchemaForTemplate = (templateId: string): any => {
                 required: ['title', 'problems', 'pedagogicalNote']
             };
 
+        case 'yazim-kurallari':
+            return {
+                type: 'OBJECT',
+                properties: {
+                    title: { type: 'STRING' },
+                    topic: { type: 'STRING' },
+                    exercises: {
+                        type: 'ARRAY',
+                        items: {
+                            type: 'OBJECT',
+                            properties: {
+                                sentence: { type: 'STRING' },
+                                question: { type: 'STRING' },
+                                correctAnswer: { type: 'STRING' },
+                                rule: { type: 'STRING' }
+                            },
+                            required: ['sentence', 'question', 'correctAnswer']
+                        }
+                    },
+                    pedagogicalNote: { type: 'STRING' },
+                    visualHints: {
+                        type: 'ARRAY',
+                        items: { type: 'STRING' }
+                    }
+                },
+                required: ['title', 'topic', 'exercises', 'pedagogicalNote']
+            };
+
+        case 'soz-varligi':
+            return {
+                type: 'OBJECT',
+                properties: {
+                    title: { type: 'STRING' },
+                    items: {
+                        type: 'ARRAY',
+                        items: {
+                            type: 'OBJECT',
+                            properties: {
+                                phrase: { type: 'STRING' },
+                                meaning: { type: 'STRING' },
+                                exampleSentence: { type: 'STRING' },
+                                visualHint: { type: 'STRING' }
+                            },
+                            required: ['phrase', 'meaning', 'exampleSentence']
+                        }
+                    },
+                    pedagogicalNote: { type: 'STRING' }
+                },
+                required: ['title', 'items', 'pedagogicalNote']
+            };
+
+        case 'hece-ses':
+            return {
+                type: 'OBJECT',
+                properties: {
+                    title: { type: 'STRING' },
+                    activities: {
+                        type: 'ARRAY',
+                        items: {
+                            type: 'OBJECT',
+                            properties: {
+                                word: { type: 'STRING' },
+                                syllables: {
+                                    type: 'ARRAY',
+                                    items: { type: 'STRING' }
+                                },
+                                soundEvent: { type: 'STRING' },
+                                colorHint: { type: 'STRING' }
+                            },
+                            required: ['word', 'syllables']
+                        }
+                    },
+                    pedagogicalNote: { type: 'STRING' }
+                },
+                required: ['title', 'activities', 'pedagogicalNote']
+            };
+
         default:
             return baseSchema;
     }
@@ -260,6 +442,37 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
                 })
                 .join('\n\n');
             return `🧩 MANTIK VE MUHAKEME\n\n${problems}`;
+
+        case 'yazim-kurallari':
+            const visualHints = aiResponse.visualHints
+                ? `\n\n🎨 Görsel İpuçları:\n${aiResponse.visualHints.map((h: string, i: number) => `${i + 1}. ${h}`).join('\n')}`
+                : '';
+            const yazimExercises = aiResponse.exercises
+                .map((e: any, i: number) =>
+                    `${i + 1}. ${e.sentence}\n   ❓ ${e.question}\n   ✅ ${e.correctAnswer}\n   📌 Kural: ${e.rule || 'Yukarıdaki kurallara bak'}`
+                )
+                .join('\n\n');
+            return `📝 ${aiResponse.topic}\n\n✍️ ALIŞTIRMALAR:\n\n${yazimExercises}${visualHints}`;
+
+        case 'soz-varligi':
+            const phraseItems = aiResponse.items
+                .map((item: any, i: number) => {
+                    const visual = item.visualHint ? `\n   🎨 ${item.visualHint}` : '';
+                    return `${i + 1}. "${item.phrase}"\n   💬 Anlamı: ${item.meaning}\n   📖 Örnek: ${item.exampleSentence}${visual}`;
+                })
+                .join('\n\n');
+            return `🗣️ SÖZ VARLIĞI\n\n${phraseItems}`;
+
+        case 'hece-ses':
+            const heceActivities = aiResponse.activities
+                .map((act: any, i: number) => {
+                    const syllables = act.syllables.join('-');
+                    const soundEvent = act.soundEvent ? `\n   🔊 Ses Olayı: ${act.soundEvent}` : '';
+                    const colorHint = act.colorHint ? `\n   🎨 Renk İpucu: ${act.colorHint}` : '';
+                    return `${i + 1}. ${act.word} → ${syllables}${soundEvent}${colorHint}`;
+                })
+                .join('\n\n');
+            return `🔤 HECE VE SES OLAYLARI\n\n${heceActivities}`;
 
         default:
             return aiResponse.content || JSON.stringify(aiResponse, null, 2);
@@ -302,18 +515,61 @@ export const generateSuperStudioContent = async (
             return results;
         }
 
-        // AI mode: Gemini ile gerçek içerik üretimi
-        for (const tpl of templates) {
+        // AI mode: Gemini ile gerçek içerik üretimi (paralel batch optimizasyonu + cache)
+
+        // Cache kontrolü (IndexedDB - opsiyonel, hata durumunda devam et)
+        let cacheService: any = null;
+
+        // Browser environment kontrolü
+        const isBrowser = typeof window !== 'undefined' && typeof window.indexedDB !== 'undefined';
+
+        if (isBrowser) {
+            try {
+                // Dynamic import ile cacheService'i al
+                const { default: CacheService } = await import('../cacheService.js');
+                cacheService = CacheService;
+            } catch (e) {
+                console.warn('[Super Türkçe] Cache servisi yüklenemedi, cache atlanıyor.', e);
+            }
+        }
+
+        // Cache'ten kontrol et
+        const cachedResults: GeneratedContentPayload[] = [];
+        let remainingTemplates = [...templates];
+
+        if (cacheService) {
+            for (const tpl of templates) {
+                const templateSettings = settings[tpl] || {};
+                const cacheKey = generateCacheKey(tpl, templateSettings, grade, difficulty);
+
+                try {
+                    const cached = await cacheService.get(cacheKey);
+                    if (cached) {
+                        cachedResults.push({
+                            ...cached,
+                            id: `cache-${Date.now()}-${tpl}`,
+                            fromCache: true
+                        });
+                        remainingTemplates = remainingTemplates.filter(t => t !== tpl);
+                        console.log(`[Super Türkçe] Cache hit: ${tpl}`);
+                    }
+                } catch (e) {
+                    console.warn(`[Super Türkçe] Cache okuma hatası (${tpl}):`, e);
+                }
+            }
+        }
+
+        // Cache'te olmayanlar için API çağrısı yap
+        const promises = remainingTemplates.map(async (tpl) => {
             const templateSettings = settings[tpl] || {};
             const prompt = buildPromptForTemplate(tpl, templateSettings, grade, difficulty);
             const schema = buildSchemaForTemplate(tpl);
 
             try {
                 const aiResponse = await generateWithSchema(prompt, schema);
-
                 const content = formatContentForA4(tpl, aiResponse);
 
-                results.push({
+                const payload = {
                     id: `gen-${Date.now()}-${tpl}`,
                     templateId: tpl,
                     pages: [
@@ -324,20 +580,74 @@ export const generateSuperStudioContent = async (
                         }
                     ],
                     createdAt: Date.now()
-                });
+                };
+
+                // Cache'e kaydet (async, bekleme)
+                if (cacheService) {
+                    const cacheKey = generateCacheKey(tpl, templateSettings, grade, difficulty);
+                    try {
+                        await cacheService.set(cacheKey, payload);
+                        console.log(`[Super Türkçe] Cache yazıldı: ${tpl}`);
+                    } catch (e) {
+                        console.warn(`[Super Türkçe] Cache yazma hatası (${tpl}):`, e);
+                    }
+                }
+
+                return {
+                    success: true,
+                    templateId: tpl,
+                    data: payload
+                };
             } catch (apiError: any) {
-                // AI hatası durumunda fallback
-                throw new AppError(
-                    `${tpl} şablonu için AI üretimi başarısız: ${apiError.message}`,
-                    'AI_GENERATION_FAILED',
-                    500,
-                    apiError,
-                    true
-                );
+                // Partial failure - bu şablon başarısız ama diğerleri devam etsin
+                return {
+                    success: false,
+                    templateId: tpl,
+                    error: apiError instanceof AppError ? apiError : new AppError(
+                        `${tpl} şablonu için AI üretimi başarısız: ${(apiError as Error).message}`,
+                        'AI_GENERATION_FAILED',
+                        500,
+                        apiError,
+                        true
+                    )
+                };
             }
+        });
+
+        // Promise.allSettled ile tüm sonuçları bekle (partial success)
+        const settled = await Promise.allSettled(promises);
+
+        // Başarılı sonuçları topla
+        const successes = settled
+            .filter((r): r is PromiseFulfilledResult<{success: true, data: any}> =>
+                r.status === 'fulfilled' && r.value.success
+            )
+            .map(r => r.value.data);
+
+        // Cache'ten gelenleri ekle
+        const allResults = [...cachedResults, ...successes];
+
+        // Başarısız olanları logla
+        const failures = settled.filter((r): boolean =>
+            r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
+        );
+
+        if (failures.length > 0) {
+            console.error(`[Super Türkçe] ${failures.length}/${templates.length} şablon başarısız oldu.`, failures);
         }
 
-        return results;
+        // Hiç başarılı olmazsa hata fırlat
+        if (allResults.length === 0) {
+            throw new AppError(
+                'Tüm şablonlar için üretim başarısız oldu. Lütfen tekrar deneyin.',
+                'BATCH_GENERATION_FAILED',
+                500,
+                { failures },
+                true
+            );
+        }
+
+        return allResults;
     } catch (error: any) {
         if (error instanceof AppError) throw error;
         throw new AppError('Üretim sırasında beklenmeyen bir hata oluştu.', 'GENERATOR_ERROR', 500, error, true);
