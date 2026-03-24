@@ -234,29 +234,68 @@ const buildSchemaForTemplate = (templateId: string): any => {
 
 /**
  * AI yanıtını A4 içeriğine dönüştürür
+ * Defensive coding: Tüm alanların varlığını kontrol eder
  */
 const formatContentForA4 = (templateId: string, aiResponse: any): string => {
+    // Null/undefined check
+    if (!aiResponse || typeof aiResponse !== 'object') {
+        console.error('AI yanıtı geçersiz:', aiResponse);
+        return '[HATA] AI yanıtı beklenmeyen formatta döndü.';
+    }
+
     switch (templateId) {
         case 'okuma-anlama':
+            // Defensive: questions array kontrolü
+            if (!Array.isArray(aiResponse.questions) || aiResponse.questions.length === 0) {
+                console.error('okuma-anlama: questions dizisi bulunamadı veya boş', aiResponse);
+                return `${aiResponse.text || '[Metin eksik]'}\n\n📝 SORULAR:\n\n[Sorular üretilemedi - AI yanıtında 'questions' alanı bulunamadı]`;
+            }
+
             const questions = aiResponse.questions
-                .map((q: any, i: number) => `${i + 1}. ${q.question}\n   Cevap: ${q.answer}`)
+                .map((q: any, i: number) => {
+                    const question = q?.question || '[Soru metni eksik]';
+                    const answer = q?.answer || '[Cevap eksik]';
+                    return `${i + 1}. ${question}\n   Cevap: ${answer}`;
+                })
                 .join('\n\n');
-            return `${aiResponse.text}\n\n📝 SORULAR:\n\n${questions}`;
+            return `${aiResponse.text || '[Metin eksik]'}\n\n📝 SORULAR:\n\n${questions}`;
 
         case 'dilbilgisi':
-            const rules = aiResponse.rules
-                .map((r: string, i: number) => `${i + 1}. ${r}`)
-                .join('\n');
-            const exercises = aiResponse.exercises
-                .map((e: any, i: number) => `${i + 1}. ${e.question}\n   Cevap: ${e.answer}`)
-                .join('\n\n');
-            return `📌 ${aiResponse.topic}\n\n✅ KURALLAR:\n${rules}\n\n📝 ALIŞTIRMALAR:\n\n${exercises}`;
+            // Defensive: rules ve exercises array kontrolü
+            if (!Array.isArray(aiResponse.rules) || aiResponse.rules.length === 0) {
+                console.error('dilbilgisi: rules dizisi bulunamadı veya boş', aiResponse);
+            }
+            if (!Array.isArray(aiResponse.exercises) || aiResponse.exercises.length === 0) {
+                console.error('dilbilgisi: exercises dizisi bulunamadı veya boş', aiResponse);
+            }
+
+            const rules = Array.isArray(aiResponse.rules)
+                ? aiResponse.rules.map((r: string, i: number) => `${i + 1}. ${r || '[Kural eksik]'}`).join('\n')
+                : '[Kurallar üretilemedi]';
+
+            const exercises = Array.isArray(aiResponse.exercises)
+                ? aiResponse.exercises.map((e: any, i: number) => {
+                    const question = e?.question || '[Soru metni eksik]';
+                    const answer = e?.answer || '[Cevap eksik]';
+                    return `${i + 1}. ${question}\n   Cevap: ${answer}`;
+                }).join('\n\n')
+                : '[Alıştırmalar üretilemedi]';
+
+            return `📌 ${aiResponse.topic || '[Konu belirtilmedi]'}\n\n✅ KURALLAR:\n${rules}\n\n📝 ALIŞTIRMALAR:\n\n${exercises}`;
 
         case 'mantik-muhakeme':
+            // Defensive: problems array kontrolü
+            if (!Array.isArray(aiResponse.problems) || aiResponse.problems.length === 0) {
+                console.error('mantik-muhakeme: problems dizisi bulunamadı veya boş', aiResponse);
+                return `🧩 MANTIK VE MUHAKEME\n\n[Problemler üretilemedi - AI yanıtında 'problems' alanı bulunamadı]`;
+            }
+
             const problems = aiResponse.problems
                 .map((p: any, i: number) => {
-                    const hint = p.hint ? `\n   💡 İpucu: ${p.hint}` : '';
-                    return `${i + 1}. ${p.question}${hint}\n   Cevap: ${p.answer}`;
+                    const question = p?.question || '[Problem metni eksik]';
+                    const answer = p?.answer || '[Cevap eksik]';
+                    const hint = p?.hint ? `\n   💡 İpucu: ${p.hint}` : '';
+                    return `${i + 1}. ${question}${hint}\n   Cevap: ${answer}`;
                 })
                 .join('\n\n');
             return `🧩 MANTIK VE MUHAKEME\n\n${problems}`;
@@ -311,7 +350,23 @@ export const generateSuperStudioContent = async (
             try {
                 const aiResponse = await generateWithSchema(prompt, schema);
 
+                // Validate AI response structure
+                if (!aiResponse) {
+                    throw new Error('AI yanıtı boş döndü');
+                }
+
+                // Log response for debugging if validation fails later
+                console.log(`AI yanıtı alındı (${tpl}):`, {
+                    hasTitle: !!aiResponse.title,
+                    hasPedagogicalNote: !!aiResponse.pedagogicalNote,
+                    keys: Object.keys(aiResponse)
+                });
+
                 const content = formatContentForA4(tpl, aiResponse);
+
+                // Ensure pedagogicalNote exists (critical requirement)
+                const pedagogicalNote = aiResponse.pedagogicalNote ||
+                    `${tpl} etkinliği üretildi. Öğretmen tarafından gözden geçirilmesi önerilir.`;
 
                 results.push({
                     id: `gen-${Date.now()}-${tpl}`,
@@ -320,15 +375,22 @@ export const generateSuperStudioContent = async (
                         {
                             title: aiResponse.title || `${tpl.replace('-', ' ').toUpperCase()} Etkinliği`,
                             content: content,
-                            pedagogicalNote: aiResponse.pedagogicalNote || `${tpl} etkinliği başarıyla üretildi.`
+                            pedagogicalNote: pedagogicalNote
                         }
                     ],
                     createdAt: Date.now()
                 });
             } catch (apiError: any) {
-                // AI hatası durumunda fallback
+                // AI hatası durumunda daha detaylı hata mesajı
+                const errorDetails = apiError?.message || 'Bilinmeyen hata';
+                console.error(`AI üretim hatası (${tpl}):`, {
+                    error: errorDetails,
+                    stack: apiError?.stack,
+                    response: apiError?.response
+                });
+
                 throw new AppError(
-                    `${tpl} şablonu için AI üretimi başarısız: ${apiError.message}`,
+                    `${tpl} şablonu için AI üretimi başarısız: ${errorDetails}`,
                     'AI_GENERATION_FAILED',
                     500,
                     apiError,
