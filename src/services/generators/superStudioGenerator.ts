@@ -625,7 +625,7 @@ export const generateSuperStudioContent = async (
                 const pedagogicalNote = aiResponse.pedagogicalNote ||
                     `${tpl} etkinliği üretildi. Öğretmen tarafından gözden geçirilmesi önerilir.`;
 
-                results.push({
+                const payload = {
                     id: `gen-${Date.now()}-${tpl}`,
                     templateId: tpl,
                     pages: [
@@ -637,6 +637,8 @@ export const generateSuperStudioContent = async (
                     ],
                     createdAt: Date.now()
                 };
+
+                results.push(payload);
 
                 // Cache'e kaydet (async, bekleme)
                 if (cacheService) {
