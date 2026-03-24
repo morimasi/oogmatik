@@ -519,14 +519,18 @@ export const generateSuperStudioContent = async (
 
         // Cache kontrolü (IndexedDB - opsiyonel, hata durumunda devam et)
         let cacheService: any = null;
-        try {
-            // Dynamic import ile cacheService'i al (browser environment)
-            if (typeof window !== 'undefined') {
+
+        // Browser environment kontrolü
+        const isBrowser = typeof window !== 'undefined' && typeof window.indexedDB !== 'undefined';
+
+        if (isBrowser) {
+            try {
+                // Dynamic import ile cacheService'i al
                 const { default: CacheService } = await import('../cacheService.js');
                 cacheService = CacheService;
+            } catch (e) {
+                console.warn('[Super Türkçe] Cache servisi yüklenemedi, cache atlanıyor.', e);
             }
-        } catch (e) {
-            console.warn('[Super Türkçe] Cache servisi yüklenemedi, cache atlanıyor.', e);
         }
 
         // Cache'ten kontrol et
