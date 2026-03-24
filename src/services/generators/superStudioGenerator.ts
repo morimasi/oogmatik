@@ -495,32 +495,65 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
             return `🧩 MANTIK VE MUHAKEME\n\n${problems}`;
 
         case 'yazim-kurallari':
-            const visualHints = aiResponse.visualHints
-                ? `\n\n🎨 Görsel İpuçları:\n${aiResponse.visualHints.map((h: string, i: number) => `${i + 1}. ${h}`).join('\n')}`
+            // Defensive: exercises array kontrolü
+            if (!Array.isArray(aiResponse.exercises) || aiResponse.exercises.length === 0) {
+                console.error('yazim-kurallari: exercises dizisi bulunamadı veya boş', aiResponse);
+                return `📝 ${aiResponse.topic || 'YAZIM KURALLARI'}\n\n[Alıştırmalar üretilemedi - AI yanıtında 'exercises' alanı bulunamadı]`;
+            }
+
+            // Defensive: visualHints array kontrolü (opsiyonel alan)
+            const visualHints = Array.isArray(aiResponse.visualHints) && aiResponse.visualHints.length > 0
+                ? `\n\n🎨 Görsel İpuçları:\n${aiResponse.visualHints.map((h: string, i: number) => `${i + 1}. ${h || '[İpucu eksik]'}`).join('\n')}`
                 : '';
+
             const yazimExercises = aiResponse.exercises
-                .map((e: any, i: number) =>
-                    `${i + 1}. ${e.sentence}\n   ❓ ${e.question}\n   ✅ ${e.correctAnswer}\n   📌 Kural: ${e.rule || 'Yukarıdaki kurallara bak'}`
-                )
+                .map((e: any, i: number) => {
+                    const sentence = e?.sentence || '[Cümle eksik]';
+                    const question = e?.question || '[Soru eksik]';
+                    const correctAnswer = e?.correctAnswer || '[Cevap eksik]';
+                    const rule = e?.rule || 'Yukarıdaki kurallara bak';
+                    return `${i + 1}. ${sentence}\n   ❓ ${question}\n   ✅ ${correctAnswer}\n   📌 Kural: ${rule}`;
+                })
                 .join('\n\n');
-            return `📝 ${aiResponse.topic}\n\n✍️ ALIŞTIRMALAR:\n\n${yazimExercises}${visualHints}`;
+            return `📝 ${aiResponse.topic || 'YAZIM KURALLARI'}\n\n✍️ ALIŞTIRMALAR:\n\n${yazimExercises}${visualHints}`;
 
         case 'soz-varligi':
+            // Defensive: items array kontrolü
+            if (!Array.isArray(aiResponse.items) || aiResponse.items.length === 0) {
+                console.error('soz-varligi: items dizisi bulunamadı veya boş', aiResponse);
+                return `🗣️ SÖZ VARLIĞI\n\n[Deyim/Atasözü öğeleri üretilemedi - AI yanıtında 'items' alanı bulunamadı]`;
+            }
+
             const phraseItems = aiResponse.items
                 .map((item: any, i: number) => {
-                    const visual = item.visualHint ? `\n   🎨 ${item.visualHint}` : '';
-                    return `${i + 1}. "${item.phrase}"\n   💬 Anlamı: ${item.meaning}\n   📖 Örnek: ${item.exampleSentence}${visual}`;
+                    const phrase = item?.phrase || '[Deyim/Atasözü eksik]';
+                    const meaning = item?.meaning || '[Anlam eksik]';
+                    const exampleSentence = item?.exampleSentence || '[Örnek cümle eksik]';
+                    const visual = item?.visualHint ? `\n   🎨 ${item.visualHint}` : '';
+                    return `${i + 1}. "${phrase}"\n   💬 Anlamı: ${meaning}\n   📖 Örnek: ${exampleSentence}${visual}`;
                 })
                 .join('\n\n');
             return `🗣️ SÖZ VARLIĞI\n\n${phraseItems}`;
 
         case 'hece-ses':
+            // Defensive: activities array kontrolü
+            if (!Array.isArray(aiResponse.activities) || aiResponse.activities.length === 0) {
+                console.error('hece-ses: activities dizisi bulunamadı veya boş', aiResponse);
+                return `🔤 HECE VE SES OLAYLARI\n\n[Hece aktiviteleri üretilemedi - AI yanıtında 'activities' alanı bulunamadı]`;
+            }
+
             const heceActivities = aiResponse.activities
                 .map((act: any, i: number) => {
-                    const syllables = act.syllables.join('-');
-                    const soundEvent = act.soundEvent ? `\n   🔊 Ses Olayı: ${act.soundEvent}` : '';
-                    const colorHint = act.colorHint ? `\n   🎨 Renk İpucu: ${act.colorHint}` : '';
-                    return `${i + 1}. ${act.word} → ${syllables}${soundEvent}${colorHint}`;
+                    const word = act?.word || '[Kelime eksik]';
+
+                    // Defensive: syllables array kontrolü (nested array)
+                    const syllables = Array.isArray(act?.syllables) && act.syllables.length > 0
+                        ? act.syllables.join('-')
+                        : '[Hece ayrımı yapılamadı]';
+
+                    const soundEvent = act?.soundEvent ? `\n   🔊 Ses Olayı: ${act.soundEvent}` : '';
+                    const colorHint = act?.colorHint ? `\n   🎨 Renk İpucu: ${act.colorHint}` : '';
+                    return `${i + 1}. ${word} → ${syllables}${soundEvent}${colorHint}`;
                 })
                 .join('\n\n');
             return `🔤 HECE VE SES OLAYLARI\n\n${heceActivities}`;
