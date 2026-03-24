@@ -1,7 +1,6 @@
 import { GenerationMode, SuperStudioDifficulty, GeneratedContentPayload } from '../../types/superStudio';
 import { AppError } from '../../utils/AppError';
 import { generateWithSchema } from '../geminiClient.js';
-import { createHash } from 'crypto';
 
 interface GenerateParams {
     templates: string[];
@@ -11,6 +10,19 @@ interface GenerateParams {
     difficulty: SuperStudioDifficulty;
     studentId: string | null;
 }
+
+/**
+ * Browser-compatible FNV-1a hash function
+ * Returns a simple hash string suitable for cache keys
+ */
+const simpleHash = (str: string): string => {
+    let hash = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+        hash ^= str.charCodeAt(i);
+        hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+    }
+    return (hash >>> 0).toString(36);
+};
 
 /**
  * Cache key oluşturur (hash tabanlı)
@@ -27,7 +39,7 @@ const generateCacheKey = (
         grade,
         difficulty
     });
-    const hash = createHash('sha256').update(data).digest('hex').substring(0, 16);
+    const hash = simpleHash(data);
     return `super-turkce:${hash}`;
 };
 
