@@ -6,11 +6,11 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { generateVariations } from '../src/../services/ocrVariationService.js';
-import type { VariationRequest } from '../src/../services/ocrVariationService.js';
-import { AppError, ValidationError, toAppError } from '../src/../utils/AppError.js';
-import { logError } from '../src/../utils/errorHandler.js';
-import { RateLimiter } from '../src/../services/rateLimiter.js';
+import { generateVariations } from '../../src/services/ocrVariationService.js';
+import type { VariationRequest } from '../../src/services/ocrVariationService.js';
+import { AppError, ValidationError, toAppError } from '../../src/utils/AppError.js';
+import { logError } from '../../src/utils/errorHandler.js';
+import { RateLimiter } from '../../src/services/rateLimiter.js';
 
 const rateLimiter = new RateLimiter();
 
