@@ -6,11 +6,11 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { ocrService } from '../src/../services/ocrService.js';
-import { validateBase64Image } from '../src/../utils/imageValidator.js';
-import { AppError, ValidationError, toAppError } from '../src/../utils/AppError.js';
-import { logError } from '../src/../utils/errorHandler.js';
-import { RateLimiter } from '../src/../services/rateLimiter.js';
+import { ocrService } from '../../src/services/ocrService.js';
+import { validateBase64Image } from '../../src/utils/imageValidator.js';
+import { AppError, ValidationError, toAppError } from '../../src/utils/AppError.js';
+import { logError } from '../../src/utils/errorHandler.js';
+import { RateLimiter } from '../../src/services/rateLimiter.js';
 
 const rateLimiter = new RateLimiter();
 

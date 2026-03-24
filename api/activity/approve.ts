@@ -4,7 +4,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { activityApprovalService } from '../src/../services/activityApprovalService.js';
+import { activityApprovalService } from '../../src/services/activityApprovalService.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // CORS
