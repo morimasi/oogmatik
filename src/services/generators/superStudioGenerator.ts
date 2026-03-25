@@ -504,6 +504,7 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
             const visualHints = Array.isArray(aiResponse.visualHints) && aiResponse.visualHints.length > 0
                 ? `\n\n🎨 Görsel İpuçları:\n${aiResponse.visualHints.map((h: string, i: number) => `${i + 1}. ${h || '[İpucu eksik]'}`).join('\n')}`
                 : '';
+
             const yazimExercises = aiResponse.exercises
                 .map((e: any, i: number) => {
                     const sentence = e?.sentence || '[Cümle eksik]';
@@ -665,7 +666,7 @@ export const generateSuperStudioContent = async (
                 const pedagogicalNote = aiResponse.pedagogicalNote ||
                     `${tpl} etkinliği üretildi. Öğretmen tarafından gözden geçirilmesi önerilir.`;
 
-                const payload: GeneratedContentPayload = {
+                const payload = {
                     id: `gen-${Date.now()}-${tpl}`,
                     templateId: tpl,
                     pages: [
@@ -677,6 +678,8 @@ export const generateSuperStudioContent = async (
                     ],
                     createdAt: Date.now()
                 };
+
+                results.push(payload);
 
                 // Cache'e kaydet (async, bekleme)
                 if (cacheService) {
