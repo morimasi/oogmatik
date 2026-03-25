@@ -115,3 +115,22 @@ Admin bileşenlerine dokunurken bu standardı koru:
 any tipi | console.log üretimde | hardcode API key | pedagogicalNote silmek
 Lexend değiştirmek | tanı koyucu dil | başarısızlık görünür UI | KVKK ihlali
 ```
+
+---
+
+## ⚡ Superpowers İş Akışı
+
+Bu proje [obra/superpowers](https://github.com/obra/superpowers) ile entegre edilmiştir.
+Beceriler `.claude/skills/` dizinindedir.
+
+| Beceri | Tetikleyici |
+|--------|-------------|
+| `brainstorming` | Herhangi bir özellik yapmadan önce |
+| `writing-plans` | Tasarım onaylandıktan sonra |
+| `test-driven-development` | Her implementasyon adımında |
+| `systematic-debugging` | Herhangi bir hata/test başarısızlığında |
+| `verification-before-completion` | "Tamamlandı" demeden önce |
+
+**Test komutları:** `npm run test:run` (Vitest) | `npm run build` | `npm run lint`
+
+**Dokümanlar:** `docs/superpowers/` (specs/ ve plans/)

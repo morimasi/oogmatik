@@ -490,3 +490,50 @@ interface BEPGoal {
 ### Genel Kadro (vibecosystem — `~/.claude/agents/`)
 
 `frontend-dev`, `backend-dev`, `code-reviewer`, `security-analyst`, `tdd-guide`, `qa-engineer`, `architect` — bu ajanlar **İç Çekirdek'in direktifleriyle** çalışır.
+
+---
+
+## ⚡ Superpowers İş Akışı
+
+Bu proje **[obra/superpowers](https://github.com/obra/superpowers)** ile entegre edilmiştir. Superpowers, AI kodlama ajanları için yapılandırılmış bir geliştirme iş akışı sağlar.
+
+### Beceriler (`.claude/skills/`)
+
+Her görev başlamadan önce ilgili beceriyi çağır:
+
+| Beceri | Tetikleyici |
+|--------|-------------|
+| `brainstorming` | Herhangi bir özellik/bileşen yapmadan önce |
+| `writing-plans` | Tasarım onaylandıktan sonra |
+| `test-driven-development` | Her implementasyon adımında |
+| `subagent-driven-development` | Plan yürütülürken (tavsiye edilen) |
+| `executing-plans` | Tek oturumda plan yürütürken |
+| `systematic-debugging` | Herhangi bir hata/test başarısızlığında |
+| `requesting-code-review` | Görev tamamlandıktan sonra |
+| `verification-before-completion` | "Tamamlandı" demeden önce |
+| `finishing-a-development-branch` | Uygulama bittiğinde |
+| `using-git-worktrees` | Özellik dalı oluştururken |
+
+### Öncelik Sırası
+
+```
+1. CLAUDE.md + Oogmatik kuralları  ← EN YÜKSEK
+2. Superpowers skills (iş akışı)
+3. Default AI behavior             ← EN DÜŞÜK
+```
+
+Superpowers becerileri Oogmatik kurallarını asla geçemez. `pedagogicalNote`, `AppError`, `any` yasağı, KVKK — bunlar mutlak.
+
+### Dokümanlar
+
+- **Tasarım dokümanları:** `docs/superpowers/specs/YYYY-MM-DD-<konu>.md`
+- **Uygulama planları:** `docs/superpowers/plans/YYYY-MM-DD-<özellik>.md`
+- **Entegrasyon kılavuzu:** `docs/superpowers/README.md`
+
+### Test Komutları
+
+```bash
+npm run test:run    # Vitest (tüm testler)
+npm run build       # TypeScript derleme
+npm run lint        # ESLint
+```
