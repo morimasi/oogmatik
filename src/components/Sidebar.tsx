@@ -45,6 +45,7 @@ interface SidebarProps {
   onOpenReadingStudio?: () => void;
   onOpenMathStudio?: () => void;
   onOpenSuperTurkce?: () => void;
+  onOpenInfographicStudio?: () => void;
 
   onOpenScreening?: () => void; // Added Prop
   activeCurriculumSession?: ActiveCurriculumSession | null;
@@ -107,6 +108,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenMathStudio,
   onOpenScreening,
   onOpenSuperTurkce,
+  onOpenInfographicStudio,
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
