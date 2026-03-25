@@ -72,6 +72,9 @@ const MathStudio = lazy(() =>
 const SuperStudio = lazy(() =>
   import('./components/SuperStudio').then((module) => ({ default: module.SuperStudio }))
 );
+const InfographicStudio = lazy(() =>
+  import('./components/InfographicStudio').then((module) => ({ default: module.InfographicStudio }))
+);
 
 
 const StudentDashboard = lazy(() =>
@@ -760,6 +763,7 @@ const AppContent = () => {
             onOpenReadingStudio={() => handleOpenStudio('reading-studio')}
             onOpenMathStudio={() => handleOpenStudio('math-studio')}
             onOpenSuperTurkce={() => handleOpenStudio('super-turkce')}
+            onOpenInfographicStudio={() => handleOpenStudio('infographic-studio')}
             onOpenScreening={() => handleOpenStudio('screening')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
@@ -848,7 +852,13 @@ const AppContent = () => {
         </div>
       )}
 
-
+      {currentView === 'infographic-studio' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+          <Suspense fallback={<LoadingSpinner />}>
+            <InfographicStudio onBack={handleGoBack} />
+          </Suspense>
+        </div>
+      )}
 
       {currentView === 'ocr' && (
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">

@@ -164,6 +164,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       onClick: onOpenSuperTurkce,
     },
     {
+      id: 'infographic-studio',
+      label: 'İnfografik Stüdyosu',
+      icon: 'fa-chart-pie',
+      color: 'bg-violet-500',
+      onClick: onOpenInfographicStudio,
+    },
+    {
       id: 'screening',
       label: 'Tarama & Analiz',
       icon: 'fa-clipboard-question',
