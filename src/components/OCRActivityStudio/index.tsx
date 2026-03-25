@@ -7,7 +7,7 @@
  * Dark Glassmorphism tema. Lexend font.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useOCRActivityStore } from '../../store/useOCRActivityStore';
 import { ocrService } from '../../services/ocrService';
 import { promptActivityService } from '../../services/promptActivityService';
@@ -16,6 +16,8 @@ import { activityApprovalService } from '../../services/activityApprovalService'
 import { templateEngine } from '../../services/templateEngine';
 import type { ProductionMode, Difficulty, QuestionType, ActivityTemplate } from '../../types/ocr-activity';
 import type { OCRResult } from '../../types/core';
+import { useScanBeam, useStaggerReveal, useFadeInUp, useSuccessPop } from '../../hooks/useAnime';
+import { animatePhaseChange } from '../../utils/animeUtils';
 
 // ─── Alt Bileşenler ──────────────────────────────────────────────────────
 
@@ -235,19 +237,11 @@ const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({ onImageUpload, isPr
     const [isDragOver, setIsDragOver] = useState(false);
     const [preview, setPreview] = useState<string | null>(null);
 
-    const handleDrop = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragOver(false);
-        const file = e.dataTransfer.files[0];
-        if (file) processFile(file);
-    }, []);
+    // Scan beam: görsel yüklendiğinde ve işlem sürerken aktif
+    const imgContainerRef = useRef<HTMLDivElement>(null);
+    useScanBeam(imgContainerRef, !!preview && isProcessing);
 
-    const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) processFile(file);
-    }, []);
-
-    const processFile = (file: File) => {
+    const processFile = useCallback((file: File) => {
         // Boyut kontrolü
         if (file.size > 15 * 1024 * 1024) {
             alert('Dosya çok büyük (max 15MB).');
@@ -268,7 +262,19 @@ const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({ onImageUpload, isPr
             onImageUpload(base64);
         };
         reader.readAsDataURL(file);
-    };
+    }, [onImageUpload]);
+
+    const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragOver(false);
+        const file = e.dataTransfer.files[0];
+        if (file) processFile(file);
+    }, [processFile]);
+
+    const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) processFile(file);
+    }, [processFile]);
 
     return (
         <div>
@@ -288,16 +294,21 @@ const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({ onImageUpload, isPr
                 onClick={() => document.getElementById('ocr-file-input')?.click()}
             >
                 {preview ? (
-                    <img
-                        src={preview}
-                        alt="Yüklenen görsel"
-                        style={{
-                            maxWidth: '100%',
-                            maxHeight: '300px',
-                            borderRadius: '12px',
-                            objectFit: 'contain',
-                        }}
-                    />
+                    // Scan beam bu div'e eklenir
+                    <div ref={imgContainerRef} style={{ borderRadius: '12px', overflow: 'hidden' }}>
+                        <img
+                            src={preview}
+                            alt="Yüklenen görsel"
+                            style={{
+                                maxWidth: '100%',
+                                maxHeight: '300px',
+                                borderRadius: '12px',
+                                objectFit: 'contain',
+                                display: 'block',
+                                margin: '0 auto',
+                            }}
+                        />
+                    </div>
                 ) : (
                     <>
                         <div style={{ fontSize: '48px', marginBottom: '12px' }}>
@@ -332,19 +343,28 @@ interface A4PreviewProps {
 }
 
 const A4Preview: React.FC<A4PreviewProps> = ({ template }) => {
+    const previewRef = useRef<HTMLDivElement>(null);
+
+    // Template değiştiğinde fade-in animasyonu
+    useFadeInUp(previewRef, [template?.id]);
+
     if (!template) return null;
 
     const html = templateEngine.renderToHTML(template);
 
     return (
-        <div style={{
-            background: '#fff',
-            borderRadius: '8px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-            overflow: 'auto',
-            maxHeight: '600px',
-            padding: '0',
-        }}>
+        <div
+            ref={previewRef}
+            style={{
+                background: '#fff',
+                borderRadius: '8px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                overflow: 'auto',
+                maxHeight: '600px',
+                padding: '0',
+                opacity: 0, // useAnimeFadeInUp başlangıç değeri
+            }}
+        >
             <div
                 dangerouslySetInnerHTML={{ __html: html }}
                 style={{ transform: 'scale(0.7)', transformOrigin: 'top left', width: '142%' }}
@@ -388,6 +408,24 @@ const OCRActivityStudio: React.FC<OCRActivityStudioProps> = ({ onBack, onResult 
     } = useOCRActivityStore();
 
     const [showPreview, setShowPreview] = useState(false);
+
+    // ── Animasyon ref'leri ──
+    const phaseIndicatorRef = useRef<HTMLDivElement>(null);
+    const submitBtnRef = useRef<HTMLButtonElement>(null);
+    const rightPanelRef = useRef<HTMLDivElement>(null);
+
+    // Faz değiştiğinde indicator'ı pulse et
+    useEffect(() => {
+        if (isProcessing && phaseIndicatorRef.current) {
+            animatePhaseChange(phaseIndicatorRef.current);
+        }
+    }, [processingPhase, isProcessing]);
+
+    // Template hazır olduğunda sağ paneli animate et
+    useFadeInUp(rightPanelRef, [showPreview, currentTemplate?.id], 100);
+
+    // Onay butonu için başarı pop
+    useSuccessPop(submitBtnRef, !!currentTemplate && !isProcessing);
 
     // ── Mod 1: Görsel → Varyant ──
     const handleArchitectureClone = useCallback(async (base64: string) => {
@@ -508,6 +546,7 @@ const OCRActivityStudio: React.FC<OCRActivityStudioProps> = ({ onBack, onResult 
                 </div>
                 {currentTemplate && (
                     <button
+                        ref={submitBtnRef}
                         onClick={handleSubmitForReview}
                         disabled={isProcessing}
                         style={{
@@ -549,30 +588,79 @@ const OCRActivityStudio: React.FC<OCRActivityStudioProps> = ({ onBack, onResult 
                 </div>
             )}
 
-            {/* İşleme Durumu */}
+            {/* İşleme Durumu — Anime.js ile canlandırılmış faz göstergesi */}
             {isProcessing && (
-                <div style={{
-                    padding: '16px',
-                    background: 'rgba(99,102,241,0.1)',
-                    border: '1px solid rgba(99,102,241,0.2)',
-                    borderRadius: '12px',
-                    textAlign: 'center',
-                    marginBottom: '16px',
-                }}>
+                <div
+                    ref={phaseIndicatorRef}
+                    style={{
+                        padding: '20px 24px',
+                        background: 'rgba(99,102,241,0.08)',
+                        border: '1px solid rgba(99,102,241,0.25)',
+                        borderRadius: '16px',
+                        marginBottom: '16px',
+                    }}
+                >
+                    {/* Faz adımları */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                        {[
+                            { id: 'analyzing',  label: '🔍 Analiz',  active: processingPhase === 'analyzing'  },
+                            { id: 'generating', label: '⚙️ Üretim',  active: processingPhase === 'generating' },
+                            { id: 'submitting', label: '📤 Gönderim', active: processingPhase === 'submitting' },
+                        ].map((step, idx, arr) => (
+                            <React.Fragment key={step.id}>
+                                <div
+                                    data-step={step.id}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        padding: '6px 14px',
+                                        borderRadius: '20px',
+                                        background: step.active
+                                            ? 'rgba(129,140,248,0.25)'
+                                            : 'rgba(255,255,255,0.04)',
+                                        border: step.active
+                                            ? '1px solid rgba(129,140,248,0.5)'
+                                            : '1px solid rgba(255,255,255,0.07)',
+                                        color: step.active ? '#c7d2fe' : '#475569',
+                                        fontSize: '12px',
+                                        fontWeight: step.active ? '700' : '400',
+                                        transition: 'background 0.3s, color 0.3s',
+                                        whiteSpace: 'nowrap',
+                                    }}
+                                >
+                                    {step.label}
+                                    {step.active && (
+                                        <span style={{
+                                            width: '6px', height: '6px',
+                                            borderRadius: '50%',
+                                            background: '#818cf8',
+                                            display: 'inline-block',
+                                            animation: 'ocrPulse 1s ease-in-out infinite',
+                                        }} />
+                                    )}
+                                </div>
+                                {idx < arr.length - 1 && (
+                                    <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </div>
+
+                    {/* Animasyonlu progress bar */}
                     <div style={{
-                        width: '36px',
-                        height: '36px',
-                        border: '3px solid rgba(99,102,241,0.3)',
-                        borderTopColor: '#818cf8',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite',
-                        margin: '0 auto 12px',
-                    }} />
-                    <p style={{ color: '#c7d2fe', fontSize: '14px', margin: 0 }}>
-                        {processingPhase === 'analyzing' && '🔍 Görsel analiz ediliyor...'}
-                        {processingPhase === 'generating' && '⚙️ Etkinlik üretiliyor...'}
-                        {processingPhase === 'submitting' && '📤 Onay kuyruğuna gönderiliyor...'}
-                    </p>
+                        height: '3px',
+                        background: 'rgba(255,255,255,0.06)',
+                        borderRadius: '2px',
+                        overflow: 'hidden',
+                    }}>
+                        <div style={{
+                            height: '100%',
+                            background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #c4b5fd)',
+                            borderRadius: '2px',
+                            animation: 'ocrProgress 1.8s ease-in-out infinite',
+                        }} />
+                    </div>
                 </div>
             )}
 
@@ -602,13 +690,17 @@ const OCRActivityStudio: React.FC<OCRActivityStudioProps> = ({ onBack, onResult 
 
                 {/* Sağ Panel — Önizleme */}
                 {showPreview && (
-                    <div style={{
-                        background: 'rgba(255,255,255,0.03)',
-                        backdropFilter: 'blur(12px)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        borderRadius: '20px',
-                        padding: '24px',
-                    }}>
+                    <div
+                        ref={rightPanelRef}
+                        style={{
+                            background: 'rgba(255,255,255,0.03)',
+                            backdropFilter: 'blur(12px)',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                            borderRadius: '20px',
+                            padding: '24px',
+                            opacity: 0, // useFadeInUp başlangıç değeri
+                        }}
+                    >
                         <h3 style={{ fontSize: '16px', color: '#c7d2fe', marginTop: 0, marginBottom: '16px' }}>
                             📄 A4 Önizleme
                         </h3>
@@ -641,10 +733,16 @@ const OCRActivityStudio: React.FC<OCRActivityStudioProps> = ({ onBack, onResult 
                 )}
             </div>
 
-            {/* CSS Animasyon */}
+            {/* CSS Animasyonlar — anime.js ile birlikte kullanılan CSS keyframe'ler */}
             <style>{`
-        @keyframes spin {
-          100% { transform: rotate(360deg); }
+        @keyframes ocrPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%       { opacity: 0.4; transform: scale(0.7); }
+        }
+        @keyframes ocrProgress {
+          0%   { width: 0%;   margin-left: 0%; }
+          50%  { width: 60%;  margin-left: 20%; }
+          100% { width: 0%;   margin-left: 100%; }
         }
       `}</style>
         </div>
