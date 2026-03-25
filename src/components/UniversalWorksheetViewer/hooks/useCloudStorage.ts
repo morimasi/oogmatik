@@ -3,6 +3,38 @@ import type { CloudProvider, CloudStorageConfig, CloudFile, CloudSyncStatus } fr
 
 const STORAGE_KEY_PREFIX = 'uwv_cloud_';
 
+// Generate a cryptographically secure random base-36 string of the given length.
+// Uses the Web Crypto API when available.
+function getSecureRandomString(length: number): string {
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const alphabetLength = alphabet.length;
+
+  // Prefer the Web Crypto API when available (browser / worker contexts).
+  const cryptoObj: Crypto | undefined =
+    (typeof window !== 'undefined' && (window.crypto || (window as any).msCrypto)) ||
+    (typeof self !== 'undefined' && (self as any).crypto);
+
+  if (cryptoObj && typeof cryptoObj.getRandomValues === 'function') {
+    const bytes = new Uint8Array(length);
+    cryptoObj.getRandomValues(bytes);
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      // Map each random byte to a character in the alphabet.
+      result += alphabet[bytes[i] % alphabetLength];
+    }
+    return result;
+  }
+
+  // Fallback: use Math.random() only if crypto is unavailable.
+  // This path is retained for compatibility and is not expected
+  // to be used in modern browsers where crypto is present.
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += alphabet[Math.floor(Math.random() * alphabetLength)];
+  }
+  return result;
+}
+
 interface UseCloudStorageReturn {
   configs: Partial<Record<CloudProvider, CloudStorageConfig>>;
   syncStatus: CloudSyncStatus;
@@ -72,7 +104,7 @@ async function mockOAuth2Flow(provider: CloudProvider): Promise<CloudStorageConf
     refreshToken: `mock-refresh-${provider}`,
     expiresAt: Date.now() + 3600 * 1000,
     userEmail: `user@${provider.replace('_', '')}.example`,
-    userId: `uid-${Math.random().toString(36).slice(2, 10)}`,
+    userId: `uid-${getSecureRandomString(8)}`,
     autoSync: false,
     folderName: `Oogmatik - ${providerLabels[provider]}`,
   };
@@ -85,7 +117,7 @@ async function mockUploadFile(
   mimeType: string,
 ): Promise<CloudFile> {
   await new Promise((res) => setTimeout(res, 500));
-  const fileId = `file-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const fileId = `file-${Date.now()}-${getSecureRandomString(6)}`;
   return {
     id: fileId,
     name,
