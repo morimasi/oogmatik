@@ -4,7 +4,7 @@
  */
 
 import { ValidationError } from './AppError.js';
-
+import sanitizeHtmlLib from 'sanitize-html';
 /**
  * ============================================================
  * VALIDATION HELPERS
@@ -241,10 +241,21 @@ export const sanitizeInput = (input: string): string => {
 };
 
 export const sanitizeHtml = (html: string): string => {
-    let sanitized = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-    sanitized = sanitized.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
-    sanitized = sanitized.replace(/href\s*=\s*["']javascript:[^"']*["']/gi, '');
-    return sanitized;
+    if (typeof html !== 'string') {
+        return '';
+    }
+
+    return sanitizeHtmlLib(html, {
+        // By default sanitize-html removes <script> and dangerous attributes/protocols.
+        // Here we keep a conservative set of common formatting tags.
+        allowedTags: sanitizeHtmlLib.defaults.allowedTags.filter(
+            (tag) => tag !== 'script'
+        ),
+        allowedAttributes: {
+            // Use the default allowed attributes per tag, which do not include event handlers.
+            ...sanitizeHtmlLib.defaults.allowedAttributes
+        }
+    });
 };
 
 /**
