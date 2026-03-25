@@ -130,3 +130,6 @@ Thumbs.db
 
 .vercel
 .env*.local
+
+# Superpowers git worktrees
+.worktrees/

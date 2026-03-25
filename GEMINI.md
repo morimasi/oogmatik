@@ -310,3 +310,20 @@ gemini "Bora Demir rolünde: api/generate.ts'deki rate limiting doğru mu?"
 # AI kalite için
 gemini "Selin Arslan rolünde: bu prompta hallucination riski var mı?"
 ```
+
+---
+
+## ⚡ Superpowers İş Akışı
+
+Bu proje [obra/superpowers](https://github.com/obra/superpowers) ile entegre edilmiştir.
+Gemini CLI için global kurulum: `gemini extensions install https://github.com/obra/superpowers`
+
+Proje yerel beceriler `.claude/skills/` dizinindedir:
+- `brainstorming` — Kod yazmadan önce
+- `writing-plans` — Tasarım sonrası
+- `test-driven-development` — Her implementasyonda
+- `systematic-debugging` — Her hatada
+- `verification-before-completion` — "Tamamlandı" öncesi
+
+**Test:** `npm run test:run` | **Build:** `npm run build`
+**Dokümanlar:** `docs/superpowers/` (specs/ ve plans/)
