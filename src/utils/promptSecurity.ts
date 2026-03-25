@@ -458,9 +458,12 @@ export function sanitizePromptInput(
 
   // 3. Remove script injection
   sanitized = sanitized
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    // Remove all angle brackets to neutralize any remaining HTML/script tags
+    .replace(/<|>/g, '')
+    // Remove javascript: URLs
     .replace(/javascript\s*:/gi, '')
-    .replace(/on\w+\s*=\s*["']?[^"'>\s]+["']?/gi, '');
+    // Remove inline event handler attributes like onclick="..."
+    .replace(/on\w+\s*=\s*["']?[^"'\s]+["']?/gi, '');
 
   // 4. Remove SQL injection patterns
   sanitized = sanitized
