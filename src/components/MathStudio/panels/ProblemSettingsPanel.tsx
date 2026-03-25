@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { MathProblemConfig } from '../../../types/math';
+import { AnimatedCounter } from '../../shared/AnimatedCounter';
 
 interface ProblemSettingsPanelProps {
     problemConfig: MathProblemConfig;
@@ -66,7 +67,10 @@ export const ProblemSettingsPanel: React.FC<ProblemSettingsPanelProps> = ({
                         </select>
                     </div>
                     <div>
-                        <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1.5 block">Adet</label>
+                        <label className="text-[9px] font-bold text-indigo-300 uppercase mb-1.5 flex items-center justify-between">
+                            <span>Adet</span>
+                            <AnimatedCounter value={problemConfig.count} className="text-white font-black text-base leading-none" />
+                        </label>
                         <select value={problemConfig.count} onChange={e => setProblemConfig({ ...problemConfig, count: Number(e.target.value) })} className="w-full p-2.5 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none font-bold">
                             {Array.from({ length: 20 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n} Soru</option>)}
                         </select>

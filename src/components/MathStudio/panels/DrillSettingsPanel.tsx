@@ -4,6 +4,7 @@ import React from 'react';
 import { MathDrillConfig } from '../../../types/math';
 import { COLS_MIN, COLS_MAX, COUNT_MIN, COUNT_MAX } from '../constants';
 import { clamp } from '../utils';
+import { AnimatedCounter } from '../../shared/AnimatedCounter';
 
 interface DrillSettingsPanelProps {
     drillConfig: MathDrillConfig;
@@ -126,7 +127,10 @@ export const DrillSettingsPanel: React.FC<DrillSettingsPanelProps> = ({ drillCon
 
             <div className="grid grid-cols-2 gap-3">
                 <div>
-                    <label className="block text-[9px] text-zinc-500 mb-1.5 font-bold uppercase">Soru Adedi</label>
+                    <label className="flex items-center justify-between text-[9px] text-zinc-500 mb-1.5 font-bold uppercase">
+                        <span>Soru Adedi</span>
+                        <AnimatedCounter value={drillConfig.count} className="text-indigo-400 font-black text-base leading-none" />
+                    </label>
                     <input
                         type="number"
                         min={COUNT_MIN}

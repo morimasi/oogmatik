@@ -1,10 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { SavedWorksheet, SavedAssessment, Curriculum } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { useAuthStore } from '../store/useAuthStore';
 import { worksheetService } from '../services/worksheetService';
 import { assessmentService } from '../services/assessmentService';
 import { curriculumService } from '../services/curriculumService';
+import { useStaggerReveal } from '../hooks/useAnime';
 
 interface SharedWorksheetsViewProps {
     onLoad: (worksheet: SavedWorksheet) => void;
@@ -198,6 +199,9 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
     const effectiveUserId = targetUserId || user?.id;
     const isReadOnly = !!targetUserId && targetUserId !== user?.id;
 
+    // Stagger reveal ref for card grid
+    const gridRef = useRef<HTMLDivElement>(null);
+
     // Debounce search query
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -289,6 +293,9 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
         }
         return [];
     }, [activeTab, debouncedSearchQuery, worksheets, assessments, plans]);
+
+    // Stagger reveal cards when items or tab changes
+    useStaggerReveal(gridRef, '.stagger-card', [filteredItems, activeTab, loading]);
 
     return (
         <div className="flex h-full bg-zinc-50 dark:bg-black rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
@@ -383,15 +390,21 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                         </div>
                     ) : (
                         <div className="pb-20">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 {activeTab === 'materials' && filteredItems.map((item: any) => (
-                                    <MaterialCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'materials')} isReadOnly={isReadOnly} />
+                                    <div key={item.id} className="stagger-card">
+                                        <MaterialCard item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'materials')} isReadOnly={isReadOnly} />
+                                    </div>
                                 ))}
                                 {activeTab === 'reports' && filteredItems.map((item: any) => (
-                                    <ReportCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'reports')} isReadOnly={isReadOnly} />
+                                    <div key={item.id} className="stagger-card">
+                                        <ReportCard item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'reports')} isReadOnly={isReadOnly} />
+                                    </div>
                                 ))}
                                 {activeTab === 'plans' && filteredItems.map((item: any) => (
-                                    <PlanCard key={item.id} item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'plans')} isReadOnly={isReadOnly} />
+                                    <div key={item.id} className="stagger-card">
+                                        <PlanCard item={item} onLoad={onLoad} onDelete={(id: string) => handleDelete(id, 'plans')} isReadOnly={isReadOnly} />
+                                    </div>
                                 ))}
                             </div>
 
