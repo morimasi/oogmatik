@@ -232,6 +232,12 @@ const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | ...>(() => {
 - No sanitization of cloned content
 - Could perpetuate copyrighted material
 
+**@antv/infographic entegrasyon değerlendirmesi:**
+- OCR blueprint (title + detectedType + worksheetBlueprint + layoutHints) → AntV node/edge DSL'e çevrilerek mizanpaj otomatiklenebilir; mevcut `layoutHints.columns/hasImages/questionCount` alanları grid ve section yerleşimi için yeterli sinyal sağlıyor.
+- Render katmanı `A4Editor`/`Worksheet` yerine AntV canvas'a aktarılırsa çıktılar profesyonel görünüme yaklaşır; ardından `utils/printService.ts` ile (10+ karakter guard + boş sayfa önleme) A4 PDF üretimi yapılabilir.
+- Ek gereksinimler: client-side canvas performansı, Vite tree-shaking uyumu, offline export için SVG/PNG snapshot → printService'e aktarım; KVKK için metin sanitization devam etmeli.
+- Öneri: küçük bir adapter (blueprint → AntV spec) + `components/OCRActivityStudio` içinde opsiyonel “Infographic render” togglesı; ilk fazda yalnızca OCR'den gelen tek sayfalık blueprint'ler A4'te basılabilirliği kanıtlamak için PoC.
+
 ### 12. Prompt Injection Riski
 
 **Admin Prompt Studio:**
