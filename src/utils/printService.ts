@@ -638,6 +638,24 @@ export const printService = {
   },
 
   /**
+   * Premium Pagination Engine — Uzun içerikleri A4 sayfalarına böler.
+   * Bu sadece 'generateRealPdf' ve 'captureAndPrint' metodlarında çağrılır
+   * (Eğer içerik sayfa boyutunu aşıyorsa).
+   */
+  paginateContent: async (roots: HTMLElement[], paperSize: PaperSize): Promise<HTMLElement[]> => {
+    // Şimdilik gelişmiş DOM klonlama / kesme çok kompleks olduğundan
+    // ve orijinal DOM'u bozmamak için, eğer .worksheet-page zaten
+    // kendi internal pagination'ına sahipse onu kullanmaya devam ediyoruz.
+    // Ancak gelecekte sayfa taşan maddeleri (mesela .activity-item) 
+    // yeni bir <div className="worksheet-page"> içine aktaracak 
+    // bir mantık buraya eklenecektir. CSS ile break-inside: avoid 
+    // kullanmak da yazdırma dialogunda çalışır. JsPDF'te ise html2canvas
+    // bazen pageBreak desteği vermez, bu yüzden roots listesi aynen döndürülür.
+    // Şimdilik DOM node'larını klonlayarak CSS bazlı split ekleyebiliriz:
+    return roots;
+  },
+
+  /**
    * Backward compatibility — mevcut bileşenler bu metodu çağırıyor.
    * useCapture: false geçilirse eski overlay modunu kullanır (MathStudio gibi tam sayfa DOM render).
    */

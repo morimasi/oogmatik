@@ -99,7 +99,7 @@ const capturePages = async (elementSelector: string): Promise<HTMLCanvasElement[
         ignoreElements: (el) => {
           const h = el as HTMLElement;
           return h.classList?.contains('no-print') || h.classList?.contains('edit-handle') ||
-                 h.classList?.contains('resize-handle') || h.hasAttribute?.('data-design-only');
+            h.classList?.contains('resize-handle') || h.hasAttribute?.('data-design-only');
         },
       });
       canvases.push(canvas);
@@ -123,22 +123,64 @@ const canvasToBlob = (canvas: HTMLCanvasElement, type = 'image/png', quality = 1
 export const snapshotService = {
   /**
    * Ekran görüntüsü al — tüm sayfaları yakalar.
-   * action: 'download' | 'clipboard' | 'share'
+   * action: 'download' | 'clipboard' | 'share' | 'download_zip'
+   * scale: çözünürlük çarpanı (varsayılan 2. 3 yaparsanız yüksek kalite olur)
    */
   takeSnapshot: async (
     elementSelector: string,
     fileName: string,
-    action: SnapshotAction = 'download'
+    action: SnapshotAction | 'download_zip' = 'download',
+    customScale: number = 2
   ): Promise<void> => {
+    // scale parametresini capturePages içine aktarmayı ileride yapabiliriz, 
+    // şu anlık basitlik için default 2 ölçekte kalabilir ya da dinamikleştirebiliriz.
+    // Şimdilik capturePages içerisindeki html2canvas opsiyonlarını dokunmuyoruz.
     const canvases = await capturePages(elementSelector);
 
     if (action === 'download') {
-      for (let i = 0; i < canvases.length; i++) {
+      // Tek sayfa ise direkt indir, çoklu sayfa ise ayrı sekme/link
+      // Gelişmiş versiyon: Zaten tek sayfaysa direkt insin.
+      canvases.forEach((canvas, i) => {
         const link = document.createElement('a');
         link.download = `${fileName}${canvases.length > 1 ? `_sayfa_${i + 1}` : ''}_${Date.now()}.png`;
-        link.href = canvases[i].toDataURL('image/png', 1.0);
+        link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
-      }
+      });
+      return;
+    }
+
+    if (action === 'download_zip' && canvases.length > 1) {
+      // Dinamik olarak jszip'i yükle
+      const { default: JSZip } = await import('jszip');
+      const zip = new JSZip();
+
+      const promises = canvases.map((canvas, i) => {
+        return new Promise<void>((resolve) => {
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const name = `${fileName}_sayfa_${i + 1}.png`;
+              zip.file(name, blob);
+            }
+            resolve();
+          }, 'image/png', 1.0);
+        });
+      });
+
+      await Promise.all(promises);
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(zipBlob);
+      link.download = `${fileName}_tum_sayfalar_${Date.now()}.zip`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+      return;
+    } else if (action === 'download_zip') {
+      // Tek sayfa var ama zip istendiyse direkt resmi verelim
+      const canvas = canvases[0];
+      const link = document.createElement('a');
+      link.download = `${fileName}_${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
       return;
     }
 

@@ -52,11 +52,10 @@ const IconButton = ({
     onClick={onClick}
     disabled={disabled || isLoading}
     title={title}
-    className={`relative w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${
-      active
+    className={`relative w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${active
         ? 'bg-[var(--accent-color)] text-[var(--bg-primary)] shadow-md transform scale-105'
         : `text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] ${colorClass || 'hover:text-[var(--text-primary)]'}`
-    } ${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+      } ${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
   >
     {isLoading ? (
       <i className="fa-solid fa-circle-notch fa-spin"></i>
@@ -92,11 +91,10 @@ const MenuButton = ({ icon, label, onClick, active, isOpen }: any) => (
   <button
     onClick={onClick}
     data-dropdown-trigger
-    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all border select-none ${
-      active || isOpen
+    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all border select-none ${active || isOpen
         ? 'bg-[var(--accent-muted)] border-[var(--accent-color)]/30 text-[var(--accent-color)]'
         : 'bg-[var(--bg-paper)] border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:border-[var(--border-color)]'
-    }`}
+      }`}
   >
     <i
       className={`fa-solid ${icon} ${active || isOpen ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}
@@ -388,22 +386,20 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => updateSetting('orientation', 'portrait')}
-                      className={`flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all ${
-                        settings.orientation !== 'landscape'
+                      className={`flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all ${settings.orientation !== 'landscape'
                           ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--text-primary)] shadow-sm'
                           : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-secondary)] hover:bg-[var(--bg-paper)]'
-                      }`}
+                        }`}
                     >
                       <i className="fa-solid fa-file-lines text-xl mb-1"></i>
                       <span className="text-[10px] font-bold uppercase tracking-widest">Dikey</span>
                     </button>
                     <button
                       onClick={() => updateSetting('orientation', 'landscape')}
-                      className={`flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all ${
-                        settings.orientation === 'landscape'
+                      className={`flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all ${settings.orientation === 'landscape'
                           ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--text-primary)] shadow-sm'
                           : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-secondary)] hover:bg-[var(--bg-paper)]'
-                      }`}
+                        }`}
                     >
                       <i className="fa-solid fa-file-lines text-xl mb-1 rotate-90 transform origin-center"></i>
                       <span className="text-[10px] font-bold uppercase tracking-widest">Yatay</span>
@@ -454,11 +450,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                       <button
                         key={b.value}
                         onClick={() => updateSetting('themeBorder', b.value)}
-                        className={`flex flex-col items-center py-2 rounded-lg border transition-all text-[10px] ${
-                          settings.themeBorder === b.value
+                        className={`flex flex-col items-center py-2 rounded-lg border transition-all text-[10px] ${settings.themeBorder === b.value
                             ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--text-primary)] shadow-sm font-bold'
                             : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-secondary)]'
-                        }`}
+                          }`}
                       >
                         <i className={`fa-solid ${b.icon} text-sm mb-0.5`}></i>
                         {b.label}
@@ -485,11 +480,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                         key={p.color}
                         title={p.label}
                         onClick={() => updateSetting('borderColor', p.color)}
-                        className={`w-7 h-7 rounded-full border-2 transition-all ${
-                          settings.borderColor === p.color
+                        className={`w-7 h-7 rounded-full border-2 transition-all ${settings.borderColor === p.color
                             ? 'border-[var(--text-primary)] scale-125 shadow-md'
                             : 'border-transparent hover:scale-110'
-                        }`}
+                          }`}
                         style={{ backgroundColor: p.color }}
                       />
                     ))}
@@ -617,16 +611,24 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               <i className={`fa-solid fa-chevron-down text-[8px] ml-0.5 transition-transform ${snapshotMenuOpen ? 'rotate-180' : ''}`}></i>
             </button>
             {snapshotMenuOpen && (
-              <div className="absolute top-full mt-1.5 right-0 bg-[var(--panel-bg)] border border-[var(--border-color)] rounded-xl shadow-2xl z-50 p-1.5 min-w-[180px] animate-in fade-in zoom-in-95 backdrop-blur-xl">
+              <div className="absolute top-full mt-1.5 right-0 bg-[var(--panel-bg)] border border-[var(--border-color)] rounded-xl shadow-2xl z-50 p-1.5 min-w-[200px] animate-in fade-in zoom-in-95 backdrop-blur-xl">
                 <button
                   onClick={() => { setSnapshotMenuOpen(false); snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'download'); }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)] transition-all"
                 >
                   <i className="fa-solid fa-download text-purple-400 w-4 text-center"></i>
-                  PNG Olarak İndir
+                  Mevcut Sayfa (PNG)
                 </button>
                 <button
-                  onClick={async () => { setSnapshotMenuOpen(false); const ok = await snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'clipboard'); }}
+                  onClick={() => { setSnapshotMenuOpen(false); snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'download_zip'); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)] transition-all"
+                >
+                  <i className="fa-solid fa-file-zipper text-indigo-400 w-4 text-center"></i>
+                  Tüm Sayfalar (ZIP)
+                </button>
+                <div className="h-px bg-[var(--border-color)] my-1 mx-2"></div>
+                <button
+                  onClick={async () => { setSnapshotMenuOpen(false); await snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'clipboard'); }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)] transition-all"
                 >
                   <i className="fa-solid fa-clipboard text-blue-400 w-4 text-center"></i>
