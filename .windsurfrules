@@ -186,3 +186,14 @@ interface ActivityOutput {
 ❌ Öğrenci başarısızlık sayacı   → görünür yapma
 ❌ Ad + tanı + skor birlikte     → KVKK ihlali
 ```
+
+---
+
+## 🔌 Context7 MCP Entegrasyonu
+
+Bu proje [upstash/context7](https://github.com/upstash/context7) ile entegre edilmiştir.
+Windsurf MCP yapılandırması için proje kök dizinindeki `.mcp.json` dosyasını kullan.
+
+Prompt'a `use context7` ekleyerek güncel dokümantasyon al:
+- `Firebase Firestore batch write yaz. use context7`
+- `Zod v4 ile union şema oluştur. use context7`

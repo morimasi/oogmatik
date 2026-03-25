@@ -132,3 +132,12 @@ tanı koyucu dil
 başarısızlık görünür UI
 KVKK ihlali
 ```
+
+---
+
+## 🔌 Context7 MCP Entegrasyonu
+
+Bu proje [upstash/context7](https://github.com/upstash/context7) ile entegre edilmiştir.
+Güncel kütüphane dokümantasyonu için prompt'a `use context7` ekle.
+
+**Örnek:** `Firebase Firestore batch write yaz. use context7`

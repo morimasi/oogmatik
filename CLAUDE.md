@@ -537,3 +537,67 @@ npm run test:run    # Vitest (tüm testler)
 npm run build       # TypeScript derleme
 npm run lint        # ESLint
 ```
+
+---
+
+## 🔌 Context7 MCP Entegrasyonu
+
+Bu proje **[upstash/context7](https://github.com/upstash/context7)** MCP sunucusuyla entegre edilmiştir. Context7, AI kodlama araçlarına güncel, sürüme özel kütüphane dokümantasyonu ve kod örnekleri sağlar.
+
+### Neden Context7?
+
+- React 19, Firebase, Zod, Tailwind CSS gibi kütüphanelerin **güncel** dokümantasyonunu doğrudan prompt'a enjekte eder
+- Halüsinasyon riskini azaltır — AI eski API'leri önermez
+- Oogmatik stack'i (Gemini, Firebase, Vercel) için özellikle kritik
+
+### Desteklenen Araçlar
+
+| Araç | Config Dosyası | Durum |
+|------|---------------|-------|
+| Claude Code | `.mcp.json` | ✅ Aktif |
+| Cursor | `.cursor/mcp.json` | ✅ Aktif |
+| Continue.dev | `.continue/config.json` | ✅ Aktif |
+| Zed | `.zed/settings.json` | ✅ Aktif |
+| OpenCode | `opencode.json` | ✅ Aktif |
+| GitHub Copilot | Repo Settings → Copilot → MCP | ⚙️ Manuel kurulum gerekli |
+
+### GitHub Copilot Coding Agent İçin Manuel Kurulum
+
+Repository → Settings → Copilot → Coding agent → MCP configuration bölümüne şunu ekle:
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "tools": ["query-docs", "resolve-library-id"]
+    }
+  }
+}
+```
+
+### Kullanım
+
+Herhangi bir prompt'a `use context7` ekle:
+
+```
+# Örnek: Firebase ile Firestore sorgusu yaz. use context7
+# Örnek: Zod v4 ile şema oluştur. use context7
+# Örnek: React 19 ile useOptimistic kullan. use context7
+```
+
+### Oogmatik Stack Kütüphane ID'leri
+
+Sık kullanılan kütüphaneler için hazır ID'ler:
+
+| Kütüphane | Context7 ID |
+|-----------|-------------|
+| React | `/facebook/react` |
+| Firebase | `/firebase/firebase-js-sdk` |
+| Zod | `/colinhacks/zod` |
+| Tailwind CSS | `/tailwindlabs/tailwindcss` |
+| Vite | `/vitejs/vite` |
+| Zustand | `/pmndrs/zustand` |
+| Framer Motion | `/framer/motion` |
+

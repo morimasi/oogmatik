@@ -327,3 +327,17 @@ Proje yerel beceriler `.claude/skills/` dizinindedir:
 
 **Test:** `npm run test:run` | **Build:** `npm run build`
 **Dokümanlar:** `docs/superpowers/` (specs/ ve plans/)
+
+---
+
+## 🔌 Context7 MCP Entegrasyonu
+
+Bu proje [upstash/context7](https://github.com/upstash/context7) ile entegre edilmiştir.
+Güncel kütüphane dokümantasyonu için prompt'a `use context7` ekle.
+
+**Yapılandırma:** `.mcp.json` (Claude Code) | `.cursor/mcp.json` (Cursor) | `.continue/config.json` | `.zed/settings.json` | `opencode.json`
+
+**Örnek kullanım:**
+- `Firebase Firestore ile batch yazma yap. use context7`
+- `Zod v4 ile union şema oluştur. use context7`
+- `React 19 useOptimistic hook kullan. use context7`
