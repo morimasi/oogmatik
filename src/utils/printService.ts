@@ -283,8 +283,20 @@ export const printService = {
     // 1. Find the target content
     const originalContents = Array.from(document.querySelectorAll(elementSelector));
     if (originalContents.length === 0) {
-      console.warn(`Print target "${elementSelector}" not found, falling back to window.print()`);
-      window.print();
+      console.error(`[printService] HATA: "${elementSelector}" bulunamadı. Çalışma kâğıdı render edilmemiş olabilir.`);
+      alert('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+      return;
+    }
+
+    // 2. Validate that elements have actual content
+    const hasContent = originalContents.some((el) => {
+      const element = el as HTMLElement;
+      return element.textContent && element.textContent.trim().length > 10;
+    });
+
+    if (!hasContent) {
+      console.error(`[printService] HATA: "${elementSelector}" bulundu ama içerik boş. Render bekleniyor olabilir.`);
+      alert('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
       return;
     }
 
@@ -457,8 +469,19 @@ export const printService = {
   ): Promise<void> => {
     const roots = Array.from(document.querySelectorAll(rootSelector)) as HTMLElement[];
     if (roots.length === 0) {
-      console.warn(`captureAndPrint: "${rootSelector}" bulunamadı, fallback print()`);
-      printService.print(rootSelector, paperSize);
+      console.error(`[printService] HATA: captureAndPrint - "${rootSelector}" bulunamadı.`);
+      alert('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+      return;
+    }
+
+    // Validate that roots have content
+    const hasContent = roots.some((el) => {
+      return el.textContent && el.textContent.trim().length > 10;
+    });
+
+    if (!hasContent) {
+      console.error(`[printService] HATA: captureAndPrint - "${rootSelector}" bulundu ama içerik boş.`);
+      alert('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
       return;
     }
 
@@ -662,6 +685,25 @@ export const printService = {
     ];
     const roots = Array.from(document.querySelectorAll(rootSelector)) as HTMLElement[];
     const pages: HTMLElement[] = [];
+
+    if (roots.length === 0) {
+      console.error(`[printService] HATA: generateRealPdf - "${rootSelector}" bulunamadı.`);
+      onProgress?.(0, 'İçerik bulunamadı');
+      alert('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+      return null;
+    }
+
+    // Validate content exists
+    const hasContent = roots.some((el) => {
+      return el.textContent && el.textContent.trim().length > 10;
+    });
+
+    if (!hasContent) {
+      console.error(`[printService] HATA: generateRealPdf - "${rootSelector}" bulundu ama içerik boş.`);
+      onProgress?.(0, 'İçerik boş');
+      alert('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+      return null;
+    }
 
     roots.forEach((root) => {
       if (root.matches(PAGE_SELECTORS.join(','))) {
