@@ -75,7 +75,9 @@ const SuperStudio = lazy(() =>
 const InfographicStudio = lazy(() =>
   import('./components/InfographicStudio').then((module) => ({ default: module.InfographicStudio }))
 );
-
+const RemotionStudio = lazy(() =>
+  import('./components/RemotionStudio').then((module) => ({ default: module.RemotionStudio }))
+);
 
 const StudentDashboard = lazy(() =>
   import('./components/Student/StudentDashboard').then((module) => ({
@@ -764,6 +766,7 @@ const AppContent = () => {
             onOpenMathStudio={() => handleOpenStudio('math-studio')}
             onOpenSuperTurkce={() => handleOpenStudio('super-turkce')}
             onOpenInfographicStudio={() => handleOpenStudio('infographic-studio')}
+            onOpenRemotionStudio={() => handleOpenStudio('remotion-studio')}
             onOpenScreening={() => handleOpenStudio('screening')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
@@ -856,6 +859,14 @@ const AppContent = () => {
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
           <Suspense fallback={<LoadingSpinner />}>
             <InfographicStudio onBack={handleGoBack} />
+          </Suspense>
+        </div>
+      )}
+
+      {currentView === 'remotion-studio' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+          <Suspense fallback={<LoadingSpinner />}>
+            <RemotionStudio />
           </Suspense>
         </div>
       )}

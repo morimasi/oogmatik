@@ -46,7 +46,7 @@ interface SidebarProps {
   onOpenMathStudio?: () => void;
   onOpenSuperTurkce?: () => void;
   onOpenInfographicStudio?: () => void;
-
+  onOpenRemotionStudio?: () => void;
   onOpenScreening?: () => void; // Added Prop
   activeCurriculumSession?: ActiveCurriculumSession | null;
   isExpanded?: boolean;
@@ -109,6 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenScreening,
   onOpenSuperTurkce,
   onOpenInfographicStudio,
+  onOpenRemotionStudio,
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -169,6 +170,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: 'fa-chart-pie',
       color: 'bg-violet-500',
       onClick: onOpenInfographicStudio,
+    },
+    {
+      id: 'remotion-studio',
+      label: 'Animasyon Stüdyosu',
+      icon: 'fa-film',
+      color: 'bg-pink-500',
+      onClick: onOpenRemotionStudio,
     },
     {
       id: 'screening',
