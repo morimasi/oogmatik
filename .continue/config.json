@@ -71,5 +71,16 @@
       "title": "Oogmatik Proje Kuralları",
       "startUrl": "file://./CLAUDE.md"
     }
-  ]
+  ],
+  "experimental": {
+    "modelContextProtocolServers": [
+      {
+        "transport": {
+          "type": "stdio",
+          "command": "npx",
+          "args": ["-y", "@upstash/context7-mcp@latest"]
+        }
+      }
+    ]
+  }
 }

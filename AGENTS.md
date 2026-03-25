@@ -15,6 +15,15 @@
 > | Zed AI | `.zed/settings.json` |
 > | Aider | `.aider.conf.yml` |
 > | OpenCode + Codeium | `opencode.json` + `AGENTS.md` |
+>
+> **Context7 MCP Yapılandırma Dosyaları:**
+> | Araç | MCP Config |
+> |------|-----------|
+> | Claude Code | `.mcp.json` |
+> | Cursor | `.cursor/mcp.json` |
+> | Continue.dev | `.continue/config.json` (experimental.modelContextProtocolServers) |
+> | Zed AI | `.zed/settings.json` (context_servers) |
+> | OpenCode | `opencode.json` (mcp) |
 
 ---
 
@@ -134,3 +143,15 @@ Beceriler `.claude/skills/` dizinindedir.
 **Test komutları:** `npm run test:run` (Vitest) | `npm run build` | `npm run lint`
 
 **Dokümanlar:** `docs/superpowers/` (specs/ ve plans/)
+
+---
+
+## 🔌 Context7 MCP Entegrasyonu
+
+Bu proje [upstash/context7](https://github.com/upstash/context7) ile entegre edilmiştir.
+Güncel kütüphane dokümantasyonu için prompt'a `use context7` ekle.
+
+**Yapılandırma dosyaları:** `.mcp.json` (Claude Code) | `.cursor/mcp.json` (Cursor) | `.continue/config.json` | `.zed/settings.json` | `opencode.json`
+
+**Oogmatik stack için sık kullanılan ID'ler:** `/facebook/react` | `/firebase/firebase-js-sdk` | `/colinhacks/zod` | `/vitejs/vite`
+

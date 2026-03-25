@@ -38,3 +38,8 @@ encoding: utf-8
 # Yorum tarzı — Türkçe proje için
 attribute-author: false
 attribute-committer: false
+
+# Context7 MCP entegrasyonu
+# Prompt'a "use context7" ekleyerek güncel dokümantasyon al
+# Örnek: "Firebase batch write yaz. use context7"
+# MCP yapılandırması: .mcp.json
