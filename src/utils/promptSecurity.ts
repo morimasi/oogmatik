@@ -262,7 +262,7 @@ const INJECTION_PATTERNS: Array<{
     description: 'SQL injection attempt',
   },
   {
-    pattern: /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+    pattern: /<script\b[^<]*(?:(?!<\/script\b[^>]*>)[\s\S])*<\/script\b[^>]*>/gi,
     category: 'SCRIPT_INJECTION',
     level: 'high',
     description: 'Script tag injection',
