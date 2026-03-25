@@ -9,9 +9,11 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import InfographicRenderer from '../InfographicRenderer';
+import { NativeInfographicRenderer } from '../NativeInfographicRenderer';
 import {
   generateInfographicSyntax,
   getDemoSyntax,
+  getDemoSequenceSyntax,
   type InfographicRequest,
   type InfographicResult,
 } from '../../services/infographicService';
@@ -90,11 +92,10 @@ const SelectButton = <T extends string>({
           key={opt.value}
           onClick={() => onChange(opt.value)}
           title={opt.desc}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 ${
-            value === opt.value
-              ? 'bg-violet-600 border-violet-500 text-white shadow-md shadow-violet-900/40'
-              : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-violet-500/50 hover:text-white'
-          }`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 ${value === opt.value
+            ? 'bg-violet-600 border-violet-500 text-white shadow-md shadow-violet-900/40'
+            : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-violet-500/50 hover:text-white'
+            }`}
         >
           {opt.icon && <i className={`fa-solid ${opt.icon} text-[10px]`}></i>}
           {opt.label}
@@ -159,16 +160,23 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
 
   // ── Demo syntax yükle ──────────────────────────────────────────────────────
   const handleLoadDemo = useCallback(() => {
-    const demoSyntax = getDemoSyntax(topic || 'Örnek Konu', ageGroup);
-    setEditableSyntax(demoSyntax);
+    const isSeq = templateHint === 'sequence';
+    const syntaxToUse = isSeq
+      ? getDemoSequenceSyntax(topic || 'Örnek Konu', ageGroup)
+      : getDemoSyntax(topic || 'Örnek Konu', ageGroup);
+    setEditableSyntax(syntaxToUse);
     setResult({
-      syntax: demoSyntax,
-      title: topic || 'Örnek Konu',
-      pedagogicalNote: 'Demo mod: AI aktif olmadan örnek infografik gösterimi.',
-      templateType: 'sequence-steps',
+      syntax: syntaxToUse,
+      title: isSeq
+        ? `${topic || 'Örnek Konu'} — Adım Sırası`
+        : `${topic || 'Örnek Konu'} — Karşılaştırma`,
+      pedagogicalNote: isSeq
+        ? 'Demo mod: "sequence-steps" formatı, süreç ve prosedürleri adım adım göstermek için idealdir. Numaralı adımlar bilişsel yükü azaltır ve DEHB desteğine ihtiyacı olan öğrencilerde odaklanmayı artırır.'
+        : 'Demo mod: "compare-binary-horizontal" formatı, iki kavramı yan yana karşılaştırarak analitik düşünmeyi destekler. Disleksi desteğine ihtiyacı olan öğrenciler için renk kodlaması ve yapılandırılmış (scaffolding) yaklaşım bilişsel yükü azaltır.',
+      templateType: isSeq ? 'sequence-steps' : 'compare-binary-horizontal',
     });
     setError(null);
-  }, [topic, ageGroup]);
+  }, [topic, ageGroup, templateHint]);
 
   // ── SVG olarak indir ───────────────────────────────────────────────────────
   const handleExportSvg = useCallback(() => {
@@ -298,13 +306,16 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
           </button>
         </div>
 
-        {/* Pedagojik Not */}
+        {/* Pedagojik Not - Sol Panelin Altı */}
         {result?.pedagogicalNote && (
           <div className="m-4 p-3 bg-emerald-900/20 border border-emerald-700/30 rounded-xl">
             <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1 flex items-center gap-1">
               <i className="fa-solid fa-graduation-cap"></i> Pedagojik Not
             </p>
-            <p className="text-xs text-emerald-300 leading-relaxed">{result.pedagogicalNote}</p>
+            <p className="text-xs text-emerald-300 leading-relaxed line-clamp-5">{result.pedagogicalNote}</p>
+            {result.pedagogicalNote.length > 200 && (
+              <p className="text-[10px] text-emerald-500 mt-1">Sağ panelde tam metin görünür.</p>
+            )}
           </div>
         )}
       </div>
@@ -329,22 +340,20 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowSyntaxEditor(!showSyntaxEditor)}
-              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${
-                showSyntaxEditor
-                  ? 'bg-slate-700 border-slate-500 text-slate-100'
-                  : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
-              }`}
+              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${showSyntaxEditor
+                ? 'bg-slate-700 border-slate-500 text-slate-100'
+                : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+                }`}
             >
               <i className="fa-solid fa-code mr-1.5"></i>
               Syntax
             </button>
             <button
               onClick={() => setIsEditable(!isEditable)}
-              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${
-                isEditable
-                  ? 'bg-violet-700 border-violet-600 text-white'
-                  : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
-              }`}
+              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${isEditable
+                ? 'bg-violet-700 border-violet-600 text-white'
+                : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+                }`}
             >
               <i className={`fa-solid ${isEditable ? 'fa-lock-open' : 'fa-pen'} mr-1.5`}></i>
               {isEditable ? 'Düzenleniyor' : 'Düzenle'}
@@ -374,14 +383,19 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
         )}
 
         {/* İnfografik Render Alanı */}
-        <div className="flex-1 overflow-auto p-6 flex items-start justify-center" ref={rendererRef}>
+        <div className="flex-1 overflow-auto p-6 flex flex-col items-start justify-start" ref={rendererRef}>
           {activeSyntax ? (
             <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+              {/* @antv/infographic (birincil) + NativeInfographicRenderer (fallback, her zaman görünsün) */}
               <InfographicRenderer
+                key={activeSyntax.slice(0, 60)}
                 syntax={activeSyntax}
                 editable={isEditable}
                 height="600px"
-                onError={(err) => setError(err.message)}
+                onError={(err) => {
+                  // Render hatası bildirimi — native zaten devreye giriyor
+                  console.warn('[Studio] InfographicRenderer hata:', err.message);
+                }}
                 className="w-full"
               />
             </div>
@@ -397,6 +411,23 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
                 tıklayın. Veya{' '}
                 <span className="text-slate-400 font-medium">Demo Görünüm</span> ile test edin.
               </p>
+            </div>
+          )}
+
+          {/* Pedagojik Not — Tam Metin (Sağ Panel Altı) */}
+          {result?.pedagogicalNote && (
+            <div className="w-full max-w-4xl mt-6 p-5 bg-emerald-950/40 border border-emerald-700/30 rounded-2xl">
+              <div className="flex items-center gap-2 mb-3">
+                <i className="fa-solid fa-graduation-cap text-emerald-400"></i>
+                <p className="text-sm font-bold text-emerald-400">Pedagojik Not — Öğretmen Rehberi</p>
+              </div>
+              <p className="text-sm text-emerald-300 leading-relaxed">{result.pedagogicalNote}</p>
+              {result.templateType && (
+                <div className="mt-3 pt-3 border-t border-emerald-700/20 flex items-center gap-2">
+                  <span className="text-[10px] text-emerald-600 font-medium uppercase tracking-wider">Format:</span>
+                  <span className="text-xs font-mono text-emerald-500 bg-emerald-900/40 px-2 py-0.5 rounded">{result.templateType}</span>
+                </div>
+              )}
             </div>
           )}
         </div>

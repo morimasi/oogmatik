@@ -64,19 +64,26 @@ function buildPrompt(req: InfographicRequest): string {
   const profileGuideline = getProfileGuidelines(req.profile);
   const lang = req.language ?? 'tr';
 
-  return `Sen bir özel eğitim uzmanı ve görsel içerik tasarımcısısın.
-"${sanitizeInput(req.topic)}" konusu için @antv/infographic kütüphanesinin declarative syntax formatında eğitici bir infografik oluştur.
+  // templateHint varsa hangi format kullanılacağını belirt
+  const templateHintSection = req.templateHint
+    ? `\nTEMPLATE TERCİHİ: Kullanıcı "${req.templateHint}" formatını tercih ediyor — uygunsa bu formatı seç.\n`
+    : '';
 
+  return `Sen MEB 2024-2025 müfredatına uygun, özel öğrenme güçlüğü yaşayan çocuklar için içerik üreten bir özel eğitim uzmanı ve görsel içerik tasarımcısısın.
+"${sanitizeInput(req.topic)}" konusu için @antv/infographic kütüphanesinin SADECE aşağıdaki belirtilen declarative syntax formatında eğitici bir infografik oluştur.
+${templateHintSection}
 HEDEF KİTLE:
 - Yaş grubu: ${req.ageGroup} (${ageConstraint})
 - Öğrenme profili: ${req.profile} — ${profileGuideline}
 - Dil: ${lang === 'tr' ? 'Türkçe' : 'İngilizce'}
 
-@ANTV/INFOGRAPHIC SYNTAX KURALLARI:
+@ANTV/INFOGRAPHIC SYNTAX KURALLARI (KESİNLİKLE UYULMASI ZORUNLU):
+Syntax'ın İLK SATIRI daima "infographic <template-tipi>" ile başlamalıdır.
+Girintiler için 2 boşluk kullan (TAB değil).
+
 Aşağıdaki formatlardan birini seç (konuya en uygun olanı):
 
 1. Adım Sırası (sequence-steps): Süreç/prosedür için
-\`\`\`
 infographic sequence-steps
 title Başlık
 data
@@ -85,10 +92,8 @@ data
       desc Açıklama
     - label 2. Adım
       desc Açıklama
-\`\`\`
 
 2. Liste (list-row): Kavramlar/bilgiler için
-\`\`\`
 infographic list-row-simple-horizontal-arrow
 title Başlık
 data
@@ -97,10 +102,8 @@ data
       desc Açıklama
     - label Kavram 2
       desc Açıklama
-\`\`\`
 
 3. Karşılaştırma (compare-binary): İki kavramı karşılaştırmak için
-\`\`\`
 infographic compare-binary-horizontal
 title Başlık
 data
@@ -114,10 +117,8 @@ data
     items
       - Madde 1
       - Madde 2
-\`\`\`
 
 4. Hiyerarşi (hierarchy-structure): Kavramsal harita için
-\`\`\`
 infographic hierarchy-structure
 title Başlık
 data
@@ -126,10 +127,8 @@ data
     children
       - label Alt Kavram 1
       - label Alt Kavram 2
-\`\`\`
 
 5. Zaman Çizelgesi (sequence-timeline): Tarihsel/kronolojik için
-\`\`\`
 infographic sequence-timeline
 title Başlık
 data
@@ -137,21 +136,21 @@ data
     - date Tarih/Dönem
       title Olay
       desc Açıklama
-\`\`\`
 
 ÖNEMLİ KURALLAR:
-- pedagogicalNote alanını mutlaka ekle (öğretmene "neden bu format" açıklaması)
-- Klinik tanı koyucu dil kullanma ("disleksisi var" yerine "disleksi desteğine ihtiyacı var")
+- pedagogicalNote alanını MUTLAKA ekle (150+ kelime, öğretmene "neden bu format seçildi", "hangi pedagojik beceriyi destekler", "MEB müfredatı ile bağlantısı" açıklaması)
+- Klinik tanı koyucu dil kullanma: "disleksisi var" değil → "disleksi desteğine ihtiyacı var"
 - İçeriği ${ageConstraint.split(',')[0]} ilkesine göre sınırla
 - Türkçe başlık ve açıklamalar kullan
 - title değeri konuyu özetleyen kısa bir cümle olsun
+- syntax alanı SADECE infographic syntax içermeli (markdown code block işaretleri olmadan)
 
 YANIT FORMATI (JSON):
 {
-  "syntax": "buraya tam @antv/infographic syntax gelecek",
+  "syntax": "infographic <template>\ntitle <başlık>\ndata\n  ...",
   "title": "İnfografik başlığı",
-  "pedagogicalNote": "Bu infografik formatı seçildi çünkü...",
-  "templateType": "kullanılan template adı"
+  "pedagogicalNote": "Bu infografik formatı seçildi çünkü... [150+ kelime]",
+  "templateType": "kullanılan template adı (örn: compare-binary-horizontal)"
 }`;
 }
 
@@ -186,25 +185,74 @@ export async function generateInfographicSyntax(
     throw new Error(errorData.error?.message ?? `AI servisi yanıt vermedi (${response.status})`);
   }
 
-  // /api/generate endpoint'i JSON'u doğrudan döndürür ({ success, data } sarmalayıcısı yok)
-  const data = await response.json() as InfographicResult;
+  // /api/generate endpoint'i { success, data } sarmalayıcısı veya düz JSON döndürebilir
+  const raw = await response.json() as Record<string, unknown>;
+
+  // Hem { success: true, data: {...} } hem de düz { syntax, title, ... } formatını destekle
+  const data = (raw?.data ?? raw) as Partial<InfographicResult> & Record<string, unknown>;
 
   if (!data?.syntax || typeof data.syntax !== 'string') {
-    throw new Error('AI geçerli bir infografik syntax üretemedi');
+    throw new Error('AI geçerli bir infografik syntax üretemedi. Lütfen tekrar deneyin.');
   }
 
+  // Syntax normalization: "infographic" prefix yoksa template tipine göre ekle
+  const normalizedSyntax = normalizeSyntax(data.syntax, data.templateType as string | undefined);
+
   return {
-    syntax: data.syntax,
-    title: data.title ?? req.topic,
-    pedagogicalNote: data.pedagogicalNote ?? '',
-    templateType: data.templateType ?? 'list',
+    syntax: normalizedSyntax,
+    title: (data.title as string) ?? req.topic,
+    pedagogicalNote: (data.pedagogicalNote as string) ?? '',
+    templateType: (data.templateType as string) ?? 'sequence-steps',
   };
+}
+
+/**
+ * Syntax'ı normalize eder: "infographic" prefix yoksa ekler.
+ * Markdown code block işaretlerini temizler.
+ */
+function normalizeSyntax(syntax: string, templateType?: string): string {
+  // Markdown code block temizle
+  let cleaned = syntax
+    .replace(/^```[\w-]*\n?/gm, '')
+    .replace(/^```$/gm, '')
+    .trim();
+
+  // "infographic" ile başlamıyorsa prefix ekle
+  if (!cleaned.toLowerCase().startsWith('infographic')) {
+    const prefix = templateType
+      ? `infographic ${templateType.toLowerCase()}`
+      : 'infographic sequence-steps';
+    cleaned = `${prefix}\n${cleaned}`;
+  }
+
+  return cleaned;
 }
 
 /**
  * Konu için örnek/demo syntax döndürür (API olmadan preview için).
  */
 export function getDemoSyntax(topic: string, ageGroup: string): string {
+  return `infographic compare-binary-horizontal
+title ${topic || 'Konu Başlığı'} — ${ageGroup} Yaş Grubu Karşılaştırması
+data
+  left
+    title Özellik A
+    items
+      - Birinci özellik açıklaması
+      - İkinci özellik açıklaması
+      - Üçüncü özellik açıklaması
+  right
+    title Özellik B
+    items
+      - Birinci özellik açıklaması
+      - İkinci özellik açıklaması
+      - Üçüncü özellik açıklaması`;
+}
+
+/**
+ * Sequence-steps demo (basit liste için)
+ */
+export function getDemoSequenceSyntax(topic: string, ageGroup: string): string {
   return `infographic sequence-steps
 title ${topic || 'Konu Başlığı'} — ${ageGroup} Yaş Grubu
 data

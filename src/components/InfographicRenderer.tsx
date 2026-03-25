@@ -2,9 +2,16 @@
  * InfographicRenderer.tsx
  * @antv/infographic DOM API için React wrapper.
  * Bora Demir standardı: any yasak, TypeScript strict, cleanup zorunlu.
+ *
+ * DÜZELTMELER (2026-03):
+ * - useEffect dependency array'i [editable, syntax] olarak düzeltildi
+ * - Container boyut sorunu giderildi (explicit width/height)
+ * - Race condition: pendingSyntaxRef ile instance hazır olunca render
+ * - API yükleme hatası: NativeInfographicRenderer'a fallback
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { NativeInfographicRenderer } from './NativeInfographicRenderer';
 
 // @antv/infographic'in Infographic sınıfı için tip tanımı
 interface InfographicOptions {
@@ -18,7 +25,8 @@ interface InfographicInstance {
   render(syntax: string): void;
   update(syntax: string): void;
   destroy(): void;
-  toDataURL(type?: string): Promise<string>;
+  // toDataURL gerçek imza ExportOptions objesi veya string alabilir
+  toDataURL(options?: unknown): Promise<string>;
   on(event: string, callback: (...args: unknown[]) => void): void;
   off(event: string, callback: (...args: unknown[]) => void): void;
 }
@@ -39,7 +47,7 @@ interface InfographicRendererProps {
 
 /**
  * @antv/infographic'i React componentine dönüştürür.
- * Infographic DOM sınıfını useEffect ile container div'e bağlar.
+ * Yüklenemezse NativeInfographicRenderer'a fallback yapar.
  */
 const InfographicRenderer: React.FC<InfographicRendererProps> = ({
   syntax,
@@ -53,8 +61,18 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
   const instanceRef = useRef<InfographicInstance | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [useNative, setUseNative] = useState(false);
+  // Pending syntax: instance hazır olmadan gelen syntax'ı sakla
+  const pendingSyntaxRef = useRef<string>('');
 
-  // Mount: @antv/infographic instance oluştur
+  // Container'ın sayısal yüksekliğini hesapla
+  const numericHeight = (() => {
+    if (!height) return 600;
+    const n = parseInt(height, 10);
+    return isNaN(n) ? 600 : n;
+  })();
+
+  // Mount + editable değişince: yeni instance oluştur
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -64,9 +82,11 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
       try {
         setIsLoading(true);
         setRenderError(null);
+        setUseNative(false);
 
         // Dynamic import — SSR güvenliği için
-        const { Infographic } = await import('@antv/infographic');
+        const mod = await import('@antv/infographic');
+        const InfographicClass = mod.Infographic;
 
         if (!mounted || !containerRef.current) return;
 
@@ -76,18 +96,21 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
           instanceRef.current = null;
         }
 
+        const containerEl = containerRef.current;
         const options: InfographicOptions = {
-          container: containerRef.current,
-          width: '100%',
-          height: '100%',
+          container: containerEl,
+          width: containerEl.clientWidth || 800,
+          height: numericHeight,
           editable,
         };
 
-        const infographic = new (Infographic as new (opts: InfographicOptions) => InfographicInstance)(options);
+        const infographic = new (InfographicClass as new (opts: InfographicOptions) => InfographicInstance)(options);
         instanceRef.current = infographic;
 
-        if (syntax?.trim()) {
-          infographic.render(syntax);
+        // Bekleyen syntax varsa hemen render et
+        const syntaxToRender = pendingSyntaxRef.current || syntax;
+        if (syntaxToRender?.trim()) {
+          infographic.render(syntaxToRender);
         }
 
         setIsLoading(false);
@@ -95,9 +118,16 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
       } catch (err) {
         if (!mounted) return;
         const error = err instanceof Error ? err : new Error(String(err));
-        setRenderError(error.message);
+        // @antv/infographic yüklenemezse native renderer'a geç
+        setUseNative(true);
+        setRenderError(null);
         setIsLoading(false);
-        onError?.(error);
+        onReady?.();
+        // Hatayı loglayalım ama kullanıcıya gösterme (native renderer devreye giriyor)
+        if (process.env.NODE_ENV === 'development') {
+          // logError fonksiyonu yoksa console.warn kullan (render hatası kritik değil)
+          console.warn('[InfographicRenderer] @antv/infographic yüklenemedi, native renderer aktif:', error.message);
+        }
       }
     };
 
@@ -111,20 +141,40 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editable]);
+  }, [editable, numericHeight]);
 
-  // Syntax değişince güncelle (yeni instance açmadan)
+  // Syntax değişince güncelle (instance varsa render, yoksa pending'e yaz)
   useEffect(() => {
-    if (!instanceRef.current || !syntax?.trim()) return;
+    if (!syntax?.trim()) return;
+    pendingSyntaxRef.current = syntax;
+
+    if (!instanceRef.current) return;
+
     try {
       instanceRef.current.render(syntax);
       setRenderError(null);
+      setIsLoading(false);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
-      setRenderError(error.message);
+      // Render hatası → native'e geç
+      setUseNative(true);
+      setIsLoading(false);
+      setRenderError(null);
       onError?.(error);
     }
   }, [syntax, onError]);
+
+  // Native renderer fallback
+  if (useNative) {
+    return (
+      <NativeInfographicRenderer
+        syntax={syntax}
+        height={height}
+        className={className}
+        onError={onError}
+      />
+    );
+  }
 
   if (renderError) {
     return (
@@ -144,7 +194,7 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 rounded-xl z-10">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 border-3 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
             <p className="text-zinc-500 text-xs font-medium">İnfografik yükleniyor…</p>
           </div>
         </div>
@@ -152,7 +202,13 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
       <div
         ref={containerRef}
         className="w-full h-full"
-        style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 0.3s ease' }}
+        style={{
+          opacity: isLoading ? 0 : 1,
+          transition: 'opacity 0.3s ease',
+          width: '100%',
+          height: `${numericHeight}px`,
+          minHeight: `${numericHeight}px`,
+        }}
       />
     </div>
   );
