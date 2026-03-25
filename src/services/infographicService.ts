@@ -182,17 +182,12 @@ export async function generateInfographicSyntax(
   });
 
   if (!response.ok) {
-    const errorText = await response.text().catch(() => 'Bilinmeyen hata');
-    throw new Error(`AI servisi yanıt vermedi (${response.status}): ${errorText}`);
+    const errorData = await response.json().catch(() => ({ error: { message: 'Bilinmeyen hata' } }));
+    throw new Error(errorData.error?.message ?? `AI servisi yanıt vermedi (${response.status})`);
   }
 
-  const json = await response.json();
-
-  if (!json.success) {
-    throw new Error(json.error?.message ?? 'AI yanıt başarısız');
-  }
-
-  const data = json.data as InfographicResult;
+  // /api/generate endpoint'i JSON'u doğrudan döndürür ({ success, data } sarmalayıcısı yok)
+  const data = await response.json() as InfographicResult;
 
   if (!data?.syntax || typeof data.syntax !== 'string') {
     throw new Error('AI geçerli bir infografik syntax üretemedi');
