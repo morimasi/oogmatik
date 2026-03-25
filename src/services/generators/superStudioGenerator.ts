@@ -12,16 +12,16 @@ interface GenerateParams {
 }
 
 /**
- * Browser-compatible FNV-1a hash function
- * Returns a simple hash string suitable for cache keys
+ * Browser-compatible basit hash fonksiyonu
+ * SHA-256 alternatifi olarak FNV-1a hash algoritması kullanır
  */
 const simpleHash = (str: string): string => {
-    let hash = 2166136261;
+    let hash = 2166136261; // FNV offset basis
     for (let i = 0; i < str.length; i++) {
         hash ^= str.charCodeAt(i);
         hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
     }
-    return (hash >>> 0).toString(36);
+    return (hash >>> 0).toString(16).padStart(8, '0');
 };
 
 /**
@@ -498,10 +498,9 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
             // Defensive: exercises array kontrolü
             if (!Array.isArray(aiResponse.exercises) || aiResponse.exercises.length === 0) {
                 console.error('yazim-kurallari: exercises dizisi bulunamadı veya boş', aiResponse);
-                return `📝 ${aiResponse.topic || 'YAZIM KURALLARI'}\n\n[Alıştırmalar üretilemedi - AI yanıtında 'exercises' alanı bulunamadı]`;
+                return `📝 ${aiResponse.topic || '[Konu belirtilmedi]'}\n\n[Alıştırmalar üretilemedi - AI yanıtında 'exercises' alanı bulunamadı]`;
             }
 
-            // Defensive: visualHints array kontrolü (opsiyonel alan)
             const visualHints = Array.isArray(aiResponse.visualHints) && aiResponse.visualHints.length > 0
                 ? `\n\n🎨 Görsel İpuçları:\n${aiResponse.visualHints.map((h: string, i: number) => `${i + 1}. ${h || '[İpucu eksik]'}`).join('\n')}`
                 : '';
@@ -515,13 +514,13 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
                     return `${i + 1}. ${sentence}\n   ❓ ${question}\n   ✅ ${correctAnswer}\n   📌 Kural: ${rule}`;
                 })
                 .join('\n\n');
-            return `📝 ${aiResponse.topic || 'YAZIM KURALLARI'}\n\n✍️ ALIŞTIRMALAR:\n\n${yazimExercises}${visualHints}`;
+            return `📝 ${aiResponse.topic || '[Konu belirtilmedi]'}\n\n✍️ ALIŞTIRMALAR:\n\n${yazimExercises}${visualHints}`;
 
         case 'soz-varligi':
             // Defensive: items array kontrolü
             if (!Array.isArray(aiResponse.items) || aiResponse.items.length === 0) {
                 console.error('soz-varligi: items dizisi bulunamadı veya boş', aiResponse);
-                return `🗣️ SÖZ VARLIĞI\n\n[Deyim/Atasözü öğeleri üretilemedi - AI yanıtında 'items' alanı bulunamadı]`;
+                return `🗣️ SÖZ VARLIĞI\n\n[İçerik üretilemedi - AI yanıtında 'items' alanı bulunamadı]`;
             }
 
             const phraseItems = aiResponse.items
@@ -539,18 +538,15 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
             // Defensive: activities array kontrolü
             if (!Array.isArray(aiResponse.activities) || aiResponse.activities.length === 0) {
                 console.error('hece-ses: activities dizisi bulunamadı veya boş', aiResponse);
-                return `🔤 HECE VE SES OLAYLARI\n\n[Hece aktiviteleri üretilemedi - AI yanıtında 'activities' alanı bulunamadı]`;
+                return `🔤 HECE VE SES OLAYLARI\n\n[Aktiviteler üretilemedi - AI yanıtında 'activities' alanı bulunamadı]`;
             }
 
             const heceActivities = aiResponse.activities
                 .map((act: any, i: number) => {
                     const word = act?.word || '[Kelime eksik]';
-
-                    // Defensive: syllables array kontrolü (nested array)
                     const syllables = Array.isArray(act?.syllables) && act.syllables.length > 0
                         ? act.syllables.join('-')
-                        : '[Hece ayrımı yapılamadı]';
-
+                        : '[Hece ayrımı eksik]';
                     const soundEvent = act?.soundEvent ? `\n   🔊 Ses Olayı: ${act.soundEvent}` : '';
                     const colorHint = act?.colorHint ? `\n   🎨 Renk İpucu: ${act.colorHint}` : '';
                     return `${i + 1}. ${word} → ${syllables}${soundEvent}${colorHint}`;
