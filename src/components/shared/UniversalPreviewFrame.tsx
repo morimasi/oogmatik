@@ -112,6 +112,20 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
             const { default: html2canvas } = await import('html2canvas');
             const target = document.querySelector(printSelector || '.worksheet-page') as HTMLElement;
             if (!target) return;
+
+            // Zoom/scale sıfırlama (Premium Engine fix)
+            const originalStyles = new Map<HTMLElement, { zoom: string; transform: string }>();
+            let current: HTMLElement | null = target.parentElement;
+            while (current && current !== document.body) {
+                if (current.style) {
+                    originalStyles.set(current, { zoom: current.style.zoom, transform: current.style.transform });
+                    current.style.zoom = '1';
+                    current.style.transform = 'none';
+                }
+                current = current.parentElement;
+            }
+            if (document.body) document.body.offsetHeight; // force layout
+
             const canvas = await html2canvas(target, {
               scale: 2,
               useCORS: true,
@@ -129,6 +143,13 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
                 } catch { /* devam et */ }
               },
             });
+
+            // Geri yükle
+            for (const [el, styles] of originalStyles.entries()) {
+              el.style.zoom = styles.zoom;
+              el.style.transform = styles.transform;
+            }
+
             canvas.toBlob(async (blob) => {
                 if (!blob) return;
                 await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);

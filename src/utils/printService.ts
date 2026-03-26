@@ -117,6 +117,29 @@ const clearRenderAllPagesFlag = (): void => {
   delete (window as { __oogmatik_force_render_all_pages__?: boolean }).__oogmatik_force_render_all_pages__;
 };
 
+// html2canvas'ın scale/zoom deformasyonlarını (huge fonts) önlemek için tarama anında parent stillerini soyar
+const stripScalesAndTransforms = (element: HTMLElement) => {
+  if (typeof document === 'undefined') return () => {};
+  const originalStyles = new Map<HTMLElement, { zoom: string; transform: string }>();
+  let current: HTMLElement | null = element.parentElement;
+  while (current && current !== document.body) {
+    if (current.style !== undefined) {
+      originalStyles.set(current, { zoom: current.style.zoom, transform: current.style.transform });
+      current.style.zoom = '1';
+      current.style.transform = 'none';
+    }
+    current = current.parentElement;
+  }
+  // Layout recalculation force
+  if (document.body) document.body.offsetHeight;
+  return () => {
+    for (const [el, styles] of originalStyles.entries()) {
+      el.style.zoom = styles.zoom;
+      el.style.transform = styles.transform;
+    }
+  };
+};
+
 const hasRenderableContent = (elements: HTMLElement[]): boolean =>
   elements.some((el) => {
     const textLength = el.textContent?.trim().length ?? 0;
@@ -555,6 +578,7 @@ export const printService = {
       const dataUrls: string[] = [];
 
       for (const page of pages) {
+        const restoreScales = stripScalesAndTransforms(page); // EKLENDİ: Zoom kilit kırıcı
         const canvas = await html2canvas(page, {
           scale: 2, // 2x -> yüksek kaliteli yazdırma
           useCORS: true,
@@ -575,6 +599,7 @@ export const printService = {
             );
           },
         });
+        restoreScales(); // Eski ölçeğe dön
         dataUrls.push(canvas.toDataURL('image/png', 1.0));
       }
 
@@ -816,6 +841,7 @@ export const printService = {
           const origBg = page.style.backgroundColor;
           page.style.backgroundColor = '#ffffff';
 
+          const restoreScales = stripScalesAndTransforms(page); // EKLENDİ: PDF Zoom kilit kırıcı
           const canvas = await html2canvas(page, {
             scale: captureScale,
             useCORS: true,
@@ -837,6 +863,7 @@ export const printService = {
             },
           });
 
+          restoreScales(); // Eski ölçeğe dön
           page.style.backgroundColor = origBg;
 
           // Canvas → JPEG data URL (PNG'den daha küçük PDF boyutu)
