@@ -481,10 +481,9 @@ export const printService = {
         }
         .oogmatik-print-wrapper {
           width: ${isLandscape ? dims.height : dims.width} !important;
-          height: ${isLandscape ? dims.width : dims.height} !important;
+          min-height: ${isLandscape ? dims.width : dims.height}; /* Sınırsız dökülebilmesi için 'height' ve 'overflow:hidden' iptal edildi */
           margin: 0 auto;
           position: relative;
-          overflow: hidden;
           page-break-after: always !important;
           break-after: page !important;
           display: block;
@@ -492,11 +491,19 @@ export const printService = {
           border: none !important;
           box-shadow: none !important;
         }
+        /* İçeriklerin sayfa aralarında bıçakla ikiye bölünmemesi için koruma kalkanları */
+        .break-inside-avoid, .page-break-inside-avoid, 
+        .activity-item, .worksheet-page > div > div,
+        img, canvas, svg, .group, .oogmatik-grid-item {
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+        }
         * {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           text-rendering: optimizeLegibility !important;
         }
+
       }
     `;
 
@@ -514,12 +521,12 @@ export const printService = {
       clone.style.top = '0';
       clone.style.left = '0';
       
-      // Çarpılma onarımı (Scale to fit A4)
+      // Çarpılma onarımı (Scale to fit A4 Without Breaking Pagination)
       const scaleRatio = Math.min(1, a4WidthPx / origWidth);
       if (scaleRatio < 1) {
-        // Hem zoom hem transform kullanıyoruz maksimum tarayıcı uyumluluğu için
-        clone.style.transform = `scale(${scaleRatio})`;
-        clone.style.transformOrigin = 'top left';
+        // ! TRANSFORM YASAK ! Transform kullanımı Webkit'te sayfalara bölünmeyi mekanik olarak engeller, sonsuz uzunluktaki elementi tek sayfada dondurup keser.
+        // Bunun yerine 'zoom' kullanıyoruz. Zoom, layout seviyesinde çalışır ve tarayıcının native sayfa bölmelerine tam uyum sağlar.
+        (clone.style as any).zoom = scaleRatio;
       }
 
       // Input, Select ve Canvas Transferi
