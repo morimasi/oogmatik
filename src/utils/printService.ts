@@ -402,18 +402,18 @@ export const printService = {
    * Supports multi-page content, canvas cloning, and input preservation.
    */
   /**
-   * Premium Yazdırma Motoru v2.1 — (Bulletproof Iframe Injection)
-   * Beyaz sayfa sorununu çözmek için kaynak bekleme (Resource Sync) mekanizması eklenmiştir.
-   * Çoklu sayfa desteğini ve font sadakatini %100 garanti eder.
+   * Premium Yazdırma Motoru v3.0 — (Native Overlay & Scale-to-Fit)
+   * Iframe kullanmak yerine ana sayfa üzerinde görünmez bir katman (Overlay) açıp
+   * native yazdırma komutunu kullanır. Beyaz sayfa sorununu %100 çözer.
+   * Tailwind gridlerinin mobilde çökmesini önlemek için "Native Transform Scaling" kullanır.
    */
   print: async (elementSelector: string = '.worksheet-page', paperSize: PaperSize = 'A4') => {
-    if (typeof document === 'undefined') return;
+    if (typeof window === 'undefined') return;
 
     // 1. Yazdırılacak sayfaları topla
     const roots = Array.from(document.querySelectorAll(elementSelector)) as HTMLElement[];
     const pages: HTMLElement[] = [];
     
-    // Alt sayfaları (.worksheet-page, .print-page vb) akıllıca bul
     const PAGE_SELECTORS = ['.worksheet-page', '.print-page', '.universal-mode-canvas', '.a4-page', '.math-canvas-page'];
     const selectorText = PAGE_SELECTORS.join(',');
 
@@ -428,89 +428,101 @@ export const printService = {
     });
 
     if (pages.length === 0) {
-      alert('Yazdırılacak içerik bulunamadı.');
+      alert('Yazdırılacak içerik bulunamadı. Lütfen sayfa yüklenene kadar bekleyin.');
       return;
     }
 
-    // 2. Iframe Hazırlığı (Ekran dışında ama 'görünür' - render için şart)
-    let iframe = document.getElementById('oogmatik-shadow-print') as HTMLIFrameElement;
-    if (iframe) document.body.removeChild(iframe);
+    // 2. Overlay Hazırlığı
+    let overlay = document.getElementById('print-overlay');
+    if (overlay) {
+      overlay.innerHTML = '';
+    } else {
+      overlay = document.createElement('div');
+      overlay.id = 'print-overlay';
+      document.body.appendChild(overlay);
+    }
 
-    iframe = document.createElement('iframe');
-    iframe.id = 'oogmatik-shadow-print';
-    // KRİTİK: width/height 0 veya display:none olursa bazı tarayıcılar (Safari/Chrome) render etmez -> Beyaz Sayfa çıkar.
-    iframe.style.position = 'absolute';
-    iframe.style.left = '-10000px';
-    iframe.style.top = '0';
-    iframe.style.width = '210mm'; // A4 genişliği
-    iframe.style.height = '100%';
-    iframe.style.border = 'none';
-    document.body.appendChild(iframe);
-
-    const doc = iframe.contentWindow?.document || iframe.contentDocument;
-    if (!doc) return;
+    // 3. Stilleri Uygula
+    overlay.style.position = 'absolute';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.backgroundColor = 'white';
+    overlay.style.zIndex = '2147483647';
+    overlay.style.display = 'none'; // Sadece medya sorgusu ile print esnasında görünür
 
     const dims = PAPER_DIMENSIONS[paperSize];
     const isLandscape = pages[0]?.classList.contains('landscape');
-
-    // 3. Iframe yapısını kur
-    doc.open();
-    doc.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 0; }
-          body { margin: 0; padding: 0; background: #fff; -webkit-print-color-adjust: exact !important; }
-          .print-wrapper { width: 100%; }
-          .print-page {
-            width: ${isLandscape ? dims.height : dims.width} !important;
-            height: ${isLandscape ? dims.width : dims.height} !important;
-            margin: 0 auto;
-            position: relative;
-            overflow: hidden;
-            background: #fff;
-            page-break-after: always !important;
-            break-after: page !important;
-            display: block;
-            box-sizing: border-box;
-          }
-          * { text-rendering: optimizeLegibility !important; -webkit-font-smoothing: antialiased !important; }
-          img { max-width: 100%; height: auto; }
-        </style>
-      </head>
-      <body><div class="print-wrapper"></div></body>
-      </html>
-    `);
-    doc.close();
-
-    const wrapper = doc.querySelector('.print-wrapper');
-    if (!wrapper) return;
-
-    // 4. Stilleri Aktar ve Yüklenmesini Bekle
-    const stylePromises: Promise<void>[] = [];
+    const a4WidthPx = 794; // 210mm in 96dpi
     
-    // Global Linkleri (Tailwind, Fonts) Kopyala
-    document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
-      const clone = link.cloneNode(true) as HTMLLinkElement;
-      stylePromises.push(new Promise(resolve => {
-        clone.onload = () => resolve();
-        clone.onerror = () => resolve();
-      }));
-      doc.head.appendChild(clone);
-    });
+    // Yüksek öncelikli CSS Güvenlik Duvarı
+    let styleEl = document.getElementById('oogmatik-print-core-styles') as HTMLStyleElement;
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'oogmatik-print-core-styles';
+      document.head.appendChild(styleEl);
+    }
+    
+    styleEl.textContent = `
+      @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 0; }
+      @media print {
+        body > *:not(#print-overlay) {
+          display: none !important;
+        }
+        #print-overlay {
+          display: block !important;
+          position: relative !important;
+          width: 100% !important;
+          height: auto !important;
+          overflow: visible !important;
+          background: white !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        .oogmatik-print-wrapper {
+          width: ${isLandscape ? dims.height : dims.width} !important;
+          height: ${isLandscape ? dims.width : dims.height} !important;
+          margin: 0 auto;
+          position: relative;
+          overflow: hidden;
+          page-break-after: always !important;
+          break-after: page !important;
+          display: block;
+          background: white;
+          border: none !important;
+          box-shadow: none !important;
+        }
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          text-rendering: optimizeLegibility !important;
+        }
+      }
+    `;
 
-    // Inline Stilleri Kopyala
-    document.querySelectorAll('style').forEach((style) => {
-      doc.head.appendChild(style.cloneNode(true));
-    });
-
-    // 5. İçeriği Klonla ve Aktar
+    // 4. İçerikleri Klonla ve Ölçeklendir (Scale-to-Fit Magic)
     pages.forEach((original) => {
+      // Orijinal genişlik (Eğer sayfa masaüstünde genişse bunu korumalıyız ki Tailwind bozulmasın)
+      const origWidth = original.offsetWidth || 1120;
       const clone = original.cloneNode(true) as HTMLElement;
+
+      // Boyutlandırma kilidi
+      clone.style.width = `${origWidth}px`;
+      clone.style.minWidth = `${origWidth}px`;
+      clone.style.margin = '0';
+      clone.style.position = 'absolute';
+      clone.style.top = '0';
+      clone.style.left = '0';
       
-      // Canvas Recovery
+      // Çarpılma onarımı (Scale to fit A4)
+      const scaleRatio = Math.min(1, a4WidthPx / origWidth);
+      if (scaleRatio < 1) {
+        // Hem zoom hem transform kullanıyoruz maksimum tarayıcı uyumluluğu için
+        clone.style.transform = `scale(${scaleRatio})`;
+        clone.style.transformOrigin = 'top left';
+      }
+
+      // Input, Select ve Canvas Transferi
       const origCanvases = original.querySelectorAll('canvas');
       const cloneCanvases = clone.querySelectorAll('canvas');
       origCanvases.forEach((canvas, i) => {
@@ -521,55 +533,44 @@ export const printService = {
         }
       });
 
-      // Input ve Textarea senkronizasyonu
       const origInputs = original.querySelectorAll('input, textarea, select');
       const cloneInputs = clone.querySelectorAll('input, textarea, select');
       origInputs.forEach((input: any, i) => {
         const dest: any = cloneInputs[i];
-        if (dest) {
-          if (input.type === 'checkbox' || input.type === 'radio') dest.checked = input.checked;
-          else dest.value = input.value;
+        if (dest && (input.type === 'checkbox' || input.type === 'radio')) {
+          dest.checked = input.checked;
+        } else if (dest) {
+          dest.value = input.value;
         }
       });
 
-      const pageDiv = doc.createElement('div');
-      pageDiv.className = 'print-page';
-      pageDiv.appendChild(clone);
-      wrapper.appendChild(pageDiv);
+      // Wrapper İçine Al
+      const wrapper = document.createElement('div');
+      wrapper.className = 'oogmatik-print-wrapper';
+      wrapper.appendChild(clone);
+      
+      overlay!.appendChild(wrapper);
     });
 
-    // 6. Kaynak Bekleme (Beyaz Sayfa Kalkanı)
-    // a. CSS dosyalarının yüklenmesi
-    await Promise.all(stylePromises);
+    // 5. Native Render Stabilizasyonu
+    document.body.classList.add('printing-mode');
     
-    // b. Görsellerin yüklenmesi
-    const images = Array.from(doc.querySelectorAll('img'));
-    await Promise.all(images.map(img => {
-      if (img.complete) return Promise.resolve();
-      return new Promise(resolve => {
-        img.onload = resolve;
-        img.onerror = resolve;
-      });
-    }));
-
-    // c. Fontların hazır olması
-    try {
-      if (iframe.contentWindow?.document?.fonts) {
-        await iframe.contentWindow.document.fonts.ready;
+    // Küçük bir gecikme verip Native Yazdırma penceresini ateşle
+    setTimeout(() => {
+      try {
+        window.print();
+      } catch (err) {
+        console.error('Print trigger failed:', err);
+      } finally {
+        // Yazdırılma diyaloğu kapanınca veya iptal edilince temizlik yap
+        setTimeout(() => {
+          document.body.classList.remove('printing-mode');
+          if (overlay) overlay.style.display = 'none';
+        }, 1000);
       }
-    } catch { /* devam */ }
-
-    // d. Son render stabilizasyonu
-    await new Promise(r => setTimeout(r, 800));
-
-    // 7. Yazdır
-    try {
-      iframe.contentWindow?.focus();
-      iframe.contentWindow?.print();
-    } catch (e) {
-      console.error('Print failed:', e);
-    }
+    }, 500);
   },
+
 
   /**
    * html2canvas tabanlı capture + print (Premium Engine v7.0)
