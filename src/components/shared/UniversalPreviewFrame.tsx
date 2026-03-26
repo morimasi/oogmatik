@@ -116,12 +116,14 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
               scale: 2,
               useCORS: true,
               allowTaint: true,
+              letterRendering: true, // EKLENDİ: Premium text render optimizasyonu
               logging: false,
               backgroundColor: '#fff',
               windowWidth: document.documentElement.offsetWidth,
               windowHeight: document.documentElement.offsetHeight,
               onclone: (clonedDoc: Document) => {
                 try {
+                  clonedDoc.body.classList.add('is-exporting'); // EKLENDİ: Klonlama anı layout garantisi
                   document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => clonedDoc.head.appendChild(l.cloneNode(true)));
                   document.querySelectorAll('style').forEach((s) => clonedDoc.head.appendChild(s.cloneNode(true)));
                 } catch { /* devam et */ }

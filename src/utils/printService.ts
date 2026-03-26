@@ -42,6 +42,9 @@ const preloadFontsForCapture = async (): Promise<void> => {
  */
 const onCloneForCapture = (clonedDoc: Document): void => {
   try {
+    // Premium Engine Modu: Klonlanan dökümanın body'sine marker ekle
+    clonedDoc.body.classList.add('is-exporting');
+
     // Tüm <link rel="stylesheet"> etiketlerini kopyala (Google Fonts dahil)
     document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
       clonedDoc.head.appendChild(link.cloneNode(true));
@@ -54,8 +57,9 @@ const onCloneForCapture = (clonedDoc: Document): void => {
     const extra = clonedDoc.createElement('style');
     extra.textContent =
       '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; ' +
-      'text-rendering: geometricPrecision !important; font-variant-ligatures: none !important; ' +
-      'letter-spacing: normal !important; word-spacing: normal !important; }' +
+      'text-rendering: optimizeLegibility !important; font-variant-ligatures: none !important; ' +
+      'letter-spacing: 0px !important; word-spacing: normal !important; ' +
+      '-webkit-text-size-adjust: 100% !important; text-size-adjust: 100% !important; }' +
       ' body { background: #ffffff !important; }';
     clonedDoc.head.appendChild(extra);
   } catch (e) {
@@ -555,6 +559,7 @@ export const printService = {
           scale: 2, // 2x -> yüksek kaliteli yazdırma
           useCORS: true,
           allowTaint: true,
+          letterRendering: true, // Harf aralığı kaymalarını (kerning errors) ve üst üste binme sorunlarını çözer
           logging: false,
           backgroundColor: '#ffffff',
           windowWidth: document.documentElement.offsetWidth,
@@ -815,6 +820,7 @@ export const printService = {
             scale: captureScale,
             useCORS: true,
             allowTaint: true,
+            letterRendering: true, // Harf aralığı kaymalarını önler
             logging: false,
             backgroundColor: '#ffffff',
             windowWidth: document.documentElement.offsetWidth,

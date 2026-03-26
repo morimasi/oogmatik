@@ -101,17 +101,30 @@
         }
         
         /* Fontların ve Kelimelerin Üst Üste Binmesini (Ligatures & Spacing Hatalarını) Önle */
+        /* Fontların ve Kelimelerin Üst Üste Binmesini (Ligatures & Spacing Hatalarını) Önle */
         p, h1, h2, h3, h4, h5, h6, span, li, button, input {
-            letter-spacing: normal !important;
+            letter-spacing: 0px !important;
             word-spacing: normal !important;
             font-variant-ligatures: none !important;
-            text-rendering: geometricPrecision !important;
+            text-rendering: optimizeLegibility !important;
             max-width: 100% !important;
         }
 
-        /* Metinlerin taşarak bitişik hücrelere girmesini önle */
+        /* Premium Print Layout & Klonlama Stabilizasyonu */
         * {
             box-sizing: border-box !important;
+            -webkit-text-size-adjust: 100% !important;
+            text-size-adjust: 100% !important;
+        }
+
+        /* html2canvas esnasında grid çökmesini engeller */
+        .is-exporting .grid, .is-exporting .flex {
+            flex-shrink: 0 !important;
+            max-width: 100% !important;
+        }
+
+        .is-exporting * {
+            max-width: 100% !important;
         }
     }
 }
