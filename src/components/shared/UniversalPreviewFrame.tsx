@@ -94,7 +94,7 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
         setExportOpen(false);
         if (!printSelector) { window.print(); return; }
         import('../../utils/printService').then((m) =>
-            m.printService.captureAndPrint(printSelector, printFileName, 'print', 'A4')
+            m.printService.generatePdf(printSelector, printFileName, { action: 'print', paperSize: 'A4', useCapture: false })
         );
     };
 

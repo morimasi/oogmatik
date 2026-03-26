@@ -50,10 +50,12 @@ const onCloneForCapture = (clonedDoc: Document): void => {
     document.querySelectorAll('style').forEach((style) => {
       clonedDoc.head.appendChild(style.cloneNode(true));
     });
-    // Yazdırma için renk doğruluğu garanti altına al
+    // Yazdırma için renk doğruluğu ve HASSAS FONT RENDER (Harf örtüşmesini önlemek için çok kritik)
     const extra = clonedDoc.createElement('style');
     extra.textContent =
-      '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; text-rendering: optimizeSpeed !important; }' +
+      '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; ' +
+      'text-rendering: geometricPrecision !important; font-variant-ligatures: none !important; ' +
+      'letter-spacing: normal !important; word-spacing: normal !important; }' +
       ' body { background: #ffffff !important; }';
     clonedDoc.head.appendChild(extra);
   } catch (e) {

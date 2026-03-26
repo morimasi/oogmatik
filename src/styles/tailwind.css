@@ -89,5 +89,29 @@
             page-break-inside: avoid !important;
             break-inside: avoid !important;
         }
+
+        /* Oogmatik Premium Layout İzolasyonu (Sayı Dedektifi vb. taşmaları önler) */
+        .grid, .flex {
+            max-width: 100% !important;
+        }
+        
+        .grid > *, .flex > * {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+        
+        /* Fontların ve Kelimelerin Üst Üste Binmesini (Ligatures & Spacing Hatalarını) Önle */
+        p, h1, h2, h3, h4, h5, h6, span, li, button, input {
+            letter-spacing: normal !important;
+            word-spacing: normal !important;
+            font-variant-ligatures: none !important;
+            text-rendering: geometricPrecision !important;
+            max-width: 100% !important;
+        }
+
+        /* Metinlerin taşarak bitişik hücrelere girmesini önle */
+        * {
+            box-sizing: border-box !important;
+        }
     }
 }
