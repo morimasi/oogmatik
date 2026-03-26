@@ -188,12 +188,14 @@ const pixelLockElement = (root: HTMLElement): (() => void) => {
       lh: el.style.lineHeight,
       ls: el.style.letterSpacing,
     });
-    if (rect.width > 0) el.style.width = `${rect.width}px`;
-    if (rect.height > 0) el.style.height = `${rect.height}px`;
+    if (rect.width > 0) el.style.setProperty('width', `${rect.width}px`, 'important');
+    if (rect.height > 0) el.style.setProperty('height', `${rect.height}px`, 'important');
     const fontSize = parseFloat(cs.fontSize);
-    if (fontSize > 0) el.style.fontSize = `${fontSize}px`;
-    el.style.lineHeight = cs.lineHeight;
-    el.style.letterSpacing = '0px';
+    if (fontSize > 0) el.style.setProperty('font-size', `${fontSize}px`, 'important');
+    el.style.setProperty('line-height', cs.lineHeight, 'important');
+    el.style.setProperty('letter-spacing', '0px', 'important');
+    el.style.setProperty('max-width', `${rect.width}px`, 'important');
+    el.style.setProperty('max-height', `${rect.height}px`, 'important');
   }
   return () => {
     for (const b of backups) {
@@ -202,6 +204,8 @@ const pixelLockElement = (root: HTMLElement): (() => void) => {
       b.el.style.fontSize = b.fs;
       b.el.style.lineHeight = b.lh;
       b.el.style.letterSpacing = b.ls;
+      b.el.style.maxWidth = '';
+      b.el.style.maxHeight = '';
     }
   };
 };
@@ -655,7 +659,6 @@ export const printService = {
           scale: 2,
           useCORS: true,
           allowTaint: false,      // KRİTİK: true olursa canvas kirlenip boş PNG/PDF çıkar!
-          letterRendering: true,  // Harf kerning hatalarını önler
           logging: false,
           backgroundColor: '#ffffff',
           foreignObjectRendering: false, // Daha stabil render için kapalı
@@ -936,7 +939,6 @@ export const printService = {
             scale: captureScale,
             useCORS: true,
             allowTaint: false,        // KRİTİK: true olursa canvas kirlenip boş PDF çıkar!
-            letterRendering: true,
             logging: false,
             backgroundColor: '#ffffff',
             foreignObjectRendering: false,
