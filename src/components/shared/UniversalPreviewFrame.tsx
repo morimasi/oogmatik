@@ -93,12 +93,13 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
     const handleCapturePrint = () => {
         setExportOpen(false);
         if (!printSelector) { window.print(); return; }
-        // KRİTİK DÜZELTME: useCapture:false → eski DOM klon yolu bozuk (font şişme, grid çöküşü).
-        // captureAndPrint html2canvas kullanır → Pixel Lock, allowTaint:false, @font-face enjeksiyonu aktif.
+        // PREMIUM ENGINE v2: Shadow-Iframe Injection
+        // Bu yöntem ana penceredeki tüm transform/scale/zoom kısıtlarını bypass ederek en yüksek kalitede (native) çıktı almayı sağlar.
         import('../../utils/printService').then((m) =>
-            m.printService.captureAndPrint(printSelector, printFileName, 'print', 'A4')
+            m.printService.print(printSelector, 'A4')
         );
     };
+
 
 
     const handleCaptureDownload = () => {
