@@ -53,19 +53,43 @@ const onCloneForCapture = (clonedDoc: Document): void => {
     document.querySelectorAll('style').forEach((style) => {
       clonedDoc.head.appendChild(style.cloneNode(true));
     });
-    // Yazdırma için renk doğruluğu ve HASSAS FONT RENDER (Harf örtüşmesini önlemek için çok kritik)
+
+    // KRİTİK: @font-face kurallarını CSSStyleSheet'ten ayıklayıp klona enjekte et.
+    // Olmadığında Lexend/Inter klon DOM'da bulunamaz → sistem fontu (Arial/Times) devreye
+    // girer → harfler devasa veya hatalı basılır.
+    try {
+      const fontFaceRules: string[] = [];
+      Array.from(document.styleSheets).forEach((sheet) => {
+        try {
+          Array.from(sheet.cssRules || []).forEach((rule) => {
+            if (rule instanceof CSSFontFaceRule) {
+              fontFaceRules.push(rule.cssText);
+            }
+          });
+        } catch { /* cross-origin sheet — erişilemez, atla */ }
+      });
+      if (fontFaceRules.length > 0) {
+        const fontStyle = clonedDoc.createElement('style');
+        fontStyle.textContent = fontFaceRules.join('\n');
+        clonedDoc.head.insertBefore(fontStyle, clonedDoc.head.firstChild);
+      }
+    } catch { /* font face extraction failed, devam et */ }
+
+    // Yazdırma için renk doğruluğu ve HASSAS FONT RENDER
     const extra = clonedDoc.createElement('style');
     extra.textContent =
       '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; ' +
       'text-rendering: optimizeLegibility !important; font-variant-ligatures: none !important; ' +
       'letter-spacing: 0px !important; word-spacing: normal !important; ' +
-      '-webkit-text-size-adjust: 100% !important; text-size-adjust: 100% !important; }' +
-      ' body { background: #ffffff !important; }';
+      '-webkit-text-size-adjust: 100% !important; text-size-adjust: 100% !important; ' +
+      'box-sizing: border-box !important; }' +
+      ' body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }';
     clonedDoc.head.appendChild(extra);
   } catch (e) {
     console.warn('[printService] onClone uyarısı:', e);
   }
 };
+
 
 export interface PrintOptions {
   action?: 'print' | 'download';
@@ -136,6 +160,48 @@ const stripScalesAndTransforms = (element: HTMLElement) => {
     for (const [el, styles] of originalStyles.entries()) {
       el.style.zoom = styles.zoom;
       el.style.transform = styles.transform;
+    }
+  };
+};
+
+/**
+ * PIXEL LOCK ALGORİTMASI v1.0
+ * Yakalamadan önce hedef elementin içindeki TÜM alt elemanların
+ * tarayıcı tarafından hesaplanmış (computed) genişlik, yükseklik ve
+ * font-size px değerlerini inline style olarak sabitler.
+ * Bu sayede html2canvas, Tailwind Grid/Flex ve rem/% birimlerini
+ * yanlış okuyarak font'ları şişiremez veya kutuları parçalayamaz.
+ */
+const pixelLockElement = (root: HTMLElement): (() => void) => {
+  if (typeof window === 'undefined') return () => {};
+  const backups: Array<{ el: HTMLElement; w: string; h: string; fs: string; lh: string; ls: string }> = [];
+  const allEls = [root, ...Array.from(root.querySelectorAll('*'))] as HTMLElement[];
+  for (const el of allEls) {
+    if (!el.style) continue;
+    const cs = window.getComputedStyle(el);
+    const rect = el.getBoundingClientRect();
+    backups.push({
+      el,
+      w: el.style.width,
+      h: el.style.height,
+      fs: el.style.fontSize,
+      lh: el.style.lineHeight,
+      ls: el.style.letterSpacing,
+    });
+    if (rect.width > 0) el.style.width = `${rect.width}px`;
+    if (rect.height > 0) el.style.height = `${rect.height}px`;
+    const fontSize = parseFloat(cs.fontSize);
+    if (fontSize > 0) el.style.fontSize = `${fontSize}px`;
+    el.style.lineHeight = cs.lineHeight;
+    el.style.letterSpacing = '0px';
+  }
+  return () => {
+    for (const b of backups) {
+      b.el.style.width = b.w;
+      b.el.style.height = b.h;
+      b.el.style.fontSize = b.fs;
+      b.el.style.lineHeight = b.lh;
+      b.el.style.letterSpacing = b.ls;
     }
   };
 };
@@ -578,18 +644,33 @@ export const printService = {
       const dataUrls: string[] = [];
 
       for (const page of pages) {
-        const restoreScales = stripScalesAndTransforms(page); // EKLENDİ: Zoom kilit kırıcı
+        // PIXEL LOCK: Scale/Zoom soy, ardından tüm elementlerin px değerlerini kilitle
+        const restoreScales = stripScalesAndTransforms(page);
+        const restorePixels = pixelLockElement(page);
+
+        // Layout'un yeniden hesaplanmasını bekle
+        await new Promise<void>((r) => requestAnimationFrame(() => r()));
+
         const canvas = await html2canvas(page, {
-          scale: 2, // 2x -> yüksek kaliteli yazdırma
+          scale: 2,
           useCORS: true,
-          allowTaint: true,
-          letterRendering: true, // Harf aralığı kaymalarını (kerning errors) ve üst üste binme sorunlarını çözer
+          allowTaint: false,      // KRİTİK: true olursa canvas kirlenip boş PNG/PDF çıkar!
+          letterRendering: true,  // Harf kerning hatalarını önler
           logging: false,
           backgroundColor: '#ffffff',
-          windowWidth: document.documentElement.offsetWidth,
-          windowHeight: document.documentElement.offsetHeight,
-          onclone: (_clonedDoc: Document) => onCloneForCapture(_clonedDoc),
-          // Tasarım modu seçim çerçevelerini bastır
+          foreignObjectRendering: false, // Daha stabil render için kapalı
+          windowWidth: page.scrollWidth,
+          windowHeight: page.scrollHeight,
+          width: page.offsetWidth,
+          height: page.offsetHeight,
+          x: 0,
+          y: 0,
+          onclone: (_clonedDoc: Document, clonedEl: HTMLElement) => {
+            onCloneForCapture(_clonedDoc);
+            // Klonun kökündeki zoom/scale'i de sıfırla
+            clonedEl.style.transform = 'none';
+            clonedEl.style.zoom = '1';
+          },
           ignoreElements: (el) => {
             const htmlEl = el as HTMLElement;
             return (
@@ -599,7 +680,11 @@ export const printService = {
             );
           },
         });
-        restoreScales(); // Eski ölçeğe dön
+
+        // Restore: önce pikselleri, sonra scale'i geri yükle
+        restorePixels();
+        restoreScales();
+
         dataUrls.push(canvas.toDataURL('image/png', 1.0));
       }
 
@@ -841,17 +926,31 @@ export const printService = {
           const origBg = page.style.backgroundColor;
           page.style.backgroundColor = '#ffffff';
 
-          const restoreScales = stripScalesAndTransforms(page); // EKLENDİ: PDF Zoom kilit kırıcı
+          const restoreScales = stripScalesAndTransforms(page);
+          const restorePixels = pixelLockElement(page);
+
+          // Layout'un yeniden hesaplanmasını bekle
+          await new Promise<void>((r) => requestAnimationFrame(() => r()));
+
           const canvas = await html2canvas(page, {
             scale: captureScale,
             useCORS: true,
-            allowTaint: true,
-            letterRendering: true, // Harf aralığı kaymalarını önler
+            allowTaint: false,        // KRİTİK: true olursa canvas kirlenip boş PDF çıkar!
+            letterRendering: true,
             logging: false,
             backgroundColor: '#ffffff',
-            windowWidth: document.documentElement.offsetWidth,
-            windowHeight: document.documentElement.offsetHeight,
-            onclone: (_clonedDoc: Document) => onCloneForCapture(_clonedDoc),
+            foreignObjectRendering: false,
+            windowWidth: page.scrollWidth,
+            windowHeight: page.scrollHeight,
+            width: page.offsetWidth,
+            height: page.offsetHeight,
+            x: 0,
+            y: 0,
+            onclone: (_clonedDoc: Document, clonedEl: HTMLElement) => {
+              onCloneForCapture(_clonedDoc);
+              clonedEl.style.transform = 'none';
+              clonedEl.style.zoom = '1';
+            },
             ignoreElements: (el) => {
               const htmlEl = el as HTMLElement;
               return (
@@ -863,7 +962,8 @@ export const printService = {
             },
           });
 
-          restoreScales(); // Eski ölçeğe dön
+          restorePixels();
+          restoreScales();
           page.style.backgroundColor = origBg;
 
           // Canvas → JPEG data URL (PNG'den daha küçük PDF boyutu)

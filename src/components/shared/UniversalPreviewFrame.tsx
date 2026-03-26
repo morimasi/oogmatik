@@ -113,39 +113,68 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
             const target = document.querySelector(printSelector || '.worksheet-page') as HTMLElement;
             if (!target) return;
 
-            // Zoom/scale sıfırlama (Premium Engine fix)
-            const originalStyles = new Map<HTMLElement, { zoom: string; transform: string }>();
-            let current: HTMLElement | null = target.parentElement;
-            while (current && current !== document.body) {
-                if (current.style) {
-                    originalStyles.set(current, { zoom: current.style.zoom, transform: current.style.transform });
-                    current.style.zoom = '1';
-                    current.style.transform = 'none';
+            // ADIM 1: Ebeveyn zoom/scale soy
+            const scaleBackups = new Map<HTMLElement, { zoom: string; transform: string }>();
+            let cur: HTMLElement | null = target.parentElement;
+            while (cur && cur !== document.body) {
+                if (cur.style) {
+                    scaleBackups.set(cur, { zoom: cur.style.zoom, transform: cur.style.transform });
+                    cur.style.zoom = '1';
+                    cur.style.transform = 'none';
                 }
-                current = current.parentElement;
+                cur = cur.parentElement;
             }
-            if (document.body) document.body.offsetHeight; // force layout
+
+            // ADIM 2: Pixel Lock — tüm child elementlerin gerçek px boyutlarını kilitle
+            const pixelBackups: Array<{ el: HTMLElement; w: string; h: string; fs: string; lh: string; ls: string }> = [];
+            const allEls = [target, ...Array.from(target.querySelectorAll('*'))] as HTMLElement[];
+            for (const el of allEls) {
+                if (!el.style) continue;
+                const cs = window.getComputedStyle(el);
+                const rect = el.getBoundingClientRect();
+                pixelBackups.push({ el, w: el.style.width, h: el.style.height, fs: el.style.fontSize, lh: el.style.lineHeight, ls: el.style.letterSpacing });
+                if (rect.width > 0) el.style.width = `${rect.width}px`;
+                if (rect.height > 0) el.style.height = `${rect.height}px`;
+                const fontSize = parseFloat(cs.fontSize);
+                if (fontSize > 0) el.style.fontSize = `${fontSize}px`;
+                el.style.lineHeight = cs.lineHeight;
+                el.style.letterSpacing = '0px';
+            }
+
+            document.body.offsetHeight;
+            await new Promise<void>((r) => requestAnimationFrame(() => r()));
 
             const canvas = await html2canvas(target, {
               scale: 2,
               useCORS: true,
-              allowTaint: true,
-              letterRendering: true, // EKLENDİ: Premium text render optimizasyonu
+              allowTaint: false,          // KRİTİK: true canvas'ı kirletip boş PNG verir
+              letterRendering: true,
               logging: false,
               backgroundColor: '#fff',
-              windowWidth: document.documentElement.offsetWidth,
-              windowHeight: document.documentElement.offsetHeight,
-              onclone: (clonedDoc: Document) => {
+              foreignObjectRendering: false,
+              windowWidth: target.scrollWidth,
+              windowHeight: target.scrollHeight,
+              width: target.offsetWidth,
+              height: target.offsetHeight,
+              x: 0, y: 0,
+              onclone: (clonedDoc: Document, clonedEl: HTMLElement) => {
                 try {
-                  clonedDoc.body.classList.add('is-exporting'); // EKLENDİ: Klonlama anı layout garantisi
+                  clonedDoc.body.classList.add('is-exporting');
                   document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => clonedDoc.head.appendChild(l.cloneNode(true)));
                   document.querySelectorAll('style').forEach((s) => clonedDoc.head.appendChild(s.cloneNode(true)));
+                  clonedEl.style.transform = 'none';
+                  clonedEl.style.zoom = '1';
                 } catch { /* devam et */ }
               },
             });
 
-            // Geri yükle
-            for (const [el, styles] of originalStyles.entries()) {
+            // ADIM 3: Geri yükle
+            for (const b of pixelBackups) {
+              b.el.style.width = b.w; b.el.style.height = b.h;
+              b.el.style.fontSize = b.fs; b.el.style.lineHeight = b.lh;
+              b.el.style.letterSpacing = b.ls;
+            }
+            for (const [el, styles] of scaleBackups.entries()) {
               el.style.zoom = styles.zoom;
               el.style.transform = styles.transform;
             }
@@ -156,8 +185,9 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
                 setCopySuccess(true);
                 setTimeout(() => setCopySuccess(false), 2000);
             }, 'image/png');
-        } catch { /* clipboard API not supported */ }
+        } catch { /* clipboard API desteklenmiyor */ }
     };
+
 
     const scrollToPage = (pageIdx: number) => {
         const container = scrollRef.current;
