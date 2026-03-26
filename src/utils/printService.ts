@@ -488,12 +488,20 @@ export const printService = {
           border: none !important;
           box-shadow: none !important;
         }
-        /* Kocaman beyaz boşluklara (Giant Blank Spaces) neden olan agresif avoid kuralı KONTROLLÜ hale getirildi. 
-           Sadece uygulamanın orijinal Tailwind kodunda 'break-inside-avoid' olanlar korunur. */
-        .break-inside-avoid, .page-break-inside-avoid {
-          page-break-inside: avoid !important;
-          break-inside: avoid !important;
+        /* 
+           Kocaman beyaz boşluklara (Giant Blank Spaces) kesin çözüm:
+           Eğer bir kapsayıcıda Tailwind 'break-inside-avoid' varsa ve içerik uzadıkça 1 sayfayı aşıyorsa,
+           tarayıcı bunu bölemeyeceği için komple 2. sayfaya atar, 1. sayfa başlıkla bomboş kalır!
+           Bunu önlemek için TÜM 'break' kilitlerini KIRIYORUZ. Her şey su gibi akacak. 
+        */
+        .oogmatik-print-wrapper * {
+          page-break-inside: auto !important;
+          break-inside: auto !important;
+          page-break-before: auto !important;
+          break-before: auto !important;
+          overflow: visible !important; /* Tailwind'deki overflow-hidden kilitlerini de açıyoruz ki kesilme olmasın */
         }
+
 
         * {
           -webkit-print-color-adjust: exact !important;
