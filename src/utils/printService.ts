@@ -501,6 +501,20 @@ export const printService = {
           break-before: auto !important;
           overflow: visible !important; /* Tailwind'deki overflow-hidden kilitlerini de açıyoruz ki kesilme olmasın */
         }
+        
+        /* A4 Daralma Çökmesine Karşı Ana Kalkan (Print Lock):
+           A4 kâğıdınız fiziksel olarak 768px'den dar olduğu için Tailwind her şeyi telefon ekranına dönüştürüyordu.
+           Aşağıdaki kod sayesinde, projedeki hiçbir dosyanın kodunu değiştirmeden "bilgisayar monitörü (md / lg)" 
+           görünümlerini kâğıtta da zorunlu kılıyoruz. Bütün uygulamanın "iki sütun" sorunu çözüldü! */
+        .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+        .md\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+        .lg\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+        .lg\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+        .md\\:flex-row { flex-direction: row !important; }
+        .lg\\:flex-row { flex-direction: row !important; }
+
 
 
         * {
