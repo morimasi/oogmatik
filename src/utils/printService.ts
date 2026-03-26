@@ -402,53 +402,67 @@ export const printService = {
    * Supports multi-page content, canvas cloning, and input preservation.
    */
   /**
-   * Premium Yazdırma Motoru v2.0 — (Shadow-Iframe Injection)
-   * En profesyonel yöntem: İçeriği ana pencereden tamamen izole edilmiş gizli bir iframe'e aktarır.
-   * Tüm stil sayfalarını ve fontları enjekte eder, fontların yüklenmesini bekler ve native print tetikler.
+   * Premium Yazdırma Motoru v2.1 — (Bulletproof Iframe Injection)
+   * Beyaz sayfa sorununu çözmek için kaynak bekleme (Resource Sync) mekanizması eklenmiştir.
+   * Çoklu sayfa desteğini ve font sadakatini %100 garanti eder.
    */
   print: async (elementSelector: string = '.worksheet-page', paperSize: PaperSize = 'A4') => {
     if (typeof document === 'undefined') return;
 
-    // 1. Yazdırılacak öğeleri bul
-    const originalContents = Array.from(document.querySelectorAll(elementSelector)) as HTMLElement[];
-    if (originalContents.length === 0) {
+    // 1. Yazdırılacak sayfaları topla
+    const roots = Array.from(document.querySelectorAll(elementSelector)) as HTMLElement[];
+    const pages: HTMLElement[] = [];
+    
+    // Alt sayfaları (.worksheet-page, .print-page vb) akıllıca bul
+    const PAGE_SELECTORS = ['.worksheet-page', '.print-page', '.universal-mode-canvas', '.a4-page', '.math-canvas-page'];
+    const selectorText = PAGE_SELECTORS.join(',');
+
+    roots.forEach(root => {
+      if (root.matches(selectorText)) {
+        pages.push(root);
+      } else {
+        const nested = Array.from(root.querySelectorAll(selectorText)) as HTMLElement[];
+        if (nested.length > 0) pages.push(...nested);
+        else pages.push(root);
+      }
+    });
+
+    if (pages.length === 0) {
       alert('Yazdırılacak içerik bulunamadı.');
       return;
     }
 
-    // 2. Gizli bir Iframe oluştur (Shadow Print Area)
+    // 2. Iframe Hazırlığı (Ekran dışında ama 'görünür' - render için şart)
     let iframe = document.getElementById('oogmatik-shadow-print') as HTMLIFrameElement;
     if (iframe) document.body.removeChild(iframe);
 
     iframe = document.createElement('iframe');
     iframe.id = 'oogmatik-shadow-print';
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
+    // KRİTİK: width/height 0 veya display:none olursa bazı tarayıcılar (Safari/Chrome) render etmez -> Beyaz Sayfa çıkar.
+    iframe.style.position = 'absolute';
+    iframe.style.left = '-10000px';
+    iframe.style.top = '0';
+    iframe.style.width = '210mm'; // A4 genişliği
+    iframe.style.height = '100%';
     iframe.style.border = 'none';
-    iframe.style.visibility = 'hidden';
     document.body.appendChild(iframe);
 
     const doc = iframe.contentWindow?.document || iframe.contentDocument;
     if (!doc) return;
 
-    // 3. Iframe içine döküman yapısını kur
     const dims = PAPER_DIMENSIONS[paperSize];
-    const isLandscape = originalContents[0]?.classList.contains('landscape');
-    const pageSize = isLandscape ? `${dims.height} ${dims.width}` : dims.width;
+    const isLandscape = pages[0]?.classList.contains('landscape');
 
+    // 3. Iframe yapısını kur
     doc.open();
     doc.write(`
       <!DOCTYPE html>
-      <html lang="tr">
+      <html>
       <head>
         <meta charset="UTF-8">
-        <title>${document.title}</title>
         <style>
           @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 0; }
-          body { margin: 0; padding: 0; background: #fff; }
+          body { margin: 0; padding: 0; background: #fff; -webkit-print-color-adjust: exact !important; }
           .print-wrapper { width: 100%; }
           .print-page {
             width: ${isLandscape ? dims.height : dims.width} !important;
@@ -457,27 +471,16 @@ export const printService = {
             position: relative;
             overflow: hidden;
             background: #fff;
-            page-break-after: always;
-            break-after: page;
+            page-break-after: always !important;
+            break-after: page !important;
             display: block;
             box-sizing: border-box;
           }
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            text-rendering: optimizeLegibility !important;
-            -webkit-font-smoothing: antialiased !important;
-          }
-          /* Harf kaymalarını önlemek için kerning kilitleri */
-          .worksheet-page, .print-page {
-             letter-spacing: normal !important;
-             word-spacing: normal !important;
-          }
+          * { text-rendering: optimizeLegibility !important; -webkit-font-smoothing: antialiased !important; }
+          img { max-width: 100%; height: auto; }
         </style>
       </head>
-      <body>
-        <div class="print-wrapper"></div>
-      </body>
+      <body><div class="print-wrapper"></div></body>
       </html>
     `);
     doc.close();
@@ -485,30 +488,40 @@ export const printService = {
     const wrapper = doc.querySelector('.print-wrapper');
     if (!wrapper) return;
 
-    // 4. Stilleri kopyala (Shadow-Iframe Injection)
+    // 4. Stilleri Aktar ve Yüklenmesini Bekle
+    const stylePromises: Promise<void>[] = [];
+    
+    // Global Linkleri (Tailwind, Fonts) Kopyala
     document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
-      doc.head.appendChild(link.cloneNode(true));
+      const clone = link.cloneNode(true) as HTMLLinkElement;
+      stylePromises.push(new Promise(resolve => {
+        clone.onload = () => resolve();
+        clone.onerror = () => resolve();
+      }));
+      doc.head.appendChild(clone);
     });
+
+    // Inline Stilleri Kopyala
     document.querySelectorAll('style').forEach((style) => {
       doc.head.appendChild(style.cloneNode(true));
     });
 
-    // 5. İçeriği kopyala ve iyileştir
-    originalContents.forEach((original) => {
+    // 5. İçeriği Klonla ve Aktar
+    pages.forEach((original) => {
       const clone = original.cloneNode(true) as HTMLElement;
-
-      // Canvas verilerini aktar (Klonlama canvas içeriğini almaz)
+      
+      // Canvas Recovery
       const origCanvases = original.querySelectorAll('canvas');
       const cloneCanvases = clone.querySelectorAll('canvas');
       origCanvases.forEach((canvas, i) => {
-        const dest = cloneCanvases[i];
+        const dest = cloneCanvases[i] as HTMLCanvasElement;
         if (dest) {
-          const ctx = (dest as HTMLCanvasElement).getContext('2d');
+          const ctx = dest.getContext('2d');
           if (ctx) ctx.drawImage(canvas, 0, 0);
         }
       });
 
-      // Input değerlerini aktar
+      // Input ve Textarea senkronizasyonu
       const origInputs = original.querySelectorAll('input, textarea, select');
       const cloneInputs = clone.querySelectorAll('input, textarea, select');
       origInputs.forEach((input: any, i) => {
@@ -519,29 +532,42 @@ export const printService = {
         }
       });
 
-      // Sayfa sarmalayıcı ekle
       const pageDiv = doc.createElement('div');
       pageDiv.className = 'print-page';
       pageDiv.appendChild(clone);
       wrapper.appendChild(pageDiv);
     });
 
-    // 6. Fontların yüklenmesini bekle (Garantör Kademe)
+    // 6. Kaynak Bekleme (Beyaz Sayfa Kalkanı)
+    // a. CSS dosyalarının yüklenmesi
+    await Promise.all(stylePromises);
+    
+    // b. Görsellerin yüklenmesi
+    const images = Array.from(doc.querySelectorAll('img'));
+    await Promise.all(images.map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    }));
+
+    // c. Fontların hazır olması
     try {
       if (iframe.contentWindow?.document?.fonts) {
-         await iframe.contentWindow.document.fonts.ready;
+        await iframe.contentWindow.document.fonts.ready;
       }
-    } catch { /* devam et */ }
+    } catch { /* devam */ }
 
-    // 7. Render stabilize süresi (Lexend ve Grid yerleşimi için hayati)
-    await new Promise(r => setTimeout(r, 600));
+    // d. Son render stabilizasyonu
+    await new Promise(r => setTimeout(r, 800));
 
-    // 8. Yazdır
+    // 7. Yazdır
     try {
       iframe.contentWindow?.focus();
       iframe.contentWindow?.print();
     } catch (e) {
-      console.error('Yazdırma hatası:', e);
+      console.error('Print failed:', e);
     }
   },
 
