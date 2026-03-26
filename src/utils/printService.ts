@@ -464,7 +464,8 @@ export const printService = {
     }
     
     styleEl.textContent = `
-      @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 0; }
+      /* Kâğıt kenar boşlukları (Margins) eklendi: Kenarlara sıfır temas olmaması için */
+      @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 12mm; }
       @media print {
         body > *:not(#print-overlay) {
           display: none !important;
@@ -480,24 +481,20 @@ export const printService = {
           padding: 0 !important;
         }
         .oogmatik-print-wrapper {
-          width: ${isLandscape ? dims.height : dims.width} !important;
-          min-height: ${isLandscape ? dims.width : dims.height}; /* Sınırsız dökülebilmesi için 'height' ve 'overflow:hidden' iptal edildi */
-          margin: 0 auto;
+          width: 100% !important;
           position: relative;
-          page-break-after: always !important;
-          break-after: page !important;
           display: block;
           background: white;
           border: none !important;
           box-shadow: none !important;
         }
-        /* İçeriklerin sayfa aralarında bıçakla ikiye bölünmemesi için koruma kalkanları */
-        .break-inside-avoid, .page-break-inside-avoid, 
-        .activity-item, .worksheet-page > div > div,
-        img, canvas, svg, .group, .oogmatik-grid-item {
+        /* Kocaman beyaz boşluklara (Giant Blank Spaces) neden olan agresif avoid kuralı KONTROLLÜ hale getirildi. 
+           Sadece uygulamanın orijinal Tailwind kodunda 'break-inside-avoid' olanlar korunur. */
+        .break-inside-avoid, .page-break-inside-avoid {
           page-break-inside: avoid !important;
           break-inside: avoid !important;
         }
+
         * {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
@@ -513,21 +510,22 @@ export const printService = {
       const origWidth = original.offsetWidth || 1120;
       const clone = original.cloneNode(true) as HTMLElement;
 
-      // Boyutlandırma kilidi
+      // Boyutlandırma kilidi: Orijinal px değerini koru ki Tailwind Grid komutları (lg:grid-cols vs.) çökmesin.
       clone.style.width = `${origWidth}px`;
       clone.style.minWidth = `${origWidth}px`;
       clone.style.margin = '0';
-      clone.style.position = 'absolute';
-      clone.style.top = '0';
-      clone.style.left = '0';
+      // DİKKAT: 'position: absolute' İPTAL EDİLDİ! Absolute elementler sayfa akışını (flow) kör eder ve marginleri ezer.
+      clone.style.position = 'relative'; 
       
-      // Çarpılma onarımı (Scale to fit A4 Without Breaking Pagination)
-      const scaleRatio = Math.min(1, a4WidthPx / origWidth);
+      // Çarpılma onarımı (Scale to fit A4 Without Margin Touching)
+      // @page { margin: 12mm } kullanıldığı için yazdırılabilir genişlik ~703px'e düşmüştür.
+      const printableA4Width = 703; 
+      const scaleRatio = Math.min(1, printableA4Width / origWidth);
       if (scaleRatio < 1) {
-        // ! TRANSFORM YASAK ! Transform kullanımı Webkit'te sayfalara bölünmeyi mekanik olarak engeller, sonsuz uzunluktaki elementi tek sayfada dondurup keser.
-        // Bunun yerine 'zoom' kullanıyoruz. Zoom, layout seviyesinde çalışır ve tarayıcının native sayfa bölmelerine tam uyum sağlar.
+        // 'zoom' layout'u doğal küçültür ve tarayıcının sayfaları akıcı (flow) bölmesine izin verir.
         (clone.style as any).zoom = scaleRatio;
       }
+
 
       // Input, Select ve Canvas Transferi
       const origCanvases = original.querySelectorAll('canvas');
