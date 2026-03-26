@@ -93,10 +93,13 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
     const handleCapturePrint = () => {
         setExportOpen(false);
         if (!printSelector) { window.print(); return; }
+        // KRİTİK DÜZELTME: useCapture:false → eski DOM klon yolu bozuk (font şişme, grid çöküşü).
+        // captureAndPrint html2canvas kullanır → Pixel Lock, allowTaint:false, @font-face enjeksiyonu aktif.
         import('../../utils/printService').then((m) =>
-            m.printService.generatePdf(printSelector, printFileName, { action: 'print', paperSize: 'A4', useCapture: false })
+            m.printService.captureAndPrint(printSelector, printFileName, 'print', 'A4')
         );
     };
+
 
     const handleCaptureDownload = () => {
         setExportOpen(false);
@@ -148,7 +151,6 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
               scale: 2,
               useCORS: true,
               allowTaint: false,          // KRİTİK: true canvas'ı kirletip boş PNG verir
-              letterRendering: true,
               logging: false,
               backgroundColor: '#fff',
               foreignObjectRendering: false,
