@@ -37,7 +37,9 @@ const onCloneForCapture = (clonedDoc: Document): void => {
     });
     const extra = clonedDoc.createElement('style');
     extra.textContent =
-      '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }' +
+      '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; ' +
+      'text-rendering: geometricPrecision !important; font-variant-ligatures: none !important; ' +
+      'letter-spacing: normal !important; word-spacing: normal !important; font-kerning: none !important; }' +
       ' body { background: #ffffff !important; }';
     clonedDoc.head.appendChild(extra);
   } catch (e) {
@@ -88,7 +90,7 @@ const capturePages = async (elementSelector: string): Promise<HTMLCanvasElement[
       page.style.backgroundColor = '#ffffff';
 
       const canvas = await html2canvas(page, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         allowTaint: true,
         logging: false,

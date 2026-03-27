@@ -60,15 +60,37 @@ const TEMPLATE_HINTS: { value: TemplateHint; label: string; icon: string; desc: 
   { value: 'timeline', label: 'Zaman Çizelgesi', icon: 'fa-timeline', desc: 'Tarihsel/kronolojik' },
 ];
 
-const EXAMPLE_TOPICS = [
-  'Fotosentez süreci',
-  'Su döngüsü',
-  'Türkçede harf sesleri',
-  'Dört işlem basamakları',
-  'Mevsimler ve özellikleri',
-  'Hayvan türleri sınıflandırması',
-  'Problem çözme adımları',
-  'Okuma stratejileri',
+const SPLD_PREMIUM_TEMPLATES = [
+  {
+    category: 'Disleksi (Görsel ve Fonolojik)',
+    items: [
+      { title: "Frayer Kelime Ağı", prompt: "Zorlanılan kelimenin fonetik analizi, tanımı, eş anlamlısı, zıt anlamlısı ve görsel hece yapısını gösteren 4 çeyrekli Frayer Modeli.", hint: "list" },
+      { title: "b/d/p/q Ayırt Etme Matrisi", prompt: "b ve d, p ve q gibi karışan harflerin görsel nesne benzetişimleri (örn: yatak-bed) ve ince motor yönleriyle karşılaştırmalı analizi.", hint: "compare" },
+      { title: "Sesteş Kelimeler Örümcek Ağı", prompt: "Merkezdeki bir kelimenin, okunuşu aynı ama anlamı farklı sesteş türevlerine doğru ayrılan fonolojik örümcek ağı diyagramı.", hint: "hierarchy" }
+    ]
+  },
+  {
+    category: 'Diskalkuli (Sayısal Somutlaştırma)',
+    items: [
+      { title: "Somut Kesir Parçalamaları", prompt: "Bütün, Yarım ve Çeyrek kavramlarını soyut sayılarla değil, pizza dilimleri ve lego bloklarına bölerek adım adım anlatan kesir süreci.", hint: "sequence" },
+      { title: "Algoritmik Onluk Bozma Akışı", prompt: "Sayıları 10'luk taban bloklarıyla modelleyerek, çıkarma işleminde 'komşuya gitme' eylemini renk kodlu adım adım anlatan akış şeması.", hint: "sequence" }
+    ]
+  },
+  {
+    category: 'DEHB (Yürütücü İşlevler)',
+    items: [
+      { title: "Pomodoro Zaman Yönetimi Saati", prompt: "Büyük bir ev ödevini minik adımlara bölen (Örn: Hazırlık, 15dk Odaklanma, 5dk Hareket, Bitiş) renk kodlu zaman yönetimi çizelgesi.", hint: "timeline" },
+      { title: "Etki-Tepki Neden-Sonuç Zinciri", prompt: "Dürtüsel davranışların (örn: söz kesme) sosyal çevreye etkilerini oklarla bağlayarak gösteren Neden-Sonuç (Etki-Tepki) zinciri.", hint: "list" }
+    ]
+  },
+  {
+    category: 'Disgrafi & Bellek & Duyu',
+    items: [
+      { title: "3 Aşamalı Motor Yön Çizgesi", prompt: "3 satırlı kılavuz çizgiler üzerinde, kalemin tam başlangıç noktası ve kavis yönlerini adım adım öğreten ince motor harf yazım haritası.", hint: "sequence" },
+      { title: "5N1K Hikaye Çatısı", prompt: "Okuduğunu anlamada kaybolmamak için ana karakter, yer, olay, zaman ve sonuç düğümlerini 5N1K metoduyla bağlayan hiyerarşik zihin haritası.", hint: "hierarchy" },
+      { title: "Duyusal Regülasyon Termometresi", prompt: "Çocuğun anlık ruh halini (Aşırı Hareketli, Sakin, Yorgun) temsil eden ve her aşama için bir rahatlama stratejisi sunan görsel duygu termometresi.", hint: "compare" }
+    ]
+  }
 ];
 
 // ── Yardımcı Bileşenler ──────────────────────────────────────────────────────
@@ -118,6 +140,7 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
 
   // Generation State
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [result, setResult] = useState<InfographicResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -157,6 +180,30 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
       setIsGenerating(false);
     }
   }, [topic, ageGroup, profile, templateHint]);
+
+  // ── AI Prompt Zenginleştir (Magic Enhance) ─────────────────────────────────
+  const handleEnhancePrompt = async () => {
+    if (!topic.trim()) return;
+    setIsEnhancing(true);
+    try {
+      const resp = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `Aşağıdaki eğitim taslağını, özel öğrenme güçlüğü yaşayan çocuklar için @antv/infographic kod jeneratörüne verilecek çok zengin pedagojik bir PROMPT'a (istek metnine) dönüştür. Asla kod üretme, sadece konuyu betimle. Max 3 Paragraf. Taslak: "${topic}"`,
+          systemInstruction: 'Sadece zenginleştirilmiş metni dön, markdown kullanma.'
+        })
+      });
+      const data = await resp.json();
+      if (data?.text) {
+        setTopic(data.text.trim());
+      }
+    } catch (e) {
+      console.warn('Enhance başarısız', e);
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
 
   // ── Demo syntax yükle ──────────────────────────────────────────────────────
   const handleLoadDemo = useCallback(() => {
@@ -219,30 +266,53 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
-          {/* Konu Girişi */}
+          {/* Konu Girişi ve AI Zenginleştirme */}
           <div>
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">
-              Konu / Başlık
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                Konu / Senaryo Prompt'u
+              </label>
+              <button 
+                onClick={handleEnhancePrompt} 
+                disabled={isEnhancing || !topic.trim()}
+                className="text-[10px] px-2 py-1 rounded-md bg-violet-900/40 text-violet-300 hover:bg-violet-800/60 transition-colors disabled:opacity-50"
+              >
+                {isEnhancing ? 'Zenginleştiriliyor...' : <><i className="fa-solid fa-wand-magic-sparkles mr-1"></i> AI Zenginleştir</>}
+              </button>
+            </div>
             <textarea
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="Örn: Fotosentez süreci, Su döngüsü, Türkçede sesler…"
-              rows={3}
-              maxLength={200}
+              placeholder="Spesifik bir konu yazın veya alt kısımdan premium şablon seçin..."
+              rows={4}
+              maxLength={800}
               className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 placeholder-slate-500 resize-none focus:outline-none focus:border-violet-500 transition-colors"
             />
-            {/* Örnek konular */}
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              {EXAMPLE_TOPICS.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTopic(t)}
-                  className="text-[10px] px-2 py-0.5 rounded-full bg-slate-700/70 text-slate-400 hover:text-violet-400 hover:bg-slate-700 border border-slate-600/50 transition-colors"
-                >
-                  {t}
-                </button>
-              ))}
+            
+            {/* 10 Premium SpLD Şablonu Dropdown (Gruplandırılmış) */}
+            <div className="mt-3">
+              <select 
+                className="w-full bg-slate-800 border border-slate-700 text-xs text-slate-300 rounded-lg p-2 focus:border-violet-500 outline-none"
+                onChange={(e) => {
+                  if(!e.target.value) return;
+                  const [catIndex, itemIndex] = e.target.value.split('-');
+                  const selected = SPLD_PREMIUM_TEMPLATES[Number(catIndex)].items[Number(itemIndex)];
+                  setTopic(selected.prompt);
+                  setTemplateHint(selected.hint as TemplateHint);
+                }}
+                defaultValue=""
+              >
+                <option value="" disabled>✨ Premium SpLD Şablonlarından Seçin...</option>
+                {SPLD_PREMIUM_TEMPLATES.map((category, catIdx) => (
+                  <optgroup key={category.category} label={category.category}>
+                    {category.items.map((item, itemIdx) => (
+                      <option key={item.title} value={`${catIdx}-${itemIdx}`}>
+                        {item.title}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
             </div>
           </div>
 

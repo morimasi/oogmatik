@@ -144,10 +144,11 @@ data
 - Türkçe başlık ve açıklamalar kullan
 - title değeri konuyu özetleyen kısa bir cümle olsun
 - syntax alanı SADECE infographic syntax içermeli (markdown code block işaretleri olmadan)
+- JSON'ın çökmemesi için syntax içindeki alt satıra geçişleri fiziksel ENTER ile DEĞİL, '\\n' kaçış karakteri ile TEXT (string) olarak yazmalısın.
 
 YANIT FORMATI (JSON):
 {
-  "syntax": "infographic <template>\ntitle <başlık>\ndata\n  ...",
+  "syntax": "infographic <template>\\ntitle <başlık>\\ndata\\n  ...",
   "title": "İnfografik başlığı",
   "pedagogicalNote": "Bu infografik formatı seçildi çünkü... [150+ kelime]",
   "templateType": "kullanılan template adı (örn: compare-binary-horizontal)"
@@ -189,7 +190,27 @@ export async function generateInfographicSyntax(
   const raw = await response.json() as Record<string, unknown>;
 
   // Hem { success: true, data: {...} } hem de düz { syntax, title, ... } formatını destekle
-  const data = (raw?.data ?? raw) as Partial<InfographicResult> & Record<string, unknown>;
+  let data = (raw?.data ?? raw) as Partial<InfographicResult> & { text?: string };
+
+  // Eğer Vercel AI'ın bozuk JSON'ı veya stringini (tryRepairJson crash) text içinde döndürmek zorunda kalmışsa:
+  if (!data?.syntax && data?.text) {
+    try {
+      // Markdown bloklarıyla sarılmış olabileceği ihtimaline karşı regex ile ayıklama onarımı
+      const textResponse = data.text;
+      const jsonMatch = textResponse.match(/```json\n([\s\S]*?)\n```/) || textResponse.match(/{[\s\S]*}/);
+      if (jsonMatch) {
+        // String içindeki fiziksel yeni satırları JSON onarımı için güvenli hale getir
+        const sanitizedStr = jsonMatch[0].replace(/\n/g, '\\n').replace(/\r/g, '');
+        const fallbackData = JSON.parse(sanitizedStr);
+        if (fallbackData?.syntax) {
+          data = fallbackData;
+          data.syntax = String(data.syntax).replace(/\\n/g, '\n'); // Gerçek formuna döndür
+        }
+      }
+    } catch (fallbackError) {
+      console.error('[infographicService] Fallback parse failed:', fallbackError);
+    }
+  }
 
   if (!data?.syntax || typeof data.syntax !== 'string') {
     throw new Error('AI geçerli bir infografik syntax üretemedi. Lütfen tekrar deneyin.');
