@@ -283,8 +283,10 @@ const INJECTION_PATTERNS: Array<{
   // ============================================================
   // LOW - Suspheli ama belki legit
   // ============================================================
+  // NOTE: Exclude Turkish pedagogical keywords (GOREV, KURAL, PROFIL, URETIM)
+  // to avoid false positives in educational content generation
   {
-    pattern: /(?:new\s+)?(?:system\s+)?(?:prompt|instruction|task|objective):/gi,
+    pattern: /(?:new\s+)?(?:system\s+)?(?:prompt|instruction|task|objective):(?!\s*(?:GOREV|KURAL|PROFIL|URETIM|\[))/gi,
     category: 'INSTRUCTION_OVERRIDE',
     level: 'low',
     description: 'Potential instruction injection',
