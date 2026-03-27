@@ -5,63 +5,63 @@ export default function buildSozVarligiPrompt(context: IPromptBuilderContext<Soz
     const { topic, difficulty, studentName, settings } = context;
 
     let prompt = `
-[SÖZ VARLIĞI & ANLAM BİLGİSİ - ZİHİNSEL SÖZLÜK]
-Sen çocukların kelime dağarcığını geliştiren uzman bir eğitimcisin. "${topic}" konusu etrafında, anlam bilgisine odaklanan premium bir etkinlik hazırla.
-${studentName ? `Öğrenci: "${studentName}"` : ''}
+[SOZ VARLIGI VE ANLAM BILGISI - ZIHINSEL SOZLUK]
+Sen çocuklarin kelime dacarcigini gelistiren uzman bir eğitimcisin. "${topic}" konusu etrafinda, anlam bilgisine odaklanan premium bir etkinlik hazirla.
+${studentName ? `Ogrenci: "${studentName}"` : ''}
 Zorluk: ${difficulty}
 
-[KATI PEDAGOJİK KURALLAR]
-- Kural 1 (İÇERİK SEÇİMİ): Şu kategorilerden ${settings.count} adet madde seç: ${settings.itemTypes.join(', ')}.
-- Kural 2 (ANLAMLANDIRMA): Her maddenin anlamını çocuklara uygun, sade bir dille açıkla.
+[KATI PEDAGOJIK KURALLAR]
+- Kural 1 (ICERIK SECIMI): Su kategorilerden ${settings.count} adet madde sec: ${settings.itemTypes.join(', ')}.
+- Kural 2 (ANLAMLANDIRMA): Her maddenin anlamini çocuklara uygun, sade bir dille acikla.
 `;
 
     if (settings.visualAnalogy) {
         prompt += `
-- Kural 3 (GÖRSEL BENZETME): Her deyim veya atasözü için, o durumu zihinde canlandıracak SİYAH BEYAZ, basit bir SVG ikon kodu üret (Örn: \`\`\`svg <svg...>\`\`\`).
+- Kural 3 (GORSEL BENZETME): Her deyim veya atasozu icin, o durumu zihinde canlandiracak SIYAH BEYAZ, basit bir SVG ikon kodu uret (Ornk: \`\`\`svg <svg...>\`\`\`).
 `;
     }
 
     if (settings.contextualUsage) {
         prompt += `
-- Kural 4 (BAĞLAMSAL ÖĞRENME): Her madde için bir boşluklu cümle kur ve öğrenciden o deyimi/atasözünü bu cümleye uygun şekilde yerleştirmesini iste.
+- Kural 4 (BAGLAMSAL OGRENME): Her madde icin bir bosluklu cumle kur ve ogrenciden o deyimi/atasozunu bu cumleye uygun sekilde yerlestirmesini iste.
 `;
     }
 
     prompt += `
-[DOLU DOLU A4 ÜRETIM KURALI — ZORUNLU]
-- Üretilen içerik A4 beyaz kağıdın %95'İNİ doldurmalıdır. Boş alan bırakılmamalıdır.
-- Kenar boşlukları: Üst 2cm, Alt 2cm, Sol 2.5cm, Sağ 2cm (minimum).
-- İçerik yoğunluğu: Yoğun ama okunabilir — disleksi standardı (satır aralığı 1.6-1.8).
-- GÖREV blokları arası geçiş görsel ayraçlarla (██▓▓██ gibi) yapılmalı.
+[DOLU DOLU A4 URETIM KURALI - ZORUNLU]
+- Uretilen icerik A4 beyaz kagidin %95'INI doldurmalidir. Bos alan birakilmamalidir.
+- Kenar bosluklari: Ust 2cm, Alt 2cm, Sol 2.5cm, Sag 2cm (minimum).
+- Icerik yogunlugu: Yogun ama okunabilir - disleksi standardi (satir araligi 1.6-1.8).
+- GOREV bloklari arasi gecis gorsel ayractlarla yapilmalidir.
 
-[ZENGİN & VARIASYONLU İÇERİK KURALI — ZORUNLU]
-- Her GÖREV içinde EN AZ 2 farklı alt-aktivite veya soru tipi bulunmalıdır.
-- GÖREV 1'de: "Emoji Eşleştirme + Görsel Yorum + Açıklama" kombinasyonu
-- GÖREV 2'de: "Senaryo Okuma + Deyim Seçimi + Bağlam Balonu" kombinasyonu
-- GÖREV 3'te: "Cümle Kurma + Kelime Köprüsü + Eşleştirme" kombinasyonu
-- GÖREV 4'te: "Mini Yarışma + Düşündürücü Soru + Arkadaşa Sor" kombinasyonu
-- Görsel elementler: Deyim ikonu, bağlam balonu, kelime köprüsü diyagramı SVG.
+[ZENGIN VE VARIYASYONLU ICERIK KURALI - ZORUNLU]
+- Her GOREV icinde EN AZ 2 farkli alt-aktivite veya soru tipi bulunmalidir.
+- GOREV 1'de: "Emoji Eslestirme + Gorsel Yorum + Aciklama" kombinasyonu
+- GOREV 2'de: "Senaryo Okuma + Deyim Secimi + Baglam Balonu" kombinasyonu
+- GOREV 3'te: "Cumle Kurma + Kelime Koprusu + Eslestirme" kombinasyonu
+- GOREV 4'te: "Mini Yarisma + Dustundurucu Soru + Arkadasa Sor" kombinasyonu
+- Gorsel elementler: Deyim ikonu, baglam balonu, kelime koprusu diyagrami SVG.
 
-[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
-Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 4 GÖREV yapısında kurgula:
-- GÖREV 1 (Emojilerle Deyim Avı): Deyimleri SVG şekilleri veya zihinde canlandırılacak ikonlarla çözme. Görsel ikon + deyim açıklaması çifti sun.
-- GÖREV 2 (Durum Senaryosu): Uzun bir duruma uygun deyimi buldurma. Bağlam balonu formatında senaryo sun.
-- GÖREV 3 (Bağlam Kullanımı): Verilen deyim veya atasözü ile öğrencinin kendi yaratıcı cümlesini kurmasını isteme. Kelime köprüsü diyagramı ekle.
-- GÖREV 4 (🏆 Aklımızda Kalacak): Öğrencinin arkadaşına sorabileceği 1 "Mini Yarışma Sorusu" veya akılda kalıcı bir "Tüyo" kutusu ekle.
+[COKLU BOLUM VE ZENGIN ICERIK YAPISI - ZORUNLU KURAL]
+Bu etkinlik basit bir duz metin degil, "Kompakt ve Dolu Dolu Bir Calisma Kagidi" olmalidir. Ogrencinin doyurucu bir pratik yapmasi icin etkinligi asagidaki 4 GOREV yapisinda kurgula:
+- GOREV 1 (Emojilerle Deyim Avi): Deyimleri SVG sekilleri veya zihinde canlandirilacak ikonlarla cozme. Gorsel ikon + deyim aciklamasi cifti sun.
+- GOREV 2 (Durum Senaryosu): Uzun bir duruma uygun deyimi buldurma. Baglam balonu formatinda senaryo sun.
+- GOREV 3 (Baglam Kullanimi): Verilen deyim veya atasozu ile ogrencinin kendi yaratci cumlesini kurmasini isteme. Kelime koprusu diyagrami ekle.
+- GOREV 4 (Bonus - Akilda Kalacak): Ogrencinin arkadasina sorabilecegi 1 "Mini Yarisma Sorusi" veya akilda kalici bir "Tuyo" kutusu ekle.
 
 [PAGINATION KURALI]
-Eğer ürettiğin toplam içerik hacmi bir A4 sayfasına (yaklaşık 4 görev bloğu veya 250 kelime) sığmayacak kadar uzunsa, metnin uygun bir yerine tam olarak şu ayracı yerleştirerek YENİ SAYFA'ya geç:
+Eger urettigin toplam icerik hacmi bir A4 sayfasina (yaklasik 4 gorev blogu veya 250 kelime) sigmayacak kadar uzunsa, metnin uygun bir yerine tam olarak su ayraci yerlestirerek YENI SAYFA'ya gec:
 ===SAYFA_SONU===
-Ayracı kelime ortasında veya bitmemiş bir cümle/görev arasında KULLANMA. Hep ana bölümler arasına koy.
+Ayracti kelime ortasinda veya bitmemis bir cumle/gorev arasinda KULLANMA. Hep ana bolumler arasina koy.
 
 [YANIT FORMATI]:
-Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
+Yanitini MUTLAKA gecerli bir JSON objesi olarak su yapida dondur:
 {
-  "title": "${topic} - Söz Varlığı Çalışması",
-  "content": "Buraya tüm yönerge, çalışma soruları ve görsel analojileri içeren yüksek kaliteli Markdown bloğunu yaz.",
-  "pedagogicalNote": "Öğretmene özel pedagojik açıklama buraya."
+  "title": "${topic} - Soz Varligi Calismasi",
+  "content": "Buraya tum yonerge, calisma sorulari ve gorsel analogileri iceren yuksek kaliteli Markdown blogunu yaz.",
+  "pedagogicalNote": "Ogretmene ozel pedagojik açiklama buraya."
 }
-İçerik zengin, öğretici ve eğlenceli olsun. content alanındaki Markdown bloğuna # H1 Başlık ile başla.
+Icerik zengin, ogretici ve eglenceli olsun. content alanindaki Markdown bloguna # H1 Baslik ile basla.
 `;
 
     return prompt;

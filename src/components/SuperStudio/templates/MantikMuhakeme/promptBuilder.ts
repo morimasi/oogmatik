@@ -5,64 +5,64 @@ export default function buildMantikMuhakemePrompt(context: IPromptBuilderContext
     const { topic, difficulty, studentName, settings } = context;
 
     let prompt = `
-[MANTIK & MUHAKEME - SIRALAMA ALGORİTMASI]
-Sen disleksi dostu eğitim materyallerinde uzman bir bilişsel gelişim uzmanısın. "${topic}" konusu etrafında, öğrencinin muhakeme yeteneğini zorlayan premium bir etkinlik hazırla.
-${studentName ? `Öğrenci Adı: "${studentName}"` : ''}
+[MANTIK VE MUHAKEME - SIRALAMA ALGORITMASI]
+Sen disleksi dostu eğitim materyallerinde uzman bir bilişsel gelişim uzmanısın. "${topic}" konusu etrafında, öğrencinin muhakeme yeteneğini zorlayan premium bir etkinlik hazirla.
+${studentName ? `Öğrenci Adi: "${studentName}"` : ''}
 Zorluk Seviyesi: ${difficulty}
 
-[KATI PEDAGOJİK KURALLAR]
-- Kural 1 (ARDIŞIKLIK): "${topic}" konusuna uygun, ${settings.sequenceSteps} aşamalı bir olay örgüsü kurgula. Bu cümleleri karışık sırada ver (Örn: A, B, C, D harfleriyle). Öğrenciden bu olayları oluş sırasına göre numaralandırmasını (1, 2, 3...) iste.
+[KATI PEDAGOJIK KURALLAR]
+- Kural 1 (ARDISIKLIK): "${topic}" konusuna uygun, ${settings.sequenceSteps} asamali bir olay orgusu kurgula. Bu cumleleri karisik sirada ver (Ornk: A, B, C, D harfleriyle). Ogrenciden bu olaylari olus sirasina gore numaralandirmasini (1, 2, 3...) iste.
 `;
 
     if (settings.logicMatrix) {
         prompt += `
-- Kural 2 (SÖZEL SUDOKU / MATRİS): "${topic}" ile ilgili ${settings.matrixSize} boyutunda bir Mantık Matrisi (Tablo) oluştur. Sözel ipuçları ver (Örn: "Ali kırmızıyı sevmez", "Mavi olan en sağdadır"). Öğrenciden bu ipuçlarından yola çıkarak tabloyu doldurmasını iste.
+- Kural 2 (SOZEL SUDOKU / MATRIS): "${topic}" ile ilgili ${settings.matrixSize} boyutunda bir Mantik Matrisi (Tablo) olustur. Sozel ipuclari ver (Ornk: "Ali kirmiziyi sevmez", "Mavi olan en sagdadir"). Ogrenciden bu ipuclarindan yola cikarak tabloyu doldurmasini iste.
 `;
     }
 
     if (settings.detailDetective) {
         prompt += `
-- Kural 3 (DETAY DEDEKTİFLİĞİ): Konuya dair kısa bir paragraf yaz. Ancak bu paragrafın içine ustaca, 1 adet bariz mantık hatası veya kronolojik bir tutarsızlık gizle. Öğrenciden "Dedektif" olup bu hatayı bulup altını çizmesini iste.
+- Kural 3 (DETAY DEDEKTIFLIGI): Konuya dair kisa bir paragraf yaz. Ancak bu paragrafin icine ustacea, 1 adet bariz mantik hatasi veya kronolojik bir tutarsizlik gizle. Ogrenciden "Dedektif" olup bu hatayi bulup altini cizmesini iste.
 `;
     }
 
     prompt += `
-[DOLU DOLU A4 ÜRETIM KURALI — ZORUNLU]
-- Üretilen içerik A4 beyaz kağıdın %95'İNİ doldurmalıdır. Boş alan bırakılmamalıdır.
-- Kenar boşlukları: Üst 2cm, Alt 2cm, Sol 2.5cm, Sağ 2cm (minimum).
-- İçerik yoğunluğu: Yoğun ama okunabilir — disleksi standardı (satır aralığı 1.6-1.8).
-- GÖREV blokları arası geçiş görsel ayraçlarla (██▓▓██ gibi) yapılmalı.
+[DOLU DOLU A4 URETIM KURALI - ZORUNLU]
+- Uretilen icerik A4 beyaz kagidin %95'INI doldurmalidir. Bos alan birakilmamalidir.
+- Kenar bosluklari: Ust 2cm, Alt 2cm, Sol 2.5cm, Sag 2cm (minimum).
+- Icerik yogunlugu: Yogun ama okunabilir - disleksi standardi (satir araligi 1.6-1.8).
+- GOREV bloklari arasi gecis gorsel ayractlarla yapilmalidir.
 
-[ZENGİN & VARIASYONLU İÇERİK KURALI — ZORUNLU]
-- Her GÖREV içinde EN AZ 2 farklı alt-aktivite veya soru tipi bulunmalıdır.
-- GÖREV 1'de: "Matris + İpucu Çözme + Tablo Doldurma" kombinasyonu
-- GÖREV 2'de: "Nedensellik + Açık Uçlu + Düşündürücü Soru" kombinasyonu
-- GÖREV 3'te: "Örüntü + Tamamlama + Sıralama" kombinasyonu
-- GÖREV 4'te: "Mini Yarışma + Mantık Oyunu + Arkadaşa Sor" kombinasyonu
-- Her soru için "Kolay ←→ Zor" derecesi göstergesi ekle.
-- 3 kademeli ipucu sistemi: 1. ipucu → 2. ipucu → cevap şeklinde sun.
-- Görsel elementler: Zaman çizelgesi (timeline) SVG, mantık derecesi slider göstergesi.
+[ZENGIN VE VARIYASYONLU ICERIK KURALI - ZORUNLU]
+- Her GOREV icinde EN AZ 2 farkli alt-aktivite veya soru tipi bulunmalidir.
+- GOREV 1'de: "Matris + Ispucu Cozme + Tablo Doldurma" kombinasyonu
+- GOREV 2'de: "Nedensellik + Acik Uclu + Dustundurucu Soru" kombinasyonu
+- GOREV 3'te: "Oruntu + Tamamlama + Siralama" kombinasyonu
+- GOREV 4'te: "Mini Yarisma + Mantik Oyunu + Arkadasa Sor" kombinasyonu
+- Her soru icin "Kolay" ile "Zor" arasinda derece göstergesi ekle.
+- 3 kademeli ipucu sistemi: 1. ipucu, 2. ipucu, cevap seklinde sun.
+- Gorsel elementler: Zaman cizelgesi (timeline) SVG, mantik derecesi göstergesi.
 
-[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
-Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 4 GÖREV yapısında kurgula:
-- GÖREV 1 (Sözel Matris/Sudoku): Mantıksal çıkarım gerektiren, tabloya dayalı bir ipucu bulmacası. Zaman çizelgesi SVG ekle.
-- GÖREV 2 (Zıt Kutup Bağı): Olaylar arası nedensellik (Eğer A soğuksa, B nedir vb.) kurdurtan muhakeme soruları. Mantık derecesi göstergesi ekle.
-- GÖREV 3 (Örüntü Tamamlama): Kavramsal veya olay sırası olarak boş bırakılan yerleri tamamlattırma. İpucu kademesi sistemi ekle.
-- GÖREV 4 (🏆 Aklımızda Kalacak): Öğrencinin arkadaşına sorabileceği 1 "Mini Yarışma Sorusu" veya akılda kalıcı bir "Tüyo" kutusu ekle.
+[COKLU BOLUM VE ZENGIN ICERIK YAPISI - ZORUNLU KURAL]
+Bu etkinlik basit bir duz metin degil, "Kompakt ve Dolu Dolu Bir Calisma Kagidi" olmalidir. Ogrencinin doyurucu bir pratik yapmasi icin etkinligi asagidaki 4 GOREV yapisinda kurgula:
+- GOREV 1 (Sozel Matris/Sudoku): Mantiksal cikarim gerektiren, tabloya dayali bir ipucu bulmacasi. Zaman cizelgesi SVG ekle.
+- GOREV 2 (Zit Kutup Bagi): Olaylar arasi nedensellik (Ornk: A olayi gerceklesirse B sonucu ne olur) kurdurtan muhakeme sorulari. Mantik derecesi göstergesi ekle.
+- GOREV 3 (Oruntu Tamamlama): Kavramsal veya olay sirasi olarak bos birakilan yerleri tamamlattirma. Ispucu kademesi sistemi ekle.
+- GOREV 4 (Bonus - Akilda Kalacak): Ogrencinin arkadasina sorabilecegi 1 "Mini Yarisma Sorusi" veya akilda kalici bir "Tuyo" kutusu ekle.
 
 [PAGINATION KURALI]
-Eğer ürettiğin toplam içerik hacmi bir A4 sayfasına (yaklaşık 4 görev bloğu veya 250 kelime) sığmayacak kadar uzunsa, metnin uygun bir yerine tam olarak şu ayracı yerleştirerek YENİ SAYFA'ya geç:
+Eger urettigin toplam icerik hacmi bir A4 sayfasina (yaklasik 4 gorev blogu veya 250 kelime) sigmayacak kadar uzunsa, metnin uygun bir yerine tam olarak su ayraci yerlestirerek YENI SAYFA'ya gec:
 ===SAYFA_SONU===
-Ayracı kelime ortasında veya bitmemiş bir cümle/görev arasında KULLANMA. Hep ana bölümler arasına koy.
+Ayracti kelime ortasinda veya bitmemis bir cumle/gorev arasinda KULLANMA. Hep ana bolumler arasina koy.
 
 [YANIT FORMATI]:
-Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
+Yanitini MUTLAKA gecerli bir JSON objesi olarak su yapida dondur:
 {
-  "title": "${topic} - Mantık ve Muhakeme",
-  "content": "Etkinliğin tamamını (olay örgüsü, matris, dedektiflik sorusu) içeren zengin Markdown bloğunu buraya yaz.",
-  "pedagogicalNote": "Öğretmene özel pedagojik açıklama (ZPD ve bilişsel hedef) buraya."
+  "title": "${topic} - Mantik ve Muhakeme",
+  "content": "Etkinligin tamamini (olay orgusu, matris, dedektiflik sorusu) iceren zengin Markdown blogunu buraya yaz.",
+  "pedagogicalNote": "Ogretmene ozel pedagojik açiklama (ZPD ve bilissel hedef) buraya."
 }
-Etkinliği çocuk için bir macera gibi kurgula. content alanındaki Markdown bloğuna # H1 Başlık ile başla.
+Etkinligi cocuk icin bir macera gibi kurgula. content alanindaki Markdown bloguna # H1 Baslik ile basla.
 `;
 
     return prompt;

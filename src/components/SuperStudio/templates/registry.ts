@@ -41,6 +41,7 @@ import * as YaraticiYazarlik from './YaraticiYazarlik';
 import * as YazimNoktalama from './YazimNoktalama';
 import * as SozVarligi from './SozVarligi';
 import * as HeceSes from './HeceSes';
+import * as KelimeBilgisi from './KelimeBilgisi';
 
 // ------------------------------------------------------------
 // REGISTRY: TÜM ŞABLONLARIN DEPOSU
@@ -157,6 +158,16 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         },
         component: HeceSes.Settings,
         promptBuilder: HeceSes.promptBuilder
+    },
+    {
+        id: 'kelime-bilgisi',
+        title: 'Kelime Bilgisi',
+        category: 'Anlam Bilgisi',
+        description: 'Eş anlamlı, zıt anlamlı ve eş sesli kelimeler ile kelime dağarcığı geliştirme stüdyosu.',
+        icon: 'fa-solid fa-spell-check',
+        defaultSettings: KelimeBilgisi.DEFAULT_SETTINGS,
+        component: KelimeBilgisi.Settings,
+        promptBuilder: KelimeBilgisi.promptBuilder
     }
 ];
 

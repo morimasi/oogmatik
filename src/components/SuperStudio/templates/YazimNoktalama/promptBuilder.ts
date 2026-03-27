@@ -5,68 +5,68 @@ export default function buildYazimNoktalamaPrompt(context: IPromptBuilderContext
     const { topic, difficulty, studentName, settings } = context;
 
     let prompt = `
-[YAZIM KURALLARI & NOKTALAMA - HATA DEDEKTİFİ]
-Sen MEB müfredatına ve disleksi dostu eğitim materyallerine hakim bir dil uzmanısın. "${topic}" konusu etrafında, yazım ve noktalama becerilerini ölçen premium bir etkinlik hazırla.
-${studentName ? `Öğrenci: "${studentName}"` : ''}
+[YAZIM KURALLARI VE NOKTALAMA - HATA DEDEKTIFI]
+Sen MEB mufredatina ve disleksi dostu eğitim materyallerine hakim bir dil uzmanisin. "${topic}" konusu etrafinda, yazim ve noktalama becerilerini olcen premium bir etkinlik hazirla.
+${studentName ? `Ogrenci: "${studentName}"` : ''}
 Zorluk: ${difficulty}
 
-[KATI PEDAGOJİK KURALLAR]
-- Kural 1 (ODAKLANILACAK KURALLAR): Etkinliği şu yazım/noktalama kuralları çerçevesinde kur: ${settings.focusRules.join(', ')}.
-- Kural 2 (EGZERSİZ): Toplamda ${settings.exerciseCount} adet cümle veya kısa paragraf oluştur.
+[KATI PEDAGOJIK KURALLAR]
+- Kural 1 (ODAKLANILACAK KURALLAR): Etkinligi su yazim/noktalama kurallari cercevesinde kur: ${settings.focusRules.join(', ')}.
+- Kural 2 (EGZERSIZ): Toplamda ${settings.exerciseCount} adet cumle veya kisa paragraf olustur.
 `;
 
     if (settings.showRuleHint) {
         prompt += `
-- Kural 3 (KURAL HATIRLATMA): Sayfanın başına veya etkinlik aralarına seçilen kuralları özetleyen (Örn: "Özel isimler büyük harfle başlar.") minimalist birer "Bilgi Notu" ekle.
+- Kural 3 (KURAL HATIRLATMA): Sayfanin basina veya etkinlik aralarina secilen kurallari ozetleyen (Ornk: "Ozel isimler buyuk harfle baslar.") minimalist birer "Bilgi Notu" ekle.
 `;
     }
 
     if (settings.errorCorrectionMode) {
         prompt += `
-- Kural 4 (HATA DÜZELTME MODU): Cümleleri hatalı yaz (Örn: noktalama eksik, büyük harf yanlış) ve öğrenciden bu "Hata Dedektifi" olup hataları bulmasını ve doğrusunu alta yazmasını iste.
+- Kural 4 (HATA DUZELTME MODU): Cumleleri hatali yaz (Ornk: noktalama eksik, buyuk harf yanlis) ve ogrenciden bu "Hata Dedektifi" olup hatalari bulmasini ve dogulusunu alta yazmasini iste.
 `;
     } else {
         prompt += `
-- Kural 4 (UYGULAMA MODU): Cümleleri doğru ver ancak noktalama işaretlerinin veya büyük harflerin olduğu yerleri boş bırak ya da parantez aç.
+- Kural 4 (UYGULAMA MODU): Cumleleri dogru ver ancak noktalama isaretlerinin veya buyuk harflerin oldugu yerleri bos birak ya da parantez ac.
 `;
     }
 
     prompt += `
-[DOLU DOLU A4 ÜRETIM KURALI — ZORUNLU]
-- Üretilen içerik A4 beyaz kağıdın %95'İNİ doldurmalıdır. Boş alan bırakılmamalıdır.
-- Kenar boşlukları: Üst 2cm, Alt 2cm, Sol 2.5cm, Sağ 2cm (minimum).
-- İçerik yoğunluğu: Yoğun ama okunabilir — disleksi standardı (satır aralığı 1.6-1.8).
-- GÖREV blokları arası geçiş görsel ayraçlarla (██▓▓██ gibi) yapılmalı.
+[DOLU DOLU A4 URETIM KURALI - ZORUNLU]
+- Uretilen icerik A4 beyaz kagidin %95'INI doldurmalidir. Bos alan birakilmamalidir.
+- Kenar bosluklari: Ust 2cm, Alt 2cm, Sol 2.5cm, Sag 2cm (minimum).
+- Icerik yogunlugu: Yogun ama okunabilir - disleksi standardi (satir araligi 1.6-1.8).
+- GOREV bloklari arasi gecis gorsel ayractlarla yapilmalidir.
 
-[ZENGİN & VARIASYONLU İÇERİK KURALI — ZORUNLU]
-- Her GÖREV içinde EN AZ 2 farklı alt-aktivite veya soru tipi bulunmalıdır.
-- GÖREV 1'de: "Noktalama Düzeltme + Kural Açıklama + Cetvel" kombinasyonu
-- GÖREV 2'de: "Senaryo Yazma + İşaret Koyma + Duygu İfadesi" kombinasyonu
-- GÖREV 3'te: "Test + Eşleştirme + XOX Puanlama" kombinasyonu
-- GÖREV 4'te: "Mini Yarışma + Düşündürücü Soru + Arkadaşa Sor" kombinasyonu
-- Her etkinlik arasına "Kural Hatırlatıcı" mini kart ekle.
-- Görsel elementler: Nokta dedektifi cetveli, XOX puanlama tablosu, kural kartları.
+[ZENGIN VE VARIYASYONLU ICERIK KURALI - ZORUNLU]
+- Her GOREV icinde EN AZ 2 farkli alt-aktivite veya soru tipi bulunmalidir.
+- GOREV 1'de: "Noktalama Duzeltme + Kural Aciklamasi + Cetvel" kombinasyonu
+- GOREV 2'de: "Senaryo Yazma + Isaret Koyma + Duygu Ifadesi" kombinasyonu
+- GOREV 3'te: "Test + Eslestirme + XOX Puanlama" kombinasyonu
+- GOREV 4'te: "Mini Yarisma + Dustundurucu Soru + Arkadasa Sor" kombinasyonu
+- Her etkinlik aralarina "Kural Hatirlatici" mini karti ekle.
+- Gorsel elementler: Nokta dedektifi cetveli, XOX puanlama tablosu, kural kartlari.
 
-[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
-Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 4 GÖREV yapısında kurgula:
-- GÖREV 1 (Bağlamsal Düzeltme): Noktalamasız metni düzeltme (Kural dedektifi). Nokta dedektifi cetveli görseli ekle.
-- GÖREV 2 (Senaryo Üretimi): "Çok şaşırdığın bir anı düşün ve sonuna uygun işareti koyarak yaz" gibi kendi cümlelerini kurdur. Kural kartı ekle.
-- GÖREV 3 (Test/Çoktan Seçmeli): Hangisinde doğru kullanılmıştır tarzı 2 test sorusu veya doğru/yanlış eşleştirmesi. XOX puanlama matrisi ekle.
-- GÖREV 4 (🏆 Aklımızda Kalacak): Öğrencinin arkadaşına sorabileceği 1 "Mini Yarışma Sorusu" veya akılda kalıcı bir "Tüyo" kutusu ekle.
+[COKLU BOLUM VE ZENGIN ICERIK YAPISI - ZORUNLU KURAL]
+Bu etkinlik basit bir duz metin degil, "Kompakt ve Dolu Dolu Bir Calisma Kagidi" olmalidir. Ogrencinin doyurucu bir pratik yapmasi icin etkinligi asagidaki 4 GOREV yapisinda kurgula:
+- GOREV 1 (Baglamsal Duzeltme): Noktalamsiz metni duzeltme (Kural dedektifi). Nokta dedektifi cetveli gorseli ekle.
+- GOREV 2 (Senaryo Uretimi): "Çok sasirdigin bir ani dusun ve sonuna uygun isareti koyarak yaz" gibi kendi cumlelerini kurdur. Kural karti ekle.
+- GOREV 3 (Test/Çoktan Secmeli): Hangisinde dogru kullanilmistir tarzi 2 test sorusu veya dogru/yanlis eslestirmesi. XOX puanlama matrisi ekle.
+- GOREV 4 (Bonus - Akilda Kalacak): Ogrencinin arkadasina sorabilecegi 1 "Mini Yarisma Sorusi" veya akilda kalici bir "Tuyo" kutusu ekle.
 
 [PAGINATION KURALI]
-Eğer ürettiğin toplam içerik hacmi bir A4 sayfasına (yaklaşık 4 görev bloğu veya 250 kelime) sığmayacak kadar uzunsa, metnin uygun bir yerine tam olarak şu ayracı yerleştirerek YENİ SAYFA'ya geç:
+Eger urettigin toplam icerik hacmi bir A4 sayfasina (yaklasik 4 gorev blogu veya 250 kelime) sigmayacak kadar uzunsa, metnin uygun bir yerine tam olarak su ayraci yerlestirerek YENI SAYFA'ya gec:
 ===SAYFA_SONU===
-Ayracı kelime ortasında veya bitmemiş bir cümle/görev arasında KULLANMA. Hep ana bölümler arasına koy.
+Ayracti kelime ortasinda veya bitmemis bir cumle/gorev arasinda KULLANMA. Hep ana bolumler arasina koy.
 
 [YANIT FORMATI]:
-Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
+Yanitini MUTLAKA gecerli bir JSON objesi olarak su yapida dondur:
 {
-  "title": "${topic} - Yazım ve Noktalama",
-  "content": "Buraya tüm yönerge, çalışma soruları ve kural hatırlatıcıları içeren yüksek kaliteli Markdown bloğunu yaz.",
-  "pedagogicalNote": "Öğretmene özel pedagojik açıklama buraya."
+  "title": "${topic} - Yazim ve Noktalama",
+  "content": "Buraya tum yonerge, calisma sorulari ve kural hatirlatilari iceren yuksek kaliteli Markdown blogunu yaz.",
+  "pedagogicalNote": "Ogretmene ozel pedagojik açiklama buraya."
 }
-Öğrenciyi teşvik eden bir dil kullan. content alanındaki Markdown bloğuna # H1 Başlık ile başla.
+Ogrenciyi tesvik eden bir dil kullan. content alanindaki Markdown bloguna # H1 Baslik ile basla.
 `;
 
     return prompt;

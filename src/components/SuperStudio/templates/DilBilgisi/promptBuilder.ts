@@ -6,75 +6,75 @@ export default function buildDilBilgisiPrompt(context: IPromptBuilderContext<Dil
     const [h1, h2] = settings.targetDistractors !== 'none' ? settings.targetDistractors.split('-') : ['', ''];
 
     let prompt = `
-[DİL BİLGİSİ & HARF ALGISI - TYPO-HUNTER MİMARİSİ]
-Sen özel eğitim alanında uzman, disleksi dostu içerikler üreten bir dil bilimcisin. "${topic}" konusu etrafında, harf farkındalığına odaklanan premium bir çalışma sayfası hazırla.
-${studentName ? `Öğrenci: "${studentName}"` : ''}
+[DIL BILGISI VE HARF ALGISI - TYPO-HUNTER MIMARISI]
+Sen ozel egitim alaninda uzman, disleksi dostu icerikler ureten bir dil bilimcisin. "${topic}" konusu etrafinda, harf farkindaligina odaklanan premium bir calisma sayfasi hazirla.
+${studentName ? `Ogrenci: "${studentName}"` : ''}
 Zorluk: ${difficulty}
 
-[KATI PEDAGOJİK KURALLAR]
+[KATI PEDAGOJIK KURALLAR]
 `;
 
     if (settings.hintBox) {
         prompt += `
-- Kural 1 (İPUCU KUTUSU): Sayfanın en başına, konuyu ve harf kuralını anlatan çerçeveli bir "Hatırlatma Kutusu" ekle.
+- Kural 1 (IPUCU KUTUSU): Sayfanin en basina, konuyu ve harf kuralini anlatan cerceveli bir "Hatirlatma Kutusu" ekle.
 `;
     }
 
     if (settings.targetDistractors !== 'none') {
         prompt += `
-- Kural 2 (AYNA HARF ÇELDİRİCİLERİ): "${h1}" ve "${h2}" harflerinin karıştırılmasını önlemek için; bu harfleri içeren kelimelerden oluşan bir "Doğruyu Bulma" veya "Eksik Harfi Tamamlama" etkinliği kurgula. (Örn: b-d karıştırıyorsa, ba-da, bak-dak gibi kelime çiftlerini kullan).
+- Kural 2 (AYNA HARF CELDIRICILERI): "${h1}" ve "${h2}" harflerinin karistirilmasini onlemek icin; bu harfleri iceren kelimelerden olusan bir "Dogruyu Bulma" veya "Eksik Harfi Tamamlama" etkinligi kurgula. (Ornk: b-d karistiriyorsa, ba-da, bak-dak gibi kelime ciftlerini kullan).
 `;
     }
 
     if (settings.syllableSimulation) {
         prompt += `
-- Kural 3 (HECELEME MODU): Etkinlikteki TÜM kelimeleri hecelerine ayırarak yaz (Örn: [Ki-tap-lık], [He-ce-le-me]). Köşeli parantez kullanarak hece sınırlarını belirginleştir.
+- Kural 3 (HECELEME MODU): Etkinlikteki TUM kelimeleri hecelerine ayirarak yaz (Ornk: [Ki-tap-lik], [He-ce-le-me]). Koseli parantez kullanarak hece sinirlarini belirginlestir.
 `;
     }
 
     if (settings.gridSize !== 'none' || settings.camouflageGrid) {
         const size = settings.gridSize !== 'none' ? settings.gridSize : '4x4';
         prompt += `
-- Kural 4 (HARF AVI IZGARA SİSTEMİ): Metnin yanına veya altına ${size} boyutunda bir HTML/Markdown tablosu (Grid) oluştur. Bu tabloda gizli kelimeler veya hedef harfler (${settings.targetDistractors}) kamuflajlı bir şekilde dağılsın. Öğrenciden bu harfleri bulup boyamasını iste.
+- Kural 4 (HARF AVI IZGARA SISTEMI): Metnin yanina veya altina ${size} boyutunda bir HTML/Markdown tablosu (Grid) olustur. Bu tabloda gizli kelimeler veya hedef harfler (${settings.targetDistractors}) kamuflajli bir sekilde dagilsin. Ogrenciden bu harfleri bulup boyamasini iste.
 `;
     }
 
     prompt += `
-[DOLU DOLU A4 ÜRETIM KURALI — ZORUNLU]
-- Üretilen içerik A4 beyaz kağıdın %95'İNİ doldurmalıdır. Boş alan bırakılmamalıdır.
-- Kenar boşlukları: Üst 2cm, Alt 2cm, Sol 2.5cm, Sağ 2cm (minimum).
-- İçerik yoğunluğu: Yoğun ama okunabilir — disleksi standardı (satır aralığı 1.6-1.8).
-- GÖREV blokları arası geçiş görsel ayraçlarla (██▓▓██ gibi) yapılmalı.
+[DOLU DOLU A4 URETIM KURALI - ZORUNLU]
+- Uretilen icerik A4 beyaz kagidin %95'INI doldurmalidir. Bos alan birakilmamalidir.
+- Kenar bosluklari: Ust 2cm, Alt 2cm, Sol 2.5cm, Sag 2cm (minimum).
+- Icerik yogunlugu: Yogun ama okunabilir - disleksi standardi (satir araligi 1.6-1.8).
+- GOREV bloklari arasi gecis gorsel ayractlarla yapilmalidir.
 
-[ZENGİN & VARIASYONLU İÇERİK KURALI — ZORUNLU]
-- Her GÖREV içinde EN AZ 2 farklı alt-aktivite veya soru tipi bulunmalıdır.
-- GÖREV 1'de: "Şifre Çözme + Eşleştirme + Boyama" kombinasyonu
-- GÖREV 2'de: "Kelime Treni + Tablo + Harf Analizi" kombinasyonu
-- GÖREV 3'te: "Harf Avı + Grid + Boyama + Sayma" kombinasyonu
-- GÖREV 4'te: "Mini Test + Kelime Avı + Arkadaşa Sor" kombinasyonu
-- Hedef harfler için ▰▰▰ gibi blok göstergeleri ekle.
-- Görsel elementler: Her bölümde farklı tip SVG ikon veya sembol kullan.
+[ZENGIN VE VARIYASYONLU ICERIK KURALI - ZORUNLU]
+- Her GOREV icinde EN AZ 2 farkli alt-aktivite veya soru tipi bulunmalidir.
+- GOREV 1'de: "Sifre Cozme + Eslestirme + Boyama" kombinasyonu
+- GOREV 2'de: "Kelime Treni + Tablo + Harf Analizi" kombinasyonu
+- GOREV 3'te: "Harf Avi + Grid + Boyama + Sayma" kombinasyonu
+- GOREV 4'te: "Mini Test + Kelime Avi + Arkadasa Sor" kombinasyonu
+- Hedef harfler icin blok göstergeleri ekle.
+- Gorsel elementler: Her bolumde farkli tip SVG ikon veya sembol kullan.
 
-[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
-Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 4 GÖREV yapısında kurgula:
-- GÖREV 1 (Şifre Çözücü): Ayna harflerle (b-d, p-q) yazılmış yanlış kelimelerin doğrusunu bulma etkinliği. Ayna harf kartları görseli ekle.
-- GÖREV 2 (Kelime Treni): Son harfle başlayan yeni kelime türetme ama temaya uygun olanları. Harf timsali (karakter figürü) açıklaması ekle.
-- GÖREV 3 (Harf Avı Grid): Verilen hedef harfleri 8x8 kamuflaj grid içinde bulup işaretlemelerini iste. Genişletilmiş tablo kullan.
-- GÖREV 4 (🏆 Aklımızda Kalacak): Öğrencinin arkadaşına sorabileceği 1 "Mini Yarışma Sorusu" veya akılda kalıcı bir "Tüyo" kutusu ekle.
+[COKLU BOLUM VE ZENGIN ICERIK YAPISI - ZORUNLU KURAL]
+Bu etkinlik basit bir duz metin degil, "Kompakt ve Dolu Dolu Bir Calisma Kagidi" olmalidir. Ogrencinin doyurucu bir pratik yapmasi icin etkinligi asagidaki 4 GOREV yapisinda kurgula:
+- GOREV 1 (Sifre Cozucu): Ayna harflerle (b-d, p-q) yazilmis yanlis kelimelerin dogolusunu bulma etkinligi. Ayna harf ktrlari gorseli ekle.
+- GOREV 2 (Kelime Treni): Son harfle baslayan yeni kelime turetme ama temaya uygun olanlari. Harf timsali (karakter figuru) acklamsi ekle.
+- GOREV 3 (Harf Avi Grid): Verilen hedef harfleri 8x8 kamuflaj grid icinde bulup isaretlemelerini iste. Genisletilmis tablo kullan.
+- GOREV 4 (Bonus - Akilda Kalacak): Ogrencinin arkadasina sorabilecegi 1 "Mini Yarisma Sorusi" veya akilda kalici bir "Tuyo" kutusu ekle.
 
 [PAGINATION KURALI]
-Eğer ürettiğin toplam içerik hacmi bir A4 sayfasına (yaklaşık 4 görev bloğu veya 250 kelime) sığmayacak kadar uzunsa, metnin uygun bir yerine tam olarak şu ayracı yerleştirerek YENİ SAYFA'ya geç:
+Eger urettigin toplam icerik hacmi bir A4 sayfasina (yaklasik 4 gorev blogu veya 250 kelime) sigmayacak kadar uzunsa, metnin uygun bir yerine tam olarak su ayraci yerlestirerek YENI SAYFA'ya gec:
 ===SAYFA_SONU===
-Ayracı kelime ortasında veya bitmemiş bir cümle/görev arasında KULLANMA. Hep ana bölümler arasına koy.
+Ayracti kelime ortasinda veya bitmemis bir cumle/gorev arasinda KULLANMA. Hep ana bolumler arasina koy.
 
 [YANIT FORMATI]:
-Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
+Yanitini MUTLAKA gecerli bir JSON objesi olarak su yapida dondur:
 {
-  "title": "${topic} - Harf Farkındalığı Etkinliği",
-  "content": "Buraya tüm yönerge, metin ve harf farkındalığı çalışmalarını içeren yüksek kaliteli Markdown bloğunu yaz.",
-  "pedagogicalNote": "Öğretmene özel pedagojik açıklama buraya."
+  "title": "${topic} - Harf Farkindaligi Etkinligi",
+  "content": "Buraya tum yonerge, metin ve harf farkindaligi calismalarini iceren yuksek kaliteli Markdown blogunu yaz.",
+  "pedagogicalNote": "Ogretmene ozel pedagojik açiklama buraya."
 }
-Başlıkta konuyu (${topic}) ve hedef harfleri belirt. content alanındaki Markdown bloğuna # H1 Başlık ile başla.
+Baslikta konuyu (${topic}) ve hedef harfleri belirt. content alanindaki Markdown bloguna # H1 Baslik ile basla.
 `;
 
     return prompt;
