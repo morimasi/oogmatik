@@ -40,18 +40,34 @@ Zorluk: ${difficulty}
     }
 
     prompt += `
-[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
-Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 3 GÖREV yapısında kurgula:
-- GÖREV 1 (Şifre Çözücü): Ayna/karışık harflerle (b-d, vb) yazılmış yanlış kelimelerin doğrusunu bulma etkinliği.
-- GÖREV 2 (Kelime Treni): Son harfle başlayan yeni kelime türetme ama senin belirlediğin bir temaya uygun olanları.
-- GÖREV 3 (Harf Avı): Verilen hedef harfleri bir paragraf veya kelime tablosu içinde bulup işaretlemelerini iste.
+[DOLU DOLU A4 ÜRETIM KURALI — ZORUNLU]
+- Üretilen içerik A4 beyaz kağıdın %95'İNİ doldurmalıdır. Boş alan bırakılmamalıdır.
+- Kenar boşlukları: Üst 2cm, Alt 2cm, Sol 2.5cm, Sağ 2cm (minimum).
+- İçerik yoğunluğu: Yoğun ama okunabilir — disleksi standardı (satır aralığı 1.6-1.8).
+- GÖREV blokları arası geçiş görsel ayraçlarla (██▓▓██ gibi) yapılmalı.
 
-[ÇOKLU SAYFA (PAGINATION) KURALI]
+[ZENGİN & VARIASYONLU İÇERİK KURALI — ZORUNLU]
+- Her GÖREV içinde EN AZ 2 farklı alt-aktivite veya soru tipi bulunmalıdır.
+- GÖREV 1'de: "Şifre Çözme + Eşleştirme + Boyama" kombinasyonu
+- GÖREV 2'de: "Kelime Treni + Tablo + Harf Analizi" kombinasyonu
+- GÖREV 3'te: "Harf Avı + Grid + Boyama + Sayma" kombinasyonu
+- GÖREV 4'te: "Mini Test + Kelime Avı + Arkadaşa Sor" kombinasyonu
+- Hedef harfler için ▰▰▰ gibi blok göstergeleri ekle.
+- Görsel elementler: Her bölümde farklı tip SVG ikon veya sembol kullan.
+
+[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
+Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 4 GÖREV yapısında kurgula:
+- GÖREV 1 (Şifre Çözücü): Ayna harflerle (b-d, p-q) yazılmış yanlış kelimelerin doğrusunu bulma etkinliği. Ayna harf kartları görseli ekle.
+- GÖREV 2 (Kelime Treni): Son harfle başlayan yeni kelime türetme ama temaya uygun olanları. Harf timsali (karakter figürü) açıklaması ekle.
+- GÖREV 3 (Harf Avı Grid): Verilen hedef harfleri 8x8 kamuflaj grid içinde bulup işaretlemelerini iste. Genişletilmiş tablo kullan.
+- GÖREV 4 (🏆 Aklımızda Kalacak): Öğrencinin arkadaşına sorabileceği 1 "Mini Yarışma Sorusu" veya akılda kalıcı bir "Tüyo" kutusu ekle.
+
+[PAGINATION KURALI]
 Eğer ürettiğin toplam içerik hacmi bir A4 sayfasına (yaklaşık 4 görev bloğu veya 250 kelime) sığmayacak kadar uzunsa, metnin uygun bir yerine tam olarak şu ayracı yerleştirerek YENİ SAYFA'ya geç:
 ===SAYFA_SONU===
 Ayracı kelime ortasında veya bitmemiş bir cümle/görev arasında KULLANMA. Hep ana bölümler arasına koy.
 
-YANIT FORMATI:
+[YANIT FORMATI]:
 Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
 {
   "title": "${topic} - Harf Farkındalığı Etkinliği",

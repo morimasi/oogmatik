@@ -28,18 +28,34 @@ Zorluk: ${difficulty}
     }
 
     prompt += `
-[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
-Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 3 GÖREV yapısında kurgula:
-- GÖREV 1 (Hecelerine Ayır): Verilen kelimelerin arasına tire "-" konarak hecelenmesi görevi.
-- GÖREV 2 (Dağınık Heceleri Topla): Karışık verilen hecelerden (örn: le-ma-ka) anlamlı kelime (makale) türetme görevi.
-- GÖREV 3 (Eksik Hece Peşinde): Kelime içindeki boş bırakılan (alt tire ile) veya hecesi eksik olan kısmı bulma görevi.
+[DOLU DOLU A4 ÜRETIM KURALI — ZORUNLU]
+- Üretilen içerik A4 beyaz kağıdın %95'İNİ doldurmalıdır. Boş alan bırakılmamalıdır.
+- Kenar boşlukları: Üst 2cm, Alt 2cm, Sol 2.5cm, Sağ 2cm (minimum).
+- İçerik yoğunluğu: Yoğun ama okunabilir — disleksi standardı (satır aralığı 1.6-1.8).
+- GÖREV blokları arası geçiş görsel ayraçlarla (██▓▓██ gibi) yapılmalı.
 
-[ÇOKLU SAYFA (PAGINATION) KURALI]
+[ZENGİN & VARIASYONLU İÇERİK KURALI — ZORUNLU]
+- Her GÖREV içinde EN AZ 2 farklı alt-aktivite veya soru tipi bulunmalıdır.
+- GÖREV 1'de: "Heceleme + Boyama + Eşleştirme" kombinasyonu
+- GÖREV 2'de: "Kelime Türetme + Harf Sayma + Tablo" kombinasyonu
+- GÖREV 3'te: "Boşluk Doldurma + Renk Kodlama + Bulmaca" kombinasyonu
+- GÖREV 4'te: "Mini Test + Kelime Avı + Arkadaşa Sor" kombinasyonu
+- Kelime seçimlerinde varyasyon: Aynı hece sayısına sahip en az 3 farklı kelime kullan.
+- Görsel elementler: Her bölümde farklı tip SVG ikon veya sembol kullan.
+
+[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
+Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 4 GÖREV yapısında kurgula:
+- GÖREV 1 (Hecelerine Ayır): Verilen kelimelerin arasına tire "-" konarak hecelenmesi görevi. Renk kodlu hece kutuları kullan (mavi-yeşil-turuncu).
+- GÖREV 2 (Dağınık Heceleri Topla): Karışık verilen hecelerden (örn: le-ma-ka) anlamlı kelime (makale) türetme görevi. Hece sayısı grafiği ekle.
+- GÖREV 3 (Eksik Hece Peşinde): Kelime içindeki boş bırakılan (alt tire ile) veya hecesi eksik olan kısmı bulma görevi. Multisensory ikon (✍️) ekle.
+- GÖREV 4 (🏆 Aklımızda Kalacak): Öğrencinin arkadaşına sorabileceği 1 "Mini Yarışma Sorusu" veya akılda kalıcı bir "Tüyo" kutusu ekle.
+
+[PAGINATION KURALI]
 Eğer ürettiğin toplam içerik hacmi bir A4 sayfasına (yaklaşık 4 görev bloğu veya 250 kelime) sığmayacak kadar uzunsa, metnin uygun bir yerine tam olarak şu ayracı yerleştirerek YENİ SAYFA'ya geç:
 ===SAYFA_SONU===
 Ayracı kelime ortasında veya bitmemiş bir cümle/görev arasında KULLANMA. Hep ana bölümler arasına koy.
 
-YANIT FORMATI:
+[YANIT FORMATI]:
 Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
 {
   "title": "${topic} - Hece ve Ses Olayları",
