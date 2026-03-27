@@ -118,15 +118,21 @@ data
       - Madde 1
       - Madde 2
 
-4. Hiyerarşi (hierarchy-structure): Kavramsal harita için
+4. Hiyerarşi / Örümcek Ağı (hierarchy-structure): Kavramsal harita, sesteş/çok anlamlı kelimeler için
 infographic hierarchy-structure
-title Başlık
+title Sesteş Kelime: "KIR" Anlam Haritası
 data
   root
-    label Ana Kavram
+    label KIR (aynı sesli, farklı anlamlı)
     children
-      - label Alt Kavram 1
-      - label Alt Kavram 2
+      - label 🌿 kır — doğal alan
+        desc Şehirden uzak, yeşil doğa. "Kıra piknik yapmaya gittik."
+      - label ✂️ kır — parçalamak (eylem)
+        desc Bir şeyi kırmak, bozmak. "Oynarken cam kırdı."
+      - label 🐴 kır — gri/beyaz renk
+        desc Açık gri ya da beyaz renk. "Kır at çayırda koşuyordu."
+      - label 💇 kır — beyaz saç teli
+        desc Saçtaki beyaz tel. "Dedemin saçlarında kırlar var."
 
 5. Zaman Çizelgesi (sequence-timeline): Tarihsel/kronolojik için
 infographic sequence-timeline
@@ -143,6 +149,7 @@ data
 - İçeriği ${ageConstraint.split(',')[0]} ilkesine göre sınırla
 - Türkçe başlık ve açıklamalar kullan
 - title değeri konuyu özetleyen kısa bir cümle olsun
+- hierarchy-structure için: root.label kısa (tek kelime veya kavram adı) olsun; her child mutlaka anlamlı bir - label metni VE bir desc (kısa tanım + örnek cümle) içersin; minimum 3 child oluştur
 - JSON FORMATINI (KV) KESİNLİKLE KULLANMA. 
 - YANITINI SADECE AŞAĞIDAKİ XML ETİKETLERİ (TAG) ARASINA YAZ.
 

@@ -49,6 +49,7 @@ interface ParsedData {
 
 interface HierarchyNode {
     label: string;
+    desc?: string;
     children?: HierarchyNode[];
 }
 
@@ -323,7 +324,11 @@ function parseHierarchyNode(
                     const label = childTrimmed.startsWith('- label ')
                         ? childTrimmed.slice(8).trim()
                         : childTrimmed.slice(2).trim();
-                    node.children?.push({ label });
+                    node.children?.push({ label, desc: '' });
+                    i++; continue;
+                }
+                if (childTrimmed.startsWith('desc ') && node.children && node.children.length > 0) {
+                    node.children[node.children.length - 1].desc = childTrimmed.slice(5).trim();
                     i++; continue;
                 }
                 i++;
@@ -530,14 +535,20 @@ const HierarchyRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data
                     {root.children && root.children.length > 0 && (
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
                             {root.children.map((child, idx) => (
-                                <div key={idx} style={{ background: PALETTE.card, border: `2px solid ${PALETTE.accent}`, borderRadius: '10px', padding: '12px 20px', minWidth: '120px', fontWeight: 600, color: PALETTE.primary, fontSize: '14px', position: 'relative' }}>
+                                <div key={idx} style={{ background: PALETTE.card, border: `2px solid ${PALETTE.accent}`, borderRadius: '10px', padding: '12px 16px', minWidth: '140px', maxWidth: '220px', textAlign: 'left', fontWeight: 600, color: PALETTE.primary, fontSize: '14px', position: 'relative' }}>
                                     <div style={{ position: 'absolute', top: '-24px', left: '50%', transform: 'translateX(-50%)', width: '2px', height: '20px', background: PALETTE.accent }} />
-                                    {child.label}
+                                    <span style={{ display: 'block', fontWeight: 700, marginBottom: child.desc ? '6px' : '0' }}>{child.label}</span>
+                                    {child.desc && (
+                                        <p style={{ color: PALETTE.textMuted, fontSize: '12px', lineHeight: 1.5, margin: 0, fontWeight: 400 }}>{child.desc}</p>
+                                    )}
                                     {child.children && child.children.length > 0 && (
-                                        <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                             {child.children.map((grandchild, gIdx) => (
                                                 <div key={gIdx} style={{ background: PALETTE.bg, border: `1px solid ${PALETTE.border}`, borderRadius: '6px', padding: '6px 10px', fontSize: '12px', color: PALETTE.textMuted, fontWeight: 400 }}>
-                                                    {grandchild.label}
+                                                    <span style={{ display: 'block', fontWeight: 600, color: PALETTE.text }}>{grandchild.label}</span>
+                                                    {grandchild.desc && (
+                                                        <p style={{ color: PALETTE.textMuted, fontSize: '11px', margin: '2px 0 0', lineHeight: 1.4 }}>{grandchild.desc}</p>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>

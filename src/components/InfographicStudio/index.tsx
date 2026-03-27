@@ -66,7 +66,7 @@ const SPLD_PREMIUM_TEMPLATES = [
     items: [
       { title: "Frayer Kelime Ağı", prompt: "Zorlanılan kelimenin fonetik analizi, tanımı, eş anlamlısı, zıt anlamlısı ve görsel hece yapısını gösteren 4 çeyrekli Frayer Modeli.", hint: "list" },
       { title: "b/d/p/q Ayırt Etme Matrisi", prompt: "b ve d, p ve q gibi karışan harflerin görsel nesne benzetişimleri (örn: yatak-bed) ve ince motor yönleriyle karşılaştırmalı analizi.", hint: "compare" },
-      { title: "Sesteş Kelimeler Örümcek Ağı", prompt: "Merkezdeki bir kelimenin, okunuşu aynı ama anlamı farklı sesteş türevlerine doğru ayrılan fonolojik örümcek ağı diyagramı.", hint: "hierarchy" }
+      { title: "Sesteş Kelimeler Örümcek Ağı", prompt: "Sesteş kelime örümcek ağı: 'KIR' kelimesinin farklı anlamlarını merkeze yaz ve her dala emoji + anlam + kısa örnek cümle ekle. 1. dal: 🌿 kır (kırsal doğal alan) — 'Kıra piknik yapmaya gittik.', 2. dal: ✂️ kır (kırmak, parçalamak) — 'Bardağı yere düşürüp kırdı.', 3. dal: 🐴 kır (gri-beyaz hayvan/renk) — 'Kır at çayırda koşuyordu.', 4. dal: 💇 kır (beyaz saç teli) — 'Dedemin saçlarında kırlar çıkmış.'. Her çocuk düğümde desc alanına kısa Türkçe açıklama ekle. Yaş grubuna uygun, MEB Türkçe müfredatı 'Söz Varlığı' kazanımına göre.", hint: "hierarchy" }
     ]
   },
   {
