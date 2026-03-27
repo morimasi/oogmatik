@@ -520,42 +520,50 @@ const HierarchyRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data
     const root = data.root;
 
     return (
-        <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px', minHeight: '100%' }}>
+        <div style={{ ...fontStyle, padding: '28px', background: PALETTE.bg, borderRadius: '16px', minHeight: '100%' }}>
             {title && (
-                <h2 style={{ textAlign: 'center', color: PALETTE.text, fontSize: '20px', fontWeight: 700, marginBottom: '24px' }}>
+                <h2 style={{ textAlign: 'center', color: PALETTE.text, fontSize: '20px', fontWeight: 700, marginBottom: '20px', lineHeight: 1.3 }}>
                     {title}
                 </h2>
             )}
             {root && (
-                <div style={{ textAlign: 'center' }}>
-                    {/* Kök */}
-                    <div style={{ display: 'inline-block', background: PALETTE.primary, color: '#fff', borderRadius: '12px', padding: '12px 24px', fontWeight: 700, fontSize: '16px', marginBottom: '24px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    {/* Kök düğüm */}
+                    <div style={{ background: PALETTE.primary, color: '#fff', borderRadius: '14px', padding: '14px 32px', fontWeight: 700, fontSize: '18px', textAlign: 'center', boxShadow: `0 4px 16px ${PALETTE.primary}40`, zIndex: 1 }}>
                         {root.label}
                     </div>
                     {root.children && root.children.length > 0 && (
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                            {root.children.map((child, idx) => (
-                                <div key={idx} style={{ background: PALETTE.card, border: `2px solid ${PALETTE.accent}`, borderRadius: '10px', padding: '12px 16px', minWidth: '140px', maxWidth: '220px', textAlign: 'left', fontWeight: 600, color: PALETTE.primary, fontSize: '14px', position: 'relative' }}>
-                                    <div style={{ position: 'absolute', top: '-24px', left: '50%', transform: 'translateX(-50%)', width: '2px', height: '20px', background: PALETTE.accent }} />
-                                    <span style={{ display: 'block', fontWeight: 700, marginBottom: child.desc ? '6px' : '0' }}>{child.label}</span>
-                                    {child.desc && (
-                                        <p style={{ color: PALETTE.textMuted, fontSize: '12px', lineHeight: 1.5, margin: 0, fontWeight: 400 }}>{child.desc}</p>
-                                    )}
-                                    {child.children && child.children.length > 0 && (
-                                        <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                            {child.children.map((grandchild, gIdx) => (
-                                                <div key={gIdx} style={{ background: PALETTE.bg, border: `1px solid ${PALETTE.border}`, borderRadius: '6px', padding: '6px 10px', fontSize: '12px', color: PALETTE.textMuted, fontWeight: 400 }}>
-                                                    <span style={{ display: 'block', fontWeight: 600, color: PALETTE.text }}>{grandchild.label}</span>
-                                                    {grandchild.desc && (
-                                                        <p style={{ color: PALETTE.textMuted, fontSize: '11px', margin: '2px 0 0', lineHeight: 1.4 }}>{grandchild.desc}</p>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                        <>
+                            {/* Kökten çocuklara bağlantı çizgisi */}
+                            <div style={{ width: '2px', height: '28px', background: `linear-gradient(to bottom, ${PALETTE.primary}, ${PALETTE.accent})` }} />
+                            {/* Yatay köprü çizgisi */}
+                            <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '0' }}>
+                                <div style={{ position: 'absolute', top: '0', left: '10%', right: '10%', height: '2px', background: `linear-gradient(to right, ${PALETTE.accent}20, ${PALETTE.accent}, ${PALETTE.accent}20)` }} />
+                            </div>
+                            {/* Çocuk kartları */}
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap', marginTop: '16px', width: '100%' }}>
+                                {root.children.map((child, idx) => (
+                                    <div key={idx} style={{ background: PALETTE.card, border: `2px solid ${PALETTE.accent}`, borderRadius: '12px', padding: '14px 16px', minWidth: '140px', maxWidth: '210px', flex: '1 1 140px', textAlign: 'left', position: 'relative', boxShadow: `0 2px 8px ${PALETTE.accent}20` }}>
+                                        <span style={{ display: 'block', fontWeight: 700, fontSize: '14px', color: PALETTE.primary, marginBottom: child.desc ? '8px' : '0', lineHeight: 1.3 }}>{child.label}</span>
+                                        {child.desc && (
+                                            <p style={{ color: PALETTE.textMuted, fontSize: '12px', lineHeight: 1.6, margin: 0, fontWeight: 400 }}>{child.desc}</p>
+                                        )}
+                                        {child.children && child.children.length > 0 && (
+                                            <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                {child.children.map((grandchild, gIdx) => (
+                                                    <div key={gIdx} style={{ background: PALETTE.bg, border: `1px solid ${PALETTE.border}`, borderRadius: '6px', padding: '6px 10px', fontSize: '12px' }}>
+                                                        <span style={{ display: 'block', fontWeight: 600, color: PALETTE.text }}>{grandchild.label}</span>
+                                                        {grandchild.desc && (
+                                                            <p style={{ color: PALETTE.textMuted, fontSize: '11px', margin: '2px 0 0', lineHeight: 1.4 }}>{grandchild.desc}</p>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </>
                     )}
                 </div>
             )}

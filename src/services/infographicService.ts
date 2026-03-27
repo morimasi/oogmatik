@@ -149,7 +149,11 @@ data
 - İçeriği ${ageConstraint.split(',')[0]} ilkesine göre sınırla
 - Türkçe başlık ve açıklamalar kullan
 - title değeri konuyu özetleyen kısa bir cümle olsun
-- hierarchy-structure için: root.label kısa (tek kelime veya kavram adı) olsun; her child mutlaka anlamlı bir - label metni VE bir desc (kısa tanım + örnek cümle) içersin; minimum 3 child oluştur
+- hierarchy-structure için: root.label kısa olsun; her child mutlaka anlamlı bir label metni (emoji + kavram + kısa açıklama) VE bir desc (tanım + örnek cümle/rehber soru) içersin; minimum 3 child oluştur
+- sequence-steps ve list-row için: her maddenin label (emoji + kısa başlık) VE desc (açıklama + somut örnek) alanları MUTLAKA dolu olmalıdır
+- sequence-timeline için: her olayın date, title VE desc alanları MUTLAKA dolu olmalıdır
+- compare-binary için: sol ve sağ başlıklar açıklayıcı olsun; her kolonda minimum 3 madde olsun
+- Boş label veya boş desc alanı bırakma — her alan anlamlı içerikle doldurulmalıdır
 - JSON FORMATINI (KV) KESİNLİKLE KULLANMA. 
 - YANITINI SADECE AŞAĞIDAKİ XML ETİKETLERİ (TAG) ARASINA YAZ.
 

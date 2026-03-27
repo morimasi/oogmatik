@@ -64,31 +64,31 @@ const SPLD_PREMIUM_TEMPLATES = [
   {
     category: 'Disleksi (Görsel ve Fonolojik)',
     items: [
-      { title: "Frayer Kelime Ağı", prompt: "Zorlanılan kelimenin fonetik analizi, tanımı, eş anlamlısı, zıt anlamlısı ve görsel hece yapısını gösteren 4 çeyrekli Frayer Modeli.", hint: "list" },
-      { title: "b/d/p/q Ayırt Etme Matrisi", prompt: "b ve d, p ve q gibi karışan harflerin görsel nesne benzetişimleri (örn: yatak-bed) ve ince motor yönleriyle karşılaştırmalı analizi.", hint: "compare" },
-      { title: "Sesteş Kelimeler Örümcek Ağı", prompt: "Sesteş kelime örümcek ağı: 'KIR' kelimesinin farklı anlamlarını merkeze yaz ve her dala emoji + anlam + kısa örnek cümle ekle. 1. dal: 🌿 kır (kırsal doğal alan) — 'Kıra piknik yapmaya gittik.', 2. dal: ✂️ kır (kırmak, parçalamak) — 'Bardağı yere düşürüp kırdı.', 3. dal: 🐴 kır (gri-beyaz hayvan/renk) — 'Kır at çayırda koşuyordu.', 4. dal: 💇 kır (beyaz saç teli) — 'Dedemin saçlarında kırlar çıkmış.'. Her çocuk düğümde desc alanına kısa Türkçe açıklama ekle. Yaş grubuna uygun, MEB Türkçe müfredatı 'Söz Varlığı' kazanımına göre.", hint: "hierarchy" }
+      { title: "Frayer Kelime Ağı", prompt: "Frayer Modeli kelime şeması: 'KAT' kelimesi için 4 çeyrekli görsel oluştur. Sol kolon başlığı: '📖 Tanım & Fonetik' — maddeler: 'Tanım: Binanın her bir bölümü', 'Hece: KAT (tek hece)', 'Ses analizi: /k/ – /a/ – /t/'. Sağ kolon başlığı: '🔤 Sözcük Ailesi' — maddeler: 'Eş anlamlı: kat, döşeme, zemin', 'Zıt anlamlı: çukur, bodrum', 'Örnek cümle: Biz üçüncü katta oturuyoruz.'. Disleksi desteğine ihtiyacı olan öğrenciler için fonetik analiz ve hece bölümleme vurgulansın.", hint: "compare" },
+      { title: "b/d/p/q Ayırt Etme Matrisi", prompt: "b ve d harfleri karşılaştırması: Sol kolon başlığı: 'b harfi' — maddeler: 'Çubuk SOLDA, yuvarlak SAĞDA', 'Hatırlat: \"bed\" → yatak gibi: b-yuvarlak-d', 'El ipucu: sol baş parmak yukarı = b'. Sağ kolon başlığı: 'd harfi' — maddeler: 'Yuvarlak SOLDA, çubuk SAĞDA', 'Hatırlat: \"dog\" → d önce gelir', 'El ipucu: sağ baş parmak yukarı = d'. Ayrıca p ve q için ikinci satır ekle.", hint: "compare" },
+      { title: "Sesteş Kelimeler Örümcek Ağı", prompt: "Sesteş kelime örümcek ağı: 'KIR' kelimesinin farklı anlamlarını merkeze yaz ve her dala emoji + anlam + kısa örnek cümle ekle. 1. dal: 🌿 kır (kırsal doğal alan) — desc: 'Şehirden uzak, yeşil doğa. Kıra piknik yapmaya gittik.', 2. dal: ✂️ kır (kırmak eylem) — desc: 'Parçalamak, bozmak. Bardağı yere düşürüp kırdı.', 3. dal: 🐴 kır (gri-beyaz renk) — desc: 'Açık gri ya da beyaz. Kır at çayırda koşuyordu.', 4. dal: 💇 kır (beyaz saç teli) — desc: 'Saçtaki beyaz tel. Dedemin saçlarında kırlar var.'. Her dala desc ekle. MEB Türkçe 'Söz Varlığı' kazanımı.", hint: "hierarchy" }
     ]
   },
   {
     category: 'Diskalkuli (Sayısal Somutlaştırma)',
     items: [
-      { title: "Somut Kesir Parçalamaları", prompt: "Bütün, Yarım ve Çeyrek kavramlarını soyut sayılarla değil, pizza dilimleri ve lego bloklarına bölerek adım adım anlatan kesir süreci.", hint: "sequence" },
-      { title: "Algoritmik Onluk Bozma Akışı", prompt: "Sayıları 10'luk taban bloklarıyla modelleyerek, çıkarma işleminde 'komşuya gitme' eylemini renk kodlu adım adım anlatan akış şeması.", hint: "sequence" }
+      { title: "Somut Kesir Parçalamaları", prompt: "Kesir kavramları adım adım: 3 adım oluştur. 1. Adım label: '🍕 BÜTÜN — 1/1' desc: 'Hiç kesilmemiş pizza. Tüm dilimler bir arada. 8/8 = 1 bütün.'. 2. Adım label: '✂️ YARI — 1/2' desc: 'Pizza tam ortadan ikiye bölünür. Her parça eşit. 4/8 = yarım.'. 3. Adım label: '🔢 ÇEYREK — 1/4' desc: 'Pizza 4 eşit parçaya bölünür. Her çeyrek 2/8 eşittir.'. Görsel analoji olarak pizza veya lego bloğu benzetimi kullan.", hint: "sequence" },
+      { title: "Algoritmik Onluk Bozma Akışı", prompt: "Çıkarma işleminde onluk bozma: 4 adım oluştur. 1. label: '🔍 Birler Basamağını Karşılaştır' desc: 'Üstteki rakam alttakinden küçükse bozma gerekir. Örnek: 32-17 → 2 < 7'. 2. label: '🏦 Onluktan Birlik Al' desc: 'Onlar basamağından 1 onluk al (10 birliğe dönüştür). 3 onluk → 2 onluk + 10 birlik'. 3. label: '➕ Birler Basamağına Ekle' desc: 'Gelen 10 birliği birler basamağına ekle. 2 + 10 = 12 birlik'. 4. label: '✅ Çıkarmayı Tamamla' desc: '12 – 7 = 5 birlik, 2 – 1 = 1 onluk. Sonuç: 15'.", hint: "sequence" }
     ]
   },
   {
     category: 'DEHB (Yürütücü İşlevler)',
     items: [
-      { title: "Pomodoro Zaman Yönetimi Saati", prompt: "Büyük bir ev ödevini minik adımlara bölen (Örn: Hazırlık, 15dk Odaklanma, 5dk Hareket, Bitiş) renk kodlu zaman yönetimi çizelgesi.", hint: "timeline" },
-      { title: "Etki-Tepki Neden-Sonuç Zinciri", prompt: "Dürtüsel davranışların (örn: söz kesme) sosyal çevreye etkilerini oklarla bağlayarak gösteren Neden-Sonuç (Etki-Tepki) zinciri.", hint: "list" }
+      { title: "Pomodoro Zaman Yönetimi Saati", prompt: "Pomodoro tekniği zaman çizelgesi: 5 olay oluştur. 1. date: '⏰ 0-5 dk' title: 'HAZIRLIK' desc: 'Masayı topla, telefonu kapat, su hazırla.'. 2. date: '🎯 5-20 dk' title: 'ODAKLANMA' desc: 'Sadece ödeve bak, başka hiçbir şeye değme.'. 3. date: '🏃 20-25 dk' title: 'HAREKET MOLASI' desc: 'Yerinden kalk, 5 dk yürü, su iç.'. 4. date: '🎯 25-40 dk' title: '2. ODAKLANMA' desc: 'Kaldığın yerden devam et, tek göreve odaklan.'. 5. date: '🎉 40+ dk' title: 'BİTİŞ ÖDÜLÜ' desc: 'Tebrikler! Büyük bir ödevi tamamladın.'.", hint: "timeline" },
+      { title: "Etki-Tepki Neden-Sonuç Zinciri", prompt: "Neden-Sonuç zinciri: 4 madde oluştur. 1. label: '⚡ EYLEM: Söz Kesme' desc: 'Biri konuşurken araya girer, sözünü bitirmesine izin vermezsin.'. 2. label: '😟 1. SONUÇ: Arkadaş Üzülür' desc: 'Arkadaşın önemsenmediğini hisseder, susar.'. 3. label: '🚫 2. SONUÇ: Güven Azalır' desc: 'Bir dahaki sohbette arkadaşın seninle konuşmak istemez.'. 4. label: '💡 ÇÖZÜM: Sıra Bekle' desc: 'Konuşma bitmeden bekle. Sıran gelince düşünceni paylaş.'.", hint: "list" }
     ]
   },
   {
     category: 'Disgrafi & Bellek & Duyu',
     items: [
-      { title: "3 Aşamalı Motor Yön Çizgesi", prompt: "3 satırlı kılavuz çizgiler üzerinde, kalemin tam başlangıç noktası ve kavis yönlerini adım adım öğreten ince motor harf yazım haritası.", hint: "sequence" },
-      { title: "5N1K Hikaye Çatısı", prompt: "Okuduğunu anlamada kaybolmamak için ana karakter, yer, olay, zaman ve sonuç düğümlerini 5N1K metoduyla bağlayan hiyerarşik zihin haritası.", hint: "hierarchy" },
-      { title: "Duyusal Regülasyon Termometresi", prompt: "Çocuğun anlık ruh halini (Aşırı Hareketli, Sakin, Yorgun) temsil eden ve her aşama için bir rahatlama stratejisi sunan görsel duygu termometresi.", hint: "compare" }
+      { title: "3 Aşamalı Motor Yön Çizgesi", prompt: "Harf yazımı motor adımları: 3 adım oluştur. 1. label: '✏️ BAŞLANGIÇ NOKTASI' desc: 'Kalemi en üst çizgiye koy. \"a\" harfinde: orta çizginin biraz üstünden başla.'. 2. label: '↩️ YUVARLAK HAREKET' desc: 'Saat ibresinin tersine yuvarlak çiz. Soldan sağa, aşağı doğru kavis.'. 3. label: '⬇️ DÜŞEY ÇİZGİ' desc: 'Yuvarlaktan devam et, aşağı düz inin, taban çizgisinde dur.'.", hint: "sequence" },
+      { title: "5N1K Hikaye Çatısı", prompt: "5N1K Hikaye Çatısı örümcek ağı: 'Hikaye Çatısı' merkeze yaz. 6 dal oluştur, her dala emoji + soru başlığı + desc ekle. 1. dal: 🙋 KİM — desc: 'Ana karakter kimdir? | Örnek: Ali, 9 yaşında meraklı bir çocuk.'. 2. dal: 📋 NE — desc: 'Ana olay/problem nedir? | Örnek: Kayıp köpeğini arıyor.'. 3. dal: 📍 NEREDE — desc: 'Olay nerede geçiyor? | Örnek: Köy meydanında ve ormanda.'. 4. dal: 🕐 NE ZAMAN — desc: 'Olay ne zaman yaşanıyor? | Örnek: Yaz tatilinin son haftasında.'. 5. dal: 🤔 NEDEN — desc: 'Neden yaşandı? | Örnek: Kapı açık unutulmuş, köpek kaçmış.'. 6. dal: 💡 NASIL — desc: 'Nasıl çözüldü? | Örnek: Komşular birlikte arama yapınca bulundu.'. MEB Türkçe Okuma Anlama kazanımı.", hint: "hierarchy" },
+      { title: "Duyusal Regülasyon Termometresi", prompt: "Duyusal düzenleme karşılaştırması. Sol kolon başlığı: '🔴 AŞİRİ UYARILMA (Kırmızı Bölge)' — maddeler: 'Belirtiler: Yerinde duramama, bağırma, ağlama', 'Strateji 1: Derin nefes al (4 say, tut, 4 say, bırak)', 'Strateji 2: Sessiz bir köşede 2 dk otur'. Sağ kolon başlığı: '🟢 YETERLİ UYARILMA (Yeşil Bölge)' — maddeler: 'Belirtiler: Sakin, odaklanmış, hazır', 'Strateji: Mevcut durumu koru', 'İpucu: Yeşil bölgede öğrenme en verimli!'.", hint: "compare" }
     ]
   }
 ];
