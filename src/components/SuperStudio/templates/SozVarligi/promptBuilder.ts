@@ -29,7 +29,13 @@ Zorluk: ${difficulty}
 
     prompt += `
 YANIT FORMATI:
-Sadece Markdown. JSON yasak. İçerik zengin, öğretici ve eğlenceli olsun. # H1 Başlık ile başla.
+Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
+{
+  "title": "${topic} - Söz Varlığı Çalışması",
+  "content": "Buraya tüm yönerge, çalışma soruları ve görsel analojileri içeren yüksek kaliteli Markdown bloğunu yaz.",
+  "pedagogicalNote": "Öğretmene özel pedagojik açıklama buraya."
+}
+İçerik zengin, öğretici ve eğlenceli olsun. content alanındaki Markdown bloğuna # H1 Başlık ile başla.
 `;
 
     return prompt;

@@ -33,7 +33,13 @@ Zorluk: ${difficulty}
 
     prompt += `
 YANIT FORMATI:
-Hiçbir JSON yapısı kullanma. Sadece yüksek kaliteli bir Markdown dökümanı döndür. # H1 Başlık ile başla.
+Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
+{
+  "title": "${topic} - Yazım ve Noktalama",
+  "content": "Buraya tüm yönerge, çalışma soruları ve kural hatırlatıcıları içeren yüksek kaliteli Markdown bloğunu yaz.",
+  "pedagogicalNote": "Öğretmene özel pedagojik açıklama buraya."
+}
+Öğrenciyi teşvik eden bir dil kullan. content alanındaki Markdown bloğuna # H1 Başlık ile başla.
 `;
 
     return prompt;

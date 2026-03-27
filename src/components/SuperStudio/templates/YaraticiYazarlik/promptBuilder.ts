@@ -32,7 +32,13 @@ Zorluk: ${difficulty}
 
     prompt += `
 YANIT FORMATI:
-Sadece Markdown. JSON yasak. Etkinlik çocuk için eğlenceli ve cesaretlendirici olmalı. # H1 Başlık ile başla.
+Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
+{
+  "title": "${topic} - Yazarlık Stüdyosu",
+  "content": "Etkinliği, yönergeleri ve yazma alanını içeren zengin Markdown bloğunu buraya yaz.",
+  "pedagogicalNote": "Öğretmene özel pedagojik açıklama buraya."
+}
+Etkinlik çocuk için eğlenceli ve cesaretlendirici olmalı. content alanındaki Markdown bloğuna # H1 Başlık ile başla.
 `;
 
     return prompt;

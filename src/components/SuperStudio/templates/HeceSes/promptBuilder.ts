@@ -29,7 +29,13 @@ Zorluk: ${difficulty}
 
     prompt += `
 YANIT FORMATI:
-Sadece Markdown. JSON yasak. İçerik pedagojik, net ve disleksi uyumlu olsun. # H1 Başlık ile başla.
+Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
+{
+  "title": "${topic} - Hece ve Ses Olayları",
+  "content": "Fonolojik farkındalık ve heceleme düzeyindeki tüm egzersizleri içeren yüksek kaliteli Markdown bloğunu buraya yaz.",
+  "pedagogicalNote": "Öğretmene özel pedagojik açıklama buraya."
+}
+İçerik pedagojik, net ve disleksi uyumlu olsun. content alanındaki Markdown bloğuna # H1 Başlık ile başla.
 `;
 
     return prompt;

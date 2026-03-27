@@ -45,7 +45,13 @@ Zorluk Seviyesi: ${difficulty}
 
     prompt += `
 YANIT FORMATI:
-Hiçbir JSON yapısı kullanma. Sadece yüksek kaliteli, kuralları şaşmayan, yukarıdaki formata tam uyan bir Markdown dokümanı döndür. Öğrenci için güvenli, okunaklı ve heyecan verici olsun. Etkinliğe dikkat çekici bir # H1 Başlık ile başla.
+Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
+{
+  "title": "Etkinliğin Başlığı",
+  "content": "Buraya tüm yönerge, okuma metni, sorular ve varsa SVG kodlarını içeren yüksek kaliteli Markdown bloğunu yaz.",
+  "pedagogicalNote": "Öğretmene özel pedagojik açıklama buraya."
+}
+Öğrenci için güvenli, okunaklı ve heyecan verici olsun. content alanındaki Markdown bloğuna dikkat çekici bir # H1 Başlık ile başla.
 `;
 
     return prompt;

@@ -41,7 +41,13 @@ Zorluk: ${difficulty}
 
     prompt += `
 YANIT FORMATI:
-Hiçbir JSON yapısı kullanma. Sadece yüksek kaliteli bir Markdown dökümanı döndür. Başlıkta mutlaka konuyu (${topic}) ve hedef harfleri belirt. # H1 Başlık ile başla.
+Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
+{
+  "title": "${topic} - Harf Farkındalığı Etkinliği",
+  "content": "Buraya tüm yönerge, metin ve harf farkındalığı çalışmalarını içeren yüksek kaliteli Markdown bloğunu yaz.",
+  "pedagogicalNote": "Öğretmene özel pedagojik açıklama buraya."
+}
+Başlıkta konuyu (${topic}) ve hedef harfleri belirt. content alanındaki Markdown bloğuna # H1 Başlık ile başla.
 `;
 
     return prompt;

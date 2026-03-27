@@ -28,7 +28,13 @@ Zorluk Seviyesi: ${difficulty}
 
     prompt += `
 YANIT FORMATI:
-Yanıtında JSON kullanma. Sadece saf Markdown kullan. Etkinliği çocuk için bir macera gibi kurgula. # H1 Başlık ile başla.
+Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
+{
+  "title": "${topic} - Mantık ve Muhakeme",
+  "content": "Etkinliğin tamamını (olay örgüsü, matris, dedektiflik sorusu) içeren zengin Markdown bloğunu buraya yaz.",
+  "pedagogicalNote": "Öğretmene özel pedagojik açıklama (ZPD ve bilişsel hedef) buraya."
+}
+Etkinliği çocuk için bir macera gibi kurgula. content alanındaki Markdown bloğuna # H1 Başlık ile başla.
 `;
 
     return prompt;

@@ -88,12 +88,21 @@ const buildSchemaForTemplate = (_templateId: string): any => {
 
 /**
  * AI yanıtını A4 içeriğine dönüştürür (Markdown tabanlı yeni render sistemi)
+ * Fallback: Eğer AI şemayı es geçip düz metin döndürürse bunu yakala
  */
 const formatContentForA4 = (_templateId: string, aiResponse: any): string => {
-    if (!aiResponse || typeof aiResponse !== 'object') {
-        return '[Hata] İçerik formatı geçersiz.';
-    }
-    return aiResponse.content || '[İçerik üretilemedi]';
+    if (!aiResponse) return '[İçerik üretilemedi]';
+
+    // Standart şema (content alanı var)
+    if (aiResponse.content) return aiResponse.content;
+
+    // Fallback 1: Proxy'den gelen ham metin (text alanı)
+    if (aiResponse.text) return aiResponse.text;
+
+    // Fallback 2: Obje komple string ise (nadiren)
+    if (typeof aiResponse === 'string') return aiResponse;
+
+    return '[İçerik üretilemedi]';
 };
 
 /**
@@ -196,12 +205,21 @@ export const generateSuperStudioContent = async (
                 const pedagogicalNote = aiResponse.pedagogicalNote ||
                     `${tpl} etkinliği üretildi. Öğretmen tarafından gözden geçirilmesi önerilir.`;
 
+                // Başlık çekme mantığı (aiResponse.title yoksa content'in ilk satırını dene)
+                let title = aiResponse.title || '';
+                if (!title && content) {
+                    const firstLine = content.split('\n')[0].replace(/[#*]/g, '').trim();
+                    title = firstLine.substring(0, 50) || `${tpl.replace('-', ' ').toUpperCase()} Etkinliği`;
+                } else if (!title) {
+                    title = `${tpl.replace('-', ' ').toUpperCase()} Etkinliği`;
+                }
+
                 const payload: GeneratedContentPayload = {
                     id: `gen-${Date.now()}-${tpl}`,
                     templateId: tpl,
                     pages: [
                         {
-                            title: aiResponse.title || `${tpl.replace('-', ' ').toUpperCase()} Etkinliği`,
+                            title,
                             content: content,
                             pedagogicalNote: pedagogicalNote
                         }
