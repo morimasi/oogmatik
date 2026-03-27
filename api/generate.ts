@@ -140,11 +140,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Full security validation
+    // System-generated prompts (from promptBuilder) are trusted and use 'high' threshold.
+    // Only block critical/high-level injection attempts (actual attacks), not false positives
+    // from educational content patterns (e.g. pedagogical instructions).
     const securityResult = validatePromptSecurity(prompt, {
-      maxLength: DEFAULT_MAX_LENGTH,
+      maxLength: 5000,
       enableLogging: true,
       blockOnThreat: true,
-      threatThreshold: 'medium',
+      threatThreshold: 'high',
     }, {
       userId: actualUserId,
       ipAddress: clientIp,

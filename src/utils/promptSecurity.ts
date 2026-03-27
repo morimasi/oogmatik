@@ -62,7 +62,7 @@ export interface PromptSecurityConfig {
 // CONSTANTS
 // ============================================================
 
-export const DEFAULT_MAX_LENGTH = 2000;
+export const DEFAULT_MAX_LENGTH = 5000;
 
 export const DEFAULT_CONFIG: PromptSecurityConfig = {
   maxLength: DEFAULT_MAX_LENGTH,
@@ -268,7 +268,7 @@ const INJECTION_PATTERNS: Array<{
     description: 'Script tag injection',
   },
   {
-    pattern: /on\w+\s*=\s*["']?[^"'>\s]+["']?/gi,
+    pattern: /\bon(?:click|load|error|mouseover|mouseout|focus|blur|change|submit|keydown|keyup|keypress)\s*=\s*["']?[^"'>\s]+["']?/gi,
     category: 'SCRIPT_INJECTION',
     level: 'medium',
     description: 'Event handler injection',
@@ -463,7 +463,7 @@ export function sanitizePromptInput(
     // Remove javascript: URLs
     .replace(/javascript\s*:/gi, '')
     // Remove inline event handler attributes like onclick="..."
-    .replace(/on\w+\s*=\s*["']?[^"'\s]+["']?/gi, '');
+    .replace(/\bon(?:click|load|error|mouseover|mouseout|focus|blur|change|submit|keydown|keyup|keypress)\s*=\s*["']?[^"'\s]+["']?/gi, '');
 
   // 4. Remove SQL injection patterns
   sanitized = sanitized
