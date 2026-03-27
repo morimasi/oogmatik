@@ -27,6 +27,17 @@ Zorluk Seviyesi: ${difficulty}
     }
 
     prompt += `
+[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
+Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 3 GÖREV yapısında kurgula:
+- GÖREV 1 (Sözel Matris/Sudoku): Mantıksal çıkarım gerektiren, tabloya dayalı bir ipucu bulmacası.
+- GÖREV 2 (Zıt Kutup Bağı): Olaylar arası nedensellik (Eğer A soğuksa, B nedir vb.) kurdurtan muhakeme soruları.
+- GÖREV 3 (Örüntü Tamamlama): Kavramsal veya olay sırası olarak boş bırakılan yerleri tamamlattırma.
+
+[ÇOKLU SAYFA (PAGINATION) KURALI]
+Eğer ürettiğin toplam içerik hacmi bir A4 sayfasına (yaklaşık 4 görev bloğu veya 250 kelime) sığmayacak kadar uzunsa, metnin uygun bir yerine tam olarak şu ayracı yerleştirerek YENİ SAYFA'ya geç:
+===SAYFA_SONU===
+Ayracı kelime ortasında veya bitmemiş bir cümle/görev arasında KULLANMA. Hep ana bölümler arasına koy.
+
 YANIT FORMATI:
 Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
 {

@@ -32,6 +32,17 @@ Zorluk: ${difficulty}
     }
 
     prompt += `
+[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
+Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 3 GÖREV yapısında kurgula:
+- GÖREV 1 (Metni Restore Etme): Noktalaması veya yazımı tamamen bozulmuş bir paragraf verip altına doğrusunu yazmasını iste.
+- GÖREV 2 (Senaryo Üretimi): "Çok şaşırdığın bir anı düşün ve sonuna uygun işareti koyarak yaz" gibi kendi cümlelerini kurdur.
+- GÖREV 3 (Test/Çoktan Seçmeli): Hangisinde doğru kullanılmıştır tarzı 2 test sorusu veya doğru/yanlış eşleştirmesi.
+
+[ÇOKLU SAYFA (PAGINATION) KURALI]
+Eğer ürettiğin toplam içerik hacmi bir A4 sayfasına (yaklaşık 4 görev bloğu veya 250 kelime) sığmayacak kadar uzunsa, metnin uygun bir yerine tam olarak şu ayracı yerleştirerek YENİ SAYFA'ya geç:
+===SAYFA_SONU===
+Ayracı kelime ortasında veya bitmemiş bir cümle/görev arasında KULLANMA. Hep ana bölümler arasına koy.
+
 YANIT FORMATI:
 Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
 {

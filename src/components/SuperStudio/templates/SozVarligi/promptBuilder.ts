@@ -28,6 +28,17 @@ Zorluk: ${difficulty}
     }
 
     prompt += `
+[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
+Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 3 GÖREV yapısında kurgula:
+- GÖREV 1 (Emojilerle Deyim/Atasözü Avı): SVG vb görsel sembollerle deyimlerin anlamlarını tahmin ettirme.
+- GÖREV 2 (Durum Senaryosu): "Ahmet çok acıkmış ve midesi..." gibi bir durum metni verip ona uygun deyimi buldurma.
+- GÖREV 3 (Bağlam Kullanımı): Verilen deyim veya atasözü ile öğrencinin kendi yaratıcı cümlesini kurmasını isteme.
+
+[ÇOKLU SAYFA (PAGINATION) KURALI]
+Eğer ürettiğin toplam içerik hacmi bir A4 sayfasına (yaklaşık 4 görev bloğu veya 250 kelime) sığmayacak kadar uzunsa, metnin uygun bir yerine tam olarak şu ayracı yerleştirerek YENİ SAYFA'ya geç:
+===SAYFA_SONU===
+Ayracı kelime ortasında veya bitmemiş bir cümle/görev arasında KULLANMA. Hep ana bölümler arasına koy.
+
 YANIT FORMATI:
 Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
 {

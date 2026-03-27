@@ -47,6 +47,17 @@ Zorluk Seviyesi: ${difficulty}
 `;
 
     prompt += `
+[ÇOKLU BÖLÜM VE ZENGİN İÇERİK YAPISI - ZORUNLU KURAL]
+Bu etkinlik basit bir düz metin değil, "Kompakt ve Dolu Dolu Bir Çalışma Kağıdı" olmalıdır. Öğrencinin doyurucu bir pratik yapması için etkinliği aşağıdaki 3 GÖREV yapısında kurgula:
+- GÖREV 1 (Okuma Parçası): Metni yukarıdaki kurallara göre yaz.
+- GÖREV 2 (Kelime Dedektifi): Metne bilerek sızdırılmış 1 mantıksız kelimeyi buldur veya hikayenin sonunu tahmin ettir.
+- GÖREV 3 (Doğru/Yanlış ve 5N1K): Etkinliğin sonuna mutlaka bir "5N1K Tablosu" çiz (Markdown Grid) ve 2 adet "Doğru - Yanlış" yargısı ekle.
+
+[ÇOKLU SAYFA (PAGINATION) KURALI]
+Eğer ürettiğin toplam içerik hacmi bir A4 sayfasına (yaklaşık 4 görev bloğu veya 250 kelime) sığmayacak kadar uzunsa, metnin uygun bir yerine tam olarak şu ayracı yerleştirerek YENİ SAYFA'ya geç:
+===SAYFA_SONU===
+Ayracı kelime ortasında veya bitmemiş bir cümle/görev arasında KULLANMA. Hep ana bölümler arasına koy.
+
 YANIT FORMATI:
 Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
 {
