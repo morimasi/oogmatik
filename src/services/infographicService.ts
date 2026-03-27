@@ -177,7 +177,11 @@ export async function generateInfographicSyntax(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     // XML döndürmesini zorladığımız için JSON şema şartını (schema payload) API'ye göndermiyoruz.
-    body: JSON.stringify({ prompt }),
+    // Ancak api/generate'in default sistem komutu (JSON zorunluluğu) ile çakışmaması için XML'yi emreden bir systemInstruction geçiyoruz.
+    body: JSON.stringify({ 
+      prompt,
+      systemInstruction: 'SADECE benden istenen XML formatında yanıt dön. Kesinlikle JSON yapısı KULLANMA ve markdown (```) işaretleri EKLEME.'
+    }),
   });
 
   if (!response.ok) {
@@ -188,10 +192,15 @@ export async function generateInfographicSyntax(
   // /api/generate endpoint'ine XML döndürteceğimiz için JSON parse FAİL edecek ve { text: "..." } fallback dönecek.
   const raw = await response.json() as Record<string, unknown>;
   const rawText = (raw?.data as Record<string, unknown>)?.text as string ?? raw?.text as string;
+  // 1. İhtimal: Vercel tryRepairJson başarılı olup JSON olarak döndürdüyse (Eğer AI tüm kurallara rağmen yine JSON verdiyse)
   let data: Partial<InfographicResult> | null = null;
-
-  if (rawText && typeof rawText === 'string') {
-    // XML Tag Ayıklama Motoru
+  const potentialData = (raw?.data ?? raw) as Partial<InfographicResult>;
+  
+  if (potentialData?.syntax && typeof potentialData.syntax === 'string') {
+    data = potentialData;
+  } else if (rawText && typeof rawText === 'string') {
+    // 2. İhtimal: (Gerçek Planımız) API'miz XML text'i JSON sanıp parse edememiş ve { text: '...' } olarak düz şekilde döndürmüşse
+    // XML Tag Ayıklama Motoru Devreye Girer
     const titleMatch = rawText.match(/<TITLE>([\s\S]*?)<\/TITLE>/i);
     const syntaxMatch = rawText.match(/<SYNTAX>([\s\S]*?)<\/SYNTAX>/i);
     const pedMatch = rawText.match(/<PEDAGOGY>([\s\S]*?)<\/PEDAGOGY>/i);
@@ -212,7 +221,7 @@ export async function generateInfographicSyntax(
   if (!data?.syntax && rawText && rawText.includes('infographic')) {
      data = {
          title: req.topic,
-         syntax: rawText.replace(/```(xml|text|[\s\S]*?)?\n/g, '').replace(/```/g, '').trim(),
+         syntax: rawText.replace(/```(xml|text|json|[\s\S]*?)?\n/g, '').replace(/```/g, '').trim(),
          pedagogicalNote: "AI standart formatta çıktı veremedi, ancak ham kodlar kurtarıldı.",
          templateType: "sequence-steps"
      };
