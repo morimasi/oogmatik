@@ -1,14 +1,6 @@
 import React from 'react';
 import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
-
-const TEMPLATES = [
-    { id: 'okuma-anlama', title: 'Okuma Anlama & Yorumlama', icon: '📖' },
-    { id: 'mantik-muhakeme', title: 'Mantık Muhakeme & Paragraf', icon: '🧠' },
-    { id: 'dil-bilgisi', title: 'Dil Bilgisi ve Anlatımı', icon: '📝' },
-    { id: 'yazim-kurallari', title: 'Yazım Kuralları ve Noktalama', icon: '✏️' },
-    { id: 'soz-varligi', title: 'Deyimler, Atasözleri', icon: '🗣️' },
-    { id: 'hece-ses', title: 'Hece ve Ses Olayları', icon: '🔊' },
-];
+import { SUPER_STUDIO_REGISTRY } from '../templates/registry';
 
 export const TemplateMenu: React.FC = () => {
     const { selectedTemplates, toggleTemplate } = useSuperStudioStore();
@@ -21,7 +13,7 @@ export const TemplateMenu: React.FC = () => {
             </h2>
 
             <div className="grid grid-cols-1 gap-2">
-                {TEMPLATES.map(tpl => {
+                {SUPER_STUDIO_REGISTRY.map(tpl => {
                     const isSelected = selectedTemplates.includes(tpl.id);
                     return (
                         <button
@@ -32,9 +24,14 @@ export const TemplateMenu: React.FC = () => {
                                 : 'bg-slate-900/50 border-slate-700/50 text-slate-300 hover:border-slate-600 hover:bg-slate-800'
                                 }`}
                         >
-                            <span className="mr-3 text-lg">{tpl.icon}</span>
-                            <span className="flex-1 font-medium text-sm">{tpl.title}</span>
-                            <div className={`w-4 h-4 rounded flex items-center justify-center border ${isSelected ? 'bg-indigo-500 border-indigo-500' : 'border-slate-600'
+                            <span className="mr-3 text-lg">
+                                <i className={`fa-solid ${tpl.icon}`}></i>
+                            </span>
+                            <div className="flex-1 flex flex-col">
+                                <span className="font-medium text-sm">{tpl.title}</span>
+                                <span className="text-[10px] text-slate-500 leading-tight">{tpl.description}</span>
+                            </div>
+                            <div className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center border ${isSelected ? 'bg-indigo-500 border-indigo-500' : 'border-slate-600'
                                 }`}>
                                 {isSelected && <span className="text-white text-[10px]">✓</span>}
                             </div>

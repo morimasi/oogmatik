@@ -43,6 +43,8 @@ const initialState = {
     isGenerating: false,
 };
 
+import { SUPER_STUDIO_REGISTRY } from '../components/SuperStudio/templates/registry';
+
 export const useSuperStudioStore = create<SuperStudioState>((set) => ({
     ...initialState,
 
@@ -62,12 +64,13 @@ export const useSuperStudioStore = create<SuperStudioState>((set) => ({
                 templateSettings: newSettings
             };
         } else {
-            // Add template
+            // Add template with defaults from registry
+            const templateDef = SUPER_STUDIO_REGISTRY.find(t => t.id === templateId);
             return {
                 selectedTemplates: [...state.selectedTemplates, templateId],
                 templateSettings: {
                     ...state.templateSettings,
-                    [templateId]: {} // Initialize empty settings
+                    [templateId]: templateDef ? { ...templateDef.defaultSettings } : {}
                 }
             };
         }

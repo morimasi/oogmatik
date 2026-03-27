@@ -1,7 +1,6 @@
-import React from 'react';
 import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { generateSuperStudioContent } from '../../../services/generators/superStudioGenerator';
-import { TemplateSettingsRegistry, GenericTemplateSettings } from '../templates';
+import { getTemplateById } from '../templates';
 
 export const ConfiguratorCascade: React.FC = () => {
     const {
@@ -45,32 +44,35 @@ export const ConfiguratorCascade: React.FC = () => {
         <div className="space-y-4">
             <h2 className="text-lg font-medium text-slate-200 mb-2 flex items-center">
                 <span className="w-1.5 h-5 bg-teal-500 rounded-full mr-2"></span>
-                Şablon Ayarları
+                Şablon Ayarları (Premium)
             </h2>
-            {selectedTemplates.map((templateId: string, index: number) => (
-                <div key={templateId} className="bg-slate-800 border border-slate-700/80 rounded-xl p-4 shadow-sm relative overflow-hidden group">
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-teal-500"></div>
-                    <div className="flex justify-between items-center mb-3">
-                        <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">
-                            <span className="text-slate-500 mr-2">#{index + 1}</span>
-                            {templateId.replace('-', ' ')}
-                        </h3>
+            {selectedTemplates.map((templateId: string, index: number) => {
+                const templateDef = getTemplateById(templateId);
+                if (!templateDef) return null;
+
+                const SettingsComponent = templateDef.component;
+                const currentSettings = templateSettings[templateId] || {};
+
+                return (
+                    <div key={templateId} className="bg-slate-800 border border-slate-700/80 rounded-xl p-4 shadow-sm relative overflow-hidden group">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-teal-500"></div>
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide flex items-center">
+                                <span className="text-slate-500 mr-2">#{index + 1}</span>
+                                <i className={`fa-solid ${templateDef.icon} mr-2 text-teal-400`}></i>
+                                {templateDef.title}
+                            </h3>
+                        </div>
+                        <div className="mt-2 text-slate-200">
+                            <SettingsComponent
+                                templateId={templateId}
+                                settings={currentSettings}
+                                onChange={(payload: any) => setTemplateSetting(templateId, payload)}
+                            />
+                        </div>
                     </div>
-                    <div className="mt-2 text-slate-200">
-                        {(() => {
-                            const SettingsComponent = TemplateSettingsRegistry[templateId] || GenericTemplateSettings;
-                            const currentSettings = templateSettings[templateId] || {};
-                            return (
-                                <SettingsComponent
-                                    templateId={templateId}
-                                    settings={currentSettings}
-                                    onChange={(payload: any) => setTemplateSetting(templateId, payload)}
-                                />
-                            );
-                        })()}
-                    </div>
-                </div>
-            ))}
+                );
+            })}
 
             <button
                 onClick={handleGenerate}

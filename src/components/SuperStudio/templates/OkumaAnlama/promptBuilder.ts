@@ -1,0 +1,52 @@
+import { IPromptBuilderContext } from '../registry';
+import { OkumaAnlamaSettings } from './types';
+
+export default function buildOkumaAnlamaPrompt(context: IPromptBuilderContext<OkumaAnlamaSettings>): string {
+    const { topic, difficulty, studentName, settings } = context;
+
+    let prompt = `
+[OKUMA ANLAMA - BİLİŞSEL DEKODER MİMARİSİ]
+Sen disleksi ve DEHB uzmanı bir klinik öğretmensin. Aşağıdaki katı kurallara TAM OLARAK uyarak "${topic}" konulu bir okuma metni ve etkinlik üreteceksin.
+${studentName ? `Bu etkinlik özel olarak "${studentName}" isimli öğrencinin seviyesine göre hazırlanmaktadır.` : ''}
+Zorluk Seviyesi: ${difficulty}
+
+[KATI PEDAGOJİK KURALLAR]
+- Kural 1: Dili çok sade tut. Sadece Etken (Active) cümle çatısı kullan. Mecaz, deyim veya dolaylı anlatım ASLA kullanma.
+- Kural 2 (BİLİŞSEL YÜK LİMİTİ): HİÇBİR CÜMLE ${settings.cognitiveLoadLimit} kelimeden daha uzun OLAMAZ. Eğer uzun bir fikir varsa, nokta koyup ikiye böl. VEYA bağlacı kullanmak yerine yeni cümle kur.
+`;
+
+    if (settings.chunkingEnabled) {
+        prompt += `
+- Kural 3 (MODÜLER PARÇALAMA - CHUNKING): Düz bir metin bloku yazma. Metni küçük lokmalara böl. Her 2 cümlenin ardından "Bölüm Sorusu" diye bir başlık aç ve o iki cümleyle ilgili anında cevaplanacak 1 basit soru sor. Toplam ${settings.questionCount} bölüm (dolayısıyla ${settings.questionCount} soru) oluştur.
+`;
+    } else {
+        prompt += `
+- Kural 3: Normal bir metin oluştur ve en altına metnin tamamıyla ilgili ${settings.questionCount} adet soru listele.
+`;
+    }
+
+    if (settings.visualScaffolding) {
+        prompt += `
+- Kural 4 (GÖRSEL DESTEK): Oluşturduğun her paragrafın veya bölümün başına o bölümün temasını çok net anlatan SİYAH BEYAZ, basit, disleksi dostu minik bir SVG kodu koy (Örn: \`\`\`svg <svg viewBox="0 0...>\`\`\`).
+`;
+    }
+
+    if (settings.typographicHighlight) {
+        prompt += `
+- Kural 5 (KÖK-EK FARKINDALIĞI): Metin içindeki hareket veya duygu bildiren KÖK kelimeleri Markdown ile **kalın (bold)** yaz. Örnek: "**Gel**iyorum", "**Bak**tı". (Sadece kök kısmı kalın olmalı).
+`;
+    }
+
+    if (settings.mindMap5N1K) {
+        prompt += `
+- Kural 6 (5N1K ZİHİN HARİTASI): Etkinliğin en sonuna mutlaka bir "5N1K Tablosu" çiz (Markdown Grid formatında). Sütunlar: Soru, Cevap.
+`;
+    }
+
+    prompt += `
+YANIT FORMATI:
+Hiçbir JSON yapısı kullanma. Sadece yüksek kaliteli, kuralları şaşmayan, yukarıdaki formata tam uyan bir Markdown dokümanı döndür. Öğrenci için güvenli, okunaklı ve heyecan verici olsun. Etkinliğe dikkat çekici bir # H1 Başlık ile başla.
+`;
+
+    return prompt;
+}
