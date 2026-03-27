@@ -6,8 +6,9 @@ export default function buildMantikMuhakemePrompt(context: IPromptBuilderContext
 
     let prompt = `
 [MANTIK VE MUHAKEME - SIRALAMA ALGORITMASI]
-Sen disleksi dostu eğitim materyallerinde uzman bir bilişsel gelişim uzmanısın. "${topic}" konusu etrafında, öğrencinin muhakeme yeteneğini zorlayan premium bir etkinlik hazirla.
-${studentName ? `Öğrenci Adi: "${studentName}"` : ''}
+PROFIL: Disleksi dostu eğitim materyalleri uzmani, bilissel gelisim ogment.
+GOREV: "${topic}" konusu etrafinda, ogrencinin muhakeme yetenegini zorlayan premium etkinlik hazirla.
+${studentName ? `Ogrenci Adi: "${studentName}"` : ''}
 Zorluk Seviyesi: ${difficulty}
 
 [KATI PEDAGOJIK KURALLAR]
@@ -22,7 +23,7 @@ Zorluk Seviyesi: ${difficulty}
 
     if (settings.detailDetective) {
         prompt += `
-- Kural 3 (DETAY DEDEKTIFLIGI): Konuya dair kisa bir paragraf yaz. Ancak bu paragrafin icine ustacea, 1 adet bariz mantik hatasi veya kronolojik bir tutarsizlik gizle. Ogrenciden "Dedektif" olup bu hatayi bulup altini cizmesini iste.
+- Kural 3 (DETAY DEDEKTIFLIGI): Konuya dair kisa bir paragraf yaz. Bu paragrafin icine ustacea, 1 adet mantik hatasi veya kronolojik tutarsizlik gizle. Ogrenciden bu hatayi bulup altini cizmesini iste.
 `;
     }
 
@@ -40,29 +41,29 @@ Zorluk Seviyesi: ${difficulty}
 - GOREV 3'te: "Oruntu + Tamamlama + Siralama" kombinasyonu
 - GOREV 4'te: "Mini Yarisma + Mantik Oyunu + Arkadasa Sor" kombinasyonu
 - Her soru icin "Kolay" ile "Zor" arasinda derece göstergesi ekle.
-- 3 kademeli ipucu sistemi: 1. ipucu, 2. ipucu, cevap seklinde sun.
+- 3 kademeli ipucu sistemi kullan: 1. ipucu, 2. ipucu, cevap.
 - Gorsel elementler: Zaman cizelgesi (timeline) SVG, mantik derecesi göstergesi.
 
 [COKLU BOLUM VE ZENGIN ICERIK YAPISI - ZORUNLU KURAL]
-Bu etkinlik basit bir duz metin degil, "Kompakt ve Dolu Dolu Bir Calisma Kagidi" olmalidir. Ogrencinin doyurucu bir pratik yapmasi icin etkinligi asagidaki 4 GOREV yapisinda kurgula:
-- GOREV 1 (Sozel Matris/Sudoku): Mantiksal cikarim gerektiren, tabloya dayali bir ipucu bulmacasi. Zaman cizelgesi SVG ekle.
+BU OZEL BIR CALISMA KAGIDIDIR. Ogrencinin doyurucu bir pratik yapmasi icin etkinligi asagidaki 4 GOREV yapisinda kurgula:
+- GOREV 1 (Sozel Matris Sudoku): Mantiksal cikarim gerektiren, tabloya dayali ipucu bulmacasi. Zaman cizelgesi SVG ekle.
 - GOREV 2 (Zit Kutup Bagi): Olaylar arasi nedensellik (Ornk: A olayi gerceklesirse B sonucu ne olur) kurdurtan muhakeme sorulari. Mantik derecesi göstergesi ekle.
 - GOREV 3 (Oruntu Tamamlama): Kavramsal veya olay sirasi olarak bos birakilan yerleri tamamlattirma. Ispucu kademesi sistemi ekle.
-- GOREV 4 (Bonus - Akilda Kalacak): Ogrencinin arkadasina sorabilecegi 1 "Mini Yarisma Sorusi" veya akilda kalici bir "Tuyo" kutusu ekle.
+- GOREV 4 (Bonus): Ogrencinin arkadasina sorabilecegi 1 mini yarisma sorusi veya akilda kalici bir tuyo kutusu ekle.
 
 [PAGINATION KURALI]
-Eger urettigin toplam icerik hacmi bir A4 sayfasina (yaklasik 4 gorev blogu veya 250 kelime) sigmayacak kadar uzunsa, metnin uygun bir yerine tam olarak su ayraci yerlestirerek YENI SAYFA'ya gec:
+ICERIK COK UZUN OLURSA, uygun bir yere su ayraci koyarak YENI SAYFA'ya gec:
 ===SAYFA_SONU===
-Ayracti kelime ortasinda veya bitmemis bir cumle/gorev arasinda KULLANMA. Hep ana bolumler arasina koy.
+Ayracti cumle ortasinda kullanma. Hep ana bolumler arasina koy.
 
 [YANIT FORMATI]:
-Yanitini MUTLAKA gecerli bir JSON objesi olarak su yapida dondur:
+Yanitini gecerli JSON olarak su yapida dondur:
 {
   "title": "${topic} - Mantik ve Muhakeme",
-  "content": "Etkinligin tamamini (olay orgusu, matris, dedektiflik sorusu) iceren zengin Markdown blogunu buraya yaz.",
-  "pedagogicalNote": "Ogretmene ozel pedagojik açiklama (ZPD ve bilissel hedef) buraya."
+  "content": "Etkinligin tamamini iceren zengin Markdown blogunu buraya yaz.",
+  "pedagogicalNote": "Ogretmene ozel pedagojik aciklama buraya."
 }
-Etkinligi cocuk icin bir macera gibi kurgula. content alanindaki Markdown bloguna # H1 Baslik ile basla.
+Content alanina # H1 Baslik ile basla.
 `;
 
     return prompt;
