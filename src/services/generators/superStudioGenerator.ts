@@ -62,7 +62,7 @@ const buildPromptForTemplate = (
 
     // Yeni modüler prompt builder'ı çağır
     return templateDef.promptBuilder({
-        topic: 'Türkçe Dil Becerileri', // Varsayılan konu, gerekirse settings'den çekilebilir
+        topic: 'Doğayı ve Uzayı Keşfediyorum', // Jenerik yerine daha somut ve eğitici bir varsayılan konu
         difficulty,
         grade,
         settings,

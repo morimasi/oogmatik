@@ -37,19 +37,22 @@ Zorluk Seviyesi: ${difficulty}
 `;
     }
 
-    if (settings.mindMap5N1K) {
-        prompt += `
+    prompt += `
 - Kural 6 (5N1K ZİHİN HARİTASI): Etkinliğin en sonuna mutlaka bir "5N1K Tablosu" çiz (Markdown Grid formatında). Sütunlar: Soru, Cevap.
+
+[KRİTİK ÜRETİM TALİMATI]
+- Metin en az 3 paragraf ve 100-150 kelime arasında olmalıdır (ZPD uyumu için).
+- Giriş, gelişme ve sonuç bölümleri net olmalıdır.
+- Hikaye sonunda öğrencinin muhakeme yeteneğini ölçecek ${settings.questionCount} adet özgün soru üretilmelidir.
 `;
-    }
 
     prompt += `
 YANIT FORMATI:
 Yanıtını MUTLAKA geçerli bir JSON objesi olarak şu yapıda döndür:
 {
-  "title": "Etkinliğin Başlığı",
+  "title": "${topic} - Bilişsel Okuma Çalışması",
   "content": "Buraya tüm yönerge, okuma metni, sorular ve varsa SVG kodlarını içeren yüksek kaliteli Markdown bloğunu yaz.",
-  "pedagogicalNote": "Öğretmene özel pedagojik açıklama buraya."
+  "pedagogicalNote": "Öğretmene özel pedagojik açıklama buraya. Hangi disleksi alt tipine (fonolojik, görsel-mekansal vb.) hitap edildiğini belirt."
 }
 Öğrenci için güvenli, okunaklı ve heyecan verici olsun. content alanındaki Markdown bloğuna dikkat çekici bir # H1 Başlık ile başla.
 `;

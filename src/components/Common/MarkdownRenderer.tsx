@@ -43,9 +43,13 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
                 return (
                     <div 
                         key={`svg-${index}`}
-                        className="my-6 flex justify-center bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm transition-transform hover:scale-[1.02]"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(part.value) }}
-                    />
+                        className="my-4 flex justify-center bg-slate-50/50 p-6 rounded-3xl border border-slate-200/50 shadow-sm transition-all hover:shadow-md"
+                    >
+                        <div 
+                            className="max-h-[120px] max-w-[120px] w-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:max-h-[120px]"
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(part.value) }}
+                        />
+                    </div>
                 );
             }
 
