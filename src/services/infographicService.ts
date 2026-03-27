@@ -143,16 +143,25 @@ data
 - İçeriği ${ageConstraint.split(',')[0]} ilkesine göre sınırla
 - Türkçe başlık ve açıklamalar kullan
 - title değeri konuyu özetleyen kısa bir cümle olsun
-- syntax alanı SADECE infographic syntax içermeli (markdown code block işaretleri olmadan)
-- JSON'ın çökmemesi için syntax içindeki alt satıra geçişleri fiziksel ENTER ile DEĞİL, '\\n' kaçış karakteri ile TEXT (string) olarak yazmalısın.
+- JSON FORMATINI (KV) KESİNLİKLE KULLANMA. 
+- YANITINI SADECE AŞAĞIDAKİ XML ETİKETLERİ (TAG) ARASINA YAZ.
 
-YANIT FORMATI (JSON):
-{
-  "syntax": "infographic <template>\\ntitle <başlık>\\ndata\\n  ...",
-  "title": "İnfografik başlığı",
-  "pedagogicalNote": "Bu infografik formatı seçildi çünkü... [150+ kelime]",
-  "templateType": "kullanılan template adı (örn: compare-binary-horizontal)"
-}`;
+YANIT FORMATI (XML TAGS):
+<TITLE>
+İnfografik başlığı
+</TITLE>
+<SYNTAX>
+infographic <template>
+title <başlık>
+data
+  ...
+</SYNTAX>
+<PEDAGOGY>
+Bu infografik formatı seçildi çünkü... [150+ kelime]
+</PEDAGOGY>
+<TEMPLATE>
+kullanılan template adı (örn: compare-binary-horizontal)
+</TEMPLATE>`;
 }
 
 /**
@@ -164,21 +173,11 @@ export async function generateInfographicSyntax(
 ): Promise<InfographicResult> {
   const prompt = buildPrompt(req);
 
-  const schema = {
-    type: 'object',
-    properties: {
-      syntax: { type: 'string', description: '@antv/infographic declarative syntax' },
-      title: { type: 'string', description: 'İnfografik başlığı' },
-      pedagogicalNote: { type: 'string', description: 'Öğretmen için pedagojik açıklama' },
-      templateType: { type: 'string', description: 'Kullanılan template tipi' },
-    },
-    required: ['syntax', 'title', 'pedagogicalNote', 'templateType'],
-  };
-
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, schema }),
+    // XML döndürmesini zorladığımız için JSON şema şartını (schema payload) API'ye göndermiyoruz.
+    body: JSON.stringify({ prompt }),
   });
 
   if (!response.ok) {
@@ -186,34 +185,41 @@ export async function generateInfographicSyntax(
     throw new Error(errorData.error?.message ?? `AI servisi yanıt vermedi (${response.status})`);
   }
 
-  // /api/generate endpoint'i { success, data } sarmalayıcısı veya düz JSON döndürebilir
+  // /api/generate endpoint'ine XML döndürteceğimiz için JSON parse FAİL edecek ve { text: "..." } fallback dönecek.
   const raw = await response.json() as Record<string, unknown>;
+  const rawText = (raw?.data as Record<string, unknown>)?.text as string ?? raw?.text as string;
+  let data: Partial<InfographicResult> | null = null;
 
-  // Hem { success: true, data: {...} } hem de düz { syntax, title, ... } formatını destekle
-  let data = (raw?.data ?? raw) as Partial<InfographicResult> & { text?: string };
+  if (rawText && typeof rawText === 'string') {
+    // XML Tag Ayıklama Motoru
+    const titleMatch = rawText.match(/<TITLE>([\s\S]*?)<\/TITLE>/i);
+    const syntaxMatch = rawText.match(/<SYNTAX>([\s\S]*?)<\/SYNTAX>/i);
+    const pedMatch = rawText.match(/<PEDAGOGY>([\s\S]*?)<\/PEDAGOGY>/i);
+    const tempMatch = rawText.match(/<TEMPLATE>([\s\S]*?)<\/TEMPLATE>/i);
 
-  // Eğer Vercel AI'ın bozuk JSON'ı veya stringini (tryRepairJson crash) text içinde döndürmek zorunda kalmışsa:
-  if (!data?.syntax && data?.text) {
-    try {
-      // Markdown bloklarıyla sarılmış olabileceği ihtimaline karşı regex ile ayıklama onarımı
-      const textResponse = data.text;
-      const jsonMatch = textResponse.match(/```json\n([\s\S]*?)\n```/) || textResponse.match(/{[\s\S]*}/);
-      if (jsonMatch) {
-        // String içindeki fiziksel yeni satırları JSON onarımı için güvenli hale getir
-        const sanitizedStr = jsonMatch[0].replace(/\n/g, '\\n').replace(/\r/g, '');
-        const fallbackData = JSON.parse(sanitizedStr);
-        if (fallbackData?.syntax) {
-          data = fallbackData;
-          data.syntax = String(data.syntax).replace(/\\n/g, '\n'); // Gerçek formuna döndür
-        }
-      }
-    } catch (fallbackError) {
-      console.error('[infographicService] Fallback parse failed:', fallbackError);
+    if (syntaxMatch) {
+      data = {
+        title: titleMatch ? titleMatch[1].trim() : req.topic,
+        syntax: syntaxMatch[1].trim(),
+        pedagogicalNote: pedMatch ? pedMatch[1].trim() : '',
+        templateType: tempMatch ? tempMatch[1].trim() : 'sequence-steps',
+      };
     }
   }
 
+  // Eğer XML blokları da parse edilemediyse, muhtemelen AI düz syntax basmıştır. 
+  // O zaman ham verinin tamamını syntax olarak kabul eden son kalkan:
+  if (!data?.syntax && rawText && rawText.includes('infographic')) {
+     data = {
+         title: req.topic,
+         syntax: rawText.replace(/```(xml|text|[\s\S]*?)?\n/g, '').replace(/```/g, '').trim(),
+         pedagogicalNote: "AI standart formatta çıktı veremedi, ancak ham kodlar kurtarıldı.",
+         templateType: "sequence-steps"
+     };
+  }
+
   if (!data?.syntax || typeof data.syntax !== 'string') {
-    throw new Error('AI geçerli bir infografik syntax üretemedi. Lütfen tekrar deneyin.');
+    throw new Error('AI geçerli bir infografik syntax üretemedi. (Ne JSON ne XML blokları bulunamadı).');
   }
 
   // Syntax normalization: "infographic" prefix yoksa template tipine göre ekle
