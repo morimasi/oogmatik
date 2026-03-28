@@ -17,18 +17,16 @@ import {
   type InfographicRequest,
   type InfographicResult,
 } from '../../services/infographicService';
+import { SPLD_PREMIUM_TEMPLATES } from '../../data/infographicTemplates';
+import { useA4EditorStore } from '../../store/useA4EditorStore';
+import { logger } from '../../utils/logger';
+import { AppError } from '../../utils/AppError';
 
 // ── Tipler ──────────────────────────────────────────────────────────────────
 
 type AgeGroup = '5-7' | '8-10' | '11-13' | '14+';
 type LearningProfile = 'dyslexia' | 'dyscalculia' | 'adhd' | 'mixed' | 'general';
-type TemplateHint =
-  | 'sequence'
-  | 'list'
-  | 'compare'
-  | 'hierarchy'
-  | 'timeline'
-  | 'auto';
+type TemplateHint = 'sequence' | 'list' | 'compare' | 'hierarchy' | 'timeline' | 'auto';
 
 interface InfographicStudioProps {
   onBack?: () => void;
@@ -52,10 +50,25 @@ const PROFILES: { value: LearningProfile; label: string; icon: string }[] = [
 ];
 
 const TEMPLATE_HINTS: { value: TemplateHint; label: string; icon: string; desc: string }[] = [
-  { value: 'auto', label: 'Otomatik', icon: 'fa-wand-magic-sparkles', desc: 'AI en uygun formatı seçer' },
-  { value: 'sequence', label: 'Adım Sırası', icon: 'fa-arrow-right-arrow-left', desc: 'Süreç ve prosedürler' },
+  {
+    value: 'auto',
+    label: 'Otomatik',
+    icon: 'fa-wand-magic-sparkles',
+    desc: 'AI en uygun formatı seçer',
+  },
+  {
+    value: 'sequence',
+    label: 'Adım Sırası',
+    icon: 'fa-arrow-right-arrow-left',
+    desc: 'Süreç ve prosedürler',
+  },
   { value: 'list', label: 'Liste', icon: 'fa-list-ul', desc: 'Kavramlar ve bilgiler' },
-  { value: 'compare', label: 'Karşılaştırma', icon: 'fa-code-compare', desc: 'İki kavramı karşılaştır' },
+  {
+    value: 'compare',
+    label: 'Karşılaştırma',
+    icon: 'fa-code-compare',
+    desc: 'İki kavramı karşılaştır',
+  },
   { value: 'hierarchy', label: 'Hiyerarşi', icon: 'fa-sitemap', desc: 'Kavramsal harita' },
   { value: 'timeline', label: 'Zaman Çizelgesi', icon: 'fa-timeline', desc: 'Tarihsel/kronolojik' },
 ];
@@ -64,33 +77,83 @@ const SPLD_PREMIUM_TEMPLATES = [
   {
     category: 'Disleksi (Görsel ve Fonolojik)',
     items: [
-      { title: "Frayer Kelime Ağı", prompt: "Zorlanılan kelimenin fonetik analizi, tanımı, eş anlamlısı, zıt anlamlısı ve görsel hece yapısını gösteren 4 çeyrekli Frayer Modeli.", hint: "list" },
-      { title: "b/d/p/q Ayırt Etme Matrisi", prompt: "b ve d, p ve q gibi karışan harflerin görsel nesne benzetişimleri (örn: yatak-bed) ve ince motor yönleriyle karşılaştırmalı analizi.", hint: "compare" },
-      { title: "Sesteş Kelimeler Örümcek Ağı", prompt: "Merkezdeki bir kelimenin, okunuşu aynı ama anlamı farklı sesteş türevlerine doğru ayrılan fonolojik örümcek ağı diyagramı.", hint: "hierarchy" }
-    ]
+      {
+        title: 'Frayer Kelime Ağı',
+        prompt:
+          'Zorlanılan kelimenin fonetik analizi, tanımı, eş anlamlısı, zıt anlamlısı ve görsel hece yapısını gösteren 4 çeyrekli Frayer Modeli.',
+        hint: 'list',
+      },
+      {
+        title: 'b/d/p/q Ayırt Etme Matrisi',
+        prompt:
+          'b ve d, p ve q gibi karışan harflerin görsel nesne benzetişimleri (örn: yatak-bed) ve ince motor yönleriyle karşılaştırmalı analizi.',
+        hint: 'compare',
+      },
+      {
+        title: 'Sesteş Kelimeler Örümcek Ağı',
+        prompt:
+          'Merkezdeki bir kelimenin, okunuşu aynı ama anlamı farklı sesteş türevlerine doğru ayrılan fonolojik örümcek ağı diyagramı.',
+        hint: 'hierarchy',
+      },
+    ],
   },
   {
     category: 'Diskalkuli (Sayısal Somutlaştırma)',
     items: [
-      { title: "Somut Kesir Parçalamaları", prompt: "Bütün, Yarım ve Çeyrek kavramlarını soyut sayılarla değil, pizza dilimleri ve lego bloklarına bölerek adım adım anlatan kesir süreci.", hint: "sequence" },
-      { title: "Algoritmik Onluk Bozma Akışı", prompt: "Sayıları 10'luk taban bloklarıyla modelleyerek, çıkarma işleminde 'komşuya gitme' eylemini renk kodlu adım adım anlatan akış şeması.", hint: "sequence" }
-    ]
+      {
+        title: 'Somut Kesir Parçalamaları',
+        prompt:
+          'Bütün, Yarım ve Çeyrek kavramlarını soyut sayılarla değil, pizza dilimleri ve lego bloklarına bölerek adım adım anlatan kesir süreci.',
+        hint: 'sequence',
+      },
+      {
+        title: 'Algoritmik Onluk Bozma Akışı',
+        prompt:
+          "Sayıları 10'luk taban bloklarıyla modelleyerek, çıkarma işleminde 'komşuya gitme' eylemini renk kodlu adım adım anlatan akış şeması.",
+        hint: 'sequence',
+      },
+    ],
   },
   {
     category: 'DEHB (Yürütücü İşlevler)',
     items: [
-      { title: "Pomodoro Zaman Yönetimi Saati", prompt: "Büyük bir ev ödevini minik adımlara bölen (Örn: Hazırlık, 15dk Odaklanma, 5dk Hareket, Bitiş) renk kodlu zaman yönetimi çizelgesi.", hint: "timeline" },
-      { title: "Etki-Tepki Neden-Sonuç Zinciri", prompt: "Dürtüsel davranışların (örn: söz kesme) sosyal çevreye etkilerini oklarla bağlayarak gösteren Neden-Sonuç (Etki-Tepki) zinciri.", hint: "list" }
-    ]
+      {
+        title: 'Pomodoro Zaman Yönetimi Saati',
+        prompt:
+          'Büyük bir ev ödevini minik adımlara bölen (Örn: Hazırlık, 15dk Odaklanma, 5dk Hareket, Bitiş) renk kodlu zaman yönetimi çizelgesi.',
+        hint: 'timeline',
+      },
+      {
+        title: 'Etki-Tepki Neden-Sonuç Zinciri',
+        prompt:
+          'Dürtüsel davranışların (örn: söz kesme) sosyal çevreye etkilerini oklarla bağlayarak gösteren Neden-Sonuç (Etki-Tepki) zinciri.',
+        hint: 'list',
+      },
+    ],
   },
   {
     category: 'Disgrafi & Bellek & Duyu',
     items: [
-      { title: "3 Aşamalı Motor Yön Çizgesi", prompt: "3 satırlı kılavuz çizgiler üzerinde, kalemin tam başlangıç noktası ve kavis yönlerini adım adım öğreten ince motor harf yazım haritası.", hint: "sequence" },
-      { title: "5N1K Hikaye Çatısı", prompt: "Okuduğunu anlamada kaybolmamak için ana karakter, yer, olay, zaman ve sonuç düğümlerini 5N1K metoduyla bağlayan hiyerarşik zihin haritası.", hint: "hierarchy" },
-      { title: "Duyusal Regülasyon Termometresi", prompt: "Çocuğun anlık ruh halini (Aşırı Hareketli, Sakin, Yorgun) temsil eden ve her aşama için bir rahatlama stratejisi sunan görsel duygu termometresi.", hint: "compare" }
-    ]
-  }
+      {
+        title: '3 Aşamalı Motor Yön Çizgesi',
+        prompt:
+          '3 satırlı kılavuz çizgiler üzerinde, kalemin tam başlangıç noktası ve kavis yönlerini adım adım öğreten ince motor harf yazım haritası.',
+        hint: 'sequence',
+      },
+      {
+        title: '5N1K Hikaye Çatısı',
+        prompt:
+          'Okuduğunu anlamada kaybolmamak için ana karakter, yer, olay, zaman ve sonuç düğümlerini 5N1K metoduyla bağlayan hiyerarşik zihin haritası.',
+        hint: 'hierarchy',
+      },
+      {
+        title: 'Duyusal Regülasyon Termometresi',
+        prompt:
+          'Çocuğun anlık ruh halini (Aşırı Hareketli, Sakin, Yorgun) temsil eden ve her aşama için bir rahatlama stratejisi sunan görsel duygu termometresi.',
+        hint: 'compare',
+      },
+    ],
+  },
 ];
 
 // ── Yardımcı Bileşenler ──────────────────────────────────────────────────────
@@ -114,10 +177,11 @@ const SelectButton = <T extends string>({
           key={opt.value}
           onClick={() => onChange(opt.value)}
           title={opt.desc}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 ${value === opt.value
-            ? 'bg-violet-600 border-violet-500 text-white shadow-md shadow-violet-900/40'
-            : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-violet-500/50 hover:text-white'
-            }`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 ${
+            value === opt.value
+              ? 'bg-violet-600 border-violet-500 text-white shadow-md shadow-violet-900/40'
+              : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-violet-500/50 hover:text-white'
+          }`}
         >
           {opt.icon && <i className={`fa-solid ${opt.icon} text-[10px]`}></i>}
           {opt.label}
@@ -185,21 +249,43 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
   const handleEnhancePrompt = async () => {
     if (!topic.trim()) return;
     setIsEnhancing(true);
+    setError(null);
     try {
       const resp = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: `Aşağıdaki eğitim taslağını, özel öğrenme güçlüğü yaşayan çocuklar için @antv/infographic kod jeneratörüne verilecek çok zengin pedagojik bir PROMPT'a (istek metnine) dönüştür. Asla kod üretme, sadece konuyu betimle. Max 3 Paragraf. Taslak: "${topic}"`,
-          systemInstruction: 'Sadece zenginleştirilmiş metni dön, markdown kullanma.'
-        })
+          systemInstruction: 'Sadece zenginleştirilmiş metni dön, markdown kullanma.',
+        }),
       });
+      if (!resp.ok) {
+        throw new AppError(
+          'Zenginleştirme işlemi başarısız oldu.',
+          'ENHANCE_FAILED',
+          resp.status,
+          undefined,
+          true
+        );
+      }
       const data = await resp.json();
       if (data?.text) {
         setTopic(data.text.trim());
+      } else {
+        throw new AppError('Sunucudan beklenen veri gelmedi.', 'INVALID_RESPONSE', 500);
       }
     } catch (e) {
-      console.warn('Enhance başarısız', e);
+      const appError =
+        e instanceof AppError
+          ? e
+          : new AppError(
+              e instanceof Error ? e.message : 'Zenginleştirme sırasında bilinmeyen hata',
+              'UNKNOWN_ENHANCE_ERROR',
+              500,
+              { originalError: String(e) }
+            );
+      logger.error(appError);
+      setError(`Zenginleştirme başarısız: ${appError.userMessage}`);
     } finally {
       setIsEnhancing(false);
     }
@@ -242,6 +328,32 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
     URL.revokeObjectURL(url);
   }, []);
 
+  // ── A4 Kağıdına Aktar ──────────────────────────────────────────────────────
+  const handleExportA4 = useCallback(() => {
+    if (!rendererRef.current) return;
+    const svg = rendererRef.current.querySelector('svg');
+    if (!svg) {
+      setError('SVG bulunamadı. Önce infografik render edin.');
+      return;
+    }
+
+    // Convert SVG to Data URL safely
+    const svgString = svg.outerHTML;
+    const dataUrl = `data:image/svg+xml;base64,${window.btoa(unescape(encodeURIComponent(svgString)))}`;
+
+    useA4EditorStore.getState().addBlock({
+      type: 'image',
+      content: dataUrl,
+      x: 50,
+      y: 50,
+      width: 400,
+      height: 400,
+    });
+
+    // Switch to A4 Editor view if necessary, assuming it opens globally or via state.
+    useA4EditorStore.getState().setEditorOpen(true);
+  }, []);
+
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="flex h-screen w-full bg-slate-900 text-slate-100 overflow-hidden font-inter">
@@ -272,12 +384,18 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
                 Konu / Senaryo Prompt'u
               </label>
-              <button 
-                onClick={handleEnhancePrompt} 
+              <button
+                onClick={handleEnhancePrompt}
                 disabled={isEnhancing || !topic.trim()}
                 className="text-[10px] px-2 py-1 rounded-md bg-violet-900/40 text-violet-300 hover:bg-violet-800/60 transition-colors disabled:opacity-50"
               >
-                {isEnhancing ? 'Zenginleştiriliyor...' : <><i className="fa-solid fa-wand-magic-sparkles mr-1"></i> AI Zenginleştir</>}
+                {isEnhancing ? (
+                  'Zenginleştiriliyor...'
+                ) : (
+                  <>
+                    <i className="fa-solid fa-wand-magic-sparkles mr-1"></i> AI Zenginleştir
+                  </>
+                )}
               </button>
             </div>
             <textarea
@@ -288,21 +406,24 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
               maxLength={800}
               className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 placeholder-slate-500 resize-none focus:outline-none focus:border-violet-500 transition-colors"
             />
-            
+
             {/* 10 Premium SpLD Şablonu Dropdown (Gruplandırılmış) */}
             <div className="mt-3">
-              <select 
+              <select
                 className="w-full bg-slate-800 border border-slate-700 text-xs text-slate-300 rounded-lg p-2 focus:border-violet-500 outline-none"
                 onChange={(e) => {
-                  if(!e.target.value) return;
+                  if (!e.target.value) return;
                   const [catIndex, itemIndex] = e.target.value.split('-');
-                  const selected = SPLD_PREMIUM_TEMPLATES[Number(catIndex)].items[Number(itemIndex)];
+                  const selected =
+                    SPLD_PREMIUM_TEMPLATES[Number(catIndex)].items[Number(itemIndex)];
                   setTopic(selected.prompt);
                   setTemplateHint(selected.hint as TemplateHint);
                 }}
                 defaultValue=""
               >
-                <option value="" disabled>✨ Premium SpLD Şablonlarından Seçin...</option>
+                <option value="" disabled>
+                  ✨ Premium SpLD Şablonlarından Seçin...
+                </option>
                 {SPLD_PREMIUM_TEMPLATES.map((category, catIdx) => (
                   <optgroup key={category.category} label={category.category}>
                     {category.items.map((item, itemIdx) => (
@@ -382,7 +503,9 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
             <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1 flex items-center gap-1">
               <i className="fa-solid fa-graduation-cap"></i> Pedagojik Not
             </p>
-            <p className="text-xs text-emerald-300 leading-relaxed line-clamp-5">{result.pedagogicalNote}</p>
+            <p className="text-xs text-emerald-300 leading-relaxed line-clamp-5">
+              {result.pedagogicalNote}
+            </p>
             {result.pedagogicalNote.length > 200 && (
               <p className="text-[10px] text-emerald-500 mt-1">Sağ panelde tam metin görünür.</p>
             )}
@@ -410,20 +533,22 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowSyntaxEditor(!showSyntaxEditor)}
-              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${showSyntaxEditor
-                ? 'bg-slate-700 border-slate-500 text-slate-100'
-                : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
-                }`}
+              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${
+                showSyntaxEditor
+                  ? 'bg-slate-700 border-slate-500 text-slate-100'
+                  : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+              }`}
             >
               <i className="fa-solid fa-code mr-1.5"></i>
               Syntax
             </button>
             <button
               onClick={() => setIsEditable(!isEditable)}
-              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${isEditable
-                ? 'bg-violet-700 border-violet-600 text-white'
-                : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
-                }`}
+              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${
+                isEditable
+                  ? 'bg-violet-700 border-violet-600 text-white'
+                  : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+              }`}
             >
               <i className={`fa-solid ${isEditable ? 'fa-lock-open' : 'fa-pen'} mr-1.5`}></i>
               {isEditable ? 'Düzenleniyor' : 'Düzenle'}
@@ -435,6 +560,14 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
             >
               <i className="fa-solid fa-download mr-1.5"></i>
               SVG
+            </button>
+            <button
+              onClick={handleExportA4}
+              disabled={!activeSyntax}
+              className="text-xs px-3 py-1.5 rounded-lg font-medium border border-violet-700 bg-violet-600 text-white hover:bg-violet-500 hover:border-violet-400 disabled:opacity-40 transition-colors shadow-md shadow-violet-900/30"
+            >
+              <i className="fa-solid fa-file-export mr-1.5"></i>
+              A4 Kağıdına Aktar
             </button>
           </div>
         </div>
@@ -453,7 +586,10 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
         )}
 
         {/* İnfografik Render Alanı */}
-        <div className="flex-1 overflow-auto p-6 flex flex-col items-start justify-start" ref={rendererRef}>
+        <div
+          className="flex-1 overflow-auto p-6 flex flex-col items-start justify-start"
+          ref={rendererRef}
+        >
           {activeSyntax ? (
             <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden">
               {/* @antv/infographic (birincil) + NativeInfographicRenderer (fallback, her zaman görünsün) */}
@@ -464,7 +600,13 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
                 height="600px"
                 onError={(err) => {
                   // Render hatası bildirimi — native zaten devreye giriyor
-                  console.warn('[Studio] InfographicRenderer hata:', err.message);
+                  const errorToLog =
+                    err instanceof AppError
+                      ? err
+                      : new AppError(err.message || 'Render hatası', 'RENDER_ERROR', 500, {
+                          originalError: String(err),
+                        });
+                  logger.error(errorToLog);
                 }}
                 className="w-full"
               />
@@ -478,8 +620,8 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
               <p className="text-sm text-slate-600 max-w-sm">
                 Sol panelde konu girin ve{' '}
                 <span className="text-violet-400 font-medium">AI ile Oluştur</span> butonuna
-                tıklayın. Veya{' '}
-                <span className="text-slate-400 font-medium">Demo Görünüm</span> ile test edin.
+                tıklayın. Veya <span className="text-slate-400 font-medium">Demo Görünüm</span> ile
+                test edin.
               </p>
             </div>
           )}
@@ -489,13 +631,19 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
             <div className="w-full max-w-4xl mt-6 p-5 bg-emerald-950/40 border border-emerald-700/30 rounded-2xl">
               <div className="flex items-center gap-2 mb-3">
                 <i className="fa-solid fa-graduation-cap text-emerald-400"></i>
-                <p className="text-sm font-bold text-emerald-400">Pedagojik Not — Öğretmen Rehberi</p>
+                <p className="text-sm font-bold text-emerald-400">
+                  Pedagojik Not — Öğretmen Rehberi
+                </p>
               </div>
               <p className="text-sm text-emerald-300 leading-relaxed">{result.pedagogicalNote}</p>
               {result.templateType && (
                 <div className="mt-3 pt-3 border-t border-emerald-700/20 flex items-center gap-2">
-                  <span className="text-[10px] text-emerald-600 font-medium uppercase tracking-wider">Format:</span>
-                  <span className="text-xs font-mono text-emerald-500 bg-emerald-900/40 px-2 py-0.5 rounded">{result.templateType}</span>
+                  <span className="text-[10px] text-emerald-600 font-medium uppercase tracking-wider">
+                    Format:
+                  </span>
+                  <span className="text-xs font-mono text-emerald-500 bg-emerald-900/40 px-2 py-0.5 rounded">
+                    {result.templateType}
+                  </span>
                 </div>
               )}
             </div>

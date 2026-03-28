@@ -11,6 +11,8 @@ interface A4EditorState {
   setSnapToGrid: (snap: boolean) => void;
   gridSize: number;
   setGridSize: (size: number) => void;
+  blocks: any[];
+  addBlock: (block: any) => void;
 }
 
 export const useA4EditorStore = create<A4EditorState>((set: any) => ({
@@ -25,4 +27,9 @@ export const useA4EditorStore = create<A4EditorState>((set: any) => ({
   setSnapToGrid: (snap: boolean) => set({ snapToGrid: snap }),
   gridSize: 10,
   setGridSize: (size: number) => set({ gridSize: size }),
+  blocks: [],
+  addBlock: (block) =>
+    set((state: A4EditorState) => ({
+      blocks: [...state.blocks, { ...block, id: block.id || crypto.randomUUID() }],
+    })),
 }));
