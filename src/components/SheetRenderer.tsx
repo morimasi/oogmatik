@@ -1,12 +1,6 @@
 // @ts-nocheck
 import React, { useState, useCallback, useMemo } from 'react';
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import {
   SortableContext,
   useSortable,
@@ -14,6 +8,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Modifier } from '@dnd-kit/core';
 import {
   ActivityType,
   SingleWorksheetData,
@@ -821,15 +816,23 @@ const UnifiedContentRenderer = ({
   studentProfile?: StudentProfile | null;
   settings?: StyleSettings;
 }) => {
-  const { isEditorOpen, selectedBlockId, setSelectedBlockId } = useA4EditorStore();
+  const { isEditorOpen, selectedBlockId, setSelectedBlockId, snapToGrid, gridSize } =
+    useA4EditorStore();
   const architecture = data.layoutArchitecture;
   const rawBlocks: WorksheetBlock[] = architecture?.blocks || data.blocks || [];
   const cols = architecture?.cols || 1;
 
   // DnD sensors — editor modunda blok sıralama için
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
-  );
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+
+  const snapModifier: Modifier = ({ transform }) => {
+    if (!transform || !snapToGrid) return transform;
+    return {
+      ...transform,
+      x: Math.round(transform.x / gridSize) * gridSize,
+      y: Math.round(transform.y / gridSize) * gridSize,
+    };
+  };
 
   // ══════════════════════════════════════════════
   // AKILLI SAYFALAMA — Bölme + Ağırlık Sistemi
@@ -951,7 +954,22 @@ const UnifiedContentRenderer = ({
           data={data}
         />
 
-        <DndContext sensors={sensors} collisionDetection={closestCenter}>
+        {/* Z-index Kılavuz Çizgileri / Grid Overlay */}
+        {isEditorOpen && snapToGrid && (
+          <div
+            className="absolute inset-0 pointer-events-none z-0 opacity-20 no-print"
+            style={{
+              backgroundImage: `linear-gradient(to right, #6366f1 1px, transparent 1px), linear-gradient(to bottom, #6366f1 1px, transparent 1px)`,
+              backgroundSize: `${gridSize}px ${gridSize}px`,
+            }}
+          />
+        )}
+
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          modifiers={snapToGrid ? [snapModifier] : undefined}
+        >
           <SortableContext
             items={pageBlocks.map((b, idx) => b.id || `block-${idx}`)}
             strategy={verticalListSortingStrategy}
@@ -959,7 +977,9 @@ const UnifiedContentRenderer = ({
             <div
               className={`print-content-area mt-4 ${cols > 1 ? 'grid' : 'flex flex-col'}`}
               style={
-                cols > 1 ? { gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '6mm' } : { gap: '6mm' }
+                cols > 1
+                  ? { gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '6mm' }
+                  : { gap: '6mm' }
               }
             >
               {pageBlocks.map((block, idx) => (
@@ -1018,14 +1038,10 @@ const SortableBlockItem: React.FC<{
   setSelectedBlockId: (id: string | null) => void;
 }> = ({ block, idx, isEditorOpen, selectedBlockId, setSelectedBlockId }) => {
   const sortableId = block.id || `block-${idx}`;
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: sortableId, disabled: !isEditorOpen });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: sortableId,
+    disabled: !isEditorOpen,
+  });
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -1044,13 +1060,15 @@ const SortableBlockItem: React.FC<{
           setSelectedBlockId(block.id);
         }
       }}
-      className={`block-container transition-all duration-200 ${isEditorOpen
+      className={`block-container transition-all duration-200 ${
+        isEditorOpen
           ? 'cursor-pointer hover:ring-2 hover:ring-indigo-300 hover:shadow-md relative group/block'
           : ''
-        } ${isEditorOpen && selectedBlockId === block.id
+      } ${
+        isEditorOpen && selectedBlockId === block.id
           ? 'ring-2 ring-indigo-500 shadow-lg bg-indigo-50/10'
           : ''
-        }`}
+      }`}
     >
       {isEditorOpen && (
         <button
@@ -1068,11 +1086,16 @@ const SortableBlockItem: React.FC<{
 };
 
 /** Lazy Page: Viewport dışındaki sayfalar placeholder, girince fade-in animasyonu */
-const LazyPage: React.FC<{ children: React.ReactNode; pageIdx: number; totalPages: number }> = ({ children, pageIdx, totalPages }) => {
+const LazyPage: React.FC<{ children: React.ReactNode; pageIdx: number; totalPages: number }> = ({
+  children,
+  pageIdx,
+  totalPages,
+}) => {
   const ref = React.useRef<HTMLDivElement>(null);
   const forceRenderFlag =
     typeof window !== 'undefined' &&
-    (window as { __oogmatik_force_render_all_pages__?: boolean }).__oogmatik_force_render_all_pages__ === true;
+    (window as { __oogmatik_force_render_all_pages__?: boolean })
+      .__oogmatik_force_render_all_pages__ === true;
   const [isVisible, setIsVisible] = React.useState(pageIdx < 2 || forceRenderFlag); // İlk 2 sayfa hemen render
   const [hasAnimated, setHasAnimated] = React.useState(pageIdx < 2 || forceRenderFlag);
 
@@ -1116,10 +1139,15 @@ const LazyPage: React.FC<{ children: React.ReactNode; pageIdx: number; totalPage
 
   if (!isVisible) {
     return (
-      <div ref={ref} className="w-[210mm] min-h-[297mm] bg-slate-50 rounded border border-slate-200 flex items-center justify-center mb-8">
+      <div
+        ref={ref}
+        className="w-[210mm] min-h-[297mm] bg-slate-50 rounded border border-slate-200 flex items-center justify-center mb-8"
+      >
         <div className="text-center opacity-40">
           <i className="fa-regular fa-file text-4xl text-slate-300 mb-2 block"></i>
-          <span className="text-xs font-bold text-slate-400">Sayfa {pageIdx + 1} / {totalPages}</span>
+          <span className="text-xs font-bold text-slate-400">
+            Sayfa {pageIdx + 1} / {totalPages}
+          </span>
         </div>
       </div>
     );

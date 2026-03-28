@@ -136,7 +136,7 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
     };
 
     const finishWithScore = (finalScore: number) => {
-        const totalTime = Date.now() - startTimeRef.current;
+        const _totalTime = Date.now() - startTimeRef.current;
         const avgRT = reactionTimes.current.length > 0
             ? reactionTimes.current.reduce((a, b) => a + b, 0) / reactionTimes.current.length
             : 0;

@@ -1,8 +1,9 @@
+import { AppError } from '../utils/AppError';
 
 import { auth, db } from './firebaseClient.js';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile as updateAuthProfile } from "firebase/auth";
 import * as firestore from "firebase/firestore";
-import { User, UserRole, UserStatus, ActivityType } from '../types.js';
+import { User, UserRole, UserStatus, _ActivityType } from '../types.js';
 
 const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment } = firestore;
 
@@ -37,7 +38,7 @@ export const authService = {
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
 
-            let userData = userDocSnap.exists() ? userDocSnap.data() : {};
+            const userData = userDocSnap.exists() ? userDocSnap.data() : {};
 
             // Son giriş tarihini güncelle
             await setDoc(userDocRef, {
@@ -49,16 +50,16 @@ export const authService = {
 
             if (mappedUser.status === 'suspended') {
                 await signOut(auth);
-                throw new Error('Hesabınız askıya alınmıştır. Lütfen yönetici ile iletişime geçin.');
+                throw new AppError('Hesabınız askıya alınmıştır. Lütfen yönetici ile iletişime geçin.', 'INTERNAL_ERROR', 500);
             }
 
             return mappedUser;
         } catch (error: any) {
             console.error("Login error:", error);
             if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                throw new Error("Giriş yapılamadı: E-posta adresi veya şifre hatalı.");
+                throw new AppError("Giriş yapılamadı: E-posta adresi veya şifre hatalı.", 'INTERNAL_ERROR', 500);
             }
-            throw new Error(`Giriş hatası: ${error.message}`);
+            throw new AppError(`Giriş hatası: ${error.message}`, 'INTERNAL_ERROR', 500);
         }
     },
 
@@ -94,8 +95,8 @@ export const authService = {
             return mapDbUserToAppUser(newUserProfile, user.uid, email);
         } catch (error: any) {
             console.error("Register error:", error);
-            if (error.code === 'auth/email-already-in-use') throw new Error("Bu e-posta adresi zaten kayıtlı.");
-            throw new Error("Kayıt hatası: " + error.message);
+            if (error.code === 'auth/email-already-in-use') throw new AppError("Bu e-posta adresi zaten kayıtlı.", 'INTERNAL_ERROR', 500);
+            throw new AppError("Kayıt hatası: " + error.message, 'INTERNAL_ERROR', 500);
         }
     },
 
@@ -180,7 +181,7 @@ export const authService = {
             const { updatePassword } = await import("firebase/auth");
             await updatePassword(user, newPassword);
         } else {
-            throw new Error("Kullanıcı oturumu bulunamadı.");
+            throw new AppError("Kullanıcı oturumu bulunamadı.", 'INTERNAL_ERROR', 500);
         }
     },
 
@@ -207,7 +208,7 @@ export const authService = {
         }
     },
 
-    getAllUsers: async (page: number, pageSize: number): Promise<{ users: User[], count: number | null }> => {
+    getAllUsers: async (_page: number, _pageSize: number): Promise<{ users: User[], count: number | null }> => {
         try {
             // In a real app, pagination would use startAfter/limit.
             // For this scale, fetching top 100 is acceptable.

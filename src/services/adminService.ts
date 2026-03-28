@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 
 import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
@@ -5,7 +6,7 @@ import { DynamicActivity, PromptTemplate, PromptSnippet, StaticContentItem, Acti
 import { UserRole, UserStatus } from '../types/core.js';
 import { generateWithSchema, evaluateContent } from './geminiClient.js';
 
-const { collection, doc, getDocs, setDoc, query, where, updateDoc, deleteDoc, getDoc } = firestore;
+const { collection, doc, getDocs, setDoc, _query, _where, updateDoc, deleteDoc, getDoc } = firestore;
 
 export const adminService = {
     // Tüm dinamik aktiviteleri getir
@@ -121,7 +122,7 @@ export const adminService = {
     },
 
     saveStaticContent: async (item: StaticContentItem, note?: string) => {
-        if (!item || !item.id) throw new Error("Gecersiz veri.");
+        if (!item || !item.id) throw new AppError("Gecersiz veri.", 'INTERNAL_ERROR', 500);
         const oldDoc = await getDoc(doc(db, "config_static_content", item.id));
         const history = item.history || [];
 

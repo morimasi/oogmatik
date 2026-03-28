@@ -1,3 +1,5 @@
+import { AppError } from '../utils/AppError';
+import { logger } from '../utils/logger';
 import React, { useState, useEffect } from 'react';
 import { PromptTemplate } from '../types/admin';
 import { adminService } from '../services/adminService';
@@ -22,7 +24,7 @@ const detectActivityType = (promptId: string): ActivityType => {
     return ActivityType.MATH_PUZZLE; // Fallback
 };
 
-interface PromptSimulatorProps {
+interface _PromptSimulatorProps {
     prompt: PromptTemplate;
 }
 
@@ -63,11 +65,11 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
         try {
             // AdminService.testPrompt artık gerçek API çağırıyor
             const aiResponse = await adminService.testPrompt(prompt, variables);
-            console.log("AI Response:", aiResponse);
+            logger.info("AI Response:", aiResponse);
 
             // Gelen veri WorksheetData formatında mı? Değilse uyaralım
             if (!aiResponse || typeof aiResponse !== 'object') {
-                throw new Error("AI geçerli bir JSON nesnesi döndürmedi.");
+                throw new AppError("AI geçerli bir JSON nesnesi döndürmedi.", 'INTERNAL_ERROR', 500);
             }
 
             setResult(aiResponse);

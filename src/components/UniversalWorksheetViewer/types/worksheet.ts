@@ -7,7 +7,10 @@ export type WorksheetContentBlockType =
   | 'image'
   | 'table'
   | 'list'
-  | 'divider';
+  | 'divider'
+  | 'blank';
+
+export type BlockType = WorksheetContentBlockType;
 
 export interface WorksheetContentBlock {
   id: string;
@@ -27,6 +30,13 @@ export interface WorksheetContentBlock {
   styles?: Record<string, string>;
 }
 
+export type WorksheetBlock = WorksheetContentBlock;
+export type TextBlock = WorksheetContentBlock & { type: 'text' };
+export type ImageBlock = WorksheetContentBlock & { type: 'image' };
+export type MathBlock = WorksheetContentBlock & { type: 'math' };
+export type DividerBlock = WorksheetContentBlock & { type: 'divider' };
+export type BlankBlock = WorksheetContentBlock & { type: 'blank' };
+
 export interface WorksheetMetadata {
   id: string;
   title: string;
@@ -40,6 +50,8 @@ export interface WorksheetMetadata {
   templateId?: string;
 }
 
+export type WorksheetMeta = WorksheetMetadata;
+
 export interface WorksheetContent {
   blocks: WorksheetContentBlock[];
 }
@@ -49,10 +61,13 @@ export interface Worksheet {
   content: WorksheetContent;
 }
 
+export type WorksheetDocument = Worksheet;
+
 // ─── Dyslexia / Accessibility Settings ───────────────────────────────────────
 
 export const WORKSHEET_FONT_FAMILIES = ['default', 'OpenDyslexic', 'ReadingFont'] as const;
 export type WorksheetFontFamily = (typeof WORKSHEET_FONT_FAMILIES)[number];
+export type DyslexiaFont = WorksheetFontFamily;
 
 export const CONTRAST_MODES = ['normal', 'high', 'inverted'] as const;
 export type ContrastMode = (typeof CONTRAST_MODES)[number];
@@ -70,7 +85,9 @@ export interface DyslexiaSettings {
 
 export type ExportFormat = 'pdf' | 'png' | 'docx' | 'json';
 export type PageSize = 'A4' | 'Letter' | 'Legal' | 'A3' | 'Custom';
+export type WorksheetPageSize = PageSize;
 export type PageOrientation = 'portrait' | 'landscape';
+export type WorksheetOrientation = PageOrientation;
 
 export interface ExportSettings {
   format: ExportFormat;
@@ -100,9 +117,12 @@ export interface ExportJob {
   createdAt: string;
 }
 
+export type ExportStatus = ExportJob['status'];
+
 // ─── Template ─────────────────────────────────────────────────────────────────
 
 export type TemplateCategory = 'math' | 'language' | 'science' | 'social' | 'art' | 'custom';
+export type WorksheetCategory = TemplateCategory;
 
 export interface WorksheetTemplate {
   id: string;
@@ -117,6 +137,11 @@ export interface WorksheetTemplate {
 
 // ─── Editor State ─────────────────────────────────────────────────────────────
 
+export interface EditorSettings {
+  autoSave: boolean;
+  autoSaveIntervalMs: number;
+}
+
 export interface EditorState {
   selectedBlockId: string | null;
   isDirty: boolean;
@@ -128,6 +153,61 @@ export interface EditorState {
   showExportPanel: boolean;
   showTemplateSelector: boolean;
   showDyslexiaControls: boolean;
+}
+
+export type ZoomLevel = number;
+
+export interface WorksheetEditorState extends EditorState {
+  document: WorksheetDocument;
+  editorSettings: EditorSettings;
+  dyslexiaSettings: DyslexiaSettings;
+  exportSettings: ExportSettings;
+  history: WorksheetDocument[];
+  historyIndex: number;
+  isSaving: boolean;
+}
+
+export interface UseWorksheetStateReturn {
+  editorState: WorksheetEditorState;
+  worksheet: WorksheetDocument;
+  exportSettings: ExportSettings;
+  dyslexiaSettings: DyslexiaSettings;
+  canUndo: boolean;
+  canRedo: boolean;
+  setDocument: (doc: WorksheetDocument) => void;
+  updateContent: (content: Partial<WorksheetContent>) => void;
+  addBlock: (block: WorksheetBlock) => void;
+  updateBlock: (id: string, updates: Partial<WorksheetBlock>) => void;
+  removeBlock: (id: string) => void;
+  moveBlock: (id: string, direction: 'up' | 'down') => void;
+  selectBlock: (id: string | null) => void;
+  setZoom: (zoom: number) => void;
+  togglePrintMode: () => void;
+  togglePreview: () => void;
+  toggleExportPanel: () => void;
+  toggleTemplateSelector: () => void;
+  toggleDyslexiaControls: () => void;
+  setAutoSaving: (saving: boolean) => void;
+  markSaved: () => void;
+  updateDyslexiaSettings: (settings: Partial<DyslexiaSettings>) => void;
+  resetDyslexiaSettings: () => void;
+  updateExportSettings: (settings: Partial<ExportSettings>) => void;
+  updateTitle: (title: string, saveToHistory?: boolean) => void;
+  undo: () => void;
+  redo: () => void;
+  resetWorksheet: () => void;
+}
+
+export interface UseExportEngineReturn {
+  isExporting: boolean;
+  exportWorksheet: (worksheet: WorksheetDocument, settings: ExportSettings) => Promise<void>;
+  progress: number;
+}
+
+export interface UseTemplateManagerReturn {
+  templates: WorksheetTemplate[];
+  applyTemplate: (templateId: string) => void;
+  saveAsTemplate: (name: string, description: string) => Promise<void>;
 }
 
 // ─── Undo/Redo ────────────────────────────────────────────────────────────────

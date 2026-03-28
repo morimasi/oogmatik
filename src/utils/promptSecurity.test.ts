@@ -13,7 +13,7 @@ import {
   clearThreatLog,
   getThreatStatistics,
   DEFAULT_MAX_LENGTH,
-  type ThreatDetectionResult,
+  type _ThreatDetectionResult,
 } from './promptSecurity';
 
 describe('promptSecurity', () => {

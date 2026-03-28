@@ -11,7 +11,7 @@ import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 import type {
   OCRResult,
   WorksheetData,
-  ActivityType,
+  _ActivityType,
   LearningDisabilityProfile,
   AgeGroup,
   Difficulty
@@ -329,7 +329,7 @@ export const generateVariations = async (
 
   // Prompt oluştur
   const prompt = buildVariationPrompt(request, context);
-  const schema = getVariationSchema();
+  const _schema = getVariationSchema();
 
   try {
     // Gemini API'ye tek seferde gönder (batch generation)

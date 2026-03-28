@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 /**
  * OOGMATIK - JWT Token Verification
  * Secure API authentication with JSON Web Tokens
@@ -33,7 +34,7 @@ export class JWTService {
             });
         } catch (error) {
             console.error('[JWT] Error generating token:', error);
-            throw new Error('Token generation failed');
+            throw new AppError('Token generation failed', 'INTERNAL_ERROR', 500);
         }
     }
 
@@ -48,7 +49,7 @@ export class JWTService {
             });
         } catch (error) {
             console.error('[JWT] Error generating refresh token:', error);
-            throw new Error('Refresh token generation failed');
+            throw new AppError('Refresh token generation failed', 'INTERNAL_ERROR', 500);
         }
     }
 
@@ -64,12 +65,12 @@ export class JWTService {
             return decoded;
         } catch (error: any) {
             if (error.name === 'TokenExpiredError') {
-                throw new Error('Token has expired');
+                throw new AppError('Token has expired', 'INTERNAL_ERROR', 500);
             }
             if (error.name === 'JsonWebTokenError') {
-                throw new Error('Invalid token');
+                throw new AppError('Invalid token', 'INTERNAL_ERROR', 500);
             }
-            throw new Error('Token verification failed');
+            throw new AppError('Token verification failed', 'INTERNAL_ERROR', 500);
         }
     }
 
@@ -79,7 +80,7 @@ export class JWTService {
     static decodeToken(token: string): TokenPayload | null {
         try {
             return jwt.decode(token) as TokenPayload;
-        } catch (error) {
+        } catch (_error) {
             return null;
         }
     }
@@ -116,7 +117,7 @@ export class JWTService {
             };
         } catch (error) {
             console.error('[JWT] Error refreshing token:', error);
-            throw new Error('Token refresh failed');
+            throw new AppError('Token refresh failed', 'INTERNAL_ERROR', 500);
         }
     }
 }

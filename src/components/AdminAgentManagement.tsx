@@ -17,7 +17,7 @@ import {
 export const AdminAgentManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'conversations' | 'settings'>('overview');
   const [metrics, setMetrics] = useState<Record<AgentRole, AgentMetrics> | null>(null);
-  const [tasks, setTasks] = useState<AgentTask[]>([]);
+  const [_tasks, _setTasks] = useState<AgentTask[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<AgentRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [testPrompt, setTestPrompt] = useState('');
@@ -69,7 +69,7 @@ export const AdminAgentManagement: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: AgentTask['status']): string => {
+  const _getStatusColor = (status: AgentTask['status']): string => {
     switch (status) {
       case 'completed': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
       case 'in_progress': return 'bg-blue-100 text-blue-700 border-blue-200';

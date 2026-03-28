@@ -71,7 +71,7 @@ export interface ImageQualityResult {
 
 // ─── SINGLE FILE VALIDATION ────────────────────────────────────────────
 
-export const validateSingleFile = (file: File, index: number = 0, total: number = 1): ValidationResult => {
+export const validateSingleFile = (file: File, _index: number = 0, _total: number = 1): ValidationResult => {
   const sizeInMB = file.size / (1024 * 1024);
 
   // 1. MIME Type Check

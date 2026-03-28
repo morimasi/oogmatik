@@ -1,3 +1,4 @@
+import { logger } from '../utils/logger';
 /**
  * OOGMATIK - Audit Logging System
  * Log all operations, permission checks, and security events
@@ -77,7 +78,7 @@ export class AuditLogger {
 
         // Log to console in development
         if (process.env.NODE_ENV === 'development') {
-            console.log(`[AUDIT] ${eventType}:`, {
+            logger.info(`[AUDIT] ${eventType}:`, {
                 user: userName,
                 action,
                 timestamp: new Date(),
@@ -236,7 +237,7 @@ export class AuditLogger {
             
             // In production, save to Firestore
             // For now, log to console
-            console.log(`[AUDIT] Flushing ${batch.length} log entries to database`);
+            logger.info(`[AUDIT] Flushing ${batch.length} log entries to database`);
 
             // Mock: Save to localStorage for demo
             const existing = JSON.parse(localStorage.getItem('audit_logs') || '[]');

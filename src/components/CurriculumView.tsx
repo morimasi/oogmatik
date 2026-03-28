@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { curriculumService } from '../services/curriculumService';
-import { Curriculum, CurriculumDay, CurriculumActivity, Student, ActivityType } from '../types';
-import { ACTIVITIES } from '../constants';
+import { Curriculum, CurriculumDay, _CurriculumActivity, Student, _ActivityType } from '../types';
+import { _ACTIVITIES } from '../constants';
 import { printService } from '../utils/printService';
 import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
@@ -96,7 +96,7 @@ const DayCard: React.FC<{
     );
 };
 
-export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelectActivity, onStartCurriculumActivity, initialPlan, preFillData }) => {
+export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, _onSelectActivity, onStartCurriculumActivity, initialPlan, preFillData }) => {
     const { user } = useAuthStore();
     const { students, setActiveStudent } = useStudentStore();
 
@@ -170,7 +170,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             setCurriculum(plan);
             setStep(4);
             setIsSaved(false);
-        } catch (e) {
+        } catch (_e) {
             alert("Plan oluşturulurken bir hata oluştu.");
         } finally {
             setLoading(false);
@@ -184,7 +184,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             const id = await curriculumService.saveCurriculum(user.id, curriculum);
             setCurriculum({ ...curriculum, id });
             setIsSaved(true);
-        } catch (e) {
+        } catch (_e) {
             alert("Kaydetme hatası.");
         } finally {
             setIsSaving(false);
@@ -200,7 +200,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                 setCurriculum(null);
                 setStep(0);
                 alert("Plan silindi.");
-            } catch (e) {
+            } catch (_e) {
                 alert("Silme hatası.");
             } finally {
                 setLoading(false);
@@ -242,7 +242,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                     })
                 };
             });
-        } catch (e) { alert("Durum güncellenemedi."); }
+        } catch (_e) { alert("Durum güncellenemedi."); }
     };
 
     const handleSaveDayNote = async (dayNum: number, note: string) => {

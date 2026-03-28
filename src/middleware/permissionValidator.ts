@@ -66,7 +66,7 @@ export const authenticate = (req: VercelRequest): {
 export const requirePermission = (
     requiredPermission: Permission | Permission[]
 ) => {
-    return (req: VercelRequest, res: VercelResponse): { userId: string; role: UserRole } | null => {
+    return (req: VercelRequest, _res: VercelResponse): { userId: string; role: UserRole } | null => {
         try {
             const { userId, role } = authenticate(req);
 
@@ -101,7 +101,7 @@ export const requirePermission = (
  * Middleware factory - check if user has specific role
  */
 export const requireRole = (requiredRole: UserRole | UserRole[]) => {
-    return (req: VercelRequest, res: VercelResponse): { userId: string; role: UserRole } | null => {
+    return (req: VercelRequest, _res: VercelResponse): { userId: string; role: UserRole } | null => {
         try {
             const { userId, role } = authenticate(req);
 

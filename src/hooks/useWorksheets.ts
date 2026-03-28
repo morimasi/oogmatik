@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 /**
  * OOGMATIK - Worksheets API Integration Hooks
  * Custom React hooks for API communication with worksheets
@@ -72,7 +73,7 @@ export const useGetUserWorksheets = ({
                 const json: ApiResponse<any> = await response.json();
 
                 if (!response.ok || !json.success) {
-                    throw new Error(json.error?.message || 'Failed to fetch worksheets');
+                    throw new AppError(json.error?.message || 'Failed to fetch worksheets', 'INTERNAL_ERROR', 500);
                 }
 
                 setState({
@@ -127,7 +128,7 @@ export const useGetWorksheet = (
                 const json: ApiResponse<SavedWorksheet> = await response.json();
 
                 if (!response.ok || !json.success) {
-                    throw new Error(json.error?.message || 'Çalışma sayfası yükleme başarısız');
+                    throw new AppError(json.error?.message || 'Çalışma sayfası yükleme başarısız', 'INTERNAL_ERROR', 500);
                 }
 
                 setState({
@@ -179,7 +180,7 @@ export const useCreateWorksheet = (userId: string, userRole: string) => {
                 const json: ApiResponse<SavedWorksheet> = await response.json();
 
                 if (!response.ok || !json.success) {
-                    throw new Error(json.error?.message || 'Çalışma sayfası oluşturma başarısız');
+                    throw new AppError(json.error?.message || 'Çalışma sayfası oluşturma başarısız', 'INTERNAL_ERROR', 500);
                 }
 
                 setState({
@@ -232,7 +233,7 @@ export const useUpdateWorksheet = (userId: string, userRole: string) => {
                 const json: ApiResponse<SavedWorksheet> = await response.json();
 
                 if (!response.ok || !json.success) {
-                    throw new Error(json.error?.message || 'Çalışma sayfası güncelleme başarısız');
+                    throw new AppError(json.error?.message || 'Çalışma sayfası güncelleme başarısız', 'INTERNAL_ERROR', 500);
                 }
 
                 setState({
@@ -283,7 +284,7 @@ export const useDeleteWorksheet = (userId: string, userRole: string) => {
                 const json: ApiResponse<void> = await response.json();
 
                 if (!response.ok || !json.success) {
-                    throw new Error(json.error?.message || 'Çalışma sayfası silme başarısız');
+                    throw new AppError(json.error?.message || 'Çalışma sayfası silme başarısız', 'INTERNAL_ERROR', 500);
                 }
 
                 setState({ loading: false, error: null });
@@ -329,7 +330,7 @@ export const useShareWorksheet = (userId: string, userRole: string) => {
                 const json: ApiResponse<void> = await response.json();
 
                 if (!response.ok || !json.success) {
-                    throw new Error(json.error?.message || 'Çalışma paylaşma başarısız');
+                    throw new AppError(json.error?.message || 'Çalışma paylaşma başarısız', 'INTERNAL_ERROR', 500);
                 }
 
                 setState({ loading: false, error: null });
@@ -385,7 +386,7 @@ export const useGetSharedWorksheets = ({
                 const json: ApiResponse<any> = await response.json();
 
                 if (!response.ok || !json.success) {
-                    throw new Error(json.error?.message || 'Paylaşılan çalışmalar yükleme başarısız');
+                    throw new AppError(json.error?.message || 'Paylaşılan çalışmalar yükleme başarısız', 'INTERNAL_ERROR', 500);
                 }
 
                 setState({

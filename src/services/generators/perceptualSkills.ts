@@ -2,13 +2,13 @@
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions } from '../../types.js';
 import {
-    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, CoordinateCipherData, WordConnectData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData, MapInstructionData
+    FindTheDifferenceData, _WordComparisonData, _ShapeMatchingData, _FindIdenticalWordData, _GridDrawingData, _SymbolCipherData, _BlockPaintingData, VisualOddOneOutData, _SymmetryDrawingData, _FindDifferentStringData, _DotPaintingData, _AbcConnectData, _CoordinateCipherData, _WordConnectData, _ProfessionConnectData, _MatchstickSymmetryData, _VisualOddOneOutThemedData, _PunctuationColoringData, _SynonymAntonymColoringData, _StarHuntData, _ShapeType, _ShapeCountingData, _MapInstructionData
 } from '../../types';
-import { ocrService } from '../ocrService.js';
-import { MAP_DETECTIVE_PROMPT, PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
+import { _ocrService } from '../ocrService.js';
+import { _MAP_DETECTIVE_PROMPT, PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
 
 export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
-    const { difficulty, worksheetCount, visualType, distractionLevel, gridSize, studentContext } = options;
+    const { difficulty, _worksheetCount, visualType, distractionLevel, gridSize, studentContext } = options;
 
     const typeDesc = visualType === 'geometric' ? 'Karmaşık Geometrik Şekiller' :
         visualType === 'abstract' ? 'Soyut Desenler' :
@@ -84,7 +84,7 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
 };
 
 export const generateFindTheDifferenceFromAI = async (options: GeneratorOptions): Promise<FindTheDifferenceData[]> => {
-    const { difficulty, worksheetCount, findDiffType, itemCount = 5, studentContext } = options;
+    const { difficulty, _worksheetCount, findDiffType, itemCount = 5, studentContext } = options;
 
     const typeDesc = findDiffType === 'word' ? 'Türkçe Kelimeler' :
         findDiffType === 'char' ? 'Karıştırılan Harfler' : 'Görsel Emojiler';

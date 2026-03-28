@@ -26,7 +26,7 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
     </div>
 );
 
-interface ConfigProps {
+interface _ConfigProps {
     options: GeneratorOptions;
     onChange: (key: keyof GeneratorOptions, value: any) => void;
 }

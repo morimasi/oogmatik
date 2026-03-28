@@ -22,7 +22,7 @@ const CURRICULUM_NODES = [
 export const AdminActivityManager = () => {
     const [activities, setActivities] = useState<DynamicActivity[]>([]);
     const [prompts, setPrompts] = useState<PromptTemplate[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [_loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [activeCategory, setActiveCategory] = useState('all');
     const [editingActivity, setEditingActivity] = useState<DynamicActivity | null>(null);

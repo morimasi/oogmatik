@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { ImageDisplay, QUESTION_TYPES } from '../sheets/common';
+import React, { _useState, _useCallback, useRef } from 'react';
+import { ImageDisplay, _QUESTION_TYPES } from '../sheets/common';
 import { InteractiveStoryData, LayoutItem } from '../../types';
 import { useReadingStore } from '../../store/useReadingStore';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
@@ -48,7 +48,7 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
                 }));
             } else {
                 let newX = Math.round((initialStyle.x + dx) / 8) * 8;
-                let newY = Math.round((initialStyle.y + dy) / 8) * 8;
+                const newY = Math.round((initialStyle.y + dy) / 8) * 8;
 
                 // Magnetic Snap to common alignments (Grid, Center, Margins)
                 const centerX = A4_WIDTH_PX / 2;

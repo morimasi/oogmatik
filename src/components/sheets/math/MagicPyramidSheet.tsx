@@ -1,7 +1,7 @@
 import React from 'react';
 import { MagicPyramidData } from '../../../types';
 import { PedagogicalHeader } from '../common';
-import { EditableText } from '../../Editable';
+import { _EditableText } from '../../Editable';
 
 export const MagicPyramidSheet = ({ data }: { data: MagicPyramidData }) => {
     return (

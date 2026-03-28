@@ -120,7 +120,7 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
     const [loading, setLoading] = useState(true);
 
     // Filters
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, _setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
     const isReadOnly = !!targetUserId && targetUserId !== user?.id;
@@ -172,7 +172,7 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
     const filteredItems = useMemo(() => {
         const source = activeTab === 'favorites' ? manualFavorites : topActivities;
 
-        let items = source.filter(item => {
+        const items = source.filter(item => {
             const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 item.description.toLowerCase().includes(searchQuery.toLowerCase());
 

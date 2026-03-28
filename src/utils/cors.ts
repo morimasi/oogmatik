@@ -289,7 +289,7 @@ export function validateCorsAndMethod(
  */
 export function setPermissiveCorsForDev(res: VercelResponse): void {
   if (process.env.NODE_ENV !== 'development') {
-    throw new Error('setPermissiveCorsForDev sadece development ortamında kullanılabilir!');
+    throw new AppError('setPermissiveCorsForDev sadece development ortamında kullanılabilir!', 'INTERNAL_ERROR', 500);
   }
 
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -322,14 +322,14 @@ export function addAllowedOrigin(origin: string | RegExp): void {
         ALLOWED_ORIGINS.push(origin);
       }
     } catch {
-      throw new Error(`Geçersiz origin URL: ${origin}`);
+      throw new AppError(`Geçersiz origin URL: ${origin}`, 'INTERNAL_ERROR', 500);
     }
   } else if (origin instanceof RegExp) {
     if (!ALLOWED_ORIGINS.includes(origin)) {
       ALLOWED_ORIGINS.push(origin);
     }
   } else {
-    throw new Error('Origin string veya RegExp olmalı');
+    throw new AppError('Origin string veya RegExp olmalı', 'INTERNAL_ERROR', 500);
   }
 }
 

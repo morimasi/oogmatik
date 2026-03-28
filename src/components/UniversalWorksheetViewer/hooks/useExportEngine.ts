@@ -1,3 +1,4 @@
+import { AppError } from '../../../utils/AppError';
 import { useState, useCallback, useRef } from 'react';
 import type { Worksheet, ExportSettings, ExportJob, ExportFormat } from '../types/worksheet';
 
@@ -121,7 +122,7 @@ async function exportAsPng(_worksheet: Worksheet): Promise<string> {
   }
   const { default: html2canvas } = await import('html2canvas');
   const el = document.getElementById('worksheet-preview-root');
-  if (!el) throw new Error('Önizleme elementi bulunamadı. Lütfen önizleme panelini açın.');
+  if (!el) throw new AppError('Önizleme elementi bulunamadı. Lütfen önizleme panelini açın.', 'INTERNAL_ERROR', 500);
   const canvas = await html2canvas(el, {
     scale: 2,
     useCORS: true,

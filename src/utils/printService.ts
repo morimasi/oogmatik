@@ -26,9 +26,11 @@ const preloadFontsForCapture = async (): Promise<void> => {
 
     // 3. Tarayıcıya iki kare boyama süresi ver (font metrics stabileşsin)
     await new Promise<void>((resolve) => {
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        setTimeout(resolve, 150); // Ekstra bekleme süresi, html2canvas capture öncesi Lexend tarzı fontlar için kritik
-      }))
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          setTimeout(resolve, 150); // Ekstra bekleme süresi, html2canvas capture öncesi Lexend tarzı fontlar için kritik
+        })
+      );
     });
   } catch (e) {
     // Font yüklenemese bile yakalamaya devam et
@@ -66,14 +68,18 @@ const onCloneForCapture = (clonedDoc: Document): void => {
               fontFaceRules.push(rule.cssText);
             }
           });
-        } catch { /* cross-origin sheet — erişilemez, atla */ }
+        } catch {
+          /* cross-origin sheet — erişilemez, atla */
+        }
       });
       if (fontFaceRules.length > 0) {
         const fontStyle = clonedDoc.createElement('style');
         fontStyle.textContent = fontFaceRules.join('\n');
         clonedDoc.head.insertBefore(fontStyle, clonedDoc.head.firstChild);
       }
-    } catch { /* font face extraction failed, devam et */ }
+    } catch {
+      /* font face extraction failed, devam et */
+    }
 
     // Yazdırma için renk doğruluğu ve HASSAS FONT RENDER
     const extra = clonedDoc.createElement('style');
@@ -90,12 +96,11 @@ const onCloneForCapture = (clonedDoc: Document): void => {
   }
 };
 
-
 export interface PrintOptions {
   action?: 'print' | 'download';
   selectedPages?: number[];
   grayscale?: boolean;
-  worksheetData?: any[];
+  worksheetData?: Record<string, unknown>[];
   compact?: boolean;
   columnsPerPage?: 1 | 2;
   fontSize?: 10 | 11 | 12;
@@ -110,7 +115,7 @@ export interface PrintOptions {
 
 export type PaperSize = 'A4' | 'Letter' | 'Legal';
 export type PaperMargins = { top: string; bottom: string; left?: string; right?: string };
-const PAPER_MARGINS: Record<PaperSize, PaperMargins> = {
+const _PAPER_MARGINS: Record<PaperSize, PaperMargins> = {
   A4: { top: '15mm', bottom: '10mm' },
   Letter: { top: '12mm', bottom: '12mm' },
   Legal: { top: '15mm', bottom: '15mm' },
@@ -127,7 +132,9 @@ const RENDER_ALL_EVENT = 'oogmatik:render-all-pages';
 
 const forceRenderAllPages = async (): Promise<void> => {
   if (typeof window === 'undefined') return;
-  (window as { __oogmatik_force_render_all_pages__?: boolean }).__oogmatik_force_render_all_pages__ = true;
+  (
+    window as { __oogmatik_force_render_all_pages__?: boolean }
+  ).__oogmatik_force_render_all_pages__ = true;
   window.dispatchEvent(new Event(RENDER_ALL_EVENT));
   await new Promise<void>((resolve) => {
     requestAnimationFrame(() => {
@@ -138,7 +145,8 @@ const forceRenderAllPages = async (): Promise<void> => {
 
 const clearRenderAllPagesFlag = (): void => {
   if (typeof window === 'undefined') return;
-  delete (window as { __oogmatik_force_render_all_pages__?: boolean }).__oogmatik_force_render_all_pages__;
+  delete (window as { __oogmatik_force_render_all_pages__?: boolean })
+    .__oogmatik_force_render_all_pages__;
 };
 
 // html2canvas'ın scale/zoom deformasyonlarını (huge fonts) önlemek için tarama anında parent stillerini soyar
@@ -174,7 +182,14 @@ const stripScalesAndTransforms = (element: HTMLElement) => {
  */
 const pixelLockElement = (root: HTMLElement): (() => void) => {
   if (typeof window === 'undefined') return () => {};
-  const backups: Array<{ el: HTMLElement; w: string; h: string; fs: string; lh: string; ls: string }> = [];
+  const backups: Array<{
+    el: HTMLElement;
+    w: string;
+    h: string;
+    fs: string;
+    lh: string;
+    ls: string;
+  }> = [];
   const allEls = [root, ...Array.from(root.querySelectorAll('*'))] as HTMLElement[];
   for (const el of allEls) {
     if (!el.style) continue;
@@ -413,11 +428,17 @@ export const printService = {
     // 1. Yazdırılacak sayfaları topla
     const roots = Array.from(document.querySelectorAll(elementSelector)) as HTMLElement[];
     const pages: HTMLElement[] = [];
-    
-    const PAGE_SELECTORS = ['.worksheet-page', '.print-page', '.universal-mode-canvas', '.a4-page', '.math-canvas-page'];
+
+    const PAGE_SELECTORS = [
+      '.worksheet-page',
+      '.print-page',
+      '.universal-mode-canvas',
+      '.a4-page',
+      '.math-canvas-page',
+    ];
     const selectorText = PAGE_SELECTORS.join(',');
 
-    roots.forEach(root => {
+    roots.forEach((root) => {
       if (root.matches(selectorText)) {
         pages.push(root);
       } else {
@@ -451,10 +472,10 @@ export const printService = {
     overlay.style.zIndex = '2147483647';
     overlay.style.display = 'none'; // Sadece medya sorgusu ile print esnasında görünür
 
-    const dims = PAPER_DIMENSIONS[paperSize];
+    const _dims = PAPER_DIMENSIONS[paperSize];
     const isLandscape = pages[0]?.classList.contains('landscape');
-    const a4WidthPx = 794; // 210mm in 96dpi
-    
+    const _a4WidthPx = 794; // 210mm in 96dpi
+
     // Yüksek öncelikli CSS Güvenlik Duvarı
     let styleEl = document.getElementById('oogmatik-print-core-styles') as HTMLStyleElement;
     if (!styleEl) {
@@ -462,7 +483,7 @@ export const printService = {
       styleEl.id = 'oogmatik-print-core-styles';
       document.head.appendChild(styleEl);
     }
-    
+
     styleEl.textContent = `
       /* Kâğıt kenar boşlukları (Margins) eklendi: Kenarlara sıfır temas olmaması için */
       @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 12mm; }
@@ -537,17 +558,16 @@ export const printService = {
       clone.style.minWidth = `${origWidth}px`;
       clone.style.margin = '0';
       // DİKKAT: 'position: absolute' İPTAL EDİLDİ! Absolute elementler sayfa akışını (flow) kör eder ve marginleri ezer.
-      clone.style.position = 'relative'; 
-      
+      clone.style.position = 'relative';
+
       // Çarpılma onarımı (Scale to fit A4 Without Margin Touching)
       // @page { margin: 12mm } kullanıldığı için yazdırılabilir genişlik ~703px'e düşmüştür.
-      const printableA4Width = 703; 
+      const printableA4Width = 703;
       const scaleRatio = Math.min(1, printableA4Width / origWidth);
       if (scaleRatio < 1) {
         // 'zoom' layout'u doğal küçültür ve tarayıcının sayfaları akıcı (flow) bölmesine izin verir.
-        (clone.style as any).zoom = scaleRatio;
+        (clone.style as unknown as { zoom: string | number }).zoom = scaleRatio;
       }
-
 
       // Input, Select ve Canvas Transferi
       const origCanvases = original.querySelectorAll('canvas');
@@ -562,12 +582,13 @@ export const printService = {
 
       const origInputs = original.querySelectorAll('input, textarea, select');
       const cloneInputs = clone.querySelectorAll('input, textarea, select');
-      origInputs.forEach((input: any, i) => {
-        const dest: any = cloneInputs[i];
-        if (dest && (input.type === 'checkbox' || input.type === 'radio')) {
-          dest.checked = input.checked;
+      origInputs.forEach((input: Element, i) => {
+        const dest = cloneInputs[i] as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+        const src = input as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+        if (dest && (src.type === 'checkbox' || src.type === 'radio')) {
+          (dest as HTMLInputElement).checked = (src as HTMLInputElement).checked;
         } else if (dest) {
-          dest.value = input.value;
+          dest.value = src.value;
         }
       });
 
@@ -575,13 +596,13 @@ export const printService = {
       const wrapper = document.createElement('div');
       wrapper.className = 'oogmatik-print-wrapper';
       wrapper.appendChild(clone);
-      
+
       overlay!.appendChild(wrapper);
     });
 
     // 5. Native Render Stabilizasyonu
     document.body.classList.add('printing-mode');
-    
+
     // Küçük bir gecikme verip Native Yazdırma penceresini ateşle
     setTimeout(() => {
       try {
@@ -597,7 +618,6 @@ export const printService = {
       }
     }, 500);
   },
-
 
   /**
    * html2canvas tabanlı capture + print (Premium Engine v7.0)
@@ -621,7 +641,9 @@ export const printService = {
       const roots = Array.from(document.querySelectorAll(rootSelector)) as HTMLElement[];
       if (roots.length === 0) {
         console.error(`[printService] HATA: captureAndPrint - "${rootSelector}" bulunamadı.`);
-        alert('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+        alert(
+          'Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.'
+        );
         return;
       }
 
@@ -629,8 +651,12 @@ export const printService = {
       const hasContent = hasRenderableContent(roots);
 
       if (!hasContent) {
-        console.error(`[printService] HATA: captureAndPrint - "${rootSelector}" bulundu ama içerik boş.`);
-        alert('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+        console.error(
+          `[printService] HATA: captureAndPrint - "${rootSelector}" bulundu ama içerik boş.`
+        );
+        alert(
+          'Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.'
+        );
         return;
       }
 
@@ -681,7 +707,7 @@ export const printService = {
         const canvas = await html2canvas(page, {
           scale: 2,
           useCORS: true,
-          allowTaint: false,      // KRİTİK: true olursa canvas kirlenip boş PNG/PDF çıkar!
+          allowTaint: false, // KRİTİK: true olursa canvas kirlenip boş PNG/PDF çıkar!
           logging: false,
           backgroundColor: '#ffffff',
           foreignObjectRendering: false, // Daha stabil render için kapalı
@@ -760,7 +786,10 @@ export const printService = {
           // Eğer 3 saniye sonra hâlâ printing-mode aktifse, print dialog açılmamış demektir
           if (document.body.classList.contains('printing-mode')) {
             document.body.classList.remove('printing-mode');
-            if (overlay) { overlay.innerHTML = ''; overlay.style.display = 'none'; }
+            if (overlay) {
+              overlay.innerHTML = '';
+              overlay.style.display = 'none';
+            }
             // Fallback: PDF üret ve yeni sekmede aç
             try {
               const blob = await printService.generateRealPdf(rootSelector, title, { paperSize });
@@ -785,13 +814,13 @@ export const printService = {
    * Bu sadece 'generateRealPdf' ve 'captureAndPrint' metodlarında çağrılır
    * (Eğer içerik sayfa boyutunu aşıyorsa).
    */
-  paginateContent: async (roots: HTMLElement[], paperSize: PaperSize): Promise<HTMLElement[]> => {
+  paginateContent: async (roots: HTMLElement[], _paperSize: PaperSize): Promise<HTMLElement[]> => {
     // Şimdilik gelişmiş DOM klonlama / kesme çok kompleks olduğundan
     // ve orijinal DOM'u bozmamak için, eğer .worksheet-page zaten
     // kendi internal pagination'ına sahipse onu kullanmaya devam ediyoruz.
-    // Ancak gelecekte sayfa taşan maddeleri (mesela .activity-item) 
-    // yeni bir <div className="worksheet-page"> içine aktaracak 
-    // bir mantık buraya eklenecektir. CSS ile break-inside: avoid 
+    // Ancak gelecekte sayfa taşan maddeleri (mesela .activity-item)
+    // yeni bir <div className="worksheet-page"> içine aktaracak
+    // bir mantık buraya eklenecektir. CSS ile break-inside: avoid
     // kullanmak da yazdırma dialogunda çalışır. JsPDF'te ise html2canvas
     // bazen pageBreak desteği vermez, bu yüzden roots listesi aynen döndürülür.
     // Şimdilik DOM node'larını klonlayarak CSS bazlı split ekleyebiliriz:
@@ -810,7 +839,7 @@ export const printService = {
     try {
       const paperSize: PaperSize = options?.paperSize || 'A4';
       const action = options?.action || 'print';
-      const useCapture = options?.useCapture !== false;
+      const _useCapture = options?.useCapture !== false;
 
       if (action === 'download') {
         // GERÇEK PDF ÜRETİMİ — jsPDF ile tek dosya
@@ -824,9 +853,11 @@ export const printService = {
         const originalTitle = document.title;
         if (title) document.title = title.replace(/[^a-z0-9ğüşıöç]/gi, '_');
         await printService.print(elementSelector, paperSize);
-        if (title) setTimeout(() => { document.title = originalTitle; }, 1000);
+        if (title)
+          setTimeout(() => {
+            document.title = originalTitle;
+          }, 1000);
       }
-
     } catch (error) {
       console.error('PDF Generation Error:', error);
       document.body.classList.remove('printing-mode');
@@ -882,7 +913,9 @@ export const printService = {
       if (roots.length === 0) {
         console.error(`[printService] HATA: generateRealPdf - "${rootSelector}" bulunamadı.`);
         onProgress?.(0, 'İçerik bulunamadı');
-        alert('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+        alert(
+          'Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.'
+        );
         return null;
       }
 
@@ -890,9 +923,13 @@ export const printService = {
       const hasContent = hasRenderableContent(roots);
 
       if (!hasContent) {
-        console.error(`[printService] HATA: generateRealPdf - "${rootSelector}" bulundu ama içerik boş.`);
+        console.error(
+          `[printService] HATA: generateRealPdf - "${rootSelector}" bulundu ama içerik boş.`
+        );
         onProgress?.(0, 'İçerik boş');
-        alert('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+        alert(
+          'Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.'
+        );
         return null;
       }
 
@@ -934,10 +971,10 @@ export const printService = {
       });
 
       // UI öğelerini geçici olarak gizle
-      const uiElements = document.querySelectorAll(
+      const uiElements = document.querySelectorAll<HTMLElement>(
         '.edit-handle, .page-navigator, .no-print, .overlay-ui, .resize-handle, .action-button'
       );
-      uiElements.forEach((el: any) => {
+      uiElements.forEach((el) => {
         el.dataset.origDisplay = el.style.display;
         el.style.display = 'none';
       });
@@ -961,7 +998,7 @@ export const printService = {
           const canvas = await html2canvas(page, {
             scale: captureScale,
             useCORS: true,
-            allowTaint: false,        // KRİTİK: true olursa canvas kirlenip boş PDF çıkar!
+            allowTaint: false, // KRİTİK: true olursa canvas kirlenip boş PDF çıkar!
             logging: false,
             backgroundColor: '#ffffff',
             foreignObjectRendering: false,
@@ -1004,7 +1041,7 @@ export const printService = {
         }
       } finally {
         // UI öğelerini geri getir
-        uiElements.forEach((el: any) => {
+        uiElements.forEach((el) => {
           el.style.display = el.dataset.origDisplay || '';
           delete el.dataset.origDisplay;
         });

@@ -9,7 +9,7 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import InfographicRenderer from '../InfographicRenderer';
-import { NativeInfographicRenderer } from '../NativeInfographicRenderer';
+import { _NativeInfographicRenderer } from '../NativeInfographicRenderer';
 import {
   generateInfographicSyntax,
   getDemoSyntax,

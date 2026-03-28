@@ -6,7 +6,7 @@ import { AdvancedStudent } from '../../types/student-advanced';
 
 export const StudentSelector = () => {
     const { user } = useAuthStore();
-    const { students, activeStudent, setActiveStudent, addStudent } = useStudentStore();
+    const { students, _activeStudent, setActiveStudent, addStudent } = useStudentStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddForm, setShowAddForm] = useState(false);
 

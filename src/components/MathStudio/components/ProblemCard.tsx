@@ -4,7 +4,7 @@ import React from 'react';
 import { MathProblem } from '../../../types/math';
 import { EditableText } from '../../Editable';
 
-import { ThemeConfig, BORDER_STYLES, NUMBERING_STYLES } from '../constants';
+import { ThemeConfig, _BORDER_STYLES, NUMBERING_STYLES } from '../constants';
 
 interface ProblemCardProps {
     problem: MathProblem;

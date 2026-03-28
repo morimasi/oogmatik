@@ -1,3 +1,4 @@
+import { logger } from '../utils/logger';
 
 // Audit Service for Enterprise Compliance
 // Handles logging of critical user actions for security and accountability.
@@ -37,7 +38,7 @@ class AuditService {
             if (data) {
                 this.logs = JSON.parse(data);
             }
-        } catch (e) {
+        } catch (_e) {
             console.warn('Failed to load audit logs from local storage');
         }
     }
@@ -49,7 +50,7 @@ class AuditService {
                 this.logs = this.logs.slice(-1000);
             }
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.logs));
-        } catch (e) {
+        } catch (_e) {
             console.warn('Failed to save audit logs');
         }
     }
@@ -81,7 +82,7 @@ class AuditService {
         
         if (process.env.NODE_ENV === 'development') {
             console.groupCollapsed(`[AUDIT] ${action}`);
-            console.log(entry);
+            logger.info(entry);
             console.groupEnd();
         }
     }

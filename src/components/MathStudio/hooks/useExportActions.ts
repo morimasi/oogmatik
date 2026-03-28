@@ -73,7 +73,7 @@ export const useExportActions = (deps: ExportDeps) => {
             };
             await worksheetService.shareWorksheet(mockSavedWorksheet, deps.userId, deps.userName || '', receiverId);
             return { success: true };
-        } catch (e) {
+        } catch (_e) {
             return { success: false, error: "Paylaşım hatası." };
         }
     }, [deps.userId, deps.userName, deps.pageConfig.title, getExportData]);

@@ -19,6 +19,10 @@ export const A4EditorPanel = ({
     setEditorOpen,
     selectedBlockId,
     setSelectedBlockId,
+    snapToGrid,
+    setSnapToGrid,
+    gridSize,
+    setGridSize,
   } = useA4EditorStore();
 
   if (!isEditorOpen) return null;
@@ -59,7 +63,7 @@ export const A4EditorPanel = ({
       id: `block_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
     };
 
-    let newBlocks = [...blocks];
+    const newBlocks = [...blocks];
     // Insert after selected or at end
     if (selectedBlockId) {
       const idx = newBlocks.findIndex((b) => b.id === selectedBlockId);
@@ -147,6 +151,33 @@ export const A4EditorPanel = ({
           <i className="fa-solid fa-palette mb-1 block text-xs"></i>
           Stil
         </button>
+      </div>
+
+      <div className="p-3 border-b border-zinc-200 bg-zinc-50 flex items-center justify-between text-xs text-zinc-600">
+        <label className="flex items-center gap-2 cursor-pointer font-bold select-none">
+          <input
+            type="checkbox"
+            checked={snapToGrid}
+            onChange={(e) => setSnapToGrid(e.target.checked)}
+            className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-zinc-300"
+          />
+          <i className="fa-solid fa-border-all text-indigo-500"></i>
+          Snap-to-Grid
+        </label>
+        {snapToGrid && (
+          <div className="flex items-center gap-2 font-bold">
+            Grid (px):
+            <input
+              type="number"
+              value={gridSize}
+              onChange={(e) => setGridSize(Number(e.target.value) || 10)}
+              className="w-16 px-2 py-1 border border-zinc-300 rounded text-center"
+              min="5"
+              max="100"
+              step="5"
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar bg-zinc-50">

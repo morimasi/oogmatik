@@ -5,7 +5,7 @@ import { TurkeyMapSVG } from '../sheets/visual/TurkeyMapSVG';
 export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const regions = [
+    const _regions = [
         { value: 'all', label: 'TÜRKİYE', icon: 'fa-globe' },
         { value: 'Marmara', label: 'MARMARA', icon: 'fa-water' },
         { value: 'Ege', label: 'EGE', icon: 'fa-sun' },

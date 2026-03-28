@@ -1,5 +1,5 @@
 declare module 'zustand' {
-    export function create<T>(...args: any[]): any;
+    export function create<_T>(...args: any[]): any;
 }
 
 declare module '@vercel/node' {
@@ -7,7 +7,7 @@ declare module '@vercel/node' {
     export type VercelResponse = any;
 }
 
-declare var process: {
+declare let process: {
     env: {
         NODE_ENV: string;
         [key: string]: string | undefined;

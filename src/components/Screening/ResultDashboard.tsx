@@ -1,6 +1,6 @@
 
-import React, { useEffect, useState, useRef } from 'react';
-import { ScreeningResult, EvaluationCategory } from '../../types/screening';
+import React, { useEffect, useState, _useRef } from 'react';
+import { ScreeningResult, _EvaluationCategory } from '../../types/screening';
 import { SavedAssessment, AssessmentReport } from '../../types';
 import { CATEGORY_LABELS } from '../../data/screeningQuestions';
 import { RadarChart } from '../RadarChart';
@@ -18,7 +18,7 @@ interface Props {
     onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
 }
 
-export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectActivity, onAddToWorkbook, onGeneratePlan }: Props) => {
+export const ResultDashboard: React.FC<Props> = ({ result, onRestart, _onSelectActivity, onAddToWorkbook, onGeneratePlan }: Props) => {
     const { user } = useAuthStore();
     const [aiAnalysis, setAiAnalysis] = useState<any>(null);
     const [loadingAi, setLoadingAi] = useState(false);
@@ -27,7 +27,7 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
     const [isSaving, setIsSaving] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
-    const [savedId, setSavedId] = useState<string | null>(null);
+    const [savedId, _setSavedId] = useState<string | null>(null);
 
     // Prepare Chart Data
     const chartData = Object.entries(result.categoryScores).map(([key, data]) => ({
@@ -146,7 +146,7 @@ export const ResultDashboard: React.FC<Props> = ({ result, onRestart, onSelectAc
             await Promise.all(receiverIds.map((receiverId) => assessmentService.shareAssessment(data, user.id, user.name, receiverId)));
             setIsSharing(false);
             alert("Rapor paylaşıldı.");
-        } catch (e) {
+        } catch (_e) {
             alert("Paylaşım hatası.");
         }
     };

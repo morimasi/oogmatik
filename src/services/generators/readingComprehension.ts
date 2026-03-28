@@ -9,7 +9,7 @@ Tasarım: Sözel Stroop Testi (Verbal Stroop) bir A4 sayfasını dolduracak yoğ
 `;
 
 export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Promise<ReadingSudokuData[]> => {
-    const { difficulty, worksheetCount, variant = 'letters', gridSize = 4 } = options;
+    const { difficulty, _worksheetCount, variant = 'letters', gridSize = 4 } = options;
 
     const variantDesc = {
         'letters': 'Dislekside sık karıştırılan harf çiftleri (b-d, p-q, m-n vb.) veya sesli harfler.',
@@ -74,7 +74,7 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
 };
 
 export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOptions): Promise<SynonymAntonymMatchData[]> => {
-    const { difficulty, worksheetCount, variant = 'mixed', itemCount = 6 } = options;
+    const { difficulty, _worksheetCount, variant = 'mixed', itemCount = 6 } = options;
 
     const modeDesc = variant === 'synonym' ? 'Sadece Eş Anlamlılar' : variant === 'antonym' ? 'Sadece Zıt Anlamlılar' : 'Eş ve Zıt Anlamlı Karışık';
 
@@ -273,12 +273,12 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
     return generateWithSchema(prompt, schema) as Promise<StoryData[]>;
 };
 
-export const generateStoryAnalysisFromAI = async (o: GeneratorOptions) => [] as any;
-export const generateStoryCreationPromptFromAI = async (o: GeneratorOptions) => [] as any;
-export const generateWordsInStoryFromAI = async (o: GeneratorOptions) => [] as any;
-export const generateStorySequencingFromAI = async (o: GeneratorOptions) => [] as any;
-export const generateProverbSayingSortFromAI = async (o: GeneratorOptions) => [] as any;
-export const generateProverbWordChainFromAI = async (o: GeneratorOptions) => [] as any;
-export const generateProverbFillInTheBlankFromAI = async (o: GeneratorOptions) => [] as any;
-export const generateProverbSearchFromAI = async (o: GeneratorOptions) => [] as any;
-export const generateProverbSentenceFinderFromAI = async (o: GeneratorOptions) => [] as any;
+export const generateStoryAnalysisFromAI = async (_o: GeneratorOptions) => [] as any;
+export const generateStoryCreationPromptFromAI = async (_o: GeneratorOptions) => [] as any;
+export const generateWordsInStoryFromAI = async (_o: GeneratorOptions) => [] as any;
+export const generateStorySequencingFromAI = async (_o: GeneratorOptions) => [] as any;
+export const generateProverbSayingSortFromAI = async (_o: GeneratorOptions) => [] as any;
+export const generateProverbWordChainFromAI = async (_o: GeneratorOptions) => [] as any;
+export const generateProverbFillInTheBlankFromAI = async (_o: GeneratorOptions) => [] as any;
+export const generateProverbSearchFromAI = async (_o: GeneratorOptions) => [] as any;
+export const generateProverbSentenceFinderFromAI = async (_o: GeneratorOptions) => [] as any;

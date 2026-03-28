@@ -183,7 +183,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
                                 {/* Timeline Items */}
                                 <div className="space-y-0 ml-4 border-l-2 border-zinc-200 dark:border-zinc-700 pl-6 pb-2">
-                                    {group.items.map((item, iIdx) => (
+                                    {group.items.map((item, _iIdx) => (
                                         <div key={item.id} className="relative mb-6 group last:mb-0">
                                             {/* Timeline Dot */}
                                             <div className="absolute -left-[31px] top-4 w-4 h-4 rounded-full bg-white dark:bg-zinc-800 border-2 border-indigo-500 shadow-sm z-10 group-hover:scale-125 transition-transform"></div>

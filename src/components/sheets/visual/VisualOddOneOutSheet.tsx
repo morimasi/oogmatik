@@ -34,7 +34,7 @@ const ComplexShapeRenderer = ({ item, size = 80 }: { item: VisualOddOneOutItem, 
 export const VisualOddOneOutSheet = ({ data }: { data: VisualOddOneOutData }) => {
     const settings = data.settings;
     const isUltraDense = settings?.layout === 'ultra_dense';
-    const isProtocol = settings?.layout === 'protocol';
+    const _isProtocol = settings?.layout === 'protocol';
 
     // Grid sütun sayısını ayarla: Bol içerik için optimize et
     const gridCols = isUltraDense ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-1";

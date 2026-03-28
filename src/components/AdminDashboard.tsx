@@ -48,7 +48,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
 
     // Data States
     const [stats, setStats] = useState<ActivityStats[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [_loading, setLoading] = useState(true);
     const [usersCount, setUsersCount] = useState(0);
 
     // Inspector Mode 

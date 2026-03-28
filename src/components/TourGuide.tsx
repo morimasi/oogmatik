@@ -76,7 +76,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
             if (element && element.offsetParent !== null) {
                 try {
                     element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-                } catch (e) { /* ignore */ }
+                } catch (_e) { /* ignore */ }
                 
                 scrollTimeout = setTimeout(() => {
                     // Check element existence again inside timeout to be safe

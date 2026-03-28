@@ -120,7 +120,7 @@ class Logger {
   /**
    * Production analytics gönderimi
    */
-  private sendToAnalytics(level: LogLevel, message: string, meta?: Record<string, unknown>): void {
+  private sendToAnalytics(level: LogLevel, _message: string, _meta?: Record<string, unknown>): void {
     // TODO: Vercel Analytics entegrasyonu
     // Bu noktada sadece critical hataları logluyoruz
     if (level === 'error') {
@@ -131,7 +131,7 @@ class Logger {
   /**
    * Production error tracking gönderimi
    */
-  private sendToErrorTracking(message: string, meta: Record<string, unknown>): void {
+  private sendToErrorTracking(_message: string, _meta: Record<string, unknown>): void {
     // TODO: Sentry entegrasyonu
     // window.Sentry?.captureException(new Error(message), { extra: meta });
   }
@@ -139,7 +139,7 @@ class Logger {
   /**
    * Audit log database'e yazma
    */
-  private sendToAuditLog(entry: LogEntry): void {
+  private sendToAuditLog(_entry: LogEntry): void {
     // TODO: Firestore audit collection'a yazma
     // Bu kritik - her erişim kaydedilmeli (KVKK Madde 11)
   }

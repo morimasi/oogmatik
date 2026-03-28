@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { memo, useState, useRef, useEffect, useCallback } from 'react';
+import React, { memo, useState, useRef, useEffect, _useCallback } from 'react';
 import {
   ActivityType,
   WorksheetData,
@@ -11,9 +11,9 @@ import {
   WorkbookSettings,
   StudentProfile,
   AssessmentReport,
-  OverlayItem,
+  _OverlayItem,
 } from '../types';
-import Worksheet from './Worksheet';
+import _Worksheet from './Worksheet';
 import { Toolbar } from './Toolbar';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
 import { SharedWorksheetsView } from './SharedWorksheetsView';
@@ -74,7 +74,7 @@ const LandingText = memo(() => {
       {text.split('').map((char, i) => {
         if (char === ' ') return <span key={i}> </span>;
         // Rastgele harfleri animasyonlu yap (Bursa Disleksi logosu mantığıyla)
-        const isAnimated = true;
+        const _isAnimated = true;
         const delay = Math.random() * -10;
         const duration = 5 + Math.random() * 5;
         return (
@@ -112,7 +112,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   setWorkbookSettings,
   onAddToWorkbook,
   onAutoGenerateWorkbook,
-  studentProfile,
+  _studentProfile,
   zenMode,
   toggleZenMode,
   activeCurriculumSession,
@@ -124,8 +124,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     activeWorksheetId,
     activeWorksheetTitle,
     setActiveWorksheet,
-    setCurrentView,
-    addHistoryView,
+    _setCurrentView,
+    _addHistoryView,
   } = useWorksheetStore();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isShareSending, setIsShareSending] = useState(false);

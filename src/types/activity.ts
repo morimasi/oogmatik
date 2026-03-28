@@ -1,4 +1,5 @@
 export enum ActivityType {
+  HECE_PARKURU = 'HECE_PARKURU',
   FIND_LETTER_PAIR = 'FIND_LETTER_PAIR',
   READING_SUDOKU = 'READING_SUDOKU',
   SYLLABLE_MASTER_LAB = 'SYLLABLE_MASTER_LAB',
@@ -110,7 +111,7 @@ export interface Activity {
   title: string;
   description: string;
   icon: string;
-  defaultStyle?: any;
+  defaultStyle?: Record<string, unknown>;
   promptId?: string;
 }
 
@@ -124,22 +125,22 @@ export interface ActivityCategory {
 
 export interface WorksheetBlock {
   type:
-  | 'header'
-  | 'text'
-  | 'grid'
-  | 'table'
-  | 'svg_shape'
-  | 'dual_column'
-  | 'image'
-  | 'question'
-  | 'logic_card'
-  | 'footer_validation'
-  | 'cloze_test'
-  | 'categorical_sorting'
-  | 'match_columns'
-  | 'visual_clue_card'
-  | 'neuro_marker';
-  content: any;
+    | 'header'
+    | 'text'
+    | 'grid'
+    | 'table'
+    | 'svg_shape'
+    | 'dual_column'
+    | 'image'
+    | 'question'
+    | 'logic_card'
+    | 'footer_validation'
+    | 'cloze_test'
+    | 'categorical_sorting'
+    | 'match_columns'
+    | 'visual_clue_card'
+    | 'neuro_marker';
+  content: unknown;
   id?: string;
   style?: {
     textAlign?: string;

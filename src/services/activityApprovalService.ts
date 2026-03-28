@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 /**
  * OOGMATIK — Etkinlik Onay Servisi
  *
@@ -12,8 +13,8 @@
 import type { ActivityDraft, DynamicActivity } from '../types/admin';
 import type {
     ActivityTemplate,
-    ApprovalStatus,
-    ProductionMode,
+    _ApprovalStatus,
+    _ProductionMode,
     ApprovalQueueFilter,
     AutoSettings,
 } from '../types/ocr-activity';
@@ -114,11 +115,11 @@ export const activityApprovalService = {
     async approve(draftId: string, adminId: string): Promise<ActivityDraft> {
         const draft = approvalQueue.find((d) => d.id === draftId);
         if (!draft) {
-            throw new Error(`Taslak bulunamadı: ${draftId}`);
+            throw new AppError(`Taslak bulunamadı: ${draftId}`, 'INTERNAL_ERROR', 500);
         }
 
         if (draft.status !== 'pending_review') {
-            throw new Error(`Bu taslak onay beklemiyormuş. Mevcut durum: ${draft.status}`);
+            throw new AppError(`Bu taslak onay beklemiyormuş. Mevcut durum: ${draft.status}`, 'INTERNAL_ERROR', 500);
         }
 
         draft.status = 'approved';
@@ -139,11 +140,11 @@ export const activityApprovalService = {
     ): Promise<ActivityDraft> {
         const draft = approvalQueue.find((d) => d.id === draftId);
         if (!draft) {
-            throw new Error(`Taslak bulunamadı: ${draftId}`);
+            throw new AppError(`Taslak bulunamadı: ${draftId}`, 'INTERNAL_ERROR', 500);
         }
 
         if (draft.status !== 'pending_review') {
-            throw new Error(`Bu taslak onay beklemiyormuş. Mevcut durum: ${draft.status}`);
+            throw new AppError(`Bu taslak onay beklemiyormuş. Mevcut durum: ${draft.status}`, 'INTERNAL_ERROR', 500);
         }
 
         draft.status = 'rejected';
@@ -164,11 +165,11 @@ export const activityApprovalService = {
     async publishActivity(draftId: string): Promise<DynamicActivity> {
         const draft = approvalQueue.find((d) => d.id === draftId);
         if (!draft) {
-            throw new Error(`Taslak bulunamadı: ${draftId}`);
+            throw new AppError(`Taslak bulunamadı: ${draftId}`, 'INTERNAL_ERROR', 500);
         }
 
         if (draft.status !== 'approved') {
-            throw new Error('Sadece onaylanmış taslaklar yayınlanabilir.');
+            throw new AppError('Sadece onaylanmış taslaklar yayınlanabilir.', 'INTERNAL_ERROR', 500);
         }
 
         const activity: DynamicActivity = {
@@ -206,7 +207,7 @@ export const activityApprovalService = {
     ): Promise<ActivityDraft> {
         const original = approvalQueue.find((d) => d.id === draftId);
         if (!original) {
-            throw new Error(`Orijinal taslak bulunamadı: ${draftId}`);
+            throw new AppError(`Orijinal taslak bulunamadı: ${draftId}`, 'INTERNAL_ERROR', 500);
         }
 
         const currentVersion = original.version || 'v1.0';

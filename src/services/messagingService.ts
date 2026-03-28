@@ -41,7 +41,7 @@ export const messagingService = {
         await addDoc(collection(db, "feedbacks"), payload);
     },
 
-    getAllFeedbacks: async (page: number, pageSize: number): Promise<{ feedbacks: FeedbackItem[], count: number | null }> => {
+    getAllFeedbacks: async (_page: number, _pageSize: number): Promise<{ feedbacks: FeedbackItem[], count: number | null }> => {
         const q = query(collection(db, "feedbacks"), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
         const feedbacks: FeedbackItem[] = [];
@@ -62,7 +62,7 @@ export const messagingService = {
         await deleteDoc(doc(db, "feedbacks", feedbackId));
     },
 
-    replyToFeedback: async (feedbackId: string, replyMessage: string, adminUser: User): Promise<void> => {
+    replyToFeedback: async (feedbackId: string, replyMessage: string, _adminUser: User): Promise<void> => {
         const feedbackRef = doc(db, "feedbacks", feedbackId);
         await updateDoc(feedbackRef, { status: 'replied', adminReply: replyMessage });
         

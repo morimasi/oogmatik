@@ -7,7 +7,7 @@ import { assessmentService } from '../../services/assessmentService';
 import { curriculumService } from '../../services/curriculumService';
 import { LineChart } from '../LineChart';
 import { RadarChart } from '../RadarChart';
-import { ACTIVITIES } from '../../constants';
+import { _ACTIVITIES } from '../../constants';
 
 // Define constants used in the component
 const grades = [
@@ -44,8 +44,8 @@ type GroupingMode = 'all' | 'grade' | 'age';
 type FormTab = 'identity' | 'academic' | 'parent';
 
 export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLoadMaterial }) => {
-  const { user } = useAuthStore();
-  const { students, activeStudent, setActiveStudent, addStudent, deleteStudent, updateStudent, isLoading: contextLoading } = useStudentStore();
+  const { _user } = useAuthStore();
+  const { students, activeStudent, setActiveStudent, addStudent, deleteStudent, updateStudent, isLoading: _contextLoading } = useStudentStore();
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 

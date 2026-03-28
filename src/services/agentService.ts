@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 /**
  * OOGMATIK - AI Agent Coordination Service
  * Coordinates 4 expert leader agents for educational content generation
@@ -8,7 +9,7 @@ import { generateWithSchema } from './geminiClient.js';
 import { db } from './firebaseClient.js';
 import * as firestore from 'firebase/firestore';
 
-const { collection, doc, setDoc, getDocs, query, orderBy, limit, where } = firestore;
+const { collection, doc, setDoc, getDocs, query, orderBy, _limit, where } = firestore;
 
 // ========================================
 // TYPES
@@ -186,11 +187,11 @@ export const agentService = {
   executeTask: async (taskId: string): Promise<AgentTask> => {
     const taskDoc = await firestore.getDoc(doc(db, 'agent_tasks', taskId));
     if (!taskDoc.exists()) {
-      throw new Error(`Task ${taskId} not found`);
+      throw new AppError(`Task ${taskId} not found`, 'INTERNAL_ERROR', 500);
     }
 
     const task = taskDoc.data() as AgentTask;
-    const profile = AGENT_PROFILES[task.role];
+    const _profile = AGENT_PROFILES[task.role];
 
     // Update task status to in_progress
     await firestore.updateDoc(doc(db, 'agent_tasks', taskId), {

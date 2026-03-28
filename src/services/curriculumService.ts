@@ -1,6 +1,6 @@
 
 import { generateWithSchema } from './geminiClient.js';
-import { Curriculum, ActivityType, CurriculumDay, CurriculumActivityStatus, Student } from '../types.js';
+import { Curriculum, _ActivityType, _CurriculumDay, CurriculumActivityStatus, Student } from '../types.js';
 import { ACTIVITIES } from '../constants.js';
 import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
@@ -8,7 +8,7 @@ import * as firestore from "firebase/firestore";
 const { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc, getDoc } = firestore;
 
 // Yardımcı Fonksiyon: Belli bir kategoriye ait aktivite ID'lerini filtreler
-const getActivitiesByTag = (tag: string): string[] => {
+const _getActivitiesByTag = (_tag: string): string[] => {
     // Burada basit bir filtreleme yapılabilir, şimdilik tüm ID'leri dönelim
     // Gelişmiş versiyonda ACTIVITIES constant'ına 'tags' eklenip filtrelenebilir.
     return ACTIVITIES.map(a => a.id);
@@ -138,7 +138,7 @@ export const curriculumService = {
             userId,
             createdAt: new Date().toISOString()
         };
-        const { id, ...dataToSave } = payload;
+        const { _id, ...dataToSave } = payload;
         const docRef = await addDoc(collection(db, "saved_curriculums"), dataToSave);
         return docRef.id;
     },
@@ -158,7 +158,7 @@ export const curriculumService = {
                 items.push({ ...data, id: doc.id });
             });
             return items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
-        } catch (e) {
+        } catch (_e) {
             return [];
         }
     },
@@ -173,7 +173,7 @@ export const curriculumService = {
                 items.push({ ...data, id: doc.id });
             });
             return items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
-        } catch (e) {
+        } catch (_e) {
             return [];
         }
     },

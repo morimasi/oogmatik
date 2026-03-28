@@ -6,7 +6,7 @@
  */
 
 import { create } from 'zustand';
-import type { ActivityTemplate, ProductionMode, ApprovalStatus } from '../types/ocr-activity';
+import type { ActivityTemplate, ProductionMode, _ApprovalStatus } from '../types/ocr-activity';
 import type { OCRResult } from '../types/core';
 import type { ActivityDraft } from '../types/admin';
 

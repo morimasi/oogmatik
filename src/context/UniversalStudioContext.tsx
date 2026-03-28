@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 import React, { createContext, useContext, useMemo, ReactNode } from 'react';
 import { LayoutItem } from '../types';
 import { useCreativeStore } from '../store/useCreativeStore';
@@ -38,6 +39,6 @@ export function UniversalStudioProvider({ children }: { children: ReactNode }) {
 
 export const useUniversalStudio = () => {
     const context = useContext(UniversalStudioContext);
-    if (!context) throw new Error('useUniversalStudio must be used within a UniversalStudioProvider');
+    if (!context) throw new AppError('useUniversalStudio must be used within a UniversalStudioProvider', 'INTERNAL_ERROR', 500);
     return context;
 };

@@ -13,7 +13,7 @@ interface DraggableItemProps {
 
 const DraggableItem = ({ item, children }: DraggableItemProps) => {
     const {
-        designMode, updateComponent, setSelectedId, selectedId, layout, setLayout,
+        designMode, updateComponent, _setSelectedId, selectedId, layout, setLayout,
         selectedIds, toggleSelection, lockedItems, groupedItems
     } = useCreativeStore();
     const isDragging = useRef(false);
@@ -72,7 +72,7 @@ const DraggableItem = ({ item, children }: DraggableItemProps) => {
                 }));
             } else {
                 let newX = Math.round((initialStyle.x + dx) / 8) * 8;
-                let newY = Math.round((initialStyle.y + dy) / 8) * 8;
+                const newY = Math.round((initialStyle.y + dy) / 8) * 8;
 
                 const centerX = A4_WIDTH_PX / 2;
                 const itemCenterX = newX + (initialStyle.w / 2);

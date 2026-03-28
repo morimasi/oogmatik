@@ -6,7 +6,7 @@ import { Message, User } from '../types';
 import { db } from '../services/firebaseClient';
 import * as firestore from "firebase/firestore";
 
-const { collection, query, where, onSnapshot, orderBy } = firestore;
+const { collection, query, where, onSnapshot, _orderBy } = firestore;
 
 interface MessagesViewProps {
     onBack: () => void;

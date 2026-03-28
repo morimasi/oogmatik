@@ -98,7 +98,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     onOpenStudio,
 }) => {
     const { user, logout } = useAuthStore();
-    const { isSidebarOpen, setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
+    const { _isSidebarOpen, setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession } = useWorksheetStore();
 
     const navigateTo = (view: View) => {

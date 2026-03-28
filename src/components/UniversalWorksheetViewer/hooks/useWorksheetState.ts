@@ -20,25 +20,37 @@ import {
 
 const initialDocument: WorksheetDocument = BUILT_IN_TEMPLATES[0].document;
 
-function buildInitialState(): WorksheetEditorState {
+function buildInitialState(initialWorksheet?: Partial<WorksheetDocument>): WorksheetEditorState {
+  const document = initialWorksheet ? { ...initialDocument, ...initialWorksheet } : initialDocument;
   return {
-    document: initialDocument,
+    document,
     editorSettings: { ...DEFAULT_EDITOR_SETTINGS },
     dyslexiaSettings: { ...DEFAULT_DYSLEXIA_SETTINGS },
     exportSettings: { ...DEFAULT_EXPORT_SETTINGS },
     selectedBlockId: null,
     isDirty: false,
     isSaving: false,
+    isAutoSaving: false,
     lastSavedAt: null,
-    history: [initialDocument],
+    zoom: 100,
+    isPrintMode: false,
+    showPreview: false,
+    showExportPanel: false,
+    showTemplateSelector: false,
+    showDyslexiaControls: false,
+    history: [document],
     historyIndex: 0,
   };
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useWorksheetState(): UseWorksheetStateReturn {
-  const [state, setState] = useState<WorksheetEditorState>(buildInitialState);
+export function useWorksheetState(
+  initialWorksheet?: Partial<WorksheetDocument>
+): UseWorksheetStateReturn {
+  const [state, setState] = useState<WorksheetEditorState>(() =>
+    buildInitialState(initialWorksheet)
+  );
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Auto-save ────────────────────────────────────────────────────────────
@@ -46,7 +58,12 @@ export function useWorksheetState(): UseWorksheetStateReturn {
     if (!state.editorSettings.autoSave || !state.isDirty) return;
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     autoSaveTimerRef.current = setTimeout(() => {
-      setState((s) => ({ ...s, isDirty: false, isSaving: false, lastSavedAt: new Date().toISOString() }));
+      setState((s) => ({
+        ...s,
+        isDirty: false,
+        isSaving: false,
+        lastSavedAt: new Date().toISOString(),
+      }));
     }, state.editorSettings.autoSaveIntervalMs);
     return () => {
       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
@@ -73,51 +90,51 @@ export function useWorksheetState(): UseWorksheetStateReturn {
     (doc: WorksheetDocument) => {
       pushHistory(doc);
     },
-    [pushHistory],
+    [pushHistory]
   );
 
-  const updateContent = useCallback(
-    (content: Partial<WorksheetContent>) => {
-      setState((s) => {
-        const updated: WorksheetDocument = {
-          ...s.document,
-          content: { ...s.document.content, ...content },
-        };
-        const trimmed = s.history.slice(0, s.historyIndex + 1);
-        const newHistory = [...trimmed, updated].slice(-50);
-        return {
-          ...s,
-          document: updated,
-          history: newHistory,
-          historyIndex: newHistory.length - 1,
-          isDirty: true,
-        };
-      });
-    },
-    [],
-  );
+  const updateContent = useCallback((content: Partial<WorksheetContent>) => {
+    setState((s) => {
+      const updated: WorksheetDocument = {
+        ...s.document,
+        content: { ...s.document.content, ...content },
+      };
+      const trimmed = s.history.slice(0, s.historyIndex + 1);
+      const newHistory = [...trimmed, updated].slice(-50);
+      return {
+        ...s,
+        document: updated,
+        history: newHistory,
+        historyIndex: newHistory.length - 1,
+        isDirty: true,
+      };
+    });
+  }, []);
 
   // ── Block operations ──────────────────────────────────────────────────────
-  const addBlock = useCallback(
-    (block: WorksheetBlock) => {
-      setState((s) => {
-        const blocks = [...s.document.content.blocks, block];
-        const updated: WorksheetDocument = {
-          ...s.document,
-          content: { ...s.document.content, blocks },
-        };
-        const trimmed = s.history.slice(0, s.historyIndex + 1);
-        const newHistory = [...trimmed, updated].slice(-50);
-        return { ...s, document: updated, history: newHistory, historyIndex: newHistory.length - 1, isDirty: true };
-      });
-    },
-    [],
-  );
+  const addBlock = useCallback((block: WorksheetBlock) => {
+    setState((s) => {
+      const blocks = [...s.document.content.blocks, block];
+      const updated: WorksheetDocument = {
+        ...s.document,
+        content: { ...s.document.content, blocks },
+      };
+      const trimmed = s.history.slice(0, s.historyIndex + 1);
+      const newHistory = [...trimmed, updated].slice(-50);
+      return {
+        ...s,
+        document: updated,
+        history: newHistory,
+        historyIndex: newHistory.length - 1,
+        isDirty: true,
+      };
+    });
+  }, []);
 
   const updateBlock = useCallback((id: string, updates: Partial<WorksheetBlock>) => {
     setState((s) => {
       const blocks = s.document.content.blocks.map((b) =>
-        b.id === id ? ({ ...b, ...updates } as WorksheetBlock) : b,
+        b.id === id ? ({ ...b, ...updates } as WorksheetBlock) : b
       );
       const updated: WorksheetDocument = {
         ...s.document,
@@ -125,7 +142,13 @@ export function useWorksheetState(): UseWorksheetStateReturn {
       };
       const trimmed = s.history.slice(0, s.historyIndex + 1);
       const newHistory = [...trimmed, updated].slice(-50);
-      return { ...s, document: updated, history: newHistory, historyIndex: newHistory.length - 1, isDirty: true };
+      return {
+        ...s,
+        document: updated,
+        history: newHistory,
+        historyIndex: newHistory.length - 1,
+        isDirty: true,
+      };
     });
   }, []);
 
@@ -138,7 +161,14 @@ export function useWorksheetState(): UseWorksheetStateReturn {
       };
       const trimmed = s.history.slice(0, s.historyIndex + 1);
       const newHistory = [...trimmed, updated].slice(-50);
-      return { ...s, document: updated, history: newHistory, historyIndex: newHistory.length - 1, isDirty: true, selectedBlockId: null };
+      return {
+        ...s,
+        document: updated,
+        history: newHistory,
+        historyIndex: newHistory.length - 1,
+        isDirty: true,
+        selectedBlockId: null,
+      };
     });
   }, []);
 
@@ -156,7 +186,13 @@ export function useWorksheetState(): UseWorksheetStateReturn {
       };
       const trimmed = s.history.slice(0, s.historyIndex + 1);
       const newHistory = [...trimmed, updated].slice(-50);
-      return { ...s, document: updated, history: newHistory, historyIndex: newHistory.length - 1, isDirty: true };
+      return {
+        ...s,
+        document: updated,
+        history: newHistory,
+        historyIndex: newHistory.length - 1,
+        isDirty: true,
+      };
     });
   }, []);
 
@@ -165,7 +201,7 @@ export function useWorksheetState(): UseWorksheetStateReturn {
   }, []);
 
   // ── Settings operations ───────────────────────────────────────────────────
-  const updateEditorSettings = useCallback((settings: Partial<EditorSettings>) => {
+  const _updateEditorSettings = useCallback((settings: Partial<EditorSettings>) => {
     setState((s) => ({ ...s, editorSettings: { ...s.editorSettings, ...settings } }));
   }, []);
 
@@ -195,23 +231,67 @@ export function useWorksheetState(): UseWorksheetStateReturn {
   }, []);
 
   // ── Save ──────────────────────────────────────────────────────────────────
-  const save = useCallback(async () => {
+  const _save = useCallback(async () => {
     setState((s) => ({ ...s, isSaving: true }));
     // In a real app, this would call an API. Here we simulate a brief delay.
     await new Promise<void>((resolve) => setTimeout(resolve, 300));
-    setState((s) => ({ ...s, isSaving: false, isDirty: false, lastSavedAt: new Date().toISOString() }));
+    setState((s) => ({
+      ...s,
+      isSaving: false,
+      isDirty: false,
+      lastSavedAt: new Date().toISOString(),
+    }));
   }, []);
 
+  const setZoom = useCallback((zoom: number) => setState((s) => ({ ...s, zoom })), []);
+  const togglePrintMode = useCallback(
+    () => setState((s) => ({ ...s, isPrintMode: !s.isPrintMode })),
+    []
+  );
+  const togglePreview = useCallback(
+    () => setState((s) => ({ ...s, showPreview: !s.showPreview })),
+    []
+  );
+  const toggleExportPanel = useCallback(
+    () => setState((s) => ({ ...s, showExportPanel: !s.showExportPanel })),
+    []
+  );
+  const toggleTemplateSelector = useCallback(
+    () => setState((s) => ({ ...s, showTemplateSelector: !s.showTemplateSelector })),
+    []
+  );
+  const toggleDyslexiaControls = useCallback(
+    () => setState((s) => ({ ...s, showDyslexiaControls: !s.showDyslexiaControls })),
+    []
+  );
+  const setAutoSaving = useCallback(
+    (isAutoSaving: boolean) => setState((s) => ({ ...s, isAutoSaving })),
+    []
+  );
+  const markSaved = useCallback(
+    () => setState((s) => ({ ...s, isDirty: false, lastSavedAt: new Date().toISOString() })),
+    []
+  );
+  const resetDyslexiaSettings = useCallback(
+    () => setState((s) => ({ ...s, dyslexiaSettings: { ...DEFAULT_DYSLEXIA_SETTINGS } })),
+    []
+  );
+
   // ── Reset ─────────────────────────────────────────────────────────────────
-  const reset = useCallback(() => {
-    setState(buildInitialState());
-  }, []);
+  const resetWorksheet = useCallback(() => {
+    setState(buildInitialState(initialWorksheet));
+  }, [initialWorksheet]);
 
   const canUndo = state.historyIndex > 0;
   const canRedo = state.historyIndex < state.history.length - 1;
 
   return {
-    state,
+    editorState: state,
+    worksheet: state.document,
+    exportSettings: state.exportSettings,
+    dyslexiaSettings: state.dyslexiaSettings,
+    canUndo,
+    canRedo,
     setDocument,
     updateContent,
     addBlock,
@@ -230,6 +310,24 @@ export function useWorksheetState(): UseWorksheetStateReturn {
     updateDyslexiaSettings,
     resetDyslexiaSettings,
     updateExportSettings,
+    updateTitle: (title: string, saveToHistory?: boolean) => {
+      setState((s) => {
+        const updated = {
+          ...s.document,
+          metadata: { ...s.document.metadata, title },
+        };
+        const newHistory = saveToHistory
+          ? [...s.history.slice(0, s.historyIndex + 1), updated]
+          : s.history;
+        return {
+          ...s,
+          document: updated,
+          history: newHistory,
+          historyIndex: saveToHistory ? s.historyIndex + 1 : s.historyIndex,
+          isDirty: true,
+        };
+      });
+    },
     undo,
     redo,
     resetWorksheet,

@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { StyleSettings, WorksheetData } from '../types';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { printService, PaperSize } from '../utils/printService';
-import { snapshotService, SnapshotAction } from '../utils/snapshotService';
+import { snapshotService, _SnapshotAction } from '../utils/snapshotService';
 import { PremiumPaperSizeSelector } from './PremiumPaperSizeSelector';
 import { ExportProgressModal } from './ExportProgressModal';
 import { useA4EditorStore } from '../store/useA4EditorStore';
@@ -71,7 +71,7 @@ const IconButton = ({
 );
 
 // Paper size for print (A4, Letter, Legal) - default A4
-const PaperSizeSelector = () => {
+const _PaperSizeSelector = () => {
   const { paperSize, setPaperSize } = usePaperSizeStore();
   return (
     <select
@@ -190,23 +190,23 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   settings,
   onSettingsChange,
   onSave,
-  onFeedback,
+  _onFeedback,
   onShare,
-  onTogglePreview,
-  isPreviewMode,
+  _onTogglePreview,
+  _isPreviewMode,
   onAddToWorkbook,
   workbookItemCount,
-  onToggleEdit,
-  isEditMode,
-  onAddSticker,
+  _onToggleEdit,
+  _isEditMode,
+  _onAddSticker,
   onSpeak,
   isSpeaking,
   onStopSpeak,
-  showQR,
-  onToggleQR,
-  worksheetData,
-  isCurriculumMode,
-  onCompleteCurriculumTask,
+  _showQR,
+  _onToggleQR,
+  _worksheetData,
+  _isCurriculumMode,
+  _onCompleteCurriculumTask,
 }) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [snapshotMenuOpen, setSnapshotMenuOpen] = useState(false);
@@ -215,7 +215,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const paperSizeStore = usePaperSizeStore();
   const toast = useToastStore();
   const paperSize = paperSizeStore.paperSize;
-  const setPaperSize = paperSizeStore.setPaperSize;
+  const _setPaperSize = paperSizeStore.setPaperSize;
   const { isEditorOpen, setEditorOpen } = useA4EditorStore();
 
   // Snapshot dropdown dışarı tıklanınca kapat
@@ -725,7 +725,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   );
 };
 
-const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
+const _CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
   <div className="space-y-1">
     <label className="text-[10px] font-bold text-zinc-500 uppercase block">{label}</label>
     <div className="flex bg-zinc-100 p-1 rounded-lg">

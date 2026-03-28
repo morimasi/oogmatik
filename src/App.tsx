@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useToastStore } from './store/useToastStore';
 import { ToastContainer } from './components/ToastContainer';
 import {
@@ -18,23 +18,17 @@ import {
   GeneratorOptions,
   SavedAssessment,
   Curriculum,
-  ActiveCurriculumSession,
 } from './types';
 import Sidebar from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
 import DyslexiaLogo from './components/DyslexiaLogo';
-import GlobalSearch from './components/GlobalSearch';
 import { FeedbackModal } from './components/FeedbackModal';
 import { AuthModal } from './components/AuthModal';
-import { messagingService } from './services/messagingService';
 import { worksheetService } from './services/worksheetService';
 import { curriculumService } from './services/curriculumService';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
-import { loadCurrentUserPaperSize } from './services/paperSizeApi';
-import { usePaperSizeStore } from './store/usePaperSizeStore';
-import { PaperSize } from './utils/printService';
 import { StudentInfoModal } from './components/StudentInfoModal';
 import { HistoryView } from './components/HistoryView';
 import { PaperSizeInitializer } from './components/PaperSizeInitializer';
@@ -88,9 +82,6 @@ const ScreeningModule = lazy(() =>
   import('./components/Screening/ScreeningModule').then((module) => ({
     default: module.ScreeningModule,
   }))
-);
-const AssessmentModule = lazy(() =>
-  import('./components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
 );
 
 const initialStyleSettings: StyleSettings = {
@@ -223,12 +214,10 @@ const tourSteps: TourStep[] = [
 ];
 
 import { useStudentStore } from './store/useStudentStore';
-import { useAppStore } from './store/useAppStore';
 
 const AppContent = () => {
   const authStore = useAuthStore();
   const studentStore = useStudentStore();
-  const { isEditMode, zoomScale } = useAppStore();
   const toast = useToastStore();
 
   // Global PaperSize initialization glue to App root (to be implemented in root-level effect later)
@@ -244,13 +233,12 @@ const AppContent = () => {
     const unsubscribeStudents = studentStore.fetchStudents(authStore.user.id);
     return () => unsubscribeStudents();
   }, [authStore.user, studentStore.fetchStudents]);
-  const { user, logout } = authStore;
-  const { activeStudent, setActiveStudent, students } = studentStore;
+  const { user } = authStore;
+  const { setActiveStudent, students } = studentStore;
 
   const {
     currentView,
     setCurrentView,
-    viewHistory,
     addHistoryView,
     popHistoryView,
     selectedActivity,
@@ -259,7 +247,6 @@ const AppContent = () => {
     setWorksheetData,
     activeCurriculumSession,
     setActiveCurriculumSession,
-    activeWorksheetId,
     setActiveWorksheet,
     isLoading,
     setIsLoading,
@@ -289,8 +276,7 @@ const AppContent = () => {
   const [openModal, setOpenModal] = useState(null as ModalType | null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [isTourOpen, setIsTourOpen] = useState(false);
+  const [unreadCount] = useState(0);
   const [studentProfile, setStudentProfile] = useState(null as StudentProfile | null);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [selectedSavedReport, setSelectedSavedReport] = useState(null as SavedAssessment | null);
@@ -607,7 +593,7 @@ const AppContent = () => {
       setActiveCurriculumSession(null);
       navigateTo('curriculum');
       toast.success('Harika! Aktivite tamamlandı ve plana işlendi.');
-    } catch (e) {
+    } catch (_e) {
       toast.error('Bir hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setIsLoading(false);
@@ -720,7 +706,7 @@ const AppContent = () => {
         teacherNote:
           'Bu kitapçık, yapılan değerlendirme sonucunda belirlenen ihtiyaçlara yönelik olarak yapay zeka tarafından otomatik oluşturulmuştur.',
       }));
-    } catch (e) {
+    } catch (_e) {
       toast.error('Otomatik kitaçık oluşturulurken bir hata meydana geldi.');
     } finally {
       setIsLoading(false);

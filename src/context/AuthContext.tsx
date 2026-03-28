@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import { User } from '../types';
 import { useAuthStore } from '../store/useAuthStore';
@@ -24,7 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const value = useMemo(() => ({
         ...store,
-        updatePassword: async (pass: string) => { /* useAuthStore'da henüz yok, gerekirse eklenebilir */ }
+        updatePassword: async (_pass: string) => { /* useAuthStore'da henüz yok, gerekirse eklenebilir */ }
     }), [store]);
 
     return (
@@ -37,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
+        throw new AppError('useAuth must be used within an AuthProvider', 'INTERNAL_ERROR', 500);
     }
     return context;
 };

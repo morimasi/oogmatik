@@ -4,7 +4,7 @@
  */
 
 import { agentService, AgentRole } from './agentService.js';
-import { Student, StudentAIProfile, BEPGoal } from '../types/student-advanced.js';
+import { Student, _StudentAIProfile, BEPGoal } from '../types/student-advanced.js';
 import { generateWithSchema } from './geminiClient.js';
 
 export interface StudentAnalysisResult {
