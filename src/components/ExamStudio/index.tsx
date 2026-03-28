@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { ExamConfigPanel } from './ExamConfigPanel';
 import { ExamLayoutSettings } from './ExamLayoutSettings';
+import { ExamPreview } from './ExamPreview';
 import { ExamParams } from '../../services/generators/examGenerator';
-import { ExamLayoutConfig } from '../../types/exam';
+import { ExamLayoutConfig, ExamQuestion } from '../../types/exam';
 
 export default function ExamStudio() {
   const [params, setParams] = useState<ExamParams>({
@@ -29,12 +30,64 @@ export default function ExamStudio() {
     },
   });
 
+  const [questions, setQuestions] = useState<ExamQuestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGenerate = () => {
     setIsLoading(true);
     // TODO: implement integration with examGenerator
     setTimeout(() => {
+      // Mocked questions to demonstrate layout preview
+      const mockQuestions: ExamQuestion[] = [
+        {
+          id: '1',
+          type: 'multiple-choice',
+          questionText: 'Aşağıdaki cümlelerin hangisinde mecaz anlamlı bir kelime kullanılmıştır?',
+          bloomLevel: 'Kavrama',
+          realLifeConnection: 'Günlük dilde duygu ifadeleri',
+          solutionKey:
+            '"Kara" kelimesi A, C ve D şıklarında gerçek (renk) anlamındayken, B şıkkında mecaz (kötü, uğursuz) anlamında kullanılmıştır.',
+          options: {
+            A: 'Kara bulutlar gökyüzünü kapladı.',
+            B: 'Kara haber tez duyulur.',
+            C: 'Kara tahtanın önünde bekledi.',
+            D: 'Kömür karası gözleri vardı.',
+          },
+          correctOption: 'B',
+        },
+        {
+          id: '2',
+          type: 'true-false',
+          questionText: '"Gözleri yollarda kalmak" deyimi çok beklemek anlamındadır.',
+          bloomLevel: 'Bilgi',
+          realLifeConnection: 'Deyimlerin anlamları',
+          solutionKey:
+            '"Gözleri yollarda kalmak" deyimi birini veya bir şeyi özlemle, merakla beklemek anlamına geldiği için ifade doğrudur.',
+          isTrue: true,
+        },
+        {
+          id: '3',
+          type: 'fill-in-blanks',
+          questionText: 'Eş sesli kelimelere ___ kelimeler de denir.',
+          bloomLevel: 'Bilgi',
+          realLifeConnection: 'Kavramların diğer adları',
+          solutionKey:
+            'Yazılışları aynı anlamları farklı olan kelimelere eş sesli (sesteş) kelimeler denir.',
+          blankedText: 'Eş sesli kelimelere ___ kelimeler de denir.',
+          correctWords: ['sesteş'],
+        },
+        {
+          id: '4',
+          type: 'open-ended',
+          questionText: 'Okuduğunuz hikayenin ana fikrini kendi cümlelerinizle yazınız.',
+          bloomLevel: 'Sentez',
+          realLifeConnection: 'Okuduğunu anlama ve ifade etme',
+          solutionKey:
+            'Öğrencinin metnin genelinden çıkardığı dersi veya mesajı doğru bir şekilde ifade edip etmediği değerlendirilmelidir.',
+          expectedKeywords: ['yardımlaşma', 'dayanışma', 'iyilik'],
+        },
+      ];
+      setQuestions(mockQuestions);
       setIsLoading(false);
     }, 1000);
   };
@@ -59,11 +112,9 @@ export default function ExamStudio() {
           </button>
         </div>
 
-        {/* Right Area: Preview (Placeholder for Task 4) */}
-        <div className="lg:col-span-2 flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl min-h-[500px] bg-gray-50 dark:bg-gray-800/50">
-          <p className="text-gray-500 dark:text-gray-400">
-            Sınav önizlemesi burada görünecek (Task 4)
-          </p>
+        {/* Right Area: Preview */}
+        <div className="lg:col-span-2 min-h-[500px]">
+          <ExamPreview questions={questions} layout={layout} />
         </div>
       </div>
     </div>
