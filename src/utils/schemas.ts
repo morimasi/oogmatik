@@ -5,7 +5,6 @@
 
 import { ValidationError } from './AppError.js';
 import sanitizeHtmlLib from 'sanitize-html';
-import { z } from 'zod';
 /**
  * ============================================================
  * VALIDATION HELPERS
@@ -331,74 +330,3 @@ export const validateOrThrow = (validationResult: {
     throwValidationError(validationResult.errors);
   }
 };
-
-/**
- * ============================================================
- * EXAM SCHEMAS
- * ============================================================
- */
-
-export const BaseExamQuestionSchema = z.object({
-  id: z.string().uuid(),
-  questionText: z.string().min(5),
-  bloomLevel: z.enum(['Bilgi', 'Kavrama', 'Uygulama', 'Analiz', 'Değerlendirme', 'Sentez']),
-  realLifeConnection: z.string(),
-  solutionKey: z.string(),
-});
-
-export const MultipleChoiceQuestionSchema = BaseExamQuestionSchema.extend({
-  type: z.literal('multiple-choice'),
-  options: z.object({
-    A: z.string(),
-    B: z.string(),
-    C: z.string(),
-    D: z.string(),
-  }),
-  correctOption: z.enum(['A', 'B', 'C', 'D']),
-});
-
-export const TrueFalseQuestionSchema = BaseExamQuestionSchema.extend({
-  type: z.literal('true-false'),
-  isTrue: z.boolean(),
-});
-
-export const FillInBlanksQuestionSchema = BaseExamQuestionSchema.extend({
-  type: z.literal('fill-in-blanks'),
-  blankedText: z.string(),
-  correctWords: z.array(z.string()),
-});
-
-export const OpenEndedQuestionSchema = BaseExamQuestionSchema.extend({
-  type: z.literal('open-ended'),
-  expectedKeywords: z.array(z.string()),
-});
-
-export const ExamQuestionSchema = z.discriminatedUnion('type', [
-  MultipleChoiceQuestionSchema,
-  TrueFalseQuestionSchema,
-  FillInBlanksQuestionSchema,
-  OpenEndedQuestionSchema,
-]);
-
-export const ExamLayoutSchema = z.object({
-  grid: z.object({
-    cols: z.number().int().positive(),
-    gap: z.number().min(0),
-    padding: z.number().min(0),
-    borderStyle: z.enum(['solid', 'dashed', 'dotted', 'none']),
-  }),
-  visibility: z.object({
-    showTitle: z.boolean(),
-    showUnit: z.boolean(),
-    showStudentName: z.boolean(),
-    showObjective: z.boolean(),
-    showDate: z.boolean(),
-  }),
-});
-
-export const ExamActivitySchema = z.object({
-  title: z.string().min(3),
-  pedagogicalNote: z.string().min(10), // Mandatory pedagogicalNote
-  questions: z.array(ExamQuestionSchema).min(1),
-  layoutConfig: ExamLayoutSchema.optional(),
-});

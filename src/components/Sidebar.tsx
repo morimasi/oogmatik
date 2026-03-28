@@ -48,7 +48,6 @@ interface SidebarProps {
   onOpenSuperTurkce?: () => void;
   onOpenInfographicStudio?: () => void;
   onOpenRemotionStudio?: () => void;
-  onOpenExamStudio?: () => void;
   onOpenScreening?: () => void; // Added Prop
   activeCurriculumSession?: ActiveCurriculumSession | null;
   isExpanded?: boolean;
@@ -112,7 +111,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenSuperTurkce,
   onOpenInfographicStudio,
   onOpenRemotionStudio,
-  onOpenExamStudio,
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -173,13 +171,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: 'fa-chart-pie',
       color: 'bg-violet-500',
       onClick: onOpenInfographicStudio,
-    },
-    {
-      id: 'exam-studio',
-      label: 'Bilgi Macerası (Sınav)',
-      icon: 'fa-graduation-cap',
-      color: 'bg-orange-500',
-      onClick: onOpenExamStudio,
     },
     {
       id: 'remotion-studio',
