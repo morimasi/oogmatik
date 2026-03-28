@@ -4,8 +4,14 @@ import { ExamLayoutSettings } from './ExamLayoutSettings';
 import { ExamPreview } from './ExamPreview';
 import { ExamParams } from '../../services/generators/examGenerator';
 import { ExamLayoutConfig, ExamQuestion } from '../../types/exam';
+import { ExamActionBar } from './ExamActionBar';
+import { printService } from '../../utils/printService';
+import { useAuthStore } from '../../store/useAuthStore';
+import { activityService } from '../../services/activityService';
+import { logError } from '../../utils/logger';
 
 export default function ExamStudio() {
+  const { user } = useAuthStore();
   const [params, setParams] = useState<ExamParams>({
     gradeLevel: 4,
     unit: '',
@@ -92,6 +98,38 @@ export default function ExamStudio() {
     }, 1000);
   };
 
+  const handleSave = async () => {
+    if (!user) return;
+    try {
+      const examData = {
+        type: 'EXAM',
+        questions,
+        params,
+        layout,
+      };
+      await activityService.saveActivity(user.id, examData);
+    } catch (e) {
+      logError(e instanceof Error ? e : new Error('Save error'));
+    }
+  };
+
+  const handlePrint = () => {
+    printService.generatePdf('#exam-preview', 'sinav');
+  };
+
+  const handleDownload = () => {
+    printService.generatePdf('#exam-preview', 'sinav', { action: 'download' });
+  };
+
+  const handleAddToWorkbook = () => {
+    const examData = {
+      type: 'EXAM',
+      questions,
+      params,
+      layout,
+    };
+  };
+
   return (
     <div className="container mx-auto p-6 font-lexend">
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
@@ -114,7 +152,15 @@ export default function ExamStudio() {
 
         {/* Right Area: Preview */}
         <div className="lg:col-span-2 min-h-[500px]">
-          <ExamPreview questions={questions} layout={layout} />
+          <div id="exam-preview">
+            <ExamPreview questions={questions} layout={layout} />
+          </div>
+          <ExamActionBar
+            onSave={handleSave}
+            onPrint={handlePrint}
+            onDownload={handleDownload}
+            onAddToWorkbook={handleAddToWorkbook}
+          />
         </div>
       </div>
     </div>
