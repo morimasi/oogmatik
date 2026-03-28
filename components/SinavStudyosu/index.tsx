@@ -5,7 +5,8 @@
 
 import React, { useState } from 'react';
 import { useSinavStore } from '../../src/store/useSinavStore';
-import { generateExam } from '../../src/services/generators/sinavGenerator';
+import { generateExamViaAPI } from '../../src/services/sinavService';
+import { generateExamPDF } from '../../src/utils/sinavPdfGenerator';
 import { KazanimPicker } from './KazanimPicker';
 import { SoruAyarlari } from './SoruAyarlari';
 import { SinavOnizleme } from './SinavOnizleme';
@@ -31,13 +32,15 @@ export const SinavStudyosu: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<TabType>('ayarlar');
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleGenerateExam = async (): Promise<void> => {
     setError(null);
+    setSuccessMessage(null);
 
     try {
       setIsGenerating(true);
-      const sinav = await generateExam(ayarlar);
+      const sinav = await generateExamViaAPI(ayarlar);
       setAktifSinav(sinav);
       addKaydedilmisSinav(sinav);
       setActiveTab('onizleme');
@@ -63,6 +66,36 @@ export const SinavStudyosu: React.FC = () => {
         ayarlar.soruDagilimi['bosluk-doldurma'] +
         ayarlar.soruDagilimi['acik-uclu']) >= 4
     );
+  };
+
+  const handleDownloadPDF = (): void => {
+    if (!aktifSinav) return;
+    try {
+      generateExamPDF(aktifSinav);
+      setSuccessMessage('PDF başarıyla indirildi!');
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      setError('PDF oluşturulurken bir hata oluştu.');
+    }
+  };
+
+  const handleSaveExam = (): void => {
+    // TODO: Firestore'a kaydet
+    setSuccessMessage('Sınav kaydedildi! (Geliştirme aşamasında)');
+    setTimeout(() => setSuccessMessage(null), 3000);
+  };
+
+  const handleShareExam = (): void => {
+    // TODO: Paylaşım modalı aç
+    setSuccessMessage('Paylaşım özelliği yakında eklenecek!');
+    setTimeout(() => setSuccessMessage(null), 3000);
+  };
+
+  const handleAddToWorkbook = (): void => {
+    // TODO: Çalışma kitabına ekle
+    setSuccessMessage('Çalışma kitabına ekleme özelliği yakında!');
+    setTimeout(() => setSuccessMessage(null), 3000);
   };
 
   const renderContent = (): React.ReactNode => {
@@ -150,7 +183,59 @@ export const SinavStudyosu: React.FC = () => {
 
       case 'onizleme':
         return aktifSinav ? (
-          <SinavOnizleme sinav={aktifSinav} showAnswers={false} />
+          <div className="space-y-4">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <button
+                onClick={handleDownloadPDF}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+              >
+                <span>📄</span>
+                PDF İndir
+              </button>
+              <button
+                onClick={handleSaveExam}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+              >
+                <span>💾</span>
+                Kaydet
+              </button>
+              <button
+                onClick={handleShareExam}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+              >
+                <span>🔗</span>
+                Paylaş
+              </button>
+              <button
+                onClick={handleAddToWorkbook}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+              >
+                <span>📚</span>
+                Çalışma Kitabına Ekle
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+              >
+                <span>🖨️</span>
+                Yazdır
+              </button>
+            </div>
+
+            {/* Success/Error Messages */}
+            {successMessage && (
+              <div className="p-4 bg-green-50 border-2 border-green-300 rounded-lg">
+                <p className="text-green-800 font-medium flex items-center gap-2">
+                  <span>✅</span>
+                  {successMessage}
+                </p>
+              </div>
+            )}
+
+            {/* Exam Preview */}
+            <SinavOnizleme sinav={aktifSinav} showAnswers={false} />
+          </div>
         ) : (
           <div className="text-center text-gray-500 py-12">
             <p>Henüz sınav oluşturulmadı.</p>
