@@ -60,7 +60,7 @@ Gecerli JSON dondur:
 {
   "title": "${topic} - Yazim ve Noktalama",
   "content": "Tum yonerge, calisma sorulari ve kurallar.",
-  "pedagogicalNote": "Ogretmene ozel pedagojik aciklama."
+  "pedagogicalNote": "ZORUNLU: Ogretmene yonelik en az 50 karakterlik detayli pedagojik aciklama. Bu etkinligin hangi becerileri gelistirdigini, disleksi destegi nasil sagladigini ve ogretmenin dikkat etmesi gereken noktalari acikla."
 }
 Markdown bloguna # H1 Baslik ile basla.
 `;

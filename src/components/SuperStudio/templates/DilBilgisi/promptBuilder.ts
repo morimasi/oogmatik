@@ -69,7 +69,7 @@ Gecerli JSON dondur:
 {
   "title": "${topic} - Harf Farkindaligi",
   "content": "Tum yonerge ve calisma.",
-  "pedagogicalNote": "Ogretmene ozel pedagojik aciklama."
+  "pedagogicalNote": "ZORUNLU: Ogretmene yonelik en az 50 karakterlik detayli pedagojik aciklama. Bu etkinligin hangi becerileri gelistirdigini, disleksi destegi nasil sagladigini ve ogretmenin dikkat etmesi gereken noktalari acikla."
 }
 Markdown bloguna # H1 Baslik ile basla.
 `;
