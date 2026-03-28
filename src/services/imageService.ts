@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 export interface ImageGenerationOptions {
     prompt: string;
     provider?: 'pollinations' | 'imagen' | 'stability';
@@ -31,7 +32,7 @@ class ImageService {
             });
 
             if (!response.ok) {
-                throw new Error('Görsel üretilemedi');
+                throw new AppError('Görsel üretilemedi', 'INTERNAL_ERROR', 500);
             }
 
             const data: ImageGenerationResponse = await response.json();

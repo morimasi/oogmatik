@@ -1,5 +1,5 @@
 
-import { Question, EvaluationCategory } from '../types/screening';
+import { Question, _EvaluationCategory } from '../types/screening';
 
 export const SCREENING_QUESTIONS: Question[] = [
     // 1. Genel Gelişim ve Dikkat

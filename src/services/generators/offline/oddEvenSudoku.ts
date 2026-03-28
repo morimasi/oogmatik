@@ -47,7 +47,7 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
     };
 
     for (let c = 0; c < worksheetCount; c++) {
-        let board: (number | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
+        const board: (number | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
         const firstRow = Array.from({ length: size }, (_, i) => i + 1);
         for (let i = firstRow.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));

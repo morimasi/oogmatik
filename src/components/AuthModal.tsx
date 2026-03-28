@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -69,7 +70,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       if (mode === 'login') {
         await login(email, password);
       } else {
-        if (!name) throw new Error('İsim alanı zorunludur.');
+        if (!name) throw new AppError('İsim alanı zorunludur.', 'INTERNAL_ERROR', 500);
         await register(email, password, name);
       }
 

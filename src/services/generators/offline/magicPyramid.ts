@@ -13,7 +13,7 @@ export const generateOfflineMagicPyramid = async (options: GeneratorOptions): Pr
         const apex = Math.floor(Math.random() * 5) + step;
 
         const grid: number[][] = [];
-        let correctPath: number[] = [];
+        const correctPath: number[] = [];
         let currentPathIndex = 0;
 
         let val = apex;

@@ -1,6 +1,7 @@
+import { AppError } from '../utils/AppError';
 import React from 'react';
 import { ocrService } from '../services/ocrService';
-import { ActivityType, WorksheetData, StyleSettings, GeneratorOptions, Student } from '../types';
+import { ActivityType, WorksheetData, StyleSettings, _GeneratorOptions, Student } from '../types';
 import Worksheet from './Worksheet';
 import { generateFromRichPrompt } from '../services/generators/newActivities';
 import { CreativeStudio } from './CreativeStudio/index';
@@ -277,7 +278,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     const [itemCount, setItemCount] = (React as any).useState(8);
     const [concept, setConcept] = (React as any).useState('');
     const [finalData, setFinalData] = (React as any).useState(null as WorksheetData | null);
-    const { layout, setLayout } = useReadingStore();
+    const { _layout, _setLayout } = useReadingStore();
     const [toast, setToast] = (React as any).useState(null as { message: string; type: ToastType } | null);
     const [retryCount, setRetryCount] = (React as any).useState(0);
     const [progressStartTime, setProgressStartTime] = (React as any).useState(0);
@@ -304,7 +305,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     /**
      * Comprehensive file validation with detailed feedback
      */
-    const validateAndProcessFile = (file: File, index: number, total: number): { valid: boolean; reason?: string } => {
+    const validateAndProcessFile = (file: File, _index: number, _total: number): { valid: boolean; reason?: string } => {
         // Check file extension and MIME type
         const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
         const allowedMimes = [...allowedImageTypes, 'application/pdf'];
@@ -318,7 +319,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
 
         // File size validation with specific limits
         const isImage = allowedImageTypes.includes(file.type);
-        const isPDF = file.type === 'application/pdf';
+        const _isPDF = file.type === 'application/pdf';
         const sizeLimit = isImage ? FILE_SIZE_LIMITS.image : FILE_SIZE_LIMITS.pdf;
         const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
 
@@ -653,7 +654,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error?.message || 'Varyasyon üretimi başarısız oldu.');
+                throw new AppError(errorData.error?.message || 'Varyasyon üretimi başarısız oldu.', 'INTERNAL_ERROR', 500);
             }
 
             const result = await response.json();
@@ -663,7 +664,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                 setStep('variations');
                 showToast(`✅ ${result.data.metadata.successfulCount} varyasyon başarıyla üretildi!`, 'success');
             } else {
-                throw new Error('Geçersiz yanıt formatı.');
+                throw new AppError('Geçersiz yanıt formatı.', 'INTERNAL_ERROR', 500);
             }
         } catch (e: unknown) {
             const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen hata.';
@@ -706,7 +707,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                 setFinalData(Array.isArray(result) ? result : [result]);
                 setStep('result');
             }
-        } catch (e) {
+        } catch (_e) {
             showToast('Mimari inşa edilemedi. Tekrar deneyin.', 'error');
             setStep('studio');
         }

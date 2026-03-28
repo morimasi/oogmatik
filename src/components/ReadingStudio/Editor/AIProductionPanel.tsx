@@ -3,7 +3,7 @@ import React from 'react';
 import { useReadingStore } from '../../../store/useReadingStore';
 
 export const AIProductionPanel = () => {
-    const { config, setConfig, isLoading } = useReadingStore();
+    const { config, setConfig, _isLoading } = useReadingStore();
 
     const update = (updates: Partial<typeof config>) => setConfig({ ...config, ...updates });
 

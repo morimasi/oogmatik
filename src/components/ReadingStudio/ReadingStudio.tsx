@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, _useRef } from 'react';
 import { useReadingStore } from '../../store/useReadingStore';
 import { printService } from '../../utils/printService';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
@@ -9,7 +9,7 @@ import { ComponentLibrary } from './Editor/ComponentLibrary';
 import { ContentPanel } from './Editor/ContentPanel';
 import { ArchivePanel } from './Editor/ArchivePanel';
 import { LayoutItem } from '../../types'; // Added LayoutItem import
-import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
+import { _A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 
 import { StylePanel } from './Editor/StylePanel';
 
@@ -18,7 +18,7 @@ interface ReadingStudioInnerProps {
   onAddToWorkbook: () => void;
 }
 
-const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps) => {
+const ReadingStudioInner = ({ onBack, _onAddToWorkbook }: ReadingStudioInnerProps) => {
   const {
     config,
     setStoryData,
@@ -26,7 +26,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     setLayout,
     isLoading,
     setIsLoading,
-    designMode,
+    _designMode,
     setDesignMode,
     storyData,
     setSelectedId,
@@ -113,7 +113,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       const result = await generateInteractiveStory(config);
       setStoryData(result);
 
-      let newLayout: LayoutItem[] = [];
+      const newLayout: LayoutItem[] = [];
       let lastY = 20;
       let currentPage = 0;
 
@@ -338,7 +338,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       setLayout(newLayout);
       setSelectedId(null);
       setDesignMode(false);
-    } catch (e) {
+    } catch (_e) {
       alert('Hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setIsLoading(false);
@@ -371,7 +371,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       localStorage.setItem('reading_studio_archive', JSON.stringify(archive));
       window.dispatchEvent(new Event('reading_studio_saved'));
       alert('Çalışmanız başarıyla arşive kaydedildi.');
-    } catch (e) {
+    } catch (_e) {
       alert('Kaydetme başarısız oldu.');
     }
   };

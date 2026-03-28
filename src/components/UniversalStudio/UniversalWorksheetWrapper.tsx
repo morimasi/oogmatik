@@ -122,7 +122,7 @@ const UniversalWorksheetInner = ({
   scale,
   styleSettings,
 }: UniversalWorksheetWrapperProps) => {
-  const { setLayout, designMode, setDesignMode } = useCreativeStore();
+  const { setLayout, designMode, _setDesignMode } = useCreativeStore();
   const [isAdapterRunning, setIsAdapterRunning] = useState(true);
 
   useEffect(() => {

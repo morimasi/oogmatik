@@ -1,7 +1,7 @@
 import React from 'react';
 import { DirectionalTrackingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
-import { EditableElement, EditableText } from '../../Editable';
+import { EditableElement, _EditableText } from '../../Editable';
 
 const ArrowIcon = ({ dir, compact = false }: { dir: string; compact?: boolean }) => {
   const rotations: Record<string, number> = {
@@ -25,7 +25,7 @@ const ArrowIcon = ({ dir, compact = false }: { dir: string; compact?: boolean })
 
 export const DirectionalTrackingSheet = ({ data }: { data: DirectionalTrackingData }) => {
   const puzzles = data?.puzzles || [];
-  const layout = data?.settings?.layout || 'single';
+  const _layout = data?.settings?.layout || 'single';
   const isSingle = puzzles.length === 1;
 
   return (

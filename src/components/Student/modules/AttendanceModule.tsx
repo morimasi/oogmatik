@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AdvancedStudent, AttendanceRecord } from '../../../types/student-advanced';
+import { AdvancedStudent, _AttendanceRecord } from '../../../types/student-advanced';
 
 interface AttendanceModuleProps {
     student: AdvancedStudent;
@@ -15,7 +15,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ student }) =
 
     const getFirstDayOfMonth = (year: number, month: number) => {
         // 0 = Sunday, 1 = Monday, ...
-        let day = new Date(year, month, 1).getDay();
+        const day = new Date(year, month, 1).getDay();
         return day === 0 ? 6 : day - 1; // Adjust for Monday start
     };
 

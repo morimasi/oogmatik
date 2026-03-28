@@ -1,4 +1,4 @@
-
+import { AppError } from '../utils/AppError';
 // @ts-nocheck
 
 export type SnapshotAction = 'download' | 'clipboard' | 'share';
@@ -14,7 +14,9 @@ const preloadFontsForCapture = async (): Promise<void> => {
     const loadPromises: Promise<unknown>[] = [];
     for (const family of fontFamilies) {
       for (const weight of weights) {
-        loadPromises.push(document.fonts.load(`${weight} 16px "${family}"`, testText).catch(() => null));
+        loadPromises.push(
+          document.fonts.load(`${weight} 16px "${family}"`, testText).catch(() => null)
+        );
       }
     }
     await Promise.allSettled(loadPromises);
@@ -56,27 +58,34 @@ const PAGE_SELECTORS = [
   '.print-page',
 ];
 
-const UI_HIDE_SELECTORS = '.edit-handle, .page-navigator, .no-print, .overlay-ui, .resize-handle, .action-button';
+const UI_HIDE_SELECTORS =
+  '.edit-handle, .page-navigator, .no-print, .overlay-ui, .resize-handle, .action-button';
 
 /** Tüm sayfaları HTMLCanvasElement olarak yakalar */
 const capturePages = async (elementSelector: string): Promise<HTMLCanvasElement[]> => {
   const { default: html2canvas } = await import('html2canvas');
 
   const roots = Array.from(document.querySelectorAll(elementSelector)) as HTMLElement[];
-  if (roots.length === 0) throw new Error('Görüntü alınacak içerik bulunamadı.');
+  if (roots.length === 0) throw new AppError('Görüntü alınacak içerik bulunamadı.', 'INTERNAL_ERROR', 500);
 
   // Sayfa elemanlarını topla
   const pages: HTMLElement[] = [];
   const selectorText = PAGE_SELECTORS.join(',');
   roots.forEach((root) => {
-    if (root.matches(selectorText)) { pages.push(root); return; }
+    if (root.matches(selectorText)) {
+      pages.push(root);
+      return;
+    }
     const nested = Array.from(root.querySelectorAll(selectorText)) as HTMLElement[];
     pages.push(...(nested.length > 0 ? nested : [root]));
   });
 
   // UI öğelerini gizle
-  const uiElements = document.querySelectorAll(UI_HIDE_SELECTORS);
-  uiElements.forEach((el: any) => { el.dataset.origDisplay = el.style.display; el.style.display = 'none'; });
+  const uiElements = document.querySelectorAll<HTMLElement>(UI_HIDE_SELECTORS);
+  uiElements.forEach((el) => {
+    el.dataset.origDisplay = el.style.display;
+    el.style.display = 'none';
+  });
 
   const origBgs: string[] = [];
   const canvases: HTMLCanvasElement[] = [];
@@ -100,25 +109,42 @@ const capturePages = async (elementSelector: string): Promise<HTMLCanvasElement[
         onclone: (_clonedDoc: Document) => onCloneForCapture(_clonedDoc),
         ignoreElements: (el) => {
           const h = el as HTMLElement;
-          return h.classList?.contains('no-print') || h.classList?.contains('edit-handle') ||
-            h.classList?.contains('resize-handle') || h.hasAttribute?.('data-design-only');
+          return (
+            h.classList?.contains('no-print') ||
+            h.classList?.contains('edit-handle') ||
+            h.classList?.contains('resize-handle') ||
+            h.hasAttribute?.('data-design-only')
+          );
         },
       });
       canvases.push(canvas);
     }
   } finally {
     // Geri yükle
-    pages.forEach((p, i) => { p.style.backgroundColor = origBgs[i]; });
-    uiElements.forEach((el: any) => { el.style.display = el.dataset.origDisplay || ''; delete el.dataset.origDisplay; });
+    pages.forEach((p, i) => {
+      p.style.backgroundColor = origBgs[i];
+    });
+    uiElements.forEach((el: any) => {
+      el.style.display = el.dataset.origDisplay || '';
+      delete el.dataset.origDisplay;
+    });
   }
 
   return canvases;
 };
 
 /** Canvas → Blob dönüşümü */
-const canvasToBlob = (canvas: HTMLCanvasElement, type = 'image/png', quality = 1.0): Promise<Blob> => {
+const canvasToBlob = (
+  canvas: HTMLCanvasElement,
+  type = 'image/png',
+  quality = 1.0
+): Promise<Blob> => {
   return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('toBlob failed')), type, quality);
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error('toBlob failed'))),
+      type,
+      quality
+    );
   });
 };
 
@@ -132,9 +158,9 @@ export const snapshotService = {
     elementSelector: string,
     fileName: string,
     action: SnapshotAction | 'download_zip' = 'download',
-    customScale: number = 2
+    _customScale: number = 2
   ): Promise<void> => {
-    // scale parametresini capturePages içine aktarmayı ileride yapabiliriz, 
+    // scale parametresini capturePages içine aktarmayı ileride yapabiliriz,
     // şu anlık basitlik için default 2 ölçekte kalabilir ya da dinamikleştirebiliriz.
     // Şimdilik capturePages içerisindeki html2canvas opsiyonlarını dokunmuyoruz.
     const canvases = await capturePages(elementSelector);
@@ -158,13 +184,17 @@ export const snapshotService = {
 
       const promises = canvases.map((canvas, i) => {
         return new Promise<void>((resolve) => {
-          canvas.toBlob((blob) => {
-            if (blob) {
-              const name = `${fileName}_sayfa_${i + 1}.png`;
-              zip.file(name, blob);
-            }
-            resolve();
-          }, 'image/png', 1.0);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const name = `${fileName}_sayfa_${i + 1}.png`;
+                zip.file(name, blob);
+              }
+              resolve();
+            },
+            'image/png',
+            1.0
+          );
         });
       });
 
@@ -201,9 +231,7 @@ export const snapshotService = {
   copyToClipboard: async (canvas: HTMLCanvasElement): Promise<boolean> => {
     try {
       const blob = await canvasToBlob(canvas, 'image/png');
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': blob }),
-      ]);
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       return true;
     } catch (err) {
       console.error('Panoya kopyalama hatası:', err);
@@ -234,8 +262,8 @@ export const snapshotService = {
           files,
         });
         return true;
-      } catch (err: any) {
-        if (err.name === 'AbortError') return false; // Kullanıcı iptal etti
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === 'AbortError') return false; // Kullanıcı iptal etti
         console.error('Share hatası:', err);
       }
     }

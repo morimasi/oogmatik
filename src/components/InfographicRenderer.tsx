@@ -12,6 +12,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { NativeInfographicRenderer } from './NativeInfographicRenderer';
+import { logger } from '../utils/logger';
+import { AppError } from '../utils/AppError';
 
 // @antv/infographic'in Infographic sınıfı için tip tanımı
 interface InfographicOptions {
@@ -104,7 +106,9 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
           editable,
         };
 
-        const infographic = new (InfographicClass as new (opts: InfographicOptions) => InfographicInstance)(options);
+        const infographic = new (InfographicClass as new (
+          opts: InfographicOptions
+        ) => InfographicInstance)(options);
         instanceRef.current = infographic;
 
         // Bekleyen syntax varsa hemen render et
@@ -124,10 +128,13 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
         setIsLoading(false);
         onReady?.();
         // Hatayı loglayalım ama kullanıcıya gösterme (native renderer devreye giriyor)
-        if (process.env.NODE_ENV === 'development') {
-          // logError fonksiyonu yoksa console.warn kullan (render hatası kritik değil)
-          console.warn('[InfographicRenderer] @antv/infographic yüklenemedi, native renderer aktif:', error.message);
-        }
+        const appError = new AppError(
+          '@antv/infographic yüklenemedi, native renderer aktif',
+          'INFOGRAPHIC_LOAD_ERROR',
+          500,
+          { originalError: error.message }
+        );
+        logger.error(appError);
       }
     };
 
@@ -137,44 +144,9 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
       mounted = false;
       if (instanceRef.current) {
         instanceRef.current.destroy();
-        instanceRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editable, numericHeight]);
-
-  // Syntax değişince güncelle (instance varsa render, yoksa pending'e yaz)
-  useEffect(() => {
-    if (!syntax?.trim()) return;
-    pendingSyntaxRef.current = syntax;
-
-    if (!instanceRef.current) return;
-
-    try {
-      instanceRef.current.render(syntax);
-      setRenderError(null);
-      setIsLoading(false);
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error(String(err));
-      // Render hatası → native'e geç
-      setUseNative(true);
-      setIsLoading(false);
-      setRenderError(null);
-      onError?.(error);
-    }
-  }, [syntax, onError]);
-
-  // Native renderer fallback
-  if (useNative) {
-    return (
-      <NativeInfographicRenderer
-        syntax={syntax}
-        height={height}
-        className={className}
-        onError={onError}
-      />
-    );
-  }
+  }, [syntax, editable, height]);
 
   if (renderError) {
     return (
@@ -183,7 +155,9 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
         style={{ height }}
       >
         <i className="fa-solid fa-triangle-exclamation text-red-400 text-2xl mb-3"></i>
-        <p className="text-red-600 dark:text-red-400 text-sm font-medium">İnfografik render edilemedi</p>
+        <p className="text-red-600 dark:text-red-400 text-sm font-medium">
+          İnfografik render edilemedi
+        </p>
         <p className="text-red-400 text-xs mt-1 max-w-xs">{renderError}</p>
       </div>
     );

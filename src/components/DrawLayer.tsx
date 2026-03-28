@@ -6,7 +6,7 @@ interface DrawLayerProps {
     zoom: number;
 }
 
-export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, zoom }) => {
+export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, _zoom }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
@@ -123,7 +123,7 @@ export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, zoom }) => {
 
         const handleTouchStart = (e: TouchEvent) => startDrawing(e);
         const handleTouchMove = (e: TouchEvent) => draw(e);
-        const handleTouchEnd = (e: TouchEvent) => stopDrawing();
+        const handleTouchEnd = (_e: TouchEvent) => stopDrawing();
 
         // Passive: false allows us to use preventDefault() to stop scrolling while drawing
         canvas.addEventListener('touchstart', handleTouchStart, { passive: false });

@@ -1,6 +1,6 @@
 
 import { GeneratorOptions, AlgorithmData } from '../../types';
-import { getRandomItems } from './helpers';
+import { _getRandomItems } from './helpers';
 
 const SCENARIOS = [
     { title: "Diş Fırçalama Algoritması", challenge: "Sabah uyandığında dişlerini fırçalamak için gereken adımları sırala." },

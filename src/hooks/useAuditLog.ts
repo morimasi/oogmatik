@@ -85,7 +85,7 @@ export function useAuditLog(): UseAuditLogReturn {
   const [entries, setEntries] = useState<AuditLogEntry[]>(() => loadLog());
   const [filter, setFilterState] = useState<AuditLogFilter>({});
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, _setLoading] = useState(false);
   const PAGE_SIZE = 20;
 
   useEffect(() => {

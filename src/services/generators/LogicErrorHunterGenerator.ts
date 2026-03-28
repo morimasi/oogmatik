@@ -1,3 +1,4 @@
+import { logger } from '../../utils/logger';
 import { BaseGenerator } from './core/BaseGenerator';
 import { GeneratorOptions, LogicErrorHunterData } from '../../types';
 import { GeneratorMode } from './core/types';
@@ -20,10 +21,10 @@ export class LogicErrorHunterGenerator extends BaseGenerator<LogicErrorHunterDat
     protected async execute(options: GeneratorOptions): Promise<LogicErrorHunterData | LogicErrorHunterData[]> {
         
         if (this.mode === GeneratorMode.AI) {
-            console.log('Using AI Strategy for Logic Error Hunter');
+            logger.info('Using AI Strategy for Logic Error Hunter');
             return await generateAI(options);
         } else {
-            console.log('Using Offline Strategy for Logic Error Hunter');
+            logger.info('Using Offline Strategy for Logic Error Hunter');
             return await generateOffline(options);
         }
     }

@@ -1,98 +1,107 @@
 import { create } from 'zustand';
 import { Student } from '../types';
 import { db } from '../services/firebaseClient';
-import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+} from 'firebase/firestore';
 
 interface StudentState {
-    students: Student[];
-    activeStudent: Student | null;
-    isLoading: boolean;
+  students: Student[];
+  activeStudent: Student | null;
+  isLoading: boolean;
 
-    // Actions
-    setActiveStudent: (student: Student | null) => void;
-    fetchStudents: (teacherId: string) => () => void;
-    addStudent: (teacherId: string, studentData: any) => Promise<void>;
-    updateStudent: (id: string, updates: Partial<Student>) => Promise<void>;
-    deleteStudent: (id: string) => Promise<void>;
+  // Actions
+  setActiveStudent: (student: Student | null) => void;
+  fetchStudents: (teacherId: string) => () => void;
+  addStudent: (teacherId: string, studentData: unknown) => Promise<void>;
+  updateStudent: (id: string, updates: Partial<Student>) => Promise<void>;
+  deleteStudent: (id: string) => Promise<void>;
 }
 
-const sanitizeStudent = (data: any): Partial<Student> => {
-    return {
-        name: data.name || 'İsimsiz Öğrenci',
-        age: Number(data.age) || 0,
-        grade: data.grade || '',
-        avatar: data.avatar || '',
-        diagnosis: Array.isArray(data.diagnosis) ? data.diagnosis : [],
-        interests: Array.isArray(data.interests) ? data.interests : [],
-        strengths: Array.isArray(data.strengths) ? data.strengths : [],
-        weaknesses: Array.isArray(data.weaknesses) ? data.weaknesses : [],
-        learningStyle: data.learningStyle || 'Karma',
-        parentName: data.parentName || '',
-        contactPhone: data.contactPhone || '',
-        contactEmail: data.contactEmail || '',
-        notesHistory: data.notesHistory || '[]',
-        notes: data.notes || ''
-    };
+const sanitizeStudent = (data: unknown): Partial<Student> => {
+  if (typeof data !== 'object' || data === null) return {};
+  const d = data as Record<string, unknown>;
+  return {
+    name: typeof d.name === 'string' ? d.name : 'İsimsiz Öğrenci',
+    age: Number(d.age) || 0,
+    grade: typeof d.grade === 'string' ? d.grade : '',
+    avatar: typeof d.avatar === 'string' ? d.avatar : '',
+    diagnosis: Array.isArray(d.diagnosis) ? (d.diagnosis as string[]) : [],
+    interests: Array.isArray(d.interests) ? (d.interests as string[]) : [],
+    strengths: Array.isArray(d.strengths) ? (d.strengths as string[]) : [],
+    weaknesses: Array.isArray(d.weaknesses) ? (d.weaknesses as string[]) : [],
+    learningStyle: (d.learningStyle as 'Görsel' | 'İşitsel' | 'Kinestetik' | 'Karma') || 'Karma',
+    parentName: typeof d.parentName === 'string' ? d.parentName : '',
+    contactPhone: typeof d.contactPhone === 'string' ? d.contactPhone : '',
+    contactEmail: typeof d.contactEmail === 'string' ? d.contactEmail : '',
+    notesHistory: typeof d.notesHistory === 'string' ? d.notesHistory : '[]',
+    notes: typeof d.notes === 'string' ? d.notes : '',
+  };
 };
 
-export const useStudentStore = create<StudentState>((set: any, get: any) => ({
-    students: [],
-    activeStudent: null,
-    isLoading: false,
+export const useStudentStore = create<StudentState>()((set, get) => ({
+  students: [],
+  activeStudent: null,
+  isLoading: false,
 
-    setActiveStudent: (student) => set({ activeStudent: student }),
+  setActiveStudent: (student) => set({ activeStudent: student }),
 
-    fetchStudents: (teacherId) => {
-        set({ isLoading: true });
-        const q = query(
-            collection(db, "students"),
-            where("teacherId", "==", teacherId)
-        );
+  fetchStudents: (teacherId) => {
+    set({ isLoading: true });
+    const q = query(collection(db, 'students'), where('teacherId', '==', teacherId));
 
-        return onSnapshot(q, (snapshot) => {
-            const studentList: Student[] = [];
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                studentList.push({
-                    id: doc.id,
-                    teacherId: data.teacherId || '',
-                    createdAt: data.createdAt || new Date().toISOString(),
-                    ...sanitizeStudent(data)
-                } as Student);
-            });
-            set({ students: studentList, isLoading: false });
+    return onSnapshot(q, (snapshot) => {
+      const studentList: Student[] = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        studentList.push({
+          id: doc.id,
+          teacherId: data.teacherId || '',
+          createdAt: data.createdAt || new Date().toISOString(),
+          ...sanitizeStudent(data),
+        } as Student);
+      });
+      set({ students: studentList, isLoading: false });
 
-            const { activeStudent } = get();
-            if (activeStudent && !studentList.find(s => s.id === activeStudent.id)) {
-                set({ activeStudent: null });
-            }
-        });
-    },
+      const { activeStudent } = get();
+      if (activeStudent && !studentList.find((s) => s.id === activeStudent.id)) {
+        set({ activeStudent: null });
+      }
+    });
+  },
 
-    addStudent: async (teacherId, studentData) => {
-        const sanitized = sanitizeStudent(studentData);
-        await addDoc(collection(db, "students"), {
-            ...sanitized,
-            teacherId,
-            createdAt: new Date().toISOString(),
-        });
-    },
+  addStudent: async (teacherId, studentData) => {
+    const sanitized = sanitizeStudent(studentData);
+    await addDoc(collection(db, 'students'), {
+      ...sanitized,
+      teacherId,
+      createdAt: new Date().toISOString(),
+    });
+  },
 
-    updateStudent: async (id, updates) => {
-        const sanitizedUpdates: any = {};
-        const baseSanitized = sanitizeStudent(updates);
-        Object.keys(updates).forEach(key => {
-            if (key in baseSanitized) sanitizedUpdates[key] = (baseSanitized as any)[key];
-        });
+  updateStudent: async (id, updates) => {
+    const sanitizedUpdates: Record<string, unknown> = {};
+    const baseSanitized = sanitizeStudent(updates);
+    Object.keys(updates).forEach((key) => {
+      if (key in baseSanitized)
+        sanitizedUpdates[key] = (baseSanitized as Record<string, unknown>)[key];
+    });
 
-        await updateDoc(doc(db, "students", id), sanitizedUpdates);
-        const { activeStudent } = get();
-        if (activeStudent?.id === id) {
-            set({ activeStudent: { ...activeStudent, ...sanitizedUpdates } });
-        }
-    },
-
-    deleteStudent: async (id) => {
-        await deleteDoc(doc(db, "students", id));
+    await updateDoc(doc(db, 'students', id), sanitizedUpdates);
+    const { activeStudent } = get();
+    if (activeStudent?.id === id) {
+      set({ activeStudent: { ...activeStudent, ...sanitizedUpdates } });
     }
+  },
+
+  deleteStudent: async (id) => {
+    await deleteDoc(doc(db, 'students', id));
+  },
 }));

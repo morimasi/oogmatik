@@ -37,7 +37,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           { question: 'Soru 1?', answer: 'Cevap 1' },
           { question: 'Soru 2?', answer: 'Cevap 2' },
         ],
-        pedagogicalNote: 'Test pedagojik notu',
+        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -55,7 +55,9 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
       expect(result[0].templateId).toBe('okuma-anlama');
       expect(result[0].pages[0].content).toContain('Bu bir test metnidir.');
       expect(result[0].pages[0].content).toContain('Soru 1?');
-      expect(result[0].pages[0].pedagogicalNote).toBe('Test pedagojik notu');
+      expect(result[0].pages[0].pedagogicalNote).toBe(
+        'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.'
+      );
     });
 
     it('should handle missing questions array gracefully', async () => {
@@ -63,7 +65,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         title: 'Test Okuma Metni',
         text: 'Bu bir test metnidir.',
         // questions eksik!
-        pedagogicalNote: 'Test pedagojik notu',
+        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -87,7 +89,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         title: 'Test Okuma Metni',
         text: 'Bu bir test metnidir.',
         questions: [], // boş array
-        pedagogicalNote: 'Test pedagojik notu',
+        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -114,7 +116,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           { answer: 'Cevap 2' }, // question eksik
           {}, // her ikisi de eksik
         ],
-        pedagogicalNote: 'Test pedagojik notu',
+        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -145,7 +147,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           { question: 'Alıştırma 1?', answer: 'Cevap 1' },
           { question: 'Alıştırma 2?', answer: 'Cevap 2' },
         ],
-        pedagogicalNote: 'Test pedagojik notu',
+        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -170,7 +172,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         title: 'İsimler',
         topic: 'İsim Çeşitleri',
         // rules ve exercises eksik!
-        pedagogicalNote: 'Test pedagojik notu',
+        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -199,7 +201,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           { question: 'Problem 1?', hint: 'İpucu 1', answer: 'Cevap 1' },
           { question: 'Problem 2?', answer: 'Cevap 2' }, // hint opsiyonel
         ],
-        pedagogicalNote: 'Test pedagojik notu',
+        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -223,7 +225,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
       const mockResponse = {
         title: 'Mantık Problemleri',
         // problems eksik!
-        pedagogicalNote: 'Test pedagojik notu',
+        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -243,7 +245,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
   });
 
   describe('Error handling', () => {
-    it('should provide fallback pedagogicalNote when missing', async () => {
+    it('should throw error when pedagogicalNote is missing', async () => {
       const mockResponse = {
         title: 'Test',
         text: 'Test metin',
@@ -253,17 +255,16 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
 
-      const result = await generateSuperStudioContent({
-        templates: ['okuma-anlama'],
-        settings: {},
-        mode: 'ai',
-        grade: '5. Sınıf',
-        difficulty: 'Orta',
-        studentId: null,
-      });
-
-      expect(result).toHaveLength(1);
-      expect(result[0].pages[0].pedagogicalNote).toContain('üretildi');
+      await expect(
+        generateSuperStudioContent({
+          templates: ['okuma-anlama'],
+          settings: {},
+          mode: 'ai',
+          grade: '5. Sınıf',
+          difficulty: 'Orta',
+          studentId: null,
+        })
+      ).rejects.toThrow('Tüm şablonlar için üretim başarısız oldu. Lütfen tekrar deneyin.');
     });
 
     it('should handle completely invalid AI response', async () => {
@@ -278,7 +279,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           difficulty: 'Orta',
           studentId: null,
         })
-      ).rejects.toThrow('AI yanıtı boş döndü');
+      ).rejects.toThrow('Tüm şablonlar için üretim başarısız oldu. Lütfen tekrar deneyin.');
     });
   });
 

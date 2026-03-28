@@ -5,8 +5,8 @@ import {
   GridDrawingData,
   SymmetryDrawingData,
   ShapeCountingData,
-  SearchFieldItem,
-  ShapeType,
+  _SearchFieldItem,
+  _ShapeType,
 } from '../../types';
 import { DirectionalCodeReadingData } from '../../types/visual';
 import { GeneratorOptions } from '../../types/core';
@@ -17,7 +17,7 @@ import {
   generateConnectedPath,
   SHAPE_TYPES,
   PREDEFINED_GRID_PATTERNS,
-  generateSymmetricPattern,
+  _generateSymmetricPattern,
   turkishAlphabet,
 } from './helpers';
 
@@ -35,7 +35,7 @@ const mapDifficulty = (diff: string): 'beginner' | 'intermediate' | 'expert' | '
 };
 
 // --- GEOMETRIC PATH CONSTANTS ---
-const SHAPE_PATHS: Record<string, string> = {
+const _SHAPE_PATHS: Record<string, string> = {
   triangle: 'M 50 15 L 85 85 L 15 85 Z',
   circle: 'M 50 50 m -35 0 a 35 35 0 1 0 70 0 a 35 35 0 1 0 -70 0',
   square: 'M 20 20 L 80 20 L 80 80 L 20 80 Z',
@@ -340,7 +340,7 @@ export const generateOfflineDirectionalTracking = async (
   const {
     worksheetCount,
     difficulty,
-    codeLength = 5,
+    _codeLength = 5,
     itemCount = 2,
     concept = 'letters',
   } = options;
@@ -391,7 +391,7 @@ export const generateOfflineDirectionalTracking = async (
 
       for (let i = 0; i < config.pathLength; i++) {
         // Geçerli bir yön bulana kadar dene (grid sınırları dışına çıkmamak için)
-        let validMoves = directions.filter((d) => {
+        const validMoves = directions.filter((d) => {
           const nr = cr + d.dr;
           const nc = cc + d.dc;
           return nr >= 0 && nr < rows && nc >= 0 && nc < cols;
@@ -483,7 +483,7 @@ export const generateOfflineVisualOddOneOut = async (
       const oddChar = isReversed ? set[0] : set[1];
 
       const items: VisualOddOneOutItem[] = [];
-      let correctIndex = getRandomInt(0, itemCount - 1);
+      const correctIndex = getRandomInt(0, itemCount - 1);
 
       for (let i = 0; i < itemCount; i++) {
         items.push({

@@ -1,9 +1,9 @@
 // @ts-nocheck
 import React from 'react';
-import { PromptTemplate, PromptSnippet, PromptVersion } from '../types/admin';
+import { PromptTemplate, PromptSnippet, _PromptVersion } from '../types/admin';
 import { adminService } from '../services/adminService';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
-import { ActivityType } from '../types';
+import { _ActivityType } from '../types';
 
 import { PromptSimulator } from './PromptSimulator';
 
@@ -80,9 +80,9 @@ export const AdminPromptStudio = () => {
   const [prompts, setPrompts] = (React as any).useState([] as PromptTemplate[]);
   const [selected, setSelected] = (React as any).useState(null as PromptTemplate | null);
   const [snippets, setSnippets] = (React as any).useState([] as PromptSnippet[]);
-  const [loading, setLoading] = (React as any).useState(true);
+  const [_loading, setLoading] = (React as any).useState(true);
   const [isSaving, setIsSaving] = (React as any).useState(false);
-  const [testVars, setTestVars] = (React as any).useState({} as Record<string, string>);
+  const [testVars, _setTestVars] = (React as any).useState({} as Record<string, string>);
   const [activeTab, setActiveTab] = (React as any).useState(
     'editor' as 'editor' | 'history' | 'simulation'
   );
@@ -204,7 +204,7 @@ export const AdminPromptStudio = () => {
     }
   };
 
-  const runSimulation = async (variant: 'A' | 'B') => {
+  const _runSimulation = async (variant: 'A' | 'B') => {
     if (!selected) return;
 
     variant === 'A'

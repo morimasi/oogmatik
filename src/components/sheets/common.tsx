@@ -425,7 +425,7 @@ export const ImageDisplay = React.memo(
   }) => {
     const [isLoading, setIsLoading] = useState(!base64);
     const [imageUrl, setImageUrl] = useState<string | null>(base64 || null);
-    const [hasError, setHasError] = useState(false);
+    const [_hasError, setHasError] = useState(false);
     const [useInlineSvg, setUseInlineSvg] = useState(false);
     const [svgContent, setSvgContent] = useState<string | null>(null);
 

@@ -1,6 +1,6 @@
 declare global {
   namespace JSX {
-    interface IntrinsicElements extends Record<string, any> { }
+    interface IntrinsicElements extends Record<string, unknown> {}
   }
 }
 
@@ -50,8 +50,10 @@ export interface SingleWorksheetData extends BaseActivityData {
   metadata?: Record<string, unknown>;
   id?: string;
   type?: ActivityType | string;
-  puzzles?: unknown[];
-  items?: unknown[];
+  puzzles?: Record<string, unknown>[];
+  items?: Record<string, unknown>[];
+  blocks?: WorksheetBlock[];
+  content?: unknown;
   [key: string]: any;
 }
 export type WorksheetData = SingleWorksheetData[] | null;
@@ -109,15 +111,15 @@ export interface GeneratorOptions {
   hintLevel?: 'low' | 'medium' | 'high' | 'none';
   textLength?: 'kısa' | 'orta' | 'uzun';
   questionStyle?:
-  | 'test_and_open'
-  | 'only_test'
-  | 'only_open_ended'
-  | 'mixed'
-  | '5n1k'
-  | 'detail'
-  | 'inference'
-  | 'true_false'
-  | 'open_ended';
+    | 'test_and_open'
+    | 'only_test'
+    | 'only_open_ended'
+    | 'mixed'
+    | '5n1k'
+    | 'detail'
+    | 'inference'
+    | 'true_false'
+    | 'open_ended';
   syllableColoring?: boolean;
   wpmTarget?: number;
   colorPalette?: 'red_blue' | 'contrast' | 'pastel';
@@ -249,7 +251,7 @@ export interface CollectionItem {
   id: string;
   activityType: ActivityType;
   itemType?: 'activity' | 'divider';
-  data: any;
+  data: SingleWorksheetData[] | Record<string, unknown>;
   settings: StyleSettings;
   overrideStyle?: Partial<StyleSettings>;
   title: string;
@@ -267,18 +269,18 @@ export interface WorkbookSettings {
   year: string;
   teacherNote: string;
   theme:
-  | 'modern'
-  | 'classic'
-  | 'fun'
-  | 'minimal'
-  | 'academic'
-  | 'artistic'
-  | 'space'
-  | 'nature'
-  | 'geometric'
-  | 'cyber'
-  | 'luxury'
-  | 'playful';
+    | 'modern'
+    | 'classic'
+    | 'fun'
+    | 'minimal'
+    | 'academic'
+    | 'artistic'
+    | 'space'
+    | 'nature'
+    | 'geometric'
+    | 'cyber'
+    | 'luxury'
+    | 'playful';
   accentColor: string;
   coverStyle: 'centered' | 'left' | 'split' | 'hero' | 'minimalist';
   showTOC: boolean;
@@ -610,5 +612,5 @@ export const CONFUSABLE_DIGIT_PAIRS = [
   ['6', '9'],
   ['2', '5'],
   ['3', '8'],
-  ['1', '7']
+  ['1', '7'],
 ] as const;

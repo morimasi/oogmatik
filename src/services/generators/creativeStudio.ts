@@ -5,7 +5,7 @@ import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
 /**
  * analyzeReferenceFiles: GÖRSELİN MİMARİ DNA'SINI ÇIKARIR (Thinking Mode)
  */
-export const analyzeReferenceFiles = async (files: MultimodalFile[], currentPrompt: string): Promise<string> => {
+export const analyzeReferenceFiles = async (files: MultimodalFile[], _currentPrompt: string): Promise<string> => {
   const prompt = `
     [GÖREV: NEURO-ARCHITECTURAL REVERSE ENGINEERING]
     Bu görseli bir AI Mühendisi ve Özel Eğitim Uzmanı olarak "Thinking" modunda analiz et. 

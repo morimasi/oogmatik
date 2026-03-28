@@ -29,7 +29,7 @@ export const generateOfflineBoxMath = async (options: GeneratorOptions): Promise
     for (let i = 0; i < itemCount; i++) {
       const boxValue = getRandomInt(range[0], range[1]);
       let currentResult = 0;
-      let expressionParts: string[] = [];
+      const expressionParts: string[] = [];
 
       const numSteps = getRandomInt(2, steps);
 

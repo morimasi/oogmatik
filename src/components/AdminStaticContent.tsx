@@ -7,7 +7,7 @@ export const AdminStaticContent = () => {
     const [contents, setContents] = useState<StaticContentItem[]>([]);
     const [selectedContent, setSelectedContent] = useState<StaticContentItem | null>(null);
     const [editData, setEditData] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(true);
+    const [_loading, setLoading] = useState<boolean>(true);
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [showHistory, setShowHistory] = useState<boolean>(false);
 
@@ -53,7 +53,7 @@ export const AdminStaticContent = () => {
             if (freshItem) setSelectedContent(freshItem);
 
             alert('Versiyon başarıyla kaydedildi.');
-        } catch (e) {
+        } catch (_e) {
             alert('Hata: Veri formatını kontrol edin.');
         } finally { setIsSaving(false); }
     };

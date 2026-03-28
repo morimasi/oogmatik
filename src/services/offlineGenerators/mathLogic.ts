@@ -6,7 +6,7 @@ import { shuffle, getRandomInt, getRandomItems } from './helpers';
  * Matematik Bulmacaları (Meyve Denklemleri) Yerel Üretici
  */
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
-    const { worksheetCount, difficulty, itemCount = 2 } = options;
+    const { worksheetCount, _difficulty, itemCount = 2 } = options;
     const pages: MathPuzzleData[] = [];
 
     const objects = [
@@ -72,7 +72,7 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
  * Sayısal Mantık Bilmeceleri (Gizemli Sayılar) Yerel Üretici
  */
 export const generateOfflineNumberLogicRiddles = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
-    const { worksheetCount, numberRange = '1-50', itemCount = 6, gridSize = 3, difficulty } = options;
+    const { worksheetCount, numberRange = '1-50', itemCount = 6, gridSize = 3, _difficulty } = options;
     const pages: NumberLogicRiddleData[] = [];
 
     let [min, max] = numberRange.split('-').map(Number);
@@ -101,7 +101,7 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
                 { text: `Birler basamağım ${units}'dir.`, icon: 'fa-hashtag', type: 'digits' }
             ];
 
-            let selectedHints = shuffle(pool).slice(0, gridSize);
+            const selectedHints = shuffle(pool).slice(0, gridSize);
             while(selectedHints.length < gridSize) {
                 selectedHints.push({ text: `Ben ${target} sayısına yakın bir yerdeyim.`, icon: 'fa-location-dot', type: 'arithmetic' as any });
             }

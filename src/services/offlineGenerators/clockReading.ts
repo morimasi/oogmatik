@@ -8,7 +8,7 @@ export const generateOfflineClockReading = async (options: GeneratorOptions): Pr
 
     for (let p = 0; p < worksheetCount; p++) {
         const clocks = Array.from({ length: 6 }, () => {
-            let hour = getRandomInt(1, 12);
+            const hour = getRandomInt(1, 12);
             let minute = 0;
 
             if (difficulty === 'Başlangıç') {

@@ -38,7 +38,7 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
             return { x, y, key };
         };
 
-        let startValueIndex = Math.floor(Math.random() * 5) + 1;
+        const startValueIndex = Math.floor(Math.random() * 5) + 1;
 
         for (let i = 0; i < pairCount; i++) {
             const val = startValueIndex + i;

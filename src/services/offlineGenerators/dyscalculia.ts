@@ -1,6 +1,6 @@
 
-import { GeneratorOptions, NumberSenseData, VisualArithmeticData, MathMemoryCardsData, MathMemoryCard, MoneyCountingData, ClockReadingData } from '../../types';
-import { getRandomInt, shuffle, getRandomItems } from './helpers';
+import { GeneratorOptions, NumberSenseData, VisualArithmeticData, MathMemoryCardsData, _MathMemoryCard, MoneyCountingData, ClockReadingData } from '../../types';
+import { getRandomInt, shuffle, _getRandomItems } from './helpers';
 
 /**
  * Saat Okuma Yerel Üretici (Hızlı Mod)
@@ -11,7 +11,7 @@ export const generateOfflineClockReading = async (options: GeneratorOptions): Pr
 
     for (let p = 0; p < worksheetCount; p++) {
         const clocks = Array.from({ length: 6 }, () => {
-            let hour = getRandomInt(1, 12);
+            const hour = getRandomInt(1, 12);
             let minute = 0;
 
             if (difficulty === 'Başlangıç') {
@@ -61,7 +61,7 @@ export const generateOfflineNumberSense = async (options: GeneratorOptions): Pro
     const { worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
         const exercises: any[] = [];
-        const max = difficulty === 'Başlangıç' ? 10 : 20;
+        const _max = difficulty === 'Başlangıç' ? 10 : 20;
         const start = getRandomInt(0, 5);
         exercises.push({ type: 'missing', values: [start, start + 1, start + 2, start + 3], target: start + 2, visualType: 'number-line-advanced' });
         return { title: `Sayı Hissi (${difficulty})`, instruction: 'Eksiği bul.', exercises };

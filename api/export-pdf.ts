@@ -1,5 +1,8 @@
 // @ts-ignore - Vercel types optional
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { RateLimiter } from '../src/services/rateLimiter.js';
+import { RateLimitError, AppError, toAppError } from '../src/utils/AppError.js';
+import { corsMiddleware } from '../src/utils/cors.js';
 
 /**
  * POST /api/export-pdf
@@ -20,12 +23,32 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
  *   Binary PDF (application/pdf) or JSON error
  */
 
+const rateLimiter = new RateLimiter();
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // CORS Security
+  if (!corsMiddleware(req, res)) {
+    return;
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
+    const actualUserId = (req.headers['x-user-id'] as string) || 'anonymous';
+    const userTier = (req.headers['x-user-tier'] as string) || 'free';
+
+    // Rate Limiting (20 istek/saat)
+    try {
+      await rateLimiter.enforceLimit(actualUserId, userTier as any, 'apiExport');
+    } catch (error) {
+      if (error instanceof RateLimitError) {
+        return res.status(429).json({ error: error.userMessage });
+      }
+      throw error;
+    }
+
     const { title, pageCount, format, blocks, footerText } = req.body || {};
 
     if (!title || typeof title !== 'string') {
@@ -104,37 +127,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Build page content from blocks or create a single page
     const contentBlocks: Array<{ type: string; content: string }> = Array.isArray(blocks)
       ? blocks.slice(0, 200).map((b: unknown) => {
-        const block = b as Record<string, unknown>;
-        return {
-          type: String(block?.type || 'içerik').slice(0, 50),
-          content: String(block?.content || '').slice(0, 5000),
-        };
-      })
+          const block = b as Record<string, unknown>;
+          return {
+            type: String(block?.type || 'içerik').slice(0, 50),
+            content: String(block?.content || '').slice(0, 5000),
+          };
+        })
       : [];
 
     const pages = [];
     for (let i = 0; i < pageTotal; i++) {
       pages.push(
-        h(Page, { key: i, size: pageSize, style: styles.page },
+        h(
+          Page,
+          { key: i, size: pageSize, style: styles.page },
           // Header on first page
           i === 0 ? h(Text, { style: styles.header }, safeTitleText) : null,
           // Blocks
           contentBlocks.length > 0
             ? contentBlocks.map((block, idx) =>
-              h(View, { key: idx, style: styles.block },
-                h(Text, { style: styles.blockType }, block.type),
-                h(Text, { style: styles.blockContent }, block.content)
+                h(
+                  View,
+                  { key: idx, style: styles.block },
+                  h(Text, { style: styles.blockType }, block.type),
+                  h(Text, { style: styles.blockContent }, block.content)
+                )
               )
-            )
-            : h(View, { style: styles.block },
-              h(Text, { style: styles.blockContent },
-                i === 0
-                  ? `${safeTitleText} — Bu PDF sunucu tarafında oluşturuldu.`
-                  : `Sayfa ${i + 1}`
-              )
-            ),
+            : h(
+                View,
+                { style: styles.block },
+                h(
+                  Text,
+                  { style: styles.blockContent },
+                  i === 0
+                    ? `${safeTitleText} — Bu PDF sunucu tarafında oluşturuldu.`
+                    : `Sayfa ${i + 1}`
+                )
+              ),
           // Footer
-          h(View, { style: styles.footer },
+          h(
+            View,
+            { style: styles.footer },
             h(Text, null, safeFooter),
             h(Text, null, `SAYFA ${i + 1} / ${pageTotal}`)
           )
@@ -146,7 +179,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const pdfBuffer = await renderToBuffer(doc as any);
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(safeTitleText)}.pdf"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${encodeURIComponent(safeTitleText)}.pdf"`
+    );
     res.setHeader('Content-Length', pdfBuffer.length);
     return res.status(200).end(pdfBuffer);
   } catch (error: unknown) {

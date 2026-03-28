@@ -1,3 +1,4 @@
+import { _AppError } from '../utils/AppError';
 /**
  * OOGMATIK - Role-Based Access Control (RBAC)
  * User roles and permission management

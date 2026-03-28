@@ -1,3 +1,4 @@
+import { AppError } from './utils/AppError';
 // @ts-nocheck
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -6,7 +7,7 @@ import './styles/tailwind.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
+  throw new AppError("Could not find root element to mount to", 'INTERNAL_ERROR', 500);
 }
 
 const root = ReactDOM.createRoot(rootElement);

@@ -8,7 +8,11 @@ import { PreviewPane } from './UniversalWorksheetViewer/PreviewPane';
 import { useWorksheetState } from './UniversalWorksheetViewer/hooks/useWorksheetState';
 import { useExportEngine } from './UniversalWorksheetViewer/hooks/useExportEngine';
 import { useExportHistory } from './UniversalWorksheetViewer/hooks/useExportHistory';
-import type { Worksheet, ExportFormat, WorksheetContentBlockType } from './UniversalWorksheetViewer/types/worksheet';
+import type {
+  Worksheet,
+  ExportFormat,
+  WorksheetContentBlockType,
+} from './UniversalWorksheetViewer/types/worksheet';
 
 export interface MobileWorksheetViewerProps {
   /** Initial worksheet to load */
@@ -87,16 +91,16 @@ export const MobileWorksheetViewer: React.FC<MobileWorksheetViewerProps> = ({
       });
       setShowExportPanel(false);
     },
-    [exportEngine, ws.worksheet, ws.exportSettings, exportHistory],
+    [exportEngine, ws.worksheet, ws.exportSettings, exportHistory]
   );
 
   // ── Add block ──────────────────────────────────────────────────────────────
 
   const handleAddBlock = useCallback(
     (type: WorksheetContentBlockType) => {
-      ws.addBlock({ type, content: '' });
+      ws.addBlock({ id: crypto.randomUUID(), type, content: '' });
     },
-    [ws],
+    [ws]
   );
 
   // ── Save status ────────────────────────────────────────────────────────────
@@ -104,10 +108,10 @@ export const MobileWorksheetViewer: React.FC<MobileWorksheetViewerProps> = ({
   const saveStatusText = ws.editorState.isAutoSaving
     ? 'Kaydediliyor...'
     : ws.editorState.isDirty
-    ? 'Kaydedilmemiş'
-    : ws.editorState.lastSavedAt
-    ? `Kaydedildi ${new Date(ws.editorState.lastSavedAt).toLocaleTimeString('tr-TR')}`
-    : '';
+      ? 'Kaydedilmemiş'
+      : ws.editorState.lastSavedAt
+        ? `Kaydedildi ${new Date(ws.editorState.lastSavedAt).toLocaleTimeString('tr-TR')}`
+        : '';
 
   const viewer = (
     <div className={`${styles.mobileViewer} ${isFullscreen ? styles.mobileFullscreen : ''}`}>
@@ -177,9 +181,9 @@ export const MobileWorksheetViewer: React.FC<MobileWorksheetViewerProps> = ({
         onUndo={ws.undo}
         onRedo={ws.redo}
         onSave={() => {
-            const result = onSave?.(ws.worksheet);
-            void Promise.resolve(result).then(() => ws.markSaved());
-          }}
+          const result = onSave?.(ws.worksheet);
+          void Promise.resolve(result).then(() => ws.markSaved());
+        }}
         onExport={() => setShowExportPanel(true)}
         onPreview={() => setShowPreview((p) => !p)}
         canUndo={ws.canUndo}

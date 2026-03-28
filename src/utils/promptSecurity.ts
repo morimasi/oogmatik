@@ -22,16 +22,16 @@ import { ValidationError } from './AppError.js';
 export type ThreatLevel = 'low' | 'medium' | 'high' | 'critical';
 
 export type ThreatCategory =
-  | 'INSTRUCTION_OVERRIDE'      // "ignore previous instructions"
-  | 'ROLE_MANIPULATION'         // "you are now..."
-  | 'SYSTEM_PROMPT_EXTRACTION'  // "what is your system prompt"
-  | 'JAILBREAK_ATTEMPT'         // DAN, developer mode, etc.
-  | 'MEMORY_MANIPULATION'       // "forget your rules"
-  | 'OUTPUT_MANIPULATION'       // JSON breaking attempts
-  | 'ENCODING_BYPASS'           // Base64, unicode tricks
-  | 'DELIMITER_INJECTION'       // ### or similar separators
-  | 'SQL_INJECTION'             // DROP TABLE, DELETE FROM (inherited from schemas.ts)
-  | 'SCRIPT_INJECTION';         // <script>, onclick, etc.
+  | 'INSTRUCTION_OVERRIDE' // "ignore previous instructions"
+  | 'ROLE_MANIPULATION' // "you are now..."
+  | 'SYSTEM_PROMPT_EXTRACTION' // "what is your system prompt"
+  | 'JAILBREAK_ATTEMPT' // DAN, developer mode, etc.
+  | 'MEMORY_MANIPULATION' // "forget your rules"
+  | 'OUTPUT_MANIPULATION' // JSON breaking attempts
+  | 'ENCODING_BYPASS' // Base64, unicode tricks
+  | 'DELIMITER_INJECTION' // ### or similar separators
+  | 'SQL_INJECTION' // DROP TABLE, DELETE FROM (inherited from schemas.ts)
+  | 'SCRIPT_INJECTION'; // <script>, onclick, etc.
 
 export interface ThreatDetectionResult {
   isSafe: boolean;
@@ -62,7 +62,7 @@ export interface PromptSecurityConfig {
 // CONSTANTS
 // ============================================================
 
-export const DEFAULT_MAX_LENGTH = 5000;
+export const DEFAULT_MAX_LENGTH = 2000;
 
 export const DEFAULT_CONFIG: PromptSecurityConfig = {
   maxLength: DEFAULT_MAX_LENGTH,
@@ -98,13 +98,15 @@ const INJECTION_PATTERNS: Array<{
     description: 'Rule bypass attempt',
   },
   {
-    pattern: /disregard\s+(?:all\s+)?(?:previous|prior|above)\s+(?:instructions?|rules?|guidelines?)/gi,
+    pattern:
+      /disregard\s+(?:all\s+)?(?:previous|prior|above)\s+(?:instructions?|rules?|guidelines?)/gi,
     category: 'INSTRUCTION_OVERRIDE',
     level: 'critical',
     description: 'Disregard command',
   },
   {
-    pattern: /forget\s+(?:your|all|the)\s+(?:rules?|instructions?|guidelines?|training|programming)/gi,
+    pattern:
+      /forget\s+(?:your|all|the)\s+(?:rules?|instructions?|guidelines?|training|programming)/gi,
     category: 'MEMORY_MANIPULATION',
     level: 'critical',
     description: 'Memory wipe attempt',
@@ -132,7 +134,8 @@ const INJECTION_PATTERNS: Array<{
     description: 'Role reassignment attempt',
   },
   {
-    pattern: /act\s+as\s+(?:if\s+)?(?:you\s+(?:are|were)\s+)?(?:a|an|the)?\s*(?:different|new|another|human|person)/gi,
+    pattern:
+      /act\s+as\s+(?:if\s+)?(?:you\s+(?:are|were)\s+)?(?:a|an|the)?\s*(?:different|new|another|human|person)/gi,
     category: 'ROLE_MANIPULATION',
     level: 'high',
     description: 'Actor mode manipulation',
@@ -168,13 +171,15 @@ const INJECTION_PATTERNS: Array<{
     description: 'DAN acronym jailbreak',
   },
   {
-    pattern: /(?:bypass|circumvent|evade|skip)\s+(?:your|all|the)?\s*(?:safety|security|filter|content)/gi,
+    pattern:
+      /(?:bypass|circumvent|evade|skip)\s+(?:your|all|the)?\s*(?:safety|security|filter|content)/gi,
     category: 'JAILBREAK_ATTEMPT',
     level: 'high',
     description: 'Safety bypass attempt',
   },
   {
-    pattern: /(?:remove|disable|turn\s+off)\s+(?:your|all|the)?\s*(?:restrictions?|limitations?|filters?)/gi,
+    pattern:
+      /(?:remove|disable|turn\s+off)\s+(?:your|all|the)?\s*(?:restrictions?|limitations?|filters?)/gi,
     category: 'JAILBREAK_ATTEMPT',
     level: 'high',
     description: 'Restriction removal attempt',
@@ -184,19 +189,22 @@ const INJECTION_PATTERNS: Array<{
   // MEDIUM - Sistem bilgisi cikarma
   // ============================================================
   {
-    pattern: /what\s+(?:is|are)\s+your\s+(?:system\s+)?(?:prompt|instructions?|rules?|guidelines?)/gi,
+    pattern:
+      /what\s+(?:is|are)\s+your\s+(?:system\s+)?(?:prompt|instructions?|rules?|guidelines?)/gi,
     category: 'SYSTEM_PROMPT_EXTRACTION',
     level: 'medium',
     description: 'System prompt extraction attempt',
   },
   {
-    pattern: /(?:show|reveal|display|print|output|tell\s+me)\s+(?:your|the)\s+(?:system\s+)?(?:prompt|instructions?|guidelines?)/gi,
+    pattern:
+      /(?:show|reveal|display|print|output|tell\s+me)\s+(?:your|the)\s+(?:system\s+)?(?:prompt|instructions?|guidelines?)/gi,
     category: 'SYSTEM_PROMPT_EXTRACTION',
     level: 'medium',
     description: 'Prompt reveal attempt',
   },
   {
-    pattern: /(?:repeat|echo|recite)\s+(?:your|the)\s+(?:initial|first|original|system)\s+(?:message|prompt|instructions?)/gi,
+    pattern:
+      /(?:repeat|echo|recite)\s+(?:your|the)\s+(?:initial|first|original|system)\s+(?:message|prompt|instructions?)/gi,
     category: 'SYSTEM_PROMPT_EXTRACTION',
     level: 'medium',
     description: 'Instruction repetition attempt',
@@ -224,7 +232,8 @@ const INJECTION_PATTERNS: Array<{
     description: 'Fake system tag injection',
   },
   {
-    pattern: /#{3,}\s*(?:SYSTEM|INSTRUCTIONS?|OVERRIDE|NEW\s+(?:TASK|INSTRUCTIONS?)|IGNORE\s+ABOVE)/gi,
+    pattern:
+      /#{3,}\s*(?:SYSTEM|INSTRUCTIONS?|OVERRIDE|NEW\s+(?:TASK|INSTRUCTIONS?)|IGNORE\s+ABOVE)/gi,
     category: 'DELIMITER_INJECTION',
     level: 'medium',
     description: 'Delimiter injection',
@@ -268,7 +277,8 @@ const INJECTION_PATTERNS: Array<{
     description: 'Script tag injection',
   },
   {
-    pattern: /\bon(?:click|load|error|mouseover|mouseout|focus|blur|change|submit|keydown|keyup|keypress)\s*=\s*["']?[^"'>\s]+["']?/gi,
+    pattern:
+      /\bon(?:click|load|error|mouseover|mouseout|focus|blur|change|submit|keydown|keyup|keypress)\s*=\s*["']?[^"'>\s]+["']?/gi,
     category: 'SCRIPT_INJECTION',
     level: 'medium',
     description: 'Event handler injection',
@@ -355,7 +365,7 @@ export function clearThreatLog(): void {
  */
 function detectPatterns(input: string): DetectedThreat[] {
   const detected: DetectedThreat[] = [];
-  const normalizedInput = input.toLowerCase();
+  const _normalizedInput = input.toLowerCase();
 
   for (const { pattern, category, level, description } of INJECTION_PATTERNS) {
     // Reset regex state
@@ -390,7 +400,7 @@ function calculateOverallThreatLevel(threats: DetectedThreat[]): ThreatLevel | n
     low: 1,
   };
 
-  const maxLevel = Math.max(...threats.map(t => levels[t.level]));
+  const maxLevel = Math.max(...threats.map((t) => levels[t.level]));
 
   if (maxLevel >= 4) return 'critical';
   if (maxLevel >= 3) return 'high';
@@ -410,7 +420,7 @@ function exceedsThreshold(threats: DetectedThreat[], threshold: ThreatLevel): bo
   };
 
   const thresholdValue = levels[threshold];
-  return threats.some(t => levels[t.level] >= thresholdValue);
+  return threats.some((t) => levels[t.level] >= thresholdValue);
 }
 
 // ============================================================
@@ -436,10 +446,19 @@ export function sanitizePromptInput(
   sanitized = sanitized
     // Neutralize "ignore instructions" patterns
     .replace(/ignore\s+(?:all\s+)?(?:previous|prior|above)\s+instructions?/gi, '[filtered]')
-    .replace(/ignore\s+(?:your|the)\s+(?:rules|guidelines|instructions|constraints)/gi, '[filtered]')
-    .replace(/disregard\s+(?:all\s+)?(?:previous|prior|above)\s+(?:instructions?|rules?|guidelines?)/gi, '[filtered]')
+    .replace(
+      /ignore\s+(?:your|the)\s+(?:rules|guidelines|instructions|constraints)/gi,
+      '[filtered]'
+    )
+    .replace(
+      /disregard\s+(?:all\s+)?(?:previous|prior|above)\s+(?:instructions?|rules?|guidelines?)/gi,
+      '[filtered]'
+    )
     // Neutralize "forget rules" patterns
-    .replace(/forget\s+(?:your|all|the)\s+(?:rules?|instructions?|guidelines?|training|programming)/gi, '[filtered]')
+    .replace(
+      /forget\s+(?:your|all|the)\s+(?:rules?|instructions?|guidelines?|training|programming)/gi,
+      '[filtered]'
+    )
     // Neutralize "you are now" patterns
     .replace(/you\s+are\s+now\s+(?:a|an|the)?\s*\w+/gi, '[filtered]')
     // Neutralize jailbreak attempts
@@ -447,8 +466,14 @@ export function sanitizePromptInput(
     .replace(/\bdan\s+(?:mode|prompt|jailbreak)\b/gi, '[filtered]')
     .replace(/do\s+anything\s+now/gi, '[filtered]')
     // Neutralize override commands
-    .replace(/override\s+(?:your|all|the)\s+(?:rules?|instructions?|guidelines?|safety)/gi, '[filtered]')
-    .replace(/(?:bypass|circumvent|evade|skip)\s+(?:your|all|the)?\s*(?:safety|security|filter|content)/gi, '[filtered]');
+    .replace(
+      /override\s+(?:your|all|the)\s+(?:rules?|instructions?|guidelines?|safety)/gi,
+      '[filtered]'
+    )
+    .replace(
+      /(?:bypass|circumvent|evade|skip)\s+(?:your|all|the)?\s*(?:safety|security|filter|content)/gi,
+      '[filtered]'
+    );
 
   // 2. Remove delimiter injection attempts
   sanitized = sanitized
@@ -463,11 +488,13 @@ export function sanitizePromptInput(
     // Remove javascript: URLs
     .replace(/javascript\s*:/gi, '')
     // Remove inline event handler attributes like onclick="..."
-    .replace(/\bon(?:click|load|error|mouseover|mouseout|focus|blur|change|submit|keydown|keyup|keypress)\s*=\s*["']?[^"'\s]+["']?/gi, '');
+    .replace(
+      /\bon(?:click|load|error|mouseover|mouseout|focus|blur|change|submit|keydown|keyup|keypress)\s*=\s*["']?[^"'\s]+["']?/gi,
+      ''
+    );
 
   // 4. Remove SQL injection patterns
-  sanitized = sanitized
-    .replace(/(?:drop\s+table|delete\s+from|truncate\s+table)/gi, '');
+  sanitized = sanitized.replace(/(?:drop\s+table|delete\s+from|truncate\s+table)/gi, '');
 
   // 5. Trim excessive whitespace
   sanitized = sanitized.replace(/\s+/g, ' ').trim();
@@ -547,16 +574,14 @@ export function validatePromptOrThrow(
   const result = validatePromptSecurity(input, config, context);
 
   if (!result.isSafe) {
-    const threatSummary = result.threats
-      .map(t => `${t.category} (${t.level})`)
-      .join(', ');
+    const threatSummary = result.threats.map((t) => `${t.category} (${t.level})`).join(', ');
 
     throw new ValidationError(
       'Guvenlik kontrolunden gecemeyen ifadeler tespit edildi. Lutfen talebinizi yeniden duzenleyin.',
       {
         code: 'PROMPT_INJECTION_DETECTED',
         threatCount: result.threats.length,
-        threatCategories: [...new Set(result.threats.map(t => t.category))],
+        threatCategories: [...new Set(result.threats.map((t) => t.category))],
         details: threatSummary,
       }
     );
@@ -584,7 +609,7 @@ export function quickThreatCheck(input: string): boolean {
     /\bdan\s+(?:mode|prompt)\b/i,
   ];
 
-  return criticalPatterns.some(p => p.test(input));
+  return criticalPatterns.some((p) => p.test(input));
 }
 
 /**
@@ -628,9 +653,4 @@ export function getThreatStatistics(): {
 // EXPORTS
 // ============================================================
 
-export {
-  detectPatterns,
-  calculateOverallThreatLevel,
-  exceedsThreshold,
-  INJECTION_PATTERNS,
-};
+export { detectPatterns, calculateOverallThreatLevel, exceedsThreshold, INJECTION_PATTERNS };

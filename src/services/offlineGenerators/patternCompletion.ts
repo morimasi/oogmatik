@@ -25,7 +25,7 @@ export const generateOfflinePatternCompletion = async (options: GeneratorOptions
 
         for (let y = 0; y < gridSize; y++) {
             for (let x = 0; x < gridSize; x++) {
-                let cellShapes = [];
+                const cellShapes = [];
                 const isMissing = x === gridSize - 1 && y === gridSize - 1;
 
                 if (!isMissing) {
@@ -53,7 +53,7 @@ export const generateOfflinePatternCompletion = async (options: GeneratorOptions
         }
 
         // Doğru cevabı üret (en sağ alt köşe kuralına göre)
-        let correctShapes = [];
+        const correctShapes = [];
         if (logicType === "shifting") {
             const shapeIdx = (2 + 2) % selectedShapes.length;
             correctShapes.push({ type: selectedShapes[shapeIdx], color: selectedColors[shapeIdx], rotation: 0 });

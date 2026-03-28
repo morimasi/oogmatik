@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 // @ts-nocheck
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -67,7 +68,7 @@ interface SidebarProps {
   onWidthChange?: (width: number) => void;
 }
 
-const StudioMenuItem = ({ icon, label, onClick, color, isExpanded }: any) => (
+const _StudioMenuItem = ({ icon, label, onClick, color, isExpanded }: any) => (
   <button
     onClick={onClick}
     className={`w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-2 rounded-xl transition-all duration-300 hover:bg-white dark:hover:bg-zinc-800 hover:shadow-sm border border-transparent hover:border-zinc-100 dark:hover:border-zinc-700/50 relative`}
@@ -93,7 +94,7 @@ const StudioMenuItem = ({ icon, label, onClick, color, isExpanded }: any) => (
 
 const Sidebar: React.FC<SidebarProps> = ({
   isSidebarOpen,
-  closeSidebar,
+  _closeSidebar,
   selectedActivity,
   onSelectActivity,
   setWorksheetData,
@@ -113,7 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
-  const { activeStudent, setActiveStudent } = useStudentStore();
+  const { _activeStudent, _setActiveStudent } = useStudentStore();
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
@@ -313,7 +314,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             ],
           }))
         );
-      } catch (e) {
+      } catch (_e) {
         console.error('Dinamik kaynaklar yüklenemedi');
       }
     };
@@ -370,7 +371,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         const runOfflineGenerator = async () => {
           const offlineGenerator = (offlineGenerators as any)[`generateOffline${pascalCaseName}`];
           if (offlineGenerator) return await offlineGenerator(options);
-          throw new Error('Üretim motoru bulunamadı.');
+          throw new AppError('Üretim motoru bulunamadı.', 'INTERNAL_ERROR', 500);
         };
         if (options.mode === 'ai') {
           const onlineGenerator = (generators as any)[generatorFunctionName];

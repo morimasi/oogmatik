@@ -135,7 +135,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
         // FIX: Gerçek süre
         const durationSeconds = Math.round((Date.now() - sessionStartTime.current) / 1000);
 
-        const totalScore = completedResults.reduce((acc, r) => acc + r.score, 0) / completedResults.length;
+        const _totalScore = completedResults.reduce((acc, r) => acc + r.score, 0) / completedResults.length;
         const attentionResult = completedResults.find(r => r.testId === 'selective_attention');
         const memoryResult = completedResults.find(r => r.testId === 'visual_spatial_memory');
         const logicResult = completedResults.find(r => r.testId === 'logical_reasoning');
@@ -148,7 +148,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
         const logicScore = logicResult?.score ?? 100;
         const processingScore = processingResult?.score ?? 100;
         const phonologicalScore = phonologicalResult?.score ?? 100;
-        const visualSearchScore = visualSearchResult?.score ?? 100;
+        const _visualSearchScore = visualSearchResult?.score ?? 100;
 
         // FIX: Dyscalculia gerçek hesaplama
         const dyscalculiaRisk =

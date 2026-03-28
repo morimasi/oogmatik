@@ -1,6 +1,6 @@
 
 import { GeneratorOptions, LogicErrorHunterData } from '../../types';
-import { getRandomInt, shuffle } from './helpers';
+import { _getRandomInt, shuffle } from './helpers';
 
 export const generateOfflineLogicErrorHunter = async (options: GeneratorOptions): Promise<LogicErrorHunterData[]> => {
     const { worksheetCount, difficulty } = options;

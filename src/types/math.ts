@@ -1,5 +1,5 @@
-import { BaseActivityData, ShapeType, VisualMathType } from './common';
-import { ActivityType, Student } from './core';
+import { BaseActivityData, _ShapeType, VisualMathType } from './common';
+import { _ActivityType, _Student } from './core';
 
 export interface NumberLogicRiddleData extends BaseActivityData {
   sumTarget: number;

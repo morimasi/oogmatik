@@ -14,7 +14,7 @@ export const AdminUserManagement: React.FC = () => {
         status: 'all',
         sortBy: 'newest'
     });
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [_selectedUser, _setSelectedUser] = useState<User | null>(null);
 
     useEffect(() => {
         loadUsers();

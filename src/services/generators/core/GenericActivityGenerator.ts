@@ -1,3 +1,4 @@
+import { AppError } from '../../../utils/AppError';
 import { BaseGenerator } from './BaseGenerator';
 import { GeneratorOptions } from '../../../types';
 import { GeneratorMode } from './types';
@@ -25,7 +26,7 @@ export class GenericActivityGenerator<T> extends BaseGenerator<T> {
                 // veya hata fırlat. Şimdilik offline'a düşmeyi tercih edelim.
                 console.warn(`[GenericGenerator] AI function not provided, falling back to Offline.`);
                 if (this.offlineFunction) return await this.offlineFunction(options);
-                throw new Error(`[GenericGenerator] No generation function available.`);
+                throw new AppError(`[GenericGenerator] No generation function available.`, 'INTERNAL_ERROR', 500);
             }
             return await this.aiFunction(options);
         } else {
@@ -33,7 +34,7 @@ export class GenericActivityGenerator<T> extends BaseGenerator<T> {
                 // Eğer Offline fonksiyonu yoksa ve mod Offline ise, AI'ya düş (fallback)
                 console.warn(`[GenericGenerator] Offline function not provided, falling back to AI.`);
                 if (this.aiFunction) return await this.aiFunction(options);
-                throw new Error(`[GenericGenerator] No generation function available.`);
+                throw new AppError(`[GenericGenerator] No generation function available.`, 'INTERNAL_ERROR', 500);
             }
             return await this.offlineFunction(options);
         }
