@@ -135,7 +135,18 @@ const InfographicRenderer: React.FC<InfographicRendererProps> = ({
           { originalError: error.message }
         );
         logger.error(appError);
-  }
+      }
+    };
+
+    initInfographic();
+
+    return () => {
+      mounted = false;
+      if (instanceRef.current) {
+        instanceRef.current.destroy();
+      }
+    };
+  }, [syntax, editable, height]);
 
   if (renderError) {
     return (
