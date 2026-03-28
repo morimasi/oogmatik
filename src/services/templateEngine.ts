@@ -32,7 +32,7 @@ const DEFAULT_LAYOUT: TemplateLayout = {
     gap: 12,
 };
 
-const SECTION_TYPE_MAP: Record<string, SectionType> = {
+const _SECTION_TYPE_MAP: Record<string, SectionType> = {
     MATH_WORKSHEET: 'question_block',
     READING_COMPREHENSION: 'question_block',
     FILL_IN_THE_BLANK: 'question_block',

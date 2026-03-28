@@ -1,5 +1,5 @@
 
-import { getRandomInt, shuffle, getRandomItems, getWordsForDifficulty, turkishAlphabet, VISUALLY_SIMILAR_CHARS } from './helpers';
+import { getRandomInt, shuffle, _getRandomItems, _getWordsForDifficulty, turkishAlphabet, VISUALLY_SIMILAR_CHARS } from './helpers';
 import { SyllableWordBuilderData, FamilyRelationsData, FamilyLogicTestData, GeneratorOptions, FindLetterPairData } from '../../types';
 
 // ... Family Pool definitions remain unchanged ...
@@ -132,7 +132,7 @@ export const generateOfflineFamilyLogicTest = async (options: GeneratorOptions):
 };
 
 export const generateOfflineSyllableWordBuilder = async (options: GeneratorOptions): Promise<SyllableWordBuilderData[]> => {
-    const { worksheetCount, difficulty, itemCount = 4 } = options;
+    const { worksheetCount, _difficulty, _itemCount = 4 } = options;
     const words = [
         { word: "ARABA", syllables: ["A", "RA", "BA"], img: "car" },
         { word: "KİTAP", syllables: ["Kİ", "TAP"], img: "book" },

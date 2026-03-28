@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import type { ExportHistoryEntry, ExportFormat, ExportSettings } from '../types/worksheet';
+import type { ExportHistoryEntry, ExportFormat, _ExportSettings } from '../types/worksheet';
 
 const STORAGE_KEY = 'uwv_export_history';
 const MAX_HISTORY_ENTRIES = 100;

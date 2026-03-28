@@ -3,7 +3,7 @@ import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions, AlgorithmData } from '../../types.js';
 
 export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions): Promise<AlgorithmData[]> => {
-    const { topic, difficulty, studentContext } = options;
+    const { topic, difficulty, _studentContext } = options;
 
     const prompt = `
     [ROL: ÜST DÜZEY YAZILIM MİMARI VE PEDAGOJİK ANALİST]

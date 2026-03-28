@@ -3,7 +3,7 @@ import { Player } from '@remotion/player';
 import { DyslexiaTextReveal, DyslexiaTextRevealProps } from '../../remotion/templates/DyslexiaTextReveal';
 
 export const RemotionStudio: React.FC = () => {
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [_isPlaying, _setIsPlaying] = useState(false);
 
     // Örnek Props: Geliştirme aşamasında manuel, ileride Gemini'den gelecek
     const [props, setProps] = useState<DyslexiaTextRevealProps>({

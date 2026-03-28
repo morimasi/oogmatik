@@ -4,7 +4,7 @@ import {
   WorkbookSettings,
   StyleSettings,
   ActivityType,
-  StudentProfile,
+  _StudentProfile,
 } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
@@ -131,7 +131,7 @@ export const WorkbookView = ({
   onBack,
 }: WorkbookViewProps) => {
   const { user } = useAuthStore();
-  const { activeStudent, students } = useStudentStore();
+  const { _activeStudent, students } = useStudentStore();
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   const [activeTab, setActiveTab] = useState<'content' | 'design' | 'assign'>('content');
   const [isSaving, setIsSaving] = useState(false);

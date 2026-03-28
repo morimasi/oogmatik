@@ -43,7 +43,7 @@ export const ActivityPublisher: React.FC<ActivityPublisherProps> = ({ blueprint,
                 updatedAt: new Date().toISOString()
             } as DynamicActivity);
             onSuccess();
-        } catch (e) {
+        } catch (_e) {
             alert("Yayınlama başarısız.");
         } finally {
             setIsSaving(false);

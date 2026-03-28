@@ -66,7 +66,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
         try {
             setLoading(true);
             // Copy to user's own collection
-            const { id, ...rest } = item;
+            const { _id, ..._rest } = item;
             await worksheetService.saveWorksheet(
                 user.id,
                 `${item.name} (Arşiv)`,
@@ -95,7 +95,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
         }, 500);
     };
 
-    const handleAddToBooklet = (item: SavedWorksheet) => {
+    const handleAddToBooklet = (_item: SavedWorksheet) => {
         if (!user) return;
         // logic to add to active workbook in store
         alert('Bu özellik "Çalışma Kitapçığı" modülünde "Koleksiyon" altından paylaşılan içeriği seçerek kullanılabilir.');

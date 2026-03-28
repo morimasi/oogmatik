@@ -20,7 +20,7 @@ interface EditableElementProps {
 const GRID_SIZE = 20;
 const SNAP_THRESHOLD = 10;
 
-export const EditableElement: React.FC<EditableElementProps> = ({ children, className = "", initialPos = { x: 0, y: 0 }, id, type = 'block', style: propStyle, onClick }) => {
+export const EditableElement: React.FC<EditableElementProps> = ({ children, className = "", initialPos = { x: 0, y: 0 }, _id, _type = 'block', style: propStyle, onClick }) => {
     const { isEditMode, zoom } = useEditable();
 
     // Transform State
@@ -121,8 +121,8 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
                     const dx = (e.clientX - startPos.current.x) / zoom;
                     const dy = (e.clientY - startPos.current.y) / zoom;
 
-                    let rawX = initialTransform.current.x + dx;
-                    let rawY = initialTransform.current.y + dy;
+                    const rawX = initialTransform.current.x + dx;
+                    const rawY = initialTransform.current.y + dy;
 
                     // Snap to Grid Logic
                     const snapX = Math.round(rawX / GRID_SIZE) * GRID_SIZE;
@@ -241,7 +241,7 @@ export const EditableText: React.FC<{
     onChange?: (val: string) => void;
     style?: React.CSSProperties;
     placeholder?: string;
-}> = ({ value, className = "", tag = 'p', onChange, style, placeholder }) => {
+}> = ({ value, className = "", tag = 'p', onChange, style, _placeholder }) => {
     const { isEditMode } = useEditable();
     // Ensure value is always a string for rendering
     const safeValue = value === undefined || value === null ? '' : String(value);

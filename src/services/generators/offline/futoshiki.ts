@@ -32,7 +32,7 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
 
         const numbers = Array.from({ length: s }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
 
-        for (let num of numbers) {
+        for (const num of numbers) {
             let isSafe = true;
             for (let x = 0; x < s; x++) {
                 if (board[row][x] === num || board[x][col] === num) {
@@ -49,7 +49,7 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
     };
 
     for (let c = 0; c < worksheetCount; c++) {
-        let board: (number | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
+        const board: (number | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
         solveLatinSquare(board, size);
 
         const constraints: any[] = [];

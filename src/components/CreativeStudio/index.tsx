@@ -97,7 +97,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
             const analysisResult = await analyzeReferenceFiles(combined, prompt);
             setPrompt(prev => prev.trim() ? `${prev}\n\n---\n\n${analysisResult}` : analysisResult);
             setStatus("Analiz başarılı.");
-        } catch (e) {
+        } catch (_e) {
             setStatus("Hata oluştu.");
         } finally {
             setIsAnalyzingFile(false);
@@ -128,7 +128,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
             }, attachedFiles);
             setLastResult(result);
             onResult(Array.isArray(result) ? result : [result]);
-        } catch (e) {
+        } catch (_e) {
             setStatus("Üretim durduruldu.");
         } finally {
             setIsProcessing(false);

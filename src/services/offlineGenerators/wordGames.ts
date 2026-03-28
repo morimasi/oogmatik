@@ -1,6 +1,6 @@
 
 import { GeneratorOptions, HiddenPasswordGridData, WordSearchData } from '../../types';
-import { getWordsForDifficulty, getRandomItems, turkishAlphabet, getRandomInt, shuffle } from './helpers';
+import { getWordsForDifficulty, getRandomItems, turkishAlphabet, getRandomInt, _shuffle } from './helpers';
 
 // Directions: [dx, dy]
 const DIR_RIGHT = { x: 1, y: 0 };
@@ -11,8 +11,8 @@ const DIR_DIAG_UR = { x: 1, y: -1 }; // Diagonal Up-Right
 // Backwards (Hard mode only)
 const DIR_LEFT = { x: -1, y: 0 };
 const DIR_UP = { x: 0, y: -1 };
-const DIR_DIAG_UL = { x: -1, y: -1 };
-const DIR_DIAG_DL = { x: -1, y: 1 };
+const _DIR_DIAG_UL = { x: -1, y: -1 };
+const _DIR_DIAG_DL = { x: -1, y: 1 };
 
 export const generateOfflineHiddenPasswordGrid = async (options: GeneratorOptions): Promise<HiddenPasswordGridData[]> => {
     // ... (HiddenPasswordGrid mantığı şimdilik aynı kalabilir, sadece kare kullanıyor olabilir, ileride güncellenebilir)

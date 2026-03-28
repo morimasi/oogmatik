@@ -25,3 +25,4 @@ export * from '../generators/offline/magicPyramid';
 export * from '../generators/offline/oddEvenSudoku';
 export * from './visualInterpretation';
 export * from './boxMath';
+export * from './heceParkuru';

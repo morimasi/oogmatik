@@ -1,5 +1,5 @@
 import { BaseActivityData, ShapeType } from './common';
-import { ActivityType } from './core';
+import { _ActivityType } from './core';
 
 // GeneratorOptions core.ts'den taşındı.
 
@@ -42,11 +42,11 @@ export interface FindTheDifferenceData extends BaseActivityData {
     isProfessionalMode: boolean;
     showClinicalNotes?: boolean;
   };
-  gridA?: any[][];
-  gridB?: any[][];
+  gridA?: unknown[][];
+  gridB?: unknown[][];
   diffCount?: number;
   rows: {
-    items: any[]; // Supports strings, SVG objects, or references
+    items: unknown[]; // Supports strings, SVG objects, or references
     correctIndex: number;
     visualDistractionLevel: 'low' | 'medium' | 'high' | 'extreme';
     clinicalMeta?: {
@@ -202,11 +202,11 @@ export interface MapInstructionData extends BaseActivityData {
   }[];
   emphasizedRegion?: string;
   questionType?:
-  | 'spatial_logic'
-  | 'linguistic_geo'
-  | 'attribute_search'
-  | 'neighbor_path'
-  | 'route_planning';
+    | 'spatial_logic'
+    | 'linguistic_geo'
+    | 'attribute_search'
+    | 'neighbor_path'
+    | 'route_planning';
   difficultyLevel?: 1 | 2 | 3 | 4 | 5;
   settings?: {
     showCityNames: boolean;

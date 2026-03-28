@@ -54,7 +54,7 @@ export const useActivitySettings = (activityId: string) => {
                 } else {
                     setOptions(defaultOptions);
                 }
-            } catch (e) {
+            } catch (_e) {
                 setOptions(getDefaultOptionsForActivity(activityId));
             }
         };

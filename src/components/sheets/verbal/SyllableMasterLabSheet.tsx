@@ -9,7 +9,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
   const renderItem = (item: any, idx: number) => {
     const isSplit = mode === 'split';
     const isCombine = mode === 'combine';
-    const isComplete = mode === 'complete';
+    const _isComplete = mode === 'complete';
     const isRainbow = mode === 'rainbow';
     const isScrambled = mode === 'scrambled';
 

@@ -1,11 +1,11 @@
 
 import { generateWithSchema } from '../geminiClient.js';
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, LetterVisualMatchingData, SyllableMasterLabData, Student } from '../../types.js';
-import { getAttentionPrompt, getDyslexiaPrompt } from './prompts.js';
+import { GeneratorOptions, _CodeReadingData, _AttentionToQuestionData, _AttentionDevelopmentData, _AttentionFocusData, _ReadingFlowData, _LetterDiscriminationData, _RapidNamingData, _PhonologicalAwarenessData, _MirrorLettersData, _SyllableTrainData, _VisualTrackingLineData, _BackwardSpellingData, LetterVisualMatchingData, SyllableMasterLabData, Student } from '../../types.js';
+import { _getAttentionPrompt, getDyslexiaPrompt } from './prompts.js';
 
 // Comprehensive Syllable Master Lab - UPDATED FOR COMPACT MODE (NO IMAGES)
 export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {
-    const { worksheetCount, difficulty = 'Orta', itemCount, topic, variant = 'split', case: letterCase, syllableRange = '2-3' } = options;
+    const { _worksheetCount, difficulty = 'Orta', itemCount, topic, variant = 'split', case: letterCase, syllableRange = '2-3' } = options;
 
     const specifics = `
     - ÇALIŞMA MODU: ${variant} (split, combine, complete, rainbow, scrambled)

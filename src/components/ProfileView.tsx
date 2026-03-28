@@ -7,7 +7,7 @@ import {
   ActivityType,
   User,
   Curriculum,
-  Student,
+  _Student,
   UiSettings,
   AppTheme,
 } from '../types';
@@ -16,10 +16,10 @@ import { worksheetService } from '../services/worksheetService';
 import { curriculumService } from '../services/curriculumService';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
 import { LineChart } from './LineChart';
-import { RadarChart } from './RadarChart';
-import { printService } from '../utils/printService';
-import { ACTIVITIES } from '../constants';
-import { StudentDashboard } from './Student/StudentDashboard';
+import { _RadarChart } from './RadarChart';
+import { _printService } from '../utils/printService';
+import { _ACTIVITIES } from '../constants';
+import { _StudentDashboard } from './Student/StudentDashboard';
 import { AdvancedStudentManager } from './Student/AdvancedStudentManager';
 
 interface ProfileViewProps {
@@ -143,8 +143,8 @@ type ProfileTab = 'overview' | 'students' | 'evaluations' | 'plans' | 'reports' 
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
   onBack,
-  onSelectActivity,
-  onLoadSaved,
+  _onSelectActivity,
+  _onLoadSaved,
   targetUser,
   theme: externalTheme,
   uiSettings: externalUiSettings,
@@ -160,7 +160,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   // Use external settings or default values
   const currentTheme = externalTheme || 'anthracite';
-  const currentUiSettings = externalUiSettings || {
+  const _currentUiSettings = externalUiSettings || {
     fontFamily: 'OpenDyslexic',
     fontSizeScale: 1,
     letterSpacing: 'normal' as const,
@@ -300,7 +300,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       });
       setMessage({ type: 'success', text: 'Profil başarıyla güncellendi.' });
       setTimeout(() => setMessage(null), 3000);
-    } catch (e) {
+    } catch (_e) {
       setMessage({ type: 'error', text: 'Güncelleme hatası oluştu.' });
     } finally {
       setIsSavingProfile(false);

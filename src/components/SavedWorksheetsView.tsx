@@ -14,7 +14,7 @@ interface SharedWorksheetsViewProps {
 
 const PAGE_SIZE = 10;
 
-type GroupType = { title: string; items: SavedWorksheet[] };
+type _GroupType = { title: string; items: SavedWorksheet[] };
 
 const MaterialCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
     if (!item || !item.id) return null; // Safe check
@@ -266,7 +266,7 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                 // Rapor silme fonksiyonu eklenebilir, şimdilik UI'dan kaldırılıyor
                 setAssessments(prev => prev.filter(i => i.id !== id));
             }
-        } catch (e) {
+        } catch (_e) {
             alert("Silme işlemi sırasında hata oluştu.");
         }
     };

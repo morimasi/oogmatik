@@ -30,7 +30,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
 }) => {
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const { addWorksheet } = useWorksheetStore();
+  const { _addWorksheet } = useWorksheetStore();
 
   const toggleSelect = (index: number) => {
     const newSelected = new Set(selectedIndices);

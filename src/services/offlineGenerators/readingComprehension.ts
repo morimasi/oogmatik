@@ -257,7 +257,7 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
 export const generateOfflineWordsInStory = async (options: GeneratorOptions): Promise<WordsInStoryData[]> => {
     const { worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const { title, story, imagePrompt, template } = buildBaseStory(difficulty);
+        const { _title, story, imagePrompt, template } = buildBaseStory(difficulty);
 
         const vocabWork = (template.vocabulary || []).map(v => ({
             word: v.word,
@@ -279,7 +279,7 @@ export const generateOfflineWordsInStory = async (options: GeneratorOptions): Pr
 export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): Promise<StoryAnalysisData[]> => {
     const { worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const { title, story, imagePrompt, chosenValues } = buildBaseStory(difficulty);
+        const { _title, story, imagePrompt, chosenValues } = buildBaseStory(difficulty);
         return {
             title: 'Hikaye Haritası',
             instruction: "Hikayenin unsurlarını analiz et.",
@@ -329,7 +329,7 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
 export const generateOfflineMissingParts = async (options: GeneratorOptions): Promise<MissingPartsData[]> => {
     const { worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const { title, story, chosenValues, imagePrompt } = buildBaseStory(difficulty);
+        const { _title, story, chosenValues, imagePrompt } = buildBaseStory(difficulty);
 
         const words = Object.values(chosenValues);
         let maskedStory = story;
@@ -387,6 +387,6 @@ export const generateOfflineProverbSayingSort = async (o: GeneratorOptions) => {
 };
 
 // ... and so on for others, keeping them simple but functional
-export const generateOfflineProverbWordChain = async (o: GeneratorOptions) => [];
-export const generateOfflineProverbSentenceFinder = async (o: GeneratorOptions) => [];
-export const generateOfflineProverbSearch = async (o: GeneratorOptions) => [];
+export const generateOfflineProverbWordChain = async (_o: GeneratorOptions) => [];
+export const generateOfflineProverbSentenceFinder = async (_o: GeneratorOptions) => [];
+export const generateOfflineProverbSearch = async (_o: GeneratorOptions) => [];

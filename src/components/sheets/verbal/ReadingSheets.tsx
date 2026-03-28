@@ -1,5 +1,5 @@
 
-import React from 'react';
+import _React from 'react';
 
 // Grouping similar small verbal sheets to keep the structure modular but not fragmented
 export { SyllableMasterLabSheet } from './SyllableMasterLabSheet';

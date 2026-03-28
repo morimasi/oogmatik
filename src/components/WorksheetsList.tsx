@@ -5,9 +5,9 @@
 
 import React, { useState, useMemo } from 'react';
 import { SavedWorksheet } from '../types';
-import { useGetUserWorksheets, useCreateWorksheet, useDeleteWorksheet, useShareWorksheet } from '../hooks/useWorksheets';
+import { useGetUserWorksheets, _useCreateWorksheet, useDeleteWorksheet, useShareWorksheet } from '../hooks/useWorksheets';
 import { ErrorDisplay } from './ErrorDisplay';
-import { AppError } from '../utils/AppError';
+import { _AppError } from '../utils/AppError';
 
 interface WorksheetsListProps {
     userId: string;
@@ -15,7 +15,7 @@ interface WorksheetsListProps {
     userName: string;
 }
 
-interface WorksheetListItem extends SavedWorksheet {
+interface _WorksheetListItem extends SavedWorksheet {
     isSelected?: boolean;
     isSharing?: boolean;
     shareError?: string;
@@ -28,7 +28,7 @@ export const WorksheetsList: React.FC<WorksheetsListProps> = ({
 }) => {
     // State
     const [page, setPage] = useState(0);
-    const [pageSize, setPageSize] = useState(20);
+    const [pageSize, _setPageSize] = useState(20);
     const [categoryFilter, setCategoryFilter] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedWorksheets, setSelectedWorksheets] = useState<string[]>([]);

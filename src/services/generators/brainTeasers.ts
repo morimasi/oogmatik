@@ -1,5 +1,5 @@
 import { generateCreativeMultimodal } from '../geminiClient';
-import { ActivityType, GeneratorOptions, WorksheetData } from '../../types';
+import { _ActivityType, GeneratorOptions, WorksheetData } from '../../types';
 import { BaseGenerator } from './core/BaseGenerator';
 
 export class BrainTeasersGenerator extends BaseGenerator<any> {

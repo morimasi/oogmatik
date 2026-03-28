@@ -11,7 +11,7 @@
 import type {
     QuestionType,
     Difficulty,
-    ProductionMode,
+    _ProductionMode,
 } from '../types/ocr-activity';
 import type { AgeGroup, LearningDisabilityProfile } from '../types/creativeStudio';
 

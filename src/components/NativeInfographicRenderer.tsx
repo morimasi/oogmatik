@@ -159,7 +159,7 @@ function parseDataBlock(
     templateType: TemplateType,
     data: ParsedData
 ): number {
-    let i = startIdx;
+    const i = startIdx;
 
     if (templateType === 'compare-binary-horizontal' || templateType === 'compare-binary-vertical') {
         return parseCompareBinary(lines, i, data);

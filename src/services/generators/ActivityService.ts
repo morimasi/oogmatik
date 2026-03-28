@@ -1,3 +1,4 @@
+import { AppError } from '../../utils/AppError';
 import { GeneratorOptions, ActivityType } from '../../types';
 import { GeneratorMode, IActivityGenerator } from './core/types';
 import { GenericActivityGenerator } from './core/GenericActivityGenerator';
@@ -49,7 +50,7 @@ export class ActivityService {
     /**
      * Belirtilen aktivite türü için içerik üretir.
      */
-    public async generate(type: ActivityType, options: GeneratorOptions, mode?: GeneratorMode): Promise<any> {
+    public async generate(type: ActivityType, options: GeneratorOptions, _mode?: GeneratorMode): Promise<any> {
         
         const generator = this.generators.get(type);
         
@@ -57,7 +58,7 @@ export class ActivityService {
             // Eğer generator bulunamadıysa, belki henüz migrate edilmemiştir.
             // Eski yöntemle çalışan bir fallback mekanizması eklenebilir.
             console.warn(`No generator found for activity type: ${type}. Checking legacy mapping...`);
-            throw new Error(`No generator found for activity type: ${type}`);
+            throw new AppError(`No generator found for activity type: ${type}`, 'INTERNAL_ERROR', 500);
         }
 
         // Mod değişikliği isteği varsa (örn: kullanıcı offline istedi)

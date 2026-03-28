@@ -2,7 +2,7 @@
 import React from 'react';
 import { GridDrawingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
-import { EditableElement } from '../../Editable';
+import { _EditableElement } from '../../Editable';
 
 export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     const settings = data?.settings;

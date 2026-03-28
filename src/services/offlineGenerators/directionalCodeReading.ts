@@ -1,6 +1,6 @@
 import { GeneratorOptions } from '../../types/core';
 import { DirectionalCodeReadingData } from '../../types/visual';
-import { getRandomInt, getRandomItems, shuffle } from './helpers';
+import { getRandomInt, _getRandomItems, _shuffle } from './helpers';
 
 export const generateOfflineDirectionalCodeReading = async (
   options: GeneratorOptions
@@ -27,8 +27,8 @@ export const generateOfflineDirectionalCodeReading = async (
   }[difficulty] || { pathLength: 6, obstacles: 0.2 };
 
   // 3. Generate Valid Path (DFS simplified)
-  let startX = 0;
-  let startY = 0;
+  const startX = 0;
+  const startY = 0;
   let currentX = startX;
   let currentY = startY;
   const path: { x: number; y: number; dir: string }[] = [];

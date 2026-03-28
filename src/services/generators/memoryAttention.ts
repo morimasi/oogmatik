@@ -2,7 +2,7 @@
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions } from '../../types.js';
 import {
-    WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData,
+    WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, _FindLetterPairData, TargetSearchData,
     ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData
 } from '../../types';
 
@@ -21,7 +21,7 @@ const PEDAGOGICAL_PROMPT = `
 `;
 
 export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
-    const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
+    const { topic, itemCount, difficulty, worksheetCount, _memorizeRatio } = options;
     const prompt = `
     "${difficulty}" seviyesinde, '${topic}' temalı Kelime Hafıza Testi.
     ${itemCount} kelime seç. Her biri için **İngilizce** 'imagePrompt' oluştur.
@@ -55,7 +55,7 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
 };
 
 export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Promise<VisualMemoryData[]> => {
-    const { topic, itemCount, difficulty, worksheetCount } = options;
+    const { topic, _itemCount, difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde, '${topic}' temalı Görsel Hafıza Testi.
     Nesneler için **İngilizce** 'imagePrompt' ve Türkçe 'description' üret.
@@ -89,7 +89,7 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
 };
 
 export const generateNumberSearchFromAI = async (options: GeneratorOptions): Promise<NumberSearchData[]> => {
-    const { difficulty, worksheetCount } = options;
+    const { difficulty, _worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Sayı Avı. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: 'OBJECT',
@@ -112,7 +112,7 @@ export const generateNumberSearchFromAI = async (options: GeneratorOptions): Pro
 };
 
 export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOptions): Promise<FindDuplicateData[]> => {
-    const { difficulty, worksheetCount } = options;
+    const { difficulty, _worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde 'İkiliyi Bul'. Her satırda bir karakteri tekrar et. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: 'OBJECT',
@@ -130,7 +130,7 @@ export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOpti
 };
 
 export const generateLetterGridTestFromAI = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
-    const { gridSize, difficulty, worksheetCount, targetLetters } = options;
+    const { _gridSize, difficulty, worksheetCount, targetLetters } = options;
     const prompt = `
     "${difficulty}" seviyesinde Harf Izgarası. 
     Hedefler: ${targetLetters || 'b, d'}.
@@ -156,7 +156,7 @@ export const generateLetterGridTestFromAI = async (options: GeneratorOptions): P
 // Fix: Removed duplicate generateFindLetterPairFromAI as it is now centrally managed in newActivities.ts
 
 export const generateTargetSearchFromAI = async (options: GeneratorOptions): Promise<TargetSearchData[]> => {
-    const { difficulty, worksheetCount } = options;
+    const { difficulty, _worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Hedef Karakter Avı. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: 'OBJECT',
@@ -176,7 +176,7 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
 };
 
 export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions): Promise<ColorWheelMemoryData[]> => {
-    const { itemCount, difficulty, worksheetCount } = options;
+    const { _itemCount, difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde Renk Çemberi Hafıza Oyunu.
     Her öğe için **İngilizce** 'imagePrompt'.
@@ -212,7 +212,7 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
 };
 
 export const generateImageComprehensionFromAI = async (options: GeneratorOptions): Promise<ImageComprehensionData[]> => {
-    const { topic, difficulty, worksheetCount } = options;
+    const { _topic, difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde Resim Anlama.
     Detaylı bir sahne betimle (sceneDescription) ve buna uygun **İngilizce** 'imagePrompt'.
@@ -238,7 +238,7 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
 };
 
 export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): Promise<CharacterMemoryData[]> => {
-    const { topic, difficulty, worksheetCount } = options;
+    const { _topic, difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde Karakter Hafıza.
     Karakterler için **İngilizce** 'imagePrompt'.
@@ -288,7 +288,7 @@ export const generateBurdonTestFromAI = async (options: GeneratorOptions): Promi
 };
 
 export const generateStroopTestFromAI = async (options: GeneratorOptions): Promise<StroopTestData[]> => {
-    const { worksheetCount } = options;
+    const { _worksheetCount } = options;
     const prompt = `Stroop Testi oluştur. Renk isimleri ile renkler uyumsuz olsun. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: 'OBJECT',
@@ -312,7 +312,7 @@ export const generateStroopTestFromAI = async (options: GeneratorOptions): Promi
     return generateWithSchema(prompt, schema) as Promise<StroopTestData[]>;
 }
 
-export const generateChaoticNumberSearchFromAI = async (options: GeneratorOptions): Promise<ChaoticNumberSearchData[]> => {
+export const generateChaoticNumberSearchFromAI = async (_options: GeneratorOptions): Promise<ChaoticNumberSearchData[]> => {
     const prompt = `Kaotik Sayı Avı. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: 'OBJECT',

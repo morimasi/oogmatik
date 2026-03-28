@@ -69,7 +69,7 @@ export const AbcConnectSheet = ({ data }: { data: AbcConnectData }) => {
                         const endPath = paths.find((p) => p.end.x === x && p.end.y === y);
 
                         const isStart = !!startPath;
-                        const isEnd = !!endPath;
+                        const _isEnd = !!endPath;
                         const path = startPath || endPath;
 
                         if (!path) {

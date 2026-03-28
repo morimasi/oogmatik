@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 import React, { createContext, useContext, useMemo } from 'react';
 import { InteractiveStoryData, ReadingStudioConfig, LayoutItem, Student } from '../types';
 import { useReadingStore } from '../store/useReadingStore';
@@ -41,6 +42,6 @@ export function ReadingStudioProvider({ children }: { children: any }) {
 
 export const useReadingStudio = () => {
     const context = useContext(ReadingStudioContext);
-    if (!context) throw new Error('useReadingStudio must be used within a ReadingStudioProvider');
+    if (!context) throw new AppError('useReadingStudio must be used within a ReadingStudioProvider', 'INTERNAL_ERROR', 500);
     return context;
 };

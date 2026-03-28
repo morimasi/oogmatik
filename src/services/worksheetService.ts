@@ -6,17 +6,17 @@
 import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types.js';
-import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
-import { logError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';
+import { AppError, NotFoundError, AuthorizationError, _DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
+import { logError, _retryWithBackoff, _withTimeout } from '../utils/errorHandler.js';
 
 // @ts-ignore - Vercel TS build might not resolve firebase types correctly with node resolution
-const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, startAfter } = firestore;
+const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, _startAfter } = firestore;
 
 /**
  * Firestore timeout configurations (ms)
  */
-const FIRESTORE_TIMEOUT = 10000;
-const FIRESTORE_RETRY_CONFIG = {
+const _FIRESTORE_TIMEOUT = 10000;
+const _FIRESTORE_RETRY_CONFIG = {
     maxRetries: 3,
     initialDelay: 500,
     shouldRetry: (error: any) => {

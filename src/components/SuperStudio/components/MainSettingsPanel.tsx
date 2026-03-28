@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
-import { SuperStudioDifficulty, GenerationMode } from '../../../types/superStudio';
+import { SuperStudioDifficulty, _GenerationMode } from '../../../types/superStudio';
 
 export const MainSettingsPanel: React.FC = () => {
     const { grade, difficulty, generationMode, setGrade, setDifficulty, setGenerationMode } = useSuperStudioStore();

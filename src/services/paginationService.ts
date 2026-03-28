@@ -9,8 +9,8 @@ import { WorksheetData, ActivityType, StyleSettings, WorksheetBlock } from '../t
  */
 
 const MAX_PAGE_WEIGHT = 1100; // A4 yüksekliğinin güvenli kullanılabilir alanı (header+footer marjları çıkarılarak)
-const HEADER_COST = 160;   // PedagogicalHeader ortalama maliyeti (40mm)
-const STUDENT_INFO_COST = 60; // Öğrenci bilgi şeridi (15mm)
+const _HEADER_COST = 160;   // PedagogicalHeader ortalama maliyeti (40mm)
+const _STUDENT_INFO_COST = 60; // Öğrenci bilgi şeridi (15mm)
 const CONTINUATION_HEADER_COST = 80; // Devam sayfası mini-header maliyeti
 
 const recursiveSafeText = (val: any): string => {

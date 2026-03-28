@@ -1,3 +1,5 @@
+import { AppError } from '../utils/AppError';
+import { logger } from '../utils/logger';
 
 import { InternalServerError } from '../utils/AppError.js';
 import { OCRResult, OCRBlueprint, OCRDetectedType } from '../types.js';
@@ -178,7 +180,7 @@ export const ocrService = {
         // Önbellek kontrolü
         const cached = getCachedResult(base64Image);
         if (cached) {
-            console.log('[OCR Cache] Hit — önbellekten döndürülüyor.');
+            logger.info('[OCR Cache] Hit — önbellekten döndürülüyor.');
             return { ...cached, description: cached.description + ' (Önbellek)' };
         }
 
@@ -197,7 +199,7 @@ export const ocrService = {
         SADECE metni okuma; sayfa hiyerarşisini, mimari yapısını ve ASIL VERİYİ eksiksiz çöz.
         `;
 
-        const schema = {
+        const _schema = {
             type: 'OBJECT',
             properties: {
                 title: {
@@ -230,7 +232,7 @@ export const ocrService = {
             const validation = validateBlueprint(result.worksheetBlueprint);
 
             if (!validation.isValid) {
-                throw new Error(validation.warnings.join(' '));
+                throw new AppError(validation.warnings.join(' ', 'INTERNAL_ERROR', 500));
             }
 
             const ocrResult: OCRResult = {

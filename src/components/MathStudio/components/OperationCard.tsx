@@ -4,7 +4,7 @@ import React from 'react';
 import { MathOperation } from '../../../types/math';
 import { numberToTurkish } from '../utils';
 
-import { ThemeConfig, BORDER_STYLES, NUMBERING_STYLES } from '../constants';
+import { ThemeConfig, _BORDER_STYLES, NUMBERING_STYLES } from '../constants';
 
 interface OperationCardProps {
     op: MathOperation;

@@ -9,7 +9,7 @@ import { AcademicModule } from './modules/AcademicModule';
 import { PortfolioModule } from './modules/PortfolioModule';
 import { BehaviorModule } from './modules/BehaviorModule';
 import { SettingsModule } from './modules/SettingsModule';
-import { StudentSelector } from './StudentSelector';
+import { _StudentSelector } from './StudentSelector';
 
 import { AIInsightsModule } from './modules/AIInsightsModule';
 
@@ -135,7 +135,7 @@ const ManagerSidebar: React.FC<{
 
 // Main Manager Component
 export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { activeStudent, students, setActiveStudent, addStudent, updateStudent, deleteStudent } = useStudentStore();
+  const { activeStudent, students, setActiveStudent, _addStudent, updateStudent, _deleteStudent } = useStudentStore();
   const [selectedModule, setSelectedModule] = useState('overview');
   const [visibleModules, setVisibleModules] = useState<string[]>(Object.keys(MODULE_ICONS));
 

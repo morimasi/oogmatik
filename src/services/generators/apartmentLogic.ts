@@ -14,7 +14,7 @@ export const generateApartmentLogicPuzzleFromAI = async (options: GeneratorOptio
     if (variableCount === 2) variableInstruction = '2 değişken (Örn: İsim + Sevdikleri Renk veya Hayvan).';
     if (variableCount === 3) variableInstruction = '3 değişken (Örn: İsim + Renk + Meslek/Hayvan). Oldukça zorlayıcı.';
 
-    let negativeInstruction = includeNegativeClues ? 'İpuçları arasında "Ayşe kırmızı kapılı evde OTURMAMAKTADIR" gibi negatif (değil) bildirimler de OLMALIDIR.' : 'Sadece pozitif ve doğrudan ("Ali üst kattadır" veya "Mavi kapılı ev Ayşe\'nin hemen sağındadır") ipuçları KULLAN, negatif bildirim kullanma.';
+    const negativeInstruction = includeNegativeClues ? 'İpuçları arasında "Ayşe kırmızı kapılı evde OTURMAMAKTADIR" gibi negatif (değil) bildirimler de OLMALIDIR.' : 'Sadece pozitif ve doğrudan ("Ali üst kattadır" veya "Mavi kapılı ev Ayşe\'nin hemen sağındadır") ipuçları KULLAN, negatif bildirim kullanma.';
 
     let studentInstruction = '';
     if (student) {

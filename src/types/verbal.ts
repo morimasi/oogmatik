@@ -1,18 +1,17 @@
 import { BaseActivityData } from './common';
-import { ActivityType, Student } from './core';
-
+import { _ActivityType, _Student } from './core';
 
 export interface StoryQuestion {
   type:
-  | 'multiple-choice'
-  | 'true-false'
-  | 'open-ended'
-  | 'who'
-  | 'where'
-  | 'when'
-  | 'what'
-  | 'why'
-  | 'how';
+    | 'multiple-choice'
+    | 'true-false'
+    | 'open-ended'
+    | 'who'
+    | 'where'
+    | 'when'
+    | 'what'
+    | 'why'
+    | 'how';
   question: string;
   options?: string[];
   answer: string;
@@ -102,7 +101,7 @@ export interface BackwardSpellingData extends BaseActivityData {
 export interface HandwritingPracticeData extends BaseActivityData {
   lines: { text: string; type: 'trace' | 'copy' | 'empty'; imagePrompt?: string }[];
   guideType: string;
-  settings?: any;
+  settings?: Record<string, unknown>;
 }
 
 export interface SyllableWordBuilderData extends BaseActivityData {

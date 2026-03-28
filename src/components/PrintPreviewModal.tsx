@@ -15,7 +15,7 @@ interface PrintPreviewModalProps {
     settings?: StyleSettings;
 }
 
-export const PrintPreviewModal = ({ isOpen, onClose, worksheetData, title, settings }: PrintPreviewModalProps) => {
+export const PrintPreviewModal = ({ isOpen, onClose, _worksheetData, title, _settings }: PrintPreviewModalProps) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);

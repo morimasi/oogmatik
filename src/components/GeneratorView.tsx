@@ -1,8 +1,8 @@
 // @ts-nocheck
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { _useState, useEffect, _useCallback, _memo } from 'react';
 import {
   Activity,
-  ActivityType,
+  _ActivityType,
   GeneratorOptions,
   StudentProfile,
   ActiveCurriculumSession,

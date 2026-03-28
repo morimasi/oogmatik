@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import { Student } from '../types';
 import { useAuth } from './AuthContext';
@@ -40,7 +41,7 @@ export const StudentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 export const useStudent = () => {
     const context = useContext(StudentContext);
     if (context === undefined) {
-        throw new Error('useStudent must be used within a StudentProvider');
+        throw new AppError('useStudent must be used within a StudentProvider', 'INTERNAL_ERROR', 500);
     }
     return context;
 };

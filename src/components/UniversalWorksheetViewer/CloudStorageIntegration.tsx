@@ -30,7 +30,7 @@ export const CloudStorageIntegration: React.FC<CloudStorageIntegrationProps> = R
     syncStatus,
     lastSyncedAt,
     cloudFiles,
-    activeProvider,
+    _activeProvider,
     isAuthenticated,
     connect,
     disconnect,

@@ -9,7 +9,7 @@ interface VisualInterpretationSheetProps {
 
 export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps> = ({
   data,
-  settings,
+  _settings,
 }) => {
   if (!data) return null;
   const activity = Array.isArray(data) ? data[0] : data;

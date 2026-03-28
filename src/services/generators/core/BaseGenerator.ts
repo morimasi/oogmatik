@@ -1,3 +1,4 @@
+import { logger } from '../../../utils/logger';
 import { GeneratorOptions } from '../../../types';
 import { IActivityGenerator } from './types';
 
@@ -19,7 +20,7 @@ export abstract class BaseGenerator<T> implements IActivityGenerator<T> {
      */
     public async generate(options: GeneratorOptions): Promise<T | T[]> {
         try {
-            console.log(`[${this.constructor.name}] Generating with options:`, options);
+            logger.info(`[${this.constructor.name}] Generating with options:`, options);
             
             // Alt sınıfın mantığını çalıştır
             const result = await this.execute(options);

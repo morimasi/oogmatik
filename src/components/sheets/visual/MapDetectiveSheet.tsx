@@ -53,7 +53,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
     const mapSource = data.imageBase64 || "https://upload.wikimedia.org/wikipedia/commons/1/12/Turkey_provinces_blank_map.svg";
 
     // Eğer özel bir harita ise koordinatları orantılamak gerekebilir (0-1000 range varsayılıyor)
-    const isRegionFocused = data.cities && data.cities.length < 50;
+    const _isRegionFocused = data.cities && data.cities.length < 50;
 
     return (
         <div className="flex flex-col h-full  bg-white p-2 print:p-0 font-sans text-black overflow-visible">

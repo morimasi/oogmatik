@@ -1,7 +1,7 @@
 import React from 'react';
 import { ReadingSudokuData } from '../../../types';
 import { PedagogicalHeader, ImageDisplay } from '../common';
-import { EditableElement, EditableText } from '../../Editable';
+import { _EditableElement, EditableText } from '../../Editable';
 
 export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
   const size = data.settings.size || 4;

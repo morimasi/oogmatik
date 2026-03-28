@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 /**
  * infographicService.ts
  * @antv/infographic için AI destekli infografik syntax üreticisi.
@@ -178,24 +179,30 @@ export async function generateInfographicSyntax(
     headers: { 'Content-Type': 'application/json' },
     // XML döndürmesini zorladığımız için JSON şema şartını (schema payload) API'ye göndermiyoruz.
     // Ancak api/generate'in default sistem komutu (JSON zorunluluğu) ile çakışmaması için XML'yi emreden bir systemInstruction geçiyoruz.
-    body: JSON.stringify({ 
+    body: JSON.stringify({
       prompt,
-      systemInstruction: 'SADECE benden istenen XML formatında yanıt dön. Kesinlikle JSON yapısı KULLANMA ve markdown (```) işaretleri EKLEME.'
+      systemInstruction:
+        'SADECE benden istenen XML formatında yanıt dön. Kesinlikle JSON yapısı KULLANMA ve markdown (```) işaretleri EKLEME.',
     }),
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: { message: 'Bilinmeyen hata' } }));
-    throw new Error(errorData.error?.message ?? `AI servisi yanıt vermedi (${response.status})`);
+    const errorData = await response
+      .json()
+      .catch(() => ({ error: { message: 'Bilinmeyen hata' } }));
+    throw new AppError(
+      errorData.error?.message ??
+        `AI servisi yanıt vermedi (${response.status}, 'INTERNAL_ERROR', 500)`
+    );
   }
 
   // /api/generate endpoint'ine XML döndürteceğimiz için JSON parse FAİL edecek ve { text: "..." } fallback dönecek.
-  const raw = await response.json() as Record<string, unknown>;
-  const rawText = (raw?.data as Record<string, unknown>)?.text as string ?? raw?.text as string;
+  const raw = (await response.json()) as Record<string, unknown>;
+  const rawText = ((raw?.data as Record<string, unknown>)?.text as string) ?? (raw?.text as string);
   // 1. İhtimal: Vercel tryRepairJson başarılı olup JSON olarak döndürdüyse (Eğer AI tüm kurallara rağmen yine JSON verdiyse)
   let data: Partial<InfographicResult> | null = null;
   const potentialData = (raw?.data ?? raw) as Partial<InfographicResult>;
-  
+
   if (potentialData?.syntax && typeof potentialData.syntax === 'string') {
     data = potentialData;
   } else if (rawText && typeof rawText === 'string') {
@@ -216,19 +223,26 @@ export async function generateInfographicSyntax(
     }
   }
 
-  // Eğer XML blokları da parse edilemediyse, muhtemelen AI düz syntax basmıştır. 
+  // Eğer XML blokları da parse edilemediyse, muhtemelen AI düz syntax basmıştır.
   // O zaman ham verinin tamamını syntax olarak kabul eden son kalkan:
   if (!data?.syntax && rawText && rawText.includes('infographic')) {
-     data = {
-         title: req.topic,
-         syntax: rawText.replace(/```(xml|text|json|[\s\S]*?)?\n/g, '').replace(/```/g, '').trim(),
-         pedagogicalNote: "AI standart formatta çıktı veremedi, ancak ham kodlar kurtarıldı.",
-         templateType: "sequence-steps"
-     };
+    data = {
+      title: req.topic,
+      syntax: rawText
+        .replace(/```(xml|text|json|[\s\S]*?)?\n/g, '')
+        .replace(/```/g, '')
+        .trim(),
+      pedagogicalNote: 'AI standart formatta çıktı veremedi, ancak ham kodlar kurtarıldı.',
+      templateType: 'sequence-steps',
+    };
   }
 
   if (!data?.syntax || typeof data.syntax !== 'string') {
-    throw new Error('AI geçerli bir infografik syntax üretemedi. (Ne JSON ne XML blokları bulunamadı).');
+    throw new AppError(
+      'AI geçerli bir infografik syntax üretemedi. (Ne JSON ne XML blokları bulunamadı).',
+      'INTERNAL_ERROR',
+      500
+    );
   }
 
   // Syntax normalization: "infographic" prefix yoksa template tipine göre ekle

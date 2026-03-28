@@ -1,9 +1,9 @@
 
-import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData, WordMemoryItem } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
+import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, _FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData, _WordMemoryItem } from '../../types';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, _EMOJIS, COLORS, _TR_VOCAB, _VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
 export const generateOfflineWordMemory = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
-    const { topic, itemCount, difficulty, worksheetCount, memorizeRatio } = options;
+    const { topic, itemCount, difficulty, worksheetCount, _memorizeRatio } = options;
     const results: WordMemoryData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const count = itemCount || 12;
@@ -39,7 +39,7 @@ export const generateOfflineWordMemory = async (options: GeneratorOptions): Prom
 
 
 export const generateOfflineVisualMemory = async (options: GeneratorOptions): Promise<VisualMemoryData[]> => {
-    const { itemCount, worksheetCount, memorizeRatio } = options;
+    const { itemCount, worksheetCount, _memorizeRatio } = options;
     const results: VisualMemoryData[] = [];
 
     const allEmojis = Object.keys(EMOJI_MAP);
@@ -145,7 +145,7 @@ export const generateOfflineFindTheDuplicateInRow = async (options: GeneratorOpt
 
 
 export const generateOfflineLetterGridTest = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
-    const { gridSize, difficulty, worksheetCount } = options;
+    const { gridSize, _difficulty, worksheetCount } = options;
     const results: LetterGridTestData[] = [];
 
     for (let i = 0; i < worksheetCount; i++) {
@@ -195,7 +195,7 @@ export const generateOfflineBurdonTest = async (options: GeneratorOptions): Prom
 // Fix: Removed duplicate generateOfflineFindLetterPair as it is now centrally managed in newActivities.ts
 
 export const generateOfflineTargetSearch = async (options: GeneratorOptions): Promise<TargetSearchData[]> => {
-    const { gridSize, difficulty, worksheetCount, targetChar, distractorChar, itemCount } = options;
+    const { gridSize, _difficulty, worksheetCount, targetChar, distractorChar, _itemCount } = options;
     const results: TargetSearchData[] = [];
     for (let i = 0; i < worksheetCount; i++) {
         const size = gridSize || 15;
@@ -274,7 +274,7 @@ export const generateOfflineImageComprehension = async (options: GeneratorOption
 
 
 export const generateOfflineCharacterMemory = async (options: GeneratorOptions): Promise<CharacterMemoryData[]> => {
-    const { itemCount, worksheetCount, memorizeRatio } = options;
+    const { itemCount, worksheetCount, _memorizeRatio } = options;
     const adjectives = ['Mutlu', 'Üzgün', 'Hızlı', 'Yavaş', 'Büyük', 'Küçük', 'Renkli', 'Komik'];
     const results: CharacterMemoryData[] = [];
     const peopleEmojis = ['👮', '👩‍⚕️', '👨‍🍳', '👩‍🚀', '🧙‍♂️', '🧛‍♀️', '🧜‍♂️', '🧚‍♀️', '🧞‍♂️', '🦹‍♀️'];
