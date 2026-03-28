@@ -4,10 +4,13 @@ import { convertToLayoutItems } from './UniversalAdapter';
 import { UniversalCanvas } from './UniversalCanvas';
 import { UniversalPropertiesPanel } from './UniversalPropertiesPanel';
 import { SingleWorksheetData, ActivityType } from '../../types';
+import { LearningDisabilityProfile, AgeGroup } from '../../types/creativeStudio';
 
 interface StyleSettings {
   showTitle?: boolean;
   showInstruction?: boolean;
+  learningDisabilityProfile?: LearningDisabilityProfile;
+  ageGroup?: AgeGroup;
 }
 
 interface UniversalWorksheetWrapperProps {

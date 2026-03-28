@@ -1,5 +1,6 @@
 
 import React, { useRef, useState, useEffect } from 'react';
+import DOMPurify from 'isomorphic-dompurify';
 import { LayoutItem } from '../../types';
 import { useCreativeStore } from '../../store/useCreativeStore';
 import { BlockRenderer, SheetRenderer } from '../SheetRenderer';
@@ -268,9 +269,10 @@ export const UniversalCanvas = () => {
         }
 
         if (item.id === 'header') {
+            const sanitizedTitle = DOMPurify.sanitize(item.specificData.title || '', { ALLOWED_TAGS: [] });
             return (
                 <div style={boxStyle} className="h-full flex flex-col justify-center">
-                    <h2 className="text-xl font-bold uppercase border-b-2 border-zinc-200 pb-1">{item.specificData.title}</h2>
+                    <h2 className="text-xl font-bold uppercase border-b-2 border-zinc-200 pb-1">{sanitizedTitle}</h2>
                 </div>
             );
         }
