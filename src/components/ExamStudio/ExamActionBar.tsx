@@ -5,6 +5,8 @@ interface ExamActionBarProps {
   onPrint: () => void;
   onDownload: () => void;
   onAddToWorkbook: () => void;
+  onShare?: () => void;
+  onAssign?: () => void;
 }
 
 export const ExamActionBar: React.FC<ExamActionBarProps> = ({
@@ -12,6 +14,8 @@ export const ExamActionBar: React.FC<ExamActionBarProps> = ({
   onPrint,
   onDownload,
   onAddToWorkbook,
+  onShare,
+  onAssign,
 }) => {
   return (
     <div className="flex flex-wrap gap-4 mt-6">
@@ -22,6 +26,24 @@ export const ExamActionBar: React.FC<ExamActionBarProps> = ({
         <i className="fa-solid fa-save"></i>
         Kaydet
       </button>
+      {onAssign && (
+        <button
+          onClick={onAssign}
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-all"
+        >
+          <i className="fa-solid fa-user-graduate"></i>
+          Öğrenciye Ata
+        </button>
+      )}
+      {onShare && (
+        <button
+          onClick={onShare}
+          className="flex items-center gap-2 px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-xl font-medium transition-all"
+        >
+          <i className="fa-solid fa-share-nodes"></i>
+          Paylaş
+        </button>
+      )}
       <button
         onClick={onPrint}
         className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all"

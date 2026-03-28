@@ -8,7 +8,10 @@ import { ExamActionBar } from './ExamActionBar';
 import { printService } from '../../utils/printService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { activityService } from '../../services/activityService';
+import { studentService } from '../../services/studentService';
 import { logError } from '../../utils/logger';
+import { ShareModal } from '../ShareModal';
+import { StudentAssignmentModal } from '../StudentAssignmentModal';
 
 export default function ExamStudio() {
   const { user } = useAuthStore();
@@ -38,6 +41,10 @@ export default function ExamStudio() {
 
   const [questions, setQuestions] = useState<ExamQuestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
 
   const handleGenerate = () => {
     setIsLoading(true);
@@ -130,6 +137,33 @@ export default function ExamStudio() {
     };
   };
 
+  const handleShare = async (receiverIds: string[]) => {
+    if (!user) return;
+    setIsSharing(true);
+    try {
+      const examData = { type: 'EXAM', questions, params, layout };
+      await activityService.shareActivity(user.id, examData, receiverIds);
+      setIsShareModalOpen(false);
+    } catch (e) {
+      logError(e instanceof Error ? e : new Error('Share error'));
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const handleAssign = async (studentId: string) => {
+    setIsAssigning(true);
+    try {
+      const examData = { type: 'EXAM', questions, params, layout };
+      await studentService.assignActivityToStudent(studentId, examData);
+      setIsAssignModalOpen(false);
+    } catch (e) {
+      logError(e instanceof Error ? e : new Error('Assign error'));
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 font-lexend">
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
@@ -160,9 +194,27 @@ export default function ExamStudio() {
             onPrint={handlePrint}
             onDownload={handleDownload}
             onAddToWorkbook={handleAddToWorkbook}
+            onShare={() => setIsShareModalOpen(true)}
+            onAssign={() => setIsAssignModalOpen(true)}
           />
         </div>
       </div>
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        onShare={handleShare}
+        worksheetTitle="Türkçe Sınavı"
+        isSending={isSharing}
+      />
+
+      <StudentAssignmentModal
+        isOpen={isAssignModalOpen}
+        onClose={() => setIsAssignModalOpen(false)}
+        onAssign={handleAssign}
+        activityTitle="Türkçe Sınavı"
+        isAssigning={isAssigning}
+      />
     </div>
   );
 }
