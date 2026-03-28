@@ -29,13 +29,40 @@ export type LayoutSectionId =
     | 'neuro_marker'
     | 'svg_shape';
 
+export interface LayoutItemStyle {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    zIndex: number;
+    padding: number;
+    backgroundColor: string;
+    borderColor: string;
+    borderWidth: number;
+    borderStyle: string;
+    borderRadius: number;
+    opacity: number;
+    boxShadow: string;
+    color: string;
+    fontFamily: string;
+    fontSize: number;
+    lineHeight: number;
+    textAlign: 'left' | 'center' | 'right' | 'justify';
+    letterSpacing?: number;
+    fontWeight?: string | number;
+    rotation?: number;
+    imageSettings?: {
+        objectFit?: 'contain' | 'cover' | 'fill';
+    };
+}
+
 export interface LayoutItem {
     id: LayoutSectionId;
     label?: string;
     instanceId: string;
     isVisible: boolean;
     pageIndex?: number;
-    style: any;
+    style: LayoutItemStyle;
     specificData: Record<string, any>;
     groupId?: string;
 }

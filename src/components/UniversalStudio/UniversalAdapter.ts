@@ -84,7 +84,7 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                 instanceId: `univ_header_${Date.now()}_${pIdx}`,
                 isVisible: true,
                 pageIndex: pos.page,
-                style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, textAlign: 'center', fontWeight: 'bold', fontSize: 24, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#000000', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, textAlign: 'center', fontWeight: 'bold', fontSize: 24, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#000000', fontFamily: 'Lexend', lineHeight: 1.8, rotation: 0 },
                 specificData: { title: pageData.title }
             });
         }
@@ -137,7 +137,7 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                         backgroundColor: block.style?.backgroundColor || 'transparent',
                         borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: block.style?.borderRadius || 0,
                         textAlign: block.style?.textAlign || 'left', color: block.style?.color || '#000000',
-                        fontSize: block.style?.fontSize || 16, opacity: 1, boxShadow: 'none', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0
+                        fontSize: block.style?.fontSize || 16, opacity: 1, boxShadow: 'none', fontFamily: 'Lexend', lineHeight: 1.8, rotation: 0
                     },
                     specificData: { content: block.content }
                 });
@@ -153,7 +153,7 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                     instanceId: `univ_inst_${Date.now()}_${pIdx}`,
                     isVisible: true,
                     pageIndex: pos.page,
-                    style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, textAlign: 'left', fontWeight: 'normal', fontSize: 14, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#666666', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                    style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, textAlign: 'left', fontWeight: 'normal', fontSize: 14, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#666666', fontFamily: 'Lexend', lineHeight: 1.8, rotation: 0 },
                     specificData: { content: pageData.instruction }
                 });
             }
@@ -167,7 +167,7 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                     instanceId: `univ_img_${Date.now()}_${pIdx}`,
                     isVisible: true,
                     pageIndex: pos.page,
-                    style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, textAlign: 'center', backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#000000', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                    style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, textAlign: 'center', backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, opacity: 1, boxShadow: 'none', color: '#000000', fontFamily: 'Lexend', lineHeight: 1.8, rotation: 0 },
                     specificData: { content: { prompt: pageData.imagePrompt } }
                 });
             }
@@ -203,7 +203,7 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                         isVisible: true,
                         pageIndex: pos.page,
                         groupId: groupId,
-                        style: { x: pos.x, y: pos.y, w: 40, h: 40, zIndex: 1, padding: 5, textAlign: 'center', fontWeight: 'black', fontSize: 18, backgroundColor: '#18181b', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', color: '#ffffff', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                        style: { x: pos.x, y: pos.y, w: 40, h: 40, zIndex: 1, padding: 5, textAlign: 'center', fontWeight: 'black', fontSize: 18, backgroundColor: '#18181b', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 8, opacity: 1, boxShadow: 'none', color: '#ffffff', fontFamily: 'Lexend', lineHeight: 1.8, rotation: 0 },
                         specificData: { content: `${i + 1}` }
                     });
 
@@ -216,7 +216,7 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                         isVisible: true,
                         pageIndex: pos.page,
                         groupId: groupId,
-                        style: { x: pos.x + 50, y: pos.y, w, h, zIndex: 1, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, textAlign: 'left', color: '#000000', fontSize: 16, opacity: 1, boxShadow: 'none', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                        style: { x: pos.x + 50, y: pos.y, w, h, zIndex: 1, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, textAlign: 'left', color: '#000000', fontSize: 16, opacity: 1, boxShadow: 'none', fontFamily: 'Lexend', lineHeight: 1.8, rotation: 0 },
                         specificData: { activityType, data: singleItemData }
                     });
                 });
@@ -230,7 +230,7 @@ export const convertToLayoutItems = (activityType: ActivityType | null, workshee
                     instanceId: `univ_act_full_${Date.now()}_${pIdx}`,
                     isVisible: true,
                     pageIndex: pos.page,
-                    style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, textAlign: 'left', color: '#000000', fontSize: 16, opacity: 1, boxShadow: 'none', fontFamily: 'Lexend', lineHeight: 1.5, rotation: 0 },
+                    style: { x: pos.x, y: pos.y, w, h, zIndex: 1, padding: 10, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0, borderStyle: 'solid', borderRadius: 0, textAlign: 'left', color: '#000000', fontSize: 16, opacity: 1, boxShadow: 'none', fontFamily: 'Lexend', lineHeight: 1.8, rotation: 0 },
                     specificData: { activityType, data: { ...pageData, title: undefined, instruction: undefined } }
                 });
             }

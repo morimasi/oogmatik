@@ -1,6 +1,6 @@
-// @ts-nocheck
 import React from 'react';
 import { useCreativeStore } from '../../store/useCreativeStore';
+import { LayoutItemStyle } from '../../types/studio';
 
 export const UniversalPropertiesPanel = () => {
     const { layout, selectedId, updateComponent } = useCreativeStore();
@@ -21,7 +21,7 @@ export const UniversalPropertiesPanel = () => {
 
     const s = selectedItem.style;
 
-    const updateStyle = (updates: any) => {
+    const updateStyle = (updates: Partial<LayoutItemStyle>) => {
         updateComponent(selectedItem.instanceId, {
             style: { ...s, ...updates }
         });
@@ -59,7 +59,7 @@ export const UniversalPropertiesPanel = () => {
                             <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Yazı Tipi</label>
                             <select
                                 value={s.fontFamily}
-                                onChange={(e: any) => updateStyle({ fontFamily: e.target.value })}
+                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateStyle({ fontFamily: e.target.value })}
                                 className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"
                             >
                                 <option value="Lexend">Lexend</option>
@@ -73,7 +73,7 @@ export const UniversalPropertiesPanel = () => {
                             <input
                                 type="number"
                                 value={s.fontSize}
-                                onChange={(e: any) => updateStyle({ fontSize: parseInt(e.target.value) })}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateStyle({ fontSize: parseInt(e.target.value) })}
                                 className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"
                             />
                         </div>
@@ -85,14 +85,14 @@ export const UniversalPropertiesPanel = () => {
                             <input
                                 type="number" step="0.1"
                                 value={s.lineHeight}
-                                onChange={(e: any) => updateStyle({ lineHeight: parseFloat(e.target.value) })}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateStyle({ lineHeight: parseFloat(e.target.value) })}
                                 className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"
                             />
                         </div>
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Hizalama</label>
                             <div className="flex bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl overflow-hidden p-0.5">
-                                {['left', 'center', 'right'].map((align: any) => (
+                                {(['left', 'center', 'right'] as const).map((align) => (
                                     <button
                                         key={align}
                                         onClick={() => updateStyle({ textAlign: align })}
@@ -127,7 +127,7 @@ export const UniversalPropertiesPanel = () => {
                         <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Ölçekleme (Object Fit)</label>
                         <select
                             value={s.imageSettings?.objectFit || 'contain'}
-                            onChange={(e: any) => updateStyle({ imageSettings: { ...s.imageSettings, objectFit: e.target.value } })}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateStyle({ imageSettings: { ...s.imageSettings, objectFit: e.target.value as 'contain' | 'cover' | 'fill' } })}
                             className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"
                         >
                             <option value="contain">Sığdır (Contain)</option>
@@ -151,13 +151,13 @@ export const UniversalPropertiesPanel = () => {
                             <input
                                 type="color"
                                 value={s.color}
-                                onChange={(e: any) => updateStyle({ color: e.target.value })}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateStyle({ color: e.target.value })}
                                 className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 overflow-hidden cursor-pointer"
                             />
                             <input
                                 type="text"
                                 value={s.color}
-                                onChange={(e: any) => updateStyle({ color: e.target.value })}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateStyle({ color: e.target.value })}
                                 className="flex-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2 text-[10px] text-zinc-900 dark:text-zinc-400 font-mono"
                             />
                         </div>
@@ -167,7 +167,7 @@ export const UniversalPropertiesPanel = () => {
                         <input
                             type="color"
                             value={s.backgroundColor === 'transparent' ? '#ffffff' : s.backgroundColor}
-                            onChange={(e: any) => updateStyle({ backgroundColor: e.target.value })}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateStyle({ backgroundColor: e.target.value })}
                             className="w-full h-10 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 overflow-hidden cursor-pointer"
                         />
                     </div>
@@ -179,13 +179,13 @@ export const UniversalPropertiesPanel = () => {
                         <input
                             type="number" min="0" max="100" placeholder="Radius"
                             value={s.borderRadius}
-                            onChange={(e: any) => updateStyle({ borderRadius: parseInt(e.target.value) })}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateStyle({ borderRadius: parseInt(e.target.value) })}
                             className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"
                         />
                         <input
                             type="number" step="0.1" min="0" max="1" placeholder="Opacity"
                             value={s.opacity}
-                            onChange={(e: any) => updateStyle({ opacity: parseFloat(e.target.value) })}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateStyle({ opacity: parseFloat(e.target.value) })}
                             className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"
                         />
                     </div>
@@ -204,7 +204,7 @@ export const UniversalPropertiesPanel = () => {
                         <input
                             type="number"
                             value={s.w}
-                            onChange={(e: any) => updateStyle({ w: parseInt(e.target.value) })}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateStyle({ w: parseInt(e.target.value) })}
                             className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"
                         />
                     </div>
@@ -213,7 +213,7 @@ export const UniversalPropertiesPanel = () => {
                         <input
                             type="number" min="0" max="10"
                             value={s.borderWidth}
-                            onChange={(e: any) => updateStyle({ borderWidth: parseInt(e.target.value) })}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateStyle({ borderWidth: parseInt(e.target.value) })}
                             className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"
                         />
                     </div>
@@ -225,7 +225,7 @@ export const UniversalPropertiesPanel = () => {
                         <input
                             type="number"
                             value={s.rotation || 0}
-                            onChange={(e: any) => updateStyle({ rotation: parseInt(e.target.value) })}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateStyle({ rotation: parseInt(e.target.value) })}
                             className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"
                         />
                     </div>
@@ -233,7 +233,7 @@ export const UniversalPropertiesPanel = () => {
                         <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Gölge</label>
                         <select
                             value={s.boxShadow || 'none'}
-                            onChange={(e: any) => updateStyle({ boxShadow: e.target.value })}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateStyle({ boxShadow: e.target.value })}
                             className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"
                         >
                             <option value="none">Yok</option>

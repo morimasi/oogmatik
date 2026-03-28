@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { useCreativeStore } from '../../store/useCreativeStore';
 import { convertToLayoutItems } from './UniversalAdapter';
@@ -6,11 +5,16 @@ import { UniversalCanvas } from './UniversalCanvas';
 import { UniversalPropertiesPanel } from './UniversalPropertiesPanel';
 import { SingleWorksheetData, ActivityType } from '../../types';
 
+interface StyleSettings {
+  showTitle?: boolean;
+  showInstruction?: boolean;
+}
+
 interface UniversalWorksheetWrapperProps {
   worksheetData: SingleWorksheetData[];
   activityType: ActivityType | null;
   scale: number;
-  styleSettings: any;
+  styleSettings?: StyleSettings;
 }
 
 const DesignModeToolbar = () => {
