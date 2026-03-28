@@ -754,6 +754,7 @@ const AppContent = () => {
             onOpenInfographicStudio={() => handleOpenStudio('infographic-studio')}
             onOpenRemotionStudio={() => handleOpenStudio('remotion-studio')}
             onOpenScreening={() => handleOpenStudio('screening')}
+            onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
             width={sidebarWidth}
