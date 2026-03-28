@@ -56,11 +56,17 @@ Her geliştirme isteğinde şu hiyerarşi işler:
     ├── yazilim-muhendisi     → Mimari, güvenlik, TypeScript standartları tamam mı?
     └── ai-muhendisi          → AI çıktı kalitesi, prompt güvenliği, maliyet OK mi?
     ↓
-[KATMAN 2] Genel Ajanlar Uygular (Özel Ajan onayı ile)
-    └── frontend-dev, backend-dev, code-reviewer, vb.
+[KATMAN 2] Ekip Orkestratörü (Çoklu ajan koordinasyonu)
+    └── ekip-orkestratoru     → Vibecosystem ajanlarını görevlendirir
     ↓
-[KATMAN 3] Doğrulama (Özel Ajan son kontrol)
+[KATMAN 3] Genel Ajanlar Uygular (Özel Ajan onayı ile)
+    └── vibecosystem/         → 15 özelleşmiş ajan (engineering, testing, design, support)
+    ↓
+[KATMAN 4] Doğrulama (Özel Ajan son kontrol)
 ```
+
+**YENİ**: `ekip-orkestratoru` ve `vibecosystem/` ajanları [agency-agents](https://github.com/ashishpatel26/agency-agents) projesinden adapte edildi.
+**Detaylar**: `.claude/AGENCY_AGENTS_INTEGRATION.md` ve `.claude/agents/vibecosystem/README.md`
 
 ### Kural 2: Çocuk Güvenliği Mutlak Önceliktir
 
@@ -487,9 +493,31 @@ interface BEPGoal {
 | `yazilim-muhendisi` | Bora Demir | Mühendislik standartları |
 | `ai-muhendisi` | Selin Arslan | AI kalitesi, prompt, maliyet |
 
-### Genel Kadro (vibecosystem — `~/.claude/agents/`)
+### Orkestratör (`.claude/agents/`)
 
-`frontend-dev`, `backend-dev`, `code-reviewer`, `security-analyst`, `tdd-guide`, `qa-engineer`, `architect` — bu ajanlar **İç Çekirdek'in direktifleriyle** çalışır.
+| Ajan | Rol | Görev |
+|------|-----|-------|
+| `ekip-orkestratoru` | Pipeline Yöneticisi | Çoklu ajan koordinasyonu, Dev-QA loop, lider ajan onay yönetimi |
+
+### Genel Kadro — Vibecosystem (`.claude/agents/vibecosystem/`)
+
+**15 özelleşmiş ajan** (lider ajanların koordinasyonu altında):
+
+**Engineering (6)**:
+`frontend-dev`, `backend-dev`, `security-engineer`, `ai-engineer`, `technical-writer`, `devops-automator`
+
+**Testing (4)**:
+`erisebilirlik-denetcisi`, `evidence-collector`, `reality-checker`, `api-tester`
+
+**Design (2)**:
+`ui-designer`, `ux-researcher`
+
+**Support (3)**:
+`analytics-reporter`, `legal-compliance`, `support-responder`
+
+**Aktivasyon**: `@ekip-orkestratoru` veya direkt ajan adıyla (`@frontend-dev`, `@erisebilirlik-denetcisi`)
+
+**Dokümantasyon**: `.claude/agents/vibecosystem/README.md` | `.claude/AGENCY_AGENTS_INTEGRATION.md`
 
 ---
 
