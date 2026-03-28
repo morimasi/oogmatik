@@ -504,7 +504,11 @@ export const ResultDashboard: React.FC<Props> = ({
                     <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
                       {i + 1}
                     </div>
-                    <p className="text-sm font-bold text-zinc-800 pt-1">{step}</p>
+                    <p className="text-sm font-bold text-zinc-800 pt-1">
+                      {typeof step === 'string'
+                        ? step
+                        : `${(step as any).area || ''} - ${(step as any).description || ''} - ${(step as any).intervention || ''}`}
+                    </p>
                   </div>
                 ))}
               </div>
