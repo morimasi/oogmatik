@@ -1,0 +1,342 @@
+{
+  "version": "1.0.0",
+  "leaders": {
+    "elif": {
+      "name": "Elif Yıldız",
+      "title": "Özel Öğrenme Uzmanı & Pedagoji Direktörü",
+      "domain": "pedagogy",
+      "priority": 1,
+      "file": ".claude/agents/ozel-ogrenme-uzmani.md",
+      "autoActivate": [
+        "aktivite",
+        "çalışma kâğıdı",
+        "öğrenci profili",
+        "pedagojik",
+        "öğrenme hedefi",
+        "ZPD",
+        "başarı odaklı"
+      ],
+      "capabilities": [
+        "Fonolojik farkındalık aktiviteleri",
+        "ZPD uyumlu zorluk kalibrasyonu",
+        "Multisensory öğrenme tasarımı",
+        "Başarı odaklı aktivite sıralaması",
+        "pedagogicalNote yazımı"
+      ]
+    },
+    "ahmet": {
+      "name": "Dr. Ahmet Kaya",
+      "title": "Özel Eğitim Uzmanı & Klinik Direktör",
+      "domain": "clinical",
+      "priority": 1,
+      "file": ".claude/agents/ozel-egitim-uzmani.md",
+      "autoActivate": [
+        "BEP",
+        "RAM",
+        "tanı",
+        "klinik",
+        "MEB",
+        "özel eğitim yönetmeliği",
+        "KVKK",
+        "gizlilik"
+      ],
+      "capabilities": [
+        "BEP (Bireyselleştirilmiş Eğitim Programı) yazımı",
+        "MEB yönetmeliği uyum kontrolü",
+        "KVKK veri gizliliği standartları",
+        "Tanı koyucu dil kontrolü",
+        "RAM değerlendirme formatları"
+      ]
+    },
+    "bora": {
+      "name": "Bora Demir",
+      "title": "Senior Full-Stack Mühendis & Mühendislik Direktörü",
+      "domain": "engineering",
+      "priority": 1,
+      "file": ".claude/agents/yazilim-muhendisi.md",
+      "autoActivate": [
+        "API",
+        "endpoint",
+        "React",
+        "component",
+        "TypeScript",
+        "database",
+        "Firestore",
+        "güvenlik",
+        "test",
+        "rate limiting"
+      ],
+      "capabilities": [
+        "React 18 + TypeScript development",
+        "Vercel Serverless Functions",
+        "Firebase/Firestore architecture",
+        "Rate limiting implementation",
+        "AppError standardı enforcement",
+        "Vitest test yazımı"
+      ]
+    },
+    "selin": {
+      "name": "Selin Arslan",
+      "title": "AI Mühendisi & AI Mimarı",
+      "domain": "ai",
+      "priority": 1,
+      "file": ".claude/agents/ai-muhendisi.md",
+      "autoActivate": [
+        "AI",
+        "Gemini",
+        "prompt",
+        "generatör",
+        "JSON schema",
+        "token",
+        "hallucination",
+        "model"
+      ],
+      "capabilities": [
+        "Gemini 2.5 Flash prompt engineering",
+        "JSON schema tasarımı",
+        "JSON repair motoru bakımı",
+        "Token maliyet optimizasyonu",
+        "Hallucination risk analizi",
+        "Batch processing implementasyonu"
+      ]
+    }
+  },
+  "supporting": {
+    "frontend-developer-oozel": {
+      "name": "Frontend Developer (Özel Eğitim)",
+      "source": "agency-agents-adapted",
+      "domain": "frontend",
+      "file": ".claude/agents/supporting/frontend-developer-oozel.md",
+      "triggers": [
+        "UI",
+        "bileşen",
+        "React",
+        "Tailwind",
+        "Lexend",
+        "erişilebilirlik",
+        "WCAG",
+        "disleksi-dostu",
+        "görsel tasarım"
+      ],
+      "requiresApproval": ["bora", "elif"],
+      "capabilities": [
+        "Disleksi-dostu UI bileşenleri (Lexend, geniş satır aralığı)",
+        "Diskalkuli görsel destek (sayı çizgisi, renkli bloklar)",
+        "Disgrafi alternatif girdiler (sürükle-bırak)",
+        "WCAG 2.1 AAA erişilebilirlik",
+        "React 18 + TypeScript + Tailwind CSS"
+      ]
+    },
+    "backend-architect-oozel": {
+      "name": "Backend Architect (Özel Eğitim)",
+      "source": "agency-agents-adapted",
+      "domain": "backend",
+      "file": ".claude/agents/supporting/backend-architect-oozel.md",
+      "triggers": [
+        "API",
+        "endpoint",
+        "database",
+        "Firestore",
+        "veri modeli",
+        "BEP veri yapısı",
+        "KVKK",
+        "rate limiting"
+      ],
+      "requiresApproval": ["bora"],
+      "capabilities": [
+        "KVKK uyumlu veri modelleme",
+        "BEP veri yapıları",
+        "Firebase/Firestore architecture",
+        "Rate limiting API endpoints",
+        "Audit logging implementation",
+        "Vercel Serverless Functions"
+      ]
+    },
+    "security-engineer-oozel": {
+      "name": "Security Engineer (Özel Eğitim)",
+      "source": "agency-agents-adapted",
+      "domain": "security",
+      "file": ".claude/agents/supporting/security-engineer-oozel.md",
+      "triggers": [
+        "güvenlik",
+        "security",
+        "KVKK",
+        "veri gizliliği",
+        "şifreleme",
+        "encryption",
+        "Firestore rules",
+        "RBAC",
+        "audit log"
+      ],
+      "requiresApproval": ["bora"],
+      "capabilities": [
+        "KVKK threat modeling",
+        "Firestore Security Rules",
+        "Çocuk veri gizliliği standartları",
+        "OWASP Top 10 security checks",
+        "Encryption implementation (AES-256)",
+        "Audit logging system"
+      ]
+    }
+  },
+  "activationRules": {
+    "pedagogy": {
+      "description": "Pedagojik içerik (aktivite, çalışma kâğıdı, öğrenci profili)",
+      "requiredLeaders": ["elif"],
+      "optionalLeaders": ["ahmet"],
+      "supportingAgents": [],
+      "examples": [
+        "Yeni okuma aktivitesi oluştur",
+        "Matematik çalışma kâğıdı tasarla",
+        "Öğrenci öğrenme hedefi belirle"
+      ]
+    },
+    "clinical": {
+      "description": "Klinik içerik (BEP, RAM, tanı bilgileri)",
+      "requiredLeaders": ["ahmet"],
+      "optionalLeaders": ["elif"],
+      "supportingAgents": [],
+      "examples": [
+        "BEP hedefi yaz",
+        "RAM raporu formatla",
+        "Öğrenci tanı bilgisi kaydet"
+      ]
+    },
+    "frontend": {
+      "description": "Frontend UI/UX geliştirme",
+      "requiredLeaders": ["bora"],
+      "optionalLeaders": ["elif"],
+      "supportingAgents": ["frontend-developer-oozel"],
+      "examples": [
+        "Yeni React bileşeni oluştur",
+        "Disleksi-dostu buton tasarla",
+        "Erişilebilir form yap"
+      ]
+    },
+    "backend": {
+      "description": "Backend API/Database geliştirme",
+      "requiredLeaders": ["bora"],
+      "optionalLeaders": ["ahmet"],
+      "supportingAgents": ["backend-architect-oozel"],
+      "examples": [
+        "Yeni API endpoint ekle",
+        "Firestore koleksiyon tasarla",
+        "BEP veri modeli oluştur"
+      ]
+    },
+    "security": {
+      "description": "Güvenlik ve veri gizliliği",
+      "requiredLeaders": ["bora", "ahmet"],
+      "optionalLeaders": [],
+      "supportingAgents": ["security-engineer-oozel"],
+      "examples": [
+        "KVKK uyumu kontrol et",
+        "Firestore security rules yaz",
+        "Veri şifreleme ekle"
+      ]
+    },
+    "ai": {
+      "description": "AI model/prompt geliştirme",
+      "requiredLeaders": ["selin"],
+      "optionalLeaders": ["elif"],
+      "supportingAgents": [],
+      "examples": [
+        "Yeni prompt şablonu yaz",
+        "JSON schema tasarla",
+        "Token kullanımı optimize et"
+      ]
+    },
+    "full-feature": {
+      "description": "Tam özellik geliştirme (tüm katmanlar)",
+      "requiredLeaders": ["elif", "bora", "selin"],
+      "optionalLeaders": ["ahmet"],
+      "supportingAgents": [
+        "frontend-developer-oozel",
+        "backend-architect-oozel",
+        "security-engineer-oozel"
+      ],
+      "examples": [
+        "Yeni stüdyo modülü ekle",
+        "Değerlendirme sistemi oluştur",
+        "Çalışma kâğıdı exportu geliştir"
+      ]
+    }
+  },
+  "workflow": {
+    "standard": {
+      "description": "Standart iş akışı (küçük değişiklikler)",
+      "steps": [
+        {
+          "step": 1,
+          "name": "Task Classification",
+          "action": "Görevi yukarıdaki aktivasyon kurallarına göre sınıflandır"
+        },
+        {
+          "step": 2,
+          "name": "Leader Activation",
+          "action": "Gerekli lider ajanları otomatik aktive et"
+        },
+        {
+          "step": 3,
+          "name": "Leader Approval",
+          "action": "Lider ajanlar onay versin (ZORUNLU)"
+        },
+        {
+          "step": 4,
+          "name": "Supporting Agent Activation",
+          "action": "Onay sonrası supporting ajanları çağır"
+        },
+        {
+          "step": 5,
+          "name": "Implementation",
+          "action": "Supporting ajanlar görevi uygular"
+        },
+        {
+          "step": 6,
+          "name": "Final Review",
+          "action": "Lider ajanlar son kontrol yapar"
+        }
+      ]
+    },
+    "critical": {
+      "description": "Kritik görevler (BEP, KVKK, pedagojik içerik)",
+      "steps": [
+        {
+          "step": 1,
+          "name": "Multi-Leader Review",
+          "action": "Tüm ilgili lider ajanlar topluca değerlendirir"
+        },
+        {
+          "step": 2,
+          "name": "Risk Assessment",
+          "action": "Çocuk güvenliği, KVKK, pedagojik uygunluk değerlendirilir"
+        },
+        {
+          "step": 3,
+          "name": "Unanimous Approval",
+          "action": "TÜM lider ajanlar onay vermeli (veto hakkı var)"
+        },
+        {
+          "step": 4,
+          "name": "Implementation",
+          "action": "Sadece onay sonrası uygulama"
+        },
+        {
+          "step": 5,
+          "name": "Verification",
+          "action": "Lider ajanlar çıktıyı doğrular"
+        }
+      ]
+    }
+  },
+  "veto": {
+    "description": "Herhangi bir lider ajan DURDUR diyebilir",
+    "rules": [
+      "Elif: Pedagojik açıdan güvenli değilse DURDUR",
+      "Ahmet: Klinik açıdan yanlış veya KVKK ihlali varsa DURDUR",
+      "Bora: Teknik olarak hatalı veya güvenlik riski varsa DURDUR",
+      "Selin: AI çıktı kalitesi düşük veya hallucination riski yüksekse DURDUR"
+    ],
+    "override": "VETO OVERRIDE EDİLEMEZ — İtiraz edilemez"
+  }
+}
