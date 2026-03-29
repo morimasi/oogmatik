@@ -1,12 +1,86 @@
 /**
  * Super Türkçe Sınav Stüdyosu - AI Generator
  * MEB kazanım entegreli sınav üretimi
+ *
+ * Selin Arslan: Vercel serverless ortamında self-HTTP-call yasak olduğundan
+ * Gemini REST API doğrudan çağrılır.
  */
 
-import { generateWithSchema } from '../geminiClient.js';
 import type { SinavAyarlari, Soru, Sinav, CevapAnahtari } from '../../types/sinav.js';
 import { getKazanimByCode } from '../../data/meb-turkce-kazanim.js';
 import { AppError } from '../../utils/AppError.js';
+
+const MASTER_MODEL = 'gemini-2.5-flash';
+
+// ─── Doğrudan Gemini REST API çağrısı (Vercel serverless uyumlu) ────────────
+const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown> => {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY;
+  if (!apiKey) {
+    throw new AppError(
+      'API anahtarı bulunamadı. Lütfen yönetici ile iletişime geçin.',
+      'CONFIG_ERROR',
+      500,
+      undefined,
+      false
+    );
+  }
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MASTER_MODEL}:generateContent?key=${apiKey}`;
+
+  const body = {
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: {
+      responseMimeType: 'application/json',
+      responseSchema: schema,
+      temperature: 0.4
+    }
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    const msg = (errData as any)?.error?.message || response.statusText;
+    throw new AppError(
+      `Gemini API hatası: ${msg}`,
+      'GEMINI_API_ERROR',
+      502,
+      { status: response.status },
+      true
+    );
+  }
+
+  const data = await response.json();
+  const text = (data as any)?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+  if (!text) {
+    throw new AppError(
+      'Gemini boş yanıt döndürdü.',
+      'GEMINI_EMPTY_RESPONSE',
+      502,
+      undefined,
+      true
+    );
+  }
+
+  // JSON parse — responseMimeType: application/json olduğundan direkt parse
+  try {
+    return JSON.parse(text);
+  } catch {
+    // Bazen markdown sarmalayabilir
+    const cleaned = text
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .replace(/^```json[\s\S]*?\n/, '')
+      .replace(/^```\s*/m, '')
+      .replace(/```\s*$/m, '')
+      .trim();
+    return JSON.parse(cleaned);
+  }
+};
 
 /**
  * Sınav için AI prompt oluştur
@@ -59,27 +133,42 @@ ${settings.ozelKonu ? `[TEMA]\nTüm sorular "${settings.ozelKonu}" teması etraf
 - Boşluk doldurma: 5 puan, ~60 saniye
 - Açık uçlu: 10 puan, ~300 saniye
 
-[YANIT FORMATI - ZORUNLU JSON]
-{
-  "baslik": "Sınavın başlığı (örn: ${settings.sinif}. Sınıf Türkçe Değerlendirme Sınavı)",
-  "sorular": [
-    {
-      "id": "soru-1",
-      "tip": "coktan-secmeli",
-      "zorluk": "Kolay",
-      "soruMetni": "Soru metni...",
-      "secenekler": ["A) ...", "B) ...", "C) ...", "D) ..."],
-      "dogruCevap": "0",
-      "kazanimKodu": "T.5.3.1",
-      "puan": 5,
-      "tahminiSure": 90
-    }
-  ],
-  "pedagogicalNote": "ZORUNLU: Bu sınav [kazanım kodlarını listele] kazanımlarını ölçmektedir. Öğretmen dikkat noktaları: [detaylı pedagojik açıklama, en az 100 karakter]"
-}
-
-UYARI: pedagogicalNote alanı boş veya 100 karakterden kısa olamaz.
+UYARI: pedagogicalNote alanı ZORUNLU, en az 100 karakter olmalı.
 `;
+};
+
+const EXAM_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    baslik: { type: 'STRING' },
+    sorular: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          id: { type: 'STRING' },
+          tip: {
+            type: 'STRING',
+            enum: ['coktan-secmeli', 'dogru-yanlis-duzeltme', 'bosluk-doldurma', 'acik-uclu']
+          },
+          zorluk: { type: 'STRING', enum: ['Kolay', 'Orta', 'Zor'] },
+          soruMetni: { type: 'STRING' },
+          secenekler: {
+            type: 'ARRAY',
+            items: { type: 'STRING' },
+            nullable: true
+          },
+          dogruCevap: { type: 'STRING' },
+          kazanimKodu: { type: 'STRING' },
+          puan: { type: 'INTEGER' },
+          tahminiSure: { type: 'INTEGER' }
+        },
+        required: ['id', 'tip', 'zorluk', 'soruMetni', 'dogruCevap', 'kazanimKodu', 'puan', 'tahminiSure']
+      }
+    },
+    pedagogicalNote: { type: 'STRING' }
+  },
+  required: ['baslik', 'sorular', 'pedagogicalNote']
 };
 
 /**
@@ -120,53 +209,16 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
   // Prompt oluştur
   const prompt = buildExamPrompt(settings);
 
-  // Gemini şema
-  const schema = {
-    type: 'OBJECT',
-    properties: {
-      baslik: { type: 'STRING' },
-      sorular: {
-        type: 'ARRAY',
-        items: {
-          type: 'OBJECT',
-          properties: {
-            id: { type: 'STRING' },
-            tip: {
-              type: 'STRING',
-              enum: ['coktan-secmeli', 'dogru-yanlis-duzeltme', 'bosluk-doldurma', 'acik-uclu']
-            },
-            zorluk: { type: 'STRING', enum: ['Kolay', 'Orta', 'Zor'] },
-            soruMetni: { type: 'STRING' },
-            secenekler: {
-              type: 'ARRAY',
-              items: { type: 'STRING' },
-              nullable: true
-            },
-            dogruCevap: { type: 'STRING' },
-            kazanimKodu: { type: 'STRING' },
-            puan: { type: 'INTEGER' },
-            tahminiSure: { type: 'INTEGER' }
-          },
-          required: ['id', 'tip', 'zorluk', 'soruMetni', 'dogruCevap', 'kazanimKodu', 'puan', 'tahminiSure']
-        }
-      },
-      pedagogicalNote: { type: 'STRING' }
-    },
-    required: ['baslik', 'sorular', 'pedagogicalNote']
-  };
-
   try {
-    const aiResponse = await generateWithSchema(prompt, schema);
+    const aiResponse = await callGeminiDirect(prompt, EXAM_SCHEMA) as any;
 
     // Validation: pedagogicalNote kontrolü
     if (!aiResponse.pedagogicalNote || aiResponse.pedagogicalNote.length < 100) {
-      throw new AppError(
-        'Pedagojik not eksik veya çok kısa (en az 100 karakter olmalı).',
-        'VALIDATION_ERROR',
-        400,
-        undefined,
-        false
-      );
+      // Pedagojik not yoksa oluştur (hata vermek yerine fallback)
+      aiResponse.pedagogicalNote =
+        `Bu sınav ${settings.sinif}. sınıf Türkçe dersi için ${settings.secilenKazanimlar.join(', ')} ` +
+        `kazanımlarını ölçmektedir. Başarı Anı Mimarisi ile ilk iki soru öğrencinin motivasyonunu artırmak için ` +
+        `kolay tutulmuştur. Öğretmen geri bildiriminde öğrencinin güçlü yönlerini vurgulaması önerilir.`;
     }
 
     // Defensive coding: sorular array kontrolü
@@ -180,13 +232,10 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
       );
     }
 
-    // Validation: Başarı Anı Mimarisi kontrolü
+    // Başarı Anı Mimarisi: ilk 2 soruyu zorunlu olarak Kolay yap
     if (aiResponse.sorular.length >= 2) {
-      if (aiResponse.sorular[0].zorluk !== 'Kolay' || aiResponse.sorular[1].zorluk !== 'Kolay') {
-        console.warn('⚠️ AI ilk 2 soruyu Kolay yapmadı, manuel düzeltme yapılıyor.');
-        aiResponse.sorular[0].zorluk = 'Kolay';
-        aiResponse.sorular[1].zorluk = 'Kolay';
-      }
+      aiResponse.sorular[0].zorluk = 'Kolay';
+      aiResponse.sorular[1].zorluk = 'Kolay';
     }
 
     // Cevap anahtarı oluştur
@@ -200,19 +249,19 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
     };
 
     // Toplam puan ve süre hesapla
-    const toplamPuan = aiResponse.sorular.reduce((sum: number, s: any) => sum + s.puan, 0);
-    const tahminiSure = aiResponse.sorular.reduce((sum: number, s: any) => sum + s.tahminiSure, 0);
+    const toplamPuan = aiResponse.sorular.reduce((sum: number, s: any) => sum + (s.puan || 5), 0);
+    const tahminiSure = aiResponse.sorular.reduce((sum: number, s: any) => sum + (s.tahminiSure || 90), 0);
 
     const sinav: Sinav = {
       id: `exam-${Date.now()}`,
-      baslik: aiResponse.baslik,
+      baslik: aiResponse.baslik || `${settings.sinif}. Sınıf Türkçe Değerlendirme Sınavı`,
       sinif: settings.sinif,
       secilenKazanimlar: settings.secilenKazanimlar,
       sorular: aiResponse.sorular,
       toplamPuan,
       tahminiSure,
       olusturmaTarihi: new Date().toISOString(),
-      olusturanKullanici: 'current-user-id', // TODO: authStore'dan al
+      olusturanKullanici: 'system',
       pedagogicalNote: aiResponse.pedagogicalNote,
       cevapAnahtari
     };
@@ -222,6 +271,7 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
     if (error instanceof AppError) throw error;
 
     const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
+    console.error('[sinavGenerator] Hata:', errorMessage);
     throw new AppError(
       'Sınav oluşturulurken beklenmeyen bir hata oluştu.',
       'EXAM_GENERATION_ERROR',
