@@ -125,8 +125,8 @@ export const SinavStudyosu: React.FC = () => {
                       key={grade}
                       onClick={() => setSinif(grade)}
                       className={`py-2 rounded-xl text-sm font-bold transition-all duration-300 ${ayarlar.sinif === grade
-                          ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-md shadow-indigo-200 scale-105'
-                          : 'bg-white text-gray-600 border border-gray-100 shadow-sm hover:border-indigo-300 hover:text-indigo-600'
+                        ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-md shadow-indigo-200 scale-105'
+                        : 'bg-white text-gray-600 border border-gray-100 shadow-sm hover:border-indigo-300 hover:text-indigo-600'
                         }`}
                     >
                       {grade}. Sınıf
@@ -181,127 +181,124 @@ export const SinavStudyosu: React.FC = () => {
                 <button
                   onClick={handleGenerateExam}
                   disabled={!canGenerate() || isGenerating}
-                  className={\`w-full py-4 rounded-2xl font-bold text-lg text-white transition-all duration-300 shadow-xl flex items-center justify-center gap-3 \${
-                  canGenerate() && !isGenerating
-                    ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/20 active:scale-[0.98]'
-                    : 'bg-gray-300 cursor-not-allowed opacity-70'
-                }\`}
+                  className={`w-full py-4 rounded-2xl font-bold text-lg text-white transition-all duration-300 shadow-xl flex items-center justify-center gap-3 ${canGenerate() && !isGenerating
+                      ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/20 active:scale-[0.98]'
+                      : 'bg-gray-300 cursor-not-allowed opacity-70'
+                    }`}
                 >
-                {isGenerating ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Yapay Zeka Sınavı Örüyor...
-                  </>
-                ) : (
-                  <>
-                    <span className="text-2xl drop-shadow-md">✨</span>
-                    Ultra Premium Sınav Oluştur
-                  </>
-                )}
-              </button>
+                  {isGenerating ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Yapay Zeka Sınavı Örüyor...
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-2xl drop-shadow-md">✨</span>
+                      Ultra Premium Sınav Oluştur
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
+
           </div>
 
-        </div>
+          {/* SAĞ PANEL: Toolbar ve Önizleme (8/12 alan) */}
+          <div className="lg:col-span-8 flex flex-col gap-6 h-[calc(100vh-140px)] min-h-[800px]">
 
-        {/* SAĞ PANEL: Toolbar ve Önizleme (8/12 alan) */}
-        <div className="lg:col-span-8 flex flex-col gap-6 h-[calc(100vh-140px)] min-h-[800px]">
-
-          {/* Sağ Üst Blok: Toolbar */}
-          <div className="bg-white/80 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-2xl p-3 flex flex-wrap items-center justify-between gap-4 transition-all">
-            {/* Tab Navigasyon */}
-            <div className="flex bg-gray-100/80 p-1 rounded-xl">
-              <button
-                onClick={() => setActiveTab('onizleme')}
-                disabled={!aktifSinav}
-                className={\`px-6 py-2.5 rounded-lg font-bold text-sm transition-all \${
-                activeTab === 'onizleme'
-                  ? 'bg-white text-indigo-700 shadow-sm'
-                  : aktifSinav
-                    ? 'text-gray-500 hover:text-indigo-600'
-                    : 'text-gray-400 cursor-not-allowed'
-              }\`}
+            {/* Sağ Üst Blok: Toolbar */}
+            <div className="bg-white/80 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-2xl p-3 flex flex-wrap items-center justify-between gap-4 transition-all">
+              {/* Tab Navigasyon */}
+              <div className="flex bg-gray-100/80 p-1 rounded-xl">
+                <button
+                  onClick={() => setActiveTab('onizleme')}
+                  disabled={!aktifSinav}
+                  className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'onizleme'
+                      ? 'bg-white text-indigo-700 shadow-sm'
+                      : aktifSinav
+                        ? 'text-gray-500 hover:text-indigo-600'
+                        : 'text-gray-400 cursor-not-allowed'
+                    }`}
                 >
-              👁️ Önizleme
-            </button>
-            <button
-              onClick={() => setActiveTab('cevap-anahtari')}
-              disabled={!aktifSinav}
-              className={\`px-6 py-2.5 rounded-lg font-bold text-sm transition-all \${
-              activeTab === 'cevap-anahtari'
-                ? 'bg-white text-indigo-700 shadow-sm'
-                : aktifSinav
-                  ? 'text-gray-500 hover:text-indigo-600'
-                  : 'text-gray-400 cursor-not-allowed'
-            }\`}
+                  👁️ Önizleme
+                </button>
+                <button
+                  onClick={() => setActiveTab('cevap-anahtari')}
+                  disabled={!aktifSinav}
+                  className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'cevap-anahtari'
+                      ? 'bg-white text-indigo-700 shadow-sm'
+                      : aktifSinav
+                        ? 'text-gray-500 hover:text-indigo-600'
+                        : 'text-gray-400 cursor-not-allowed'
+                    }`}
                 >
-            ✓ Cevap Anahtarı
-          </button>
-        </div>
-
-        {/* Araçlar (Action Buttons) */}
-        <div className="flex gap-2">
-          <button onClick={handleSaveExam} disabled={!aktifSinav} className="ui-action-btn bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white border border-blue-100 hover:border-blue-600">
-            <span className="text-lg">💾</span> <span className="hidden sm:inline">Kaydet</span>
-          </button>
-          <button onClick={handleShareExam} disabled={!aktifSinav} className="ui-action-btn bg-purple-50 text-purple-700 hover:bg-purple-600 hover:text-white border border-purple-100 hover:border-purple-600">
-            <span className="text-lg">🔗</span> <span className="hidden sm:inline">Paylaş</span>
-          </button>
-          <button onClick={handleAddToWorkbook} disabled={!aktifSinav} className="ui-action-btn bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-100 hover:border-emerald-600">
-            <span className="text-lg">📚</span> <span className="hidden lg:inline">Kitapçığa Ekle</span>
-          </button>
-          <button onClick={() => window.print()} disabled={!aktifSinav} className="ui-action-btn bg-gray-50 text-gray-700 hover:bg-gray-800 hover:text-white border border-gray-200 hover:border-gray-800">
-            <span className="text-lg">🖨️</span> <span className="hidden sm:inline">Yazdır</span>
-          </button>
-          <button onClick={handleDownloadPDF} disabled={!aktifSinav} className="ui-action-btn bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-105 border-0">
-            <span className="text-lg drop-shadow-sm">📄</span> İndir
-          </button>
-        </div>
-      </div>
-
-      {/* Başarı Mesajı Toast (Inline) */}
-      {successMessage && (
-        <div className="absolute top-8 right-8 z-50 animate-fade-in-down bg-emerald-100/90 backdrop-blur-md border border-emerald-400 text-emerald-800 px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 font-semibold">
-          <span className="text-xl">✨</span> {successMessage}
-        </div>
-      )}
-
-      {/* Sağ Orta Blok: Sınav Önizleme İçeriği */}
-      <div className="flex-1 bg-white/90 backdrop-blur-md rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white overflow-hidden relative">
-        <div className="absolute inset-0 overflow-y-auto custom-scrollbar p-6 lg:p-10">
-          {aktifSinav ? (
-            activeTab === 'onizleme' ? (
-              <div className="animate-fade-in">
-                <SinavOnizleme sinav={aktifSinav} showAnswers={false} />
+                  ✓ Cevap Anahtarı
+                </button>
               </div>
-            ) : (
-              <div className="animate-fade-in">
-                <CevapAnahtariComponent cevapAnahtari={aktifSinav.cevapAnahtari} sinavBaslik={aktifSinav.baslik} />
+
+              {/* Araçlar (Action Buttons) */}
+              <div className="flex gap-2">
+                <button onClick={handleSaveExam} disabled={!aktifSinav} className="ui-action-btn bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white border border-blue-100 hover:border-blue-600">
+                  <span className="text-lg">💾</span> <span className="hidden sm:inline">Kaydet</span>
+                </button>
+                <button onClick={handleShareExam} disabled={!aktifSinav} className="ui-action-btn bg-purple-50 text-purple-700 hover:bg-purple-600 hover:text-white border border-purple-100 hover:border-purple-600">
+                  <span className="text-lg">🔗</span> <span className="hidden sm:inline">Paylaş</span>
+                </button>
+                <button onClick={handleAddToWorkbook} disabled={!aktifSinav} className="ui-action-btn bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-100 hover:border-emerald-600">
+                  <span className="text-lg">📚</span> <span className="hidden lg:inline">Kitapçığa Ekle</span>
+                </button>
+                <button onClick={() => window.print()} disabled={!aktifSinav} className="ui-action-btn bg-gray-50 text-gray-700 hover:bg-gray-800 hover:text-white border border-gray-200 hover:border-gray-800">
+                  <span className="text-lg">🖨️</span> <span className="hidden sm:inline">Yazdır</span>
+                </button>
+                <button onClick={handleDownloadPDF} disabled={!aktifSinav} className="ui-action-btn bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-105 border-0">
+                  <span className="text-lg drop-shadow-sm">📄</span> İndir
+                </button>
               </div>
-            )
-          ) : (
-            <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-6">
-              <div className="w-40 h-40 bg-indigo-50 rounded-full flex items-center justify-center shadow-inner">
-                <span className="text-6xl opacity-50">📝</span>
-              </div>
-              <h3 className="text-2xl font-bold text-gray-400">Önizleme Alanı</h3>
-              <p className="max-w-md text-center text-sm">
-                Sol panelden ayarlarınızı yapıp <strong className="text-indigo-400">Sınav Oluştur</strong> butonuna bastığınızda yapay zekanın ürettiği premium sınav burada belirecektir.
-              </p>
             </div>
-          )}
-        </div>
-      </div>
 
-    </div>
+            {/* Başarı Mesajı Toast (Inline) */}
+            {successMessage && (
+              <div className="absolute top-8 right-8 z-50 animate-fade-in-down bg-emerald-100/90 backdrop-blur-md border border-emerald-400 text-emerald-800 px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 font-semibold">
+                <span className="text-xl">✨</span> {successMessage}
+              </div>
+            )}
+
+            {/* Sağ Orta Blok: Sınav Önizleme İçeriği */}
+            <div className="flex-1 bg-white/90 backdrop-blur-md rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white overflow-hidden relative">
+              <div className="absolute inset-0 overflow-y-auto custom-scrollbar p-6 lg:p-10">
+                {aktifSinav ? (
+                  activeTab === 'onizleme' ? (
+                    <div className="animate-fade-in">
+                      <SinavOnizleme sinav={aktifSinav} showAnswers={false} />
+                    </div>
+                  ) : (
+                    <div className="animate-fade-in">
+                      <CevapAnahtariComponent cevapAnahtari={aktifSinav.cevapAnahtari} sinavBaslik={aktifSinav.baslik} />
+                    </div>
+                  )
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-6">
+                    <div className="w-40 h-40 bg-indigo-50 rounded-full flex items-center justify-center shadow-inner">
+                      <span className="text-6xl opacity-50">📝</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-400">Önizleme Alanı</h3>
+                    <p className="max-w-md text-center text-sm">
+                      Sol panelden ayarlarınızı yapıp <strong className="text-indigo-400">Sınav Oluştur</strong> butonuna bastığınızda yapay zekanın ürettiği premium sınav burada belirecektir.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </div>
         </div >
 
       </div >
 
-  <style>{`
+      <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 8px;
         }
