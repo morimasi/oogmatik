@@ -3,10 +3,10 @@
  * MEB kazanım entegreli sınav üretimi
  */
 
-import { generateWithSchema } from '../geminiClient';
-import { SinavAyarlari, Soru, Sinav, CevapAnahtari } from '../../types/sinav';
-import { getKazanimByCode } from '../../data/meb-turkce-kazanim';
-import { AppError } from '../../utils/AppError';
+import { generateWithSchema } from '../geminiClient.js';
+import type { SinavAyarlari, Soru, Sinav, CevapAnahtari } from '../../types/sinav.js';
+import { getKazanimByCode } from '../../data/meb-turkce-kazanim.js';
+import { AppError } from '../../utils/AppError.js';
 
 /**
  * Sınav için AI prompt oluştur
