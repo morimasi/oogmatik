@@ -83,6 +83,9 @@ const ScreeningModule = lazy(() =>
     default: module.ScreeningModule,
   }))
 );
+const SinavStudyosu = lazy(() =>
+  import('../components/SinavStudyosu').then((module) => ({ default: module.SinavStudyosu }))
+);
 
 const initialStyleSettings: StyleSettings = {
   fontSize: 18,
@@ -754,6 +757,7 @@ const AppContent = () => {
             onOpenInfographicStudio={() => handleOpenStudio('infographic-studio')}
             onOpenRemotionStudio={() => handleOpenStudio('remotion-studio')}
             onOpenScreening={() => handleOpenStudio('screening')}
+            onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
             width={sidebarWidth}
@@ -919,6 +923,14 @@ const AppContent = () => {
                 handleGeneratePlanFromScreening(n, a, w, c)
               }
             />
+          </Suspense>
+        </div>
+      )}
+
+      {currentView === 'sinav-studyosu' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+          <Suspense fallback={<LoadingSpinner />}>
+            <SinavStudyosu />
           </Suspense>
         </div>
       )}

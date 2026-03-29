@@ -234,6 +234,8 @@ export type View =
   | 'math-studio'
   | 'super-turkce'
   | 'infographic-studio'
+  | 'remotion-studio'
+  | 'sinav-studyosu'
   | 'students';
 
 export interface UiSettings {
