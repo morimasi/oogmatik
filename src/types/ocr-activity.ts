@@ -13,7 +13,7 @@
  */
 
 import type { LearningDisabilityProfile, AgeGroup } from './creativeStudio';
-import type { _OCRResult, OCRDetectedType } from './core';
+import type { OCRResult, OCRDetectedType } from './core';
 
 // ─── Temel Enumlar ──────────────────────────────────────────────────────
 

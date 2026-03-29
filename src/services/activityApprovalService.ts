@@ -13,8 +13,8 @@ import { AppError } from '../utils/AppError';
 import type { ActivityDraft, DynamicActivity } from '../types/admin';
 import type {
     ActivityTemplate,
-    _ApprovalStatus,
-    _ProductionMode,
+    ApprovalStatus,
+    ProductionMode,
     ApprovalQueueFilter,
     AutoSettings,
 } from '../types/ocr-activity';

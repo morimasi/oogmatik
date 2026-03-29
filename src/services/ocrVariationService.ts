@@ -11,7 +11,7 @@ import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 import type {
   OCRResult,
   WorksheetData,
-  _ActivityType,
+  ActivityType,
   LearningDisabilityProfile,
   AgeGroup,
   Difficulty
@@ -422,7 +422,7 @@ export const validateVariationQuality = (variation: WorksheetData[0]): number =>
   }
 
   // targetSkills kontrolü
-  if (!Array.isArray(variation.targetSkills) || variation.targetSkills.length === 0) {
+  if (!Array.isArray(variation.targetSkills) || (variation.targetSkills as string[]).length === 0) {
     score -= 20;
   }
 

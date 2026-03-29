@@ -1,11 +1,11 @@
-import { _AppError } from '../utils/AppError';
+import { AppError } from '../utils/AppError';
 /**
  * OOGMATIK - Role-Based Access Control (RBAC)
  * User roles and permission management
  */
 
 export type UserRole = 'admin' | 'teacher' | 'parent' | 'student';
-export type Permission = 
+export type Permission =
     | 'create:worksheet'
     | 'read:worksheet'
     | 'update:worksheet'

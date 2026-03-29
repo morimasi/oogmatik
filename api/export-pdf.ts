@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Rate Limiting (20 istek/saat)
     try {
-      await rateLimiter.enforceLimit(actualUserId, userTier as any, 'apiExport');
+      await rateLimiter.enforceLimit(actualUserId, userTier as any, 'apiExport' as any);
     } catch (error) {
       if (error instanceof RateLimitError) {
         return res.status(429).json({ error: error.userMessage });
@@ -127,12 +127,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Build page content from blocks or create a single page
     const contentBlocks: Array<{ type: string; content: string }> = Array.isArray(blocks)
       ? blocks.slice(0, 200).map((b: unknown) => {
-          const block = b as Record<string, unknown>;
-          return {
-            type: String(block?.type || 'içerik').slice(0, 50),
-            content: String(block?.content || '').slice(0, 5000),
-          };
-        })
+        const block = b as Record<string, unknown>;
+        return {
+          type: String(block?.type || 'içerik').slice(0, 50),
+          content: String(block?.content || '').slice(0, 5000),
+        };
+      })
       : [];
 
     const pages = [];
@@ -146,24 +146,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           // Blocks
           contentBlocks.length > 0
             ? contentBlocks.map((block, idx) =>
-                h(
-                  View,
-                  { key: idx, style: styles.block },
-                  h(Text, { style: styles.blockType }, block.type),
-                  h(Text, { style: styles.blockContent }, block.content)
-                )
-              )
-            : h(
+              h(
                 View,
-                { style: styles.block },
-                h(
-                  Text,
-                  { style: styles.blockContent },
-                  i === 0
-                    ? `${safeTitleText} — Bu PDF sunucu tarafında oluşturuldu.`
-                    : `Sayfa ${i + 1}`
-                )
-              ),
+                { key: idx, style: styles.block },
+                h(Text, { style: styles.blockType }, block.type),
+                h(Text, { style: styles.blockContent }, block.content)
+              )
+            )
+            : h(
+              View,
+              { style: styles.block },
+              h(
+                Text,
+                { style: styles.blockContent },
+                i === 0
+                  ? `${safeTitleText} — Bu PDF sunucu tarafında oluşturuldu.`
+                  : `Sayfa ${i + 1}`
+              )
+            ),
           // Footer
           h(
             View,

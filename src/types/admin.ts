@@ -1,4 +1,4 @@
-import { _ActivityType } from './activity';
+import { ActivityType } from './activity';
 import { UserRole, UserStatus } from './user';
 
 export interface DynamicActivity {

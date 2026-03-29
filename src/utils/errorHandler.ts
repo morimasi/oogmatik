@@ -6,11 +6,11 @@
 import {
   AppError,
   toAppError,
-  _NetworkError,
+  NetworkError,
   TimeoutError,
-  _RateLimitError,
+  RateLimitError,
   InternalServerError,
-  _isAppError,
+  isAppError,
 } from './AppError.js';
 
 /**

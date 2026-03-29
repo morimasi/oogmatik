@@ -10,7 +10,7 @@
  */
 
 import { analyzeImage, generateWithSchema } from './geminiClient.js';
-import { _templateEngine } from './templateEngine';
+import { templateEngine } from './templateEngine';
 import type {
     ActivityTemplate,
     ExactCloneRequest,

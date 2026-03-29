@@ -232,7 +232,7 @@ export const ocrService = {
             const validation = validateBlueprint(result.worksheetBlueprint);
 
             if (!validation.isValid) {
-                throw new AppError(validation.warnings.join(' ', 'INTERNAL_ERROR', 500));
+                throw new AppError(validation.warnings.join(' '), 'INTERNAL_ERROR', 500);
             }
 
             const ocrResult: OCRResult = {

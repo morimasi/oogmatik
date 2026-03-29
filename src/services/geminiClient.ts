@@ -308,7 +308,9 @@ export const generateCreativeMultimodal = async (params: {
         .json()
         .catch(() => ({ error: { message: 'Bilinmeyen hata' } }));
       throw new AppError(
-        errData.error?.message || `API Hatası (${response.status}, 'INTERNAL_ERROR', 500)`
+        errData.error?.message || `API Hatası (${response.status})`,
+        'INTERNAL_ERROR',
+        500
       );
     }
 

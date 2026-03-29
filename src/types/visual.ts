@@ -1,5 +1,5 @@
 import { BaseActivityData, ShapeType } from './common';
-import { _ActivityType } from './core';
+import { ActivityType } from './core';
 
 // GeneratorOptions core.ts'den taşındı.
 
@@ -202,11 +202,11 @@ export interface MapInstructionData extends BaseActivityData {
   }[];
   emphasizedRegion?: string;
   questionType?:
-    | 'spatial_logic'
-    | 'linguistic_geo'
-    | 'attribute_search'
-    | 'neighbor_path'
-    | 'route_planning';
+  | 'spatial_logic'
+  | 'linguistic_geo'
+  | 'attribute_search'
+  | 'neighbor_path'
+  | 'route_planning';
   difficultyLevel?: 1 | 2 | 3 | 4 | 5;
   settings?: {
     showCityNames: boolean;
