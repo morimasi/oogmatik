@@ -1,53 +1,65 @@
 /**
- * Sınav Önizleme - Exam preview component
+ * Sınav Önizleme — format config ile uyumlu
  */
 
 import React from 'react';
 import { Sinav } from '../../src/types/sinav';
 import { SoruCard } from './components/SoruCard';
+import { PrintConfig } from '../../src/utils/sinavPdfGenerator';
 
 interface SinavOnizlemeProps {
   sinav: Sinav;
   showAnswers?: boolean;
+  config?: PrintConfig;
 }
 
-export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({ sinav, showAnswers = false }) => {
+export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
+  sinav,
+  showAnswers = false,
+  config,
+}) => {
+  const fontSizePx = config ? `${config.fontSize + 2}px` : '14px';
+  const fontFamily = config?.fontFamily === 'times' ? 'Times New Roman, serif' : 'Lexend, Inter, sans-serif';
+  const questionGap = config ? `${config.questionSpacingMm * 2}px` : '16px';
+
   return (
-    <div className="sinav-onizleme space-y-6">
-      {/* Başlık ve Bilgiler */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-6 shadow-lg">
-        <h2 className="text-2xl font-bold mb-3">{sinav.baslik}</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <div className="text-blue-100">Sınıf</div>
-            <div className="text-xl font-semibold">{sinav.sinif}. Sınıf</div>
-          </div>
-          <div>
-            <div className="text-blue-100">Toplam Soru</div>
-            <div className="text-xl font-semibold">{sinav.sorular.length} soru</div>
-          </div>
-          <div>
-            <div className="text-blue-100">Toplam Puan</div>
-            <div className="text-xl font-semibold">{sinav.toplamPuan} puan</div>
-          </div>
-          <div>
-            <div className="text-blue-100">Tahmini Süre</div>
-            <div className="text-xl font-semibold">{Math.ceil(sinav.tahminiSure / 60)} dk</div>
-          </div>
+    <div
+      className="sinav-onizleme"
+      style={{ fontFamily, color: '#111', backgroundColor: '#fff' }}
+    >
+      {/* Başlık Bandı */}
+      <div
+        className="rounded-xl p-5 mb-5 text-white"
+        style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)' }}
+      >
+        <h2 className="text-xl font-extrabold mb-3 text-white" style={{ fontFamily }}>
+          {sinav.baslik}
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          {[
+            { label: 'Sınıf', val: `${sinav.sinif}. Sınıf` },
+            { label: 'Toplam Soru', val: `${sinav.sorular.length} soru` },
+            { label: 'Toplam Puan', val: `${sinav.toplamPuan} puan` },
+            { label: 'Süre', val: `~${Math.ceil(sinav.tahminiSure / 60)} dk` },
+          ].map(({ label, val }) => (
+            <div key={label}>
+              <div className="text-indigo-200 text-xs uppercase tracking-wide">{label}</div>
+              <div className="text-white font-bold text-base">{val}</div>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Kazanımlar */}
-      <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
-        <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-          <span className="text-blue-600">📚</span>
-          Ölçülen MEB Kazanımları
+      <div className="border border-gray-200 bg-gray-50 rounded-xl p-4 mb-5">
+        <h3 className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-1">
+          <span>📚</span> MEB Kazanımları
         </h3>
         <div className="flex flex-wrap gap-2">
-          {sinav.secilenKazanimlar.map(kod => (
+          {sinav.secilenKazanimlar.map((kod) => (
             <span
               key={kod}
-              className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-mono rounded-full"
+              className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-mono rounded-full"
             >
               {kod}
             </span>
@@ -55,30 +67,34 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({ sinav, showAnswers
         </div>
       </div>
 
+      {/* Öğrenci Bilgi Satırı */}
+      <div className="border border-gray-200 rounded-xl px-4 py-3 mb-5 flex flex-wrap gap-6 text-sm text-gray-600">
+        <span>Ad Soyad: <span className="border-b border-gray-400 inline-block w-40">&nbsp;</span></span>
+        <span>Sınıf/Şube: <span className="border-b border-gray-400 inline-block w-20">&nbsp;</span></span>
+        <span>Tarih: <span className="border-b border-gray-400 inline-block w-24">&nbsp;</span></span>
+      </div>
+
       {/* Sorular */}
-      <div className="space-y-4">
-        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <span>📝</span>
-          Sorular
-        </h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: questionGap }}>
         {sinav.sorular.map((soru, index) => (
           <SoruCard
             key={soru.id}
             soru={soru}
             soruNo={index + 1}
             showAnswer={showAnswers}
+            fontSizePx={fontSizePx}
+            fontFamily={fontFamily}
           />
         ))}
       </div>
 
       {/* Pedagojik Not */}
       {sinav.pedagogicalNote && (
-        <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4">
-          <h3 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
-            <span>👨‍🏫</span>
-            Öğretmenin Dikkatine
+        <div className="mt-6 border-2 border-emerald-200 bg-emerald-50 rounded-xl p-4">
+          <h3 className="text-sm font-bold text-emerald-800 mb-2 flex items-center gap-1">
+            <span>👨‍🏫</span> Öğretmenin Dikkatine
           </h3>
-          <p className="text-sm text-green-800 leading-relaxed" style={{ fontFamily: 'Lexend, sans-serif' }}>
+          <p className="text-sm text-emerald-900 leading-relaxed" style={{ fontFamily }}>
             {sinav.pedagogicalNote}
           </p>
         </div>

@@ -1,189 +1,279 @@
 /**
- * Sınav PDF Generator
- * Tek PDF içinde: Sorular + Cevap Anahtarı + Pedagojik Not
+ * Sınav PDF Generator — Kompakt A4, Çoklu Sayfa
+ * Türkçe karakter desteği (Helvetica latin-1 encode normalizer)
  */
 
 import jsPDF from 'jspdf';
 import type { Sinav, Soru } from '../types/sinav';
 
-/**
- * Sınav PDF'i oluştur ve indir
- * Format: Sorular → Cevap Anahtarı → Pedagojik Not (sıralı)
- */
-export const generateExamPDF = (sinav: Sinav): void => {
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4'
-  });
+export interface PrintConfig {
+  fontSize: number;       // 9 | 10 | 11 | 12
+  fontFamily: 'helvetica' | 'times';
+  columns: 1 | 2;
+  marginMm: number;       // 10 | 15 | 20 | 25
+  questionSpacingMm: number; // 6 | 8 | 10 | 14
+}
 
-  const margin = 20;
-  const pageWidth = 210;
-  const contentWidth = pageWidth - 2 * margin;
-  let yPos = margin;
+export const DEFAULT_PRINT_CONFIG: PrintConfig = {
+  fontSize: 10,
+  fontFamily: 'helvetica',
+  columns: 1,
+  marginMm: 18,
+  questionSpacingMm: 8,
+};
 
-  // Yardımcı fonksiyon: Sayfa sonu kontrolü
-  const checkPageBreak = (requiredSpace: number): void => {
-    if (yPos + requiredSpace > 270) {
-      doc.addPage();
-      yPos = margin;
-    }
+/** Türkçe özel karakterleri latin-1 muadilleriyle değiştirir (jsPDF Helvetica uyumu) */
+const tr = (s: string): string =>
+  s
+    .replace(/İ/g, 'I')
+    .replace(/ı/g, 'i')
+    .replace(/Ğ/g, 'G')
+    .replace(/ğ/g, 'g')
+    .replace(/Ş/g, 'S')
+    .replace(/ş/g, 's')
+    .replace(/Ö/g, 'O')
+    .replace(/ö/g, 'o')
+    .replace(/Ü/g, 'U')
+    .replace(/ü/g, 'u')
+    .replace(/Ç/g, 'C')
+    .replace(/ç/g, 'c');
+
+export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRINT_CONFIG): void => {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const PAGE_W = 210;
+  const PAGE_H = 297;
+  const { marginMm: M, fontSize: FS, fontFamily: FF, questionSpacingMm: QS } = config;
+  const contentW = PAGE_W - 2 * M;
+
+  let y = M;
+  let pageNum = 1;
+
+  const newPage = () => {
+    // Sayfa numarası footer
+    doc.setFontSize(8);
+    doc.setFont(FF, 'normal');
+    doc.setTextColor(160);
+    doc.text(`Sayfa ${pageNum} — Oogmatik Sinav Studyosu`, PAGE_W / 2, PAGE_H - 6, { align: 'center' });
+    doc.setTextColor(0);
+    doc.addPage();
+    pageNum++;
+    y = M;
   };
 
-  // ============= BAŞLIK VE SINAV BİLGİLERİ =============
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.text(sinav.baslik, margin, yPos);
-  yPos += 10;
+  const check = (need: number) => {
+    if (y + need > PAGE_H - 14) newPage();
+  };
 
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Sinif: ${sinav.sinif}`, margin, yPos);
-  yPos += 6;
-  doc.text(`Toplam Puan: ${sinav.toplamPuan}`, margin, yPos);
-  yPos += 6;
-  doc.text(`Tahmini Sure: ${Math.ceil(sinav.tahminiSure / 60)} dakika`, margin, yPos);
-  yPos += 6;
-  doc.text(`Olusturma Tarihi: ${new Date(sinav.olusturmaTarihi).toLocaleDateString('tr-TR')}`, margin, yPos);
-  yPos += 12;
+  // ── BAŞLIK BÖLÜMÜ ──────────────────────────────────────────
+  // İnce çerçeve kutu
+  doc.setDrawColor(80, 80, 160);
+  doc.setLineWidth(0.4);
+  doc.rect(M, y, contentW, 22, 'S');
 
-  // ============= SORULAR =============
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text('SORULAR', margin, yPos);
-  yPos += 10;
+  doc.setFont(FF, 'bold');
+  doc.setFontSize(FS + 3);
+  doc.setTextColor(40, 40, 120);
+  const titleLines = doc.splitTextToSize(tr(sinav.baslik), contentW - 6);
+  doc.text(titleLines, M + 3, y + 7);
 
-  sinav.sorular.forEach((soru: Soru, index: number) => {
-    // Sayfa sonu kontrolü (her soru için ~40mm alan)
-    checkPageBreak(40);
+  doc.setFont(FF, 'normal');
+  doc.setFontSize(FS - 1);
+  doc.setTextColor(80);
+  doc.text(
+    tr(`${sinav.sinif}. Sinif  |  ${sinav.sorular.length} Soru  |  ${sinav.toplamPuan} Puan  |  ~${Math.ceil(sinav.tahminiSure / 60)} dakika  |  ${new Date(sinav.olusturmaTarihi).toLocaleDateString('tr-TR')}`),
+    M + 3,
+    y + 18
+  );
+  doc.setTextColor(0);
+  y += 26;
 
-    // Soru numarası ve başlık
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    const soruBaslik = `${index + 1}. ${soru.soruMetni} (${soru.puan} puan)`;
-    const splitBaslik = doc.splitTextToSize(soruBaslik, contentWidth);
-    doc.text(splitBaslik, margin, yPos);
-    yPos += splitBaslik.length * 6 + 2;
+  // Öğrenci bilgi satırı
+  doc.setFont(FF, 'normal');
+  doc.setFontSize(FS - 1);
+  doc.setTextColor(60);
+  doc.text(tr('Ad Soyad: ___________________________   Sinif/Sube: _________   Tarih: _________'), M, y);
+  doc.setTextColor(0);
+  y += 8;
 
-    // Seçenekler (çoktan seçmeli için)
-    if (soru.tip === 'coktan-secmeli' && Array.isArray(soru.secenekler)) {
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      soru.secenekler.forEach((secenek: string) => {
-        checkPageBreak(8);
-        const splitSecenek = doc.splitTextToSize(secenek, contentWidth - 5);
-        doc.text(splitSecenek, margin + 5, yPos);
-        yPos += splitSecenek.length * 5 + 2;
-      });
-      yPos += 2;
-    }
+  // Ayırıcı
+  doc.setDrawColor(200);
+  doc.setLineWidth(0.2);
+  doc.line(M, y, PAGE_W - M, y);
+  y += 6;
 
-    // Boşluk doldurma veya açık uçlu için yanıt alanı
-    if (soru.tip === 'bosluk-doldurma' || soru.tip === 'acik-uclu') {
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      doc.setTextColor(120);
-      if (soru.tip === 'acik-uclu') {
-        doc.text('Yanit:', margin + 5, yPos);
-        yPos += 6;
-        // Çizgili alan çiz
-        for (let i = 0; i < 4; i++) {
-          checkPageBreak(8);
-          doc.line(margin + 5, yPos, pageWidth - margin, yPos);
-          yPos += 6;
-        }
-      } else {
-        doc.text('Cevap: _____________________', margin + 5, yPos);
-        yPos += 8;
-      }
-      doc.setTextColor(0);
-    }
+  // ── SORULAR ─────────────────────────────────────────────────
+  doc.setFont(FF, 'bold');
+  doc.setFontSize(FS + 1);
+  doc.setTextColor(40);
+  doc.text('SORULAR', M, y);
+  y += 6;
 
-    // Kazanım kodu (küçük, gri)
-    checkPageBreak(6);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(100);
-    doc.text(`[MEB Kazanim: ${soru.kazanimKodu}]`, margin, yPos);
+  sinav.sorular.forEach((soru: Soru, i: number) => {
+    check(16);
+
+    // Soru No + tip etiketi
+    doc.setFont(FF, 'bold');
+    doc.setFontSize(FS);
     doc.setTextColor(0);
-    yPos += 10;
+    const soruLabel = `${i + 1}.`;
+    doc.text(soruLabel, M, y);
+
+    // Zorluk rengi (küçük kare)
+    const zorlukColor: [number, number, number] =
+      soru.zorluk === 'Kolay' ? [34, 197, 94] :
+        soru.zorluk === 'Orta' ? [234, 179, 8] : [239, 68, 68];
+    doc.setFillColor(...zorlukColor);
+    doc.rect(M + 7, y - 3, 2, 3, 'F');
+
+    // Soru metni
+    doc.setFont(FF, 'normal');
+    doc.setFontSize(FS);
+    doc.setTextColor(0);
+    const soruLines = doc.splitTextToSize(tr(soru.soruMetni), contentW - 12);
+    doc.text(soruLines, M + 11, y);
+    y += soruLines.length * (FS * 0.38) + 2;
+
+    // Seçenekler
+    if (soru.tip === 'coktan-secmeli' && Array.isArray(soru.secenekler)) {
+      const labels = ['A', 'B', 'C', 'D'];
+      soru.secenekler.forEach((sec, si) => {
+        check(7);
+        doc.setFont(FF, 'normal');
+        doc.setFontSize(FS - 0.5);
+        doc.setTextColor(30);
+        const secLines = doc.splitTextToSize(`${labels[si]}) ${tr(sec)}`, contentW - 18);
+        doc.text(secLines, M + 14, y);
+        y += secLines.length * (FS * 0.36) + 1.5;
+      });
+    }
+
+    // Doğru-Yanlış şıkları
+    if (soru.tip === 'dogru-yanlis-duzeltme') {
+      check(8);
+      doc.setFont(FF, 'normal');
+      doc.setFontSize(FS - 0.5);
+      doc.setTextColor(60);
+      doc.text(tr('( ) Dogru   ( ) Yanlis   Duzeltme: _________________________________'), M + 14, y);
+      y += 7;
+    }
+
+    // Boşluk doldurma cevap alanı
+    if (soru.tip === 'bosluk-doldurma') {
+      check(7);
+      doc.setFontSize(FS - 0.5);
+      doc.setTextColor(60);
+      doc.text(tr('Cevap: _______________________________________'), M + 14, y);
+      y += 7;
+    }
+
+    // Açık uçlu yanıt alanı (4 satır)
+    if (soru.tip === 'acik-uclu') {
+      for (let ln = 0; ln < 4; ln++) {
+        check(6);
+        doc.setDrawColor(200);
+        doc.setLineWidth(0.15);
+        doc.line(M + 14, y + 1, PAGE_W - M, y + 1);
+        y += 6;
+      }
+    }
+
+    // Kazanım kodu (gri, küçük)
+    check(5);
+    doc.setFont(FF, 'italic');
+    doc.setFontSize(7.5);
+    doc.setTextColor(140);
+    doc.text(tr(`[${soru.kazanimKodu}]`), PAGE_W - M, y, { align: 'right' });
+    doc.setTextColor(0);
+
+    y += QS; // Sorular arası boşluk
   });
 
-  // ============= YENİ SAYFA: CEVAP ANAHTARI =============
-  doc.addPage();
-  yPos = margin;
-
-  doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(0, 100, 0); // Yeşil
-  doc.text('CEVAP ANAHTARI', margin, yPos);
+  // Sayfa footer son sayfa
+  doc.setFontSize(8);
+  doc.setFont(FF, 'normal');
+  doc.setTextColor(160);
+  doc.text(`Sayfa ${pageNum} — Oogmatik Sinav Studyosu`, PAGE_W / 2, PAGE_H - 6, { align: 'center' });
   doc.setTextColor(0);
-  yPos += 12;
+
+  // ── CEVAP ANAHTARI (yeni sayfa) ─────────────────────────────
+  doc.addPage();
+  pageNum++;
+  y = M;
+
+  doc.setFont(FF, 'bold');
+  doc.setFontSize(FS + 2);
+  doc.setTextColor(0, 100, 60);
+  doc.text('CEVAP ANAHTARI', M, y);
+  doc.setTextColor(0);
+  y += 8;
 
   // Tablo başlıkları
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Soru No', margin, yPos);
-  doc.text('Dogru Cevap', margin + 30, yPos);
-  doc.text('Puan', margin + 100, yPos);
-  doc.text('Kazanim Kodu', margin + 130, yPos);
-  yPos += 8;
+  const colW = [12, 60, 22, 50];
+  const headers = ['No', 'Dogru Cevap', 'Puan', 'Kazanim'];
+  let cx = M;
+  doc.setFont(FF, 'bold');
+  doc.setFontSize(FS - 0.5);
+  doc.setFillColor(230, 240, 255);
+  doc.rect(M, y - 4, contentW, 7, 'F');
+  headers.forEach((h, i) => {
+    doc.text(tr(h), cx + 1, y);
+    cx += colW[i];
+  });
+  y += 5;
 
-  // Ayırıcı çizgi
-  doc.setLineWidth(0.5);
-  doc.line(margin, yPos - 2, pageWidth - margin, yPos - 2);
-  yPos += 2;
-
-  // Cevaplar
-  doc.setFont('helvetica', 'normal');
-  sinav.cevapAnahtari.sorular.forEach((cevap, index) => {
-    checkPageBreak(8);
-
-    doc.text(`${cevap.soruNo}.`, margin, yPos);
-    doc.text(String(cevap.dogruCevap), margin + 30, yPos);
-    doc.text(`${cevap.puan} puan`, margin + 100, yPos);
-    doc.text(cevap.kazanimKodu, margin + 130, yPos);
-    yPos += 7;
-
-    // Her 5 satırda bir ince çizgi
-    if ((index + 1) % 5 === 0) {
-      doc.setLineWidth(0.1);
-      doc.setDrawColor(200);
-      doc.line(margin, yPos - 2, pageWidth - margin, yPos - 2);
-      doc.setDrawColor(0);
-      yPos += 2;
+  doc.setFont(FF, 'normal');
+  sinav.cevapAnahtari.sorular.forEach((c, i) => {
+    check(7);
+    if (i % 2 === 0) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(M, y - 4, contentW, 6.5, 'F');
     }
+    cx = M;
+    const row = [`${c.soruNo}.`, tr(String(c.dogruCevap)), `${c.puan} puan`, tr(c.kazanimKodu)];
+    doc.setFontSize(FS - 0.5);
+    row.forEach((cell, i) => {
+      const lines = doc.splitTextToSize(cell, colW[i] - 2);
+      doc.text(lines, cx + 1, y);
+      cx += colW[i];
+    });
+    y += 6.5;
   });
 
-  // ============= YENİ SAYFA: PEDAGOJİK NOT =============
-  doc.addPage();
-  yPos = margin;
-
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(0, 0, 150); // Mavi
-  doc.text('OGRETMENIN DIKKATINE', margin, yPos);
+  // Toplam puan satırı
+  y += 4;
+  doc.setFont(FF, 'bold');
+  doc.setFontSize(FS);
+  doc.setFillColor(220, 252, 231);
+  doc.rect(M, y - 4, contentW, 8, 'F');
+  doc.text(tr(`Toplam: ${sinav.toplamPuan} Puan`), M + 3, y + 1);
   doc.setTextColor(0);
-  yPos += 10;
+  y += 12;
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  const splitNote = doc.splitTextToSize(sinav.pedagogicalNote, contentWidth);
-  doc.text(splitNote, margin, yPos);
-  yPos += splitNote.length * 6 + 10;
+  // ── PEDAGOJİK NOT ─────────────────────────────────────────
+  check(20);
+  doc.setFont(FF, 'bold');
+  doc.setFontSize(FS + 1);
+  doc.setTextColor(0, 60, 140);
+  doc.text(tr('OGRETMENIN DIKKATINE'), M, y);
+  doc.setTextColor(0);
+  y += 7;
 
-  // Alt bilgi
-  yPos += 10;
+  doc.setFont(FF, 'normal');
+  doc.setFontSize(FS - 1);
+  doc.setTextColor(40);
+  const noteLines = doc.splitTextToSize(tr(sinav.pedagogicalNote), contentW);
+  check(noteLines.length * (FS * 0.38) + 6);
+  doc.text(noteLines, M, y);
+  y += noteLines.length * (FS * 0.38) + 8;
+
+  // Footer son sayfa
   doc.setFontSize(8);
-  doc.setTextColor(120);
-  doc.text(
-    'Bu sinav Oogmatik Super Turkce Sinav Studyosu ile olusturulmustur.',
-    margin,
-    yPos
-  );
-  doc.text(`MEB 2024-2025 mufredati - ${sinav.secilenKazanimlar.length} kazanim`, margin, yPos + 5);
+  doc.setFont(FF, 'normal');
+  doc.setTextColor(160);
+  doc.text(`Sayfa ${pageNum} — Oogmatik Sinav Studyosu`, PAGE_W / 2, PAGE_H - 6, { align: 'center' });
 
-  // PDF'i indir
-  const safeFileName = sinav.baslik.replace(/[^a-zA-Z0-9ğüşıöçĞÜŞİÖÇ\s]/g, '').replace(/\s+/g, '-');
-  doc.save(`${safeFileName}.pdf`);
+  // ── İNDİR ────────────────────────────────────────────────
+  const safeFileName = sinav.baslik.replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+  doc.save(`${safeFileName || 'sinav'}.pdf`);
 };
