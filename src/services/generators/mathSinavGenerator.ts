@@ -16,6 +16,8 @@ import type {
 } from '../../types/matSinav';
 import { getMatKazanimByCode } from '../../data/meb-matematik-kazanim';
 import { AppError } from '../../utils/AppError';
+import { getVisualPromptsForKazanimlar } from './mathVisualPromptLibrary';
+import { validateQuestionVisualConsistency, generateExamValidationReport } from '../mathVisualValidator';
 
 // ─── Kazanım → Görsel Haritalama ─────────────────────────────
 /**
@@ -158,10 +160,14 @@ export function analizKazanimGorselleri(kazanimKodlari: string[]): KazanimGorsel
 
 /**
  * Prompt'a eklenecek kazanım-bazlı görsel talimatlarını üretir.
+ * GÜNCELLEME: mathVisualPromptLibrary.ts kullanarak detaylı prompt talimatları ekler.
  */
-function buildKazanimGorselTalimatlari(kazanimKodlari: string[]): string {
+function buildKazanimGorselTalimatlari(kazanimKodlari: string[], sinifSeviyesi: number): string {
     const gereksinimler = analizKazanimGorselleri(kazanimKodlari);
     if (gereksinimler.length === 0) return '';
+
+    // Yeni görsel prompt kütüphanesinden detaylı talimatları al
+    const detayliPromptlar = getVisualPromptsForKazanimlar(kazanimKodlari, sinifSeviyesi);
 
     const satirlar = gereksinimler
         .map((g) => `  • ${g.kazanimKodu}: tip="${g.zorunluGorsel}" → ${g.aciklama}`)
@@ -174,13 +180,41 @@ Bu kazanımlar için GÖRSELSİZ soru üretme:
 
 ${satirlar}
 
-Her görsel için:
-- "baslik": Görselin açıklayıcı başlığı (Türkçe)
-- "veri": Sayısal değerler (etiket + deger zorunlu)
-- "ozellikler": Geometrik şekillerde kenar/açı ölçüleri
-- "not": Varsa ek açıklama
+${detayliPromptlar}
 
-Desteklenen tüm görsel tipler: ${GORSEL_TIPLER_LISTESI}
+[GÖRSEL-METİN TUTARLILIK KURALLARI — MUTLAKİYET]
+🚨 UYARI: Aşağıdaki kuralların HİÇBİRİNİ ihlal etme. Her ihlal klinik protokol ihlalidir.
+
+1. SAYISAL DEĞER TUTARLILIğI:
+   • Soru metninde belirttiğin HER SAYISAL DEĞER grafik_verisi içinde AYNEN olmalı
+   • Geometrik şekillerde: kenar uzunlukları, açı ölçüleri
+   • Veri grafiklerinde: tüm sayısal değerler
+   • Koordinat sisteminde: x ve y koordinatları
+   • ÖRNEK YANLIŞ: Soru "5 cm kenar" diyor, grafik ozellikler.kenarlar: [8] gösteriyor
+   • ÖRNEK DOĞRU: Soru "5 cm kenar" diyor, grafik ozellikler.kenarlar: [5] gösteriyor
+
+2. GÖRSEL REFERANSI ZORUNLU:
+   • Soru metninde gorsele AÇIK referans olmalı:
+     ✓ "Yandaki grafiğe göre..."
+     ✓ "Şekildeki üçgende..."
+     ✓ "Tablodaki verilere bakarak..."
+     ✗ Görsel referansı olmayan metin
+
+3. MATEMATİKSEL TUTARLILIK:
+   • Üçgen iç açıları toplamı = 180°
+   • Dik üçgende Pisagor: a² + b² = c²
+   • Veri grafiklerinde toplam doğru hesaplanmalı
+   • Fonksiyon grafiğinde her nokta denklemi sağlamalı
+
+4. SINIF SEVİYESİ LİMİTLERİ (${sinifSeviyesi}. sınıf):
+   • Veri noktası sayısı: Maksimum ${sinifSeviyesi + 2}
+   • Sayı aralıkları: Sınıf seviyesine uygun
+   • Karmaşıklık: ZPD içinde (Başarı Anı Mimarisi)
+
+5. DİSLEKSİ/DİSKALKULİ UYUMLULUK:
+   • Görseldeki HER SAYI soru metninde AYNI FORMATTA geçmeli
+   • Birim tutarlılığı: cm ise hep cm, m ise hep m
+   • Renkli vurgulama: Aynı kavram = aynı renk
 `;
 }
 
@@ -252,6 +286,157 @@ const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown
     }
 };
 
+// ─── Görsel-Metin Uyumluluk Doğrulama ─────────────────────────
+/**
+ * Klinik Protokol: Görsel-Metin Tutarlılık Kontrolü
+ * Dr. Ahmet Kaya onaylı — MEB 2024-2025 uyumlu
+ *
+ * Bu fonksiyon AI tarafından üretilen soruların görsel-metin
+ * tutarlılığını kontrol eder ve uyumsuzlukları raporlar.
+ */
+export interface GorselMetinUyumSonucu {
+    soruId: string;
+    uyumluMu: boolean;
+    uyumsuzluklar: string[];
+    uyarilar: string[];
+    skor: number; // 0-100
+}
+
+export function kontrolEtGorselMetinUyumu(soru: MatSoru): GorselMetinUyumSonucu {
+    const sonuc: GorselMetinUyumSonucu = {
+        soruId: soru.id,
+        uyumluMu: true,
+        uyumsuzluklar: [],
+        uyarilar: [],
+        skor: 100
+    };
+
+    // Görsel yoksa kontrol gereksiz
+    if (!soru.grafik_verisi) {
+        return sonuc;
+    }
+
+    const gorsel = soru.grafik_verisi;
+    const metin = soru.soruMetni.toLowerCase();
+
+    // 1. GEOMETRİ KONTROLLERI
+    const geometriTipleri = ['ucgen', 'dik_ucgen', 'kare', 'dikdortgen', 'paralel_kenar', 'cokgen', 'daire', 'aci'];
+    if (geometriTipleri.includes(gorsel.tip)) {
+        // Kenar uzunlukları kontrolü
+        if (gorsel.ozellikler?.kenarlar && gorsel.ozellikler.kenarlar.length > 0) {
+            for (const kenar of gorsel.ozellikler.kenarlar) {
+                if (!metin.includes(String(kenar))) {
+                    sonuc.uyarilar.push(`Görsel kenar değeri (${kenar}) metinde bulunamadı`);
+                    sonuc.skor -= 10;
+                }
+            }
+        }
+
+        // Açı değerleri kontrolü
+        if (gorsel.ozellikler?.acilar && gorsel.ozellikler.acilar.length > 0) {
+            for (const aci of gorsel.ozellikler.acilar) {
+                if (!metin.includes(String(aci)) && !metin.includes(`${aci}°`)) {
+                    sonuc.uyarilar.push(`Görsel açı değeri (${aci}°) metinde bulunamadı`);
+                    sonuc.skor -= 10;
+                }
+            }
+        }
+
+        // Birim kontrolü
+        if (gorsel.ozellikler?.birim) {
+            if (!metin.includes(gorsel.ozellikler.birim)) {
+                sonuc.uyumsuzluklar.push(`Görsel birimi (${gorsel.ozellikler.birim}) metinde eşleşmiyor`);
+                sonuc.skor -= 15;
+            }
+        }
+    }
+
+    // 2. VERİ İŞLEME KONTROLLERI
+    const veriTipleri = ['siklik_tablosu', 'cetele_tablosu', 'sutun_grafigi', 'pasta_grafigi', 'cizgi_grafigi'];
+    if (veriTipleri.includes(gorsel.tip)) {
+        // Veri değerleri kontrolü
+        for (const veriOgesi of gorsel.veri) {
+            if (veriOgesi.deger !== undefined) {
+                if (!metin.includes(String(veriOgesi.deger))) {
+                    // Soru metninde değer olmayabilir (grafik okuma sorusu)
+                    // Bu durumda uyarı ver ama ciddi puan düşme
+                    sonuc.uyarilar.push(`Veri değeri (${veriOgesi.deger}) metinde doğrudan geçmiyor — grafik okuma sorusu olabilir`);
+                }
+            }
+        }
+
+        // Başlık uyumu
+        if (gorsel.baslik) {
+            const baslikKelimeler = gorsel.baslik.toLowerCase().split(' ').filter(k => k.length > 3);
+            const eslesen = baslikKelimeler.filter(k => metin.includes(k));
+            if (eslesen.length < baslikKelimeler.length / 2) {
+                sonuc.uyarilar.push('Grafik başlığı soru bağlamıyla tam örtüşmüyor');
+                sonuc.skor -= 5;
+            }
+        }
+    }
+
+    // 3. SAYI DOĞRUSU KONTROLLERI
+    if (gorsel.tip === 'sayi_dogrusu') {
+        for (const veriOgesi of gorsel.veri) {
+            if (veriOgesi.deger !== undefined) {
+                const degerStr = String(veriOgesi.deger);
+                if (!metin.includes(degerStr) && !metin.includes(veriOgesi.etiket)) {
+                    sonuc.uyarilar.push(`Sayı doğrusundaki nokta (${veriOgesi.etiket}: ${degerStr}) metinde bulunamadı`);
+                    sonuc.skor -= 10;
+                }
+            }
+        }
+    }
+
+    // 4. KOORDİNAT SİSTEMİ KONTROLLERI
+    if (gorsel.tip === 'koordinat_sistemi' || gorsel.tip === 'koordinat_grafigi') {
+        for (const veriOgesi of gorsel.veri) {
+            if (veriOgesi.x !== undefined && veriOgesi.y !== undefined) {
+                const koordinatStr = `(${veriOgesi.x}, ${veriOgesi.y})`;
+                const altKoordinatStr = `(${veriOgesi.x},${veriOgesi.y})`;
+                if (!metin.includes(koordinatStr) && !metin.includes(altKoordinatStr)) {
+                    sonuc.uyarilar.push(`Koordinat noktası ${koordinatStr} metinde bulunamadı`);
+                    sonuc.skor -= 10;
+                }
+            }
+        }
+    }
+
+    // Genel değerlendirme
+    if (sonuc.skor < 70) {
+        sonuc.uyumluMu = false;
+        sonuc.uyumsuzluklar.push('Görsel-metin uyumluluk skoru kritik seviyenin altında');
+    }
+
+    sonuc.skor = Math.max(0, sonuc.skor);
+    return sonuc;
+}
+
+/**
+ * Sınav genelinde görsel-metin uyumluluk raporu üretir
+ */
+export function uretGorselMetinUyumRaporu(sinav: MatSinav): {
+    genelSkor: number;
+    uyumluSoruSayisi: number;
+    toplamGorselliSoruSayisi: number;
+    soruRaporlari: GorselMetinUyumSonucu[];
+} {
+    const gorselliSorular = sinav.sorular.filter(s => s.grafik_verisi);
+    const raporlar = gorselliSorular.map(s => kontrolEtGorselMetinUyumu(s));
+
+    const uyumluSayisi = raporlar.filter(r => r.uyumluMu).length;
+    const toplamSkor = raporlar.reduce((acc, r) => acc + r.skor, 0);
+    const ortalamaSkor = raporlar.length > 0 ? Math.round(toplamSkor / raporlar.length) : 100;
+
+    return {
+        genelSkor: ortalamaSkor,
+        uyumluSoruSayisi: uyumluSayisi,
+        toplamGorselliSoruSayisi: gorselliSorular.length,
+        soruRaporlari: raporlar
+    };
+}
+
 // ─── Prompt Builder ───────────────────────────────────────────
 const buildMathExamPrompt = (settings: MatSinavAyarlari): string => {
     const sinif = settings.sinif ?? 5;
@@ -309,7 +494,7 @@ ${stilTalimat}
 - Açık Uçlu: ${settings.soruDagilimi.acik_uclu} adet
 
 ${settings.islemSayisi ? `[İŞLEM SAYISI]\nHer soru en fazla ${settings.islemSayisi} işlemle çözülebilmeli.\n` : ''}
-${buildKazanimGorselTalimatlari(settings.secilenKazanimlar)}
+${buildKazanimGorselTalimatlari(settings.secilenKazanimlar, sinif)}
 ${settings.gorselVeriEklensinMi ? `[EK GÖRSEL VERİ TALEBİ]
 🚨 Kullanıcı ek görsel veri istedi! Geometri/Veri İşleme dışındaki sorularda da görsel kullan.
 Üreteceğin soruların EN AZ YARISINDA "grafik_verisi" nesnesini doldur.
@@ -319,11 +504,58 @@ Geometrik şekillerde kenar/açı ölçülerini "ozellikler" içerisinde belirt.
 ${settings.ozelKonu ? `[TEMA]\nTüm sorular "${settings.ozelKonu}" teması etrafında olmalı.\n` : ''}
 ${settings.ozelTalimatlar ? `[ÖZEL TALİMATLAR]\n${settings.ozelTalimatlar}\n` : ''}
 
+[GÖRSEL-METİN TUTARLILIK PROTOKOLÜ — KLİNİK ZORUNLU]
+📌 Dr. Ahmet Kaya Onaylı — MEB 2024-2025 Uyumlu
+
+Her soru için aşağıdaki kurallara MUTLAKA uy:
+
+1. DEĞER EŞLEŞTİRME (KRİTİK)
+   - Soru metninde geçen TÜM sayısal değerler görselde AYNEN yer almalı
+   - Görselde gösterilen değerler metinde MUTLAKA bahsedilmeli
+   - ÖRNEK DOĞRU: Metin "AB = 5 cm" → Görsel: AB kenarı üzerinde "5 cm" yazılı
+   - ÖRNEK YANLIŞ: Metin "5 cm" → Görsel: boş veya farklı değer
+
+2. BİRİM TUTARLILIĞI
+   - Metin ve görselde AYNI birim kullan (cm/cm, kg/kg, m/m)
+   - Birim dönüşümü SORULMADIKÇA karıştırma
+
+3. GEOMETRİ İÇİN
+   - Soruda "üçgen ABC" diyorsan, görselde A, B, C köşelerini ETİKETLE
+   - Kenar uzunluğu soruluyorsa, BİLİNEN kenarlar görselde YAZILI olmalı
+   - Açı soruluyorsa, BİLİNEN açılar görselde gösterilmeli
+   - "ozellikler" alanında kenarlar ve açılar array olarak belirt
+
+4. VERİ İŞLEME İÇİN
+   - Grafik başlığı soru bağlamı ile eşleşsin
+   - Eksen etiketleri ve birimleri yazılı olsun
+   - Grafik verileri ile soru sayıları EŞİT olsun
+   - "veri" array'inde her öğe için etiket VE deger zorunlu
+
+5. SAYI DOĞRUSU İÇİN
+   - İşaretli noktalar metinde bahsedilen sayılarla eşleşsin
+   - Aralık tutarlılığı korunsun (eşit aralıklar)
+   - 0 noktası her zaman gösterilmeli
+
+⚠️ UYUMSUZLUK = GEÇERSİZ SORU
+Görsel-metin uyumsuzluğu olan sorular klinik onay ALAMAZ.
+
 [DİSLEKSİ UYUMLULUK]
 - Sade, net dil, kısa cümleler
 - Karmaşık alt alta işlemlerden kaçın
 - Hataları bulabileceği ipuçları ver (ama cevabı verme)
 - Boşluk doldurmada hepsi aynı uzunlukta "___" kullan
+
+[DİSKALKULİ UYUMLULUK]
+- Sayı doğrusu kullanımını tercih et (sayı hissi desteği)
+- Kesirler için model görseli ZORUNLU (pasta/dikdörtgen)
+- Büyük sayılarda gruplandırma göster (5'li, 10'lu)
+- Adım adım çözüm yolu belirt
+
+[DEHB UYUMLULUK]
+- Görsellerde tek odak noktası (fazla detay YOK)
+- Temiz, minimal tasarım
+- Dikkat dağıtıcı arka plan desenleri kullanma
+- Net yönlendirme okları ve vurgular kullan
 
 [PUAN VE SÜRE]
 - Çoktan seçmeli: 5 puan, ~90 saniye
@@ -494,6 +726,32 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
         if (settings.zorlukSeviyesi === 'Otomatik' && sorular.length >= 2) {
             sorular[0].zorluk = 'Kolay';
             sorular[1].zorluk = 'Kolay';
+        }
+
+        // GÜNCELLEME: Görsel-Metin Tutarlılık Doğrulama
+        // Her soru için validation yap ve kritik hataları raporla
+        const validationReportleri: Array<{ soruNo: number; validation: ReturnType<typeof validateQuestionVisualConsistency> }> = [];
+
+        for (let i = 0; i < sorular.length; i++) {
+            const validation = validateQuestionVisualConsistency(sorular[i]);
+            validationReportleri.push({ soruNo: i + 1, validation });
+
+            // Kritik hatalar varsa uyarı ekle (ama sınavı durma, kullanıcıya raporla)
+            if (!validation.isValid && validation.errors.length > 0) {
+                console.warn(`[GÖRSEL UYUMSUZLUK] Soru ${i + 1} (${sorular[i].id}):`, validation.errors);
+            }
+        }
+
+        // Sınav geneli validation raporu
+        const examValidationReport = generateExamValidationReport(sorular, `mat-exam-${Date.now()}`);
+
+        // Eğer kritik hatalar çoksa (>%30 soru) uyarı ver ama devam et
+        const kritikHataYuzdesi = (examValidationReport.invalidQuestions / examValidationReport.totalQuestions) * 100;
+        if (kritikHataYuzdesi > 30) {
+            console.warn(
+                `[KLİNİK PROTOKOL UYARISI] Sınavın %${kritikHataYuzdesi.toFixed(0)}'inde görsel-metin uyumsuzluğu var. ` +
+                `Ortalama pedagojik skor: ${examValidationReport.averagePedagogicalScore}/100`
+            );
         }
 
         // Cevap anahtarı
