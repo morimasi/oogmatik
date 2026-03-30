@@ -102,77 +102,87 @@ export const MatKazanimPicker: React.FC<MatKazanimPickerProps> = ({
             {uniteler.map((unite) => {
                 const isUniteSelected = selectedUnites.includes(unite.id);
                 const selectedCount = unite.kazanimlar.filter((k) => selectedKazanimlar.includes(k.kod)).length;
-                const gradient = OGRENME_ALANI_RENKLERI[unite.ogrenmeAlani] || 'from-gray-500 to-gray-700';
+                const areaColor = OGRENME_ALANI_RENKLERI[unite.ogrenmeAlani] || 'from-slate-400 to-slate-500';
                 const ikon = OGRENME_ALANI_IKONLARI[unite.ogrenmeAlani] || '📚';
 
                 return (
-                    <div key={unite.id} className="rounded-xl border border-gray-100 overflow-hidden transition-all duration-200 hover:shadow-md">
+                    <div key={unite.id} className="rounded-2xl border border-slate-100 overflow-hidden transition-all duration-300 bg-white">
                         {/* Ünite Başlığı */}
                         <button
                             onClick={() => toggleUnite(unite.id, unite)}
-                            className={`w-full flex items-center justify-between px-3 py-2.5 text-left transition-all duration-200 ${isUniteSelected
-                                    ? 'bg-gradient-to-r ' + gradient + ' text-white'
-                                    : 'bg-white hover:bg-gray-50 text-gray-700'
+                            className={`w-full flex items-center justify-between px-4 py-3.5 text-left transition-all duration-300 group ${isUniteSelected
+                                ? 'bg-slate-50/80'
+                                : 'hover:bg-slate-50/50'
                                 }`}
                         >
-                            <div className="flex items-center gap-2 min-w-0">
-                                <span className="text-base flex-shrink-0">{ikon}</span>
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className={`w-1 h-8 rounded-full bg-gradient-to-b ${areaColor} shadow-sm`}></div>
                                 <div className="min-w-0">
-                                    <span className="text-xs font-bold block truncate">{unite.baslik}</span>
-                                    <span className={`text-[10px] ${isUniteSelected ? 'text-white/70' : 'text-gray-400'}`}>
-                                        {unite.ogrenmeAlani} · {unite.kazanimlar.length} kazanım
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm">{ikon}</span>
+                                        <span className={`text-[13px] font-bold truncate tracking-tight transition-colors ${isUniteSelected ? 'text-slate-900' : 'text-slate-700'}`}>{unite.baslik}</span>
+                                    </div>
+                                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5 opacity-80">
+                                        {unite.ogrenmeAlani}
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <div className="flex items-center gap-2 flex-shrink-0">
                                 {selectedCount > 0 && (
-                                    <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${isUniteSelected ? 'bg-white/30 text-white' : 'bg-indigo-100 text-indigo-700'
-                                        }`}>
-                                        {selectedCount}/{unite.kazanimlar.length}
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-50 text-blue-600 border border-blue-100">
+                                        {selectedCount}
                                     </span>
                                 )}
-                                <span className={`text-[10px] transition-transform duration-200 ${isUniteSelected ? 'rotate-180' : ''}`}>
-                                    ▼
+                                <span className={`text-slate-300 transition-transform duration-300 ${isUniteSelected ? 'rotate-180' : ''}`}>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </span>
                             </div>
                         </button>
 
                         {/* Kazanımlar */}
                         {isUniteSelected && (
-                            <div className="bg-gray-50/80 border-t border-gray-100">
+                            <div className="bg-white border-t border-slate-50">
                                 {/* Tümünü Seç */}
                                 <button
                                     onClick={() => toggleAllKazanimlar(unite)}
-                                    className="w-full px-3 py-1.5 text-[10px] font-bold text-indigo-600 hover:bg-indigo-50 text-left border-b border-gray-100 flex items-center gap-1"
+                                    className="w-full px-5 py-2.5 text-[11px] font-bold text-blue-600 hover:bg-blue-50/50 text-left border-b border-slate-50 flex items-center gap-2 transition-colors"
                                 >
-                                    <span>{selectedCount === unite.kazanimlar.length ? '☑' : '☐'}</span>
-                                    {selectedCount === unite.kazanimlar.length ? 'Tümünü Kaldır' : 'Tümünü Seç'}
+                                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${selectedCount === unite.kazanimlar.length ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200'}`}>
+                                        {selectedCount === unite.kazanimlar.length && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                                    </div>
+                                    <span>Tüm Kazanımları Seç</span>
                                 </button>
 
-                                {unite.kazanimlar.map((kazanim) => {
-                                    const isSelected = selectedKazanimlar.includes(kazanim.kod);
-                                    return (
-                                        <button
-                                            key={kazanim.kod}
-                                            onClick={() => toggleKazanim(kazanim.kod)}
-                                            className={`w-full text-left px-3 py-2 flex items-start gap-2 transition-all duration-150 border-b border-gray-100 last:border-0 ${isSelected
-                                                    ? 'bg-indigo-50 text-indigo-900'
-                                                    : 'hover:bg-white text-gray-600'
-                                                }`}
-                                        >
-                                            <span className={`mt-0.5 flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center text-[10px] ${isSelected
-                                                    ? 'bg-indigo-600 border-indigo-600 text-white'
-                                                    : 'border-gray-300 bg-white'
-                                                }`}>
-                                                {isSelected && '✓'}
-                                            </span>
-                                            <div className="min-w-0">
-                                                <span className="text-[10px] font-mono text-indigo-500 block">{kazanim.kod}</span>
-                                                <span className="text-[11px] leading-tight block">{kazanim.tanim}</span>
-                                            </div>
-                                        </button>
-                                    );
-                                })}
+                                <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                                    {unite.kazanimlar.map((kazanim) => {
+                                        const isSelected = selectedKazanimlar.includes(kazanim.kod);
+                                        return (
+                                            <button
+                                                key={kazanim.kod}
+                                                onClick={() => toggleKazanim(kazanim.kod)}
+                                                className={`w-full text-left px-5 py-3 flex items-start gap-3 transition-all duration-150 border-b border-slate-50 last:border-0 group ${isSelected
+                                                    ? 'bg-blue-50/30'
+                                                    : 'hover:bg-slate-50/40'
+                                                    }`}
+                                            >
+                                                <div className={`mt-0.5 flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-all ${isSelected
+                                                    ? 'bg-blue-600 border-blue-600 text-white'
+                                                    : 'bg-white border-slate-200 group-hover:border-slate-300'
+                                                    }`}>
+                                                    {isSelected && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <span className="inline-block text-[9px] font-black font-mono tracking-tighter px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 mb-1.5 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                                                        {kazanim.kod}
+                                                    </span>
+                                                    <span className="text-[11px] font-medium text-slate-600 leading-relaxed block" style={{ fontFamily: 'Lexend, sans-serif' }}>
+                                                        {kazanim.tanim}
+                                                    </span>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         )}
                     </div>

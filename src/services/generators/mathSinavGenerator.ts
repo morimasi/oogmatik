@@ -141,7 +141,13 @@ ${stilTalimat}
 - Açık Uçlu: ${settings.soruDagilimi.acik_uclu} adet
 
 ${settings.islemSayisi ? `[İŞLEM SAYISI]\nHer soru en fazla ${settings.islemSayisi} işlemle çözülebilmeli.\n` : ''}
-${settings.gorselVeriEklensinMi ? `[GÖRSEL VERİ ZORUNLULUĞU]\n🚨 DİKKAT: Kullanıcı görsel veri istedi! Üreteceğin soruların EN AZ YARISINDA mutlaka "grafik_verisi" nesnesini eksiksiz doldur.\nDesteklenen Tipler: siklik_tablosu, sutun_grafigi, pasta_grafigi, ucgen, kare, dikdortgen, daire, koordinat_sistemi, sayi_dogrusu.\nŞekillerin boyut, açı ve çizim özelliklerini "ozellikler" içerisinde belirt.\n` : ''}
+${settings.gorselVeriEklensinMi ? `[KRİTİK: GÖRSEL VERİ ZORUNLULUĞU]
+🚨 DİKKAT: Kullanıcı görsel veri (grafik/şekil) ZORUNLULUĞU getirdi! 
+- Soruların EN AZ %70'inde "grafik_verisi" nesnesini ZORUNLU olarak doldur.
+- Koordinat sistemi ise 'veri' içine mutlaka x ve y değerlerini ekle.
+- Geometrik şekiller (ucgen, kare, dikdortgen, daire) ise "ozellikler" nesnesini (kenarlar, acilar veya yaricap) mutlaka doldur.
+- Sütun ve pasta grafikleri için 'deger' alanını sayısal olarak belirt.
+Bu kurala uymamak sınavın geçersiz sayılmasına neden olur!` : ''}
 ${settings.ozelKonu ? `[TEMA]\nTüm sorular "${settings.ozelKonu}" teması etrafında olmalı.\n` : ''}
 ${settings.ozelTalimatlar ? `[ÖZEL TALİMATLAR]\n${settings.ozelTalimatlar}\n` : ''}
 
@@ -219,6 +225,8 @@ const MATH_EXAM_SCHEMA = {
                                         deger: { type: 'NUMBER', nullable: true },
                                         nesne: { type: 'STRING', nullable: true },
                                         birim: { type: 'STRING', nullable: true },
+                                        x: { type: 'NUMBER', nullable: true },
+                                        y: { type: 'NUMBER', nullable: true },
                                     },
                                     required: ['etiket'],
                                 },
@@ -371,7 +379,7 @@ Zorluk: ${mevcutSoru.zorluk}
 Önceki sorudan FARKLI bir soru oluştur. Aynı soru veya benzer soru üretme.
 Önceki soru: "${mevcutSoru.soruMetni}"
 
-${settings.gorselVeriEklensinMi ? 'Mümkünse grafik_verisi ekle.' : ''}
+${settings.gorselVeriEklensinMi ? '[GÖRSEL VERİ ZORUNLULUĞU]\n🚨 BU SORUDA MUTLAKA "grafik_verisi" (şekil, tablo veya grafik) nesnesini dolu olarak üret.' : ''}
 `;
 
     const singleSchema = {

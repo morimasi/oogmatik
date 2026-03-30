@@ -84,100 +84,77 @@ export const KazanimPicker: React.FC<KazanimPickerProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Ünite Seçimi */}
       <div>
-        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span className="text-blue-600">📖</span>
-          {selectedGrade}. Sınıf Üniteleri
-          <span className="text-sm font-normal text-gray-500">(Çoklu seçim yapabilirsiniz)</span>
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="flex items-center gap-2 mb-3 px-1">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">İçerik Havuzu</span>
+          <div className="h-px flex-1 bg-slate-100"></div>
+        </div>
+        <div className="grid grid-cols-1 gap-2">
           {uniteler.map(unite => (
-            <label
+            <button
               key={unite.id}
-              className={`flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${
-                selectedUnites.includes(unite.id)
-                  ? 'bg-blue-50 border-blue-400 shadow-sm'
-                  : 'bg-white border-gray-200 hover:bg-blue-50 hover:border-blue-200'
-              }`}
+              onClick={() => handleUniteToggle(unite.id)}
+              className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all duration-200 group ${selectedUnites.includes(unite.id)
+                ? 'bg-indigo-50/50 border-indigo-200 shadow-sm'
+                : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'
+                }`}
             >
-              <input
-                type="checkbox"
-                checked={selectedUnites.includes(unite.id)}
-                onChange={() => handleUniteToggle(unite.id)}
-                className="mt-1 w-4 h-4 text-blue-600"
-              />
-              <div className="flex-1">
-                <div className="font-medium text-gray-900">
-                  Ünite {unite.uniteNo}: {unite.baslik}
-                </div>
-                <div className="text-sm text-gray-600 mt-1">
-                  {unite.kazanimlar.length} kazanım
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={`w-1.5 h-6 rounded-full transition-colors ${selectedUnites.includes(unite.id) ? 'bg-indigo-500' : 'bg-slate-200 group-hover:bg-slate-300'}`}></div>
+                <div className="truncate">
+                  <div className={`text-[13px] font-semibold transition-colors ${selectedUnites.includes(unite.id) ? 'text-indigo-900' : 'text-slate-700'}`}>
+                    Ünite {unite.uniteNo}: {unite.baslik}
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-medium">{unite.kazanimlar.length} kazanım mevcut</div>
                 </div>
               </div>
-            </label>
+              <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all ${selectedUnites.includes(unite.id) ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-slate-200 group-hover:border-slate-300'
+                }`}>
+                {selectedUnites.includes(unite.id) && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+              </div>
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Kazanım Seçimi (Ünite seçiliyse göster) */}
+      {/* Kazanım Seçimi */}
       {selectedUnites.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <span className="text-green-600">✓</span>
-              MEB Kazanımları
-              <span className="text-sm font-normal text-gray-500">
-                ({kazanimlar.length} kazanım)
-              </span>
-            </h3>
-            <div className="flex gap-2">
-              <button
-                onClick={handleSelectAllKazanim}
-                className="text-sm px-3 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition"
-              >
-                Tümünü Seç
-              </button>
-              <button
-                onClick={handleClearAllKazanim}
-                className="text-sm px-3 py-1 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition"
-              >
-                Temizle
-              </button>
+        <div className="pt-2">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kazanım Detayları</span>
+            <div className="flex gap-4">
+              <button onClick={handleSelectAllKazanim} className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 transition">Hepsini Seç</button>
+              <button onClick={handleClearAllKazanim} className="text-[10px] font-bold text-slate-400 hover:text-slate-600 transition">Sıfırla</button>
             </div>
           </div>
 
-          <div className="space-y-2 max-h-96 overflow-y-auto border-2 border-gray-200 rounded-lg p-3 bg-gray-50">
+          <div className="space-y-1.5 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
             {kazanimlar.map(kazanim => (
-              <label
+              <button
                 key={kazanim.kod}
-                className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
-                  selectedKazanimlar.includes(kazanim.kod)
-                    ? 'bg-green-50 border-green-400 shadow-sm'
-                    : 'bg-white border-gray-200 hover:bg-green-50 hover:border-green-200'
-                }`}
+                onClick={() => handleKazanimToggle(kazanim.kod)}
+                className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all duration-200 group ${selectedKazanimlar.includes(kazanim.kod)
+                  ? 'bg-emerald-50/40 border-emerald-100'
+                  : 'bg-white border-slate-50 hover:bg-slate-50/50 hover:border-slate-100'
+                  }`}
               >
-                <input
-                  type="checkbox"
-                  checked={selectedKazanimlar.includes(kazanim.kod)}
-                  onChange={() => handleKazanimToggle(kazanim.kod)}
-                  className="mt-1 w-4 h-4 text-green-600"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-mono rounded font-medium">
+                <div className={`mt-0.5 w-4 h-4 rounded-md border flex-shrink-0 flex items-center justify-center transition-all ${selectedKazanimlar.includes(kazanim.kod) ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white border-slate-200 group-hover:border-slate-300'
+                  }`}>
+                  {selectedKazanimlar.includes(kazanim.kod) && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-[9px] font-black font-mono tracking-tighter px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
                       {kazanim.kod}
                     </span>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                      {kazanim.ogrenmeAlani}
-                    </span>
                   </div>
-                  <div className="text-sm text-gray-700 leading-relaxed" style={{ fontFamily: 'Lexend, sans-serif' }}>
+                  <div className="text-[11px] font-medium text-slate-600 leading-relaxed" style={{ fontFamily: 'Lexend, sans-serif' }}>
                     {kazanim.tanim}
                   </div>
                 </div>
-              </label>
+              </button>
             ))}
           </div>
         </div>
@@ -185,25 +162,14 @@ export const KazanimPicker: React.FC<KazanimPickerProps> = ({
 
       {/* Seçim Özeti */}
       {selectedKazanimlar.length > 0 && (
-        <div className="p-4 bg-green-50 border-2 border-green-300 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-2xl">✅</span>
-            <p className="font-semibold text-green-800 text-lg">
-              {selectedKazanimlar.length} kazanım seçildi
-            </p>
+        <div className="p-4 bg-indigo-600 rounded-2xl shadow-indigo-200 shadow-lg border border-indigo-500 overflow-hidden relative group">
+          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform duration-500">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="white"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM16.0303 10.5303L11.0303 15.5303C10.8897 15.671 10.6989 15.75 10.5 15.75C10.3011 15.75 10.1103 15.671 9.96967 15.5303L7.96967 13.5303C7.67678 13.2374 7.67678 12.7626 7.96967 12.4697C8.26256 12.1768 8.73744 12.1768 9.03033 12.4697L10.5 13.9393L14.9697 9.46967C15.2626 9.17678 15.7374 9.17678 16.0303 9.46967C16.3232 9.76256 16.3232 10.2374 16.0303 10.5303Z" /></svg>
           </div>
-          <p className="text-sm text-green-700">
-            Bu kazanımlar sınav sorularına dahil edilecek.
-          </p>
-          <div className="mt-2 flex flex-wrap gap-1">
-            {selectedKazanimlar.map(kod => (
-              <span
-                key={kod}
-                className="inline-block px-2 py-0.5 bg-green-200 text-green-800 text-xs font-mono rounded"
-              >
-                {kod}
-              </span>
-            ))}
+          <div className="relative z-10 flex flex-col gap-1">
+            <span className="text-[10px] text-indigo-200 font-bold uppercase tracking-[0.2em]">Yapılandırma Tamam</span>
+            <div className="text-xl font-black text-white">{selectedKazanimlar.length} Hedef Kazanım</div>
+            <p className="text-[11px] text-indigo-100 font-medium">Sistem bu kazanımlara odaklı sorular üretecek.</p>
           </div>
         </div>
       )}
