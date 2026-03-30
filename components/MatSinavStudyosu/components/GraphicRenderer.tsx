@@ -1,5 +1,5 @@
 import React from 'react';
-import type { GrafikVerisi } from '../../../../src/types/matSinav';
+import type { GrafikVerisi } from '../../../src/types/matSinav';
 
 export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: string }> = ({ grafik, className = '' }) => {
     if (!grafik) return null;

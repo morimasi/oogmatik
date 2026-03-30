@@ -13,6 +13,8 @@ import { MatSinavOnizleme } from './MatSinavOnizleme';
 import { MatCevapAnahtariComponent } from './MatCevapAnahtari';
 import { AppError } from '../../src/utils/AppError';
 import type { MatSoru } from '../../src/types/matSinav';
+import { renderToString } from 'react-dom/server';
+import { GraphicRenderer } from './components/GraphicRenderer';
 
 type TabType = 'onizleme' | 'cevap-anahtari' | 'gecmis';
 
@@ -179,7 +181,13 @@ ${aktifSinav.sorular.map((s, i) => {
             } else if (s.tip === 'acik_uclu') {
                 sec = '<div style="margin-top:4pt">' + [0, 1, 2, 3].map(() => '<div style="border-bottom:1px solid #bbb;margin-bottom:6pt">&nbsp;</div>').join('') + '</div>';
             }
-            return `<div class="soru-wrap"><span class="soru-no">${i + 1}.</span> <span class="soru-text">${s.soruMetni}</span>${sec}<div class="kazanim">[${s.kazanimKodu}]</div></div>`;
+
+            let grafikHtml = '';
+            if (s.grafik_verisi) {
+                grafikHtml = `<div class="grafik-wrap" style="margin-top:8pt; margin-bottom:8pt; display:flex; justify-content:center;">${renderToString(<GraphicRenderer grafik={s.grafik_verisi} />)}</div>`;
+            }
+
+            return `<div class="soru-wrap"><span class="soru-no">${i + 1}.</span> <span class="soru-text">${s.soruMetni}</span>${grafikHtml}${sec}<div class="kazanim">[${s.kazanimKodu}]</div></div>`;
         }).join('<hr class="hr"/>')}
 <div class="cevap-baslik">CEVAP ANAHTARI</div>
 <table class="cevap-tablo"><thead><tr><th>No</th><th>Doğru Cevap</th><th>Puan</th><th>Kazanım</th></tr></thead><tbody>
