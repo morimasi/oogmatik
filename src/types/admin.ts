@@ -152,6 +152,7 @@ export interface ServiceHealth {
   name: string;
   status: ServiceStatus;
   latency?: number;
+  message?: string;
 }
 export type ServiceStatus = 'up' | 'down' | 'degraded';
 export type UserRoleType = 'admin' | 'teacher' | 'student' | 'editor' | 'superadmin';
@@ -162,12 +163,21 @@ export interface ManagedUser {
   status: 'active' | 'suspended' | 'pending';
   name: string;
   lastLogin?: string;
+  createdAt?: string;
+  worksheetCount?: number;
+  exportCount?: number;
 }
 export interface WorksheetAnalyticEntry {
   id: string;
   date: string;
   count: number;
   type?: string;
+  templateId?: string;
+  templateName?: string;
+  useCount?: number;
+  exportCount?: number;
+  avgSessionMinutes?: number;
+  popularityRank?: number;
 }
 export interface ExportAnalyticEntry {
   id: string;
@@ -180,6 +190,7 @@ export interface AdminStats {
   activeUsers: number;
   totalWorksheets: number;
   exportsToday: number;
+  exportsThisWeek?: number;
   [key: string]: unknown;
 }
 export interface AdminStatTrend {

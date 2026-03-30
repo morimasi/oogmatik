@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { PaperSize } from '../utils/printService';
-import { _loadCurrentUserPaperSize, saveCurrentUserPaperSize } from '../services/paperSizeApi';
+import { loadCurrentUserPaperSize, saveCurrentUserPaperSize } from '../services/paperSizeApi';
 
 type PaperSizeState = {
   paperSize: PaperSize;

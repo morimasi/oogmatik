@@ -18,17 +18,17 @@ const ROLE_LABELS: Record<UserRoleType, string> = {
 
 const STATUS_LABELS: Record<ManagedUser['status'], string> = {
   active: '🟢 Aktif',
-  inactive: '🟡 Pasif',
+  pending: '🟡 Beklemede',
   suspended: '🔴 Askıya Alındı',
 };
 
 // Seed data
 function generateMockUsers(): ManagedUser[] {
   return [
-    { id: 'u1', name: 'Ahmet Yılmaz', email: 'ahmet@example.com', role: 'admin', status: 'active', createdAt: '2024-01-10T10:00:00Z', lastLoginAt: new Date().toISOString(), worksheetCount: 42, exportCount: 128 },
-    { id: 'u2', name: 'Ayşe Demir', email: 'ayse@example.com', role: 'teacher', status: 'active', createdAt: '2024-02-15T08:30:00Z', lastLoginAt: new Date(Date.now() - 3600000).toISOString(), worksheetCount: 87, exportCount: 243 },
-    { id: 'u3', name: 'Mehmet Kaya', email: 'mehmet@example.com', role: 'student', status: 'active', createdAt: '2024-03-01T09:00:00Z', lastLoginAt: new Date(Date.now() - 86400000).toISOString(), worksheetCount: 12, exportCount: 34 },
-    { id: 'u4', name: 'Fatma Şahin', email: 'fatma@example.com', role: 'teacher', status: 'inactive', createdAt: '2024-01-20T11:00:00Z', worksheetCount: 31, exportCount: 89 },
+    { id: 'u1', name: 'Ahmet Yılmaz', email: 'ahmet@example.com', role: 'admin', status: 'active', createdAt: '2024-01-10T10:00:00Z', lastLogin: new Date().toISOString(), worksheetCount: 42, exportCount: 128 },
+    { id: 'u2', name: 'Ayşe Demir', email: 'ayse@example.com', role: 'teacher', status: 'active', createdAt: '2024-02-15T08:30:00Z', lastLogin: new Date(Date.now() - 3600000).toISOString(), worksheetCount: 87, exportCount: 243 },
+    { id: 'u3', name: 'Mehmet Kaya', email: 'mehmet@example.com', role: 'student', status: 'active', createdAt: '2024-03-01T09:00:00Z', lastLogin: new Date(Date.now() - 86400000).toISOString(), worksheetCount: 12, exportCount: 34 },
+    { id: 'u4', name: 'Fatma Şahin', email: 'fatma@example.com', role: 'teacher', status: 'pending', createdAt: '2024-01-20T11:00:00Z', worksheetCount: 31, exportCount: 89 },
     { id: 'u5', name: 'Ali Çelik', email: 'ali@example.com', role: 'student', status: 'suspended', createdAt: '2024-04-05T14:00:00Z', worksheetCount: 5, exportCount: 8 },
   ];
 }
@@ -80,7 +80,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
 
   const handleBulkDeactivate = useCallback(() => {
     setUsers((prev) =>
-      prev.map((u) => (selectedIds.has(u.id) ? { ...u, status: 'inactive' as const } : u)),
+      prev.map((u) => (selectedIds.has(u.id) ? { ...u, status: 'suspended' as const } : u)),
     );
     setSelectedIds(new Set());
   }, [selectedIds]);
@@ -122,7 +122,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
         </select>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as ManagedUser['status'] | 'all')} style={selectStyle} aria-label="Durum filtresi">
           <option value="all">Tüm Durumlar</option>
-          {(['active', 'inactive', 'suspended'] as const).map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+          {(['active', 'pending', 'suspended'] as const).map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
         </select>
       </div>
 
@@ -185,8 +185,8 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                   <td style={tdStyle}>{STATUS_LABELS[user.status]}</td>
                   <td style={tdStyle}>{user.worksheetCount}</td>
                   <td style={{ ...tdStyle, display: 'flex', gap: 4 }} onClick={(e) => e.stopPropagation()}>
-                    <button onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'inactive' : 'active')} style={{ ...btnStyle, fontSize: '0.7rem', padding: '2px 6px' }}>
-                      {user.status === 'active' ? 'Pasife Al' : 'Aktifleştir'}
+                    <button onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'suspended' : 'active')} style={{ ...btnStyle, fontSize: '0.7rem', padding: '2px 6px' }}>
+                      {user.status === 'active' ? 'Askıya Al' : 'Aktifleştir'}
                     </button>
                     <button onClick={() => handleDeleteUser(user.id)} style={{ ...btnStyle, background: '#ef4444', fontSize: '0.7rem', padding: '2px 6px' }} aria-label={`${user.name} sil`}>
                       Sil
@@ -197,8 +197,8 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                   <tr style={{ background: '#f8fafc' }}>
                     <td colSpan={7} style={{ padding: '8px 12px' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 8 }}>
-                        <div><strong>Son Giriş:</strong> {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString('tr-TR') : '—'}</div>
-                        <div><strong>Oluşturulma:</strong> {new Date(user.createdAt).toLocaleDateString('tr-TR')}</div>
+                        <div><strong>Son Giriş:</strong> {user.lastLogin ? new Date(user.lastLogin).toLocaleString('tr-TR') : '—'}</div>
+                        <div><strong>Oluşturulma:</strong> {user.createdAt ? new Date(user.createdAt).toLocaleDateString('tr-TR') : '—'}</div>
                         <div><strong>Dışa Aktarma:</strong> {user.exportCount}</div>
                       </div>
                     </td>

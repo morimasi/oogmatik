@@ -6,7 +6,7 @@ interface DrawLayerProps {
     zoom: number;
 }
 
-export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, _zoom }) => {
+export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, zoom }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);

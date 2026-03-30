@@ -9,7 +9,7 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import InfographicRenderer from '../InfographicRenderer';
-import { _NativeInfographicRenderer } from '../NativeInfographicRenderer';
+import { NativeInfographicRenderer } from '../NativeInfographicRenderer';
 import {
   generateInfographicSyntax,
   getDemoSyntax,
@@ -73,88 +73,7 @@ const TEMPLATE_HINTS: { value: TemplateHint; label: string; icon: string; desc: 
   { value: 'timeline', label: 'Zaman Çizelgesi', icon: 'fa-timeline', desc: 'Tarihsel/kronolojik' },
 ];
 
-const SPLD_PREMIUM_TEMPLATES = [
-  {
-    category: 'Disleksi (Görsel ve Fonolojik)',
-    items: [
-      {
-        title: 'Frayer Kelime Ağı',
-        prompt:
-          'Zorlanılan kelimenin fonetik analizi, tanımı, eş anlamlısı, zıt anlamlısı ve görsel hece yapısını gösteren 4 çeyrekli Frayer Modeli.',
-        hint: 'list',
-      },
-      {
-        title: 'b/d/p/q Ayırt Etme Matrisi',
-        prompt:
-          'b ve d, p ve q gibi karışan harflerin görsel nesne benzetişimleri (örn: yatak-bed) ve ince motor yönleriyle karşılaştırmalı analizi.',
-        hint: 'compare',
-      },
-      {
-        title: 'Sesteş Kelimeler Örümcek Ağı',
-        prompt:
-          'Merkezdeki bir kelimenin, okunuşu aynı ama anlamı farklı sesteş türevlerine doğru ayrılan fonolojik örümcek ağı diyagramı.',
-        hint: 'hierarchy',
-      },
-    ],
-  },
-  {
-    category: 'Diskalkuli (Sayısal Somutlaştırma)',
-    items: [
-      {
-        title: 'Somut Kesir Parçalamaları',
-        prompt:
-          'Bütün, Yarım ve Çeyrek kavramlarını soyut sayılarla değil, pizza dilimleri ve lego bloklarına bölerek adım adım anlatan kesir süreci.',
-        hint: 'sequence',
-      },
-      {
-        title: 'Algoritmik Onluk Bozma Akışı',
-        prompt:
-          "Sayıları 10'luk taban bloklarıyla modelleyerek, çıkarma işleminde 'komşuya gitme' eylemini renk kodlu adım adım anlatan akış şeması.",
-        hint: 'sequence',
-      },
-    ],
-  },
-  {
-    category: 'DEHB (Yürütücü İşlevler)',
-    items: [
-      {
-        title: 'Pomodoro Zaman Yönetimi Saati',
-        prompt:
-          'Büyük bir ev ödevini minik adımlara bölen (Örn: Hazırlık, 15dk Odaklanma, 5dk Hareket, Bitiş) renk kodlu zaman yönetimi çizelgesi.',
-        hint: 'timeline',
-      },
-      {
-        title: 'Etki-Tepki Neden-Sonuç Zinciri',
-        prompt:
-          'Dürtüsel davranışların (örn: söz kesme) sosyal çevreye etkilerini oklarla bağlayarak gösteren Neden-Sonuç (Etki-Tepki) zinciri.',
-        hint: 'list',
-      },
-    ],
-  },
-  {
-    category: 'Disgrafi & Bellek & Duyu',
-    items: [
-      {
-        title: '3 Aşamalı Motor Yön Çizgesi',
-        prompt:
-          '3 satırlı kılavuz çizgiler üzerinde, kalemin tam başlangıç noktası ve kavis yönlerini adım adım öğreten ince motor harf yazım haritası.',
-        hint: 'sequence',
-      },
-      {
-        title: '5N1K Hikaye Çatısı',
-        prompt:
-          'Okuduğunu anlamada kaybolmamak için ana karakter, yer, olay, zaman ve sonuç düğümlerini 5N1K metoduyla bağlayan hiyerarşik zihin haritası.',
-        hint: 'hierarchy',
-      },
-      {
-        title: 'Duyusal Regülasyon Termometresi',
-        prompt:
-          'Çocuğun anlık ruh halini (Aşırı Hareketli, Sakin, Yorgun) temsil eden ve her aşama için bir rahatlama stratejisi sunan görsel duygu termometresi.',
-        hint: 'compare',
-      },
-    ],
-  },
-];
+
 
 // ── Yardımcı Bileşenler ──────────────────────────────────────────────────────
 
@@ -177,11 +96,10 @@ const SelectButton = <T extends string>({
           key={opt.value}
           onClick={() => onChange(opt.value)}
           title={opt.desc}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 ${
-            value === opt.value
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 ${value === opt.value
               ? 'bg-violet-600 border-violet-500 text-white shadow-md shadow-violet-900/40'
               : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-violet-500/50 hover:text-white'
-          }`}
+            }`}
         >
           {opt.icon && <i className={`fa-solid ${opt.icon} text-[10px]`}></i>}
           {opt.label}
@@ -279,11 +197,11 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
         e instanceof AppError
           ? e
           : new AppError(
-              e instanceof Error ? e.message : 'Zenginleştirme sırasında bilinmeyen hata',
-              'UNKNOWN_ENHANCE_ERROR',
-              500,
-              { originalError: String(e) }
-            );
+            e instanceof Error ? e.message : 'Zenginleştirme sırasında bilinmeyen hata',
+            'UNKNOWN_ENHANCE_ERROR',
+            500,
+            { originalError: String(e) }
+          );
       logger.error(appError);
       setError(`Zenginleştirme başarısız: ${appError.userMessage}`);
     } finally {
@@ -533,22 +451,20 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowSyntaxEditor(!showSyntaxEditor)}
-              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${
-                showSyntaxEditor
+              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${showSyntaxEditor
                   ? 'bg-slate-700 border-slate-500 text-slate-100'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
-              }`}
+                }`}
             >
               <i className="fa-solid fa-code mr-1.5"></i>
               Syntax
             </button>
             <button
               onClick={() => setIsEditable(!isEditable)}
-              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${
-                isEditable
+              className={`text-xs px-3 py-1.5 rounded-lg font-medium border transition-colors ${isEditable
                   ? 'bg-violet-700 border-violet-600 text-white'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
-              }`}
+                }`}
             >
               <i className={`fa-solid ${isEditable ? 'fa-lock-open' : 'fa-pen'} mr-1.5`}></i>
               {isEditable ? 'Düzenleniyor' : 'Düzenle'}
@@ -604,8 +520,8 @@ export const InfographicStudio: React.FC<InfographicStudioProps> = ({ onBack }) 
                     err instanceof AppError
                       ? err
                       : new AppError(err.message || 'Render hatası', 'RENDER_ERROR', 500, {
-                          originalError: String(err),
-                        });
+                        originalError: String(err),
+                      });
                   logger.error(errorToLog);
                 }}
                 className="w-full"

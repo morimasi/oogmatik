@@ -120,7 +120,7 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
     const itemsOnLastPage = layout.filter((l: LayoutItem) => (l.pageIndex || 0) === lastPage);
     let lastY =
       itemsOnLastPage.length > 0
-        ? Math.max(...itemsOnLastPage.map((l: LayoutItem) => (l.style.y || 0) + (l.style.h || 0)))
+        ? Math.max(...itemsOnLastPage.map((l: LayoutItem) => (Number(l.style.y) || 0) + (Number(l.style.h) || 0)))
         : 0;
 
     let newPageIndex = lastPage;

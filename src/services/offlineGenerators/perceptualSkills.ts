@@ -5,8 +5,6 @@ import {
   GridDrawingData,
   SymmetryDrawingData,
   ShapeCountingData,
-  _SearchFieldItem,
-  _ShapeType,
 } from '../../types';
 import { DirectionalCodeReadingData } from '../../types/visual';
 import { GeneratorOptions } from '../../types/core';
@@ -17,7 +15,6 @@ import {
   generateConnectedPath,
   SHAPE_TYPES,
   PREDEFINED_GRID_PATTERNS,
-  _generateSymmetricPattern,
   turkishAlphabet,
 } from './helpers';
 

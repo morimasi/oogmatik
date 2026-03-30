@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { curriculumService } from '../services/curriculumService';
-import { Curriculum, CurriculumDay, _CurriculumActivity, Student, _ActivityType } from '../types';
-import { _ACTIVITIES } from '../constants';
+import { Curriculum, CurriculumDay, CurriculumActivity, Student, ActivityType } from '../types';
+import { ACTIVITIES } from '../constants';
 import { printService } from '../utils/printService';
 import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
@@ -96,7 +96,7 @@ const DayCard: React.FC<{
     );
 };
 
-export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, _onSelectActivity, onStartCurriculumActivity, initialPlan, preFillData }) => {
+export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelectActivity, onStartCurriculumActivity, initialPlan, preFillData }) => {
     const { user } = useAuthStore();
     const { students, setActiveStudent } = useStudentStore();
 

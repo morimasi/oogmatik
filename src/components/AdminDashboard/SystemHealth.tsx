@@ -8,16 +8,16 @@ const STATUS_STYLES: Record<ServiceStatus, { bg: string; color: string; label: s
 };
 
 function generateHealthReport(): SystemHealthReport {
-  const makeService = (name: string, status: ServiceStatus, latencyMs?: number): ServiceHealth => ({
+  const makeService = (name: string, status: ServiceStatus, latency?: number): ServiceHealth => ({
     name,
     status,
-    latencyMs,
+    latency,
     lastCheckedAt: new Date().toISOString(),
     message: status === 'degraded' ? 'Yüksek gecikme tespit edildi' : undefined,
   });
 
   return {
-    overall: 'operational',
+    status: 'healthy',
     services: [
       makeService('API Sunucusu', 'operational', 42),
       makeService('Veritabanı', 'operational', 8),
@@ -26,6 +26,7 @@ function generateHealthReport(): SystemHealthReport {
       makeService('Bulut Senkronizasyon', 'operational', 230),
       makeService('AI Motoru', 'operational', 890),
     ],
+    [key: string]: unknown; // Allow extra fields used by the UI
     cpuUsagePercent: 23 + Math.floor(Math.random() * 15),
     memUsagePercent: 48 + Math.floor(Math.random() * 10),
     diskUsagePercent: 61 + Math.floor(Math.random() * 5),
@@ -76,7 +77,7 @@ export const SystemHealth: React.FC = () => {
     return () => clearInterval(id);
   }, [autoRefresh, refresh]);
 
-  const overallStyle = STATUS_STYLES[report.overall];
+  const overallStyle = STATUS_STYLES[report.status === 'healthy' ? 'operational' : report.status === 'degraded' ? 'degraded' : 'down'];
 
   return (
     <section aria-label="Sistem Durumu" style={{ padding: '16px' }}>
@@ -108,9 +109,9 @@ export const SystemHealth: React.FC = () => {
       {/* Resource usage */}
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, padding: 14, marginBottom: 16 }}>
         <h3 style={{ margin: '0 0 12px', fontSize: '0.9rem', color: '#374151' }}>📊 Kaynak Kullanımı</h3>
-        <UsageBar label="CPU" percent={report.cpuUsagePercent} color={report.cpuUsagePercent > 80 ? '#ef4444' : '#3b82f6'} />
-        <UsageBar label="RAM" percent={report.memUsagePercent} color={report.memUsagePercent > 85 ? '#ef4444' : '#10b981'} />
-        <UsageBar label="Disk" percent={report.diskUsagePercent} color={report.diskUsagePercent > 90 ? '#ef4444' : '#f59e0b'} />
+        <UsageBar label="CPU" percent={report.cpuUsagePercent as number || 0} color={(report.cpuUsagePercent as number || 0) > 80 ? '#ef4444' : '#3b82f6'} />
+        <UsageBar label="RAM" percent={report.memUsagePercent as number || 0} color={(report.memUsagePercent as number || 0) > 85 ? '#ef4444' : '#10b981'} />
+        <UsageBar label="Disk" percent={report.diskUsagePercent as number || 0} color={(report.diskUsagePercent as number || 0) > 90 ? '#ef4444' : '#f59e0b'} />
       </div>
 
       {/* Services */}
@@ -133,8 +134,8 @@ export const SystemHealth: React.FC = () => {
               >
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: st.dot, flexShrink: 0 }} />
                 <span style={{ flex: 1, fontSize: '0.85rem', fontWeight: 500 }}>{service.name}</span>
-                {service.latencyMs !== undefined && (
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{service.latencyMs}ms</span>
+                {service.latency !== undefined && (
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{service.latency}ms</span>
                 )}
                 <span style={{ fontSize: '0.78rem', color: st.color, fontWeight: 600 }}>{st.label}</span>
                 {service.message && (

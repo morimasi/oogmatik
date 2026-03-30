@@ -1,5 +1,5 @@
 
-import React, { useState, _useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SubTestResult } from '../../../types';
 
 interface VisualSearchTestProps {
