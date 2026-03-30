@@ -8,7 +8,8 @@ export type MEBOgrenmeAlani =
   | 'Dinleme/İzleme'
   | 'Konuşma'
   | 'Okuma'
-  | 'Yazma';
+  | 'Yazma'
+  | 'Dil Bilgisi';
 
 // MEB Kazanım Yapısı
 export interface MEBKazanim {

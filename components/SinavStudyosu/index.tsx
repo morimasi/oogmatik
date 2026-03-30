@@ -57,8 +57,8 @@ const FmtBtn: React.FC<{
   <button
     onClick={onClick}
     className={`px-2 py-1 rounded-md text-xs font-semibold border transition-all ${active
-        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-        : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-400 hover:text-indigo-600'
+      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+      : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-400 hover:text-indigo-600'
       }`}
   >
     {children}
@@ -288,8 +288,8 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
               <SectionHeader icon="🏫" title="Sınıf" badge={ayarlar.sinif ? `${ayarlar.sinif}. Sınıf` : undefined} isOpen={openSections.sinif} onToggle={() => toggleSection('sinif')} gradient="from-blue-500 to-indigo-600" />
               <div className={`accordion-body ${openSections.sinif ? 'open' : ''}`}>
                 <div className="accordion-content">
-                  <div className="grid grid-cols-3 gap-1.5 pt-3">
-                    {[4, 5, 6, 7, 8].map((g) => (
+                  <div className="grid grid-cols-4 gap-1.5 pt-3">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
                       <button key={g} onClick={() => setSinif(g)}
                         className={`py-2 rounded-xl text-sm font-bold transition-all duration-200 ${ayarlar.sinif === g ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-md scale-105' : 'bg-white text-gray-500 border border-gray-100 hover:border-indigo-300 hover:text-indigo-600'}`}>
                         {g}. Sınıf
