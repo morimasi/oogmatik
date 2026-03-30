@@ -8,7 +8,7 @@ import { aiStudentService } from '@/services/aiStudentService';
 import { Student } from '@/types/student';
 
 describe('AI Student Service', () => {
-  const mockStudent: Student = {
+  const mockStudent: any = {
     id: 'student-123',
     name: 'Test Öğrenci',
     age: 10,

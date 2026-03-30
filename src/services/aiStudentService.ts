@@ -4,7 +4,8 @@
  */
 
 import { agentService, AgentRole } from './agentService.js';
-import { Student, StudentAIProfile, BEPGoal } from '../types/student-advanced.js';
+import { StudentAIProfile, IEPGoal as BEPGoal } from '../types/student-advanced.js';
+import { Student } from '../types/student.js';
 import { generateWithSchema } from './geminiClient.js';
 
 export interface StudentAnalysisResult {
@@ -45,7 +46,7 @@ export const aiStudentService = {
   /**
    * Comprehensive student analysis using all 4 expert agents
    */
-  analyzeStudent: async (student: Student): Promise<StudentAnalysisResult> => {
+  analyzeStudent: async (student: any): Promise<StudentAnalysisResult> => {
     const studentData = {
       name: student.name,
       age: student.age,
@@ -93,8 +94,8 @@ ${JSON.stringify(studentData, null, 2)}
 
 UZMAN GERİ BİLDİRİMLERİ:
 ${Object.entries(agentInsights).map(([role, insight]) =>
-  `${role}: ${JSON.stringify(insight, null, 2)}`
-).join('\n\n')}
+      `${role}: ${JSON.stringify(insight, null, 2)}`
+    ).join('\n\n')}
 
 Yukarıdaki uzman görüşlerini birleştirerek öğrenci için kapsamlı bir analiz hazırla.
 
@@ -203,7 +204,7 @@ YANIT FORMATI (JSON):
   /**
    * Generate BEP (Individualized Education Plan) suggestions
    */
-  generateBEPSuggestions: async (student: Student): Promise<BEPSuggestion> => {
+  generateBEPSuggestions: async (student: any): Promise<BEPSuggestion> => {
     // Use clinical expert agent for BEP generation
     const task = await agentService.createTask({
       role: 'ozel-egitim-uzmani',
@@ -229,13 +230,13 @@ YANIT FORMATI (JSON):
 
 ÖĞRENCİ:
 ${JSON.stringify({
-  name: student.name,
-  age: student.age,
-  grade: student.grade,
-  profile: student.profile,
-  strengths: student.strengths,
-  challenges: student.challenges
-}, null, 2)}
+      name: student.name,
+      age: student.age,
+      grade: student.grade,
+      profile: student.profile,
+      strengths: student.strengths,
+      challenges: student.challenges
+    }, null, 2)}
 
 UZMAN GÖRÜŞü (Dr. Ahmet Kaya):
 ${JSON.stringify(result.output, null, 2)}
@@ -416,19 +417,19 @@ YANIT FORMATI (JSON):
 
 ODAK ÖĞRENCİ:
 ${JSON.stringify({
-  name: student.name,
-  profile: student.profile,
-  strengths: student.strengths,
-  challenges: student.challenges
-}, null, 2)}
+      name: student.name,
+      profile: student.profile,
+      strengths: student.strengths,
+      challenges: student.challenges
+    }, null, 2)}
 
 ADAY ÖĞRENCİLER:
 ${JSON.stringify(allStudents.map(s => ({
-  name: s.name,
-  profile: s.profile,
-  strengths: s.strengths,
-  challenges: s.challenges
-})), null, 2)}
+      name: s.name,
+      profile: s.profile,
+      strengths: s.strengths,
+      challenges: s.challenges
+    })), null, 2)}
 
 Akran öğrenme için en uygun eşleşmeleri bul.
 

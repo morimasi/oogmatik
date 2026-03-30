@@ -56,38 +56,45 @@ const DraggableItem = ({ item, children }: DraggableItemProps) => {
             const dy = moveEvent.clientY - startPos.current.y;
 
             if (isResizeHandle) {
-                const newW = Math.max(50, Math.round((initialStyle.w + dx) / 8) * 8);
-                const newH = Math.max(30, Math.round((initialStyle.h + dy) / 8) * 8);
-                const heightDiff = newH - initialStyle.h;
+                const initW = Number(initialStyle.w) || 0;
+                const initH = Number(initialStyle.h) || 0;
+                const newW = Math.max(50, Math.round((initW + dx) / 8) * 8);
+                const newH = Math.max(30, Math.round((initH + dy) / 8) * 8);
+                const heightDiff = newH - initH;
 
                 setLayout(initialLayout.current.map((l: LayoutItem) => {
                     if (l.instanceId === item.instanceId) {
                         return { ...l, style: { ...l.style, w: newW, h: newH } };
                     }
 
-                    if (l.pageIndex === item.pageIndex && l.style.y >= (initialStyle.y + initialStyle.h - 10)) {
-                        return { ...l, style: { ...l.style, y: l.style.y + heightDiff } };
+                    const initY = Number(initialStyle.y) || 0;
+                    if (l.pageIndex === item.pageIndex && Number(l.style.y) >= (initY + initH - 10)) {
+                        return { ...l, style: { ...l.style, y: Number(l.style.y) + heightDiff } };
                     }
                     return l;
                 }));
             } else {
-                let newX = Math.round((initialStyle.x + dx) / 8) * 8;
-                const newY = Math.round((initialStyle.y + dy) / 8) * 8;
+                const initX = Number(initialStyle.x) || 0;
+                const initY = Number(initialStyle.y) || 0;
+                const initW = Number(initialStyle.w) || 0;
+
+                let newX = Math.round((initX + dx) / 8) * 8;
+                const newY = Math.round((initY + dy) / 8) * 8;
 
                 const centerX = A4_WIDTH_PX / 2;
-                const itemCenterX = newX + (initialStyle.w / 2);
+                const itemCenterX = newX + (initW / 2);
 
-                if (Math.abs(itemCenterX - centerX) < 15) newX = centerX - (initialStyle.w / 2);
+                if (Math.abs(itemCenterX - centerX) < 15) newX = centerX - (initW / 2);
                 if (Math.abs(newX - 20) < 15) newX = 20;
-                if (Math.abs((newX + initialStyle.w) - (A4_WIDTH_PX - 20)) < 15) newX = (A4_WIDTH_PX - 20) - initialStyle.w;
+                if (Math.abs((newX + initW) - (A4_WIDTH_PX - 20)) < 15) newX = (A4_WIDTH_PX - 20) - initW;
 
-                const deltaX = newX - initialStyle.x;
-                const deltaY = newY - initialStyle.y;
+                const deltaX = newX - initX;
+                const deltaY = newY - initY;
 
                 setLayout(initialLayout.current.map((l: LayoutItem) => {
                     if (l.instanceId === item.instanceId || (item.groupId && l.groupId === item.groupId)) {
                         const originalL = initialLayout.current.find((orig: LayoutItem) => orig.instanceId === l.instanceId) || l;
-                        return { ...l, style: { ...l.style, x: originalL.style.x + deltaX, y: originalL.style.y + deltaY } };
+                        return { ...l, style: { ...l.style, x: Number(originalL.style.x) + deltaX, y: Number(originalL.style.y) + deltaY } };
                     }
                     return l;
                 }));
@@ -111,12 +118,12 @@ const DraggableItem = ({ item, children }: DraggableItemProps) => {
         <div
             className={`absolute transition-all ${designMode && !isLocked ? 'cursor-move' : ''} ${isSelected && designMode ? 'z-50' : ''} ${isLocked ? 'pointer-events-none' : ''}`}
             style={{
-                left: item.style.x,
-                top: item.style.y,
-                width: item.style.w,
-                height: (item.id === 'activity_component' && !item.groupId) ? 'auto' : item.style.h,
+                left: item.style.x as number,
+                top: item.style.y as number,
+                width: item.style.w as number,
+                height: (item.id === 'activity_component' && !item.groupId) ? 'auto' : (item.style.h as number),
                 minHeight: (item.id === 'activity_component' && !item.groupId) ? `${item.style.h}px` : undefined,
-                transform: `rotate(${item.style.rotation || 0}deg)`, zIndex: item.style.zIndex
+                transform: `rotate(${item.style.rotation || 0}deg)`, zIndex: item.style.zIndex as number
             }}
             onMouseDown={handleMouseDown}
         >
@@ -243,12 +250,12 @@ export const UniversalCanvas = () => {
 
     const renderItemContent = (item: LayoutItem) => {
         const s = item.style;
-        const boxStyle = {
-            padding: `${s.padding}px`, backgroundColor: s.backgroundColor, borderColor: s.borderColor,
-            borderWidth: `${s.borderWidth}px`, borderStyle: s.borderStyle || 'solid', borderRadius: `${s.borderRadius}px`,
-            boxShadow: s.boxShadow !== 'none' ? `var(--shadow-${s.boxShadow})` : 'none', opacity: s.opacity,
-            color: s.color, fontFamily: s.fontFamily, fontSize: `${s.fontSize}px`, lineHeight: s.lineHeight,
-            textAlign: s.textAlign as any, letterSpacing: `${s.letterSpacing}px`, fontWeight: s.fontWeight || 'normal'
+        const boxStyle: React.CSSProperties = {
+            padding: `${s.padding}px`, backgroundColor: s.backgroundColor as string, borderColor: s.borderColor as string,
+            borderWidth: `${s.borderWidth}px`, borderStyle: (s.borderStyle || 'solid') as any, borderRadius: `${s.borderRadius}px`,
+            boxShadow: s.boxShadow !== 'none' ? `var(--shadow-${s.boxShadow})` : 'none', opacity: s.opacity as number,
+            color: s.color as string, fontFamily: s.fontFamily as string, fontSize: `${s.fontSize}px`, lineHeight: s.lineHeight as string,
+            textAlign: s.textAlign as any, letterSpacing: `${s.letterSpacing}px`, fontWeight: (s.fontWeight || 'normal') as any
         };
 
         if (item.id === 'activity_component') {
@@ -262,7 +269,7 @@ export const UniversalCanvas = () => {
                     }}
                     className="w-full overflow-visible"
                 >
-                    <SheetRenderer activityType={item.specificData.activityType} data={item.specificData.data} />
+                    <SheetRenderer activityType={item.specificData.activityType as any} data={(item.specificData.data as any) || { title: '', instruction: '' }} />
                 </div>
             );
         }
@@ -270,14 +277,14 @@ export const UniversalCanvas = () => {
         if (item.id === 'header') {
             return (
                 <div style={boxStyle} className="h-full flex flex-col justify-center">
-                    <h2 className="text-xl font-bold uppercase border-b-2 border-zinc-200 pb-1">{item.specificData.title}</h2>
+                    <h2 className="text-xl font-bold uppercase border-b-2 border-zinc-200 pb-1">{item.specificData.title as any}</h2>
                 </div>
             );
         }
 
         return (
             <div style={boxStyle} className="h-full w-full">
-                <BlockRenderer block={{ type: item.id as any, content: item.specificData.content, style: {} as any }} />
+                <BlockRenderer block={{ type: item.id as any, content: item.specificData.content as any, style: {} as any }} />
             </div>
         );
     };

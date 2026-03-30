@@ -1,0 +1,124 @@
+src/App.tsx(667,9): error TS2322: Type 'SavedAssessment' is not assignable to type 'Record<string, unknown> | SingleWorksheetData[]'.
+  Type 'SavedAssessment' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'SavedAssessment'.
+src/components/AdminDashboard/PermissionManager.tsx(54,69): error TS2339: Property 'label' does not exist on type 'UserRoleDefinition'.
+src/components/AdminDashboard/PermissionManager.tsx(103,28): error TS2339: Property 'label' does not exist on type 'UserRoleDefinition'.
+src/components/AdminDashboard/PermissionManager.tsx(113,31): error TS2339: Property 'label' does not exist on type 'UserRoleDefinition'.
+src/components/AdminDashboard/SystemHealth.tsx(16,5): error TS2353: Object literal may only specify known properties, and 'lastChecked' does not exist in type 'ServiceHealth'.
+src/components/AdminDashboard/UserManagement.tsx(11,7): error TS2739: Type '{ admin: string; teacher: string; student: string; parent: string; guest: string; }' is missing the following properties from type 'Record<UserRoleType, string>': editor, superadmin
+src/components/OCRScanner.tsx(14,7): error TS2741: Property 'footerText' is missing in type '{ fontSize: number; scale: number; borderColor: string; borderWidth: number; margin: number; columns: number; gap: number; orientation: "portrait"; themeBorder: "simple"; contentAlign: "center"; ... 19 more ...; maskOpacity: number; }' but required in type 'StyleSettings'.
+src/components/PromptSimulator.tsx(224,37): error TS2741: Property 'footerText' is missing in type '{ fontFamily: string; fontSize: number; showTitle: true; showStudentInfo: false; showFooter: true; themeBorder: "simple"; scale: number; borderColor: string; borderWidth: number; margin: number; ... 19 more ...; maskOpacity: number; }' but required in type 'StyleSettings'.
+src/components/sheets/visual/FindTheDifferenceSheet.tsx(123,79): error TS2339: Property 'svg' does not exist on type 'object'.
+src/components/sheets/visual/FindTheDifferenceSheet.tsx(124,203): error TS2339: Property 'svg' does not exist on type 'object'.
+src/components/sheets/visual/VisualInterpretationSheet.tsx(21,44): error TS2339: Property 'prompt' does not exist on type 'unknown'.
+src/components/sheets/visual/VisualInterpretationSheet.tsx(22,46): error TS2339: Property 'items' does not exist on type 'unknown'.
+src/components/sheets/visual/VisualInterpretationSheet.tsx(45,75): error TS2339: Property 'alt' does not exist on type 'unknown'.
+src/components/SuperStudio/templates/KelimeBilgisi/index.ts(5,32): error TS2304: Cannot find name 'KelimeBilgisiSettings'.
+src/components/UniversalStudio/UniversalCanvas.tsx(59,55): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(60,55): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(61,43): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(68,59): error TS2365: Operator '>=' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(68,73): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'unknown'.
+src/components/UniversalStudio/UniversalCanvas.tsx(69,64): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(74,40): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(75,42): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(78,45): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(80,77): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(82,31): error TS2365: Operator '+' cannot be applied to types 'number' and 'unknown'.
+src/components/UniversalStudio/UniversalCanvas.tsx(82,110): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(84,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(85,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(90,64): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(90,95): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(114,17): error TS2322: Type 'unknown' is not assignable to type 'Left<string | number>'.
+src/components/UniversalStudio/UniversalCanvas.tsx(115,17): error TS2322: Type 'unknown' is not assignable to type 'Top<string | number>'.
+src/components/UniversalStudio/UniversalCanvas.tsx(116,17): error TS2322: Type 'unknown' is not assignable to type 'Width<string | number>'.
+src/components/UniversalStudio/UniversalCanvas.tsx(117,17): error TS2322: Type 'unknown' is not assignable to type 'Height<string | number>'.
+src/components/UniversalStudio/UniversalCanvas.tsx(119,70): error TS2322: Type 'unknown' is not assignable to type 'ZIndex'.
+src/components/UniversalStudio/UniversalCanvas.tsx(258,21): error TS2322: Type '{ height: string; minHeight: string; padding: string; backgroundColor: unknown; borderColor: unknown; borderWidth: string; borderStyle: unknown; borderRadius: string; boxShadow: string; opacity: unknown; color: unknown; fontFamily: unknown; ... 4 more ...; fontWeight: unknown; }' is not assignable to type 'CSSProperties'.
+  Types of property 'backgroundColor' are incompatible.
+    Type 'unknown' is not assignable to type 'BackgroundColor'.
+src/components/UniversalStudio/UniversalCanvas.tsx(265,36): error TS2322: Type 'unknown' is not assignable to type 'ActivityType'.
+src/components/UniversalStudio/UniversalCanvas.tsx(265,82): error TS2739: Type '{}' is missing the following properties from type 'SingleWorksheetData': title, instruction
+src/components/UniversalStudio/UniversalCanvas.tsx(272,22): error TS2322: Type '{ padding: string; backgroundColor: unknown; borderColor: unknown; borderWidth: string; borderStyle: unknown; borderRadius: string; boxShadow: string; opacity: unknown; color: unknown; fontFamily: unknown; fontSize: string; lineHeight: unknown; textAlign: any; letterSpacing: string; fontWeight: unknown; }' is not assignable to type 'CSSProperties'.
+  Types of property 'backgroundColor' are incompatible.
+    Type 'unknown' is not assignable to type 'BackgroundColor'.
+src/components/UniversalStudio/UniversalCanvas.tsx(273,97): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/UniversalStudio/UniversalCanvas.tsx(279,18): error TS2322: Type '{ padding: string; backgroundColor: unknown; borderColor: unknown; borderWidth: string; borderStyle: unknown; borderRadius: string; boxShadow: string; opacity: unknown; color: unknown; fontFamily: unknown; fontSize: string; lineHeight: unknown; textAlign: any; letterSpacing: string; fontWeight: unknown; }' is not assignable to type 'CSSProperties'.
+  Types of property 'backgroundColor' are incompatible.
+    Type 'unknown' is not assignable to type 'BackgroundColor'.
+src/components/UniversalWorksheetViewer/hooks/useWorksheetState.ts(13,3): error TS2724: '"../constants/templates"' has no exported member named 'DEFAULT_EDITOR_SETTINGS'. Did you mean 'DEFAULT_EXPORT_SETTINGS'?
+src/components/UniversalWorksheetViewer/hooks/useWorksheetState.ts(21,66): error TS2339: Property 'document' does not exist on type 'WorksheetTemplate'.
+src/components/UniversalWorksheetViewer/index.ts(49,3): error TS2724: '"./constants/templates"' has no exported member named 'TEMPLATE_CATEGORIES'. Did you mean 'TEMPLATE_CATEGORY_LABELS'?
+src/components/UniversalWorksheetViewer/index.ts(51,3): error TS2724: '"./constants/templates"' has no exported member named 'DEFAULT_EDITOR_SETTINGS'. Did you mean 'DEFAULT_EXPORT_SETTINGS'?
+src/components/UniversalWorksheetViewer/UniversalWorksheetViewer.tsx(127,9): error TS2554: Expected 1 arguments, but got 2.
+src/components/UniversalWorksheetViewer/WorksheetEditor.tsx(16,7): error TS2741: Property 'blank' is missing in type '{ text: string; heading: string; math: string; image: string; table: string; list: string; divider: string; }' but required in type 'Record<WorksheetContentBlockType, string>'.
+src/components/VariationResultsView.tsx(202,52): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type 'unknown' is not assignable to parameter of type 'string | Node'.
+src/components/VariationResultsView.tsx(286,23): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/VariationResultsView.tsx(286,61): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/Workbook.tsx(601,28): error TS2322: Type 'Record<string, unknown> | SingleWorksheetData[]' is not assignable to type 'SingleWorksheetData'.
+  Type 'Record<string, unknown>' is missing the following properties from type 'SingleWorksheetData': title, instruction
+src/components/WorkbookView.tsx(1185,33): error TS2322: Type 'Record<string, unknown> | SingleWorksheetData[]' is not assignable to type 'SingleWorksheetData'.
+  Type 'Record<string, unknown>' is missing the following properties from type 'SingleWorksheetData': title, instruction
+src/hooks/useAdminStats.ts(24,5): error TS2353: Object literal may only specify known properties, and 'storageUsedMb' does not exist in type 'AdminStats'.
+src/hooks/useAdminStats.ts(37,7): error TS2353: Object literal may only specify known properties, and 'date' does not exist in type 'AdminStatTrend'.
+src/hooks/useAdminStats.ts(53,3): error TS2322: Type '{ templateId: string; templateName: string; useCount: number; exportCount: number; avgSessionMinutes: number; popularityRank: number; }[]' is not assignable to type 'WorksheetAnalyticEntry[]'.
+  Type '{ templateId: string; templateName: string; useCount: number; exportCount: number; avgSessionMinutes: number; popularityRank: number; }' is missing the following properties from type 'WorksheetAnalyticEntry': id, date, count
+src/hooks/useAdminStats.ts(69,20): error TS2345: Argument of type '{ date: string; format: string; count: number; }' is not assignable to parameter of type 'ExportAnalyticEntry'.
+  Property 'id' is missing in type '{ date: string; format: string; count: number; }' but required in type 'ExportAnalyticEntry'.
+src/hooks/useAuditLog.ts(67,3): error TS2322: Type '{ id: string; action: AuditAction; actorId: string; actorName: string; actorRole: UserRoleType; severity: "error" | "info" | "warning"; timestamp: string; targetType: string; targetLabel: string; }[]' is not assignable to type 'AuditLogEntry[]'.
+  Type '{ id: string; action: AuditAction; actorId: string; actorName: string; actorRole: UserRoleType; severity: "error" | "info" | "warning"; timestamp: string; targetType: string; targetLabel: string; }' is missing the following properties from type 'AuditLogEntry': userId, details, createdAt
+src/hooks/useAuditLog.ts(109,7): error TS2353: Object literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(124,12): error TS2339: Property 'actorName' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(132,29): error TS2339: Property 'actorId' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(133,30): error TS2339: Property 'timestamp' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(134,28): error TS2339: Property 'timestamp' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(143,15): error TS2339: Property 'timestamp' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(143,38): error TS2339: Property 'actorName' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(143,51): error TS2339: Property 'actorRole' does not exist on type 'AuditLogEntry'.
+src/hooks/useRBAC.ts(4,7): error TS2739: Type '{ admin: string[]; teacher: string[]; student: string[]; parent: string[]; guest: string[]; }' is missing the following properties from type 'Record<UserRoleType, string[]>': editor, superadmin
+src/hooks/useRBAC.ts(31,7): error TS2739: Type '{ admin: string; teacher: string; student: string; parent: string; guest: string; }' is missing the following properties from type 'Record<UserRoleType, string>': editor, superadmin
+src/hooks/useRBAC.ts(104,9): error TS2353: Object literal may only specify known properties, and 'label' does not exist in type 'UserRoleDefinition'.
+src/hooks/useRBAC.ts(134,12): error TS2339: Property 'label' does not exist on type 'UserRoleDefinition'.
+src/services/aiStudentService.ts(7,10): error TS2459: Module '"../types/student-advanced.js"' declares 'Student' locally, but it is not exported.
+src/services/aiStudentService.ts(7,37): error TS2724: '"../types/student-advanced.js"' has no exported member named 'BEPGoal'. Did you mean 'IEPGoal'?
+src/services/aiWorksheetService.ts(63,37): error TS2339: Property 'profile' does not exist on type 'Student'.
+src/services/aiWorksheetService.ts(65,32): error TS2339: Property 'challenges' does not exist on type 'Student'.
+src/services/aiWorksheetService.ts(133,7): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'SingleWorksheetData[]'.
+src/services/aiWorksheetService.ts(249,20): error TS2339: Property 'profile' does not exist on type 'Student'.
+src/services/aiWorksheetService.ts(251,23): error TS2339: Property 'challenges' does not exist on type 'Student'.
+src/services/aiWorksheetService.ts(323,20): error TS2339: Property 'profile' does not exist on type 'Student'.
+src/services/aiWorksheetService.ts(325,23): error TS2339: Property 'challenges' does not exist on type 'Student'.
+src/services/auditService.ts(85,25): error TS2345: Argument of type 'AuditLogEntry' is not assignable to parameter of type 'string'.
+src/services/infographicService.ts(193,11): error TS2554: Expected 2-5 arguments, but got 1.
+src/shared/components/UniversalWorksheetViewer.tsx(3,31): error TS2307: Cannot find module '../../../components/ErrorBoundary' or its corresponding type declarations.
+tests/aiStudentService.test.ts(16,5): error TS2353: Object literal may only specify known properties, and 'profile' does not exist in type 'Student'.
+tests/aiStudentService.test.ts(181,25): error TS2551: Property 'interventionNeeded' does not exist on type '{ isOnTrack: boolean; concernAreas: string[]; interventions: string[]; strengthAreas: string[]; nextSteps: string[]; }'. Did you mean 'interventions'?
+tests/aiStudentService.test.ts(256,9): error TS2353: Object literal may only specify known properties, and 'profile' does not exist in type 'Student'.
+tests/aiStudentService.test.ts(267,9): error TS2353: Object literal may only specify known properties, and 'profile' does not exist in type 'Student'.
+tests/aiStudentService.test.ts(326,9): error TS2353: Object literal may only specify known properties, and 'profile' does not exist in type 'Student'.
+tests/aiStudentService.test.ts(345,9): error TS2353: Object literal may only specify known properties, and 'challenges' does not exist in type 'Student'.
+tests/aiWorksheetService.test.ts(17,5): error TS2353: Object literal may only specify known properties, and 'profile' does not exist in type 'Student'.
+tests/aiWorksheetService.test.ts(30,21): error TS2322: Type '"reading-comprehension"' is not assignable to type 'ActivityType'.
+tests/aiWorksheetService.test.ts(30,46): error TS2322: Type '"vocabulary-builder"' is not assignable to type 'ActivityType'.
+tests/aiWorksheetService.test.ts(56,31): error TS2339: Property 'metadata' does not exist on type 'SingleWorksheetData[]'.
+tests/aiWorksheetService.test.ts(57,31): error TS2339: Property 'activities' does not exist on type 'SingleWorksheetData[]'.
+tests/aiWorksheetService.test.ts(58,31): error TS2339: Property 'activities' does not exist on type 'SingleWorksheetData[]'.
+tests/aiWorksheetService.test.ts(243,9): error TS2345: Argument of type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'SingleWorksheetData[]'.
+  Type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is missing the following properties from type 'SingleWorksheetData[]': length, pop, push, concat, and 35 more.
+tests/aiWorksheetService.test.ts(254,9): error TS2345: Argument of type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'SingleWorksheetData[]'.
+  Type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is missing the following properties from type 'SingleWorksheetData[]': length, pop, push, concat, and 35 more.
+tests/aiWorksheetService.test.ts(264,9): error TS2345: Argument of type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'SingleWorksheetData[]'.
+  Type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is missing the following properties from type 'SingleWorksheetData[]': length, pop, push, concat, and 35 more.
+tests/aiWorksheetService.test.ts(274,9): error TS2345: Argument of type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'SingleWorksheetData[]'.
+  Type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is missing the following properties from type 'SingleWorksheetData[]': length, pop, push, concat, and 35 more.
+tests/aiWorksheetService.test.ts(397,31): error TS2339: Property 'metadata' does not exist on type 'SingleWorksheetData[]'.
+tests/aiWorksheetService.test.ts(444,33): error TS2339: Property 'id' does not exist on type 'SingleWorksheetData[]'.
+tests/FiveWOneHGenerator.test.ts(27,9): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'FiveWOneHData'.
+tests/FiveWOneHGenerator.test.ts(43,9): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'FiveWOneHData'.
+tests/OCRVariation.test.ts(218,33): error TS2339: Property 'metadata' does not exist on type 'SingleWorksheetData[]'.
+vite.config.ts(35,3): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'test' does not exist in type 'UserConfigExport'.
