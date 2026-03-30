@@ -17,16 +17,15 @@ import { generateFiveWOneHFromAI } from '@/services/generators/fiveWOneH';
 import { generateOfflineFiveWOneH } from '@/services/offlineGenerators/fiveWOneH';
 
 describe('FiveWOneHGenerator', () => {
-    
+
     const mockOptions: GeneratorOptions = {
         difficulty: 'orta',
         worksheetCount: 1
     };
 
     const mockAIData: FiveWOneHData = {
-        id: 'ai-123',
-        activityType: 'FIVE_W_ONE_H',
         title: 'AI Story',
+        instruction: 'Oku',
         content: { title: 'T', text: 'T', paragraphs: [] },
         questions: [],
         settings: {
@@ -40,9 +39,8 @@ describe('FiveWOneHGenerator', () => {
     };
 
     const mockOfflineData: FiveWOneHData[] = [{
-        id: 'off-123',
-        activityType: 'FIVE_W_ONE_H',
         title: 'Offline Story',
+        instruction: 'Oku',
         content: { title: 'T', text: 'T', paragraphs: [] },
         questions: [],
         settings: {

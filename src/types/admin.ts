@@ -138,6 +138,8 @@ export interface UserRoleDefinition {
   name: string;
   label: string;
   permissions: PermissionKey[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 export type PermissionKey = string;
 export const PERMISSION_LABELS: Record<string, string> = {};
@@ -196,12 +198,15 @@ export interface AdminStats {
   activeSessionsCount?: number;
   avgResponseMs?: number;
   errorRatePercent?: number;
+  storageUsedMb?: number;
+  systemUptime?: number;
 }
 export interface AdminStatTrend {
-  label: string;
+  date: string;
   value: number;
-  trend: number;
-  isPositive: boolean;
+  label?: string;
+  trend?: number;
+  isPositive?: boolean;
 }
 
 export interface AuditLogEntry {

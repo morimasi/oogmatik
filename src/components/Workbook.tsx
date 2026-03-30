@@ -598,7 +598,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
                 ) : (
                   <Worksheet
                     activityType={item.activityType}
-                    data={[item.data]}
+                    data={[item.data as any]}
                     settings={mergedSettings}
                     studentProfile={{
                       name: settings.studentName,

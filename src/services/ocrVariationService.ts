@@ -10,6 +10,7 @@ import { ValidationError, InternalServerError } from '../utils/AppError.js';
 import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 import type {
   OCRResult,
+  SingleWorksheetData,
   WorksheetData,
   ActivityType,
   LearningDisabilityProfile,
@@ -116,7 +117,7 @@ export interface VariationRequest {
 }
 
 export interface VariationResult {
-  variations: WorksheetData[];
+  variations: SingleWorksheetData[];
   metadata: {
     requestedCount: number;
     successfulCount: number;
@@ -279,7 +280,7 @@ const postProcessVariation = (
   variation: any,
   index: number,
   request: VariationRequest
-): WorksheetData[0] => {
+): SingleWorksheetData => {
   const timestamp = new Date().toISOString();
 
   return {
@@ -355,7 +356,7 @@ export const generateVariations = async (
 
     // Post-processing ve validation
     const allWarnings: string[] = [];
-    const processedVariations: WorksheetData[0][] = result.variations.map((variation, index) => {
+    const processedVariations: SingleWorksheetData[] = result.variations.map((variation, index) => {
       const warnings = validateVariation(variation, index);
       allWarnings.push(...warnings);
       return postProcessVariation(variation, index, request);
@@ -382,7 +383,7 @@ export const generateVariations = async (
     const processingTimeMs = Date.now() - startTime;
 
     return {
-      variations: processedVariations as unknown as WorksheetData[],
+      variations: processedVariations as unknown as SingleWorksheetData[],
       metadata: {
         requestedCount: request.count,
         successfulCount,
@@ -408,7 +409,7 @@ export const generateVariations = async (
  * @param variation - Kontrol edilecek varyasyon
  * @returns Kalite skoru (0-100)
  */
-export const validateVariationQuality = (variation: WorksheetData[0]): number => {
+export const validateVariationQuality = (variation: SingleWorksheetData): number => {
   let score = 100;
 
   // pedagogicalNote kontrolü

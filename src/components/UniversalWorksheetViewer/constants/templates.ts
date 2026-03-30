@@ -3,6 +3,7 @@ import type {
   WorksheetContent,
   DyslexiaSettings,
   ExportSettings,
+  EditorSettings,
 } from '../types/worksheet';
 
 // ─── Default Dyslexia Settings ────────────────────────────────────────────────

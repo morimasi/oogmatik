@@ -60,9 +60,9 @@ export const aiWorksheetService = {
 ÖĞRENCİ PROFİLİ:
 - İsim: ${params.student.name}
 - Yaş: ${params.student.age}
-- Öğrenme Profili: ${params.student.profile}
+- Öğrenme Profili: ${params.student.learningStyle}
 - Güçlü Yönler: ${(params.student.strengths || []).join(', ')}
-- Zorluklar: ${(params.student.challenges || []).join(', ')}
+- Zayıf Yönler: ${(params.student.weaknesses || []).join(', ')}
 
 PARAMETRELER:
 - Konu: ${params.subject} - ${params.topic}
@@ -129,7 +129,7 @@ YANIT FORMATI (JSON):
     const validation = await aiWorksheetService.validateWithAgents(worksheet);
 
     // Step 3: If validation passes, finalize worksheet
-    const finalWorksheet: WorksheetData = {
+    const finalWorksheet = {
       id: `ws_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       name: worksheet.title,
       description: worksheet.description,
@@ -149,7 +149,7 @@ YANIT FORMATI (JSON):
         aiGenerated: true,
         agentApproved: validation.approvedBy
       }
-    };
+    } as unknown as WorksheetData;
 
     return { worksheet: finalWorksheet, validation };
   },
@@ -162,11 +162,11 @@ YANIT FORMATI (JSON):
       role: 'ozel-ogrenme-uzmani' | 'ozel-egitim-uzmani' | 'yazilim-muhendisi' | 'ai-muhendisi';
       category: 'pedagogical' | 'clinical' | 'technical' | 'ai';
     }> = [
-      { role: 'ozel-ogrenme-uzmani', category: 'pedagogical' },
-      { role: 'ozel-egitim-uzmani', category: 'clinical' },
-      { role: 'yazilim-muhendisi', category: 'technical' },
-      { role: 'ai-muhendisi', category: 'ai' }
-    ];
+        { role: 'ozel-ogrenme-uzmani', category: 'pedagogical' },
+        { role: 'ozel-egitim-uzmani', category: 'clinical' },
+        { role: 'yazilim-muhendisi', category: 'technical' },
+        { role: 'ai-muhendisi', category: 'ai' }
+      ];
 
     const validationTasks = await Promise.all(
       agents.map(({ role, category }) =>
@@ -243,13 +243,13 @@ YANIT FORMATI (JSON):
 
 ÖĞRENCİ PROFİLİ:
 ${JSON.stringify({
-  name: student.name,
-  age: student.age,
-  grade: student.grade,
-  profile: student.profile,
-  strengths: student.strengths,
-  challenges: student.challenges
-}, null, 2)}
+      name: student.name,
+      age: student.age,
+      grade: student.grade,
+      learningStyle: student.learningStyle,
+      strengths: student.strengths,
+      weaknesses: student.weaknesses
+    }, null, 2)}
 
 Bu öğrenci için ${count} adet kişiselleştirilmiş çalışma kâğıdı önerisi oluştur.
 
@@ -319,11 +319,11 @@ ${JSON.stringify(worksheet, null, 2)}
 
 ÖĞRENCİ PROFİLİ:
 ${JSON.stringify({
-  name: student.name,
-  profile: student.profile,
-  strengths: student.strengths,
-  challenges: student.challenges
-}, null, 2)}
+      name: student.name,
+      learningStyle: student.learningStyle,
+      strengths: student.strengths,
+      weaknesses: student.weaknesses
+    }, null, 2)}
 
 Çalışma kâğıdını bu öğrenci için optimize et.
 

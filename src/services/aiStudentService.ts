@@ -156,9 +156,9 @@ YANIT FORMATI (JSON):
 - İsim: ${student.name}
 - Yaş: ${student.age}
 - Sınıf: ${student.grade}
-- Öğrenme Profili: ${student.profile}
+- Öğrenme Profili: ${student.learningStyle}
 - Güçlü Yönler: ${(student.strengths || []).join(', ')}
-- Zorluklar: ${(student.challenges || []).join(', ')}
+- Zayıf Yönler: ${(student.weaknesses || []).join(', ')}
 
 KONU: ${subject}
 HED EF: ${objective}
@@ -216,9 +216,9 @@ YANIT FORMATI (JSON):
           name: student.name,
           age: student.age,
           grade: student.grade,
-          profile: student.profile,
+          learningStyle: student.learningStyle,
           strengths: student.strengths,
-          challenges: student.challenges
+          weaknesses: student.weaknesses
         }
       }
     });
@@ -233,9 +233,9 @@ ${JSON.stringify({
       name: student.name,
       age: student.age,
       grade: student.grade,
-      profile: student.profile,
+      learningStyle: student.learningStyle,
       strengths: student.strengths,
-      challenges: student.challenges
+      weaknesses: student.weaknesses
     }, null, 2)}
 
 UZMAN GÖRÜŞü (Dr. Ahmet Kaya):
@@ -304,7 +304,7 @@ YANIT FORMATI (JSON):
 [GÖREV: Öğrenci İlerleme Değerlendirmesi]
 
 ÖĞRENCİ: ${student.name}
-PROFİL: ${student.profile}
+PROFİL: ${student.learningStyle}
 
 SON PERFORMANS VERİLERİ:
 ${JSON.stringify(recentPerformance, null, 2)}
@@ -359,7 +359,7 @@ YANIT FORMATI (JSON):
 
 ÖĞRENCİ: ${student.name}
 DÖNEM: ${period}
-PROFİL: ${student.profile}
+PROFİL: ${student.learningStyle}
 
 Veli için anlaşılır, destekleyici ve yapıcı bir rapor hazırla.
 
@@ -418,17 +418,17 @@ YANIT FORMATI (JSON):
 ODAK ÖĞRENCİ:
 ${JSON.stringify({
       name: student.name,
-      profile: student.profile,
+      learningStyle: student.learningStyle,
       strengths: student.strengths,
-      challenges: student.challenges
+      weaknesses: student.weaknesses
     }, null, 2)}
 
 ADAY ÖĞRENCİLER:
 ${JSON.stringify(allStudents.map(s => ({
       name: s.name,
-      profile: s.profile,
+      learningStyle: s.learningStyle,
       strengths: s.strengths,
-      challenges: s.challenges
+      weaknesses: s.weaknesses
     })), null, 2)}
 
 Akran öğrenme için en uygun eşleşmeleri bul.

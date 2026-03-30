@@ -11,11 +11,14 @@ describe('AI Student Service', () => {
   const mockStudent: any = {
     id: 'student-123',
     name: 'Test Öğrenci',
+    teacherId: 'teacher-1',
+    diagnosis: [],
+    interests: [],
     age: 10,
     grade: '4. Sınıf',
-    profile: 'dyslexia',
+    learningStyle: 'Görsel',
     strengths: ['Görsel öğrenme', 'Yaratıcılık', 'Problem çözme'],
-    challenges: ['Okuma akıcılığı', 'Yazım'],
+    weaknesses: ['Okuma akıcılığı', 'Yazım'],
     avatar: 'https://example.com/avatar.png',
     createdAt: new Date().toISOString()
   };
@@ -178,7 +181,7 @@ describe('AI Student Service', () => {
       );
 
       expect(validation.concernAreas.length).toBeGreaterThan(0);
-      expect(validation.interventionNeeded).toBe(true);
+      expect(validation.isOnTrack).toBe(false);
     });
 
     it('should recommend interventions when needed', async () => {
@@ -251,22 +254,28 @@ describe('AI Student Service', () => {
       {
         id: 'student-456',
         name: 'Peer 1',
+        teacherId: 'teacher-1',
+        diagnosis: [],
+        interests: [],
         age: 10,
         grade: '4. Sınıf',
-        profile: 'dyslexia',
+        learningStyle: 'Görsel',
         strengths: ['Matematik', 'Mantık'],
-        challenges: ['Okuma'],
+        weaknesses: ['Okuma'],
         avatar: '',
         createdAt: new Date().toISOString()
       },
       {
         id: 'student-789',
         name: 'Peer 2',
+        teacherId: 'teacher-1',
+        diagnosis: [],
+        interests: [],
         age: 11,
         grade: '5. Sınıf',
-        profile: 'adhd',
+        learningStyle: 'Görsel',
         strengths: ['Yaratıcılık', 'Spor'],
-        challenges: ['Dikkat'],
+        weaknesses: ['Dikkat'],
         avatar: '',
         createdAt: new Date().toISOString()
       }
@@ -321,9 +330,14 @@ describe('AI Student Service', () => {
       const minimalStudent: Student = {
         id: 'minimal-123',
         name: 'Minimal Student',
+        teacherId: 'teacher-1',
+        diagnosis: [],
+        interests: [],
+        strengths: [],
+        weaknesses: [],
         age: 8,
         grade: '3. Sınıf',
-        profile: 'mixed',
+        learningStyle: 'Karma',
         avatar: '',
         createdAt: new Date().toISOString()
       };

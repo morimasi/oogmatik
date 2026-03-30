@@ -3,13 +3,13 @@ import { logger } from '../utils/logger';
 // Audit Service for Enterprise Compliance
 // Handles logging of critical user actions for security and accountability.
 
-export type AuditAction = 
-    | 'LOGIN' 
-    | 'LOGOUT' 
-    | 'VIEW_STUDENT' 
-    | 'UPDATE_IEP' 
-    | 'DELETE_STUDENT' 
-    | 'EXPORT_REPORT' 
+export type AuditAction =
+    | 'LOGIN'
+    | 'LOGOUT'
+    | 'VIEW_STUDENT'
+    | 'UPDATE_IEP'
+    | 'DELETE_STUDENT'
+    | 'EXPORT_REPORT'
     | 'FINANCIAL_TRANSACTION';
 
 export interface AuditLogEntry {
@@ -79,10 +79,10 @@ class AuditService {
 
         // In a real enterprise app, this would send data to a secure logging server (e.g. Splunk, ELK)
         // await fetch('https://api.enterprise.com/audit', { method: 'POST', body: JSON.stringify(entry) });
-        
+
         if (process.env.NODE_ENV === 'development') {
             console.groupCollapsed(`[AUDIT] ${action}`);
-            logger.info(entry);
+            logger.info(JSON.stringify(entry));
             console.groupEnd();
         }
     }

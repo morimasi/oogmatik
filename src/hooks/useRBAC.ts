@@ -26,6 +26,17 @@ const DEFAULT_ROLE_PERMISSIONS: Record<UserRoleType, PermissionKey[]> = {
   guest: [
     'worksheets.view',
   ],
+  editor: [
+    'users.view',
+    'worksheets.view', 'worksheets.create', 'worksheets.edit',
+  ],
+  superadmin: [
+    'users.view', 'users.create', 'users.edit', 'users.delete',
+    'worksheets.view', 'worksheets.create', 'worksheets.edit', 'worksheets.delete', 'worksheets.export',
+    'analytics.view', 'analytics.export',
+    'admin.access', 'admin.settings', 'admin.audit',
+    'cloud.upload', 'cloud.sync', 'batch.export',
+  ],
 };
 
 const ROLE_LABELS: Record<UserRoleType, string> = {
@@ -34,6 +45,8 @@ const ROLE_LABELS: Record<UserRoleType, string> = {
   student: 'Öğrenci',
   parent: 'Veli',
   guest: 'Misafir',
+  editor: 'Editör',
+  superadmin: 'Süper Yönetici',
 };
 
 interface UseRBACReturn {
@@ -51,10 +64,9 @@ interface UseRBACReturn {
 function buildDefaultRoles(): UserRoleDefinition[] {
   return (Object.keys(DEFAULT_ROLE_PERMISSIONS) as UserRoleType[]).map((name, i) => ({
     id: `role-${name}`,
-    name,
-    label: ROLE_LABELS[name],
-    description: `${ROLE_LABELS[name]} rolü`,
-    permissions: [...DEFAULT_ROLE_PERMISSIONS[name]],
+    name: name as UserRoleType,
+    label: ROLE_LABELS[name as UserRoleType],
+    permissions: [...DEFAULT_ROLE_PERMISSIONS[name as UserRoleType]],
     createdAt: new Date(Date.now() - i * 86400000 * 10).toISOString(),
   }));
 }
@@ -102,7 +114,6 @@ export function useRBAC(): UseRBACReturn {
         id: `role-custom-${Date.now()}`,
         name,
         label,
-        description,
         permissions,
         createdAt: new Date().toISOString(),
       };
