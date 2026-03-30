@@ -1,7 +1,7 @@
 import { AppError } from '../utils/AppError';
 import React from 'react';
 import { ocrService } from '../services/ocrService';
-import { ActivityType, WorksheetData, StyleSettings, _GeneratorOptions, Student } from '../types';
+import { ActivityType, WorksheetData, StyleSettings, GeneratorOptions, Student } from '../types';
 import Worksheet from './Worksheet';
 import { generateFromRichPrompt } from '../services/generators/newActivities';
 import { CreativeStudio } from './CreativeStudio/index';

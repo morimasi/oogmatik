@@ -1,5 +1,5 @@
 
-import { getRandomInt, _getRandomItems } from './helpers';
+import { getRandomInt, getRandomItems } from './helpers';
 import { MathOperation } from '../../types/math';
 
 // Helper: Check constraints

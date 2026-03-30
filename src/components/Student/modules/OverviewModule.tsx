@@ -1,6 +1,6 @@
 import React from 'react';
 import { AdvancedStudent } from '../../../types/student-advanced';
-import { _LineChart } from '../../LineChart';
+import { LineChart } from '../../LineChart';
 
 interface OverviewModuleProps {
     student: AdvancedStudent;

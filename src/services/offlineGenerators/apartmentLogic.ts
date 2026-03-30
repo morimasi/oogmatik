@@ -1,6 +1,6 @@
 
 import { GeneratorOptions, ApartmentLogicData } from '../../types';
-import { _shuffle } from './helpers';
+import { shuffle } from './helpers';
 
 export const generateOfflineApartmentLogicPuzzle = async (options: GeneratorOptions): Promise<ApartmentLogicData[]> => {
     const { worksheetCount, difficulty } = options;

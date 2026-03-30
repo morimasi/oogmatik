@@ -13,7 +13,7 @@ interface ProblemSettingsPanelProps {
 }
 
 export const ProblemSettingsPanel: React.FC<ProblemSettingsPanelProps> = ({
-    problemConfig, setProblemConfig, toggleProblemOp, _toggleProblemType, isGenerating, onGenerate,
+    problemConfig, setProblemConfig, toggleProblemOp, toggleProblemType, isGenerating, onGenerate,
 }) => (
     <div className="p-5 space-y-6 animate-in slide-in-from-left-4">
 

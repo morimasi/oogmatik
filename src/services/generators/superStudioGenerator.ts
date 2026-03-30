@@ -49,7 +49,7 @@ const generateCacheKey = (
 };
 
 import {
-  _SUPER_STUDIO_REGISTRY,
+  SUPER_STUDIO_REGISTRY,
   getTemplateById,
 } from '../../components/SuperStudio/templates/registry';
 

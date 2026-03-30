@@ -15,7 +15,7 @@ import { exactCloneService } from '../../services/exactCloneService';
 import { activityApprovalService } from '../../services/activityApprovalService';
 import { templateEngine } from '../../services/templateEngine';
 import type { ProductionMode, Difficulty, QuestionType, ActivityTemplate } from '../../types/ocr-activity';
-import type { _OCRResult } from '../../types/core';
+import type { OCRResult } from '../../types/core';
 
 // ─── Alt Bileşenler ──────────────────────────────────────────────────────
 
@@ -231,7 +231,7 @@ interface ImageUploadPanelProps {
     mode: 'architecture_clone' | 'exact_clone';
 }
 
-const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({ onImageUpload, _isProcessing, mode }) => {
+const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({ onImageUpload, isProcessing, mode }) => {
     const [isDragOver, setIsDragOver] = useState(false);
     const [preview, setPreview] = useState<string | null>(null);
 

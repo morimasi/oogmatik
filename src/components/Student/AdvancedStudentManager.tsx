@@ -9,7 +9,7 @@ import { AcademicModule } from './modules/AcademicModule';
 import { PortfolioModule } from './modules/PortfolioModule';
 import { BehaviorModule } from './modules/BehaviorModule';
 import { SettingsModule } from './modules/SettingsModule';
-import { _StudentSelector } from './StudentSelector';
+import { StudentSelector } from './StudentSelector';
 
 import { AIInsightsModule } from './modules/AIInsightsModule';
 

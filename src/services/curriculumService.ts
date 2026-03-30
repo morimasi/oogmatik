@@ -1,6 +1,6 @@
 
 import { generateWithSchema } from './geminiClient.js';
-import { Curriculum, _ActivityType, _CurriculumDay, CurriculumActivityStatus, Student } from '../types.js';
+import { Curriculum, ActivityType, CurriculumDay, CurriculumActivityStatus, Student } from '../types.js';
 import { ACTIVITIES } from '../constants.js';
 import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
@@ -138,7 +138,7 @@ export const curriculumService = {
             userId,
             createdAt: new Date().toISOString()
         };
-        const { _id, ...dataToSave } = payload;
+        const { id, ...dataToSave } = payload;
         const docRef = await addDoc(collection(db, "saved_curriculums"), dataToSave);
         return docRef.id;
     },

@@ -5,9 +5,9 @@
 
 import React, { useState, useMemo } from 'react';
 import { SavedWorksheet } from '../types';
-import { useGetUserWorksheets, _useCreateWorksheet, useDeleteWorksheet, useShareWorksheet } from '../hooks/useWorksheets';
+import { useGetUserWorksheets, useCreateWorksheet, useDeleteWorksheet, useShareWorksheet } from '../hooks/useWorksheets';
 import { ErrorDisplay } from './ErrorDisplay';
-import { _AppError } from '../utils/AppError';
+import { AppError } from '../utils/AppError';
 
 interface WorksheetsListProps {
     userId: string;

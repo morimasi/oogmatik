@@ -1,5 +1,5 @@
 import { ActivityType, SingleWorksheetData, LayoutItem, WorksheetBlock } from '../../types';
-import { A4_WIDTH_PX, A4_HEIGHT_PX, _A4_DEFAULT_MARGIN_PX } from '../../utils/layoutConstants';
+import { A4_WIDTH_PX, A4_HEIGHT_PX, A4_DEFAULT_MARGIN_PX } from '../../utils/layoutConstants';
 
 interface Rect { x: number; y: number; w: number; h: number; }
 

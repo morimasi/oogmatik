@@ -6,7 +6,7 @@ import { DynamicActivity, PromptTemplate, PromptSnippet, StaticContentItem, Acti
 import { UserRole, UserStatus } from '../types/core.js';
 import { generateWithSchema, evaluateContent } from './geminiClient.js';
 
-const { collection, doc, getDocs, setDoc, _query, _where, updateDoc, deleteDoc, getDoc } = firestore;
+const { collection, doc, getDocs, setDoc, query, where, updateDoc, deleteDoc, getDoc } = firestore;
 
 export const adminService = {
     // Tüm dinamik aktiviteleri getir

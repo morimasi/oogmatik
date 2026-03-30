@@ -1,6 +1,6 @@
 
-import { GeneratorOptions, NumberSenseData, VisualArithmeticData, MathMemoryCardsData, _MathMemoryCard, MoneyCountingData, ClockReadingData } from '../../types';
-import { getRandomInt, shuffle, _getRandomItems } from './helpers';
+import { GeneratorOptions, NumberSenseData, VisualArithmeticData, MathMemoryCardsData, MathMemoryCard, MoneyCountingData, ClockReadingData } from '../../types';
+import { getRandomInt, shuffle, getRandomItems } from './helpers';
 
 /**
  * Saat Okuma Yerel Üretici (Hızlı Mod)

@@ -2,7 +2,7 @@
 import React from 'react';
 import { VisualArithmeticData } from '../../../types';
 import { PedagogicalHeader, TenFrame, Domino, Base10Visualizer, NumberBond } from '../common';
-import { _EditableText } from '../../Editable';
+import { EditableText } from '../../Editable';
 
 export const VisualArithmeticSheet = ({ data }: { data: VisualArithmeticData }) => (
     <div className="flex flex-col font-lexend p-2">

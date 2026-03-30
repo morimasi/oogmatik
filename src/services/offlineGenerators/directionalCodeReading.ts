@@ -1,6 +1,6 @@
 import { GeneratorOptions } from '../../types/core';
 import { DirectionalCodeReadingData } from '../../types/visual';
-import { getRandomInt, _getRandomItems, _shuffle } from './helpers';
+import { getRandomInt, getRandomItems, shuffle } from './helpers';
 
 export const generateOfflineDirectionalCodeReading = async (
   options: GeneratorOptions

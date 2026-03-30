@@ -4,7 +4,7 @@ import {
   WorkbookSettings,
   StyleSettings,
   ActivityType,
-  _StudentProfile,
+  StudentProfile,
 } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';

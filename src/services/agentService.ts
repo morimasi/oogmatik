@@ -9,7 +9,7 @@ import { generateWithSchema } from './geminiClient.js';
 import { db } from './firebaseClient.js';
 import * as firestore from 'firebase/firestore';
 
-const { collection, doc, setDoc, getDocs, query, orderBy, _limit, where } = firestore;
+const { collection, doc, setDoc, getDocs, query, orderBy, limit, where } = firestore;
 
 // ========================================
 // TYPES

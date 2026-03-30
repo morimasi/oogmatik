@@ -9,9 +9,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { activityApprovalService } from '../services/activityApprovalService';
-import { _templateEngine } from '../services/templateEngine';
+import { templateEngine } from '../services/templateEngine';
 import type { ActivityDraft } from '../types/admin';
-import type { ApprovalStatus, _ProductionMode } from '../types/ocr-activity';
+import type { ApprovalStatus, ProductionMode } from '../types/ocr-activity';
 
 // ─── Mod etiketi yardımcısı ─────────────────────────────────────────────
 

@@ -52,20 +52,6 @@ interface SidebarProps {
   onOpenSinavStudyosu?: () => void; // Sınav Stüdyosu
   onOpenMatSinavStudyosu?: () => void; // Matematik Sınav Stüdyosu
   activeCurriculumSession?: ActiveCurriculumSession | null;
-  isExpanded?: boolean;
-  onOpenOCR: () => void;
-  onOpenCurriculum: () => void;
-  onOpenReadingStudio: () => void;
-  onOpenMathStudio: () => void;
-  onOpenScreening?: () => void;
-  activeCurriculumSession: null | {
-    planId: string;
-    day: number;
-    activityId: string;
-    studentName: string;
-    activityTitle: string;
-    studentId?: string;
-  };
   width?: number;
   onWidthChange?: (width: number) => void;
 }
@@ -96,7 +82,7 @@ const _StudioMenuItem = ({ icon, label, onClick, color, isExpanded }: any) => (
 
 const Sidebar: React.FC<SidebarProps> = ({
   isSidebarOpen,
-  _closeSidebar,
+  closeSidebar,
   selectedActivity,
   onSelectActivity,
   setWorksheetData,

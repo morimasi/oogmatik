@@ -1,10 +1,10 @@
 
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
-import { AssessmentReport, SavedAssessment, AdaptiveQuestion, _TestCategory, AssessmentConfig } from '../types';
+import { AssessmentReport, SavedAssessment, AdaptiveQuestion, TestCategory, AssessmentConfig } from '../types';
 import { generateAdaptiveQuestionsFromAI } from './generators/assessment';
 import { generateOfflineAdaptiveQuestions } from './offlineGenerators/assessment';
-import { _shuffle } from './offlineGenerators/helpers';
+import { shuffle } from './offlineGenerators/helpers';
 
 const { collection, addDoc, query, where, getDocs } = firestore;
 

@@ -1,7 +1,7 @@
 
 import { generateWithSchema } from '../geminiClient.js';
 import { AdaptiveQuestion, TestCategory, Student } from '../../types.js';
-import { _PEDAGOGICAL_BASE } from './prompts.js';
+import { PEDAGOGICAL_BASE } from './prompts.js';
 
 export const generateAdaptiveQuestionsFromAI = async (
     skills: TestCategory[],

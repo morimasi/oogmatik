@@ -4,7 +4,7 @@ import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 export const HiddenPasswordGridSheet = ({ data }: { data: HiddenPasswordGridData }) => {
-    const { _gridSize = 5, itemCount = 9, cellStyle = 'square' } = data.settings || {};
+    const { gridSize = 5, itemCount = 9, cellStyle = 'square' } = data.settings || {};
     const gridColsClass = itemCount <= 3 ? "grid-cols-1" : itemCount <= 6 ? "grid-cols-2" : "grid-cols-3";
 
     return (

@@ -1,7 +1,7 @@
 
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions, ShapeCountingData } from '../../types.js';
-import { PEDAGOGICAL_BASE, _IMAGE_GENERATION_GUIDE } from './prompts.js';
+import { PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE } from './prompts.js';
 
 export const generateShapeCountingFromAI = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
     const {

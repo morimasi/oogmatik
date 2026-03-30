@@ -2,7 +2,7 @@ import React from 'react';
 import { CollectionItem, WorkbookSettings } from '../types';
 import Worksheet from './Worksheet';
 import DyslexiaLogo from './DyslexiaLogo';
-import { _Toolbar } from './Toolbar';
+import { Toolbar } from './Toolbar';
 import '../styles/workbookPremium.css';
 
 interface WorkbookProps {

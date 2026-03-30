@@ -1,5 +1,5 @@
 import React from 'react';
-import { AdvancedStudent, _Transaction } from '../../../types/student-advanced';
+import { AdvancedStudent, Transaction } from '../../../types/student-advanced';
 
 interface FinancialModuleProps {
     student: AdvancedStudent;
