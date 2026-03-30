@@ -13,7 +13,6 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
     const renderContent = () => {
         switch (tip) {
             case 'siklik_tablosu':
-            case 'cetvel_tablo':
                 return (
                     <div className="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm mt-3">
                         <table className="w-full text-sm text-left align-middle">
