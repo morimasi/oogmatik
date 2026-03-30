@@ -1,17 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdvancedStudent } from '../../../types/student-advanced';
 import { RadarChart } from '../../RadarChart';
+import { aiStudentService, CognitiveProfileResult } from '../../../services/aiStudentService';
 
 export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ student }) => {
-  // Mock bilişsel veri - gerçek veriler gelişince buradan bağlanacak
-  const cognitiveData = [
-    { label: 'Dikkat', value: 75 },
-    { label: 'Hafıza', value: 62 },
-    { label: 'Görsel Algı', value: 88 },
-    { label: 'Sözel Mantık', value: 54 },
-    { label: 'İşlemsel Hız', value: 70 },
-    { label: 'Yürütücü İşlev', value: 65 },
-  ];
+  const [data, setData] = useState<CognitiveProfileResult | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const fetchInsight = async () => {
+      setLoading(true);
+      try {
+        const result = await aiStudentService.generateCognitiveInsight(student);
+        if (active) setData(result);
+      } catch (err) {
+        console.error('Bilişsel analiz yüklenemedi', err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    fetchInsight();
+    return () => { active = false; };
+  }, [student]);
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center h-full">
+        <i className="fa-solid fa-spinner fa-spin text-4xl text-indigo-500"></i>
+      </div>
+    );
+  }
+
+  if (!data) return null;
 
   return (
     <div className="p-8 space-y-8 animate-in fade-in duration-700">
@@ -36,21 +57,25 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
               <div className="p-6 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-sm">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-4">Derin Öğrenme Özeti</h3>
                 <p className="text-slate-300 leading-relaxed italic text-sm md:text-base">
-                  "{student.name}, görsel-uzamsal algı alanında %22'lik bir sıçrama gerçekleştirdi.
-                  Ancak çalışma belleği kapasitesinde yorulma belirtileri gözlemleniyor.
-                  Multisensöryel destek moduna geçilmesi kritik önem taşıyor."
+                  "{data.summary}"
                 </p>
               </div>
 
               <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="text-[10px] font-black uppercase text-emerald-400">Görsel Hafıza: Üstün</span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-                  <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                  <span className="text-[10px] font-black uppercase text-amber-400">İşitsel Odak: Gelişmekte</span>
-                </div>
+                {data.strengths.map((str, idx) => (
+                  <div key={idx} className={`flex items-center gap-2 px-4 py-2 border rounded-xl ${str.trend === 'up' ? 'bg-emerald-500/10 border-emerald-500/20' :
+                    str.trend === 'down' ? 'bg-rose-500/10 border-rose-500/20' :
+                      'bg-amber-500/10 border-amber-500/20'
+                    }`}>
+                    {str.trend === 'up' && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>}
+                    {str.trend === 'stable' && <span className="w-2 h-2 rounded-full bg-amber-500"></span>}
+                    {str.trend === 'down' && <span className="w-2 h-2 rounded-full bg-rose-500"></span>}
+                    <span className={`text-[10px] font-black uppercase ${str.trend === 'up' ? 'text-emerald-400' :
+                      str.trend === 'down' ? 'text-rose-400' :
+                        'text-amber-400'
+                      }`}>{str.label}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -60,19 +85,15 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
         <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col items-center justify-center">
           <h3 className="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter mb-8 w-full text-center">Beceriler Analiz Radarı</h3>
           <div className="scale-110 lg:scale-[1.2]">
-            <RadarChart data={cognitiveData} />
+            <RadarChart data={data.radarData} />
           </div>
         </div>
       </div>
 
       {/* Orta: Stratejik Öneriler (Bento Grid) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { title: 'Strateji', text: 'Materyallerde "Odak Maskesi" kullanımı görsel karmaşayı azaltır.', icon: 'fa-lightbulb', color: 'amber' },
-          { title: 'Uyarlama', text: 'Matematik problemlerinin "Uzay Teması" ile sunulması motivasyonu %40 artırır.', icon: 'fa-puzzle-piece', color: 'indigo' },
-          { title: 'Performans', text: 'Öğrencinin en verimli saati 10:00 - 11:30 arası olarak tespit edildi.', icon: 'fa-chart-line', color: 'emerald' }
-        ].map((item, i) => (
-          <div key={i} className="bg-white dark:bg-zinc-900 p-8 rounded-[3rem] border border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-2xl transition-all group">
+        {data.strategies.map((item, i) => (
+          <div key={i} className="bg-white dark:bg-zinc-900 p-8 rounded-[3rem] border border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-2xl transition-all group overflow-hidden relative">
             <div className={`w-14 h-14 rounded-2xl bg-${item.color}-50 dark:bg-${item.color}-900/20 flex items-center justify-center text-${item.color}-600 mb-6 group-hover:scale-110 transition-transform shadow-inner`}>
               <i className={`fa-solid ${item.icon} text-2xl`}></i>
             </div>
@@ -98,28 +119,24 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
         </h3>
 
         <div className="relative pl-10 space-y-12 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-indigo-500 before:via-zinc-200 before:to-transparent dark:before:via-zinc-800">
-          <div className="relative group/step">
-            <div className="absolute -left-[45px] top-1 w-6 h-6 rounded-full bg-indigo-600 border-4 border-white dark:border-zinc-900 shadow-xl group-hover/step:scale-125 transition-transform"></div>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest block mb-1">Sistem Güncellemesi</span>
-                <h4 className="font-black text-lg text-zinc-900 dark:text-white uppercase tracking-tight">Yeni BEP Hedefi: Diskalkuli Tarama</h4>
-                <p className="text-sm text-zinc-500 mt-1">Öğrencinin sayı algısındaki gecikmeler nedeniyle sistem otomatik hedef önerdi.</p>
+          {data.timeline.map((step, i) => (
+            <div key={i} className={`relative group/step ${!step.isPast ? 'opacity-60 hover:opacity-100 transition-opacity' : ''}`}>
+              <div className={`absolute -left-[45px] top-1 w-6 h-6 rounded-full border-4 border-white dark:border-zinc-900 ${step.isPast ? 'bg-indigo-600 shadow-xl group-hover/step:scale-125 transition-transform' : 'bg-zinc-300 dark:bg-zinc-800 shadow-sm'}`}></div>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <span className={`text-[10px] font-black uppercase tracking-widest block mb-1 ${step.isPast ? 'text-indigo-500' : 'text-zinc-400'}`}>
+                    {step.title}
+                  </span>
+                  <h4 className="font-black text-lg text-zinc-900 dark:text-white uppercase tracking-tight">{step.desc}</h4>
+                </div>
+                {step.isPast && (
+                  <span className="px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800/50">
+                    Öngörüldü
+                  </span>
+                )}
               </div>
-              <span className="px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800/50">
-                Uygulandı
-              </span>
             </div>
-          </div>
-
-          <div className="relative group/step opacity-60 hover:opacity-100 transition-opacity">
-            <div className="absolute -left-[45px] top-1 w-6 h-6 rounded-full bg-zinc-300 dark:bg-zinc-800 border-4 border-white dark:border-zinc-900 shadow-sm"></div>
-            <div>
-              <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block mb-1">Gelecek Projeksiyonu (+7 Gün)</span>
-              <h4 className="font-black text-lg text-zinc-900 dark:text-white uppercase tracking-tight">Standardize Değerlendirme</h4>
-              <p className="text-sm text-zinc-500 mt-1">Okuma hızı verileri AI tarafından valide edilecek ve raporlanacak.</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

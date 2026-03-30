@@ -42,7 +42,108 @@ export interface BEPSuggestion {
   familyInvolvement: string[];
 }
 
+export interface CognitiveProfileResult {
+  radarData: { label: string; value: number }[];
+  summary: string;
+  strengths: { label: string; trend: 'up' | 'stable' | 'down' }[];
+  strategies: { title: string; text: string; icon: string; color: string }[];
+  timeline: { title: string; desc: string; isPast: boolean }[];
+}
+
 export const aiStudentService = {
+  /**
+   * AI-generated Bilişsel Analiz Haritası
+   */
+  generateCognitiveInsight: async (student: any): Promise<CognitiveProfileResult> => {
+    const prompt = `
+[GÖREV: Bilişsel Matris Hiyerarşisi (AIInsightsModule)]
+Öğrenci: ${student.name}
+Tanı/Profil: ${student.learningStyle || 'Belirtilmedi'}
+Yaş: ${student.age}
+Geçmiş Detaylar: ${student.strengths?.join(',')}
+
+Aşağıdaki şemaya tam uyarak bu öğrenci için güncel bir bilişsel analiz senaryosu üret. JSON yapısında olmalı.
+Kurallar: 
+- "radarData" içinde tam 6 yetenek olmalı: Dikkat, Hafıza, Görsel Algı, Sözel Mantık, İşlemsel Hız, Yürütücü İşlev. Değerleri 0-100 arası mantıklı dağılımlar olsun.
+- "colors" sadece 'indigo', 'emerald', 'amber', 'rose', 'purple', 'blue', 'cyan' değerlerini alabilir.
+- "icons" FontAwesome formatında olmalı, örneğin: 'fa-lightbulb', 'fa-puzzle-piece', 'fa-chart-line'.
+
+ÇIKTI FORMU:
+{
+  "radarData": [{"label": "string", "value": number}],
+  "summary": "Öğrenci gelişimi ile ilgili 2-3 cümlelik çok profesyonel, yapıcı ve klinik dilde özet",
+  "strengths": [{"label": "Örn: Görsel Hafıza: Üstün", "trend": "up" | "stable" | "down"}],
+  "strategies": [{"title": "Strateji İsmi", "text": "Açıklama", "icon": "fa-xyz", "color": "amber"}],
+  "timeline": [{"title": "Ne oldu/Ne olacak", "desc": "Açıklama", "isPast": boolean}]
+}`;
+
+    const res = await generateWithSchema(prompt, {
+      type: 'OBJECT',
+      properties: {
+        radarData: { type: 'ARRAY', items: { type: 'OBJECT', properties: { label: { type: 'STRING' }, value: { type: 'NUMBER' } } } },
+        summary: { type: 'STRING' },
+        strengths: { type: 'ARRAY', items: { type: 'OBJECT', properties: { label: { type: 'STRING' }, trend: { type: 'STRING' } } } },
+        strategies: { type: 'ARRAY', items: { type: 'OBJECT', properties: { title: { type: 'STRING' }, text: { type: 'STRING' }, icon: { type: 'STRING' }, color: { type: 'STRING' } } } },
+        timeline: { type: 'ARRAY', items: { type: 'OBJECT', properties: { title: { type: 'STRING' }, desc: { type: 'STRING' }, isPast: { type: 'BOOLEAN' } } } }
+      },
+      required: ['radarData', 'summary', 'strengths', 'strategies', 'timeline']
+    });
+
+    return res as CognitiveProfileResult;
+  },
+
+  /**
+   * AI-generated IEP (BEP) SMART Goals
+   */
+  generateIEPGoals: async (student: any): Promise<any[]> => {
+    const prompt = `
+[GÖREV: Bireyselleştirilmiş Eğitim Programı (BEP) Hedef Üretimi]
+Öğrenci: ${student.name}
+Tanı/Profil: ${student.learningStyle || 'Belirtilmedi'}
+Güçlü Yönler: ${student.strengths?.join(',') || 'Görsel zeka'}
+Yaş: ${student.age || 8}
+
+Öğrencinin profiline göre 3 adet, eyleme geçirilebilir, zaman sinirli SMART hedef (IEP Goal) öner.
+Zaman sınırlaması için (targetDate) ISO 8601 string döndür (Örn: bugünden itibaren 1 veya 2 ay sonrası).
+Herhedef 4 kategoriden birinde olmalı: 'academic', 'behavioral', 'social', 'motor'.
+Prioriteler: 'high', 'medium', 'low'.
+
+JSON ÇIKTISI:
+{
+  "goals": [
+    {
+      "title": "Kısa, net başlık",
+      "description": "Nasıl ulaşılacağının SMART açıklaması",
+      "category": "academic",
+      "priority": "high",
+      "targetDate": "2024-06-01T00:00:00.000Z"
+    }
+  ]
+}`;
+
+    const res = await generateWithSchema(prompt, {
+      type: 'OBJECT',
+      properties: {
+        goals: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              title: { type: 'STRING' },
+              description: { type: 'STRING' },
+              category: { type: 'STRING' },
+              priority: { type: 'STRING' },
+              targetDate: { type: 'STRING' }
+            }
+          }
+        }
+      },
+      required: ['goals']
+    });
+
+    return (res as any).goals;
+  },
+
   /**
    * Comprehensive student analysis using all 4 expert agents
    */

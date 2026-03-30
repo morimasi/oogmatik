@@ -134,7 +134,7 @@ const ManagerSidebar: React.FC<{
 // ... (ContentWrapper remains same)
 
 // Main Manager Component
-export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+export const AdvancedStudentManager: React.FC<{ onBack: () => void, onLoadMaterial?: (ws: any) => void }> = ({ onBack, onLoadMaterial }) => {
   const { activeStudent, students, setActiveStudent, _addStudent, updateStudent, _deleteStudent } = useStudentStore();
   const [selectedModule, setSelectedModule] = useState('overview');
   const [visibleModules, setVisibleModules] = useState<string[]>(Object.keys(MODULE_ICONS));
@@ -239,13 +239,13 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
             title="Finansal Kayıtlar"
             subtitle="Muhasebe, taksitler ve ödeme geçmişi."
           >
-            <FinancialModule student={currentStudent} />
+            <FinancialModule student={currentStudent} onUpdate={(data) => handleStudentUpdate(data)} />
           </ContentWrapper>
         );
       case 'attendance':
         return (
           <ContentWrapper title="Devam Takibi" subtitle="Ders katılımı ve mazeret kayıtları.">
-            <AttendanceModule student={currentStudent} />
+            <AttendanceModule student={currentStudent} onUpdate={(data) => handleStudentUpdate(data)} />
           </ContentWrapper>
         );
       case 'academic':
@@ -254,7 +254,7 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
             title="Akademik Gelişim"
             subtitle="Sınav sonuçları, beceri grafikleri ve ödev takibi."
           >
-            <AcademicModule student={currentStudent} />
+            <AcademicModule student={currentStudent} onUpdate={(data) => handleStudentUpdate(data)} />
           </ContentWrapper>
         );
       case 'portfolio':
@@ -263,7 +263,7 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
             title="Dijital Portfolyo"
             subtitle="Öğrenciye ait materyal ve çalışma galerisi."
           >
-            <PortfolioModule student={currentStudent} />
+            <PortfolioModule student={currentStudent} onUpdate={(data) => handleStudentUpdate(data)} />
           </ContentWrapper>
         );
       case 'behavior':
@@ -272,7 +272,7 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void }> = ({ onBac
             title="Davranış & Sosyal Uyum"
             subtitle="Gözlem notları ve davranışsal gelişim takibi."
           >
-            <BehaviorModule student={currentStudent} />
+            <BehaviorModule student={currentStudent} onUpdate={(data) => handleStudentUpdate(data)} />
           </ContentWrapper>
         );
       case 'settings':
