@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 import type { MatSoru } from '../../../src/types/matSinav';
+import { GraphicRenderer } from './GraphicRenderer';
 
 interface MatSoruCardProps {
     soru: MatSoru;
@@ -17,13 +18,7 @@ const ZORLUK_RENKLERI: Record<string, string> = {
     'Kolay': 'bg-green-100 text-green-700',
     'Orta': 'bg-amber-100 text-amber-700',
     'Zor': 'bg-red-100 text-red-700',
-};
 
-const TIP_ETIKETLERI: Record<string, string> = {
-    'coktan_secmeli': 'Çoktan Seçmeli',
-    'dogru_yanlis': 'Doğru/Yanlış',
-    'bosluk_doldurma': 'Boşluk Doldurma',
-    'acik_uclu': 'Açık Uçlu',
 };
 
 export const MatSoruCard: React.FC<MatSoruCardProps> = ({
@@ -57,9 +52,6 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
                     </span>
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${ZORLUK_RENKLERI[soru.zorluk] || 'bg-gray-100 text-gray-600'}`}>
                         {soru.zorluk}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-indigo-50 text-indigo-600">
-                        {TIP_ETIKETLERI[soru.tip] || soru.tip}
                     </span>
                     <span className="text-[9px] text-gray-400">{soru.puan} puan · ~{Math.ceil(soru.tahminiSure / 60)} dk</span>
                 </div>
@@ -117,20 +109,19 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
                 </p>
             )}
 
+            {/* Grafik Verisi */}
+            {soru.grafik_verisi && (
+                <GraphicRenderer grafik={soru.grafik_verisi} />
+            )}
+
             {/* Seçenekler — Çoktan Seçmeli */}
             {soru.tip === 'coktan_secmeli' && soru.secenekler && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-3">
                     {Object.entries(soru.secenekler).map(([key, value], si) => (
-                        <div
-                            key={key}
-                            className={`flex items-start gap-2 px-3 py-2 rounded-lg text-xs ${String(soru.dogruCevap) === key
-                                    ? 'bg-green-50 border border-green-200 text-green-800'
-                                    : 'bg-gray-50 border border-gray-100 text-gray-600'
-                                }`}
-                        >
+                        <div>
                             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${String(soru.dogruCevap) === key
-                                    ? 'bg-green-600 text-white'
-                                    : 'bg-gray-200 text-gray-500'
+                                ? 'bg-green-600 text-white'
+                                : 'bg-gray-200 text-gray-500'
                                 }`}>
                                 {labels[si]}
                             </span>
@@ -145,7 +136,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
                 <div className="flex gap-2 mb-3">
                     <span className="px-3 py-1.5 rounded-lg bg-gray-50 border text-xs font-bold text-gray-500">( ) Doğru</span>
                     <span className="px-3 py-1.5 rounded-lg bg-gray-50 border text-xs font-bold text-gray-500">( ) Yanlış</span>
-                    <span className="text-[10px] text-green-600 self-center ml-2">Cevap: {soru.dogruCevap}</span>
+                    <span className="text-[10px] text-green-600 self-center ml-2">Cevap:</span>
                 </div>
             )}
 
@@ -154,7 +145,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
                 <div className="mb-3 flex items-center gap-2">
                     <span className="text-xs text-gray-500">Cevap:</span>
                     <span className="border-b-2 border-gray-300 px-4 py-0.5 text-xs text-gray-300 min-w-[120px]">&nbsp;</span>
-                    <span className="text-[10px] text-green-600 ml-2">({soru.dogruCevap})</span>
+                    <span className="text-[10px] text-green-600 ml-2"></span>
                 </div>
             )}
 

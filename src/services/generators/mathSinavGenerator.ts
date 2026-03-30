@@ -141,7 +141,7 @@ ${stilTalimat}
 - Açık Uçlu: ${settings.soruDagilimi.acik_uclu} adet
 
 ${settings.islemSayisi ? `[İŞLEM SAYISI]\nHer soru en fazla ${settings.islemSayisi} işlemle çözülebilmeli.\n` : ''}
-${settings.gorselVeriEklensinMi ? `[GÖRSEL VERİ]\nMümkün olan sorularda grafik_verisi alanını doldur (tablo, grafik, geometri şekli).\nÖzellikle Veri İşleme ve Geometri kazanımlarında grafik verisi ZORUNLU.\n` : ''}
+${settings.gorselVeriEklensinMi ? `[GÖRSEL VERİ]\nMümkün olan sorularda grafik_verisi alanını gerçekçi verilerle doldur (tablo, grafik, geometri şekilleri). Özellikler (ozellikler) nesnesini kullanarak kenar uzunlukları, açılar ve renkleri belirt.\n` : ''}
 ${settings.ozelKonu ? `[TEMA]\nTüm sorular "${settings.ozelKonu}" teması etrafında olmalı.\n` : ''}
 ${settings.ozelTalimatlar ? `[ÖZEL TALİMATLAR]\n${settings.ozelTalimatlar}\n` : ''}
 
@@ -224,6 +224,16 @@ const MATH_EXAM_SCHEMA = {
                                 },
                             },
                             not: { type: 'STRING', nullable: true },
+                            ozellikler: {
+                                type: 'OBJECT',
+                                properties: {
+                                    kenarlar: { type: 'ARRAY', items: { type: 'NUMBER' }, nullable: true },
+                                    acilar: { type: 'ARRAY', items: { type: 'NUMBER' }, nullable: true },
+                                    yaricap: { type: 'NUMBER', nullable: true },
+                                    renk: { type: 'STRING', nullable: true },
+                                },
+                                nullable: true
+                            }
                         },
                         required: ['tip', 'baslik', 'veri'],
                         nullable: true,
