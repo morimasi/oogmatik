@@ -263,6 +263,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     import('../../components/SinavStudyosu').then((module) => ({ default: module.SinavStudyosu }))
   );
 
+  const MatSinavStudyosu = React.lazy(() =>
+    import('../../components/MatSinavStudyosu').then((module) => ({ default: module.MatSinavStudyosu }))
+  );
+
   return (
     <main className="flex-1 flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       {/* TOOLBAR */}
@@ -477,6 +481,20 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             }
           >
             <SinavStudyosu />
+          </React.Suspense>
+        </div>
+      )}
+
+      {currentView === 'mat-sinav-studyosu' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <i className="fa-solid fa-spinner fa-spin text-4xl text-blue-500"></i>
+              </div>
+            }
+          >
+            <MatSinavStudyosu />
           </React.Suspense>
         </div>
       )}

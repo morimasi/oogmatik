@@ -86,6 +86,9 @@ const ScreeningModule = lazy(() =>
 const SinavStudyosu = lazy(() =>
   import('../components/SinavStudyosu').then((module) => ({ default: module.SinavStudyosu }))
 );
+const MatSinavStudyosu = lazy(() =>
+  import('../components/MatSinavStudyosu').then((module) => ({ default: module.MatSinavStudyosu }))
+);
 
 const initialStyleSettings: StyleSettings = {
   fontSize: 18,
@@ -758,6 +761,7 @@ const AppContent = () => {
             onOpenRemotionStudio={() => handleOpenStudio('remotion-studio')}
             onOpenScreening={() => handleOpenStudio('screening')}
             onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
+            onOpenMatSinavStudyosu={() => handleOpenStudio('mat-sinav-studyosu')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
             width={sidebarWidth}
@@ -931,6 +935,14 @@ const AppContent = () => {
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
           <Suspense fallback={<LoadingSpinner />}>
             <SinavStudyosu />
+          </Suspense>
+        </div>
+      )}
+
+      {currentView === 'mat-sinav-studyosu' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+          <Suspense fallback={<LoadingSpinner />}>
+            <MatSinavStudyosu />
           </Suspense>
         </div>
       )}

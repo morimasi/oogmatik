@@ -50,6 +50,7 @@ interface SidebarProps {
   onOpenRemotionStudio?: () => void;
   onOpenScreening?: () => void; // Added Prop
   onOpenSinavStudyosu?: () => void; // Sınav Stüdyosu
+  onOpenMatSinavStudyosu?: () => void; // Matematik Sınav Stüdyosu
   activeCurriculumSession?: ActiveCurriculumSession | null;
   isExpanded?: boolean;
   onOpenOCR: () => void;
@@ -113,6 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenInfographicStudio,
   onOpenRemotionStudio,
   onOpenSinavStudyosu,
+  onOpenMatSinavStudyosu,
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -194,6 +196,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: 'fa-clipboard-check',
       color: 'bg-amber-500',
       onClick: onOpenSinavStudyosu,
+    },
+    {
+      id: 'mat-sinav-studyosu',
+      label: 'Matematik Sınav Stüdyosu',
+      icon: 'fa-square-root-variable',
+      color: 'bg-blue-600',
+      onClick: onOpenMatSinavStudyosu,
     },
   ];
 
