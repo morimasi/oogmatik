@@ -16,6 +16,9 @@ import type { MatSoru } from '../../src/types/matSinav';
 import { renderToString } from 'react-dom/server';
 import { GraphicRenderer } from './components/GraphicRenderer';
 import { PrintConfig, DEFAULT_PRINT_CONFIG } from '../../src/utils/sinavPdfGenerator';
+import { worksheetService } from '../../src/services/worksheetService';
+import { useAuthStore } from '../../src/store/useAuthStore';
+import { ActivityType } from '../../src/types';
 
 type TabType = 'onizleme' | 'cevap-anahtari' | 'gecmis';
 
@@ -64,6 +67,7 @@ export const MatSinavStudyosu: React.FC = () => {
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [refreshingIndex, setRefreshingIndex] = useState<number | null>(null);
     const [printConfig, setPrintConfig] = useState<PrintConfig>(DEFAULT_PRINT_CONFIG);
+    const [isSavingToWorkbook, setIsSavingToWorkbook] = useState(false);
 
     const updateConfig = <K extends keyof PrintConfig>(key: K, val: PrintConfig[K]) => setPrintConfig(c => ({ ...c, [key]: val }));
 
@@ -225,6 +229,67 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
         setActiveTab('onizleme');
     };
 
+    // ─── Workbook Integration — Tek Tıkla Kaydet ──────────────────
+    const handleAddToWorkbook = async () => {
+        if (!aktifSinav) {
+            setError('Lütfen önce bir sınav oluşturun.');
+            return;
+        }
+
+        try {
+            const user = useAuthStore.getState().user;
+            if (!user) {
+                setError('Lütfen giriş yapın.');
+                return;
+            }
+
+            setIsSavingToWorkbook(true);
+            setError(null);
+
+            // Sınav verisini SingleWorksheetData formatına dönüştür
+            const worksheetData = {
+                activityType: ActivityType.SINAV,
+                data: [aktifSinav],
+                settings: {
+                    fontSize: printConfig.fontSize,
+                    fontFamily: printConfig.fontFamily,
+                    marginMm: printConfig.marginMm,
+                    columns: printConfig.columns,
+                    lineHeight: printConfig.lineHeight,
+                    textAlign: printConfig.textAlign,
+                    questionSpacingMm: printConfig.questionSpacingMm,
+                    difficulty: 'Orta' as const
+                }
+            };
+
+            // worksheetService.saveWorksheet ile kaydet
+            await worksheetService.saveWorksheet(
+                user.id,
+                aktifSinav.baslik || 'Matematik Sınavı',
+                ActivityType.SINAV,
+                [worksheetData],
+                'fa-solid fa-square-root-variable',
+                { id: 'matematik', title: 'Matematik' }, // Kategori: Matematik
+                {
+                    fontSize: printConfig.fontSize,
+                    fontFamily: printConfig.fontFamily,
+                    marginMm: printConfig.marginMm,
+                    columns: printConfig.columns,
+                    lineHeight: printConfig.lineHeight,
+                    textAlign: printConfig.textAlign,
+                    difficulty: 'Orta' as const
+                }
+            );
+
+            showSuccess('✅ Sınav "Çalışma Kitapçığı" veri tabanına kaydedildi!');
+        } catch (err: any) {
+            console.error('Workbook kayıt hatası:', err);
+            setError(`Kaydetme hatası: ${err.message || 'Bilinmeyen hata'}`);
+        } finally {
+            setIsSavingToWorkbook(false);
+        }
+    };
+
     return (
         <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-indigo-50 font-sans overflow-hidden">
 
@@ -349,6 +414,26 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                             ))}
                         </div>
                         <div className="flex gap-1.5 flex-wrap">
+                            <button
+                                onClick={handleAddToWorkbook}
+                                disabled={!aktifSinav || isSavingToWorkbook}
+                                className="toolbar-btn bg-gradient-to-r from-emerald-500 to-emerald-600 text-white hover:from-emerald-600 hover:to-emerald-700 border-0 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isSavingToWorkbook ? (
+                                    <>
+                                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        <span className="hidden sm:inline">Kaydediliyor...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="text-sm">📚</span><span className="hidden sm:inline">Kitapçık</span>
+                                    </>
+                                )}
+                            </button>
+                            <div className="w-px h-6 bg-slate-300 mx-1 self-center"></div>
                             <button onClick={handlePrint} disabled={!aktifSinav}
                                 className="toolbar-btn bg-slate-800 text-white hover:bg-black border-0 shadow-md disabled:opacity-35 disabled:cursor-not-allowed">
                                 <span className="text-sm">🖨️</span><span className="hidden sm:inline">Yazdır</span>
@@ -432,6 +517,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                                             onUpdateSoru={handleUpdateSoru}
                                             onRefreshSoru={handleRefreshSoru}
                                             refreshingIndex={refreshingIndex}
+                                            config={printConfig}
                                         />
                                     ) : (
                                         <MatCevapAnahtariComponent

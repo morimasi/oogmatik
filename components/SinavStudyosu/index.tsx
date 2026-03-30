@@ -11,6 +11,9 @@ import { SoruAyarlari } from './SoruAyarlari';
 import { SinavOnizleme } from './SinavOnizleme';
 import { CevapAnahtariComponent } from './CevapAnahtari';
 import { AppError } from '../../src/utils/AppError';
+import { worksheetService } from '../../src/services/worksheetService';
+import { useAuthStore } from '../../src/store/useAuthStore';
+import { ActivityType } from '../../src/types';
 
 type TabType = 'onizleme' | 'cevap-anahtari';
 
@@ -80,6 +83,7 @@ export const SinavStudyosu: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [printConfig, setPrintConfig] = useState<PrintConfig>(DEFAULT_PRINT_CONFIG);
   const printRef = useRef<HTMLDivElement>(null);
+  const [isSavingToWorkbook, setIsSavingToWorkbook] = useState(false);
 
   // Accordion state
   const [openSections, setOpenSections] = useState({
@@ -237,7 +241,67 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
 
   const handleSaveExam = () => showSuccess('Sınav kaydedildi! (Geliştirme aşamasında)');
   const handleShareExam = () => showSuccess('Paylaşım özelliği yakında!');
-  const handleAddToWorkbook = () => showSuccess('Çalışma kitabına ekleme yakında!');
+
+  // Workbook Integration — Tek Tıkla Kaydet
+  const handleAddToWorkbook = async () => {
+    if (!aktifSinav) {
+      setError('Lütfen önce bir sınav oluşturun.');
+      return;
+    }
+
+    try {
+      const user = useAuthStore.getState().user;
+      if (!user) {
+        setError('Lütfen giriş yapın.');
+        return;
+      }
+
+      setIsSavingToWorkbook(true);
+      setError(null);
+
+      // Sınav verisini SingleWorksheetData formatına dönüştür
+      const worksheetData = {
+        activityType: ActivityType.SINAV,
+        data: [aktifSinav],
+        settings: {
+          fontSize: printConfig.fontSize,
+          fontFamily: printConfig.fontFamily,
+          marginMm: printConfig.marginMm,
+          columns: printConfig.columns,
+          lineHeight: printConfig.lineHeight,
+          textAlign: printConfig.textAlign,
+          questionSpacingMm: printConfig.questionSpacingMm,
+          difficulty: 'Orta' as const
+        }
+      };
+
+      // worksheetService.saveWorksheet ile kaydet
+      await worksheetService.saveWorksheet(
+        user.id,
+        aktifSinav.baslik || 'Türkçe Sınavı',
+        ActivityType.SINAV,
+        [worksheetData],
+        'fa-solid fa-file-lines',
+        { id: 'turkce', title: 'Türkçe' }, // Kategori: Türkçe
+        {
+          fontSize: printConfig.fontSize,
+          fontFamily: printConfig.fontFamily,
+          marginMm: printConfig.marginMm,
+          columns: printConfig.columns,
+          lineHeight: printConfig.lineHeight,
+          textAlign: printConfig.textAlign,
+          difficulty: 'Orta' as const
+        }
+      );
+
+      showSuccess('✅ Sınav "Çalışma Kitapçığı" veri tabanına kaydedildi!');
+    } catch (err: any) {
+      console.error('Workbook kayıt hatası:', err);
+      setError(`Kaydetme hatası: ${err.message || 'Bilinmeyen hata'}`);
+    } finally {
+      setIsSavingToWorkbook(false);
+    }
+  };
 
   const kazanimCount = ayarlar.secilenKazanimlar.length;
   const toplamSoru =
@@ -385,15 +449,33 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
 
             <div className="flex gap-1.5 flex-wrap">
               {[
-                { label: 'Kaydet', icon: '💾', fn: handleSaveExam },
-                { label: 'Paylaş', icon: '🔗', fn: handleShareExam },
-                { label: 'Kitapçık', icon: '📚', fn: handleAddToWorkbook },
-              ].map(({ label, icon, fn }) => (
+                { label: 'Kaydet', icon: '💾', fn: handleSaveExam, loading: false },
+                { label: 'Paylaş', icon: '🔗', fn: handleShareExam, loading: false },
+              ].map(({ label, icon, fn, loading }) => (
                 <button key={label} onClick={fn} disabled={!aktifSinav}
                   className="toolbar-btn bg-gray-50 text-gray-600 hover:bg-indigo-600 hover:text-white border border-gray-200 shadow-sm">
                   <span className="text-base">{icon}</span><span className="hidden sm:inline">{label}</span>
                 </button>
               ))}
+              <button
+                onClick={handleAddToWorkbook}
+                disabled={!aktifSinav || isSavingToWorkbook}
+                className="toolbar-btn bg-gradient-to-r from-emerald-500 to-emerald-600 text-white hover:from-emerald-600 hover:to-emerald-700 border-0 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSavingToWorkbook ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span className="hidden sm:inline">Kaydediliyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-base">📚</span><span className="hidden sm:inline">Kitapçık</span>
+                  </>
+                )}
+              </button>
               <div className="w-px h-6 bg-gray-300 mx-1 self-center"></div>
               <button onClick={handlePrint} disabled={!aktifSinav}
                 className="toolbar-btn bg-gray-800 text-white hover:bg-black border-0 shadow-md">
