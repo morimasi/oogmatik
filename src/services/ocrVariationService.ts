@@ -417,7 +417,7 @@ export const validateVariationQuality = (variation: WorksheetData[0]): number =>
   }
 
   // Content kontrolü
-  if (!variation.content || variation.content.length < 100) {
+  if (!variation.content || (variation.content as string).length < 100) {
     score -= 25;
   }
 
