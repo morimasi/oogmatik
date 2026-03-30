@@ -23,11 +23,23 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
   const questionGap = config ? `${config.questionSpacingMm * 2}px` : '16px';
   const lineHeight = config ? config.lineHeight : 1.6;
   const textAlign = config ? config.textAlign : 'left';
+  const marginMm = config ? config.marginMm : 18;
+  const columns = config ? config.columns : 1;
 
   return (
     <div
       className="sinav-onizleme"
-      style={{ fontFamily, color: '#111', backgroundColor: '#fff', textAlign }}
+      style={{
+        fontFamily,
+        color: '#111',
+        backgroundColor: '#fff',
+        textAlign,
+        fontSize: fontSizePx,
+        lineHeight,
+        padding: `${marginMm}px`,
+        columnCount: columns,
+        columnGap: '12mm'
+      }}
     >
       {/* Başlık Bandı */}
       <div

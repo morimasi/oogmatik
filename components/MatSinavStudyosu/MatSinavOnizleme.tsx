@@ -1,17 +1,19 @@
 /**
  * MatSinavOnizleme — A4 Sınav Kağıdı Önizleme
- * Sorular + grafik render + inline editing desteği
+ * Sorular + grafik render + inline editing desteği + format toolbar support
  */
 
 import React from 'react';
 import type { MatSinav, MatSoru } from '../../src/types/matSinav';
 import { MatSoruCard } from './components/MatSoruCard';
+import { PrintConfig } from '../../src/utils/sinavPdfGenerator';
 
 interface MatSinavOnizlemeProps {
     sinav: MatSinav;
     onUpdateSoru: (index: number, updated: MatSoru) => void;
     onRefreshSoru: (index: number) => void;
     refreshingIndex: number | null;
+    config?: PrintConfig;
 }
 
 export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
@@ -19,11 +21,27 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
     onUpdateSoru,
     onRefreshSoru,
     refreshingIndex,
+    config,
 }) => {
+    const fontSizePx = config ? `${config.fontSize + 2}px` : '14px';
+    const fontFamily = config?.fontFamily === 'times' ? 'Times New Roman, serif' : 'Lexend, Inter, sans-serif';
+    const lineHeight = config ? config.lineHeight : 1.6;
+    const textAlign = config ? config.textAlign : 'left';
+    const marginMm = config ? config.marginMm : 18;
+    const columns = config ? config.columns : 1;
+
     return (
         <div
             className="bg-white rounded-2xl shadow-xl border border-gray-100 max-w-[800px] mx-auto"
-            style={{ fontFamily: 'Lexend, Inter, sans-serif' }}
+            style={{
+                fontFamily,
+                fontSize: fontSizePx,
+                lineHeight,
+                textAlign,
+                padding: `${marginMm}px`,
+                columnCount: columns,
+                columnGap: '12mm'
+            }}
         >
             {/* Sınav Başlığı */}
             <div className="border-2 border-indigo-500 rounded-xl mx-6 mt-6 p-4">
