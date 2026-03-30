@@ -17,7 +17,8 @@ const PREVIEW_SETTINGS: StyleSettings = {
     fontStyle: 'normal', visualStyle: 'card', fontFamily: 'Lexend', lineHeight: 1.4,
     letterSpacing: 0, showPedagogicalNote: true, showMascot: false, showStudentInfo: true,
     showTitle: true, showInstruction: true, showImage: false, showFooter: true, smartPagination: true,
-    wordSpacing: 2, paragraphSpacing: 24, rulerHeight: 80, focusMode: false, rulerColor: '#6366f1', maskOpacity: 0.4
+    wordSpacing: 2, paragraphSpacing: 24, rulerHeight: 80, focusMode: false, rulerColor: '#6366f1', maskOpacity: 0.4,
+    footerText: ''
 };
 
 type DifficultyLevel = 'Başlangıç' | 'Orta' | 'Zor';
@@ -954,11 +955,10 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                                                 <button
                                                     key={n}
                                                     onClick={() => setVariationCount(n)}
-                                                    className={`flex-1 h-12 rounded-xl border font-black text-sm transition-all ${
-                                                        variationCount === n
+                                                    className={`flex-1 h-12 rounded-xl border font-black text-sm transition-all ${variationCount === n
                                                             ? 'bg-purple-500/20 border-purple-500/40 text-purple-400'
                                                             : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {n}×
                                                 </button>

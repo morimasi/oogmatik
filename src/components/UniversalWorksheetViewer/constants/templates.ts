@@ -64,6 +64,15 @@ export const TEMPLATE_CATEGORY_LABELS: Record<string, string> = {
   custom: 'Özel',
 };
 
+export const TEMPLATE_CATEGORIES = Object.keys(TEMPLATE_CATEGORY_LABELS);
+
+// ─── Default Editor Settings ──────────────────────────────────────────────────
+
+export const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
+  autoSave: true,
+  autoSaveIntervalMs: 2000,
+};
+
 // ─── Empty Worksheet Content ──────────────────────────────────────────────────
 
 export const EMPTY_WORKSHEET_CONTENT: WorksheetContent = {

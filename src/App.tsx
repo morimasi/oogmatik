@@ -673,7 +673,7 @@ const AppContent = () => {
           grade: studentProfile?.grade || '1. Sınıf',
           createdAt: new Date().toISOString(),
           report: report,
-        } as SavedAssessment,
+        } as unknown as Record<string, unknown>,
         settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
         title: `Rapor: ${studentProfile?.name || 'Öğrenci'}`,
       };

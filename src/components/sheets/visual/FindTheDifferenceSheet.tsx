@@ -120,8 +120,8 @@ export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData &
                                             `}
                                         >
                                             {/* İçerik Render */}
-                                            {typeof item === 'object' && item.svg ? (
-                                                <div className="w-[85%] h-[85%] flex items-center justify-center transition-transform group-hover/item:scale-110" dangerouslySetInnerHTML={{ __html: item.svg }} />
+                                            {typeof item === 'object' && item !== null && 'svg' in item && (item as any).svg ? (
+                                                <div className="w-[85%] h-[85%] flex items-center justify-center transition-transform group-hover/item:scale-110" dangerouslySetInnerHTML={{ __html: (item as any).svg }} />
                                             ) : (
                                                 <span
                                                     className={`font-black leading-none select-none text-zinc-900 font-mono transition-transform group-hover/item:scale-125

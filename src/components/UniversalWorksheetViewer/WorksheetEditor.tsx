@@ -21,6 +21,7 @@ const BLOCK_TYPE_LABELS: Record<WorksheetContentBlockType, string> = {
   table: 'Tablo',
   list: 'Liste',
   divider: 'Ayırıcı',
+  blank: 'Boşluk',
 };
 
 function BlockToolbar({

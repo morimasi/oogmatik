@@ -136,6 +136,7 @@ export type AuditAction =
 export interface UserRoleDefinition {
   id: string;
   name: string;
+  label: string;
   permissions: PermissionKey[];
 }
 export type PermissionKey = string;
@@ -153,6 +154,7 @@ export interface ServiceHealth {
   status: ServiceStatus;
   latency?: number;
   message?: string;
+  lastChecked?: string;
 }
 export type ServiceStatus = 'up' | 'down' | 'degraded' | 'operational';
 export type UserRoleType = 'admin' | 'teacher' | 'student' | 'editor' | 'superadmin' | 'parent' | 'guest';
