@@ -127,15 +127,12 @@ export interface ActivityDraft {
 }
 
 export type AuditAction =
-  | 'CREATE'
-  | 'UPDATE'
-  | 'DELETE'
-  | 'LOGIN'
-  | 'LOGOUT'
-  | 'EXPORT'
-  | 'APPROVE'
-  | 'REJECT'
-  | 'OTHER';
+  | 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'EXPORT' | 'APPROVE' | 'REJECT' | 'OTHER'
+  | 'user.created' | 'user.updated' | 'user.deleted' | 'user.login' | 'user.logout' | 'user.role_changed'
+  | 'worksheet.created' | 'worksheet.updated' | 'worksheet.deleted' | 'worksheet.exported'
+  | 'permission.granted' | 'permission.revoked'
+  | 'system.settings_changed' | 'system.backup' | 'cloud.sync' | 'batch.export' | (string & {});
+
 export interface UserRoleDefinition {
   id: string;
   name: string;
@@ -147,6 +144,9 @@ export interface SystemHealthReport {
   status: 'healthy' | 'degraded' | 'down';
   services: ServiceHealth[];
   lastChecked: string;
+  cpuUsagePercent?: number;
+  memUsagePercent?: number;
+  diskUsagePercent?: number;
 }
 export interface ServiceHealth {
   name: string;
@@ -154,8 +154,8 @@ export interface ServiceHealth {
   latency?: number;
   message?: string;
 }
-export type ServiceStatus = 'up' | 'down' | 'degraded';
-export type UserRoleType = 'admin' | 'teacher' | 'student' | 'editor' | 'superadmin';
+export type ServiceStatus = 'up' | 'down' | 'degraded' | 'operational';
+export type UserRoleType = 'admin' | 'teacher' | 'student' | 'editor' | 'superadmin' | 'parent' | 'guest';
 export interface ManagedUser {
   id: string;
   email: string;
@@ -191,7 +191,9 @@ export interface AdminStats {
   totalWorksheets: number;
   exportsToday: number;
   exportsThisWeek?: number;
-  [key: string]: unknown;
+  activeSessionsCount?: number;
+  avgResponseMs?: number;
+  errorRatePercent?: number;
 }
 export interface AdminStatTrend {
   label: string;
@@ -199,6 +201,7 @@ export interface AdminStatTrend {
   trend: number;
   isPositive: boolean;
 }
+
 export interface AuditLogEntry {
   id: string;
   action: AuditAction;
@@ -207,5 +210,7 @@ export interface AuditLogEntry {
   createdAt: string;
   targetId?: string;
   targetType?: string;
+  targetLabel?: string;
   ipAddress?: string;
+  severity: 'info' | 'warning' | 'error';
 }

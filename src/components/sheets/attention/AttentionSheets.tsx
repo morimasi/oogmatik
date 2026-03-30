@@ -3,7 +3,7 @@ import React from 'react';
 import {
     LetterGridTestData, NumberSearchData, ChaoticNumberSearchData, AttentionDevelopmentData, AttentionFocusData, FindDuplicateData, TargetSearchData
 } from '../../../types';
-import { PedagogicalHeader, _GridComponent } from '../common';
+import { PedagogicalHeader, GridComponent } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import type { SystemHealthReport, ServiceHealth, ServiceStatus } from '../../types/admin';
 
 const STATUS_STYLES: Record<ServiceStatus, { bg: string; color: string; label: string; dot: string }> = {
+  up: { bg: '#f0fdf4', color: '#16a34a', label: '✅ Çalışıyor', dot: '#22c55e' },
   operational: { bg: '#f0fdf4', color: '#16a34a', label: '✅ Çalışıyor', dot: '#22c55e' },
   degraded: { bg: '#fffbeb', color: '#d97706', label: '⚠️ Yavaş', dot: '#f59e0b' },
   down: { bg: '#fef2f2', color: '#dc2626', label: '❌ Çevrimdışı', dot: '#ef4444' },
@@ -12,7 +13,7 @@ function generateHealthReport(): SystemHealthReport {
     name,
     status,
     latency,
-    lastCheckedAt: new Date().toISOString(),
+    lastChecked: new Date().toISOString(),
     message: status === 'degraded' ? 'Yüksek gecikme tespit edildi' : undefined,
   });
 
@@ -26,11 +27,10 @@ function generateHealthReport(): SystemHealthReport {
       makeService('Bulut Senkronizasyon', 'operational', 230),
       makeService('AI Motoru', 'operational', 890),
     ],
-    [key: string]: unknown; // Allow extra fields used by the UI
     cpuUsagePercent: 23 + Math.floor(Math.random() * 15),
     memUsagePercent: 48 + Math.floor(Math.random() * 10),
     diskUsagePercent: 61 + Math.floor(Math.random() * 5),
-    generatedAt: new Date().toISOString(),
+    lastChecked: new Date().toISOString(),
   };
 }
 

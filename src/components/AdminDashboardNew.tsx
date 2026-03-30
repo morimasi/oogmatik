@@ -134,9 +134,9 @@ export const AdminDashboardNew: React.FC<AdminDashboardNewProps> = ({ onBack, in
                     { label: 'Toplam Kullanıcı', value: stats.totalUsers, icon: '👥', color: '#3b82f6', sub: `${stats.activeUsers} aktif` },
                     { label: 'Çalışma Kağıtları', value: stats.totalWorksheets, icon: '📄', color: '#10b981', sub: 'toplam' },
                     { label: 'Bugün İndir', value: stats.exportsToday, icon: '⬇', color: '#f59e0b', sub: `${stats.exportsThisWeek} bu hafta` },
-                    { label: 'Aktif Oturum', value: stats.activeSessionsCount, icon: '👤', color: '#8b5cf6', sub: 'şu an' },
-                    { label: 'Yanıt Süresi', value: `${stats.avgResponseMs}ms`, icon: '⚡', color: '#06b6d4', sub: 'ortalama' },
-                    { label: 'Hata Oranı', value: `${stats.errorRatePercent}%`, icon: '⚠️', color: stats.errorRatePercent > 1 ? '#ef4444' : '#22c55e', sub: 'son 24s' },
+                    { label: 'Aktif Oturum', value: stats.activeSessionsCount || 0, icon: '👤', color: '#8b5cf6', sub: 'şu an' },
+                    { label: 'Yanıt Süresi', value: `${stats.avgResponseMs || 0}ms`, icon: '⚡', color: '#06b6d4', sub: 'ortalama' },
+                    { label: 'Hata Oranı', value: `${stats.errorRatePercent || 0}%`, icon: '⚠️', color: (stats.errorRatePercent || 0) > 1 ? '#ef4444' : '#22c55e', sub: 'son 24s' },
                   ].map(({ label, value, icon, color, sub }) => (
                     <div
                       key={label}

@@ -1,5 +1,5 @@
-import React, { _useState, _useCallback, useRef } from 'react';
-import { ImageDisplay, _QUESTION_TYPES } from '../sheets/common';
+import React, { useState, useCallback, useRef } from 'react';
+import { ImageDisplay, QUESTION_TYPES } from '../sheets/common';
 import { InteractiveStoryData, LayoutItem } from '../../types';
 import { useReadingStore } from '../../store/useReadingStore';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
@@ -38,10 +38,12 @@ const DraggableItem = ({ item, children }: { item: any, children: any }) => {
                     }
 
                     // Akıllı Boşluk Doldurma: Boyutu değişen öğenin BİR ALTINDA kalan tüm öğeleri kaydır
-                    if (l.pageIndex === item.pageIndex && l.style.y >= (initialStyle.y + initialStyle.h - 10)) {
+                    const initY = Number(initialStyle.y) || 0;
+                    const initH = Number(initialStyle.h) || 0;
+                    if (l.pageIndex === item.pageIndex && Number(l.style.y) >= (initY + initH - 10)) {
                         return {
                             ...l,
-                            style: { ...l.style, y: l.style.y + heightDiff }
+                            style: { ...l.style, y: Number(l.style.y) + heightDiff }
                         };
                     }
                     return l;

@@ -123,8 +123,8 @@ export const AuditLog: React.FC = () => {
                     {entry.targetLabel && <span style={{ fontWeight: 400, color: '#64748b' }}> — {entry.targetLabel}</span>}
                   </div>
                   <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
-                    {entry.actorName} ({entry.actorRole}) •{' '}
-                    {new Date(entry.timestamp).toLocaleString('tr-TR')}
+                    {entry.userId} •{' '}
+                    {new Date(entry.createdAt).toLocaleString('tr-TR')}
                     {entry.ipAddress && <> • {entry.ipAddress}</>}
                   </div>
                 </div>
@@ -132,15 +132,15 @@ export const AuditLog: React.FC = () => {
                   style={{
                     padding: '2px 6px',
                     borderRadius: 4,
-                    background: sev.bg,
-                    color: sev.color,
+                    background: sev?.bg || '#fff',
+                    color: sev?.color || '#000',
                     fontSize: '0.7rem',
                     fontWeight: 600,
-                    border: `1px solid ${sev.dot}44`,
+                    border: `1px solid ${(sev?.dot || '#ccc')}44`,
                     flexShrink: 0,
                   }}
                 >
-                  {entry.severity.toUpperCase()}
+                  LOG
                 </span>
               </div>
             );

@@ -31,7 +31,10 @@ export const useExportActions = (deps: ExportDeps) => {
             isMathStudio: true,
             title: deps.pageConfig.title,
             instruction: "Aşağıdaki matematik problemlerini çözün.",
-        };
+            targetSkills: [],
+            learningObjectives: [],
+            pedagogicalNote: 'Matematik egzersizi',
+        } as any;
     }, [deps.mode, deps.drillConfig, deps.problemConfig, deps.pageConfig, deps.generatedDrills, deps.generatedProblems]);
 
     const handleSave = useCallback(async (studentId?: string): Promise<{ success: boolean; error?: string }> => {
