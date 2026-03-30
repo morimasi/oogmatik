@@ -11,7 +11,7 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
   const activity = data[0];
   const blocks = activity.layoutArchitecture?.blocks || [];
   const puzzlesBlock = blocks.find((b) => (b.type as string) === 'puzzles');
-  const puzzles = puzzlesBlock?.content?.items || [];
+  const puzzles = (puzzlesBlock?.content as any)?.items || [];
 
   return (
     <div

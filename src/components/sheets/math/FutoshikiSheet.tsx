@@ -78,7 +78,7 @@ export const FutoshikiSheet = ({ data }: { data: FutoshikiData }) => {
 
                                     // Yatay sembol (< veya >)
                                     if (isNumberRow && !isNumberCol) {
-                                        const constraint = p.constraints?.find((c: { r1: number, c1: number, c2: number, r2: number, type: string }) => c.r1 === gridRow && Math.min(c.c1, c.c2) === gridCol && c.r1 === c.r2);
+                                        const constraint = (p.constraints as { r1: number, c1: number, c2: number, r2: number, type: string }[])?.find(c => c.r1 === gridRow && Math.min(c.c1, c.c2) === gridCol && c.r1 === c.r2);
                                         if (constraint) {
                                             const isGreater = (constraint.c1 < constraint.c2 && constraint.type === 'greater') ||
                                                 (constraint.c1 > constraint.c2 && constraint.type === 'less');
@@ -89,7 +89,7 @@ export const FutoshikiSheet = ({ data }: { data: FutoshikiData }) => {
 
                                     // Dikey sembol (^ veya v)
                                     if (!isNumberRow && isNumberCol) {
-                                        const constraint = p.constraints?.find((c: { r1: number, c1: number, c2: number, r2: number, type: string }) => Math.min(c.r1, c.r2) === gridRow && c.c1 === gridCol && c.c1 === c.c2);
+                                        const constraint = (p.constraints as { r1: number, c1: number, c2: number, r2: number, type: string }[])?.find(c => Math.min(c.r1, c.r2) === gridRow && c.c1 === gridCol && c.c1 === c.c2);
                                         if (constraint) {
                                             const isDown = (constraint.r1 < constraint.r2 && constraint.type === 'greater') ||
                                                 (constraint.r1 > constraint.r2 && constraint.type === 'less');

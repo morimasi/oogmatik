@@ -2,7 +2,7 @@
 import React from 'react';
 import { ClockReadingData } from '../../../types';
 import { PedagogicalHeader, AnalogClock } from '../common';
-import { _EditableElement, EditableText } from '../../Editable';
+import { EditableElement, EditableText } from '../../Editable';
 
 export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => (
     <div className="flex flex-col h-full  font-lexend p-2">
