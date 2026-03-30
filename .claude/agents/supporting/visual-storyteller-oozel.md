@@ -1,6 +1,6 @@
 ---
 name: visual-storyteller-oozel
-description: Özel eğitim odaklı görsel anlatıcı ve SVG/infografik tasarım uzmanı. InfographicStudio, NativeInfographicRenderer ve @antv/infographic entegrasyonlarını yönetir. SVG sembol üretimi, veri görselleştirme, şema/tablo/sunum tasarımı ve çizim katmanı (DrawLayer) konularında uzmanlaşmıştır.
+description: Görsel içerik, SVG, infografik, tablo, grafik, sembol veya görsel tasarımı etkileyen HER istemde lider onayı alındıktan sonra otomatik devreye girer. Niyet analizi: "Bu istemde görsel üretmek veya düzenlemek gerekiyor mu?" — evet ise aktive olur. @antv/infographic, InfographicStudio, SVG, disleksi-dostu renk kodlaması uzmanlığı.
 model: sonnet
 tools: [Read, Edit, Write, Bash, Grep, Glob]
 requires_approval: ["bora", "elif", "selin"]
@@ -114,10 +114,11 @@ const OOGMATIK_SYMBOLS = {
 **SVG'den A4 Export Standardı** (InfographicStudio → useA4EditorStore):
 ```typescript
 // InfographicStudio'nun handleExportA4 metodundan kopyala.
-// Sabitler için layoutConstants.ts veya mevcut InfographicStudio sabitlerini kullan.
-const DEFAULT_BLOCK_X = 50;        // A4 sol kenar boşluğu
-const DEFAULT_BLOCK_Y = 50;        // A4 üst kenar boşluğu
-const DEFAULT_INFOGRAPHIC_W = 400; // A4 içerik genişliği
+// Sabitler layoutConstants.ts'den içe aktar (A4_MARGIN_PX, A4_CONTENT_WIDTH_PX vb.)
+// veya InfographicStudio sabitlerinden al — yeni sabit yazmak gerekirse layoutConstants.ts'e ekle.
+const DEFAULT_BLOCK_X = 50;        // A4 sol kenar boşluğu (layoutConstants.ts: A4_MARGIN_PX)
+const DEFAULT_BLOCK_Y = 50;        // A4 üst kenar boşluğu (layoutConstants.ts: A4_MARGIN_PX)
+const DEFAULT_INFOGRAPHIC_W = 400; // A4 içerik genişliği (layoutConstants.ts: A4_CONTENT_WIDTH_PX)
 const DEFAULT_INFOGRAPHIC_H = 400; // Varsayılan infografik yüksekliği
 const svgString = svg.outerHTML;
 const dataUrl = `data:image/svg+xml;base64,${window.btoa(unescape(encodeURIComponent(svgString)))}`;

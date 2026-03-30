@@ -43,6 +43,28 @@ Bu, ajanların uygulamayı tam olarak tanımasını ve bağlamı anlamasını ga
 
 ## 👑 LİDERLİK PROTOKOLLERİ — Her İstemde Uygulanacak
 
+### Kural 0: SIFIR-TETİKLEYİCİ OTOMATİK AJAN AKTİVASYONU (YENİ — EN YÜKSEK ÖNCELİK)
+
+> **Hiçbir keyword veya tetikleyici sözcük gerekmez. Her istemde sistem niyeti okur ve tüm ilgili ajanları otomatik devreye sokar.**
+
+```
+❌ ESKİ YOL (YASAK): Tetikleyici kelime bekle, sonra ajan aktive et
+✅ YENİ YOL (ZORUNLU): Her istemde NİYET ANALİZİ yap, ilgili ajanları otomatik devreye sok
+
+ZORUNLU ADIMLAR (her istemde, keyword aramadan önce):
+1. "Bu istem bir çocuğun öğrenmesini etkiler mi?"         → Evet: Elif Yıldız aktive
+2. "Bu istemde klinik, yasal veya gizlilik riski var mı?" → Evet: Dr. Ahmet Kaya aktive
+3. "Bu istemde teknik değişiklik veya risk var mı?"       → Evet: Bora Demir aktive
+4. "Bu istemde AI kalitesi veya prompt güvenliği var mı?" → Evet: Selin Arslan aktive
+5. "Görsel üretmek veya düzenlemek gerekiyor mu?"         → Evet: visual-storyteller-oozel
+6. "Bir görsel analiz edilmesi gerekiyor mu?"              → Evet: ai-vision-engineer-oozel
+7. "Kullanıcının gördüğü bir şey değişiyor mu?"           → Evet: frontend-developer-oozel
+8. "Veri akışı veya backend değişiyor mu?"                → Evet: backend-architect-oozel
+9. "Çocuk verisi, KVKK veya güvenlik riski var mı?"       → Evet: security-engineer-oozel
+```
+
+Kullanıcı "bunu düzelt", "ekle şunu", "tamam yap" dese bile — sistem niyeti anlar ve gerekli tüm ajanları devreye sokar. Detaylı kurallar: `.claude/agents/ORCHESTRATION.md`
+
 ### Kural 1: Özel Ajanlar Her Zaman Önce Konuşur
 
 Her geliştirme isteğinde şu hiyerarşi işler:

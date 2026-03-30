@@ -1,5 +1,20 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "activation_mode": "semantic_auto",
+  "zero_trigger": true,
+  "intent_classification": true,
+  "protocol": "Her istemde keyword aramadan önce NİYET ANALİZİ yap. Hangi ajanların alanı etkileniyor? Tümünü eş zamanlı aktive et.",
+  "intent_questions": {
+    "elif": "Bu istem bir çocuğun öğrenmesini etkiler mi?",
+    "ahmet": "Bu istemde klinik, yasal veya gizlilik riski var mı?",
+    "bora": "Bu istemde teknik bir değişiklik veya risk var mı?",
+    "selin": "Bu istemde AI kalitesi, hallucination riski veya prompt güvenliği var mı?",
+    "frontend-developer-oozel": "Bu istem kullanıcının gördüğü bir şeyi değiştiriyor mu?",
+    "backend-architect-oozel": "Bu istem veri akışını veya backend'i değiştiriyor mu?",
+    "security-engineer-oozel": "Bu istemde çocuk verisi, KVKK veya güvenlik riski var mı?",
+    "visual-storyteller-oozel": "Bu istemde görsel üretmek veya düzenlemek gerekiyor mu?",
+    "ai-vision-engineer-oozel": "Bu istemde bir görsel analiz edilmesi gerekiyor mu?"
+  },
   "leaders": {
     "elif": {
       "name": "Elif Yıldız",
@@ -7,7 +22,17 @@
       "domain": "pedagogy",
       "priority": 1,
       "file": ".claude/agents/ozel-ogrenme-uzmani.md",
-      "autoActivate": [
+      "autoActivate": "SEMANTIC — öğrenci öğrenmesini, aktiviteleri veya pedagojik tasarımı etkileyen HER istemde otomatik aktive — keyword gerekmez",
+      "activationQuestion": "Bu istem bir çocuğun öğrenmesini etkiler mi?",
+      "capabilities": [
+        "Fonolojik farkındalık aktiviteleri",
+        "ZPD uyumlu zorluk kalibrasyonu",
+        "Multisensory öğrenme tasarımı",
+        "Başarı odaklı aktivite sıralaması",
+        "pedagogicalNote yazımı"
+      ],
+      "historicalTriggers_note": "KULLANMA — bu keyword listesi yalnızca geçmiş referans için korunmuştur; yeni sistemde niyet analizi kullanılır",
+      "historicalTriggers": [
         "aktivite",
         "çalışma kâğıdı",
         "öğrenci profili",
@@ -15,13 +40,6 @@
         "öğrenme hedefi",
         "ZPD",
         "başarı odaklı"
-      ],
-      "capabilities": [
-        "Fonolojik farkındalık aktiviteleri",
-        "ZPD uyumlu zorluk kalibrasyonu",
-        "Multisensory öğrenme tasarımı",
-        "Başarı odaklı aktivite sıralaması",
-        "pedagogicalNote yazımı"
       ]
     },
     "ahmet": {
@@ -30,7 +48,17 @@
       "domain": "clinical",
       "priority": 1,
       "file": ".claude/agents/ozel-egitim-uzmani.md",
-      "autoActivate": [
+      "autoActivate": "SEMANTIC — klinik içerik, öğrenci sağlığı, gizlilik veya yasal riski etkileyen HER istemde otomatik aktive — keyword gerekmez",
+      "activationQuestion": "Bu istemde klinik, yasal veya gizlilik riski var mı?",
+      "capabilities": [
+        "BEP (Bireyselleştirilmiş Eğitim Programı) yazımı",
+        "MEB yönetmeliği uyum kontrolü",
+        "KVKK veri gizliliği standartları",
+        "Tanı koyucu dil kontrolü",
+        "RAM değerlendirme formatları"
+      ],
+      "historicalTriggers_note": "KULLANMA — bu keyword listesi yalnızca geçmiş referans için korunmuştur; yeni sistemde niyet analizi kullanılır",
+      "historicalTriggers": [
         "BEP",
         "RAM",
         "tanı",
@@ -39,13 +67,6 @@
         "özel eğitim yönetmeliği",
         "KVKK",
         "gizlilik"
-      ],
-      "capabilities": [
-        "BEP (Bireyselleştirilmiş Eğitim Programı) yazımı",
-        "MEB yönetmeliği uyum kontrolü",
-        "KVKK veri gizliliği standartları",
-        "Tanı koyucu dil kontrolü",
-        "RAM değerlendirme formatları"
       ]
     },
     "bora": {
@@ -54,7 +75,18 @@
       "domain": "engineering",
       "priority": 1,
       "file": ".claude/agents/yazilim-muhendisi.md",
-      "autoActivate": [
+      "autoActivate": "SEMANTIC — kod değişikliği, teknik implementasyon, hata ayıklama veya sistem mimarisini etkileyen HER istemde otomatik aktive — keyword gerekmez",
+      "activationQuestion": "Bu istemde teknik bir değişiklik veya risk var mı?",
+      "capabilities": [
+        "React 18 + TypeScript development",
+        "Vercel Serverless Functions",
+        "Firebase/Firestore architecture",
+        "Rate limiting implementation",
+        "AppError standardı enforcement",
+        "Vitest test yazımı"
+      ],
+      "historicalTriggers_note": "KULLANMA — bu keyword listesi yalnızca geçmiş referans için korunmuştur; yeni sistemde niyet analizi kullanılır",
+      "historicalTriggers": [
         "API",
         "endpoint",
         "React",
@@ -65,14 +97,6 @@
         "güvenlik",
         "test",
         "rate limiting"
-      ],
-      "capabilities": [
-        "React 18 + TypeScript development",
-        "Vercel Serverless Functions",
-        "Firebase/Firestore architecture",
-        "Rate limiting implementation",
-        "AppError standardı enforcement",
-        "Vitest test yazımı"
       ]
     },
     "selin": {
@@ -81,7 +105,18 @@
       "domain": "ai",
       "priority": 1,
       "file": ".claude/agents/ai-muhendisi.md",
-      "autoActivate": [
+      "autoActivate": "SEMANTIC — AI üretimi, prompt kalitesi, model davranışı veya Gemini entegrasyonunu etkileyen HER istemde otomatik aktive — keyword gerekmez",
+      "activationQuestion": "Bu istemde AI kalitesi, hallucination riski veya prompt güvenliği var mı?",
+      "capabilities": [
+        "Gemini 2.5 Flash prompt engineering",
+        "JSON schema tasarımı",
+        "JSON repair motoru bakımı",
+        "Token maliyet optimizasyonu",
+        "Hallucination risk analizi",
+        "Batch processing implementasyonu"
+      ],
+      "historicalTriggers_note": "KULLANMA — bu keyword listesi yalnızca geçmiş referans için korunmuştur; yeni sistemde niyet analizi kullanılır",
+      "historicalTriggers": [
         "AI",
         "Gemini",
         "prompt",
@@ -90,14 +125,6 @@
         "token",
         "hallucination",
         "model"
-      ],
-      "capabilities": [
-        "Gemini 2.5 Flash prompt engineering",
-        "JSON schema tasarımı",
-        "JSON repair motoru bakımı",
-        "Token maliyet optimizasyonu",
-        "Hallucination risk analizi",
-        "Batch processing implementasyonu"
       ]
     }
   },
@@ -107,7 +134,18 @@
       "source": "agency-agents-adapted",
       "domain": "frontend",
       "file": ".claude/agents/supporting/frontend-developer-oozel.md",
-      "triggers": [
+      "requiresApproval": [
+        "bora",
+        "elif"
+      ],
+      "capabilities": [
+        "Disleksi-dostu UI bileşenleri (Lexend, geniş satır aralığı)",
+        "Diskalkuli görsel destek (sayı çizgisi, renkli bloklar)",
+        "Disgrafi alternatif girdiler (sürükle-bırak)",
+        "WCAG 2.1 AAA erişilebilirlik",
+        "React 18 + TypeScript + Tailwind CSS"
+      ],
+      "legacyTriggers": [
         "UI",
         "bileşen",
         "React",
@@ -118,21 +156,26 @@
         "disleksi-dostu",
         "görsel tasarım"
       ],
-      "requiresApproval": ["bora", "elif"],
-      "capabilities": [
-        "Disleksi-dostu UI bileşenleri (Lexend, geniş satır aralığı)",
-        "Diskalkuli görsel destek (sayı çizgisi, renkli bloklar)",
-        "Disgrafi alternatif girdiler (sürükle-bırak)",
-        "WCAG 2.1 AAA erişilebilirlik",
-        "React 18 + TypeScript + Tailwind CSS"
-      ]
+      "activationQuestion": "Bu istem kullanıcının gördüğü bir şeyi değiştiriyor mu?",
+      "activation_mode": "semantic_auto"
     },
     "backend-architect-oozel": {
       "name": "Backend Architect (Özel Eğitim)",
       "source": "agency-agents-adapted",
       "domain": "backend",
       "file": ".claude/agents/supporting/backend-architect-oozel.md",
-      "triggers": [
+      "requiresApproval": [
+        "bora"
+      ],
+      "capabilities": [
+        "KVKK uyumlu veri modelleme",
+        "BEP veri yapıları",
+        "Firebase/Firestore architecture",
+        "Rate limiting API endpoints",
+        "Audit logging implementation",
+        "Vercel Serverless Functions"
+      ],
+      "legacyTriggers": [
         "API",
         "endpoint",
         "database",
@@ -142,22 +185,26 @@
         "KVKK",
         "rate limiting"
       ],
-      "requiresApproval": ["bora"],
-      "capabilities": [
-        "KVKK uyumlu veri modelleme",
-        "BEP veri yapıları",
-        "Firebase/Firestore architecture",
-        "Rate limiting API endpoints",
-        "Audit logging implementation",
-        "Vercel Serverless Functions"
-      ]
+      "activationQuestion": "Bu istem veri akışını veya backend'i değiştiriyor mu?",
+      "activation_mode": "semantic_auto"
     },
     "security-engineer-oozel": {
       "name": "Security Engineer (Özel Eğitim)",
       "source": "agency-agents-adapted",
       "domain": "security",
       "file": ".claude/agents/supporting/security-engineer-oozel.md",
-      "triggers": [
+      "requiresApproval": [
+        "bora"
+      ],
+      "capabilities": [
+        "KVKK threat modeling",
+        "Firestore Security Rules",
+        "Çocuk veri gizliliği standartları",
+        "OWASP Top 10 security checks",
+        "Encryption implementation (AES-256)",
+        "Audit logging system"
+      ],
+      "legacyTriggers": [
         "güvenlik",
         "security",
         "KVKK",
@@ -168,15 +215,8 @@
         "RBAC",
         "audit log"
       ],
-      "requiresApproval": ["bora"],
-      "capabilities": [
-        "KVKK threat modeling",
-        "Firestore Security Rules",
-        "Çocuk veri gizliliği standartları",
-        "OWASP Top 10 security checks",
-        "Encryption implementation (AES-256)",
-        "Audit logging system"
-      ]
+      "activationQuestion": "Bu istemde çocuk verisi, KVKK veya güvenlik riski var mı?",
+      "activation_mode": "semantic_auto"
     },
     "visual-storyteller-oozel": {
       "name": "Visual Storyteller & SVG Uzmanı (Özel Eğitim)",
@@ -184,7 +224,22 @@
       "original": "msitarzewski/agency-agents — design/design-visual-storyteller.md + design/design-image-prompt-engineer.md",
       "domain": "visual",
       "file": ".claude/agents/supporting/visual-storyteller-oozel.md",
-      "triggers": [
+      "requiresApproval": [
+        "bora",
+        "elif",
+        "selin"
+      ],
+      "capabilities": [
+        "@antv/infographic syntax üretimi (list-row, sequence-steps, compare-binary, hierarchy-mindmap)",
+        "SVG sembol ve piktogram üretimi",
+        "Disleksi-dostu renk kodlaması ve görsel tasarım",
+        "infographicService.ts prompt mühendisliği (Gemini 2.5 Flash)",
+        "A4 export (useA4EditorStore entegrasyonu)",
+        "WCAG AA renk kontrast uyumu",
+        "OCR blueprint → SVG görselleştirme",
+        "5 profil × 4 yaş grubu görsel uyum"
+      ],
+      "legacyTriggers": [
         "infografik",
         "infographic",
         "SVG",
@@ -202,17 +257,8 @@
         "görsel anlatı",
         "renk kodlaması"
       ],
-      "requiresApproval": ["bora", "elif", "selin"],
-      "capabilities": [
-        "@antv/infographic syntax üretimi (list-row, sequence-steps, compare-binary, hierarchy-mindmap)",
-        "SVG sembol ve piktogram üretimi",
-        "Disleksi-dostu renk kodlaması ve görsel tasarım",
-        "infographicService.ts prompt mühendisliği (Gemini 2.5 Flash)",
-        "A4 export (useA4EditorStore entegrasyonu)",
-        "WCAG AA renk kontrast uyumu",
-        "OCR blueprint → SVG görselleştirme",
-        "5 profil × 4 yaş grubu görsel uyum"
-      ]
+      "activationQuestion": "Bu istemde görsel üretmek veya düzenlemek gerekiyor mu?",
+      "activation_mode": "semantic_auto"
     },
     "ai-vision-engineer-oozel": {
       "name": "AI Görsel Mühendisi / OCR Uzmanı (Özel Eğitim)",
@@ -220,7 +266,22 @@
       "original": "msitarzewski/agency-agents — engineering/engineering-ai-engineer.md",
       "domain": "ai-vision",
       "file": ".claude/agents/supporting/ai-vision-engineer-oozel.md",
-      "triggers": [
+      "requiresApproval": [
+        "bora",
+        "selin"
+      ],
+      "capabilities": [
+        "Gemini Vision (multimodal) prompt mühendisliği",
+        "OCR pipeline yönetimi (analyze → blueprint → variations)",
+        "Türkçe eğitim materyali görüntü analizi",
+        "imageValidator.ts görsel format/boyut kontrolü",
+        "KVKK uyumlu görüntü işleme",
+        "OCR blueprint kalite doğrulama",
+        "retryWithBackoff() ile hata yönetimi",
+        "Rate limiting (OCR endpoint'leri)",
+        "api/ocr/ endpoint yönetimi"
+      ],
+      "legacyTriggers": [
         "OCR",
         "görüntü analizi",
         "vision",
@@ -237,25 +298,19 @@
         "varyasyon üretimi",
         "OCR blueprint"
       ],
-      "requiresApproval": ["bora", "selin"],
-      "capabilities": [
-        "Gemini Vision (multimodal) prompt mühendisliği",
-        "OCR pipeline yönetimi (analyze → blueprint → variations)",
-        "Türkçe eğitim materyali görüntü analizi",
-        "imageValidator.ts görsel format/boyut kontrolü",
-        "KVKK uyumlu görüntü işleme",
-        "OCR blueprint kalite doğrulama",
-        "retryWithBackoff() ile hata yönetimi",
-        "Rate limiting (OCR endpoint'leri)",
-        "api/ocr/ endpoint yönetimi"
-      ]
+      "activationQuestion": "Bu istemde bir görsel analiz edilmesi gerekiyor mu?",
+      "activation_mode": "semantic_auto"
     }
   },
   "activationRules": {
     "pedagogy": {
       "description": "Pedagojik içerik (aktivite, çalışma kâğıdı, öğrenci profili)",
-      "requiredLeaders": ["elif"],
-      "optionalLeaders": ["ahmet"],
+      "requiredLeaders": [
+        "elif"
+      ],
+      "optionalLeaders": [
+        "ahmet"
+      ],
       "supportingAgents": [],
       "examples": [
         "Yeni okuma aktivitesi oluştur",
@@ -265,8 +320,12 @@
     },
     "clinical": {
       "description": "Klinik içerik (BEP, RAM, tanı bilgileri)",
-      "requiredLeaders": ["ahmet"],
-      "optionalLeaders": ["elif"],
+      "requiredLeaders": [
+        "ahmet"
+      ],
+      "optionalLeaders": [
+        "elif"
+      ],
       "supportingAgents": [],
       "examples": [
         "BEP hedefi yaz",
@@ -276,9 +335,15 @@
     },
     "frontend": {
       "description": "Frontend UI/UX geliştirme",
-      "requiredLeaders": ["bora"],
-      "optionalLeaders": ["elif"],
-      "supportingAgents": ["frontend-developer-oozel"],
+      "requiredLeaders": [
+        "bora"
+      ],
+      "optionalLeaders": [
+        "elif"
+      ],
+      "supportingAgents": [
+        "frontend-developer-oozel"
+      ],
       "examples": [
         "Yeni React bileşeni oluştur",
         "Disleksi-dostu buton tasarla",
@@ -287,9 +352,15 @@
     },
     "backend": {
       "description": "Backend API/Database geliştirme",
-      "requiredLeaders": ["bora"],
-      "optionalLeaders": ["ahmet"],
-      "supportingAgents": ["backend-architect-oozel"],
+      "requiredLeaders": [
+        "bora"
+      ],
+      "optionalLeaders": [
+        "ahmet"
+      ],
+      "supportingAgents": [
+        "backend-architect-oozel"
+      ],
       "examples": [
         "Yeni API endpoint ekle",
         "Firestore koleksiyon tasarla",
@@ -298,9 +369,14 @@
     },
     "security": {
       "description": "Güvenlik ve veri gizliliği",
-      "requiredLeaders": ["bora", "ahmet"],
+      "requiredLeaders": [
+        "bora",
+        "ahmet"
+      ],
       "optionalLeaders": [],
-      "supportingAgents": ["security-engineer-oozel"],
+      "supportingAgents": [
+        "security-engineer-oozel"
+      ],
       "examples": [
         "KVKK uyumu kontrol et",
         "Firestore security rules yaz",
@@ -309,8 +385,12 @@
     },
     "ai": {
       "description": "AI model/prompt geliştirme",
-      "requiredLeaders": ["selin"],
-      "optionalLeaders": ["elif"],
+      "requiredLeaders": [
+        "selin"
+      ],
+      "optionalLeaders": [
+        "elif"
+      ],
       "supportingAgents": [],
       "examples": [
         "Yeni prompt şablonu yaz",
@@ -320,9 +400,17 @@
     },
     "visual": {
       "description": "Görsel içerik: SVG, infografik, sembol, tablo, grafik üretimi",
-      "requiredLeaders": ["bora", "selin"],
-      "optionalLeaders": ["elif"],
-      "supportingAgents": ["visual-storyteller-oozel", "frontend-developer-oozel"],
+      "requiredLeaders": [
+        "bora",
+        "selin"
+      ],
+      "optionalLeaders": [
+        "elif"
+      ],
+      "supportingAgents": [
+        "visual-storyteller-oozel",
+        "frontend-developer-oozel"
+      ],
       "examples": [
         "Yeni infografik şablonu ekle",
         "SVG sembol kütüphanesi oluştur",
@@ -332,9 +420,16 @@
     },
     "ocr-vision": {
       "description": "OCR, görüntü analizi, Gemini Vision ve blueprint üretimi",
-      "requiredLeaders": ["bora", "selin"],
-      "optionalLeaders": ["ahmet"],
-      "supportingAgents": ["ai-vision-engineer-oozel"],
+      "requiredLeaders": [
+        "bora",
+        "selin"
+      ],
+      "optionalLeaders": [
+        "ahmet"
+      ],
+      "supportingAgents": [
+        "ai-vision-engineer-oozel"
+      ],
       "examples": [
         "OCR analiz promptunu iyileştir",
         "Yeni görsel format desteği ekle",
@@ -345,8 +440,14 @@
     },
     "full-feature": {
       "description": "Tam özellik geliştirme (tüm katmanlar)",
-      "requiredLeaders": ["elif", "bora", "selin"],
-      "optionalLeaders": ["ahmet"],
+      "requiredLeaders": [
+        "elif",
+        "bora",
+        "selin"
+      ],
+      "optionalLeaders": [
+        "ahmet"
+      ],
       "supportingAgents": [
         "frontend-developer-oozel",
         "backend-architect-oozel",
@@ -364,37 +465,37 @@
   },
   "workflow": {
     "standard": {
-      "description": "Standart iş akışı (küçük değişiklikler)",
+      "description": "Standart iş akışı — SIFIR TETİKLEYİCİ (keyword gerekmez, niyet analizi ile çalışır)",
       "steps": [
         {
           "step": 1,
-          "name": "Task Classification",
-          "action": "Görevi yukarıdaki aktivasyon kurallarına göre sınıflandır"
+          "name": "Intent Analysis",
+          "action": "Önce NİYET ANALİZİ: Her lider 'Bu istem benim alanımı etkiler mi?' sorusunu sorar. Keyword arama — keyword gerekmez."
         },
         {
           "step": 2,
-          "name": "Leader Activation",
-          "action": "Gerekli lider ajanları otomatik aktive et"
+          "name": "Automatic Leader Activation",
+          "action": "Niyete göre etkilenen tüm lider ajanlar eş zamanlı aktive edilir (paralel, sıralı değil)"
         },
         {
           "step": 3,
-          "name": "Leader Approval",
-          "action": "Lider ajanlar onay versin (ZORUNLU)"
+          "name": "Leader Evaluation",
+          "action": "Her lider kendi alanından değerlendirir, onay verir veya DURDUR diyebilir"
         },
         {
           "step": 4,
           "name": "Supporting Agent Activation",
-          "action": "Onay sonrası supporting ajanları çağır"
+          "action": "Lider onayı ile ilgili supporting ajanlar devreye girer"
         },
         {
           "step": 5,
-          "name": "Implementation",
-          "action": "Supporting ajanlar görevi uygular"
+          "name": "Coordinated Implementation",
+          "action": "Supporting ajanlar koordineli çalışır, çakışma olmaz"
         },
         {
           "step": 6,
           "name": "Final Review",
-          "action": "Lider ajanlar son kontrol yapar"
+          "action": "Lider ajanlar son kontrolü yapar ve en kararlı sonucu teslim eder"
         }
       ]
     },

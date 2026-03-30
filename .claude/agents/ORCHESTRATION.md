@@ -1,371 +1,232 @@
-# 🎭 Ajan Orkestrasyon Sistemi
+# 🎭 Ajan Orkestrasyon Sistemi — Sıfır-Tetikleyici Otomatik Aktivasyon
 
-> **Otomatik Ajan Koordinasyonu**
-> Bu dosya, Oogmatik'te çalışan tüm ajanların otomatik koordinasyonunu sağlar.
-
----
-
-## 🎯 Sistem Amacı
-
-Her kullanıcı isteğinde:
-1. **Otomatik görev sınıflandırması** (pedagojik mi, teknik mi, güvenlik mi?)
-2. **İlgili lider ajanları otomatik aktive etme**
-3. **Supporting ajanları lider onayı ile devreye sokma**
-4. **Koordineli çalışma sağlama** (çakışma yok, hiyerarşi net)
+> **Her istemde keyword gerektirmez. Sistem niyeti okur, ajanları kendisi devreye sokar.**
+> Bu dosya, Oogmatik'te çalışan tüm ajanların **tam otomatik** koordinasyonunu sağlar.
 
 ---
 
-## 📋 Aktivasyon Kuralları
+## 🚨 TEMEL KURAL: SIFIR-TETİKLEYİCİ PROTOKOL
 
-### Kural 1: Pedagojik İçerik
-
-**Tetikleyiciler**: `aktivite`, `çalışma kâğıdı`, `öğrenci profili`, `pedagojik`, `öğrenme hedefi`, `ZPD`
-
-**Aktive Olan Ajanlar**:
-- ✅ **Elif Yıldız** (ZORUNLU — Pedagoji Lider)
-- 🔄 Dr. Ahmet Kaya (Opsiyonel — klinik içerik varsa)
-
-**Supporting Ajanlar**: Yok (pedagojik kararlar sadece Elif verir)
-
-**Örnekler**:
 ```
-Kullanıcı: "Yeni okuma aktivitesi oluştur"
-→ Elif aktive edilir
-→ pedagogicalNote, ZPD uyumu, başarı odaklı tasarım kontrol edilir
+❌ ESKİ YOL (YASAK): "BEP" kelimesini görünce Dr. Ahmet'i çağır
+✅ YENİ YOL (ZORUNLU): Her isteği analiz et, niyeti anla, tüm ilgili ajanları otomatik devreye sok
+```
+
+**Her istemde, herhangi bir kelime veya anahtar sözcük aramadan önce şunu yap:**
+
+```
+1. İstemin gerçek amacını anla (literal değil, intent odaklı)
+2. Hangi uzmanlık alanları etkileniyor? (pedagoji / klinik / teknik / AI / görsel / OCR)
+3. Tüm ilgili liderleri eş zamanlı aktive et
+4. Supporting ajanları lider onayı ile devreye sok
+5. Koordineli çalış, sonucu teslim et
 ```
 
 ---
 
-### Kural 2: Klinik İçerik
+## 🧭 OTOMATİK NİYET SINIFLANDIRMA MOToru
 
-**Tetikleyiciler**: `BEP`, `RAM`, `tanı`, `klinik`, `MEB`, `özel eğitim yönetmeliği`, `KVKK`, `gizlilik`
+### Adım 1: İstemin Gerçek Amacını Bul
 
-**Aktive Olan Ajanlar**:
-- ✅ **Dr. Ahmet Kaya** (ZORUNLU — Klinik Lider)
-- 🔄 Elif Yıldız (Opsiyonel — pedagojik bağlam varsa)
+Kullanıcı ne derse desin, şu soruları sor:
 
-**Supporting Ajanlar**: Yok (klinik kararlar sadece Dr. Ahmet verir)
+| Soru | Evet ise → Ajan |
+|------|----------------|
+| Bu istem öğrencinin öğrenmesini etkiler mi? | ✅ Elif Yıldız (Pedagoji) |
+| Bu istem öğrenci sağlığı, tanısı, BEP veya gizlilik içeriyor mu? | ✅ Dr. Ahmet Kaya (Klinik) |
+| Bu istem kod, API, veritabanı, test veya sistem değişikliği içeriyor mu? | ✅ Bora Demir (Mühendislik) |
+| Bu istem AI modeli, prompt, üretilen içerik kalitesi veya Gemini ile ilgili mi? | ✅ Selin Arslan (AI) |
+| Bu istem görsel, SVG, infografik, tablo, grafik, sembol içeriyor mu? | ✅ visual-storyteller-oozel (Supporting) |
+| Bu istem görüntü analizi, OCR, fotoğraf tarama veya Vision ile ilgili mi? | ✅ ai-vision-engineer-oozel (Supporting) |
 
-**Örnekler**:
+### Adım 2: Kapsam Değerlendirmesi
+
 ```
-Kullanıcı: "BEP hedefi yaz"
-→ Dr. Ahmet aktive edilir
-→ SMART format, MEB uyumu, KVKK gizliliği kontrol edilir
+İstem → Otomatik Sınıflandırma → Ajan Seçimi
+   ↓
+[Küçük değişiklik]: 1 lider yeterli
+[Orta değişiklik]:  2 lider + ilgili supporting
+[Büyük özellik]:    Tüm liderler + tüm ilgili supporting
+[Klinik/güvenlik]:  KRİTİK — çok sayıda lider zorunlu, veto hakkı aktif
+```
+
+### Adım 3: Eş Zamanlı Aktivasyon
+
+Seçilen tüm ajanlar **birlikte** çalışır. Sıralı değil, **paralel**.
+
+---
+
+## 📐 OTOMATİK AKTİVASYON KARARI AĞACI
+
+```
+Kullanıcı bir istem gönderir
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  NİYET ANALİZİ (otomatik — keyword gerekmez)                │
+│                                                             │
+│  "Bu istem hangi alanları etkiler?"                         │
+│                                                             │
+│  → Öğrenme/aktivite/materyal?      → Elif (ZORUNLU)         │
+│  → BEP/klinik/tanı/veri gizliliği? → Ahmet (ZORUNLU)       │
+│  → Kod/API/sistem/mimari?          → Bora (ZORUNLU)         │
+│  → AI/prompt/üretim kalitesi?      → Selin (ZORUNLU)        │
+│  → Görsel/SVG/infografik/sembol?   → visual-storyteller     │
+│  → OCR/görüntü/fotoğraf/blueprint? → ai-vision-engineer     │
+│  → UI/React/Tailwind/erişilebilir? → frontend-developer     │
+│  → API/Firestore/veri modeli?      → backend-architect      │
+│  → Güvenlik/KVKK/şifreleme?       → security-engineer       │
+└─────────────────────────────────────────────────────────────┘
+         │
+         ▼
+   Seçilen ajanlar eş zamanlı aktive edilir
+         │
+         ▼
+   Koordineli çalışma + veto sistemi
+         │
+         ▼
+   Kullanıcıya en kararlı, en doğru sonuç
 ```
 
 ---
 
-### Kural 3: Frontend Geliştirme
+## 🎓 GERÇEK DÜNYA ÖRNEKLERİ — Keyword Yok, Niyet Var
 
-**Tetikleyiciler**: `UI`, `bileşen`, `React`, `Tailwind`, `Lexend`, `erişilebilirlik`, `WCAG`, `disleksi-dostu`
-
-**Aktive Olan Ajanlar**:
-- ✅ **Bora Demir** (ZORUNLU — Teknik Lider)
-- 🔄 Elif Yıldız (Opsiyonel — pedagojik UI gereklilikleri varsa)
-- 🤖 **frontend-developer-oozel** (Supporting — Bora + Elif onayı ile)
-
-**İş Akışı**:
+### Örnek 1: "Bunu düzelt"
 ```
-Kullanıcı: "Yeni React bileşeni oluştur"
-  ↓
-1. Bora → Teknik gereksinim analizi
-2. Elif → Pedagojik UI standartları (Lexend, satır aralığı, vb.)
-3. Bora + Elif → Onay
-  ↓
-4. frontend-developer-oozel → Implementasyon
-  ↓
-5. Bora → Son teknik kontrol
-6. Elif → Son pedagojik kontrol
+Kullanıcı: "Bunu düzelt"
+         ↓
+Sistem niyeti analiz eder:
+  - "Bunu" neyi kastediyor? (önceki koda bak, contexte bak)
+  - Kod değişikliği → Bora devreye girer
+  - Eğer pedagojik içerik → Elif de devreye girer
+  - Eğer AI çıktısı → Selin de devreye girer
 ```
 
-**Örnekler**:
+### Örnek 2: "Ekle şunu"
 ```
-Kullanıcı: "Disleksi-dostu buton tasarla"
-→ Bora + Elif + frontend-developer-oozel aktive edilir
-→ Lexend font, geniş satır aralığı, WCAG AAA kontrol edilir
-```
-
----
-
-### Kural 4: Backend Geliştirme
-
-**Tetikleyiciler**: `API`, `endpoint`, `database`, `Firestore`, `veri modeli`, `BEP veri yapısı`, `KVKK`, `rate limiting`
-
-**Aktive Olan Ajanlar**:
-- ✅ **Bora Demir** (ZORUNLU — Teknik Lider)
-- 🔄 Dr. Ahmet Kaya (Opsiyonel — KVKK/veri gizliliği varsa)
-- 🤖 **backend-architect-oozel** (Supporting — Bora onayı ile)
-
-**İş Akışı**:
-```
-Kullanıcı: "Yeni API endpoint ekle"
-  ↓
-1. Bora → Mimari tasarım, rate limiting, AppError standardı
-2. Dr. Ahmet → (eğer öğrenci verisi varsa) KVKK uyumu
-3. Bora → Onay
-  ↓
-4. backend-architect-oozel → Implementasyon
-  ↓
-5. Bora → Son kontrol (rate limiting, error handling)
+Kullanıcı: "Buraya bir tablo ekle"
+         ↓
+Sistem niyeti analiz eder:
+  - Görsel tablo → visual-storyteller-oozel (SVG/infografik)
+  - React bileşeni → Bora + frontend-developer-oozel
+  - Öğrenciye görünecek → Elif (pedagojik uygunluk)
+  - AI tarafından üretilecek → Selin (prompt kalitesi)
 ```
 
-**Örnekler**:
+### Örnek 3: "Neden çalışmıyor?"
 ```
-Kullanıcı: "Firestore'da BEP koleksiyonu tasarla"
-→ Bora + Dr. Ahmet + backend-architect-oozel aktive edilir
-→ KVKK veri ayrışması, BEP SMART format kontrol edilir
+Kullanıcı: "OCR neden çalışmıyor?"
+         ↓
+Sistem niyeti analiz eder:
+  - OCR → ai-vision-engineer-oozel
+  - Teknik hata → Bora
+  - API sorunu → backend-architect-oozel
+  - Gemini Vision → Selin
+```
+
+### Örnek 4: "Bunu öğrenci için yap"
+```
+Kullanıcı: "Bu aktiviteyi 7 yaşındaki disleksi desteğine ihtiyacı olan öğrenci için uyarla"
+         ↓
+Sistem niyeti analiz eder:
+  - Öğrenci → Elif (ZPD, pedagoji)
+  - Disleksi desteğine ihtiyacı var → Ahmet (klinik dil kontrolü)
+  - Aktivite değişikliği → Selin (AI prompt) + Bora (teknik)
+  - Görsel uyarlama → visual-storyteller-oozel (renk, sembol)
+```
+
+### Örnek 5: "Tamam yap"
+```
+Kullanıcı: "printService'i düzelt, tamam yap"
+         ↓
+Sistem niyeti analiz eder:
+  - Servis kodu → Bora (TypeScript, test)
+  - Print → frontend bileşeni → frontend-developer-oozel
+  - Öğrenci çıktısı → Elif (boş sayfa baskısı öğrenciyi etkiler)
 ```
 
 ---
 
-### Kural 5: Güvenlik ve Veri Gizliliği
+## 🤝 KOORDİNASYON HİYERARŞİSİ
 
-**Tetikleyiciler**: `güvenlik`, `security`, `KVKK`, `veri gizliliği`, `şifreleme`, `encryption`, `Firestore rules`, `RBAC`, `audit log`
+### Lider Ajanlar (Her zaman önce)
 
-**Aktive Olan Ajanlar**:
-- ✅ **Bora Demir** (ZORUNLU — Teknik Lider)
-- ✅ **Dr. Ahmet Kaya** (ZORUNLU — Klinik/KVKK Lider)
-- 🤖 **security-engineer-oozel** (Supporting — Bora + Ahmet onayı ile)
+| Lider | Alan | Her istemi değerlendir |
+|-------|------|----------------------|
+| Elif Yıldız | Pedagoji | Öğrenciye etki var mı? |
+| Dr. Ahmet Kaya | Klinik/MEB | Sağlık/gizlilik/yasal risk var mı? |
+| Bora Demir | Mühendislik | Teknik doğruluk ve güvenlik tamam mı? |
+| Selin Arslan | AI | AI kalitesi ve prompt güvenliği tamam mı? |
 
-**İş Akışı**:
+### Supporting Ajanlar (Lider onayı ile)
+
+| Supporting | Lider Gereksinim | Alan |
+|-----------|-----------------|------|
+| frontend-developer-oozel | Bora + Elif | UI/React/Tailwind/Lexend |
+| backend-architect-oozel | Bora | API/Firestore/veri modeli |
+| security-engineer-oozel | Bora + Ahmet | KVKK/güvenlik/şifreleme |
+| visual-storyteller-oozel | Bora + Elif + Selin | SVG/infografik/görsel |
+| ai-vision-engineer-oozel | Bora + Selin | OCR/Gemini Vision/blueprint |
+
+---
+
+## 🚨 VETO SİSTEMİ — Otomatik Güvenlik Ağı
+
+Her lider, herhangi bir noktada **DURDUR** diyebilir:
+
 ```
-Kullanıcı: "KVKK uyumu kontrol et"
-  ↓
-1. Dr. Ahmet → KVKK yasal gereksinimler
-2. Bora → Teknik güvenlik standartları
-3. Bora + Ahmet → Onay
-  ↓
-4. security-engineer-oozel → Threat modeling, Firestore rules, encryption
-  ↓
-5. Bora → Teknik güvenlik doğrulama
-6. Ahmet → KVKK uyum doğrulama
+Elif: "Bu, çocuğun başarısız olmasına yol açar" → TÜM SİSTEM DURUR
+Ahmet: "KVKK ihlali riski" → TÜM SİSTEM DURUR  
+Bora: "Güvenlik açığı var" → TÜM SİSTEM DURUR
+Selin: "Hallucination riski yüksek" → TÜM SİSTEM DURUR
 ```
 
-**Örnekler**:
+**VETO OVERRIDE EDİLEMEZ.**
+
+---
+
+## 📊 AKTİVASYON MATRİSİ (Niyet Bazlı)
+
+| Tespit Edilen Niyet | Elif | Ahmet | Bora | Selin | Front | Back | Sec | Visual | Vision |
+|---------------------|------|-------|------|-------|-------|------|-----|--------|--------|
+| Öğrenci aktivitesi | ✅ | 🔄 | ❌ | 🔄 | ❌ | ❌ | ❌ | 🔄 | ❌ |
+| BEP / klinik veri | 🔄 | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Kod değişikliği | ❌ | ❌ | ✅ | ❌ | 🤖 | 🤖 | ❌ | ❌ | ❌ |
+| AI/prompt/üretim | 🔄 | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Görsel/SVG/infografik | 🔄 | ❌ | ✅ | ✅ | 🤖 | ❌ | ❌ | ✅ | ❌ |
+| OCR/fotoğraf/vision | ❌ | ❌ | ✅ | ✅ | ❌ | 🤖 | ❌ | ❌ | ✅ |
+| Güvenlik/KVKK | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| UI/bileşen/erişilebilir | 🔄 | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | 🔄 | ❌ |
+| Tam özellik | ✅ | 🔄 | ✅ | ✅ | ✅ | ✅ | 🔄 | 🔄 | 🔄 |
+| Hata ayıklama | ❌ | ❌ | ✅ | 🔄 | 🔄 | 🔄 | ❌ | ❌ | 🔄 |
+
+**Lejant**: ✅ = ZORUNLU | 🔄 = Niyet içeriyorsa | 🤖 = Supporting (lider onayı ile) | ❌ = Devrede değil
+
+---
+
+## ⚡ STANDART ÇALIŞMA AKIŞI
+
 ```
-Kullanıcı: "Öğrenci tanı bilgisini şifrele"
-→ Bora + Dr. Ahmet + security-engineer-oozel aktive edilir
-→ AES-256 encryption, audit logging, Firestore rules kontrol edilir
+1. İstem Gelir
+       ↓
+2. Tüm ajanlar NİYET ANALİZİ yapar (paralel, eş zamanlı)
+       ↓
+3. Her lider: "Bu istemin BENİM alanımda riski/katkısı var mı?" sorar
+       ↓
+4. İlgili liderler devreye girer, irrelevant liderler çekilir
+       ↓
+5. Liderler supporting ajan ihtiyacı değerlendirir
+       ↓
+6. Supporting ajanlar lider onayı ile çalışmaya başlar
+       ↓
+7. Koordineli uygulama
+       ↓
+8. Liderler son kontrolü yapar
+       ↓
+9. Kullanıcıya teslim (en kararlı, en doğru sonuç)
 ```
 
 ---
 
-### Kural 6: AI Model/Prompt Geliştirme
-
-**Tetikleyiciler**: `AI`, `Gemini`, `prompt`, `generatör`, `JSON schema`, `token`, `hallucination`, `model`
-
-**Aktive Olan Ajanlar**:
-- ✅ **Selin Arslan** (ZORUNLU — AI Lider)
-- 🔄 Elif Yıldız (Opsiyonel — pedagojik prompt tasarımı varsa)
-
-**Supporting Ajanlar**: Yok (AI kararlar sadece Selin verir)
-
-**Örnekler**:
-```
-Kullanıcı: "Yeni prompt şablonu yaz"
-→ Selin + Elif aktive edilir
-→ Prompt anatomisi, JSON schema, pedagogicalNote dahil edilir
-```
-
----
-
-### Kural 7: Tam Özellik Geliştirme
-
-**Tetikleyiciler**: `yeni modül`, `stüdyo`, `değerlendirme sistemi`, `tam özellik`
-
-**Aktive Olan Ajanlar**:
-- ✅ **Elif Yıldız** (ZORUNLU — Pedagoji)
-- ✅ **Bora Demir** (ZORUNLU — Teknik)
-- ✅ **Selin Arslan** (ZORUNLU — AI)
-- 🔄 Dr. Ahmet Kaya (Opsiyonel — klinik içerik varsa)
-- 🤖 **Tüm Supporting Ajanlar** (Lider onayları ile)
-
-**İş Akışı**:
-```
-Kullanıcı: "Yeni matematik stüdyosu ekle"
-  ↓
-1. Elif → Pedagojik tasarım (ZPD, CRA basamakları)
-2. Selin → AI generatör tasarımı (prompt, schema)
-3. Bora → Teknik mimari (React, Firestore, API)
-4. Tüm liderler → Onay
-  ↓
-5. frontend-developer-oozel → UI bileşenleri
-6. backend-architect-oozel → API endpoint'leri
-7. security-engineer-oozel → Güvenlik kontrolleri
-  ↓
-8. Elif → Pedagojik son kontrol
-9. Selin → AI çıktı kalitesi kontrol
-10. Bora → Teknik son kontrol
-```
-
----
-
-## 🚨 Veto Sistemi
-
-### Mutlak Kural: Her Lider DURDUR Diyebilir
-
-```
-Elif: "Bu aktivite ZPD dışında, çocuk başarısız olur"
-  → TÜM SİSTEM DURUR
-
-Dr. Ahmet: "Bu KVKK ihlali, öğrenci adı + tanı birlikte görünüyor"
-  → TÜM SİSTEM DURUR
-
-Bora: "Bu endpoint güvenlik açığı içeriyor, rate limiting yok"
-  → TÜM SİSTEM DURUR
-
-Selin: "Bu prompt hallucination riski çok yüksek"
-  → TÜM SİSTEM DURUR
-```
-
-**VETO OVERRIDE EDİLEMEZ** — İtiraz edilemez.
-
----
-
-## 🔄 Otomatik Koordinasyon Mantığı
-
-### Senaryo 1: Basit UI Değişikliği
-
-```yaml
-Kullanıcı: "Bu butonu mavi yap"
-
-Sınıflandırma: Frontend (küçük değişiklik)
-
-Aktive Ajanlar:
-  - Bora (teknik onay)
-
-Supporting Ajanlar:
-  - Yok (basit değişiklik, supporting ajan gereksiz)
-
-İş Akışı:
-  1. Bora → Tailwind sınıfını değiştir, commit et
-```
-
----
-
-### Senaryo 2: Yeni Aktivite Generatörü
-
-```yaml
-Kullanıcı: "Disleksi için hece parkuru aktivitesi ekle"
-
-Sınıflandırma: Pedagojik + AI
-
-Aktive Ajanlar:
-  - Elif (pedagojik tasarım)
-  - Selin (AI prompt + schema)
-
-Supporting Ajanlar:
-  - Yok (lider ajanlar yeterli)
-
-İş Akışı:
-  1. Elif → Pedagojik tasarım (heceleme, renkli vurgulama)
-  2. Selin → Prompt + JSON schema
-  3. Elif + Selin → Onay
-  4. Implementasyon (services/generators/heceParku.ts)
-```
-
----
-
-### Senaryo 3: Tam KVKK Uyum Taraması
-
-```yaml
-Kullanıcı: "Tüm platformu KVKK uyumu açısından tara"
-
-Sınıflandırma: Security + Clinical (Kritik Görev)
-
-Aktive Ajanlar:
-  - Bora (teknik güvenlik)
-  - Dr. Ahmet (KVKK yasal)
-  - security-engineer-oozel (supporting)
-
-Supporting Ajanlar:
-  - security-engineer-oozel
-
-İş Akışı:
-  1. Dr. Ahmet + Bora → Risk assessment (öğrenci verisi nerede?)
-  2. Bora + Ahmet → Onay
-  3. security-engineer-oozel → Threat modeling, Firestore rules audit
-  4. Bora → Teknik doğrulama
-  5. Ahmet → KVKK uyum raporu
-```
-
----
-
-## 📊 Ajan Aktivasyon Matrisi
-
-| Görev Türü | Elif | Ahmet | Bora | Selin | Frontend | Backend | Security |
-|------------|------|-------|------|-------|----------|---------|----------|
-| **Pedagojik İçerik** | ✅ | 🔄 | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Klinik İçerik** | 🔄 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Frontend UI** | 🔄 | ❌ | ✅ | ❌ | 🤖 | ❌ | ❌ |
-| **Backend API** | ❌ | 🔄 | ✅ | ❌ | ❌ | 🤖 | ❌ |
-| **Güvenlik/KVKK** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | 🤖 |
-| **AI Prompt** | 🔄 | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| **Tam Özellik** | ✅ | 🔄 | ✅ | ✅ | 🤖 | 🤖 | 🤖 |
-
-**Lejant**:
-- ✅ = ZORUNLU
-- 🔄 = Opsiyonel (duruma göre)
-- 🤖 = Supporting (lider onayı sonrası)
-- ❌ = Devrede değil
-
----
-
-## 🎓 Örnek Koordinasyon Senaryoları
-
-### Örnek 1: "ReadingStudio'ya yeni aktivite türü ekle"
-
-```
-Sınıflandırma: Tam Özellik (frontend + backend + pedagojik + AI)
-
-Adım 1: Lider Ajanlar Toplantısı
-  - Elif: "Hangi okuma becerisi hedefleniyor? ZPD uyumu nasıl?"
-  - Selin: "Hangi prompt şablonları kullanılacak? JSON schema?"
-  - Bora: "React bileşeni nereye entegre? API endpoint gerekli mi?"
-
-Adım 2: Lider Onayları
-  - Elif: ✅ "Pedagojik olarak uygun"
-  - Selin: ✅ "AI çıktı kalitesi garanti"
-  - Bora: ✅ "Teknik olarak sağlam"
-
-Adım 3: Supporting Ajanlar Devreye Girer
-  - frontend-developer-oozel → React bileşeni yaz
-  - backend-architect-oozel → API endpoint ekle (gerekirse)
-  - security-engineer-oozel → Rate limiting + validation
-
-Adım 4: Lider Doğrulama
-  - Elif → pedagogicalNote kontrol
-  - Selin → AI çıktı test
-  - Bora → TypeScript strict, error handling kontrol
-```
-
----
-
-## 💡 Kullanım Kılavuzu
-
-### Claude Code'da Nasıl Kullanılır?
-
-**Otomatik Koordinasyon** (Önerilir):
-```
-Kullanıcı: "Yeni matematik aktivitesi tasarla"
-→ Sistem otomatik olarak Elif + Selin'i aktive eder
-```
-
-**Manuel Koordinasyon**:
-```
-Kullanıcı: "Elif ve Bora, bu UI bileşenini inceleyin"
-→ Sadece belirtilen ajanlar aktive edilir
-```
-
----
-
-## 🔧 Gelecek Geliştirmeler
-
-- [ ] Otomatik task classification (AI tabanlı)
-- [ ] Ajan performans metrikleri (hangi ajan ne kadar başarılı?)
-- [ ] Koordinasyon geçmişi (hangi görevlerde hangi ajanlar çalıştı?)
-- [ ] Ajan öğrenme sistemi (başarılı pattern'leri hatırla)
-
----
-
-**Orkestrasyon Motoru v1.0** — Tüm ajanlar koordineli çalışıyor, çakışma yok, hiyerarşi net.
+**Orkestrasyon Motoru v2.0 — Sıfır-Tetikleyici, Semantik, Otomatik**

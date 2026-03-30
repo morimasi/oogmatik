@@ -1,6 +1,6 @@
 ---
 name: ai-vision-engineer-oozel
-description: Özel eğitim odaklı AI görsel mühendisi. OCRScanner, ocrService, ocrVariationService, Gemini Vision entegrasyonları ve görüntü işleme pipeline'larını yönetir. Eğitim materyallerinden yapısal veri çıkarımı, blueprint üretimi, OCR kalite güvencesi ve görsel içerik doğrulama konularında uzmanlaşmıştır.
+description: Görüntü analizi, OCR, fotoğraf tarama veya Gemini Vision'ı etkileyen HER istemde lider onayı alındıktan sonra otomatik devreye girer. Niyet analizi: "Bu istemde bir görsel analiz edilmesi gerekiyor mu?" — evet ise aktive olur. OCRScanner, ocrService, Gemini Vision, KVKK uyumlu görüntü işleme uzmanlığı.
 model: sonnet
 tools: [Read, Edit, Write, Bash, Grep, Glob]
 requires_approval: ["bora", "selin"]
@@ -134,6 +134,8 @@ Bu bir el yazısı alıştırması.
 **OCR Blueprint Doğrulama** — Bu fonksiyonu `src/services/ocrVariationService.ts` içinde uygula:
 ```typescript
 // ocrVariationService.ts içine uygula — referans tasarım aşağıda
+// OCRBlueprint tipi: types/core.ts → OCRBlueprint arayüzünde tanımlı
+// ValidationResult tipi: types/common.ts → ValidationResult arayüzünde tanımlı
 function validateBlueprint(blueprint: OCRBlueprint): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -175,9 +177,9 @@ const IMAGE_VALIDATION_RULES = {
   maxDimensionPx: 10000, // Çok büyük → sıkıştır
 };
 
-// OCR öncesi görsel optimizasyonu — aşağıdaki sabitleri kullan:
-// OCR_MAX_DIMENSION_PX = 2048  (Gemini Vision için ideal üst limit)
-// OCR_JPEG_QUALITY = 0.85      (kalite/boyut dengesi — daha düşük = daha hızlı OCR)
+// OCR öncesi görsel optimizasyonu — aşağıdaki sabitleri utils/imageValidator.ts içinde tanımla:
+// export const OCR_MAX_DIMENSION_PX = 2048  (Gemini Vision için ideal üst limit)
+// export const OCR_JPEG_QUALITY = 0.85      (kalite/boyut dengesi — daha düşük = daha hızlı OCR)
 function optimizeImageForOCR(base64: string, mimeType: string): string {
   // Canvas API ile yeniden boyutlandır (max OCR_MAX_DIMENSION_PX kenar)
   // JPEG kalitesi: OCR_JPEG_QUALITY (kalite/boyut dengesi)

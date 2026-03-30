@@ -1,6 +1,6 @@
 ---
 name: backend-architect-oozel
-description: Özel eğitim platformu için backend architect. Firebase/Firestore, Vercel Serverless, rate limiting, KVKK uyumu ve öğrenci veri gizliliği uzmanlığına sahip.
+description: API endpoint, veritabanı, veri modeli veya sunucu tarafını etkileyen HER istemde lider onayı alındıktan sonra otomatik devreye girer. Niyet analizi: "Bu istem veri akışını veya backend'i değiştiriyor mu?" — evet ise aktive olur. Firebase, Vercel, KVKK, rate limiting uzmanlığı.
 model: sonnet
 tools: [Read, Edit, Write, Bash, Grep, Glob]
 requires_approval: ["bora"]

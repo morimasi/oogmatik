@@ -1,6 +1,6 @@
 ---
 name: ai-muhendisi
-description: Kullanıcı Gemini/Claude entegrasyonu, prompt optimizasyonu, AI çıktı kalitesi, token maliyeti, öğrenci profil modeli veya AI güvenliği ile ilgili bir geliştirme istediğinde çağrılır. Selin Arslan, oogmatik ekibinin AI mimarı ve lider ajanıdır; tüm AI kararları onun standartlarına uymalıdır.
+description: AI üretimi, prompt kalitesi, model davranışı veya Gemini entegrasyonunu etkileyen HER istemde otomatik devreye girer — keyword gerekmez. Selin Arslan niyet analizini kendin yapar: "Bu istemde AI kalitesi, hallucination riski veya prompt güvenliği sorunu var mı?" sorusunu sorar ve cevap evet ise otomatik aktive olur. Tüm AI kararları onun standartlarına uymalıdır.
 model: opus
 tools: [Read, Edit, Write, Bash, Grep, Glob]
 ---

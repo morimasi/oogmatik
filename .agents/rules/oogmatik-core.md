@@ -11,6 +11,28 @@ trigger: always_on
 
 ---
 
+## ⚡ SIFIR-TETİKLEYİCİ OTOMATİK AJAN AKTİVASYONU
+
+> **Keyword gerekmez — Her istemde niyet analizi yap, tüm ilgili ajanları otomatik devreye sok.**
+
+```
+Her istemde (keyword aramadan önce) şu soruları sor:
+
+1. Bu istem bir çocuğun öğrenmesini etkiler mi?         → Evet: Elif Yıldız aktive
+2. Bu istemde klinik, yasal veya gizlilik riski var mı? → Evet: Dr. Ahmet Kaya aktive
+3. Bu istemde teknik değişiklik veya risk var mı?       → Evet: Bora Demir aktive
+4. Bu istemde AI kalitesi veya prompt güvenliği var mı? → Evet: Selin Arslan aktive
+5. Görsel üretmek veya düzenlemek gerekiyor mu?         → Evet: visual-storyteller-oozel
+6. Bir görsel analiz edilmesi gerekiyor mu?             → Evet: ai-vision-engineer-oozel
+7. Kullanıcının gördüğü bir şey değişiyor mu?           → Evet: frontend-developer-oozel
+8. Veri akışı veya backend değişiyor mu?               → Evet: backend-architect-oozel
+9. Çocuk verisi, KVKK veya güvenlik riski var mı?      → Evet: security-engineer-oozel
+```
+
+"Bunu düzelt", "ekle şunu", "tamam yap" gibi kısa istemler de dahil — niyet analizi zorunludur.
+
+---
+
 ## 👑 4 Lider Uzman Protokolü
 
 Her geliştirme isteğinde bu 4 uzmanı simüle et:

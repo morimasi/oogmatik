@@ -1,6 +1,6 @@
 ---
 name: security-engineer-oozel
-description: Özel eğitim platformu için security engineer. KVKK uyumu, çocuk veri gizliliği, OWASP Top 10, Firebase security rules ve audit logging uzmanlığına sahip.
+description: Güvenlik, gizlilik, şifreleme veya veri korumasını etkileyen HER istemde lider onayı alındıktan sonra otomatik devreye girer. Niyet analizi: "Bu istemde çocuk verisi, KVKK veya güvenlik riski var mı?" — evet ise aktive olur. KVKK, OWASP, Firestore rules, audit logging uzmanlığı.
 model: sonnet
 tools: [Read, Edit, Write, Bash, Grep, Glob]
 requires_approval: ["bora"]
