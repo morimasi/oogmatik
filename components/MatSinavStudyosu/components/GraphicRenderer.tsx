@@ -230,6 +230,234 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                 );
             }
 
+            case 'cetele_tablosu': {
+                // Çetele çizgilerini gruplar halinde göster (||||  = 5)
+                const renderTallyMarks = (count: number) => {
+                    const full = Math.floor(count / 5);
+                    const remainder = count % 5;
+                    const marks: React.ReactNode[] = [];
+                    for (let g = 0; g < full; g++) {
+                        marks.push(
+                            <span key={`g${g}`} className="inline-flex items-center mr-1.5 text-indigo-700 font-bold tracking-tighter text-base">
+                                {'||||'}
+                                <span className="inline-block w-3 h-0.5 bg-indigo-700 -rotate-[65deg] mx-0.5" />
+                            </span>
+                        );
+                    }
+                    if (remainder > 0) {
+                        marks.push(
+                            <span key="rem" className="inline-flex items-center mr-1.5 text-indigo-700 font-bold tracking-tighter text-base">
+                                {'|'.repeat(remainder)}
+                            </span>
+                        );
+                    }
+                    return marks.length > 0 ? marks : <span className="text-gray-400">—</span>;
+                };
+
+                return (
+                    <div className="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm mt-3">
+                        <table className="w-full text-sm text-left align-middle">
+                            <thead className="bg-green-50 border-b border-green-100 text-green-800">
+                                <tr>
+                                    <th className="px-4 py-2 font-semibold">Kategori</th>
+                                    <th className="px-4 py-2 font-semibold">Çetele</th>
+                                    <th className="px-4 py-2 font-semibold text-right">Sayı</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {veri.map((item, idx) => (
+                                    <tr key={idx} className="bg-white hover:bg-gray-50">
+                                        <td className="px-4 py-2 font-medium text-gray-700">{item.etiket} {item.nesne || ''}</td>
+                                        <td className="px-4 py-2">{renderTallyMarks(item.deger || 0)}</td>
+                                        <td className="px-4 py-2 text-right font-bold text-green-700">{item.deger} {item.birim || ''}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                );
+            }
+
+            case 'cizgi_grafigi': {
+                const maxVal = Math.max(...veri.map(v => v.deger || 0), 1);
+                const w = 400, h = 200, pl = 44, pr = 16, pt = 16, pb = 44;
+                const chartW = w - pl - pr;
+                const chartH = h - pt - pb;
+                const stepX = veri.length > 1 ? chartW / (veri.length - 1) : chartW;
+
+                const pointCoords = veri.map((item, i) => ({
+                    x: pl + stepX * i,
+                    y: h - pb - ((item.deger || 0) / maxVal) * chartH,
+                }));
+                const linePath = pointCoords.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+
+                return (
+                    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto max-w-sm mx-auto mt-3 font-sans" preserveAspectRatio="xMidYMid meet">
+                        {/* Grid & Axes */}
+                        <line x1={pl} y1={pt} x2={pl} y2={h - pb} stroke="#e5e7eb" strokeWidth="2" />
+                        <line x1={pl} y1={h - pb} x2={w - pr} y2={h - pb} stroke="#9ca3af" strokeWidth="2" />
+                        {[0, 0.25, 0.5, 0.75, 1].map(step => {
+                            const y = h - pb - chartH * step;
+                            return (
+                                <g key={step}>
+                                    <line x1={pl} y1={y} x2={w - pr} y2={y} stroke="#f3f4f6" strokeWidth="1" />
+                                    <text x={pl - 6} y={y + 4} fontSize="10" fill="#6b7280" textAnchor="end">{Math.round(maxVal * step)}</text>
+                                </g>
+                            );
+                        })}
+                        {/* Line */}
+                        <path d={linePath} fill="none" stroke={anaRenk} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+                        {/* Points & Labels */}
+                        {pointCoords.map((p, idx) => (
+                            <g key={idx}>
+                                <circle cx={p.x} cy={p.y} r="4" fill={anaRenk} stroke="#fff" strokeWidth="1.5" />
+                                <text x={p.x} y={h - pb + 16} fontSize="10" fill="#4b5563" textAnchor="middle">{veri[idx].etiket}</text>
+                                <text x={p.x} y={p.y - 8} fontSize="10" fill={anaRenk} fontWeight="bold" textAnchor="middle">{veri[idx].deger}</text>
+                            </g>
+                        ))}
+                    </svg>
+                );
+            }
+
+            case 'dogru_parcasi': {
+                // Doğru parçası, doğru veya ışın
+                const uzunluk = ozellikler?.kenarlar?.[0];
+                return (
+                    <svg viewBox="0 0 300 80" className="w-full max-w-xs mx-auto mt-2">
+                        {/* Çift ok — doğru */}
+                        <defs>
+                            <marker id="arrow-l" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                                <path d="M8,0 L0,4 L8,8" fill="none" stroke={anaRenk} strokeWidth="1.5" />
+                            </marker>
+                            <marker id="arrow-r" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                                <path d="M0,0 L8,4 L0,8" fill="none" stroke={anaRenk} strokeWidth="1.5" />
+                            </marker>
+                        </defs>
+                        <line
+                            x1="20" y1="40" x2="280" y2="40"
+                            stroke={anaRenk} strokeWidth="2.5"
+                            markerStart="url(#arrow-l)" markerEnd="url(#arrow-r)"
+                        />
+                        {/* Uç noktalar */}
+                        {veri.length > 0 && (
+                            <>
+                                <circle cx="40" cy="40" r="4" fill={anaRenk} />
+                                <text x="40" y="28" fontSize="13" fill="#374151" fontWeight="bold" textAnchor="middle">{veri[0].etiket}</text>
+                            </>
+                        )}
+                        {veri.length > 1 && (
+                            <>
+                                <circle cx="260" cy="40" r="4" fill={anaRenk} />
+                                <text x="260" y="28" fontSize="13" fill="#374151" fontWeight="bold" textAnchor="middle">{veri[1].etiket}</text>
+                            </>
+                        )}
+                        {uzunluk && (
+                            <>
+                                <line x1="40" y1="55" x2="260" y2="55" stroke="#9ca3af" strokeWidth="1" strokeDasharray="4 2" />
+                                <text x="150" y="68" fontSize="12" fill={anaRenk} fontWeight="bold" textAnchor="middle">{uzunluk} {ozellikler?.birim || ''}</text>
+                            </>
+                        )}
+                    </svg>
+                );
+            }
+
+            case 'aci': {
+                const aciDerece = ozellikler?.acilar?.[0] ?? 60;
+                const rad = (aciDerece * Math.PI) / 180;
+                const cx = 100, cy = 100, r = 65;
+                // İlk kol yatay sağa
+                const x1 = cx + r;
+                const y1 = cy;
+                // İkinci kol açı kadar döndürülmüş
+                const x2 = cx + r * Math.cos(-rad);
+                const y2 = cy + r * Math.sin(-rad);
+                // Yay için
+                const arcR = 28;
+                const arcX = cx + arcR * Math.cos(-rad / 2);
+                const arcY = cy + arcR * Math.sin(-rad / 2);
+                const largeArc = aciDerece > 180 ? 1 : 0;
+                const ax1 = cx + arcR;
+                const ay1 = cy;
+                const ax2 = cx + arcR * Math.cos(-rad);
+                const ay2 = cy + arcR * Math.sin(-rad);
+
+                return (
+                    <svg viewBox="0 0 200 180" className="w-full max-w-[200px] mx-auto mt-2 drop-shadow-sm">
+                        {/* Kollar */}
+                        <line x1={cx} y1={cy} x2={x1} y2={y1} stroke={anaRenk} strokeWidth="2.5" strokeLinecap="round" />
+                        <line x1={cx} y1={cy} x2={x2} y2={y2} stroke={anaRenk} strokeWidth="2.5" strokeLinecap="round" />
+                        {/* Yay */}
+                        <path d={`M ${ax1} ${ay1} A ${arcR} ${arcR} 0 ${largeArc} 0 ${ax2} ${ay2}`} fill="none" stroke={anaRenk} strokeWidth="1.5" opacity="0.6" />
+                        {/* Açı etiketi */}
+                        <text x={arcX} y={arcY - 4} fontSize="11" fill={anaRenk} fontWeight="bold" textAnchor="middle">{aciDerece}°</text>
+                        {/* Köşe noktaları */}
+                        {veri.length > 0 && <text x={cx - 12} y={cy + 4} fontSize="12" fill="#374151" fontWeight="bold">{veri[0]?.etiket || ''}</text>}
+                        {veri.length > 1 && <text x={x1 + 6} y={y1 + 4} fontSize="12" fill="#374151">{veri[1]?.etiket || ''}</text>}
+                        {veri.length > 2 && <text x={x2 + 4} y={y2 - 4} fontSize="12" fill="#374151">{veri[2]?.etiket || ''}</text>}
+                    </svg>
+                );
+            }
+
+            case 'kesir_modeli': {
+                // Pasta dilimi modeli (daire üzerinde kesir)
+                const payda = ozellikler?.kenarlar?.[0] ?? veri.length ?? 4;
+                const pay = Math.max(1, Math.round(veri.filter(v => v.deger === 1 || v.nesne === 'dolu').length));
+                const dilimAcisi = 360 / payda;
+
+                return (
+                    <div className="flex flex-col items-center gap-3 mt-3">
+                        <svg viewBox="0 0 200 200" className="w-36 h-36">
+                            {Array.from({ length: payda }).map((_, i) => {
+                                const startA = (i * dilimAcisi - 90) * (Math.PI / 180);
+                                const endA = ((i + 1) * dilimAcisi - 90) * (Math.PI / 180);
+                                const r = 85;
+                                const x1 = 100 + r * Math.cos(startA);
+                                const y1 = 100 + r * Math.sin(startA);
+                                const x2 = 100 + r * Math.cos(endA);
+                                const y2 = 100 + r * Math.sin(endA);
+                                const dolu = i < pay;
+                                return (
+                                    <path
+                                        key={i}
+                                        d={`M 100 100 L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z`}
+                                        fill={dolu ? anaRenk : `${anaRenk}22`}
+                                        stroke="#fff"
+                                        strokeWidth="2"
+                                    />
+                                );
+                            })}
+                        </svg>
+                        <div className="text-center">
+                            <div className="inline-flex flex-col items-center bg-indigo-50 rounded-xl px-4 py-2">
+                                <span className="text-xl font-extrabold text-indigo-700 leading-none border-b-2 border-indigo-400 px-2">{pay}</span>
+                                <span className="text-xl font-extrabold text-indigo-700 leading-none px-2">{payda}</span>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            case 'simetri': {
+                // Şekil simetri ekseni ile gösterilir
+                const bW = 60, bH = 80;
+                return (
+                    <svg viewBox="0 0 260 160" className="w-full max-w-xs mx-auto mt-2 drop-shadow-sm">
+                        {/* Sol şekil */}
+                        <rect x="20" y="40" width={bW} height={bH} fill={`${anaRenk}30`} stroke={anaRenk} strokeWidth="2" rx="3" />
+                        {/* Simetri ekseni */}
+                        <line x1="130" y1="10" x2="130" y2="150" stroke="#ef4444" strokeWidth="2.5" strokeDasharray="6 4" />
+                        <text x="130" y="8" fontSize="10" fill="#ef4444" textAnchor="middle" fontWeight="bold">Simetri Ekseni</text>
+                        {/* Sağ şekil (ayna) */}
+                        <rect x="180" y="40" width={bW} height={bH} fill={`${anaRenk}30`} stroke={anaRenk} strokeWidth="2" rx="3" />
+                        {/* Yansıma oku */}
+                        <text x="130" y="100" fontSize="10" fill={anaRenk} textAnchor="middle">↔</text>
+                        {/* Etiketler */}
+                        {veri[0] && <text x="50" y={40 + bH + 16} fontSize="11" fill="#374151" textAnchor="middle">{veri[0].etiket}</text>}
+                        {veri[1] && <text x="210" y={40 + bH + 16} fontSize="11" fill="#374151" textAnchor="middle">{veri[1].etiket}</text>}
+                    </svg>
+                );
+            }
+
             default:
                 // Bilinmeyen tip için basit metin listesi fallback
                 return (

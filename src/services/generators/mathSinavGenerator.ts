@@ -12,9 +12,148 @@ import type {
     MatSoru,
     MatSinav,
     MatCevapAnahtari,
+    GrafikVeriTipi,
 } from '../../types/matSinav';
 import { getMatKazanimByCode } from '../../data/meb-matematik-kazanim';
 import { AppError } from '../../utils/AppError';
+
+// ─── Kazanım → Görsel Haritalama ─────────────────────────────
+/**
+ * `kazanimGorselBelirle`: Bir kazanım kodunu alır, öğrenme alanına göre
+ * o kazanım için zorunlu görsel tipini (`GrafikVeriTipi`) belirler ve
+ * `KazanimGorselGereksinim` nesnesi döndürür. Eşleşme yoksa `null` döner.
+ *
+ * `analizKazanimGorselleri`: Kazanım kodu listesini işler ve
+ * görsel gerektiren kazanımlar için gereksinim nesnelerini döner.
+ */
+const GORSEL_TIPLER_LISTESI =
+    'siklik_tablosu, cetele_tablosu, sutun_grafigi, pasta_grafigi, cizgi_grafigi, ' +
+    'ucgen, kare, dikdortgen, daire, dogru_parcasi, aci, koordinat_sistemi, sayi_dogrusu, kesir_modeli, simetri';
+
+interface KazanimGorselGereksinim {
+    kazanimKodu: string;
+    kazanimMetni: string;
+    zorunluGorsel: GrafikVeriTipi;
+    aciklama: string;
+}
+
+function kazanimGorselBelirle(kazanimKodu: string): KazanimGorselGereksinim | null {
+    const kazanim = getMatKazanimByCode(kazanimKodu);
+    if (!kazanim) return null;
+
+    const { ogrenmeAlani, tanim } = kazanim;
+    const kod = kazanimKodu.toLowerCase();
+
+    // Veri İşleme → veri grafikleri
+    if (ogrenmeAlani === 'Veri İşleme') {
+        const tanim_lower = tanim.toLowerCase();
+        if (tanim_lower.includes('çetele')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'cetele_tablosu', aciklama: 'Çetele tablosu oluştur ve veriden soru sor' };
+        }
+        if (tanim_lower.includes('nesne ve şekil grafik') || tanim_lower.includes('şekil grafik')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'siklik_tablosu', aciklama: 'Nesne/şekil grafiği olarak sıklık tablosu oluştur' };
+        }
+        if (tanim_lower.includes('sütun grafik')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'sutun_grafigi', aciklama: 'Sütun grafiği oluştur ve yorumla' };
+        }
+        if (tanim_lower.includes('pasta grafik')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'pasta_grafigi', aciklama: 'Pasta grafiği oluştur ve yorumla' };
+        }
+        if (tanim_lower.includes('çizgi grafik') || tanim_lower.includes('kırık çizgi')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'cizgi_grafigi', aciklama: 'Çizgi grafiği oluştur ve yorumla' };
+        }
+        // Genel Veri İşleme → sütun grafigi varsayılan
+        return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'sutun_grafigi', aciklama: 'Veri tablosu veya grafik oluştur ve veriden soru sor' };
+    }
+
+    // Geometri / Geometri ve Ölçme → şekil görselleri
+    if (ogrenmeAlani === 'Geometri' || ogrenmeAlani === 'Geometri ve Ölçme') {
+        const tanim_lower = tanim.toLowerCase();
+        if (tanim_lower.includes('üçgen') || tanim_lower.includes('ucgen')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'ucgen', aciklama: 'Üçgeni çiz, kenar ve açı ölçülerini belirt' };
+        }
+        if (tanim_lower.includes('kare')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'kare', aciklama: 'Kareyi çiz, kenar ölçülerini belirt' };
+        }
+        if (tanim_lower.includes('dikdörtgen') || tanim_lower.includes('dikdortgen')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'dikdortgen', aciklama: 'Dikdörtgeni çiz, kenar ölçülerini belirt' };
+        }
+        if (tanim_lower.includes('daire') || tanim_lower.includes('çember')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'daire', aciklama: 'Çember/daireyi çiz, yarıçapı belirt' };
+        }
+        if (tanim_lower.includes('açı') || tanim_lower.includes('aci')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'aci', aciklama: 'Açıyı çiz, ölçüsünü göster' };
+        }
+        if (tanim_lower.includes('simetri') || tanim_lower.includes('simetrik')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'simetri', aciklama: 'Simetri eksenini ve şekli göster' };
+        }
+        if (tanim_lower.includes('doğru parçası') || tanim_lower.includes('doğru') || tanim_lower.includes('ışın')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'dogru_parcasi', aciklama: 'Doğru, doğru parçası veya ışını çiz' };
+        }
+        if (tanim_lower.includes('koordinat')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'koordinat_sistemi', aciklama: 'Koordinat sisteminde noktaları göster' };
+        }
+        // Genel Geometri → kare varsayılan
+        return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'kare', aciklama: 'Geometrik şekli çiz ve özelliklerini göster' };
+    }
+
+    // Sayı doğrusu / Tam sayılar / Rasyonel sayılar
+    if (ogrenmeAlani === 'Sayılar ve İşlemler' || ogrenmeAlani === 'Cebir') {
+        const tanim_lower = tanim.toLowerCase();
+        if (tanim_lower.includes('sayı doğrusu') || tanim_lower.includes('sayi dogrusu')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'sayi_dogrusu', aciklama: 'Sayı doğrusunda sayıları göster' };
+        }
+        if (tanim_lower.includes('kesir') || tanim_lower.includes('ondalık') || tanim_lower.includes('tam sayı')) {
+            // Yalnızca sayı doğrusu gösterimi içeren kazanımlar için
+            if (tanim_lower.includes('sayı doğrusu')) {
+                return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'sayi_dogrusu', aciklama: 'Sayı doğrusunda kesir/tam sayıyı göster' };
+            }
+            if (tanim_lower.includes('model') || tanim_lower.includes('şekil')) {
+                return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'kesir_modeli', aciklama: 'Kesir modelini görsel olarak göster' };
+            }
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Seçilen kazanımlar listesinden görsel gereksinimlerini analiz eder.
+ * Sadece ZORUNLU görsel gerektiren kazanımlar için liste döner.
+ */
+export function analizKazanimGorselleri(kazanimKodlari: string[]): KazanimGorselGereksinim[] {
+    return kazanimKodlari
+        .map((kod) => kazanimGorselBelirle(kod))
+        .filter((g): g is KazanimGorselGereksinim => g !== null);
+}
+
+/**
+ * Prompt'a eklenecek kazanım-bazlı görsel talimatlarını üretir.
+ */
+function buildKazanimGorselTalimatlari(kazanimKodlari: string[]): string {
+    const gereksinimler = analizKazanimGorselleri(kazanimKodlari);
+    if (gereksinimler.length === 0) return '';
+
+    const satirlar = gereksinimler
+        .map((g) => `  • ${g.kazanimKodu}: tip="${g.zorunluGorsel}" → ${g.aciklama}`)
+        .join('\n');
+
+    return `
+[KAZANIM-BAZLI GÖRSEL GEREKSİNİMLERİ — ZORUNLU]
+Aşağıdaki kazanımlar için soru üretirken "grafik_verisi" alanını mutlaka doldur.
+Bu kazanımlar için GÖRSELSİZ soru üretme:
+
+${satirlar}
+
+Her görsel için:
+- "baslik": Görselin açıklayıcı başlığı (Türkçe)
+- "veri": Sayısal değerler (etiket + deger zorunlu)
+- "ozellikler": Geometrik şekillerde kenar/açı ölçüleri
+- "not": Varsa ek açıklama
+
+Desteklenen tüm görsel tipler: ${GORSEL_TIPLER_LISTESI}
+`;
+}
 
 const MASTER_MODEL = 'gemini-2.5-flash';
 
@@ -141,7 +280,13 @@ ${stilTalimat}
 - Açık Uçlu: ${settings.soruDagilimi.acik_uclu} adet
 
 ${settings.islemSayisi ? `[İŞLEM SAYISI]\nHer soru en fazla ${settings.islemSayisi} işlemle çözülebilmeli.\n` : ''}
-${settings.gorselVeriEklensinMi ? `[GÖRSEL VERİ ZORUNLULUĞU]\n🚨 DİKKAT: Kullanıcı görsel veri istedi! Üreteceğin soruların EN AZ YARISINDA mutlaka "grafik_verisi" nesnesini eksiksiz doldur.\nDesteklenen Tipler: siklik_tablosu, sutun_grafigi, pasta_grafigi, ucgen, kare, dikdortgen, daire, koordinat_sistemi, sayi_dogrusu.\nŞekillerin boyut, açı ve çizim özelliklerini "ozellikler" içerisinde belirt.\n` : ''}
+${buildKazanimGorselTalimatlari(settings.secilenKazanimlar)}
+${settings.gorselVeriEklensinMi ? `[EK GÖRSEL VERİ TALEBİ]
+🚨 Kullanıcı ek görsel veri istedi! Geometri/Veri İşleme dışındaki sorularda da görsel kullan.
+Üreteceğin soruların EN AZ YARISINDA "grafik_verisi" nesnesini doldur.
+Desteklenen tipler: ${GORSEL_TIPLER_LISTESI}
+Geometrik şekillerde kenar/açı ölçülerini "ozellikler" içerisinde belirt.
+` : ''}
 ${settings.ozelKonu ? `[TEMA]\nTüm sorular "${settings.ozelKonu}" teması etrafında olmalı.\n` : ''}
 ${settings.ozelTalimatlar ? `[ÖZEL TALİMATLAR]\n${settings.ozelTalimatlar}\n` : ''}
 
@@ -208,7 +353,17 @@ const MATH_EXAM_SCHEMA = {
                     grafik_verisi: {
                         type: 'OBJECT',
                         properties: {
-                            tip: { type: 'STRING' },
+                            tip: {
+                                type: 'STRING',
+                                enum: [
+                                    'siklik_tablosu', 'cetele_tablosu',
+                                    'sutun_grafigi', 'pasta_grafigi', 'cizgi_grafigi',
+                                    'ucgen', 'kare', 'dikdortgen', 'daire',
+                                    'dogru_parcasi', 'aci',
+                                    'koordinat_sistemi', 'sayi_dogrusu',
+                                    'kesir_modeli', 'simetri',
+                                ],
+                            },
                             baslik: { type: 'STRING' },
                             veri: {
                                 type: 'ARRAY',
@@ -219,6 +374,8 @@ const MATH_EXAM_SCHEMA = {
                                         deger: { type: 'NUMBER', nullable: true },
                                         nesne: { type: 'STRING', nullable: true },
                                         birim: { type: 'STRING', nullable: true },
+                                        x: { type: 'NUMBER', nullable: true },
+                                        y: { type: 'NUMBER', nullable: true },
                                     },
                                     required: ['etiket'],
                                 },
@@ -230,10 +387,11 @@ const MATH_EXAM_SCHEMA = {
                                     kenarlar: { type: 'ARRAY', items: { type: 'NUMBER' }, nullable: true },
                                     acilar: { type: 'ARRAY', items: { type: 'NUMBER' }, nullable: true },
                                     yaricap: { type: 'NUMBER', nullable: true },
+                                    birim: { type: 'STRING', nullable: true },
                                     renk: { type: 'STRING', nullable: true },
                                 },
-                                nullable: true
-                            }
+                                nullable: true,
+                            },
                         },
                         required: ['tip', 'baslik', 'veri'],
                         nullable: true,
@@ -360,6 +518,13 @@ export const regenerateSingleQuestion = async (
     const kazanim = getMatKazanimByCode(mevcutSoru.kazanimKodu);
     const sinif = settings.sinif ?? 5;
 
+    const gorselGereksinim = kazanimGorselBelirle(mevcutSoru.kazanimKodu);
+    const gorselTalimat = gorselGereksinim
+        ? `Bu kazanım görsel GEREKTİRİR. grafik_verisi ZORUNLU:\n  tip="${gorselGereksinim.zorunluGorsel}" → ${gorselGereksinim.aciklama}`
+        : settings.gorselVeriEklensinMi
+            ? `Mümkünse grafik_verisi ekle. Desteklenen tipler: ${GORSEL_TIPLER_LISTESI}`
+            : '';
+
     const prompt = `
 [ROL: MEB MATEMATİK SINAV UZMANI]
 
@@ -371,7 +536,7 @@ Zorluk: ${mevcutSoru.zorluk}
 Önceki sorudan FARKLI bir soru oluştur. Aynı soru veya benzer soru üretme.
 Önceki soru: "${mevcutSoru.soruMetni}"
 
-${settings.gorselVeriEklensinMi ? 'Mümkünse grafik_verisi ekle.' : ''}
+${gorselTalimat}
 `;
 
     const singleSchema = {

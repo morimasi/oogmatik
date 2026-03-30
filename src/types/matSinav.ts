@@ -17,6 +17,7 @@ export type MatOgrenmeAlani =
 // ─── Grafik Veri Tipleri ──────────────────────────────────────
 export type GrafikVeriTipi =
     | 'siklik_tablosu'
+    | 'cetele_tablosu'
     | 'sutun_grafigi'
     | 'pasta_grafigi'
     | 'cizgi_grafigi'
