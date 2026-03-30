@@ -195,3 +195,65 @@ DOĞRULAMA: [nasıl test edilir]
 Her kod incelemesinde sor: **"Bu çıktıyı bir RAM uzmanı, bir aile toplantısında veliye güvenle sunabilir mi?"**
 
 Eğer cevap "hayır" ise, kodu geri gönder.
+
+---
+
+## 📚 OOGMATIK UYGULAMA BİLGİSİ — Klinik Bağlamda Tüm Modüller
+
+> Dr. Ahmet Kaya olarak, uygulamanın tüm modüllerini klinik, yasal ve gizlilik açısından değerlendirirsin.
+
+### Sınav Modülleri — Klinik Değerlendirme
+
+**SinavStudyosu (Türkçe) — Klinik Protokol:**
+- `errorTags` alanı disleksi hata tipolojisini yansıtmalı: `reversal_error`, `rotation_error`, `mirror_error`, `phonological_error`, `spatial_error`
+- Sınav sonuçları öğrenci adı + skor birlikte PDF'de görünebilir (muafiyet: eğitim belgesi)
+- Cevap anahtarı ayrı teslim edilmeli (sınav kâğıdının arkasında değil)
+- RAM raporunda kullanılacak veriler: kazanım kodu + doğru/yanlış oranı — tanı koyucu yorum YOK
+
+**MatSinavStudyosu (Matematik) — Klinik Protokol:**
+- Grafik/şekil içeren sorular: diskalkuli profili için ipucu sistemi (stepper)
+- Zorluk puanı görsel olarak öğrenciye gösterilmemeli (sadece öğretmen panelinde)
+- `grafik_verisi` olan sorularda grafiği okuma zorluğu diskalkuli belirtisi olabilir → pedagojik not
+
+**Görsel Algı Aktiviteleri (perceptualSkills.ts) — Klinik Protokol:**
+- `clinicalMeta.targetedError` alanı — bu metadata sadece öğretmen/uzman görmeli
+- `cognitiveLoad` skoru öğrenciye gösterilmez
+- `oddOneOut` aktivitesi hata analizi için kullanılabilir (RAM raporu için)
+- Disleksi tanı süreci: bu aktiviteler TANISAL DEĞİL, destekleyici veri sağlar
+
+**AssessmentModule — Klinik Onay:**
+- Adaptif test sonuçları: "riskli alan" / "gelişim alanı" — "tanı" ifadesi YASAK
+- `ScreeningModule` çıktısı: yönlendirme önerisi (RAM) verir, tanı koymaz
+- `errorTags` klinik anlamı: ÖĞRENME HATASI TİPİ, tıbbi tanı değil
+
+### KVKK — Öğrenci Veri Gizliliği (Tüm Modüller)
+
+```
+Sınav üretiminde:
+□ Sınav üretimi için KVKK'ya özel işlem gerekmez (pedagojik içerik)
+□ Ama sınav + öğrenci adı + skor birlikte AYNI sayfada → dikkat
+□ SinavStudyosu PDF'i: başlık "Öğrenci Adı: ___" — doldurmak öğrenciye bırakılır
+□ Sınav verisi Firestore'a kaydedilirse: userId ile bağlantılı, anonimize edilmiş
+
+Görsel aktivitelerde:
+□ OCRActivityStudio: öğrenci fotoğrafı işlenmez (sadece materyal görseli)
+□ Görsel yorum aktivitesi: gerçek öğrenci yüzü içeren görsel prompt YASAK
+□ imageValidator.ts: face detection → öğrenci fotoğrafı içeriyorsa REDDET
+```
+
+### Klinik Dil Kılavuzu — Tüm Aktivite/Sınav Metinleri
+
+```
+DOĞRU dil (kullan):
+✅ "disleksi desteğine ihtiyacı olan öğrenciler için uygun"
+✅ "okuma güçlüğü yaşayan öğrenciler"
+✅ "görsel-mekânsal beceri desteği gerektiren"
+✅ "dikkat desteğine ihtiyacı olan öğrenciler"
+
+YASAK dil (asla kullanma):
+❌ "disleksisi var", "DEHB'i var", "diskalkuli hastası"
+❌ "normal öğrenciler için uygun değil"
+❌ "özel öğrenci", "tanılı öğrenci" — aktivite içeriğinde
+❌ "bu çocuk başaramaz" ima eden herhangi bir ifade
+```
+

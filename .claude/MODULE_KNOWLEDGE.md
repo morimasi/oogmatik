@@ -4,7 +4,7 @@
 > Bu belge, Oogmatik platformundaki tüm modüllerin, işlevlerin ve bileşenlerin kapsamlı açıklamasını içerir.
 > Her ajan geliştirme yapmadan önce ilgili modülü buradan öğrenmeli ve bağlamı anlamalıdır.
 
-**Son Güncelleme**: 2026-03-21
+**Son Güncelleme**: 2026-03-30
 **Kapsam**: Tüm uygulama modülleri, API'ler, servisler ve UI bileşenleri
 
 ---
@@ -12,15 +12,17 @@
 ## 📑 İçindekiler
 
 1. [Stüdyo Modülleri](#stüdyo-modülleri)
-2. [Admin Modülleri](#admin-modülleri)
-3. [Öğrenci Yönetim Modülleri](#öğrenci-yönetim-modülleri)
-4. [Değerlendirme Modülleri](#değerlendirme-modülleri)
-5. [Çalışma Kâğıdı Modülleri](#çalışma-kâğıdı-modülleri)
-6. [Türkçe Dil Modülleri](#türkçe-dil-modülleri)
-7. [AI Generatör Servisleri](#ai-generatör-servisleri)
-8. [Backend API Modülleri](#backend-api-modülleri)
-9. [State Management](#state-management)
-10. [Utility Servisleri](#utility-servisleri)
+2. [Sınav Stüdyoları](#sınav-stüdyoları)
+3. [Admin Modülleri](#admin-modülleri)
+4. [Öğrenci Yönetim Modülleri](#öğrenci-yönetim-modülleri)
+5. [Değerlendirme Modülleri](#değerlendirme-modülleri)
+6. [Çalışma Kâğıdı Modülleri](#çalışma-kâğıdı-modülleri)
+7. [Türkçe Dil Modülleri](#türkçe-dil-modülleri)
+8. [AI Generatör Servisleri](#ai-generatör-servisleri)
+9. [Görsel Üretim Sistemi](#görsel-üretim-sistemi)
+10. [Backend API Modülleri](#backend-api-modülleri)
+11. [State Management](#state-management)
+12. [Utility Servisleri](#utility-servisleri)
 
 ---
 
@@ -1137,3 +1139,487 @@
 ---
 
 **NOT**: Bu belge, tüm ajanların Oogmatik uygulamasını tam olarak anlaması için oluşturulmuştur. Her geliştirme öncesi ilgili modül bölümü okunmalıdır.
+
+---
+
+## 2. Sınav Stüdyoları {#sınav-stüdyoları}
+
+> **Bu bölüm ajan eğitimi için kritiktir.** Oogmatik'in temel çıktılarından biri MEB kazanım entegreli sınav/test üretimidir.
+
+### 2.1 SinavStudyosu — Türkçe Sınav Stüdyosu
+
+**Dosya Konumu**: `components/SinavStudyosu/`
+
+**Amaç**: MEB Türkçe müfredatına uygun, kazanım bazlı sınav ve test kâğıdı otomatik üretimi.
+
+**Ana Bileşen**: `components/SinavStudyosu/index.tsx`
+
+**Alt Bileşenler**:
+- `KazanimPicker.tsx` — MEB Türkçe kazanımlarını seçme (sınıf × ünite × kazanım)
+- `SoruAyarlari.tsx` — Soru tipi ve sayı ayarları (çoktan seçmeli, doğru-yanlış, boşluk doldurma, açık uçlu)
+- `SinavOnizleme.tsx` — Üretilen sınavın önizlemesi + düzenleme
+- `CevapAnahtari.tsx` — Otomatik cevap anahtarı görünümü
+- `components/` — Alt bileşenler
+
+**Desteklenen Soru Tipleri**:
+```
+coktan_secmeli   → A/B/C/D şıklı (4 seçenek)
+dogru_yanlis     → D / Y işaretleme
+bosluk_doldurma  → Boşluk doldurma (cloze)
+acik_uclu        → Yazılı cevap sorusu
+```
+
+**İş Akışı**:
+```
+1. KazanimPicker → Sınıf seçimi (1-8) + Ünite + Kazanım
+2. SoruAyarlari → Soru tipi dağılımı + toplam soru sayısı
+3. generateExamViaAPI() → POST /api/generate-exam
+4. SinavOnizleme → Önizleme + soru yenileme + düzenleme
+5. CevapAnahtari → Cevap anahtarı tab'ı
+6. generateExamPDF() → PDF çıktısı (sınav kâğıdı + cevap anahtarı)
+```
+
+**API Entegrasyonu**:
+- Frontend: `src/services/sinavService.ts` → `generateExamViaAPI()`
+- Backend generator: `src/services/generators/sinavGenerator.ts`
+- AI: Gemini 2.5 Flash — doğrudan REST API (Vercel serverless uyumlu)
+- Tip tanımları: `src/types/sinav.ts`
+- Store: `src/store/useSinavStore.ts`
+- MEB kazanım verisi: `src/data/meb-turkce-kazanim.ts`
+- PDF üretim: `src/utils/sinavPdfGenerator.ts`
+
+**Soru Üretim Kalitesi**:
+- Her soru `pedagogicalNote` içerir
+- Çeldiriciler (`errorTags`) mantıksal hatalar üzerine kurulu (random değil)
+- `errorTags` zorunlu alan — disleksi hata tipi etiketlemesi
+- Başarı Anı Mimarisi: İlk soru kolay, zorluk kademeli artar
+
+**Özel Eğitim Uzmanı Notu**: Sınav üretiminde tanı koyucu dil yasak. "Bu öğrencinin disleksisi var" değil → soruların disleksi desteğine ihtiyacı olan öğrenciler için uygun olması.
+
+---
+
+### 2.2 MatSinavStudyosu — Matematik Sınav Stüdyosu
+
+**Dosya Konumu**: `components/MatSinavStudyosu/`
+
+**Amaç**: MEB 1-8. sınıf matematik müfredatına uygun, kazanım bazlı matematik sınavı üretimi. SinavStudyosu'ndan tamamen bağımsız modül.
+
+**Ana Bileşen**: `components/MatSinavStudyosu/index.tsx`
+
+**Alt Bileşenler**:
+- `MatKazanimPicker.tsx` — MEB Matematik kazanım seçici
+- `MatSoruAyarlari.tsx` — Matematik soru tipi ayarları
+- `MatSinavOnizleme.tsx` — Matematik sınav önizleme (grafik_verisi desteğiyle)
+- `MatCevapAnahtari.tsx` — Matematik cevap anahtarı + açıklamalı çözüm
+- `components/` — Alt bileşenler
+
+**Matematik Sorusu Özel Özellikleri**:
+```typescript
+interface MatSoru {
+  metin: string;          // Soru metni
+  soru_tipi: string;      // coktan_secmeli | acik_uclu | ...
+  grafik_verisi?: {       // 📊 Özel özellik: grafik içeren sorular
+    tur: 'sutun' | 'cizgi' | 'pasta' | 'tablo';
+    baslik: string;
+    veri: Array<{etiket: string; deger: number}>;
+  };
+  sekil_verisi?: {        // 🔷 Geometrik şekil içeren sorular
+    tur: 'dikdortgen' | 'ucgen' | 'cember' | 'kare';
+    olcular: Record<string, number>;
+    birim: string;
+  };
+  kazanim_kodu: string;
+  zorluk_puani: number;
+}
+```
+
+**Grafik/Şekil Desteği**: Matematik sınavında sütun grafiği, çizgi grafiği, pasta grafiği, tablo ve geometrik şekil içeren sorular üretilir. SVG render için `MatSinavOnizleme.tsx` kullanır.
+
+**API Entegrasyonu**:
+- Frontend: `src/services/matSinavService.ts` → `generateMatExam()` + `refreshSingleQuestion()`
+- Backend generator: `src/services/generators/mathSinavGenerator.ts`
+- AI: Gemini 2.5 Flash REST API
+- Tip tanımları: `src/types/matSinav.ts`
+- Store: `src/store/useMatSinavStore.ts`
+- MEB kazanım verisi: `src/data/meb-matematik-kazanim.ts`
+
+**Yazılım Mühendisi Notu**: MatSinav modülü SinavStudyosu'na dokunmaz — tamamen bağımsız. Soru yenileme (`refreshSingleQuestion`) bireysel soru API çağrısı yapar.
+
+---
+
+### 2.3 InfographicStudio — İnfografik Stüdyosu
+
+**Dosya Konumu**: `src/components/InfographicStudio/index.tsx`
+
+**Amaç**: Özel öğrenme güçlüğü olan öğrenciler için AI destekli infografik, tablo, şema, görsel özet üretimi.
+
+**Desteklenen Şablon Türleri** (`@antv/infographic`):
+```
+list-row                      → Madde listesi (disleksi için en uygun)
+sequence-steps                → Adım adım süreç gösterimi (DEHB için ideal)
+compare-binary                → İkili karşılaştırma (sol/sağ)
+compare-binary-horizontal     → Yatay karşılaştırma
+hierarchy-mindmap             → Zihin haritası / kavram haritası
+timeline                      → Zaman çizelgesi
+data-table                    → Veri tablosu
+```
+
+**Pipeline**:
+```
+InfographicStudio (UI)
+  → infographicService.ts (AI prompt mühendisliği)
+    → /api/generate (Gemini 2.5 Flash)
+      → InfographicRenderer.tsx (ana render bileşeni)
+        → NativeInfographicRenderer.tsx (SVG render motoru)
+```
+
+**Özellikler**:
+- Profil × yaş grubuna göre otomatik şablon seçimi
+- Türkçe içerik (dil: 'tr' varsayılan)
+- Lexend font zorunlu (disleksi uyumluluğu)
+- A4 export: `useA4EditorStore.addBlock()` ile
+- `pedagogicalNote` her infografikte zorunlu
+- Şablon verisi: `src/data/infographicTemplates.ts`
+
+**AI Mühendisi Notu**: `infographicService.ts`'teki `buildPrompt()` fonksiyonu her profil ve yaş grubu için farklı kurallı prompt üretir. JSON çıktısı `@antv/infographic` syntax'ına uygun olmalı.
+
+---
+
+### 2.4 OCRActivityStudio — OCR Aktivite Stüdyosu
+
+**Dosya Konumu**: `src/components/OCRActivityStudio/`
+
+**Amaç**: Öğretmenin fotoğraf/tarama ile yüklediği materyal görüntüsünden otomatik aktivite ve varyasyon üretimi.
+
+**Pipeline**:
+```
+OCRScanner.tsx (fotoğraf yükleme)
+  → api/ocr/analyze.ts (Gemini Vision analiz)
+    → ocrService.ts (blueprint çıkarımı)
+      → ocrVariationService.ts (varyasyon üretimi)
+        → VariationResultsView.tsx (sonuç görüntüleme)
+```
+
+**Aşamalar**:
+1. **Görüntü Analiz**: Gemini Vision → OCR blueprint (metin + yapı + bölümler)
+2. **Blueprint Doğrulama**: `imageValidator.ts` ile format/boyut kontrolü
+3. **Varyasyon Üretimi**: Blueprint'ten farklı aktivite türleri (soru seti, boşluk doldurma, eşleştirme)
+4. **Sonuç Görüntüleme**: `VariationResultsView.tsx` — DOMPurify ile XSS korumalı HTML render
+
+**KVKK Uyumu**: Öğrenci fotoğrafları işlenmez — sadece materyal/çalışma sayfası görselleri
+
+---
+
+### 2.5 RemotionStudio — Animasyon Stüdyosu
+
+**Dosya Konumu**: `src/components/RemotionStudio/`
+
+**Amaç**: Remotion framework ile eğitim animasyonu üretimi.
+
+**Kullanım Alanı**: Matematik kavramlarının animasyonlu gösterimi, öğrenciye yönelik dinamik içerik.
+
+---
+
+## 9. Görsel Üretim Sistemi {#görsel-üretim-sistemi}
+
+> **Bu bölüm kritik.** Oogmatik'in ayırt edici özelliği, eğitim içeriğini doğru, gerçekçi ve pedagojik SVG/görsel ile desteklemesidir.
+> Her görsel üretimde `visual-storyteller-oozel` ajanı devreye girmeli ve aşağıdaki standartları uygulamalıdır.
+
+### 9.1 Görsel Üretim Genel Mimarisi
+
+```
+Kullanıcı İsteği
+    ↓
+[1] Niyet Analizi: Ne tür görsel gerekiyor?
+    → İnfografik/tablo/şema?          → infographicService.ts + InfographicStudio
+    → Geometrik şekil/matematik?       → mathGeometry.ts + SVG üretimi
+    → Görsel algı/şekil tarama?        → perceptualSkills.ts (findDifference, oddOneOut)
+    → Görsel yorum/hikaye görseli?     → visualInterpretation.ts + Gemini Vision
+    → Grafik (sütun/çizgi/pasta)?      → MatSinavOnizleme.tsx + veri şeması
+    → Animasyon?                       → RemotionStudio
+    ↓
+[2] SVG Üretim Standardı Uygula (bkz. SVG_VISUAL_STANDARDS.md)
+    ↓
+[3] A4 Export: useA4EditorStore.addBlock({ type: 'image', content: svgDataUrl })
+```
+
+### 9.2 Geometrik Şekil Üretimi — mathGeometry.ts
+
+**Dosya**: `src/services/generators/mathGeometry.ts`
+
+**Amaç**: Matematik aktiviteleri için SVG geometrik şekil üretimi.
+
+**Desteklenen Şekiller**:
+```
+Temel:        circle, square, rectangle, triangle, rhombus
+Çokgenler:    pentagon, hexagon, octagon
+3D Projeksiyon: cube (küp wireframe)
+Özel:         number_line (sayı çizgisi), fraction_bar (kesir çubuğu)
+              coordinate_grid (koordinat ızgarası), angle_arc (açı gösterimi)
+```
+
+**Çıktı Formatı**: Her şekil `svgContent: string` (tam SVG string veya SVG path d özelliği) döndürür.
+
+**Önemli Kurallar**:
+- viewBox her zaman `"0 0 100 100"` (normalize edilmiş koordinat)
+- stroke-width: zorluk seviyesine göre 1-3px
+- fill: profil renk paletine uygun (disleksi → yüksek kontrast)
+- Etiketler (ölçüler, açılar): `text` elementi ile SVG içine entegre
+
+### 9.3 Görsel Algı Aktiviteleri — perceptualSkills.ts
+
+**Dosya**: `src/services/generators/perceptualSkills.ts`  
+(`visualPerception.ts` artık bu dosyaya yönlendirir — deprecated)
+
+**Aktivite Türleri**:
+```typescript
+// Fark Bulma — iki görsel arasındaki farkları işaretle
+FindTheDifferenceData: {
+  rows: Array<{
+    items: Array<{
+      svgPaths: Array<{d: string; fill: string; stroke: string}>;
+      rotation: number;
+      isMirrored: boolean;
+    }>;
+    correctIndex: number;  // Farklı olan öğenin index'i
+    reason: string;        // Neden farklı
+    clinicalMeta: {        // Klinik metadata
+      targetedError: string;  // 'reversal_error' | 'rotation_error' | 'mirror_error'
+      cognitiveLoad: number;  // 1-10
+    };
+  }>;
+}
+
+// Şekil Sayma
+ShapeCountingData: {
+  searchField: Array<{
+    id: string; type: string; color: string;
+    rotation: number; size: number; x: number; y: number;
+  }>;
+  correctCount: number;
+}
+
+// Tek Yanlış — Seri içinde farklı olanı bul
+VisualOddOneOutData: { rows: Array<...> }
+```
+
+**SVG Path Üretim Standartı**:
+Gemini'ye verilen şema `svgPaths` alanını içerir:
+```json
+{
+  "svgPaths": [
+    {"d": "M 10 10 L 90 10 L 50 90 Z", "fill": "#4A90D9", "stroke": "#2C5F8A"}
+  ]
+}
+```
+Koordinatlar 0-100 arasında normalize edilmiş SVG `viewBox="0 0 100 100"` için.
+
+### 9.4 Görsel Yorum Aktiviteleri — visualInterpretation.ts
+
+**Dosya**: `src/services/generators/visualInterpretation.ts`
+
+**Amaç**: Öğrenci görsel analiz, çıkarım ve 5N1K becerileri için soru seti üretimi.
+
+**Özel Özellik**: `generateCreativeMultimodal()` kullanır — hem metin hem görsel prompt.
+
+**Çıktı Formatı**:
+```typescript
+interface VisualInterpretationResult {
+  imagePrompt: string;    // Midjourney/DALL-E 3 seviyesinde İngilizce görsel prompt
+  questions: Array<{
+    questionType: 'who' | 'what' | 'where' | 'when' | 'how' | 'why' | 'inference';
+    questionText: string;
+    answerType: 'open_ended' | 'multiple_choice';
+    options?: string[];
+    correctAnswer: string;
+    pedagogicalNote: string;
+  }>;
+  pedagogicalNote: string;
+}
+```
+
+### 9.5 Grafik Üretimi (Sınav İçin)
+
+**Kullanım Yeri**: `MatSinavOnizleme.tsx` içindeki grafik render.
+
+**Desteklenen Grafik Tipleri**:
+```typescript
+type GrafikTuru = 'sutun' | 'cizgi' | 'pasta' | 'tablo';
+
+interface GrafikVerisi {
+  tur: GrafikTuru;
+  baslik: string;
+  veri: Array<{etiket: string; deger: number}>;
+  birim?: string;   // 'adet' | 'TL' | 'kg' | vb.
+  renk?: string;    // Çubuk/çizgi rengi (opsiyonel)
+}
+```
+
+**SVG Render Standartı** (MatSinavOnizleme içinde):
+```
+Sütun grafiği: max değer = %100 yükseklik, taban çizgisi 0
+Pasta grafiği: dilimleri açılarla SVG path arc komutu ile
+Çizgi grafiği: polyline + noktalar
+Tablo: SVG foreignObject veya native SVG rect+text
+```
+
+### 9.6 İnfografik SVG Standartları
+
+**Dosya**: `src/components/NativeInfographicRenderer.tsx`
+
+**Render Mantığı**: `@antv/infographic` syntax → React SVG render
+
+**Renk Paleti** (profil bazlı):
+```
+dyslexia:     Ana #4A90D9 (mavi), Vurgu #E8F4FD, Metin #2C3E50
+dyscalculia:  Ana #27AE60 (yeşil), Vurgu #E8F8F0, Metin #1B2631
+adhd:         Ana #E74C3C (kırmızı-turuncu), Vurgu #FDEDEC, Metin #2C3E50
+mixed:        Ana #8E44AD (mor), Vurgu #F5EEF8, Metin #2C3E50
+general:      Ana #2C3E50 (lacivert), Vurgu #EBF5FB, Metin #1A252F
+```
+
+**Tipografi Standartı**:
+```
+İçerik metni:    font-family: Lexend (ZORUNLU — disleksi uyumluluğu)
+Admin/UI:        font-family: Inter
+font-size:       min 14px (mobil), 16px+ (A4 print)
+line-height:     1.8+ (disleksi standardı)
+letter-spacing:  0.05em (okuma kolaylığı için)
+```
+
+### 9.7 A4 Export Standardı
+
+**Tüm görseller için geçerli A4 export flow**:
+```typescript
+// useA4EditorStore.ts'deki addBlock() ile
+const dataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`;
+useA4EditorStore.getState().addBlock({
+  type: 'image',
+  content: dataUrl,
+  x: 50,          // sol kenar boşluğu (layoutConstants.ts: A4_MARGIN_PX)
+  y: 50,          // üst kenar boşluğu
+  width: 400,     // A4 içerik genişliği (layoutConstants.ts: A4_CONTENT_WIDTH_PX)
+  height: 400,    // Görsel yüksekliği (içeriğe göre ayarla)
+});
+```
+
+### 9.8 Animasyon (Remotion)
+
+**Dosya**: `src/components/RemotionStudio/`
+
+**Kullanım Amacı**: Matematik kavram animasyonları, adım adım çözüm animasyonları.
+
+**Standart**: Her animasyon `fps: 30`, `durationInFrames` konu karmaşıklığına göre, `CompositionProps` pedagojik parametreleri içerir.
+
+---
+
+## 11. Etkinlik Üretim Pipeline'ı (Ana İş Akışı) {#etkinlik-üretim-pipeline}
+
+> **Bu bölüm ajan eğitiminin özüdür.** Oogmatik'in tüm etkinlik/soru/sınav üretimi bu pipeline üzerinden geçer.
+
+### Etkinlik Türleri Tam Listesi
+
+```
+SORU / AKTİVİTE (GeneratorView üzerinden):
+├── Okuma Anlama
+│   ├── Metin + 5N1K soruları (fiveWOneH.ts)
+│   ├── Çıkarım soruları (readingComprehension.ts)
+│   └── Kelime dağarcığı (wordGames.ts)
+│
+├── Matematik
+│   ├── İşlem soruları (mathStudio.ts)
+│   ├── Geometri + şekil (mathGeometry.ts)
+│   ├── Mantık problemleri (logicProblems.ts)
+│   ├── Diskalkuli scaffold (dyscalculia.ts)
+│   ├── Grafik okuma (mathSinavGenerator.ts)
+│   └── Finansal matematik (financialMarket.ts)
+│
+├── Görsel Algı & Şekil
+│   ├── Şekil sayma (mathGeometry → shapeCountingFromAI)
+│   ├── Fark bulma (perceptualSkills → findDifference)
+│   ├── Tek yanlış bul (perceptualSkills → oddOneOut)
+│   ├── Görsel yorum (visualInterpretation.ts)
+│   └── Yön kodu okuma (directionalCodeReading.ts)
+│
+├── Dil & Yazım
+│   ├── Hece ayrıştırma (colorfulSyllable.ts)
+│   ├── Kelime oyunları (wordGames.ts)
+│   ├── Yaratıcı yazarlık (creativeStudio.ts)
+│   └── Disleksi desteği (dyslexiaSupport.ts)
+│
+├── Bellek & Dikkat
+│   ├── Bellek oyunları (memoryAttention.ts)
+│   ├── Beyin teaser (brainTeasers.ts)
+│   └── Algoritma aktiviteleri (algorithm.ts)
+│
+├── Akıl Yürütme
+│   ├── Mantık hataları (logicErrorHunter.ts)
+│   ├── Aile ağacı (familyTreeMatrix.ts)
+│   ├── Daire mantık (apartmentLogic.ts)
+│   └── Harita talimatı (mapInstruction.ts)
+│
+└── Değerlendirme & Klinik
+    ├── Adaptif sorular (assessment.ts)
+    ├── BEP şablonları (clinicalTemplates.ts)
+    └── Tarama anketi (Screening/)
+
+SINAV (Sınav Stüdyoları üzerinden):
+├── Türkçe sınavı (SinavStudyosu)
+│   ├── Çoktan seçmeli, D/Y, boşluk doldurma, açık uçlu
+│   └── MEB Türkçe kazanımları entegreli
+├── Matematik sınavı (MatSinavStudyosu)
+│   ├── Tüm soru tipleri + grafik + şekil içeren sorular
+│   └── MEB Matematik kazanımları entegreli
+└── Adaptif değerlendirme (AssessmentModule)
+    └── Hata analizi (errorTags), profil bazlı
+
+VİZÜEL ÜRETİM (InfographicStudio üzerinden):
+├── Madde listesi infografik
+├── Adım adım süreç şeması
+├── Karşılaştırma tablosu
+├── Zihin haritası
+└── Zaman çizelgesi
+```
+
+### Standart API Request Formatı
+
+```typescript
+// Tüm etkinlik/aktivite üretim istekleri bu formatta
+POST /api/generate
+{
+  prompt: string;           // Gemini prompt'u
+  schema: object;           // JSON Schema (structured output)
+  userId: string;           // Rate limiting için
+  activityType: ActivityType;
+  options: {
+    difficulty: 'Kolay' | 'Orta' | 'Zor';
+    ageGroup: '5-7' | '8-10' | '11-13' | '14+';
+    profile: 'dyslexia' | 'dyscalculia' | 'adhd' | 'mixed';
+    itemCount: number;
+    // ... aktivite-spesifik parametreler
+  }
+}
+
+// Sınav üretimi ayrı endpoint
+POST /api/generate-exam
+{
+  ayarlar: SinavAyarlari;   // Kazanım + soru dağılımı + sınıf
+}
+```
+
+### pedagogicalNote Standartı
+
+**Her AI üretim çıktısında `pedagogicalNote` zorunludur:**
+
+```typescript
+pedagogicalNote: string; // Öğretmene "Neden bu aktivite?" açıklaması
+
+// Örnek (iyi):
+"Bu aktivite fonolojik farkındalık becerilerini hedefler. 
+İlk 3 madde kolaydır (başarı anı için). ZPD: 8-10 yaş, Kolay seviye."
+
+// Örnek (kötü — yasak):
+"Bu aktivite disleksisi olan öğrenciler için hazırlanmıştır."
+//                ^^^ tanı koyucu dil — Dr. Ahmet veto eder!
+```
+

@@ -194,3 +194,91 @@ ONAY GEREKLİ: [hangi aşamada bana göster]
 Her tasarım kararında şu soruyu sor: **"Sınıfın en çok zorlanacak öğrencisi bu aktiviteden başarı hissedebilecek mi?"**
 
 Eğer cevap "hayır" ise, tasarımı baştan yap.
+
+---
+
+## 📚 OOGMATIK UYGULAMA BİLGİSİ — Tüm Etkinlik Modülleri
+
+> Elif Yıldız olarak, uygulamanın tüm etkinlik/soru/sınav üretim modüllerini derinlemesine bilirsin.
+
+### Sınav Stüdyoları — Pedagojik Standartlar
+
+**SinavStudyosu (Türkçe):**
+- MEB kazanım entegreli → her soru bir `kazanim_kodu` taşır
+- Çeldiriciler (`errorTags`) rastgele DEĞİL — her yanlış şık belirli bir bilişsel hatayı temsil eder
+- Başarı Anı Mimarisi: İlk soru MUTLAKA kolay (öğrencinin kendine güvenmesi için)
+- Soru dağılımı pedagojik sırayla: kolay → orta → zor
+
+**MatSinavStudyosu (Matematik):**
+- `grafik_verisi` içeren sorularda grafik GERÇEKÇİ olmalı (veri tutarlı, toplam doğru)
+- `sekil_verisi` içeren sorularda şekil SVG ölçüleri gerçek matematiğe uygun
+- Diskalkuli profili için: sayı çizgisi, renkli blok scaffold seçeneği
+
+**Pedagojik Onay Kriterleri:**
+```
+Sınav sorusu:
+□ İlk soru kolay mu?
+□ Çeldiriciler mantıksal hata türleri mi?
+□ Grafik/şekil varsa matematiksel olarak doğru mu?
+□ Dil yaş grubuna uygun mu?
+□ pedagogicalNote var mı?
+□ Tanı koyucu dil YOK mu?
+```
+
+### Aktivite Türleri — Pedagojik Değerlendirme Kılavuzu
+
+**Görsel Algı Aktiviteleri** (perceptualSkills.ts):
+- `oddOneOut`: Her satır farklı bir disleksi hata türünü hedeflemeli
+  - `reversal_error` (b/d, p/q karıştırma)
+  - `rotation_error` (döndürülmüş şekil)
+  - `mirror_error` (ayna image)
+  - `spatial_error` (konum hatası)
+- ZPD kontrolü: `cognitiveLoad` (1-10) yaş grubuna uygun mu?
+  - 5-7 yaş: max 4-5
+  - 8-10 yaş: max 6-7
+  - 11-13 yaş: max 8-9
+
+**Matematiksel Şekil Aktiviteleri** (mathGeometry.ts):
+- Geometri soruları görsel destekli olmalı — soyut değil
+- 5-7 yaş: sadece daire, kare, üçgen (3 temel şekil)
+- 8-10 yaş: + dikdörtgen, elips, beşgen
+- 11-13 yaş: + çokgenler, paralel kenar, kesit problemleri
+
+**5N1K / Okuma Anlama** (fiveWOneH.ts):
+- Metin uzunluğu:
+  - `kısa`: max 4 cümle (DEHB ve disleksi için)
+  - `orta`: 5-7 cümle
+  - `uzun`: 3 paragraf (ileri seviye)
+- Soru sıralaması: en kolay 5N sorusu → en zor çıkarım sorusu
+
+**İnfografik** (InfographicStudio):
+- 5-7 yaş: max 4 madde, büyük ikon, kısa metin
+- 8-10 yaş: max 6 madde
+- 11-13 yaş: max 7 madde + karşılaştırma şablonu
+- 14+ yaş: 8 madde + hierarchy mindmap
+
+### Başarı Anı Mimarisi — Tüm Aktiviteler İçin
+
+```
+İlk madde/soru: ZPD'nin altı (kesin başarı)
+     ↓
+Orta maddeler: ZPD içi (zorlayıcı ama yapılabilir)
+     ↓
+Son madde/soru: ZPD'nin biraz üstü (stretch goal)
+
+NOT: Aktivite sırasında hiçbir zaman "yanlış" değil →
+→ "Tekrar dene", "İpucu: ...", "Şunu düşün..."
+```
+
+### Pedagojik Onay Olmadan Yapılmayacaklar
+
+```
+❌ İlk soruyu zor yapma → başarısızlık mimari kurar
+❌ Her soruda "kolay → zor" sırasını bozma
+❌ Görsel olmadan soyut matematik sorusu (5-10 yaş)
+❌ 5-7 yaş için 10+ kelimeli soru
+❌ Çeldiricileri rastgele seçme → pedagogik anlam kaybı
+❌ pedagogicalNote'u boş bırakma
+❌ cognitiveLoad'u yaş grubunun üstünde tutma
+```
+

@@ -277,3 +277,96 @@ MALİYET: [token tahmini]
 Her yeni AI özelliği için tek soru: **"Bu özellik öğretmenin bir çocuğa daha iyi odaklanmasına yardımcı olur mu?"**
 
 Eğer cevap "sadece havalı görünüyor" ise — inşa etme.
+
+---
+
+## 📚 OOGMATIK UYGULAMA BİLGİSİ — AI Üretim Modelleri
+
+> Selin Arslan olarak, tüm AI üretim pipeline'larını ve görsel üretim prompt standartlarını derinlemesine bilirsin.
+
+### Etkinlik Üretim Pipeline'ları
+
+```
+Aktivite/Soru:     /api/generate → generateWithSchema() → JSON schema bağlayıcı
+Sınav (Türkçe):    /api/generate-exam → callGeminiDirect() → sinavGenerator.ts
+Sınav (Matematik): Gemini REST API → mathSinavGenerator.ts (Vercel serverless uyumlu)
+İnfografik:        /api/generate → infographicService.ts → @antv/infographic syntax
+OCR:               /api/ocr/analyze → Gemini Vision → ocrService.ts → blueprint
+Görsel yorum:      generateCreativeMultimodal() → multimodal prompt
+```
+
+### Görsel Üretim Prompt Kalite Standartları
+
+**SVG Path Prompt Şablonu** (perceptualSkills.ts için):
+```
+JSON schema'da svgPaths zorunlu olduğunda şunu ekle:
+"Koordinatlar 0-100 arasında normalize edilmiş viewBox='0 0 100 100' için.
+d alanı: M (moveto), L (lineto), C (cubic bezier), A (arc), Z (closepath).
+Şekiller ÇAKIŞMAMALI — her koordinat benzersiz.
+fill: profil renk kodu (#4A90D9 dyslexia için).
+stroke: ana renginden 30% daha koyu.
+Rotasyon için transform='rotate(X 50 50)' kullan."
+```
+
+**Grafik Veri Prompt Kalite Kriterleri** (mathSinavGenerator.ts için):
+```
+grafik_verisi üretirken Gemini'ye şunu zorunlu kıl:
+- veri toplamları tutarlı (pasta grafiği: toplamı 100 veya anlamlı bir bütün)
+- etiketler kısa (max 10 karakter Türkçe)
+- deger alanları pozitif sayı (0 ve negatif YASAK)
+- veri sayısı: min 3, max 8 (kognitif yük)
+- soru metni MUTLAKA grafiği referans etsin ("Yukarıdaki grafiğe göre...")
+```
+
+**Hallucination Risk Alanları** (görsel üretimde özel):
+```
+YÜKSEK RİSK:
+- SVG koordinat hesapları (Gemini bazen yanlış koordinat üretir)
+- Grafik toplam kontrolü (pasta dilimler toplamı != 100)
+- Şekil sayısı (şekil sayma aktivitesinde correctCount yanlış olabilir)
+
+ÖNLEM:
+- correctCount'u JSON schema'da INTEGER zorunlu al
+- pasta grafiği için validation: sum(veri.deger) kontrolü frontend'de
+- SVG path'lerini render öncesi basit bbox kontrolünden geçir
+```
+
+**Sınav Sorusu Kalite Şeması** (sinavGenerator.ts + mathSinavGenerator.ts için):
+```typescript
+// Her soru için zorunlu alan kontrolü
+const REQUIRED_SORU_FIELDS = {
+  metin: 'string (min 10 karakter)',
+  cevap: 'string',
+  soru_tipi: 'coktan_secmeli | dogru_yanlis | bosluk_doldurma | acik_uclu',
+  zorluk_puani: 'integer (1-5)',
+  kazanim_kodu: 'string',
+  pedagogicalNote: 'string (ZORUNLU)',
+  // Opsiyonel ama desteklenen:
+  grafik_verisi: 'GrafikVerisi (sutun/pasta/cizgi/tablo)',
+  sekil_verisi: 'SekilVerisi (geometrik şekil)',
+};
+```
+
+### İnfografik Üretim Kalite Standartları
+
+```typescript
+// infographicService.ts prompt kalite kriterleri
+const INFOGRAPHIC_QUALITY = {
+  // Yaş grubuna göre madde sınırı
+  '5-7':  { maxItems: 4, maxWordsPerItem: 5, template: 'list-row' },
+  '8-10': { maxItems: 6, maxWordsPerItem: 8, template: 'list-row | sequence-steps' },
+  '11-13':{ maxItems: 7, maxWordsPerItem: 12, template: 'compare-binary | hierarchy-mindmap' },
+  '14+':  { maxItems: 8, maxWordsPerItem: 15, template: 'hierarchy-mindmap | timeline' },
+
+  // Her çıktıda ZONrunlu alanlar
+  requiredFields: ['type', 'title', 'items', 'pedagogicalNote'],
+
+  // Hallucination tuzakları
+  antiHallucinationRules: [
+    'İçerik gerçek MEB müfredatına uygun olmalı',
+    'İsimler/tarihler Türkiye için doğru olmalı',
+    'Bilimsel içerik MEB 2024-2025 müfredatına uygun',
+  ]
+};
+```
+

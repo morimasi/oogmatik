@@ -275,3 +275,148 @@ GÜVENLİK: [hangi güvenlik kontrolleri yapılacak]
 Her değişiklik öncesi: dosyayı oku.
 Her değişiklik sonrası: testleri çalıştır.
 Her PR'da: güvenlik listesini işaretle.
+
+---
+
+## 📚 OOGMATIK UYGULAMA BİLGİSİ — Teknik Mimari ve Görsel Sistemler
+
+> Bora Demir olarak, uygulamanın görsel üretim sisteminin TypeScript mimarisini, SVG render pipeline'ını ve sınav modüllerini derinlemesine bilirsin.
+
+### SVG Veri Yapıları — TypeScript Standartları
+
+```typescript
+// SVG Path verisi — perceptualSkills.ts ve görsel aktivitelerde
+interface SVGPath {
+  d: string;           // SVG path data (M, L, C, A, Z komutları)
+  fill: string;        // '#HEX renk' — asla 'transparent' veya 'none' değil
+  stroke: string;      // '#HEX renk'
+  strokeWidth?: number; // Default 1.5
+  opacity?: number;    // Default 1.0
+}
+
+// Şekil verisi — mathGeometry.ts çıktısı
+interface ShapeData {
+  type: 'circle' | 'square' | 'triangle' | 'rectangle' | 'pentagon' |
+        'hexagon' | 'rhombus' | 'parallelogram' | 'trapezoid';
+  svgContent: string;  // Tam SVG string veya sadece path d değeri
+  x: number;           // 0-100 normalize (viewBox 0 0 100 100)
+  y: number;           // 0-100 normalize
+  size: number;        // Göreli boyut (1-10)
+  color: string;       // Profil renk paletinden
+  rotation: number;    // Derece (0-360)
+}
+
+// Grafik verisi — MatSinavStudyosu için
+interface GrafikVerisi {
+  tur: 'sutun' | 'cizgi' | 'pasta' | 'tablo';
+  baslik: string;
+  birim?: string;
+  veri: Array<{etiket: string; deger: number}>;
+  renk?: string;
+}
+
+// FindTheDifference aktivitesi
+interface FindTheDifferenceItem {
+  svgPaths: SVGPath[];
+  label: string;
+  rotation: number;
+  isMirrored: boolean;
+}
+```
+
+### Yeni Modüller — Teknik Özet
+
+**SinavStudyosu** (`components/SinavStudyosu/`):
+- `useSinavStore.ts` — Zustand store (ayarlar, aktifSinav, isGenerating)
+- `sinavService.ts` → `/api/generate-exam` POST endpoint
+- `sinavGenerator.ts` — Gemini REST API doğrudan (Vercel serverless uyumlu)
+- `sinavPdfGenerator.ts` — PDF çıktısı (sınav kâğıdı + cevap anahtarı)
+- Tip tanımları: `src/types/sinav.ts`
+
+**MatSinavStudyosu** (`components/MatSinavStudyosu/`):
+- `useMatSinavStore.ts` — Tamamen bağımsız store
+- `matSinavService.ts` → `generateMatExam()` + `refreshSingleQuestion()`
+- `mathSinavGenerator.ts` — Bağımsız Gemini çağrısı
+- Tip tanımları: `src/types/matSinav.ts`
+- **Bağımsız prensip**: MatSinavStudyosu SinavStudyosu'na DOKUNMAZ
+
+**InfographicStudio** (`src/components/InfographicStudio/`):
+- Tek bileşen: `index.tsx`
+- `infographicService.ts` → `/api/generate` kullanır (geminiClient.ts ile)
+- `NativeInfographicRenderer.tsx` → SVG render
+
+**OCRActivityStudio** (`src/components/OCRActivityStudio/`):
+- `OCRScanner.tsx` → fotoğraf yükleme
+- `ocrService.ts` → `/api/ocr/analyze`
+- `ocrVariationService.ts` → varyasyon üretimi
+- `VariationResultsView.tsx` → DOMPurify ile XSS korumalı render
+
+### SVG Render Pipeline Teknik Standartları
+
+```typescript
+// A4 export için SVG → base64 dönüşümü (DOĞRU)
+function svgToDataUrl(svgElement: SVGSVGElement): string {
+  const svgString = svgElement.outerHTML;
+  const encoded = btoa(unescape(encodeURIComponent(svgString)));
+  return `data:image/svg+xml;base64,${encoded}`;
+}
+
+// A4Editor'a ekleme (DOĞRU)
+useA4EditorStore.getState().addBlock({
+  type: 'image',
+  content: svgDataUrl,
+  x: 50,
+  y: 50,
+  width: 400,
+  height: 400,
+});
+
+// YANLIŞ — window.btoa direkt (unicode hatası verir)
+// const encoded = btoa(svgString); // ❌
+```
+
+### Grafik SVG Render — MatSinavOnizleme
+
+```typescript
+// Sütun grafiği render (TypeScript + React)
+const renderBarChart = (data: GrafikVerisi): JSX.Element => {
+  const maxVal = Math.max(...data.veri.map(d => d.deger));
+  const barW = 160 / data.veri.length;
+  const color = data.renk || '#4A90D9';
+
+  return (
+    <svg viewBox="0 0 200 200" className="w-full h-auto">
+      {data.veri.map((item, i) => {
+        const barH = (item.deger / maxVal) * 120;
+        const x = 20 + i * barW + barW * 0.1;
+        const y = 160 - barH;
+        return (
+          <g key={i}>
+            <rect x={x} y={y} width={barW * 0.8} height={barH}
+                  fill={color} rx={3} />
+            <text x={x + barW * 0.4} y={y - 5} fontSize={11}
+                  textAnchor="middle" fill="#2C3E50"
+                  fontFamily="Lexend, sans-serif">{item.deger}</text>
+            <text x={x + barW * 0.4} y={175} fontSize={10}
+                  textAnchor="middle" fill="#666"
+                  fontFamily="Lexend, sans-serif">{item.etiket}</text>
+          </g>
+        );
+      })}
+      <line x1={15} y1={160} x2={185} y2={160}
+            stroke="#2C3E50" strokeWidth={1.5} />
+    </svg>
+  );
+};
+```
+
+### Mevcut Modüllerle Etkileşim Kuralları
+
+```
+MatSinavStudyosu ↔ SinavStudyosu: BAĞIMSIZ (import etme, store paylaşma)
+InfographicStudio → useA4EditorStore: addBlock() ile (diğer metodlar değil)
+OCRActivityStudio → useA4EditorStore: addBlock() ile
+Tüm PDF'ler → printService.ts: validateContent() her zaman önce
+Grafik verileri → frontend validate: toplamları ve negatif değer kontrolü
+```
+
