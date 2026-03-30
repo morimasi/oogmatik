@@ -177,6 +177,78 @@
         "Encryption implementation (AES-256)",
         "Audit logging system"
       ]
+    },
+    "visual-storyteller-oozel": {
+      "name": "Visual Storyteller & SVG Uzmanı (Özel Eğitim)",
+      "source": "agency-agents-adapted",
+      "original": "msitarzewski/agency-agents — design/design-visual-storyteller.md + design/design-image-prompt-engineer.md",
+      "domain": "visual",
+      "file": ".claude/agents/supporting/visual-storyteller-oozel.md",
+      "triggers": [
+        "infografik",
+        "infographic",
+        "SVG",
+        "görsel",
+        "sembol",
+        "piktogram",
+        "şablon",
+        "tablo",
+        "grafik",
+        "çizim",
+        "InfographicStudio",
+        "NativeInfographicRenderer",
+        "@antv",
+        "sunum",
+        "görsel anlatı",
+        "renk kodlaması"
+      ],
+      "requiresApproval": ["bora", "elif", "selin"],
+      "capabilities": [
+        "@antv/infographic syntax üretimi (list-row, sequence-steps, compare-binary, hierarchy-mindmap)",
+        "SVG sembol ve piktogram üretimi",
+        "Disleksi-dostu renk kodlaması ve görsel tasarım",
+        "infographicService.ts prompt mühendisliği (Gemini 2.5 Flash)",
+        "A4 export (useA4EditorStore entegrasyonu)",
+        "WCAG AA renk kontrast uyumu",
+        "OCR blueprint → SVG görselleştirme",
+        "5 profil × 4 yaş grubu görsel uyum"
+      ]
+    },
+    "ai-vision-engineer-oozel": {
+      "name": "AI Görsel Mühendisi / OCR Uzmanı (Özel Eğitim)",
+      "source": "agency-agents-adapted",
+      "original": "msitarzewski/agency-agents — engineering/engineering-ai-engineer.md",
+      "domain": "ai-vision",
+      "file": ".claude/agents/supporting/ai-vision-engineer-oozel.md",
+      "triggers": [
+        "OCR",
+        "görüntü analizi",
+        "vision",
+        "Gemini Vision",
+        "fotoğraf",
+        "tarama",
+        "blueprint",
+        "görsel çıkarım",
+        "OCRScanner",
+        "ocrService",
+        "ocrVariationService",
+        "imageValidator",
+        "görsel işleme",
+        "varyasyon üretimi",
+        "OCR blueprint"
+      ],
+      "requiresApproval": ["bora", "selin"],
+      "capabilities": [
+        "Gemini Vision (multimodal) prompt mühendisliği",
+        "OCR pipeline yönetimi (analyze → blueprint → variations)",
+        "Türkçe eğitim materyali görüntü analizi",
+        "imageValidator.ts görsel format/boyut kontrolü",
+        "KVKK uyumlu görüntü işleme",
+        "OCR blueprint kalite doğrulama",
+        "retryWithBackoff() ile hata yönetimi",
+        "Rate limiting (OCR endpoint'leri)",
+        "api/ocr/ endpoint yönetimi"
+      ]
     }
   },
   "activationRules": {
@@ -246,6 +318,31 @@
         "Token kullanımı optimize et"
       ]
     },
+    "visual": {
+      "description": "Görsel içerik: SVG, infografik, sembol, tablo, grafik üretimi",
+      "requiredLeaders": ["bora", "selin"],
+      "optionalLeaders": ["elif"],
+      "supportingAgents": ["visual-storyteller-oozel", "frontend-developer-oozel"],
+      "examples": [
+        "Yeni infografik şablonu ekle",
+        "SVG sembol kütüphanesi oluştur",
+        "InfographicStudio yeni template türü ekle",
+        "Görsel renk kodlaması sistemi kur"
+      ]
+    },
+    "ocr-vision": {
+      "description": "OCR, görüntü analizi, Gemini Vision ve blueprint üretimi",
+      "requiredLeaders": ["bora", "selin"],
+      "optionalLeaders": ["ahmet"],
+      "supportingAgents": ["ai-vision-engineer-oozel"],
+      "examples": [
+        "OCR analiz promptunu iyileştir",
+        "Yeni görsel format desteği ekle",
+        "OCR blueprint doğrulama kur",
+        "ocrVariationService geliştir",
+        "imageValidator yeni kural ekle"
+      ]
+    },
     "full-feature": {
       "description": "Tam özellik geliştirme (tüm katmanlar)",
       "requiredLeaders": ["elif", "bora", "selin"],
@@ -253,12 +350,15 @@
       "supportingAgents": [
         "frontend-developer-oozel",
         "backend-architect-oozel",
-        "security-engineer-oozel"
+        "security-engineer-oozel",
+        "visual-storyteller-oozel",
+        "ai-vision-engineer-oozel"
       ],
       "examples": [
         "Yeni stüdyo modülü ekle",
         "Değerlendirme sistemi oluştur",
-        "Çalışma kâğıdı exportu geliştir"
+        "Çalışma kâğıdı exportu geliştir",
+        "InfographicStudio + OCR entegrasyonu"
       ]
     }
   },

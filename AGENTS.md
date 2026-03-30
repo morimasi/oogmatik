@@ -96,7 +96,32 @@ components/AdminActivityManager.tsx  Drag-and-Drop + adminService.saveActivities
 components/AdminDraftReview.tsx      Gemini Vision OCR → category/targetSkills auto-fill
 components/AdminStaticContent.tsx    10-version snapshot + JSON export/import
 antigravity_report.md                Sprint 5 tasarım ve teknik kararların referans kaydı
+
+[InfographicStudio & OCR Modülleri — agency-agents Sprint]
+src/components/InfographicStudio/index.tsx   → visual-storyteller-oozel ajanı yönetir
+src/services/infographicService.ts           → Gemini 2.5 Flash infografik prompt motoru
+src/data/infographicTemplates.ts             → SPLD premium şablonlar
+src/components/NativeInfographicRenderer.tsx → SVG render motoru
+src/components/OCRScanner.tsx                → ai-vision-engineer-oozel ajanı yönetir
+src/services/ocrService.ts                   → Gemini Vision OCR servisi
+src/services/ocrVariationService.ts          → Blueprint → varyasyon üreticisi
+utils/imageValidator.ts                      → Görsel boyut/format doğrulama
+api/ocr/analyze.ts                           → POST /api/ocr/analyze
+api/ocr/generate-variations.ts               → POST /api/ocr/generate-variations
 ```
+
+### 🖼️ Görsel & OCR Ajan Katmanı (msitarzewski/agency-agents adaptasyonları)
+
+| Ajan | Kaynak | Sorumluluk |
+|------|--------|------------|
+| `visual-storyteller-oozel` | design-visual-storyteller + design-image-prompt-engineer | SVG/infografik, @antv/infographic syntax, sembol üretimi |
+| `ai-vision-engineer-oozel` | engineering-ai-engineer | OCR pipeline, Gemini Vision, blueprint kalite kontrolü |
+
+**Tetikleyici anahtar kelimeler**:
+- **visual-storyteller-oozel**: `infografik`, `SVG`, `sembol`, `tablo`, `grafik`, `çizim`, `InfographicStudio`
+- **ai-vision-engineer-oozel**: `OCR`, `görüntü analizi`, `vision`, `Gemini Vision`, `blueprint`
+
+Ajan dosyaları: `.claude/agents/supporting/` | Kural kaydı: `.claude/agents/registry.json`
 
 ### 🎨 Admin UI Tasarım Standardı (Ozel Protokol)
 
