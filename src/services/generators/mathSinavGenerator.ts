@@ -145,7 +145,8 @@ ${settings.gorselVeriEklensinMi ? `[KRİTİK: GÖRSEL VERİ ZORUNLULUĞU]
 🚨 DİKKAT: Kullanıcı görsel veri (grafik/şekil) ZORUNLULUĞU getirdi! 
 - Soruların EN AZ %70'inde "grafik_verisi" nesnesini ZORUNLU olarak doldur.
 - Koordinat sistemi ise 'veri' içine mutlaka x ve y değerlerini ekle.
-- Geometrik şekiller (ucgen, kare, dikdortgen, daire) ise "ozellikler" nesnesini (kenarlar, acilar veya yaricap) mutlaka doldur.
+- "tip" degeri SADECE şunlardan biri olabilir: siklik_tablosu, sutun_grafigi, pasta_grafigi, ucgen, kare, dikdortgen, daire, sayi_dogrusu, koordinat_sistemi.
+- Geometrik şekiller (ucgen, kare, dikdortgen, daire) ise "ozellikler" nesnesini (kenarlar, acilar veya yaricap) mutlaka doldur. "veri" dizisine sahte bir etiket (Örn: [{etiket: "şekil"}]) koymayı unutma.
 - Sütun ve pasta grafikleri için 'deger' alanını sayısal olarak belirt.
 Bu kurala uymamak sınavın geçersiz sayılmasına neden olur!` : ''}
 ${settings.ozelKonu ? `[TEMA]\nTüm sorular "${settings.ozelKonu}" teması etrafında olmalı.\n` : ''}
@@ -214,7 +215,14 @@ const MATH_EXAM_SCHEMA = {
                     grafik_verisi: {
                         type: 'OBJECT',
                         properties: {
-                            tip: { type: 'STRING' },
+                            tip: {
+                                type: 'STRING',
+                                enum: [
+                                    'siklik_tablosu', 'sutun_grafigi', 'pasta_grafigi',
+                                    'ucgen', 'kare', 'dikdortgen', 'daire',
+                                    'sayi_dogrusu', 'koordinat_sistemi'
+                                ]
+                            },
                             baslik: { type: 'STRING' },
                             veri: {
                                 type: 'ARRAY',
