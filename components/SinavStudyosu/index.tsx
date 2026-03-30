@@ -53,14 +53,18 @@ const FmtBtn: React.FC<{
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
-}> = ({ active, onClick, children }) => (
+  icon?: string;
+  title?: string;
+}> = ({ active, onClick, children, icon, title }) => (
   <button
     onClick={onClick}
-    className={`px-2 py-1 rounded-md text-xs font-semibold border transition-all ${active
-      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-      : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-400 hover:text-indigo-600'
+    title={title}
+    className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 hover:-translate-y-0.5 transition-all duration-200 ${active
+      ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/30'
+      : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-sm'
       }`}
   >
+    {icon && <span className="opacity-90">{icon}</span>}
     {children}
   </button>
 );
@@ -91,7 +95,6 @@ export const SinavStudyosu: React.FC = () => {
     sinif: true,
     kazanim: true,
     ayarlar: true,
-    format: false,
     basariMimarisi: false,
   });
   const toggleSection = (key: keyof typeof openSections) =>
@@ -326,37 +329,6 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
               </div>
             </div>
 
-            {/* Format Ayarları */}
-            <div className="accordion-card mb-2.5">
-              <SectionHeader icon="🎨" title="Format Ayarları" isOpen={openSections.format} onToggle={() => toggleSection('format')} gradient="from-rose-500 to-orange-500" />
-              <div className={`accordion-body ${openSections.format ? 'open' : ''}`}>
-                <div className="accordion-content pt-3 space-y-3">
-                  <FmtRow label="Font">
-                    <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')}>Inter</FmtBtn>
-                    <FmtBtn active={printConfig.fontFamily === 'times'} onClick={() => updateConfig('fontFamily', 'times')}>Times</FmtBtn>
-                  </FmtRow>
-                  <FmtRow label="Punto">
-                    {([9, 10, 11, 12] as const).map((s) => (
-                      <FmtBtn key={s} active={printConfig.fontSize === s} onClick={() => updateConfig('fontSize', s)}>{s}pt</FmtBtn>
-                    ))}
-                  </FmtRow>
-                  <FmtRow label="Sütun">
-                    <FmtBtn active={printConfig.columns === 1} onClick={() => updateConfig('columns', 1)}>1 Sütun</FmtBtn>
-                    <FmtBtn active={printConfig.columns === 2} onClick={() => updateConfig('columns', 2)}>2 Sütun</FmtBtn>
-                  </FmtRow>
-                  <FmtRow label="Kenar">
-                    {([10, 15, 18, 22, 25] as const).map((m) => (
-                      <FmtBtn key={m} active={printConfig.marginMm === m} onClick={() => updateConfig('marginMm', m)}>{m}mm</FmtBtn>
-                    ))}
-                  </FmtRow>
-                  <FmtRow label="Aralık">
-                    {([6, 8, 10, 14] as const).map((s) => (
-                      <FmtBtn key={s} active={printConfig.questionSpacingMm === s} onClick={() => updateConfig('questionSpacingMm', s)}>{s}mm</FmtBtn>
-                    ))}
-                  </FmtRow>
-                </div>
-              </div>
-            </div>
 
             {/* Başarı Anı */}
             <div className="accordion-card mb-2.5">
@@ -404,8 +376,8 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
         {/* SAĞ PANEL */}
         <div className="lg:col-span-8 flex flex-col overflow-hidden">
 
-          {/* Toolbar */}
-          <div className="flex-none bg-white/80 backdrop-blur-xl border-b border-white/60 px-4 py-2 flex flex-wrap items-center justify-between gap-2">
+          {/* Ana Actions Toolbar */}
+          <div className="flex-none bg-white/80 backdrop-blur-xl border-b border-white/60 px-4 py-2 flex flex-wrap items-center justify-between gap-2 z-10">
             <div className="flex bg-gray-100/70 p-0.5 rounded-xl">
               {(['onizleme', 'cevap-anahtari'] as TabType[]).map((tab) => (
                 <button key={tab} onClick={() => setActiveTab(tab)} disabled={!aktifSinav}
@@ -422,20 +394,57 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                 { label: 'Kitapçık', icon: '📚', fn: handleAddToWorkbook },
               ].map(({ label, icon, fn }) => (
                 <button key={label} onClick={fn} disabled={!aktifSinav}
-                  className="toolbar-btn bg-gray-50 text-gray-600 hover:bg-indigo-600 hover:text-white border border-gray-200">
-                  <span>{icon}</span><span className="hidden sm:inline">{label}</span>
+                  className="toolbar-btn bg-gray-50 text-gray-600 hover:bg-indigo-600 hover:text-white border border-gray-200 shadow-sm">
+                  <span className="text-base">{icon}</span><span className="hidden sm:inline">{label}</span>
                 </button>
               ))}
+              <div className="w-px h-6 bg-gray-300 mx-1 self-center"></div>
               <button onClick={handlePrint} disabled={!aktifSinav}
-                className="toolbar-btn bg-gray-800 text-white hover:bg-black border-0">
-                <span>🖨️</span><span className="hidden sm:inline">Yazdır</span>
+                className="toolbar-btn bg-gray-800 text-white hover:bg-black border-0 shadow-md">
+                <span className="text-base">🖨️</span><span className="hidden sm:inline">Yazdır</span>
               </button>
               <button onClick={handleDownloadPDF} disabled={!aktifSinav}
-                className="toolbar-btn bg-gradient-to-r from-red-500 to-red-600 text-white shadow hover:shadow-lg border-0">
-                <span>📄</span>İndir
+                className="toolbar-btn bg-gradient-to-r from-rose-500 to-red-600 text-white hover:from-rose-600 hover:to-red-700 border-0 shadow-md">
+                <span className="text-base">📄</span>İndir
               </button>
             </div>
           </div>
+
+          {/* Format Settings Sub-Toolbar */}
+          {aktifSinav && activeTab === 'onizleme' && (
+            <div className="flex-none bg-indigo-50/50 backdrop-blur-md border-b border-indigo-100 px-4 py-2 flex flex-wrap items-center gap-x-6 gap-y-2 z-0 anim-slide-in shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)]">
+              <div className="flex items-center gap-1.5 bg-white/60 px-2 py-1 rounded-lg border border-indigo-50">
+                <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mr-1">Tasarım</span>
+                <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Fontu">Inter</FmtBtn>
+                <FmtBtn active={printConfig.fontFamily === 'times'} onClick={() => updateConfig('fontFamily', 'times')} title="Times New Roman">Times</FmtBtn>
+                <div className="w-px h-4 bg-indigo-200 mx-1"></div>
+                {([9, 10, 11, 12] as const).map((s) => (
+                  <FmtBtn key={s} active={printConfig.fontSize === s} onClick={() => updateConfig('fontSize', s)} title={`${s} Punto`}>{s}pt</FmtBtn>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-1.5 bg-white/60 px-2 py-1 rounded-lg border border-indigo-50">
+                <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mr-1">Yerleşim</span>
+                <FmtBtn active={printConfig.marginMm === 10} onClick={() => updateConfig('marginMm', 10)} title="Dar Kenar Boşluğu (10mm)" icon="⤢">Dar</FmtBtn>
+                <FmtBtn active={printConfig.marginMm === 18} onClick={() => updateConfig('marginMm', 18)} title="Normal Kenar Boşluğu (18mm)" icon="◻️">Orta</FmtBtn>
+                <FmtBtn active={printConfig.marginMm === 25} onClick={() => updateConfig('marginMm', 25)} title="Geniş Kenar Boşluğu (25mm)" icon="⤡">Geniş</FmtBtn>
+                <div className="w-px h-4 bg-indigo-200 mx-1"></div>
+                <FmtBtn active={printConfig.columns === 1} onClick={() => updateConfig('columns', 1)} icon="📄">Tek</FmtBtn>
+                <FmtBtn active={printConfig.columns === 2} onClick={() => updateConfig('columns', 2)} icon="📖">Çift</FmtBtn>
+              </div>
+
+              <div className="flex items-center gap-1.5 bg-white/60 px-2 py-1 rounded-lg border border-indigo-50">
+                <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mr-1">Metin</span>
+                <FmtBtn active={printConfig.textAlign === 'left'} onClick={() => updateConfig('textAlign', 'left')} title="Sola Dayalı" icon="⫷">Sola</FmtBtn>
+                <FmtBtn active={printConfig.textAlign === 'justify'} onClick={() => updateConfig('textAlign', 'justify')} title="İki Yana Yasla" icon="⫹">Yasla</FmtBtn>
+                <div className="w-px h-4 bg-indigo-200 mx-1"></div>
+                <FmtBtn active={printConfig.lineHeight === 1.4} onClick={() => updateConfig('lineHeight', 1.4)} title="Sıkı Satır">1.4</FmtBtn>
+                <FmtBtn active={printConfig.lineHeight === 1.6} onClick={() => updateConfig('lineHeight', 1.6)} title="Normal Satır">1.6</FmtBtn>
+                <FmtBtn active={printConfig.lineHeight === 1.8} onClick={() => updateConfig('lineHeight', 1.8)} title="Ayrık Satır">1.8</FmtBtn>
+              </div>
+            </div>
+          )}
+
 
           {/* Toast */}
           {successMessage && (

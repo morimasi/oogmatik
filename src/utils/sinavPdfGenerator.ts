@@ -12,6 +12,8 @@ export interface PrintConfig {
   columns: 1 | 2;
   marginMm: number;       // 10 | 15 | 20 | 25
   questionSpacingMm: number; // 6 | 8 | 10 | 14
+  lineHeight: number;     // 1.4 | 1.6 | 1.8
+  textAlign: 'left' | 'justify';
 }
 
 export const DEFAULT_PRINT_CONFIG: PrintConfig = {
@@ -20,6 +22,8 @@ export const DEFAULT_PRINT_CONFIG: PrintConfig = {
   columns: 1,
   marginMm: 18,
   questionSpacingMm: 8,
+  lineHeight: 1.6,
+  textAlign: 'left',
 };
 
 /** Türkçe özel karakterleri latin-1 muadilleriyle değiştirir (jsPDF Helvetica uyumu) */

@@ -21,11 +21,13 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
   const fontSizePx = config ? `${config.fontSize + 2}px` : '14px';
   const fontFamily = config?.fontFamily === 'times' ? 'Times New Roman, serif' : 'Lexend, Inter, sans-serif';
   const questionGap = config ? `${config.questionSpacingMm * 2}px` : '16px';
+  const lineHeight = config ? config.lineHeight : 1.6;
+  const textAlign = config ? config.textAlign : 'left';
 
   return (
     <div
       className="sinav-onizleme"
-      style={{ fontFamily, color: '#111', backgroundColor: '#fff' }}
+      style={{ fontFamily, color: '#111', backgroundColor: '#fff', textAlign }}
     >
       {/* Başlık Bandı */}
       <div
@@ -84,6 +86,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
             showAnswer={showAnswers}
             fontSizePx={fontSizePx}
             fontFamily={fontFamily}
+            lineHeight={lineHeight}
           />
         ))}
       </div>

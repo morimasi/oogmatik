@@ -12,6 +12,7 @@ interface SoruCardProps {
   showAnswer?: boolean;
   fontSizePx?: string;
   fontFamily?: string;
+  lineHeight?: number;
 }
 
 export const SoruCard: React.FC<SoruCardProps> = ({
@@ -20,8 +21,9 @@ export const SoruCard: React.FC<SoruCardProps> = ({
   showAnswer = false,
   fontSizePx = '14px',
   fontFamily = 'Lexend, sans-serif',
+  lineHeight = 1.6,
 }) => {
-  const textStyle: React.CSSProperties = { fontSize: fontSizePx, fontFamily, color: '#111' };
+  const textStyle: React.CSSProperties = { fontSize: fontSizePx, fontFamily, color: '#111', lineHeight };
 
   const getSoruTipiLabel = (): string => {
     const labels: Record<string, string> = {
