@@ -22,15 +22,21 @@ export type GrafikVeriTipi =
     | 'pasta_grafigi'
     | 'cizgi_grafigi'
     | 'ucgen'
+    | 'dik_ucgen'
     | 'kare'
     | 'dikdortgen'
+    | 'paralel_kenar'
+    | 'cokgen'
     | 'daire'
     | 'dogru_parcasi'
     | 'aci'
     | 'koordinat_sistemi'
+    | 'koordinat_grafigi'
     | 'sayi_dogrusu'
     | 'kesir_modeli'
-    | 'simetri';
+    | 'simetri'
+    | 'venn_diyagrami'
+    | 'olaslik_cark';
 
 // ─── Grafik Verisi ────────────────────────────────────────────
 export interface GrafikVerisi {
@@ -52,6 +58,8 @@ export interface GrafikVerisi {
         yaricap?: number;
         birim?: string;
         renk?: string;
+        kenarSayisi?: number;
+        etiketler?: string[];
     };
 }
 

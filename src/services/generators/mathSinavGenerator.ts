@@ -28,7 +28,9 @@ import { AppError } from '../../utils/AppError';
  */
 const GORSEL_TIPLER_LISTESI =
     'siklik_tablosu, cetele_tablosu, sutun_grafigi, pasta_grafigi, cizgi_grafigi, ' +
-    'ucgen, kare, dikdortgen, daire, dogru_parcasi, aci, koordinat_sistemi, sayi_dogrusu, kesir_modeli, simetri';
+    'ucgen, dik_ucgen, kare, dikdortgen, paralel_kenar, cokgen, daire, ' +
+    'dogru_parcasi, aci, koordinat_sistemi, koordinat_grafigi, sayi_dogrusu, ' +
+    'kesir_modeli, simetri, venn_diyagrami, olaslik_cark';
 
 interface KazanimGorselGereksinim {
     kazanimKodu: string;
@@ -37,6 +39,16 @@ interface KazanimGorselGereksinim {
     aciklama: string;
 }
 
+/**
+ * Bir kazanım kodunu öğrenme alanı ve kazanım tanımındaki anahtar kelimeler
+ * üzerinden eşleştirerek uygun görsel tipini belirler.
+ *
+ * Eşleştirme stratejisi:
+ *  1. `ogrenmeAlani` (Veri İşleme / Geometri / Sayılar...) ile broad kategori saptanır.
+ *  2. `tanim.toLowerCase()` üzerinde daha spesifik kelimeler (ör. "sütun grafik",
+ *     "üçgen", "açı") aranır → en uygun `GrafikVeriTipi` döndürülür.
+ *  3. Öğrenme alanı eşleşmez veya kazanım bulunamazsa `null` döner.
+ */
 function kazanimGorselBelirle(kazanimKodu: string): KazanimGorselGereksinim | null {
     const kazanim = getMatKazanimByCode(kazanimKodu);
     if (!kazanim) return null;
@@ -69,6 +81,9 @@ function kazanimGorselBelirle(kazanimKodu: string): KazanimGorselGereksinim | nu
     // Geometri / Geometri ve Ölçme → şekil görselleri
     if (ogrenmeAlani === 'Geometri' || ogrenmeAlani === 'Geometri ve Ölçme') {
         const tanim_lower = tanim.toLowerCase();
+        if (tanim_lower.includes('dik üçgen') || tanim_lower.includes('dik acili')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'dik_ucgen', aciklama: 'Dik üçgeni çiz, dik açıyı ve kenar ölçülerini belirt' };
+        }
         if (tanim_lower.includes('üçgen') || tanim_lower.includes('ucgen')) {
             return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'ucgen', aciklama: 'Üçgeni çiz, kenar ve açı ölçülerini belirt' };
         }
@@ -77,6 +92,12 @@ function kazanimGorselBelirle(kazanimKodu: string): KazanimGorselGereksinim | nu
         }
         if (tanim_lower.includes('dikdörtgen') || tanim_lower.includes('dikdortgen')) {
             return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'dikdortgen', aciklama: 'Dikdörtgeni çiz, kenar ölçülerini belirt' };
+        }
+        if (tanim_lower.includes('paralel kenar') || tanim_lower.includes('paralelkenar')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'paralel_kenar', aciklama: 'Paralel kenarı çiz, kenar ve açı ölçülerini belirt' };
+        }
+        if (tanim_lower.includes('çokgen') || tanim_lower.includes('beşgen') || tanim_lower.includes('altıgen') || tanim_lower.includes('yedigen')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'cokgen', aciklama: 'Çokgeni çiz, kenar sayısını ve ölçülerini belirt' };
         }
         if (tanim_lower.includes('daire') || tanim_lower.includes('çember')) {
             return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'daire', aciklama: 'Çember/daireyi çiz, yarıçapı belirt' };
@@ -103,6 +124,9 @@ function kazanimGorselBelirle(kazanimKodu: string): KazanimGorselGereksinim | nu
         if (tanim_lower.includes('sayı doğrusu') || tanim_lower.includes('sayi dogrusu')) {
             return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'sayi_dogrusu', aciklama: 'Sayı doğrusunda sayıları göster' };
         }
+        if (tanim_lower.includes('koordinat')) {
+            return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'koordinat_grafigi', aciklama: 'Koordinat düzleminde noktaları ve fonksiyonu göster' };
+        }
         if (tanim_lower.includes('kesir') || tanim_lower.includes('ondalık') || tanim_lower.includes('tam sayı')) {
             // Yalnızca sayı doğrusu gösterimi içeren kazanımlar için
             if (tanim_lower.includes('sayı doğrusu')) {
@@ -112,6 +136,11 @@ function kazanimGorselBelirle(kazanimKodu: string): KazanimGorselGereksinim | nu
                 return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'kesir_modeli', aciklama: 'Kesir modelini görsel olarak göster' };
             }
         }
+    }
+
+    // Olasılık
+    if (ogrenmeAlani === 'Olasılık') {
+        return { kazanimKodu, kazanimMetni: tanim, zorunluGorsel: 'olaslik_cark', aciklama: 'Olasılık çarkı veya pasta grafik ile olayları göster' };
     }
 
     return null;
@@ -358,10 +387,11 @@ const MATH_EXAM_SCHEMA = {
                                 enum: [
                                     'siklik_tablosu', 'cetele_tablosu',
                                     'sutun_grafigi', 'pasta_grafigi', 'cizgi_grafigi',
-                                    'ucgen', 'kare', 'dikdortgen', 'daire',
+                                    'ucgen', 'dik_ucgen', 'kare', 'dikdortgen',
+                                    'paralel_kenar', 'cokgen', 'daire',
                                     'dogru_parcasi', 'aci',
-                                    'koordinat_sistemi', 'sayi_dogrusu',
-                                    'kesir_modeli', 'simetri',
+                                    'koordinat_sistemi', 'koordinat_grafigi', 'sayi_dogrusu',
+                                    'kesir_modeli', 'simetri', 'venn_diyagrami', 'olaslik_cark',
                                 ],
                             },
                             baslik: { type: 'STRING' },
@@ -389,6 +419,8 @@ const MATH_EXAM_SCHEMA = {
                                     yaricap: { type: 'NUMBER', nullable: true },
                                     birim: { type: 'STRING', nullable: true },
                                     renk: { type: 'STRING', nullable: true },
+                                    kenarSayisi: { type: 'NUMBER', nullable: true },
+                                    etiketler: { type: 'ARRAY', items: { type: 'STRING' }, nullable: true },
                                 },
                                 nullable: true,
                             },

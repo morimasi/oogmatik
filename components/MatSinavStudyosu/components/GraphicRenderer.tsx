@@ -1,481 +1,914 @@
+/**
+ * GraphicRenderer — HD Kalite Matematik Görsel Motoru
+ *
+ * Desteklenen 21 tip:
+ *   Veri:      siklik_tablosu · cetele_tablosu · sutun_grafigi · pasta_grafigi · cizgi_grafigi
+ *   Geometri:  ucgen · dik_ucgen · kare · dikdortgen · paralel_kenar · cokgen · daire
+ *              dogru_parcasi · aci · simetri
+ *   Analitik:  koordinat_sistemi · koordinat_grafigi · sayi_dogrusu
+ *   Kavramsal: kesir_modeli · venn_diyagrami · olaslik_cark
+ *
+ * Tasarım: Lexend font · gradient fills · drop-shadow filtresi · yüksek kontrast
+ */
+
 import React from 'react';
 import type { GrafikVerisi } from '../../../src/types/matSinav';
 
-export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: string }> = ({ grafik, className = '' }) => {
+// ── Ortak sabitler ───────────────────────────────────────────────────────────
+
+const FONT = 'Lexend, system-ui, sans-serif';
+
+const COLORS = [
+    '#4f46e5', // indigo-600
+    '#0ea5e9', // sky-500
+    '#10b981', // emerald-500
+    '#f59e0b', // amber-500
+    '#ec4899', // pink-500
+    '#8b5cf6', // violet-500
+    '#ef4444', // red-500
+    '#14b8a6', // teal-500
+];
+
+// Şekil dolgu opaklıkları için sabitler (hex renk kodu sonekinde kullanılır)
+// 16 hex ≈ %9 opaklık (çok hafif dolgu), 18 hex ≈ %10 opaklık
+const FILL_OPACITY_LIGHT = '16';   // ~9% — neredeyse şeffaf dolgu
+const FILL_OPACITY_MED = '20';     // ~12%
+
+// ── Shared SVG primitives ────────────────────────────────────────────────────
+
+const SvgDefs: React.FC<{ id: string; color: string }> = ({ id, color }) => (
+    <defs>
+        <filter id={`shadow-${id}`} x="-15%" y="-15%" width="130%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#00000020" />
+        </filter>
+        <linearGradient id={`gradV-${id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity="0.92" />
+            <stop offset="100%" stopColor={color} stopOpacity="0.6" />
+        </linearGradient>
+        <linearGradient id={`shapeFill-${id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity="0.18" />
+            <stop offset="100%" stopColor={color} stopOpacity="0.06" />
+        </linearGradient>
+        <marker id={`arrow-${id}`} markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 Z" fill={color} />
+        </marker>
+        <marker id={`arrowL-${id}`} markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto-start-reverse">
+            <path d="M0,0 L0,6 L8,3 Z" fill={color} />
+        </marker>
+    </defs>
+);
+
+const GridLines: React.FC<{ x1: number; x2: number; yValues: number[] }> = ({ x1, x2, yValues }) => (
+    <>
+        {yValues.map((y, i) => (
+            <line key={i} x1={x1} y1={y} x2={x2} y2={y}
+                stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4 3" />
+        ))}
+    </>
+);
+
+// ── Ana bileşen ──────────────────────────────────────────────────────────────
+
+export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: string }> = ({
+    grafik,
+    className = '',
+}) => {
     if (!grafik) return null;
 
     const { tip, baslik, veri, ozellikler, not } = grafik;
+    const anaRenk = ozellikler?.renk || COLORS[0];
+    const uid = tip.replace(/_/g, '-');
 
-    // Renk paleti
-    const colors = ['#4f46e5', '#ec4899', '#f59e0b', '#10b981', '#6366f1', '#14b8a6', '#8b5cf6'];
-    const anaRenk = ozellikler?.renk || '#4f46e5';
+    const renderContent = (): React.ReactNode => {
 
-    const renderContent = () => {
-        switch (tip) {
-            case 'siklik_tablosu':
-                return (
-                    <div className="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm mt-3">
-                        <table className="w-full text-sm text-left align-middle">
-                            <thead className="bg-indigo-50 border-b border-indigo-100 text-indigo-800">
-                                <tr>
-                                    <th className="px-4 py-2 font-semibold">Kategori</th>
-                                    <th className="px-4 py-2 font-semibold text-right">Değer</th>
+        /* ── SIKLIK TABLOSU ─────────────────────────────────────────────── */
+        if (tip === 'siklik_tablosu') {
+            const toplam = veri.reduce((s, v) => s + (v.deger || 0), 0) || 1;
+            return (
+                <div className="w-full overflow-hidden rounded-xl border border-indigo-100 shadow-sm mt-3">
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr style={{ background: `linear-gradient(90deg,${anaRenk}22,${anaRenk}0a)` }}>
+                                <th className="px-4 py-2.5 text-left font-bold text-gray-700" style={{ fontFamily: FONT }}>Kategori</th>
+                                <th className="px-4 py-2.5 text-right font-bold text-gray-700" style={{ fontFamily: FONT }}>Sıklık</th>
+                                <th className="px-4 py-2.5 text-right font-bold text-gray-700" style={{ fontFamily: FONT }}>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {veri.map((item, idx) => (
+                                <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                                    <td className="px-4 py-2 font-medium text-gray-800" style={{ fontFamily: FONT }}>
+                                        <span className="inline-block w-3 h-3 rounded-full mr-2 align-middle"
+                                            style={{ background: COLORS[idx % COLORS.length] }} />
+                                        {item.etiket}{item.nesne ? ` (${item.nesne})` : ''}
+                                    </td>
+                                    <td className="px-4 py-2 text-right font-bold" style={{ color: COLORS[idx % COLORS.length], fontFamily: FONT }}>
+                                        {item.deger}{item.birim ? ` ${item.birim}` : ''}
+                                    </td>
+                                    <td className="px-4 py-2 text-right text-xs text-gray-500" style={{ fontFamily: FONT }}>
+                                        {Math.round(((item.deger || 0) / toplam) * 100)}%
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {veri.map((item, idx) => (
-                                    <tr key={idx} className="bg-white hover:bg-gray-50">
-                                        <td className="px-4 py-2 font-medium text-gray-700">{item.etiket} {item.nesne || ''}</td>
-                                        <td className="px-4 py-2 text-right font-bold text-indigo-600">{item.deger} {item.birim || ''}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                );
+                            ))}
+                            <tr className="border-t-2 border-gray-200">
+                                <td className="px-4 py-2 font-extrabold text-gray-700" style={{ fontFamily: FONT }}>Toplam</td>
+                                <td className="px-4 py-2 text-right font-extrabold" style={{ color: anaRenk, fontFamily: FONT }}>{toplam}</td>
+                                <td className="px-4 py-2 text-right font-bold text-gray-500" style={{ fontFamily: FONT }}>100%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
 
-            case 'sutun_grafigi': {
-                const maxDeger = Math.max(...veri.map(v => v.deger || 0), 10);
-                const w = 400, h = 200, pl = 40, pr = 10, pt = 10, pb = 40;
-                const chartW = w - pl - pr;
-                const chartH = h - pt - pb;
-                const barW = Math.min(40, chartW / veri.length - 10);
-
+        /* ── ÇETELE TABLOSU ─────────────────────────────────────────────── */
+        if (tip === 'cetele_tablosu') {
+            const renderTally = (n: number) => {
+                const groups = Math.floor(n / 5);
+                const rem = n % 5;
                 return (
-                    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto max-w-sm mx-auto mt-3 font-sans" preserveAspectRatio="xMidYMid meet">
-                        {/* Grid & Eksenler */}
-                        <line x1={pl} y1={pt} x2={pl} y2={h - pb} stroke="#e5e7eb" strokeWidth="2" />
-                        <line x1={pl} y1={h - pb} x2={w - pr} y2={h - pb} stroke="#9ca3af" strokeWidth="2" />
+                    <span className="inline-flex items-center gap-1 flex-wrap">
+                        {Array.from({ length: groups }).map((_, gi) => (
+                            <span key={gi} className="inline-flex items-center" style={{ color: '#059669', fontFamily: 'monospace', fontSize: '15px', fontWeight: 700, letterSpacing: '-2px' }}>
+                                <span>||||</span>
+                                <span style={{ display: 'inline-block', width: '10px', height: '2px', background: '#059669', transform: 'rotate(-70deg)', transformOrigin: 'center', marginLeft: '-2px', marginRight: '4px' }} />
+                            </span>
+                        ))}
+                        {rem > 0 && (
+                            <span style={{ color: '#059669', fontFamily: 'monospace', fontSize: '15px', fontWeight: 700, letterSpacing: '-2px' }}>
+                                {'|'.repeat(rem)}
+                            </span>
+                        )}
+                        {n === 0 && <span className="text-gray-300 text-sm">—</span>}
+                    </span>
+                );
+            };
+            return (
+                <div className="w-full overflow-hidden rounded-xl border border-emerald-100 shadow-sm mt-3">
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr style={{ background: 'linear-gradient(90deg,#d1fae522,#d1fae508)' }}>
+                                <th className="px-4 py-2.5 text-left font-bold text-emerald-800" style={{ fontFamily: FONT }}>Kategori</th>
+                                <th className="px-4 py-2.5 text-left font-bold text-emerald-800" style={{ fontFamily: FONT }}>Çetele</th>
+                                <th className="px-4 py-2.5 text-right font-bold text-emerald-800" style={{ fontFamily: FONT }}>Sayı</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {veri.map((item, idx) => (
+                                <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-emerald-50/30'}>
+                                    <td className="px-4 py-2.5 font-semibold text-gray-700" style={{ fontFamily: FONT }}>{item.etiket}</td>
+                                    <td className="px-4 py-3">{renderTally(item.deger || 0)}</td>
+                                    <td className="px-4 py-2.5 text-right font-extrabold" style={{ color: '#059669', fontFamily: FONT }}>{item.deger}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
 
-                        {/* Y ekseni etiketleri (3 adım) */}
-                        {[0, 0.5, 1].map(step => {
-                            const y = h - pb - (chartH * step);
-                            const val = Math.round(maxDeger * step);
-                            return (
-                                <g key={step}>
-                                    <line x1={pl - 3} y1={y} x2={w - pr} y2={y} stroke="#f3f4f6" strokeWidth="1" />
-                                    <text x={pl - 8} y={y + 4} fontSize="10" fill="#6b7280" textAnchor="end">{val}</text>
-                                </g>
-                            );
-                        })}
+        /* ── SÜTUN GRAFİĞİ ──────────────────────────────────────────────── */
+        if (tip === 'sutun_grafigi') {
+            const maxVal = Math.max(...veri.map(v => v.deger || 0), 1);
+            const W = 460, H = 240, PL = 50, PR = 12, PT = 22, PB = 56;
+            const cW = W - PL - PR, cH = H - PT - PB;
+            const barW = Math.min(52, (cW / veri.length) * 0.58);
+            const ySteps = 5;
+            return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto max-w-xl mx-auto mt-3"
+                    style={{ fontFamily: FONT }} preserveAspectRatio="xMidYMid meet">
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <GridLines x1={PL} x2={W - PR}
+                        yValues={Array.from({ length: ySteps + 1 }, (_, i) => H - PB - (cH / ySteps) * i)} />
+                    <line x1={PL} y1={PT} x2={PL} y2={H - PB} stroke="#94a3b8" strokeWidth="2" />
+                    <line x1={PL} y1={H - PB} x2={W - PR} y2={H - PB} stroke="#94a3b8" strokeWidth="2" />
+                    {Array.from({ length: ySteps + 1 }, (_, i) => (
+                        <text key={i} x={PL - 7} y={H - PB - (cH / ySteps) * i + 4}
+                            fontSize="10" fill="#64748b" textAnchor="end">
+                            {Math.round((maxVal / ySteps) * i)}
+                        </text>
+                    ))}
+                    {veri.map((item, idx) => {
+                        const val = item.deger || 0;
+                        const bH = (val / maxVal) * cH;
+                        const slotW = cW / veri.length;
+                        const bx = PL + slotW * idx + (slotW - barW) / 2;
+                        const by = H - PB - bH;
+                        const col = COLORS[idx % COLORS.length];
+                        return (
+                            <g key={idx}>
+                                <rect x={bx} y={by} width={barW} height={bH}
+                                    fill={col} rx="3" opacity="0.87"
+                                    filter={`url(#shadow-${uid})`} />
+                                {/* Gradient overlay */}
+                                <rect x={bx} y={by} width={barW} height={Math.min(bH * 0.35, 18)}
+                                    fill="white" rx="3" opacity="0.15" />
+                                <text x={bx + barW / 2} y={H - PB + 15} fontSize="11" fill="#475569" textAnchor="middle">{item.etiket}</text>
+                                {item.birim && (
+                                    <text x={bx + barW / 2} y={H - PB + 27} fontSize="9" fill="#94a3b8" textAnchor="middle">{item.birim}</text>
+                                )}
+                                <text x={bx + barW / 2} y={by - 6} fontSize="11" fill={col} fontWeight="700" textAnchor="middle">{val}</text>
+                            </g>
+                        );
+                    })}
+                </svg>
+            );
+        }
 
-                        {/* Sütunlar */}
+        /* ── PASTA GRAFİĞİ ──────────────────────────────────────────────── */
+        if (tip === 'pasta_grafigi') {
+            const total = veri.reduce((s, v) => s + (v.deger || 0), 0) || 1;
+            const cx = 100, cy = 100, R = 82, Ri = 30;
+            let startAngle = -90;
+            return (
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-3">
+                    <svg viewBox="0 0 200 200" className="w-44 h-44 flex-shrink-0"
+                        style={{ fontFamily: FONT, filter: 'drop-shadow(0 4px 10px #0002)' }}>
+                        <SvgDefs id={uid} color={anaRenk} />
                         {veri.map((item, idx) => {
                             const val = item.deger || 0;
-                            const barH = (val / maxDeger) * chartH;
-                            const x = pl + (chartW / veri.length) * idx + (chartW / veri.length - barW) / 2;
-                            const y = h - pb - barH;
+                            const angle = (val / total) * 360;
+                            const endAngle = startAngle + angle;
+                            const midAngle = startAngle + angle / 2;
+                            const rad = Math.PI / 180;
+                            const x1 = cx + R * Math.cos(startAngle * rad);
+                            const y1 = cy + R * Math.sin(startAngle * rad);
+                            const x2 = cx + R * Math.cos(endAngle * rad);
+                            const y2 = cy + R * Math.sin(endAngle * rad);
+                            const ix1 = cx + Ri * Math.cos(endAngle * rad);
+                            const iy1 = cy + Ri * Math.sin(endAngle * rad);
+                            const ix2 = cx + Ri * Math.cos(startAngle * rad);
+                            const iy2 = cy + Ri * Math.sin(startAngle * rad);
+                            const large = angle > 180 ? 1 : 0;
+                            const path = `M${x1},${y1} A${R},${R} 0 ${large} 1 ${x2},${y2} L${ix1},${iy1} A${Ri},${Ri} 0 ${large} 0 ${ix2},${iy2} Z`;
+                            const pct = Math.round((val / total) * 100);
+                            const midR = (R + Ri) / 2;
+                            const lx = cx + midR * Math.cos(midAngle * rad);
+                            const ly = cy + midR * Math.sin(midAngle * rad);
+                            const col = COLORS[idx % COLORS.length];
+                            startAngle = endAngle;
                             return (
                                 <g key={idx}>
-                                    <rect x={x} y={y} width={barW} height={barH} fill={colors[idx % colors.length]} rx="2" />
-                                    <text x={x + barW / 2} y={h - pb + 14} fontSize="10" fill="#4b5563" textAnchor="middle" className="truncate" width={barW}>{item.etiket}</text>
-                                    <text x={x + barW / 2} y={y - 5} fontSize="10" fill="#111827" fontWeight="bold" textAnchor="middle">{val}</text>
+                                    <path d={path} fill={col} stroke="#fff" strokeWidth="2" opacity="0.9" />
+                                    {pct >= 8 && (
+                                        <text x={lx} y={ly + 4} fontSize="9" fill="#fff" fontWeight="700" textAnchor="middle">{pct}%</text>
+                                    )}
                                 </g>
                             );
                         })}
+                        <text x={cx} y={cy - 5} fontSize="9" fill="#64748b" textAnchor="middle">Toplam</text>
+                        <text x={cx} y={cy + 9} fontSize="13" fill="#1e293b" fontWeight="700" textAnchor="middle">{total}</text>
                     </svg>
-                );
-            }
-
-            case 'pasta_grafigi': {
-                const total = veri.reduce((sum, v) => sum + (v.deger || 0), 0) || 1;
-                let startAngle = -90;
-                const cx = 100, cy = 100, r = 80;
-
-                return (
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-3">
-                        <svg viewBox="0 0 200 200" className="w-40 h-40 flex-shrink-0">
-                            {veri.map((item, idx) => {
-                                const val = item.deger || 0;
-                                const angle = (val / total) * 360;
-                                const endAngle = startAngle + angle;
-
-                                const x1 = cx + r * Math.cos((startAngle * Math.PI) / 180);
-                                const y1 = cy + r * Math.sin((startAngle * Math.PI) / 180);
-                                const x2 = cx + r * Math.cos((endAngle * Math.PI) / 180);
-                                const y2 = cy + r * Math.sin((endAngle * Math.PI) / 180);
-                                const largeArc = angle > 180 ? 1 : 0;
-                                const pathData = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
-
-                                startAngle = endAngle;
-                                return <path key={idx} d={pathData} fill={colors[idx % colors.length]} stroke="#fff" strokeWidth="2" />;
-                            })}
-                        </svg>
-                        <div className="flex flex-col gap-1.5 text-xs">
-                            {veri.map((item, idx) => (
-                                <div key={idx} className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colors[idx % colors.length] }}></div>
-                                    <span className="text-gray-700">{item.etiket}: <strong>{item.deger}</strong> ({Math.round(((item.deger || 0) / total) * 100)}%)</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                );
-            }
-
-            case 'ucgen':
-                return (
-                    <svg viewBox="0 0 200 150" className="w-full max-w-[200px] mx-auto mt-2 drop-shadow-sm">
-                        <polygon points="100,20 20,130 180,130" fill={`${anaRenk}20`} stroke={anaRenk} strokeWidth="3" strokeLinejoin="round" />
-                        <text x="100" y="15" fontSize="12" fill="#4b5563" textAnchor="middle">A</text>
-                        <text x="15" y="140" fontSize="12" fill="#4b5563" textAnchor="middle">B</text>
-                        <text x="185" y="140" fontSize="12" fill="#4b5563" textAnchor="middle">C</text>
-                        {ozellikler?.kenarlar && ozellikler.kenarlar.length >= 3 && (
-                            <>
-                                <text x="50" y="70" fontSize="11" fill={anaRenk} textAnchor="end">{ozellikler.kenarlar[0]}</text>
-                                <text x="150" y="70" fontSize="11" fill={anaRenk} textAnchor="start">{ozellikler.kenarlar[1]}</text>
-                                <text x="100" y="145" fontSize="11" fill={anaRenk} textAnchor="middle">{ozellikler.kenarlar[2]}</text>
-                            </>
-                        )}
-                    </svg>
-                );
-
-            case 'kare':
-            case 'dikdortgen': {
-                const w = tip === 'kare' ? 120 : 160;
-                const h = tip === 'kare' ? 120 : 80;
-                return (
-                    <svg viewBox={`0 0 200 150`} className="w-full max-w-[200px] mx-auto mt-2 drop-shadow-sm">
-                        <rect x={(200 - w) / 2} y={(150 - h) / 2} width={w} height={h} fill={`${anaRenk}20`} stroke={anaRenk} strokeWidth="3" rx="4" />
-                        {ozellikler?.kenarlar && (
-                            <>
-                                <text x="100" y={(150 - h) / 2 - 8} fontSize="12" fill={anaRenk} textAnchor="middle">{ozellikler.kenarlar[0]}</text>
-                                <text x={(200 + w) / 2 + 8} y="75" fontSize="12" fill={anaRenk} dominantBaseline="middle">{ozellikler.kenarlar[1] || ozellikler.kenarlar[0]}</text>
-                            </>
-                        )}
-                        {/* Dik açılar */}
-                        <polyline points={`${(200 - w) / 2},${(150 - h) / 2 + 10} ${(200 - w) / 2 + 10},${(150 - h) / 2 + 10} ${(200 - w) / 2 + 10},${(150 - h) / 2}`} fill="none" stroke={anaRenk} strokeWidth="1" />
-                    </svg>
-                );
-            }
-
-            case 'daire': {
-                const r = 60;
-                return (
-                    <svg viewBox="0 0 200 150" className="w-full max-w-[200px] mx-auto mt-2 drop-shadow-sm">
-                        <circle cx="100" cy="75" r={r} fill={`${anaRenk}20`} stroke={anaRenk} strokeWidth="3" />
-                        <circle cx="100" cy="75" r="3" fill={anaRenk} />
-                        <line x1="100" y1="75" x2="160" y2="75" stroke={anaRenk} strokeWidth="2" strokeDasharray="4 2" />
-                        <text x="130" y="68" fontSize="12" fill={anaRenk} textAnchor="middle">{ozellikler?.yaricap ? `r = ${ozellikler.yaricap}` : 'r'}</text>
-                    </svg>
-                );
-            }
-
-            case 'sayi_dogrusu': {
-                const pts = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
-                return (
-                    <div className="w-full overflow-x-auto py-2">
-                        <svg viewBox="0 0 400 60" className="w-full min-w-[300px] h-16 mx-auto mt-2">
-                            <line x1="20" y1="30" x2="380" y2="30" stroke="#4b5563" strokeWidth="2" />
-                            <polygon points="380,25 390,30 380,35" fill="#4b5563" />
-                            <polygon points="20,25 10,30 20,35" fill="#4b5563" />
-                            {pts.map((p, i) => {
-                                const x = 30 + (340 / (pts.length - 1)) * i;
-                                return (
-                                    <g key={p}>
-                                        <line x1={x} y1="25" x2={x} y2="35" stroke="#4b5563" strokeWidth="2" />
-                                        <text x={x} y="50" fontSize="12" fill={p === 0 ? '#ef4444' : '#6b7280'} fontWeight={p === 0 ? 'bold' : 'normal'} textAnchor="middle">{p}</text>
-                                    </g>
-                                );
-                            })}
-                            {/* Varsa noktaları işaretle */}
-                            {veri.map((v, idx) => {
-                                if (v.deger !== undefined && v.deger >= -5 && v.deger <= 5) {
-                                    const x = 30 + (340 / (pts.length - 1)) * (v.deger + 5);
-                                    return (
-                                        <g key={`m-${idx}`}>
-                                            <circle cx={x} cy="30" r="5" fill={anaRenk} />
-                                            <text x={x} y="15" fontSize="12" fill={anaRenk} fontWeight="bold" textAnchor="middle">{v.etiket}</text>
-                                        </g>
-                                    );
-                                }
-                                return null;
-                            })}
-                        </svg>
-                    </div>
-                );
-            }
-
-            case 'koordinat_sistemi': {
-                return (
-                    <svg viewBox="0 0 200 200" className="w-full max-w-[200px] mx-auto mt-2 drop-shadow-sm">
-                        {/* Grid */}
-                        {[...Array(11)].map((_, i) => (
-                            <React.Fragment key={`grid-${i}`}>
-                                <line x1="0" y1={i * 20} x2="200" y2={i * 20} stroke="#f3f4f6" strokeWidth="1" />
-                                <line x1={i * 20} y1="0" x2={i * 20} y2="200" stroke="#f3f4f6" strokeWidth="1" />
-                            </React.Fragment>
-                        ))}
-                        {/* Axes */}
-                        <line x1="100" y1="0" x2="100" y2="200" stroke="#9ca3af" strokeWidth="2" />
-                        <line x1="0" y1="100" x2="200" y2="100" stroke="#9ca3af" strokeWidth="2" />
-                        <text x="190" y="112" fontSize="10" fill="#6b7280">x</text>
-                        <text x="105" y="10" fontSize="10" fill="#6b7280">y</text>
-
-                        {/* Points */}
-                        {veri.map((v, idx) => {
-                            if (v.x !== undefined && v.y !== undefined) {
-                                const px = 100 + v.x * 20;
-                                const py = 100 - v.y * 20;
-                                return (
-                                    <g key={`pt-${idx}`}>
-                                        <circle cx={px} cy={py} r="4" fill={anaRenk} />
-                                        <text x={px + 6} y={py - 6} fontSize="11" fill={anaRenk} fontWeight="bold">{v.etiket}</text>
-                                    </g>
-                                );
-                            }
-                            return null;
-                        })}
-                    </svg>
-                );
-            }
-
-            case 'cetele_tablosu': {
-                // Çetele çizgilerini gruplar halinde göster (||||  = 5)
-                const renderTallyMarks = (count: number) => {
-                    const full = Math.floor(count / 5);
-                    const remainder = count % 5;
-                    const marks: React.ReactNode[] = [];
-                    for (let g = 0; g < full; g++) {
-                        marks.push(
-                            <span key={`g${g}`} className="inline-flex items-center mr-1.5 text-indigo-700 font-bold tracking-tighter text-base">
-                                {'||||'}
-                                <span className="inline-block w-3 h-0.5 bg-indigo-700 -rotate-[65deg] mx-0.5" />
-                            </span>
-                        );
-                    }
-                    if (remainder > 0) {
-                        marks.push(
-                            <span key="rem" className="inline-flex items-center mr-1.5 text-indigo-700 font-bold tracking-tighter text-base">
-                                {'|'.repeat(remainder)}
-                            </span>
-                        );
-                    }
-                    return marks.length > 0 ? marks : <span className="text-gray-400">—</span>;
-                };
-
-                return (
-                    <div className="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm mt-3">
-                        <table className="w-full text-sm text-left align-middle">
-                            <thead className="bg-green-50 border-b border-green-100 text-green-800">
-                                <tr>
-                                    <th className="px-4 py-2 font-semibold">Kategori</th>
-                                    <th className="px-4 py-2 font-semibold">Çetele</th>
-                                    <th className="px-4 py-2 font-semibold text-right">Sayı</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {veri.map((item, idx) => (
-                                    <tr key={idx} className="bg-white hover:bg-gray-50">
-                                        <td className="px-4 py-2 font-medium text-gray-700">{item.etiket} {item.nesne || ''}</td>
-                                        <td className="px-4 py-2">{renderTallyMarks(item.deger || 0)}</td>
-                                        <td className="px-4 py-2 text-right font-bold text-green-700">{item.deger} {item.birim || ''}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                );
-            }
-
-            case 'cizgi_grafigi': {
-                const maxVal = Math.max(...veri.map(v => v.deger || 0), 1);
-                const w = 400, h = 200, pl = 44, pr = 16, pt = 16, pb = 44;
-                const chartW = w - pl - pr;
-                const chartH = h - pt - pb;
-                const stepX = veri.length > 1 ? chartW / (veri.length - 1) : chartW;
-
-                const pointCoords = veri.map((item, i) => ({
-                    x: pl + stepX * i,
-                    y: h - pb - ((item.deger || 0) / maxVal) * chartH,
-                }));
-                const linePath = pointCoords.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-
-                return (
-                    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto max-w-sm mx-auto mt-3 font-sans" preserveAspectRatio="xMidYMid meet">
-                        {/* Grid & Axes */}
-                        <line x1={pl} y1={pt} x2={pl} y2={h - pb} stroke="#e5e7eb" strokeWidth="2" />
-                        <line x1={pl} y1={h - pb} x2={w - pr} y2={h - pb} stroke="#9ca3af" strokeWidth="2" />
-                        {[0, 0.25, 0.5, 0.75, 1].map(step => {
-                            const y = h - pb - chartH * step;
-                            return (
-                                <g key={step}>
-                                    <line x1={pl} y1={y} x2={w - pr} y2={y} stroke="#f3f4f6" strokeWidth="1" />
-                                    <text x={pl - 6} y={y + 4} fontSize="10" fill="#6b7280" textAnchor="end">{Math.round(maxVal * step)}</text>
-                                </g>
-                            );
-                        })}
-                        {/* Line */}
-                        <path d={linePath} fill="none" stroke={anaRenk} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-                        {/* Points & Labels */}
-                        {pointCoords.map((p, idx) => (
-                            <g key={idx}>
-                                <circle cx={p.x} cy={p.y} r="4" fill={anaRenk} stroke="#fff" strokeWidth="1.5" />
-                                <text x={p.x} y={h - pb + 16} fontSize="10" fill="#4b5563" textAnchor="middle">{veri[idx].etiket}</text>
-                                <text x={p.x} y={p.y - 8} fontSize="10" fill={anaRenk} fontWeight="bold" textAnchor="middle">{veri[idx].deger}</text>
-                            </g>
-                        ))}
-                    </svg>
-                );
-            }
-
-            case 'dogru_parcasi': {
-                // Doğru parçası, doğru veya ışın
-                const uzunluk = ozellikler?.kenarlar?.[0];
-                return (
-                    <svg viewBox="0 0 300 80" className="w-full max-w-xs mx-auto mt-2">
-                        {/* Çift ok — doğru */}
-                        <defs>
-                            <marker id="arrow-l" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-                                <path d="M8,0 L0,4 L8,8" fill="none" stroke={anaRenk} strokeWidth="1.5" />
-                            </marker>
-                            <marker id="arrow-r" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-                                <path d="M0,0 L8,4 L0,8" fill="none" stroke={anaRenk} strokeWidth="1.5" />
-                            </marker>
-                        </defs>
-                        <line
-                            x1="20" y1="40" x2="280" y2="40"
-                            stroke={anaRenk} strokeWidth="2.5"
-                            markerStart="url(#arrow-l)" markerEnd="url(#arrow-r)"
-                        />
-                        {/* Uç noktalar */}
-                        {veri.length > 0 && (
-                            <>
-                                <circle cx="40" cy="40" r="4" fill={anaRenk} />
-                                <text x="40" y="28" fontSize="13" fill="#374151" fontWeight="bold" textAnchor="middle">{veri[0].etiket}</text>
-                            </>
-                        )}
-                        {veri.length > 1 && (
-                            <>
-                                <circle cx="260" cy="40" r="4" fill={anaRenk} />
-                                <text x="260" y="28" fontSize="13" fill="#374151" fontWeight="bold" textAnchor="middle">{veri[1].etiket}</text>
-                            </>
-                        )}
-                        {uzunluk && (
-                            <>
-                                <line x1="40" y1="55" x2="260" y2="55" stroke="#9ca3af" strokeWidth="1" strokeDasharray="4 2" />
-                                <text x="150" y="68" fontSize="12" fill={anaRenk} fontWeight="bold" textAnchor="middle">{uzunluk} {ozellikler?.birim || ''}</text>
-                            </>
-                        )}
-                    </svg>
-                );
-            }
-
-            case 'aci': {
-                const aciDerece = ozellikler?.acilar?.[0] ?? 60;
-                const rad = (aciDerece * Math.PI) / 180;
-                const cx = 100, cy = 100, r = 65;
-                // İlk kol yatay sağa
-                const x1 = cx + r;
-                const y1 = cy;
-                // İkinci kol açı kadar döndürülmüş
-                const x2 = cx + r * Math.cos(-rad);
-                const y2 = cy + r * Math.sin(-rad);
-                // Yay için
-                const arcR = 28;
-                const arcX = cx + arcR * Math.cos(-rad / 2);
-                const arcY = cy + arcR * Math.sin(-rad / 2);
-                const largeArc = aciDerece > 180 ? 1 : 0;
-                const ax1 = cx + arcR;
-                const ay1 = cy;
-                const ax2 = cx + arcR * Math.cos(-rad);
-                const ay2 = cy + arcR * Math.sin(-rad);
-
-                return (
-                    <svg viewBox="0 0 200 180" className="w-full max-w-[200px] mx-auto mt-2 drop-shadow-sm">
-                        {/* Kollar */}
-                        <line x1={cx} y1={cy} x2={x1} y2={y1} stroke={anaRenk} strokeWidth="2.5" strokeLinecap="round" />
-                        <line x1={cx} y1={cy} x2={x2} y2={y2} stroke={anaRenk} strokeWidth="2.5" strokeLinecap="round" />
-                        {/* Yay */}
-                        <path d={`M ${ax1} ${ay1} A ${arcR} ${arcR} 0 ${largeArc} 0 ${ax2} ${ay2}`} fill="none" stroke={anaRenk} strokeWidth="1.5" opacity="0.6" />
-                        {/* Açı etiketi */}
-                        <text x={arcX} y={arcY - 4} fontSize="11" fill={anaRenk} fontWeight="bold" textAnchor="middle">{aciDerece}°</text>
-                        {/* Köşe noktaları */}
-                        {veri.length > 0 && <text x={cx - 12} y={cy + 4} fontSize="12" fill="#374151" fontWeight="bold">{veri[0]?.etiket || ''}</text>}
-                        {veri.length > 1 && <text x={x1 + 6} y={y1 + 4} fontSize="12" fill="#374151">{veri[1]?.etiket || ''}</text>}
-                        {veri.length > 2 && <text x={x2 + 4} y={y2 - 4} fontSize="12" fill="#374151">{veri[2]?.etiket || ''}</text>}
-                    </svg>
-                );
-            }
-
-            case 'kesir_modeli': {
-                // Pasta dilimi modeli (daire üzerinde kesir)
-                const payda = ozellikler?.kenarlar?.[0] ?? veri.length ?? 4;
-                const pay = Math.max(1, Math.round(veri.filter(v => v.deger === 1 || v.nesne === 'dolu').length));
-                const dilimAcisi = 360 / payda;
-
-                return (
-                    <div className="flex flex-col items-center gap-3 mt-3">
-                        <svg viewBox="0 0 200 200" className="w-36 h-36">
-                            {Array.from({ length: payda }).map((_, i) => {
-                                const startA = (i * dilimAcisi - 90) * (Math.PI / 180);
-                                const endA = ((i + 1) * dilimAcisi - 90) * (Math.PI / 180);
-                                const r = 85;
-                                const x1 = 100 + r * Math.cos(startA);
-                                const y1 = 100 + r * Math.sin(startA);
-                                const x2 = 100 + r * Math.cos(endA);
-                                const y2 = 100 + r * Math.sin(endA);
-                                const dolu = i < pay;
-                                return (
-                                    <path
-                                        key={i}
-                                        d={`M 100 100 L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z`}
-                                        fill={dolu ? anaRenk : `${anaRenk}22`}
-                                        stroke="#fff"
-                                        strokeWidth="2"
-                                    />
-                                );
-                            })}
-                        </svg>
-                        <div className="text-center">
-                            <div className="inline-flex flex-col items-center bg-indigo-50 rounded-xl px-4 py-2">
-                                <span className="text-xl font-extrabold text-indigo-700 leading-none border-b-2 border-indigo-400 px-2">{pay}</span>
-                                <span className="text-xl font-extrabold text-indigo-700 leading-none px-2">{payda}</span>
-                            </div>
-                        </div>
-                    </div>
-                );
-            }
-
-            case 'simetri': {
-                // Şekil simetri ekseni ile gösterilir
-                const bW = 60, bH = 80;
-                return (
-                    <svg viewBox="0 0 260 160" className="w-full max-w-xs mx-auto mt-2 drop-shadow-sm">
-                        {/* Sol şekil */}
-                        <rect x="20" y="40" width={bW} height={bH} fill={`${anaRenk}30`} stroke={anaRenk} strokeWidth="2" rx="3" />
-                        {/* Simetri ekseni */}
-                        <line x1="130" y1="10" x2="130" y2="150" stroke="#ef4444" strokeWidth="2.5" strokeDasharray="6 4" />
-                        <text x="130" y="8" fontSize="10" fill="#ef4444" textAnchor="middle" fontWeight="bold">Simetri Ekseni</text>
-                        {/* Sağ şekil (ayna) */}
-                        <rect x="180" y="40" width={bW} height={bH} fill={`${anaRenk}30`} stroke={anaRenk} strokeWidth="2" rx="3" />
-                        {/* Yansıma oku */}
-                        <text x="130" y="100" fontSize="10" fill={anaRenk} textAnchor="middle">↔</text>
-                        {/* Etiketler */}
-                        {veri[0] && <text x="50" y={40 + bH + 16} fontSize="11" fill="#374151" textAnchor="middle">{veri[0].etiket}</text>}
-                        {veri[1] && <text x="210" y={40 + bH + 16} fontSize="11" fill="#374151" textAnchor="middle">{veri[1].etiket}</text>}
-                    </svg>
-                );
-            }
-
-            default:
-                // Bilinmeyen tip için basit metin listesi fallback
-                return (
-                    <div className="flex flex-wrap gap-2 mt-3">
-                        {veri.map((v, idx) => (
-                            <div key={idx} className="bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-1.5 text-sm">
-                                <span className="font-semibold text-indigo-800">{v.etiket}:</span> <span className="text-gray-700">{v.deger} {v.birim}</span>
+                    <div className="flex flex-col gap-1.5 text-xs">
+                        {veri.map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ background: COLORS[idx % COLORS.length] }} />
+                                <span style={{ fontFamily: FONT, color: '#374151' }}>
+                                    {item.etiket}: <strong>{item.deger}</strong>{item.birim ? ` ${item.birim}` : ''}
+                                </span>
                             </div>
                         ))}
                     </div>
-                );
+                </div>
+            );
         }
+
+        /* ── ÇİZGİ GRAFİĞİ ──────────────────────────────────────────────── */
+        if (tip === 'cizgi_grafigi') {
+            const maxVal = Math.max(...veri.map(v => v.deger || 0), 1);
+            const W = 460, H = 240, PL = 50, PR = 16, PT = 22, PB = 56;
+            const cW = W - PL - PR, cH = H - PT - PB;
+            const stepX = veri.length > 1 ? cW / (veri.length - 1) : cW;
+            const pts = veri.map((v, i) => ({
+                x: PL + stepX * i,
+                y: H - PB - ((v.deger || 0) / maxVal) * cH,
+            }));
+            const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+            const areaPath = pts.length > 1
+                ? `${linePath} L${pts[pts.length - 1].x},${H - PB} L${pts[0].x},${H - PB} Z`
+                : '';
+            return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto max-w-xl mx-auto mt-3"
+                    style={{ fontFamily: FONT }} preserveAspectRatio="xMidYMid meet">
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <defs>
+                        <linearGradient id={`area-${uid}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={anaRenk} stopOpacity="0.22" />
+                            <stop offset="100%" stopColor={anaRenk} stopOpacity="0.02" />
+                        </linearGradient>
+                    </defs>
+                    <GridLines x1={PL} x2={W - PR}
+                        yValues={Array.from({ length: 6 }, (_, i) => H - PB - (cH / 5) * i)} />
+                    <line x1={PL} y1={PT} x2={PL} y2={H - PB} stroke="#94a3b8" strokeWidth="2" />
+                    <line x1={PL} y1={H - PB} x2={W - PR} y2={H - PB} stroke="#94a3b8" strokeWidth="2" />
+                    {Array.from({ length: 6 }, (_, i) => (
+                        <text key={i} x={PL - 7} y={H - PB - (cH / 5) * i + 4} fontSize="10" fill="#64748b" textAnchor="end">
+                            {Math.round(maxVal / 5 * i)}
+                        </text>
+                    ))}
+                    {areaPath && <path d={areaPath} fill={`url(#area-${uid})`} />}
+                    <path d={linePath} fill="none" stroke={anaRenk} strokeWidth="2.5"
+                        strokeLinejoin="round" strokeLinecap="round" />
+                    {pts.map((p, idx) => (
+                        <g key={idx}>
+                            <circle cx={p.x} cy={p.y} r="5.5" fill="white" stroke={anaRenk} strokeWidth="2.5" />
+                            <circle cx={p.x} cy={p.y} r="2.5" fill={anaRenk} />
+                            <text x={p.x} y={H - PB + 15} fontSize="11" fill="#475569" textAnchor="middle">{veri[idx].etiket}</text>
+                            {veri[idx].birim && (
+                                <text x={p.x} y={H - PB + 27} fontSize="9" fill="#94a3b8" textAnchor="middle">{veri[idx].birim}</text>
+                            )}
+                            <text x={p.x} y={p.y - 9} fontSize="10" fill={anaRenk} fontWeight="700" textAnchor="middle">{veri[idx].deger}</text>
+                        </g>
+                    ))}
+                </svg>
+            );
+        }
+
+        /* ── ÜÇGEN ──────────────────────────────────────────────────────── */
+        if (tip === 'ucgen') {
+            const pts_raw = ozellikler?.etiketler ?? ['A', 'B', 'C'];
+            const sides = ozellikler?.kenarlar;
+            return (
+                <svg viewBox="0 0 240 180" className="w-full max-w-xs mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 3px 6px #0001)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <polygon points="120,16 24,160 216,160"
+                        fill={`url(#shapeFill-${uid})`} stroke={anaRenk} strokeWidth="2.5" strokeLinejoin="round" />
+                    {[{ x: 120, y: 16 }, { x: 24, y: 160 }, { x: 216, y: 160 }].map((v, i) => (
+                        <g key={i}>
+                            <circle cx={v.x} cy={v.y} r="4" fill={anaRenk} />
+                            <text x={v.x + (i === 0 ? 0 : i === 1 ? -13 : 13)} y={v.y + (i === 0 ? -9 : 17)}
+                                fontSize="13" fill="#1e293b" fontWeight="700" textAnchor="middle">
+                                {pts_raw[i] ?? String.fromCharCode(65 + i)}
+                            </text>
+                        </g>
+                    ))}
+                    {sides && sides.length >= 1 && (
+                        <text x="64" y="96" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle" transform="rotate(-56,64,96)">{sides[0]}</text>
+                    )}
+                    {sides && sides.length >= 2 && (
+                        <text x="176" y="96" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle" transform="rotate(56,176,96)">{sides[1]}</text>
+                    )}
+                    {sides && sides.length >= 3 && (
+                        <text x="120" y="175" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">{sides[2]}</text>
+                    )}
+                </svg>
+            );
+        }
+
+        /* ── DİK ÜÇGEN ──────────────────────────────────────────────────── */
+        if (tip === 'dik_ucgen') {
+            const sides = ozellikler?.kenarlar;
+            const pts_raw = ozellikler?.etiketler ?? ['A', 'B', 'C'];
+            return (
+                <svg viewBox="0 0 240 180" className="w-full max-w-xs mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 3px 6px #0001)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <polygon points="24,160 24,30 216,160"
+                        fill={`url(#shapeFill-${uid})`} stroke={anaRenk} strokeWidth="2.5" strokeLinejoin="round" />
+                    <polyline points="24,148 36,148 36,160" fill="none" stroke={anaRenk} strokeWidth="2" />
+                    {[{ x: 24, y: 160 }, { x: 24, y: 30 }, { x: 216, y: 160 }].map((v, i) => (
+                        <g key={i}>
+                            <circle cx={v.x} cy={v.y} r="4" fill={anaRenk} />
+                            <text x={v.x + (i === 0 ? -13 : i === 1 ? -13 : 13)} y={v.y + (i === 2 ? 17 : i === 1 ? -9 : 17)}
+                                fontSize="13" fill="#1e293b" fontWeight="700" textAnchor="middle">
+                                {pts_raw[i] ?? String.fromCharCode(65 + i)}
+                            </text>
+                        </g>
+                    ))}
+                    {sides && sides.length >= 1 && (
+                        <text x="9" y="100" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">{sides[0]}</text>
+                    )}
+                    {sides && sides.length >= 2 && (
+                        <text x="120" y="176" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">{sides[1]}</text>
+                    )}
+                    {sides && sides.length >= 3 && (
+                        <text x="132" y="89" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle" transform="rotate(35,132,89)">{sides[2]}</text>
+                    )}
+                </svg>
+            );
+        }
+
+        /* ── KARE / DİKDÖRTGEN ──────────────────────────────────────────── */
+        if (tip === 'kare' || tip === 'dikdortgen') {
+            const rW = tip === 'kare' ? 130 : 180;
+            const rH = tip === 'kare' ? 130 : 90;
+            const ox = (240 - rW) / 2, oy = (180 - rH) / 2;
+            const sides = ozellikler?.kenarlar;
+            return (
+                <svg viewBox="0 0 240 180" className="w-full max-w-xs mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 3px 6px #0001)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <rect x={ox} y={oy} width={rW} height={rH}
+                        fill={`url(#shapeFill-${uid})`} stroke={anaRenk} strokeWidth="2.5" rx="3" />
+                    {/* Right-angle markers */}
+                    <polyline points={`${ox + 11},${oy} ${ox + 11},${oy + 11} ${ox},${oy + 11}`}
+                        fill="none" stroke={anaRenk} strokeWidth="1.5" opacity="0.5" />
+                    <polyline points={`${ox + rW - 11},${oy} ${ox + rW - 11},${oy + 11} ${ox + rW},${oy + 11}`}
+                        fill="none" stroke={anaRenk} strokeWidth="1.5" opacity="0.5" />
+                    {sides && sides.length >= 1 && (
+                        <text x={ox + rW / 2} y={oy - 8} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="middle">{sides[0]}</text>
+                    )}
+                    {sides && sides.length >= 2 && tip === 'dikdortgen' && (
+                        <text x={ox + rW + 13} y={oy + rH / 2 + 5} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="start">{sides[1]}</text>
+                    )}
+                    {tip === 'kare' && sides && (
+                        <text x={ox + rW + 13} y={oy + rH / 2 + 5} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="start">{sides[0]}</text>
+                    )}
+                    {/* Equal side tick marks for square */}
+                    {tip === 'kare' && (
+                        <>
+                            {[[ox + rW / 2 - 5, oy + 7, ox + rW / 2 + 5, oy + 7],
+                              [ox + rW / 2 - 5, oy + rH - 7, ox + rW / 2 + 5, oy + rH - 7],
+                              [ox + 7, oy + rH / 2 - 5, ox + 7, oy + rH / 2 + 5],
+                              [ox + rW - 7, oy + rH / 2 - 5, ox + rW - 7, oy + rH / 2 + 5],
+                            ].map(([x1, y1, x2, y2], i) => (
+                                <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={anaRenk} strokeWidth="2" />
+                            ))}
+                        </>
+                    )}
+                </svg>
+            );
+        }
+
+        /* ── PARALEL KENAR ──────────────────────────────────────────────── */
+        if (tip === 'paralel_kenar') {
+            const sides = ozellikler?.kenarlar;
+            const skew = 34;
+            return (
+                <svg viewBox="0 0 280 165" className="w-full max-w-sm mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 3px 6px #0001)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <polygon points={`${skew},28 ${246},28 ${246 - skew},136 ${10},136`}
+                        fill={`url(#shapeFill-${uid})`} stroke={anaRenk} strokeWidth="2.5" />
+                    {/* Parallel arrows on top/bottom */}
+                    {[{ x1: 108, y1: 23, x2: 138, y2: 23 }, { x1: 100, y1: 141, x2: 130, y2: 141 }].map((l, i) => (
+                        <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
+                            stroke={anaRenk} strokeWidth="2" markerEnd={`url(#arrow-${uid})`} />
+                    ))}
+                    {/* Parallel arrows on left/right */}
+                    {[{ x1: 26, y1: 100, x2: 22, y2: 76 }, { x1: 238, y1: 100, x2: 234, y2: 76 }].map((l, i) => (
+                        <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
+                            stroke={anaRenk} strokeWidth="2" markerEnd={`url(#arrow-${uid})`} />
+                    ))}
+                    {/* Dimension labels */}
+                    {sides && sides.length >= 1 && (
+                        <text x="140" y="18" fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="middle">{sides[0]}</text>
+                    )}
+                    {sides && sides.length >= 2 && (
+                        <text x="13" y="84" fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="middle" transform="rotate(-58,13,84)">{sides[1]}</text>
+                    )}
+                    {ozellikler?.acilar && ozellikler.acilar.length >= 1 && (
+                        <text x="52" y="136" fontSize="12" fill="#64748b" textAnchor="middle">{ozellikler.acilar[0]}°</text>
+                    )}
+                </svg>
+            );
+        }
+
+        /* ── ÇOKGEN ─────────────────────────────────────────────────────── */
+        if (tip === 'cokgen') {
+            // kenarSayisi tercih edilir; yoksa veri array uzunluğu fallback olarak kullanılır
+            // (AI her köşeye bir veri öğesi döndürebilir; örn. 5 veri → beşgen)
+            const n = Math.max(3, Math.min(12, ozellikler?.kenarSayisi ?? veri.length ?? 6));
+            const cx = 120, cy = 90, R = 72;
+            const polyPts = Array.from({ length: n }, (_, i) => {
+                const angle = ((2 * Math.PI * i) / n) - Math.PI / 2;
+                return { x: cx + R * Math.cos(angle), y: cy + R * Math.sin(angle) };
+            });
+            const polyStr = polyPts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+            const vertexLabels = ozellikler?.etiketler ?? polyPts.map((_, i) => String.fromCharCode(65 + i));
+            const side = ozellikler?.kenarlar?.[0];
+            return (
+                <svg viewBox="0 0 240 180" className="w-full max-w-xs mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 3px 6px #0001)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <polygon points={polyStr} fill={`url(#shapeFill-${uid})`} stroke={anaRenk} strokeWidth="2.5" />
+                    {polyPts.map((p, i) => {
+                        const labelR = R + 15;
+                        const angle = ((2 * Math.PI * i) / n) - Math.PI / 2;
+                        const lx = cx + labelR * Math.cos(angle);
+                        const ly = cy + labelR * Math.sin(angle);
+                        return (
+                            <g key={i}>
+                                <circle cx={p.x} cy={p.y} r="3.5" fill={anaRenk} />
+                                {n <= 9 && (
+                                    <text x={lx} y={ly + 4} fontSize="11" fill="#1e293b" fontWeight="700" textAnchor="middle">
+                                        {vertexLabels[i] ?? ''}
+                                    </text>
+                                )}
+                            </g>
+                        );
+                    })}
+                    {side && (
+                        <text x={cx} y={cy + 5} fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">a = {side}</text>
+                    )}
+                    <text x={cx} y="172" fontSize="11" fill="#64748b" textAnchor="middle">{n}-gen</text>
+                </svg>
+            );
+        }
+
+        /* ── DAİRE ──────────────────────────────────────────────────────── */
+        if (tip === 'daire') {
+            const r = 72;
+            const yaricap = ozellikler?.yaricap;
+            const cap = ozellikler?.kenarlar?.[0];
+            return (
+                <svg viewBox="0 0 240 200" className="w-full max-w-xs mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 4px 10px #0002)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <defs>
+                        <radialGradient id={`radGrad-${uid}`} cx="38%" cy="33%" r="58%">
+                            <stop offset="0%" stopColor={anaRenk} stopOpacity="0.22" />
+                            <stop offset="100%" stopColor={anaRenk} stopOpacity="0.06" />
+                        </radialGradient>
+                    </defs>
+                    <circle cx="120" cy="100" r={r} fill={`url(#radGrad-${uid})`} stroke={anaRenk} strokeWidth="2.5" />
+                    <circle cx="120" cy="100" r="3.5" fill={anaRenk} />
+                    <line x1="120" y1="100" x2={120 + r} y2="100"
+                        stroke={anaRenk} strokeWidth="2" strokeDasharray="5 3" />
+                    {yaricap && (
+                        <text x={120 + r / 2} y="90" fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="middle">r = {yaricap}</text>
+                    )}
+                    {cap && (
+                        <>
+                            <line x1={120 - r} y1="100" x2={120 + r} y2="100"
+                                stroke={anaRenk} strokeWidth="1.5" strokeDasharray="3 3" opacity="0.45" />
+                            <text x="120" y="116" fontSize="11" fill={anaRenk} textAnchor="middle">d = {cap}</text>
+                        </>
+                    )}
+                    <text x="127" y="115" fontSize="12" fill={anaRenk} fontWeight="700">O</text>
+                </svg>
+            );
+        }
+
+        /* ── DOĞRU PARÇASI ──────────────────────────────────────────────── */
+        if (tip === 'dogru_parcasi') {
+            const uzunluk = ozellikler?.kenarlar?.[0];
+            const birim = ozellikler?.birim ?? '';
+            const A = veri[0]?.etiket ?? 'A';
+            const B = veri[1]?.etiket ?? 'B';
+            return (
+                <svg viewBox="0 0 340 96" className="w-full max-w-sm mx-auto mt-2" style={{ fontFamily: FONT }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <line x1="28" y1="46" x2="312" y2="46"
+                        stroke={anaRenk} strokeWidth="3" strokeLinecap="round"
+                        markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    <circle cx="52" cy="46" r="5.5" fill={anaRenk} stroke="white" strokeWidth="1.5" />
+                    <circle cx="288" cy="46" r="5.5" fill={anaRenk} stroke="white" strokeWidth="1.5" />
+                    <text x="52" y="30" fontSize="14" fill="#1e293b" fontWeight="700" textAnchor="middle">{A}</text>
+                    <text x="288" y="30" fontSize="14" fill="#1e293b" fontWeight="700" textAnchor="middle">{B}</text>
+                    {uzunluk && (
+                        <>
+                            <line x1="52" y1="68" x2="288" y2="68" stroke="#94a3b8" strokeWidth="1" />
+                            <line x1="52" y1="62" x2="52" y2="74" stroke="#94a3b8" strokeWidth="1" />
+                            <line x1="288" y1="62" x2="288" y2="74" stroke="#94a3b8" strokeWidth="1" />
+                            <text x="170" y="86" fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="middle">{uzunluk} {birim}</text>
+                        </>
+                    )}
+                </svg>
+            );
+        }
+
+        /* ── AÇI ────────────────────────────────────────────────────────── */
+        if (tip === 'aci') {
+            const deg = ozellikler?.acilar?.[0] ?? 60;
+            const rad = (deg * Math.PI) / 180;
+            const cx = 64, cy = 136, len = 116, arcR = 38;
+            const x1 = cx + len, y1 = cy;
+            const x2 = cx + len * Math.cos(-rad), y2 = cy + len * Math.sin(-rad);
+            const ax1 = cx + arcR, ay1 = cy;
+            const ax2 = cx + arcR * Math.cos(-rad), ay2 = cy + arcR * Math.sin(-rad);
+            const large = deg > 180 ? 1 : 0;
+            const midA = -rad / 2;
+            const lx = cx + (arcR + 16) * Math.cos(midA);
+            const ly = cy + (arcR + 16) * Math.sin(midA);
+            const vs = veri.slice(0, 3);
+            return (
+                <svg viewBox="0 0 300 170" className="w-full max-w-sm mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 2px 4px #0001)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <path d={`M${cx},${cy} L${ax1},${ay1} A${arcR},${arcR} 0 ${large} 0 ${ax2},${ay2} Z`}
+                        fill={`${anaRenk}${FILL_OPACITY_LIGHT}`} />
+                    <line x1={cx} y1={cy} x2={x1} y2={y1} stroke={anaRenk} strokeWidth="2.5" strokeLinecap="round" />
+                    <line x1={cx} y1={cy} x2={x2} y2={y2} stroke={anaRenk} strokeWidth="2.5" strokeLinecap="round" />
+                    <path d={`M${ax1},${ay1} A${arcR},${arcR} 0 ${large} 0 ${ax2},${ay2}`}
+                        fill="none" stroke={anaRenk} strokeWidth="2" />
+                    <text x={lx} y={ly} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="middle">{deg}°</text>
+                    <text x={cx - 13} y={cy + 8} fontSize="13" fill="#1e293b" fontWeight="700">{vs[0]?.etiket ?? 'O'}</text>
+                    <text x={x1 + 9} y={y1 + 5} fontSize="13" fill="#1e293b">{vs[1]?.etiket ?? 'A'}</text>
+                    <text x={x2 + 7} y={y2 - 5} fontSize="13" fill="#1e293b">{vs[2]?.etiket ?? 'B'}</text>
+                    {deg === 90 && (
+                        <polyline points={`${cx + 14},${cy} ${cx + 14},${cy - 14} ${cx},${cy - 14}`}
+                            fill="none" stroke={anaRenk} strokeWidth="1.5" />
+                    )}
+                </svg>
+            );
+        }
+
+        /* ── KESİR MODELİ ───────────────────────────────────────────────── */
+        if (tip === 'kesir_modeli') {
+            const payda = Math.max(2, ozellikler?.kenarlar?.[0] ?? veri.length);
+            const pay = Math.max(0, ozellikler?.kenarlar?.[1] ?? veri.filter(v => v.deger === 1 || v.nesne === 'dolu').length);
+            const sliceA = 360 / payda;
+            const cx = 100, cy = 100, R = 86;
+            return (
+                <div className="flex flex-col items-center gap-3 mt-3">
+                    <svg viewBox="0 0 200 200" className="w-40 h-40"
+                        style={{ fontFamily: FONT, filter: 'drop-shadow(0 4px 10px #0002)' }}>
+                        <SvgDefs id={uid} color={anaRenk} />
+                        {Array.from({ length: payda }).map((_, i) => {
+                            const sA = (i * sliceA - 90) * (Math.PI / 180);
+                            const eA = ((i + 1) * sliceA - 90) * (Math.PI / 180);
+                            const x1 = cx + R * Math.cos(sA), y1 = cy + R * Math.sin(sA);
+                            const x2 = cx + R * Math.cos(eA), y2 = cy + R * Math.sin(eA);
+                            const dolu = i < pay;
+                            return (
+                                <path key={i}
+                                    d={`M${cx},${cy} L${x1},${y1} A${R},${R} 0 0 1 ${x2},${y2} Z`}
+                                    fill={dolu ? anaRenk : `${anaRenk}${FILL_OPACITY_LIGHT}`}
+                                    stroke="white" strokeWidth="2"
+                                    opacity={dolu ? 0.88 : 1} />
+                            );
+                        })}
+                    </svg>
+                    <div className="inline-flex flex-col items-center bg-white border-2 rounded-xl px-5 py-2 shadow-sm"
+                        style={{ borderColor: anaRenk }}>
+                        <span className="text-2xl font-extrabold leading-none pb-1 border-b-2"
+                            style={{ color: anaRenk, borderColor: anaRenk, fontFamily: FONT }}>{pay}</span>
+                        <span className="text-2xl font-extrabold leading-none pt-1"
+                            style={{ color: anaRenk, fontFamily: FONT }}>{payda}</span>
+                    </div>
+                </div>
+            );
+        }
+
+        /* ── SİMETRİ ────────────────────────────────────────────────────── */
+        if (tip === 'simetri') {
+            return (
+                <svg viewBox="0 0 310 175" className="w-full max-w-sm mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 2px 5px #0001)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <polygon points="28,142 28,50 102,50 102,82 70,82 70,112 102,112 102,142"
+                        fill={`${anaRenk}${FILL_OPACITY_MED}`} stroke={anaRenk} strokeWidth="2.5" />
+                    <line x1="155" y1="12" x2="155" y2="164"
+                        stroke="#ef4444" strokeWidth="2.5" strokeDasharray="7 4" />
+                    <text x="155" y="9" fontSize="10" fill="#ef4444" textAnchor="middle" fontWeight="700">Simetri Ekseni</text>
+                    <polygon points="282,142 282,50 208,50 208,82 240,82 240,112 208,112 208,142"
+                        fill={`${anaRenk}${FILL_OPACITY_MED}`} stroke={anaRenk} strokeWidth="2.5" />
+                    <line x1="60" y1="158" x2="250" y2="158"
+                        stroke={anaRenk} strokeWidth="1.5" markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    {veri[0] && <text x="75" y="150" fontSize="11" fill="#475569" textAnchor="middle">{veri[0].etiket}</text>}
+                    {veri[1] && <text x="235" y="150" fontSize="11" fill="#475569" textAnchor="middle">{veri[1].etiket}</text>}
+                </svg>
+            );
+        }
+
+        /* ── SAYI DOĞRUSU ───────────────────────────────────────────────── */
+        if (tip === 'sayi_dogrusu') {
+            const ptVals = veri.filter(v => v.deger !== undefined).map(v => v.deger as number);
+            const marked = veri.filter(v => v.deger !== undefined);
+            const minVal = Math.min(-5, ...ptVals);
+            const maxValD = Math.max(5, ...ptVals);
+            const range = maxValD - minVal || 10;
+            const W = 460, H = 80, y0 = 44, xL = 24, xR = W - 24;
+            const toX = (v: number) => xL + ((v - minVal) / range) * (xR - xL);
+            const intSteps: number[] = [];
+            for (let v = Math.ceil(minVal); v <= Math.floor(maxValD); v++) intSteps.push(v);
+            return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto max-w-xl mx-auto mt-2"
+                    style={{ fontFamily: FONT }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <line x1={xL} y1={y0} x2={xR} y2={y0}
+                        stroke="#334155" strokeWidth="2.5"
+                        markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    {intSteps.map(v => {
+                        const x = toX(v);
+                        const isZero = v === 0;
+                        return (
+                            <g key={v}>
+                                <line x1={x} y1={y0 - (isZero ? 10 : 6)} x2={x} y2={y0 + (isZero ? 10 : 6)}
+                                    stroke={isZero ? '#ef4444' : '#64748b'} strokeWidth={isZero ? 2.5 : 1.5} />
+                                <text x={x} y={y0 + 20} fontSize="11"
+                                    fill={isZero ? '#ef4444' : '#64748b'}
+                                    fontWeight={isZero ? '700' : '400'} textAnchor="middle">{v}</text>
+                            </g>
+                        );
+                    })}
+                    {marked.map((v, idx) => {
+                        const x = toX(v.deger as number);
+                        return (
+                            <g key={`m${idx}`}>
+                                <circle cx={x} cy={y0} r="7.5" fill={anaRenk} stroke="white" strokeWidth="2"
+                                    filter={`url(#shadow-${uid})`} />
+                                <text x={x} y={y0 - 14} fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">
+                                    {v.etiket}
+                                </text>
+                            </g>
+                        );
+                    })}
+                </svg>
+            );
+        }
+
+        /* ── KOORDİNAT SİSTEMİ ──────────────────────────────────────────── */
+        if (tip === 'koordinat_sistemi') {
+            const range = 5;
+            const W = 270, H = 270, cx = 135, cy = 135, step = 23;
+            return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full max-w-xs mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 2px 5px #0001)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    {/* Grid */}
+                    {Array.from({ length: range * 2 + 1 }, (_, i) => i - range).flatMap(v => [
+                        <line key={`gv${v}`} x1={cx + v * step} y1={8} x2={cx + v * step} y2={H - 8} stroke="#f1f5f9" strokeWidth="1" />,
+                        <line key={`gh${v}`} x1={8} y1={cy + v * step} x2={W - 8} y2={cy + v * step} stroke="#f1f5f9" strokeWidth="1" />,
+                    ])}
+                    {/* Axes */}
+                    <line x1={8} y1={cy} x2={W - 8} y2={cy} stroke="#94a3b8" strokeWidth="2"
+                        markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    <line x1={cx} y1={H - 8} x2={cx} y2={8} stroke="#94a3b8" strokeWidth="2"
+                        markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    {/* Tick labels */}
+                    {Array.from({ length: range * 2 + 1 }, (_, i) => i - range).filter(v => v !== 0).map(v => (
+                        <React.Fragment key={`tl${v}`}>
+                            <text x={cx + v * step} y={cy + 14} fontSize="9" fill="#94a3b8" textAnchor="middle">{v}</text>
+                            <text x={cx - 11} y={cy - v * step + 4} fontSize="9" fill="#94a3b8" textAnchor="end">{v}</text>
+                        </React.Fragment>
+                    ))}
+                    <text x={W - 8} y={cy + 14} fontSize="10" fill="#64748b">x</text>
+                    <text x={cx + 6} y={12} fontSize="10" fill="#64748b">y</text>
+                    <text x={cx - 9} y={cy + 14} fontSize="9" fill="#94a3b8" textAnchor="end">0</text>
+                    {/* Points */}
+                    {veri.map((v, idx) => {
+                        if (v.x === undefined || v.y === undefined) return null;
+                        const px = cx + v.x * step, py = cy - v.y * step;
+                        const col = COLORS[idx % COLORS.length];
+                        return (
+                            <g key={idx}>
+                                <circle cx={px} cy={py} r="6.5" fill={col} stroke="white" strokeWidth="2"
+                                    filter={`url(#shadow-${uid})`} />
+                                <text x={px + 10} y={py - 5} fontSize="11" fill={col} fontWeight="700">{v.etiket}</text>
+                            </g>
+                        );
+                    })}
+                </svg>
+            );
+        }
+
+        /* ── KOORDİNAT GRAFİĞİ (Fonksiyon) ─────────────────────────────── */
+        if (tip === 'koordinat_grafigi') {
+            const pts = veri.filter(v => v.x !== undefined && v.y !== undefined) as Array<{ x: number; y: number; etiket: string; deger?: number }>;
+            if (pts.length === 0) return null;
+            const allX = pts.map(p => p.x);
+            const allY = pts.map(p => p.y);
+            const minX = Math.min(...allX), maxX = Math.max(...allX, minX + 1);
+            const minY = Math.min(...allY), maxY = Math.max(...allY, minY + 1);
+            const W = 320, H = 250, PL = 48, PR = 16, PT = 18, PB = 48;
+            const cW = W - PL - PR, cH = H - PT - PB;
+            const toSvgX = (x: number) => PL + ((x - minX) / (maxX - minX)) * cW;
+            const toSvgY = (y: number) => H - PB - ((y - minY) / (maxY - minY)) * cH;
+            const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${toSvgX(p.x)},${toSvgY(p.y)}`).join(' ');
+            return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full max-w-sm mx-auto mt-2"
+                    style={{ fontFamily: FONT }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <GridLines x1={PL} x2={W - PR}
+                        yValues={Array.from({ length: 5 }, (_, i) => H - PB - (cH / 4) * i)} />
+                    <line x1={PL} y1={PT} x2={PL} y2={H - PB} stroke="#94a3b8" strokeWidth="2" />
+                    <line x1={PL} y1={H - PB} x2={W - PR} y2={H - PB} stroke="#94a3b8" strokeWidth="2" />
+                    {pts.length >= 2 && (
+                        <path d={linePath} fill="none" stroke={anaRenk} strokeWidth="2.5" strokeLinejoin="round" />
+                    )}
+                    {pts.map((p, idx) => (
+                        <g key={idx}>
+                            <circle cx={toSvgX(p.x)} cy={toSvgY(p.y)} r="5.5" fill={anaRenk} stroke="white" strokeWidth="2" />
+                            <text x={toSvgX(p.x)} y={H - PB + 15} fontSize="10" fill="#475569" textAnchor="middle">{p.x}</text>
+                            <text x={PL - 7} y={toSvgY(p.y) + 4} fontSize="10" fill="#475569" textAnchor="end">{p.y}</text>
+                        </g>
+                    ))}
+                </svg>
+            );
+        }
+
+        /* ── VENN DİYAGRAMI ─────────────────────────────────────────────── */
+        if (tip === 'venn_diyagrami') {
+            const setA = veri.filter(v => v.nesne === 'A' || v.nesne === 'sadece_A' || v.nesne === 'sol');
+            const setB = veri.filter(v => v.nesne === 'B' || v.nesne === 'sadece_B' || v.nesne === 'sag');
+            const setAB = veri.filter(v => v.nesne === 'AB' || v.nesne === 'kesisim' || v.nesne === 'ortak');
+            const labelA = ozellikler?.etiketler?.[0] ?? 'A';
+            const labelB = ozellikler?.etiketler?.[1] ?? 'B';
+            return (
+                <svg viewBox="0 0 330 210" className="w-full max-w-sm mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 3px 8px #0002)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <defs>
+                        <clipPath id={`clipA-${uid}`}><circle cx="125" cy="108" r="76" /></clipPath>
+                    </defs>
+                    <circle cx="125" cy="108" r="76" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2.5" opacity="0.78" />
+                    <circle cx="205" cy="108" r="76" fill="#fce7f3" stroke="#ec4899" strokeWidth="2.5" opacity="0.78" />
+                    <circle cx="205" cy="108" r="76" fill="#e9d5ff" stroke="none" opacity="0.5"
+                        clipPath={`url(#clipA-${uid})`} />
+                    <text x="90" y="42" fontSize="14" fill="#1d4ed8" fontWeight="700" textAnchor="middle">{labelA}</text>
+                    <text x="240" y="42" fontSize="14" fill="#be185d" fontWeight="700" textAnchor="middle">{labelB}</text>
+                    {setA.map((item, i) => (
+                        <text key={i} x="94" y={84 + i * 17} fontSize="11" fill="#1e3a8a" textAnchor="middle">{item.etiket}</text>
+                    ))}
+                    {setAB.map((item, i) => (
+                        <text key={i} x="165" y={90 + i * 17} fontSize="11" fill="#4c1d95" fontWeight="700" textAnchor="middle">{item.etiket}</text>
+                    ))}
+                    {setB.map((item, i) => (
+                        <text key={i} x="236" y={84 + i * 17} fontSize="11" fill="#831843" textAnchor="middle">{item.etiket}</text>
+                    ))}
+                    {ozellikler?.kenarlar?.[0] !== undefined && (
+                        <text x="94" y="164" fontSize="12" fill="#1d4ed8" fontWeight="700" textAnchor="middle">n={ozellikler.kenarlar[0]}</text>
+                    )}
+                    {ozellikler?.kenarlar?.[1] !== undefined && (
+                        <text x="236" y="164" fontSize="12" fill="#be185d" fontWeight="700" textAnchor="middle">n={ozellikler.kenarlar[1]}</text>
+                    )}
+                </svg>
+            );
+        }
+
+        /* ── OLASILIK ÇARKI ─────────────────────────────────────────────── */
+        if (tip === 'olaslik_cark') {
+            const total = veri.reduce((s, v) => s + (v.deger || 0), 0) || 1;
+            const cx = 110, cy = 110, R = 92;
+            let startA = -90;
+            return (
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mt-3">
+                    <svg viewBox="0 0 220 220" className="w-44 h-44 flex-shrink-0"
+                        style={{ fontFamily: FONT, filter: 'drop-shadow(0 5px 14px #0003)' }}>
+                        <SvgDefs id={uid} color={anaRenk} />
+                        {veri.map((item, idx) => {
+                            const val = item.deger || 0;
+                            const angle = (val / total) * 360;
+                            const endA = startA + angle;
+                            const midA = startA + angle / 2;
+                            const rad = Math.PI / 180;
+                            const x1 = cx + R * Math.cos(startA * rad);
+                            const y1 = cy + R * Math.sin(startA * rad);
+                            const x2 = cx + R * Math.cos(endA * rad);
+                            const y2 = cy + R * Math.sin(endA * rad);
+                            const large = angle > 180 ? 1 : 0;
+                            const col = COLORS[idx % COLORS.length];
+                            const lx = cx + (R * 0.62) * Math.cos(midA * rad);
+                            const ly = cy + (R * 0.62) * Math.sin(midA * rad);
+                            const pctVal = Math.round((val / total) * 100);
+                            startA = endA;
+                            return (
+                                <g key={idx}>
+                                    <path d={`M${cx},${cy} L${x1},${y1} A${R},${R} 0 ${large} 1 ${x2},${y2} Z`}
+                                        fill={col} stroke="white" strokeWidth="2.5" opacity="0.88" />
+                                    {pctVal >= 6 && (
+                                        <text x={lx} y={ly + 4} fontSize="10" fill="white"
+                                            fontWeight="700" textAnchor="middle">{pctVal}%</text>
+                                    )}
+                                </g>
+                            );
+                        })}
+                        {/* Spinner needle */}
+                        <line x1={cx} y1={cy} x2={cx} y2={cy - R + 10}
+                            stroke="#1e293b" strokeWidth="3.5" strokeLinecap="round"
+                            markerEnd={`url(#arrow-${uid})`} />
+                        <circle cx={cx} cy={cy} r="7" fill="#1e293b" />
+                        <circle cx={cx} cy={cy} r="3" fill="white" />
+                    </svg>
+                    <div className="flex flex-col gap-1.5 text-xs">
+                        {veri.map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ background: COLORS[idx % COLORS.length] }} />
+                                <span style={{ fontFamily: FONT, color: '#374151' }}>
+                                    {item.etiket}: <strong>{item.deger}</strong> ({Math.round(((item.deger || 0) / total) * 100)}%)
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        /* ── DEFAULT fallback ───────────────────────────────────────────── */
+        return (
+            <div className="flex flex-wrap gap-2 mt-3">
+                {veri.map((v, idx) => (
+                    <div key={idx} className="rounded-xl px-3 py-2 text-sm border shadow-sm"
+                        style={{ borderColor: COLORS[idx % COLORS.length] + '50', background: COLORS[idx % COLORS.length] + '10', fontFamily: FONT }}>
+                        <span className="font-bold" style={{ color: COLORS[idx % COLORS.length] }}>{v.etiket}:</span>{' '}
+                        <span className="text-gray-700">{v.deger}{v.birim ? ` ${v.birim}` : ''}</span>
+                    </div>
+                ))}
+            </div>
+        );
     };
 
     return (
-        <div className={`my-4 p-4 bg-white border border-gray-100 rounded-2xl shadow-sm print:shadow-none print:border-gray-200 ${className}`}>
-            <h4 className="text-sm font-bold text-center text-gray-800 mb-1">{baslik}</h4>
-            {not && <p className="text-xs text-center text-gray-500 mb-2 italic">{not}</p>}
+        <div className={`my-4 p-4 bg-white border border-gray-100 rounded-2xl shadow-sm print:shadow-none print:border-gray-300 ${className}`}>
+            {baslik && (
+                <h4 className="text-sm font-bold text-center text-gray-800 mb-1" style={{ fontFamily: FONT }}>{baslik}</h4>
+            )}
+            {not && (
+                <p className="text-xs text-center text-gray-500 mb-2 italic" style={{ fontFamily: FONT }}>{not}</p>
+            )}
             {renderContent()}
         </div>
     );
