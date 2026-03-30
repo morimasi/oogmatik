@@ -268,7 +268,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
 
         {/* SOL PANEL */}
         <div
-          className="lg:col-span-4 overflow-y-auto sinav-sol-panel"
+          className="lg:col-span-3 overflow-y-auto sinav-sol-panel"
           style={{ borderRight: '1px solid rgba(200,210,255,0.4)' }}
         >
           <div className="flex flex-col gap-0 p-3 min-h-full">
@@ -360,7 +360,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
         </div>
 
         {/* SAĞ PANEL */}
-        <div className="lg:col-span-8 flex flex-col overflow-hidden">
+        <div className="lg:col-span-9 flex flex-col overflow-hidden">
 
           {/* Ana Actions Toolbar */}
           <div className="flex-none bg-white/80 backdrop-blur-xl border-b border-white/60 px-4 py-2 flex flex-wrap items-center justify-between gap-2 z-10">
