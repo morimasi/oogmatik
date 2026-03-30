@@ -136,8 +136,8 @@ export const MatSoruAyarlari: React.FC<MatSoruAyarlariProps> = ({
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-xl transition-colors group-hover:bg-blue-50">📊</div>
                     <div>
-                        <span className="text-[13px] font-bold text-slate-700 block tracking-tight">Grafik/Görsel</span>
-                        <span className="text-[10px] text-slate-400 font-medium">SVG destekli görsel ekle</span>
+                        <span className="text-xs font-bold text-gray-700 block">Ek Görsel Veri</span>
+                        <span className="text-[10px] text-gray-400">Geometri/Veri İşleme: otomatik. Bu seçenek: tüm sorulara ek görsel ekler</span>
                     </div>
                 </div>
                 <button
