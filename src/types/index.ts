@@ -6,3 +6,4 @@ export * from './visual';
 export * from './admin';
 export * from './screening';
 export * from './ocr-activity';
+export * from './infographic';
