@@ -14,14 +14,18 @@ import { AppError } from '../../src/utils/AppError';
 
 type TabType = 'onizleme' | 'cevap-anahtari';
 
-const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isOpen: boolean; onToggle: () => void; gradient?: string; }> = ({ icon, title, badge, isOpen, onToggle }) => (
-  <button onClick={onToggle} className="w-full flex items-center justify-between px-3 py-2.5 bg-white/40 hover:bg-white/60 transition-colors">
-    <div className="flex items-center gap-2">
-      <span className="text-sm">{icon}</span>
-      <span className="text-xs font-semibold text-slate-700 leading-none">{title}</span>
-      {badge && <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-slate-100 text-slate-600 leading-none">{badge}</span>}
+const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isOpen: boolean; onToggle: () => void; }> = ({ icon, title, badge, isOpen, onToggle }) => (
+  <button onClick={onToggle} className="w-full flex items-center justify-between px-5 py-4 bg-transparent hover:bg-slate-50 transition-colors group">
+    <div className="flex items-center gap-3">
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-indigo-100 text-indigo-700 shadow-sm' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700'}`}>
+        <span className="text-base">{icon}</span>
+      </div>
+      <span className={`text-[13px] font-semibold tracking-wide transition-colors ${isOpen ? 'text-indigo-900' : 'text-slate-600 group-hover:text-slate-900'}`}>{title}</span>
+      {badge && <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">{badge}</span>}
     </div>
-    <span className={`text-slate-400 text-[10px] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+    <span className={`text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+    </span>
   </button>
 );
 
@@ -266,97 +270,103 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
       {/* Ana Grid */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 overflow-hidden min-h-0">
 
-        {/* SOL PANEL */}
-        <div
-          className="lg:col-span-3 overflow-y-auto sinav-sol-panel"
-          style={{ borderRight: '1px solid rgba(200,210,255,0.4)' }}
-        >
-          <div className="flex flex-col gap-0 p-3 min-h-full">
+        {/* SOL PANEL (SaaS Premium Sidebar) */}
+        <div className="lg:col-span-3 flex flex-col bg-white border-r border-slate-200 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.06)] z-20 overflow-hidden">
 
-            {/* Sınıf */}
-            <div className="bg-white/60 backdrop-blur-md border border-slate-200/60 rounded-xl mb-2 overflow-hidden shadow-sm transition-all duration-300">
-              <SectionHeader icon="🏫" title="Sınıf" badge={ayarlar.sinif ? `${ayarlar.sinif}. Sınıf` : undefined} isOpen={openSections.sinif} onToggle={() => toggleSection('sinif')} />
-              <div className={`transition-all duration-300 ${openSections.sinif ? 'max-h-[500px] opacity-100 p-3 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                <div>
-                  <div className="grid grid-cols-4 gap-1.5 pt-1">
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
-                      <button key={g} onClick={() => setSinif(g)}
-                        className={`py-1.5 rounded-lg text-[11px] font-bold transition-all duration-200 ${ayarlar.sinif === g ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-500 border border-slate-100 hover:border-indigo-300 hover:text-indigo-600'}`}>
-                        {g}. Sınıf
-                      </button>
-                    ))}
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+
+            {/* Sınıf Seçimi */}
+            <div className="border-b border-slate-100">
+              <SectionHeader icon="🏫" title="Sınıf Seçimi" badge={ayarlar.sinif ? `${ayarlar.sinif}. Sınıf` : undefined} isOpen={openSections.sinif} onToggle={() => toggleSection('sinif')} />
+              <div className={`transition-all duration-300 ease-in-out ${openSections.sinif ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                <div className="px-5 pb-5 pt-1">
+                  <div className="bg-slate-50/50 p-1.5 rounded-2xl border border-slate-100">
+                    <div className="grid grid-cols-4 gap-1">
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
+                        <button key={g} onClick={() => setSinif(g)}
+                          className={`py-2 rounded-xl text-xs font-bold transition-all duration-200 ${ayarlar.sinif === g ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200/60' : 'text-slate-500 hover:bg-white/60 hover:text-slate-700'}`}>
+                          {g}.
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Kazanımlar */}
-            <div className="bg-white/60 backdrop-blur-md border border-slate-200/60 rounded-xl mb-2 overflow-hidden shadow-sm transition-all duration-300">
+            <div className="border-b border-slate-100">
               <SectionHeader icon="🎯" title="Kazanımlar" badge={kazanimCount > 0 ? `${kazanimCount} seçildi` : undefined} isOpen={openSections.kazanim} onToggle={() => toggleSection('kazanim')} />
-              <div className={`transition-all duration-300 ${openSections.kazanim ? 'max-h-[800px] opacity-100 p-3 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                <div className="pt-1">
+              <div className={`transition-all duration-300 ease-in-out ${openSections.kazanim ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                <div className="px-5 pb-5 pt-1">
                   <KazanimPicker selectedGrade={ayarlar.sinif} selectedUnites={ayarlar.secilenUniteler} selectedKazanimlar={ayarlar.secilenKazanimlar} onUniteChange={setSecilenUniteler} onKazanimChange={setSecilenKazanimlar} />
                 </div>
               </div>
             </div>
 
             {/* Soru Ayarları */}
-            <div className="bg-white/60 backdrop-blur-md border border-slate-200/60 rounded-xl mb-2 overflow-hidden shadow-sm transition-all duration-300">
+            <div className="border-b border-slate-100">
               <SectionHeader icon="⚙️" title="Soru Ayarları" badge={toplamSoru > 0 ? `${toplamSoru} soru` : undefined} isOpen={openSections.ayarlar} onToggle={() => toggleSection('ayarlar')} />
-              <div className={`transition-all duration-300 ${openSections.ayarlar ? 'max-h-[800px] opacity-100 p-3 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                <div className="pt-1">
+              <div className={`transition-all duration-300 ease-in-out ${openSections.ayarlar ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                <div className="px-5 pb-5 pt-1">
                   {ayarlar.secilenKazanimlar.length > 0 ? (
                     <SoruAyarlari ayarlar={ayarlar} onSoruDagilimiChange={setSoruDagilimi} onOzelKonuChange={(k) => setAyarlar({ ozelKonu: k })} />
                   ) : (
-                    <div className="text-center text-slate-400 text-xs py-3 border border-dashed border-slate-200 rounded-lg">
-                      Önce kazanım seçin
+                    <div className="flex flex-col items-center justify-center py-6 border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50/50">
+                      <span className="text-xl mb-2 opacity-40">🎯</span>
+                      <span className="text-xs font-medium text-slate-400">Kazanım haritası bekleniyor</span>
                     </div>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Başarı Anı */}
-            <div className="bg-white/60 backdrop-blur-md border border-slate-200/60 rounded-xl mb-2 overflow-hidden shadow-sm transition-all duration-300">
+            {/* Başarı Anı Mimarisi */}
+            <div className="border-b border-slate-100">
               <SectionHeader icon="🌟" title="Başarı Anı Mimarisi" isOpen={openSections.basariMimarisi} onToggle={() => toggleSection('basariMimarisi')} />
-              <div className={`transition-all duration-300 ${openSections.basariMimarisi ? 'max-h-[500px] opacity-100 p-3 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                <div className="pt-1 space-y-1.5 text-xs text-slate-600">
-                  {[['🟢', 'İlk 2 soru — Kolay'], ['🟡', '3-4. soru — Orta'], ['🔴', '5+ — Orta-Zor']].map(([ic, tx]) => (
-                    <div key={tx} className="flex items-center gap-2"><span>{ic}</span><span>{tx}</span></div>
+              <div className={`transition-all duration-300 ease-in-out ${openSections.basariMimarisi ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                <div className="px-5 pb-5 pt-1 space-y-2.5 text-xs text-slate-600 font-medium tracking-wide">
+                  {[['🟢', 'İlk 2 soru — Basit ZPD'], ['🟡', '3-4. soru — Kademeli Geçiş'], ['🔴', '5+ — Bağımsız Çalışma']].map(([ic, tx]) => (
+                    <div key={tx} className="flex items-center gap-3 bg-slate-50/80 px-4 py-2.5 rounded-xl border border-slate-100/50">
+                      <span className="text-base leading-none">{ic}</span><span>{tx}</span>
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Hata */}
             {error && (
-              <div className="mb-2.5 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-medium">
-                {error}
+              <div className="m-5 p-4 bg-red-50 border border-red-100 rounded-2xl text-[13px] text-red-600 font-medium flex items-start gap-3">
+                <span className="text-lg leading-none">⚠️</span>
+                <span>{error}</span>
               </div>
             )}
 
-            {/* Sticky Oluştur Butonu */}
-            <div className="sticky bottom-0 pt-2 pb-1 mt-auto">
-              <div className="p-2.5 bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white">
-                <button
-                  onClick={handleGenerateExam}
-                  disabled={!canGenerate() || isGenerating}
-                  className={`w-full py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300 flex items-center justify-center gap-2 ${canGenerate() && !isGenerating ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]' : 'bg-gray-200 cursor-not-allowed text-gray-400'}`}
-                >
-                  {isGenerating ? (
-                    <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>AI Sınavı Örüyor...</>
-                  ) : (
-                    <><span>✨</span>Sınav Oluştur</>
-                  )}
-                </button>
-                {!canGenerate() && !isGenerating && (
-                  <p className="text-[10px] text-gray-400 text-center mt-1.5">
-                    {ayarlar.sinif === null ? '↑ Sınıf seçin' : kazanimCount === 0 ? '↑ Kazanım seçin' : toplamSoru < 4 ? '↑ En az 4 soru' : ''}
-                  </p>
-                )}
-              </div>
-            </div>
           </div>
+
+          {/* Sticky Oluştur Butonu */}
+          <div className="flex-none p-5 bg-white border-t border-slate-100 shadow-[0_-4px_24px_-12px_rgba(0,0,0,0.05)] z-30">
+            <button
+              onClick={handleGenerateExam}
+              disabled={!canGenerate() || isGenerating}
+              className={`relative w-full py-4 rounded-2xl font-bold text-[13px] tracking-wide text-white transition-all duration-300 flex items-center justify-center gap-2 overflow-hidden group ${canGenerate() && !isGenerating ? 'bg-indigo-600 hover:bg-indigo-700 shadow-[0_8px_20px_-8px_rgba(79,70,229,0.5)] hover:-translate-y-0.5' : 'bg-slate-100 cursor-not-allowed text-slate-400'}`}
+            >
+              {canGenerate() && !isGenerating && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] skew-x-[-15deg] group-hover:translate-x-[150%] transition-transform duration-700 ease-out" />
+              )}
+              {isGenerating ? (
+                <><svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>AI Sınav Üretiyor...</>
+              ) : (
+                <>Sınav Oluştur <span className="opacity-80">→</span></>
+              )}
+            </button>
+            {!canGenerate() && !isGenerating && (
+              <p className="text-[11px] text-slate-400 text-center mt-3 font-medium">
+                {ayarlar.sinif === null ? 'Sınıf seçimi bekleniyor' : kazanimCount === 0 ? 'Kazanım haritası boş' : toplamSoru < 4 ? 'Hedef: En az 4 soru' : ''}
+              </p>
+            )}
+          </div>
+
         </div>
 
         {/* SAĞ PANEL */}
@@ -467,7 +477,6 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
       </div>
 
       <style>{`
-        .sinav-sol-panel { background: rgba(248,250,255,0.6); }
         .toolbar-btn {
           display: flex; align-items: center; gap: 0.3rem;
           padding: 0.35rem 0.7rem; border-radius: 0.55rem;
