@@ -311,6 +311,33 @@ export const ACTIVITIES: Activity[] = [
     icon: 'fa-solid fa-box-archive',
     defaultStyle: { columns: 2 },
   },
+  // ── İNFOGRAFİK STÜDYOSU v3 — 96 Premium Aktivite (Gruplandırılmış Kayıtlar) ──
+  {
+    id: ActivityType.INFOGRAPHIC_CONCEPT_MAP,
+    title: 'Kavram Haritası (İnfografik)',
+    description: 'Konular arası hiyerarşik bağları görselleştiren gelişmiş zihin haritası.',
+    icon: 'fa-solid fa-sitemap',
+  },
+  {
+    id: ActivityType.INFOGRAPHIC_5W1H_BOARD,
+    title: '5N1K Panosu',
+    description: 'Kim, Ne, Nerede, Ne Zaman, Nasıl, Niçin sorularını görsel bir panoda analiz et.',
+    icon: 'fa-solid fa-clipboard-question',
+  },
+  {
+    id: ActivityType.INFOGRAPHIC_LIFE_CYCLE,
+    title: 'Yaşam Döngüsü',
+    description: 'Canlıların veya süreçlerin evrelerini dairesel şema ile göster.',
+    icon: 'fa-solid fa-sync',
+  },
+  {
+    id: ActivityType.INFOGRAPHIC_BEP_GOAL_MAP,
+    title: 'BEP Hedef Haritası',
+    description: 'Öğrencinin BEP hedeflerini görselleştirilmiş bir yol haritası üzerinde takip et.',
+    icon: 'fa-solid fa-bullseye',
+  },
+  // Diğer 92 aktivite, InfographicStudio içindeki activityMeta.ts üzerinden 
+  // dinamik olarak yüklendiği için burada en kritik olanlar (Arama Indexi için) listelenmiştir.
 ];
 
 // Activity Categories
@@ -332,6 +359,11 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.SYMMETRY_DRAWING,
       ActivityType.SHAPE_COUNTING,
       ActivityType.WORD_SEARCH,
+      // İnfografik Eklentileri
+      ActivityType.INFOGRAPHIC_CONCEPT_MAP,
+      ActivityType.INFOGRAPHIC_COMPARE,
+      ActivityType.INFOGRAPHIC_VENN_DIAGRAM,
+      ActivityType.INFOGRAPHIC_MIND_MAP,
     ],
   },
   {
@@ -346,6 +378,10 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.STORY_COMPREHENSION,
       ActivityType.STORY_ANALYSIS,
       ActivityType.MISSING_PARTS,
+      // İnfografik Eklentileri
+      ActivityType.INFOGRAPHIC_5W1H_BOARD,
+      ActivityType.INFOGRAPHIC_STORY_MAP,
+      ActivityType.INFOGRAPHIC_CHARACTER_ANALYSIS,
     ],
   },
   {
@@ -371,6 +407,10 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.MISSING_PARTS,
       ActivityType.FAMILY_RELATIONS,
       ActivityType.FAMILY_LOGIC_TEST,
+      // İnfografik Eklentileri
+      ActivityType.INFOGRAPHIC_SYLLABLE_MAP,
+      ActivityType.INFOGRAPHIC_VOCAB_TREE,
+      ActivityType.INFOGRAPHIC_SENTENCE_BUILDER,
     ],
   },
   {
@@ -398,6 +438,60 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.MAGIC_PYRAMID,
       ActivityType.CAPSULE_GAME,
       ActivityType.BOX_MATH,
+      // İnfografik Eklentileri
+      ActivityType.INFOGRAPHIC_MATH_STEPS,
+      ActivityType.INFOGRAPHIC_NUMBER_LINE,
+      ActivityType.INFOGRAPHIC_MULTIPLICATION_MAP,
+    ],
+  },
+  {
+    id: 'science-nature',
+    title: 'Fen ve Doğa',
+    description: 'Canlılar, uzay, deney süreçleri ve bilimsel infografikler.',
+    icon: 'fa-solid fa-microscope',
+    activities: [
+      ActivityType.INFOGRAPHIC_LIFE_CYCLE,
+      ActivityType.INFOGRAPHIC_FOOD_CHAIN,
+      ActivityType.INFOGRAPHIC_SOLAR_SYSTEM,
+      ActivityType.INFOGRAPHIC_HUMAN_BODY,
+      ActivityType.INFOGRAPHIC_SCIENTIFIC_METHOD,
+    ],
+  },
+  {
+    id: 'social-history',
+    title: 'Sosyal & Tarih',
+    description: 'Tarihsel kronolojiler, haritalar ve kültürel analizler.',
+    icon: 'fa-solid fa-landmark',
+    activities: [
+      ActivityType.INFOGRAPHIC_HISTORICAL_TIMELINE,
+      ActivityType.INFOGRAPHIC_MAP_EXPLORER,
+      ActivityType.INFOGRAPHIC_BIOGRAPHY_BOARD,
+      ActivityType.INFOGRAPHIC_GOVERNMENT_CHART,
+    ],
+  },
+  {
+    id: 'spld-premium',
+    title: 'Özel Destek (ÖÖG)',
+    description: 'Disleksi, Diskalkuli ve DEHB için premium görsel materyaller.',
+    icon: 'fa-solid fa-star',
+    activities: [
+      ActivityType.INFOGRAPHIC_DYSLEXIA_READING,
+      ActivityType.INFOGRAPHIC_DYSCALCULIA_MATH,
+      ActivityType.INFOGRAPHIC_ADHD_FOCUS,
+      ActivityType.INFOGRAPHIC_EXECUTIVE_FUNCTION,
+      ActivityType.INFOGRAPHIC_ROUTINE_BUILDER,
+    ],
+  },
+  {
+    id: 'clinical-bep',
+    title: 'Klinik & BEP',
+    description: 'Bireyselleştirilmiş Eğitim Planları (BEP) için raporlama ve haritalama.',
+    icon: 'fa-solid fa-user-doctor',
+    activities: [
+      ActivityType.INFOGRAPHIC_BEP_GOAL_MAP,
+      ActivityType.INFOGRAPHIC_IEP_PROGRESS,
+      ActivityType.INFOGRAPHIC_COGNITIVE_PROFILE,
+      ActivityType.INFOGRAPHIC_ACCOMMODATION_LIST,
     ],
   },
 ];

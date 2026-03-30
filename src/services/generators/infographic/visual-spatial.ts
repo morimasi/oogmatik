@@ -1,5 +1,5 @@
 // src/services/generators/infographic/visual-spatial.ts
-import { generateWithSchema } from '../../geminiClient';
+import { generateCreativeMultimodal } from '../../geminiClient';
 import { retryWithBackoff } from '../../../utils/errorHandler';
 import { AppError } from '../../../utils/AppError';
 import { GeneratorOptions } from '../../../types/core';
@@ -34,37 +34,95 @@ export const generateOfflineInfographicConceptMap: InfographicGeneratorFn = asyn
     };
 };
 
-export const generateInfographicConceptMapFromAI: InfographicGeneratorFn = async (options) => {
-    // TODO: Faz 3'te AI Prompt ve z.Schema ile doldurulacak.
-    return {} as InfographicActivityResult;
-};
+import { createAIGenerator } from './_shared/aiFactory';
+
+export const generateInfographicConceptMapFromAI: InfographicGeneratorFn = createAIGenerator({
+    activityName: 'Kavram Haritası',
+    category: 'visual-spatial',
+    description: 'Ana konu ve alt kavramların hiyerarşik bağlarını kur.',
+    syntaxGuide: '<concept-map></concept-map> ve "hierarchy" key ile ağaç yapısı kur.',
+});
+
+export const generateInfographicCompareFromAI: InfographicGeneratorFn = createAIGenerator({
+    activityName: 'Karşılaştırma Tablosu',
+    category: 'visual-spatial',
+    description: 'İki kavramın benzer ve farklı yönlerini analiz et.',
+    syntaxGuide: '<compare-chart></compare-chart> ve "features" dictionary.',
+});
+
+export const generateInfographicVisualLogicFromAI: InfographicGeneratorFn = createAIGenerator({
+    activityName: 'Görsel Mantık',
+    category: 'visual-spatial',
+    description: 'Mantıksal sıralama veya desen kurallarını buldurmaya yönelik bir etkinlik.',
+    syntaxGuide: '<visual-logic></visual-logic> ve "sequence" array.',
+});
+
+export const generateInfographicVennDiagramFromAI: InfographicGeneratorFn = createAIGenerator({
+    activityName: 'Venn Şeması',
+    category: 'visual-spatial',
+    description: 'İki konunun ortak kümelerini (kesişimlerini) oluştur.',
+    syntaxGuide: '<venn-diagram></venn-diagram> "setA", "setB", "intersection" kurgula.',
+});
+
+export const generateInfographicMindMapFromAI: InfographicGeneratorFn = createAIGenerator({
+    activityName: 'Zihin Haritası',
+    category: 'visual-spatial',
+    description: 'Serbest çağrışımlı bir merkezden dağılan yaratıcı kollar.',
+    syntaxGuide: '<mind-map></mind-map> "nodes" array of objects.',
+});
+
+export const generateInfographicFlowchartFromAI: InfographicGeneratorFn = createAIGenerator({
+    activityName: 'Akış Şeması',
+    category: 'visual-spatial',
+    description: 'Adım adım süreçleri ve karar dallarını (evet/hayır) oluştur.',
+    syntaxGuide: '<flow-graph></flow-graph> "steps" flowchart formatında.',
+});
+
+export const generateInfographicMatrixAnalysisFromAI: InfographicGeneratorFn = createAIGenerator({
+    activityName: 'Matris Analizi',
+    category: 'visual-spatial',
+    description: 'Dikey ve yatay eksende bilgiyi çapraz analiz et.',
+    syntaxGuide: '<matrix-grid></matrix-grid> "rows" ve "columns" dizisi.',
+});
+
+export const generateInfographicCauseEffectFromAI: InfographicGeneratorFn = createAIGenerator({
+    activityName: 'Sebep Sonuç İlişkisi',
+    category: 'visual-spatial',
+    description: 'Bir olayın birden fazla nedenini ve yol açtığı sonuçları birbirine bağla.',
+    syntaxGuide: '<cause-effect></cause-effect> "causes" ve "effects" dizisi.',
+});
+
+export const generateInfographicFishboneFromAI: InfographicGeneratorFn = createAIGenerator({
+    activityName: 'Balık Kılçığı',
+    category: 'visual-spatial',
+    description: 'Bir problemi ana öğelerine (makine, metod, insan, çevre vb.) böl.',
+    syntaxGuide: '<fishbone-diagram></fishbone-diagram> "problem" ve "causes" kategorileri.',
+});
+
+export const generateInfographicClusterMapFromAI: InfographicGeneratorFn = createAIGenerator({
+    activityName: 'Kümeleme Haritası',
+    category: 'visual-spatial',
+    description: 'Birbiriyle ilişkili, hiyerarşik olmayan bilgi kümeleri yarat.',
+    syntaxGuide: '<cluster-map></cluster-map> "clusters" objesi.',
+});
 
 // ... Diğer 9 Aktivite imzaları (COMPARE, VISUAL_LOGIC, VENN_DIAGRAM, vb.)
 
 // Şimdilik stub olarak tüm imzaları dolduruyoruz (Faz 2 & 3'te içleri kodlanacak)
 export const generateOfflineInfographicCompare: InfographicGeneratorFn = async (options) => ({} as any);
-export const generateInfographicCompareFromAI: InfographicGeneratorFn = async (options) => ({} as any);
 
 export const generateOfflineInfographicVisualLogic: InfographicGeneratorFn = async (options) => ({} as any);
-export const generateInfographicVisualLogicFromAI: InfographicGeneratorFn = async (options) => ({} as any);
 
 export const generateOfflineInfographicVennDiagram: InfographicGeneratorFn = async (options) => ({} as any);
-export const generateInfographicVennDiagramFromAI: InfographicGeneratorFn = async (options) => ({} as any);
 
 export const generateOfflineInfographicMindMap: InfographicGeneratorFn = async (options) => ({} as any);
-export const generateInfographicMindMapFromAI: InfographicGeneratorFn = async (options) => ({} as any);
 
 export const generateOfflineInfographicFlowchart: InfographicGeneratorFn = async (options) => ({} as any);
-export const generateInfographicFlowchartFromAI: InfographicGeneratorFn = async (options) => ({} as any);
 
 export const generateOfflineInfographicMatrixAnalysis: InfographicGeneratorFn = async (options) => ({} as any);
-export const generateInfographicMatrixAnalysisFromAI: InfographicGeneratorFn = async (options) => ({} as any);
 
 export const generateOfflineInfographicCauseEffect: InfographicGeneratorFn = async (options) => ({} as any);
-export const generateInfographicCauseEffectFromAI: InfographicGeneratorFn = async (options) => ({} as any);
 
 export const generateOfflineInfographicFishbone: InfographicGeneratorFn = async (options) => ({} as any);
-export const generateInfographicFishboneFromAI: InfographicGeneratorFn = async (options) => ({} as any);
 
 export const generateOfflineInfographicClusterMap: InfographicGeneratorFn = async (options) => ({} as any);
-export const generateInfographicClusterMapFromAI: InfographicGeneratorFn = async (options) => ({} as any);

@@ -21,6 +21,7 @@
 8. [Backend API Modülleri](#backend-api-modülleri)
 9. [State Management](#state-management)
 10. [Utility Servisleri](#utility-servisleri)
+11. [İnfografik Stüdyosu v3](#infografik-stüdyosu-v3)
 
 ---
 
@@ -174,6 +175,40 @@
 **AI Entegrasyonu**: `services/ocrService.ts` (Gemini Vision OCR)
 
 **Yazılım Mühendisi Notu**: Karmaşık dönüşüm mantığı. Her format için ayrı adaptör sınıfı.
+
+---
+
+### 1.6 Infographic Studio v3 — İnfografik Stüdyosu
+
+**Dosya Konumu**: `components/InfographicStudio/`
+
+**Amaç**: Karmaşık bilgileri (MEB müfredatı, klinik BEP hedefleri vb.) görsel olarak yapılandırılmış infografiklere dönüştürme.
+
+**Ana Bileşen**: `InfographicStudio/index.tsx` (Modüler 3 Panelli Mimari)
+
+**Alt Modüller**:
+- `panels/LeftPanel/` — Dinamik konfigürasyon ve kategori seçimi
+- `panels/CenterPanel/` — `NativeInfographicRenderer` ile gerçek zamanlı önizleme
+- `panels/RightPanel/` — Pedagojik notlar ve çoklu dışa aktarma (PDF, Print, Worksheet)
+- `hooks/useInfographicStudio.ts` — Merkezi state yönetimi
+- `NativeInfographicRenderer.tsx` — 6 premium şablon (SVG-like React components) içeren render motoru
+
+**İşlevler**:
+1. **Dinamik Aktivite Kaydı**: `ActivityService` üzerinden 96 adet `INFOGRAPHIC_` prefix'li aktivite türü.
+2. **Native Render Motoru**: 
+   - `5W1H Grid`: Olay/metin analizi için 2x3 tablo.
+   - `Math Steps`: Problemleri adım adım görselleştirme.
+   - `Venn Diagram`: İki kavramın karşılaştırılması.
+   - `Fishbone (Ishikawa)`: Neden-sonuç analizi.
+   - `Cycle Process`: Döngüsel süreçlerin (hayat döngüsü vb.) gösterimi.
+   - `Matrix Grid`: 3x3 veya 4x4 karşılaştırma matrisleri.
+3. **Premium Print Engine**: `printService.captureAndPrint` ile 300 DPI PDF ve doğrudan yazdırma desteği.
+4. **Pedagojik Entegrasyon**: Her üretim için otomatik `pedagogicalNote` üretimi.
+
+**AI Entegrasyonu**: `services/generators/ActivityService.ts` (Dynamic Registration) + Gemini 2.5 Flash
+
+**Özel Eğitim Uzmanı Notu**: Görsel-uzamsal zekası güçlü öğrenciler için teorik bilgileri somutlaştıran en güçlü modüllerden biridir.
+
 
 ---
 

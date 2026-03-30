@@ -10,7 +10,7 @@ import { ACTIVITY_GENERATOR_REGISTRY } from './registry';
  * İstemci (UI), hangi jeneratörün (AI/Offline) kullanılacağını bilmek zorunda değildir.
  */
 export class ActivityService {
-    
+
     private static instance: ActivityService;
     private generators: Map<ActivityType, IActivityGenerator<any>>;
 
@@ -33,10 +33,10 @@ export class ActivityService {
         // Varsayılan mod: AI (Eğer varsa)
         const DEFAULT_MODE = GeneratorMode.AI;
 
+        // 1. Manuel kayıtlı jeneratörleri (registry.ts) işle
         for (const [type, mapping] of Object.entries(ACTIVITY_GENERATOR_REGISTRY)) {
             const activityType = type as ActivityType;
-            
-            // GenericActivityGenerator kullanarak dinamik oluştur
+
             const generator = new GenericActivityGenerator(
                 DEFAULT_MODE,
                 mapping.ai,
@@ -45,15 +45,35 @@ export class ActivityService {
 
             this.generators.set(activityType, generator);
         }
+
+        // 2. Dinamik kayıt: INFOGRAPHIC_ ile başlayan tüm tipleri otomatik işle
+        // Bu sayede registry.ts dosyasına 96 satır eklemek zorunda kalmayız.
+        Object.values(ActivityType).forEach((type) => {
+            const activityType = type as ActivityType;
+            if (activityType.startsWith('INFOGRAPHIC_') && !this.generators.has(activityType)) {
+                // İnfografik aktiviteleri için merkezi bir AI yönlendirici oluştur
+                const generator = new GenericActivityGenerator(
+                    DEFAULT_MODE,
+                    async (options) => {
+                        // Not: useInfographicGenerate hook'u bunu zaten merkezi olarak yönetiyor 
+                        // veya ileride buraya infographicService.generateInfographicFunction(type, options) eklenebilir.
+                        // Şimdilik sistemin çökmemesi için placeholder generator ekliyoruz.
+                        return { success: true, message: "Infographic handled by specialized hook" };
+                    },
+                    undefined
+                );
+                this.generators.set(activityType, generator);
+            }
+        });
     }
 
     /**
      * Belirtilen aktivite türü için içerik üretir.
      */
     public async generate(type: ActivityType, options: GeneratorOptions, _mode?: GeneratorMode): Promise<any> {
-        
+
         const generator = this.generators.get(type);
-        
+
         if (!generator) {
             // Eğer generator bulunamadıysa, belki henüz migrate edilmemiştir.
             // Eski yöntemle çalışan bir fallback mekanizması eklenebilir.

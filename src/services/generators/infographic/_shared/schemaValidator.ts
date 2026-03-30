@@ -25,7 +25,7 @@ export function handleSchemaError(error: unknown, context: string): never {
             `AI çıktısı şema doğrulamadan geçemedi (${context})`,
             'VALIDATION_ERROR',
             422,
-            { zodErrors: error.errors }
+            { zodErrors: (error as any).errors }
         );
     }
     throw new AppError(`AI Üretim Hatası: ${context}`, 'GENERATION_ERROR', 500, error);
@@ -37,3 +37,18 @@ export function handleSchemaError(error: unknown, context: string): never {
 export function buildActivitySchema<T extends z.ZodRawShape>(specificShape: T) {
     return baseInfographicSchema.extend(specificShape);
 }
+
+/**
+ * AI Üretimi için Kullanılacak Ana Şema (Faz 3 entegrasyonu)
+ * Bu şema, `geminiClient` içindeki `generateWithSchema` fonksiyonuna geçirilecek standart tiptir.
+ */
+export const INFOGRAPHIC_ACTIVITY_SCHEMA = z.object({
+    title: z.string().describe("Aktivitenin başlığı"),
+    syntax: z.string().describe("InfographicRenderer için declarative syntax (örn: <concept-map>...</)"),
+    templateType: z.string().describe("Kullanılacak UI şablonu (örn: sequence-steps, activity-venn)"),
+    estimatedDuration: z.number().describe("Tahmini tamamlama süresi (dakika)"),
+    mebKazanim: z.string().optional().describe("Eğer uygunsa MEB kazanım kodu"),
+    spldNote: z.string().optional().describe("Varsa SpLD-özel ekstra pedagojik not"),
+    // activityContent dinamik olarak kategoriye özgü genişletilir
+    activityContent: z.record(z.string(), z.any()).describe("Aktivite içerik objesi (sorular, adımlar vb.)"),
+}).merge(baseInfographicSchema);
