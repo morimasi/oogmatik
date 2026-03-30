@@ -7,7 +7,7 @@ import { assessmentService } from '../../services/assessmentService';
 import { curriculumService } from '../../services/curriculumService';
 import { LineChart } from '../LineChart';
 import { RadarChart } from '../RadarChart';
-import { _ACTIVITIES } from '../../constants';
+import { ACTIVITIES } from '../../constants';
 
 // Define constants used in the component
 const grades = [

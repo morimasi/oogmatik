@@ -103,7 +103,7 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
     return rawData.map(data => {
         const rows = 5;
         const cols = 5;
-        const { grid, pathIds, _distractorIds } = generateMazePath(rows, cols);
+        const { grid, pathIds, distractorIds } = generateMazePath(rows, cols);
 
         const finalRules: { id: number, text: string, isCorrect: boolean, isPath: boolean }[] = [];
         const corrects = data.correctSentences || [];

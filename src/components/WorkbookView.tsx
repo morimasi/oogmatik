@@ -4,7 +4,7 @@ import {
   WorkbookSettings,
   StyleSettings,
   ActivityType,
-  _StudentProfile,
+  StudentProfile,
 } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
@@ -1182,7 +1182,7 @@ KRİTİK KURALLAR:
                 onTogglePreview={() => { }}
                 isPreviewMode={false}
                 isEditMode={false}
-                worksheetData={[editingItem.data]}
+                worksheetData={[editingItem.data as any]}
               />
             </div>
             <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-end gap-3 bg-zinc-50 dark:bg-zinc-900">

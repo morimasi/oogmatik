@@ -3,7 +3,7 @@ import { AppError } from '../utils/AppError';
 import { auth, db } from './firebaseClient.js';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile as updateAuthProfile } from "firebase/auth";
 import * as firestore from "firebase/firestore";
-import { User, UserRole, UserStatus, _ActivityType } from '../types.js';
+import { User, UserRole, UserStatus, ActivityType } from '../types.js';
 
 const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment } = firestore;
 

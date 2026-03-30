@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { ActivityType, WorksheetData, StyleSettings, StudentProfile, OverlayItem } from '../types';
 import { getBorderCSS } from './VisualAssets';
-import { _EditableElement, _EditableText, useEditable } from './Editable';
+import { EditableElement, EditableText, useEditable } from './Editable';
 import { ErrorBoundary } from './ErrorBoundary';
 import { SheetRenderer } from './SheetRenderer';
 
@@ -80,8 +80,8 @@ const _ReadingRuler = ({ settings }: { settings: StyleSettings }) => {
     );
 };
 
-const Worksheet = ({ activityType, data, settings, studentProfile, _showQR }: WorksheetProps) => {
-    const { _isEditMode } = useEditable();
+const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: WorksheetProps) => {
+    const { isEditMode } = useEditable();
 
     const variableStyle = useMemo(() => {
         const userCols = Math.max(1, settings.columns || 1);

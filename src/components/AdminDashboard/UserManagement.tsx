@@ -14,6 +14,8 @@ const ROLE_LABELS: Record<UserRoleType, string> = {
   student: '🎒 Öğrenci',
   parent: '👨‍👩‍👦 Veli',
   guest: '👤 Misafir',
+  editor: '📝 Editör',
+  superadmin: '🌟 Süper Admin',
 };
 
 const STATUS_LABELS: Record<ManagedUser['status'], string> = {

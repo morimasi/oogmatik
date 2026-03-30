@@ -1,11 +1,37 @@
 import React from 'react';
-import { AdvancedStudent, _Transaction } from '../../../types/student-advanced';
+import { AdvancedStudent, Transaction } from '../../../types/student-advanced';
 
 interface FinancialModuleProps {
     student: AdvancedStudent;
+    onUpdate?: (updatedData: Partial<AdvancedStudent>) => void;
 }
 
-export const FinancialModule: React.FC<FinancialModuleProps> = ({ student }) => {
+export const FinancialModule: React.FC<FinancialModuleProps> = ({ student, onUpdate }) => {
+    const handleFakePayment = () => {
+        if (!onUpdate) return;
+        const currentTx = student.financial?.transactions || [];
+        const newTx: Transaction = {
+            id: crypto.randomUUID(),
+            date: new Date().toISOString(),
+            description: "Online Ödeme Alındı",
+            amount: 500,
+            currency: 'TRY',
+            type: "payment",
+            category: "tuition",
+            status: "paid"
+        };
+        const currentBalance = student.financial?.balance || 0;
+
+        onUpdate({
+            ...student,
+            financial: {
+                ...student.financial,
+                balance: Math.max(0, currentBalance - 500),
+                transactions: [newTx, ...currentTx]
+            }
+        });
+    };
+
     return (
         <div className="space-y-6">
             {/* Top Cards */}
@@ -17,7 +43,7 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({ student }) => 
                         {student.financial?.balance?.toLocaleString('tr-TR')} ₺
                     </h2>
                     <div className="flex gap-2">
-                        <button className="flex-1 bg-white text-zinc-900 py-3 rounded-xl font-bold text-sm hover:bg-zinc-200 transition-colors">
+                        <button onClick={handleFakePayment} className="flex-1 bg-white text-zinc-900 py-3 rounded-xl font-bold text-sm hover:bg-zinc-200 transition-colors">
                             Ödeme Al
                         </button>
                         <button className="flex-1 bg-zinc-700/50 text-white py-3 rounded-xl font-bold text-sm hover:bg-zinc-700 transition-colors border border-zinc-600">
@@ -44,8 +70,8 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({ student }) => 
                                         {plan.amount.toLocaleString('tr-TR')} ₺
                                     </p>
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full 
-                                        ${plan.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 
-                                          plan.status === 'overdue' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
+                                        ${plan.status === 'paid' ? 'bg-emerald-100 text-emerald-700' :
+                                            plan.status === 'overdue' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
                                         {plan.status === 'paid' ? 'Ödendi' : plan.status === 'overdue' ? 'Gecikmiş' : 'Bekliyor'}
                                     </span>
                                 </div>
@@ -114,9 +140,9 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({ student }) => 
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border
-                                            ${tx.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
-                                              tx.status === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-200' : 
-                                              'bg-rose-50 text-rose-700 border-rose-200'}`}>
+                                            ${tx.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                tx.status === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                    'bg-rose-50 text-rose-700 border-rose-200'}`}>
                                             <div className={`w-1.5 h-1.5 rounded-full ${tx.status === 'paid' ? 'bg-emerald-500' : tx.status === 'pending' ? 'bg-amber-500' : 'bg-rose-500'}`}></div>
                                             {tx.status === 'paid' ? 'Tamamlandı' : tx.status === 'pending' ? 'Bekliyor' : 'İptal'}
                                         </span>

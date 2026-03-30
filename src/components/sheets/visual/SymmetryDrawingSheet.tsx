@@ -2,7 +2,7 @@
 import React from 'react';
 import { SymmetryDrawingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
-import { EditableElement, _EditableText } from '../../Editable';
+import { EditableElement, EditableText } from '../../Editable';
 
 export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) => {
     const settings = data?.settings;

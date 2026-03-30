@@ -3,9 +3,34 @@ import { AdvancedStudent, BehaviorIncident } from '../../../types/student-advanc
 
 interface BehaviorModuleProps {
     student: AdvancedStudent;
+    onUpdate?: (data: Partial<AdvancedStudent>) => void;
 }
 
-export const BehaviorModule: React.FC<BehaviorModuleProps> = ({ student }) => {
+export const BehaviorModule: React.FC<BehaviorModuleProps> = ({ student, onUpdate }) => {
+    const handleAddFakeIncident = () => {
+        if (!onUpdate) return;
+        const newIncident: BehaviorIncident = {
+            id: crypto.randomUUID(),
+            date: new Date().toISOString(),
+            title: "Olumlu Pekiştireç Alındı",
+            description: "Derste verilen ekstra görevi başarıyla tamamladı.",
+            type: "positive",
+            category: "responsibility",
+            points: 10,
+            reportedBy: "Sistem AI"
+        };
+        const currentScore = student.behavior?.score || 0;
+        const currentIncidents = student.behavior?.incidents || [];
+        onUpdate({
+            ...student,
+            behavior: {
+                ...student.behavior,
+                score: currentScore + 10,
+                incidents: [newIncident, ...currentIncidents]
+            }
+        });
+    };
+
     // Group incidents by date
     const groupedIncidents = student.behavior?.incidents?.reduce((acc, incident) => {
         const date = new Date(incident.date).toLocaleDateString('tr-TR');
@@ -28,7 +53,7 @@ export const BehaviorModule: React.FC<BehaviorModuleProps> = ({ student }) => {
                             <h3 className="text-2xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Klinik Gözlem Günlüğü</h3>
                             <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-1">Davranışsal Veri Akışı</p>
                         </div>
-                        <button className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
+                        <button onClick={handleAddFakeIncident} className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
                             <i className="fa-solid fa-plus-circle mr-2"></i>
                             Yeni Kayıt
                         </button>
@@ -49,8 +74,8 @@ export const BehaviorModule: React.FC<BehaviorModuleProps> = ({ student }) => {
                                                         ${incident.type === 'positive' ? 'bg-emerald-50 text-emerald-600' :
                                                             incident.type === 'negative' ? 'bg-rose-50 text-rose-600' : 'bg-zinc-100 text-zinc-400'}`}>
                                                         <i className={`fa-solid ${incident.category === 'participation' ? 'fa-puzzle-piece' :
-                                                                incident.category === 'respect' ? 'fa-handshake' :
-                                                                    incident.category === 'responsibility' ? 'fa-clipboard-check' : 'fa-bolt-lightning'
+                                                            incident.category === 'respect' ? 'fa-handshake' :
+                                                                incident.category === 'responsibility' ? 'fa-clipboard-check' : 'fa-bolt-lightning'
                                                             }`}></i>
                                                     </div>
                                                     <div>

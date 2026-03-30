@@ -1,5 +1,5 @@
-import React, { useEffect, useState, _useRef } from 'react';
-import { ScreeningResult, _EvaluationCategory } from '../../types/screening';
+import React, { useEffect, useState, useRef } from 'react';
+import { ScreeningResult, EvaluationCategory } from '../../types/screening';
 import { SavedAssessment, AssessmentReport } from '../../types';
 import { CATEGORY_LABELS } from '../../data/screeningQuestions';
 import { RadarChart } from '../RadarChart';
@@ -25,7 +25,7 @@ interface Props {
 export const ResultDashboard: React.FC<Props> = ({
   result,
   onRestart,
-  _onSelectActivity,
+  onSelectActivity,
   onAddToWorkbook,
   onGeneratePlan,
 }: Props) => {

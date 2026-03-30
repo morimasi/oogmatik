@@ -2,7 +2,7 @@
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions } from '../../types.js';
 import {
-    WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, _FindLetterPairData, TargetSearchData,
+    WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData,
     ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData
 } from '../../types';
 

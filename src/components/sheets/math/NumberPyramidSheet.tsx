@@ -2,7 +2,7 @@
 import React from 'react';
 import { NumberPyramidData } from '../../../types';
 import { PedagogicalHeader } from '../common';
-import { _EditableElement, EditableText } from '../../Editable';
+import { EditableElement, EditableText } from '../../Editable';
 
 export const NumberPyramidSheet = ({ data }: { data: NumberPyramidData }) => (
     <div className="flex flex-col font-lexend">

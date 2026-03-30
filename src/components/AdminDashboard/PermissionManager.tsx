@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import type { _UserRoleDefinition, PermissionKey } from '../../types/admin';
+import type { UserRoleDefinition, PermissionKey } from '../../types/admin';
 import { PERMISSION_LABELS } from '../../types/admin';
 import { useRBAC } from '../../hooks/useRBAC';
 
@@ -14,7 +14,7 @@ const PERMISSION_GROUPS: Record<string, PermissionKey[]> = {
 };
 
 export const PermissionManager: React.FC = () => {
-  const { roles, grantPermission, revokePermission, exportMatrix, _deleteRole } = useRBAC();
+  const { roles, grantPermission, revokePermission, exportMatrix, deleteRole } = useRBAC();
   const [selectedRoleId, setSelectedRoleId] = useState<string>(roles[0]?.id ?? '');
   const [showMatrix, setShowMatrix] = useState(false);
 

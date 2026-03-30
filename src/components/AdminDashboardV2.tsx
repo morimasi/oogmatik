@@ -3,47 +3,32 @@
  * Enhanced admin panel for user role management and monitoring
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminAgentManagement from './AdminAgentManagement';
-
-interface User {
-    id: string;
-    email: string;
-    name: string;
-    role: 'admin' | 'teacher' | 'parent' | 'student';
-    createdAt: string;
-    lastLogin?: string;
-    isActive: boolean;
-    worksheetCount: number;
-}
+import { adminService } from '../services/adminService';
+import { User, UserRole, UserStatus } from '../types/user';
 
 interface AdminDashboardProps {
     currentUserRole: string;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole }) => {
-    const [users, setUsers] = useState<User[]>([
-        {
-            id: 'user1',
-            email: 'teacher@school.com',
-            name: 'Ayşe Öğretmen',
-            role: 'teacher',
-            createdAt: '2026-01-15',
-            lastLogin: '2026-03-11',
-            isActive: true,
-            worksheetCount: 25,
-        },
-        {
-            id: 'user2',
-            email: 'student@school.com',
-            name: 'Mehmet Öğrenci',
-            role: 'student',
-            createdAt: '2026-02-01',
-            lastLogin: '2026-03-10',
-            isActive: true,
-            worksheetCount: 8,
-        },
-    ]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (currentUserRole === 'admin') {
+            loadUsers();
+        }
+    }, [currentUserRole]);
+
+    const loadUsers = async () => {
+        setIsLoading(true);
+        const fetched = await adminService.getAllUsers();
+        setUsers(fetched);
+        setIsLoading(false);
+    };
+    // Mock data removed
 
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [showModal, setShowModal] = useState(false);
@@ -67,27 +52,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
 
     const filteredUsers = users.filter(user => {
         if (filterRole && user.role !== filterRole) return false;
-        if (filterStatus === 'active' && !user.isActive) return false;
-        if (filterStatus === 'inactive' && user.isActive) return false;
+        if (filterStatus === 'active' && user.status !== 'active') return false;
+        if (filterStatus === 'inactive' && user.status === 'active') return false;
         return true;
     });
 
-    const handleRoleChange = (userId: string, newRole: string) => {
-        setUsers(prev =>
-            prev.map(user =>
-                user.id === userId ? { ...user, role: newRole as any } : user
-            )
-        );
-        setShowModal(false);
-        alert('Kullanıcı rolü başarıyla güncellendi');
+    const handleRoleChange = async (userId: string, newRole: string) => {
+        try {
+            await adminService.updateUserRole(userId, newRole as UserRole);
+            setUsers(prev =>
+                prev.map(user =>
+                    user.id === userId ? { ...user, role: newRole as UserRole } : user
+                )
+            );
+            setShowModal(false);
+            alert('Kullanıcı rolü başarıyla güncellendi');
+        } catch (e) {
+            console.error(e);
+            alert('Rol güncellenirken hata oluştu');
+        }
     };
 
-    const handleToggleActive = (userId: string) => {
-        setUsers(prev =>
-            prev.map(user =>
-                user.id === userId ? { ...user, isActive: !user.isActive } : user
-            )
-        );
+    const handleToggleActive = async (userId: string) => {
+        const user = users.find(u => u.id === userId);
+        if (!user) return;
+        const newStatus: UserStatus = user.status === 'active' ? 'suspended' : 'active';
+        try {
+            await adminService.updateUserStatus(userId, newStatus);
+            setUsers(prev =>
+                prev.map(u =>
+                    u.id === userId ? { ...u, status: newStatus } : u
+                )
+            );
+        } catch (e) {
+            console.error(e);
+        }
     };
 
     const roleColors: { [key: string]: string } = {
@@ -95,6 +94,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
         teacher: 'bg-blue-100 text-blue-800',
         parent: 'bg-green-100 text-green-800',
         student: 'bg-yellow-100 text-yellow-800',
+        editor: 'bg-indigo-100 text-indigo-800',
+        superadmin: 'bg-purple-100 text-purple-800',
+        guest: 'bg-gray-100 text-gray-800',
+        user: 'bg-zinc-100 text-zinc-800'
     };
 
     const roleLabels: { [key: string]: string } = {
@@ -102,6 +105,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
         teacher: 'Öğretmen',
         parent: 'Veli',
         student: 'Öğrenci',
+        editor: 'Editör',
+        superadmin: 'Süper Yönetici',
+        guest: 'Misafir',
+        user: 'Kullanıcı'
     };
 
     // Permission matrix
@@ -127,7 +134,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
                     <div className="text-sm text-gray-600">Toplam Kullanıcı</div>
                 </div>
                 <div className="bg-green-50 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-green-600">{users.filter(u => u.isActive).length}</div>
+                    <div className="text-2xl font-bold text-green-600">{users.filter(u => u.status === 'active').length}</div>
                     <div className="text-sm text-gray-600">Aktif Kullanıcı</div>
                 </div>
                 <div className="bg-yellow-50 rounded-lg p-4">
@@ -135,7 +142,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
                     <div className="text-sm text-gray-600">Öğretmen</div>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-purple-600">{users.reduce((sum, u) => sum + u.worksheetCount, 0)}</div>
+                    <div className="text-2xl font-bold text-purple-600">{users.reduce((sum, u) => sum + (u.worksheetCount || 0), 0)}</div>
                     <div className="text-sm text-gray-600">Toplam Çalışma</div>
                 </div>
             </div>
@@ -144,41 +151,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
             <div className="flex gap-4 mb-6 border-b border-gray-200 overflow-x-auto">
                 <button
                     onClick={() => setActiveTab('users')}
-                    className={`pb-3 px-4 font-medium transition-colors ${
-                        activeTab === 'users'
-                            ? 'text-blue-600 border-b-2 border-blue-600'
-                            : 'text-gray-600 hover:text-gray-800'
-                    }`}
+                    className={`pb-3 px-4 font-medium transition-colors ${activeTab === 'users'
+                        ? 'text-blue-600 border-b-2 border-blue-600'
+                        : 'text-gray-600 hover:text-gray-800'
+                        }`}
                 >
                     <i className="fa-solid fa-users mr-2"></i>Kullanıcılar
                 </button>
                 <button
                     onClick={() => setActiveTab('permissions')}
-                    className={`pb-3 px-4 font-medium transition-colors ${
-                        activeTab === 'permissions'
-                            ? 'text-blue-600 border-b-2 border-blue-600'
-                            : 'text-gray-600 hover:text-gray-800'
-                    }`}
+                    className={`pb-3 px-4 font-medium transition-colors ${activeTab === 'permissions'
+                        ? 'text-blue-600 border-b-2 border-blue-600'
+                        : 'text-gray-600 hover:text-gray-800'
+                        }`}
                 >
                     <i className="fa-solid fa-shield mr-2"></i>İzinler
                 </button>
                 <button
                     onClick={() => setActiveTab('agents')}
-                    className={`pb-3 px-4 font-medium transition-colors ${
-                        activeTab === 'agents'
-                            ? 'text-blue-600 border-b-2 border-blue-600'
-                            : 'text-gray-600 hover:text-gray-800'
-                    }`}
+                    className={`pb-3 px-4 font-medium transition-colors ${activeTab === 'agents'
+                        ? 'text-blue-600 border-b-2 border-blue-600'
+                        : 'text-gray-600 hover:text-gray-800'
+                        }`}
                 >
                     <i className="fa-solid fa-robot mr-2"></i>AI Ajanlar
                 </button>
                 <button
                     onClick={() => setActiveTab('logs')}
-                    className={`pb-3 px-4 font-medium transition-colors ${
-                        activeTab === 'logs'
-                            ? 'text-blue-600 border-b-2 border-blue-600'
-                            : 'text-gray-600 hover:text-gray-800'
-                    }`}
+                    className={`pb-3 px-4 font-medium transition-colors ${activeTab === 'logs'
+                        ? 'text-blue-600 border-b-2 border-blue-600'
+                        : 'text-gray-600 hover:text-gray-800'
+                        }`}
                 >
                     <i className="fa-solid fa-history mr-2"></i>Kayıtlar
                 </button>
@@ -236,8 +239,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
                                             </span>
                                         </td>
                                         <td className="px-4 py-3">
-                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                                {user.isActive ? 'Aktif' : 'Pasif'}
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                                {user.status === 'active' ? 'Aktif' : 'Pasif'}
                                             </span>
                                         </td>
                                         <td className="px-4 py-3 text-gray-600">{user.worksheetCount}</td>
@@ -257,10 +260,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
                                                 </button>
                                                 <button
                                                     onClick={() => handleToggleActive(user.id)}
-                                                    className={`inline-flex items-center justify-center w-8 h-8 rounded transition-colors ${user.isActive ? 'text-green-600 hover:bg-green-50' : 'text-gray-600 hover:bg-gray-50'}`}
-                                                    title={user.isActive ? 'Pasif Yap' : 'Aktif Yap'}
+                                                    className={`inline-flex items-center justify-center w-8 h-8 rounded transition-colors ${user.status === 'active' ? 'text-green-600 hover:bg-green-50' : 'text-gray-600 hover:bg-gray-50'}`}
+                                                    title={user.status === 'active' ? 'Pasif Yap' : 'Aktif Yap'}
                                                 >
-                                                    <i className={`fa-solid ${user.isActive ? 'fa-check-circle' : 'fa-circle'}`}></i>
+                                                    <i className={`fa-solid ${user.status === 'active' ? 'fa-check-circle' : 'fa-circle'}`}></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -347,7 +350,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentUserRole 
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg shadow-lg p-6 w-96">
                         <h2 className="text-xl font-bold text-gray-800 mb-4">Kullanıcı Rolü Değiştir</h2>
-                        
+
                         <div className="mb-4">
                             <p className="text-gray-600 mb-2">Kullanıcı: <strong>{selectedUser.name}</strong></p>
                             <p className="text-gray-600 mb-4">Mevcut Rol: <strong>{roleLabels[selectedUser.role]}</strong></p>

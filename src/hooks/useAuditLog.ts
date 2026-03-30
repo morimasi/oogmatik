@@ -7,7 +7,7 @@ const MAX_LOG_ENTRIES = 500;
 interface AuditLogFilter {
   search?: string;
   action?: AuditAction | '';
-  actorId?: string;
+  userId?: string;
   severity?: 'info' | 'warning' | 'error' | '';
   dateFrom?: string;
   dateTo?: string;
@@ -70,11 +70,10 @@ function generateSeedLog(): AuditLogEntry[] {
     return {
       id: generateId(),
       action,
-      actorId: actor.id,
-      actorName: actor.name,
-      actorRole: actor.role,
+      userId: actor.id,
+      details: `${actor.role.toUpperCase()} - ${actor.name}`,
       severity: severities[i % severities.length],
-      timestamp: new Date(Date.now() - i * 3600000).toISOString(),
+      createdAt: new Date(Date.now() - i * 3600000).toISOString(),
       targetType: 'worksheet',
       targetLabel: `Çalışma #${i + 1}`,
     };
@@ -102,11 +101,11 @@ export function useAuditLog(): UseAuditLogReturn {
     setPage(1);
   }, []);
 
-  const addEntry = useCallback((entry: Omit<AuditLogEntry, 'id' | 'timestamp'>) => {
+  const addEntry = useCallback((entry: Omit<AuditLogEntry, 'id' | 'createdAt'>) => {
     const newEntry: AuditLogEntry = {
       ...entry,
       id: generateId(),
-      timestamp: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     };
     setEntries((prev) => [newEntry, ...prev].slice(0, MAX_LOG_ENTRIES));
   }, []);
@@ -121,7 +120,7 @@ export function useAuditLog(): UseAuditLogReturn {
     if (filter.search) {
       const q = filter.search.toLowerCase();
       if (
-        !e.actorName.toLowerCase().includes(q) &&
+        !e.details.toLowerCase().includes(q) &&
         !e.action.toLowerCase().includes(q) &&
         !(e.targetLabel ?? '').toLowerCase().includes(q)
       )
@@ -129,18 +128,18 @@ export function useAuditLog(): UseAuditLogReturn {
     }
     if (filter.action && e.action !== filter.action) return false;
     if (filter.severity && e.severity !== filter.severity) return false;
-    if (filter.actorId && e.actorId !== filter.actorId) return false;
-    if (filter.dateFrom && e.timestamp < filter.dateFrom) return false;
-    if (filter.dateTo && e.timestamp > filter.dateTo + 'T23:59:59Z') return false;
+    if (filter.userId && e.userId !== filter.userId) return false;
+    if (filter.dateFrom && e.createdAt < filter.dateFrom) return false;
+    if (filter.dateTo && e.createdAt > filter.dateTo + 'T23:59:59Z') return false;
     return true;
   });
 
   const totalPages = Math.max(1, Math.ceil(filteredEntries.length / PAGE_SIZE));
 
   const exportAsCsv = useCallback(() => {
-    const headers = ['ID', 'Zaman', 'İşlem', 'Kullanıcı', 'Rol', 'Hedef', 'Önem'];
+    const headers = ['ID', 'Zaman', 'İşlem', 'Detaylar', 'Hedef', 'Önem'];
     const rows = filteredEntries.map((e) => [
-      e.id, e.timestamp, e.action, e.actorName, e.actorRole, e.targetLabel ?? '', e.severity,
+      e.id, e.createdAt, e.action, e.details, e.targetLabel ?? '', e.severity,
     ]);
     const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

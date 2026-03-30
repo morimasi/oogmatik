@@ -191,8 +191,9 @@ export async function generateInfographicSyntax(
       .json()
       .catch(() => ({ error: { message: 'Bilinmeyen hata' } }));
     throw new AppError(
-      errorData.error?.message ??
-        `AI servisi yanıt vermedi (${response.status}, 'INTERNAL_ERROR', 500)`
+      errorData.error?.message ?? 'AI servisi yanıt vermedi',
+      'INTERNAL_ERROR',
+      response.status || 500
     );
   }
 

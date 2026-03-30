@@ -1,7 +1,7 @@
 
 import { ShapeType } from '../../types';
 import { TR_VOCAB as RAW_VOCAB } from '../../data/vocabulary';
-import { KNOWLEDGE_BASE, _WordItem, _COLORS_DB } from '../../data/knowledgeBase';
+import { KNOWLEDGE_BASE, WordItem, COLORS_DB } from '../../data/knowledgeBase';
 
 export interface VocabData {
     animals: string[];

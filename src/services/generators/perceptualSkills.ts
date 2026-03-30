@@ -2,10 +2,10 @@
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions } from '../../types.js';
 import {
-    FindTheDifferenceData, _WordComparisonData, _ShapeMatchingData, _FindIdenticalWordData, _GridDrawingData, _SymbolCipherData, _BlockPaintingData, VisualOddOneOutData, _SymmetryDrawingData, _FindDifferentStringData, _DotPaintingData, _AbcConnectData, _CoordinateCipherData, _WordConnectData, _ProfessionConnectData, _MatchstickSymmetryData, _VisualOddOneOutThemedData, _PunctuationColoringData, _SynonymAntonymColoringData, _StarHuntData, _ShapeType, _ShapeCountingData, _MapInstructionData
+    FindTheDifferenceData, WordComparisonData, ShapeMatchingData, FindIdenticalWordData, GridDrawingData, SymbolCipherData, BlockPaintingData, VisualOddOneOutData, SymmetryDrawingData, FindDifferentStringData, DotPaintingData, AbcConnectData, CoordinateCipherData, WordConnectData, ProfessionConnectData, MatchstickSymmetryData, VisualOddOneOutThemedData, PunctuationColoringData, SynonymAntonymColoringData, StarHuntData, ShapeType, ShapeCountingData, MapInstructionData
 } from '../../types';
-import { _ocrService } from '../ocrService.js';
-import { _MAP_DETECTIVE_PROMPT, PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
+import { ocrService } from '../ocrService.js';
+import { MAP_DETECTIVE_PROMPT, PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
 
 export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
     const { difficulty, _worksheetCount, visualType, distractionLevel, gridSize, studentContext } = options;

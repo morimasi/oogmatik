@@ -122,10 +122,7 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
 
   const handleApplyTemplate = useCallback(
     (tpl: WorksheetTemplate) => {
-      ws.updateContent(
-        { blocks: tpl.content.blocks.map((b) => ({ ...b, id: `${b.id}-${Date.now()}` })) },
-        `Şablon uygulandı: ${tpl.name}`,
-      );
+      ws.updateContent({ blocks: tpl.content.blocks.map((b) => ({ ...b, id: `${b.id}-${Date.now()}` })) });
       ws.toggleTemplateSelector();
     },
     [ws],
@@ -157,10 +154,10 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
   const saveStatusText = ws.editorState.isAutoSaving
     ? 'Kaydediliyor...'
     : ws.editorState.isDirty
-    ? 'Kaydedilmemiş değişiklikler'
-    : ws.editorState.lastSavedAt
-    ? `Kaydedildi ${new Date(ws.editorState.lastSavedAt).toLocaleTimeString('tr-TR')}`
-    : '';
+      ? 'Kaydedilmemiş değişiklikler'
+      : ws.editorState.lastSavedAt
+        ? `Kaydedildi ${new Date(ws.editorState.lastSavedAt).toLocaleTimeString('tr-TR')}`
+        : '';
 
   // ── Determine which side panel to show ────────────────────────────────────
 
@@ -168,10 +165,10 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
     ws.editorState.showExportPanel
       ? 'export'
       : ws.editorState.showTemplateSelector
-      ? 'template'
-      : ws.editorState.showDyslexiaControls
-      ? 'dyslexia'
-      : null;
+        ? 'template'
+        : ws.editorState.showDyslexiaControls
+          ? 'dyslexia'
+          : null;
 
   // Close ext panel when main panel changes
   const handleToggleExportPanel = useCallback(() => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { DirectionalTrackingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
-import { EditableElement, _EditableText } from '../../Editable';
+import { EditableElement, EditableText } from '../../Editable';
 
 const ArrowIcon = ({ dir, compact = false }: { dir: string; compact?: boolean }) => {
   const rotations: Record<string, number> = {

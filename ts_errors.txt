@@ -1,0 +1,288 @@
+src/App.tsx(667,9): error TS2322: Type 'SavedAssessment' is not assignable to type 'Record<string, unknown> | SingleWorksheetData[]'.
+  Type 'SavedAssessment' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'SavedAssessment'.
+src/components/AdminActivityApproval.tsx(12,10): error TS2724: '"../services/templateEngine"' has no exported member named '_templateEngine'. Did you mean 'templateEngine'?
+src/components/AdminActivityApproval.tsx(14,31): error TS2724: '"../types/ocr-activity"' has no exported member named '_ProductionMode'. Did you mean 'ProductionMode'?
+src/components/AdminDashboard/PermissionManager.tsx(2,15): error TS2724: '"../../types/admin"' has no exported member named '_UserRoleDefinition'. Did you mean 'UserRoleDefinition'?
+src/components/AdminDashboard/PermissionManager.tsx(17,67): error TS2339: Property '_deleteRole' does not exist on type 'UseRBACReturn'.
+src/components/AdminDashboard/PermissionManager.tsx(54,69): error TS2339: Property 'label' does not exist on type 'UserRoleDefinition'.
+src/components/AdminDashboard/PermissionManager.tsx(103,28): error TS2339: Property 'label' does not exist on type 'UserRoleDefinition'.
+src/components/AdminDashboard/PermissionManager.tsx(113,31): error TS2339: Property 'label' does not exist on type 'UserRoleDefinition'.
+src/components/AdminDashboard/SystemHealth.tsx(16,5): error TS2353: Object literal may only specify known properties, and 'lastChecked' does not exist in type 'ServiceHealth'.
+src/components/AdminDashboard/UserManagement.tsx(11,7): error TS2739: Type '{ admin: string; teacher: string; student: string; parent: string; guest: string; }' is missing the following properties from type 'Record<UserRoleType, string>': editor, superadmin
+src/components/MathStudio/components/OperationCard.tsx(7,23): error TS2724: '"../constants"' has no exported member named '_BORDER_STYLES'. Did you mean 'BORDER_STYLES'?
+src/components/MathStudio/components/ProblemCard.tsx(7,23): error TS2724: '"../constants"' has no exported member named '_BORDER_STYLES'. Did you mean 'BORDER_STYLES'?
+src/components/MathStudio/panels/ProblemSettingsPanel.tsx(16,55): error TS2339: Property '_toggleProblemType' does not exist on type 'ProblemSettingsPanelProps'.
+src/components/MessagesView.tsx(9,47): error TS2339: Property '_orderBy' does not exist on type 'typeof import("C:/Users/Administrator/Desktop/oogmatik/oogmatik/node_modules/.pnpm/firebase@12.11.0/node_modules/firebase/firestore/dist/firestore/index")'.
+src/components/OCRActivityStudio/index.tsx(18,15): error TS2724: '"../../types/core"' has no exported member named '_OCRResult'. Did you mean 'OCRResult'?
+src/components/OCRActivityStudio/index.tsx(234,77): error TS2339: Property '_isProcessing' does not exist on type 'ImageUploadPanelProps'.
+src/components/OCRScanner.tsx(4,54): error TS2724: '"../types"' has no exported member named '_GeneratorOptions'. Did you mean 'GeneratorOptions'?
+src/components/OCRScanner.tsx(14,7): error TS2741: Property 'footerText' is missing in type '{ fontSize: number; scale: number; borderColor: string; borderWidth: number; margin: number; columns: number; gap: number; orientation: "portrait"; themeBorder: "simple"; contentAlign: "center"; ... 19 more ...; maskOpacity: number; }' but required in type 'StyleSettings'.
+src/components/PromptSimulator.tsx(224,37): error TS2741: Property 'footerText' is missing in type '{ fontFamily: string; fontSize: number; showTitle: true; showStudentInfo: false; showFooter: true; themeBorder: "simple"; scale: number; borderColor: string; borderWidth: number; margin: number; ... 19 more ...; maskOpacity: number; }' but required in type 'StyleSettings'.
+src/components/sheets/math/SpatialGridSheet.tsx(5,10): error TS2724: '"../../Editable"' has no exported member named '_EditableText'. Did you mean 'EditableText'?
+src/components/sheets/math/VisualArithmeticSheet.tsx(5,10): error TS2724: '"../../Editable"' has no exported member named '_EditableText'. Did you mean 'EditableText'?
+src/components/sheets/MathLogicSheets.tsx(5,5): error TS2724: '"../../types"' has no exported member named '_NumberCapsuleData'. Did you mean 'NumberCapsuleData'?
+src/components/sheets/MathLogicSheets.tsx(5,25): error TS2724: '"../../types"' has no exported member named '_OddEvenSudokuData'. Did you mean 'OddEvenSudokuData'?
+src/components/sheets/MathLogicSheets.tsx(5,45): error TS2724: '"../../types"' has no exported member named '_RomanNumeralStarHuntData'. Did you mean 'RomanNumeralStarHuntData'?
+src/components/sheets/MathLogicSheets.tsx(5,72): error TS2724: '"../../types"' has no exported member named '_RoundingConnectData'. Did you mean 'RoundingConnectData'?
+src/components/sheets/MathLogicSheets.tsx(5,94): error TS2724: '"../../types"' has no exported member named '_ArithmeticConnectData'. Did you mean 'ArithmeticConnectData'?
+src/components/sheets/MathLogicSheets.tsx(5,118): error TS2724: '"../../types"' has no exported member named '_RomanNumeralMultiplicationData'. Did you mean 'RomanNumeralMultiplicationData'?
+src/components/sheets/MathLogicSheets.tsx(6,5): error TS2724: '"../../types"' has no exported member named '_KendokuData'. Did you mean 'KendokuData'?
+src/components/sheets/MathLogicSheets.tsx(6,19): error TS2724: '"../../types"' has no exported member named '_OperationSquareFillInData'. Did you mean 'OperationSquareFillInData'?
+src/components/sheets/MathLogicSheets.tsx(6,47): error TS2724: '"../../types"' has no exported member named '_MultiplicationWheelData'. Did you mean 'MultiplicationWheelData'?
+src/components/sheets/MathLogicSheets.tsx(6,73): error TS2724: '"../../types"' has no exported member named '_TargetNumberData'. Did you mean 'TargetNumberData'?
+src/components/sheets/MathLogicSheets.tsx(6,92): error TS2724: '"../../types"' has no exported member named '_ShapeSudokuData'. Did you mean 'ShapeSudokuData'?
+src/components/sheets/MathLogicSheets.tsx(6,110): error TS2724: '"../../types"' has no exported member named '_VisualNumberPatternData'. Did you mean 'VisualNumberPatternData'?
+src/components/sheets/MathLogicSheets.tsx(7,26): error TS2724: '"../../types"' has no exported member named '_ShapeNumberPatternData'. Did you mean 'ShapeNumberPatternData'?
+src/components/sheets/MathLogicSheets.tsx(7,51): error TS2724: '"../../types"' has no exported member named '_ShapeCountingData'. Did you mean 'ShapeCountingData'?
+src/components/sheets/MathLogicSheets.tsx(7,71): error TS2724: '"../../types"' has no exported member named '_ThematicOddOneOutData'. Did you mean 'ThematicOddOneOutData'?
+src/components/sheets/MathLogicSheets.tsx(7,95): error TS2724: '"../../types"' has no exported member named '_ThematicOddOneOutSentenceData'. Did you mean 'ThematicOddOneOutSentenceData'?
+src/components/sheets/MathLogicSheets.tsx(7,127): error TS2724: '"../../types"' has no exported member named '_ColumnOddOneOutSentenceData'. Did you mean 'ColumnOddOneOutSentenceData'?
+src/components/sheets/MathLogicSheets.tsx(7,157): error TS2724: '"../../types"' has no exported member named '_PunctuationMazeData'. Did you mean 'PunctuationMazeData'?
+src/components/sheets/MathLogicSheets.tsx(7,179): error TS2724: '"../../types"' has no exported member named '_PunctuationPhoneNumberData'. Did you mean 'PunctuationPhoneNumberData'?
+src/components/sheets/MathLogicSheets.tsx(10,10): error TS2724: '"./common"' has no exported member named '_CagedGridSvg'. Did you mean 'CagedGridSvg'?
+src/components/sheets/MathLogicSheets.tsx(10,25): error TS2724: '"./common"' has no exported member named '_GridComponent'. Did you mean 'GridComponent'?
+src/components/sheets/MemoryAttentionSheets.tsx(8,43): error TS2724: '"./common"' has no exported member named '_Shape'. Did you mean 'Shape'?
+src/components/sheets/verbal/FamilyRelationsSheet.tsx(3,29): error TS2724: '"../common"' has no exported member named '_ImageDisplay'. Did you mean 'ImageDisplay'?
+src/components/sheets/verbal/ReadingSudokuSheet.tsx(4,10): error TS2724: '"../../Editable"' has no exported member named '_EditableElement'. Did you mean 'EditableElement'?
+src/components/sheets/verbal/StoryComprehensionSheet.tsx(5,10): error TS2724: '"../../Editable"' has no exported member named '_EditableElement'. Did you mean 'EditableElement'?
+src/components/sheets/verbal/StoryComprehensionSheet.tsx(5,28): error TS2724: '"../../Editable"' has no exported member named '_EditableText'. Did you mean 'EditableText'?
+src/components/sheets/verbal/WordGameSheets.tsx(7,13): error TS2339: Property '_gridSize' does not exist on type '{ gridSize: number; itemCount: number; cellStyle: string; letterCase: string; } | {}'.
+src/components/sheets/visual/DirectionalTrackingSheet.tsx(4,27): error TS2724: '"../../Editable"' has no exported member named '_EditableText'. Did you mean 'EditableText'?
+src/components/sheets/visual/FindTheDifferenceSheet.tsx(123,79): error TS2339: Property 'svg' does not exist on type 'object'.
+src/components/sheets/visual/FindTheDifferenceSheet.tsx(124,203): error TS2339: Property 'svg' does not exist on type 'object'.
+src/components/sheets/visual/GridDrawingSheet.tsx(5,10): error TS2724: '"../../Editable"' has no exported member named '_EditableElement'. Did you mean 'EditableElement'?
+src/components/sheets/visual/SymmetryDrawingSheet.tsx(5,27): error TS2724: '"../../Editable"' has no exported member named '_EditableText'. Did you mean 'EditableText'?
+src/components/sheets/visual/VisualInterpretationSheet.tsx(12,3): error TS2339: Property '_settings' does not exist on type 'VisualInterpretationSheetProps'.
+src/components/sheets/visual/VisualInterpretationSheet.tsx(21,44): error TS2339: Property 'prompt' does not exist on type 'unknown'.
+src/components/sheets/visual/VisualInterpretationSheet.tsx(22,46): error TS2339: Property 'items' does not exist on type 'unknown'.
+src/components/sheets/visual/VisualInterpretationSheet.tsx(45,75): error TS2339: Property 'alt' does not exist on type 'unknown'.
+src/components/Sidebar.tsx(43,3): error TS2300: Duplicate identifier 'isExpanded'.
+src/components/Sidebar.tsx(44,3): error TS2300: Duplicate identifier 'onOpenOCR'.
+src/components/Sidebar.tsx(44,3): error TS2687: All declarations of 'onOpenOCR' must have identical modifiers.
+src/components/Sidebar.tsx(45,3): error TS2300: Duplicate identifier 'onOpenCurriculum'.
+src/components/Sidebar.tsx(45,3): error TS2687: All declarations of 'onOpenCurriculum' must have identical modifiers.
+src/components/Sidebar.tsx(46,3): error TS2300: Duplicate identifier 'onOpenReadingStudio'.
+src/components/Sidebar.tsx(46,3): error TS2687: All declarations of 'onOpenReadingStudio' must have identical modifiers.
+src/components/Sidebar.tsx(47,3): error TS2300: Duplicate identifier 'onOpenMathStudio'.
+src/components/Sidebar.tsx(47,3): error TS2687: All declarations of 'onOpenMathStudio' must have identical modifiers.
+src/components/Sidebar.tsx(51,3): error TS2300: Duplicate identifier 'onOpenScreening'.
+src/components/Sidebar.tsx(54,3): error TS2300: Duplicate identifier 'activeCurriculumSession'.
+src/components/Sidebar.tsx(54,3): error TS2687: All declarations of 'activeCurriculumSession' must have identical modifiers.
+src/components/Sidebar.tsx(55,3): error TS2300: Duplicate identifier 'isExpanded'.
+src/components/Sidebar.tsx(56,3): error TS2300: Duplicate identifier 'onOpenOCR'.
+src/components/Sidebar.tsx(56,3): error TS2687: All declarations of 'onOpenOCR' must have identical modifiers.
+src/components/Sidebar.tsx(57,3): error TS2300: Duplicate identifier 'onOpenCurriculum'.
+src/components/Sidebar.tsx(57,3): error TS2687: All declarations of 'onOpenCurriculum' must have identical modifiers.
+src/components/Sidebar.tsx(58,3): error TS2300: Duplicate identifier 'onOpenReadingStudio'.
+src/components/Sidebar.tsx(58,3): error TS2687: All declarations of 'onOpenReadingStudio' must have identical modifiers.
+src/components/Sidebar.tsx(59,3): error TS2300: Duplicate identifier 'onOpenMathStudio'.
+src/components/Sidebar.tsx(59,3): error TS2687: All declarations of 'onOpenMathStudio' must have identical modifiers.
+src/components/Sidebar.tsx(60,3): error TS2300: Duplicate identifier 'onOpenScreening'.
+src/components/Sidebar.tsx(61,3): error TS2300: Duplicate identifier 'activeCurriculumSession'.
+src/components/Sidebar.tsx(61,3): error TS2687: All declarations of 'activeCurriculumSession' must have identical modifiers.
+src/components/Sidebar.tsx(61,3): error TS2717: Subsequent property declarations must have the same type.  Property 'activeCurriculumSession' must be of type 'ActiveCurriculumSession', but here has type '{ planId: string; day: number; activityId: string; studentName: string; activityTitle: string; studentId?: string; }'.
+src/components/Sidebar.tsx(99,3): error TS2339: Property '_closeSidebar' does not exist on type 'SidebarProps'.
+src/components/Student/AdvancedStudentManager.tsx(12,10): error TS2724: '"./StudentSelector"' has no exported member named '_StudentSelector'. Did you mean 'StudentSelector'?
+src/components/Student/modules/AttendanceModule.tsx(2,27): error TS2724: '"../../../types/student-advanced"' has no exported member named '_AttendanceRecord'. Did you mean 'AttendanceRecord'?
+src/components/Student/modules/FinancialModule.tsx(2,27): error TS2724: '"../../../types/student-advanced"' has no exported member named '_Transaction'. Did you mean 'Transaction'?
+src/components/Student/modules/OverviewModule.tsx(3,10): error TS2724: '"../../LineChart"' has no exported member named '_LineChart'. Did you mean 'LineChart'?
+src/components/Student/StudentDashboard.tsx(10,10): error TS2724: '"../../constants"' has no exported member named '_ACTIVITIES'. Did you mean 'ACTIVITIES'?
+src/components/SuperStudio/components/MainSettingsPanel.tsx(3,33): error TS2724: '"../../../types/superStudio"' has no exported member named '_GenerationMode'. Did you mean 'GenerationMode'?
+src/components/SuperStudio/templates/KelimeBilgisi/index.ts(5,32): error TS2304: Cannot find name 'KelimeBilgisiSettings'.
+src/components/UniversalStudio/UniversalAdapter.ts(2,37): error TS2724: '"../../utils/layoutConstants"' has no exported member named '_A4_DEFAULT_MARGIN_PX'. Did you mean 'A4_DEFAULT_MARGIN_PX'?
+src/components/UniversalStudio/UniversalCanvas.tsx(59,55): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(60,55): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(61,43): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(68,59): error TS2365: Operator '>=' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(68,73): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'unknown'.
+src/components/UniversalStudio/UniversalCanvas.tsx(69,64): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(74,40): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(75,42): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(78,45): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(80,77): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(82,31): error TS2365: Operator '+' cannot be applied to types 'number' and 'unknown'.
+src/components/UniversalStudio/UniversalCanvas.tsx(82,110): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(84,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(85,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/UniversalStudio/UniversalCanvas.tsx(90,64): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(90,95): error TS2365: Operator '+' cannot be applied to types 'unknown' and 'number'.
+src/components/UniversalStudio/UniversalCanvas.tsx(114,17): error TS2322: Type 'unknown' is not assignable to type 'Left<string | number>'.
+src/components/UniversalStudio/UniversalCanvas.tsx(115,17): error TS2322: Type 'unknown' is not assignable to type 'Top<string | number>'.
+src/components/UniversalStudio/UniversalCanvas.tsx(116,17): error TS2322: Type 'unknown' is not assignable to type 'Width<string | number>'.
+src/components/UniversalStudio/UniversalCanvas.tsx(117,17): error TS2322: Type 'unknown' is not assignable to type 'Height<string | number>'.
+src/components/UniversalStudio/UniversalCanvas.tsx(119,70): error TS2322: Type 'unknown' is not assignable to type 'ZIndex'.
+src/components/UniversalStudio/UniversalCanvas.tsx(258,21): error TS2322: Type '{ height: string; minHeight: string; padding: string; backgroundColor: unknown; borderColor: unknown; borderWidth: string; borderStyle: unknown; borderRadius: string; boxShadow: string; opacity: unknown; color: unknown; fontFamily: unknown; ... 4 more ...; fontWeight: unknown; }' is not assignable to type 'CSSProperties'.
+  Types of property 'backgroundColor' are incompatible.
+    Type 'unknown' is not assignable to type 'BackgroundColor'.
+src/components/UniversalStudio/UniversalCanvas.tsx(265,36): error TS2322: Type 'unknown' is not assignable to type 'ActivityType'.
+src/components/UniversalStudio/UniversalCanvas.tsx(265,82): error TS2739: Type '{}' is missing the following properties from type 'SingleWorksheetData': title, instruction
+src/components/UniversalStudio/UniversalCanvas.tsx(272,22): error TS2322: Type '{ padding: string; backgroundColor: unknown; borderColor: unknown; borderWidth: string; borderStyle: unknown; borderRadius: string; boxShadow: string; opacity: unknown; color: unknown; fontFamily: unknown; fontSize: string; lineHeight: unknown; textAlign: any; letterSpacing: string; fontWeight: unknown; }' is not assignable to type 'CSSProperties'.
+  Types of property 'backgroundColor' are incompatible.
+    Type 'unknown' is not assignable to type 'BackgroundColor'.
+src/components/UniversalStudio/UniversalCanvas.tsx(273,97): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/UniversalStudio/UniversalCanvas.tsx(279,18): error TS2322: Type '{ padding: string; backgroundColor: unknown; borderColor: unknown; borderWidth: string; borderStyle: unknown; borderRadius: string; boxShadow: string; opacity: unknown; color: unknown; fontFamily: unknown; fontSize: string; lineHeight: unknown; textAlign: any; letterSpacing: string; fontWeight: unknown; }' is not assignable to type 'CSSProperties'.
+  Types of property 'backgroundColor' are incompatible.
+    Type 'unknown' is not assignable to type 'BackgroundColor'.
+src/components/UniversalWorksheetViewer/CloudStorageIntegration.tsx(33,5): error TS2339: Property '_activeProvider' does not exist on type 'CloudStorageIntegrationProps'.
+src/components/UniversalWorksheetViewer/hooks/useExportHistory.ts(2,49): error TS2724: '"../types/worksheet"' has no exported member named '_ExportSettings'. Did you mean 'ExportSettings'?
+src/components/UniversalWorksheetViewer/hooks/useWorksheetState.ts(13,3): error TS2724: '"../constants/templates"' has no exported member named 'DEFAULT_EDITOR_SETTINGS'. Did you mean 'DEFAULT_EXPORT_SETTINGS'?
+src/components/UniversalWorksheetViewer/hooks/useWorksheetState.ts(21,66): error TS2339: Property 'document' does not exist on type 'WorksheetTemplate'.
+src/components/UniversalWorksheetViewer/index.ts(49,3): error TS2724: '"./constants/templates"' has no exported member named 'TEMPLATE_CATEGORIES'. Did you mean 'TEMPLATE_CATEGORY_LABELS'?
+src/components/UniversalWorksheetViewer/index.ts(51,3): error TS2724: '"./constants/templates"' has no exported member named 'DEFAULT_EDITOR_SETTINGS'. Did you mean 'DEFAULT_EXPORT_SETTINGS'?
+src/components/UniversalWorksheetViewer/UniversalWorksheetViewer.tsx(127,9): error TS2554: Expected 1 arguments, but got 2.
+src/components/UniversalWorksheetViewer/WorksheetEditor.tsx(16,7): error TS2741: Property 'blank' is missing in type '{ text: string; heading: string; math: string; image: string; table: string; list: string; divider: string; }' but required in type 'Record<WorksheetContentBlockType, string>'.
+src/components/VariationResultsView.tsx(202,52): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type 'unknown' is not assignable to parameter of type 'string | Node'.
+src/components/VariationResultsView.tsx(286,23): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/VariationResultsView.tsx(286,61): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/Workbook.tsx(5,10): error TS2724: '"./Toolbar"' has no exported member named '_Toolbar'. Did you mean 'Toolbar'?
+src/components/Workbook.tsx(601,28): error TS2322: Type 'Record<string, unknown> | SingleWorksheetData[]' is not assignable to type 'SingleWorksheetData'.
+  Type 'Record<string, unknown>' is missing the following properties from type 'SingleWorksheetData': title, instruction
+src/components/WorkbookView.tsx(7,3): error TS2724: '"../types"' has no exported member named '_StudentProfile'. Did you mean 'StudentProfile'?
+src/components/WorkbookView.tsx(1185,33): error TS2322: Type 'Record<string, unknown> | SingleWorksheetData[]' is not assignable to type 'SingleWorksheetData'.
+  Type 'Record<string, unknown>' is missing the following properties from type 'SingleWorksheetData': title, instruction
+src/components/Worksheet.tsx(5,10): error TS2724: '"./Editable"' has no exported member named '_EditableElement'. Did you mean 'EditableElement'?
+src/components/Worksheet.tsx(5,28): error TS2724: '"./Editable"' has no exported member named '_EditableText'. Did you mean 'EditableText'?
+src/components/Worksheet.tsx(83,68): error TS2339: Property '_showQR' does not exist on type 'WorksheetProps'.
+src/components/Worksheet.tsx(84,13): error TS2339: Property '_isEditMode' does not exist on type '{ isEditMode: any; zoom: any; }'.
+src/components/WorksheetsList.tsx(8,32): error TS2724: '"../hooks/useWorksheets"' has no exported member named '_useCreateWorksheet'. Did you mean 'useCreateWorksheet'?
+src/components/WorksheetsList.tsx(10,10): error TS2724: '"../utils/AppError"' has no exported member named '_AppError'. Did you mean 'AppError'?
+src/data/screeningQuestions.ts(2,20): error TS2724: '"../types/screening"' has no exported member named '_EvaluationCategory'. Did you mean 'EvaluationCategory'?
+src/hooks/useAdminStats.ts(24,5): error TS2353: Object literal may only specify known properties, and 'storageUsedMb' does not exist in type 'AdminStats'.
+src/hooks/useAdminStats.ts(37,7): error TS2353: Object literal may only specify known properties, and 'date' does not exist in type 'AdminStatTrend'.
+src/hooks/useAdminStats.ts(53,3): error TS2322: Type '{ templateId: string; templateName: string; useCount: number; exportCount: number; avgSessionMinutes: number; popularityRank: number; }[]' is not assignable to type 'WorksheetAnalyticEntry[]'.
+  Type '{ templateId: string; templateName: string; useCount: number; exportCount: number; avgSessionMinutes: number; popularityRank: number; }' is missing the following properties from type 'WorksheetAnalyticEntry': id, date, count
+src/hooks/useAdminStats.ts(69,20): error TS2345: Argument of type '{ date: string; format: string; count: number; }' is not assignable to parameter of type 'ExportAnalyticEntry'.
+  Property 'id' is missing in type '{ date: string; format: string; count: number; }' but required in type 'ExportAnalyticEntry'.
+src/hooks/useAuditLog.ts(67,3): error TS2322: Type '{ id: string; action: AuditAction; actorId: string; actorName: string; actorRole: UserRoleType; severity: "error" | "info" | "warning"; timestamp: string; targetType: string; targetLabel: string; }[]' is not assignable to type 'AuditLogEntry[]'.
+  Type '{ id: string; action: AuditAction; actorId: string; actorName: string; actorRole: UserRoleType; severity: "error" | "info" | "warning"; timestamp: string; targetType: string; targetLabel: string; }' is missing the following properties from type 'AuditLogEntry': userId, details, createdAt
+src/hooks/useAuditLog.ts(109,7): error TS2353: Object literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(124,12): error TS2339: Property 'actorName' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(132,29): error TS2339: Property 'actorId' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(133,30): error TS2339: Property 'timestamp' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(134,28): error TS2339: Property 'timestamp' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(143,15): error TS2339: Property 'timestamp' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(143,38): error TS2339: Property 'actorName' does not exist on type 'AuditLogEntry'.
+src/hooks/useAuditLog.ts(143,51): error TS2339: Property 'actorRole' does not exist on type 'AuditLogEntry'.
+src/hooks/useRBAC.ts(4,7): error TS2739: Type '{ admin: string[]; teacher: string[]; student: string[]; parent: string[]; guest: string[]; }' is missing the following properties from type 'Record<UserRoleType, string[]>': editor, superadmin
+src/hooks/useRBAC.ts(31,7): error TS2739: Type '{ admin: string; teacher: string; student: string; parent: string; guest: string; }' is missing the following properties from type 'Record<UserRoleType, string>': editor, superadmin
+src/hooks/useRBAC.ts(104,9): error TS2353: Object literal may only specify known properties, and 'label' does not exist in type 'UserRoleDefinition'.
+src/hooks/useRBAC.ts(134,12): error TS2339: Property 'label' does not exist on type 'UserRoleDefinition'.
+src/services/adminService.ts(9,43): error TS2339: Property '_query' does not exist on type 'typeof import("C:/Users/Administrator/Desktop/oogmatik/oogmatik/node_modules/.pnpm/firebase@12.11.0/node_modules/firebase/firestore/dist/firestore/index")'.
+src/services/adminService.ts(9,51): error TS2339: Property '_where' does not exist on type 'typeof import("C:/Users/Administrator/Desktop/oogmatik/oogmatik/node_modules/.pnpm/firebase@12.11.0/node_modules/firebase/firestore/dist/firestore/index")'.
+src/services/agentService.ts(12,59): error TS2339: Property '_limit' does not exist on type 'typeof import("C:/Users/Administrator/Desktop/oogmatik/oogmatik/node_modules/.pnpm/firebase@12.11.0/node_modules/firebase/firestore/dist/firestore/index")'.
+src/services/aiStudentService.ts(7,10): error TS2459: Module '"../types/student-advanced.js"' declares 'Student' locally, but it is not exported.
+src/services/aiStudentService.ts(7,19): error TS2724: '"../types/student-advanced.js"' has no exported member named '_StudentAIProfile'. Did you mean 'StudentAIProfile'?
+src/services/aiStudentService.ts(7,38): error TS2724: '"../types/student-advanced.js"' has no exported member named 'BEPGoal'. Did you mean 'IEPGoal'?
+src/services/aiWorksheetService.ts(63,37): error TS2339: Property 'profile' does not exist on type 'Student'.
+src/services/aiWorksheetService.ts(65,32): error TS2339: Property 'challenges' does not exist on type 'Student'.
+src/services/aiWorksheetService.ts(133,7): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'SingleWorksheetData[]'.
+src/services/aiWorksheetService.ts(249,20): error TS2339: Property 'profile' does not exist on type 'Student'.
+src/services/aiWorksheetService.ts(251,23): error TS2339: Property 'challenges' does not exist on type 'Student'.
+src/services/aiWorksheetService.ts(323,20): error TS2339: Property 'profile' does not exist on type 'Student'.
+src/services/aiWorksheetService.ts(325,23): error TS2339: Property 'challenges' does not exist on type 'Student'.
+src/services/assessmentService.ts(4,63): error TS2724: '"../types"' has no exported member named '_TestCategory'. Did you mean 'TestCategory'?
+src/services/assessmentService.ts(7,10): error TS2724: '"./offlineGenerators/helpers"' has no exported member named '_shuffle'. Did you mean 'shuffle'?
+src/services/auditService.ts(85,25): error TS2345: Argument of type 'AuditLogEntry' is not assignable to parameter of type 'string'.
+src/services/authService.ts(6,38): error TS2724: '"../types.js"' has no exported member named '_ActivityType'. Did you mean 'ActivityType'?
+src/services/curriculumService.ts(3,22): error TS2724: '"../types.js"' has no exported member named '_ActivityType'. Did you mean 'ActivityType'?
+src/services/curriculumService.ts(3,37): error TS2724: '"../types.js"' has no exported member named '_CurriculumDay'. Did you mean 'CurriculumDay'?
+src/services/curriculumService.ts(141,17): error TS2339: Property '_id' does not exist on type '{ userId: string; createdAt: string; id: string; studentId?: string; studentName: string; grade: string; startDate: string; durationDays: number; goals: string[]; schedule: CurriculumDay[]; note: string; interests: string[]; weaknesses: string[]; }'.
+src/services/generators/assessment.ts(4,10): error TS2724: '"./prompts.js"' has no exported member named '_PEDAGOGICAL_BASE'. Did you mean 'PEDAGOGICAL_BASE'?
+src/services/generators/brainTeasers.ts(2,10): error TS2724: '"../../types"' has no exported member named '_ActivityType'. Did you mean 'ActivityType'?
+src/services/generators/dyslexiaSupport.ts(3,28): error TS2724: '"../../types.js"' has no exported member named '_CodeReadingData'. Did you mean 'CodeReadingData'?
+src/services/generators/dyslexiaSupport.ts(3,46): error TS2724: '"../../types.js"' has no exported member named '_AttentionToQuestionData'. Did you mean 'AttentionToQuestionData'?
+src/services/generators/dyslexiaSupport.ts(3,72): error TS2724: '"../../types.js"' has no exported member named '_AttentionDevelopmentData'. Did you mean 'AttentionDevelopmentData'?
+src/services/generators/dyslexiaSupport.ts(3,99): error TS2724: '"../../types.js"' has no exported member named '_AttentionFocusData'. Did you mean 'AttentionFocusData'?
+src/services/generators/dyslexiaSupport.ts(3,120): error TS2724: '"../../types.js"' has no exported member named '_ReadingFlowData'. Did you mean 'ReadingFlowData'?
+src/services/generators/dyslexiaSupport.ts(3,138): error TS2724: '"../../types.js"' has no exported member named '_LetterDiscriminationData'. Did you mean 'LetterDiscriminationData'?
+src/services/generators/dyslexiaSupport.ts(3,165): error TS2724: '"../../types.js"' has no exported member named '_RapidNamingData'. Did you mean 'RapidNamingData'?
+src/services/generators/dyslexiaSupport.ts(3,183): error TS2724: '"../../types.js"' has no exported member named '_PhonologicalAwarenessData'. Did you mean 'PhonologicalAwarenessData'?
+src/services/generators/dyslexiaSupport.ts(3,211): error TS2724: '"../../types.js"' has no exported member named '_MirrorLettersData'. Did you mean 'MirrorLettersData'?
+src/services/generators/dyslexiaSupport.ts(3,231): error TS2724: '"../../types.js"' has no exported member named '_SyllableTrainData'. Did you mean 'SyllableTrainData'?
+src/services/generators/dyslexiaSupport.ts(3,251): error TS2724: '"../../types.js"' has no exported member named '_VisualTrackingLineData'. Did you mean 'VisualTrackingLineData'?
+src/services/generators/dyslexiaSupport.ts(3,276): error TS2724: '"../../types.js"' has no exported member named '_BackwardSpellingData'. Did you mean 'BackwardSpellingData'?
+src/services/generators/dyslexiaSupport.ts(4,10): error TS2724: '"./prompts.js"' has no exported member named '_getAttentionPrompt'. Did you mean 'getAttentionPrompt'?
+src/services/generators/logicProblems.ts(106,32): error TS2339: Property '_distractorIds' does not exist on type '{ grid: any[][]; pathIds: any[]; distractorIds: any[]; }'.
+src/services/generators/mathGeometry.ts(4,28): error TS2724: '"./prompts.js"' has no exported member named '_IMAGE_GENERATION_GUIDE'. Did you mean 'IMAGE_GENERATION_GUIDE'?
+src/services/generators/memoryAttention.ts(5,96): error TS2724: '"../../types.js"' has no exported member named '_FindLetterPairData'. Did you mean 'FindLetterPairData'?
+src/services/generators/perceptualSkills.ts(5,28): error TS2724: '"../../types.js"' has no exported member named '_WordComparisonData'. Did you mean 'WordComparisonData'?
+src/services/generators/perceptualSkills.ts(5,49): error TS2724: '"../../types.js"' has no exported member named '_ShapeMatchingData'. Did you mean 'ShapeMatchingData'?
+src/services/generators/perceptualSkills.ts(5,69): error TS2724: '"../../types.js"' has no exported member named '_FindIdenticalWordData'. Did you mean 'FindIdenticalWordData'?
+src/services/generators/perceptualSkills.ts(5,93): error TS2724: '"../../types.js"' has no exported member named '_GridDrawingData'. Did you mean 'GridDrawingData'?
+src/services/generators/perceptualSkills.ts(5,111): error TS2724: '"../../types.js"' has no exported member named '_SymbolCipherData'. Did you mean 'SymbolCipherData'?
+src/services/generators/perceptualSkills.ts(5,130): error TS2724: '"../../types.js"' has no exported member named '_BlockPaintingData'. Did you mean 'BlockPaintingData'?
+src/services/generators/perceptualSkills.ts(5,171): error TS2724: '"../../types.js"' has no exported member named '_SymmetryDrawingData'. Did you mean 'SymmetryDrawingData'?
+src/services/generators/perceptualSkills.ts(5,193): error TS2724: '"../../types.js"' has no exported member named '_FindDifferentStringData'. Did you mean 'FindDifferentStringData'?
+src/services/generators/perceptualSkills.ts(5,219): error TS2724: '"../../types.js"' has no exported member named '_DotPaintingData'. Did you mean 'DotPaintingData'?
+src/services/generators/perceptualSkills.ts(5,237): error TS2724: '"../../types.js"' has no exported member named '_AbcConnectData'. Did you mean 'AbcConnectData'?
+src/services/generators/perceptualSkills.ts(5,254): error TS2724: '"../../types.js"' has no exported member named '_CoordinateCipherData'. Did you mean 'CoordinateCipherData'?
+src/services/generators/perceptualSkills.ts(5,277): error TS2724: '"../../types.js"' has no exported member named '_WordConnectData'. Did you mean 'WordConnectData'?
+src/services/generators/perceptualSkills.ts(5,295): error TS2724: '"../../types.js"' has no exported member named '_ProfessionConnectData'. Did you mean 'ProfessionConnectData'?
+src/services/generators/perceptualSkills.ts(5,319): error TS2724: '"../../types.js"' has no exported member named '_MatchstickSymmetryData'. Did you mean 'MatchstickSymmetryData'?
+src/services/generators/perceptualSkills.ts(5,344): error TS2724: '"../../types.js"' has no exported member named '_VisualOddOneOutThemedData'. Did you mean 'VisualOddOneOutThemedData'?
+src/services/generators/perceptualSkills.ts(5,372): error TS2724: '"../../types.js"' has no exported member named '_PunctuationColoringData'. Did you mean 'PunctuationColoringData'?
+src/services/generators/perceptualSkills.ts(5,398): error TS2724: '"../../types.js"' has no exported member named '_SynonymAntonymColoringData'. Did you mean 'SynonymAntonymColoringData'?
+src/services/generators/perceptualSkills.ts(5,427): error TS2724: '"../../types.js"' has no exported member named '_StarHuntData'. Did you mean 'StarHuntData'?
+src/services/generators/perceptualSkills.ts(5,442): error TS2724: '"../../types.js"' has no exported member named '_ShapeType'. Did you mean 'ShapeType'?
+src/services/generators/perceptualSkills.ts(5,454): error TS2724: '"../../types.js"' has no exported member named '_ShapeCountingData'. Did you mean 'ShapeCountingData'?
+src/services/generators/perceptualSkills.ts(5,474): error TS2724: '"../../types.js"' has no exported member named '_MapInstructionData'. Did you mean 'MapInstructionData'?
+src/services/generators/perceptualSkills.ts(7,10): error TS2724: '"../ocrService.js"' has no exported member named '_ocrService'. Did you mean 'ocrService'?
+src/services/generators/perceptualSkills.ts(8,10): error TS2724: '"./prompts.js"' has no exported member named '_MAP_DETECTIVE_PROMPT'. Did you mean 'MAP_DETECTIVE_PROMPT'?
+src/services/generators/superStudioGenerator.ts(52,3): error TS2724: '"../../components/SuperStudio/templates/registry"' has no exported member named '_SUPER_STUDIO_REGISTRY'. Did you mean 'SUPER_STUDIO_REGISTRY'?
+src/services/infographicService.ts(193,11): error TS2554: Expected 2-5 arguments, but got 1.
+src/services/offlineGenerators/algorithm.ts(3,10): error TS2724: '"./helpers"' has no exported member named '_getRandomItems'. Did you mean 'getRandomItems'?
+src/services/offlineGenerators/apartmentLogic.ts(3,10): error TS2724: '"./helpers"' has no exported member named '_shuffle'. Did you mean 'shuffle'?
+src/services/offlineGenerators/directionalCodeReading.ts(3,24): error TS2724: '"./helpers"' has no exported member named '_getRandomItems'. Did you mean 'getRandomItems'?
+src/services/offlineGenerators/directionalCodeReading.ts(3,41): error TS2724: '"./helpers"' has no exported member named '_shuffle'. Did you mean 'shuffle'?
+src/services/offlineGenerators/dyscalculia.ts(2,88): error TS2724: '"../../types"' has no exported member named '_MathMemoryCard'. Did you mean 'MathMemoryCard'?
+src/services/offlineGenerators/dyscalculia.ts(3,33): error TS2724: '"./helpers"' has no exported member named '_getRandomItems'. Did you mean 'getRandomItems'?
+src/services/offlineGenerators/dyslexiaSupport.ts(2,70): error TS2724: '"../../types"' has no exported member named '_AttentionDevelopmentData'. Did you mean 'AttentionDevelopmentData'?
+src/services/offlineGenerators/dyslexiaSupport.ts(2,97): error TS2724: '"../../types"' has no exported member named '_AttentionFocusData'. Did you mean 'AttentionFocusData'?
+src/services/offlineGenerators/dyslexiaSupport.ts(2,314): error TS2724: '"../../types"' has no exported member named '_RealLifeProblemData'. Did you mean 'RealLifeProblemData'?
+src/services/offlineGenerators/dyslexiaSupport.ts(3,122): error TS2724: '"./helpers"' has no exported member named '_SHAPE_TYPES'. Did you mean 'SHAPE_TYPES'?
+src/services/offlineGenerators/dyslexiaSupport.ts(3,136): error TS2724: '"./helpers"' has no exported member named '_VISUALLY_SIMILAR_CHARS'. Did you mean 'VISUALLY_SIMILAR_CHARS'?
+src/services/offlineGenerators/dyslexiaSupport.ts(3,161): error TS2724: '"./helpers"' has no exported member named '_EMOJI_MAP'. Did you mean 'EMOJI_MAP'?
+src/services/offlineGenerators/helpers.ts(4,26): error TS2724: '"../../data/knowledgeBase"' has no exported member named '_WordItem'. Did you mean 'WordItem'?
+src/services/offlineGenerators/helpers.ts(4,37): error TS2724: '"../../data/knowledgeBase"' has no exported member named '_COLORS_DB'. Did you mean 'COLORS_DB'?
+src/services/offlineGenerators/logicErrorHunter.ts(3,10): error TS2724: '"./helpers"' has no exported member named '_getRandomInt'. Did you mean 'getRandomInt'?
+src/services/offlineGenerators/mapDetective.ts(3,24): error TS2724: '"./helpers"' has no exported member named '_shuffle'. Did you mean 'shuffle'?
+src/services/offlineGenerators/mathStudio.ts(2,24): error TS2724: '"./helpers"' has no exported member named '_getRandomItems'. Did you mean 'getRandomItems'?
+src/services/offlineGenerators/memoryAttention.ts(2,119): error TS2724: '"../../types"' has no exported member named '_FindLetterPairData'. Did you mean 'FindLetterPairData'?
+src/services/offlineGenerators/memoryAttention.ts(2,266): error TS2724: '"../../types"' has no exported member named '_WordMemoryItem'. Did you mean 'WordMemoryItem'?
+src/services/offlineGenerators/memoryAttention.ts(3,89): error TS2724: '"./helpers"' has no exported member named '_EMOJIS'. Did you mean 'EMOJIS'?
+src/services/offlineGenerators/memoryAttention.ts(3,106): error TS2724: '"./helpers"' has no exported member named '_TR_VOCAB'. Did you mean 'TR_VOCAB'?
+src/services/offlineGenerators/memoryAttention.ts(3,117): error TS2724: '"./helpers"' has no exported member named '_VISUALLY_SIMILAR_CHARS'. Did you mean 'VISUALLY_SIMILAR_CHARS'?
+src/services/offlineGenerators/newActivities.ts(2,33): error TS2724: '"./helpers"' has no exported member named '_getRandomItems'. Did you mean 'getRandomItems'?
+src/services/offlineGenerators/newActivities.ts(2,50): error TS2724: '"./helpers"' has no exported member named '_getWordsForDifficulty'. Did you mean 'getWordsForDifficulty'?
+src/shared/components/UniversalWorksheetViewer.tsx(3,31): error TS2307: Cannot find module '../../../components/ErrorBoundary' or its corresponding type declarations.
+tests/aiStudentService.test.ts(16,5): error TS2353: Object literal may only specify known properties, and 'profile' does not exist in type 'Student'.
+tests/aiStudentService.test.ts(181,25): error TS2551: Property 'interventionNeeded' does not exist on type '{ isOnTrack: boolean; concernAreas: string[]; interventions: string[]; strengthAreas: string[]; nextSteps: string[]; }'. Did you mean 'interventions'?
+tests/aiStudentService.test.ts(256,9): error TS2353: Object literal may only specify known properties, and 'profile' does not exist in type 'Student'.
+tests/aiStudentService.test.ts(267,9): error TS2353: Object literal may only specify known properties, and 'profile' does not exist in type 'Student'.
+tests/aiStudentService.test.ts(326,9): error TS2353: Object literal may only specify known properties, and 'profile' does not exist in type 'Student'.
+tests/aiStudentService.test.ts(345,9): error TS2353: Object literal may only specify known properties, and 'challenges' does not exist in type 'Student'.
+tests/aiWorksheetService.test.ts(17,5): error TS2353: Object literal may only specify known properties, and 'profile' does not exist in type 'Student'.
+tests/aiWorksheetService.test.ts(30,21): error TS2322: Type '"reading-comprehension"' is not assignable to type 'ActivityType'.
+tests/aiWorksheetService.test.ts(30,46): error TS2322: Type '"vocabulary-builder"' is not assignable to type 'ActivityType'.
+tests/aiWorksheetService.test.ts(56,31): error TS2339: Property 'metadata' does not exist on type 'SingleWorksheetData[]'.
+tests/aiWorksheetService.test.ts(57,31): error TS2339: Property 'activities' does not exist on type 'SingleWorksheetData[]'.
+tests/aiWorksheetService.test.ts(58,31): error TS2339: Property 'activities' does not exist on type 'SingleWorksheetData[]'.
+tests/aiWorksheetService.test.ts(243,9): error TS2345: Argument of type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'SingleWorksheetData[]'.
+  Type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is missing the following properties from type 'SingleWorksheetData[]': length, pop, push, concat, and 35 more.
+tests/aiWorksheetService.test.ts(254,9): error TS2345: Argument of type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'SingleWorksheetData[]'.
+  Type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is missing the following properties from type 'SingleWorksheetData[]': length, pop, push, concat, and 35 more.
+tests/aiWorksheetService.test.ts(264,9): error TS2345: Argument of type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'SingleWorksheetData[]'.
+  Type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is missing the following properties from type 'SingleWorksheetData[]': length, pop, push, concat, and 35 more.
+tests/aiWorksheetService.test.ts(274,9): error TS2345: Argument of type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'SingleWorksheetData[]'.
+  Type '{ id: string; name: string; description: string; activities: ({ id: string; type: "reading-comprehension"; title: string; instructions: string; content: string; difficulty: "Orta"; estimatedTime: number; } | { ...; })[]; createdAt: string; updatedAt: string; }' is missing the following properties from type 'SingleWorksheetData[]': length, pop, push, concat, and 35 more.
+tests/aiWorksheetService.test.ts(397,31): error TS2339: Property 'metadata' does not exist on type 'SingleWorksheetData[]'.
+tests/aiWorksheetService.test.ts(444,33): error TS2339: Property 'id' does not exist on type 'SingleWorksheetData[]'.
+tests/FiveWOneHGenerator.test.ts(27,9): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'FiveWOneHData'.
+tests/FiveWOneHGenerator.test.ts(43,9): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'FiveWOneHData'.
+tests/OCRVariation.test.ts(218,33): error TS2339: Property 'metadata' does not exist on type 'SingleWorksheetData[]'.
+vite.config.ts(35,3): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'test' does not exist in type 'UserConfigExport'.

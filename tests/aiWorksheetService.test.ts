@@ -12,11 +12,14 @@ describe('AI Worksheet Service', () => {
   const mockStudent: Student = {
     id: 'student-123',
     name: 'Test Öğrenci',
+    teacherId: 'teacher-1',
+    diagnosis: [],
+    interests: [],
     age: 10,
     grade: '4. Sınıf',
-    profile: 'dyslexia',
+    learningStyle: 'Görsel',
     strengths: ['Görsel öğrenme', 'Matematik'],
-    challenges: ['Okuma akıcılığı', 'Yazım'],
+    weaknesses: ['Okuma akıcılığı', 'Yazım'],
     avatar: '',
     createdAt: new Date().toISOString()
   };
@@ -27,7 +30,7 @@ describe('AI Worksheet Service', () => {
     topic: 'Okuma Anlama',
     difficulty: 'Kolay',
     duration: 30,
-    activityTypes: ['reading-comprehension', 'vocabulary-builder'],
+    activityTypes: ['reading_comprehension' as any, 'vocabulary_builder' as any],
     learningObjectives: ['Metni anlama', 'Kelime dağarcığını geliştirme']
   };
 
@@ -53,9 +56,9 @@ describe('AI Worksheet Service', () => {
     it('should include pedagogicalNote in content', async () => {
       const result = await aiWorksheetService.generateIntelligentWorksheet(basicParams);
 
-      expect(result.worksheet.metadata).toBeDefined();
-      expect(result.worksheet.activities).toBeDefined();
-      expect(result.worksheet.activities.length).toBeGreaterThan(0);
+      expect((result.worksheet as any).metadata).toBeDefined();
+      expect((result.worksheet as any).activities).toBeDefined();
+      expect((result.worksheet as any).activities.length).toBeGreaterThan(0);
     });
 
     it('should validate with all 4 expert agents', async () => {
@@ -121,7 +124,7 @@ describe('AI Worksheet Service', () => {
 
     it('should identify critical issues', async () => {
       const invalidWorksheet = {
-        ...sampleWorksheet,
+        ...sampleWorksheet as any,
         pedagogicalNote: null, // Missing required field
         activities: []
       };
@@ -240,7 +243,7 @@ describe('AI Worksheet Service', () => {
 
     it('should optimize worksheet for student', async () => {
       const result = await aiWorksheetService.optimizeWorksheet(
-        sampleWorksheet,
+        sampleWorksheet as any,
         mockStudent
       );
 
@@ -251,7 +254,7 @@ describe('AI Worksheet Service', () => {
 
     it('should list specific changes made', async () => {
       const result = await aiWorksheetService.optimizeWorksheet(
-        sampleWorksheet,
+        sampleWorksheet as any,
         mockStudent
       );
 
@@ -261,7 +264,7 @@ describe('AI Worksheet Service', () => {
 
     it('should provide improvement rationale', async () => {
       const result = await aiWorksheetService.optimizeWorksheet(
-        sampleWorksheet,
+        sampleWorksheet as any,
         mockStudent
       );
 
@@ -271,7 +274,7 @@ describe('AI Worksheet Service', () => {
 
     it('should maintain worksheet structure', async () => {
       const result = await aiWorksheetService.optimizeWorksheet(
-        sampleWorksheet,
+        sampleWorksheet as any,
         mockStudent
       );
 
@@ -394,7 +397,7 @@ describe('AI Worksheet Service', () => {
       const result = await aiWorksheetService.generateIntelligentWorksheet(mathParams);
 
       // Should adapt to dyscalculia profile
-      expect(result.worksheet.metadata?.studentId).toBe(dyscalculiaStudent.id);
+      expect((result.worksheet as any).metadata?.studentId).toBe(dyscalculiaStudent.id);
     });
   });
 
@@ -441,7 +444,7 @@ describe('AI Worksheet Service', () => {
 
       expect(results).toHaveLength(3);
       results.forEach(result => {
-        expect(result.worksheet.id).toBeDefined();
+        expect((result.worksheet as any).id).toBeDefined();
       });
     }, 60000);
   });

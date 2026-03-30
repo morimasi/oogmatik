@@ -1,6 +1,6 @@
 
 import { GeneratorOptions, MapInstructionData } from '../../types';
-import { getRandomInt, _shuffle, getRandomItems } from './helpers';
+import { getRandomInt, shuffle, getRandomItems } from './helpers';
 
 /**
  * TÜRKİYE İDARİ HARİTA KOORDİNAT SİSTEMİ 

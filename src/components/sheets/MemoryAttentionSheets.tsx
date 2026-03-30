@@ -5,7 +5,7 @@ import {
     ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData,
     AttentionDevelopmentData, AttentionFocusData
 } from '../../types';
-import { ImageDisplay, PedagogicalHeader, _Shape } from './common';
+import { ImageDisplay, PedagogicalHeader, Shape } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
 // --- SHARED COMPONENTS ---

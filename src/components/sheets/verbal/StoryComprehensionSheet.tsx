@@ -2,7 +2,7 @@
 import React from 'react';
 import { InteractiveStoryData } from '../../../types';
 import { ImageDisplay, PedagogicalHeader, ReadingRuler, StoryHighlighter, QUESTION_TYPES } from '../common';
-import { _EditableElement, _EditableText } from '../../Editable';
+import { EditableElement, EditableText } from '../../Editable';
 
 const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, questions: any[] | undefined, type: string, icon?: string }) => {
     if (!questions || questions.length === 0) return null;

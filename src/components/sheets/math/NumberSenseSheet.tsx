@@ -2,7 +2,7 @@
 import React from 'react';
 import { NumberSenseData } from '../../../types';
 import { PedagogicalHeader, NumberLine, TenFrame, Base10Visualizer } from '../common';
-import { _EditableText } from '../../Editable';
+import { EditableText } from '../../Editable';
 
 export const NumberSenseSheet = ({ data }: { data: NumberSenseData }) => (
     <div className="flex flex-col font-lexend p-2 bg-white">

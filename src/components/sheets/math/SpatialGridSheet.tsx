@@ -2,7 +2,7 @@
 import React from 'react';
 import { SpatialGridData } from '../../../types';
 import { PedagogicalHeader, CubeStack } from '../common';
-import { _EditableText } from '../../Editable';
+import { EditableText } from '../../Editable';
 
 export const SpatialGridSheet = ({ data }: { data: SpatialGridData }) => (
     <div className="font-lexend p-2">

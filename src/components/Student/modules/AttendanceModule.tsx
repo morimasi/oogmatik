@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { AdvancedStudent, _AttendanceRecord } from '../../../types/student-advanced';
+import { AdvancedStudent, AttendanceRecord } from '../../../types/student-advanced';
 
 interface AttendanceModuleProps {
     student: AdvancedStudent;
+    onUpdate?: (updatedData: Partial<AdvancedStudent>) => void;
 }
 
-export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ student }) => {
+export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ student, onUpdate }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
 
     // Helper to get days in month
@@ -36,6 +37,48 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ student }) =
         return record?.status || 'none';
     };
 
+    const handleToggleAttendance = (day: number) => {
+        const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const currentStatus = getStatusForDay(day);
+        const nextStatus = currentStatus === 'none' ? 'present' :
+            currentStatus === 'present' ? 'absent' :
+                currentStatus === 'absent' ? 'late' :
+                    currentStatus === 'late' ? 'excused' : 'none';
+
+        const existingRecords = student.attendance?.records || [];
+        const newRecords = existingRecords.filter(r => r.date !== dateStr);
+        if (nextStatus !== 'none') {
+            newRecords.push({
+                id: crypto.randomUUID(),
+                date: dateStr,
+                status: nextStatus as any,
+                type: 'school',
+                notifiedParent: false
+            });
+        }
+
+        // Recalculate stats
+        const total = newRecords.length || 1;
+        const presentCount = newRecords.filter(r => r.status === 'present').length;
+        const rate = Math.round((presentCount / total) * 100);
+
+        const trendLiteral: 'improving' | 'stable' | 'declining' = rate > 90 ? 'improving' : rate < 80 ? 'declining' : 'stable';
+
+        const newStats = {
+            totalDays: total,
+            attendanceRate: rate,
+            present: presentCount,
+            absent: newRecords.filter(r => r.status === 'absent').length,
+            late: newRecords.filter(r => r.status === 'late').length,
+            excused: newRecords.filter(r => r.status === 'excused').length,
+            trend: trendLiteral
+        };
+
+        if (onUpdate) {
+            onUpdate({ ...student, attendance: { records: newRecords, stats: newStats } });
+        }
+    };
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
             {/* Calendar Section */}
@@ -45,19 +88,19 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ student }) =
                         {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                     </h2>
                     <div className="flex gap-2">
-                        <button 
+                        <button
                             onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}
                             className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 transition-colors"
                         >
                             <i className="fa-solid fa-chevron-left"></i>
                         </button>
-                        <button 
+                        <button
                             onClick={() => setCurrentDate(new Date())}
                             className="px-4 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 font-bold text-xs"
                         >
                             Bugün
                         </button>
-                        <button 
+                        <button
                             onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}
                             className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 transition-colors"
                         >
@@ -103,14 +146,15 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ student }) =
                         }
 
                         return (
-                            <div 
-                                key={day} 
+                            <div
+                                key={day}
+                                onClick={() => handleToggleAttendance(day)}
                                 className={`aspect-square rounded-xl border border-transparent flex flex-col items-center justify-center cursor-pointer transition-all relative group
                                     ${bgClass} ${textClass}`}
                             >
                                 <span className="text-sm">{day}</span>
                                 {icon && <div className="mt-1">{icon}</div>}
-                                
+
                                 {/* Tooltip Mockup */}
                                 {status !== 'none' && (
                                     <div className="absolute bottom-full mb-2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
@@ -127,15 +171,15 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ student }) =
             <div className="space-y-6">
                 <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6">
                     <h3 className="font-bold text-zinc-900 dark:text-white mb-6">İstatistikler</h3>
-                    
+
                     <div className="flex items-center justify-center relative w-48 h-48 mx-auto mb-6">
                         <svg className="w-full h-full transform -rotate-90">
                             <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-zinc-100 dark:text-zinc-800" />
-                            <circle 
-                                cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" 
-                                strokeDasharray={2 * Math.PI * 88} 
-                                strokeDashoffset={2 * Math.PI * 88 * (1 - (student.attendance?.stats?.attendanceRate || 0) / 100)} 
-                                className="text-emerald-500 transition-all duration-1000 ease-out" 
+                            <circle
+                                cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent"
+                                strokeDasharray={2 * Math.PI * 88}
+                                strokeDashoffset={2 * Math.PI * 88 * (1 - (student.attendance?.stats?.attendanceRate || 0) / 100)}
+                                className="text-emerald-500 transition-all duration-1000 ease-out"
                                 strokeLinecap="round"
                             />
                         </svg>

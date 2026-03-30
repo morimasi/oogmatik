@@ -3,9 +3,10 @@ import { AdvancedStudent, PortfolioItem } from '../../../types/student-advanced'
 
 interface PortfolioModuleProps {
     student: AdvancedStudent;
+    onUpdate?: (data: Partial<AdvancedStudent>) => void;
 }
 
-export const PortfolioModule: React.FC<PortfolioModuleProps> = ({ student }) => {
+export const PortfolioModule: React.FC<PortfolioModuleProps> = ({ student, onUpdate }) => {
     const [filter, setFilter] = useState<'all' | 'image' | 'video' | 'document'>('all');
 
     const portfolioItems = student.portfolio || [];

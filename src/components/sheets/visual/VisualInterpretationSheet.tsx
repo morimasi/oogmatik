@@ -9,7 +9,7 @@ interface VisualInterpretationSheetProps {
 
 export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps> = ({
   data,
-  _settings,
+  settings,
 }) => {
   if (!data) return null;
   const activity = Array.isArray(data) ? data[0] : data;
@@ -18,8 +18,8 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
   const imageBlock = blocks.find((b: any) => b.type === 'image');
   const questionsBlock = blocks.find((b: any) => b.type === 'question' || b.type === 'questions');
 
-  const imagePrompt = imageBlock?.content?.prompt || 'Beautiful educational scene for children, minimalist flat vector art';
-  const questions = questionsBlock?.content?.items || [];
+  const imagePrompt = (imageBlock?.content as any)?.prompt || 'Beautiful educational scene for children, minimalist flat vector art';
+  const questions = (questionsBlock?.content as any)?.items || [];
 
   return (
     <div
@@ -42,7 +42,7 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
         <div className="bg-white border-[3px] border-zinc-900 rounded-[3rem] p-4 shadow-[15px_15px_0px_#1e1b4b] overflow-hidden">
           <ImageDisplay
             prompt={imagePrompt}
-            description={activity.layoutArchitecture?.blocks[0]?.content?.alt}
+            description={(activity.layoutArchitecture?.blocks[0]?.content as any)?.alt}
             className="w-full h-[450px] print:h-[400px] object-cover rounded-[2.5rem] shadow-inner"
           />
 

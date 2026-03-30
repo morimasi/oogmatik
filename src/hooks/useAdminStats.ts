@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { AdminStats, AdminStatTrend, WorksheetAnalyticEntry, ExportAnalyticEntry } from '../types/admin';
+import { adminService } from '../services/adminService';
 
 interface UseAdminStatsReturn {
   stats: AdminStats | null;
@@ -51,6 +52,9 @@ function generateWorksheetAnalytics(): WorksheetAnalyticEntry[] {
     'Dikkat Geliştirme',
   ];
   return templates.map((name, i) => ({
+    id: `wa-${i}`,
+    date: new Date().toISOString().slice(0, 10),
+    count: Math.floor(100 + Math.random() * 50),
     templateId: `tpl-${i + 1}`,
     templateName: name,
     useCount: Math.floor(200 - i * 25 + Math.random() * 20),
@@ -66,7 +70,7 @@ function generateExportAnalytics(): ExportAnalyticEntry[] {
   for (let d = 6; d >= 0; d--) {
     const date = new Date(Date.now() - d * 86400000).toISOString().slice(0, 10);
     formats.forEach((fmt) => {
-      entries.push({ date, format: fmt, count: Math.floor(10 + Math.random() * 40) });
+      entries.push({ id: `exp-${Math.random().toString(36).substring(7)}`, date, format: fmt, count: Math.floor(10 + Math.random() * 40) });
     });
   }
   return entries;
@@ -88,26 +92,37 @@ export function useAdminStats(): UseAdminStatsReturn {
     setLoading(true);
     setError(null);
 
-    // Simulate API call
-    const timer = setTimeout(() => {
-      if (cancelled) return;
+    const loadRealData = async () => {
       try {
-        setStats(generateMockStats());
-        setUserTrend(generateTrend(30, 1200));
+        const metrics = await adminService.getAdminMetrics();
+        if (cancelled) return;
+
+        if (metrics) {
+          setStats(metrics as AdminStats);
+        } else {
+          setStats(generateMockStats()); // fallback to mock on error
+        }
+
+        // Keep trends as generated mocks for visual UX flavor since TS analytics are complex
+        setUserTrend(generateTrend(30, Number(metrics?.totalUsers) || 1200));
         setExportTrend(generateTrend(30, 120));
         setWorksheetAnalytics(generateWorksheetAnalytics());
         setExportAnalytics(generateExportAnalytics());
         setLastUpdatedAt(new Date().toISOString());
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'İstatistikler yüklenemedi');
+        setError(null);
+      } catch (err: any) {
+        if (!cancelled) {
+          setError(err.message || 'Veri yüklenirken hata oluştu');
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
-    }, 600);
+    };
+
+    loadRealData();
 
     return () => {
       cancelled = true;
-      clearTimeout(timer);
     };
   }, [refreshKey]);
 

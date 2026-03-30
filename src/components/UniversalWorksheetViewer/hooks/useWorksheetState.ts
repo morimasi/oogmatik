@@ -18,7 +18,17 @@ import {
 
 // ── Initial document ──────────────────────────────────────────────────────────
 
-const initialDocument: WorksheetDocument = BUILT_IN_TEMPLATES[0].document;
+const firstTemplate = BUILT_IN_TEMPLATES[0];
+const initialDocument: WorksheetDocument = {
+  metadata: {
+    id: firstTemplate.id,
+    title: firstTemplate.name,
+    description: firstTemplate.description,
+    createdAt: firstTemplate.createdAt,
+    updatedAt: firstTemplate.createdAt,
+  },
+  content: firstTemplate.content,
+};
 
 function buildInitialState(initialWorksheet?: Partial<WorksheetDocument>): WorksheetEditorState {
   const document = initialWorksheet ? { ...initialDocument, ...initialWorksheet } : initialDocument;

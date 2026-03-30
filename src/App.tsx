@@ -74,8 +74,8 @@ const RemotionStudio = lazy(() =>
 );
 
 const StudentDashboard = lazy(() =>
-  import('./components/Student/StudentDashboard').then((module) => ({
-    default: module.StudentDashboard,
+  import('./components/Student/AdvancedStudentManager').then((module) => ({
+    default: module.AdvancedStudentManager,
   }))
 );
 const ScreeningModule = lazy(() =>
@@ -673,7 +673,7 @@ const AppContent = () => {
           grade: studentProfile?.grade || '1. Sınıf',
           createdAt: new Date().toISOString(),
           report: report,
-        } as SavedAssessment,
+        } as unknown as Record<string, unknown>,
         settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
         title: `Rapor: ${studentProfile?.name || 'Öğrenci'}`,
       };

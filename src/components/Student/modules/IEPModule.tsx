@@ -430,13 +430,48 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                 <h3 className="text-3xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Akademik Hedef Matrisi</h3>
                                 <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mt-2">SMART Metodolojisi ile Takip</p>
                             </div>
-                            <button
-                                onClick={() => setShowGoalModal(true)}
-                                className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all flex items-center gap-3"
-                            >
-                                <i className="fa-solid fa-plus-circle"></i>
-                                Yeni Stratejik Hedef
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={async () => {
+                                        const btn = document.getElementById('btn-ai-goal');
+                                        if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Üretiliyor...';
+                                        try {
+                                            const { aiStudentService } = await import('../../../services/aiStudentService');
+                                            const newAiGoals = await aiStudentService.generateIEPGoals(student);
+                                            const formattedGoals = newAiGoals.map((g: any) => ({
+                                                id: crypto.randomUUID(),
+                                                title: g.title,
+                                                description: g.description,
+                                                category: g.category as any,
+                                                status: 'not_started',
+                                                progress: 0,
+                                                targetDate: g.targetDate || new Date().toISOString(),
+                                                priority: g.priority as any,
+                                                strategies: [],
+                                                resources: [],
+                                                evaluationMethod: 'observation',
+                                                reviews: []
+                                            }));
+                                            const updatedGoals = [...goals, ...formattedGoals];
+                                            setGoals(updatedGoals as IEPGoal[]);
+                                            if (onUpdate) onUpdate({ ...student.iep, goals: updatedGoals });
+                                        } catch (e) { console.error('AI Error', e); }
+                                        if (btn) btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> AI Hedef Üret';
+                                    }}
+                                    id="btn-ai-goal"
+                                    className="bg-indigo-600 text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex items-center gap-3"
+                                >
+                                    <i className="fa-solid fa-wand-magic-sparkles"></i>
+                                    AI Hedef Üret
+                                </button>
+                                <button
+                                    onClick={() => setShowGoalModal(true)}
+                                    className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all flex items-center gap-3"
+                                >
+                                    <i className="fa-solid fa-plus-circle"></i>
+                                    Manuel Ekle
+                                </button>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-6 pb-10">
@@ -446,7 +481,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                         ${goal.category === 'academic' ? 'bg-indigo-50 text-indigo-600' :
                                             goal.category === 'behavioral' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'}`}>
                                         <i className={`fa-solid ${goal.category === 'academic' ? 'fa-book-sparkles' :
-                                                goal.category === 'behavioral' ? 'fa-user-gear' : 'fa-brain-circuit'
+                                            goal.category === 'behavioral' ? 'fa-user-gear' : 'fa-brain-circuit'
                                             }`}></i>
                                     </div>
 

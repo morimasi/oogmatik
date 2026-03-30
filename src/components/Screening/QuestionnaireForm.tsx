@@ -10,7 +10,7 @@ interface Props {
     onCancel: () => void;
 }
 
-export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, _onCancel }) => {
+export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCancel }) => {
     const [answers, setAnswers] = useState<Record<string, number>>({});
     const [currentStep, setCurrentStep] = useState(0);
 

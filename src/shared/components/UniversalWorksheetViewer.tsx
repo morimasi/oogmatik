@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
-import { ErrorBoundary } from '../../../components/ErrorBoundary';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { UniversalPreviewFrame } from '../../components/shared/UniversalPreviewFrame';
 
 interface UniversalWorksheetViewerProps {
@@ -48,18 +48,18 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
   const downloadLink =
     isReady && !isLoading ? (
       mode === 'pdf' && Document ? (
-      <PDFDownloadLink
-        document={Document}
-        fileName={fileName}
-        className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm"
-      >
-        {({ loading }: any) => (
-          <>
-            <i className={`fa-solid ${loading ? 'fa-spinner fa-spin' : 'fa-download'}`}></i>
-            {loading ? 'Dizgi...' : 'PDF İndir'}
-          </>
-        )}
-      </PDFDownloadLink>
+        <PDFDownloadLink
+          document={Document}
+          fileName={fileName}
+          className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm"
+        >
+          {({ loading }: any) => (
+            <>
+              <i className={`fa-solid ${loading ? 'fa-spinner fa-spin' : 'fa-download'}`}></i>
+              {loading ? 'Dizgi...' : 'PDF İndir'}
+            </>
+          )}
+        </PDFDownloadLink>
       ) : null
     ) : null;
 

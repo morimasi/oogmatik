@@ -151,21 +151,19 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
             return (
               <div
                 key={index}
-                className={`group relative bg-slate-800/50 backdrop-blur-sm rounded-2xl border transition-all ${
-                  isSelected
+                className={`group relative bg-slate-800/50 backdrop-blur-sm rounded-2xl border transition-all ${isSelected
                     ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/20'
                     : 'border-white/5 hover:border-white/10'
-                }`}
+                  }`}
               >
                 {/* Selection Checkbox */}
                 <div className="absolute top-3 right-3 z-10">
                   <button
                     onClick={() => toggleSelect(index)}
-                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
-                      isSelected
+                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected
                         ? 'bg-indigo-500 border-indigo-500'
                         : 'bg-slate-700/50 border-slate-600 hover:border-slate-500'
-                    }`}
+                      }`}
                   >
                     {isSelected && <i className="fa-solid fa-check text-white text-xs"></i>}
                   </button>
@@ -192,14 +190,13 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
 
                   {/* Preview */}
                   <div
-                    className={`mb-3 overflow-hidden transition-all ${
-                      isExpanded ? 'max-h-96' : 'max-h-32'
-                    }`}
+                    className={`mb-3 overflow-hidden transition-all ${isExpanded ? 'max-h-96' : 'max-h-32'
+                      }`}
                   >
                     <div
                       className="prose prose-sm prose-invert max-w-none text-xs leading-relaxed"
                       dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(variation.content, {
+                        __html: DOMPurify.sanitize(String(variation.content || ''), {
                           ALLOWED_TAGS: ['div', 'p', 'span', 'strong', 'em', 'u', 'br', 'ul', 'ol', 'li', 'table', 'tr', 'td', 'th'],
                           ALLOWED_ATTR: ['class', 'style'],
                         }),
@@ -268,11 +265,10 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                     </button>
                     <button
                       onClick={() => toggleSelect(index)}
-                      className={`px-3 py-2 text-sm font-bold rounded-lg transition-all border ${
-                        isSelected
+                      className={`px-3 py-2 text-sm font-bold rounded-lg transition-all border ${isSelected
                           ? 'bg-indigo-500 text-white border-indigo-500'
                           : 'bg-white/5 text-white border-white/10 hover:bg-white/10'
-                      }`}
+                        }`}
                     >
                       <i className={`fa-solid ${isSelected ? 'fa-check' : 'fa-circle'}`}></i>
                     </button>
@@ -283,7 +279,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                 {variation.metadata && (
                   <div className="absolute bottom-3 left-3 px-2 py-1 bg-slate-900/80 backdrop-blur-sm border border-white/10 rounded-md">
                     <p className="text-[10px] text-slate-400">
-                      {variation.metadata.variationIndex} / {variation.metadata.totalVariations}
+                      {Number(variation.metadata.variationIndex)} / {Number(variation.metadata.totalVariations)}
                     </p>
                   </div>
                 )}

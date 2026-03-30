@@ -4,9 +4,10 @@ import { LineChart } from '../../LineChart';
 
 interface AcademicModuleProps {
     student: AdvancedStudent;
+    onUpdate?: (data: Partial<AdvancedStudent>) => void;
 }
 
-export const AcademicModule: React.FC<AcademicModuleProps> = ({ student }) => {
+export const AcademicModule: React.FC<AcademicModuleProps> = ({ student, onUpdate }) => {
     // Akademik metriklerin hesaplanması
     const gpa = student.academic?.metrics?.gpa || 0;
     const homeworkRate = student.academic?.metrics?.homeworkCompletionRate || 0;
