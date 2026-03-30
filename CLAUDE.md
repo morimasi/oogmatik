@@ -9,7 +9,7 @@
 > GitHub Copilot → `.github/copilot-instructions.md`
 > Continue.dev → `.continue/config.json` | Zed → `.zed/settings.json`
 > Aider → `.aider.conf.yml` | OpenCode → `opencode.json`
-> OpenCode / Aider / Codeium → `AGENTS.md`
+> OpenCode / Aider / Codeium → `AGENTS.md` | OpenClaw → `SOUL.md`
 
 ---
 

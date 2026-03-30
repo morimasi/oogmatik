@@ -15,6 +15,7 @@
 > | Zed AI | `.zed/settings.json` |
 > | Aider | `.aider.conf.yml` |
 > | OpenCode + Codeium | `opencode.json` + `AGENTS.md` |
+> | OpenClaw | `SOUL.md` |
 >
 > **Context7 MCP Yapılandırma Dosyaları:**
 > | Araç | MCP Config |

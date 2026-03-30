@@ -3,6 +3,7 @@
 > Bu dosya **Gemini CLI** (`gemini` komutu) ve **Google Antigravity** IDE tarafından otomatik okunur.
 > Proje klasöründe bu araçlardan herhangi birini açtığında kurallar anında aktiftir.
 > Google Project IDX ortam kurulumu: `.idx/dev.nix` | Agent kuralları: `.agents/rules/oogmatik-core.md`
+> OpenClaw ajan tanımı: `SOUL.md`
 
 ---
 
