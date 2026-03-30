@@ -141,7 +141,7 @@ ${stilTalimat}
 - Açık Uçlu: ${settings.soruDagilimi.acik_uclu} adet
 
 ${settings.islemSayisi ? `[İŞLEM SAYISI]\nHer soru en fazla ${settings.islemSayisi} işlemle çözülebilmeli.\n` : ''}
-${settings.gorselVeriEklensinMi ? `[GÖRSEL VERİ]\nMümkün olan sorularda grafik_verisi alanını gerçekçi verilerle doldur (tablo, grafik, geometri şekilleri). Özellikler (ozellikler) nesnesini kullanarak kenar uzunlukları, açılar ve renkleri belirt.\n` : ''}
+${settings.gorselVeriEklensinMi ? `[GÖRSEL VERİ ZORUNLULUĞU]\n🚨 DİKKAT: Kullanıcı görsel veri istedi! Üreteceğin soruların EN AZ YARISINDA mutlaka "grafik_verisi" nesnesini eksiksiz doldur.\nDesteklenen Tipler: siklik_tablosu, sutun_grafigi, pasta_grafigi, ucgen, kare, dikdortgen, daire, koordinat_sistemi, sayi_dogrusu.\nŞekillerin boyut, açı ve çizim özelliklerini "ozellikler" içerisinde belirt.\n` : ''}
 ${settings.ozelKonu ? `[TEMA]\nTüm sorular "${settings.ozelKonu}" teması etrafında olmalı.\n` : ''}
 ${settings.ozelTalimatlar ? `[ÖZEL TALİMATLAR]\n${settings.ozelTalimatlar}\n` : ''}
 

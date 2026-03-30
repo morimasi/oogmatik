@@ -14,27 +14,14 @@ import { AppError } from '../../src/utils/AppError';
 
 type TabType = 'onizleme' | 'cevap-anahtari';
 
-const SectionHeader: React.FC<{
-  icon: string;
-  title: string;
-  badge?: string;
-  isOpen: boolean;
-  onToggle: () => void;
-  gradient?: string;
-}> = ({ icon, title, badge, isOpen, onToggle, gradient = 'from-indigo-500 to-indigo-700' }) => (
-  <button onClick={onToggle} className="w-full flex items-center justify-between gap-2">
+const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isOpen: boolean; onToggle: () => void; gradient?: string; }> = ({ icon, title, badge, isOpen, onToggle }) => (
+  <button onClick={onToggle} className="w-full flex items-center justify-between px-3 py-2.5 bg-white/40 hover:bg-white/60 transition-colors">
     <div className="flex items-center gap-2">
-      <span className="text-base">{icon}</span>
-      <span className={`text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r ${gradient}`}>
-        {title}
-      </span>
-      {badge && (
-        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
-          {badge}
-        </span>
-      )}
+      <span className="text-sm">{icon}</span>
+      <span className="text-xs font-semibold text-slate-700 leading-none">{title}</span>
+      {badge && <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-slate-100 text-slate-600 leading-none">{badge}</span>}
     </div>
-    <span className={`text-gray-400 text-[10px] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+    <span className={`text-slate-400 text-[10px] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
   </button>
 );
 
@@ -287,14 +274,14 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
           <div className="flex flex-col gap-0 p-3 min-h-full">
 
             {/* Sınıf */}
-            <div className="accordion-card mb-2.5">
-              <SectionHeader icon="🏫" title="Sınıf" badge={ayarlar.sinif ? `${ayarlar.sinif}. Sınıf` : undefined} isOpen={openSections.sinif} onToggle={() => toggleSection('sinif')} gradient="from-blue-500 to-indigo-600" />
-              <div className={`accordion-body ${openSections.sinif ? 'open' : ''}`}>
-                <div className="accordion-content">
-                  <div className="grid grid-cols-4 gap-1.5 pt-3">
+            <div className="bg-white/60 backdrop-blur-md border border-slate-200/60 rounded-xl mb-2 overflow-hidden shadow-sm transition-all duration-300">
+              <SectionHeader icon="🏫" title="Sınıf" badge={ayarlar.sinif ? `${ayarlar.sinif}. Sınıf` : undefined} isOpen={openSections.sinif} onToggle={() => toggleSection('sinif')} />
+              <div className={`transition-all duration-300 ${openSections.sinif ? 'max-h-[500px] opacity-100 p-3 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                <div>
+                  <div className="grid grid-cols-4 gap-1.5 pt-1">
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
                       <button key={g} onClick={() => setSinif(g)}
-                        className={`py-2 rounded-xl text-sm font-bold transition-all duration-200 ${ayarlar.sinif === g ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-md scale-105' : 'bg-white text-gray-500 border border-gray-100 hover:border-indigo-300 hover:text-indigo-600'}`}>
+                        className={`py-1.5 rounded-lg text-[11px] font-bold transition-all duration-200 ${ayarlar.sinif === g ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-500 border border-slate-100 hover:border-indigo-300 hover:text-indigo-600'}`}>
                         {g}. Sınıf
                       </button>
                     ))}
@@ -304,24 +291,24 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
             </div>
 
             {/* Kazanımlar */}
-            <div className="accordion-card mb-2.5">
-              <SectionHeader icon="🎯" title="Kazanımlar" badge={kazanimCount > 0 ? `${kazanimCount} seçildi` : undefined} isOpen={openSections.kazanim} onToggle={() => toggleSection('kazanim')} gradient="from-indigo-500 to-purple-600" />
-              <div className={`accordion-body ${openSections.kazanim ? 'open' : ''}`}>
-                <div className="accordion-content pt-3">
+            <div className="bg-white/60 backdrop-blur-md border border-slate-200/60 rounded-xl mb-2 overflow-hidden shadow-sm transition-all duration-300">
+              <SectionHeader icon="🎯" title="Kazanımlar" badge={kazanimCount > 0 ? `${kazanimCount} seçildi` : undefined} isOpen={openSections.kazanim} onToggle={() => toggleSection('kazanim')} />
+              <div className={`transition-all duration-300 ${openSections.kazanim ? 'max-h-[800px] opacity-100 p-3 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                <div className="pt-1">
                   <KazanimPicker selectedGrade={ayarlar.sinif} selectedUnites={ayarlar.secilenUniteler} selectedKazanimlar={ayarlar.secilenKazanimlar} onUniteChange={setSecilenUniteler} onKazanimChange={setSecilenKazanimlar} />
                 </div>
               </div>
             </div>
 
             {/* Soru Ayarları */}
-            <div className="accordion-card mb-2.5">
-              <SectionHeader icon="⚙️" title="Soru Ayarları" badge={toplamSoru > 0 ? `${toplamSoru} soru` : undefined} isOpen={openSections.ayarlar} onToggle={() => toggleSection('ayarlar')} gradient="from-purple-500 to-pink-500" />
-              <div className={`accordion-body ${openSections.ayarlar ? 'open' : ''}`}>
-                <div className="accordion-content pt-3">
+            <div className="bg-white/60 backdrop-blur-md border border-slate-200/60 rounded-xl mb-2 overflow-hidden shadow-sm transition-all duration-300">
+              <SectionHeader icon="⚙️" title="Soru Ayarları" badge={toplamSoru > 0 ? `${toplamSoru} soru` : undefined} isOpen={openSections.ayarlar} onToggle={() => toggleSection('ayarlar')} />
+              <div className={`transition-all duration-300 ${openSections.ayarlar ? 'max-h-[800px] opacity-100 p-3 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                <div className="pt-1">
                   {ayarlar.secilenKazanimlar.length > 0 ? (
                     <SoruAyarlari ayarlar={ayarlar} onSoruDagilimiChange={setSoruDagilimi} onOzelKonuChange={(k) => setAyarlar({ ozelKonu: k })} />
                   ) : (
-                    <div className="text-center text-gray-400 text-xs py-3 border-2 border-dashed border-gray-200 rounded-xl">
+                    <div className="text-center text-slate-400 text-xs py-3 border border-dashed border-slate-200 rounded-lg">
                       Önce kazanım seçin
                     </div>
                   )}
@@ -329,12 +316,11 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
               </div>
             </div>
 
-
             {/* Başarı Anı */}
-            <div className="accordion-card mb-2.5">
-              <SectionHeader icon="🌟" title="Başarı Anı Mimarisi" isOpen={openSections.basariMimarisi} onToggle={() => toggleSection('basariMimarisi')} gradient="from-amber-500 to-orange-500" />
-              <div className={`accordion-body ${openSections.basariMimarisi ? 'open' : ''}`}>
-                <div className="accordion-content pt-3 space-y-1.5 text-xs text-gray-600">
+            <div className="bg-white/60 backdrop-blur-md border border-slate-200/60 rounded-xl mb-2 overflow-hidden shadow-sm transition-all duration-300">
+              <SectionHeader icon="🌟" title="Başarı Anı Mimarisi" isOpen={openSections.basariMimarisi} onToggle={() => toggleSection('basariMimarisi')} />
+              <div className={`transition-all duration-300 ${openSections.basariMimarisi ? 'max-h-[500px] opacity-100 p-3 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                <div className="pt-1 space-y-1.5 text-xs text-slate-600">
                   {[['🟢', 'İlk 2 soru — Kolay'], ['🟡', '3-4. soru — Orta'], ['🔴', '5+ — Orta-Zor']].map(([ic, tx]) => (
                     <div key={tx} className="flex items-center gap-2"><span>{ic}</span><span>{tx}</span></div>
                   ))}
@@ -482,22 +468,6 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
 
       <style>{`
         .sinav-sol-panel { background: rgba(248,250,255,0.6); }
-        .accordion-card {
-          background: rgba(255,255,255,0.8);
-          backdrop-filter: blur(16px);
-          border: 1px solid rgba(230,235,255,0.8);
-          border-radius: 0.875rem;
-          padding: 0.75rem 0.875rem;
-          transition: box-shadow 0.2s;
-        }
-        .accordion-card:hover { box-shadow: 0 3px 16px rgba(79,70,229,0.07); }
-        .accordion-body {
-          display: grid;
-          grid-template-rows: 0fr;
-          transition: grid-template-rows 0.28s cubic-bezier(0.4,0,0.2,1);
-        }
-        .accordion-body.open { grid-template-rows: 1fr; }
-        .accordion-content { overflow: hidden; }
         .toolbar-btn {
           display: flex; align-items: center; gap: 0.3rem;
           padding: 0.35rem 0.7rem; border-radius: 0.55rem;

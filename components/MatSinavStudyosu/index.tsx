@@ -15,10 +15,18 @@ import { AppError } from '../../src/utils/AppError';
 import type { MatSoru } from '../../src/types/matSinav';
 import { renderToString } from 'react-dom/server';
 import { GraphicRenderer } from './components/GraphicRenderer';
+import { PrintConfig, DEFAULT_PRINT_CONFIG } from '../../src/utils/sinavPdfGenerator';
 
 type TabType = 'onizleme' | 'cevap-anahtari' | 'gecmis';
 
 // ─── Alt bileşenler ──────────────────────────────────────────
+const FmtBtn: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode; icon?: string; title?: string; }> = ({ active, onClick, children, icon, title }) => (
+    <button onClick={onClick} title={title} className={`px-2 py-1.5 rounded-md text-[10px] font-semibold border flex items-center justify-center gap-1 transition-colors ${active ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600'}`}>
+        {icon && <span className="opacity-90">{icon}</span>}
+        {children}
+    </button>
+);
+
 const SectionHeader: React.FC<{
     icon: string;
     title: string;
@@ -26,20 +34,14 @@ const SectionHeader: React.FC<{
     isOpen: boolean;
     onToggle: () => void;
     gradient?: string;
-}> = ({ icon, title, badge, isOpen, onToggle, gradient = 'from-indigo-500 to-indigo-700' }) => (
-    <button onClick={onToggle} className="w-full flex items-center justify-between gap-2">
+}> = ({ icon, title, badge, isOpen, onToggle }) => (
+    <button onClick={onToggle} className="w-full flex items-center justify-between px-3 py-2.5 bg-white/40 hover:bg-white/60 transition-colors">
         <div className="flex items-center gap-2">
-            <span className="text-base">{icon}</span>
-            <span className={`text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r ${gradient}`}>
-                {title}
-            </span>
-            {badge && (
-                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
-                    {badge}
-                </span>
-            )}
+            <span className="text-sm">{icon}</span>
+            <span className="text-xs font-semibold text-slate-700 leading-none">{title}</span>
+            {badge && <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-slate-100 text-slate-600 leading-none">{badge}</span>}
         </div>
-        <span className={`text-gray-400 text-[10px] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+        <span className={`text-slate-400 text-[10px] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
     </button>
 );
 
@@ -64,6 +66,9 @@ export const MatSinavStudyosu: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [refreshingIndex, setRefreshingIndex] = useState<number | null>(null);
+    const [printConfig, setPrintConfig] = useState<PrintConfig>(DEFAULT_PRINT_CONFIG);
+
+    const updateConfig = <K extends keyof PrintConfig>(key: K, val: PrintConfig[K]) => setPrintConfig(c => ({ ...c, [key]: val }));
 
     // Accordion state
     const [openSections, setOpenSections] = useState({
@@ -136,39 +141,48 @@ export const MatSinavStudyosu: React.FC = () => {
     // ─── Yazdır ───────────────────────────────────────────────────
     const handlePrint = () => {
         if (!aktifSinav) return;
-        const fs = 12;
+
+        const fs = printConfig.fontSize + 2;
+        const ff = printConfig.fontFamily === 'times' ? 'Times New Roman, serif' : 'Lexend, Inter, sans-serif';
+        const mg = printConfig.marginMm;
+        const qs = printConfig.questionSpacingMm;
+        const lh = printConfig.lineHeight;
+        const ta = printConfig.textAlign;
+
         const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"/>
 <title>${aktifSinav.baslik}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap');
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:Lexend,sans-serif; font-size:${fs}pt; color:#111; margin:18mm; }
-  h1 { font-size:${fs + 4}pt; font-weight:800; color:#3730a3; margin-bottom:4pt; }
-  .meta { font-size:${fs - 2}pt; color:#555; margin-bottom:8pt; }
-  .student-row { border-bottom:1px solid #ccc; padding-bottom:4pt; margin-bottom:10pt; font-size:${fs - 1}pt; color:#444; }
-  .soru-wrap { margin-bottom:10mm; break-inside:avoid; }
+  body { font-family:${ff}; font-size:${fs}pt; color:#111; margin:${mg}mm; text-align:${ta}; line-height:${lh}; }
+  h1 { font-size:${fs + 4}pt; font-weight:800; color:#3730a3; margin-bottom:4pt; text-align:left; }
+  .meta { font-size:${fs - 2}pt; color:#555; margin-bottom:8pt; text-align:left; }
+  .student-row { border-bottom:1px solid #ccc; padding-bottom:4pt; margin-bottom:10pt; font-size:${fs - 1}pt; color:#444; text-align:left; }
+  .sorula-kapsayici { ${printConfig.columns === 2 ? `column-count: 2; column-gap: 12mm;` : ''} }
+  .soru-wrap { margin-bottom:${qs}mm; break-inside:avoid; }
   .soru-no { font-weight:700; color:#3730a3; }
-  .soru-text { margin-top:3pt; line-height:1.6; }
-  .secenekler { margin-top:4pt; margin-left:12pt; }
+  .soru-text { margin-top:3pt; }
+  .secenekler { margin-top:4pt; margin-left:12pt; text-align:left; }
   .secenek { margin-bottom:2pt; }
   .kazanim { font-size:7pt; color:#999; font-style:italic; text-align:right; margin-top:3pt; }
-  .hr { border:0; border-top:0.5pt solid #ddd; margin:8pt 0; }
-  .baslik-kutu { border:1.5pt solid #4f46e5; border-radius:4pt; padding:8pt 10pt; margin-bottom:10pt; }
-  .cevap-baslik { font-size:${fs + 1}pt; font-weight:700; color:#064e3b; page-break-before:always; margin-bottom:8pt; }
-  .cevap-tablo { width:100%; border-collapse:collapse; margin-bottom:12pt; }
+  .hr { border:0; border-top:0.5pt solid #ddd; margin:8pt 0; column-span: all; }
+  .baslik-kutu { border:1.5pt solid #4f46e5; border-radius:4pt; padding:8pt 10pt; margin-bottom:10pt; column-span: all; }
+  .cevap-baslik { font-size:${fs + 1}pt; font-weight:700; color:#064e3b; page-break-before:always; margin-bottom:8pt; text-align:left; }
+  .cevap-tablo { width:100%; border-collapse:collapse; margin-bottom:12pt; text-align:left; }
   .cevap-tablo th { background:#e0e7ff; padding:3pt 5pt; font-size:${fs - 1}pt; text-align:left; }
   .cevap-tablo td { padding:2.5pt 5pt; font-size:${fs - 1}pt; border-bottom:0.3pt solid #e5e7eb; }
   .cevap-tablo tr:nth-child(even) td { background:#f8f9fa; }
-  .pedanot { font-size:${fs - 1}pt; color:#1e3a5f; background:#eff6ff; border:0.5pt solid #93c5fd; border-radius:3pt; padding:6pt; margin-top:10pt; }
-  .footer { font-size:7pt; color:#bbb; text-align:center; margin-top:20pt; }
-  @media print { @page { size:A4; margin:18mm; } body { margin:0; } }
+  .pedanot { font-size:${fs - 1}pt; color:#1e3a5f; background:#eff6ff; border:0.5pt solid #93c5fd; border-radius:3pt; padding:6pt; margin-top:10pt; text-align:left; }
+  .footer { font-size:7pt; color:#bbb; text-align:center; margin-top:20pt; column-span: all; }
+  @media print { @page { size:A4; margin:${mg}mm; } body { margin:0; } }
 </style></head><body>
 <div class="baslik-kutu">
   <h1>${aktifSinav.baslik}</h1>
   <div class="meta">${aktifSinav.sinif}. Sınıf | ${aktifSinav.sorular.length} Soru | ${aktifSinav.toplamPuan} Puan | ~${Math.ceil(aktifSinav.tahminiSure / 60)} dakika</div>
 </div>
 <div class="student-row">Ad Soyad: _________________________________ &nbsp;&nbsp; Sınıf/Şube: _________ &nbsp;&nbsp; Tarih: _________</div>
+<div class="sorula-kapsayici">
 ${aktifSinav.sorular.map((s, i) => {
             const labels = ['A', 'B', 'C', 'D'];
             let sec = '';
@@ -188,7 +202,8 @@ ${aktifSinav.sorular.map((s, i) => {
             }
 
             return `<div class="soru-wrap"><span class="soru-no">${i + 1}.</span> <span class="soru-text">${s.soruMetni}</span>${grafikHtml}${sec}<div class="kazanim">[${s.kazanimKodu}]</div></div>`;
-        }).join('<hr class="hr"/>')}
+        }).join(printConfig.columns === 2 ? '' : '<hr class="hr"/>')}
+</div>
 <div class="cevap-baslik">CEVAP ANAHTARI</div>
 <table class="cevap-tablo"><thead><tr><th>No</th><th>Doğru Cevap</th><th>Puan</th><th>Kazanım</th></tr></thead><tbody>
 ${aktifSinav.cevapAnahtari.sorular.map(c =>
@@ -242,14 +257,14 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                     <div className="flex flex-col gap-0 p-3 min-h-full">
 
                         {/* Sınıf */}
-                        <div className="accordion-card mb-2.5">
-                            <SectionHeader icon="🏫" title="Sınıf Seçimi" badge={ayarlar.sinif ? `${ayarlar.sinif}. Sınıf` : undefined} isOpen={openSections.sinif} onToggle={() => toggleSection('sinif')} gradient="from-blue-500 to-indigo-600" />
-                            <div className={`accordion-body ${openSections.sinif ? 'open' : ''}`}>
-                                <div className="accordion-content">
-                                    <div className="grid grid-cols-4 gap-1.5 pt-3">
+                        <div className="bg-white/60 backdrop-blur-md border border-slate-200/60 rounded-xl mb-2 overflow-hidden shadow-sm transition-all duration-300">
+                            <SectionHeader icon="🏫" title="Sınıf Seçimi" badge={ayarlar.sinif ? `${ayarlar.sinif}. Sınıf` : undefined} isOpen={openSections.sinif} onToggle={() => toggleSection('sinif')} />
+                            <div className={`transition-all duration-300 ${openSections.sinif ? 'max-h-[500px] opacity-100 p-3 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                                <div>
+                                    <div className="grid grid-cols-4 gap-1.5 pt-1">
                                         {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
                                             <button key={g} onClick={() => setSinif(g)}
-                                                className={`py-2 rounded-xl text-sm font-bold transition-all duration-200 ${ayarlar.sinif === g ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md scale-105' : 'bg-white text-gray-500 border border-gray-100 hover:border-indigo-300 hover:text-indigo-600'}`}>
+                                                className={`py-1.5 rounded-lg text-[11px] font-bold transition-all duration-200 ${ayarlar.sinif === g ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-500 border border-slate-100 hover:border-blue-300 hover:text-blue-600'}`}>
                                                 {g}. Sınıf
                                             </button>
                                         ))}
@@ -259,24 +274,24 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                         </div>
 
                         {/* Kazanımlar */}
-                        <div className="accordion-card mb-2.5">
-                            <SectionHeader icon="🎯" title="Kazanımlar" badge={kazanimCount > 0 ? `${kazanimCount} seçildi` : undefined} isOpen={openSections.kazanim} onToggle={() => toggleSection('kazanim')} gradient="from-indigo-500 to-purple-600" />
-                            <div className={`accordion-body ${openSections.kazanim ? 'open' : ''}`}>
-                                <div className="accordion-content pt-3">
+                        <div className="bg-white/60 backdrop-blur-md border border-slate-200/60 rounded-xl mb-2 overflow-hidden shadow-sm transition-all duration-300">
+                            <SectionHeader icon="🎯" title="Kazanımlar" badge={kazanimCount > 0 ? `${kazanimCount} seçildi` : undefined} isOpen={openSections.kazanim} onToggle={() => toggleSection('kazanim')} />
+                            <div className={`transition-all duration-300 ${openSections.kazanim ? 'max-h-[800px] opacity-100 p-3 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                                <div className="pt-1">
                                     <MatKazanimPicker selectedGrade={ayarlar.sinif} selectedUnites={ayarlar.secilenUniteler} selectedKazanimlar={ayarlar.secilenKazanimlar} onUniteChange={setSecilenUniteler} onKazanimChange={setSecilenKazanimlar} />
                                 </div>
                             </div>
                         </div>
 
                         {/* Soru Ayarları */}
-                        <div className="accordion-card mb-2.5">
-                            <SectionHeader icon="⚙️" title="Soru Ayarları" badge={toplamSoru > 0 ? `${toplamSoru} soru` : undefined} isOpen={openSections.ayarlar} onToggle={() => toggleSection('ayarlar')} gradient="from-purple-500 to-pink-500" />
-                            <div className={`accordion-body ${openSections.ayarlar ? 'open' : ''}`}>
-                                <div className="accordion-content pt-3">
+                        <div className="bg-white/60 backdrop-blur-md border border-slate-200/60 rounded-xl mb-2 overflow-hidden shadow-sm transition-all duration-300">
+                            <SectionHeader icon="⚙️" title="Soru Ayarları" badge={toplamSoru > 0 ? `${toplamSoru} soru` : undefined} isOpen={openSections.ayarlar} onToggle={() => toggleSection('ayarlar')} />
+                            <div className={`transition-all duration-300 ${openSections.ayarlar ? 'max-h-[800px] opacity-100 p-3 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                                <div className="pt-1">
                                     {kazanimCount > 0 ? (
                                         <MatSoruAyarlari ayarlar={ayarlar} onSoruDagilimiChange={setSoruDagilimi} onAyarlarChange={setAyarlar} />
                                     ) : (
-                                        <div className="text-center text-gray-400 text-xs py-3 border-2 border-dashed border-gray-200 rounded-xl">
+                                        <div className="text-center text-slate-400 text-xs py-3 border border-dashed border-slate-200 rounded-lg">
                                             Önce kazanım seçin
                                         </div>
                                     )}
@@ -321,21 +336,54 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
 
                     {/* Toolbar */}
                     <div className="flex-none bg-white/80 backdrop-blur-xl border-b border-white/60 px-4 py-2 flex flex-wrap items-center justify-between gap-2 z-10">
-                        <div className="flex bg-gray-100/70 p-0.5 rounded-xl">
+                        <div className="flex bg-slate-100/70 p-0.5 rounded-lg">
                             {(['onizleme', 'cevap-anahtari', 'gecmis'] as TabType[]).map((tab) => (
                                 <button key={tab} onClick={() => setActiveTab(tab)} disabled={tab !== 'gecmis' && !aktifSinav}
-                                    className={`px-4 py-2 rounded-lg font-bold text-xs transition-all ${activeTab === tab ? 'bg-white text-indigo-700 shadow-sm' : (tab === 'gecmis' || aktifSinav) ? 'text-gray-500 hover:text-indigo-600' : 'text-gray-300 cursor-not-allowed'}`}>
+                                    className={`px-3 py-1.5 rounded-md font-bold text-[11px] transition-all ${activeTab === tab ? 'bg-white text-blue-700 shadow-sm' : (tab === 'gecmis' || aktifSinav) ? 'text-slate-500 hover:text-blue-600' : 'text-slate-300 cursor-not-allowed'}`}>
                                     {tab === 'onizleme' ? '👁️ Önizleme' : tab === 'cevap-anahtari' ? '✓ Cevap Anahtarı' : `📋 Geçmiş (${sinavGecmisi.length})`}
                                 </button>
                             ))}
                         </div>
                         <div className="flex gap-1.5 flex-wrap">
                             <button onClick={handlePrint} disabled={!aktifSinav}
-                                className="toolbar-btn bg-gray-800 text-white hover:bg-black border-0 shadow-md disabled:opacity-35 disabled:cursor-not-allowed">
-                                <span className="text-base">🖨️</span><span className="hidden sm:inline">Yazdır</span>
+                                className="toolbar-btn bg-slate-800 text-white hover:bg-black border-0 shadow-md disabled:opacity-35 disabled:cursor-not-allowed">
+                                <span className="text-sm">🖨️</span><span className="hidden sm:inline">Yazdır</span>
                             </button>
                         </div>
                     </div>
+
+                    {/* Format Settings Sub-Toolbar */}
+                    {aktifSinav && activeTab === 'onizleme' && (
+                        <div className="flex-none bg-white/40 backdrop-blur-md border-b border-slate-100 px-4 py-2 flex flex-wrap items-center gap-x-5 gap-y-2 z-0 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.02)]">
+                            <div className="flex items-center gap-1 bg-white/90 px-1.5 py-1 rounded-md border border-slate-100 shadow-sm">
+                                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mr-1 px-1">Tasarım</span>
+                                <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Fontu">Inter</FmtBtn>
+                                <FmtBtn active={printConfig.fontFamily === 'times'} onClick={() => updateConfig('fontFamily', 'times')} title="Times New Roman">Times</FmtBtn>
+                                <div className="w-px h-3 bg-slate-200 mx-1"></div>
+                                {([9, 10, 11, 12] as const).map((s) => (
+                                    <FmtBtn key={s} active={printConfig.fontSize === s} onClick={() => updateConfig('fontSize', s)} title={`${s} Punto`}>{s}pt</FmtBtn>
+                                ))}
+                            </div>
+                            <div className="flex items-center gap-1 bg-white/90 px-1.5 py-1 rounded-md border border-slate-100 shadow-sm">
+                                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mr-1 px-1">Yerleşim</span>
+                                <FmtBtn active={printConfig.marginMm === 10} onClick={() => updateConfig('marginMm', 10)} icon="⤢">Dar</FmtBtn>
+                                <FmtBtn active={printConfig.marginMm === 18} onClick={() => updateConfig('marginMm', 18)} icon="◻️">Orta</FmtBtn>
+                                <FmtBtn active={printConfig.marginMm === 25} onClick={() => updateConfig('marginMm', 25)} icon="⤡">Geniş</FmtBtn>
+                                <div className="w-px h-3 bg-slate-200 mx-1"></div>
+                                <FmtBtn active={printConfig.columns === 1} onClick={() => updateConfig('columns', 1)} icon="📄">Tek</FmtBtn>
+                                <FmtBtn active={printConfig.columns === 2} onClick={() => updateConfig('columns', 2)} icon="📖">Çift</FmtBtn>
+                            </div>
+                            <div className="flex items-center gap-1 bg-white/90 px-1.5 py-1 rounded-md border border-slate-100 shadow-sm">
+                                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mr-1 px-1">Metin</span>
+                                <FmtBtn active={printConfig.textAlign === 'left'} onClick={() => updateConfig('textAlign', 'left')} icon="⫷">Sola</FmtBtn>
+                                <FmtBtn active={printConfig.textAlign === 'justify'} onClick={() => updateConfig('textAlign', 'justify')} icon="⫹">Yasla</FmtBtn>
+                                <div className="w-px h-3 bg-slate-200 mx-1"></div>
+                                <FmtBtn active={printConfig.lineHeight === 1.4} onClick={() => updateConfig('lineHeight', 1.4)}>Sıkı</FmtBtn>
+                                <FmtBtn active={printConfig.lineHeight === 1.6} onClick={() => updateConfig('lineHeight', 1.6)}>Normal</FmtBtn>
+                                <FmtBtn active={printConfig.lineHeight === 1.8} onClick={() => updateConfig('lineHeight', 1.8)}>Ayrık</FmtBtn>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Toast */}
                     {successMessage && (
@@ -407,26 +455,10 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
 
             <style>{`
         .mat-sol-panel { background: rgba(245,248,255,0.6); }
-        .accordion-card {
-          background: rgba(255,255,255,0.8);
-          backdrop-filter: blur(16px);
-          border: 1px solid rgba(220,230,255,0.8);
-          border-radius: 0.875rem;
-          padding: 0.75rem 0.875rem;
-          transition: box-shadow 0.2s;
-        }
-        .accordion-card:hover { box-shadow: 0 3px 16px rgba(59,130,246,0.07); }
-        .accordion-body {
-          display: grid;
-          grid-template-rows: 0fr;
-          transition: grid-template-rows 0.28s cubic-bezier(0.4,0,0.2,1);
-        }
-        .accordion-body.open { grid-template-rows: 1fr; }
-        .accordion-content { overflow: hidden; }
         .toolbar-btn {
           display:flex; align-items:center; gap:0.3rem;
-          padding:0.35rem 0.7rem; border-radius:0.55rem;
-          font-weight:600; font-size:0.72rem; transition:all 0.18s;
+          padding:0.35rem 0.7rem; border-radius:0.4rem;
+          font-weight:600; font-size:0.75rem; transition:all 0.18s;
         }
         .custom-scrollbar::-webkit-scrollbar { width:5px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background:rgba(59,130,246,0.2); border-radius:4px; }
