@@ -1,11 +1,12 @@
-# İnfografik Stüdyosu v2 — Ultra Premium Aktivite Üretim Platformu Geliştirme Planı
+# İnfografik Stüdyosu v3 — Ultra Premium Aktivite Üretim Platformu Geliştirme Planı
 
 > **Hazırlayan**: 9 Ajan Konsorsiyumu (Elif Yıldız, Dr. Ahmet Kaya, Bora Demir, Selin Arslan + Destek Ajanlar)
-> **Tarih**: 2026-03-30
-> **Versiyon**: 3.0.0 — ULTRA ZENGİN EDİSYON
-> **Durum**: Onay Bekliyor
+> **Tarih**: 2026-03-31 (Revize)
+> **Versiyon**: 3.1.0 — ULTRA ZENGİN EDİSYON (Teknik Hatalar Giderildi)
+> **Durum**: ✅ Revize — Teknik Tutarsızlıklar Giderildi
 > **Aktivite Sayısı**: 96 Premium İnfografik Aktivite Türü
 > **Kategori Sayısı**: 10 Profesyonel Kategori
+> **Değişiklik Notu**: ActivityOutput import hatası, InfographicTemplate tip çakışması, GeneratorMode uyumsuzluğu, faz sayım hataları ve 8 ek eksiklik giderildi.
 
 ---
 
@@ -326,8 +327,231 @@ export enum ActivityType {
 
 ```typescript
 // src/types/infographic.ts — YENİ DOSYA (tamamen yeni tip sistemi)
-import { AgeGroup, Difficulty, LearningDisabilityProfile } from './creativeStudio';
-import { ActivityOutput } from './core';
+//
+// ⚠️ DÜZELTME NOTU (v3.1.0):
+//   1. ActivityOutput projede TANIMLI DEĞİL → BaseInfographicResult kullanıldı
+//   2. AgeGroup/Difficulty/LearningDisabilityProfile için creativeStudio.ts DEĞİL,
+//      doğrudan satır içinde tanımlandı (import çakışması önlendi)
+//   3. InfographicTemplate → InfographicActivityTemplate (src/data/infographicTemplates.ts çakışması önlendi)
+//   4. InfographicGenerationMode enum KALDIRILDI → mevcut 'fast' | 'ai' tip sistemiyle uyumlu type alias kullanıldı
+//   5. InfographicContent → InfographicActivityContent (isim çakışması önlendi)
+//   6. ActivityType import yolu düzeltildi
+
+import { ActivityType } from './activity';
+
+// ── BASE SONUÇ TİPİ (ActivityOutput yok — özel interface) ────────────────────
+
+export interface BaseInfographicResult {
+  pedagogicalNote: string;           // Zorunlu! min 100 kelime
+  difficultyLevel: 'Kolay' | 'Orta' | 'Zor';
+  targetSkills: string[];
+  ageGroup: '5-7' | '8-10' | '11-13' | '14+';
+  profile: 'dyslexia' | 'dyscalculia' | 'adhd' | 'mixed' | 'general';
+}
+
+export interface InfographicActivityResult extends BaseInfographicResult {
+  syntax: string;              // @antv/infographic declarative syntax
+  templateType: InfographicActivityTemplate; // ⚠️ NOT: InfographicTemplate değil! (tip çakışması önlendi)
+  svgDataUrl?: string;         // Pre-rendered SVG (hızlı mod önbellek)
+  title: string;
+  activityContent: InfographicActivityContent; // ⚠️ NOT: InfographicContent değil! (isim çakışması önlendi)
+  estimatedDuration: number;   // dakika
+  category: InfographicCategory;
+  mebKazanim?: string;         // MEB kazanım kodu (Kat.1-6 için önerilir, ör: T.4.3.7)
+  spldNote?: string;           // SpLD-özel pedagojik not
+  generationMode: 'fast' | 'ai'; // ⚠️ GeneratorOptions.mode ile örtüşmeli
+}
+
+// ⚠️ BU TİP "InfographicActivityTemplate" — src/data/infographicTemplates.ts'deki InfographicTemplate ile ÇAKIŞMIYOR
+export type InfographicActivityTemplate =
+  | 'sequence-steps'
+  | 'list-row-simple-horizontal-arrow'
+  | 'compare-binary-horizontal'
+  | 'hierarchy-structure'
+  | 'sequence-timeline'
+  | 'activity-5w1h-grid'           // 6 renkli kutu grid
+  | 'activity-math-steps'          // Numaralı adım kartları
+  | 'activity-syllable-breakdown'  // Hece bölüm çizgileri
+  | 'activity-vocab-card'          // Kelime + anlam + örnek
+  | 'activity-venn'                // Çift daire Venn şeması
+  | 'activity-cause-effect'        // Ok zinciri neden-sonuç
+  | 'activity-fishbone'            // Balık kılçığı diyagramı
+  | 'activity-radar'               // Beceri radar grafiği (polar)
+  | 'activity-cornell'             // Cornell not şablonu
+  | 'activity-kwl'                 // Bil/Öğren/Öğrendim 3 sütun
+  | 'activity-story-map'           // Hikaye haritası (karakter+olay+sonuç)
+  | 'activity-emotion-wheel'       // Duygu çarkı (daire dilimler)
+  | 'activity-bep-goals'           // BEP hedef kartları (SMART format)
+  | 'activity-life-cycle'          // Döngü diyagramı (dairesel oklar)
+  | 'activity-food-chain'          // Dikey zincir oku
+  | 'activity-strengths-wheel';    // Güçlü yönler pasta grafiği
+
+export type InfographicCategory =
+  | 'visual-spatial'        // Görsel & Mekansal
+  | 'reading-comprehension' // Okuduğunu Anlama
+  | 'language-literacy'     // Okuma & Dil
+  | 'math-logic'            // Matematik & Mantık
+  | 'science'               // Fen Bilimleri
+  | 'social-studies'        // Sosyal Bilgiler & Tarih
+  | 'creative-thinking'     // Yaratıcı Düşünme
+  | 'learning-strategies'   // Öğrenme Stratejileri
+  | 'spld-support'          // SpLD / Özel Destek
+  | 'clinical-bep';         // Klinik & BEP
+
+// ── İÇERİK YAPILARI ──────────────────────────────────────────────────────────
+// ⚠️ NOT: InfographicActivityContent kullanılıyor (InfographicContent değil — isim çakışması)
+
+export interface InfographicActivityContent {
+  questions?: InfographicQuestion[];
+  steps?: InfographicStep[];
+  comparisons?: InfographicComparison;
+  vocabulary?: InfographicVocabItem[];
+  timeline?: InfographicTimelineEvent[];
+  hierarchy?: InfographicHierarchyNode;
+  bepGoals?: InfographicBEPGoal[];
+  radarData?: InfographicRadarSegment[];
+  emotions?: InfographicEmotionItem[];
+  storyElements?: InfographicStoryMap;
+  scienceData?: InfographicScienceContent;
+  strategicContent?: InfographicLearningStrategy;
+}
+
+export interface InfographicQuestion {
+  question: string;
+  questionType: '5W1H' | 'true-false' | 'fill-blank' | 'multiple-choice' | 'open-ended';
+  answer?: string;
+  visualCue?: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  colorCode?: string;    // renk kodlu soru kutuları (disleksi desteği)
+  wcagRole?: string;     // erişilebilirlik rolü
+}
+
+export interface InfographicStep {
+  stepNumber: number;
+  label: string;
+  description: string;
+  visualSymbol?: string;   // emoji veya ikon kodu
+  isCheckpoint: boolean;
+  scaffoldHint?: string;   // DEHB/diskalkuli destekleri için ipucu
+  timeEstimate?: string;   // "2 dakika" gibi
+}
+
+export interface InfographicComparison {
+  leftTitle: string;
+  rightTitle: string;
+  leftItems: string[];
+  rightItems: string[];
+  commonGround?: string[];   // Venn ortak alan öğeleri
+  criteria?: string[];       // Karşılaştırma kriterleri
+}
+
+export interface InfographicVocabItem {
+  word: string;
+  syllables: string[];       // ['ke', 'le', 'bek'] gibi
+  meaning: string;
+  exampleSentence: string;
+  rootWord?: string;
+  relatedWords?: string[];
+  visualRepresentation?: string;  // emoji/ikon
+}
+
+export interface InfographicTimelineEvent {
+  date: string;              // yıl, dönem veya "1. Adım" gibi
+  title: string;
+  description: string;
+  icon?: string;
+  isKeyEvent?: boolean;      // önemli olay vurgulama
+  source?: string;           // alıntı kaynağı (tarih eğitimi)
+}
+
+export interface InfographicHierarchyNode {
+  label: string;
+  description?: string;
+  color?: string;
+  children?: InfographicHierarchyNode[];
+  level?: number;            // hiyerarşi derinliği
+}
+
+export interface InfographicBEPGoal {
+  domain: string;            // 'Okuma', 'Matematik', 'Sosyal Beceri' vb.
+  objective: string;         // SMART format hedef
+  targetDate: string;        // ISO tarih
+  measurableIndicator: string;
+  supportStrategies: string[];
+  progress: 'not_started' | 'in_progress' | 'achieved';
+  reviewDate?: string;
+}
+
+export interface InfographicRadarSegment {
+  skill: string;             // 'Okuma', 'Yazma', 'Dikkat' vb.
+  currentLevel: number;      // 1-10
+  targetLevel: number;       // 1-10
+  color?: string;
+}
+
+export interface InfographicEmotionItem {
+  emotion: string;
+  intensity: number;         // 1-5
+  bodyLocation?: string;     // "göğüs", "karın" gibi beden haritası
+  color?: string;
+  strategy?: string;         // baş etme stratejisi
+}
+
+export interface InfographicStoryMap {
+  title: string;
+  setting: string;           // yer/zaman
+  characters: string[];
+  problem: string;
+  events: string[];
+  resolution: string;
+  theme?: string;
+  authorPurpose?: string;
+}
+
+export interface InfographicScienceContent {
+  topic: string;
+  stages?: string[];         // yaşam döngüsü aşamaları
+  components?: string[];     // hücre organelleri vb.
+  relationships?: { from: string; to: string; label: string }[];
+  properties?: Record<string, string>;
+}
+
+export interface InfographicLearningStrategy {
+  strategyName: string;
+  steps: string[];
+  useWhen: string;
+  benefits: string[];
+  example?: string;
+  mnemonic?: string;         // hatırlatıcı kısaltma/kelime
+}
+
+// ── ÜRETİM MODU ──────────────────────────────────────────────────────────────
+// ⚠️ GeneratorMode ENUM KALDIRILDI.
+// Mevcut proje GeneratorOptions.mode: 'fast' | 'ai' kullanıyor (core.ts).
+// 'hybrid' gelecek sürüm için rezerve edilmiştir.
+
+export type InfographicGenerationMode = 'fast' | 'ai' | 'hybrid';
+
+// ── KATEGORİ REHBERİ ─────────────────────────────────────────────────────────
+
+export interface InfographicActivityMeta {
+  id: ActivityType;
+  title: string;
+  description: string;
+  category: InfographicCategory;
+  template: InfographicActivityTemplate;  // ⚠️ InfographicActivityTemplate (NOT InfographicTemplate)
+  offlineAvailable: boolean;
+  aiOptimized: boolean;
+  icon: string;
+  spldProfile?: ('dyslexia' | 'dyscalculia' | 'adhd' | 'mixed')[];
+  minAgeGroup: '5-7' | '8-10' | '11-13' | '14+';
+  mebCategory?: string;     // MEB ders alanı
+  estimatedMinutes: { min: number; max: number };
+  premiumFeatures?: string[]; // premium özellik açıklamaları
+  // ⚠️ mebKazanim: Kat.1-6 için ÖNERİLİR (zorunlu değil)
+  mebKazanim?: string;
+}
+```
 
 // ── TEMEL ÇIKTI YAPISI ──────────────────────────────────────────────────────
 
@@ -538,12 +762,91 @@ export interface InfographicActivityMeta {
 
 ### 2.3 Yeni Generator Servisi
 
+```
+src/services/generators/infographic/         ← MODÜLER DİZİN (10 kategori dosyası)
+│
+├── index.ts                          ← Barrel export (tüm generatörleri re-export)
+├── _shared/
+│   ├── types.ts                      ← Paylaşılan yardımcı tipler (GenerateParams)
+│   ├── pedagogicalNotes.ts           ← Kategori bazlı varsayılan pedagogicalNote şablonları
+│   └── schemaValidator.ts            ← generateWithSchema için ortak schema tanımları
+│
+├── visual-spatial.ts                 ← Kat.1: Görsel & Mekansal (10 fn: 10 offline, 10 ai)
+├── reading-comprehension.ts          ← Kat.2: Okuduğunu Anlama (10 fn: 10 offline, 10 ai)
+├── language-literacy.ts              ← Kat.3: Okuma & Dil (10 fn: 10 offline, 10 ai)
+├── math-logic.ts                     ← Kat.4: Matematik & Mantık (10 fn: 10 offline, 10 ai)
+├── science.ts                        ← Kat.5: Fen Bilimleri (8 fn: 8 offline, 8 ai)
+├── social-studies.ts                 ← Kat.6: Sosyal Bilgiler (8 fn: 8 offline, 8 ai)
+├── creative-thinking.ts              ← Kat.7: Yaratıcı Düşünme (8 fn: 8 offline, 8 ai)
+├── learning-strategies.ts            ← Kat.8: Öğrenme Stratejileri (8 fn: 8 offline, 8 ai)
+├── spld-support.ts                   ← Kat.9: SpLD / Özel Destek (12 fn: 12 offline, 12 ai)
+└── clinical-bep.ts                   ← Kat.10: Klinik & BEP (12 fn: 0 offline, 12 ai only)
+                                          ⚠️ Dr. Ahmet Kaya klinik onayı zorunlu
+```
+
+Örnek `_shared/types.ts` içeriği:
+
 ```typescript
-// src/services/generators/infographicActivityGenerator.ts — YENİ DOSYA
+// src/services/generators/infographic/_shared/types.ts
+import { GeneratorOptions } from '../../../../types/core';
+import { InfographicActivityResult } from '../../../../types/infographic';
 
-// Her kategori için 2 üretim fonksiyonu: AI ve Offline
+// Tüm infographic generatör fonksiyonları bu imzayı kullanır
+export type InfographicGeneratorFn = (
+  options: GeneratorOptions
+) => Promise<InfographicActivityResult>;
 
-// ── AI GENERATÖRLER ──────────────────────────────────────────────────────────
+export interface GenerateParams {
+  topic: string;
+  ageGroup: '5-7' | '8-10' | '11-13' | '14+';
+  profile: 'dyslexia' | 'dyscalculia' | 'adhd' | 'mixed' | 'general';
+  difficulty: 'Kolay' | 'Orta' | 'Zor';
+  studentId?: string;   // KVKK: sadece ID, isim değil
+}
+```
+
+Örnek `visual-spatial.ts` kategori dosyası yapısı:
+
+```typescript
+// src/services/generators/infographic/visual-spatial.ts
+// ⚠️ IMPORT YOLLARI DÜZELTİLDİ (v3.1.0)
+
+import { generateWithSchema } from '../../geminiClient'; // ⚠️ services/ altında, ../../ yeterli
+import { retryWithBackoff } from '../../../utils/errorHandler';
+import { AppError } from '../../../utils/AppError';
+import { GeneratorOptions } from '../../../types/core';
+import {
+  InfographicActivityResult,
+  InfographicActivityTemplate,
+  InfographicActivityContent,
+} from '../../../types/infographic'; // ⚠️ InfographicContent değil
+import { VISUAL_SPATIAL_PEDAGOGICAL_NOTES } from './_shared/pedagogicalNotes';
+
+
+
+// ── BATCH ÜRETİM (count > 10 → 5'erli gruplar) ───────────────────────────────
+// Selin Arslan: cacheService.ts entegrasyonu count > 10 için zorunlu
+
+async function generateInBatches(
+  generatorFn: (opts: GeneratorOptions) => Promise<InfographicActivityResult>,
+  options: GeneratorOptions,
+  count: number
+): Promise<InfographicActivityResult[]> {
+  const BATCH_SIZE = 5;
+  const results: InfographicActivityResult[] = [];
+
+  for (let i = 0; i < count; i += BATCH_SIZE) {
+    const batchCount = Math.min(BATCH_SIZE, count - i);
+    const batchPromises = Array.from({ length: batchCount }, () =>
+      retryWithBackoff(() => generatorFn(options), { maxRetries: 2 })
+    );
+    const batchResults = await Promise.all(batchPromises);
+    results.push(...batchResults);
+  }
+  return results;
+}
+
+// ── AI GENERATÖRLER (örnek imzalar — her kategori dosyasında implement edilir) ──
 
 export async function generateInfographicConceptMapFromAI(
   options: GeneratorOptions
@@ -586,6 +889,7 @@ export async function generateInfographicReadingFlowFromAI(
 ): Promise<InfographicActivityResult>
 
 // ── OFFLINE GENERATÖRLER (Hızlı Mod) ─────────────────────────────────────────
+// ⚠️ NOT: mode='fast' (GeneratorOptions) — API çağrısı YOK, anlık üretim
 
 export async function generateOfflineInfographicConceptMap(
   options: GeneratorOptions
@@ -595,7 +899,7 @@ export async function generateOfflineInfographic5W1HBoard(
   options: GeneratorOptions
 ): Promise<InfographicActivityResult>
 
-// ... diğerleri
+// ... diğerleri (kategori dosyalarında implement edilir)
 ```
 
 ### 2.4 Registry Entegrasyonu — 96 Kayıt
@@ -923,16 +1227,17 @@ export async function generateOfflineInfographic5W1HBoard(
 
 **Dosya**: `src/types/infographic.ts` _(yeni, ~400 satır)_
 
-- `InfographicActivityResult` interface (`ActivityOutput` extends)
-- `InfographicTemplate` union tipi (21 şablon)
+- `BaseInfographicResult` + `InfographicActivityResult` interface (⚠️ `ActivityOutput extends` değil!)
+- `InfographicActivityTemplate` union tipi (21 şablon) (⚠️ `InfographicTemplate` değil — tip çakışması önlendi)
 - `InfographicCategory` union tipi (10 kategori)
-- `InfographicContent` birleşik içerik yapısı
+- `InfographicActivityContent` birleşik içerik yapısı (⚠️ `InfographicContent` değil — isim çakışması önlendi)
 - `InfographicQuestion`, `InfographicStep`, `InfographicComparison`, `InfographicVocabItem`
 - `InfographicTimelineEvent`, `InfographicHierarchyNode`
 - `InfographicBEPGoal`, `InfographicRadarSegment`, `InfographicEmotionItem`
 - `InfographicStoryMap`, `InfographicScienceContent`, `InfographicLearningStrategy`
-- `InfographicGenerationMode` enum: `'AI' | 'OFFLINE' | 'HYBRID'`
-- `InfographicActivityMeta` interface (metadata + premiumFeatures)
+- `InfographicGenerationMode` type alias: `'fast' | 'ai' | 'hybrid'` (⚠️ enum değil — `GeneratorOptions.mode` ile uyumlu)
+- `InfographicActivityMeta` interface (metadata + premiumFeatures + mebKazanim?)
+
 
 ### Adım 1.3 — Barrel Export Güncelleme
 
@@ -983,9 +1288,16 @@ export * from './infographic';
 
 ---
 
-## 📦 Faz 2: Offline (Hızlı Mod) Generatörler
+## 📦 Faz 2: Offline (Hızlı Mod) Generatörler — Kategoriler 1-10
 
-**Tahmin**: 4-6 saat | **Öncelik**: YÜKSEK (hızlı mod kritik)
+**Tahmin**: 8-12 saat | **Öncelik**: YÜKSEK (hızlı mod kritik)
+
+> ⚠️ **Sayım Düzeltmesi (v3.1.0)**: Önceki plan "86 offline fn." diyordu ama bu sayı yanlıştı.
+> Toplam **86 aktivite** offline destekliyken, bu bir tek generator dosyasındaki fn sayısı değil,
+> **10 kategori dosyasına** dağıtılmış toplam sayıdır:
+> - Kat.1-4: 40 offline fn. (ai: 2 AI only)
+> - Kat.5-10: 46 offline fn. (ai: 10 AI önerilir)
+> - **Toplam: 86 offline fn.** → 10 ayrı dosyaya bölünmüş (kategori başına 1 dosya)
 
 ### 2.1 Offline Generator Mimarisi
 
@@ -1149,137 +1461,242 @@ Her adım:
 
 ---
 
-## 📦 Faz 4: UI/UX Yenileme — İnfografik Stüdyosu v2
+## 📦 Faz 4: UI/UX Yenileme — İnfografik Stüdyosu v3 (Modüler Mimari)
 
 **Tahmin**: 6-8 saat | **Öncelik**: YÜKSEK (kullanıcı deneyimi)
 
-### 4.1 Ana Yapı Değişiklikleri
+> ⚠️ **Kullanıcı Gereksinimi (v3.1.0)**: Stüdyo **modüler** yapıda inşa edilmeli. Her alt modül kendi dosyasında olmalı. Tek büyük `index.tsx` ANTİPATERN'DİR.
 
-**Mevcut**: Tek panel layout (Ayarlar | Sonuç)
+### 4.1 Modüler Dizin Yapısı (Kesin Mimari)
 
-**v2**: Üç bölümlü layout:
 ```
-┌─────────────────────────────────────────────────────┐
-│  HEADER: İnfografik Stüdyosu v2 — Aktivite Üretici  │
-├──────────────┬──────────────────────┬───────────────┤
-│  SOL PANEL   │   ORTA ALAN          │  SAĞ PANEL    │
-│  (300px)     │   (esnek genişlik)   │  (300px)      │
-│              │                      │               │
-│  Kategori    │   Üretilen Aktivite   │  Pedagojik    │
-│  Seçimi      │   Önizleme           │  Bilgi        │
-│              │   (Infografik        │  & Notlar     │
-│  Etkinlik    │    Render)           │               │
-│  Tipi        │                      │  Çalışma      │
-│              │                      │  Kâğıdına     │
-│  Parametreler│                      │  Aktar        │
-│  (yaş,profil,│                      │               │
-│   difficulty)│                      │               │
-│              │                      │               │
-│  [Hızlı Mod] │                      │               │
-│  [AI Mod]    │                      │               │
-└──────────────┴──────────────────────┴───────────────┘
+src/components/InfographicStudio/
+│
+├── index.tsx                    ← ANA WRAPPER — sadece layout, state ve sub-component compose
+│                                   (< 150 satır — import + layout + Zustand bağlantısı)
+│
+├── hooks/
+│   ├── useInfographicStudio.ts  ← Ana state yönetimi (selectedCategory, selectedType, result, mode)
+│   ├── useInfographicGenerate.ts ← Üretim logiği (AI + offline fonksiyon çağrıları)
+│   └── useInfographicExport.ts  ← SVG, PDF, A4Editor, Worksheet export logiği
+│
+├── panels/
+│   ├── LeftPanel/
+│   │   ├── index.tsx            ← Sol panel wrapper
+│   │   ├── CategoryTabs.tsx     ← 10 kategori tab navigasyonu
+│   │   ├── ActivityGrid.tsx     ← Seçili kategorinin aktivite kartları grid'i
+│   │   ├── ActivityCard.tsx     ← Tekil aktivite kartı (icon, title, selected state)
+│   │   ├── ModeSwitcher.tsx     ← Hızlı Mod / AI Modu toggle
+│   │   └── ParameterPanel/
+│   │       ├── index.tsx        ← Parametre paneli wrapper
+│   │       ├── AgeGroupSelector.tsx   ← 5-7 / 8-10 / 11-13 / 14+ selector
+│   │       ├── ProfileSelector.tsx    ← dyslexia / dyscalculia / adhd / mixed / general
+│   │       ├── DifficultySelector.tsx ← Kolay / Orta / Zor
+│   │       ├── StudentSelector.tsx    ← useStudentStore entegrasyonu
+│   │       └── TopicInput.tsx         ← Konu/prompt girişi (sanitize, max 2000 char)
+│   │
+│   ├── CenterPanel/
+│   │   ├── index.tsx                  ← Orta alan wrapper
+│   │   ├── InfographicPreview.tsx     ← NativeInfographicRenderer + loading state
+│   │   ├── QuestionsList.tsx          ← activityContent.questions listesi
+│   │   ├── StepsList.tsx              ← activityContent.steps listesi
+│   │   └── EmptyState.tsx             ← Henüz aktivite üretilmemişse görünen UI
+│   │
+│   └── RightPanel/
+│       ├── index.tsx                  ← Sağ panel wrapper
+│       ├── PedagogicalNoteCard.tsx    ← pedagogicalNote gösterim kartı (Elif Yıldız zorunlu)
+│       ├── TargetSkillsCard.tsx       ← targetSkills etiket listesi
+│       ├── MebKazanimCard.tsx         ← mebKazanim kodu (Kat.1-6 için)
+│       ├── SpldNoteCard.tsx           ← spldNote (Kat.9-10 için)
+│       ├── ExportActions.tsx          ← SVG / A4Editor / Worksheet / Print butonları
+│       └── TemplateInfoCard.tsx       ← Template türü ve açıklama kartı
+│
+├── components/
+│   ├── InfographicStudioHeader.tsx    ← Başlık, breadcrumb, kategori bilgisi
+│   ├── GenerateButton.tsx             ← Üretim butonu (loading, disabled states)
+│   ├── KvkkAnonymousToggle.tsx        ← Kat.9-10 KVKK anonim mod toggle (Dr. Ahmet zorunlu)
+│   └── SearchBox.tsx                  ← 96 aktivite arama kutusu (fuzzy search)
+│
+└── constants/
+    ├── categoryConfig.ts              ← 10 kategori metadata (icon, label, color)
+    ├── activityMeta.ts                ← 96 InfographicActivityMeta kaydı
+    └── templateConfig.ts             ← 21 InfographicActivityTemplate render kuralları
 ```
 
-### 4.2 Sol Panel — Yeni Tasarım
-
-#### 4.2.1 Etkinlik Türü Seçimi (Kategori Bazlı)
+### 4.2 Ana Bileşen — index.tsx (Sadece Compose)
 
 ```tsx
-// Kategoriler tabları
-<Tabs>
-  <Tab icon="fa-eye" label="Görsel" />        // visual-perception
-  <Tab icon="fa-book-open" label="Anlama" />  // reading-comprehension
-  <Tab icon="fa-font" label="Okuma" />        // reading-verbal
-  <Tab icon="fa-calculator" label="Matema" /> // math-logic
-</Tabs>
+// src/components/InfographicStudio/index.tsx
+// ⚠️ KURAL: Bu dosya < 150 satır olmalı. Tüm logic hook'lara taşındı.
 
-// Seçili kategorinin infografik aktiviteleri
-<ActivityGrid>
-  {INFOGRAPHIC_ACTIVITIES_BY_CATEGORY[selectedCategory].map(activity => (
-    <ActivityCard
-      key={activity.id}
-      icon={activity.icon}
-      title={activity.title}
-      selected={selectedActivityType === activity.id}
-      onClick={() => setSelectedActivityType(activity.id)}
-    />
-  ))}
-</ActivityGrid>
+import { useInfographicStudio } from './hooks/useInfographicStudio';
+import { LeftPanel } from './panels/LeftPanel';
+import { CenterPanel } from './panels/CenterPanel';
+import { RightPanel } from './panels/RightPanel';
+import { InfographicStudioHeader } from './components/InfographicStudioHeader';
+import { KvkkAnonymousToggle } from './components/KvkkAnonymousToggle';
+
+export function InfographicStudio() {
+  const studio = useInfographicStudio();
+
+  return (
+    <div className="infographic-studio-layout">
+      <InfographicStudioHeader
+        category={studio.selectedCategory}
+        activityType={studio.selectedActivityType}
+      />
+
+      {/* KVKK: Kat.9-10 için anonim mod zorunlu (Dr. Ahmet Kaya kuralı) */}
+      {studio.requiresAnonymousMode && <KvkkAnonymousToggle />}
+
+      <div className="studio-panels">
+        <LeftPanel studio={studio} />
+        <CenterPanel studio={studio} />
+        <RightPanel studio={studio} />
+      </div>
+    </div>
+  );
+}
 ```
 
-#### 4.2.2 Üretim Modu Seçimi
+### 4.3 Ana Hook — useInfographicStudio.ts
 
-```tsx
-// Üretim modu: Hızlı vs AI
-<ModeSwitcher>
-  <ModeButton
-    value="offline"
-    label="Hızlı Mod"
-    desc="Anlık üretim, API gerektirmez"
-    icon="fa-bolt"
-    color="emerald"
-  />
-  <ModeButton
-    value="ai"
-    label="AI Modu"
-    desc="Gemini 2.5 Flash ile derin içerik"
-    icon="fa-wand-magic-sparkles"
-    color="violet"
-  />
-</ModeSwitcher>
+```typescript
+// src/components/InfographicStudio/hooks/useInfographicStudio.ts
+// ⚠️ KURAL: console.log yasak → logError kullan
+
+import { useState, useCallback } from 'react';
+import { useStudentStore } from '../../../store/useStudentStore';
+import { logError } from '../../../utils/errorHandler';
+import { AppError } from '../../../utils/AppError';
+import { InfographicActivityResult, InfographicCategory } from '../../../types/infographic';
+import { ActivityType } from '../../../types/activity';
+import { useInfographicGenerate } from './useInfographicGenerate';
+
+export function useInfographicStudio() {
+  const [selectedCategory, setSelectedCategory] = useState<InfographicCategory>('visual-spatial');
+  const [selectedActivityType, setSelectedActivityType] = useState<ActivityType | null>(null);
+  const [generationMode, setGenerationMode] = useState<'fast' | 'ai'>('fast');
+  const [result, setResult] = useState<InfographicActivityResult | null>(null);
+  const [isAnonymousMode, setIsAnonymousMode] = useState(false);
+
+  const studentStore = useStudentStore();
+  const { generate, isGenerating, error } = useInfographicGenerate();
+
+  // KVKK: Kat.9-10 anonim mod zorunlu
+  const requiresAnonymousMode =
+    selectedCategory === 'spld-support' || selectedCategory === 'clinical-bep';
+
+  const handleGenerate = useCallback(async (topic: string, params: GenerateParams) => {
+    if (!selectedActivityType) return;
+    const generated = await generate(selectedActivityType, topic, params, generationMode);
+    if (generated) setResult(generated);
+  }, [selectedActivityType, generationMode, generate]);
+
+  return {
+    selectedCategory, setSelectedCategory,
+    selectedActivityType, setSelectedActivityType,
+    generationMode, setGenerationMode,
+    result, isGenerating, error,
+    requiresAnonymousMode, isAnonymousMode, setIsAnonymousMode,
+    handleGenerate,
+    student: studentStore.selectedStudent,
+  };
+}
 ```
 
-#### 4.2.3 Ortak Parametreler (Tüm Türler)
+### 4.4 Üretim Hook — useInfographicGenerate.ts
 
-```tsx
-<Params>
-  <AgeGroupSelector />      // 5-7 / 8-10 / 11-13 / 14+
-  <ProfileSelector />       // dyslexia / dyscalculia / adhd / mixed / general
-  <DifficultySelector />    // Kolay / Orta / Zor
-  <StudentSelector />       // useStudentStore entegrasyonu (YENİ!)
-  <TopicInput />            // konu/prompt girişi
-</Params>
+```typescript
+// src/components/InfographicStudio/hooks/useInfographicGenerate.ts
+import { useState } from 'react';
+import { ActivityType } from '../../../types/activity';
+import { InfographicActivityResult } from '../../../types/infographic';
+import { logError } from '../../../utils/errorHandler';
+import { AppError } from '../../../utils/AppError';
+// AI ve offline generatörler kategori bazlı import:
+import * as visualSpatialGen from '../../../services/generators/infographic/visual-spatial';
+import * as readingGen from '../../../services/generators/infographic/reading-comprehension';
+import * as mathGen from '../../../services/generators/infographic/math-logic';
+// ... diğer kategoriler
+
+// ActivityType → generator fonksiyon eşleme (registry pattern)
+const GENERATOR_MAP: Record<string, { fast?: Function; ai?: Function }> = {
+  [ActivityType.INFOGRAPHIC_CONCEPT_MAP]: {
+    fast: visualSpatialGen.generateOfflineInfographicConceptMap,
+    ai: visualSpatialGen.generateInfographicConceptMapFromAI,
+  },
+  // ... 95 tane daha
+};
+
+export function useInfographicGenerate() {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<AppError | null>(null);
+
+  const generate = async (
+    activityType: ActivityType,
+    topic: string,
+    params: unknown,
+    mode: 'fast' | 'ai'
+  ): Promise<InfographicActivityResult | null> => {
+    const generators = GENERATOR_MAP[activityType];
+    const fn = mode === 'fast' ? generators?.fast : generators?.ai;
+
+    if (!fn) {
+      // fast yoksa otomatik olarak AI'a düş
+      const aiFn = generators?.ai;
+      if (!aiFn) { setError(new AppError('Generator bulunamadı', 'NOT_FOUND', 404)); return null; }
+    }
+
+    setIsGenerating(true);
+    setError(null);
+    try {
+      const result = await (fn ?? generators?.ai)!({ topic, ...params });
+      return result;
+    } catch (err) {
+      logError(err);
+      setError(err instanceof AppError ? err : new AppError('Üretim hatası', 'INTERNAL_ERROR', 500));
+      return null;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return { generate, isGenerating, error };
+}
 ```
 
-### 4.3 Orta Alan — Render Zenginleştirme
+### 4.5 Layout Diyagramı
 
-```tsx
-// Üretilen infografik + aktivite içeriği birleşik gösterim
-
-// Eğer questions varsa:
-<div className="infographic-render">
-  <NativeInfographicRenderer syntax={result.syntax} />
-</div>
-{result.activityContent.questions && (
-  <div className="activity-questions mt-4">
-    <h4>Aktivite Soruları</h4>
-    {result.activityContent.questions.map((q, i) => (
-      <QuestionCard key={i} question={q} index={i+1} />
-    ))}
-  </div>
-)}
 ```
-
-### 4.4 Sağ Panel — Pedagojik Panel
-
-```tsx
-<RightPanel>
-  {/* Pedagojik Not — zorunlu, Elif Yıldız kural */}
-  <PedagogicalNoteCard note={result.pedagogicalNote} />
-  
-  {/* Hedef Beceriler */}
-  <TargetSkillsCard skills={result.targetSkills} />
-  
-  {/* Export Butonları */}
-  <ExportActions>
-    <ExportButton type="svg" />
-    <ExportButton type="a4-editor" />
-    <ExportButton type="worksheet" /> {/* YENİ: çalışma kâğıdı sistemine */}
-  </ExportActions>
-  
-  {/* Template Detay */}
-  <TemplateInfoCard templateType={result.templateType} />
-</RightPanel>
+┌─────────────────────────────────────────────────────────────────┐
+│ InfographicStudioHeader.tsx (başlık + breadcrumb)               │
+├──────────────┬──────────────────────────┬───────────────────────┤
+│ LeftPanel/   │ CenterPanel/             │ RightPanel/           │
+│ (320px sabit)│ (flex-1 esnek)           │ (320px sabit)         │
+│              │                          │                       │
+│ CategoryTabs │ InfographicPreview.tsx   │ PedagogicalNoteCard   │
+│   .tsx       │ (NativeInfographicRend.) │ TargetSkillsCard      │
+│              │                          │ MebKazanimCard        │
+│ ActivityGrid │ QuestionsList.tsx        │ SpldNoteCard          │
+│   .tsx       │ (activityContent.       │ ExportActions.tsx     │
+│              │  questions)              │  ├── SVG export       │
+│ ActivityCard │ StepsList.tsx            │  ├── A4Editor         │
+│   .tsx       │ (activityContent.steps) │  ├── Worksheet        │
+│              │                          │  └── Print            │
+│ ModeSwitcher │ EmptyState.tsx           │ TemplateInfoCard      │
+│   .tsx       │                          │                       │
+│ ─────────── │                          │                       │
+│ ParameterPa │ [GenerateButton.tsx]     │                       │
+│ nel/         │ (centered bottom)        │                       │
+│  AgeGroup.. │                          │                       │
+│  Profile..  │                          │                       │
+│  Difficulty.│                          │                       │
+│  Student..  │                          │                       │
+│  TopicInput │                          │                       │
+│             │                          │                       │
+│ SearchBox   │                          │                       │
+└─────────────┴──────────────────────────┴───────────────────────┘
 ```
 
 ---
