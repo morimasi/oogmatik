@@ -92,55 +92,52 @@ let itemsDEHB = [];
 THEMES.forEach(theme => {
   CORE_DISLEKSI.forEach(c => {
     itemsDisleksi.push({
-      title: \`\${c.skill} - \${theme}\`,
-      prompt: \`[\${theme} Temalı Ultra-Premium Şablon] - Disleksik profil için: \${c.promptBase}\`,
+      title: c.skill + " - " + theme,
+      prompt: "[" + theme + " Temalı Ultra-Premium Şablon] - Disleksik profil için: " + c.promptBase,
       hint: c.hint
     });
   });
   
   CORE_DISKALKULI.forEach(c => {
     itemsDiskalkuli.push({
-      title: \`\${c.skill} - \${theme}\`,
-      prompt: \`[\${theme} Temalı Ultra-Premium Şablon] - Diskalkulik profil için: \${c.promptBase}\`,
+      title: c.skill + " - " + theme,
+      prompt: "[" + theme + " Temalı Ultra-Premium Şablon] - Diskalkulik profil için: " + c.promptBase,
       hint: c.hint
     });
   });
   
   CORE_DEHB.forEach(c => {
     itemsDEHB.push({
-      title: \`\${c.skill} - \${theme}\`,
-      prompt: \`[\${theme} Temalı Ultra-Premium Şablon] - DEHB profili için: \${c.promptBase}\`,
+      title: c.skill + " - " + theme,
+      prompt: "[" + theme + " Temalı Ultra-Premium Şablon] - DEHB profili için: " + c.promptBase,
       hint: c.hint
     });
   });
 });
 
-const fileContent = \`export interface InfographicTemplate {
-  title: string;
-  prompt: string;
-  hint: string;
-}
-
-export interface TemplateCategory {
-  category: string;
-  items: InfographicTemplate[];
-}
-
-export const SPLD_PREMIUM_TEMPLATES: TemplateCategory[] = [
-  {
-    category: 'Disleksi',
-    items: \${JSON.stringify(itemsDisleksi, null, 4)}
-  },
-  {
-    category: 'Diskalkuli',
-    items: \${JSON.stringify(itemsDiskalkuli, null, 4)}
-  },
-  {
-    category: 'DEHB',
-    items: \${JSON.stringify(itemsDEHB, null, 4)}
-  }
-];
-\`;
+const fileContent = "export interface InfographicTemplate {\n" +
+  "  title: string;\n" +
+  "  prompt: string;\n" +
+  "  hint: string;\n" +
+  "}\n\n" +
+  "export interface TemplateCategory {\n" +
+  "  category: string;\n" +
+  "  items: InfographicTemplate[];\n" +
+  "}\n\n" +
+  "export const SPLD_PREMIUM_TEMPLATES: TemplateCategory[] = [\n" +
+  "  {\n" +
+  "    category: 'Disleksi',\n" +
+  "    items: " + JSON.stringify(itemsDisleksi, null, 4) + "\n" +
+  "  },\n" +
+  "  {\n" +
+  "    category: 'Diskalkuli',\n" +
+  "    items: " + JSON.stringify(itemsDiskalkuli, null, 4) + "\n" +
+  "  },\n" +
+  "  {\n" +
+  "    category: 'DEHB',\n" +
+  "    items: " + JSON.stringify(itemsDEHB, null, 4) + "\n" +
+  "  }\n" +
+  "];\n";
 
 fs.writeFileSync(path.join(__dirname, 'src/data/infographicTemplates.ts'), fileContent, 'utf-8');
 console.log('Successfully generated ' + (itemsDisleksi.length + itemsDiskalkuli.length + itemsDEHB.length) + ' Ultra-Premium templates.');

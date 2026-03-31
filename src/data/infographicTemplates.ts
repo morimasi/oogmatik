@@ -13,181 +13,1511 @@ export const SPLD_PREMIUM_TEMPLATES: TemplateCategory[] = [
   {
     category: 'Disleksi',
     items: [
-      {
-        title: 'Ortografik Haritalama - Uzay Gemisi Navigasyonu',
-        prompt: 'Uzay macerası temalı dinamik analiz şeması. Öğrencinin harf rotasyon hatalarını (b/d/p/q) engellemek adına, ayna nöronlarını tetikleyen zıt formlu asteroit yörüngeleri metaforunu kur. Tasarım karanlık uzay zemininde yüksek sarı/turuncu neon (Lexend fontu) kontrastıyla "Görsel Kümeleme" (Visual Crowding) etkisini sıfıra indirgesin. Kapsam: Görsel Ayırt Etme.',
-        hint: 'compare'
-      },
-      {
-        title: 'Ortografik Haritalama - Kayıp Dinozor Fosilleri',
-        prompt: 'Dinozor dönemi temalı kazı şeması. Harflerin (m/n, h/b) köşe ve kıvrımlarını kemik parçalarıyla eşleştir. Dislektik beynin detaya odaklanmasını sağlamak için topraktan çıkan pürüzlü zemin efektleri üzerinden sağ/sol ayrımını netleştiren zıt kutuplu (mavi-turuncu) kontrast blokları kullan. Kapsam: Ortografik Şablon.',
-        hint: 'compare'
-      },
-      {
-        title: 'Ortografik Haritalama - Okyanus Tabanı Haritası',
-        prompt: 'Derin okyanus temalı keşif diyagramı. Harflerin simetrik karmaşasını (s/z) çözmek için, akıntı yönlerine göre süzülen deniz canlıları metaforunu işle. Göz kaslarını soldan sağa akıcı okumaya alıştırmak amacıyla, soldan sağa doğru parlayan yatay deniz feneri ışınları (%0 visual noise) yerleştir. Aydınlatılmış alanlarda sadece tek bir sembol görünsün. Kapsam: Sağ/Sol Algısı.',
-        hint: 'hierarchy'
-      },
-      {
-        title: 'Ortografik Haritalama - Büyülü Orman Aynaları',
-        prompt: 'Sihirli orman temalı illüzyon diyagramı. b ve d harflerinin orman perilerinin tuttuğu asimetrik aynalardan yansıdığı bir hiyerarşi oluştur. Harflerin sap (ascender/descender) kısımlarının uzunluklarını ağaç dallarına benzeterek somutlaştır ve "yapısal farkındalığı" artır. Pastel yeşil ve mat mor arka planlarla harf-şekil sınırlarını kalın hatlarla (bold stroke) belirginleştir. Kapsam: Sembolik Muhakeme.',
-        hint: 'hierarchy'
-      },
-      {
-        title: 'Ortografik Haritalama - Geleceğin Şehri Trafiği',
-        prompt: 'Fütüristik uçan araba trafiği temalı akış diyagramı. Trafik levhalarındaki harflerin karmaşıklığını gidermek için "yol ayrımları" metaforu kullan. Çocuğun işleyen belleğine (Working Memory) yüklenmemek için bir ekranda maksimum 3 bilgi kutucuğu ver. Metinler arası boşlukları (line spacing) %150 oranında tut. Kapsam: Okuma Yönü ve Akıcılık.',
-        hint: 'sequence'
-      },
-      {
-        title: 'Fonolojik Bellek - Müzikal Notalar ve Uzay',
-        prompt: 'Uzayda çalan ritmik notalar diyagramı. Kelimelerin hecelere bölünme sürecini (Hece Merdiveni) yıldızların birbirine bağlanma hızıyla sembolize et. "Disleksik bireyler sesi heceye bölmekte zorlanır" ilkesinden yola çıkarak, her hece baloncuğunu akustik/görsel bir rezonans çemberine koy. İlk hece kırmızı renkle başlayıp, sondaki hece maviye evrilerek dizi (sequence) algısını beynin dil merkezine kazısın. Kapsam: Ses Birimsel Analiz.',
-        hint: 'sequence'
-      },
-      {
-        title: 'Fonolojik Bellek - Antik Mısır Papirüsleri',
-        prompt: 'Eski Mısır piramit hiyerarşisi temalı sıralama diyagramı. Bir kelimeyi oluşturan harfleri ve sesleri piramidin aşağıdan yukarıya dizilen taş blokları olarak görselleştir. Kafiyeli kelimelerin (Rhymer) aynı form/renkte bloklardan oluştuğu "Fonolojik Kafiye Aileleri" modelini (Matrix) kur. Metin karmaşası olmaması için, tamamen saf zemin üzerinde sadece kelime ve uyumlu piktogram bulunsun. Kapsam: Kafiye ve Hece Sentezi.',
-        hint: 'hierarchy'
-      },
-      {
-        title: 'Fonolojik Bellek - Korsan Hazinesi Şifresi',
-        prompt: 'Korsan haritası temalı şifre çözme matrisi. Kelimelerin başlangıç seslerinin değiştikçe farklı kelimelere (örn: bal-çal-dal) dönüşmesini, birbirine zincirle bağlı altın sikkelerle yapılandır. Çocuğun "işitsel ayrımlaştırma" eksikliğini telafi etmek için, değişen harfleri kalın (BOLD) ve tamamen zıt parlayan bir renkle izole et. Kapsam: Sesteş ve Ses Değiştirme.',
-        hint: 'list'
-      },
-      {
-        title: 'Fonolojik Bellek - Mikro Evren Laboratuvarı',
-        prompt: 'Hücrelerin bölündüğü mikroskobik laboratuvar temalı akış şeması. Uzun (çok heceli) kelimelerin okunmasındaki bilişsel tıkanmayı açmak için kelimeleri "hücre bölünmesi" animasyonlarına benzer bağ noktalarıyla (node-link) dörde/beşe ayır. Her bir heceyi (hücreyi) tek bir yutulabilir (subitizable) görsel parçaya bölen Fishbone diyagramı tasarla. Kapsam: Uzun Kelime Okuma Strategisi.',
-        hint: 'hierarchy'
-      },
-      {
-        title: 'Fonolojik Bellek - Kış Sporları Parkuru',
-        prompt: 'Karda kayan kayakçı temalı sıralama zinciri. Kelimenin ilk, orta ve son seslerini kayak parkurundaki bayrak noktaları olarak kur. Okuma sırasındaki atlama/yutma (omission) hatalarını engellemek için, gözün kayma hizasını (tracking) belirten koyu gri kalın çizgiler çek. Tüm alan soluk beyaz/buzul tonuyken, harf istasyonları sıcak renklerde (kiremit, hardal) belirsin. Kapsam: Ses Yutma Hatalarını Önleme.',
-        hint: 'timeline'
-      },
-      {
-        title: 'Okuduğunu Anlama (5N1K) - Gizli Ajan Görevi',
-        prompt: 'Casusluk temalı 5N1K bilgi avı diyagramı. Metin okuma sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede, Ne Zaman sorularını, ajan çantalarındaki gizli dosyalar olarak Venn veya Matrix şemasına oturt. Soruları uzun cümleler yerine 2 kelimelik net yönergeler halinde ver. Sayfadaki yazılı metin oranını %30\'un altında tutarak grafiksel çıkarımı (inferencing) güçlendir. Kapsam: 5N1K ve Çıkarım Yapma.',
-        hint: 'auto'
-      },
-      {
-        title: 'Okuduğunu Anlama (5N1K) - Ortaçağ Şatosu Savunması',
-        prompt: 'Kale savunma temalı hiyerarşik okuma diyagramı. Hikayedeki ana olayı kalenin merkezindeki kral, yan olayları ise kuleler olarak konumlandır. Dislektik işleyen belleğin konuyu unutmasını önlemek için "Hikaye Haritası" (Story Map) algoritması kur. Her kuleye bağlanan yolların üzerinde sadece 1 kelimelik anahtar sözcükler yer alsın. Karmaşık arka plan detayı silinmiş, pastel tonlarda flat bir tasarım yap. Kapsam: Metnin Ana Fikri ve Detayları.',
-        hint: 'hierarchy'
-      },
-      {
-        title: 'Okuduğunu Anlama (5N1K) - Arı Kovanı Sistemi',
-        prompt: 'Arı kovanı petekleri temalı kavram haritası (Concept Map). Okunan metindeki olayların kronolojik sıralamasını veya etki-tepki ilişkisini altıgen petekler halinde birbirine geçir. Peteklerin merkezine Neden-Sonuç (Cause-Effect) dinamiği yerleştir ve ok şaretleriyle net bir hiyerarşi kur. Etrafta uçuşan gereksiz ikonları temizle, "Bilişsel Yük Kuramı"na uygun olarak ekranın %40\'ını "Negatif Boşluk" (White Space) olarak bırak. Kapsam: Neden-Sonuç Bağlantıları.',
-        hint: 'list'
-      },
-      {
-        title: 'Okuduğunu Anlama (5N1K) - Sihirbazlık Akademisi',
-        prompt: 'Büyü formülleri temalı balık-kılçığı (Fishbone) şeması. Okunacak paragraftaki "Ana Fikir" (Büyü İksiri) ve bu ana fikri destekleyen "Yardımcı Düşünceleri" (Malzemeler) net hatlarla kılçık uçlarına diz. Disleksik göz okumasına uygun olması adına satır boşluklarını 1.5 kat artır ve şablonu aşağıdan yukarı (veya tam soldan sağa) akacak şekilde tek boyutlu tasarla. Kapsam: Ana Düşünce Çıkarımı.',
-        hint: 'hierarchy'
-      },
-      {
-        title: 'Okuduğunu Anlama (5N1K) - Zaman Yolculuğu Treni',
-        prompt: 'Zaman makinesi treni temalı Timeline haritası. Kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızaya destek olmak için, her bir hikaye anını bir tren vagonuna yerleştir. Vagonları birbirine kopmaz kalın halatlarla bağlayarak zamanın/olay örgüsünün sürekliliğini görsel bağlama (anchoring) ile kodla. Fontlar strictly Lexend ve siyah renkte, zemin kirli-sarı (sepya/warm) tonunda parlamayı (glare) engelleyecek matlıkta olsun. Kapsam: Olay Akışı Sıralaması.',
-        hint: 'timeline'
-      }
-    ]
+    {
+        "title": "Ortografik Haritalama - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    },
+    {
+        "title": "Ortografik Haritalama - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin dönme ve harf rotasyon (b/d/p/q) hatalarını engellemek adına, ayna nöronlarını tetikleyen zıt formlu metaforlar kur! Tasarımda zeminle yüksek kontrast (Lexend fontu) yaratarak 'Görsel Kümeleme' (Visual Crowding) etkisini sıfıra indirge. Kapsam: Görsel Ayırt Etme.",
+        "hint": "compare"
+    },
+    {
+        "title": "Heceleme ve Fonolojik Bellek - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin hecelere bölünme sürecinde sesleri adım adım ardışık olarak sembolize et (Hece Merdiveni modeli). İlk heceden son heceye uzanan görsel bağlarla işleyen bellek (Working Memory) yükünü azalt. Kapsam: Ses Birimsel Analiz ve Sıralama.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Okuduğunu Anlama (5N1K) ve Çıkarım - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - Disleksik profil için: metin sonrası anlama sorununu (Reading Comprehension) çözmek amacıyla Kim, Ne, Nerede vb. sorularını birbiriyle Venn/Kılçık ağında bağla. Uzun cümleler yerine görsel ikona dayalı kısa net kelimeler ver. %40 'Negatif Boşluk' (White Space) ilkesi. Kapsam: 5N1K ve Çıkarım.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Görsel Hafıza ve Sıralama - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - Disleksik profil için: kronolojik hikayeleri okurken sırayı karıştıran dislektik hafızayı desteklemek için olay örgüsünü birbirine kopmaz halatlarla (zaman tüneli) bağla. Glare (göz kamaşması) engelleyen mat pastel renkler kullan. Kapsam: Olay Akışı Sıralaması.",
+        "hint": "timeline"
+    },
+    {
+        "title": "Kafiye Aileleri (Rhymer) - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - Disleksik profil için: kelimelerin bitiş seslerinin aynı form ve renkte bloklardan oluştuğu 'Fonolojik Kafiye Matrisi' kur. Saf, detaysız zemin üzerinde sadece kafiyeli piktogram kümesi yer alsın. Kapsam: Ses Sentezi ve Benzerlik.",
+        "hint": "list"
+    }
+]
   },
   {
     category: 'Diskalkuli',
     items: [
-      {
-        title: 'Sayı Hissi (Subitizing) - Okyanus Mercanları',
-        prompt: 'Okyanus mercan resifleri temalı sayma ve kümeleme (subitizing) diyagramı. Diskalkulik beyin sayıların sembolik anlamını (5) somutlaştırmada zorlanır. Bu yüzden sayı sembolünün hemen yanında zar şeklinde anında algılanabilir (max 4\'lü küme) balık grupları yerleştir. Hiçbir zaman sayıları izole olarak bırakma, "Parça-Bütün" (Part-Whole) ilişkisini Venn Şeması ile bağlayarak %0 soyut kavram prensibini uygula. Kapsam: 1-10 Arası Rakam-Değer Algısı.',
-        hint: 'compare'
-      },
-      {
-        title: 'Sayı Hissi (Subitizing) - İtfaiye Kurtarma Operasyonu',
-        prompt: 'İtfaiye temalı ardışık hiyerarşi şeması. Sayı doğrusunun ileri-geri mantığını anlamlandıramayan diskalkulik bireyler için sayı doğrusunu yatay bir çizgi yerine "kat kat yukarı çıkan itfaiye merdivenleri" şeklinde dikey bir hiyerarşide konumlandır. Geriye saymanın "aşağı inmek", ileri saymanın "yukarı çıkmak" olduğunu somut yer-yön (spatial) metrikleriyle birleştir (Matrix/Sequence). Font boyutu abartılı derecede büyük, zemin pastel mavi. Kapsam: Sayı Doğrusu ve Yönelim.',
-        hint: 'sequence'
-      },
-      {
-        title: 'Sayı Hissi (Subitizing) - Çiftlik Hasadı',
-        prompt: 'Meyve hasadı temalı matris. Azlık-çokluk kavramını sepetlere yerleştirilmiş somut meyvelerle kur. Diskalkulik kıyaslama zorluğu yaşayan beyne "Büyük/Küçük" kavramını matematik sembolleriyle (>, <) göstermeden önce fiziksel boyut ve hacim farklarıyla algılat. Karışıklığı kesmek için "Aynı Tür" meyveleri kıyaslat, farklı şekilli ve renkli nesne kalabalıklığı yapma (düşük bilişsel parazit). Kapsam: Miktar Karşılaştırma.',
-        hint: 'list'
-      },
-      {
-        title: 'Sayı Hissi (Subitizing) - İnşaat Vinçleri',
-        prompt: 'Vinçle taşınan yapı blokları temalı gruplama diyagramı. Onluk ve Birlik kavramlarını ayrıştırmak için 10\'lu kümeleri parçalanamaz büyük beton kütleler, birlikleri ise ufak tuğlalar olarak göster (Hierarchy). Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir. Kullanılan renklerin sayı kodlaması ile eşleşmesini sağla (Örn: Onluklar her zaman lacivert, birlikler her zaman turuncu). Kapsam: Basamak Değeri (Onluk-Birlik).',
-        hint: 'hierarchy'
-      },
-      {
-        title: 'Sayı Hissi (Subitizing) - Kristal Mağarası',
-        prompt: 'Renk değiştiren kristaller temalı işlem ağacı (Concept Map). "Sıfır" kavramının uzamsal hiçlik (yokluk) olduğunu aktarmak için, işlem (toplama çıkarma) sonucunda yok olan kristalleri yarı şeffaf silik tasarımlarla göster. Göz hareketi soldan sağa doğru işlemi takip ederken karmaşık oklar değil, sıvı gibi akan bağlantı hatları bağla. Kapsam: O İşlemi ve Sayı Yutan Algı.',
-        hint: 'auto'
-      },
-      {
-        title: 'Algoritmik Matematik - Uzay İstasyonu Bağlantıları',
-        prompt: 'Uzay istasyon modülleri temalı Toplama/Çıkarma algoritmaları diyagramı. Diskalkulik beyin alt alta işlem yaparken sütunlarda (basamaklarda) kayma yaşar. Basamakları sımsıkı kilitleyen asansör/tünel formlu modüllerle (Matrix) basamak hizalaması yap. Birler basamağının işlemini devasa neon bir kilit olarak öne çıkar; diğer basamakları o işlem bitene kadar "karanlık mod: %30 opaklık" içinde tut. Kapsam: Alt Alta İşlem Basamakları.',
-        hint: 'list'
-      },
-      {
-        title: 'Algoritmik Matematik - Fırıncı ve Somun Ekmekler',
-        prompt: 'Ekmek fırını temalı kesir (Fractions) diyagramı. Kesirlerin "bölme" ile akraba olduğunu soyut bir "1/4" yazısıyla değil, fiziksel olarak bir somunun 4 parçaya bıçakla kesilerek (dilimler arası boşluk bırakarak) göster. Payın seçilen/alınan dilimi renkli ve dokulu, paydanın ise toplam tepsi alanını temsil ettiğini netleştir. Kesir sembolünü arasına bir "çizgi" çekilmiş rakamlar olarak değil, "üst/alt kat" metaforuyla hizala. Kapsam: Somut Kesirler ve Bütün.',
-        hint: 'compare'
-      },
-      {
-        title: 'Algoritmik Matematik - Dişli Çark Mekanizması',
-        prompt: 'Makine dişlileri temalı çarpım tablosu stratejileri şeması. Çarpma işlemini bir ezber olmaktan çıkarıp "Tekrarlı Toplanma" motoru gibi göster (Sequence). Bir büyük çarkın (Örn: "4 kere") dönmesiyle, içine yapışık olan 3\'erli minik çarkların harekete geçtiğini görselleştir. Toplam sonucun (12) çarkların bütünlüğünü ifade ettiğini, "Cause-Effect" (Neden-sonuç) diyagramında somutlaştır. Kapsam: Çarpma İşleminin Mantığı.',
-        hint: 'sequence'
-      },
-      {
-        title: 'Algoritmik Matematik - Zaman Yolcusu Saatler',
-        prompt: 'Zaman makinesi kadranı temelli Akrep/Yelkovan diyagramı. Diskalkulik zamanda algı güçlüğü çeker. 60 dakikalık uzamsal döngüyü, saatin etrafında dilimlenmiş tam, yarım ve çeyrek renkli dilimler olarak pasta grafiğine (Pie/Cycle Diagram) entegre et. Akrep kalın bir ağaç kütüğü gibi durağan, yelkovan ise ince ama hızlı ve renkli bir şimşek olarak tasarlanıp uzamsal ayırt edicilik yarat. Kapsam: Zamanı Okuma ve Uzamsal Kadran.',
-        hint: 'timeline'
-      },
-      {
-        title: 'Algoritmik Matematik - Define Adaları Haritası',
-        prompt: 'Adalar arası define rotası temalı Para Birimi ve Alışveriş hiyerarşisi. "Bozuk para"ların toplanıp "tam para" oluşturduğunu (Bozuk para hiyerarşisi), 1 liranın içinde 2 tane 50 kuruş barındırdığını bir Venn Şeması (Kesişim) veya Hiyerarşi ağacı ile kurgula. Sayıların altına mutlaka gerçekçi (foto-piktogram) bozuk para silüetleri ekle. 1 Lirayı altına, kuruşları gümüş/kahverengi tonlarına boyayarak materyal zıtlığı kat. Kapsam: Paraları Tanıma ve Eşdeğerlik.',
-        hint: 'hierarchy'
-      }
-    ]
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    },
+    {
+        "title": "Kümeleme (Subitizing) ve Sayı Hissi - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayıların sembolik anlamlarını (3, 5, 8 vb.) anında algılanabilir, ufaltılamaz zar kümeleriyle eşleştir (Parça-Bütün ilişkisi). Geometrik kalabalığı azaltıp somut nesne sayımına (somut miktar) yönelt! Kapsam: Rakam-Değer Algısı.",
+        "hint": "compare"
+    },
+    {
+        "title": "Likit Onluk Bozma ve Basamak Modeli - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Onluk ve Birlik kavramlarını ayrıştırmak için 10'lu kümeleri parçalanamaz büyük bütünler, birlikleri ufak parçalar olarak kur. Onluk bozmayı görsel ve fiziksel olarak kütlenin parçalanması biçiminde grafiklendir (Onluklar mavi, Birlikler turuncu). Kapsam: Basamak Değeri.",
+        "hint": "hierarchy"
+    },
+    {
+        "title": "Zihinsel Sayı Doğrusu ve Yön - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: sayı doğrusunun ileri-geri mantığını dikey/hiyerarşik bir labirent sistemi gibi konumlandır. Geriye saymanın 'aşağı inmek' vs. somut yer-yön metrikleriyle birleştir (Matrix/Sequence dizilimi). Kapsam: Yönelim ve Ardışıklık.",
+        "hint": "sequence"
+    },
+    {
+        "title": "Somut Kesirler ve Bütün Parçalanması - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Kesir sembolünü arasına bir 'çizgi' çekilmiş rakamlar olarak değil, fiziki bir bütünün ayrılması (örn. makasla kesilmiş boşluklu parçalar) metaforuyla hizala! Payı renkli ve dokulu tasarla. Kapsam: Bütün-Parça İlişkisi.",
+        "hint": "list"
+    },
+    {
+        "title": "Çarpım Tablosu Örüntü Motoru - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - Diskalkulik profil için: Çarpma işlemini bir ezber olmaktan çıkarıp 'Tekrarlı Toplanma' mekanizması (çark, döngü vs.) gibi göster. Toplam sonucun (12 vb.) mekanizmanın bütünlüğünü ifade ettiğini Cause-Effect grafiğinde somutlaştır. Kapsam: Çarpma İşleminin Mantığı.",
+        "hint": "auto"
+    }
+]
   },
   {
     category: 'DEHB',
     items: [
-      {
-        title: 'Bölünmüş Dikkat Cenderesi - Uzay Teleskobu',
-        prompt: 'Uzay teleskobu vizörü (odak merceği) temalı dikkat şeması. DEHB zihnindeki aşırı tepkiselliği ve dikkat dağınıklığını minimuma indirmek için tüm arka planı zifiri karanlık (Pure dark) yap. Bilginin işleneceği merkez alanını ise loş bir mavi ışık halkasıyla çevir. Hiyerarşiyi tepeden inme değil, "Merkeze Yaklaşan" balık kılçığı (Fishbone) modelinde kur. Çevrede kesinlikle nokta, yıldız, parıltı (çeldirici noise) kullanma. Kapsam: Görsel Gürültü ve İleri Odaklanma.',
-        hint: 'auto'
-      },
-      {
-        title: 'Bölünmüş Dikkat Cenderesi - Orman Kamp Ateşi',
-        prompt: 'Gece karanlığındaki orman kamp ateşi temalı Sequence (Adım Adım Gece Planı) diyagramı. Görev dizisi takibi (Task sequencing) DEHB için kritiktir. 5 adımlık bir planı sayfanın ortasından geçen kalın ve tek düze bir ip (Timeline) olarak diz. O an yapılması gereken 2. madde haricindeki tüm maddeleri %50 solukluğa iterek dikkatin odağını hapset. Ateş/Işık efekti sadece "Şu Anki Görev" üzerinde yansısın. Kapsam: Görev Zinciri (Working Sequence).',
-        hint: 'timeline'
-      },
-      {
-        title: 'Bölünmüş Dikkat Cenderesi - Dalgıç ve Oksijen Tüpü',
-        prompt: 'Deniz diplerinde dalış yapan dalgıç temalı Hiyerarşi (Hierarchy) şeması. "Dürtüsellik" ve bekleme/sabır kontrolünü öğretmek adına, bir işlemin (örn: paragraf okuma) aşamalarını, oksijen tüpündeki barometre veya dalış merdivenleri gibi sınırlandırılmış hedeflerle kodla. Bilginin parçalandıkça tüketilebilir olduğunu gösteren keskin bloklar tasarla. Hiçbir metin kutusu bir diğerine çapraz geçiş veya asimetrik bağ ile dokunmasın; aşırı nizam ve geometri hakim olsun. Kapsam: Sabır/Sürekli Dikkat ve Adım Hiyerarşisi.',
-        hint: 'hierarchy'
-      },
-      {
-        title: 'Zaman Algısı Daralması - Kum Saati Geçidi',
-        prompt: 'Dev kum saati temalı Venn Diyagramı / Flowchart. Zaman körlüğü (Time Blindness) yasayan DEHB\'li bireylere "Şimdi" ile "Sonra" kavramlarını ayırmak için iki zıt renk odacığı kur. Sol taraf eylem merkezi (sıcak renkler), sağ taraf sonuç / ödül merkezi (soğuk renkler) olsun. Aralarındaki köprüyü (Fishbone omurgasını) oklarla kalın biçimde belirginleştir. Zihni oyalayacak arka plan deseni kullanma. Kapsam: Zamanı Bloklama ve Ödül Algısı.',
-        hint: 'compare'
-      },
-      {
-        title: 'Zaman Algısı Daralması - Mimari Taslak',
-        prompt: 'Mimar çizim masası ve blueprint (mavi kopya) temalı Matrix. Organizasyon yeteneği için planlama tablolarını (Grid) kalın border/çerçevelerle zırhlandır. Satırlar ve sütunlar arasına gri geniş "nefes alma koridorları" ekle. Gözün başka bir satıra kaymasını (Saccadic jumps) engellemek için satır arka planlarında belirgin tonlama (Zebra striping - açık mavi / koyu mavi) yarat. Kapsam: Organizasyon ve Izgara Dikkat Takibi.',
-        hint: 'list'
-      }
-    ]
-  },
-  {
-    category: 'Karma (Mixed Spesifik)',
-    items: [
-      {
-        title: 'Çoklu-Duyu (Multi-sensory) - Devre Kartları',
-        prompt: 'Elektronik devre kartı (PCB) temalı karma öğrenme şeması (Concept Map). Hem DEHB hem Disleksi barındıran profiller için: Enerji hattını temsil eden parlak devre yollarında, kelimelerin kök ve eklerini elektrik düğümleri olarak bağla (Ortografik işlem). Ekrandaki renk sayısı 3\'ü (Neon mavi, beyaz, fosforlu yeşil) aşmamalıdır (DEHB kısıtı). Oklar, kısa ve dik açılı (90 derece) dönüşlerle zihinsel belirsizliği önlemeli. Kapsam: Ek ve Kök Ayırma (Görsel Yük Kuramı: Minimum).',
-        hint: 'auto'
-      },
-      {
-        title: 'Çoklu-Duyu (Multi-sensory) - Antik Su Kanalları',
-        prompt: 'Romalıların su kemerleri temalı sıvı akış diyagramı (Sequence). Karma zorluk (Diskaluli + Disleksi) profilinde, matematik problemlerinin Türkçe sözcüklerden oluşmasını çözmek için: Soruyu (5N1K) suyu taşıyan yapboz taşları gibi parçalara böl, suyun ulaştığı havuzu ise sayısal işlem matrisi (Matrix) yap. Sözcükler büyük ve net (Lexend), sayılar ise renk kilitli (Onluklar Mavi) tasarlanmalı. Arka plan dokusu %0 olmalıdır. Kapsam: Problem Çözme ve Okuduğunu Anlamlandırma.',
-        hint: 'sequence'
-      }
-    ]
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Uzay Gemisi Navigasyonu",
+        "prompt": "[Uzay Gemisi Navigasyonu Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Kayıp Dinozor Fosilleri",
+        "prompt": "[Kayıp Dinozor Fosilleri Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Okyanus Tabanı Haritası",
+        "prompt": "[Okyanus Tabanı Haritası Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Büyülü Orman Aynaları",
+        "prompt": "[Büyülü Orman Aynaları Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Geleceğin Şehri Trafiği",
+        "prompt": "[Geleceğin Şehri Trafiği Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Müzikal Notalar",
+        "prompt": "[Müzikal Notalar Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Antik Mısır Papirüsleri",
+        "prompt": "[Antik Mısır Papirüsleri Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Korsan Hazinesi Şifresi",
+        "prompt": "[Korsan Hazinesi Şifresi Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Mikro Evren Laboratuvarı",
+        "prompt": "[Mikro Evren Laboratuvarı Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Kış Sporları Parkuru",
+        "prompt": "[Kış Sporları Parkuru Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Gizli Ajan Görevi",
+        "prompt": "[Gizli Ajan Görevi Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Ortaçağ Şatosu Savunması",
+        "prompt": "[Ortaçağ Şatosu Savunması Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Arı Kovanı Sistemi",
+        "prompt": "[Arı Kovanı Sistemi Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Sihirbazlık Akademisi",
+        "prompt": "[Sihirbazlık Akademisi Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Zaman Yolculuğu Treni",
+        "prompt": "[Zaman Yolculuğu Treni Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Okyanus Mercanları",
+        "prompt": "[Okyanus Mercanları Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - İtfaiye Kurtarma",
+        "prompt": "[İtfaiye Kurtarma Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Çiftlik Hasadı",
+        "prompt": "[Çiftlik Hasadı Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - İnşaat Vinçleri",
+        "prompt": "[İnşaat Vinçleri Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Kristal Mağarası",
+        "prompt": "[Kristal Mağarası Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Meyve Bahçesi",
+        "prompt": "[Meyve Bahçesi Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Robot Fabrikası",
+        "prompt": "[Robot Fabrikası Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    },
+    {
+        "title": "Bölünmüş Dikkat (Sustained Attention) - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - DEHB profili için: DEHB zihnindeki aşırı tepkiselliği ve dikkat çeldiricilerini yok etmek için arka planı Pure Dark (karanlık) yap. Bilgiyi sadece ortaya vurulan tek bir projektör ışığı altında (Fishbone / Focus Center) görselleştir. 'Visual Crowding' sıfır olmalı. Kapsam: Dış Uyaran Filtrelemesi.",
+        "hint": "auto"
+    },
+    {
+        "title": "Zaman Algısı Körlüğü (Time Blindness) - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - DEHB profili için: zaman yönetimindeki zorluğu aşmak için 'Şimdi' ve 'Sonra' kavramlarını renkli iki zıt odacığa (Venn/Flowchart) böl. Süreç geçişlerini aşamalandırılmış kalın oklara bağla. Kapsam: Zaman İzleme ve Hedef.",
+        "hint": "compare"
+    },
+    {
+        "title": "Dürtüsellik Organizasyonu - Karınca Kolonisi",
+        "prompt": "[Karınca Kolonisi Temalı Ultra-Premium Şablon] - DEHB profili için: sabırsızlığı kontrol altına alıp dürtüleri bastırmak için çok basamaklı ve kalın border zırhlarıyla çevrili planlama tabloları (Grid) kur. Gözün başka satıra kaymasını engelleyen Zebra striping metodunu uygula. Kapsam: Adım Planlama.",
+        "hint": "list"
+    }
+]
   }
 ];
