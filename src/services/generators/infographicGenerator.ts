@@ -28,22 +28,62 @@ BAĞLAM:
 - Aktivite Tipi: ${activityType}
 
 ÜRETİM KURALLARI:
-1. SÖZDİZİMİ (Syntax): "syntax" alanı, NativeInfographicRenderer tarafından işlenen özel bir deklaratif dildir.
-   Şu ana etiketleri kullanmalısın:
-   - <concept-map title="...">...</concept-map>
-   - <sequence-steps title="...">...</sequence-steps>
-   - <venn-diagram left="..." right="...">...</venn-diagram>
-   - <fishbone-diagram title="...">...</fishbone-diagram>
-   - <five-w-one-h title="...">...</five-w-one-h>
-   - <math-steps-visual title="...">...</math-steps-visual>
-   - <cycle-process title="...">...</cycle-process>
-   - <matrix-grid title="...">...</matrix-grid>
+1. SÖZDİZİMİ (Syntax): "syntax" alanı, NativeInfographicRenderer tarafından işlenen özel bir XML-benzeri dildir.
+   Her zaman en dışta tek bir ana etiket kullanmalı ve tüm içeriği içine almalısın.
+   Şu ana etiketleri ve yapılarını kullanmalısın:
+
+   - <five-w-one-h title="...">
+       <who question="...">...</who>
+       <what question="...">...</what>
+       <where question="...">...</where>
+       <when question="...">...</when>
+       <why question="...">...</why>
+       <how question="...">...</how>
+     </five-w-one-h>
+
+   - <venn-diagram title="...">
+       <set-a label="..."> <item>...</item> </set-a>
+       <set-b label="..."> <item>...</item> </set-b>
+       <intersection> <item>...</item> </intersection>
+     </venn-diagram>
+
+   - <sequence-steps title="...">
+       <step> <label>...</label> <desc>...</desc> </step>
+     </sequence-steps>
+
+   - <fishbone-diagram title="...">
+       <problem>...</problem>
+       <category label="..."> <cause>...</cause> </category>
+     </fishbone-diagram>
+
+   - <concept-map title="...">
+       <root label="...">
+          <node label="..."> <branch label="..." /> </node>
+       </root>
+     </concept-map>
+
+   - <math-steps-visual title="...">
+       <step> <expression>...</expression> <explanation>...</explanation> </step>
+     </math-steps-visual>
+
+   - <cycle-process title="...">
+       <phase label="..."> <desc>...</desc> </phase>
+     </cycle-process>
+
+   - <matrix-grid title="...">
+       <header>Başlık1, Başlık2, ...</header>
+       <row label="..."> <cell>...</cell> </row>
+     </matrix-grid>
+
+   - <timeline-chart title="...">
+       <event date="..."> <title>...</title> <desc>...</desc> </event>
+     </timeline-chart>
 
 2. PEDAGOJİK NOT: "pedagogicalNote" alanı Elif Yıldız standartlarına göre en az 100 kelime olmalı ve öğretmene bu infografiğin öğrenciye nasıl fayda sağlayacağını bilimsel (örneğin "bilişsel yük kuramı", "ZPD") terimlerle anlatmalıdır.
 
-3. DİSLEKSİ DOSTU: Metinler kısa, net ve somut olmalıdır. Karmaşık cümlelerden kaçın.
+3. DİSLEKSİ DOSTU: Metinler kısa, net ve somut olmalıdır. Karmaşık cümlelerden kaçın. Lexend fontu kullanılacağını varsayarak metinleri yapılandır.
 
-4. JSON FORMATI: Yanıtın her zaman geçerli bir JSON objesi olmalıdır.
+4. JSON FORMATI: Yanıtın her zaman geçerli bir JSON objesi olmalıdır. "syntax" alanı STRING olmalı ve XML etiketlerini içermelidir.
 `;
 
     const USER_PROMPT = `

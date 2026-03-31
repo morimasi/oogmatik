@@ -129,9 +129,14 @@ const PALETTE = {
  *     <template'e özgü anahtar-değer>
  */
 export function parseInfographicSyntax(syntax: string): ParsedInfographic {
-    const lines = syntax
-        .split('\n')
-        .map((l) => l.replace(/\r/g, '').trimEnd());
+    const trimmed = syntax.trim();
+
+    // XML-benzeri bir etiketle mi başlıyor? (Örn: <five-w-one-h)
+    if (trimmed.startsWith('<')) {
+        return parseXmlInfographicSyntax(trimmed);
+    }
+
+    const lines = trimmed.split('\n').map((l) => l.replace(/\r/g, '').trimEnd());
 
     let templateType: TemplateType = 'unknown';
     let title = '';
@@ -148,15 +153,15 @@ export function parseInfographicSyntax(syntax: string): ParsedInfographic {
     let i = 1;
     while (i < lines.length) {
         const line = lines[i];
-        const trimmed = line.trim();
+        const currentTrimmed = line.trim();
 
-        if (trimmed.startsWith('title ')) {
-            title = trimmed.slice(6).trim();
+        if (currentTrimmed.startsWith('title ')) {
+            title = currentTrimmed.slice(6).trim();
             i++;
             continue;
         }
 
-        if (trimmed === 'data') {
+        if (currentTrimmed === 'data') {
             i++;
             // data bloğunu parse et
             i = parseDataBlock(lines, i, templateType, data);
@@ -167,6 +172,151 @@ export function parseInfographicSyntax(syntax: string): ParsedInfographic {
     }
 
     return { templateType, title, data };
+}
+
+/** 
+ * XML-benzeri etiketleri parse eden yeni nesil parser.
+ * RegEx kullanarak performansı ve esnekliği artırır.
+ */
+function parseXmlInfographicSyntax(xml: string): ParsedInfographic {
+    const data: ParsedData = {};
+    let templateType: TemplateType = 'unknown';
+
+    // 1. Ana Etiketi ve Başlığı Bul
+    const mainTagMatch = xml.match(/<([\w-]+)[^>]*title=['"]([^'"]+)['"]/);
+    const title = mainTagMatch ? mainTagMatch[2] : 'İnfografik';
+    const mainTagName = mainTagMatch ? mainTagMatch[1] : '';
+
+    // 2. Template Tipini Belirle
+    templateType = resolveXmlTagToTemplate(mainTagName);
+
+    // 3. Verileri Ayrıştır (Kategoriye Özel)
+    if (templateType === '5w1h-grid') {
+        data.q5w1h = {
+            who: _extractTagContent(xml, 'who') || _extractAttr(xml, 'who', 'question'),
+            what: _extractTagContent(xml, 'what') || _extractAttr(xml, 'what', 'question'),
+            where: _extractTagContent(xml, 'where') || _extractAttr(xml, 'where', 'question'),
+            when: _extractTagContent(xml, 'when') || _extractAttr(xml, 'when', 'question'),
+            why: _extractTagContent(xml, 'why') || _extractAttr(xml, 'why', 'question'),
+            how: _extractTagContent(xml, 'how') || _extractAttr(xml, 'how', 'question')
+        };
+    } else if (templateType === 'venn-diagram') {
+        data.venn = {
+            setA: { label: _extractAttr(xml, 'set-a', 'label') || 'Grup A', items: _extractItems(xml, 'set-a') },
+            setB: { label: _extractAttr(xml, 'set-b', 'label') || 'Grup B', items: _extractItems(xml, 'set-b') },
+            intersection: _extractItems(xml, 'intersection')
+        };
+    } else if (templateType === 'compare-binary-horizontal') {
+        const leftBlock = _extractRepeatedBlocks(xml, 'left')[0] || '';
+        const rightBlock = _extractRepeatedBlocks(xml, 'right')[0] || '';
+        data.left = { title: _extractAttr(leftBlock, 'left', 'title') || 'Sol', items: _extractItems(leftBlock, 'items') };
+        data.right = { title: _extractAttr(rightBlock, 'right', 'title') || 'Sağ', items: _extractItems(rightBlock, 'items') };
+    } else if (templateType === 'list-row-simple-horizontal-arrow') {
+        data.lists = _extractRepeatedBlocks(xml, 'item').map(block => ({
+            label: _extractTagContent(block, 'label') || block.replace(/<[^>]+>/g, '').trim(),
+            desc: _extractTagContent(block, 'desc')
+        }));
+    } else if (templateType === 'sequence-steps') {
+        data.steps = _extractRepeatedBlocks(xml, 'step').map(block => ({
+            label: _extractTagContent(block, 'label') || 'Adım',
+            desc: _extractTagContent(block, 'desc')
+        }));
+    } else if (templateType === 'fishbone-diagram') {
+        const problem = _extractTagContent(xml, 'problem');
+        const categories = _extractRepeatedBlocks(xml, 'category').map(block => ({
+            label: _extractAttr(block, 'category', 'label') || 'Kategori',
+            causes: _extractRepeatedBlocks(block, 'cause').map(c => c.replace(/<[^>]+>/g, '').trim())
+        }));
+        data.fishbone = { problem, categories };
+    } else if (templateType === 'hierarchy-structure') {
+        const rootLabel = _extractAttr(xml, 'root', 'label') || 'Kök';
+        data.root = {
+            label: rootLabel,
+            children: _extractRepeatedBlocks(xml, 'node').map(nodeBlock => ({
+                label: _extractAttr(nodeBlock, 'node', 'label') || 'Düğüm',
+                children: _extractRepeatedBlocks(nodeBlock, 'branch').map(b => ({
+                    label: _extractAttr(b, 'branch', 'label') || 'Dal'
+                }))
+            }))
+        };
+    } else if (templateType === 'math-steps') {
+        data.mathSteps = _extractRepeatedBlocks(xml, 'step').map((block, idx) => ({
+            step: `ADIM ${idx + 1}`,
+            expression: _extractTagContent(block, 'expression'),
+            explanation: _extractTagContent(block, 'explanation')
+        }));
+    } else if (templateType === 'cycle-process') {
+        data.cycle = _extractRepeatedBlocks(xml, 'phase').map(block => ({
+            label: _extractAttr(block, 'phase', 'label') || 'Aşama',
+            desc: _extractTagContent(block, 'desc')
+        }));
+    } else if (templateType === 'matrix-grid') {
+        const headerText = _extractTagContent(xml, 'header');
+        data.matrix = {
+            headers: headerText ? headerText.split(',').map(s => s.trim()) : [],
+            rows: _extractRepeatedBlocks(xml, 'row').map(rowBlock => ({
+                label: _extractAttr(rowBlock, 'row', 'label') || 'Satır',
+                values: _extractRepeatedBlocks(rowBlock, 'cell').map(c => c.replace(/<[^>]+>/g, '').trim())
+            }))
+        };
+    } else if (templateType === 'sequence-timeline') {
+        data.events = _extractRepeatedBlocks(xml, 'event').map(block => ({
+            date: _extractAttr(block, 'event', 'date') || 'Tarih',
+            title: _extractTagContent(block, 'title'),
+            desc: _extractTagContent(block, 'desc')
+        }));
+    }
+
+    return { templateType, title, data };
+}
+
+// ── XML Yardımcı Fonksiyonları ──────────────────────────────────────────────
+
+function resolveXmlTagToTemplate(tag: string): TemplateType {
+    const t = (tag || '').toLowerCase();
+    if (t === 'five-w-one-h') return '5w1h-grid';
+    if (t === 'venn-diagram') return 'venn-diagram';
+    if (t === 'sequence-steps') return 'sequence-steps';
+    if (t === 'fishbone-diagram') return 'fishbone-diagram';
+    if (t === 'concept-map') return 'hierarchy-structure';
+    if (t === 'math-steps-visual') return 'math-steps';
+    if (t === 'cycle-process') return 'cycle-process';
+    if (t === 'matrix-grid') return 'matrix-grid';
+    if (t === 'timeline-chart') return 'sequence-timeline';
+    if (t === 'compare-binary') return 'compare-binary-horizontal';
+    if (t === 'list-row') return 'list-row-simple-horizontal-arrow';
+    return 'unknown';
+}
+
+function _extractTagContent(xml: string, tag: string): string {
+    const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i');
+    const match = xml.match(regex);
+    return match ? match[1].trim().replace(/<[^>]+>/g, '') : '';
+}
+
+function _extractAttr(xml: string, tag: string, attr: string): string {
+    const regex = new RegExp(`<${tag}[^>]*${attr}=['"]([^'"]+)['"]`, 'i');
+    const match = xml.match(regex);
+    return match ? match[1] : '';
+}
+
+function _extractRepeatedBlocks(xml: string, tag: string): string[] {
+    const regex = new RegExp(`<${tag}[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi');
+    return xml.match(regex) || [];
+}
+
+function _extractItems(xml: string, parentTag: string): string[] {
+    const parentRegex = new RegExp(`<${parentTag}[^>]*>([\\s\\S]*?)<\\/${parentTag}>`, 'i');
+    const parentMatch = xml.match(parentRegex);
+    if (!parentMatch) return [];
+
+    const itemRegex = /<item>([\s\\S]*?)<\/item>/gi;
+    const items = [];
+    let match;
+    while ((match = itemRegex.exec(parentMatch[1])) !== null) {
+        items.push(match[1].trim());
+    }
+    return items;
 }
 
 function resolveTemplate(raw: string): TemplateType {
@@ -557,7 +707,7 @@ const fontStyle: React.CSSProperties = {
 
 /** 5W1H Grid Renderer */
 const Q5W1HRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, title }) => {
-    const q = data.q5w1h || {};
+    const q = data?.q5w1h || {};
     const boxes = [
         { label: 'KİM?', color: '#ef4444', value: q.who },
         { label: 'NE?', color: '#3b82f6', value: q.what },
@@ -573,8 +723,8 @@ const Q5W1HRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, ti
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px' }}>
                 {boxes.map((box, idx) => (
                     <div key={idx} style={{ background: '#fff', border: `2px solid ${box.color}`, borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-                        <div style={{ color: box.color, fontWeight: 800, fontSize: '12px', marginBottom: '8px' }}>{box.label}</div>
-                        <div style={{ color: PALETTE.text, fontSize: '14px' }}>{box.value || '...'}</div>
+                        <div style={{ color: box.color, fontWeight: 800, fontSize: '12px', marginBottom: '4px' }}>{box.label}</div>
+                        <div style={{ color: PALETTE.text, fontSize: '14px', lineHeight: 1.4 }}>{box.value || '...'}</div>
                     </div>
                 ))}
             </div>
@@ -584,20 +734,21 @@ const Q5W1HRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, ti
 
 /** Math Steps Renderer */
 const MathStepsRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, title }) => {
-    const steps = data.mathSteps || [];
+    const steps = data?.mathSteps || [];
     return (
         <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px' }}>
             {title && <h2 style={{ textAlign: 'center', marginBottom: '24px' }}>{title}</h2>}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {steps.map((s, idx) => (
+                {Array.isArray(steps) && steps.map((s, idx) => (
                     <div key={idx} style={{ display: 'flex', background: '#fff', borderRadius: '10px', overflow: 'hidden', border: `1px solid ${PALETTE.primary}20` }}>
-                        <div style={{ background: PALETTE.primary, color: '#fff', padding: '12px', minWidth: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{s.step}</div>
+                        <div style={{ background: PALETTE.primary, color: '#fff', padding: '12px', minWidth: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{s?.step || (idx + 1)}</div>
                         <div style={{ padding: '12px', flex: 1 }}>
-                            <div style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '4px' }}>{s.expression}</div>
-                            <div style={{ fontSize: '13px', color: PALETTE.textMuted }}>{s.explanation}</div>
+                            <div style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '4px' }}>{s?.expression}</div>
+                            <div style={{ fontSize: '13px', color: PALETTE.textMuted }}>{s?.explanation}</div>
                         </div>
                     </div>
                 ))}
+                {steps.length === 0 && <p style={{ textAlign: 'center', color: PALETTE.textMuted }}>Grafik verisi ayrıştırılamadı.</p>}
             </div>
         </div>
     );
@@ -605,23 +756,28 @@ const MathStepsRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data
 
 /** Venn Diagram Renderer */
 const VennRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, title }) => {
-    const venn = data.venn;
-    if (!venn) return null;
+    const venn = data?.venn;
+    if (!venn) return <div style={{ padding: '20px', textAlign: 'center', color: PALETTE.textMuted }}>Venn şeması verisi eksik.</div>;
+
+    const setA = venn.setA || { label: 'Grup A', items: [] };
+    const setB = venn.setB || { label: 'Grup B', items: [] };
+    const intersection = Array.isArray(venn.intersection) ? venn.intersection : [];
+
     return (
         <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px', overflow: 'hidden' }}>
             {title && <h2 style={{ textAlign: 'center', marginBottom: '24px' }}>{title}</h2>}
             <div style={{ position: 'relative', height: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <div style={{ position: 'absolute', left: '20%', width: '220px', height: '220px', borderRadius: '50%', background: '#3b82f644', border: '2px solid #3b82f6', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
-                    <div style={{ fontWeight: 800, color: '#1d4ed8' }}>{venn.setA.label}</div>
-                    <div style={{ fontSize: '11px', marginTop: '10px' }}>{venn.setA.items.slice(0, 3).join(', ')}</div>
+                    <div style={{ fontWeight: 800, color: '#1d4ed8' }}>{setA.label}</div>
+                    <div style={{ fontSize: '11px', marginTop: '10px' }}>{Array.isArray(setA.items) ? setA.items.slice(0, 3).join(', ') : ''}</div>
                 </div>
                 <div style={{ position: 'absolute', right: '20%', width: '220px', height: '220px', borderRadius: '50%', background: '#ef444444', border: '2px solid #ef4444', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
-                    <div style={{ fontWeight: 800, color: '#b91c1c' }}>{venn.setB.label}</div>
-                    <div style={{ fontSize: '11px', marginTop: '10px' }}>{venn.setB.items.slice(0, 3).join(', ')}</div>
+                    <div style={{ fontWeight: 800, color: '#b91c1c' }}>{setB.label}</div>
+                    <div style={{ fontSize: '11px', marginTop: '10px' }}>{Array.isArray(setB.items) ? setB.items.slice(0, 3).join(', ') : ''}</div>
                 </div>
                 <div style={{ zIndex: 10, background: '#fff9', padding: '10px', borderRadius: '8px', maxWidth: '120px', textAlign: 'center', border: '1px dashed #666' }}>
                     <div style={{ fontWeight: 800, fontSize: '10px' }}>KESİŞİM</div>
-                    <div style={{ fontSize: '11px' }}>{venn.intersection.join(', ')}</div>
+                    <div style={{ fontSize: '11px' }}>{intersection.join(', ')}</div>
                 </div>
             </div>
         </div>
@@ -630,24 +786,27 @@ const VennRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, tit
 
 /** Fishbone Diagram Renderer */
 const FishboneRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, title }) => {
-    const fb = data.fishbone;
-    if (!fb) return null;
+    const fb = data?.fishbone;
+    if (!fb) return <div style={{ padding: '20px', textAlign: 'center', color: PALETTE.textMuted }}>Kılçık diyagramı verisi eksik.</div>;
+
+    const categories = Array.isArray(fb.categories) ? fb.categories : [];
+
     return (
         <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px' }}>
             {title && <h2 style={{ textAlign: 'center', marginBottom: '24px' }}>{title}</h2>}
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                    {fb.categories.map((cat, idx) => (
+                    {categories.map((cat, idx) => (
                         <div key={idx} style={{ borderBottom: `2px solid ${PALETTE.primary}44`, paddingBottom: '8px' }}>
-                            <div style={{ fontWeight: 800, color: PALETTE.primary, fontSize: '12px' }}>{cat.label}</div>
-                            <div style={{ fontSize: '11px' }}>{cat.causes.map(c => `• ${c}`).join(' ')}</div>
+                            <div style={{ fontWeight: 800, color: PALETTE.primary, fontSize: '12px' }}>{cat?.label || 'Neden'}</div>
+                            <div style={{ fontSize: '11px' }}>{Array.isArray(cat?.causes) ? cat.causes.map(c => `• ${c}`).join(' ') : ''}</div>
                         </div>
                     ))}
                 </div>
                 <div style={{ width: '0', height: '100px', borderLeft: `4px solid ${PALETTE.secondary}`, margin: '0 20px', position: 'relative' }}>
                     <div style={{ position: 'absolute', top: '50%', left: '0', width: '20px', height: '4px', background: PALETTE.secondary }} />
                 </div>
-                <div style={{ background: PALETTE.secondary, color: '#fff', padding: '10px 20px', borderRadius: '8px', fontWeight: 800 }}>{fb.problem}</div>
+                <div style={{ background: PALETTE.secondary, color: '#fff', padding: '10px 20px', borderRadius: '8px', fontWeight: 800 }}>{fb.problem || 'Problem'}</div>
             </div>
         </div>
     );
@@ -655,7 +814,7 @@ const FishboneRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data,
 
 /** Cycle Process Renderer */
 const CycleRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, title }) => {
-    const steps = data.cycle || [];
+    const steps = Array.isArray(data?.cycle) ? data.cycle : [];
     return (
         <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px', textAlign: 'center' }}>
             {title && <h2 style={{ marginBottom: '24px' }}>{title}</h2>}
@@ -663,8 +822,8 @@ const CycleRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, ti
                 {steps.map((s, idx) => (
                     <div key={idx} style={{ display: 'flex', alignItems: 'center' }}>
                         <div style={{ width: '120px', height: '120px', background: '#fff', border: `3px solid ${PALETTE.primary}`, borderRadius: '50%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px' }}>
-                            <div style={{ fontWeight: 800, fontSize: '12px' }}>{s.label}</div>
-                            <div style={{ fontSize: '10px', color: PALETTE.textMuted }}>{s.desc}</div>
+                            <div style={{ fontWeight: 800, fontSize: '12px' }}>{s?.label || ''}</div>
+                            <div style={{ fontSize: '10px', color: PALETTE.textMuted }}>{s?.desc || ''}</div>
                         </div>
                         {idx < steps.length - 1 && <div style={{ fontSize: '24px', marginLeft: '20px' }}>↻</div>}
                     </div>
@@ -676,36 +835,47 @@ const CycleRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, ti
 
 /** Matrix Grid Renderer */
 const MatrixRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, title }) => {
-    const m = data.matrix;
-    if (!m) return null;
+    const m = data?.matrix;
+    if (!m) return <div style={{ padding: '20px', textAlign: 'center', color: PALETTE.textMuted }}>Matris verisi eksik.</div>;
+
+    const headers = Array.isArray(m.headers) ? m.headers : [];
+    const rows = Array.isArray(m.rows) ? m.rows : [];
+
     return (
         <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px' }}>
             {title && <h2 style={{ textAlign: 'center', marginBottom: '24px' }}>{title}</h2>}
-            <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
-                <thead>
-                    <tr style={{ background: PALETTE.primary, color: '#fff' }}>
-                        <th style={{ padding: '12px', textAlign: 'left' }}>#</th>
-                        {m.headers.map((h, i) => <th key={i} style={{ padding: '12px', textAlign: 'left' }}>{h}</th>)}
-                    </tr>
-                </thead>
-                <tbody>
-                    {m.rows.map((r, i) => (
-                        <tr key={i} style={{ borderBottom: `1px solid ${PALETTE.border}` }}>
-                            <td style={{ padding: '12px', fontWeight: 800 }}>{r.label}</td>
-                            {r.values.map((v, j) => <td key={j} style={{ padding: '12px', fontSize: '14px' }}>{v}</td>)}
+            <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
+                    <thead>
+                        <tr style={{ background: PALETTE.primary, color: '#fff' }}>
+                            <th style={{ padding: '12px', textAlign: 'left' }}>#</th>
+                            {headers.map((h, i) => <th key={i} style={{ padding: '12px', textAlign: 'left' }}>{h}</th>)}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {rows.map((r, i) => (
+                            <tr key={i} style={{ borderBottom: `1px solid ${PALETTE.border}` }}>
+                                <td style={{ padding: '12px', fontWeight: 800 }}>{r?.label || ''}</td>
+                                {Array.isArray(r?.values) ? r.values.map((v, j) => (
+                                    <td key={j} style={{ padding: '12px', fontSize: '14px' }}>{v}</td>
+                                )) : null}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };
 
 /** compare-binary-horizontal */
 const CompareBinaryRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, title }) => {
-    const left = data.left ?? { title: 'Sol', items: [] };
-    const right = data.right ?? { title: 'Sağ', items: [] };
-    const maxItems = Math.max(left.items.length, right.items.length);
+    const left = data?.left ?? { title: 'Sol', items: [] };
+    const right = data?.right ?? { title: 'Sağ', items: [] };
+    const leftItems = Array.isArray(left.items) ? left.items : [];
+    const rightItems = Array.isArray(right.items) ? right.items : [];
+
+    const maxItems = Math.max(leftItems.length, rightItems.length);
 
     return (
         <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px', minHeight: '100%' }}>
@@ -718,19 +888,16 @@ const CompareBinaryRenderer: React.FC<{ data: ParsedData; title: string }> = ({ 
                 {/* Sol kolon */}
                 <div style={{ background: PALETTE.leftLight, borderRadius: '12px 0 0 12px', border: `2px solid ${PALETTE.leftCol}`, overflow: 'hidden' }}>
                     <div style={{ background: PALETTE.leftCol, padding: '12px 16px', color: '#fff', fontWeight: 700, fontSize: '16px', textAlign: 'center' }}>
-                        {left.title}
+                        {left.title || 'Sol'}
                     </div>
                     <div style={{ padding: '12px' }}>
-                        {left.items.map((item, idx) => (
+                        {leftItems.map((item, idx) => (
                             <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px', padding: '10px', background: '#fff', borderRadius: '8px', border: `1px solid ${PALETTE.leftCol}30` }}>
                                 <span style={{ background: PALETTE.leftCol, color: '#fff', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>
                                     {idx + 1}
                                 </span>
                                 <span style={{ color: PALETTE.text, fontSize: '14px', lineHeight: 1.5 }}>{item}</span>
                             </div>
-                        ))}
-                        {left.items.length < maxItems && Array.from({ length: maxItems - left.items.length }).map((_, idx) => (
-                            <div key={`pad-${idx}`} style={{ height: '52px', marginBottom: '10px' }} />
                         ))}
                     </div>
                 </div>
@@ -743,10 +910,10 @@ const CompareBinaryRenderer: React.FC<{ data: ParsedData; title: string }> = ({ 
                 {/* Sağ kolon */}
                 <div style={{ background: PALETTE.rightLight, borderRadius: '0 12px 12px 0', border: `2px solid ${PALETTE.rightCol}`, overflow: 'hidden' }}>
                     <div style={{ background: PALETTE.rightCol, padding: '12px 16px', color: '#fff', fontWeight: 700, fontSize: '16px', textAlign: 'center' }}>
-                        {right.title}
+                        {right.title || 'Sağ'}
                     </div>
                     <div style={{ padding: '12px' }}>
-                        {right.items.map((item, idx) => (
+                        {rightItems.map((item, idx) => (
                             <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px', padding: '10px', background: '#fff', borderRadius: '8px', border: `1px solid ${PALETTE.rightCol}30` }}>
                                 <span style={{ background: PALETTE.rightCol, color: '#fff', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>
                                     {idx + 1}
@@ -763,7 +930,8 @@ const CompareBinaryRenderer: React.FC<{ data: ParsedData; title: string }> = ({ 
 
 /** list-row-simple-horizontal-arrow */
 const ListRowRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, title }) => {
-    const items = data.lists ?? data.steps ?? [];
+    const rawItems = data?.lists ?? data?.steps ?? [];
+    const items = Array.isArray(rawItems) ? rawItems : [];
 
     return (
         <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px', minHeight: '100%' }}>
@@ -780,9 +948,9 @@ const ListRowRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, 
                                 <span style={{ background: PALETTE.primary, color: '#fff', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, flexShrink: 0 }}>
                                     {idx + 1}
                                 </span>
-                                <span style={{ color: PALETTE.primary, fontWeight: 700, fontSize: '14px', lineHeight: 1.3 }}>{item.label}</span>
+                                <span style={{ color: PALETTE.primary, fontWeight: 700, fontSize: '14px', lineHeight: 1.3 }}>{item?.label || ''}</span>
                             </div>
-                            {item.desc && (
+                            {item?.desc && (
                                 <p style={{ color: PALETTE.textMuted, fontSize: '12px', lineHeight: 1.5, margin: 0 }}>{item.desc}</p>
                             )}
                         </div>
@@ -800,7 +968,8 @@ const ListRowRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, 
 
 /** sequence-steps */
 const SequenceStepsRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, title }) => {
-    const steps = data.steps ?? data.lists ?? [];
+    const rawSteps = data?.steps ?? data?.lists ?? [];
+    const steps = Array.isArray(rawSteps) ? rawSteps : [];
 
     return (
         <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px', minHeight: '100%' }}>
@@ -823,8 +992,8 @@ const SequenceStepsRenderer: React.FC<{ data: ParsedData; title: string }> = ({ 
                         </div>
                         {/* Sağ: içerik */}
                         <div style={{ background: PALETTE.card, border: `1px solid ${PALETTE.step}30`, borderRadius: '10px', padding: '12px 16px', marginBottom: idx < steps.length - 1 ? '8px' : '0', flex: 1 }}>
-                            <p style={{ color: PALETTE.step, fontWeight: 700, fontSize: '14px', margin: '0 0 4px' }}>{step.label}</p>
-                            {step.desc && <p style={{ color: PALETTE.textMuted, fontSize: '13px', lineHeight: 1.5, margin: 0 }}>{step.desc}</p>}
+                            <p style={{ color: PALETTE.step, fontWeight: 700, fontSize: '14px', margin: '0 0 4px' }}>{step?.label || ''}</p>
+                            {step?.desc && <p style={{ color: PALETTE.textMuted, fontSize: '13px', lineHeight: 1.5, margin: 0 }}>{step.desc}</p>}
                         </div>
                     </div>
                 ))}
@@ -835,7 +1004,7 @@ const SequenceStepsRenderer: React.FC<{ data: ParsedData; title: string }> = ({ 
 
 /** hierarchy-structure */
 const HierarchyRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, title }) => {
-    const root = data.root;
+    const root = data?.root;
 
     return (
         <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px', minHeight: '100%' }}>
@@ -844,23 +1013,23 @@ const HierarchyRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data
                     {title}
                 </h2>
             )}
-            {root && (
+            {root ? (
                 <div style={{ textAlign: 'center' }}>
                     {/* Kök */}
                     <div style={{ display: 'inline-block', background: PALETTE.primary, color: '#fff', borderRadius: '12px', padding: '12px 24px', fontWeight: 700, fontSize: '16px', marginBottom: '24px' }}>
-                        {root.label}
+                        {root.label || 'Kök'}
                     </div>
-                    {root.children && root.children.length > 0 && (
+                    {Array.isArray(root.children) && root.children.length > 0 && (
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
                             {root.children.map((child, idx) => (
                                 <div key={idx} style={{ background: PALETTE.card, border: `2px solid ${PALETTE.accent}`, borderRadius: '10px', padding: '12px 20px', minWidth: '120px', fontWeight: 600, color: PALETTE.primary, fontSize: '14px', position: 'relative' }}>
                                     <div style={{ position: 'absolute', top: '-24px', left: '50%', transform: 'translateX(-50%)', width: '2px', height: '20px', background: PALETTE.accent }} />
-                                    {child.label}
-                                    {child.children && child.children.length > 0 && (
+                                    {child?.label || ''}
+                                    {Array.isArray(child?.children) && child.children.length > 0 && (
                                         <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                             {child.children.map((grandchild, gIdx) => (
                                                 <div key={gIdx} style={{ background: PALETTE.bg, border: `1px solid ${PALETTE.border}`, borderRadius: '6px', padding: '6px 10px', fontSize: '12px', color: PALETTE.textMuted, fontWeight: 400 }}>
-                                                    {grandchild.label}
+                                                    {grandchild?.label || ''}
                                                 </div>
                                             ))}
                                         </div>
@@ -870,14 +1039,15 @@ const HierarchyRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data
                         </div>
                     )}
                 </div>
-            )}
+            ) : <div style={{ padding: '20px', textAlign: 'center', color: PALETTE.textMuted }}>Hiyerarşi verisi eksik.</div>}
         </div>
     );
 };
 
 /** sequence-timeline */
 const TimelineRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data, title }) => {
-    const events = data.events ?? [];
+    const rawEvents = data?.events ?? [];
+    const events = Array.isArray(rawEvents) ? rawEvents : [];
 
     return (
         <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px', minHeight: '100%' }}>
@@ -895,10 +1065,10 @@ const TimelineRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data,
                         <div style={{ position: 'absolute', left: '-32px', top: '4px', width: '14px', height: '14px', background: PALETTE.timeline, borderRadius: '50%', border: '3px solid #fff', boxShadow: `0 0 0 2px ${PALETTE.timeline}` }} />
                         <div style={{ background: PALETTE.card, border: `1px solid ${PALETTE.timeline}30`, borderRadius: '10px', padding: '12px 16px' }}>
                             <span style={{ display: 'inline-block', background: PALETTE.timelineLight, color: PALETTE.timeline, borderRadius: '6px', padding: '2px 8px', fontSize: '11px', fontWeight: 700, marginBottom: '6px' }}>
-                                {event.date}
+                                {event?.date || ''}
                             </span>
-                            <p style={{ color: PALETTE.text, fontWeight: 700, fontSize: '14px', margin: '0 0 4px' }}>{event.title}</p>
-                            {event.desc && <p style={{ color: PALETTE.textMuted, fontSize: '12px', lineHeight: 1.5, margin: 0 }}>{event.desc}</p>}
+                            <p style={{ color: PALETTE.text, fontWeight: 700, fontSize: '14px', margin: '0 0 4px' }}>{event?.title || ''}</p>
+                            {event?.desc && <p style={{ color: PALETTE.textMuted, fontSize: '12px', lineHeight: 1.5, margin: 0 }}>{event.desc}</p>}
                         </div>
                     </div>
                 ))}
