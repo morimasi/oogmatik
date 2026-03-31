@@ -23,7 +23,7 @@ export const InfographicStudio: React.FC = () => {
     handleModeChange,
   } = useInfographicStudio();
 
-  const { isGenerating, result, generate } = useInfographicGenerate();
+  const { isGenerating, result, generate, enrichPrompt } = useInfographicGenerate();
   const { handleExportToWorksheet, handleExportToPDF, handlePrint } = useInfographicExport();
 
   const [params, setParams] = useState<ParameterPanelState>({
@@ -37,14 +37,28 @@ export const InfographicStudio: React.FC = () => {
 
   const onAddWidget = (activityId: string) => {
     setAddedWidgets(prev => [...prev, { id: Date.now().toString(), activityId }]);
+    
+    // Konu/Prompt metnine otomatik ekleme yap
+    setParams(prev => ({
+        ...prev,
+        topic: prev.topic 
+            ? `${prev.topic}\n+ ${activityId.replace(/_/g, ' ')} modülü eklendi.` 
+            : `Bu kağıt şu modülleri içermelidir:\n- ${activityId.replace(/_/g, ' ')}`
+    }));
   };
 
   const onRemoveWidget = (id: string) => {
     setAddedWidgets(prev => prev.filter(w => w.id !== id));
   };
 
+  const handleEnrichPrompt = async () => {
+      const enriched = await enrichPrompt(params.topic);
+      if (enriched && enriched !== params.topic) {
+          setParams(prev => ({ ...prev, topic: enriched }));
+      }
+  };
+
   const onGenerate = () => {
-    // We will soon update this to use premiumCompositeGenerator
     if (addedWidgets.length > 0) {
       generate(addedWidgets, mode, params.topic, {
         studentAge: params.ageGroup,
@@ -83,6 +97,7 @@ export const InfographicStudio: React.FC = () => {
           addedWidgets={addedWidgets}
           onAddWidget={onAddWidget}
           onRemoveWidget={onRemoveWidget}
+          onEnrichPrompt={handleEnrichPrompt}
         />
 
         {/* Orta Panel: Önizleme Alanı */}

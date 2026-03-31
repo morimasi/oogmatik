@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Sparkles, Loader2 } from 'lucide-react';
 
 export interface ParameterPanelState {
     topic: string;
@@ -11,24 +12,46 @@ interface ParameterPanelProps {
     params: ParameterPanelState;
     onChange: (params: ParameterPanelState) => void;
     isClinicalMode?: boolean;
+    onEnrichPrompt?: () => Promise<void>;
 }
 
-export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange, isClinicalMode }) => {
+export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange, isClinicalMode, onEnrichPrompt }) => {
+    const [isEnriching, setIsEnriching] = useState(false);
+
     const updateParam = (key: keyof ParameterPanelState, value: string) => {
         onChange({ ...params, [key]: value });
+    };
+
+    const handleEnrich = async () => {
+        if (!onEnrichPrompt || !params.topic.trim()) return;
+        setIsEnriching(true);
+        try {
+            await onEnrichPrompt();
+        } finally {
+            setIsEnriching(false);
+        }
     };
 
     return (
         <div className="flex flex-col space-y-4">
             <div>
-                <label className="block text-xs font-medium text-white/70 mb-1.5 ml-1">Konu veya Başlık</label>
-                <input
-                    type="text"
+                <label className="block text-xs font-medium text-white/70 mb-1.5 ml-1">Etkinlik Üretim Promptu (Master Prompt)</label>
+                <textarea
                     value={params.topic}
                     onChange={(e) => updateParam('topic', e.target.value)}
-                    placeholder="Örn: Güneş sistemi, Heceleme..."
-                    className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 placeholder-white/30"
+                    placeholder="Örn: Güneş sistemi ile ilgili okuma parçası ve üçgen sorusu içeren bir etkinlik..."
+                    rows={4}
+                    className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 placeholder-white/30 resize-y"
                 />
+                
+                <button 
+                    onClick={handleEnrich}
+                    disabled={isEnriching || !params.topic.trim() || !onEnrichPrompt}
+                    className="mt-2 w-full flex items-center justify-center space-x-2 py-2 rounded-lg text-xs font-semibold transition-all bg-fuchsia-500/20 text-fuchsia-300 hover:bg-fuchsia-500/30 border border-fuchsia-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {isEnriching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    <span>AI İle Birleştir & Zenginleştir</span>
+                </button>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

@@ -33,6 +33,7 @@ interface LeftPanelProps {
     addedWidgets: AddedWidget[];
     onAddWidget: (activityId: string) => void;
     onRemoveWidget: (id: string) => void;
+    onEnrichPrompt?: () => Promise<void>;
 }
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({
@@ -49,7 +50,8 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
     isGenerating,
     addedWidgets,
     onAddWidget,
-    onRemoveWidget
+    onRemoveWidget,
+    onEnrichPrompt
 }) => {
     const canGenerate = addedWidgets.length > 0 && params.topic.trim().length > 0 && !isGenerating;
 
@@ -119,6 +121,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                         params={params}
                         onChange={onParamsChange}
                         isClinicalMode={isClinicalMode}
+                        onEnrichPrompt={onEnrichPrompt}
                     />
                 </div>
             </div>
@@ -143,7 +146,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                     ) : (
                         <>
                             <Sparkles className="w-5 h-5" />
-                            <span>{mode === 'ai' ? 'Yapay Zeka ile Kağıt Üret' : 'Hızlı Kağıt Üret'}</span>
+                            <span>{mode === 'ai' ? 'Master Prompt ile Üret' : 'Hızlı Kağıt Üret'}</span>
                         </>
                     )}
                 </button>
