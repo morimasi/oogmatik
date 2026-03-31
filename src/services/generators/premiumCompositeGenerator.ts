@@ -38,8 +38,9 @@ ${widgetListStr}
    
    A) İNFOGRAFİK BİLEŞENİ (type: "infographic"):
       "data.syntax" alanı KESİNLİKLE bir XML formatında olmalıdır. ASLA düz metin veya paragraf yazma!
+      ⚠️ ÇOK ÖNEMLİ: XML ETİKETLERİNİN İÇİNDE ASLA ÇİFT TIRNAK (") KULLANMA! Özellikler (attributes) için daima TEK TIRNAK (') kullan. (Örn: <item key='who' /> DOĞRU, <item key="who" /> YANLIŞTIR). Çift tırnak kullanırsan JSON yapısı anında bozulur ve çöker!
       Eğer konu 5N1K ise syntax şöyle olmalı: <five-w-one-h><who>...</who><what>...</what><when>...</when><where>...</where><why>...</why><how>...</how></five-w-one-h>
-      Eğer konu Venn ise: <venn-diagram><setA label="A"> <item>...</item> </setA> <setB label="B"> <item>...</item> </setB> <intersection> <item>...</item> </intersection></venn-diagram>
+      Eğer konu Venn ise: <venn-diagram><setA label='A'> <item>...</item> </setA> <setB label='B'> <item>...</item> </setB> <intersection> <item>...</item> </intersection></venn-diagram>
       
    B) MATEMATİK GRAFİĞİ BİLEŞENİ (type: "math_graphic"):
       "data" içinde "tip", "baslik", "veri" ve "ozellikler" olmalıdır. 
