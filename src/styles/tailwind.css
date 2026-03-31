@@ -1,8 +1,8 @@
+@import './theme-tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import './theme-tokens.css';
 
 @layer base {
   /* FAZ 4: Kesin A4 İzolasyonu Katmanı (Klinik Rapor Safiyeti) */
