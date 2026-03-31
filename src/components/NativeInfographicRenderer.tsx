@@ -192,13 +192,37 @@ function parseXmlInfographicSyntax(xml: string): ParsedInfographic {
 
     // 3. Verileri Ayrıştır (Kategoriye Özel)
     if (templateType === '5w1h-grid') {
+        const get5W1H = (key: string) => {
+            // Standart tag: <who>cevap</who>
+            let val = _extractTagContent(xml, key);
+            if (val) return val;
+            
+            // Attribute: <item key="KİM" value="cevap" /> veya <item who="cevap" />
+            val = _extractAttr(xml, key, 'question') || _extractAttr(xml, 'item', key);
+            if (val) return val;
+
+            // Section id: <section id="who"><content>cevap</content></section>
+            const sectionRegex = new RegExp(`<section[^>]*id=['"]${key}['"][^>]*>[\\s\\S]*?<content>([\\s\\S]*?)<\\/content>[\\s\\S]*?<\\/section>`, 'i');
+            const sectionMatch = xml.match(sectionRegex);
+            if (sectionMatch) return sectionMatch[1].trim().replace(/<[^>]+>/g, '');
+
+            // Item key="kim"
+            const trKeys: Record<string, string> = { 'who': 'kim', 'what': 'ne', 'where': 'nerede', 'when': 'ne zaman', 'why': 'neden', 'how': 'nasıl' };
+            const trKey = trKeys[key];
+            const itemRegex = new RegExp(`<item[^>]*key=['"]?${trKey}['"]?[^>]*value=['"]([^'"]+)['"]`, 'i');
+            const itemMatch = xml.match(itemRegex);
+            if (itemMatch) return itemMatch[1].trim();
+
+            return '';
+        };
+
         data.q5w1h = {
-            who: _extractTagContent(xml, 'who') || _extractAttr(xml, 'who', 'question'),
-            what: _extractTagContent(xml, 'what') || _extractAttr(xml, 'what', 'question'),
-            where: _extractTagContent(xml, 'where') || _extractAttr(xml, 'where', 'question'),
-            when: _extractTagContent(xml, 'when') || _extractAttr(xml, 'when', 'question'),
-            why: _extractTagContent(xml, 'why') || _extractAttr(xml, 'why', 'question'),
-            how: _extractTagContent(xml, 'how') || _extractAttr(xml, 'how', 'question')
+            who: get5W1H('who'),
+            what: get5W1H('what'),
+            where: get5W1H('where'),
+            when: get5W1H('when'),
+            why: get5W1H('why'),
+            how: get5W1H('how')
         };
     } else if (templateType === 'venn-diagram') {
         data.venn = {
