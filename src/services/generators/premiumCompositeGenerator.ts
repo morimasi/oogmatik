@@ -101,6 +101,11 @@ ${widgetListStr}
             response.widgets = response.activities;
         }
 
+        // Eğer AI 'widgets' yerine 'components' dediyse eşleştir
+        if (response && response.components && !response.widgets) {
+            response.widgets = response.components;
+        }
+
         if (!response || !response.widgets || !Array.isArray(response.widgets)) {
             console.error('Beklenmeyen AI Yanıtı:', rawResponse);
             throw new AppError('Yapay zeka beklenen formati üretemedi (widgets dizisi bulunamadı). Lütfen tekrar deneyin.', 'INVALID_AI_RESPONSE', 500);
