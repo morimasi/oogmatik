@@ -96,14 +96,26 @@ ${widgetListStr}
 
         // Güvenlik kontrolü ve JSON Onarımı
         let response = rawResponse;
-        if (Array.isArray(rawResponse)) {
-            response = { title: topic, topic: topic, pedagogicalNote: '', difficultyLevel: difficulty, targetSkills: [], ageGroup: studentAge, widgets: rawResponse };
-        } else if (rawResponse && rawResponse.premiumCompositeWorksheet) {
-            response = rawResponse.premiumCompositeWorksheet;
-        } else if (rawResponse && rawResponse.worksheet) {
-            response = rawResponse.worksheet;
-        } else if (rawResponse && rawResponse.data) {
-            response = rawResponse.data;
+
+        // Eğer AI yanıtı doğrudan bir metin stringi içine (Markdown json bloğu) gömdüyse onu ayıkla
+        if (rawResponse && typeof rawResponse.text === 'string') {
+            try {
+                let cleanedText = rawResponse.text.replace(/```json\n?/i, '').replace(/```\n?/g, '').trim();
+                response = JSON.parse(cleanedText);
+            } catch (e) {
+                console.error('Markdown JSON parse hatası:', e);
+                throw new AppError('Yapay zeka yanıtı çözümleyemedi. Lütfen tekrar deneyin.', 'JSON_PARSE_ERROR', 500);
+            }
+        }
+
+        if (Array.isArray(response)) {
+            response = { title: topic, topic: topic, pedagogicalNote: '', difficultyLevel: difficulty, targetSkills: [], ageGroup: studentAge, widgets: response };
+        } else if (response && response.premiumCompositeWorksheet) {
+            response = response.premiumCompositeWorksheet;
+        } else if (response && response.worksheet) {
+            response = response.worksheet;
+        } else if (response && response.data) {
+            response = response.data;
         }
         
         // Eğer AI 'widgets' yerine 'activities', 'components', 'items' gibi başka bir isim verdiyse, objenin içindeki ilk diziyi (array) bul
