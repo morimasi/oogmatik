@@ -35,7 +35,7 @@ const GORSEL_TIPLER_LISTESI =
   'siklik_tablosu, cetele_tablosu, sutun_grafigi, pasta_grafigi, cizgi_grafigi, ' +
   'ucgen, dik_ucgen, kare, dikdortgen, paralel_kenar, cokgen, daire, ' +
   'dogru_parcasi, aci, koordinat_sistemi, koordinat_grafigi, sayi_dogrusu, ' +
-  'kesir_modeli, simetri, venn_diyagrami, olaslik_cark';
+  'kesir_modeli, simetri, venn_diyagrami, olaslik_cark, kup, silindir, koni, piramit, dikdortgenler_prizmasi, kesisen_dogrular, paralel_dogrular';
 
 interface KazanimGorselGereksinim {
   kazanimKodu: string;
@@ -671,7 +671,7 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
    - "not": (İsteğe bağlı) Grafik altında gösterilecek not.
 
 2. GEOMETRİ ŞEKİLLERİ VE KAVRAMLARI:
-   - "tip": 'ucgen', 'dikdortgen', 'kare', 'besgen', 'altıgen', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'.
+   - "tip": 'ucgen', 'dikdortgen', 'kare', 'besgen', 'altıgen', 'kup', 'silindir', 'koni', 'piramit', 'dikdortgenler_prizmasi', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'.
    - "baslik": Şekil/kavram için bir başlık (örn: "ABC Üçgeni").
    - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar.
      **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen harf/isimler (örn: AB doğru parçası) ile "grafik_verisi" içindeki etiketler (örn: "A Köşesi") BİREBİR AYNI OLMALIDIR.**
