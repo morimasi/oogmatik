@@ -80,14 +80,15 @@ export class ActivityService {
             throw new AppError(`No generator found for activity type: ${type}`, 'INTERNAL_ERROR', 500);
         }
 
-        // Mod değişikliği isteği varsa (örn: kullanıcı offline istedi)
-        // GenericActivityGenerator'ın modunu değiştirmemiz gerekebilir.
-        // Ancak bu singleton olduğu için diğer istekleri etkileyebilir.
-        // Bu yüzden, generate metoduna 'mode' parametresi eklemek daha doğru olur.
-        // Şimdilik GenericActivityGenerator, constructor'da aldığı modu kullanıyor.
-        // İleride GenericActivityGenerator'ın generate metoduna mode parametresi eklenebilir.
+        // Alt jeneratörden ham veriyi al
+        const data = await generator.generate(options);
 
-        return await generator.generate(options);
+        // UI'ın (özellikle useInfographicGenerate hook'u) beklediği ApiResponse formatında sarmala
+        return {
+            success: true,
+            data: data,
+            timestamp: new Date().toISOString()
+        };
     }
 }
 
