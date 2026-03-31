@@ -738,7 +738,7 @@ const AppContent = () => {
         onOpenStudio={handleOpenStudio}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         {isSidebarOpen && (
           <div
             className="fixed inset-0 bg-black/50 z-40 md:hidden"
@@ -812,7 +812,6 @@ const AppContent = () => {
             onAddDirectToWorkbook={handleAddDirectToWorkbook}
           />
         </div>
-      </div>
 
       {/* SPECIAL RENDER FOR STUDIOS WHEN IN THAT VIEW */}
       {currentView === 'curriculum' && (
@@ -953,6 +952,7 @@ const AppContent = () => {
           </Suspense>
         </div>
       )}
+      </div>
 
       <TourGuide steps={tourSteps} isOpen={isTourActive} onClose={() => setIsTourActive(false)} />
       <FeedbackModal
