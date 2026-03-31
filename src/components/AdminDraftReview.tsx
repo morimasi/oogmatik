@@ -11,16 +11,16 @@ const ICON_LIST = [
 ];
 
 export const AdminDraftReview = () => {
-    const [drafts, setDrafts] = (React as any).useState([] as ActivityDraft[]);
-    const [loading, setLoading] = (React as any).useState(true);
-    const [selectedDraft, setSelectedDraft] = (React as any).useState(null as ActivityDraft | null);
-    const [isRefining, setIsRefining] = (React as any).useState(false);
-    const [isPublishing, setIsPublishing] = (React as any).useState(false);
+    const [drafts, setDrafts] = useState([] as ActivityDraft[]);
+    const [loading, setLoading] = useState(true);
+    const [selectedDraft, setSelectedDraft] = useState(null as ActivityDraft | null);
+    const [isRefining, setIsRefining] = useState(false);
+    const [isPublishing, setIsPublishing] = useState(false);
 
     // Publication & Refinement State
-    const [refinedData, setRefinedData] = (React as any).useState({} as Partial<DynamicActivity>);
+    const [refinedData, setRefinedData] = useState({} as Partial<DynamicActivity>);
 
-    (React as any).useEffect(() => { loadDrafts(); }, []);
+    useEffect(() => { loadDrafts(); }, []);
 
     const loadDrafts = async () => {
         setLoading(true);

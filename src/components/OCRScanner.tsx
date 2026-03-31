@@ -1,5 +1,5 @@
 import { AppError } from '../utils/AppError';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ocrService } from '../services/ocrService';
 import { ActivityType, WorksheetData, StyleSettings, GeneratorOptions, Student } from '../types';
 import Worksheet from './Worksheet';
@@ -58,9 +58,9 @@ interface ProgressTrackerProps {
     activeStudent?: Student | null;
 }
 const ProgressTracker = ({ phase, startTime, retryCount, variantCount = 1, activeStudent }: ProgressTrackerProps) => {
-    const [elapsed, setElapsed] = (React as any).useState(0);
+    const [elapsed, setElapsed] = useState(0);
 
-    (React as any).useEffect(() => {
+    useEffect(() => {
         const timer = setInterval(() => setElapsed(Date.now() - startTime), 200);
         return () => clearInterval(timer);
     }, [startTime]);
@@ -150,7 +150,7 @@ interface StudentSelectorProps {
     onSelect: (s: Student | null) => void;
 }
 const StudentSelector = ({ students, activeStudent, onSelect }: StudentSelectorProps) => {
-    const [isOpen, setIsOpen] = (React as any).useState(false);
+    const [isOpen, setIsOpen] = useState(false);
     if (students.length === 0) return null;
     return (
         <div className="relative">
@@ -267,30 +267,30 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     const { activeStudent, students, setActiveStudent } = useStudentStore();
 
     const { user } = useAuthStore();
-    const [step, setStep] = (React as any).useState('upload' as 'upload' | 'analyzing' | 'studio' | 'generating' | 'result' | 'creative' | 'variations');
-    const [images, setImages] = (React as any).useState([] as string[]);
-    const [activeImageIndex, setActiveImageIndex] = (React as any).useState(0);
-    const [blueprintData, setBlueprintData] = (React as any).useState(null as any);
-    const [editedTitle, setEditedTitle] = (React as any).useState('');
-    const [editedBlueprint, setEditedBlueprint] = (React as any).useState(false);
-    const [isEditingBlueprint, setIsEditingBlueprint] = (React as any).useState(false);
-    const [difficulty, setDifficulty] = (React as any).useState('Orta' as DifficultyLevel);
-    const [variantCount, setVariantCount] = (React as any).useState(1);
-    const [itemCount, setItemCount] = (React as any).useState(8);
-    const [concept, setConcept] = (React as any).useState('');
-    const [finalData, setFinalData] = (React as any).useState(null as WorksheetData | null);
+    const [step, setStep] = useState('upload' as 'upload' | 'analyzing' | 'studio' | 'generating' | 'result' | 'creative' | 'variations');
+    const [images, setImages] = useState([] as string[]);
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [blueprintData, setBlueprintData] = useState(null as any);
+    const [editedTitle, setEditedTitle] = useState('');
+    const [editedBlueprint, setEditedBlueprint] = useState(false);
+    const [isEditingBlueprint, setIsEditingBlueprint] = useState(false);
+    const [difficulty, setDifficulty] = useState('Orta' as DifficultyLevel);
+    const [variantCount, setVariantCount] = useState(1);
+    const [itemCount, setItemCount] = useState(8);
+    const [concept, setConcept] = useState('');
+    const [finalData, setFinalData] = useState(null as WorksheetData | null);
     const { _layout, _setLayout } = useReadingStore();
-    const [toast, setToast] = (React as any).useState(null as { message: string; type: ToastType } | null);
-    const [retryCount, setRetryCount] = (React as any).useState(0);
-    const [progressStartTime, setProgressStartTime] = (React as any).useState(0);
-    const [isDragOver, setIsDragOver] = (React as any).useState(false);
-    const fileInputRef = (React as any).useRef(null as HTMLInputElement | null);
-    const dropZoneRef = (React as any).useRef(null as HTMLDivElement | null);
+    const [toast, setToast] = useState(null as { message: string; type: ToastType } | null);
+    const [retryCount, setRetryCount] = useState(0);
+    const [progressStartTime, setProgressStartTime] = useState(0);
+    const [isDragOver, setIsDragOver] = useState(false);
+    const fileInputRef = useRef(null as HTMLInputElement | null);
+    const dropZoneRef = useRef(null as HTMLDivElement | null);
     // OCR Variation states
-    const [variationResults, setVariationResults] = (React as any).useState(null as any);
-    const [variationCount, setVariationCount] = (React as any).useState(3);
+    const [variationResults, setVariationResults] = useState(null as any);
+    const [variationCount, setVariationCount] = useState(3);
 
-    const showToast = (React as any).useCallback((message: string, type: ToastType = 'error') => {
+    const showToast = useCallback((message: string, type: ToastType = 'error') => {
         setToast({ message, type });
         setTimeout(() => setToast(null), 6000);
     }, []);

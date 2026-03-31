@@ -151,6 +151,7 @@ export interface MatSinavAyarlari {
   gorselVeriEklensinMi: boolean;
   ozelTalimatlar?: string;
   ozelKonu?: string;
+  isLgsMode?: boolean; // Yeni Nesil LGS Denemesi Modu
 }
 
 // ─── MEB Kazanım Yapısı ───────────────────────────────────────

@@ -637,7 +637,17 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
 
 `;
 
-  if (sinif >= 6) {
+  if (settings.isLgsMode) {
+    prompt += `🚨 LGS YENİ NESİL DENEME MODU AKTİF (8. SINIF DÜZEYİ) 🚨
+Türkiye Cumhuriyeti MEB Liselere Geçiş Sistemi (LGS) standardında, "Tamamen Yeni Nesil" soru kökleriyle ${toplamSoru} adet ÇOKTAN SEÇMELİ soru hazırla.
+KURALLAR:
+1. Basit işlem veya doğrudan formül sorusu YASAKTIR. Tüm sorular hikayeleştirilmiş, tablo/grafik içeren, okuduğunu anlamaya dayalı ve en az 3 basamaklı mantık yürütme gerektiren yapıda olmalıdır.
+2. Soru köklerinde günlük hayat problemleri, bilimsel makale kesitleri, oyun kuralları, şifreleme mantıkları veya mimari/mühendislik senaryoları kullanılmalıdır.
+3. Seçenekler LGS çeldirici mantığına göre tasarlanmalı, en ufak bir işlem hatasında ulaşılabilecek değerler çeldirici olarak şıklara eklenmelidir (A, B, C, D).
+4. Grafik veya tablo GEREKTİREN soruların sayısı yüksek tutulmalı ve bu görseller "grafik_verisi" alanı ile JSON içerisinde verilmelidir.
+
+`;
+  } else if (sinif >= 6) {
     prompt += `ÖZEL SINAV SİSTEMİ KURALI (YENİ NESİL / LGS TARZI):
 Günümüz MEB sınav sisteminin (özellikle LGS ve örnek soruların) çıkmış sorularını inceleyerek, soruları "Yeni Nesil Soru" formatında hazırla. 
 - Sorular okuduğunu anlama, mantıksal akıl yürütme, tablo/grafik yorumlama ve günlük hayat problemlerini çözme becerilerini ölçmelidir.

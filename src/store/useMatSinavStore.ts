@@ -48,6 +48,7 @@ const defaultAyarlar: MatSinavAyarlari = {
     gorselVeriEklensinMi: false,
     ozelTalimatlar: undefined,
     ozelKonu: undefined,
+    isLgsMode: false,
 };
 
 // localStorage'dan geçmişi yükle

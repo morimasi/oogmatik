@@ -29,6 +29,39 @@ export const MatSoruAyarlari: React.FC<MatSoruAyarlariProps> = ({
 
     return (
         <div className="space-y-4">
+            {/* LGS DENEME MODU BUTONU */}
+            <div className="bg-gradient-to-r from-red-500 to-orange-500 p-[2px] rounded-2xl shadow-sm hover:shadow-md transition-all">
+                <button
+                    onClick={() => {
+                        const isLgs = !ayarlar.isLgsMode;
+                        onAyarlarChange({
+                            isLgsMode: isLgs,
+                            ...(isLgs ? {
+                                sinif: 8,
+                                soruDagilimi: { coktan_secmeli: 20, dogru_yanlis: 0, bosluk_doldurma: 0, acik_uclu: 0 },
+                                zorlukSeviyesi: 'Zor',
+                                gorselVeriEklensinMi: true,
+                                islemSayisi: 3
+                            } : {})
+                        });
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-[14px] transition-all ${ayarlar.isLgsMode ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white' : 'bg-white text-slate-700 hover:bg-orange-50'}`}
+                >
+                    <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${ayarlar.isLgsMode ? 'bg-white/20' : 'bg-orange-100'}`}>
+                            🔥
+                        </div>
+                        <div className="text-left">
+                            <span className={`text-[13px] font-black block tracking-tight ${ayarlar.isLgsMode ? 'text-white' : 'text-slate-800'}`}>LGS Yeni Nesil Denemesi</span>
+                            <span className={`text-[10px] font-medium ${ayarlar.isLgsMode ? 'text-white/80' : 'text-slate-500'}`}>8. Sınıf • 20 Soru • Zor Seviye</span>
+                        </div>
+                    </div>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${ayarlar.isLgsMode ? 'border-white bg-white text-orange-500' : 'border-slate-300'}`}>
+                        {ayarlar.isLgsMode && <span className="text-[10px] font-black">✓</span>}
+                    </div>
+                </button>
+            </div>
+
             {/* Soru Tip Dağılımı */}
             <div className="space-y-2">
                 {SORU_TIPLERI.map(({ key, label, icon, desc }) => (

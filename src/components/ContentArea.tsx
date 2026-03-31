@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { memo, useState, useRef, useEffect, _useCallback } from 'react';
+import React, { memo, useState, useRef, useEffect, useCallback } from 'react';
 import {
   ActivityType,
   WorksheetData,
