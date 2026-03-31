@@ -447,7 +447,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
 
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-80 bg-[#121214] border-r border-zinc-800 flex flex-col overflow-hidden shadow-2xl z-40">
+        <aside className="glass-panel w-80 border-r border-zinc-800/50 flex flex-col overflow-hidden shadow-2xl z-40">
           <div className="p-4 border-b border-zinc-800 bg-black/20">
             <StudentSelector />
           </div>

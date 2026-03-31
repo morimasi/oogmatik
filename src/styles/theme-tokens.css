@@ -1,0 +1,191 @@
+/* src/styles/theme-tokens.css */
+
+:root {
+  /* Default Milk & Honey (Light) */
+  --bg-h: 210;
+  --bg-s: 40%;
+  --bg-l: 98%;
+  --accent-h: 244;
+  --accent-s: 76%;
+  --accent-l: 59%;
+  --surface-glass: rgba(0, 0, 0, 0.03);
+  --glass-blur: 12px;
+
+  /* Zinc HSL Matrix */
+  --c-zinc-50: 0 0% 98%;
+  --c-zinc-100: 240 5% 96%;
+  --c-zinc-200: 240 5% 90%;
+  --c-zinc-300: 240 5% 84%;
+  --c-zinc-400: 240 5% 65%;
+  --c-zinc-500: 240 5% 46%;
+  --c-zinc-600: 240 5% 34%;
+  --c-zinc-700: 240 5% 26%;
+  --c-zinc-800: 240 5% 16%;
+  --c-zinc-900: 240 5% 10%;
+  --c-zinc-950: 240 5% 4%;
+
+  /* Indigo HSL Matrix */
+  --c-indigo-50: 226 100% 97%;
+  --c-indigo-100: 226 100% 94%;
+  --c-indigo-200: 228 96% 89%;
+  --c-indigo-300: 230 94% 82%;
+  --c-indigo-400: 234 89% 74%;
+  --c-indigo-500: 239 84% 67%;
+  --c-indigo-600: 243 75% 59%;
+  --c-indigo-700: 244 57% 51%;
+  --c-indigo-800: 244 54% 41%;
+  --c-indigo-900: 242 47% 34%;
+  --c-indigo-950: 244 47% 20%;
+}
+
+.theme-dark,
+.theme-anthracite,
+.theme-obsidian {
+  /* Obsidian Deep */
+  --bg-h: 240;
+  --bg-s: 10%;
+  --bg-l: 4%;
+  --accent-h: 234;
+  --accent-s: 89%;
+  --accent-l: 74%;
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --glass-blur: 20px;
+}
+
+.theme-space,
+.theme-neon,
+.theme-cyberpunk {
+  /* Cyber Punk */
+  --bg-h: 0;
+  --bg-s: 0%;
+  --bg-l: 1%;
+  --accent-h: 350;
+  --accent-s: 89%;
+  --accent-l: 60%;
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --glass-blur: 20px;
+}
+
+.theme-ocean,
+.theme-nordic {
+  /* Nordic Mist */
+  --bg-h: 204;
+  --bg-s: 80%;
+  --bg-l: 16%;
+  --accent-h: 198;
+  --accent-s: 93%;
+  --accent-l: 60%;
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --glass-blur: 20px;
+}
+
+.theme-nature,
+.theme-emerald {
+  /* Emerald Forest */
+  --bg-h: 146;
+  --bg-s: 80%;
+  --bg-l: 10%;
+  --accent-h: 142;
+  --accent-s: 71%;
+  --accent-l: 58%;
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --glass-blur: 20px;
+}
+
+.theme-royal,
+.theme-imperial {
+  /* Imperial Stone */
+  --bg-h: 24;
+  --bg-s: 10%;
+  --bg-l: 10%;
+  --accent-h: 38;
+  --accent-s: 92%;
+  --accent-l: 50%;
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --glass-blur: 20px;
+}
+
+.theme-light,
+.theme-modern,
+.theme-milk {
+  /* Milk & Honey */
+  --bg-h: 210;
+  --bg-s: 40%;
+  --bg-l: 98%;
+  --accent-h: 244;
+  --accent-s: 76%;
+  --accent-l: 59%;
+  --surface-glass: rgba(0, 0, 0, 0.03);
+  --glass-blur: 12px;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2.5rem; /* Dark Glassmorphism standard */
+}
+
+/* Success Glow Animation */
+@keyframes successGlow {
+  0% {
+    box-shadow: 0 0 0 0 hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.7);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0);
+  }
+}
+
+.success-glow {
+  animation: successGlow 2s ease-out infinite;
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.2),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+/* Focus Mode (Bimodal Reading) */
+body.focus-mode-active .no-focus {
+  opacity: 0.1 !important;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+body.focus-mode-active .focus-target {
+  box-shadow: 0 0 15px hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.5);
+  transition: box-shadow 0.3s ease;
+  z-index: 50;
+  position: relative;
+}
