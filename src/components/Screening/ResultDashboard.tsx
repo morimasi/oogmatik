@@ -30,7 +30,13 @@ export const ResultDashboard: React.FC<Props> = ({
   onGeneratePlan,
 }: Props) => {
   const { user } = useAuthStore();
-  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+
+  interface AiAnalysis {
+    letter: string;
+    actionSteps: string[];
+  }
+
+  const [aiAnalysis, setAiAnalysis] = useState<AiAnalysis | null>(null);
   const [loadingAi, setLoadingAi] = useState(false);
 
   // Action States
@@ -71,10 +77,12 @@ export const ResultDashboard: React.FC<Props> = ({
               .flatMap((s) => (s as any).findings)
               .join(', ')}
 
+            ÖNEMLİ: "letter" alanı düz metin (string) olmalıdır. "actionSteps" alanı her biri düz metin (string) olan bir dizi olmalıdır.
+
             İSTENEN ÇIKTI (JSON):
             {
-                "letter": "Empatik, profesyonel, 3 paragraflık bir değerlendirme yazısı.",
-                "actionSteps": ["Somut öneri 1", "Somut öneri 2", "Somut öneri 3"]
+                "letter": "Empatik, profesyonel, 3 paragraflık bir değerlendirme yazısı. Bu alan yalnızca metin içermelidir.",
+                "actionSteps": ["Somut öneri 1 (yalnızca metin)", "Somut öneri 2 (yalnızca metin)", "Somut öneri 3 (yalnızca metin)"]
             }
             `;
 
@@ -87,8 +95,50 @@ export const ResultDashboard: React.FC<Props> = ({
         required: ['letter', 'actionSteps'],
       };
 
-      const response: any = await generateWithSchema(prompt, schema);
-      setAiAnalysis(response);
+      const raw: any = await generateWithSchema(prompt, schema);
+
+      // Normalize: ensure letter is a string and actionSteps is an array of strings.
+      // Prompt instructions alone cannot guarantee the AI returns the correct types —
+      // the AI may still return actionSteps items as objects {area, description, intervention}
+      // instead of plain strings, which would cause React error #31 if rendered directly.
+      // Normalization here is the definitive guard.
+      const normalizeStep = (step: unknown): string => {
+        if (typeof step === 'string') return step;
+        if (step && typeof step === 'object') {
+          const s = step as Record<string, unknown>;
+          // First try known intervention-plan keys; then fall back to all string values.
+          const knownParts = [s['area'], s['description'], s['intervention']]
+            .filter((v) => typeof v === 'string' && v !== '')
+            .map((v) => String(v));
+          if (knownParts.length > 0) return knownParts.join(' - ');
+          // Generic fallback: join all string-valued fields
+          const allParts = Object.values(s)
+            .filter((v) => typeof v === 'string' && v !== '')
+            .map((v) => String(v));
+          return allParts.join(' - ') || JSON.stringify(step);
+        }
+        return String(step ?? '');
+      };
+
+      const normalizeLetter = (letter: unknown): string => {
+        if (typeof letter === 'string') return letter;
+        if (letter && typeof letter === 'object') {
+          const l = letter as Record<string, unknown>;
+          return Object.values(l)
+            .filter((v) => typeof v === 'string' && v.length > 0)
+            .join(' ');
+        }
+        return String(letter ?? '');
+      };
+
+      const normalized = {
+        letter: normalizeLetter(raw?.letter),
+        actionSteps: Array.isArray(raw?.actionSteps)
+          ? raw.actionSteps.map(normalizeStep)
+          : [],
+      };
+
+      setAiAnalysis(normalized);
     } catch (e) {
       console.error('AI Error', e);
     } finally {
@@ -364,14 +414,14 @@ export const ResultDashboard: React.FC<Props> = ({
         ) : aiAnalysis ? (
           <div className="space-y-6 relative z-10">
             <div className="prose prose-indigo max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed bg-white/50 p-6 rounded-2xl border border-white/20 shadow-sm">
-              {(aiAnalysis as any).letter}
+              {aiAnalysis.letter}
             </div>
 
             <h4 className="font-black text-xs text-indigo-400 uppercase tracking-widest mt-4">
               Ev & Okul İçin Öneriler
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {(aiAnalysis as any).actionSteps.map((step: string, i: number) => (
+              {aiAnalysis.actionSteps.map((step: string, i: number) => (
                 <div
                   key={i}
                   className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm flex gap-3"
@@ -380,9 +430,7 @@ export const ResultDashboard: React.FC<Props> = ({
                     {i + 1}
                   </div>
                   <p className="text-sm font-bold text-zinc-700">
-                    {typeof step === 'string'
-                      ? step
-                      : `${(step as any).area || ''} - ${(step as any).description || ''} - ${(step as any).intervention || ''}`}
+                    {step}
                   </p>
                 </div>
               ))}
@@ -505,9 +553,7 @@ export const ResultDashboard: React.FC<Props> = ({
                       {i + 1}
                     </div>
                     <p className="text-sm font-bold text-zinc-800 pt-1">
-                      {typeof step === 'string'
-                        ? step
-                        : `${(step as any).area || ''} - ${(step as any).description || ''} - ${(step as any).intervention || ''}`}
+                      {step}
                     </p>
                   </div>
                 ))}
