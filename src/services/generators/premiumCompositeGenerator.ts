@@ -96,14 +96,12 @@ ${widgetListStr}
             response = rawResponse.data;
         }
         
-        // Eğer AI 'widgets' yerine 'activities' dediyse eşleştir
-        if (response && response.activities && !response.widgets) {
-            response.widgets = response.activities;
-        }
-
-        // Eğer AI 'widgets' yerine 'components' dediyse eşleştir
-        if (response && response.components && !response.widgets) {
-            response.widgets = response.components;
+        // Eğer AI 'widgets' yerine 'activities', 'components', 'items' gibi başka bir isim verdiyse, objenin içindeki ilk diziyi (array) bul
+        if (response && !response.widgets) {
+            const arrayKey = Object.keys(response).find(key => Array.isArray(response[key]));
+            if (arrayKey) {
+                response.widgets = response[arrayKey];
+            }
         }
 
         if (!response || !response.widgets || !Array.isArray(response.widgets)) {
