@@ -26,6 +26,7 @@
     "@remotion/player": "^4.0.440",
     "@remotion/transitions": "^4.0.441",
     "clsx": "^2.1.1",
+    "core-js": "^3.49.0",
     "firebase": "^12.10.0",
     "framer-motion": "^12.36.0",
     "html2canvas": "^1.4.1",

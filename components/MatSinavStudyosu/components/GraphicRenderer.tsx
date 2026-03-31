@@ -38,22 +38,23 @@ const FILL_OPACITY_MED = '20';     // ~12%
 
 const SvgDefs: React.FC<{ id: string; color: string }> = ({ id, color }) => (
     <defs>
-        <filter id={`shadow-${id}`} x="-15%" y="-15%" width="130%" height="140%">
-            <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#00000020" />
+        <filter id={`shadow-${id}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor={color} floodOpacity="0.15" />
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#0f172a" floodOpacity="0.06" />
         </filter>
         <linearGradient id={`gradV-${id}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.92" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.6" />
+            <stop offset="0%" stopColor={color} stopOpacity="0.95" />
+            <stop offset="100%" stopColor={color} stopOpacity="0.75" />
         </linearGradient>
         <linearGradient id={`shapeFill-${id}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.18" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.06" />
+            <stop offset="0%" stopColor={color} stopOpacity="0.12" />
+            <stop offset="100%" stopColor={color} stopOpacity="0.03" />
         </linearGradient>
-        <marker id={`arrow-${id}`} markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L8,3 Z" fill={color} />
+        <marker id={`arrow-${id}`} markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto-start-reverse">
+            <path d="M0,1 L0,7 L8,4 Z" fill={color} />
         </marker>
-        <marker id={`arrowL-${id}`} markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto-start-reverse">
-            <path d="M0,0 L0,6 L8,3 Z" fill={color} />
+        <marker id={`arrowL-${id}`} markerWidth="10" markerHeight="10" refX="2" refY="4" orient="auto-start-reverse">
+            <path d="M0,1 L0,7 L8,4 Z" fill={color} />
         </marker>
     </defs>
 );
@@ -902,14 +903,20 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
     };
 
     return (
-        <div className={`my-4 p-4 bg-white border border-gray-100 rounded-2xl shadow-sm print:shadow-none print:border-gray-300 ${className}`}>
-            {baslik && (
-                <h4 className="text-sm font-bold text-center text-gray-800 mb-1" style={{ fontFamily: FONT }}>{baslik}</h4>
-            )}
-            {not && (
-                <p className="text-xs text-center text-gray-500 mb-2 italic" style={{ fontFamily: FONT }}>{not}</p>
-            )}
-            {renderContent()}
+        <div className={`relative my-5 p-6 bg-gradient-to-b from-slate-50/80 to-white backdrop-blur-xl border border-slate-200/60 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] print:shadow-none print:border-slate-300 print:bg-transparent overflow-hidden ${className}`}>
+            {/* Ultra Premium Background Grid Effect */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.03] print:hidden" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+            <div className="relative z-10">
+                {baslik && (
+                    <h4 className="text-[15px] font-extrabold text-center text-slate-800 tracking-tight mb-1" style={{ fontFamily: FONT }}>{baslik}</h4>
+                )}
+                {not && (
+                    <p className="text-[11px] font-medium text-center text-slate-500 mb-4 bg-slate-100/50 inline-block px-3 py-1 rounded-full mx-auto block max-w-fit" style={{ fontFamily: FONT }}>{not}</p>
+                )}
+                <div className="bg-white/40 rounded-2xl p-2 shadow-inner border border-slate-50/50">
+                    {renderContent()}
+                </div>
+            </div>
         </div>
     );
 };

@@ -316,7 +316,12 @@ ${detayliPromptlar}
 [GÖRSEL-METİN TUTARLILIK KURALLARI — MUTLAKİYET]
 🚨 UYARI: Aşağıdaki kuralların HİÇBİRİNİ ihlal etme. Her ihlal klinik protokol ihlalidir.
 
-1. SAYISAL DEĞER TUTARLILIğI:
+0. TERSİNE MÜHENDİSLİK (ÇOK ÖNEMLİ):
+   • Önce zihninde "grafik_verisi"ni (şekli, sayıları, etiketleri) kurgula.
+   • Sonra "soru_metni"ni SADECE bu grafik verisindeki sayıları ve harfleri kullanarak yaz.
+   • Asla soru metnini yazıp, sonra ona uymayan rastgele bir grafik uydurma!
+
+1. SAYISAL DEĞER TUTARLILIĞI:
    • Soru metninde belirttiğin HER SAYISAL DEĞER grafik_verisi içinde AYNEN olmalı
    • Geometrik şekillerde: kenar uzunlukları, açı ölçüleri
    • Veri grafiklerinde: tüm sayısal değerler
@@ -346,6 +351,9 @@ ${detayliPromptlar}
    • Görseldeki HER SAYI soru metninde AYNI FORMATTA geçmeli
    • Birim tutarlılığı: cm ise hep cm, m ise hep m
    • Renkli vurgulama: Aynı kavram = aynı renk
+
+⚠️ UYUMSUZLUK = SIFIR TOLERANS
+Görsel-metin uyumsuzluğu olan sorular klinik testlerden geçemez ve iptal edilir. Tüm veriler birbiriyle %100 örtüşmek zorundadır.
 `;
 }
 

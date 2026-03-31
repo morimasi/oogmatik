@@ -865,6 +865,8 @@ export function getVisualPromptsForKazanimlar(
 Seçilen kazanımlar aşağıdaki görsel tiplerini GEREKTİRİYOR.
 Bu kazanımlar için GÖRSELSİZ soru üretme!
 
+SIFIR HALÜSİNASYON: Soru ile görsel (grafik_verisi) %100 eşleşmek zorundadır. Asla soruda bahsedilmeyen bir ölçüyü grafiğe veya grafikte olmayan bir sayıyı soruya yazma.
+
 ${promptlar.join('\n\n---\n\n')}
 `;
 }
