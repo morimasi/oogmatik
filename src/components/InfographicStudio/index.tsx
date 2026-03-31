@@ -100,19 +100,32 @@ export const InfographicStudio: React.FC = () => {
           onSubmitForApproval={async () => {
             if (result) {
               try {
-                // Firebase/Firestore veya ilgili backend'e 'pending_approval' statüsü ile kaydet
+                // Auth token for the API request
+                const token = localStorage.getItem('auth_token');
+                
                 const response = await fetch('/api/worksheets', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ ...result, status: 'pending_approval' })
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                  },
+                  body: JSON.stringify({ 
+                    name: result.title || 'Premium Worksheet',
+                    activityType: 'COMPOSITE_WORKSHEET',
+                    category: result.topic || 'Genel',
+                    data: { ...result, status: 'pending_approval' } 
+                  })
                 });
 
-                if (!response.ok) throw new Error('Kaydetme hatası');
+                if (!response.ok) {
+                  const errJson = await response.json().catch(()=>({}));
+                  throw new Error(errJson.error?.message || 'Kaydetme hatası');
+                }
                 
                 alert('Başarılı! Çalışma kağıdı klinik kurula (Admin onayına) gönderildi.');
-              } catch (err) {
+              } catch (err: any) {
                 console.error(err);
-                alert('Onaya gönderilirken bir hata oluştu.');
+                alert(`Onaya gönderilirken bir hata oluştu: ${err.message}`);
               }
             }
           }}

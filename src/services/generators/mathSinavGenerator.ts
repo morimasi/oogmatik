@@ -971,7 +971,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
         kazanimKodu: soru.kazanimKodu,
         cozumAciklamasi: soru.cozum_anahtari,
         gercekYasamBaglantisi: soru.gercek_yasam_baglantisi,
-        seviye: soru.zorluk,
+        seviye: soru.zorluk as any,
       })),
     };
 

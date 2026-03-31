@@ -72,18 +72,18 @@ export class AnimationService {
     neuroProfile: NeuroProfileParamsType
   ): Promise<AnimationPayloadType> {
     try {
-      const enrichedPrompt = \`
+      const enrichedPrompt = `
         İSTENEN ANİMASYON İÇERİĞİ:
-        \${prompt}
+        ${prompt}
 
         ÖĞRENCİ NÖRO-PROFİLİ:
-        - Profil Tipi: \${neuroProfile.profileType}
-        - Yaş Grubu: \${neuroProfile.ageGroup}
-        - Okuma Hızı: \${neuroProfile.readingSpeed || 'Bilinmiyor'}
-        - Dikkat Süresi (Saniye): \${neuroProfile.attentionSpan || 'Bilinmiyor'}
+        - Profil Tipi: ${neuroProfile.profileType}
+        - Yaş Grubu: ${neuroProfile.ageGroup}
+        - Okuma Hızı: ${neuroProfile.readingSpeed || 'Bilinmiyor'}
+        - Dikkat Süresi (Saniye): ${neuroProfile.attentionSpan || 'Bilinmiyor'}
 
         LÜTFEN BU VERİLERE DAYANARAK RETENTION (AKILDA KALMA) ODAKLI BİR TIMELINE JSON'I ÜRET.
-      \`;
+      `;
 
       // geminiClient üzerinden (Proxy -> JSON Repair -> Doğrudan Json Objesi)
       const data = await generateWithSchema(enrichedPrompt, GEMINI_ANIMATION_SCHEMA);

@@ -14,6 +14,7 @@ import { AdminFeedback } from './AdminFeedback';
 import { AdminStaticContent } from './AdminStaticContent';
 import { AdminUserManagement } from './AdminUserManagement';
 import { AdminDraftReview } from './AdminDraftReview';
+import AdminActivityApproval from './AdminActivityApproval';
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -39,7 +40,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
 
   // Persistent Tab State
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'users' | 'activities' | 'prompts' | 'static_content' | 'feedbacks' | 'drafts'
+    'dashboard' | 'users' | 'activities' | 'prompts' | 'static_content' | 'feedbacks' | 'drafts' | 'approvals'
   >(() => {
     const saved = localStorage.getItem('admin_active_tab');
     return (saved as any) || 'dashboard';
@@ -223,6 +224,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
             onClick={() => setActiveTab('drafts')}
           />
           <NavButton
+            active={activeTab === 'approvals'}
+            label="İçerik Onayları"
+            icon="fa-check-double"
+            onClick={() => setActiveTab('approvals')}
+          />
+          <NavButton
             active={activeTab === 'static_content'}
             label="Veri Kaynakları"
             icon="fa-database"
@@ -265,6 +272,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
               {activeTab === 'static_content' && 'Veri Kaynakları (CMS)'}
               {activeTab === 'feedbacks' && 'Geri Bildirimler'}
               {activeTab === 'drafts' && 'Taslak Havuzu (OCR)'}
+              {activeTab === 'approvals' && 'İçerik Onay Merkezi'}
             </h1>
             <span className="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-mono text-zinc-500 border border-zinc-200 dark:border-zinc-700">
               v1.3.0
@@ -293,6 +301,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
             {activeTab === 'feedbacks' && <AdminFeedback />}
             {activeTab === 'users' && <AdminUserManagement />}
             {activeTab === 'drafts' && <AdminDraftReview />}
+            {activeTab === 'approvals' && <AdminActivityApproval />}
           </div>
         </div>
       </main>
