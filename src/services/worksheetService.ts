@@ -29,6 +29,22 @@ const _FIRESTORE_RETRY_CONFIG = {
 };
 
 /**
+ * Recursively replace undefined values with null so that Firestore addDoc/updateDoc
+ * does not throw "Unsupported field value: undefined".
+ *
+ * Exported for unit testing; not part of the public worksheetService API.
+ */
+export const sanitizeForFirestore = (obj: unknown): unknown => {
+    if (obj === undefined) return null;
+    if (obj === null || typeof obj !== 'object') return obj;
+    if (obj instanceof Date) return obj;
+    if (Array.isArray(obj)) return obj.map(sanitizeForFirestore);
+    return Object.fromEntries(
+        Object.entries(obj as Record<string, unknown>).map(([k, v]) => [k, sanitizeForFirestore(v)])
+    );
+};
+
+/**
  * Serialize worksheet data to JSON string
  */
 const serializeData = (data: any): string => {
@@ -112,7 +128,7 @@ export const worksheetService = {
             if (styleSettings) payload.styleSettings = styleSettings;
             if (studentProfile) payload.studentProfile = studentProfile;
 
-            const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
+            const docRef = await addDoc(collection(db, "saved_worksheets"), sanitizeForFirestore(payload) as object);
             const userRef = doc(db, "users", userId);
             try {
                 await updateDoc(userRef, { worksheetCount: increment(1) });
@@ -331,7 +347,7 @@ export const worksheetService = {
                 (payload as any).workbookItems = serializeData(payload.workbookItems);
             }
 
-            await updateDoc(docRef, payload);
+            await updateDoc(docRef, sanitizeForFirestore(payload) as object);
 
             // Return updated worksheet
             return mapDbToWorksheet({ ...data, ...payload }, worksheetId);
@@ -399,7 +415,7 @@ export const worksheetService = {
                 workbookSettings: settings,
                 workbookItems: serializeData(items)
             };
-            const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
+            const docRef = await addDoc(collection(db, "saved_worksheets"), sanitizeForFirestore(payload) as object);
             return mapDbToWorksheet(payload, docRef.id);
         } catch (error) {
             throw error;
