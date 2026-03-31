@@ -665,7 +665,8 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
 1. VERİ İŞLEME GRAFİKLERİ:
    - "tip": 'siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği'.
    - "baslik": Grafik için kısa bir başlık.
-   - "veri": Bir dizi (array) olmalıdır. Her eleman: {"etiket": "Elma", "deger": 8}.
+   - "veri": Bir dizi (array) olmalıdır. Her eleman KESİNLİKLE {"etiket": "Elma", "deger": 8} şeklinde olmalı ve "deger" (sayısal) alanı MUTLAKA bulunmalıdır. "deger" alanı asla eksik olamaz!
+   - **ÖNEMLİ TUTARLILIK KURALI**: "soru_metni" içinde eğer grafikteki verilerin TOPLAMI (örn: "Sınıfta toplam 30 öğrenci var") veya tamamı belirtilmişse, "veri" dizisindeki "deger" alanlarının aritmetik TOPLAMI soru metnindeki toplam ile BİREBİR EŞİT olmalıdır. (18 != 30 hatası kesinlikle yapılmamalıdır!)
    - "nesne": (Sadece 'nesne_grafiği' için) Veri elemanına eklenecek sembol. örn: "🍎".
    - "not": (İsteğe bağlı) Grafik altında gösterilecek not.
 
