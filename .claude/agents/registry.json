@@ -1,5 +1,7 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "lastUpdated": "2026-03-31",
+  "updateMdVersion": "v3.0 Ultra Premium",
   "leaders": {
     "elif": {
       "name": "Elif Yıldız",
@@ -14,7 +16,11 @@
         "pedagojik",
         "öğrenme hedefi",
         "ZPD",
-        "başarı odaklı"
+        "başarı odaklı",
+        "focus mode",
+        "bilişsel konfor",
+        "success glow",
+        "dual-coding"
       ],
       "capabilities": [
         "Fonolojik farkındalık aktiviteleri",
@@ -64,7 +70,16 @@
         "Firestore",
         "güvenlik",
         "test",
-        "rate limiting"
+        "rate limiting",
+        "CSS",
+        "tema",
+        "theme",
+        "glassmorphism",
+        "HSL",
+        "animasyon",
+        "mikro-animasyon",
+        "print trigger",
+        "A4 izolasyon"
       ],
       "capabilities": [
         "React 18 + TypeScript development",
@@ -89,7 +104,11 @@
         "JSON schema",
         "token",
         "hallucination",
-        "model"
+        "model",
+        "palette reflection",
+        "infografik",
+        "görsel üretim",
+        "loading animasyonu"
       ],
       "capabilities": [
         "Gemini 2.5 Flash prompt engineering",
@@ -245,6 +264,65 @@
         "JSON schema tasarla",
         "Token kullanımı optimize et"
       ]
+    },
+    "visual-modernization": {
+      "description": "Görsel modernizasyon, tema sistemi, CSS, animasyon (update.md v3.0 kapsamı)",
+      "requiredLeaders": ["bora"],
+      "optionalLeaders": ["elif", "selin"],
+      "supportingAgents": ["frontend-developer-oozel"],
+      "activationKeywords": [
+        "tema",
+        "theme",
+        "renk paleti",
+        "color palette",
+        "CSS değişken",
+        "CSS variable",
+        "glassmorphism",
+        "animasyon",
+        "micro-animation",
+        "HSL",
+        "print trigger",
+        "A4 izolasyon",
+        "dark mode",
+        "light mode",
+        "UI modernizasyon",
+        "update.md",
+        "palette reflection",
+        "shimmer",
+        "glow",
+        "focus mode"
+      ],
+      "examples": [
+        "Yeni tema ekle veya güncelle",
+        "Hover animasyonu ekle",
+        "CSS glassmorphism efekti yaz",
+        "A4 print izolasyonunu güçlendir",
+        "Tema geçiş shimmer efekti ekle"
+      ],
+      "designSpec": "update.md v3.0 Ultra Premium",
+      "phases": {
+        "faz1": {
+          "name": "Merkezi Tema Katmanı",
+          "status": "tamamlandı",
+          "files": ["src/styles/theme-tokens.css", "tailwind.config.js"]
+        },
+        "faz2": {
+          "name": "Statik ve Dinamik Komponent Adaptasyonu",
+          "status": "kısmi",
+          "files": ["src/components/SettingsModal.tsx"],
+          "remaining": ["AdminDashboard Recharts tema entegrasyonu", "Studio kontrol panel glassmorphism"]
+        },
+        "faz3": {
+          "name": "Etkileşim Tasarımı (Mikro-Animasyonlar)",
+          "status": "tamamlandı",
+          "files": ["src/styles/theme-tokens.css"]
+        },
+        "faz4": {
+          "name": "Kesin A4 İzolasyonu ve Print Engine v7.0",
+          "status": "tamamlandı",
+          "files": ["src/styles/theme-tokens.css", "src/App.tsx"]
+        }
+      }
     },
     "full-feature": {
       "description": "Tam özellik geliştirme (tüm katmanlar)",

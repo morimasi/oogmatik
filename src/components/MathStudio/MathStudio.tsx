@@ -129,7 +129,10 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
     const totalContentPages = mode === 'drill' ? drillPagination.totalPages : Math.max(1, problem.generatedProblems.length > 0 ? 1 : 0);
 
     return (
-        <div className="h-full flex flex-col bg-[#121212] text-white overflow-hidden font-sans absolute inset-0 z-50">
+        <div
+            className="h-full flex flex-col overflow-hidden font-sans absolute inset-0 z-50"
+            style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+        >
 
             {/* HEADER */}
             <MathHeader
@@ -157,7 +160,14 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                             className="fixed inset-0 bg-black/50 z-40 lg:hidden"
                             onClick={() => setIsSidebarOpen(false)}
                         />
-                        <div className="w-80 bg-[#18181b] border-r border-zinc-800 flex flex-col overflow-y-auto custom-scrollbar shrink-0 z-50 lg:relative lg:z-auto absolute inset-y-0 left-0 lg:static">
+                        <div
+                            className="w-80 flex flex-col overflow-y-auto custom-scrollbar shrink-0 z-50 lg:relative lg:z-auto absolute inset-y-0 left-0 lg:static"
+                            style={{
+                                backgroundColor: 'var(--bg-paper)',
+                                borderRight: '1px solid var(--border-color)',
+                                backdropFilter: `blur(var(--surface-glass-blur))`,
+                            }}
+                        >
                             <StudentPanel
                                 selectedStudentId={selectedStudentId}
                                 students={students}
@@ -189,7 +199,11 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                 )}
 
                 {/* MAIN CANVAS */}
-                <div className="flex-1 bg-[#09090b] relative overflow-auto flex flex-col items-center p-8 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] custom-scrollbar gap-8" id="math-canvas-container">
+                <div
+                    className="flex-1 relative overflow-auto flex flex-col items-center p-8 custom-scrollbar gap-8"
+                    id="math-canvas-container"
+                    style={{ backgroundColor: 'var(--bg-inset)' }}
+                >
 
                     {mode === 'drill' && (
                         <DrillCanvas

@@ -56,7 +56,10 @@ const StatCard: React.FC<{ item: AdminStatCard }> = ({ item }) => (
             )}
             {item.chartData && (
                 <div className="opacity-50 group-hover:opacity-100 transition-opacity">
-                    <Sparkline data={item.chartData} color={item.trendUp ? '#10b981' : '#f43f5e'} />
+                    <Sparkline
+                        data={item.chartData}
+                        color={item.trendUp ? 'var(--accent-color)' : '#f43f5e'}
+                    />
                 </div>
             )}
         </div>
@@ -79,11 +82,14 @@ const UsageBarChart = ({ data }: { data: { label: string, value: number, color: 
                     </div>
                     
                     <div 
-                        className="w-full bg-indigo-50 dark:bg-zinc-700/50 rounded-t-lg relative overflow-hidden transition-all duration-500 hover:opacity-80"
-                        style={{ height: `${(item.value / maxVal) * 100}%` }}
+                        className="w-full rounded-t-lg relative overflow-hidden transition-all duration-500 hover:opacity-80"
+                        style={{ 
+                            height: `${(item.value / maxVal) * 100}%`,
+                            backgroundColor: 'var(--accent-muted)'
+                        }}
                     >
                         <div className={`absolute bottom-0 left-0 w-full h-1 ${item.color}`}></div>
-                        <div className={`w-full h-full opacity-20 ${item.color.replace('bg-', 'bg-opacity-20 ')}`}></div>
+                        <div className="w-full h-full" style={{ opacity: 0.25, backgroundColor: 'var(--accent-color)' }}></div>
                     </div>
                     <span className="text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-wide truncate w-full text-center">
                         {item.label.substring(0, 3)}
@@ -132,7 +138,7 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
     const chartData = topActivities.map((act, i) => ({
         label: act.title,
         value: act.generationCount,
-        color: i % 2 === 0 ? 'bg-indigo-500' : 'bg-purple-500'
+        color: i % 2 === 0 ? 'bg-[var(--accent-color)]' : 'bg-[var(--accent-hover)]'
     }));
 
     return (
@@ -160,7 +166,7 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
                 <div className="lg:col-span-2 bg-white dark:bg-zinc-800 p-8 rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-sm relative overflow-hidden">
                     <div className="flex justify-between items-center">
                         <h3 className="font-bold text-zinc-800 dark:text-zinc-100">En Popüler İçerikler</h3>
-                        <button className="text-indigo-600 text-xs font-bold hover:underline">Raporu İndir</button>
+                        <button className="text-xs font-bold hover:underline" style={{ color: 'var(--accent-color)' }}>Raporu İndir</button>
                     </div>
                     
                     <UsageBarChart data={chartData} />

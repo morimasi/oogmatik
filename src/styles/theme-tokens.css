@@ -1,0 +1,558 @@
+/* ================================================================
+ * OOGMATIK — Merkezi Tema Token Sistemi v3.0 Ultra Premium
+ * ================================================================
+ * Bu dosya, tüm uygulama temalarının CSS değişkenlerini
+ * tek merkezde tanımlar. index.html'deki tema tanımlamalarının
+ * yetkili kaynağıdır.
+ *
+ * Tema Katalogu (update.md v3.0):
+ *   obsidian  → Obsidian Deep (Anthracite)
+ *   cyber     → Cyber Punk (Neon)
+ *   ocean     → Nordic Mist (Ocean)
+ *   nature    → Emerald Forest (Nature)
+ *   royal     → Imperial Stone (Royal)
+ *   light     → Milk & Honey (Light)
+ * ================================================================ */
+
+/* ----------------------------------------------------------------
+ * 1. VARSAYILAN (Obsidian Deep — Anthracite) TEMA
+ * ---------------------------------------------------------------- */
+:root {
+  /* HSL Renk Matrisi — Vurgu rengi */
+  --accent-h: 234;
+  --accent-s: 89%;
+  --accent-l: 73%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 83%, 62%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.10);
+
+  /* Arka Plan (RGB tabanlı — Tailwind uyumluluğu için) */
+  --bg-primary-rgb: 9, 9, 11;
+  --bg-secondary-rgb: 4, 4, 6;
+  --bg-paper-rgb: 18, 18, 20;
+  --bg-inset-rgb: 0, 0, 0;
+
+  --bg-primary: rgb(var(--bg-primary-rgb));
+  --bg-secondary: rgb(var(--bg-secondary-rgb));
+  --bg-paper: rgb(var(--bg-paper-rgb));
+  --bg-inset: rgb(var(--bg-inset-rgb));
+
+  /* Themed Glassmorphism (Bora Demir — Kural: %5 beyaz / 20px blur) */
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --surface-glass-blur: 20px;
+  --surface-elevated: rgba(255, 255, 255, 0.07);
+
+  /* Tipografi */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Kenarlık */
+  --border-color: rgba(255, 255, 255, 0.08);
+
+  /* Gölge ve Kenar Radius */
+  --radius-premium: 16px;
+  --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.40);
+  --blur-premium: 20px;
+
+  /* Görünüm Yüzeyi (A4 etrafındaki masa) */
+  --bg-viewport: rgb(6, 6, 8);
+  --bg-viewport-dot: rgba(255, 255, 255, 0.04);
+
+  /* UI Ayarları */
+  --ui-font: var(--app-font-family, 'Lexend', sans-serif);
+  --ui-scale: var(--app-font-size-scale, 1);
+  --ui-spacing: var(--app-letter-spacing, normal);
+  --ui-line-height: var(--app-line-height, 1.6);
+  --ui-saturation: var(--app-saturation, 100%);
+  --sidebar-width: 320px;
+
+  /* Geçiş */
+  --app-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ----------------------------------------------------------------
+ * 2. MILK & HONEY (Light) — Temiz, Ferah, Klasik Eğitim
+ * ---------------------------------------------------------------- */
+:root.theme-light {
+  --accent-h: 245;
+  --accent-s: 78%;
+  --accent-l: 53%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 75%, 44%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.08);
+
+  --bg-primary-rgb: 248, 250, 252;
+  --bg-secondary-rgb: 241, 245, 249;
+  --bg-paper-rgb: 255, 255, 255;
+  --bg-inset-rgb: 241, 245, 249;
+
+  /* Themed Glassmorphism (Bora Demir — Kural: %3 siyah / 12px blur) */
+  --surface-glass: rgba(0, 0, 0, 0.03);
+  --surface-glass-blur: 12px;
+  --surface-elevated: rgba(0, 0, 0, 0.05);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: rgba(0, 0, 0, 0.06);
+
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --bg-viewport: rgb(226, 232, 240);
+  --bg-viewport-dot: rgba(0, 0, 0, 0.04);
+}
+
+/* ----------------------------------------------------------------
+ * 3. OBSIDIAN DEEP (Dark) — Kararlı, Derin, Profesyonel
+ * ---------------------------------------------------------------- */
+:root.theme-dark {
+  --accent-h: 234;
+  --accent-s: 89%;
+  --accent-l: 73%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 83%, 62%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.10);
+
+  --bg-primary-rgb: 9, 9, 11;
+  --bg-secondary-rgb: 2, 2, 3;
+  --bg-paper-rgb: 18, 18, 20;
+  --bg-inset-rgb: 0, 0, 0;
+
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --surface-glass-blur: 20px;
+  --surface-elevated: rgba(255, 255, 255, 0.07);
+
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --border-color: rgba(255, 255, 255, 0.06);
+
+  --bg-viewport: rgb(12, 12, 14);
+  --bg-viewport-dot: rgba(255, 255, 255, 0.03);
+}
+
+/* ----------------------------------------------------------------
+ * 4. DEFAULT ANTHRACITE — Varsayılan (Dark Anthracite)
+ * ---------------------------------------------------------------- */
+:root.theme-anthracite {
+  --accent-h: 239;
+  --accent-s: 84%;
+  --accent-l: 67%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 77%, 58%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.10);
+
+  --bg-primary-rgb: 18, 18, 20;
+  --bg-secondary-rgb: 10, 10, 11;
+  --bg-paper-rgb: 24, 24, 27;
+  --bg-inset-rgb: 9, 9, 11;
+
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --surface-glass-blur: 20px;
+  --surface-elevated: rgba(255, 255, 255, 0.07);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-color: rgba(255, 255, 255, 0.08);
+
+  --bg-viewport: rgb(22, 22, 26);
+  --bg-viewport-dot: rgba(255, 255, 255, 0.04);
+}
+
+/* ----------------------------------------------------------------
+ * 5. NORDIC MIST (Ocean / Space) — Dingin, Odaklı, Huzurlu
+ * ---------------------------------------------------------------- */
+:root.theme-space {
+  --accent-h: 199;
+  --accent-s: 89%;
+  --accent-l: 48%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 91%, 40%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.08);
+
+  --bg-primary-rgb: 2, 6, 23;
+  --bg-secondary-rgb: 2, 6, 23;
+  --bg-paper-rgb: 15, 23, 42;
+  --bg-inset-rgb: 2, 4, 16;
+
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --surface-glass-blur: 20px;
+  --surface-elevated: rgba(255, 255, 255, 0.07);
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-color: rgba(56, 189, 248, 0.10);
+
+  --bg-viewport: rgb(4, 10, 32);
+  --bg-viewport-dot: rgba(56, 189, 248, 0.04);
+}
+
+/* Nordic Mist — Ocean variant */
+:root.theme-ocean {
+  --accent-h: 198;
+  --accent-s: 93%;
+  --accent-l: 49%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 91%, 40%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.08);
+
+  --bg-primary-rgb: 8, 47, 73;
+  --bg-secondary-rgb: 7, 59, 76;
+  --bg-paper-rgb: 12, 74, 110;
+  --bg-inset-rgb: 5, 35, 55;
+
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --surface-glass-blur: 20px;
+  --surface-elevated: rgba(255, 255, 255, 0.08);
+
+  --text-primary: #f0f9ff;
+  --text-secondary: #7dd3fc;
+  --text-muted: #38bdf8;
+  --border-color: rgba(56, 189, 248, 0.15);
+
+  --bg-viewport: rgb(5, 35, 55);
+  --bg-viewport-dot: rgba(56, 189, 248, 0.05);
+}
+
+/* ----------------------------------------------------------------
+ * 6. EMERALD FOREST (Nature) — Doğal, Büyümeyi Teşvik Eden
+ * ---------------------------------------------------------------- */
+:root.theme-nature {
+  --accent-h: 142;
+  --accent-s: 71%;
+  --accent-l: 45%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 69%, 37%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.10);
+
+  --bg-primary-rgb: 5, 46, 22;
+  --bg-secondary-rgb: 2, 44, 34;
+  --bg-paper-rgb: 6, 78, 59;
+  --bg-inset-rgb: 3, 30, 18;
+
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --surface-glass-blur: 20px;
+  --surface-elevated: rgba(255, 255, 255, 0.08);
+
+  --text-primary: #f0fdf4;
+  --text-secondary: #86efac;
+  --text-muted: #4ade80;
+  --border-color: rgba(74, 222, 128, 0.12);
+
+  --bg-viewport: rgb(3, 30, 18);
+  --bg-viewport-dot: rgba(74, 222, 128, 0.05);
+}
+
+/* ----------------------------------------------------------------
+ * 7. IMPERIAL STONE (Royal — Anthracite Gold) — Prestijli, Kurumsal
+ * ---------------------------------------------------------------- */
+:root.theme-anthracite-gold {
+  --accent-h: 43;
+  --accent-s: 96%;
+  --accent-l: 56%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 92%, 46%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.12);
+
+  --bg-primary-rgb: 28, 25, 23;
+  --bg-secondary-rgb: 20, 18, 16;
+  --bg-paper-rgb: 38, 35, 32;
+  --bg-inset-rgb: 14, 12, 10;
+
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --surface-glass-blur: 20px;
+  --surface-elevated: rgba(251, 191, 36, 0.05);
+
+  --text-primary: #fafaf9;
+  --text-secondary: #d4c5a9;
+  --text-muted: #a8936e;
+  --border-color: rgba(251, 191, 36, 0.15);
+
+  --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.50), 0 0 15px -3px rgba(251, 191, 36, 0.10);
+  --bg-viewport: rgb(20, 18, 14);
+  --bg-viewport-dot: rgba(251, 191, 36, 0.05);
+}
+
+/* ----------------------------------------------------------------
+ * 8. CYBER PUNK (Neon) — Dinamik, Enerjik, Gelecekçi
+ * ---------------------------------------------------------------- */
+:root.theme-anthracite-cyber {
+  --accent-h: 350;
+  --accent-s: 90%;
+  --accent-l: 56%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 85%, 45%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.12);
+
+  --bg-primary-rgb: 2, 2, 2;
+  --bg-secondary-rgb: 0, 0, 0;
+  --bg-paper-rgb: 13, 13, 13;
+  --bg-inset-rgb: 0, 0, 0;
+
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --surface-glass-blur: 20px;
+  --surface-elevated: rgba(244, 63, 94, 0.06);
+
+  --text-primary: #ffffff;
+  --text-secondary: #f9a8b8;
+  --text-muted: #fb7185;
+  --border-color: rgba(244, 63, 94, 0.20);
+
+  --shadow-premium: 0 0 20px rgba(244, 63, 94, 0.18), 0 10px 25px -5px rgba(0, 0, 0, 0.60);
+  --bg-viewport: rgb(8, 3, 8);
+  --bg-viewport-dot: rgba(244, 63, 94, 0.04);
+}
+
+/* ----------------------------------------------------------------
+ * GÖRÜNÜM YÜZEYİ — A4 etrafındaki masa dokusu
+ * ---------------------------------------------------------------- */
+.viewport-surface {
+  background-color: var(--bg-viewport);
+  background-image: radial-gradient(circle, var(--bg-viewport-dot) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.viewport-surface-zen {
+  background-color: #050505;
+  background-image: none;
+}
+
+/* ----------------------------------------------------------------
+ * MİKRO-ANİMASYONLAR — FAZ 3
+ * ---------------------------------------------------------------- */
+
+/* Hover Glow — Temanın vurgu rengi ile ışık patlaması */
+.btn-accent-glow {
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.25s ease,
+    transform 0.15s ease;
+}
+
+.btn-accent-glow:hover {
+  box-shadow:
+    0 0 0 3px var(--accent-muted),
+    0 0 18px 2px var(--accent-muted),
+    0 4px 12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px) scale(1.015);
+}
+
+.btn-accent-glow:active {
+  transform: translateY(0) scale(0.99);
+  box-shadow: 0 0 0 2px var(--accent-muted);
+}
+
+/* Card Glow — Kartlar için hover animasyonu */
+.card-glow {
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.2s ease,
+    border-color 0.3s ease;
+}
+
+.card-glow:hover {
+  box-shadow:
+    0 0 0 1px var(--accent-muted),
+    0 20px 40px -10px rgba(0, 0, 0, 0.3),
+    0 0 30px -10px var(--accent-muted);
+  transform: translateY(-2px);
+  border-color: var(--accent-muted) !important;
+}
+
+/* Shimmer — Sayfa geçiş parlaması */
+@keyframes theme-shimmer {
+  0% {
+    background-position: -200% center;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    background-position: 200% center;
+    opacity: 0;
+  }
+}
+
+.shimmer-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    var(--accent-muted) 50%,
+    transparent 65%
+  );
+  background-size: 200% 100%;
+  animation: theme-shimmer 0.6s ease-in-out forwards;
+}
+
+/* Success Glow — Aktivite tamamlandığında çevre animasyonu (Elif Yıldız) */
+@keyframes success-breathing {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--accent-muted);
+  }
+  50% {
+    box-shadow: 0 0 0 12px transparent;
+  }
+}
+
+.success-glow-animation {
+  animation: success-breathing 1.4s ease-in-out;
+}
+
+/* Sayfa geçiş animasyonu */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.page-enter-animation {
+  animation: page-enter 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Focus Mode — Okuma stüdyosu için (Elif Yıldız) */
+.focus-mode-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 900;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.focus-mode-active .focus-mode-overlay {
+  opacity: 1;
+}
+
+.focus-mode-active .focus-content {
+  position: relative;
+  z-index: 901;
+  background: var(--bg-paper);
+  border-radius: var(--radius-premium);
+  box-shadow: 0 0 0 4px var(--accent-muted), 0 40px 80px -20px rgba(0, 0, 0, 0.6);
+}
+
+/* ----------------------------------------------------------------
+ * TailwindCSS CSS Değişken Yeniden Eşleştirmesi
+ * ---------------------------------------------------------------- */
+:root {
+  --c-zinc-50: var(--bg-primary);
+  --c-zinc-100: var(--bg-secondary);
+  --c-zinc-200: var(--border-color);
+  --c-zinc-300: var(--border-color);
+  --c-zinc-400: var(--text-muted);
+  --c-zinc-500: var(--text-muted);
+  --c-zinc-600: var(--text-secondary);
+  --c-zinc-700: var(--text-secondary);
+  --c-zinc-800: var(--bg-paper);
+  --c-zinc-900: var(--bg-inset);
+  --c-indigo-500: var(--accent-color);
+  --c-indigo-600: var(--accent-hover);
+  --c-indigo-700: var(--accent-hover);
+}
+
+/* ----------------------------------------------------------------
+ * STÜDİO KONTROL BUTONLARI — Tema uyumlu ikon butonları
+ * ReadingStudio, MathStudio için ortak stil
+ * ---------------------------------------------------------------- */
+.studio-icon-btn {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--text-secondary);
+}
+
+.studio-icon-btn:hover {
+  background-color: var(--surface-elevated);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.studio-icon-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* ----------------------------------------------------------------
+ * FAZ 4: PRINT TRIGGER — Yazdırma öncesi ışık tema zorlama
+ * App.tsx'teki beforeprint/afterprint event'leri bu sınıfı ekler/kaldırır
+ * ---------------------------------------------------------------- */
+:root.printing-forced-light {
+  --accent-h: 245;
+  --accent-s: 78%;
+  --accent-l: 53%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 75%, 44%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.08);
+  --bg-primary-rgb: 248, 250, 252;
+  --bg-secondary-rgb: 241, 245, 249;
+  --bg-paper-rgb: 255, 255, 255;
+  --bg-inset-rgb: 241, 245, 249;
+  --surface-glass: rgba(0, 0, 0, 0.03);
+  --surface-glass-blur: 12px;
+  --surface-elevated: rgba(0, 0, 0, 0.05);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: rgba(0, 0, 0, 0.06);
+}
+
+/* ----------------------------------------------------------------
+ * A4 ÇALIŞMA SAYFASI — MUTLAK TEMA İZOLASYONU (FAZ 4)
+ * Dr. Ahmet Kaya: "A4 sayfası bir Klinik Raporudur."
+ * Bora Demir: `color-scheme: light` + CSS değişkeni override ile
+ *   temanın tüm kalıtımı kesilir; seçici override kullanılır.
+ * ---------------------------------------------------------------- */
+.worksheet-page,
+.worksheet-page * {
+  color-scheme: light !important;
+  transition: none !important;
+}
+
+.worksheet-page {
+  /* Tailwind zinc renklerini sabit light değerlerine sıfırla */
+  --c-zinc-50: #fafafa !important;
+  --c-zinc-100: #f4f4f5 !important;
+  --c-zinc-200: #e4e4e7 !important;
+  --c-zinc-300: #d4d4d8 !important;
+  --c-zinc-400: #a1a1aa !important;
+  --c-zinc-500: #71717a !important;
+  --c-zinc-600: #52525b !important;
+  --c-zinc-700: #3f3f46 !important;
+  --c-zinc-800: #27272a !important;
+  --c-zinc-900: #18181b !important;
+  --c-zinc-950: #09090b !important;
+  --c-indigo-50: #eef2ff !important;
+  --c-indigo-100: #e0e7ff !important;
+  --c-indigo-200: #c7d2fe !important;
+  --c-indigo-300: #a5b4fc !important;
+  --c-indigo-400: #818cf8 !important;
+  --c-indigo-500: #6366f1 !important;
+  --c-indigo-600: #4f46e5 !important;
+  --c-indigo-700: #4338ca !important;
+  /* Kesin arka plan ve metin rengi */
+  background-color: white !important;
+  color: black !important;
+  /* Tema renklerini muaf tut */
+  --accent-color: #6366f1 !important;
+  --accent-hover: #4f46e5 !important;
+  --text-primary: #0f172a !important;
+  --text-secondary: #475569 !important;
+  --border-color: #e4e4e7 !important;
+}
