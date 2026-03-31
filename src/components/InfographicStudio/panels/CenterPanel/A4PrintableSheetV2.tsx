@@ -9,10 +9,10 @@ interface A4PrintableSheetV2Props {
 
 export const A4PrintableSheetV2: React.FC<A4PrintableSheetV2Props> = ({ worksheet }) => {
     return (
-        <div className="flex-1 overflow-y-auto w-full h-full p-6 flex justify-center bg-slate-200">
+        <div className="flex-1 overflow-y-auto w-full h-full p-6 flex justify-center bg-transparent">
             <div
                 id="a4-printable-sheet"
-                className="bg-white w-[210mm] min-h-[297mm] shadow-2xl overflow-hidden border border-slate-300 print:w-auto print:h-auto print:shadow-none print:border-none print:m-0"
+                className="bg-white w-full h-full overflow-hidden print:w-auto print:h-auto print:shadow-none print:border-none print:m-0"
                 style={{ padding: '20mm' }}
             >
                 {/* Header */}
