@@ -101,6 +101,8 @@ export enum ActivityType {
   VISUAL_INTERPRETATION = 'VISUAL_INTERPRETATION',
   BRAIN_TEASERS = 'BRAIN_TEASERS',
   BOX_MATH = 'BOX_MATH',
+  SINAV = 'SINAV',
+  MAT_SINAV = 'MAT_SINAV',
   /** @deprecated Kaldırıldı — super-turkce modülü silindi (b6df8d74) */
   SUPER_TURKCE_MATCHING = 'SUPER_TURKCE_MATCHING',
   PREMIUM_STUDIO = 'PREMIUM_STUDIO',

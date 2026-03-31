@@ -25,6 +25,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
 }) => {
     const fontSizePx = config ? `${config.fontSize + 2}px` : '14px';
     const fontFamily = config?.fontFamily === 'times' ? 'Times New Roman, serif' : 'Lexend, Inter, sans-serif';
+    const questionGap = config ? `${config.questionSpacingMm * 2}px` : '16px';
     const lineHeight = config ? config.lineHeight : 1.6;
     const textAlign = config ? config.textAlign : 'left';
     const marginMm = config ? config.marginMm : 18;
@@ -32,40 +33,82 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
 
     return (
         <div
-            className="bg-white rounded-2xl shadow-xl border border-gray-100 max-w-[800px] mx-auto"
+            className="mat-sinav-onizleme bg-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-black/5"
             style={{
                 fontFamily,
+                color: '#1e293b', // slate-800 for high contrast
+                textAlign,
                 fontSize: fontSizePx,
                 lineHeight,
-                textAlign,
                 padding: `${marginMm}px`,
                 columnCount: columns,
-                columnGap: '12mm'
+                columnGap: '12mm',
+                minHeight: '297mm', // A4 height approximation
             }}
         >
-            {/* Sınav Başlığı */}
-            <div className="border-2 border-indigo-500 rounded-xl mx-6 mt-6 p-4">
-                <h1 className="text-lg font-extrabold text-indigo-800 mb-1">{sinav.baslik}</h1>
-                <div className="flex items-center gap-3 text-xs text-gray-500">
-                    <span>{sinav.sinif}. Sınıf</span>
-                    <span>·</span>
-                    <span>{sinav.sorular.length} Soru</span>
-                    <span>·</span>
-                    <span>{sinav.toplamPuan} Puan</span>
-                    <span>·</span>
-                    <span>~{Math.ceil(sinav.tahminiSure / 60)} dakika</span>
+            {/* Sınav Başlığı - Premium Gradient */}
+            <div
+                className="rounded-2xl p-6 mb-6 shadow-lg text-white"
+                style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)' }}
+            >
+                <h1 className="text-2xl font-extrabold mb-4 tracking-tight drop-shadow-sm">
+                    {sinav.baslik}
+                </h1>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+                    {[
+                        { label: 'SINIF', val: `${sinav.sinif}. Sınıf` },
+                        { label: 'SORU', val: `${sinav.sorular.length} Adet` },
+                        { label: 'PUAN', val: `${sinav.toplamPuan} Toplam` },
+                        { label: 'SÜRE', val: `~${Math.ceil(sinav.tahminiSure / 60)} dk` },
+                    ].map(({ label, val }) => (
+                        <div key={label} className="flex flex-col">
+                            <span className="text-sky-100 text-[10px] font-bold uppercase tracking-widest">{label}</span>
+                            <span className="text-white font-extrabold text-base">{val}</span>
+                        </div>
+                    ))}
                 </div>
             </div>
 
-            {/* Öğrenci Bilgi Satırı */}
-            <div className="mx-6 mt-3 pb-3 border-b border-gray-200 text-xs text-gray-400">
-                <span>Ad Soyad: _________________________________ &nbsp;&nbsp; </span>
-                <span>Sınıf/Şube: _________ &nbsp;&nbsp; </span>
-                <span>Tarih: _________</span>
+            {/* MEB Kazanımları - Badge Style */}
+            {sinav.secilenKazanimlar && sinav.secilenKazanimlar.length > 0 && (
+                <div className="mb-6 bg-slate-50/80 border border-slate-200/60 rounded-xl p-4 backdrop-blur-sm">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <span className="p-1 bg-sky-100 rounded-lg text-sky-600">
+                            <i className="fa-solid fa-layer-group text-[10px]"></i>
+                        </span>
+                        MEB Matematik Kazanımları
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                        {sinav.secilenKazanimlar.map((kod) => (
+                            <span
+                                key={kod}
+                                className="px-2.5 py-1 bg-white border border-slate-200 text-slate-700 text-[11px] font-mono font-bold rounded-lg shadow-sm"
+                            >
+                                {kod}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Öğrenci Bilgi Satırı - High Contrast */}
+            <div className="bg-white border-2 border-slate-100 rounded-2xl px-6 py-4 mb-8 flex flex-wrap gap-8 text-sm text-slate-600 font-medium shadow-sm">
+                <div className="flex items-center gap-2">
+                    <span>Ad Soyad:</span>
+                    <span className="border-b-2 border-slate-200 w-48 h-6"></span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span>Sınıf/Şube:</span>
+                    <span className="border-b-2 border-slate-200 w-24 h-6"></span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span>Tarih:</span>
+                    <span className="border-b-2 border-slate-200 w-28 h-6"></span>
+                </div>
             </div>
 
-            {/* Sorular */}
-            <div className="px-6 py-4 space-y-3">
+            {/* Sorular Listesi */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: questionGap }}>
                 {sinav.sorular.map((soru, index) => (
                     <MatSoruCard
                         key={soru.id || index}
@@ -78,9 +121,27 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                 ))}
             </div>
 
+            {/* Pedagojik Not - Klinik Destek */}
+            {sinav.pedagogicalNote && (
+                <div className="mt-10 bg-amber-50/50 border-2 border-amber-100 rounded-2xl p-5 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i className="fa-solid fa-graduation-cap text-4xl text-amber-900"></i>
+                    </div>
+                    <h3 className="text-sm font-bold text-amber-900 mb-2 flex items-center gap-2">
+                        <span className="w-2 h-6 bg-amber-400 rounded-full"></span>
+                        Pedagojik Uygulama Notu
+                    </h3>
+                    <p className="text-sm text-amber-950/80 leading-relaxed font-medium">
+                        {sinav.pedagogicalNote}
+                    </p>
+                </div>
+            )}
+
             {/* Alt Bilgi */}
-            <div className="mx-6 mb-6 mt-2 pt-3 border-t border-gray-100 text-center">
-                <span className="text-[9px] text-gray-300">Oogmatik Süper Matematik Sınav Stüdyosu — MEB 2024-2025</span>
+            <div className="mt-12 pt-6 border-t border-slate-100 text-center opacity-40">
+                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-[0.2em]">
+                    Oogmatik Süper Matematik Sınav Stüdyosu — MEB 2024-2025
+                </p>
             </div>
         </div>
     );
