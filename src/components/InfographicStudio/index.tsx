@@ -97,9 +97,24 @@ export const InfographicStudio: React.FC = () => {
           onExportWorksheet={() => handleExportToWorksheet(result as any)}
           onExportPDF={() => handleExportToPDF(result as any)}
           onPrint={() => handlePrint(result as any)}
-          onSubmitForApproval={() => {
-            // Placeholder for Admin Approval API call
-            alert('Çalışma kağıdı klinik onaya gönderildi!');
+          onSubmitForApproval={async () => {
+            if (result) {
+              try {
+                // Firebase/Firestore veya ilgili backend'e 'pending_approval' statüsü ile kaydet
+                const response = await fetch('/api/worksheets', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ ...result, status: 'pending_approval' })
+                });
+
+                if (!response.ok) throw new Error('Kaydetme hatası');
+                
+                alert('Başarılı! Çalışma kağıdı klinik kurula (Admin onayına) gönderildi.');
+              } catch (err) {
+                console.error(err);
+                alert('Onaya gönderilirken bir hata oluştu.');
+              }
+            }
           }}
           isGenerating={isGenerating}
         />
