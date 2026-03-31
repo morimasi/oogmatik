@@ -1,5 +1,5 @@
 import { AppError } from '../utils/AppError';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ocrService } from '../services/ocrService';
 import { ActivityType, WorksheetData, StyleSettings, GeneratorOptions, Student } from '../types';
 import Worksheet from './Worksheet';
