@@ -1171,19 +1171,75 @@ const TimelineRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data,
     );
 };
 
-/** Bilinmeyen format: ham syntax'ı göster */
-const UnknownRenderer: React.FC<{ syntax: string }> = ({ syntax }) => (
-    <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px' }}>
-        <div style={{ background: '#fef9c3', border: '1px solid #fde68a', borderRadius: '10px', padding: '12px', marginBottom: '16px' }}>
-            <p style={{ color: '#92400e', fontSize: '13px', fontWeight: 600, margin: 0 }}>
-                ⚠️ Format tanınamadı — syntax önizlemesi:
-            </p>
+/** Bilinmeyen format: Herhangi bir XML yapısını jenerik ve şık kartlara dönüştürür (Evrensel Fallback Motoru) */
+const UnknownRenderer: React.FC<{ syntax: string }> = ({ syntax }) => {
+    // Tüm olası başlıkları, içerikleri, etiketleri ve elementleri ayıklayan süper jenerik parser
+    const sections: Array<{ title: string; content: string }> = [];
+    
+    // 1. <section> ... </section> veya <panel> ... </panel> veya <item> ... </item>
+    const blockRegex = /<(section|panel|item|div|article)[^>]*>([\s\S]*?)<\/\1>/gi;
+    let match;
+    while ((match = blockRegex.exec(syntax)) !== null) {
+        const inner = match[2];
+        const titleMatch = inner.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || match[0].match(/title=['"]([^'"]+)['"]/i);
+        const title = titleMatch ? titleMatch[1].trim() : 'Bölüm';
+        
+        let content = '';
+        const contentMatch = inner.match(/<(content|desc|description|instruction|prompt|p)[^>]*>([\s\S]*?)<\/\1>/i);
+        if (contentMatch) {
+            content = contentMatch[2].trim().replace(/<[^>]+>/g, '');
+        } else {
+            content = inner.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '').replace(/<[^>]+>/g, '').trim();
+        }
+        
+        if (content) sections.push({ title, content });
+    }
+
+    // 2. Eğer hiç blok bulamadıysa, sadece bağımsız <item> veya <title>/<content> çiftlerini ara
+    if (sections.length === 0) {
+        const itemRegex = /<item[^>]*value=['"]([^'"]+)['"]/gi;
+        while ((match = itemRegex.exec(syntax)) !== null) {
+            const keyMatch = match[0].match(/key=['"]([^'"]+)['"]/i);
+            sections.push({ title: keyMatch ? keyMatch[1] : 'Detay', content: match[1] });
+        }
+    }
+
+    // 3. Hala boşsa, tüm XML içindeki başlık ve paragrafları kabaca eşleştir
+    if (sections.length === 0) {
+        const anyTitleMatch = syntax.match(/title=['"]([^'"]+)['"]/i);
+        const rawText = syntax.replace(/<[^>]+>/g, '').trim();
+        if (rawText) {
+            sections.push({ title: anyTitleMatch ? anyTitleMatch[1] : 'Açıklama', content: rawText });
+        }
+    }
+
+    return (
+        <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px' }}>
+            <h2 style={{ textAlign: 'center', color: PALETTE.text, fontSize: '20px', fontWeight: 700, marginBottom: '24px' }}>
+                Etkinlik Detayları
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                {sections.map((sec, idx) => (
+                    <div key={idx} style={{ background: PALETTE.card, border: `2px solid ${PALETTE.primary}`, borderRadius: '12px', padding: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+                        <div style={{ color: PALETTE.primary, fontWeight: 800, fontSize: '14px', marginBottom: '8px', borderBottom: `1px solid ${PALETTE.primary}40`, paddingBottom: '4px' }}>
+                            {sec.title}
+                        </div>
+                        <div style={{ color: PALETTE.text, fontSize: '13px', lineHeight: 1.5 }}>
+                            {sec.content || 'İçerik bulunamadı.'}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            
+            {/* Eğer gerçekten hiçbir şey parse edilemediyse ham syntax'ı gizli bir şekilde göster (sadece geliştirici için) */}
+            {sections.length === 0 && (
+                <div style={{ marginTop: '20px', fontSize: '10px', color: '#ccc', textAlign: 'center' }}>
+                    (İçerik ayrıştırılamadı. Ham veri işleniyor.)
+                </div>
+            )}
         </div>
-        <pre style={{ background: '#f1f5f9', borderRadius: '8px', padding: '12px', fontSize: '12px', color: '#475569', overflowX: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-            {syntax}
-        </pre>
-    </div>
-);
+    );
+};
 
 // ── Ana Bileşen ──────────────────────────────────────────────────────────────
 
