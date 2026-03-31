@@ -377,49 +377,60 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#09090b] overflow-hidden text-zinc-100 absolute inset-0 z-50">
+    <div
+      className="h-full flex flex-col overflow-hidden absolute inset-0 z-50"
+      style={{ backgroundColor: 'var(--bg-inset)', color: 'var(--text-primary)' }}
+    >
       {/* Header */}
-      <header className="h-16 bg-[#121214] border-b border-zinc-800 flex justify-between items-center px-6 shrink-0 z-50">
+      <header
+        className="h-16 flex justify-between items-center px-6 shrink-0 z-50"
+        style={{ backgroundColor: 'var(--bg-paper)', borderBottom: '1px solid var(--border-color)' }}
+      >
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="w-10 h-10 rounded-xl hover:bg-zinc-800 flex items-center justify-center text-zinc-400 transition-colors border border-transparent hover:border-zinc-700"
+            className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors border border-transparent hover:opacity-80"
+            style={{ color: 'var(--text-secondary)' }}
           >
             <i className="fa-solid fa-arrow-left"></i>
           </button>
           <div className="flex flex-col">
-            <h2 className="text-sm font-black text-white flex items-center gap-2 tracking-tight uppercase italic">
-              Oogmatik <span className="text-indigo-500 not-italic">Reading Studio Pro</span>
+            <h2 className="text-sm font-black flex items-center gap-2 tracking-tight uppercase italic" style={{ color: 'var(--text-primary)' }}>
+              Oogmatik <span className="not-italic" style={{ color: 'var(--accent-color)' }}>Reading Studio Pro</span>
             </h2>
             {storyData && (
-              <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
                 {storyData.title}
               </span>
             )}
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex bg-zinc-800 rounded-xl p-0.5 border border-zinc-700/50">
+          <div className="flex rounded-xl p-0.5" style={{ backgroundColor: 'var(--surface-elevated)', border: '1px solid var(--border-color)' }}>
             <button
               disabled={!canUndo}
               onClick={undo}
-              className="w-10 h-10 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 disabled:opacity-20 transition-all font-bold"
+              className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold"
             >
               <i className="fa-solid fa-rotate-left"></i>
             </button>
             <button
               disabled={!canRedo}
               onClick={redo}
-              className="w-10 h-10 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 disabled:opacity-20 transition-all font-bold"
+              className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold"
             >
               <i className="fa-solid fa-rotate-right"></i>
             </button>
           </div>
-          <div className="w-px h-6 bg-zinc-800 mx-1"></div>
+          <div className="w-px h-6 mx-1" style={{ backgroundColor: 'var(--border-color)' }}></div>
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 disabled:opacity-50 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+            className="px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest disabled:opacity-50 active:scale-95 transition-all text-white"
+            style={{
+              backgroundColor: 'var(--accent-color)',
+              boxShadow: '0 4px 12px -2px var(--accent-muted)',
+            }}
           >
             {isLoading ? (
               <>
@@ -429,16 +440,18 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
               'AI İle Baştan Yarat'
             )}
           </button>
-          <div className="w-px h-6 bg-zinc-800 mx-2"></div>
+          <div className="w-px h-6 mx-2" style={{ backgroundColor: 'var(--border-color)' }}></div>
           <button
             onClick={() => handlePrint('print')}
-            className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700/50"
+            className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ border: '1px solid var(--border-color)' }}
           >
             <i className="fa-solid fa-print"></i>
           </button>
           <button
             onClick={handleSave}
-            className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all border border-zinc-700/50"
+            className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ border: '1px solid var(--border-color)' }}
           >
             <i className="fa-solid fa-floppy-disk"></i>
           </button>
@@ -447,15 +460,26 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
 
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar */}
-        <aside className="glass-panel w-80 border-r border-zinc-800/50 flex flex-col overflow-hidden shadow-2xl z-40">
-          <div className="p-4 border-b border-zinc-800 bg-black/20">
+        <aside
+          className="w-80 flex flex-col overflow-hidden shadow-2xl z-40"
+          style={{ backgroundColor: 'var(--bg-paper)', borderRight: '1px solid var(--border-color)' }}
+        >
+          <div className="p-4" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-glass)' }}>
             <StudentSelector />
           </div>
 
-          <div className="flex border-b border-zinc-800 shrink-0 bg-zinc-900/30 overflow-x-auto custom-scrollbar">
+          <div
+            className="flex shrink-0 overflow-x-auto custom-scrollbar"
+            style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-glass)' }}
+          >
             <button
               onClick={() => setSidebarTab('production')}
-              className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'production' ? 'text-indigo-500 border-indigo-500 bg-indigo-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+              className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
+              style={{
+                color: sidebarTab === 'production' ? 'var(--accent-color)' : 'var(--text-muted)',
+                borderBottomColor: sidebarTab === 'production' ? 'var(--accent-color)' : 'transparent',
+                backgroundColor: sidebarTab === 'production' ? 'var(--accent-muted)' : 'transparent',
+              }}
             >
               Üretim
             </button>
@@ -495,8 +519,16 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         </aside>
 
         {/* Main Canvas Area */}
-        <main className="flex-1 bg-[#09090b] overflow-auto p-12 custom-scrollbar flex flex-col items-center relative">
-          <div className="flex gap-4 mb-8 bg-[#121214]/80 backdrop-blur-xl p-2 rounded-2xl border border-zinc-800 shadow-2xl sticky top-0 z-30">
+        <main className="flex-1 overflow-auto p-12 custom-scrollbar flex flex-col items-center relative" style={{ backgroundColor: 'var(--bg-inset)' }}>
+          <div
+            className="flex gap-4 mb-8 p-2 rounded-2xl shadow-2xl sticky top-0 z-30"
+            style={{
+              backgroundColor: 'var(--surface-glass)',
+              backdropFilter: `blur(var(--surface-glass-blur, 20px))`,
+              WebkitBackdropFilter: `blur(var(--surface-glass-blur, 20px))`,
+              border: '1px solid var(--border-color)',
+            }}
+          >
             <div className="flex items-center gap-4 px-4">
               <button
                 onClick={() => setCanvasScale(Math.max(0.5, canvasScale - 0.1))}

@@ -200,6 +200,54 @@ Kullanıcı: "Yeni matematik stüdyosu ekle"
 
 ---
 
+### Kural 8: Görsel Modernizasyon (update.md v3.0 Ultra Premium)
+
+**Tetikleyiciler**: `tema`, `theme`, `renk paleti`, `CSS değişken`, `glassmorphism`, `animasyon`,
+`micro-animation`, `HSL`, `print trigger`, `A4 izolasyon`, `dark mode`, `UI modernizasyon`,
+`update.md`, `shimmer`, `glow`, `focus mode`, `hover efekti`, `tema token`
+
+**Aktive Olan Ajanlar**:
+- ✅ **Bora Demir** (ZORUNLU — CSS/TypeScript mimarisi)
+- 🔄 Elif Yıldız (Opsiyonel — pedagojik UI gereklilikleri; Dual-Coding, Focus Mode)
+- 🔄 Selin Arslan (Opsiyonel — AI Palette Reflection, Loading animasyonları)
+- 🤖 **frontend-developer-oozel** (Supporting — Bora onayı ile)
+
+**İş Akışı**:
+```
+Kullanıcı: "Yeni tema ekle" / "Hover animasyonu ekle" / "Glassmorphism güncelle"
+  ↓
+1. Bora → CSS değişken mimarisi, TypeScript uyumu, A4 izolasyon kontrolü
+2. Elif (isteğe bağlı) → Bilişsel konfor, Dual-Coding uyumluluğu
+3. Selin (isteğe bağlı) → AI Palette Reflection entegrasyonu
+  ↓
+4. frontend-developer-oozel → src/styles/theme-tokens.css güncelleme
+  ↓
+5. Bora → Son kontrol: A4 izolasyon sızıntısı yok, TypeScript strict
+6. Elif (isteğe bağlı) → Visual fatigue, Lexend font değişmedi
+```
+
+**Kritik Kısıtlar (Bora Demir onayı zorunlu)**:
+- A4 `.worksheet-page` asla tema rengine maruz kalamaz (Faz 4 izolasyonu)
+- `--surface-glass` dark temalar: %5 beyaz opaklık / light: %3 siyah opaklık
+- HSL değişkenleri `--accent-h`, `--accent-s`, `--accent-l` formatında
+- Lexend font asla değiştirilemez
+
+**Örnekler**:
+```
+Kullanıcı: "Yeni bir purple tema ekle"
+→ Bora aktive edilir
+→ theme-tokens.css'e :root.theme-purple eklenir
+→ AppTheme tipine eklenir
+→ SettingsModal'a eklenir
+
+Kullanıcı: "Hover'da kart glow efekti ekle"
+→ Bora + frontend-developer-oozel aktive edilir
+→ .card-glow CSS sınıfı theme-tokens.css'e eklenir
+→ İlgili bileşenlere sınıf uygulanır
+```
+
+---
+
 ## 🚨 Veto Sistemi
 
 ### Mutlak Kural: Her Lider DURDUR Diyebilir
