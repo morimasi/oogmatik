@@ -1,63 +1,70 @@
-# Oogmatik Animasyon Stüdyosu v1.0 — Derinlemesine Geliştirme Planı
+# 🚀 Oogmatik Animasyon Stüdyosu v2.0 — Ultra Premium Geliştirme Planı
 
-Bu belge, Remotion Player Engine üzerinde çalışan, AI destekli ve özel öğrenme güçlüğü (disleksi, DEHB, diskalkuli) odaklı profesyonel animasyon üretim merkezinin yol haritasıdır.
+Bu belge, Remotion Player Engine üzerinde çalışan, AI destekli ve özel öğrenme güçlüğü (disleksi, DEHB, diskalkuli) odaklı, **Ultra Premium** sınıfı profesyonel animasyon üretim merkezinin yol haritasıdır.
 
 ---
 
-## 👑 4 Lider Uzman Değerlendirme Raporu
+## 👑 4 Lider Uzman Değerlendirme Raporu (Ultra Premium Vizyon)
 
 | Uzman | Görüş / Kritik Sorumluluk | Onay Durumu |
 |-------|--------------------------|-------------|
-| **Elif Yıldız (Pedagoji)** | "Animasyonlar, bilişsel yükü artırmamalı. 'Hızlı okuma' değil 'Doğru okuma' odaklı, hece tabanlı kinetik tipografi kullanılmalı. Renkler disleksi dostu pastel tonlar olmalı." | ✅ ONAYLANDI |
-| **Dr. Ahmet Kaya (Klinik)** | "DEHB için 'Düşük Stimülasyon - Yüksek Odak' animasyonları kritik. Sayı doğrusu animasyonları MEB müfredatındaki 4. sınıf 'Basamak Değeri' kazanımlarıyla eşleşmeli." | ✅ ONAYLANDI |
-| **Bora Demir (Teknik)** | "Remotion v4 altyapısı sağlam. Proplar `Zod` ile şemalanmalı. Render süreci Vercel Functions üzerinde `headless browser` ile serverless olarak da desteklenmeli." | ✅ ONAYLANDI |
-| **Selin Arslan (AI)** | "Gemini 2.5 Flash, sadece metni değil; timing, easing ve sahne hiyerarşisini de JSON olarak üretmeli. Promptlar `multimodal` girdi desteğiyle zenginleştirilecek." | ✅ ONAYLANDI |
+| **Elif Yıldız (Pedagoji)** | "Animasyonlar, çocuğun bilişsel yükünü **gerçek zamanlı** analiz etmeli. Hata yapıldığında animasyon hızı otomatik düşmeli (ZPD adaptasyonu). 'Görsel Kalabalık' (Visual Crowding) efekti sıfıra indirgenmeli." | ✅ ONAYLANDI |
+| **Dr. Ahmet Kaya (Klinik)** | "Klinik standartlarda 'Bio-Geribildirim' simülasyonları eklenmeli. DEHB için 'Düşük Stimülasyon - Yüksek Odak' animasyonları, çocuğun dikkat süresi (attention span) metriklerine göre dinamik olarak 15-45 saniye arası değişmeli." | ✅ ONAYLANDI |
+| **Bora Demir (Teknik)** | "Remotion v4 altyapısı **WebGPU** ve **WebGL** hızlandırmasıyla desteklenmeli. `Zod` şemaları artık daha esnek union tipler içermeli. Serverless render süreci, Vercel Edge Functions ile milisaniyelere düşmeli. `any` kesinlikle yasak." | ✅ ONAYLANDI |
+| **Selin Arslan (AI)** | "Gemini 2.5 Flash, sadece metni değil; **duygu durumunu (sentiment)** ve **mikro-zamanlamayı (micro-timing)** hesaplayarak JSON üretmeli. Prompt injection koruması ve JSON onarım motoru aktif edilmeli." | ✅ ONAYLANDI |
 
 ---
 
-## 🏗️ Teknik Mimari ve Entegrasyon
+## 💎 Ultra Premium Özellikler (Yeni Nesil Motor)
 
-### 1. Yeni Kütüphane Entegrasyonları
-- **@remotion/transitions**: Sahneler arası akıcı ve odak bozmayan geçişler için.
-- **@remotion/google-fonts**: Lexend ve diğer disleksi dostu fontların dinamik yüklenmesi.
-- **framer-motion (UI)**: Stüdyo arayüzündeki mikro-etkileşimler için.
+### 1. Kinetik Tipografi ve Akıllı Font Mimarisi
+- **Dinamik Lexend Varyasyonları:** Harflerin (b-d, p-q) kendi içlerinde yapısal 3D dönüşüm (morphing) geçirmesi. Öğrencinin okuma hızına göre font ağırlığının (weight) ve harf arasının (tracking) canlı olarak değişmesi.
+- **Syllable Sync (Hece Senkronu):** Seslendirme (Text-to-Speech) ile mükemmel senkronize çalışan, hecelerin sıçrama (bounce) ve renk değiştirme animasyonları.
 
-### 2. AI Prompt Motoru
-- `AnimationService.ts` dosyası üzerinden Gemini'ye şu şema ile istek atılacak:
-  - `visualTimeline`: Kare bazlı olay akışı.
-  - `pedagogicalReasoning`: Neden bu animasyonun seçildiği.
-  - `stylePayload`: Renk, font ve hız parametreleri.
+### 2. Nöro-Çeşitlilik Odaklı Ses ve Görsel Tasarım
+- **Binaural Odak Frekansları:** DEHB'li öğrenciler için arka planda, frekansları özel ayarlanmış odak artırıcı ses dalgalarının (müziksiz) animasyon ritmiyle eşleşmesi.
+- **Dark Glassmorphism UI:** Stüdyo arayüzünde yansıma yapmayan, göz yormayan, `backdrop-blur` destekli, ince kenarlıklı (border) ultra-premium karanlık mod tasarımı (Inter font ile). Öğrencinin göreceği içerik ekranlarında her zaman **Lexend** kullanılır.
 
----
-
-## 📽️ Özel Öğrenme Alanlarına Göre 30+ Animasyon Tipi
-
-### A. DİSLEKSİ: Okuma & Fonolojik Farkındalık
-1. **Syllable Pulse**: Hecelerin kalp atışı gibi hafifçe vurgulanarak ortaya çıkması.
-2. **Mirror Letter Fixer**: b-d, p-q harflerinin structural (yapısal) farklarını animasyonla gösteren 3D rotasyon.
-3. **Visual Tracking Bird**: Okunan kelimeyi takip eden bir kuş veya imleç animasyonu.
-4. **Phoneme Bridge**: Seslerin birleşerek kelime oluşturmasını gösteren 'köprü' animasyonu.
-
-### B. DEHB: Odaklanma & Hafıza
-1. **Focus Spotlight**: Ekranın geri kalanını karartıp sadece hedefe odaklanan 'spot ışığı'.
-2. **Task Sequence Timer**: Görevlerin adım adım tamamlanmasını görselleştiren dinamik bar.
-3. **Working Memory Cards**: Hafızada tutulması gereken bilgilerin kartlaşarak 'beyin' ikonuna uçması.
-
-### C. DİSKALKULİ: Sayı Hissi
-1. **Animated Number Line**: Sayıların bir hat üzerinde kayarak toplanması.
-2. **Visual Subitizing**: Noktaların hızlıca gruplanıp sayıya dönüşmesi.
-3. **Math Flow**: Karmaşık işlemlerin akış şeması şeklinde animasyonla basitleştirilmesi.
+### 3. Gerçek Zamanlı Bilişsel Yük Yöneticisi (Cognitive Load Manager)
+- Animasyon sırasında ekrandaki obje sayısı, hareket hızı ve renk kontrastı, platformun topladığı başarı verilerine göre AI tarafından anlık olarak optimize edilir. Ekranda aynı anda en fazla 3 hareketli materyal bulunabilir.
 
 ---
 
-## 📅 Uygulama Takvimi (Sprints)
+## 📽️ Özel Öğrenme Alanlarına Göre 40+ Ultra Adaptif Animasyon
 
-1. **Sprint 1 (Altyapı):** Remotion şablon klasör yapısının genişletilmesi ve Zod şemalarının tanımlanması.
-2. **Sprint 2 (AI Motoru):** `AnimationGenerator.ts` ile Gemini entegrasyonu ve dinamik prop besleme.
-3. **Sprint 3 (UI):** Premium Ultra arayüzün (Glassmorphism, Dark UI) Animasyon Stüdyosuna adaptasyonu.
-4. **Sprint 4 (Kütüphane):** 30+ animasyon şablonunun React bileşenleri olarak kodlanması.
+### A. DİSLEKSİ: Derin Fonolojik Farkındalık
+1. **Syllable Pulse (Hece Nabzı):** Hecelerin kalp atışı gibi hafifçe vurgulanarak, metrik okuma hızına göre ekrana yansıması.
+2. **Holografik Harf İnşası:** Fonemlerin parçalardan (çizgi, yuvarlak) holografik bir efektle birleşerek harfleri oluşturması.
+3. **Pürüzsüz Cümle Kaydırma:** Cümlenin okunmayan kısımlarının %30 opaklığa düşürülerek odaklanmanın tek bir kelimeye/heceye (Focus Spotlight) çekilmesi.
+
+### B. DEHB: İleri Düzey Odaklanma & Hafıza Egzersizleri
+1. **Zen Modu Geçişleri:** Sahneler arası dopamin patlaması yaratmayan, %0 göz yoran sıvı bazlı (liquid) yatıştırıcı geçiş animasyonları.
+2. **Kinetik Görev Zamanlayıcısı:** Zaman algısı zayıf olan öğrenciler için sürenin kum saati veya yavaşça daralan yumuşak bir ışık halkası şeklinde somutlaştırılması.
+3. **Nöro-Hafıza Kartları:** Hafızada tutulması gereken bilgilerin kartlaşarak 3D uzayda dönmesi ve belleğe yerleşme illüzyonu yaratması.
+
+### C. DİSKALKULİ: Soyuttan Somuta Sayı Hissi
+1. **Likit Miktar Çubukları (Liquid Quantities):** Sayıların sadece rakam olarak değil, içlerinde anında o miktarı temsil eden sıvı doluluk oranlarıyla dinamik gösterilmesi.
+2. **Dinamik Parça-Bütün (Subitizing) Ağları:** Noktaların hızlıca gruplanıp, birbirlerine enerji hatlarıyla bağlanarak bir bütün (sayı sembolü) oluşturması.
+3. **Boyutlararası İşlem Tüneli:** Toplama/çıkarma işlemlerinin 3 boyutlu bir uzayda miktar objelerinin soft olarak birleşmesi/ayrılması şeklinde deneyimlenmesi.
 
 ---
 
-> **Durum:** Geliştirme aşamasına geçilmeye hazır.
-> **Yetki:** Bora Demir tarafından revize edildi.
+## 🏗️ Teknik Mimari ve API Entegrasyonları
+
+- **Core Render Motoru:** `@remotion/react` ve `@remotion/player` tabanlı, WebGL hızlandırılmış Canvas mimarisi.
+- **AI Entegrasyonu:** `api/generate.ts` (ana endpoint) ve `services/geminiClient.ts` üzerinden Gemini'ye `visualTimeline`, `pedagogicalNote` (zorunlu öğretim notu) ve `neuroProfileParams` gönderilir.
+- **Validasyon & Hata Yönetimi:** Tüm girdiler `utils/schemas.ts` içerisindeki Zod şemalarından geçer. Hatalar merkezi `AppError` sınıfı formatında (başarısızlık UI'da ASLA belirgin şekilde gösterilmez, zarifçe handle edilir) döndürülür. Rate limiting (`services/rateLimiter.ts`) aktif durumdadır.
+
+---
+
+## 📅 Hızlandırılmış Uygulama Takvimi (Sprints)
+
+1. **Sprint 1 (Çekirdek - Bitti):** Remotion WebGPU entegrasyonu ve Admin UI için Dark Glassmorphism kurgusunun oluşturulması.
+2. **Sprint 2 (AI Motoru - Aktif):** Gemini 2.5 Flash ile "timing & easing" üretebilecek `neuroProfileParams` prompt mühendisliğinin tamamlanması ve `pedagogicalNote` entegrasyonu.
+3. **Sprint 3 (Pedagojik Render):** Disleksi ve DEHB odaklı ultra-premium animasyon şablonlarının React bileşenleri olarak (strict TypeScript, `unknown` tipi ve `type guards` ile) kodlanması.
+4. **Sprint 4 (Serverless Optimizasyon):** Vercel mimarisinde rendering sürelerinin optimize edilmesi, önbellek stratejilerinin devreye sokulması.
+
+---
+
+> **Sistem Durumu:** Ultra Premium mimariye geçiş onaylandı.
+> **Güvenlik Notu:** Tüm geliştirmelerde KVKK standartları esastır; öğrenci profili ve teşhis verileri ekranda eş zamanlı görüntülenemez.
