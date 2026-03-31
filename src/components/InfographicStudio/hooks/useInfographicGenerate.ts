@@ -1,24 +1,27 @@
 import { useState, useCallback } from 'react';
-import { ActivityType } from '../../../types/activity';
-import { activityService } from '../../../services/generators/ActivityService';
-import { InfographicActivityResult } from '../../../types/infographic';
 import { useToastStore } from '../../../store/useToastStore';
 import { AppError } from '../../../utils/AppError';
 import { InfographicGenMode } from './useInfographicStudio';
+import { generateCompositeWorksheet } from '../../../services/generators/premiumCompositeGenerator';
+import { CompositeWorksheet } from '../../../types/worksheet';
 
 export const useInfographicGenerate = () => {
     const [isGenerating, setIsGenerating] = useState(false);
-    const [result, setResult] = useState<InfographicActivityResult | null>(null);
-    const { showToast } = useToastStore();
+    const [result, setResult] = useState<CompositeWorksheet | null>(null);
+    const { show } = useToastStore(); 
 
     const generate = useCallback(async (
-        activityType: ActivityType,
+        widgets: { id: string; activityId: string }[],
         mode: InfographicGenMode,
         topic: string,
         params: Record<string, any> = {}
     ) => {
         if (!topic.trim()) {
-            showToast('Lütfen bir konu veya metin giriniz', 'warning');
+            show('Lütfen bir konu veya metin giriniz', 'warning');
+            return null;
+        }
+        if (widgets.length === 0) {
+            show('Lütfen en az bir bileşen ekleyin', 'warning');
             return null;
         }
 
@@ -26,41 +29,35 @@ export const useInfographicGenerate = () => {
         setResult(null);
 
         try {
-            const response = await activityService.generate(activityType, {
+            const worksheet = await generateCompositeWorksheet({
                 topic,
                 studentAge: params.studentAge || '8-10',
                 difficulty: params.difficulty || 'Orta',
                 profile: params.profile,
                 mode,
-                count: params.count || 3,
-                // Infographic'e özel ek parametreleri doğrudan pass edilebilir
-                customConfig: params.customConfig
+                widgets
             });
 
-            if (response.success && response.data) {
-                setResult(response.data as InfographicActivityResult);
-                showToast('İnfografik başarıyla üretildi!', 'success');
-                return response.data;
+            if (worksheet) {
+                setResult(worksheet);
+                show('Çalışma kağıdı başarıyla üretildi!', 'success');
+                return worksheet;
             } else {
-                throw new AppError(
-                    response.error?.message || 'Üretim sırasında bir hata oluştu',
-                    response.error?.code || 'GENERATE_FAILED',
-                    500
-                );
+                throw new AppError('Üretim sırasında bir hata oluştu', 'GENERATE_FAILED', 500);
             }
         } catch (error: unknown) {
             if (error instanceof AppError) {
-                showToast(error.userMessage, 'error');
+                show(error.userMessage, 'error');
             } else if (error instanceof Error) {
-                showToast(error.message, 'error');
+                show(error.message, 'error');
             } else {
-                showToast('Beklenmeyen bir hata oluştu', 'error');
+                show('Beklenmeyen bir hata oluştu', 'error');
             }
             return null;
         } finally {
             setIsGenerating(false);
         }
-    }, [showToast]);
+    }, [show]);
 
     const clearResult = useCallback(() => {
         setResult(null);

@@ -1,10 +1,10 @@
 import React from 'react';
 import { EmptyState } from './EmptyState';
-import { InfographicPreview } from './InfographicPreview';
-import { InfographicActivityResult } from '../../../../types/infographic';
+import { A4PrintableSheetV2 } from './A4PrintableSheetV2';
+import { CompositeWorksheet } from '../../../../types/worksheet';
 
 interface CenterPanelProps {
-    result: InfographicActivityResult | null;
+    result: CompositeWorksheet | null;
     isGenerating: boolean;
 }
 
@@ -17,10 +17,10 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ result, isGenerating }
                 {isGenerating ? (
                     <div className="flex flex-col items-center justify-center p-8 text-white/50 space-y-4">
                         <div className="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-                        <p className="font-medium animate-pulse">İçerik AI ile Haritalanıyor...</p>
+                        <p className="font-medium animate-pulse">Composite Worksheet AI ile Üretiliyor...</p>
                     </div>
                 ) : result ? (
-                    <InfographicPreview result={result} />
+                    <A4PrintableSheetV2 worksheet={result} />
                 ) : (
                     <EmptyState />
                 )}

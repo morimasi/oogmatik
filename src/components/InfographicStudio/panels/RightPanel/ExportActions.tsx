@@ -1,11 +1,12 @@
 import React from 'react';
-import { Download, PlusSquare, FileCheck2, Printer } from 'lucide-react';
-import { cn } from '@/utils/tailwindUtils';
+import { Download, PlusSquare, FileCheck2, Printer, ShieldCheck } from 'lucide-react';
+import { cn } from '../../../../utils/tailwindUtils';
 
 interface ExportActionsProps {
     onExportWorksheet: () => void;
     onExportPDF: () => void;
     onPrint: () => void;
+    onSubmitForApproval?: () => void;
     disabled: boolean;
 }
 
@@ -13,6 +14,7 @@ export const ExportActions: React.FC<ExportActionsProps> = ({
     onExportWorksheet,
     onExportPDF,
     onPrint,
+    onSubmitForApproval,
     disabled
 }) => {
     return (
@@ -34,7 +36,7 @@ export const ExportActions: React.FC<ExportActionsProps> = ({
                 >
                     <div className="flex items-center space-x-2">
                         <PlusSquare className="w-4 h-4 transition-transform group-hover:scale-110" />
-                        <span>Çalışma Kâğıdına Ekle</span>
+                        <span>Arşive Kaydet</span>
                     </div>
                     {!disabled && <FileCheck2 className="w-4 h-4 text-indigo-400 opacity-50" />}
                 </button>
@@ -70,6 +72,23 @@ export const ExportActions: React.FC<ExportActionsProps> = ({
                     <div className="flex items-center space-x-2">
                         <Printer className="w-4 h-4 transition-transform group-hover:scale-110" />
                         <span>Doğrudan Yazdır</span>
+                    </div>
+                </button>
+
+                {/* Klinik Onaya Gönder (Submit for Admin Approval) */}
+                <button
+                    onClick={onSubmitForApproval}
+                    disabled={disabled}
+                    className={cn(
+                        "w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all group mt-4",
+                        disabled
+                            ? "bg-white/5 text-white/30 cursor-not-allowed"
+                            : "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40"
+                    )}
+                >
+                    <div className="flex items-center space-x-2">
+                        <ShieldCheck className="w-4 h-4 transition-transform group-hover:scale-110" />
+                        <span>Klinik Onaya Gönder</span>
                     </div>
                 </button>
             </div>

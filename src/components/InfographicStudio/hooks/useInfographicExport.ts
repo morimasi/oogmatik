@@ -1,32 +1,32 @@
 import { useCallback } from 'react';
-import { useWorksheetStore } from '@/store/useWorksheetStore';
-import { useToastStore } from '@/store/useToastStore';
-import { WorksheetBlock } from '@/types/activity';
-import { InfographicActivityResult } from '@/types/infographic';
-import { printService } from '@/utils/printService';
+import { useWorksheetStore } from '../../../store/useWorksheetStore';
+import { useToastStore } from '../../../store/useToastStore';
+import { WorksheetBlock } from '../../../types/activity';
+import { CompositeWorksheet } from '../../../types/worksheet';
+import { printService } from '../../../utils/printService';
 
 export const useInfographicExport = () => {
-    const { addBlockToActiveWorksheet, activeWorksheet } = useWorksheetStore();
-    const { showToast } = useToastStore();
+    const { worksheetData, setWorksheetData } = useWorksheetStore();
+    const { show } = useToastStore();
 
     const handleExportToWorksheet = useCallback((
-        result: InfographicActivityResult | null,
+        result: CompositeWorksheet | null,
         customStyle?: any
     ) => {
         if (!result) {
-            showToast('Eklenecek bir üretim bulunamadı.', 'warning');
+            show('Eklenecek bir üretim bulunamadı.', 'warning');
             return;
         }
 
-        if (!activeWorksheet) {
-            showToast('Öncelikle sağ panelden bir çalışma kâğıdı seçmeli veya oluşturmalısınız.', 'warning');
+        if (!worksheetData) {
+            show('Öncelikle sağ panelden bir çalışma kâğıdı seçmeli veya oluşturmalısınız.', 'warning');
             return;
         }
 
         try {
             const block: WorksheetBlock = {
-                id: `info_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-                type: 'visual_clue_card',
+                id: `composite_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+                type: 'text',
                 content: result,
                 style: customStyle || {
                     backgroundColor: '#FFFFFF',
@@ -35,42 +35,46 @@ export const useInfographicExport = () => {
                 weight: 1
             };
 
-            addBlockToActiveWorksheet(block);
-            showToast('İnfografik başarıyla çalışma kâğıdına eklendi.', 'success');
+            const dataArray = Array.isArray(worksheetData) ? worksheetData : [worksheetData];
+            const updatedData = [...dataArray, block as any];
+            
+            setWorksheetData(updatedData as any);
+
+            show('Çalışma kâğıdı başarıyla eklendi.', 'success');
 
         } catch (error) {
-            showToast('Çalışma kâğıdına eklenirken bir hata oluştu.', 'error');
+            show('Çalışma kâğıdına eklenirken bir hata oluştu.', 'error');
         }
-    }, [activeWorksheet, addBlockToActiveWorksheet, showToast]);
+    }, [worksheetData, setWorksheetData, show]);
 
-    const handleExportToPDF = useCallback(async (result: InfographicActivityResult | null) => {
+    const handleExportToPDF = useCallback(async (result: CompositeWorksheet | null) => {
         if (!result) return;
 
         try {
+            show('PDF dışa aktarma işlemi başlatıldı.', 'success');
             await printService.captureAndPrint(
-                '#infographic-render-area',
-                result.title || 'Oogmatik_Infografik',
+                '#a4-printable-sheet',
+                result.title || 'Oogmatik_Premium_Worksheet',
                 'download'
             );
-            showToast('PDF dışa aktarma işlemi başlatıldı.', 'success');
         } catch (error) {
-            showToast('PDF oluşturulurken bir hata oluştu.', 'error');
+            show('PDF oluşturulurken bir hata oluştu.', 'error');
         }
-    }, [showToast]);
+    }, [show]);
 
-    const handlePrint = useCallback(async (result: InfographicActivityResult | null) => {
+    const handlePrint = useCallback(async (result: CompositeWorksheet | null) => {
         if (!result) return;
 
         try {
             await printService.captureAndPrint(
-                '#infographic-render-area',
-                result.title || 'Oogmatik_Infografik',
+                '#a4-printable-sheet',
+                result.title || 'Oogmatik_Premium_Worksheet',
                 'print'
             );
         } catch (error) {
-            showToast('Yazdırma işlemi başlatılırken bir hata oluştu.', 'error');
+            show('Yazdırma işlemi başlatılırken bir hata oluştu.', 'error');
         }
-    }, [showToast]);
+    }, [show]);
 
     return {
         handleExportToWorksheet,

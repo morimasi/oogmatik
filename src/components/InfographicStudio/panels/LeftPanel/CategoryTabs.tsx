@@ -1,7 +1,8 @@
 import React from 'react';
 import { INFOGRAPHIC_CATEGORIES, InfographicCategoryId } from '../../constants/categoryConfig';
 import { Lock } from 'lucide-react';
-import { cn } from '../../../../utils/tailwindUtils'; // assuming this utility exists, else fallback
+import * as Icons from 'lucide-react';
+import { cn } from '../../../../utils/tailwindUtils';
 
 interface CategoryTabsProps {
     selectedCategory: InfographicCategoryId;
@@ -15,22 +16,23 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({ selectedCategory, on
             <div className="space-y-1 overflow-y-auto max-h-48 scrollbar-thin pr-1">
                 {INFOGRAPHIC_CATEGORIES.map((cat) => {
                     const isSelected = selectedCategory === cat.id;
-                    const Icon = cat.icon;
+                    const IconComponent = (Icons as any)[cat.icon] || Icons.HelpCircle;
                     const isClinical = cat.id === 'clinical-bep';
+                    const color = 'indigo';
 
                     return (
                         <button
                             key={cat.id}
-                            onClick={() => onSelect(cat.id)}
+                            onClick={() => onSelect(cat.id as any)}
                             className={cn(
                                 "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all duration-200 border",
                                 isSelected
-                                    ? `bg-${cat.color}-500/20 border-${cat.color}-500/50 text-${cat.color}-400`
+                                    ? `bg-${color}-500/20 border-${color}-500/50 text-${color}-400`
                                     : "bg-transparent border-transparent hover:bg-white/5 text-white/70"
                             )}
                         >
                             <div className="flex items-center space-x-3">
-                                <Icon className={cn("w-4 h-4", isSelected ? `text-${cat.color}-400` : "text-white/50")} />
+                                <IconComponent className={cn("w-4 h-4", isSelected ? `text-${color}-400` : "text-white/50")} />
                                 <span className="font-medium">{cat.label}</span>
                             </div>
                             {isClinical && (

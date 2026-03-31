@@ -7,6 +7,11 @@ import { useInfographicStudio } from './hooks/useInfographicStudio';
 import { useInfographicGenerate } from './hooks/useInfographicGenerate';
 import { useInfographicExport } from './hooks/useInfographicExport';
 
+export interface AddedWidget {
+  id: string;
+  activityId: string;
+}
+
 export const InfographicStudio: React.FC = () => {
   const {
     selectedCategory,
@@ -28,9 +33,20 @@ export const InfographicStudio: React.FC = () => {
     difficulty: 'Orta',
   });
 
+  const [addedWidgets, setAddedWidgets] = useState<AddedWidget[]>([]);
+
+  const onAddWidget = (activityId: string) => {
+    setAddedWidgets(prev => [...prev, { id: Date.now().toString(), activityId }]);
+  };
+
+  const onRemoveWidget = (id: string) => {
+    setAddedWidgets(prev => prev.filter(w => w.id !== id));
+  };
+
   const onGenerate = () => {
-    if (selectedActivity) {
-      generate(selectedActivity, mode, params.topic, {
+    // We will soon update this to use premiumCompositeGenerator
+    if (addedWidgets.length > 0) {
+      generate(addedWidgets, mode, params.topic, {
         studentAge: params.ageGroup,
         difficulty: params.difficulty,
         profile: params.profile
@@ -44,7 +60,7 @@ export const InfographicStudio: React.FC = () => {
       <div className="h-16 flex items-center px-6 border-b border-white/10 bg-slate-900/80 backdrop-blur-md">
         <div>
           <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-            İnfografik Stüdyosu <span className="text-xs text-white/50 font-normal ml-2 tracking-widest uppercase">v3 Ultra Premium</span>
+            Premium Worksheet Studio <span className="text-xs text-white/50 font-normal ml-2 tracking-widest uppercase">Composite Generator</span>
           </h1>
         </div>
       </div>
@@ -64,6 +80,9 @@ export const InfographicStudio: React.FC = () => {
           isClinicalMode={isAnonymousMode}
           onGenerate={onGenerate}
           isGenerating={isGenerating}
+          addedWidgets={addedWidgets}
+          onAddWidget={onAddWidget}
+          onRemoveWidget={onRemoveWidget}
         />
 
         {/* Orta Panel: Önizleme Alanı */}
@@ -75,9 +94,13 @@ export const InfographicStudio: React.FC = () => {
         {/* Sağ Panel: Pedagojik Notlar ve Çıktı Alma */}
         <RightPanel
           result={result}
-          onExportWorksheet={() => handleExportToWorksheet(result)}
-          onExportPDF={() => handleExportToPDF(result)}
-          onPrint={() => handlePrint(result)}
+          onExportWorksheet={() => handleExportToWorksheet(result as any)}
+          onExportPDF={() => handleExportToPDF(result as any)}
+          onPrint={() => handlePrint(result as any)}
+          onSubmitForApproval={() => {
+            // Placeholder for Admin Approval API call
+            alert('Çalışma kağıdı klinik onaya gönderildi!');
+          }}
           isGenerating={isGenerating}
         />
       </div>
