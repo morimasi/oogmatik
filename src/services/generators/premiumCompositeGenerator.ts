@@ -77,12 +77,23 @@ ${widgetListStr}
     };
 
     try {
-        const response = await generateCreativeMultimodal({
+        const rawResponse = await generateCreativeMultimodal({
             prompt: USER_PROMPT,
             systemInstruction: SYSTEM_PROMPT,
             schema,
             temperature: 0.7
         });
+
+        // Güvenlik kontrolü ve JSON Onarımı
+        let response = rawResponse;
+        if (Array.isArray(rawResponse)) {
+            response = { title: topic, topic: topic, pedagogicalNote: '', difficultyLevel: difficulty, targetSkills: [], ageGroup: studentAge, widgets: rawResponse };
+        }
+
+        if (!response || !response.widgets || !Array.isArray(response.widgets)) {
+            console.error('Beklenmeyen AI Yanıtı:', rawResponse);
+            throw new AppError('Yapay zeka beklenen formati üretemedi (widgets dizisi bulunamadı). Lütfen tekrar deneyin.', 'INVALID_AI_RESPONSE', 500);
+        }
 
         // Backend ids matched to frontend added widget ids
         response.widgets.forEach((w: any, index: number) => {
