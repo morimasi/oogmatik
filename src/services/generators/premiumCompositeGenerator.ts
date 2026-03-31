@@ -95,6 +95,11 @@ ${widgetListStr}
         } else if (rawResponse && rawResponse.data) {
             response = rawResponse.data;
         }
+        
+        // Eğer AI 'widgets' yerine 'activities' dediyse eşleştir
+        if (response && response.activities && !response.widgets) {
+            response.widgets = response.activities;
+        }
 
         if (!response || !response.widgets || !Array.isArray(response.widgets)) {
             console.error('Beklenmeyen AI Yanıtı:', rawResponse);
