@@ -5,6 +5,8 @@
 
 import { ValidationError } from './AppError.js';
 import sanitizeHtmlLib from 'sanitize-html';
+import { z } from 'zod';
+
 /**
  * ============================================================
  * VALIDATION HELPERS
@@ -279,6 +281,47 @@ export const validateOCRScanRequest = (
 
   return { valid: Object.keys(errors).length === 0, errors };
 };
+
+/**
+ * ============================================================
+ * ANIMATION STUDIO (REMOTION v2.0) SCHEMAS
+ * ============================================================
+ */
+
+export const NeuroProfileParamsSchema = z.object({
+  profileType: z.enum(['dyslexia', 'adhd', 'dyscalculia', 'mixed']),
+  ageGroup: z.enum(['5-7', '8-10', '11-13', '14+']),
+  readingSpeed: z.enum(['yavas', 'normal', 'hizli']).optional(),
+  attentionSpan: z.number().min(10).max(120).optional(), // Saniye cinsinden
+});
+
+export const AnimationTimingSchema = z.object({
+  startFrame: z.number().int().min(0),
+  durationInFrames: z.number().int().min(1),
+  easingCurve: z.enum(['ease-in', 'ease-out', 'ease-in-out', 'linear', 'spring']),
+});
+
+export const AnimationPayloadSchema = z.object({
+  title: z.string().min(3).max(100),
+  pedagogicalNote: z.string().min(10), // Kural: Her AI çıktısında öğretmene "neden" açıklaması zorunludur.
+  cognitiveLoadParams: z.object({
+    maxConcurrentObjects: z.number().max(3),
+    visualCrowdingScore: z.number().min(0).max(100), // 0 en az (disleksi/dehb için ideal)
+  }),
+  timeline: z.array(
+    z.object({
+      id: z.string().uuid(),
+      type: z.enum(['text', 'shape', 'kinetic-number', 'liquid-bar', 'image']),
+      content: z.string().optional(),
+      timing: AnimationTimingSchema,
+      colorPalette: z.array(z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)),
+    })
+  ),
+});
+
+export type NeuroProfileParamsType = z.infer<typeof NeuroProfileParamsSchema>;
+export type AnimationPayloadType = z.infer<typeof AnimationPayloadSchema>;
+
 
 /**
  * ============================================================
