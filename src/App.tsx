@@ -338,6 +338,13 @@ const AppContent = () => {
     document.body.style.lineHeight = uiSettings.lineHeight.toString();
     document.body.style.letterSpacing = uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal';
     document.body.style.filter = `saturate(${uiSettings.saturation}%)`;
+
+    // Apply Focus Mode globally
+    if (uiSettings.focusMode) {
+      document.body.classList.add('focus-mode-active');
+    } else {
+      document.body.classList.remove('focus-mode-active');
+    }
   }, [uiSettings]);
 
   // Tüm koyu temalar — tema sınıflandırması için merkezi sabit

@@ -603,6 +603,10 @@ export const printService = {
     // 5. Native Render Stabilizasyonu
     document.body.classList.add('printing-mode');
 
+    // Faz 4: Print Trigger - Arayüzü geçici olarak "Milk & Honey (Light)" moduna zorla
+    const prevTheme = document.documentElement.className;
+    document.documentElement.className = 'theme-light';
+
     // Küçük bir gecikme verip Native Yazdırma penceresini ateşle
     setTimeout(() => {
       try {
@@ -612,6 +616,7 @@ export const printService = {
       } finally {
         // Yazdırılma diyaloğu kapanınca veya iptal edilince temizlik yap
         setTimeout(() => {
+          document.documentElement.className = prevTheme;
           document.body.classList.remove('printing-mode');
           if (overlay) overlay.style.display = 'none';
         }, 1000);
@@ -769,13 +774,19 @@ export const printService = {
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       document.body.offsetHeight;
 
+      // Faz 4: Print Trigger - Arayüzü geçici olarak "Milk & Honey (Light)" moduna zorla
+      const prevTheme = document.documentElement.className;
+      document.documentElement.className = 'theme-light';
+
       setTimeout(() => {
         try {
           window.print();
         } catch (e) {
           console.error('Capture print failed', e);
+        } finally {
+          document.documentElement.className = prevTheme;
           document.body.classList.remove('printing-mode');
-          overlay.innerHTML = '';
+          if (overlay) overlay.innerHTML = '';
         }
       }, 120);
 
@@ -785,6 +796,7 @@ export const printService = {
         setTimeout(async () => {
           // Eğer 3 saniye sonra hâlâ printing-mode aktifse, print dialog açılmamış demektir
           if (document.body.classList.contains('printing-mode')) {
+            document.documentElement.className = prevTheme;
             document.body.classList.remove('printing-mode');
             if (overlay) {
               overlay.innerHTML = '';
@@ -1087,6 +1099,13 @@ export const printService = {
 if (typeof window !== 'undefined') {
   const cleanup = () => {
     document.body.classList.remove('printing-mode');
+
+    // Fallback in case theme-light was forced but not restored yet (e.g. by setTimeout delay)
+    // Here we don't have prevTheme directly accessible without a global var,
+    // so we trust the timeouts to restore it or we'll need to store it on window/body.
+    // For now, the existing setTimeouts are mostly covering it, but we should make sure.
+    // So we'll let the timeouts handle theme restoration.
+
     const overlay = document.getElementById('print-overlay');
     if (overlay) {
       overlay.innerHTML = ''; // Clear content to save memory

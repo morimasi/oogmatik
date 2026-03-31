@@ -1,50 +1,80 @@
-
 import React, { useMemo } from 'react';
 import { ActivityStats } from '../types';
 import { AdminStatCard } from '../types/admin';
 
 interface AdminAnalyticsProps {
-    stats: ActivityStats[];
-    totalUsers: number;
+  stats: ActivityStats[];
+  totalUsers: number;
 }
 
 // --- MICRO COMPONENTS ---
 
-const Sparkline = ({ data, color }: { data: number[], color: string }) => {
-    if (!data || data.length < 2) return null;
-    const max = Math.max(...data);
-    const min = Math.min(...data);
-    const range = max - min || 1;
-    
-    // SVG Dimensions
-    const width = 120;
-    const height = 40;
-    const step = width / (data.length - 1);
-    
-    const points = data.map((val, i) => {
-        const x = i * step;
-        const y = height - ((val - min) / range) * height;
-        return `${x},${y}`;
-    }).join(' ');
+const Sparkline = ({ data, color }: { data: number[]; color: string }) => {
+  if (!data || data.length < 2) return null;
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
 
-    return (
-        <svg width={width} height={height} className="overflow-visible">
-            <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx={(data.length-1)*step} cy={height - ((data[data.length-1] - min) / range) * height} r="3" fill={color} />
-        </svg>
-    );
+  // SVG Dimensions
+  const width = 120;
+  const height = 40;
+  const step = width / (data.length - 1);
+
+  const points = data
+    .map((val, i) => {
+      const x = i * step;
+      const y = height - ((val - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  return (
+    <svg width={width} height={height} className="overflow-visible">
+      <polyline
+        points={points}
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle
+        cx={(data.length - 1) * step}
+        cy={height - ((data[data.length - 1] - min) / range) * height}
+        r="3"
+        fill={color}
+      />
+    </svg>
+  );
 };
 
 const StatCard: React.FC<{ item: AdminStatCard }> = ({ item }) => (
-    <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
-        <div className="flex justify-between items-start mb-4 relative z-10">
-            <div>
-                <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-bold uppercase tracking-widest mb-1">{item.label}</p>
-                <h3 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight">{item.value}</h3>
-            </div>
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${item.color}`}>
-                <i className={item.icon}></i>
-            </div>
+  <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
+    <div className="flex justify-between items-start mb-4 relative z-10">
+      <div>
+        <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-bold uppercase tracking-widest mb-1">
+          {item.label}
+        </p>
+        <h3 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight">
+          {item.value}
+        </h3>
+      </div>
+      <div
+        className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${item.color}`}
+      >
+        <i className={item.icon}></i>
+      </div>
+    </div>
+
+    <div className="flex items-end justify-between relative z-10">
+      {item.trend && (
+        <div
+          className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-lg ${item.trendUp ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20' : 'text-rose-600 bg-rose-50 dark:bg-rose-900/20'}`}
+        >
+          <i
+            className={`fa-solid ${item.trendUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}`}
+          ></i>
+          {item.trend}
         </div>
         
         <div className="flex items-end justify-between relative z-10">
@@ -63,10 +93,12 @@ const StatCard: React.FC<{ item: AdminStatCard }> = ({ item }) => (
                 </div>
             )}
         </div>
-        
-        {/* Background Decoration */}
-        <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-zinc-100 to-transparent dark:from-zinc-700/30 rounded-full opacity-50 z-0 pointer-events-none"></div>
+      )}
     </div>
+
+    {/* Background Decoration */}
+    <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-zinc-100 to-transparent dark:from-zinc-700/30 rounded-full opacity-50 z-0 pointer-events-none"></div>
+  </div>
 );
 
 const UsageBarChart = ({ data }: { data: { label: string, value: number, color: string }[] }) => {
@@ -97,7 +129,9 @@ const UsageBarChart = ({ data }: { data: { label: string, value: number, color: 
                 </div>
             ))}
         </div>
-    );
+      ))}
+    </div>
+  );
 };
 
 export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUsers }) => {
@@ -149,11 +183,12 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
                     <h2 className="text-2xl font-black text-zinc-900 dark:text-white">Platform Özeti</h2>
                     <p className="text-zinc-500 text-sm">Son 30 günlük performans verileri.</p>
                 </div>
-                <div className="flex bg-white dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
-                    <button className="px-3 py-1 text-xs font-bold bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded shadow-sm">30 Gün</button>
-                    <button className="px-3 py-1 text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300">90 Gün</button>
-                    <button className="px-3 py-1 text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300">Yıl</button>
+                <div>
+                  <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">API Latency</p>
+                  <p className="text-[10px] text-zinc-500">Google Gemini</p>
                 </div>
+              </div>
+              <span className="text-sm font-mono font-bold text-green-600">120ms</span>
             </div>
 
             {/* Metrics Grid */}
@@ -171,64 +206,36 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
                     
                     <UsageBarChart data={chartData} />
                 </div>
-
-                {/* System Health / Logs */}
-                <div className="bg-white dark:bg-zinc-800 p-6 rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col">
-                    <h3 className="font-bold text-zinc-800 dark:text-zinc-100 mb-6 flex items-center gap-2">
-                        <span className="relative flex h-3 w-3">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                        </span>
-                        Sistem Durumu
-                    </h3>
-                    
-                    <div className="flex-1 space-y-6">
-                        <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700/30 rounded-xl border border-zinc-100 dark:border-zinc-700">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center text-sm">
-                                    <i className="fa-solid fa-server"></i>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">API Latency</p>
-                                    <p className="text-[10px] text-zinc-500">Google Gemini</p>
-                                </div>
-                            </div>
-                            <span className="text-sm font-mono font-bold text-green-600">120ms</span>
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700/30 rounded-xl border border-zinc-100 dark:border-zinc-700">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm">
-                                    <i className="fa-solid fa-database"></i>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">Veritabanı</p>
-                                    <p className="text-[10px] text-zinc-500">Firebase Firestore</p>
-                                </div>
-                            </div>
-                            <span className="text-sm font-mono font-bold text-blue-600">Aktif</span>
-                        </div>
-
-                        <div className="border-t border-zinc-100 dark:border-zinc-700 pt-4">
-                            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">Son Aktiviteler</p>
-                            <div className="space-y-3">
-                                {[
-                                    { user: 'Ahmet Y.', action: 'Matematik Bulmacası', time: '2 dk' },
-                                    { user: 'Elif K.', action: 'Kayıt Oldu', time: '5 dk' },
-                                    { user: 'Mehmet T.', action: 'Rapor Oluşturdu', time: '12 dk' },
-                                ].map((log, i) => (
-                                    <div key={i} className="flex gap-2 items-center text-xs">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-300"></div>
-                                        <span className="font-bold text-zinc-700 dark:text-zinc-300">{log.user}</span>
-                                        <span className="text-zinc-500 truncate flex-1">{log.action}</span>
-                                        <span className="text-zinc-400 font-mono text-[10px]">{log.time}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                  <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">Veritabanı</p>
+                  <p className="text-[10px] text-zinc-500">Firebase Firestore</p>
                 </div>
+              </div>
+              <span className="text-sm font-mono font-bold text-blue-600">Aktif</span>
             </div>
+
+            <div className="border-t border-zinc-100 dark:border-zinc-700 pt-4">
+              <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">
+                Son Aktiviteler
+              </p>
+              <div className="space-y-3">
+                {[
+                  { user: 'Ahmet Y.', action: 'Matematik Bulmacası', time: '2 dk' },
+                  { user: 'Elif K.', action: 'Kayıt Oldu', time: '5 dk' },
+                  { user: 'Mehmet T.', action: 'Rapor Oluşturdu', time: '12 dk' },
+                ].map((log, i) => (
+                  <div key={i} className="flex gap-2 items-center text-xs">
+                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-300"></div>
+                    <span className="font-bold text-zinc-700 dark:text-zinc-300">{log.user}</span>
+                    <span className="text-zinc-500 truncate flex-1">{log.action}</span>
+                    <span className="text-zinc-400 font-mono text-[10px]">{log.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
