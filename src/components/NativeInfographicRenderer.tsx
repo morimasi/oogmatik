@@ -315,32 +315,103 @@ function resolveXmlTagToTemplate(tag: string): TemplateType {
 function _extractTagContent(xml: string, tag: string): string {
     const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i');
     const match = xml.match(regex);
-    return match ? match[1].trim().replace(/<[^>]+>/g, '') : '';
+    if (match) return match[1].trim().replace(/<[^>]+>/g, '');
+
+    // Ayrıca <* id="tag">...<content>...</content></*> şeklinde HTML benzeri blokları kontrol et
+    const sectionRegex = new RegExp(`<\\w+[^>]*(?:id|class|key)=['"]${tag}['"][^>]*>([\\s\\S]*?)<\\/\\w+>`, 'i');
+    const sectionMatch = xml.match(sectionRegex);
+    if (sectionMatch) {
+        const inner = sectionMatch[1];
+        const contentMatch = inner.match(/<content[^>]*>([\s\S]*?)<\/content>/i);
+        if (contentMatch) return contentMatch[1].trim().replace(/<[^>]+>/g, '');
+        const descMatch = inner.match(/<desc[^>]*>([\s\S]*?)<\/desc>/i);
+        if (descMatch) return descMatch[1].trim().replace(/<[^>]+>/g, '');
+        
+        // Sadece düz metni al, başlık etiketlerini uçur
+        let rawText = inner;
+        rawText = rawText.replace(/<title>[\s\S]*?<\/title>/gi, '');
+        rawText = rawText.replace(/<label>[\s\S]*?<\/label>/gi, '');
+        return rawText.trim().replace(/<[^>]+>/g, '');
+    }
+
+    return '';
 }
 
 function _extractAttr(xml: string, tag: string, attr: string): string {
-    const regex = new RegExp(`<${tag}[^>]*${attr}=['"]([^'"]+)['"]`, 'i');
-    const match = xml.match(regex);
-    return match ? match[1] : '';
+    const exactRegex = new RegExp(`<${tag}[^>]*${attr}=['"]([^'"]+)['"]`, 'i');
+    const match = xml.match(exactRegex);
+    if (match) return match[1];
+
+    const anyRegex = new RegExp(`<\\w+[^>]*(?:id|class|key)=['"]${tag}['"][^>]*${attr}=['"]([^'"]+)['"]`, 'i');
+    const matchAny = xml.match(anyRegex);
+    if (matchAny) return matchAny[1];
+
+    // Yapay zeka bazen attribute yerine XML etiketi kullanır: Örn: <title>...</title>
+    if (attr === 'title' || attr === 'label' || attr === 'date') {
+        const fallbackRegex = new RegExp(`<${attr}[^>]*>([\\s\\S]*?)<\\/${attr}>`, 'i');
+        const fMatch = xml.match(fallbackRegex);
+        if (fMatch) return fMatch[1].trim().replace(/<[^>]+>/g, '');
+    }
+
+    return '';
 }
 
 function _extractRepeatedBlocks(xml: string, tag: string): string[] {
-    const regex = new RegExp(`<${tag}[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi');
-    return xml.match(regex) || [];
+    const exactRegex = new RegExp(`<${tag}[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi');
+    const exactMatches = xml.match(exactRegex);
+    if (exactMatches && exactMatches.length > 0) return exactMatches;
+
+    const sectionRegex = new RegExp(`<(\\w+)[^>]*(?:id|class|key)=['"]${tag}['"][^>]*>[\\s\\S]*?<\\/\\1>`, 'gi');
+    const sectionMatches = xml.match(sectionRegex);
+    return sectionMatches || [];
 }
 
 function _extractItems(xml: string, parentTag: string): string[] {
+    let inner = '';
     const parentRegex = new RegExp(`<${parentTag}[^>]*>([\\s\\S]*?)<\\/${parentTag}>`, 'i');
     const parentMatch = xml.match(parentRegex);
-    if (!parentMatch) return [];
-
-    const itemRegex = /<item>([\s\\S]*?)<\/item>/gi;
-    const items = [];
-    let match;
-    while ((match = itemRegex.exec(parentMatch[1])) !== null) {
-        items.push(match[1].trim());
+    
+    if (parentMatch) {
+        inner = parentMatch[1];
+    } else {
+        const sectionRegex = new RegExp(`<\\w+[^>]*(?:id|class|key)=['"]${parentTag}['"][^>]*>([\\s\\S]*?)<\\/\\w+>`, 'i');
+        const sectionMatch = xml.match(sectionRegex);
+        if (sectionMatch) inner = sectionMatch[1];
     }
-    return items;
+
+    if (!inner) return [];
+
+    const items: string[] = [];
+    
+    // <item>...</item> veya <item value="..." />
+    const itemRegex = /<item[^>]*>([\s\S]*?)<\/item>|<item[^>]*value=['"]([^'"]+)['"][^>]*>/gi;
+    let match;
+    let found = false;
+    while ((match = itemRegex.exec(inner)) !== null) {
+        const valMatch = match[0].match(/value=['"]([^'"]+)['"]/i);
+        if (valMatch) items.push(valMatch[1].trim());
+        else if (match[1]) items.push(match[1].trim().replace(/<[^>]+>/g, ''));
+        found = true;
+    }
+    if (found) return items;
+
+    // <content>...</content>
+    const contentRegex = /<content[^>]*>([\s\S]*?)<\/content>/gi;
+    while ((match = contentRegex.exec(inner)) !== null) {
+        items.push(match[1].trim().replace(/<[^>]+>/g, ''));
+        found = true;
+    }
+    if (found) return items;
+
+    // <li>...</li>
+    const liRegex = /<li[^>]*>([\s\S]*?)<\/li>/gi;
+    while ((match = liRegex.exec(inner)) !== null) {
+        items.push(match[1].trim().replace(/<[^>]+>/g, ''));
+        found = true;
+    }
+    if (found) return items;
+
+    return inner.split('\n').map(s => s.replace(/<[^>]+>/g, '').trim()).filter(Boolean);
 }
 
 function resolveTemplate(raw: string): TemplateType {
