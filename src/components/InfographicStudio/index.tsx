@@ -19,7 +19,7 @@ export const InfographicStudio: React.FC = () => {
   } = useInfographicStudio();
 
   const { isGenerating, result, generate } = useInfographicGenerate();
-  const { handleExportToWorksheet, handleExportToPDF } = useInfographicExport();
+  const { handleExportToWorksheet, handleExportToPDF, handlePrint } = useInfographicExport();
 
   const [params, setParams] = useState<ParameterPanelState>({
     topic: '',
@@ -76,7 +76,8 @@ export const InfographicStudio: React.FC = () => {
         <RightPanel
           result={result}
           onExportWorksheet={() => handleExportToWorksheet(result)}
-          onExportPDF={handleExportToPDF}
+          onExportPDF={() => handleExportToPDF(result)}
+          onPrint={() => handlePrint(result)}
           isGenerating={isGenerating}
         />
       </div>
