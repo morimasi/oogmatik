@@ -88,6 +88,12 @@ ${widgetListStr}
         let response = rawResponse;
         if (Array.isArray(rawResponse)) {
             response = { title: topic, topic: topic, pedagogicalNote: '', difficultyLevel: difficulty, targetSkills: [], ageGroup: studentAge, widgets: rawResponse };
+        } else if (rawResponse && rawResponse.premiumCompositeWorksheet) {
+            response = rawResponse.premiumCompositeWorksheet;
+        } else if (rawResponse && rawResponse.worksheet) {
+            response = rawResponse.worksheet;
+        } else if (rawResponse && rawResponse.data) {
+            response = rawResponse.data;
         }
 
         if (!response || !response.widgets || !Array.isArray(response.widgets)) {
