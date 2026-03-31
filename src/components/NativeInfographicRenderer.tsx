@@ -193,22 +193,17 @@ function parseXmlInfographicSyntax(xml: string): ParsedInfographic {
     // 3. Verileri Ayrıştır (Kategoriye Özel)
     if (templateType === '5w1h-grid') {
         const get5W1H = (key: string) => {
-            // Standart tag: <who>cevap</who>
             let val = _extractTagContent(xml, key);
             if (val) return val;
-            
-            // Attribute: <item key="KİM" value="cevap" /> veya <item who="cevap" />
+
             val = _extractAttr(xml, key, 'question') || _extractAttr(xml, 'item', key);
             if (val) return val;
 
-            // Section id: <section id="who"><content>cevap</content></section>
-            const sectionRegex = new RegExp(`<section[^>]*id=['"]${key}['"][^>]*>[\\s\\S]*?<content>([\\s\\S]*?)<\\/content>[\\s\\S]*?<\\/section>`, 'i');
-            const sectionMatch = xml.match(sectionRegex);
-            if (sectionMatch) return sectionMatch[1].trim().replace(/<[^>]+>/g, '');
-
-            // Item key="kim"
             const trKeys: Record<string, string> = { 'who': 'kim', 'what': 'ne', 'where': 'nerede', 'when': 'ne zaman', 'why': 'neden', 'how': 'nasıl' };
             const trKey = trKeys[key];
+            val = _extractTagContent(xml, trKey);
+            if (val) return val;
+
             const itemRegex = new RegExp(`<item[^>]*key=['"]?${trKey}['"]?[^>]*value=['"]([^'"]+)['"]`, 'i');
             const itemMatch = xml.match(itemRegex);
             if (itemMatch) return itemMatch[1].trim();
@@ -326,6 +321,8 @@ function _extractTagContent(xml: string, tag: string): string {
         if (contentMatch) return contentMatch[1].trim().replace(/<[^>]+>/g, '');
         const descMatch = inner.match(/<desc[^>]*>([\s\S]*?)<\/desc>/i);
         if (descMatch) return descMatch[1].trim().replace(/<[^>]+>/g, '');
+        const instructionMatch = inner.match(/<instruction[^>]*>([\s\S]*?)<\/instruction>/i);
+        if (instructionMatch) return instructionMatch[1].trim().replace(/<[^>]+>/g, '');
         
         // Sadece düz metni al, başlık etiketlerini uçur
         let rawText = inner;
