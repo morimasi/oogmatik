@@ -3,6 +3,7 @@ import { GeneratorOptions, ActivityType } from '../../types';
 import { GeneratorMode, IActivityGenerator } from './core/types';
 import { GenericActivityGenerator } from './core/GenericActivityGenerator';
 import { ACTIVITY_GENERATOR_REGISTRY } from './registry';
+import { generateInfographic } from './infographicGenerator';
 
 /**
  * Merkezi Aktivite Servisi (Facade / Factory)
@@ -55,10 +56,8 @@ export class ActivityService {
                 const generator = new GenericActivityGenerator(
                     DEFAULT_MODE,
                     async (options) => {
-                        // Not: useInfographicGenerate hook'u bunu zaten merkezi olarak yönetiyor 
-                        // veya ileride buraya infographicService.generateInfographicFunction(type, options) eklenebilir.
-                        // Şimdilik sistemin çökmemesi için placeholder generator ekliyoruz.
-                        return { success: true, message: "Infographic handled by specialized hook" };
+                        // Faz 10 Fix: Placeholder yerine gerçek AI jeneratörünü çağır
+                        return await generateInfographic(activityType, options);
                     },
                     undefined
                 );
