@@ -293,10 +293,10 @@ function parseXmlInfographicSyntax(xml: string): ParsedInfographic {
 
 function resolveXmlTagToTemplate(tag: string): TemplateType {
     const t = (tag || '').toLowerCase();
-    if (t === 'five-w-one-h' || t === 'activity-5w1h') return '5w1h-grid';
-    if (t === 'venn-diagram' || t === 'activity-venn') return 'venn-diagram';
+    if (t === 'five-w-one-h' || t === 'activity-5w1h' || t.includes('5w1h')) return '5w1h-grid';
+    if (t === 'venn-diagram' || t === 'activity-venn' || t.includes('venn')) return 'venn-diagram';
     if (t === 'sequence-steps' || t === 'activity-sequence') return 'sequence-steps';
-    if (t === 'fishbone-diagram' || t === 'activity-fishbone') return 'fishbone-diagram';
+    if (t === 'fishbone-diagram' || t === 'activity-fishbone' || t.includes('fishbone')) return 'fishbone-diagram';
     if (t === 'concept-map' || t === 'hierarchy-structure') return 'hierarchy-structure';
     if (t === 'math-steps-visual') return 'math-steps';
     if (t === 'cycle-process') return 'cycle-process';
@@ -323,6 +323,8 @@ function _extractTagContent(xml: string, tag: string): string {
         if (descMatch) return descMatch[1].trim().replace(/<[^>]+>/g, '');
         const instructionMatch = inner.match(/<instruction[^>]*>([\s\S]*?)<\/instruction>/i);
         if (instructionMatch) return instructionMatch[1].trim().replace(/<[^>]+>/g, '');
+        const promptMatch = inner.match(/<prompt[^>]*>([\s\S]*?)<\/prompt>/i);
+        if (promptMatch) return promptMatch[1].trim().replace(/<[^>]+>/g, '');
         
         // Sadece düz metni al, başlık etiketlerini uçur
         let rawText = inner;
