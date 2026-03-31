@@ -4,7 +4,7 @@ import { InteractiveStoryData, LayoutItem } from '../../types';
 import { useReadingStore } from '../../store/useReadingStore';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 
-const DraggableItem = ({ item, children }: { item: any, children: any }) => {
+const DraggableItem = ({ item, children }: { item: any, children: any, key?: any }) => {
     const { designMode, updateComponent, setSelectedId, selectedId, layout, setLayout } = useReadingStore();
     const isDragging = useRef(false);
     const startPos = useRef({ x: 0, y: 0 });
@@ -161,9 +161,33 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
         }
 
         if (item.id === 'story_block') {
-            const data = item.specificData || { text: "" };
+            const data = item.specificData || { text: "", syllabifiedStory: "" };
+            const storyText = data.syllabifiedStory || data.text || "";
+
+            const renderSyllables = (text: string) => {
+                return text.split(' ').map((word, wIdx) => (
+                    <span key={wIdx} className="mr-2 inline-block">
+                        {word.split('-').map((syllable, sIdx) => (
+                            <span 
+                                key={sIdx} 
+                                className="syllable transition-all duration-300 hover:text-indigo-600 hover:scale-110 inline-block px-0.5 cursor-help border-b border-transparent hover:border-indigo-300"
+                            >
+                                {syllable}
+                                {sIdx < word.split('-').length - 1 && <span className="opacity-20 text-[0.8em] font-light">-</span>}
+                            </span>
+                        ))}
+                    </span>
+                ));
+            };
+
             return (
                 <div className="relative" style={boxStyle}>
+                    <style>{`
+                        .syllable:hover {
+                            text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+                            font-weight: 700;
+                        }
+                    `}</style>
                     {item.style.imageSettings?.enabled && (
                         <div className={`float-${item.style.imageSettings.position === 'left' ? 'left' : 'right'} w-1/3 h-48 bg-transparent ml-4 mb-2 rounded-lg relative z-10`}>
                             <ImageDisplay
@@ -172,7 +196,9 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
                             />
                         </div>
                     )}
-                    <div dangerouslySetInnerHTML={{ __html: (data.text || '').replace(/\n/g, '<br/>') }}></div>
+                    <div className="reading-text-flow break-words">
+                        {renderSyllables(storyText)}
+                    </div>
                 </div>
             );
         }
@@ -247,12 +273,12 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
         if (item.id === 'pedagogical_note') {
             const data = item.specificData || { text: "" };
             return (
-                <div className="h-full flex flex-col" style={boxStyle}>
-                    <h4 className="font-black text-[10px] uppercase mb-1 opacity-50 flex items-center gap-2">
-                        <i className="fa-solid fa-graduation-cap"></i>
-                        {item.customTitle}
+                <div className="h-full flex flex-col" style={{...boxStyle, backgroundColor: '#f0f9ff', borderColor: '#bae6fd'}}>
+                    <h4 className="font-black text-[10px] uppercase mb-1 text-sky-700 flex items-center gap-2">
+                        <i className="fa-solid fa-brain"></i>
+                        Nöro-Pedagojik Analiz
                     </h4>
-                    <p className="text-[11px] leading-relaxed italic opacity-80">{data.text || "Pedagojik analiz bekleniyor..."}</p>
+                    <p className="text-[11px] leading-relaxed italic text-sky-900/80 font-medium">{data.text || "Uzman analizi hazırlanıyor..."}</p>
                 </div>
             );
         }
