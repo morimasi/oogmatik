@@ -1177,54 +1177,72 @@ const UnknownRenderer: React.FC<{ syntax: string }> = ({ syntax }) => {
     const sections: Array<{ title: string; content: string }> = [];
     
     // 1. <section> ... </section> veya <panel> ... </panel> veya <item> ... </item>
-    const blockRegex = /<(section|panel|item|div|article)[^>]*>([\s\S]*?)<\/\1>/gi;
+    const blockRegex = /<(section|panel|item|div|article|step|phase|row)[^>]*>([\s\S]*?)<\/\1>/gi;
     let match;
     while ((match = blockRegex.exec(syntax)) !== null) {
         const inner = match[2];
-        const titleMatch = inner.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || match[0].match(/title=['"]([^'"]+)['"]/i);
-        const title = titleMatch ? titleMatch[1].trim() : 'Bölüm';
+        const titleMatch = inner.match(/<(title|label|header)[^>]*>([\s\S]*?)<\/\1>/i) || match[0].match(/(title|label|name)=['"]([^'"]+)['"]/i) || match[0].match(/id=['"]([^'"]+)['"]/i);
+        const title = titleMatch ? titleMatch[2] || titleMatch[1] : 'Bölüm';
         
         let content = '';
-        const contentMatch = inner.match(/<(content|desc|description|instruction|prompt|p)[^>]*>([\s\S]*?)<\/\1>/i);
-        if (contentMatch) {
-            content = contentMatch[2].trim().replace(/<[^>]+>/g, '');
-        } else {
-            content = inner.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '').replace(/<[^>]+>/g, '').trim();
+        // instruction, prompt, desc, content vb. içerik etiketlerini dene
+        const contentRegex = /<(content|desc|description|instruction|prompt|p|text|value)[^>]*>([\s\S]*?)<\/\1>/gi;
+        let contentMatch;
+        let foundContent = false;
+        
+        while ((contentMatch = contentRegex.exec(inner)) !== null) {
+             content += contentMatch[2].trim().replace(/<[^>]+>/g, '') + ' ';
+             foundContent = true;
+        }
+
+        if (!foundContent) {
+            content = inner.replace(/<(title|label|header)[^>]*>[\s\S]*?<\/\1>/gi, '').replace(/<[^>]+>/g, '').trim();
         }
         
-        if (content) sections.push({ title, content });
+        if (content.trim()) sections.push({ title: title.trim(), content: content.trim() });
     }
 
-    // 2. Eğer hiç blok bulamadıysa, sadece bağımsız <item> veya <title>/<content> çiftlerini ara
+    // 2. Eğer hiç blok bulamadıysa, sadece bağımsız <item> veya attribute'ları ara
     if (sections.length === 0) {
         const itemRegex = /<item[^>]*value=['"]([^'"]+)['"]/gi;
         while ((match = itemRegex.exec(syntax)) !== null) {
-            const keyMatch = match[0].match(/key=['"]([^'"]+)['"]/i);
+            const keyMatch = match[0].match(/key=['"]([^'"]+)['"]/i) || match[0].match(/id=['"]([^'"]+)['"]/i);
             sections.push({ title: keyMatch ? keyMatch[1] : 'Detay', content: match[1] });
         }
     }
 
     // 3. Hala boşsa, tüm XML içindeki başlık ve paragrafları kabaca eşleştir
     if (sections.length === 0) {
-        const anyTitleMatch = syntax.match(/title=['"]([^'"]+)['"]/i);
-        const rawText = syntax.replace(/<[^>]+>/g, '').trim();
+        const titleMatch = syntax.match(/<(title|header)[^>]*>([\s\S]*?)<\/\1>/i) || syntax.match(/title=['"]([^'"]+)['"]/i);
+        const mainTitle = titleMatch ? (titleMatch[2] || titleMatch[1]).trim() : 'Açıklama';
+        
+        const rawText = syntax.replace(/<(title|header)[^>]*>[\s\S]*?<\/\1>/gi, '')
+                              .replace(/<[^>]+>/g, ' ')
+                              .replace(/\s+/g, ' ')
+                              .trim();
+                              
         if (rawText) {
-            sections.push({ title: anyTitleMatch ? anyTitleMatch[1] : 'Açıklama', content: rawText });
+            sections.push({ title: mainTitle, content: rawText });
         }
     }
 
     return (
         <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px' }}>
             <h2 style={{ textAlign: 'center', color: PALETTE.text, fontSize: '20px', fontWeight: 700, marginBottom: '24px' }}>
-                Etkinlik Detayları
+                Etkinlik Panosu
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
                 {sections.map((sec, idx) => (
-                    <div key={idx} style={{ background: PALETTE.card, border: `2px solid ${PALETTE.primary}`, borderRadius: '12px', padding: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-                        <div style={{ color: PALETTE.primary, fontWeight: 800, fontSize: '14px', marginBottom: '8px', borderBottom: `1px solid ${PALETTE.primary}40`, paddingBottom: '4px' }}>
-                            {sec.title}
+                    <div key={idx} style={{ background: PALETTE.card, border: `2px solid ${PALETTE.primary}`, borderRadius: '12px', padding: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', borderBottom: `1px solid ${PALETTE.primary}40`, paddingBottom: '8px' }}>
+                             <span style={{ background: PALETTE.primary, color: '#fff', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, flexShrink: 0 }}>
+                                 {idx + 1}
+                             </span>
+                             <span style={{ color: PALETTE.primary, fontWeight: 800, fontSize: '14px', textTransform: 'uppercase' }}>
+                                 {sec.title}
+                             </span>
                         </div>
-                        <div style={{ color: PALETTE.text, fontSize: '13px', lineHeight: 1.5 }}>
+                        <div style={{ color: PALETTE.text, fontSize: '14px', lineHeight: 1.6, flex: 1 }}>
                             {sec.content || 'İçerik bulunamadı.'}
                         </div>
                     </div>
