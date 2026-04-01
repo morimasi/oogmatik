@@ -1,6 +1,13 @@
 export interface SozVarligiSettings {
-    itemTypes: ('deyim' | 'atasozu' | 'mecaz')[];
-    count: number;
-    visualAnalogy: boolean; // Görsel benzetme ipucu
-    contextualUsage: boolean; // Cümle içinde kullanma
+  itemTypes: ('deyim' | 'atasozu' | 'mecaz')[];
+  count: number;
+  taskCount: number;
+  visualAnalogy: boolean;
+  contextualUsage: boolean;
+  includeMatching: boolean;
+  includeSentenceCreation: boolean;
+  includeScenarioSection: boolean;
+  includeAnswerKey: boolean;
+  includeBonusSection: boolean;
+  layoutDensity: 'standart' | 'yogun' | 'ultra-yogun';
 }

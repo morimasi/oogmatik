@@ -1,8 +1,22 @@
 export interface OkumaAnlamaSettings {
-    cognitiveLoadLimit: 6 | 8 | 12 | 15; // Cümle başı maksimum kelime sınırı
-    chunkingEnabled: boolean;            // Parçalı okuma (örn: 2 cümle + 1 soru)
-    visualScaffolding: boolean;          // Özete özel minimalist SVG eklentisi
-    typographicHighlight: boolean;       // Kök kelime vurgulama (bold)
-    mindMap5N1K: boolean;                // Metin sonu 5N1K tablosu/ızgarası
-    questionCount: number;               // Soru sayısı
+  cognitiveLoadLimit: 6 | 8 | 12 | 15;
+  chunkingEnabled: boolean;
+  visualScaffolding: boolean;
+  typographicHighlight: boolean;
+  mindMap5N1K: boolean;
+  questionCount: number;
+  taskCount: number;
+  readingLength: 'kisa' | 'orta' | 'uzun';
+  questionTypes: (
+    | 'coktan-secmeli'
+    | 'bosluk-doldurma'
+    | 'dogru-yanlis'
+    | 'acik-uc'
+    | 'eslestirme'
+  )[];
+  includeAnswerKey: boolean;
+  includeWordWork: boolean;
+  includeDetectiveTask: boolean;
+  includeBonusSection: boolean;
+  layoutDensity: 'standart' | 'yogun' | 'ultra-yogun';
 }

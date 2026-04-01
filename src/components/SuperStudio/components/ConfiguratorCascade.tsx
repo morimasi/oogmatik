@@ -4,7 +4,7 @@ import { getTemplateById } from '../templates';
 
 export const ConfiguratorCascade: React.FC = () => {
     const {
-        selectedTemplates, templateSettings, generationMode, grade, difficulty, studentId,
+        selectedTemplates, templateSettings, generationMode, grade, topic, difficulty, studentId,
         setIsGenerating, isGenerating, clearGeneratedContents, addGeneratedContent, setTemplateSetting
     } = useSuperStudioStore();
 
@@ -18,6 +18,7 @@ export const ConfiguratorCascade: React.FC = () => {
                 settings: templateSettings,
                 mode: generationMode,
                 grade,
+                topic,
                 difficulty,
                 studentId
             });

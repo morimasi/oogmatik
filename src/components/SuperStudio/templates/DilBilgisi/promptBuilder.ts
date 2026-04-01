@@ -1,78 +1,127 @@
 import { IPromptBuilderContext } from '../registry';
 import { DilBilgisiSettings } from './types';
 
-export default function buildDilBilgisiPrompt(context: IPromptBuilderContext<DilBilgisiSettings>): string {
-    const { topic, difficulty, studentName, settings } = context;
-    const [h1, h2] = settings.targetDistractors !== 'none' ? settings.targetDistractors.split('-') : ['', ''];
+export default function buildDilBilgisiPrompt(
+  context: IPromptBuilderContext<DilBilgisiSettings>
+): string {
+  const { topic, difficulty, grade, studentName, settings } = context;
+  const [h1, h2] =
+    settings.targetDistractors !== 'none' ? settings.targetDistractors.split('-') : ['', ''];
+  const densityLabel =
+    settings.layoutDensity === 'standart'
+      ? 'standart'
+      : settings.layoutDensity === 'yogun'
+        ? 'yoğun'
+        : 'ultra yoğun';
 
-    let prompt = `
-[DIL BILGISI VE HARF ALGISI - TYPO-HUNTER]
-PROFIL: Ozel egitim uzmani, disleksi dostu icerikler ureten dil bilimcisi.
-GOREV: "${topic}" konusu etrafinda, harf farkindaligina odaklanan premium calisma sayfasi hazirla.
-${studentName ? `Ogrenci: "${studentName}"` : ''}
-Zorluk: ${difficulty}
+  let prompt = `
+SEN: Özel eğitim uzmanı, disleksi dostu içerikler üreten dil bilimcisisin.
+GÖREV: "${topic}" konusu etrafında, ${grade || 'ilkokul seviyesi'} düzeyinde, ${difficulty} zorlukta DİL BİLGİSİ & HARF ALGI çalışma kağıdı hazırla.
+${studentName ? `Öğrenci: "${studentName}"` : ''}
 
-[KATI PEDAGOJIK KURALLAR]
+KRİTİK KURALLAR:
+- Tüm içerik Türkçe, disleksi dostu sade dil kullan.
+- Büyük punto, net yazı tipi, satır aralığı 1.8.
+- Yerleşim yoğunluğu: ${densityLabel}.
+- Toplam ${settings.questionCount} soru, ${settings.taskCount} görev bloğu, ${settings.wordCount} kelime üret.
+- Her görev bloğunda EN AZ 2 alt-aktivite bulunmalı.
+- Tüm sorular numaralı olmalı (1., 2., 3. ...).
+- Her sorunun altında cevap yazma çizgisi (________) bırak.
+- Görev blokları arasına ───────────────────── ayırıcı çizgi koy.
 `;
 
-    if (settings.hintBox) {
-        prompt += `
-- Kural 1 (IPUCU KUTUSU): Sayfanin basina konuyu ve harf kuralini anlatan hatirlatma kutusu ekle.
-`;
-    }
-
-    if (settings.targetDistractors !== 'none') {
-        prompt += `
-- Kural 2 (AYNA HARFLER): "${h1}" ve "${h2}" harflerinin karistirilmasini onlemek icin etkinlik kurgula.
-`;
-    }
-
-    if (settings.syllableSimulation) {
-        prompt += `
-- Kural 3 (HECELEME): Tum kelimeleri hecelerine ayirarak yaz. Koseli parantez kullanarak hece sinirlarini belirginlestir (Ornk: [Ki-tap-lik]).
-`;
-    }
-
-    if (settings.gridSize !== 'none' || settings.camouflageGrid) {
-        const size = settings.gridSize !== 'none' ? settings.gridSize : '4x4';
-        prompt += `
-- Kural 4 (HARF AVI IZGARA): ${size} boyutunda tablo olustur ve hedef harfleri gizle.
-`;
-    }
-
+  if (settings.hintBox) {
     prompt += `
-[DOLU DOLU A4 URETIM KURALI]
-- Uretilen icerik A4 kagidin %95'INI doldurmalidir.
-- Kenar bosluklari: Ust 2cm, Alt 2cm, Sol 2.5cm, Sag 2cm.
+İPUCU KUTUSU: Sayfanın başına konuyu ve harf kuralını anlatan 📌 İpucu Kutusu ekle. Kutunun etrafında kesikli çerçeve olsun.
+`;
+  }
 
-[ZENGIN ICERIK KURALI]
-- Her GOREV icinde EN AZ 2 farkli alt-aktivite bulunmalidir.
-- GOREV 1'de: "Sifre Cozme + Eslestirme + Boyama"
-- GOREV 2'de: "Kelime Treni + Tablo + Harf Analizi"
-- GOREV 3'te: "Harf Avi + Grid + Boyama + Sayma"
-- GOREV 4'te: "Mini Test + Kelime Avi + Arkadasa Sor"
+  if (settings.targetDistractors !== 'none') {
+    prompt += `
+AYNA HARFLER: "${h1}" ve "${h2}" harflerinin karıştırılmasını önlemek için özel etkinlikler kurgula. Bu harfleri içeren kelimeleri ön plana çıkar. Ayna harf ayırt etme egzersizleri ekle.
+`;
+  }
 
-[CALISMA KAGIDI YAPISI - ZORUNLU]
-4 GOREV yapisi kullan:
-- GOREV 1 (Sifre Cozucu): Ayna harflerle yazilmis kelimelerin dogolusu.
-- GOREV 2 (Kelime Treni): Son harfle baslayan kelime turetime.
-- GOREV 3 (Harf Avi Grid): 8x8 kamuflaj grid.
-- GOREV 4 (Bonus): Mini yarisma sorusi veya tuyo kutusu.
+  if (settings.syllableSimulation) {
+    prompt += `
+HECELEME MODU: Tüm kelimeleri hecelerine ayırarak yaz. Köşeli parantez kullan: [Ki-tap-lık], [Öğ-ren-ci]. Heceleme alıştırmaları ekle.
+`;
+  }
 
-[PAGINATION]
-ICERIK UZUN OLURSA su ayraci koy ve yeni sayfaya gec:
-===SAYFA_SONU===
-Ayracti kelime ortasinda veya bitmemis bir gorev arasinda KULLANMA. Hep ana bolumler arasina koy.
+  if (settings.camouflageGrid && settings.gridSize !== 'none') {
+    prompt += `
+KAMUFLAJ IZGARA: ${settings.gridSize} boyutunda harf avı tablosu oluştur. Hedef harfleri benzer harflerin arasına gizle. Öğrenciden hedef harfleri yuvarlak içine almasını ve saymasını iste.
+`;
+  }
 
-[YANIT FORMATI]:
-Gecerli JSON dondur:
-{
-  "title": "${topic} - Harf Farkindaligi",
-  "content": "Tum yonerge ve calisma.",
-  "pedagogicalNote": "ZORUNLU: Ogretmene yonelik en az 50 karakterlik detayli pedagojik aciklama. Bu etkinligin hangi becerileri gelistirdigini, disleksi destegi nasil sagladigini ve ogretmenin dikkat etmesi gereken noktalari acikla."
-}
-Markdown bloguna # H1 Baslik ile basla.
+  if (settings.includeWordChain) {
+    prompt += `
+KELİME ZİNCİRİ: Son harfle başlayan kelime türetme zinciri oyunu ekle. En az ${Math.max(4, Math.floor(settings.wordCount / 3))} kelime alanı bırak.
+`;
+  }
+
+  if (settings.includeErrorDetective) {
+    prompt += `
+HATA DEDEKTİFİ: Bilinçli olarak hatalı yazılmış kelimeler/cümleler ver. Öğrenciden hataları bulup altını çizmesini ve doğrusunu yazmasını iste.
+`;
+  }
+
+  if (settings.includeBonusSection) {
+    prompt += `
+BONUS BÖLÜM: "Arkadaşına Sor" bölümü + mini yarışma sorusu + tüyo kutusu ekle.
+`;
+  }
+
+  prompt += `
+GÖREV BLOKLARI YAPISI (${settings.taskCount} GÖREV):
 `;
 
-    return prompt;
+  for (let i = 1; i <= settings.taskCount; i++) {
+    prompt += `- GÖREV ${i}: `;
+    const activities: string[] = [];
+    if (i === 1) {
+      activities.push('Ayna harf ayırt etme', 'Şifre çözme');
+    } else if (i === 2) {
+      activities.push('Heceleme pratiği', 'Kelime eşleştirme');
+    } else if (i === 3) {
+      activities.push('Kamuflaj grid avı', 'Harf sayma tablosu');
+    } else if (i === 4) {
+      activities.push('Hata dedektifi', 'Doğru yazımı bulma');
+    } else if (i === 5) {
+      activities.push('Kelime zinciri', 'Boşluk doldurma');
+    } else {
+      activities.push('Bağlamsal yazma', 'Serbest uygulama');
+    }
+    if (settings.includeWordChain && i === settings.taskCount)
+      activities.push('Kelime zinciri oyunu');
+    if (settings.includeBonusSection && i === settings.taskCount)
+      activities.push('Bonus mini yarışma');
+    prompt += activities.join(' + ') + '. ';
+    const questionsForTask = Math.max(2, Math.floor(settings.questionCount / settings.taskCount));
+    prompt += `${questionsForTask} soru içerir. Her soru numaralı ve cevap çizgili.\n`;
+  }
+
+  if (settings.includeAnswerKey) {
+    prompt += `
+CEVAP ANAHTARI: Tüm görevlerin sonunda "📋 CEVAP ANAHTARI" başlığıyla doğru cevapları listele.
+`;
+  }
+
+  prompt += `
+A4 DOLU SAYFA KURALI (ZORUNLU):
+- İçerik A4 kağıdın %95'ini doldurmalı. BOŞ ALAN KALMAMALI.
+- Her görev bloğu "═══ GÖREV X ═══" başlığıyla başlamalı.
+- Görevler arası geçişlerde ───────────────────── çizgisi kullan.
+- Sayfa sonu ayracı: ===SAYFA_SONU=== (görevler arasına koy, cümle ortasında kullanma).
+- Markdown formatında yaz. Tablolar, listeler, kutular kullan.
+
+YANIT FORMATI — GEÇERLİ JSON:
+{
+  "title": "${topic} - Harf Farkındalığı Çalışması",
+  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
+  "pedagogicalNote": "ZORUNLU: Bu etkinliğin disleksi desteği, harf algısı becerilerini nasıl geliştirdiğini, ${densityLabel} yerleşimin neden seçildiğini ve öğretmenin dikkat etmesi gereken noktaları açıkla (en az 100 karakter)."
+}
+`;
+
+  return prompt;
 }

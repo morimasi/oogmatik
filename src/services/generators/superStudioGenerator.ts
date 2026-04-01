@@ -12,6 +12,7 @@ interface GenerateParams {
   settings: Record<string, any>;
   mode: GenerationMode;
   grade: string | null;
+  topic: string;
   difficulty: SuperStudioDifficulty;
   studentId: string | null;
 }
@@ -60,6 +61,7 @@ const buildPromptForTemplate = (
   templateId: string,
   settings: any,
   grade: string | null,
+  topic: string,
   difficulty: SuperStudioDifficulty,
   studentId: string | null
 ): string => {
@@ -70,11 +72,11 @@ const buildPromptForTemplate = (
 
   // Yeni modüler prompt builder'ı çağır
   return templateDef.promptBuilder({
-    topic: 'Doğayı ve Uzayı Keşfediyorum', // Jenerik yerine daha somut ve eğitici bir varsayılan konu
+    topic: topic || 'Doğayı ve Uzayı Keşfediyorum',
     difficulty,
     grade,
     settings,
-    studentName: studentId ? 'Öğrenci' : undefined, // İleride gerçek isim store'dan buraya paslanabilir
+    studentName: studentId ? 'Öğrenci' : undefined,
   });
 };
 
@@ -123,7 +125,7 @@ export const generateSuperStudioContent = async (
   params: GenerateParams
 ): Promise<GeneratedContentPayload[]> => {
   try {
-    const { templates, settings, mode, grade, difficulty, studentId } = params;
+    const { templates, settings, mode, grade, topic, difficulty, studentId } = params;
 
     if (!templates || templates.length === 0) {
       throw new AppError(
@@ -205,7 +207,7 @@ export const generateSuperStudioContent = async (
     // Cache'te olmayanlar için API çağrısı yap
     const promises = remainingTemplates.map(async (tpl) => {
       const templateSettings = settings[tpl] || {};
-      const prompt = buildPromptForTemplate(tpl, templateSettings, grade, difficulty, studentId);
+      const prompt = buildPromptForTemplate(tpl, templateSettings, grade, topic, difficulty, studentId);
       const schema = buildSchemaForTemplate(tpl);
 
       try {

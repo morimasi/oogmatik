@@ -1,66 +1,131 @@
 import { IPromptBuilderContext } from '../registry';
 import { YaraticiYazarlikSettings } from './types';
 
-export default function buildYaraticiYazarlikPrompt(context: IPromptBuilderContext<YaraticiYazarlikSettings>): string {
-    const { topic, difficulty, studentName, settings } = context;
+export default function buildYaraticiYazarlikPrompt(
+  context: IPromptBuilderContext<YaraticiYazarlikSettings>
+): string {
+  const { topic, difficulty, grade, studentName, settings } = context;
+  const densityLabel =
+    settings.layoutDensity === 'standart'
+      ? 'standart'
+      : settings.layoutDensity === 'yogun'
+        ? 'yoğun'
+        : 'ultra yoğun';
+  const clozeText =
+    settings.clozeFormat === 'none'
+      ? 'yok'
+      : settings.clozeFormat === 'fiil'
+        ? 'fiil boşluklu'
+        : settings.clozeFormat === 'sifat'
+          ? 'sıfat boşluklu'
+          : 'rastgele boşluklu';
 
-    let prompt = `
-[YARATICI YAZARLIK - OYUNLASTIRILMIS STUDYO]
-PROFIL: Cocuklarin hayal gucunu tetikleyen yazarlik kocu.
-GOREV: "${topic}" konusu etrafinda disleksi dostu yazma etkinligi kurgula.
-${studentName ? `Ogrenci: "${studentName}"` : ''}
-Zorluk: ${difficulty}
+  let prompt = `
+SEN: Yaratıcı yazarlık koçu, disleksi dostu içerikler üreten çocuk edebiyatı uzmanısın.
+GÖREV: "${topic}" konusu etrafında, ${grade || 'ilkokul seviyesi'} düzeyinde, ${difficulty} zorlukta YARATICI YAZARLIK çalışma kağıdı hazırla.
+${studentName ? `Öğrenci: "${studentName}"` : ''}
 
-[KATI PEDAGOJIK KURALLAR]
-- Kural 1 (HIKAYE ZARLARI): Konuya uygun ${settings.storyDiceCount} adet basit SVG ikon kodu uret.
+KRİTİK KURALLAR:
+- Tüm içerik Türkçe, disleksi dostu sade dil kullan.
+- Yerleşim yoğunluğu: ${densityLabel}.
+- Toplam ${settings.questionCount} soru, ${settings.taskCount} görev bloğu, ${settings.writingPrompts} yazma promptu.
+- Her görev bloğunda EN AZ 2 alt-aktivite bulunmalı.
+- Tüm sorular/görevler numaralı olmalı (1., 2., 3. ...).
+- Her yazma alanı altında çizgili yazma satırları bırak.
+- Görev blokları arasına ───────────────────── ayırıcı çizgi koy.
+- Hedef: Öğrenciden en az ${settings.minSentences} cümle kurmasını bekle.
 `;
 
-    if (settings.clozeFormat !== 'none') {
-        prompt += `
-- Kural 2 (BOSLUK DOLDURMA): Metne ${settings.clozeFormat === 'fiil' ? 'fiilleri' : settings.clozeFormat === 'sifat' ? 'sifatlari' : 'rastgele her 5 kelimeden birini'} bos birak.
+  prompt += `
+HİKAYE ZARLARI: Konuya uygun ${settings.storyDiceCount} adet basit SVG ikon kodu üret. Her ikon bir hikaye zarı olarak sunulsun. Öğrenciden zarları kullanarak hikaye oluşturmasını iste.
 `;
-    }
 
-    if (settings.emotionRadar) {
-        prompt += `
-- Kural 3 (DUYGU RADARI): Karakterin hislerini gosteren SVG emojiler ekle.
-`;
-    }
-
+  if (settings.clozeFormat !== 'none') {
     prompt += `
-- Hedef: Ogrenciden en az ${settings.minSentences} cumle kurmasini bekle.
+CLOZE (BOŞLUK DOLDURMA): Metne ${clozeText} boşluklar bırak. Öğrenciden uygun kelimeleri yazmasını iste.
+`;
+  }
 
-[DOLU DOLU A4 URETIM KURALI]
-- Uretilen icerik A4 kagidin %95'INI doldurmalidir.
-- Kenar bosluklari: Ust 2cm, Alt 2cm, Sol 2.5cm, Sag 2cm.
+  if (settings.emotionRadar) {
+    prompt += `
+DUYGU RADARI: Karakterlerin hislerini gösteren emoji/SVG ikonları ekle. Öğrenciden duyguları eşleştirmesini iste.
+`;
+  }
 
-[ZENGIN ICERIK KURALI]
-- Her GOREV icinde EN AZ 2 farkli alt-aktivite bulunmalidir.
-- GOREV 1'de: "Rol Yapma + Duygu Haritasi + Karakter Yaratma"
-- GOREV 2'de: "Kelime Kavanozu + Cumle Kurma + Hikaye Baslatma"
-- GOREV 3'te: "SVG Zar + Ilustrasyon + Yazma Alani"
-- GOREV 4'te: "Mini Yarisma + Dustundurucu Soru + Arkadasa Anlat"
+  if (settings.includeWordBank) {
+    prompt += `
+KELİME BANKASI: Her yazma görevi için 5-8 kilit kelime içeren kelime bankası kutusu ekle. Öğrenci bu kelimeleri yazımında kullansın.
+`;
+  }
 
-[CALISMA KAGIDI YAPISI - ZORUNLU]
-4 GOREV yapisi kullan:
-- GOREV 1 (Rol Yapma): Ogrenciyi farkli bir baglama sokan yaratici yazma isinmasi. Karakter karti ekle.
-- GOREV 2 (Kelime Kavanozu): 5 kilit kelime kullanarak hikaye baslatma.
-- GOREV 3 (Hikaye Zarlari): 3 adet gorsel zar ciz ve hikaye tamamlatma.
-- GOREV 4 (Bonus): Mini yarisma sorusi veya tuyo kutusu.
+  if (settings.includeStoryMap) {
+    prompt += `
+HİKAYE HARİTASI: Giriş-Gelişme-Sonuç şablonu ekle. Öğrenciden hikayesini planlamasını iste.
+`;
+  }
 
-[PAGINATION]
-ICERIK UZUN OLURSA su ayraci koy ve yeni sayfaya gec:
-===SAYFA_SONU===
+  if (settings.includePeerReview) {
+    prompt += `
+AKRAN DEĞERLENDİRME: "Arkadaşının yazısını oku, 2 güzel şey ve 1 öneri yaz" bölümü ekle.
+`;
+  }
 
-[YANIT FORMATI]:
-Gecerli JSON dondur:
-{
-  "title": "${topic} - Yazarlik Stüdyosu",
-  "content": "Etkinlik, yonergeler ve yazma alani.",
-  "pedagogicalNote": "ZORUNLU: Ogretmene yonelik en az 50 karakterlik detayli pedagojik aciklama. Bu etkinligin hangi becerileri gelistirdigini, disleksi destegi nasil sagladigini ve ogretmenin dikkat etmesi gereken noktalari acikla."
-}
-Markdown bloguna # H1 Baslik ile basla.
+  if (settings.includeBonusSection) {
+    prompt += `
+BONUS BÖLÜM: "Arkadaşına Sor" bölümü + mini yazma yarışması + tüyo kutusu ekle.
+`;
+  }
+
+  prompt += `
+GÖREV BLOKLARI YAPISI (${settings.taskCount} GÖREV):
 `;
 
-    return prompt;
+  for (let i = 1; i <= settings.taskCount; i++) {
+    prompt += `- GÖREV ${i}: `;
+    const activities: string[] = [];
+    if (i === 1) {
+      activities.push('Hikaye zarları', 'Rol yapma');
+    } else if (i === 2) {
+      activities.push('Kelime kavanozu', 'Cümle kurma');
+    } else if (i === 3) {
+      activities.push('Cloze doldurma', 'Hikaye başlatma');
+    } else if (i === 4) {
+      activities.push('Duygu haritası', 'Karakter yaratma');
+    } else if (i === 5) {
+      activities.push('Serbest yazma', 'Hikaye tamamlama');
+    } else {
+      activities.push('Yaratıcı yazma', 'İllüstrasyon');
+    }
+    if (settings.includePeerReview && i === settings.taskCount)
+      activities.push('Akran değerlendirme');
+    if (settings.includeBonusSection && i === settings.taskCount)
+      activities.push('Bonus mini yarışma');
+    prompt += activities.join(' + ') + '. ';
+    const promptsForTask = Math.max(1, Math.floor(settings.writingPrompts / settings.taskCount));
+    prompt += `${promptsForTask} yazma promptu içerir. Her prompt için çizgili yazma satırları bırak.\n`;
+  }
+
+  if (settings.includeAnswerKey) {
+    prompt += `
+CEVAP ANAHTARI: Cloze boşlukları ve örnek cevapları "📋 CEVAP ANAHTARI" başlığıyla listele.
+`;
+  }
+
+  prompt += `
+A4 DOLU SAYFA KURALI (ZORUNLU):
+- İçerik A4 kağıdın %95'ini doldurmalı. BOŞ ALAN KALMAMALI.
+- Her görev bloğu "═══ GÖREV X ═══" başlığıyla başlamalı.
+- Görevler arası geçişlerde ───────────────────── çizgisi kullan.
+- Sayfa sonu ayracı: ===SAYFA_SONU=== (görevler arasına koy, cümle ortasında kullanma).
+- Markdown formatında yaz. Tablolar, listeler, kutular, çizgili satırlar kullan.
+
+YANIT FORMATI — GEÇERLİ JSON:
+{
+  "title": "${topic} - Yaratıcı Yazarlık Stüdyosu",
+  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
+  "pedagogicalNote": "ZORUNLU: Bu etkinliğin yaratıcı yazma becerilerini, hayal gücünü ve ifade yeteneğini nasıl geliştirdiğini, ${densityLabel} yerleşimin neden seçildiğini ve öğretmenin dikkat etmesi gereken noktaları açıkla (en az 100 karakter)."
+}
+`;
+
+  return prompt;
 }
