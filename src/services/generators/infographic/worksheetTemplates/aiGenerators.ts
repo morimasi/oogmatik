@@ -1,7 +1,7 @@
 /**
  * aiGenerators.ts — AI destekli etkinlik üreticileri
  * Konu bazlı, bağlamsal içerik gerektiren şablonlar için Gemini 2.5 Flash kullanır.
- * 
+ *
  * Selin Arslan: gemini-2.5-flash sabit, prompt yapısı ROL+HEDEF+KISIT+ÇIKTI
  */
 
@@ -48,8 +48,43 @@ function buildSchema() {
             content: { type: 'STRING' as const },
             options: { type: 'ARRAY' as const, items: { type: 'STRING' as const } },
             correctAnswer: { type: 'STRING' as const },
+            matchingPairs: {
+              type: 'ARRAY' as const,
+              items: {
+                type: 'OBJECT' as const,
+                properties: {
+                  left: { type: 'STRING' as const },
+                  right: { type: 'STRING' as const },
+                },
+                required: ['left', 'right'],
+              },
+            },
+            gridData: {
+              type: 'ARRAY' as const,
+              items: { type: 'ARRAY' as const, items: { type: 'STRING' as const } },
+            },
+            answerArea: {
+              type: 'OBJECT' as const,
+              properties: {
+                type: {
+                  type: 'STRING' as const,
+                  description:
+                    "Cevap formatı: 'blank-line', 'blank-box', 'multiple-choice', 'true-false-check', 'matching-lines', 'classification-table', 'drawing-area', 'grid', 'numbering', 'circle-mark'",
+                },
+                lines: { type: 'NUMBER' as const },
+                gridSize: {
+                  type: 'OBJECT' as const,
+                  properties: {
+                    rows: { type: 'NUMBER' as const },
+                    cols: { type: 'NUMBER' as const },
+                  },
+                  required: ['rows', 'cols'],
+                },
+              },
+              required: ['type'],
+            },
           },
-          required: ['instruction', 'content'],
+          required: ['instruction', 'content', 'answerArea'],
         },
       },
     },
@@ -79,15 +114,17 @@ Lütfen tam olarak ${params.sectionCount} adet section üret. Her section'da ins
         temperature: 0.7,
       });
 
-      const sections = (Array.isArray(raw.sections) ? raw.sections : []).map((s: Record<string, unknown>, i: number) => ({
-        id: `ai-${Date.now()}-${i}`,
-        order: i + 1,
-        instruction: String(s.instruction ?? ''),
-        content: String(s.content ?? ''),
-        options: Array.isArray(s.options) ? s.options.map(String) : undefined,
-        correctAnswer: s.correctAnswer ? String(s.correctAnswer) : undefined,
-        answerArea: { type: 'blank-line' as const, lines: 2 },
-      }));
+      const sections = (Array.isArray(raw.sections) ? raw.sections : []).map(
+        (s: Record<string, unknown>, i: number) => ({
+          id: `ai-${Date.now()}-${i}`,
+          order: i + 1,
+          instruction: String(s.instruction ?? ''),
+          content: String(s.content ?? ''),
+          options: Array.isArray(s.options) ? s.options.map(String) : undefined,
+          correctAnswer: s.correctAnswer ? String(s.correctAnswer) : undefined,
+          answerArea: { type: 'blank-line' as const, lines: 2 },
+        })
+      );
 
       return {
         title: String(raw.title ?? config.activityName),
@@ -102,11 +139,15 @@ Lütfen tam olarak ${params.sectionCount} adet section üret. Her section'da ins
         profile: params.profile,
         estimatedDuration: Number(raw.estimatedDuration) || sections.length * 3,
         generationMode: 'ai',
-        hasAnswerKey: sections.some(s => s.correctAnswer !== undefined),
+        hasAnswerKey: sections.some((s) => s.correctAnswer !== undefined),
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError('Etkinlik üretimi sırasında hata oluştu. Tekrar deneyin.', 'GENERATION_ERROR', 500);
+      throw new AppError(
+        'Etkinlik üretimi sırasında hata oluştu. Tekrar deneyin.',
+        'GENERATION_ERROR',
+        500
+      );
     }
   };
 }
@@ -117,49 +158,56 @@ export const generateFiveWOneHQuestions = createAIWorksheetGenerator({
   templateType: 'five-w-one-h-questions',
   category: 'ws-reading-comprehension',
   activityName: '5N1K Soruları',
-  promptDetail: 'Yaş grubuna uygun kısa bir metin (100-200 kelime) üret. Sonra 5N1K sorularını sor. Her sorunun cevabı metinde bulunsun. Öğrenci cevapları yazacak.',
+  promptDetail:
+    'Yaş grubuna uygun kısa bir metin (100-200 kelime) üret. Sonra 5N1K sorularını sor. Her sorunun cevabı metinde bulunsun. Öğrenci cevapları yazacak.',
 });
 
 export const generateFillInBlanks = createAIWorksheetGenerator({
   templateType: 'fill-in-blanks',
   category: 'ws-reading-comprehension',
   activityName: 'Boşluk Doldurma',
-  promptDetail: 'Konu hakkında cümleler üret. Her cümlede bir anahtar kelimeyi boşluk (___) olarak bırak. correctAnswer alanına doğru kelimeyi yaz.',
+  promptDetail:
+    'Konu hakkında cümleler üret. Her cümlede bir anahtar kelimeyi boşluk (___) olarak bırak. correctAnswer alanına doğru kelimeyi yaz.',
 });
 
 export const generateEventSequencing = createAIWorksheetGenerator({
   templateType: 'event-sequencing',
   category: 'ws-reading-comprehension',
   activityName: 'Olay Sıralama',
-  promptDetail: 'Kısa bir hikaye/süreç hikayesi yaz. Olayları KARIŞTIRARAK listele. Öğrenci doğru sıraya koyacak. correctAnswer alanına doğru sıra numarasını yaz.',
+  promptDetail:
+    'Kısa bir hikaye/süreç hikayesi yaz. Olayları KARIŞTIRARAK listele. Öğrenci doğru sıraya koyacak. correctAnswer alanına doğru sıra numarasını yaz.',
 });
 
 export const generateMainIdea = createAIWorksheetGenerator({
   templateType: 'main-idea',
   category: 'ws-reading-comprehension',
   activityName: 'Ana Fikir Bulma',
-  promptDetail: 'Kısa paragraflar üret. Öğrenci her paragrafın ana fikrini yazacak. correctAnswer alanına ana fikri yaz.',
+  promptDetail:
+    'Kısa paragraflar üret. Öğrenci her paragrafın ana fikrini yazacak. correctAnswer alanına ana fikri yaz.',
 });
 
 export const generateInference = createAIWorksheetGenerator({
   templateType: 'inference',
   category: 'ws-reading-comprehension',
   activityName: 'Çıkarım Yapma',
-  promptDetail: 'Dolaylı bilgi içeren kısa metinler üret. Öğrenci metinde açıkça yazılmayan ama çıkarılabilecek bilgiyi yazacak.',
+  promptDetail:
+    'Dolaylı bilgi içeren kısa metinler üret. Öğrenci metinde açıkça yazılmayan ama çıkarılabilecek bilgiyi yazacak.',
 });
 
 export const generateCharacterAnalysis = createAIWorksheetGenerator({
   templateType: 'character-analysis',
   category: 'ws-reading-comprehension',
   activityName: 'Karakter Analizi',
-  promptDetail: 'Kısa bir hikaye üret. Öğrenci karakterin fiziksel, kişilik ve davranış özelliklerini yazacak.',
+  promptDetail:
+    'Kısa bir hikaye üret. Öğrenci karakterin fiziksel, kişilik ve davranış özelliklerini yazacak.',
 });
 
 export const generateCauseEffectMatching = createAIWorksheetGenerator({
   templateType: 'cause-effect-matching',
   category: 'ws-reading-comprehension',
   activityName: 'Neden-Sonuç Eşleştirme',
-  promptDetail: 'Neden ve sonuç çiftleri üret. Bunları KARIŞTIR. Öğrenci nedenleri sonuçlarla eşleştirecek.',
+  promptDetail:
+    'Neden ve sonuç çiftleri üret. Bunları KARIŞTIR. Öğrenci nedenleri sonuçlarla eşleştirecek.',
 });
 
 // ── Okuma & Dil (AI destekli olanlar) ──────────────────────────────────────
@@ -168,7 +216,8 @@ export const generateSentenceElements = createAIWorksheetGenerator({
   templateType: 'sentence-elements',
   category: 'ws-language-literacy',
   activityName: 'Cümle Ögesi Bulma',
-  promptDetail: 'Cümleler üret. Öğrenci her cümledeki özne, yüklem, nesne, tümleç gibi ögeleri belirleyecek.',
+  promptDetail:
+    'Cümleler üret. Öğrenci her cümledeki özne, yüklem, nesne, tümleç gibi ögeleri belirleyecek.',
 });
 
 // ── Matematik & Mantık (AI destekli olanlar) ───────────────────────────────
@@ -177,12 +226,14 @@ export const generateGraphReading = createAIWorksheetGenerator({
   templateType: 'graph-reading',
   category: 'ws-math-logic',
   activityName: 'Grafik Okuma',
-  promptDetail: 'Bir çubuk/pasta grafik için veri seti üret. Grafiği JSON olarak tanımla. Sonra grafik hakkında sorular sor. Cevaplar MUTLAKA grafik verileriyle tutarlı olmalı.',
+  promptDetail:
+    'Bir çubuk/pasta grafik için veri seti üret. Grafiği JSON olarak tanımla. Sonra grafik hakkında sorular sor. Cevaplar MUTLAKA grafik verileriyle tutarlı olmalı.',
 });
 
 export const generateWordProblem = createAIWorksheetGenerator({
   templateType: 'word-problem',
   category: 'ws-math-logic',
   activityName: 'Problem Çözme',
-  promptDetail: 'Yaş grubuna uygun sözel matematik problemleri üret. Her problemde "Verilen", "İstenen" belli olsun. correctAnswer\'da MUTLAKA doğru sayısal cevabı yaz.',
+  promptDetail:
+    'Yaş grubuna uygun sözel matematik problemleri üret. Her problemde "Verilen", "İstenen" belli olsun. correctAnswer\'da MUTLAKA doğru sayısal cevabı yaz.',
 });
