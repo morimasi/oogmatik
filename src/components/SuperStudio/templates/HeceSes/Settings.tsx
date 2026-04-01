@@ -56,7 +56,7 @@ export const HeceSesSettingsPanel: React.FC<TemplateSettingsProps<HeceSesSetting
             onChange={(e) =>
               onChange({ wordCount: parseInt(e.target.value) } as Partial<HeceSesSettings>)
             }
-            className="w-full accent-purple-500"
+            className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -71,7 +71,7 @@ export const HeceSesSettingsPanel: React.FC<TemplateSettingsProps<HeceSesSetting
             onChange={(e) =>
               onChange({ taskCount: parseInt(e.target.value) } as Partial<HeceSesSettings>)
             }
-            className="w-full accent-purple-500"
+            className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"
           />
         </div>
       </div>
@@ -130,10 +130,10 @@ export const HeceSesSettingsPanel: React.FC<TemplateSettingsProps<HeceSesSetting
               type="checkbox"
               checked={Boolean((settings as unknown as Record<string, unknown>)[key])}
               onChange={(e) => onChange({ [key]: e.target.checked } as Partial<HeceSesSettings>)}
-              className="form-checkbox text-purple-500 rounded h-4 w-4 bg-slate-900 border-slate-700 mt-0.5 flex-shrink-0"
+              className="form-checkbox text-accent rounded h-4 w-4 bg-slate-900 border-slate-700 mt-0.5 flex-shrink-0"
             />
             <div className="flex flex-col min-w-0">
-              <span className="text-xs text-slate-200 font-semibold group-hover:text-purple-300 transition-colors leading-tight">
+              <span className="text-xs text-slate-200 font-semibold group-hover:text-accent/80 transition-colors leading-tight">
                 {icon} {label}
               </span>
               <span className="text-[10px] text-slate-500 leading-tight">{desc}</span>

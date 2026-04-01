@@ -50,7 +50,7 @@ export const MatCevapAnahtariComponent: React.FC<MatCevapAnahtariComponentProps>
                     <tbody>
                         {cevapAnahtari.sorular.map((cevap) => (
                             <tr key={cevap.soruNo} className="hover:bg-gray-50 transition-colors even:bg-gray-50/50">
-                                <td className="px-3 py-2.5 font-bold text-indigo-700 border-b border-gray-100">
+                                <td className="px-3 py-2.5 font-bold text-accent border-b border-gray-100">
                                     {cevap.soruNo}.
                                 </td>
                                 <td className="px-3 py-2.5 font-bold border-b border-gray-100">
@@ -72,7 +72,7 @@ export const MatCevapAnahtariComponent: React.FC<MatCevapAnahtariComponentProps>
                     <tfoot>
                         <tr className="bg-indigo-50 font-bold">
                             <td className="px-3 py-2" colSpan={3}>Toplam</td>
-                            <td className="px-3 py-2 text-indigo-700">{toplamPuan} puan</td>
+                            <td className="px-3 py-2 text-accent">{toplamPuan} puan</td>
                             <td className="px-3 py-2" colSpan={2}></td>
                         </tr>
                     </tfoot>

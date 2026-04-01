@@ -63,7 +63,7 @@ export const DilBilgisiSettingsPanel: React.FC<TemplateSettingsProps<DilBilgisiS
             onChange={(e) =>
               onChange({ questionCount: parseInt(e.target.value) } as Partial<DilBilgisiSettings>)
             }
-            className="w-full accent-blue-500"
+            className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -78,7 +78,7 @@ export const DilBilgisiSettingsPanel: React.FC<TemplateSettingsProps<DilBilgisiS
             onChange={(e) =>
               onChange({ taskCount: parseInt(e.target.value) } as Partial<DilBilgisiSettings>)
             }
-            className="w-full accent-blue-500"
+            className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -93,7 +93,7 @@ export const DilBilgisiSettingsPanel: React.FC<TemplateSettingsProps<DilBilgisiS
             onChange={(e) =>
               onChange({ wordCount: parseInt(e.target.value) } as Partial<DilBilgisiSettings>)
             }
-            className="w-full accent-blue-500"
+            className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"
           />
         </div>
       </div>
@@ -109,7 +109,7 @@ export const DilBilgisiSettingsPanel: React.FC<TemplateSettingsProps<DilBilgisiS
               onClick={() => onChange({ layoutDensity: d })}
               className={`py-1.5 px-2 rounded-lg border text-xs font-bold transition-all ${
                 (settings as unknown as Record<string, string>).layoutDensity === d
-                  ? 'bg-blue-600 border-blue-400 text-white shadow-lg'
+                  ? 'bg-accent border-accent/60 text-white shadow-lg'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
               }`}
             >
@@ -147,10 +147,10 @@ export const DilBilgisiSettingsPanel: React.FC<TemplateSettingsProps<DilBilgisiS
               type="checkbox"
               checked={Boolean((settings as unknown as Record<string, unknown>)[key])}
               onChange={(e) => onChange({ [key]: e.target.checked } as Partial<DilBilgisiSettings>)}
-              className="form-checkbox text-blue-500 rounded h-4 w-4 bg-slate-900 border-slate-700 mt-0.5 flex-shrink-0"
+              className="form-checkbox text-accent rounded h-4 w-4 bg-slate-900 border-slate-700 mt-0.5 flex-shrink-0"
             />
             <div className="flex flex-col min-w-0">
-              <span className="text-xs text-slate-200 font-semibold group-hover:text-blue-300 transition-colors leading-tight">
+              <span className="text-xs text-slate-200 font-semibold group-hover:text-accent/80 transition-colors leading-tight">
                 {icon} {label}
               </span>
               <span className="text-[10px] text-slate-500 leading-tight">{desc}</span>
