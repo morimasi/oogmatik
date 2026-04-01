@@ -67,11 +67,11 @@ export const SoruAyarlari: React.FC<SoruAyarlariProps> = ({
           {soruTipleri.map(({ key, label, icon, description }) => (
             <div
               key={key}
-              className="group bg-white border border-slate-100 rounded-2xl p-3.5 transition-all duration-200 hover:border-indigo-100 hover:shadow-sm"
+              className="group bg-white border border-slate-100 rounded-2xl p-3.5 transition-all duration-200 hover:border-accent/20 hover:shadow-sm"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-xl transition-colors group-hover:bg-indigo-50">
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-xl transition-colors group-hover:bg-accent/10">
                     {icon}
                   </div>
                   <div className="truncate">
@@ -86,7 +86,7 @@ export const SoruAyarlari: React.FC<SoruAyarlariProps> = ({
                       const newValue = Math.max(0, ayarlar.soruDagilimi[key] - 1);
                       onSoruDagilimiChange(key, newValue);
                     }}
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold transition-all ${ayarlar.soruDagilimi[key] === 0 ? 'text-slate-300' : 'text-slate-600 hover:bg-white hover:text-indigo-600 shadow-sm'}`}
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold transition-all ${ayarlar.soruDagilimi[key] === 0 ? 'text-slate-300' : 'text-slate-600 hover:bg-white hover:text-accent shadow-sm'}`}
                     disabled={ayarlar.soruDagilimi[key] === 0}
                   >
                     −
@@ -101,7 +101,7 @@ export const SoruAyarlari: React.FC<SoruAyarlariProps> = ({
                       const newValue = Math.min(20, ayarlar.soruDagilimi[key] + 1);
                       onSoruDagilimiChange(key, newValue);
                     }}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-600 font-bold hover:bg-white hover:text-indigo-600 shadow-sm transition-all"
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-600 font-bold hover:bg-white hover:text-accent shadow-sm transition-all"
                   >
                     +
                   </button>
@@ -146,7 +146,7 @@ export const SoruAyarlari: React.FC<SoruAyarlariProps> = ({
             onChange={(e) => onOzelKonuChange(e.target.value)}
             placeholder="Örn: Uzay seyahati, çevre koruma..."
             maxLength={500}
-            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-[13px] font-medium outline-none transition-all duration-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 placeholder:text-slate-300"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-[13px] font-medium outline-none transition-all duration-200 focus:border-accent focus:ring-4 focus:ring-accent/5 placeholder:text-slate-300"
             style={{ fontFamily: 'Lexend, sans-serif' }}
           />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 text-lg pointer-events-none transition-transform group-focus-within:scale-110">💡</div>
@@ -154,12 +154,12 @@ export const SoruAyarlari: React.FC<SoruAyarlariProps> = ({
       </div>
 
       {/* Başarı Anı Mimarisi Bilgilendirmesi */}
-      <div className="p-4 bg-indigo-50/50 border border-indigo-100/50 rounded-2xl">
+      <div className="p-4 bg-accent/5 border border-accent/10 rounded-2xl">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-base">🎓</div>
-          <span className="text-[11px] font-bold text-indigo-900 uppercase tracking-tight">ZPD Başarı Mimarisi</span>
+          <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center text-base">🎓</div>
+          <span className="text-[11px] font-bold text-accent uppercase tracking-tight">ZPD Başarı Mimarisi</span>
         </div>
-        <div className="text-[10px] font-medium text-indigo-700/70 leading-relaxed pl-1">
+        <div className="text-[10px] font-medium text-accent/70 leading-relaxed pl-1">
           İlk 2 soru otomatik olarak düşük zorlukta kurgulanarak öğrencinin özgüveni desteklenir.
         </div>
       </div>

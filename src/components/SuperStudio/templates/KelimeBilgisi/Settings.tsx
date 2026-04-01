@@ -55,8 +55,8 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
             onClick={() => onChange({ generationMode: 'ai' })}
             className={`p-3 rounded-xl border-2 transition-all ${
               settings.generationMode === 'ai'
-                ? 'bg-gradient-to-br from-purple-600 to-indigo-600 border-purple-400 text-white'
-                : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-purple-500'
+                ? 'bg-accent border-accent/60 text-white'
+                : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-accent/40'
             }`}
           >
             <div className="text-xl mb-1">🤖</div>
@@ -115,8 +115,8 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
       </div>
 
       {settings.generationMode === 'ai' && (
-        <div className="space-y-3 p-3 bg-gradient-to-br from-purple-900/20 to-indigo-900/20 rounded-xl border border-purple-800/30">
-          <h4 className="text-xs font-bold text-purple-300 flex items-center gap-2">
+        <div className="space-y-3 p-3 bg-accent/5 rounded-xl border border-accent/10">
+          <h4 className="text-xs font-bold text-accent/80 flex items-center gap-2">
             <span>🤖</span> AI Ayarları
           </h4>
           <div className="grid grid-cols-2 gap-3">
