@@ -75,7 +75,7 @@ export const ArchivePanel = () => {
                             </div>
                             <button
                                 onClick={() => loadProject(project)}
-                                className="w-full mt-2 py-2 bg-indigo-600/10 text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-indigo-600 hover:text-white transition-colors"
+                                className="w-full mt-2 py-2 bg-accent/10 text-accent/70 text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-accent hover:text-white transition-colors"
                             >
                                 Yükle
                             </button>

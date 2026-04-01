@@ -23,9 +23,9 @@ export const EditorPane: React.FC<EditorPaneProps> = ({
     return (
         <div className="bg-zinc-900/50 rounded-[3rem] border border-white/10 p-8 shadow-2xl relative overflow-hidden flex flex-col h-full animate-in fade-in duration-500">
             <div className="flex justify-between items-center mb-6">
-                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">Komut ve Analiz Sahası</span>
+                <span className="text-[10px] font-black text-accent/70 uppercase tracking-[0.3em]">Komut ve Analiz Sahası</span>
                 <div className="flex gap-2">
-                    <button onClick={() => onRefine('expand')} disabled={isAnalyzing || !prompt} className="px-4 py-2 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-xl text-[10px] font-black uppercase hover:bg-indigo-600 hover:text-white transition-all disabled:opacity-30">Genişlet</button>
+                    <button onClick={() => onRefine('expand')} disabled={isAnalyzing || !prompt} className="px-4 py-2 bg-accent/20 text-accent/70 border border-accent/30 rounded-xl text-[10px] font-black uppercase hover:bg-accent hover:text-white transition-all disabled:opacity-30">Genişlet</button>
                     <button onClick={() => onRefine('clinical')} disabled={isAnalyzing || !prompt} className="px-4 py-2 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-xl text-[10px] font-black uppercase hover:bg-rose-600 hover:text-white transition-all disabled:opacity-30">Klinik Tanı Ekle</button>
                 </div>
             </div>
@@ -33,7 +33,7 @@ export const EditorPane: React.FC<EditorPaneProps> = ({
             <textarea 
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className={`flex-1 w-full p-8 bg-black/40 border border-white/5 rounded-[2.5rem] text-lg leading-relaxed text-zinc-200 outline-none focus:border-indigo-500 transition-all font-mono resize-none shadow-inner ${isAnalyzing ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
+                className={`flex-1 w-full p-8 bg-black/40 border border-white/5 rounded-[2.5rem] text-lg leading-relaxed text-zinc-200 outline-none focus:border-accent transition-all font-mono resize-none shadow-inner ${isAnalyzing ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
                 placeholder="Fikrinizi yazın veya dosya yükleyerek AI'nın teknik taslak çıkarmasını bekleyin..."
             ></textarea>
 
@@ -64,12 +64,12 @@ export const EditorPane: React.FC<EditorPaneProps> = ({
             <div className="mt-6">
                 <div className="flex justify-between items-center mb-4">
                     <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Hızlı Direktifler</h4>
-                    <button onClick={onAddSnippet} className="text-[10px] font-black text-indigo-500 hover:text-indigo-400 transition-colors flex items-center gap-1">
+                    <button onClick={onAddSnippet} className="text-[10px] font-black text-accent hover:text-accent/70 transition-colors flex items-center gap-1">
                         <i className="fa-solid fa-grid-2-plus"></i> TÜM KÜTÜPHANEYİ AÇ
                     </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <button onClick={() => fileInputRef.current?.click()} className="px-6 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-indigo-500 transition-all flex items-center gap-2 shadow-lg">
+                    <button onClick={() => fileInputRef.current?.click()} className="px-6 py-3 bg-accent text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-accent/90 transition-all flex items-center gap-2 shadow-lg">
                         <i className="fa-solid fa-paperclip"></i> DOSYA EKLE
                     </button>
                     <input type="file" ref={fileInputRef} onChange={(e) => e.target.files && onFilesSelect(e.target.files)} className="hidden" accept="image/*,application/pdf" multiple />
@@ -81,7 +81,7 @@ export const EditorPane: React.FC<EditorPaneProps> = ({
                             title={s.description}
                             className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-white/5 rounded-xl text-[11px] font-black uppercase transition-all flex items-center gap-2"
                         >
-                            <i className={`fa-solid ${s.icon} text-[10px] text-indigo-400`}></i>
+                            <i className={`fa-solid ${s.icon} text-[10px] text-accent/70`}></i>
                             {s.label}
                         </button>
                     ))}

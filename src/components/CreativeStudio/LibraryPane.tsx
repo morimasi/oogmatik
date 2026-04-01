@@ -25,12 +25,12 @@ export const LibraryPane: React.FC<LibraryPaneProps> = ({ items, onSelect, onAdd
                     <input 
                         type="text" value={search} onChange={e => setSearch(e.target.value)}
                         placeholder="Kuram veya metot ara..."
-                        className="w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-sm text-white outline-none focus:border-indigo-500"
+                        className="w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-sm text-white outline-none focus:border-accent"
                     />
                 </div>
                 <button 
                     onClick={onAddCustom}
-                    className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition-all shadow-lg"
+                    className="px-6 py-3.5 bg-accent hover:bg-accent/90 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition-all shadow-lg"
                 >
                     <i className="fa-solid fa-plus-circle"></i> KENDİ METODUNU EKLE
                 </button>
@@ -43,12 +43,12 @@ export const LibraryPane: React.FC<LibraryPaneProps> = ({ items, onSelect, onAdd
                         onClick={() => onSelect(item)}
                         onMouseMove={(e) => onHover(item, { x: e.clientX, y: e.clientY })}
                         onMouseLeave={() => onHover(null, { x: 0, y: 0 })}
-                        className="group p-6 bg-white/5 border border-white/5 rounded-[2.5rem] hover:border-indigo-500/50 hover:bg-white/10 transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between"
+                        className="group p-6 bg-white/5 border border-white/5 rounded-[2.5rem] hover:border-accent/50 hover:bg-white/10 transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between"
                     >
                         <div>
                             <div className="flex justify-between items-start mb-4">
-                                <span className="px-3 py-1 bg-indigo-600/20 text-indigo-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-500/20">{item.methodology}</span>
-                                <i className="fa-solid fa-arrow-right text-zinc-700 group-hover:text-indigo-500 transition-colors"></i>
+                                <span className="px-3 py-1 bg-accent/20 text-accent/70 rounded-lg text-[10px] font-black uppercase tracking-widest border border-accent/20">{item.methodology}</span>
+                                <i className="fa-solid fa-arrow-right text-zinc-700 group-hover:text-accent transition-colors"></i>
                             </div>
                             <h4 className="font-black text-xl text-zinc-100 mb-2 leading-tight">{item.title}</h4>
                             <p className="text-sm text-zinc-500 leading-relaxed line-clamp-2">{item.description}</p>

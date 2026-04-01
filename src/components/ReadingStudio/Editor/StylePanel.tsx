@@ -31,7 +31,7 @@ export const StylePanel = () => {
         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
             {/* Header */}
             <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-indigo-500/10 rounded-lg flex items-center justify-center text-indigo-500 border border-indigo-500/20">
+                <div className="w-8 h-8 bg-accent/10 rounded-lg flex items-center justify-center text-accent border border-accent/20">
                     <i className="fa-solid fa-palette text-xs"></i>
                 </div>
                 <h3 className="text-xs font-black uppercase tracking-widest text-white">Stil Ayarları</h3>
@@ -85,7 +85,7 @@ export const StylePanel = () => {
                                 <button
                                     key={align}
                                     onClick={() => updateStyle({ textAlign: align })}
-                                    className={`flex-1 py-1.5 text-[10px] rounded-lg transition-all ${s.textAlign === align ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                    className={`flex-1 py-1.5 text-[10px] rounded-lg transition-all ${s.textAlign === align ? 'bg-accent text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
                                 >
                                     <i className={`fa-solid fa-align-${align}`}></i>
                                 </button>

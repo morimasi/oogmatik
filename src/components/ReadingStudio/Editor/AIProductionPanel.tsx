@@ -16,7 +16,7 @@ export const AIProductionPanel = () => {
                     <textarea
                         value={config.topic}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => update({ topic: e.target.value })}
-                        className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white min-h-[80px] focus:border-indigo-500/50 transition-all"
+                        className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white min-h-[80px] focus:border-accent/50 transition-all"
                         placeholder="Örn: Ormanda kaybolan bir yavru sincabın arkadaşlarıyla yardımlaşarak yolunu bulması..."
                     />
                 </div>
@@ -38,7 +38,7 @@ export const AIProductionPanel = () => {
             </div>
 
             <div className="space-y-4">
-                <h4 className="text-[10px] font-black uppercase text-indigo-500 tracking-widest">Klinik & Pedagojik Odak</h4>
+                <h4 className="text-[10px] font-black uppercase text-accent tracking-widest">Klinik & Pedagojik Odak</h4>
 
                 <div>
                     <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1.5 font-mono">Ses/Harf Odağı (Müdahale)</label>
@@ -54,7 +54,7 @@ export const AIProductionPanel = () => {
                 <div className="grid grid-cols-2 gap-3">
                     <button
                         onClick={() => update({ syllableFocus: !config.syllableFocus })}
-                        className={`p-3 rounded-xl border text-[10px] font-black uppercase tracking-tight transition-all ${config.syllableFocus ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg' : 'bg-transparent border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
+                        className={`p-3 rounded-xl border text-[10px] font-black uppercase tracking-tight transition-all ${config.syllableFocus ? 'bg-accent border-accent text-white shadow-lg' : 'bg-transparent border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
                     >
                         <i className="fa-solid fa-layer-group mr-2"></i>
                         Heceleme Modu

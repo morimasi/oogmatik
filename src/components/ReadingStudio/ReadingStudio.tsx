@@ -389,7 +389,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
           </button>
           <div className="flex flex-col">
             <h2 className="text-sm font-black text-white flex items-center gap-2 tracking-tight uppercase italic">
-              Oogmatik <span className="text-indigo-500 not-italic">Reading Studio Pro</span>
+              Oogmatik <span className="text-accent not-italic">Reading Studio Pro</span>
             </h2>
             {storyData && (
               <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
@@ -419,7 +419,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 disabled:opacity-50 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+            className="px-6 py-2 bg-accent text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-accent/90 disabled:opacity-50 shadow-lg shadow-accent/20 active:scale-95 transition-all"
           >
             {isLoading ? (
               <>
@@ -455,7 +455,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
           <div className="flex border-b border-zinc-800 shrink-0 bg-zinc-900/30 overflow-x-auto custom-scrollbar">
             <button
               onClick={() => setSidebarTab('production')}
-              className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'production' ? 'text-indigo-500 border-indigo-500 bg-indigo-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+              className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'production' ? 'text-accent border-accent bg-accent/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
             >
               Üretim
             </button>

@@ -13,11 +13,11 @@ interface TargetProfileSelectorProps {
     onChange: (profile: TargetProfile) => void;
 }
 
-const DISABILITY_OPTIONS: { id: LearningDisabilityProfile; label: string; icon: string; color: string }[] = [
-    { id: 'dyslexia', label: 'Disleksi', icon: 'fa-book-open', color: 'indigo' },
-    { id: 'dyscalculia', label: 'Diskalkuli', icon: 'fa-calculator', color: 'emerald' },
-    { id: 'adhd', label: 'DEHB', icon: 'fa-bolt', color: 'amber' },
-    { id: 'mixed', label: 'Karma', icon: 'fa-layer-group', color: 'rose' }
+const DISABILITY_OPTIONS: { id: LearningDisabilityProfile; label: string; icon: string; activeContainerClass: string; activeIconClass: string }[] = [
+    { id: 'dyslexia', label: 'Disleksi', icon: 'fa-book-open', activeContainerClass: 'bg-accent/10 border-accent/40', activeIconClass: 'bg-accent/20 text-accent' },
+    { id: 'dyscalculia', label: 'Diskalkuli', icon: 'fa-calculator', activeContainerClass: 'bg-emerald-500/10 border-emerald-500/40', activeIconClass: 'bg-emerald-500/20 text-emerald-400' },
+    { id: 'adhd', label: 'DEHB', icon: 'fa-bolt', activeContainerClass: 'bg-amber-500/10 border-amber-500/40', activeIconClass: 'bg-amber-500/20 text-amber-400' },
+    { id: 'mixed', label: 'Karma', icon: 'fa-layer-group', activeContainerClass: 'bg-rose-500/10 border-rose-500/40', activeIconClass: 'bg-rose-500/20 text-rose-400' }
 ];
 
 const AGE_GROUPS: { id: AgeGroup; label: string }[] = [
@@ -66,7 +66,7 @@ export const TargetProfileSelector: React.FC<TargetProfileSelectorProps> = ({ pr
             {/* ÖÖG Profili */}
             <div className="space-y-3">
                 <div className="flex items-center gap-2 px-1">
-                    <i className="fa-solid fa-user-doctor text-indigo-400 text-xs"></i>
+                    <i className="fa-solid fa-user-doctor text-accent/70 text-xs"></i>
                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Klinik Profil</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -75,11 +75,11 @@ export const TargetProfileSelector: React.FC<TargetProfileSelectorProps> = ({ pr
                             key={opt.id}
                             onClick={() => onChange({ ...profile, disability: opt.id })}
                             className={`p-3 rounded-2xl border-2 text-left transition-all flex items-center gap-3 group ${profile.disability === opt.id
-                                    ? `bg-${opt.color}-500/10 border-${opt.color}-500/40 shadow-lg`
+                                    ? `${opt.activeContainerClass} shadow-lg`
                                     : 'border-white/5 bg-black/20 hover:border-white/20'
                                 }`}
                         >
-                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${profile.disability === opt.id ? `bg-${opt.color}-500/20 text-${opt.color}-400` : 'bg-zinc-800 text-zinc-500'
+                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${profile.disability === opt.id ? opt.activeIconClass : 'bg-zinc-800 text-zinc-500'
                                 }`}>
                                 <i className={`fa-solid ${opt.icon} text-xs`}></i>
                             </div>
