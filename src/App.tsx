@@ -236,9 +236,9 @@ const AppContent = () => {
 
   useEffect(() => {
     if (!authStore.user) return;
-    const unsubscribeStudents = studentStore.fetchStudents(authStore.user.id);
+    const unsubscribeStudents = studentStore.fetchStudents(authStore.user.id, authStore.role);
     return () => unsubscribeStudents();
-  }, [authStore.user, studentStore.fetchStudents]);
+  }, [authStore.user, authStore.role, studentStore.fetchStudents]);
   const { user } = authStore;
   const { setActiveStudent, students } = studentStore;
 
