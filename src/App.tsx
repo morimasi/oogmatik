@@ -521,6 +521,32 @@ const AppContent = () => {
       }
       return;
     }
+
+    // SINAV tipi için özel yönlendirme - doğru stüdyoda aç
+    if (item.activityType === ActivityType.SINAV) {
+      const sinavData = item.worksheetData?.[0]?.data?.[0] || item.worksheetData?.[0];
+      if (sinavData) {
+        import('./store/useSinavStore').then((mod) => {
+          mod.useSinavStore.getState().setAktifSinav(sinavData);
+        });
+        setCurrentView('sinav-studyosu');
+      }
+      return;
+    }
+
+    // MAT_SINAV tipi için özel yönlendirme - doğru stüdyoda aç
+    if (item.activityType === ActivityType.MAT_SINAV) {
+      const matSinavData = item.worksheetData?.[0]?.data?.[0] || item.worksheetData?.[0];
+      if (matSinavData) {
+        import('./store/useMatSinavStore').then((mod) => {
+          mod.useMatSinavStore.getState().setAktifSinav(matSinavData);
+        });
+        setCurrentView('mat-sinav-studyosu');
+      }
+      return;
+    }
+
+    // Diğer tüm etkinlik tipleri için generator'a yönlendir
     setSelectedActivity(item.activityType);
     setWorksheetData(item.worksheetData);
     setActiveWorksheet(item.id, item.name);
