@@ -81,11 +81,11 @@ export const MatCevapAnahtariComponent: React.FC<MatCevapAnahtariComponentProps>
 
             {/* Pedagojik Not */}
             {pedagogicalNote && (
-                <div className="mt-5 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                    <h3 className="text-xs font-bold text-blue-800 mb-1.5 flex items-center gap-1.5">
+                <div className="mt-5 p-4 bg-accent/10 border border-accent/30 rounded-xl">
+                    <h3 className="text-xs font-bold text-accent mb-1.5 flex items-center gap-1.5">
                         📋 Öğretmenin Dikkatine
                     </h3>
-                    <p className="text-xs text-blue-700 leading-relaxed whitespace-pre-line">{pedagogicalNote}</p>
+                    <p className="text-xs text-accent leading-relaxed whitespace-pre-line">{pedagogicalNote}</p>
                 </div>
             )}
         </div>

@@ -129,7 +129,7 @@ export const MatKazanimPicker: React.FC<MatKazanimPickerProps> = ({
                             </div>
                             <div className="flex items-center gap-2 flex-shrink-0">
                                 {selectedCount > 0 && (
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-50 text-blue-600 border border-blue-100">
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-accent/10 text-accent border border-accent/20">
                                         {selectedCount}
                                     </span>
                                 )}
@@ -145,9 +145,9 @@ export const MatKazanimPicker: React.FC<MatKazanimPickerProps> = ({
                                 {/* Tümünü Seç */}
                                 <button
                                     onClick={() => toggleAllKazanimlar(unite)}
-                                    className="w-full px-5 py-2.5 text-[11px] font-bold text-blue-600 hover:bg-blue-50/50 text-left border-b border-slate-50 flex items-center gap-2 transition-colors"
+                                    className="w-full px-5 py-2.5 text-[11px] font-bold text-accent hover:bg-accent/10 text-left border-b border-slate-50 flex items-center gap-2 transition-colors"
                                 >
-                                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${selectedCount === unite.kazanimlar.length ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200'}`}>
+                                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${selectedCount === unite.kazanimlar.length ? 'bg-accent border-accent text-white' : 'bg-white border-slate-200'}`}>
                                         {selectedCount === unite.kazanimlar.length && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                                     </div>
                                     <span>Tüm Kazanımları Seç</span>
@@ -161,18 +161,18 @@ export const MatKazanimPicker: React.FC<MatKazanimPickerProps> = ({
                                                 key={kazanim.kod}
                                                 onClick={() => toggleKazanim(kazanim.kod)}
                                                 className={`w-full text-left px-5 py-3 flex items-start gap-3 transition-all duration-150 border-b border-slate-50 last:border-0 group ${isSelected
-                                                    ? 'bg-blue-50/30'
+                                                    ? 'bg-accent/5'
                                                     : 'hover:bg-slate-50/40'
                                                     }`}
                                             >
                                                 <div className={`mt-0.5 flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-all ${isSelected
-                                                    ? 'bg-blue-600 border-blue-600 text-white'
+                                                    ? 'bg-accent border-accent text-white'
                                                     : 'bg-white border-slate-200 group-hover:border-slate-300'
                                                     }`}>
                                                     {isSelected && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <span className="inline-block text-[9px] font-black font-mono tracking-tighter px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 mb-1.5 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                                                    <span className="inline-block text-[9px] font-black font-mono tracking-tighter px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 mb-1.5 group-hover:bg-accent/10 group-hover:text-accent transition-colors">
                                                         {kazanim.kod}
                                                     </span>
                                                     <span className="text-[11px] font-medium text-slate-600 leading-relaxed block" style={{ fontFamily: 'Lexend, sans-serif' }}>

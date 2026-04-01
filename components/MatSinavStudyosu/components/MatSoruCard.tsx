@@ -145,12 +145,12 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
 
       {/* Gerçek Yaşam Bağlantısı */}
       {soru.gercek_yasam_baglantisi && (
-        <div className="flex items-start gap-1.5 mb-3 bg-blue-50/50 p-2 rounded-lg border border-blue-100">
+        <div className="flex items-start gap-1.5 mb-3 bg-accent/10 p-2 rounded-lg border border-accent/20">
           <span className="text-[12px]" title="Gerçek Yaşam Bağlantısı">
             🌍
           </span>
           <p
-            className="text-[11px] text-blue-700 leading-tight font-medium"
+            className="text-[11px] text-accent leading-tight font-medium"
             style={{ fontFamily: 'Lexend, sans-serif' }}
           >
             {soru.gercek_yasam_baglantisi}
