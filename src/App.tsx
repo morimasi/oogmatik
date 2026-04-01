@@ -146,7 +146,7 @@ const Modal = ({
   if (!isOpen) return null;
   return (
     <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300"
       onClick={(e: React.MouseEvent) => {
         e.stopPropagation();
         onClose();
@@ -813,145 +813,148 @@ const AppContent = () => {
           />
         </div>
 
-      {/* SPECIAL RENDER FOR STUDIOS WHEN IN THAT VIEW */}
-      {currentView === 'curriculum' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <CurriculumView
-              onBack={handleGoBack}
-              onSelectActivity={handleSelectActivity as any}
-              onStartCurriculumActivity={handleStartCurriculumActivity}
-              initialPlan={loadedCurriculum}
-              preFillData={screeningPlanData}
-            />
-          </Suspense>
-        </div>
-      )}
+        {/* SPECIAL RENDER FOR STUDIOS WHEN IN THAT VIEW */}
+        {currentView === 'curriculum' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <CurriculumView
+                onBack={handleGoBack}
+                onSelectActivity={handleSelectActivity as any}
+                onStartCurriculumActivity={handleStartCurriculumActivity}
+                initialPlan={loadedCurriculum}
+                preFillData={screeningPlanData}
+              />
+            </Suspense>
+          </div>
+        )}
 
-      {currentView === 'reading-studio' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <ReadingStudio
-              onBack={handleGoBack}
-              onAddToWorkbook={handleAddToWorkbookGeneral as any}
-            />
-          </Suspense>
-        </div>
-      )}
+        {currentView === 'reading-studio' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <ReadingStudio
+                onBack={handleGoBack}
+                onAddToWorkbook={handleAddToWorkbookGeneral as any}
+              />
+            </Suspense>
+          </div>
+        )}
 
-      {currentView === 'math-studio' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <MathStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-          </Suspense>
-        </div>
-      )}
+        {currentView === 'math-studio' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <MathStudio
+                onBack={handleGoBack}
+                onAddToWorkbook={handleAddToWorkbookGeneral as any}
+              />
+            </Suspense>
+          </div>
+        )}
 
-      {currentView === 'super-turkce' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <SuperStudio />
-          </Suspense>
-        </div>
-      )}
+        {currentView === 'super-turkce' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <SuperStudio />
+            </Suspense>
+          </div>
+        )}
 
-      {currentView === 'infographic-studio' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <InfographicStudio onBack={handleGoBack} />
-          </Suspense>
-        </div>
-      )}
+        {currentView === 'infographic-studio' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <InfographicStudio onBack={handleGoBack} />
+            </Suspense>
+          </div>
+        )}
 
-      {currentView === 'remotion-studio' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <RemotionStudio />
-          </Suspense>
-        </div>
-      )}
+        {currentView === 'remotion-studio' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <RemotionStudio />
+            </Suspense>
+          </div>
+        )}
 
-      {currentView === 'ocr' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
-          </Suspense>
-        </div>
-      )}
+        {currentView === 'ocr' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
+            </Suspense>
+          </div>
+        )}
 
-      {currentView === 'profile' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <ProfileView
-              onBack={handleGoBack}
-              onSelectActivity={handleSelectActivity}
-              onLoadSaved={loadSavedWorksheet}
-              theme={theme}
-              uiSettings={uiSettings}
-              onUpdateTheme={(t: AppTheme) => setTheme(t)}
-              onUpdateUiSettings={(s: UiSettings) => updateUiSettings(s)}
-              onOpenSettingsModal={() => setOpenModal('settings')}
-            />
-          </Suspense>
-        </div>
-      )}
+        {currentView === 'profile' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <ProfileView
+                onBack={handleGoBack}
+                onSelectActivity={handleSelectActivity}
+                onLoadSaved={loadSavedWorksheet}
+                theme={theme}
+                uiSettings={uiSettings}
+                onUpdateTheme={(t: AppTheme) => setTheme(t)}
+                onUpdateUiSettings={(s: UiSettings) => updateUiSettings(s)}
+                onOpenSettingsModal={() => setOpenModal('settings')}
+              />
+            </Suspense>
+          </div>
+        )}
 
-      {currentView === 'students' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
-          </Suspense>
-        </div>
-      )}
+        {currentView === 'students' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
+            </Suspense>
+          </div>
+        )}
 
-      {currentView === 'messages' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <MessagesView onBack={handleGoBack} />
-          </Suspense>
-        </div>
-      )}
+        {currentView === 'messages' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <MessagesView onBack={handleGoBack} />
+            </Suspense>
+          </div>
+        )}
 
-      {/* Admin view is special, keeps its own context */}
-      {currentView === 'admin' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[70] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <AdminDashboard onBack={handleGoBack} />
-          </Suspense>
-        </div>
-      )}
+        {/* Admin view is special, keeps its own context */}
+        {currentView === 'admin' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[70] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <AdminDashboard onBack={handleGoBack} />
+            </Suspense>
+          </div>
+        )}
 
-      {/* Assessment and Screening run inside ContentArea via currentView prop, but need special handling in ContentArea */}
-      {currentView === 'screening' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <ScreeningModule
-              onBack={handleGoBack}
-              onSelectActivity={handleSelectActivity}
-              onAddToWorkbook={handleAddToWorkbookGeneral as any}
-              onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
-                handleGeneratePlanFromScreening(n, a, w, c)
-              }
-            />
-          </Suspense>
-        </div>
-      )}
+        {/* Assessment and Screening run inside ContentArea via currentView prop, but need special handling in ContentArea */}
+        {currentView === 'screening' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <ScreeningModule
+                onBack={handleGoBack}
+                onSelectActivity={handleSelectActivity}
+                onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
+                  handleGeneratePlanFromScreening(n, a, w, c)
+                }
+              />
+            </Suspense>
+          </div>
+        )}
 
-      {currentView === 'sinav-studyosu' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <SinavStudyosu />
-          </Suspense>
-        </div>
-      )}
+        {currentView === 'sinav-studyosu' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <SinavStudyosu />
+            </Suspense>
+          </div>
+        )}
 
-      {currentView === 'mat-sinav-studyosu' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
-          <Suspense fallback={<LoadingSpinner />}>
-            <MatSinavStudyosu />
-          </Suspense>
-        </div>
-      )}
+        {currentView === 'mat-sinav-studyosu' && (
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
+            <Suspense fallback={<LoadingSpinner />}>
+              <MatSinavStudyosu />
+            </Suspense>
+          </div>
+        )}
       </div>
 
       <TourGuide steps={tourSteps} isOpen={isTourActive} onClose={() => setIsTourActive(false)} />
