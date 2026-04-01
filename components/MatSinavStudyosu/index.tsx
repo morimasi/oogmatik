@@ -305,14 +305,21 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
             {/* Header */}
             <div className="flex-none px-6 py-3 border-b border-white/40 bg-white/60 backdrop-blur-2xl flex items-center justify-between gap-4 z-50">
                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-100">
-                        <span className="text-xl">🧮</span>
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 group-hover:rotate-6 transition-transform duration-500">
+                        <span className="text-2xl">📐</span>
                     </div>
                     <div>
-                        <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none">
-                            Süper Matematik Sınav Stüdyosu
-                        </h1>
-                        <p className="text-[10px] text-blue-500 font-bold uppercase tracking-widest mt-1 opacity-80">MEB 2024-2025 · AI Destekli · 1-8. Sınıf</p>
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none">
+                                Süper Matematik Sınav Stüdyosu
+                            </h1>
+                            <span className="px-2 py-0.5 rounded-full bg-blue-600 text-[9px] font-black text-white uppercase tracking-widest animate-pulse">
+                                SÜPER MODÜL
+                            </span>
+                        </div>
+                        <p className="text-[10px] text-blue-500 font-bold uppercase tracking-widest mt-1.5 opacity-80">
+                            MEB 2024-2025 · Üretken Yapay Zeka (Gemini 2.5 Flash)
+                        </p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -589,11 +596,41 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                                     <div className="w-32 h-32 bg-white/40 backdrop-blur-xl rounded-full flex items-center justify-center shadow-xl border border-white/60 group">
                                         <span className="text-6xl opacity-30 group-hover:scale-110 transition-transform duration-500">🧮</span>
                                     </div>
-                                    <div className="text-center">
-                                        <p className="text-lg font-black text-slate-400 tracking-tight">Önizleme Alanı</p>
-                                        <p className="text-sm text-slate-400 mt-2 font-medium">
-                                            Sol panelden ayarları yapın ve <strong className="text-blue-500">Sınavı Oluştur</strong>'a basın.
+                                    <div className="text-center group">
+                                        <p className="text-lg font-black text-slate-400 tracking-tight transition-colors group-hover:text-blue-500">Önizleme Alanı</p>
+                                        <p className="text-sm text-slate-400 mt-2 font-medium max-w-xs mx-auto leading-relaxed">
+                                            Lütfen sol panelden sınıf ve kazanımları seçin, ardından sınavınızı üretin.
                                         </p>
+                                        
+                                        <div className="mt-8 flex flex-col items-center gap-4">
+                                            <button
+                                                onClick={handleGenerate}
+                                                disabled={!canGenerate() || isGenerating}
+                                                className={`px-8 py-4 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center gap-3 shadow-2xl ${canGenerate() && !isGenerating ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-105 hover:shadow-blue-300' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}`}
+                                            >
+                                                {isGenerating ? (
+                                                    <>
+                                                        <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                                        </svg>
+                                                        <span>AI Üretiyor...</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span className="text-xl">✨</span>
+                                                        <span>YAPAY ZEKA İLE ŞİMDİ ÜRET</span>
+                                                    </>
+                                                )}
+                                            </button>
+                                            
+                                            {!canGenerate() && (
+                                                <div className="flex items-center gap-2 text-[10px] font-bold text-rose-500 uppercase tracking-widest bg-rose-50 px-4 py-2 rounded-full border border-rose-100">
+                                                    <i className="fa-solid fa-circle-exclamation animate-pulse"></i>
+                                                    <span>Henüz Sınıf/Kazanım Seçilmedi</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             )}
