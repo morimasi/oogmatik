@@ -6,7 +6,7 @@ import { A4PreviewPanel } from './components/A4PreviewPanel';
 
 export const SuperStudio: React.FC = () => {
     return (
-        <div className="flex h-screen w-full bg-slate-900 text-slate-100 overflow-hidden font-inter">
+        <div className="flex h-full w-full bg-slate-900 text-slate-100 overflow-hidden font-inter">
             {/* Sol Panel: Ayarlar ve Düzenleme */}
             <div className="w-[450px] flex-shrink-0 flex flex-col border-r border-slate-700/50 bg-slate-800/80 backdrop-blur-md shadow-xl relative z-10">
                 <div className="p-6 border-b border-slate-700/50 bg-slate-800">
@@ -16,7 +16,7 @@ export const SuperStudio: React.FC = () => {
                     <p className="text-sm text-slate-400 mt-1">Premium İçerik Üretim Merkezi</p>
                 </div>
 
-                <div className="flex-1 overflow-y-auto w-full custom-scrollbar">
+                <div className="flex-1 min-h-0 overflow-y-auto w-full custom-scrollbar">
                     <div className="p-4 space-y-8">
                         {/* Ana Ayarlar */}
                         <MainSettingsPanel />
