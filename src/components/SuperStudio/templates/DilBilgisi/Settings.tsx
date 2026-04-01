@@ -20,7 +20,7 @@ export const DilBilgisiSettingsPanel: React.FC<TemplateSettingsProps<DilBilgisiS
                 onClick={() => onChange({ targetDistractors: pair })}
                 className={`py-1.5 px-2 rounded-lg border text-xs font-bold transition-all ${
                   settings.targetDistractors === pair
-                    ? 'bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-900/20'
+                    ? 'bg-accent border-accent/60 text-white shadow-lg shadow-accent/20'
                     : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
                 }`}
               >
@@ -39,7 +39,7 @@ export const DilBilgisiSettingsPanel: React.FC<TemplateSettingsProps<DilBilgisiS
             onChange={(e) =>
               onChange({ gridSize: e.target.value as DilBilgisiSettings['gridSize'] })
             }
-            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent outline-none"
           >
             <option value="none">Tablo Yok</option>
             <option value="3x3">3×3</option>

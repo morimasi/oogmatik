@@ -34,9 +34,7 @@ export const MantikMuhakemeSettingsPanel: React.FC<
             onChange={(e) =>
               onChange({ matrixSize: e.target.value as MantikMuhakemeSettings['matrixSize'] })
             }
-            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-          >
-            <option value="3x3">3×3</option>
+            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent outline-none"
             <option value="3x4">3×4</option>
             <option value="4x4">4×4</option>
             <option value="5x5">5×5</option>
@@ -108,7 +106,7 @@ export const MantikMuhakemeSettingsPanel: React.FC<
               onClick={() => onChange({ layoutDensity: d })}
               className={`py-1.5 px-2 rounded-lg border text-xs font-bold transition-all ${
                 (settings as unknown as Record<string, string>).layoutDensity === d
-                  ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg'
+                  ? 'bg-accent border-accent/60 text-white shadow-lg'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
               }`}
             >

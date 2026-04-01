@@ -33,7 +33,7 @@ export const HeceSesSettingsPanel: React.FC<TemplateSettingsProps<HeceSesSetting
               onClick={() => toggleEvent(event.id as HeceSesSettings['focusEvents'][number])}
               className={`py-2 px-2.5 text-xs rounded-lg border font-medium transition-all ${
                 settings.focusEvents.includes(event.id as HeceSesSettings['focusEvents'][number])
-                  ? 'bg-purple-600 border-purple-400 text-white shadow-lg shadow-purple-900/20'
+                  ? 'bg-accent border-accent/60 text-white shadow-lg shadow-accent/20'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
               }`}
             >
@@ -87,7 +87,7 @@ export const HeceSesSettingsPanel: React.FC<TemplateSettingsProps<HeceSesSetting
               onClick={() => onChange({ layoutDensity: d })}
               className={`py-1.5 px-2 rounded-lg border text-xs font-bold transition-all ${
                 (settings as unknown as Record<string, string>).layoutDensity === d
-                  ? 'bg-purple-600 border-purple-400 text-white shadow-lg'
+                  ? 'bg-accent border-accent/60 text-white shadow-lg'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
               }`}
             >

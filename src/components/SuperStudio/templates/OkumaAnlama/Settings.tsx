@@ -125,7 +125,7 @@ export const OkumaAnlamaSettingsPanel: React.FC<TemplateSettingsProps<OkumaAnlam
               onClick={() => toggleQuestionType(qt.id)}
               className={`py-2 px-1 flex flex-col items-center gap-1 rounded-lg border text-[10px] font-medium transition-all ${
                 settings.questionTypes.includes(qt.id)
-                  ? 'bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-900/20'
+                  ? 'bg-accent border-accent/60 text-white shadow-lg shadow-accent/20'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
               }`}
             >
