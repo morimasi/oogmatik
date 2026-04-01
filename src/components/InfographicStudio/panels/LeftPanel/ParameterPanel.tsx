@@ -41,7 +41,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                     onChange={(e) => updateParam('topic', e.target.value)}
                     placeholder="Örn: Güneş sistemi ile ilgili okuma parçası ve üçgen sorusu içeren bir etkinlik..."
                     rows={4}
-                    className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 placeholder-white/30 resize-y"
+                    className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent placeholder-white/30 resize-y"
                 />
                 
                 <button 
@@ -61,7 +61,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                         value={params.profile}
                         onChange={(e) => updateParam('profile', e.target.value)}
                         disabled={isClinicalMode}
-                        className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none disabled:opacity-50"
+                        className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-accent/50 appearance-none disabled:opacity-50"
                     >
                         <option value="general">Genel Sınıf</option>
                         <option value="dyslexia">Disleksi</option>
@@ -76,7 +76,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                     <select
                         value={params.ageGroup}
                         onChange={(e) => updateParam('ageGroup', e.target.value)}
-                        className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none"
+                        className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-accent/50 appearance-none"
                     >
                         <option value="5-7">5-7 Yaş</option>
                         <option value="8-10">8-10 Yaş</option>
@@ -91,7 +91,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ params, onChange
                 <select
                     value={params.difficulty}
                     onChange={(e) => updateParam('difficulty', e.target.value)}
-                    className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none"
+                    className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-accent/50 appearance-none"
                 >
                     <option value="Kolay">Kolay (Destekli)</option>
                     <option value="Orta">Orta (Standart)</option>

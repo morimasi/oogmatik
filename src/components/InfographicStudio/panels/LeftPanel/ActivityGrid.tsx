@@ -30,11 +30,11 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({ selectedCategory, se
                             className={cn(
                                 "flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-200 text-center gap-2",
                                 isSelected
-                                    ? "bg-indigo-500/20 border-indigo-500/50 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.2)]"
+                                    ? "bg-accent/20 border-accent/50 text-accent/70 shadow-[0_0_15px_hsl(var(--accent-h)_var(--accent-s)_var(--accent-l)/0.2)]"
                                     : "bg-white/5 border-white/10 hover:bg-white/10 text-white/70 hover:border-white/20"
                             )}
                         >
-                            <Icon className={cn("w-6 h-6", isSelected ? "text-indigo-400" : "text-white/50")} />
+                            <Icon className={cn("w-6 h-6", isSelected ? "text-accent/70" : "text-white/50")} />
                             <span className="text-xs font-medium leading-tight">
                                 {meta.title}
                             </span>

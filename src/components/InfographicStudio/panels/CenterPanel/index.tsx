@@ -24,7 +24,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ result, isGenerating }
                         onClick={() => setViewMode('a4')}
                         className={cn(
                             "flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all",
-                            viewMode === 'a4' ? "bg-indigo-500 text-white shadow-md" : "text-white/60 hover:text-white hover:bg-white/5"
+                            viewMode === 'a4' ? "bg-accent text-white shadow-md" : "text-white/60 hover:text-white hover:bg-white/5"
                         )}
                     >
                         <Layout className="w-3.5 h-3.5" />
@@ -34,7 +34,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ result, isGenerating }
                         onClick={() => setViewMode('presentation')}
                         className={cn(
                             "flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all",
-                            viewMode === 'presentation' ? "bg-indigo-500 text-white shadow-md" : "text-white/60 hover:text-white hover:bg-white/5"
+                            viewMode === 'presentation' ? "bg-accent text-white shadow-md" : "text-white/60 hover:text-white hover:bg-white/5"
                         )}
                     >
                         <Monitor className="w-3.5 h-3.5" />
@@ -44,7 +44,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ result, isGenerating }
                         onClick={() => setViewMode('dark')}
                         className={cn(
                             "flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all",
-                            viewMode === 'dark' ? "bg-indigo-500 text-white shadow-md" : "text-white/60 hover:text-white hover:bg-white/5"
+                            viewMode === 'dark' ? "bg-accent text-white shadow-md" : "text-white/60 hover:text-white hover:bg-white/5"
                         )}
                     >
                         <Moon className="w-3.5 h-3.5" />
@@ -54,7 +54,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ result, isGenerating }
                         onClick={() => setViewMode('mobile')}
                         className={cn(
                             "flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all",
-                            viewMode === 'mobile' ? "bg-indigo-500 text-white shadow-md" : "text-white/60 hover:text-white hover:bg-white/5"
+                            viewMode === 'mobile' ? "bg-accent text-white shadow-md" : "text-white/60 hover:text-white hover:bg-white/5"
                         )}
                     >
                         <MonitorSmartphone className="w-3.5 h-3.5" />
@@ -69,7 +69,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ result, isGenerating }
             )}>
                 {isGenerating ? (
                     <div className="flex flex-col items-center justify-center p-8 text-white/50 space-y-4">
-                        <div className="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+                        <div className="w-16 h-16 border-4 border-accent/30 border-t-accent rounded-full animate-spin" />
                         <p className="font-medium animate-pulse">Composite Worksheet AI ile Üretiliyor...</p>
                     </div>
                 ) : result ? (
