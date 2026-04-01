@@ -13,6 +13,9 @@ import type {
   WorksheetGeneratorFn,
   WorksheetTemplateType,
   WorksheetActivityCategory,
+  WorksheetSection,
+  AnswerArea,
+  AnswerAreaType,
 } from '../../../../types/worksheetActivity';
 
 const SYSTEM_INSTRUCTION = `Sen Oogmatik platformunun "Etkinlik Oluşturucu Stüdyosu" baş pedagojik tasarımcısı ve uzman özel eğitim zeka motorusun.
@@ -137,18 +140,39 @@ KURALLAR VE BEKLENTİLER:
         temperature: 0.7,
       });
 
-      const sections = (Array.isArray(raw.sections) ? raw.sections : []).map(
-        (s: Record<string, unknown>, i: number) => ({
-          id: `ai-${Date.now()}-${i}`,
-          order: i + 1,
-          instruction: String(s.instruction ?? ''),
-          content: String(s.content ?? ''),
-          options: Array.isArray(s.options) ? s.options.map(String) : undefined,
-          correctAnswer: s.correctAnswer ? String(s.correctAnswer) : undefined,
-          matchingPairs: Array.isArray(s.matchingPairs) ? s.matchingPairs : undefined,
-          gridData: Array.isArray(s.gridData) ? s.gridData : undefined,
-          answerArea: s.answerArea || { type: 'blank-line', lines: 2 },
-        })
+      const sections: WorksheetSection[] = (Array.isArray(raw.sections) ? raw.sections : []).map(
+        (s: Record<string, any>, i: number) => {
+          // answerArea güvenli eşleme
+          let answerArea: AnswerArea = { type: 'blank-line', lines: 2 };
+          if (s.answerArea && typeof s.answerArea === 'object' && s.answerArea.type) {
+            answerArea = {
+              type: s.answerArea.type as AnswerAreaType,
+              width: s.answerArea.width,
+              lines: s.answerArea.lines,
+              gridSize: s.answerArea.gridSize,
+              prefilled: s.answerArea.prefilled,
+            };
+          }
+
+          return {
+            id: `ai-${Date.now()}-${i}`,
+            order: i + 1,
+            instruction: String(s.instruction ?? ''),
+            content: String(s.content ?? ''),
+            options: Array.isArray(s.options) ? s.options.map(String) : undefined,
+            correctAnswer: s.correctAnswer ? String(s.correctAnswer) : undefined,
+            matchingPairs: Array.isArray(s.matchingPairs)
+              ? s.matchingPairs.map((p: any) => ({
+                  left: String(p.left ?? ''),
+                  right: String(p.right ?? ''),
+                }))
+              : undefined,
+            gridData: Array.isArray(s.gridData)
+              ? s.gridData.map((row: any) => (Array.isArray(row) ? row.map(String) : []))
+              : undefined,
+            answerArea,
+          };
+        }
       );
 
       return {
@@ -311,78 +335,3 @@ export const generateSequencePattern = createAIWorksheetGenerator({
     'Sayısal artış, azalış veya karmaşık matematiksel seriler oluştur. Eğer görsel istiyorsan, sembollerden (üçgen, kare vb.) oluşan bir dizi kur. Eksik olanı sor. "multiple-choice" veya "blank-box" formatı kullan.',
 });
 
-export const generateFillInBlanks = createAIWorksheetGenerator({
-  templateType: 'fill-in-blanks',
-  category: 'ws-reading-comprehension',
-  activityName: 'Boşluk Doldurma',
-  promptDetail:
-    'Konu hakkında cümleler üret. Her cümlede bir anahtar kelimeyi boşluk (___) olarak bırak. correctAnswer alanına doğru kelimeyi yaz.',
-});
-
-export const generateEventSequencing = createAIWorksheetGenerator({
-  templateType: 'event-sequencing',
-  category: 'ws-reading-comprehension',
-  activityName: 'Olay Sıralama',
-  promptDetail:
-    'Kısa bir hikaye/süreç hikayesi yaz. Olayları KARIŞTIRARAK listele. Öğrenci doğru sıraya koyacak. correctAnswer alanına doğru sıra numarasını yaz.',
-});
-
-export const generateMainIdea = createAIWorksheetGenerator({
-  templateType: 'main-idea',
-  category: 'ws-reading-comprehension',
-  activityName: 'Ana Fikir Bulma',
-  promptDetail:
-    'Kısa paragraflar üret. Öğrenci her paragrafın ana fikrini yazacak. correctAnswer alanına ana fikri yaz.',
-});
-
-export const generateInference = createAIWorksheetGenerator({
-  templateType: 'inference',
-  category: 'ws-reading-comprehension',
-  activityName: 'Çıkarım Yapma',
-  promptDetail:
-    'Dolaylı bilgi içeren kısa metinler üret. Öğrenci metinde açıkça yazılmayan ama çıkarılabilecek bilgiyi yazacak.',
-});
-
-export const generateCharacterAnalysis = createAIWorksheetGenerator({
-  templateType: 'character-analysis',
-  category: 'ws-reading-comprehension',
-  activityName: 'Karakter Analizi',
-  promptDetail:
-    'Kısa bir hikaye üret. Öğrenci karakterin fiziksel, kişilik ve davranış özelliklerini yazacak.',
-});
-
-export const generateCauseEffectMatching = createAIWorksheetGenerator({
-  templateType: 'cause-effect-matching',
-  category: 'ws-reading-comprehension',
-  activityName: 'Neden-Sonuç Eşleştirme',
-  promptDetail:
-    'Neden ve sonuç çiftleri üret. Bunları KARIŞTIR. Öğrenci nedenleri sonuçlarla eşleştirecek.',
-});
-
-// ── Okuma & Dil (AI destekli olanlar) ──────────────────────────────────────
-
-export const generateSentenceElements = createAIWorksheetGenerator({
-  templateType: 'sentence-elements',
-  category: 'ws-language-literacy',
-  activityName: 'Cümle Ögesi Bulma',
-  promptDetail:
-    'Cümleler üret. Öğrenci her cümledeki özne, yüklem, nesne, tümleç gibi ögeleri belirleyecek.',
-});
-
-// ── Matematik & Mantık (AI destekli olanlar) ───────────────────────────────
-
-export const generateGraphReading = createAIWorksheetGenerator({
-  templateType: 'graph-reading',
-  category: 'ws-math-logic',
-  activityName: 'Grafik Okuma',
-  promptDetail:
-    'Bir çubuk/pasta grafik için veri seti üret. Grafiği JSON olarak tanımla. Sonra grafik hakkında sorular sor. Cevaplar MUTLAKA grafik verileriyle tutarlı olmalı.',
-});
-
-export const generateWordProblem = createAIWorksheetGenerator({
-  templateType: 'word-problem',
-  category: 'ws-math-logic',
-  activityName: 'Problem Çözme',
-  promptDetail:
-    'Yaş grubuna uygun sözel matematik problemleri üret. Her problemde "Verilen", "İstenen" belli olsun. correctAnswer\'da MUTLAKA doğru sayısal cevabı yaz.',
-});
