@@ -109,7 +109,10 @@ const FmtBtn: React.FC<{
   </button>
 );
 
-export const SinavStudyosu: React.FC = () => {
+export const SinavStudyosu: React.FC<{
+  onBack?: () => void;
+  onAddToWorkbook?: (activityType: ActivityType, data: any) => void;
+}> = ({ onBack, onAddToWorkbook }) => {
   const {
     ayarlar,
     setSinif,
@@ -404,7 +407,7 @@ ${aktifSinav.cevapAnahtari.sorular
   };
 
   // Workbook Integration — Tek Tıkla Kaydet
-  const handleAddToWorkbook = async () => {
+  const handleAddToWorkbookClick = async () => {
     if (!aktifSinav) {
       setError('Lütfen önce bir sınav oluşturun.');
       return;
@@ -438,25 +441,30 @@ ${aktifSinav.cevapAnahtari.sorular
         },
       };
 
-      // worksheetService.saveWorksheet ile kaydet
-      await worksheetService.saveWorksheet(
-        user.id,
-        aktifSinav.baslik || 'Türkçe Sınavı',
-        ActivityType.SINAV,
-        [worksheetData],
-        'fa-solid fa-file-lines',
-        { id: 'turkce', title: 'Türkçe' }, // Kategori: Türkçe
-        {
-          fontSize: printConfig.fontSize,
-          fontFamily: printConfig.fontFamily,
-          margin: printConfig.marginMm,
-          columns: printConfig.columns,
-          lineHeight: printConfig.lineHeight,
-          contentAlign: printConfig.textAlign,
-        } as any
-      );
+      if (onAddToWorkbook) {
+        onAddToWorkbook(ActivityType.SINAV, worksheetData);
+        showSuccess('✅ Sınav "Çalışma Kitapçığı"na eklendi!');
+      } else {
+        // worksheetService.saveWorksheet ile kaydet
+        await worksheetService.saveWorksheet(
+          user.id,
+          aktifSinav.baslik || 'Türkçe Sınavı',
+          ActivityType.SINAV,
+          [worksheetData],
+          'fa-solid fa-file-lines',
+          { id: 'turkce', title: 'Türkçe' }, // Kategori: Türkçe
+          {
+            fontSize: printConfig.fontSize,
+            fontFamily: printConfig.fontFamily,
+            margin: printConfig.marginMm,
+            columns: printConfig.columns,
+            lineHeight: printConfig.lineHeight,
+            contentAlign: printConfig.textAlign,
+          } as any
+        );
 
-      showSuccess('✅ Sınav "Çalışma Kitapçığı" veri tabanına kaydedildi!');
+        showSuccess('✅ Sınav "Çalışma Kitapçığı" veri tabanına kaydedildi!');
+      }
     } catch (err: any) {
       console.error('Workbook kayıt hatası:', err);
       setError(`Kaydetme hatası: ${err.message || 'Bilinmeyen hata'}`);
@@ -758,7 +766,7 @@ ${aktifSinav.cevapAnahtari.sorular
                 <span className="hidden lg:inline">Paylaş</span>
               </button>
               <button
-                onClick={handleAddToWorkbook}
+                onClick={handleAddToWorkbookClick}
                 disabled={!aktifSinav || isSavingToWorkbook}
                 className="toolbar-btn bg-emerald-600 text-white border-none shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:translate-y-[-2px] active:scale-95"
               >

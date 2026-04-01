@@ -529,7 +529,7 @@ const AppContent = () => {
         import('./store/useSinavStore').then((mod) => {
           mod.useSinavStore.getState().setAktifSinav(sinavData);
         });
-        setCurrentView('sinav-studyosu');
+        navigateTo('sinav-studyosu');
       }
       return;
     }
@@ -541,8 +541,58 @@ const AppContent = () => {
         import('./store/useMatSinavStore').then((mod) => {
           mod.useMatSinavStore.getState().setAktifSinav(matSinavData);
         });
-        setCurrentView('mat-sinav-studyosu');
+        navigateTo('mat-sinav-studyosu');
       }
+      return;
+    }
+
+    // MATH_STUDIO tipi için özel yönlendirme - doğru stüdyoda aç
+    if (item.activityType === ActivityType.MATH_STUDIO) {
+      navigateTo('math-studio');
+      return;
+    }
+
+    // PREMIUM_STUDIO (Super Türkçe) tipi için özel yönlendirme
+    if (
+      item.activityType === ActivityType.PREMIUM_STUDIO ||
+      item.activityType === ActivityType.SUPER_TURKCE_V2 ||
+      item.activityType === ActivityType.SUPER_TURKCE_MATCHING
+    ) {
+      navigateTo('super-turkce');
+      return;
+    }
+
+    // READING_STUDIO tipi için özel yönlendirme
+    // Not: ReadingStudio'nun özel bir aktivite tipi var mı? Eğer yoksa ve activityType
+    // STORY_CREATION_PROMPT, STORY_COMPREHENSION vs. ise ve özel layout'a sahipse:
+    if (
+      item.activityType === ActivityType.STORY_CREATION_PROMPT ||
+      item.activityType === ActivityType.STORY_COMPREHENSION ||
+      item.activityType === ActivityType.STORY_ANALYSIS ||
+      item.activityType === 'READING_STUDIO'
+    ) {
+      // Sadece layout varsa ReadingStudio'ya yönlendir, yoksa normal generator
+      const rsData = item.worksheetData?.[0]?.layout || item.worksheetData?.[0]?.storyData;
+      if (rsData || item.activityType === 'READING_STUDIO') {
+        import('./store/useReadingStore').then((mod) => {
+          const store = mod.useReadingStore.getState();
+          if (item.worksheetData?.[0]?.storyData)
+            store.setStoryData(item.worksheetData[0].storyData);
+          if (item.worksheetData?.[0]?.layout) store.setLayout(item.worksheetData[0].layout);
+        });
+        navigateTo('reading-studio');
+        return;
+      }
+    }
+
+    // INFOGRAPHIC_STUDIO tipleri için özel yönlendirme
+    if (
+      item.activityType &&
+      typeof item.activityType === 'string' &&
+      item.activityType.startsWith('INFOGRAPHIC_')
+    ) {
+      navigateTo('infographic-studio');
+      // Infographic studio will read from worksheet store or handle it if needed
       return;
     }
 
@@ -966,25 +1016,6 @@ const AppContent = () => {
           </div>
         )}
 
-        {currentView === 'sinav-studyosu' && (
-          <div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-hidden">
-            <Suspense fallback={<LoadingSpinner />}>
-              <SinavStudyosu />
-            </Suspense>
-          </div>
-        )}
-
-        {currentView === 'mat-sinav-studyosu' && (
-          <div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-hidden">
-            <Suspense fallback={<LoadingSpinner />}>
-              <ReadingStudio
-                onBack={handleGoBack}
-                onAddToWorkbook={handleAddToWorkbookGeneral as any}
-              />
-            </Suspense>
-          </div>
-        )}
-
         {currentView === 'math-studio' && (
           <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
             <Suspense fallback={<LoadingSpinner />}>
@@ -1089,7 +1120,10 @@ const AppContent = () => {
         {currentView === 'sinav-studyosu' && (
           <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
             <Suspense fallback={<LoadingSpinner />}>
-              <SinavStudyosu />
+              <SinavStudyosu
+                onBack={handleGoBack}
+                onAddToWorkbook={handleAddToWorkbookGeneral as any}
+              />
             </Suspense>
           </div>
         )}
@@ -1097,7 +1131,10 @@ const AppContent = () => {
         {currentView === 'mat-sinav-studyosu' && (
           <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
             <Suspense fallback={<LoadingSpinner />}>
-              <MatSinavStudyosu />
+              <MatSinavStudyosu
+                onBack={handleGoBack}
+                onAddToWorkbook={handleAddToWorkbookGeneral as any}
+              />
             </Suspense>
           </div>
         )}
