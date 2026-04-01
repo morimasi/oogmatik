@@ -19,6 +19,7 @@ import { PrintConfig, DEFAULT_PRINT_CONFIG } from '../../src/utils/sinavPdfGener
 import { worksheetService } from '../../src/services/worksheetService';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { ActivityType } from '../../src/types';
+import { ShareModal } from '../../src/components/ShareModal';
 
 type TabType = 'onizleme' | 'cevap-anahtari' | 'gecmis';
 

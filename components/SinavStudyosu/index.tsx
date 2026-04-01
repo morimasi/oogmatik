@@ -18,6 +18,7 @@ import { AppError } from '../../src/utils/AppError';
 import { worksheetService } from '../../src/services/worksheetService';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { ActivityType } from '../../src/types';
+import { ShareModal } from '../../src/components/ShareModal';
 
 type TabType = 'onizleme' | 'cevap-anahtari';
 
@@ -297,8 +298,110 @@ ${aktifSinav.cevapAnahtari.sorular
     };
   };
 
-  const handleSaveExam = () => showSuccess('Sınav kaydedildi! (Geliştirme aşamasında)');
-  const handleShareExam = () => showSuccess('Paylaşım özelliği yakında!');
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+
+  // ─── Arşive Kaydet ────────────────────────────────────────────────────────
+  const handleSaveExam = async () => {
+    if (!aktifSinav) {
+      setError('Lütfen önce bir sınav oluşturun.');
+      return;
+    }
+    try {
+      const user = useAuthStore.getState().user;
+      if (!user) {
+        setError('Lütfen giriş yapın.');
+        return;
+      }
+
+      const worksheetData = {
+        title: aktifSinav.baslik || 'Türkçe Sınavı',
+        instruction: 'Soruları dikkatlice okuyunuz ve en doğru cevabı veriniz.',
+        activityType: ActivityType.SINAV,
+        data: [aktifSinav],
+        settings: {
+          fontSize: printConfig.fontSize,
+          fontFamily: printConfig.fontFamily,
+          marginMm: printConfig.marginMm,
+          columns: printConfig.columns,
+          lineHeight: printConfig.lineHeight,
+          textAlign: printConfig.textAlign,
+          questionSpacingMm: printConfig.questionSpacingMm,
+          difficulty: 'Orta' as const,
+        },
+      };
+
+      await worksheetService.saveWorksheet(
+        user.id,
+        aktifSinav.baslik || 'Türkçe Sınavı',
+        ActivityType.SINAV,
+        [worksheetData],
+        'fa-solid fa-file-lines',
+        { id: 'turkce', title: 'Türkçe' },
+        {
+          fontSize: printConfig.fontSize,
+          fontFamily: printConfig.fontFamily,
+          margin: printConfig.marginMm,
+          columns: printConfig.columns,
+          lineHeight: printConfig.lineHeight,
+          contentAlign: printConfig.textAlign,
+        } as any
+      );
+
+      showSuccess('✅ Sınav arşive kaydedildi!');
+    } catch (err: any) {
+      console.error('Arşiv kayıt hatası:', err);
+      setError(`Kaydetme hatası: ${err.message || 'Bilinmeyen hata'}`);
+    }
+  };
+
+  // ─── Paylaşım (Kişiler + Link + Sosyal Medya) ─────────────────────────────
+  const handleShareExam = async (receiverIds: string[]) => {
+    if (!aktifSinav) return;
+    try {
+      setIsSharing(true);
+      const user = useAuthStore.getState().user;
+      if (!user) {
+        setError('Lütfen giriş yapın.');
+        return;
+      }
+
+      if (receiverIds.length > 0) {
+        const shareData = {
+          examId: aktifSinav.id || Date.now().toString(),
+          title: aktifSinav.baslik,
+          senderId: user.id,
+          senderName: user.name,
+          data: aktifSinav,
+          sharedAt: new Date().toISOString(),
+        };
+
+        for (const receiverId of receiverIds) {
+          try {
+            await fetch('/api/share/exam', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+              },
+              body: JSON.stringify({ ...shareData, receiverId }),
+            });
+          } catch {
+            const existingShares = JSON.parse(localStorage.getItem('shared_exams') || '[]');
+            existingShares.push({ ...shareData, receiverId });
+            localStorage.setItem('shared_exams', JSON.stringify(existingShares));
+          }
+        }
+      }
+
+      setIsShareModalOpen(false);
+      showSuccess('✅ Paylaşım başarıyla gönderildi!');
+    } catch (err: any) {
+      setError(`Paylaşım hatası: ${err.message || 'Bilinmeyen hata'}`);
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   // Workbook Integration — Tek Tıkla Kaydet
   const handleAddToWorkbook = async () => {
@@ -638,32 +741,22 @@ ${aktifSinav.cevapAnahtari.sorular
             </div>
 
             <div className="flex gap-2 flex-wrap">
-              {[
-                {
-                  label: 'Kaydet',
-                  icon: '💾',
-                  fn: handleSaveExam,
-                  loading: false,
-                  color: 'hover:bg-indigo-600',
-                },
-                {
-                  label: 'Paylaş',
-                  icon: '🔗',
-                  fn: handleShareExam,
-                  loading: false,
-                  color: 'hover:bg-purple-600',
-                },
-              ].map(({ label, icon, fn, color }) => (
-                <button
-                  key={label}
-                  onClick={fn}
-                  disabled={!aktifSinav}
-                  className={`toolbar-btn bg-white/80 border-2 border-white text-slate-600 ${color} hover:text-white shadow-sm hover:shadow-lg backdrop-blur-md hover:translate-y-[-2px]`}
-                >
-                  <span className="text-base">{icon}</span>
-                  <span className="hidden lg:inline">{label}</span>
-                </button>
-              ))}
+              <button
+                onClick={handleSaveExam}
+                disabled={!aktifSinav}
+                className={`toolbar-btn bg-white/80 border-2 border-white text-slate-600 hover:bg-indigo-600 hover:text-white shadow-sm hover:shadow-lg backdrop-blur-md hover:translate-y-[-2px]`}
+              >
+                <span className="text-base">💾</span>
+                <span className="hidden lg:inline">Kaydet</span>
+              </button>
+              <button
+                onClick={() => aktifSinav && setIsShareModalOpen(true)}
+                disabled={!aktifSinav}
+                className={`toolbar-btn bg-white/80 border-2 border-white text-slate-600 hover:bg-purple-600 hover:text-white shadow-sm hover:shadow-lg backdrop-blur-md hover:translate-y-[-2px]`}
+              >
+                <span className="text-base">🔗</span>
+                <span className="hidden lg:inline">Paylaş</span>
+              </button>
               <button
                 onClick={handleAddToWorkbook}
                 disabled={!aktifSinav || isSavingToWorkbook}
@@ -930,6 +1023,16 @@ ${aktifSinav.cevapAnahtari.sorular
           </div>
         </div>
       </div>
+
+      {/* Paylaşım Modalı */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        onShare={handleShareExam}
+        worksheetId={aktifSinav?.id || ''}
+        worksheetTitle={aktifSinav?.baslik || 'Türkçe Sınavı'}
+        isSending={isSharing}
+      />
 
       <style>{`
         .toolbar-btn {
