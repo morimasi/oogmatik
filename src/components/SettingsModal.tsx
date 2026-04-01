@@ -144,9 +144,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-2 sm:p-6 animate-in fade-in duration-300">
       {/* Container Wrapper: Max width and height with scrolling enabled */}
-      <div className="bg-white dark:bg-[#121214] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.3)] w-full max-w-5xl h-full max-h-[95vh] flex flex-col md:flex-row overflow-hidden border border-zinc-200 dark:border-zinc-800/60 transform transition-all">
+      <div className="bg-white dark:bg-[var(--bg-secondary)] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.3)] w-full max-w-5xl h-full max-h-[95vh] flex flex-col md:flex-row overflow-hidden border border-zinc-200 dark:border-zinc-800/60 transform transition-all">
         {/* SOL PANEL: Navigasyon (Sabit genişlik, taşma durumunda kayar) */}
-        <div className="w-full md:w-72 bg-zinc-50 dark:bg-[#0a0a0c] border-r border-zinc-200 dark:border-zinc-800/60 flex flex-col shrink-0 h-full max-h-[20vh] md:max-h-full overflow-y-auto">
+        <div className="w-full md:w-72 bg-zinc-50 dark:bg-[var(--bg-inset)] border-r border-zinc-200 dark:border-zinc-800/60 flex flex-col shrink-0 h-full max-h-[20vh] md:max-h-full overflow-y-auto">
           <div className="p-6 border-b border-zinc-200 dark:border-zinc-800/60 shrink-0">
             <h2 className="text-xl font-black text-zinc-800 dark:text-zinc-100 flex items-center gap-3 tracking-tight">
               <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
@@ -197,7 +197,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* SAĞ PANEL: İçerik (Kayar alan) */}
-        <div className="flex-1 flex flex-col bg-white dark:bg-[#121214] min-w-0 relative h-full">
+        <div className="flex-1 flex flex-col bg-white dark:bg-[var(--bg-secondary)] min-w-0 relative h-full">
           {/* Header (Mobil Kapatma) */}
           <div className="absolute top-4 right-4 z-10 md:hidden">
             <button

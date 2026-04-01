@@ -377,9 +377,9 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#09090b] overflow-hidden text-zinc-100 absolute inset-0 z-50">
+    <div className="h-full flex flex-col bg-[var(--bg-primary)] overflow-hidden text-zinc-100 absolute inset-0 z-50">
       {/* Header */}
-      <header className="h-16 bg-[#121214] border-b border-zinc-800 flex justify-between items-center px-6 shrink-0 z-50">
+      <header className="h-16 bg-[var(--bg-secondary)] border-b border-zinc-800 flex justify-between items-center px-6 shrink-0 z-50">
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
@@ -495,8 +495,8 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         </aside>
 
         {/* Main Canvas Area */}
-        <main className="flex-1 bg-[#09090b] overflow-auto p-12 custom-scrollbar flex flex-col items-center relative">
-          <div className="flex gap-4 mb-8 bg-[#121214]/80 backdrop-blur-xl p-2 rounded-2xl border border-zinc-800 shadow-2xl sticky top-0 z-30">
+        <main className="flex-1 bg-[var(--bg-primary)] overflow-auto p-12 custom-scrollbar flex flex-col items-center relative">
+          <div className="flex gap-4 mb-8 bg-[var(--bg-secondary)]/80 backdrop-blur-xl p-2 rounded-2xl border border-zinc-800 shadow-2xl sticky top-0 z-30">
             <div className="flex items-center gap-4 px-4">
               <button
                 onClick={() => setCanvasScale(Math.max(0.5, canvasScale - 0.1))}

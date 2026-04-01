@@ -140,7 +140,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
       : Math.max(1, problem.generatedProblems.length > 0 ? 1 : 0);
 
   return (
-    <div className="h-full flex flex-col bg-[#121212] text-white overflow-hidden font-sans absolute inset-0 z-50">
+    <div className="h-full flex flex-col bg-[var(--bg-primary)] text-white overflow-hidden font-sans absolute inset-0 z-50">
       {/* HEADER */}
       <MathHeader
         mode={mode}
@@ -199,7 +199,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
 
         {/* MAIN CANVAS */}
         <div
-          className="flex-1 bg-[#09090b] relative overflow-auto flex flex-col items-center p-8 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] custom-scrollbar gap-8"
+          className="flex-1 bg-[var(--bg-secondary)] relative overflow-auto flex flex-col items-center p-8 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] custom-scrollbar gap-8"
           id="math-canvas-container"
         >
           {mode === 'drill' && (
