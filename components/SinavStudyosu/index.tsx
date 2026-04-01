@@ -431,29 +431,49 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
 
           </div>
 
-          {/* Sticky Oluştur Butonu */}
-          <div className="flex-none p-5 bg-white/60 backdrop-blur-2xl border-t border-white/40 z-30">
+          {/* AI Sihirbazı & Oluştur Butonu - Oogmatik Premium Style */}
+          <div className="flex-none p-5 bg-white/60 backdrop-blur-2xl border-t border-white/40 z-30 relative">
             <button
               onClick={handleGenerateExam}
               disabled={!canGenerate() || isGenerating}
-              className={`relative w-full py-4.5 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-xl ${canGenerate() && !isGenerating ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200 hover:translate-y-[-4px] active:scale-95 active:translate-y-0' : 'bg-slate-200/50 cursor-not-allowed text-slate-400 shadow-none'}`}
+              className={`relative w-full py-5 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-2xl ${canGenerate() && !isGenerating ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-indigo-300/50 hover:translate-y-[-4px] active:scale-95 active:translate-y-0' : 'bg-slate-200/50 cursor-not-allowed text-slate-400 shadow-none'}`}
             >
+              {/* Animated Shine Effect */}
               {canGenerate() && !isGenerating && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-indigo-400/20 to-purple-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </>
               )}
+
               {isGenerating ? (
-                <><svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>AI Motoru Üretiyor...</>
+                <div className="flex items-center gap-3">
+                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span className="animate-pulse">AI Motoru Üretiyor...</span>
+                </div>
               ) : (
-                <>Sınavı Oluştur <i className="fa-solid fa-sparkles text-xs opacity-70 animate-pulse"></i></>
+                <>
+                  <span className="text-lg">✨</span>
+                  <span className="uppercase tracking-widest">Sınavı Oluştur</span>
+                  <i className="fa-solid fa-chevron-right text-[10px] opacity-70 group-hover:translate-x-1 transition-transform"></i>
+                </>
               )}
             </button>
-            {!canGenerate() && !isGenerating && (
-              <div className="mt-4 p-3 bg-slate-50/50 rounded-xl border border-white/40">
-                <p className="text-[10px] text-slate-400 text-center font-bold uppercase tracking-widest leading-relaxed">
-                  {ayarlar.sinif === null ? 'Sınıf seçimi bekleniyor' : kazanimCount === 0 ? 'Kazanım haritası tamamlanmalı' : toplamSoru < 4 ? `Hedef: En az 4 soru (${4 - toplamSoru} eksik)` : ''}
-                </p>
+
+            {/* Requirement Checklist Helper */}
+            <div className="mt-4 grid grid-cols-2 gap-1.5">
+              <div className={`flex items-center gap-1.5 text-[9px] font-bold px-2 py-1.5 rounded-lg border transition-all ${ayarlar.sinif !== null ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100 opacity-50'}`}>
+                <i className={`fa-solid ${ayarlar.sinif !== null ? 'fa-check-circle' : 'fa-circle'}`}></i>
+                <span>SINIF SEÇİMİ</span>
               </div>
-            )}
+              <div className={`flex items-center gap-1.5 text-[9px] font-bold px-2 py-1.5 rounded-lg border transition-all ${kazanimCount > 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100 opacity-50'}`}>
+                <i className={`fa-solid ${kazanimCount > 0 ? 'fa-check-circle' : 'fa-circle'}`}></i>
+                <span>KAZANIMLAR</span>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -576,11 +596,41 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                   <div className="w-32 h-32 bg-white/40 backdrop-blur-xl rounded-full flex items-center justify-center shadow-xl border border-white/60 group">
                     <span className="text-6xl opacity-30 group-hover:scale-110 transition-transform duration-500">📝</span>
                   </div>
-                  <div className="text-center">
-                    <p className="text-lg font-black text-slate-400 tracking-tight">Önizleme Alanı</p>
-                    <p className="text-sm text-slate-400 mt-2 font-medium">
-                      Sol panelden ayarları yapın ve <strong className="text-indigo-500">Sınavı Oluştur</strong>'a basın.
+                  <div className="text-center group">
+                    <p className="text-lg font-black text-slate-400 tracking-tight transition-colors group-hover:text-indigo-500">Önizleme Alanı</p>
+                    <p className="text-sm text-slate-400 mt-2 font-medium max-w-xs mx-auto leading-relaxed">
+                      Lütfen sol panelden sınıf ve kazanımları seçin, ardından sınavınızı üretin.
                     </p>
+
+                    <div className="mt-8 flex flex-col items-center gap-4">
+                      <button
+                        onClick={handleGenerateExam}
+                        disabled={!canGenerate() || isGenerating}
+                        className={`px-8 py-4 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center gap-3 shadow-2xl ${canGenerate() && !isGenerating ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:scale-105 hover:shadow-indigo-300' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}`}
+                      >
+                        {isGenerating ? (
+                          <>
+                            <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                            <span>AI Üretiyor...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-xl">✨</span>
+                            <span>YAPAY ZEKA İLE ŞİMDİ ÜRET</span>
+                          </>
+                        )}
+                      </button>
+
+                      {!canGenerate() && (
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-rose-500 uppercase tracking-widest bg-rose-50 px-4 py-2 rounded-full border border-rose-100">
+                          <i className="fa-solid fa-circle-exclamation animate-pulse"></i>
+                          <span>Henüz Sınıf/Kazanım Seçilmedi</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
