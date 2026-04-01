@@ -109,7 +109,9 @@ const FmtBtn: React.FC<{
   </button>
 );
 
-export const SinavStudyosu: React.FC = () => {
+export const SinavStudyosu: React.FC<{ onAddToWorkbook?: (data: any) => void }> = ({
+  onAddToWorkbook,
+}) => {
   const {
     ayarlar,
     setSinif,
@@ -456,7 +458,11 @@ ${aktifSinav.cevapAnahtari.sorular
         } as any
       );
 
-      showSuccess('✅ Sınav "Çalışma Kitapçığı" veri tabanına kaydedildi!');
+      if (onAddToWorkbook) {
+        onAddToWorkbook(worksheetData);
+      }
+
+      showSuccess('✅ Sınav "Çalışma Kitapçığı"na eklendi!');
     } catch (err: any) {
       console.error('Workbook kayıt hatası:', err);
       setError(`Kaydetme hatası: ${err.message || 'Bilinmeyen hata'}`);

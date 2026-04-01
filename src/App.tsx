@@ -523,26 +523,47 @@ const AppContent = () => {
     }
 
     // SINAV tipi için özel yönlendirme - doğru stüdyoda aç
-    if (item.activityType === ActivityType.SINAV) {
+    if (item.activityType === ActivityType.SINAV || item.activityType === 'SINAV') {
       const sinavData = item.worksheetData?.[0]?.data?.[0] || item.worksheetData?.[0];
       if (sinavData) {
         import('./store/useSinavStore').then((mod) => {
           mod.useSinavStore.getState().setAktifSinav(sinavData);
         });
-        setCurrentView('sinav-studyosu');
+        navigateTo('sinav-studyosu');
       }
       return;
     }
 
     // MAT_SINAV tipi için özel yönlendirme - doğru stüdyoda aç
-    if (item.activityType === ActivityType.MAT_SINAV) {
+    if (item.activityType === ActivityType.MAT_SINAV || item.activityType === 'MAT_SINAV') {
       const matSinavData = item.worksheetData?.[0]?.data?.[0] || item.worksheetData?.[0];
       if (matSinavData) {
         import('./store/useMatSinavStore').then((mod) => {
           mod.useMatSinavStore.getState().setAktifSinav(matSinavData);
         });
-        setCurrentView('mat-sinav-studyosu');
+        navigateTo('mat-sinav-studyosu');
       }
+      return;
+    }
+
+    // Diğer özel modüller için yönlendirme
+    if (item.activityType === 'MATH_STUDIO' || item.activityType === ActivityType.MATH_STUDIO) {
+      navigateTo('math-studio');
+      return;
+    }
+    if (item.activityType === 'READING_STUDIO') {
+      navigateTo('reading-studio');
+      return;
+    }
+    if (
+      item.activityType === ActivityType.SUPER_TURKCE_MATCHING ||
+      item.activityType === ActivityType.SUPER_TURKCE_V2
+    ) {
+      navigateTo('super-turkce');
+      return;
+    }
+    if (item.activityType?.includes('INFOGRAPHIC')) {
+      navigateTo('infographic-studio');
       return;
     }
 
@@ -1089,7 +1110,9 @@ const AppContent = () => {
         {currentView === 'sinav-studyosu' && (
           <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
             <Suspense fallback={<LoadingSpinner />}>
-              <SinavStudyosu />
+              <SinavStudyosu
+                onAddToWorkbook={(data) => handleAddToWorkbookGeneral(ActivityType.SINAV, data)}
+              />
             </Suspense>
           </div>
         )}
@@ -1097,7 +1120,9 @@ const AppContent = () => {
         {currentView === 'mat-sinav-studyosu' && (
           <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-hidden">
             <Suspense fallback={<LoadingSpinner />}>
-              <MatSinavStudyosu />
+              <MatSinavStudyosu
+                onAddToWorkbook={(data) => handleAddToWorkbookGeneral(ActivityType.MAT_SINAV, data)}
+              />
             </Suspense>
           </div>
         )}

@@ -94,7 +94,9 @@ const SectionHeader: React.FC<{
   </button>
 );
 
-export const MatSinavStudyosu: React.FC = () => {
+export const MatSinavStudyosu: React.FC<{ onAddToWorkbook?: (data: any) => void }> = ({
+  onAddToWorkbook,
+}) => {
   const {
     ayarlar,
     setSinif,
@@ -337,7 +339,7 @@ ${aktifSinav.cevapAnahtari.sorular
       await worksheetService.saveWorksheet(
         user.id,
         aktifSinav.baslik || 'Matematik Sınavı',
-        ActivityType.SINAV,
+        ActivityType.MAT_SINAV,
         [worksheetData],
         'fa-solid fa-square-root-variable',
         { id: 'matematik', title: 'Matematik' }, // Kategori: Matematik
@@ -351,7 +353,11 @@ ${aktifSinav.cevapAnahtari.sorular
         } as any
       );
 
-      showSuccess('✅ Sınav "Çalışma Kitapçığı" veri tabanına kaydedildi!');
+      if (onAddToWorkbook) {
+        onAddToWorkbook(worksheetData);
+      }
+
+      showSuccess('✅ Sınav "Çalışma Kitapçığı"na eklendi!');
     } catch (err: any) {
       console.error('Workbook kayıt hatası:', err);
       setError(`Kaydetme hatası: ${err.message || 'Bilinmeyen hata'}`);
