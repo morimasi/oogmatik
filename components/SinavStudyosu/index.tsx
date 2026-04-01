@@ -30,29 +30,29 @@ const SectionHeader: React.FC<{
 }> = ({ icon, title, badge, isOpen, onToggle }) => (
   <button
     onClick={onToggle}
-    className="w-full flex items-center justify-between px-5 py-4 bg-transparent hover:bg-indigo-50/30 transition-all duration-300 group rounded-xl"
+    className="w-full flex items-center justify-between px-5 py-4 bg-transparent hover:bg-[var(--surface-glass)] transition-all duration-300 group rounded-xl"
   >
     <div className="flex items-center gap-3">
       <div
-        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 rotate-6' : 'bg-slate-100/80 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-600 group-hover:rotate-3'}`}
+        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-[var(--accent-color)] text-[var(--bg-primary)] shadow-sm rotate-6' : 'bg-[var(--surface-elevated)] text-[var(--text-muted)] group-hover:bg-[var(--accent-muted)] group-hover:text-[var(--accent-color)] group-hover:rotate-3'}`}
       >
         <span className="text-lg">{icon}</span>
       </div>
-      <div className="flex flex-col items-start">
+      <div className="flex flex-col items-start text-left">
         <span
-          className={`text-[13px] font-bold tracking-tight transition-colors ${isOpen ? 'text-indigo-900' : 'text-slate-600 group-hover:text-indigo-700'}`}
+          className={`text-[13px] font-bold tracking-tight transition-colors ${isOpen ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] group-hover:text-[var(--accent-color)]'}`}
         >
           {title}
         </span>
         {badge && (
-          <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mt-0.5">
+          <span className="text-[9px] font-bold text-[var(--accent-color)] uppercase tracking-widest mt-0.5">
             {badge}
           </span>
         )}
       </div>
     </div>
     <span
-      className={`text-slate-400 transition-all duration-500 ${isOpen ? 'rotate-180 text-indigo-600' : 'group-hover:text-indigo-400'}`}
+      className={`transition-all duration-500 ${isOpen ? 'rotate-180 text-[var(--accent-color)]' : 'text-[var(--text-muted)] group-hover:text-[var(--accent-color)]'}`}
     >
       <svg
         width="16"
@@ -381,35 +381,41 @@ ${aktifSinav.cevapAnahtari.sorular
       </div>
 
       {/* Header */}
-      <div className="flex-none px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-secondary)] flex items-center justify-between gap-4 z-50">
+      <div className="flex-none px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-paper)]/80 backdrop-blur-md flex items-center justify-between gap-4 z-[90]">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-[var(--accent-color)] rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 bg-[var(--accent-color)] rounded-2xl flex items-center justify-center shadow-lg text-white">
             <span className="text-xl">📝</span>
           </div>
           <div>
-            <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none">
+            <h1 className="text-lg font-black text-[var(--text-primary)] tracking-tight leading-none">
               Sınav Stüdyosu
             </h1>
-            <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest mt-1 opacity-80">
+            <p className="text-[10px] text-[var(--accent-color)] font-bold uppercase tracking-widest mt-1 opacity-80">
               MEB 2024-2025 · AI Destekli
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {ayarlar.sinif && (
-            <div className="px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-100/50 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-              <span className="text-[11px] font-bold text-indigo-700">{ayarlar.sinif}. Sınıf</span>
+            <div className="px-3 py-1.5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-color)] flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)] animate-pulse" />
+              <span className="text-[11px] font-bold text-[var(--text-primary)]">
+                {ayarlar.sinif}. Sınıf
+              </span>
             </div>
           )}
           {kazanimCount > 0 && (
-            <div className="px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-100/50 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-              <span className="text-[11px] font-bold text-purple-700">{kazanimCount} Kazanım</span>
+            <div className="px-3 py-1.5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-color)] flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)] animate-pulse" />
+              <span className="text-[11px] font-bold text-[var(--text-primary)]">
+                {kazanimCount} Kazanım
+              </span>
             </div>
           )}
-          <div className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200/50 flex items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-600">{toplamSoru} Soru</span>
+          <div className="px-3 py-1.5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-color)] flex items-center gap-2">
+            <span className="text-[11px] font-bold text-[var(--text-secondary)]">
+              {toplamSoru} Soru
+            </span>
           </div>
         </div>
       </div>
@@ -417,10 +423,10 @@ ${aktifSinav.cevapAnahtari.sorular
       {/* Ana Grid */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 overflow-hidden min-h-0">
         {/* SOL PANEL (SaaS Premium Sidebar) */}
-        <div className="lg:col-span-3 flex flex-col bg-white/40 backdrop-blur-3xl border-r border-white/40 shadow-[20px_0_40px_-20px_rgba(0,0,0,0.05)] z-20 overflow-hidden">
+        <div className="lg:col-span-3 flex flex-col glass-panel border-r border-[var(--border-color)] z-20 overflow-hidden bg-[var(--bg-paper)]/40">
           <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
             {/* Sınıf Seçimi */}
-            <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
+            <div className="bg-[var(--bg-paper)]/60 backdrop-blur-md rounded-2xl border border-[var(--border-color)] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
               <SectionHeader
                 icon="🏫"
                 title="Sınıf Seçimi"
@@ -432,13 +438,13 @@ ${aktifSinav.cevapAnahtari.sorular
                 className={`transition-all duration-500 ease-in-out ${openSections.sinif ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}
               >
                 <div className="px-5 pb-5 pt-1">
-                  <div className="bg-slate-100/50 p-2 rounded-2xl border border-white/40">
+                  <div className="bg-[var(--surface-elevated)] p-2 rounded-2xl border border-[var(--border-color)]">
                     <div className="grid grid-cols-4 gap-1.5">
                       {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
                         <button
                           key={g}
                           onClick={() => setSinif(g)}
-                          className={`py-3 rounded-xl text-xs font-black transition-all duration-300 ${ayarlar.sinif === g ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 scale-105 z-10' : 'text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm'}`}
+                          className={`py-3 rounded-xl text-xs font-black transition-all duration-300 ${ayarlar.sinif === g ? 'bg-[var(--accent-color)] text-[var(--bg-primary)] shadow-lg scale-105 z-10' : 'text-[var(--text-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--accent-color)] hover:shadow-sm'}`}
                         >
                           {g}.
                         </button>
@@ -450,7 +456,7 @@ ${aktifSinav.cevapAnahtari.sorular
             </div>
 
             {/* Kazanımlar */}
-            <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
+            <div className="bg-[var(--bg-paper)]/60 backdrop-blur-md rounded-2xl border border-[var(--border-color)] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
               <SectionHeader
                 icon="🎯"
                 title="Kazanımlar"
@@ -474,7 +480,7 @@ ${aktifSinav.cevapAnahtari.sorular
             </div>
 
             {/* Soru Ayarları */}
-            <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
+            <div className="bg-[var(--bg-paper)]/60 backdrop-blur-md rounded-2xl border border-[var(--border-color)] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
               <SectionHeader
                 icon="⚙️"
                 title="Soru Ayarları"
@@ -493,11 +499,11 @@ ${aktifSinav.cevapAnahtari.sorular
                       onOzelKonuChange={(k) => setAyarlar({ ozelKonu: k })}
                     />
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-slate-200/50 rounded-2xl bg-slate-50/50">
-                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3 text-2xl opacity-40">
+                    <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-[var(--border-color)] rounded-2xl bg-[var(--surface-elevated)]">
+                      <div className="w-12 h-12 rounded-full bg-[var(--bg-paper)] flex items-center justify-center mb-3 text-2xl opacity-40">
                         🎯
                       </div>
-                      <span className="text-[11px] font-bold text-slate-400 text-center px-4 uppercase tracking-wider leading-relaxed">
+                      <span className="text-[11px] font-bold text-[var(--text-muted)] text-center px-4 uppercase tracking-wider leading-relaxed">
                         Kazanım haritası tamamlandıktan sonra açılır
                       </span>
                     </div>
@@ -544,11 +550,11 @@ ${aktifSinav.cevapAnahtari.sorular
           </div>
 
           {/* AI Sihirbazı & Oluştur Butonu - Oogmatik Premium Style */}
-          <div className="flex-none p-5 bg-white/60 backdrop-blur-2xl border-t border-white/40 z-30 relative">
+          <div className="flex-none p-5 bg-[var(--bg-paper)]/60 backdrop-blur-2xl border-t border-[var(--border-color)] z-30 relative">
             <button
               onClick={handleGenerateExam}
               disabled={!canGenerate() || isGenerating}
-              className={`relative w-full py-5 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-2xl ${canGenerate() && !isGenerating ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-indigo-300/50 hover:translate-y-[-4px] active:scale-95 active:translate-y-0' : 'bg-slate-200/50 cursor-not-allowed text-slate-400 shadow-none'}`}
+              className={`relative w-full py-5 rounded-2xl font-black text-sm tracking-tight transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-2xl ${canGenerate() && !isGenerating ? 'bg-[var(--accent-color)] text-white hover:shadow-lg hover:translate-y-[-4px] active:scale-95 active:translate-y-0' : 'bg-[var(--surface-elevated)] cursor-not-allowed text-[var(--text-muted)] shadow-none'}`}
             >
               {/* Animated Shine Effect */}
               {canGenerate() && !isGenerating && (
@@ -589,7 +595,7 @@ ${aktifSinav.cevapAnahtari.sorular
             {/* Requirement Checklist Helper */}
             <div className="mt-4 grid grid-cols-2 gap-1.5">
               <div
-                className={`flex items-center gap-1.5 text-[9px] font-bold px-2 py-1.5 rounded-lg border transition-all ${ayarlar.sinif !== null ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100 opacity-50'}`}
+                className={`flex items-center gap-1.5 text-[9px] font-bold px-2 py-1.5 rounded-lg border transition-all ${ayarlar.sinif !== null ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-[var(--surface-elevated)] text-[var(--text-muted)] border-[var(--border-color)] opacity-50'}`}
               >
                 <i
                   className={`fa-solid ${ayarlar.sinif !== null ? 'fa-check-circle' : 'fa-circle'}`}
@@ -597,7 +603,7 @@ ${aktifSinav.cevapAnahtari.sorular
                 <span>SINIF SEÇİMİ</span>
               </div>
               <div
-                className={`flex items-center gap-1.5 text-[9px] font-bold px-2 py-1.5 rounded-lg border transition-all ${kazanimCount > 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100 opacity-50'}`}
+                className={`flex items-center gap-1.5 text-[9px] font-bold px-2 py-1.5 rounded-lg border transition-all ${kazanimCount > 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-[var(--surface-elevated)] text-[var(--text-muted)] border-[var(--border-color)] opacity-50'}`}
               >
                 <i className={`fa-solid ${kazanimCount > 0 ? 'fa-check-circle' : 'fa-circle'}`}></i>
                 <span>KAZANIMLAR</span>
