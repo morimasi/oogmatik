@@ -472,11 +472,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       )}
 
       {currentView === 'sinav-studyosu' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60]">
           <React.Suspense
             fallback={
               <div className="flex items-center justify-center h-full">
-                <i className="fa-solid fa-spinner fa-spin text-4xl text-amber-500"></i>
+                <i className="fa-solid fa-spinner fa-spin text-4xl text-indigo-500"></i>
               </div>
             }
           >
@@ -486,7 +486,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       )}
 
       {currentView === 'mat-sinav-studyosu' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60]">
           <React.Suspense
             fallback={
               <div className="flex items-center justify-center h-full">

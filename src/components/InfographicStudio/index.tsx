@@ -12,7 +12,11 @@ import { WORKSHEET_TEMPLATES_META, WORKSHEET_CATEGORIES } from './constants/work
 import { useToastStore } from '../../store/useToastStore';
 import { Sparkles, Loader2, Plus, X, PenTool, BarChart3 } from 'lucide-react';
 import { cn } from '../../utils/tailwindUtils';
-import type { WorksheetActivityData, WorksheetActivityCategory, WorksheetTemplateType } from '../../types/worksheetActivity';
+import type {
+  WorksheetActivityData,
+  WorksheetActivityCategory,
+  WorksheetTemplateType,
+} from '../../types/worksheetActivity';
 
 export interface AddedWidget {
   id: string;
@@ -36,7 +40,12 @@ export const InfographicStudio: React.FC = () => {
     handleModeChange,
   } = useInfographicStudio();
 
-  const { isGenerating: isInfographicGenerating, result: infographicResult, generate, enrichPrompt } = useInfographicGenerate();
+  const {
+    isGenerating: isInfographicGenerating,
+    result: infographicResult,
+    generate,
+    enrichPrompt,
+  } = useInfographicGenerate();
   const { handleExportToWorksheet, handleExportToPDF, handlePrint } = useInfographicExport();
 
   const [params, setParams] = useState<ParameterPanelState>({
@@ -60,13 +69,17 @@ export const InfographicStudio: React.FC = () => {
   const [wsShowAnswerKey, setWsShowAnswerKey] = useState(false);
   const { show } = useToastStore();
 
-  const currentTemplates = WORKSHEET_TEMPLATES_META.filter(t => t.categoryId === wsCategory);
+  const currentTemplates = WORKSHEET_TEMPLATES_META.filter((t) => t.categoryId === wsCategory);
 
   const handleWsGenerate = async () => {
     if (!wsSelectedTemplate) {
       show('Lütfen bir etkinlik şablonu seçin.', 'warning');
       return;
     }
+
+    const templateMeta = WORKSHEET_TEMPLATES_META.find((t) => t.id === wsSelectedTemplate);
+    const useAI = templateMeta?.supportsAI ?? false;
+
     setWsIsGenerating(true);
     setWsResult(null);
     try {
@@ -76,7 +89,7 @@ export const InfographicStudio: React.FC = () => {
         profile: 'general',
         difficulty: wsDifficulty,
         sectionCount: wsSectionCount,
-        mode: 'offline',
+        mode: useAI ? 'ai' : 'offline',
       });
       setWsResult(result);
       show('Etkinlik başarıyla üretildi!', 'success');
@@ -90,23 +103,23 @@ export const InfographicStudio: React.FC = () => {
 
   // ── İnfografik Yardımcıları (mevcut) ──
   const onAddWidget = (activityId: string) => {
-    setAddedWidgets(prev => [...prev, { id: Date.now().toString(), activityId }]);
-    setParams(prev => ({
+    setAddedWidgets((prev) => [...prev, { id: Date.now().toString(), activityId }]);
+    setParams((prev) => ({
       ...prev,
       topic: prev.topic
         ? `${prev.topic}\n+ ${activityId.replace(/_/g, ' ')} modülü eklendi.`
-        : `Bu kağıt şu modülleri içermelidir:\n- ${activityId.replace(/_/g, ' ')}`
+        : `Bu kağıt şu modülleri içermelidir:\n- ${activityId.replace(/_/g, ' ')}`,
     }));
   };
 
   const onRemoveWidget = (id: string) => {
-    setAddedWidgets(prev => prev.filter(w => w.id !== id));
+    setAddedWidgets((prev) => prev.filter((w) => w.id !== id));
   };
 
   const handleEnrichPrompt = async () => {
     const enriched = await enrichPrompt(params.topic);
     if (enriched && enriched !== params.topic) {
-      setParams(prev => ({ ...prev, topic: enriched }));
+      setParams((prev) => ({ ...prev, topic: enriched }));
     }
   };
 
@@ -115,7 +128,7 @@ export const InfographicStudio: React.FC = () => {
       generate(addedWidgets, mode, params.topic, {
         studentAge: params.ageGroup,
         difficulty: params.difficulty,
-        profile: params.profile
+        profile: params.profile,
       });
     }
   };
@@ -138,10 +151,10 @@ export const InfographicStudio: React.FC = () => {
           <button
             onClick={() => setActiveTab('worksheet')}
             className={cn(
-              "flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all",
+              'flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all',
               activeTab === 'worksheet'
-                ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg"
-                : "text-white/60 hover:text-white"
+                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+                : 'text-white/60 hover:text-white'
             )}
           >
             <PenTool className="w-3.5 h-3.5" />
@@ -150,10 +163,10 @@ export const InfographicStudio: React.FC = () => {
           <button
             onClick={() => setActiveTab('infographic')}
             className={cn(
-              "flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all",
+              'flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all',
               activeTab === 'infographic'
-                ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg"
-                : "text-white/60 hover:text-white"
+                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+                : 'text-white/60 hover:text-white'
             )}
           >
             <BarChart3 className="w-3.5 h-3.5" />
@@ -174,17 +187,22 @@ export const InfographicStudio: React.FC = () => {
               <div className="flex-1 overflow-y-auto scrollbar-thin pr-2">
                 {/* Kategoriler */}
                 <div className="mb-4">
-                  <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">Kategori</h3>
+                  <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">
+                    Kategori
+                  </h3>
                   <div className="space-y-1">
-                    {WORKSHEET_CATEGORIES.map(cat => (
+                    {WORKSHEET_CATEGORIES.map((cat) => (
                       <button
                         key={cat.id}
-                        onClick={() => { setWsCategory(cat.id); setWsSelectedTemplate(null); }}
+                        onClick={() => {
+                          setWsCategory(cat.id);
+                          setWsSelectedTemplate(null);
+                        }}
                         className={cn(
-                          "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all",
+                          'w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all',
                           wsCategory === cat.id
-                            ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40"
-                            : "text-white/60 hover:text-white hover:bg-white/5"
+                            ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'
+                            : 'text-white/60 hover:text-white hover:bg-white/5'
                         )}
                       >
                         {cat.label}
@@ -199,19 +217,21 @@ export const InfographicStudio: React.FC = () => {
                     Etkinlik Şablonları ({currentTemplates.length})
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
-                    {currentTemplates.map(tmpl => (
+                    {currentTemplates.map((tmpl) => (
                       <button
                         key={tmpl.id}
                         onClick={() => setWsSelectedTemplate(tmpl.id)}
                         className={cn(
-                          "flex flex-col items-center p-3 rounded-xl text-center transition-all border",
+                          'flex flex-col items-center p-3 rounded-xl text-center transition-all border',
                           wsSelectedTemplate === tmpl.id
-                            ? "bg-indigo-500/20 border-indigo-500/60 text-white shadow-lg shadow-indigo-500/10"
-                            : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20"
+                            ? 'bg-indigo-500/20 border-indigo-500/60 text-white shadow-lg shadow-indigo-500/10'
+                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20'
                         )}
                       >
                         <span className="text-lg mb-1">✏️</span>
-                        <span className="text-[11px] font-semibold leading-tight">{tmpl.title}</span>
+                        <span className="text-[11px] font-semibold leading-tight">
+                          {tmpl.title}
+                        </span>
                         <span className="text-[9px] text-white/40 mt-1">{tmpl.studentAction}</span>
                       </button>
                     ))}
@@ -224,7 +244,7 @@ export const InfographicStudio: React.FC = () => {
                     <label className="text-xs text-white/50 mb-1 block">Konu / Bağlam</label>
                     <textarea
                       value={wsTopic}
-                      onChange={e => setWsTopic(e.target.value)}
+                      onChange={(e) => setWsTopic(e.target.value)}
                       placeholder="Ör: Hayvanlar, Mevsimler, Toplama İşlemi..."
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 resize-none h-16 focus:outline-none focus:border-indigo-500/50"
                     />
@@ -234,7 +254,9 @@ export const InfographicStudio: React.FC = () => {
                       <label className="text-xs text-white/50 mb-1 block">Zorluk</label>
                       <select
                         value={wsDifficulty}
-                        onChange={e => setWsDifficulty(e.target.value as 'Kolay' | 'Orta' | 'Zor')}
+                        onChange={(e) =>
+                          setWsDifficulty(e.target.value as 'Kolay' | 'Orta' | 'Zor')
+                        }
                         className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none"
                       >
                         <option value="Kolay">Kolay</option>
@@ -246,7 +268,9 @@ export const InfographicStudio: React.FC = () => {
                       <label className="text-xs text-white/50 mb-1 block">Yaş Grubu</label>
                       <select
                         value={wsAgeGroup}
-                        onChange={e => setWsAgeGroup(e.target.value as '5-7' | '8-10' | '11-13' | '14+')}
+                        onChange={(e) =>
+                          setWsAgeGroup(e.target.value as '5-7' | '8-10' | '11-13' | '14+')
+                        }
                         className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none"
                       >
                         <option value="5-7">5-7 yaş</option>
@@ -257,13 +281,15 @@ export const InfographicStudio: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-white/50 mb-1 block">Soru Sayısı: {wsSectionCount}</label>
+                    <label className="text-xs text-white/50 mb-1 block">
+                      Soru Sayısı: {wsSectionCount}
+                    </label>
                     <input
                       type="range"
                       min={2}
                       max={12}
                       value={wsSectionCount}
-                      onChange={e => setWsSectionCount(Number(e.target.value))}
+                      onChange={(e) => setWsSectionCount(Number(e.target.value))}
                       className="w-full accent-indigo-500"
                     />
                   </div>
@@ -276,10 +302,10 @@ export const InfographicStudio: React.FC = () => {
                   onClick={handleWsGenerate}
                   disabled={!wsSelectedTemplate || wsIsGenerating}
                   className={cn(
-                    "w-full flex items-center justify-center space-x-2 py-3 rounded-xl text-sm font-semibold transition-all shadow-lg",
+                    'w-full flex items-center justify-center space-x-2 py-3 rounded-xl text-sm font-semibold transition-all shadow-lg',
                     wsSelectedTemplate && !wsIsGenerating
-                      ? "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white shadow-indigo-500/25"
-                      : "bg-white/5 text-white/40 cursor-not-allowed"
+                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white shadow-indigo-500/25'
+                      : 'bg-white/5 text-white/40 cursor-not-allowed'
                   )}
                 >
                   {wsIsGenerating ? (
@@ -314,8 +340,13 @@ export const InfographicStudio: React.FC = () => {
                     <PenTool className="w-16 h-16 opacity-30" />
                     <div>
                       <p className="text-lg font-semibold">Etkinlik Oluşturucu Stüdyosu</p>
-                      <p className="text-sm mt-1">Soldaki menüden bir kategori ve şablon seçin, ardından "Etkinlik Üret" butonuna tıklayın.</p>
-                      <p className="text-xs mt-3 text-white/20">Öğrencilerin kalemle yazıp çizeceği çalışma kağıtları üretin</p>
+                      <p className="text-sm mt-1">
+                        Soldaki menüden bir kategori ve şablon seçin, ardından "Etkinlik Üret"
+                        butonuna tıklayın.
+                      </p>
+                      <p className="text-xs mt-3 text-white/20">
+                        Öğrencilerin kalemle yazıp çizeceği çalışma kağıtları üretin
+                      </p>
                     </div>
                   </div>
                 )}
@@ -327,10 +358,10 @@ export const InfographicStudio: React.FC = () => {
                   <button
                     onClick={() => setWsShowAnswerKey(!wsShowAnswerKey)}
                     className={cn(
-                      "px-4 py-1.5 rounded-full text-xs font-medium transition-all border",
+                      'px-4 py-1.5 rounded-full text-xs font-medium transition-all border',
                       wsShowAnswerKey
-                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                        : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10'
                     )}
                   >
                     🔑 {wsShowAnswerKey ? 'Cevapları Gizle' : 'Cevap Anahtarı'}
@@ -342,7 +373,10 @@ export const InfographicStudio: React.FC = () => {
                     🖨️ Yazdır
                   </button>
                   <button
-                    onClick={() => { setWsResult(null); setWsSelectedTemplate(null); }}
+                    onClick={() => {
+                      setWsResult(null);
+                      setWsSelectedTemplate(null);
+                    }}
                     className="px-4 py-1.5 rounded-full text-xs font-medium bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 transition-all"
                   >
                     🔄 Yeni Etkinlik
@@ -362,7 +396,10 @@ export const InfographicStudio: React.FC = () => {
                   <h4 className="text-xs font-semibold text-white/50 mb-2">Hedef Beceriler</h4>
                   <div className="flex flex-wrap gap-1">
                     {wsResult.targetSkills.map((skill, i) => (
-                      <span key={i} className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-medium">
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-medium"
+                      >
                         {skill}
                       </span>
                     ))}
@@ -400,10 +437,7 @@ export const InfographicStudio: React.FC = () => {
               onRemoveWidget={onRemoveWidget}
               onEnrichPrompt={handleEnrichPrompt}
             />
-            <CenterPanel
-              result={infographicResult}
-              isGenerating={isInfographicGenerating}
-            />
+            <CenterPanel result={infographicResult} isGenerating={isInfographicGenerating} />
             <RightPanel
               result={infographicResult}
               onExportWorksheet={() => handleExportToWorksheet(infographicResult as never)}
@@ -417,18 +451,21 @@ export const InfographicStudio: React.FC = () => {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        Authorization: `Bearer ${token}`,
                       },
                       body: JSON.stringify({
                         name: infographicResult.title || 'Premium Worksheet',
                         activityType: 'COMPOSITE_WORKSHEET',
                         category: infographicResult.topic || 'Genel',
-                        data: { ...infographicResult, status: 'pending_approval' }
-                      })
+                        data: { ...infographicResult, status: 'pending_approval' },
+                      }),
                     });
                     if (!response.ok) {
                       const errJson = await response.json().catch(() => ({}));
-                      throw new Error((errJson as Record<string, Record<string, string>>).error?.message || 'Kaydetme hatası');
+                      throw new Error(
+                        (errJson as Record<string, Record<string, string>>).error?.message ||
+                          'Kaydetme hatası'
+                      );
                     }
                     alert('Başarılı! Çalışma kağıdı klinik kurula (Admin onayına) gönderildi.');
                   } catch (err: unknown) {
