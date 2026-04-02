@@ -35,6 +35,7 @@ export const MantikMuhakemeSettingsPanel: React.FC<
               onChange({ matrixSize: e.target.value as MantikMuhakemeSettings['matrixSize'] })
             }
             className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent outline-none"
+          >
             <option value="3x4">3×4</option>
             <option value="4x4">4×4</option>
             <option value="5x5">5×5</option>
