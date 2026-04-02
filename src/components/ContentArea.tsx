@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { memo, useState, useRef, useEffect, _useCallback } from 'react';
+import React, { memo, useState, useRef, useEffect, useCallback } from 'react';
 import {
   ActivityType,
   WorksheetData,
@@ -271,7 +271,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     <main className="flex-1 flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       {/* TOOLBAR */}
       <div
-        className={`shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 z-20 shadow-sm relative transition-all duration-300 ${zenMode ? 'hidden' : ''}`}
+        className={`shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 z-40 shadow-sm relative transition-all duration-300 ${zenMode ? 'hidden' : ''}`}
       >
         <div className="flex justify-between items-center mb-4">
           <nav className="flex items-center text-sm text-[var(--text-secondary)]">

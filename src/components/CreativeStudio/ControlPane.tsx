@@ -41,7 +41,7 @@ interface ParameterGroupProps {
 const ParameterGroup = ({ label, icon, children, description }: ParameterGroupProps) => (
     <div className="space-y-3 p-5 bg-black/20 rounded-[2rem] border border-white/5 shadow-inner">
         <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+            <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center text-accent/70">
                 <i className={`fa-solid ${icon} text-xs`}></i>
             </div>
             <div>
@@ -62,11 +62,13 @@ interface SegmentButtonProps {
     color?: string;
 }
 
-const SegmentButton = ({ active, onClick, label, color = "indigo" }: SegmentButtonProps) => (
+const SegmentButton = ({ active, onClick, label, color = "accent" }: SegmentButtonProps) => (
     <button
         onClick={onClick}
         className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all duration-300 ${active
-            ? `bg-${color}-600 text-white shadow-lg shadow-${color}-600/20 scale-[1.02]`
+            ? color === 'accent'
+                ? 'bg-accent text-white shadow-lg shadow-accent/20 scale-[1.02]'
+                : `bg-${color}-600 text-white shadow-lg shadow-${color}-600/20 scale-[1.02]`
             : 'text-zinc-500 hover:text-zinc-300'
             }`}
     >
@@ -96,13 +98,13 @@ export const ControlPane: React.FC<ControlPaneProps> = ({
 
             {/* Sekme Geçişleri */}
             <div className="flex gap-1 mb-6 bg-black/40 p-1 rounded-2xl border border-white/5">
-                <button onClick={() => setActiveSection('params')} className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all ${activeSection === 'params' ? 'bg-indigo-600 text-white' : 'text-zinc-500'}`}>
+                <button onClick={() => setActiveSection('params')} className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all ${activeSection === 'params' ? 'bg-accent text-white' : 'text-zinc-500'}`}>
                     <i className="fa-solid fa-sliders mr-1"></i>Parametreler
                 </button>
-                <button onClick={() => setActiveSection('profile')} className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all ${activeSection === 'profile' ? 'bg-indigo-600 text-white' : 'text-zinc-500'}`}>
+                <button onClick={() => setActiveSection('profile')} className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all ${activeSection === 'profile' ? 'bg-accent text-white' : 'text-zinc-500'}`}>
                     <i className="fa-solid fa-user-doctor mr-1"></i>Profil
                 </button>
-                <button onClick={() => setActiveSection('format')} className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all ${activeSection === 'format' ? 'bg-indigo-600 text-white' : 'text-zinc-500'}`}>
+                <button onClick={() => setActiveSection('format')} className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all ${activeSection === 'format' ? 'bg-accent text-white' : 'text-zinc-500'}`}>
                     <i className="fa-solid fa-palette mr-1"></i>Format
                 </button>
             </div>
@@ -112,7 +114,7 @@ export const ControlPane: React.FC<ControlPaneProps> = ({
                     {/* 1. Zorluk Seviyesi */}
                     <ParameterGroup label="Bilişsel Yük" icon="fa-brain" description="İçerik Karmaşıklığı">
                         <SegmentButton active={difficulty === 'Başlangıç'} onClick={() => setDifficulty('Başlangıç')} label="Kolay" color="emerald" />
-                        <SegmentButton active={difficulty === 'Orta'} onClick={() => setDifficulty('Orta')} label="Orta" color="indigo" />
+                        <SegmentButton active={difficulty === 'Orta'} onClick={() => setDifficulty('Orta')} label="Orta" color="accent" />
                         <SegmentButton active={difficulty === 'Zor'} onClick={() => setDifficulty('Zor')} label="Zor" color="rose" />
                     </ParameterGroup>
 
@@ -134,12 +136,12 @@ export const ControlPane: React.FC<ControlPaneProps> = ({
                     <div className="space-y-4 px-2">
                         <div className="flex justify-between items-center text-[10px] font-black text-zinc-500 uppercase tracking-widest">
                             <span>Soru Yoğunluğu</span>
-                            <span className="text-indigo-400 text-lg font-mono">{itemCount}</span>
+                            <span className="text-accent/70 text-lg font-mono">{itemCount}</span>
                         </div>
                         <input
                             type="range" min={2} max={30} value={itemCount}
                             onChange={e => setItemCount(Number(e.target.value))}
-                            className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                            className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent"
                         />
                     </div>
 
@@ -190,11 +192,11 @@ export const ControlPane: React.FC<ControlPaneProps> = ({
                     {(isProcessing || isAnalyzing) ? (
                         <div className="flex flex-col items-center gap-3 animate-in fade-in">
                             <div className="flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></div>
-                                <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></div>
+                                <div className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                <div className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></div>
+                                <div className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></div>
                             </div>
-                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] px-6 leading-tight">
+                            <p className="text-[10px] font-black text-accent/70 uppercase tracking-[0.2em] px-6 leading-tight">
                                 {isAnalyzing ? "REFERANS DNA ANALİZ EDİLİYOR..." : statusMessage}
                             </p>
                         </div>
@@ -210,8 +212,8 @@ export const ControlPane: React.FC<ControlPaneProps> = ({
                     disabled={isProcessing || isAnalyzing}
                     className="group relative w-full py-6 bg-white text-indigo-950 font-black rounded-3xl hover:scale-[1.02] active:scale-95 transition-all shadow-[0_20px_50px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3 text-base disabled:opacity-50 overflow-hidden"
                 >
-                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    {isProcessing ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles text-indigo-600"></i>}
+                    <div className="absolute inset-0 bg-gradient-to-r from-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    {isProcessing ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles text-accent"></i>}
                     TASARIMI BAŞLAT
                 </button>
 

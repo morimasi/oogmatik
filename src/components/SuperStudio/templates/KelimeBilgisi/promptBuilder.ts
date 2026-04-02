@@ -1,81 +1,148 @@
 import { IPromptBuilderContext } from '../registry';
 import { KelimeBilgisiSettings } from './types';
 
-export default function buildKelimeBilgisiPrompt(context: IPromptBuilderContext<KelimeBilgisiSettings>): string {
-    const { topic, difficulty, studentName, settings } = context;
+export default function buildKelimeBilgisiPrompt(
+  context: IPromptBuilderContext<KelimeBilgisiSettings>
+): string {
+  const { topic, difficulty, grade, studentName, settings } = context;
+  const densityLabel =
+    settings.layoutDensity === 'standart'
+      ? 'standart'
+      : settings.layoutDensity === 'yogun'
+        ? 'yoğun'
+        : 'ultra yoğun';
 
-    const wordTypesText = settings.wordTypes.map(t => {
-        switch (t) {
-            case 'es-anlamli': return 'Es Anlamli Kelimeler';
-            case 'zit-anlamli': return 'Zit Anlamli Kelimeler';
-            case 'es-sesli': return 'Es Sesli Kelimeler';
-            default: return t;
-        }
-    }).join(', ');
+  const wordTypesText = settings.wordTypes
+    .map((t) => {
+      switch (t) {
+        case 'es-anlamli':
+          return 'Eş Anlamlı Kelimeler';
+        case 'zit-anlamli':
+          return 'Zıt Anlamlı Kelimeler';
+        case 'es-sesli':
+          return 'Eş Sesli Kelimeler';
+        default:
+          return t;
+      }
+    })
+    .join(', ');
 
-    let prompt = `
-[KELIME BILGISI - SOZEL ZEKE ATOLYESI]
-PROFIL: Kelime dacarcigi ve anlam bilgisi uzmani, ozel egitim ogretmeni.
-GOREV: "${topic}" konusu etrafinda, "${wordTypesText}" becerilerini gelistiren premium etkinlik hazirla.
-${studentName ? `Ogrenci: "${studentName}"` : ''}
-Zorluk: ${difficulty}
+  const wordCount =
+    settings.generationMode === 'ai'
+      ? settings.aiSettings.wordCount
+      : settings.hizliSettings.questionCount;
 
-[KATI PEDAGOJIK KURALLAR]
-- Kural 1 (KELIME TURU): Su kelime turlerini icer: ${wordTypesText}.
-- Kural 2 (DISLEKSI DOSTU): Kelimeleri buyuk punto ile yaz, Lexend font kullan, satir araligini 1.8 yap.
+  let prompt = `
+SEN: Kelime dağarcığı ve anlam bilgisi uzmanı, özel eğitim öğretmenisin.
+GÖREV: "${topic}" konusu etrafında, ${grade || 'ilkokul seviyesi'} düzeyinde, ${difficulty} zorlukta KELİME BİLGİSİ çalışma kağıdı hazırla.
+${studentName ? `Öğrenci: "${studentName}"` : ''}
+
+KRİTİK KURALLAR:
+- Tüm içerik Türkçe, disleksi dostu sade dil kullan.
+- Yerleşim yoğunluğu: ${densityLabel}.
+- Kelime türleri: ${wordTypesText}.
+- Toplam ${wordCount} kelime, ${settings.taskCount} görev bloğu.
+- Her görev bloğunda EN AZ 2 alt-aktivite bulunmalı.
+- Tüm sorular numaralı olmalı (1., 2., 3. ...).
+- Her sorunun altında cevap yazma alanı bırak.
+- Görev blokları arasına ───────────────────── ayırıcı çizgi koy.
 `;
 
-    if (settings.aiSettings.includeExamples) {
-        prompt += `
-- Kural 3 (CUMLE ICINDE): Her kelime cifti icin en az 1 cumle icinde kullanım ornegi ver.
-`;
-    }
-
-    if (settings.aiSettings.includeMnemonics) {
-        prompt += `
-- Kural 4 (HAFIZA IPUCLARI): Her kelime icin akilda kalici ipucu veya kisaltma ekle.
-`;
-    }
-
-    if (settings.aiSettings.themeBased) {
-        prompt += `
-- Kural 5 (TEMATIK GRUPAMA): Kelimeleri tematik kategorilere ayir.
-`;
-    }
-
+  if (settings.visualSettings.useColorCoding) {
     prompt += `
-[DOLU DOLU A4 URETIM KURALI]
-- Uretilen icerik A4 kagidin %95'INI doldurmalidir.
-- Kenar bosluklari: Ust 2cm, Alt 2cm, Sol 2.5cm, Sag 2cm.
-- Icerik yogun ama okunabilir olmali.
+RENK KODLAMA: Eş anlamlı=mavi, zıt anlamlı=kırmızı, eş sesli=yeşil renk kodlaması kullan.
+`;
+  }
 
-[ZENGIN ICERIK KURALI]
-- Her GOREV icinde EN AZ 2 farkli alt-aktivite bulunmalidir.
-- GOREV 1'de: "Eslestirme + Boyama + Tablo"
-- GOREV 2'de: "Bosluk Doldurma + Cumle Kurma + Renk Kodlama"
-- GOREV 3'te: "Kelime Avi + Bulmaca + Eslestirme"
-- GOREV 4'te: "Mini Yarisma + Dustundurucu Soru + Arkadasa Sor"
+  if (settings.visualSettings.useIcons) {
+    prompt += `
+GÖRSEL İKONLAR: Her kelime grubuna uygun emoji/SVG ikon ekle.
+`;
+  }
 
-[CALISMA KAGIDI YAPISI - ZORUNLU]
-4 GOREV yapisi kullan:
-- GOREV 1 (Kelime Cifti Bulma): ${settings.aiSettings.wordCount} adet kelime icin es/zit/es sesli bulma. Renk kodlu kartlar kullan.
-- GOREV 2 (Cumle Icinde Kullanim): Kelimeleri cumlelerde kullanma.
-- GOREV 3 (Kelime Avi ve Bulmaca): Harf tablosunda gizli kelimeleri bulma.
-- GOREV 4 (Bonus): Mini yarisma sorusi veya tuyo kutusu.
+  if (settings.aiSettings.includeMnemonics) {
+    prompt += `
+MNEMONİK İPUÇLARI: Her kelime için akılda kalıcı hatırlatma ipucu veya kısaltma ekle.
+`;
+  }
 
-[PAGINATION]
-ICERIK UZUN OLURSA su ayraci koy ve yeni sayfaya gec:
-===SAYFA_SONU===
+  if (settings.aiSettings.themeBased) {
+    prompt += `
+TEMATİK GRUPLAMA: Kelimeleri tematik kategorilere ayır (hayvanlar, yiyecekler, duygular vb.).
+`;
+  }
 
-[YANIT FORMATI]:
-Gecerli JSON dondur:
-{
-  "title": "${topic} - Kelime Bilgisi Calismasi",
-  "content": "Tum yonerge, kelime calismalari, sorular ve gorsel ogeler.",
-  "pedagogicalNote": "ZORUNLU: Ogretmene yonelik en az 50 karakterlik detayli pedagojik aciklama. Bu etkinligin hangi becerileri gelistirdigini, disleksi destegi nasil sagladigini ve ogretmenin dikkat etmesi gereken noktalari acikla."
-}
-Markdown bloguna # H1 Baslik ile basla.
+  if (settings.includeMatching) {
+    prompt += `
+EŞLEŞTİRME KARTLARI: Eş/zıt/eş sesli kelime eşleştirme kartları oluştur. Öğrenciden doğru eşleri bulmasını iste.
+`;
+  }
+
+  if (settings.includeSentenceContext) {
+    prompt += `
+CÜMLE BAĞLAMI: Her kelime çifti için cümle içinde kullanım örnekleri ver. Boşluklu cümleler ile uygulama yaptır.
+`;
+  }
+
+  if (settings.includeWordSearch) {
+    prompt += `
+KELİME AVI: Harf tablosunda gizli kelimeleri bulma bulmacası ekle.
+`;
+  }
+
+  if (settings.includeBonusSection) {
+    prompt += `
+BONUS BÖLÜM: "Kelime Bulmaca" + "Arkadaşına Sor" bölümü + tüyo kutusu ekle.
+`;
+  }
+
+  prompt += `
+GÖREV BLOKLARI YAPISI (${settings.taskCount} GÖREV):
 `;
 
-    return prompt;
+  for (let i = 1; i <= settings.taskCount; i++) {
+    prompt += `- GÖREV ${i}: `;
+    const activities: string[] = [];
+    if (i === 1) {
+      activities.push('Kelime çifti bulma', 'Eşleştirme');
+    } else if (i === 2) {
+      activities.push('Cümle içinde kullanım', 'Boşluk doldurma');
+    } else if (i === 3) {
+      activities.push('Kelime avı', 'Bulmaca');
+    } else if (i === 4) {
+      activities.push('Mnemonik eşleştirme', 'Hafıza oyunu');
+    } else if (i === 5) {
+      activities.push('Tematik gruplama', 'Kategori bulma');
+    } else {
+      activities.push('Serbest uygulama', 'Tekrar');
+    }
+    if (settings.includeBonusSection && i === settings.taskCount) activities.push('Bonus bulmaca');
+    prompt += activities.join(' + ') + '. ';
+    const wordsForTask = Math.max(2, Math.floor(wordCount / settings.taskCount));
+    prompt += `${wordsForTask} kelime içerir. Her kelime numaralı ve cevap alanlı.\n`;
+  }
+
+  if (settings.hizliSettings.includeAnswerKey || settings.aiSettings.includeExamples) {
+    prompt += `
+CEVAP ANAHTARI: Tüm görevlerin sonunda "📋 CEVAP ANAHTARI" başlığıyla doğru cevapları listele.
+`;
+  }
+
+  prompt += `
+A4 DOLU SAYFA KURALI (ZORUNLU):
+- İçerik A4 kağıdın %95'ini doldurmalı. BOŞ ALAN KALMAMALI.
+- Her görev bloğu "═══ GÖREV X ═══" başlığıyla başlamalı.
+- Görevler arası geçişlerde ───────────────────── çizgisi kullan.
+- Sayfa sonu ayracı: ===SAYFA_SONU=== (görevler arasına koy, cümle ortasında kullanma).
+- Markdown formatında yaz. Tablolar, listeler, kutular kullan.
+
+YANIT FORMATI — GEÇERLİ JSON:
+{
+  "title": "${topic} - Kelime Bilgisi Çalışması",
+  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
+  "pedagogicalNote": "ZORUNLU: Bu etkinliğin kelime dağarcığını, anlam bilgisini ve eş/zıt/eş sesli kelime farkındalığını nasıl geliştirdiğini, ${densityLabel} yerleşimin neden seçildiğini ve öğretmenin dikkat etmesi gereken noktaları açıkla (en az 100 karakter)."
+}
+`;
+
+  return prompt;
 }

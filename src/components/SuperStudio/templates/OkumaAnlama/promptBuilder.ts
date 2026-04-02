@@ -1,86 +1,134 @@
 import { IPromptBuilderContext } from '../registry';
 import { OkumaAnlamaSettings } from './types';
 
-export default function buildOkumaAnlamaPrompt(context: IPromptBuilderContext<OkumaAnlamaSettings>): string {
-    const { topic, difficulty, studentName, settings } = context;
+export default function buildOkumaAnlamaPrompt(
+  context: IPromptBuilderContext<OkumaAnlamaSettings>
+): string {
+  const { topic, difficulty, grade, studentName, settings } = context;
 
-    let prompt = `
-[OKUMA ANLAMA - BILISSEL DEKODER]
-PROFIL: Disleksi ve DEHB uzmani, klinik ogretmen.
-GOREV: "${topic}" konulu bir okuma metni ve etkinlik uret.
-${studentName ? `Bu etkinlik ozel olarak "${studentName}" isimli ogrenci icindir.` : ''}
-Zorluk: ${difficulty}
+  const lengthMap = { kisa: '120-160', orta: '180-250', uzun: '280-350' };
+  const wordRange = lengthMap[settings.readingLength] || '180-250';
+  const densityMap = { standart: '1.8', yogun: '1.5', 'ultra-yogun': '1.3' };
+  const lineSpacing = densityMap[settings.layoutDensity] || '1.5';
+  const qTypesText =
+    settings.questionTypes.length > 0
+      ? settings.questionTypes
+          .map((t: string) => {
+            const map: Record<string, string> = {
+              'coktan-secmeli': 'Çoktan Seçmeli (A/B/C/D)',
+              'bosluk-doldurma': 'Boşluk Doldurma',
+              'dogru-yanlis': 'Doğru/Yanlış',
+              'acik-uc': 'Açık Uçlu',
+              eslestirme: 'Eşleştirme',
+            };
+            return map[t] || t;
+          })
+          .join(', ')
+      : 'Çoktan Seçmeli, Boşluk Doldurma, Doğru/Yanlış karışık';
 
-[KATI PEDAGOJIK KURALLAR]
-- Kural 1: Dili cok sade tut. Sadece etken (active) cumle catisi kullan. Mecaz, deyim veya dolayli anlatim kullanma.
-- Kural 2 (BILISSEL YUK LIMITI): HICBIR CUMLE ${settings.cognitiveLoadLimit} kelimeden daha uzun OLAMAZ. Uzun fikirleri nokta ile bol.
+  let prompt = `
+SEN: MEB müfredatına hakim, disleksi ve DEHB uzmanı klinik öğretmensin.
+GÖREV: "${topic}" konulu, ${grade || 'ilkokul'} düzeyinde, ${difficulty} zorlukta PREMIUM OKUMA ANLAMA A4 çalışma kağıdı üret.
+${studentName ? `Öğrenci: "${studentName}"` : ''}
+
+KRITIK KURALLAR:
+- TÜM içerik Türkçe, disleksi dostu sade dil.
+- Etken cümle yapısı. Mecaz/deyim/dolaylı anlatım YASAK.
+- HİÇBİR cümle ${settings.cognitiveLoadLimit} kelimeden uzun OLAMAZ.
+- Satır aralığı: ${lineSpacing}, Lexend font uyumlu.
 `;
 
-    if (settings.chunkingEnabled) {
-        prompt += `
-- Kural 3 (MODULER PARCALAMA): Metni kucuk lokmalara bol. Her 2 cumlenin ardindan "Bolum Sorusi" basligi ac ve 1 basit soru sor. Toplam ${settings.questionCount} bolum olustur.
-`;
-    } else {
-        prompt += `
-- Kural 3: Normal metin olustur ve en altina ${settings.questionCount} adet soru ekle.
-`;
-    }
-
-    if (settings.visualScaffolding) {
-        prompt += `
-- Kural 4 (GORSEL DESTEK): Her paragrafin basina kucuk bir SVG ikon koy.
-`;
-    }
-
-    if (settings.typographicHighlight) {
-        prompt += `
-- Kural 5 (KOK-EK FARKINDALIGI): Metindeki kok kelimeleri **bold** yaz. Ornk: "**Gel**iyorum", "**Bak**ti". (Sadece kok kismi kalin olmali).
-`;
-    }
-
+  if (settings.chunkingEnabled) {
     prompt += `
-- Kural 6 (5N1K): Etkinlik sonuna "5N1K Tablosu" ekle.
+PARÇALI OKUMA: Metni 3-4 parçaya böl. Her parça sonrası "📌 Bölüm Sorusu" ile 1-2 anlama sorusu sor.
+`;
+  }
 
-[KRITIK URETIM TALIMATI]
-- Metin en az 3 paragraf ve 100-150 kelime olmali.
-- Giris, gelisme, sonuc bolumleri net olmali.
-- Hikaye sonunda ${settings.questionCount} adet ozgun soru ekle.
+  if (settings.visualScaffolding) {
+    prompt += `
+GÖRSEL DESTEK: Her paragrafa uygun emoji/sembol (📖🌿🔭). Görsel yönergeler ekle.
+`;
+  }
+
+  if (settings.typographicHighlight) {
+    prompt += `
+KÖK-EK FARKINDALIK: Önemli kelimelerin KÖKünü **kalın** yaz. Örn: "**Gel**iyorum".
+`;
+  }
+
+  const taskCount = settings.taskCount;
+  prompt += `
+ÇALIŞMA KAĞIDI YAPISI — TAM ${taskCount} GÖREV BLOĞU:
 `;
 
+  const tasks = [];
+  tasks.push(
+    `GÖREV 1 — OKUMA METNİ: "${topic}" hakkında ${wordRange} kelimelik, ${settings.chunkingEnabled ? 'parçalara bölünmüş, ' : ''}giriş-gelişme-sonuç yapılı metin. ${settings.typographicHighlight ? 'Kök vurguları dahil.' : ''}`
+  );
+  tasks.push(
+    `GÖREV 2 — ANLAMA SORULARI: ${qTypesText} formatında tam ${settings.questionCount} soru. Her soru numaralı, şıklı (varsa), cevap alanı bırakılmış.`
+  );
+
+  if (settings.mindMap5N1K) {
+    tasks.push(
+      `GÖREV 3 — 5N1K TABLOSU: Kim? Ne? Nerede? Ne zaman? Nasıl? Neden? sütunlu tablo. Boş bırak, öğrenci doldursun.`
+    );
+  }
+  if (settings.includeDetectiveTask) {
+    tasks.push(
+      `GÖREV ${tasks.length + 1} — DEDEKTİFLİK: Metne gizlenmiş 1 tutarsız cümleyi buldur. Altını çizme alanı bırak.`
+    );
+  }
+  if (settings.includeWordWork) {
+    tasks.push(
+      `GÖREV ${tasks.length + 1} — KELİME ÇALIŞMASI: Metinden 6 zor kelime seç. Anlam + cümle kurma + eş anlamlı bulma.`
+    );
+  }
+  tasks.push(
+    `GÖREV ${tasks.length + 1} — DOĞRU/YANLIŞ: 6 maddelik D/Y tablosu. Her madde metne dayalı.`
+  );
+  tasks.push(
+    `GÖREV ${tasks.length + 1} — METİN İÇİ BOŞLUK: Metinden 5 kritik kelimeyi boş bırak. Öğrenci tamamlasın.`
+  );
+
+  if (settings.includeBonusSection) {
+    tasks.push(
+      `GÖREV ${tasks.length + 1} — BONUS: Eğlenceli mini yarışma sorusu + tüyo kutusu + "Arkadaşına Sor" bölümü.`
+    );
+  }
+
+  for (const t of tasks) prompt += `- ${t}\n`;
+
+  if (settings.includeAnswerKey) {
     prompt += `
-[DOLU DOLU A4 URETIM KURALI]
-- Uretilen icerik A4 kagidin %95'INI doldurmalidir.
-- Kenar bosluklari: Ust 2cm, Alt 2cm, Sol 2.5cm, Sag 2cm.
-- Icerik yogun ama okunabilir olmali (satir araligi 1.6-1.8).
+CEVAP ANAHTARI: En altta "📋 CEVAP ANAHTARI" başlığıyla TÜM soruların doğru cevapları.`;
+  }
 
-[ZENGIN ICERIK KURALI]
-- Her GOREV icinde EN AZ 2 farkli alt-aktivite bulunmalidir.
-- GOREV 1'de: "Okuma + Anlama Sorulari + Kelime Bulutu"
-- GOREV 2'de: "Dedektiflik + 5N1K + Acik Uclu Soru"
-- GOREV 3'te: "5N1K Grid + Dogru/Yanlis + Tablo"
-- GOREV 4'te: "Mini Yarisma + Dustundurucu Soru"
-- Paragraf aralarina gozu isareti ikonu koy.
+  prompt += `
 
-[CALISMA KAGIDI YAPISI - ZORUNLU]
-4 GOREV yapisi kullan:
-- GOREV 1 (Okuma Parçasi): Parcali okuma destekli metin.
-- GOREV 2 (Dedektiflik): Metne gizlenmis 1 mantiksz kelimeyi buldur.
-- GOREV 3 (5N1K Grid ve Dogru/Yanlis): Tablo formatinda sorular.
-- GOREV 4 (Bonus): Mini yarisma sorusi veya tuyo kutusu.
+A4 DOLU SAYFA — ZORUNLU KURALLAR:
+1. İçerik A4 kağıdın %95'ini DOLDURMALI. Boş alan YASAK.
+2. Her görev "📌 GÖREV X" başlığı + "═══════════════════" ayırıcı ile başlar.
+3. Sorular numaralı (1., 2., 3...). Şıklar alt alta (A) B) C) D)).
+4. Her soru sonrası "Cevap: ______" çizgisi bırak.
+5. Tablolar Markdown formatında çizgiyle çizilsin.
+6. Kenar boşlukları: Üst 1.5cm, Alt 1.5cm, Sol 2cm, Sağ 2cm.
+7. Satır aralığı: ${lineSpacing}. Font: Lexend.
 
-[PAGINATION]
-ICERIK UZUN OLURSA su ayraci koy ve yeni sayfaya gec:
-===SAYFA_SONU===
+İÇERİK YOĞUNLUĞU:
+- En az ${settings.questionCount} soru + ${tasks.length} görev bloğu.
+- Her görevde en az 2 alt-aktivite.
+- Toplam sayfa doldurma hedefi: 1 tam A4 sayfa.
 
-[YANIT FORMATI]:
-Gecerli JSON dondur:
+PAGINATION:
+İçerik A4'e sığmazsa görevler arasına "===SAYFA_SONU===" koy.
+
+YANIT FORMATI — GEÇERLİ JSON:
 {
-  "title": "${topic} - Bilissel Okuma Calismasi",
-  "content": "Tum yonerge, metin, sorular ve SVG kodlarini iceren Markdown blogu.",
-  "pedagogicalNote": "ZORUNLU: Ogretmene yonelik en az 50 karakterlik detayli pedagojik aciklama. Bu etkinligin hangi becerileri gelistirdigini, disleksi destegi nasil sagladigini ve ogretmenin dikkat etmesi gereken noktalari acikla."
-}
-Markdown bloguna # H1 Baslik ile basla.
-`;
+  "title": "${topic} — Okuma Anlama Çalışması",
+  "content": "TÜM görevleri, soruları, tabloları, yönergeleri içeren Markdown. # H1 başlıkla başla.",
+  "pedagogicalNote": "ZORUNLU (min 100 karakter): Bu etkinliğin geliştirdiği bilişsel beceriler, disleksi desteği mekanizmaları, öğretmenin dikkat etmesi gereken noktalar ve MEB kazanım ilişkisi."
+}`;
 
-    return prompt;
+  return prompt;
 }

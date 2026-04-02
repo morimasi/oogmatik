@@ -36,12 +36,12 @@ export const ComponentLibrary = () => {
                     <button
                         key={def.id}
                         onClick={() => addComponent(def)}
-                        className="group flex items-center gap-3 w-full p-3.5 bg-zinc-900/40 hover:bg-zinc-800 border border-zinc-800/50 hover:border-indigo-500/40 rounded-2xl transition-all text-left overflow-hidden relative"
+                        className="group flex items-center gap-3 w-full p-3.5 bg-zinc-900/40 hover:bg-zinc-800 border border-zinc-800/50 hover:border-accent/40 rounded-2xl transition-all text-left overflow-hidden relative"
                     >
                         <div className="absolute top-0 right-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <i className="fa-solid fa-plus text-[8px] text-indigo-400"></i>
+                            <i className="fa-solid fa-plus text-[8px] text-accent/70"></i>
                         </div>
-                        <div className="w-10 h-10 rounded-xl bg-zinc-800 group-hover:bg-indigo-600/10 flex items-center justify-center text-zinc-500 group-hover:text-indigo-500 transition-colors shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-zinc-800 group-hover:bg-accent/10 flex items-center justify-center text-zinc-500 group-hover:text-accent transition-colors shrink-0">
                             <i className={`fa-solid ${def.icon}`}></i>
                         </div>
                         <div className="min-w-0">

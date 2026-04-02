@@ -34,7 +34,7 @@ export const A4PreviewPanel: React.FC = () => {
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="w-[210mm] min-h-[297mm] bg-white/5 border border-slate-800/50 shadow-2xl relative flex flex-col items-center justify-center rounded-2xl overflow-hidden"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-teal-500/10 opacity-30 animate-pulse"></div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-30 animate-pulse"></div>
                             <div className="flex flex-col items-center space-y-8 z-10">
                                 <div className="relative">
                                     <div className="w-20 h-20 border-4 border-teal-500/20 rounded-full"></div>

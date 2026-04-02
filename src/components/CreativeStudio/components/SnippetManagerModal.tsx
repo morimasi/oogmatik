@@ -50,7 +50,7 @@ export const SnippetManagerModal: React.FC<SnippetManagerModalProps> = ({
                 {/* HEADER */}
                 <div className="p-8 border-b border-white/5 flex justify-between items-center bg-black/20 shrink-0">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                        <div className="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center text-white shadow-lg">
                             <i className="fa-solid fa-wand-sparkles text-xl"></i>
                         </div>
                         <div>
@@ -68,14 +68,14 @@ export const SnippetManagerModal: React.FC<SnippetManagerModalProps> = ({
                         <input 
                             type="text" value={search} onChange={e => setSearch(e.target.value)}
                             placeholder="İşlev, kategori veya talimat ara..."
-                            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-sm text-white outline-none focus:border-indigo-500"
+                            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-sm text-white outline-none focus:border-accent"
                         />
                     </div>
                     <div className="flex bg-zinc-800 p-1 rounded-2xl">
                         <button onClick={() => setActiveTab('library')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'library' ? 'bg-white text-black' : 'text-zinc-500'}`}>SİSTEM</button>
                         <button onClick={() => setActiveTab('custom')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'custom' ? 'bg-white text-black' : 'text-zinc-500'}`}>ÖZEL ({customSnippets.length})</button>
                     </div>
-                    <button onClick={() => setIsCreating(true)} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-[10px] font-black uppercase shadow-lg transition-all flex items-center gap-2">
+                    <button onClick={() => setIsCreating(true)} className="px-6 py-3 bg-accent hover:bg-accent/90 text-white rounded-2xl text-[10px] font-black uppercase shadow-lg transition-all flex items-center gap-2">
                         <i className="fa-solid fa-plus-circle"></i> YENİ OLUŞTUR
                     </button>
                 </div>
@@ -88,7 +88,7 @@ export const SnippetManagerModal: React.FC<SnippetManagerModalProps> = ({
                             <div className="grid grid-cols-2 gap-6">
                                 <div>
                                     <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">İşlev Başlığı</label>
-                                    <input type="text" value={newSnip.label || ""} onChange={e => setNewSnip({...newSnip, label: e.target.value})} className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500" placeholder="Örn: Renkli Heceleme" />
+                                    <input type="text" value={newSnip.label || ""} onChange={e => setNewSnip({...newSnip, label: e.target.value})} className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-accent" placeholder="Örn: Renkli Heceleme" />
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Kategori</label>
@@ -101,23 +101,23 @@ export const SnippetManagerModal: React.FC<SnippetManagerModalProps> = ({
                             </div>
                             <div>
                                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Kısa Açıklama</label>
-                                <input type="text" value={newSnip.description || ""} onChange={e => setNewSnip({...newSnip, description: e.target.value})} className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500" placeholder="Bu işlev neyi amaçlıyor?" />
+                                <input type="text" value={newSnip.description || ""} onChange={e => setNewSnip({...newSnip, description: e.target.value})} className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-accent" placeholder="Bu işlev neyi amaçlıyor?" />
                             </div>
                             <div>
-                                <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 block">AI TALİMATI (PROMPT FRAGMENT)</label>
-                                <textarea value={newSnip.value || ""} onChange={e => setNewSnip({...newSnip, value: e.target.value})} className="w-full h-40 p-4 bg-black/40 border border-white/10 rounded-2xl text-zinc-200 font-mono text-sm outline-none focus:border-indigo-500" placeholder="Yapay zekaya tam olarak ne yapması gerektiğini anlatın..." />
+                                <label className="text-[10px] font-black text-accent/70 uppercase tracking-widest mb-2 block">AI TALİMATI (PROMPT FRAGMENT)</label>
+                                <textarea value={newSnip.value || ""} onChange={e => setNewSnip({...newSnip, value: e.target.value})} className="w-full h-40 p-4 bg-black/40 border border-white/10 rounded-2xl text-zinc-200 font-mono text-sm outline-none focus:border-accent" placeholder="Yapay zekaya tam olarak ne yapması gerektiğini anlatın..." />
                             </div>
                             <div className="flex gap-4 pt-6">
                                 <button onClick={() => setIsCreating(false)} className="flex-1 py-4 text-zinc-500 font-black uppercase text-[10px] hover:text-white">Vazgeç</button>
-                                <button onClick={handleCreate} className="flex-1 py-4 bg-indigo-600 text-white font-black uppercase text-[10px] rounded-2xl shadow-xl">KAYDET VE EKLE</button>
+                                <button onClick={handleCreate} className="flex-1 py-4 bg-accent text-white font-black uppercase text-[10px] rounded-2xl shadow-xl">KAYDET VE EKLE</button>
                             </div>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {filtered.map(item => (
-                                <div key={item.id} className="group p-6 bg-white/5 border border-white/5 rounded-[2rem] hover:border-indigo-500/50 hover:bg-white/10 transition-all flex flex-col relative overflow-hidden">
+                                <div key={item.id} className="group p-6 bg-white/5 border border-white/5 rounded-[2rem] hover:border-accent/50 hover:bg-white/10 transition-all flex flex-col relative overflow-hidden">
                                     <div className="flex justify-between items-start mb-4">
-                                        <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-indigo-400 transition-colors shadow-inner">
+                                        <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-accent/70 transition-colors shadow-inner">
                                             <i className={`fa-solid ${item.icon}`}></i>
                                         </div>
                                         <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest bg-black/20 px-2 py-1 rounded-md">{item.category}</span>
@@ -128,7 +128,7 @@ export const SnippetManagerModal: React.FC<SnippetManagerModalProps> = ({
                                     <div className="mt-auto flex gap-2">
                                         <button 
                                             onClick={() => onSelect(item)}
-                                            className="flex-1 py-2.5 bg-white text-black font-black text-[9px] uppercase rounded-xl hover:bg-indigo-500 hover:text-white transition-all shadow-lg"
+                                            className="flex-1 py-2.5 bg-white text-black font-black text-[9px] uppercase rounded-xl hover:bg-accent hover:text-white transition-all shadow-lg"
                                         >
                                             KULLAN
                                         </button>

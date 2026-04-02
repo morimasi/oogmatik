@@ -59,6 +59,8 @@ export interface StorySequencingData extends BaseActivityData {
 }
 
 export interface InteractiveStoryData extends StoryData {
+  syllabifiedStory: string;
+  pedagogicalNote: string;
   fiveW1H: {
     type: 'who' | 'where' | 'when' | 'what' | 'why' | 'how';
     question: string;

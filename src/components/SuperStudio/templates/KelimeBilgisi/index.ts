@@ -4,26 +4,32 @@ export * from './types';
 import type { KelimeBilgisiSettings } from './types';
 
 export const DEFAULT_SETTINGS: KelimeBilgisiSettings = {
-    generationMode: 'ai',
-    wordTypes: ['es-anlamli', 'zit-anlamli', 'es-sesli'],
-    aiSettings: {
-        wordCount: 8,
-        difficulty: 'orta',
-        includeExamples: true,
-        includeMnemonics: true,
-        themeBased: true
-    },
-    hizliSettings: {
-        templateStyle: 'match-card',
-        difficulty: 'orta',
-        questionCount: 12,
-        timeLimit: null,
-        includeAnswerKey: false
-    },
-    visualSettings: {
-        useColorCoding: true,
-        useIcons: true,
-        useFonts: true,
-        useGrid: true
-    }
+  generationMode: 'ai',
+  wordTypes: ['es-anlamli', 'zit-anlamli', 'es-sesli'],
+  aiSettings: {
+    wordCount: 8,
+    difficulty: 'orta',
+    includeExamples: true,
+    includeMnemonics: true,
+    themeBased: true,
+  },
+  hizliSettings: {
+    templateStyle: 'match-card',
+    difficulty: 'orta',
+    questionCount: 12,
+    timeLimit: null,
+    includeAnswerKey: true,
+  },
+  visualSettings: {
+    useColorCoding: true,
+    useIcons: true,
+    useFonts: true,
+    useGrid: true,
+  },
+  taskCount: 6,
+  includeMatching: true,
+  includeSentenceContext: true,
+  includeWordSearch: true,
+  includeBonusSection: true,
+  layoutDensity: 'yogun' as const,
 };

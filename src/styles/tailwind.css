@@ -5,7 +5,62 @@
 @tailwind components;
 @tailwind utilities;
 
-@import './theme-tokens.css';
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Lexend', sans-serif;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  /* Global Theme Transition for all Themed Elements */
+  *, ::before, ::after {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-duration: 400ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Exclude transitions for fixed elements or where it might cause flickering */
+  .no-transition, .no-transition *, .worksheet-page, .worksheet-page * {
+    transition: none !important;
+  }
+}
+
+@layer components {
+  /* Premium Studio Button Style */
+  .btn-premium {
+    @apply relative overflow-hidden transition-all duration-300 active:scale-95 shadow-lg hover:shadow-xl font-black uppercase tracking-widest text-xs px-6 py-2.5 rounded-2xl flex items-center gap-2;
+  }
+
+  .btn-premium-accent {
+    @apply btn-premium bg-[var(--accent-color)] text-[var(--bg-primary)] hover:bg-[var(--accent-hover)] ring-2 ring-transparent hover:ring-[var(--accent-color)]/30;
+  }
+
+  .btn-premium-glass {
+    @apply btn-premium bg-[var(--surface-glass)] text-[var(--accent-color)] border border-[var(--border-color)] hover:bg-[var(--accent-muted)];
+  }
+
+  /* Custom Scrollbar for Premium Feel */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+}
 
 @layer base {
   /* FAZ 4: Kesin A4 İzolasyonu Katmanı (Klinik Rapor Safiyeti) */

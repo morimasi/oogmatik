@@ -1,65 +1,122 @@
 import { IPromptBuilderContext } from '../registry';
 import { SozVarligiSettings } from './types';
 
-export default function buildSozVarligiPrompt(context: IPromptBuilderContext<SozVarligiSettings>): string {
-    const { topic, difficulty, studentName, settings } = context;
+export default function buildSozVarligiPrompt(
+  context: IPromptBuilderContext<SozVarligiSettings>
+): string {
+  const { topic, difficulty, grade, studentName, settings } = context;
+  const densityLabel =
+    settings.layoutDensity === 'standart'
+      ? 'standart'
+      : settings.layoutDensity === 'yogun'
+        ? 'yoğun'
+        : 'ultra yoğun';
+  const typeLabels: Record<string, string> = {
+    deyim: 'Deyimler',
+    atasozu: 'Atasözleri',
+    mecaz: 'Mecaz Anlatım',
+  };
+  const typesText = settings.itemTypes.map((t) => typeLabels[t] || t).join(', ');
 
-    let prompt = `
-[SOZ VARLIGI VE ANLAM BILGISI - ZIHINSEL SOZLUK]
-PROFIL: Cocuklarin kelime dacarcigini gelistiren uzman eğitimci.
-GOREV: "${topic}" konusu etrafinda anlam bilgisine odaklanan premium etkinlik hazirla.
-${studentName ? `Ogrenci: "${studentName}"` : ''}
-Zorluk: ${difficulty}
+  let prompt = `
+SEN: Çocukların kelime dağarcığını geliştiren uzman eğitimci, anlam bilgisi uzmanısın.
+GÖREV: "${topic}" konusu etrafında, ${grade || 'ilkokul seviyesi'} düzeyinde, ${difficulty} zorlukta SÖZ VARLIĞI çalışma kağıdı hazırla.
+${studentName ? `Öğrenci: "${studentName}"` : ''}
 
-[KATI PEDAGOJIK KURALLAR]
-- Kural 1 (ICERIK): Su kategorilerden ${settings.count} adet madde sec: ${settings.itemTypes.join(', ')}.
-- Kural 2 (ANLAMLANDIRMA): Her maddenin anlamini sade bir dille acikla.
+KRİTİK KURALLAR:
+- Tüm içerik Türkçe, disleksi dostu sade dil kullan.
+- Yerleşim yoğunluğu: ${densityLabel}.
+- Kategoriler: ${typesText}. Toplam ${settings.count} madde, ${settings.taskCount} görev bloğu.
+- Her görev bloğunda EN AZ 2 alt-aktivite bulunmalı.
+- Tüm sorular numaralı olmalı (1., 2., 3. ...).
+- Her sorunun altında cevap yazma alanı bırak.
+- Görev blokları arasına ───────────────────── ayırıcı çizgi koy.
+- Her deyim/atasözünün anlamını sade, çocuk dostu dille açıkla.
 `;
 
-    if (settings.visualAnalogy) {
-        prompt += `
-- Kural 3 (GORSEL BENZETME): Her deyim veya atasozu icin basit SVG ikon kodu uret.
-`;
-    }
-
-    if (settings.contextualUsage) {
-        prompt += `
-- Kural 4 (BAGLAMSAL OGRENME): Bosluklu cumleler kur ve deyim/atasozu yerlestirt.
-`;
-    }
-
+  if (settings.visualAnalogy) {
     prompt += `
-[DOLU DOLU A4 URETIM KURALI]
-- Uretilen icerik A4 kagidin %95'INI doldurmalidir.
-- Kenar bosluklari: Ust 2cm, Alt 2cm, Sol 2.5cm, Sag 2cm.
+GÖRSEL BENZETME: Her deyim/atasözü/mecaz için basit emoji veya SVG ikon eşleştirmesi ekle. Öğrenciden görseli anlamla eşleştirmesini iste.
+`;
+  }
 
-[ZENGIN ICERIK KURALI]
-- Her GOREV icinde EN AZ 2 farkli alt-aktivite bulunmalidir.
-- GOREV 1'de: "Emoji Eslestirme + Gorsel Yorum + Aciklama"
-- GOREV 2'de: "Senaryo Okuma + Deyim Secimi + Baglam Balonu"
-- GOREV 3'te: "Cumle Kurma + Kelime Koprusu + Eslestirme"
-- GOREV 4'te: "Mini Yarisma + Dustundurucu Soru + Arkadasa Sor"
+  if (settings.contextualUsage) {
+    prompt += `
+BAĞLAMSAL KULLANIM: Boşluklu cümleler kur. Öğrenciden uygun deyim/atasözünü boşluğa yerleştirmesini iste.
+`;
+  }
 
-[CALISMA KAGIDI YAPISI - ZORUNLU]
-4 GOREV yapisi kullan:
-- GOREV 1 (Emojilerle Deyim Avi): Deyimleri ikonlarla cozme.
-- GOREV 2 (Durum Senaryosu): Uygun deyimi buldurma.
-- GOREV 3 (Baglam Kullanimi): Deyimle yaratci cumle kurma.
-- GOREV 4 (Bonus): Mini yarisma sorusi veya tuyo kutusu.
+  if (settings.includeMatching) {
+    prompt += `
+EŞLEŞTİRME: Deyim-anlam eşleştirme tablosu oluştur. Öğrenciden doğru eşleştirmeleri çizgiyle birleştirmesini veya harfle eşleştirmesini iste.
+`;
+  }
 
-[PAGINATION]
-ICERIK UZUN OLURSA su ayraci koy ve yeni sayfaya gec:
-===SAYFA_SONU===
+  if (settings.includeSentenceCreation) {
+    prompt += `
+CÜMLE KURMA: Her deyim/atasözünü kullanarak yaratıcı cümle kurdur. En az 2 cümle alanı bırak.
+`;
+  }
 
-[YANIT FORMATI]:
-Gecerli JSON dondur:
-{
-  "title": "${topic} - Soz Varligi Calismasi",
-  "content": "Tum yonerge, calisma sorulari ve gorsel analogiler.",
-  "pedagogicalNote": "ZORUNLU: Ogretmene yonelik en az 50 karakterlik detayli pedagojik aciklama. Bu etkinligin hangi becerileri gelistirdigini, disleksi destegi nasil sagladigini ve ogretmenin dikkat etmesi gereken noktalari acikla."
-}
-Markdown bloguna # H1 Baslik ile basla.
+  if (settings.includeScenarioSection) {
+    prompt += `
+SENARYO BÖLÜMÜ: Günlük yaşam senaryoları ver. Öğrenciden senaryoya uygun deyim/atasözünü seçmesini ve nedenini açıklamasını iste.
+`;
+  }
+
+  if (settings.includeBonusSection) {
+    prompt += `
+BONUS BÖLÜM: "Deyim Bulmaca" + "Arkadaşına Sor" bölümü + tüyo kutusu ekle.
+`;
+  }
+
+  prompt += `
+GÖREV BLOKLARI YAPISI (${settings.taskCount} GÖREV):
 `;
 
-    return prompt;
+  for (let i = 1; i <= settings.taskCount; i++) {
+    prompt += `- GÖREV ${i}: `;
+    const activities: string[] = [];
+    if (i === 1) {
+      activities.push('Deyim/atasözü açıklama', 'Görsel eşleştirme');
+    } else if (i === 2) {
+      activities.push('Bağlamsal boşluk doldurma', 'Anlam bulma');
+    } else if (i === 3) {
+      activities.push('Eşleştirme tablosu', 'Doğru/yanlış');
+    } else if (i === 4) {
+      activities.push('Cümle kurma', 'Yaratıcı kullanım');
+    } else if (i === 5) {
+      activities.push('Senaryo analizi', 'Durum eşleştirme');
+    } else {
+      activities.push('Serbest uygulama', 'Tekrar');
+    }
+    if (settings.includeBonusSection && i === settings.taskCount) activities.push('Bonus bulmaca');
+    prompt += activities.join(' + ') + '. ';
+    const itemsForTask = Math.max(2, Math.floor(settings.count / settings.taskCount));
+    prompt += `${itemsForTask} madde içerir. Her madde numaralı ve cevap alanlı.\n`;
+  }
+
+  if (settings.includeAnswerKey) {
+    prompt += `
+CEVAP ANAHTARI: Tüm görevlerin sonunda "📋 CEVAP ANAHTARI" başlığıyla doğru cevapları listele.
+`;
+  }
+
+  prompt += `
+A4 DOLU SAYFA KURALI (ZORUNLU):
+- İçerik A4 kağıdın %95'ini doldurmalı. BOŞ ALAN KALMAMALI.
+- Her görev bloğu "═══ GÖREV X ═══" başlığıyla başlamalı.
+- Görevler arası geçişlerde ───────────────────── çizgisi kullan.
+- Sayfa sonu ayracı: ===SAYFA_SONU=== (görevler arasına koy, cümle ortasında kullanma).
+- Markdown formatında yaz. Tablolar, listeler, kutular kullan.
+
+YANIT FORMATI — GEÇERLİ JSON:
+{
+  "title": "${topic} - Söz Varlığı Çalışması",
+  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
+  "pedagogicalNote": "ZORUNLU: Bu etkinliğin kelime dağarcığını, anlam bilgisini ve dil kullanımını nasıl geliştirdiğini, ${densityLabel} yerleşimin neden seçildiğini ve öğretmenin dikkat etmesi gereken noktaları açıkla (en az 100 karakter)."
+}
+`;
+
+  return prompt;
 }

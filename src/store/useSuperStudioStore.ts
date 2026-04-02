@@ -9,6 +9,7 @@ interface SuperStudioState {
   // Main Settings
   studentId: string | null;
   grade: string | null;
+  topic: string;
   difficulty: SuperStudioDifficulty;
   generationMode: GenerationMode;
 
@@ -23,6 +24,7 @@ interface SuperStudioState {
   // Actions
   setStudentId: (id: string | null) => void;
   setGrade: (grade: string | null) => void;
+  setTopic: (topic: string) => void;
   setDifficulty: (diff: SuperStudioDifficulty) => void;
   setGenerationMode: (mode: GenerationMode) => void;
 
@@ -39,6 +41,7 @@ interface SuperStudioState {
 const initialState = {
   studentId: null,
   grade: null,
+  topic: '',
   difficulty: 'Orta' as SuperStudioDifficulty,
   generationMode: 'ai' as GenerationMode,
   selectedTemplates: [],
@@ -54,6 +57,7 @@ export const useSuperStudioStore = create<SuperStudioState>((set) => ({
 
   setStudentId: (id) => set({ studentId: id }),
   setGrade: (grade) => set({ grade }),
+  setTopic: (topic) => set({ topic }),
   setDifficulty: (diff) => set({ difficulty: diff }),
   setGenerationMode: (mode) => set({ generationMode: mode }),
 

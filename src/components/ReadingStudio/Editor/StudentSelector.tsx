@@ -37,7 +37,7 @@ export const StudentSelector = () => {
                 <select
                     value={activeStudent?.id || ''}
                     onChange={(e) => handleSelect(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white appearance-none cursor-pointer hover:border-indigo-500/50 transition-colors focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white appearance-none cursor-pointer hover:border-accent/50 transition-colors focus:ring-2 focus:ring-accent/20"
                 >
                     <option value="">Serbest Çalışma</option>
                     {students.map((s: any) => (
@@ -49,8 +49,8 @@ export const StudentSelector = () => {
                 </div>
             </div>
             {activeStudent && (
-                <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3 animate-in fade-in duration-300">
-                    <p className="text-[10px] text-indigo-400 font-bold leading-tight">
+                <div className="bg-accent/10 border border-accent/20 rounded-xl p-3 animate-in fade-in duration-300">
+                    <p className="text-[10px] text-accent/70 font-bold leading-tight">
                         <i className="fa-solid fa-circle-info mr-2"></i>
                         {activeStudent.name} için kişiselleştirilmiş içerik üretilecek.
                     </p>

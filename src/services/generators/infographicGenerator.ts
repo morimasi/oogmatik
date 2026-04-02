@@ -11,7 +11,7 @@ export async function generateInfographic(
     activityType: ActivityType,
     options: GeneratorOptions
 ): Promise<InfographicActivityResult> {
-    const { topic, studentAge, difficulty, profile, mode } = options;
+    const { topic, studentAge, difficulty, profile } = options;
 
     if (!topic) {
         throw new AppError('Konu veya metin eksik.', 'VALIDATION_ERROR', 400);
@@ -30,69 +30,25 @@ BAĞLAM:
 ÜRETİM KURALLARI:
 1. SÖZDİZİMİ (Syntax): "syntax" alanı, NativeInfographicRenderer tarafından işlenen özel bir XML-benzeri dildir.
    Her zaman en dışta tek bir ana etiket kullanmalı ve tüm içeriği içine almalısın.
-   Şu ana etiketleri ve yapılarını kullanmalısın:
+   A4 sayfasını "dolu dolu" dolduracak zengin içerikli yapılar kur. 
 
-   - <five-w-one-h title="...">
-       <who question="...">...</who>
-       <what question="...">...</what>
-       <where question="...">...</where>
-       <when question="...">...</when>
-       <why question="...">...</why>
-       <how question="...">...</how>
-     </five-w-one-h>
+2. PREMIUM İÇERİK: "activityContent" içerisinde sadece ana veriyi değil, aynı zamanda "supportingDrill" alanı altında 
+   ana konuyla ilgili 3 adet hızlı pekiştirme sorusu veya kısa alıştırma (true/false, eşleştirme vb.) üret.
 
-   - <venn-diagram title="...">
-       <set-a label="..."> <item>...</item> </set-a>
-       <set-b label="..."> <item>...</item> </set-b>
-       <intersection> <item>...</item> </intersection>
-     </venn-diagram>
+3. PEDAGOJİK NOT: "pedagogicalNote" alanı Elif Yıldız standartlarına göre detaylı olmalı. 
+   Öğrencinin profilini (${profile}) ve zorluk seviyesini (${difficulty}) baz alarak 
+   şu bilimsel kavramlara değin: "Bilişsel Yük", "Yapı iskelesi (Scaffolding)", "Görsel İşleme Hızı".
 
-   - <sequence-steps title="...">
-       <step> <label>...</label> <desc>...</desc> </step>
-     </sequence-steps>
-
-   - <fishbone-diagram title="...">
-       <problem>...</problem>
-       <category label="..."> <cause>...</cause> </category>
-     </fishbone-diagram>
-
-   - <concept-map title="...">
-       <root label="...">
-          <node label="..."> <branch label="..." /> </node>
-       </root>
-     </concept-map>
-
-   - <math-steps-visual title="...">
-       <step> <expression>...</expression> <explanation>...</explanation> </step>
-     </math-steps-visual>
-
-   - <cycle-process title="...">
-       <phase label="..."> <desc>...</desc> </phase>
-     </cycle-process>
-
-   - <matrix-grid title="...">
-       <header>Başlık1, Başlık2, ...</header>
-       <row label="..."> <cell>...</cell> </row>
-     </matrix-grid>
-
-   - <timeline-chart title="...">
-       <event date="..."> <title>...</title> <desc>...</desc> </event>
-     </timeline-chart>
-
-2. PEDAGOJİK NOT: "pedagogicalNote" alanı Elif Yıldız standartlarına göre en az 100 kelime olmalı ve öğretmene bu infografiğin öğrenciye nasıl fayda sağlayacağını bilimsel (örneğin "bilişsel yük kuramı", "ZPD") terimlerle anlatmalıdır.
-
-3. DİSLEKSİ DOSTU: Metinler kısa, net ve somut olmalıdır. Karmaşık cümlelerden kaçın. Lexend fontu kullanılacağını varsayarak metinleri yapılandır.
-
-4. JSON FORMATI: Yanıtın her zaman geçerli bir JSON objesi olmalıdır. "syntax" alanı STRING olmalı ve XML etiketlerini içermelidir.
+4. DİSLEKSİ DOSTU: Metinler kısa, net ve somut olmalıdır. Karmaşık cümlelerden kaçın.
 `;
 
     const USER_PROMPT = `
 Konu: ${topic}
-Lütfen yukarıdaki konuyu ${activityType} aktivite türüne uygun olarak görselleştir.
-Senaryo: ${activityType} bir ${difficulty} seviye ${studentAge} yaş ${profile} öğrencisi için hazırlanmalıdır.
+Lütfen yukarıdaki konuyu ${activityType} aktivite türüne uygun olarak "Ultra Profesyonel" seviyede görselleştir.
+Sayfa Düzeni: A4 boyutunda, kompakt, zengin (dolu dolu) ve estetik olmalıdır.
 
-ÖNEMLİ: "syntax" alanında mutlaka NativeInfographicRenderer etiketlerini kullan. 
-Örnek: "<activity-venn title='Karşılaştırma'>...</activity-venn>" veya "<activity-fishbone title='Neden-Sonuç'>...</activity-fishbone>"
+ÖNEMLİ: "syntax" alanında NativeInfographicRenderer etiketlerini kullan. 
+Ayrıca "activityContent" içinde öğrencinin konuyu pekiştirmesi için 'supportingDrill' (3 kısa soru) eklemeyi unutma.
 `;
 
     const schema = {

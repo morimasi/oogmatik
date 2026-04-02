@@ -30,6 +30,91 @@ interface PromptTemplate {
 // ─── GEOMETRİ PROMPT ŞABLONLARI ──────────────────────────────────
 
 export const GEOMETRI_PROMPT_SABLONLARI: Record<string, PromptTemplate> = {
+    kesisen_dogrular: {
+        sistemTalimati: `
+[GEOMETRİ — KESİŞEN DOĞRULAR GÖRSELİ ZORUNLU]
+
+İki doğrunun kesiştiği nokta ve oluşan açılar (ters açılar, tümler/bütünler açılar).
+
+✅ DOĞRU ÖRNEK:
+Soru: "d1 ve d2 doğruları O noktasında kesişmektedir. Verilen açı 40° ise diğer açılar nedir?"
+→ grafik_verisi: {
+    "tip": "kesisen_dogrular",
+    "baslik": "Kesişen Doğrular",
+    "ozellikler": {
+      "etiketler": ["d1", "d2"],
+      "acilar": [40, 140, 40, 140] // Sırasıyla sağ, üst, sol, alt açılar
+    }
+  }
+
+⚠️ Soru metninde geçen AÇI DEĞERLERİ grafikte aynı olmalı! Doğru isimleri de eşleşmeli.
+`,
+        sinifLimitleri: { minSinif: 5, maxSinif: 8, veriLimiti: () => 4 },
+    },
+    paralel_dogrular: {
+        sistemTalimati: `
+[GEOMETRİ — PARALEL DOĞRULAR GÖRSELİ ZORUNLU]
+
+İki paralel doğru (d1 // d2) ve bunları kesen üçüncü bir doğru (d3) durumu.
+Yöndeş, iç ters, dış ters açılar vb.
+
+✅ DOĞRU ÖRNEK:
+Soru: "d1 ve d2 doğruları paraleldir. d3 doğrusu onları kesmektedir. Şekildeki açı 120° ise x kaçtır?"
+→ grafik_verisi: {
+    "tip": "paralel_dogrular",
+    "baslik": "Paralel Doğrular ve Kesen",
+    "ozellikler": {
+      "etiketler": ["d1", "d2"],
+      "kenarlar": [1], // kesen doğru var
+      "acilar": [120]
+    }
+  }
+
+⚠️ d1 // d2 gibi ifadeler soru metninde net geçmeli. Açı derecesi birebir aynı olmalı.
+`,
+        sinifLimitleri: { minSinif: 6, maxSinif: 8, veriLimiti: () => 4 },
+    },
+    kup: {
+        sistemTalimati: `
+[3D GEOMETRİ — KÜP GÖRSELİ ZORUNLU]
+
+Küp veya dik prizma. Tüm ayrıtları eşit veya belirtilmiş olan 3 boyutlu cisim.
+
+✅ DOĞRU ÖRNEK:
+Soru: "Bir ayrıtı 5 cm olan küpün hacmi kaç cm³'tür?"
+→ grafik_verisi: {
+    "tip": "kup",
+    "baslik": "Küp",
+    "ozellikler": {
+      "kenarlar": [5]
+    }
+  }
+  
+⚠️ Eğer dikdörtgenler prizması ise "tip": "dikdortgenler_prizmasi" olmalı ve "kenarlar": [10, 5, 4] şeklinde (genişlik, derinlik, yükseklik) 3 değer almalı.
+`,
+        sinifLimitleri: { minSinif: 5, maxSinif: 8, veriLimiti: () => 3 },
+    },
+    silindir: {
+        sistemTalimati: `
+[3D GEOMETRİ — SİLİNDİR GÖRSELİ ZORUNLU]
+
+Yarıçap (r) ve yükseklik (h) ölçüleri.
+
+✅ DOĞRU ÖRNEK:
+Soru: "Taban yarıçapı 3 cm, yüksekliği 10 cm olan silindir..."
+→ grafik_verisi: {
+    "tip": "silindir",
+    "baslik": "Dik Dairesel Silindir",
+    "ozellikler": {
+      "yaricap": 3,
+      "kenarlar": [10] // yükseklik
+    }
+  }
+
+⚠️ R (yarıçap) ve H (yükseklik) değerleri soru metnindeki ile BİREBİR AYNI OLMALIDIR. (10 != 5 hatası yapma!)
+`,
+        sinifLimitleri: { minSinif: 8, maxSinif: 8, veriLimiti: () => 2 },
+    },
     ucgen: {
         sistemTalimati: `
 [GEOMETRİ — ÜÇGEN GÖRSELİ ZORUNLU]
@@ -864,6 +949,8 @@ export function getVisualPromptsForKazanimlar(
 
 Seçilen kazanımlar aşağıdaki görsel tiplerini GEREKTİRİYOR.
 Bu kazanımlar için GÖRSELSİZ soru üretme!
+
+SIFIR HALÜSİNASYON: Soru ile görsel (grafik_verisi) %100 eşleşmek zorundadır. Asla soruda bahsedilmeyen bir ölçüyü grafiğe veya grafikte olmayan bir sayıyı soruya yazma.
 
 ${promptlar.join('\n\n---\n\n')}
 `;

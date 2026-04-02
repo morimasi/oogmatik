@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PromptTemplate, PromptSnippet, _PromptVersion } from '../types/admin';
 import { adminService } from '../services/adminService';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';

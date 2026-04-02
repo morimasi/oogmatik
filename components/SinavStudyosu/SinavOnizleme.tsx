@@ -44,7 +44,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
       {/* Başlık Bandı */}
       <div
         className="rounded-xl p-5 mb-5 text-white"
-        style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)' }}
+        style={{ background: 'linear-gradient(135deg, hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 8%)) 0%, hsl(var(--accent-h) var(--accent-s) var(--accent-l)) 100%)' }}
       >
         <h2 className="text-xl font-extrabold mb-3 text-white" style={{ fontFamily }}>
           {sinav.baslik}
@@ -57,7 +57,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
             { label: 'Süre', val: `~${Math.ceil(sinav.tahminiSure / 60)} dk` },
           ].map(({ label, val }) => (
             <div key={label}>
-              <div className="text-indigo-200 text-xs uppercase tracking-wide">{label}</div>
+              <div className="text-white/70 text-xs uppercase tracking-wide">{label}</div>
               <div className="text-white font-bold text-base">{val}</div>
             </div>
           ))}
@@ -73,7 +73,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
           {sinav.secilenKazanimlar.map((kod) => (
             <span
               key={kod}
-              className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-mono rounded-full"
+              className="px-2 py-1 bg-accent/20 text-accent text-xs font-mono rounded-full"
             >
               {kod}
             </span>

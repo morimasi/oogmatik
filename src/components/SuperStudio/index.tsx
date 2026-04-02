@@ -10,7 +10,7 @@ export const SuperStudio: React.FC = () => {
             {/* Sol Panel: Ayarlar ve Düzenleme */}
             <div className="w-[450px] flex-shrink-0 flex flex-col border-r border-slate-700/50 bg-slate-800/80 backdrop-blur-md shadow-xl relative z-10">
                 <div className="p-6 border-b border-slate-700/50 bg-slate-800">
-                    <h1 className="text-2xl font-semibold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-semibold bg-gradient-to-r from-accent/80 to-accent bg-clip-text text-transparent">
                         Super Türkçe Stüdyosu
                     </h1>
                     <p className="text-sm text-slate-400 mt-1">Premium İçerik Üretim Merkezi</p>

@@ -11,9 +11,12 @@ export interface GeneratorMapping {
   offline?: (options: GeneratorOptions) => Promise<any>;
 }
 
+const withAI = (type: ActivityType) => (options: GeneratorOptions) => aiGenerators.generateSmartFallbackAI(type, options);
+const withOffline = (type: ActivityType) => (options: GeneratorOptions) => offlineGenerators.generateOfflineFallback(type, options);
+
 export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, GeneratorMapping>> = {
   [ActivityType.HECE_PARKURU]: {
-    ai: undefined,
+    ai: withAI(ActivityType.HECE_PARKURU),
     offline: offlineGenerators.generateHeceParkuru,
   },
   // 1. OKUMA & DİL BECERİLERİ
@@ -30,7 +33,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineColorfulSyllableReading,
   },
   [ActivityType.FIND_LETTER_PAIR]: {
-    ai: undefined,
+    ai: withAI(ActivityType.FIND_LETTER_PAIR),
     offline: offlineGenerators.generateOfflineFindLetterPair,
   },
   [ActivityType.READING_SUDOKU]: {
@@ -54,70 +57,70 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineLetterVisualMatching,
   },
   [ActivityType.SYLLABLE_WORD_BUILDER]: {
-    ai: undefined,
+    ai: withAI(ActivityType.SYLLABLE_WORD_BUILDER),
     offline: offlineGenerators.generateOfflineSyllableWordBuilder,
   },
   [ActivityType.FAMILY_RELATIONS]: {
-    ai: undefined,
+    ai: withAI(ActivityType.FAMILY_RELATIONS),
     offline: offlineGenerators.generateOfflineFamilyRelations,
   },
   [ActivityType.FAMILY_LOGIC_TEST]: {
-    ai: undefined,
+    ai: withAI(ActivityType.FAMILY_LOGIC_TEST),
     offline: offlineGenerators.generateOfflineFamilyLogicTest,
   },
   [ActivityType.READING_PYRAMID]: {
-    ai: undefined,
+    ai: withAI(ActivityType.READING_PYRAMID),
     offline: offlineGenerators.generateOfflineReadingPyramid,
   },
   [ActivityType.READING_FLOW]: {
-    ai: undefined,
+    ai: withAI(ActivityType.READING_FLOW),
     offline: offlineGenerators.generateOfflineReadingFlow,
   },
   [ActivityType.PHONOLOGICAL_AWARENESS]: {
-    ai: undefined,
+    ai: withAI(ActivityType.PHONOLOGICAL_AWARENESS),
     offline: offlineGenerators.generateOfflinePhonologicalAwareness,
   },
   [ActivityType.RAPID_NAMING]: {
-    ai: undefined,
-    offline: offlineGenerators.generateOfflineRapidNaming,
+    ai: withAI(ActivityType.RAPID_NAMING),
+    offline: offlineGenerators.generateOfflineReadingFlow,
   },
   [ActivityType.LETTER_DISCRIMINATION]: {
-    ai: undefined,
+    ai: withAI(ActivityType.LETTER_DISCRIMINATION),
     offline: offlineGenerators.generateOfflineLetterDiscrimination,
   },
   [ActivityType.MIRROR_LETTERS]: {
-    ai: undefined,
+    ai: withAI(ActivityType.MIRROR_LETTERS),
     offline: offlineGenerators.generateOfflineMirrorLetters,
   },
   [ActivityType.SYLLABLE_TRAIN]: {
-    ai: undefined,
+    ai: withAI(ActivityType.SYLLABLE_TRAIN),
     offline: offlineGenerators.generateOfflineSyllableTrain,
   },
   [ActivityType.BACKWARD_SPELLING]: {
-    ai: undefined,
+    ai: withAI(ActivityType.BACKWARD_SPELLING),
     offline: offlineGenerators.generateOfflineBackwardSpelling,
   },
   [ActivityType.CODE_READING]: {
-    ai: undefined,
+    ai: withAI(ActivityType.CODE_READING),
     offline: offlineGenerators.generateOfflineCodeReading,
   },
   [ActivityType.HANDWRITING_PRACTICE]: {
-    ai: undefined,
+    ai: withAI(ActivityType.HANDWRITING_PRACTICE),
     offline: offlineGenerators.generateOfflineHandwritingPractice,
   },
   [ActivityType.MORPHOLOGY_MATRIX]: {
-    ai: undefined,
+    ai: withAI(ActivityType.MORPHOLOGY_MATRIX),
     offline: offlineGenerators.generateOfflineMorphologyMatrix,
   },
   [ActivityType.MISSING_PARTS]: {
-    ai: undefined,
+    ai: withAI(ActivityType.MISSING_PARTS),
     offline: offlineGenerators.generateOfflineMissingParts,
   },
 
   // 2. MATEMATİK & MANTIK
   [ActivityType.NUMBER_PATTERN]: {
     ai: aiGenerators.generateNumberPatternFromAI,
-    offline: undefined,
+    offline: offlineGenerators.generateOfflinePremiumNumberPattern,
   },
   [ActivityType.ABC_CONNECT]: {
     ai: aiGenerators.generateAbcConnectFromAI,
@@ -141,11 +144,11 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.KENDOKU]: {
     ai: aiGenerators.generateKendokuFromAI,
-    offline: undefined,
+    offline: offlineGenerators.generateOfflinePremiumKendoku,
   },
   [ActivityType.NUMBER_PYRAMID]: {
     ai: aiGenerators.generateNumberPyramidFromAI,
-    offline: undefined,
+    offline: offlineGenerators.generateOfflinePremiumNumberPyramid,
   },
   [ActivityType.APARTMENT_LOGIC_PUZZLE]: {
     ai: aiGenerators.generateApartmentLogicPuzzleFromAI,
@@ -156,15 +159,15 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineNumberLogicRiddles,
   },
   [ActivityType.MATH_PUZZLE]: {
-    ai: undefined,
+    ai: withAI(ActivityType.MATH_PUZZLE),
     offline: offlineGenerators.generateOfflineMathPuzzle,
   },
   [ActivityType.CLOCK_READING]: {
-    ai: undefined,
+    ai: withAI(ActivityType.CLOCK_READING),
     offline: offlineGenerators.generateOfflineClockReading,
   },
   [ActivityType.MONEY_COUNTING]: {
-    ai: undefined,
+    ai: withAI(ActivityType.MONEY_COUNTING),
     offline: offlineGenerators.generateOfflineMoneyCounting,
   },
   [ActivityType.MATH_MEMORY_CARDS]: {
@@ -172,15 +175,15 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineMathMemoryCards,
   },
   [ActivityType.NUMBER_PATH_LOGIC]: {
-    ai: undefined,
+    ai: withAI(ActivityType.NUMBER_PATH_LOGIC),
     offline: offlineGenerators.generateOfflineNumberPathLogic,
   },
   [ActivityType.VISUAL_ARITHMETIC]: {
-    ai: undefined,
+    ai: withAI(ActivityType.VISUAL_ARITHMETIC),
     offline: offlineGenerators.generateOfflineVisualArithmetic,
   },
   [ActivityType.NUMBER_SENSE]: {
-    ai: undefined,
+    ai: withAI(ActivityType.NUMBER_SENSE),
     offline: offlineGenerators.generateOfflineNumberSense,
   },
   [ActivityType.FINANCIAL_MARKET_CALCULATOR]: {
@@ -189,15 +192,15 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.LOGIC_GRID_PUZZLE]: {
     ai: aiGenerators.generateLogicGridPuzzleFromAI,
-    offline: undefined,
+    offline: offlineGenerators.generateOfflinePremiumLogicGridPuzzle,
   },
   [ActivityType.PUNCTUATION_MAZE]: {
     ai: aiGenerators.generatePunctuationMazeFromAI,
-    offline: undefined,
+    offline: offlineGenerators.generateOfflinePremiumPunctuationMaze,
   },
   [ActivityType.MATH_STUDIO]: {
     ai: (options) => aiGenerators.generateMathProblemsAI(options as any),
-    offline: undefined, // generateMathDrillSet has different signature
+    offline: offlineGenerators.generateOfflinePremiumMathStudio,
   },
   [ActivityType.ALGORITHM_GENERATOR]: {
     ai: aiGenerators.generateAlgorithmGeneratorFromAI,
@@ -205,7 +208,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.AI_WORKSHEET_CONVERTER]: {
     ai: aiGenerators.generateAiWorksheetConverterFromAI,
-    offline: undefined,
+    offline: withOffline(ActivityType.AI_WORKSHEET_CONVERTER),
   },
   [ActivityType.HIDDEN_PASSWORD_GRID]: {
     ai: aiGenerators.generateHiddenPasswordGridFromAI,
@@ -234,15 +237,15 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineVisualOddOneOut,
   },
   [ActivityType.GRID_DRAWING]: {
-    ai: undefined,
+    ai: withAI(ActivityType.GRID_DRAWING),
     offline: offlineGenerators.generateOfflineGridDrawing,
   },
   [ActivityType.SYMMETRY_DRAWING]: {
-    ai: undefined,
+    ai: withAI(ActivityType.SYMMETRY_DRAWING),
     offline: offlineGenerators.generateOfflineSymmetryDrawing,
   },
   [ActivityType.WORD_SEARCH]: {
-    ai: undefined,
+    ai: withAI(ActivityType.WORD_SEARCH),
     offline: offlineGenerators.generateOfflineWordSearch,
   },
   [ActivityType.SHAPE_COUNTING]: {
@@ -250,15 +253,15 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineShapeCounting,
   },
   [ActivityType.DIRECTIONAL_TRACKING]: {
-    ai: undefined,
+    ai: withAI(ActivityType.DIRECTIONAL_TRACKING),
     offline: offlineGenerators.generateOfflineDirectionalTracking,
   },
   [ActivityType.VISUAL_TRACKING_LINES]: {
-    ai: undefined,
+    ai: withAI(ActivityType.VISUAL_TRACKING_LINES),
     offline: offlineGenerators.generateOfflineVisualTrackingLines,
   },
   [ActivityType.ATTENTION_TO_QUESTION]: {
-    ai: undefined,
+    ai: withAI(ActivityType.ATTENTION_TO_QUESTION),
     offline: offlineGenerators.generateOfflineAttentionToQuestion,
   },
   [ActivityType.WORD_MEMORY]: {
@@ -311,7 +314,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.THEMATIC_ODD_ONE_OUT]: {
     ai: aiGenerators.generateThematicOddOneOutFromAI,
-    offline: undefined,
+    offline: offlineGenerators.generateOfflinePremiumThematicOddOneOut,
   },
   [ActivityType.VISUAL_INTERPRETATION]: {
     ai: aiGenerators.generateVisualInterpretationFromAI,
@@ -366,18 +369,18 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
 
   // 5. BOŞ / TANIMSIZ AKTİVİTELER (Placeholder)
   // Bu aktivitelerin henüz spesifik bir generator fonksiyonu olmayabilir.
-  [ActivityType.OCR_CONTENT]: { ai: undefined, offline: undefined },
-  [ActivityType.ASSESSMENT_REPORT]: { ai: undefined, offline: undefined },
-  [ActivityType.WORKBOOK]: { ai: undefined, offline: undefined },
-  [ActivityType.REAL_LIFE_MATH_PROBLEMS]: { ai: undefined, offline: undefined },
-  [ActivityType.ATTENTION_DEVELOPMENT]: { ai: undefined, offline: undefined },
-  [ActivityType.ATTENTION_FOCUS]: { ai: undefined, offline: undefined },
-  [ActivityType.ANAGRAM]: { ai: undefined, offline: undefined },
-  [ActivityType.CROSSWORD]: { ai: undefined, offline: undefined },
-  [ActivityType.ODD_ONE_OUT]: { ai: undefined, offline: undefined },
-  [ActivityType.CONCEPT_MATCH]: { ai: undefined, offline: undefined },
-  [ActivityType.ESTIMATION]: { ai: undefined, offline: undefined },
-  [ActivityType.SPATIAL_GRID]: { ai: undefined, offline: undefined },
-  [ActivityType.DOT_PAINTING]: { ai: undefined, offline: undefined },
-  [ActivityType.SHAPE_SUDOKU]: { ai: undefined, offline: undefined },
+  [ActivityType.OCR_CONTENT]: { ai: withAI(ActivityType.OCR_CONTENT), offline: withOffline(ActivityType.OCR_CONTENT) },
+  [ActivityType.ASSESSMENT_REPORT]: { ai: withAI(ActivityType.ASSESSMENT_REPORT), offline: withOffline(ActivityType.ASSESSMENT_REPORT) },
+  [ActivityType.WORKBOOK]: { ai: withAI(ActivityType.WORKBOOK), offline: withOffline(ActivityType.WORKBOOK) },
+  [ActivityType.REAL_LIFE_MATH_PROBLEMS]: { ai: withAI(ActivityType.REAL_LIFE_MATH_PROBLEMS), offline: offlineGenerators.generateOfflinePremiumRealLifeMath },
+  [ActivityType.ATTENTION_DEVELOPMENT]: { ai: withAI(ActivityType.ATTENTION_DEVELOPMENT), offline: offlineGenerators.generateOfflinePremiumAttentionDevelopment },
+  [ActivityType.ATTENTION_FOCUS]: { ai: withAI(ActivityType.ATTENTION_FOCUS), offline: offlineGenerators.generateOfflinePremiumAttentionFocus },
+  [ActivityType.ANAGRAM]: { ai: withAI(ActivityType.ANAGRAM), offline: offlineGenerators.generateOfflinePremiumAnagram },
+  [ActivityType.CROSSWORD]: { ai: withAI(ActivityType.CROSSWORD), offline: offlineGenerators.generateOfflinePremiumCrossword },
+  [ActivityType.ODD_ONE_OUT]: { ai: withAI(ActivityType.ODD_ONE_OUT), offline: offlineGenerators.generateOfflinePremiumOddOneOut },
+  [ActivityType.CONCEPT_MATCH]: { ai: withAI(ActivityType.CONCEPT_MATCH), offline: offlineGenerators.generateOfflinePremiumConceptMatch },
+  [ActivityType.ESTIMATION]: { ai: withAI(ActivityType.ESTIMATION), offline: offlineGenerators.generateOfflinePremiumEstimation },
+  [ActivityType.SPATIAL_GRID]: { ai: withAI(ActivityType.SPATIAL_GRID), offline: offlineGenerators.generateOfflinePremiumSpatialGrid },
+  [ActivityType.DOT_PAINTING]: { ai: withAI(ActivityType.DOT_PAINTING), offline: offlineGenerators.generateOfflinePremiumDotPainting },
+  [ActivityType.SHAPE_SUDOKU]: { ai: withAI(ActivityType.SHAPE_SUDOKU), offline: offlineGenerators.generateOfflinePremiumShapeSudoku },
 };

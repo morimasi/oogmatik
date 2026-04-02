@@ -1,66 +1,124 @@
 import { IPromptBuilderContext } from '../registry';
 import { HeceSesSettings } from './types';
 
-export default function buildHeceSesPrompt(context: IPromptBuilderContext<HeceSesSettings>): string {
-    const { topic, difficulty, studentName, settings } = context;
+export default function buildHeceSesPrompt(
+  context: IPromptBuilderContext<HeceSesSettings>
+): string {
+  const { topic, difficulty, grade, studentName, settings } = context;
+  const densityLabel =
+    settings.layoutDensity === 'standart'
+      ? 'standart'
+      : settings.layoutDensity === 'yogun'
+        ? 'yoğun'
+        : 'ultra yoğun';
+  const eventLabels: Record<string, string> = {
+    heceleme: 'Heceleme',
+    yumusama: 'Ünsüz Yumuşaması',
+    sertlesme: 'Ünsüz Benzeşmesi',
+    'ses-dusmesi': 'Ses Düşmesi',
+  };
+  const eventsText = settings.focusEvents.map((e) => eventLabels[e] || e).join(', ');
 
-    let prompt = `
-[HECE VE SES OLAYLARI - BILISSEL DIL BECERILERI]
-PROFIL: Disleksi-fonolojik farkindalik uzmani, dil ogretmeni.
-GOREV: "${topic}" konusu etrafinda, ses bilgisine odaklanan premium etkinlik hazirla.
-${studentName ? `Ogrenci: "${studentName}"` : ''}
-Zorluk: ${difficulty}
+  let prompt = `
+SEN: Disleksi-fonolojik farkındalık uzmanı, ses olayları ve heceleme öğretmeni.
+GÖREV: "${topic}" konusu etrafında, ${grade || 'ilkokul seviyesi'} düzeyinde, ${difficulty} zorlukta HECE VE SES OLAYLARI çalışma kağıdı hazırla.
+${studentName ? `Öğrenci: "${studentName}"` : ''}
 
-[KATI PEDAGOJIK KURALLAR]
-- Kural 1 (SES OLAYLARI): Su olaylari kapsayan ${settings.wordCount} adet kelime sec: ${settings.focusEvents.join(', ')}.
-- Kural 2 (ANLATIM): Ses olaylarini basit ve somut orneklerle goster.
+KRİTİK KURALLAR:
+- Tüm içerik Türkçe, disleksi dostu sade dil kullan.
+- Yerleşim yoğunluğu: ${densityLabel}.
+- Odak ses olayları: ${eventsText}.
+- Toplam ${settings.wordCount} kelime, ${settings.taskCount} görev bloğu.
+- Her görev bloğunda EN AZ 2 alt-aktivite bulunmalı.
+- Tüm sorular numaralı olmalı (1., 2., 3. ...).
+- Her sorunun altında cevap yazma alanı bırak.
+- Görev blokları arasına ───────────────────── ayırıcı çizgi koy.
 `;
 
-    if (settings.syllableHighlight) {
-        prompt += `
-- Kural 3 (HECE GORSELLESTIRME): Kelimeleri hecelerine ayirirken koseli parantez kullan.
-`;
-    }
-
-    if (settings.multisensorySupport) {
-        prompt += `
-- Kural 4 (ISITSEL VURGU): Hedef harfi BUYUK yaz.
-`;
-    }
-
+  if (settings.syllableHighlight) {
     prompt += `
-[DOLU DOLU A4 URETIM KURALI]
-- Uretilen icerik A4 kagidin %95'INI doldurmalidir.
-- Kenar bosluklari: Ust 2cm, Alt 2cm, Sol 2.5cm, Sag 2cm.
-- Icerik yogun ama okunabilir olmali.
+HECE GÖRSELLEŞTİRME: Kelimeleri hecelerine ayırırken köşeli parantez kullan: [Ki-tap-lık], [Öğ-ren-ci]. Hece sınırlarını belirgin göster.
+`;
+  }
 
-[ZENGIN ICERIK KURALI]
-- Her GOREV icinde EN AZ 2 farkli alt-aktivite bulunmalidir.
-- GOREV 1'de: "Heceleme + Boyama + Eslestirme"
-- GOREV 2'de: "Kelime Turetime + Harf Sayma + Tablo"
-- GOREV 3'te: "Bosluk Doldurma + Renk Kodlama + Bulmaca"
-- GOREV 4'te: "Mini Test + Kelime Avi + Arkadasa Sor"
+  if (settings.multisensorySupport) {
+    prompt += `
+ÇOK DUYULU DESTEK: Hedef harfi veya sesi BÜYÜK yazarak vurgula. Renk kodlama ipuçları ekle.
+`;
+  }
 
-[CALISMA KAGIDI YAPISI - ZORUNLU]
-4 GOREV yapisi kullan:
-- GOREV 1 (Hecelerine Ayir): Kelimeleri hecelerine ayirma gorevi. Renk kodlu kutular kullan.
-- GOREV 2 (Daginik Heceleri Topla): Karisik hecelerden anlamli kelime turetime.
-- GOREV 3 (Eksik Hece Pesinde): Bos birakilan heceleri bulma.
-- GOREV 4 (Bonus): Mini yarisma sorusi veya tuyo kutusu.
+  if (settings.includeSyllableCounting) {
+    prompt += `
+HECE SAYMA: Her kelimenin hece sayısını tabloya yazdırma egzersizi ekle. Hece sayma tablosu oluştur.
+`;
+  }
 
-[PAGINATION]
-ICERIK UZUN OLURSA su ayraci koy ve yeni sayfaya gec:
-===SAYFA_SONU===
+  if (settings.includeWordBuilding) {
+    prompt += `
+KELİME KURMA: Dağınık hecelerden anlamlı kelime türetme egzersizleri ekle. Karışık heceleri doğru sırada dizdir.
+`;
+  }
 
-[YANIT FORMATI]:
-Gecerli JSON dondur:
-{
-  "title": "${topic} - Hece ve Ses Olaylari",
-  "content": "Fonolojik farkindalik ve heceleme egzersizleri.",
-  "pedagogicalNote": "ZORUNLU: Ogretmene yonelik en az 50 karakterlik detayli pedagojik aciklama. Bu etkinligin hangi becerileri gelistirdigini, disleksi destegi nasil sagladigini ve ogretmenin dikkat etmesi gereken noktalari acikla."
-}
-Markdown bloguna # H1 Baslik ile basla.
+  if (settings.includeSoundDetection) {
+    prompt += `
+SES ALGILAMA: Hedef sesi içeren kelimeleri bulma oyunu ekle. Ses tespiti egzersizleri içer.
+`;
+  }
+
+  if (settings.includeBonusSection) {
+    prompt += `
+BONUS BÖLÜM: "Ses Bulmaca" + "Arkadaşına Sor" bölümü + tüyo kutusu ekle.
+`;
+  }
+
+  prompt += `
+GÖREV BLOKLARI YAPISI (${settings.taskCount} GÖREV):
 `;
 
-    return prompt;
+  for (let i = 1; i <= settings.taskCount; i++) {
+    prompt += `- GÖREV ${i}: `;
+    const activities: string[] = [];
+    if (i === 1) {
+      activities.push('Heceleme pratiği', 'Hece sınırlarını çiz');
+    } else if (i === 2) {
+      activities.push('Ünsüz yumuşaması', 'Sertleşme tespiti');
+    } else if (i === 3) {
+      activities.push('Hece sayma tablosu', 'Renk kodlu kutular');
+    } else if (i === 4) {
+      activities.push('Dağınık hece toplama', 'Kelime türetme');
+    } else if (i === 5) {
+      activities.push('Ses algılama', 'Ses bulma oyunu');
+    } else {
+      activities.push('Ses düşmesi', 'Serbest uygulama');
+    }
+    if (settings.includeBonusSection && i === settings.taskCount)
+      activities.push('Bonus ses bulmaca');
+    prompt += activities.join(' + ') + '. ';
+    const wordsForTask = Math.max(2, Math.floor(settings.wordCount / settings.taskCount));
+    prompt += `${wordsForTask} kelime içerir. Her kelime numaralı ve cevap alanlı.\n`;
+  }
+
+  if (settings.includeAnswerKey) {
+    prompt += `
+CEVAP ANAHTARI: Tüm görevlerin sonunda "📋 CEVAP ANAHTARI" başlığıyla doğru cevapları listele.
+`;
+  }
+
+  prompt += `
+A4 DOLU SAYFA KURALI (ZORUNLU):
+- İçerik A4 kağıdın %95'ini doldurmalı. BOŞ ALAN KALMAMALI.
+- Her görev bloğu "═══ GÖREV X ═══" başlığıyla başlamalı.
+- Görevler arası geçişlerde ───────────────────── çizgisi kullan.
+- Sayfa sonu ayracı: ===SAYFA_SONU=== (görevler arasına koy, cümle ortasında kullanma).
+- Markdown formatında yaz. Tablolar, listeler, kutular, renk kodlama kullan.
+
+YANIT FORMATI — GEÇERLİ JSON:
+{
+  "title": "${topic} - Hece ve Ses Olayları",
+  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
+  "pedagogicalNote": "ZORUNLU: Bu etkinliğin fonolojik farkındalık, heceleme ve ses olayları becerilerini nasıl geliştirdiğini, ${densityLabel} yerleşimin neden seçildiğini ve öğretmenin dikkat etmesi gereken noktaları açıkla (en az 100 karakter)."
+}
+`;
+
+  return prompt;
 }

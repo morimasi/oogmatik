@@ -4,7 +4,7 @@ import { getTemplateById } from '../templates';
 
 export const ConfiguratorCascade: React.FC = () => {
     const {
-        selectedTemplates, templateSettings, generationMode, grade, difficulty, studentId,
+        selectedTemplates, templateSettings, generationMode, grade, topic, difficulty, studentId,
         setIsGenerating, isGenerating, clearGeneratedContents, addGeneratedContent, setTemplateSetting
     } = useSuperStudioStore();
 
@@ -18,6 +18,7 @@ export const ConfiguratorCascade: React.FC = () => {
                 settings: templateSettings,
                 mode: generationMode,
                 grade,
+                topic,
                 difficulty,
                 studentId
             });
@@ -77,7 +78,7 @@ export const ConfiguratorCascade: React.FC = () => {
             <button
                 onClick={handleGenerate}
                 disabled={isGenerating}
-                className={`w-full mt-4 text-white font-medium py-3 rounded-xl shadow-lg transition-all flex justify-center items-center ${isGenerating ? 'bg-slate-700 cursor-not-allowed text-slate-400' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-indigo-500/20'
+                className={`w-full mt-4 text-white font-medium py-3 rounded-xl shadow-lg transition-all flex justify-center items-center ${isGenerating ? 'bg-slate-700 cursor-not-allowed text-slate-400' : 'bg-accent hover:bg-accent/90 shadow-accent/20'
                     }`}
             >
                 <span>{isGenerating ? 'İçerikler Sistematik Olarak Üretiliyor...' : 'İçerikleri Üret (Batch Mod)'}</span>

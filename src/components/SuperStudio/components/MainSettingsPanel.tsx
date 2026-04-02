@@ -3,7 +3,7 @@ import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { SuperStudioDifficulty, GenerationMode } from '../../../types/superStudio';
 
 export const MainSettingsPanel: React.FC = () => {
-    const { grade, difficulty, generationMode, setGrade, setDifficulty, setGenerationMode } = useSuperStudioStore();
+    const { grade, topic, difficulty, generationMode, setGrade, setTopic, setDifficulty, setGenerationMode } = useSuperStudioStore();
 
     return (
         <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 shadow-sm relative w-full">
@@ -13,7 +13,19 @@ export const MainSettingsPanel: React.FC = () => {
             </h2>
 
             <div className="space-y-4">
-                {/* Öğrenci ve Sınıf Seçimi */}
+                {/* Konu / Tema */}
+                <div>
+                    <label className="block text-xs text-slate-400 mb-1">Konu / Tema</label>
+                    <input
+                        type="text"
+                        value={topic}
+                        onChange={(e) => setTopic(e.target.value)}
+                        placeholder="Örn: Mevsimler, Uzay, Hayvanlar, Atatürk..."
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-blue-500 transition-colors placeholder:text-slate-600"
+                    />
+                </div>
+
+                {/* Sınıf ve Düzey */}
                 <div className="flex space-x-3">
                     <div className="flex-1">
                         <label className="block text-xs text-slate-400 mb-1">Sınıf Seviyesi</label>
@@ -54,7 +66,7 @@ export const MainSettingsPanel: React.FC = () => {
                         </button>
                         <button
                             onClick={() => setGenerationMode('ai')}
-                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${generationMode === 'ai' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${generationMode === 'ai' ? 'bg-accent text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
                         >
                             ✨ AI Mod (Gemini)
                         </button>

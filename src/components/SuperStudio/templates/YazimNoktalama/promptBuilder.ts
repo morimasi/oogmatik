@@ -1,69 +1,127 @@
 import { IPromptBuilderContext } from '../registry';
 import { YazimNoktalamaSettings } from './types';
 
-export default function buildYazimNoktalamaPrompt(context: IPromptBuilderContext<YazimNoktalamaSettings>): string {
-    const { topic, difficulty, studentName, settings } = context;
+export default function buildYazimNoktalamaPrompt(
+  context: IPromptBuilderContext<YazimNoktalamaSettings>
+): string {
+  const { topic, difficulty, grade, studentName, settings } = context;
+  const densityLabel =
+    settings.layoutDensity === 'standart'
+      ? 'standart'
+      : settings.layoutDensity === 'yogun'
+        ? 'yoğun'
+        : 'ultra yoğun';
 
-    let prompt = `
-[YAZIM VE NOKTALAMA - HATA DEDEKTIFI]
-PROFIL: MEB müfredatina hakim, disleksi dostu eğitim uzmani.
-GOREV: "${topic}" konusu etrafinda yazim ve noktalama becerilerini olcen premium etkinlik hazirla.
-${studentName ? `Ogrenci: "${studentName}"` : ''}
-Zorluk: ${difficulty}
+  const ruleLabels: Record<string, string> = {
+    'buyuk-harf': 'Büyük Harf Kullanımı',
+    'kesme-isareti': 'Kesme İşareti',
+    noktalama: 'Noktalama İşaretleri (. , ! ? : ;)',
+    'bitisik-ayri': 'Bitişik/Ayrı Yazım (de/da, ki, mi)',
+  };
 
-[KATI PEDAGOJIK KURALLAR]
-- Kural 1 (KURALLAR): Su kurallari kullan: ${settings.focusRules.join(', ')}.
-- Kural 2 (EGZERSIZ): ${settings.exerciseCount} adet cumle veya paragraf olustur.
+  const focusText = settings.focusRules.map((r) => ruleLabels[r] || r).join(', ');
+  const paraLenText =
+    settings.paragraphLength === 'kisa'
+      ? '2-3 cümle'
+      : settings.paragraphLength === 'uzun'
+        ? '6-8 cümle'
+        : '4-5 cümle';
+
+  let prompt = `
+SEN: MEB müfredatına hakim, disleksi dostu eğitim uzmanısın.
+GÖREV: "${topic}" konusu etrafında, ${grade || 'ilkokul seviyesi'} düzeyinde, ${difficulty} zorlukta YAZIM VE NOKTALAMA çalışma kağıdı hazırla.
+${studentName ? `Öğrenci: "${studentName}"` : ''}
+
+KRİTİK KURALLAR:
+- Tüm içerik Türkçe, disleksi dostu sade dil kullan.
+- Yerleşim yoğunluğu: ${densityLabel}.
+- Odak kurallar: ${focusText}.
+- Toplam ${settings.exerciseCount} egzersiz, ${settings.taskCount} görev bloğu.
+- Her görev bloğunda EN AZ 2 alt-aktivite bulunmalı.
+- Tüm sorular numaralı olmalı (1., 2., 3. ...).
+- Her sorunun altında cevap/düzeltme çizgisi (________) bırak.
+- Görev blokları arasına ───────────────────── ayırıcı çizgi koy.
+- Her paragraf ${paraLenText} uzunluğunda olsun.
 `;
 
-    if (settings.showRuleHint) {
-        prompt += `
-- Kural 3 (KURAL HATIRLATMA): Her etkinlik arasina bilgi notu ekle.
-`;
-    }
-
-    if (settings.errorCorrectionMode) {
-        prompt += `
-- Kural 4 (HATA DUZELTME): Cumleleri hatali yaz ve ogrenciden duzeltmesini iste.
-`;
-    } else {
-        prompt += `
-- Kural 4 (UYGULAMA): Cumleleri dogru ver ancak noktalama isaretlerinin veya buyuk harflerin oldugu yerleri bos birak ya da parantez ac.
-`;
-    }
-
+  if (settings.showRuleHint) {
     prompt += `
-[DOLU DOLU A4 URETIM KURALI]
-- Uretilen icerik A4 kagidin %95'INI doldurmalidir.
-- Kenar bosluklari: Ust 2cm, Alt 2cm, Sol 2.5cm, Sag 2cm.
+KURAL HATIRLATICI: Her görev bloğunun başına, o görevdeki yazım kuralını özetleyen 📌 bilgi notu kutusu ekle. Kutunun etrafında kesikli çerçeve olsun.
+`;
+  }
 
-[ZENGIN ICERIK KURALI]
-- Her GOREV icinde EN AZ 2 farkli alt-aktivite bulunmalidir.
-- GOREV 1'de: "Noktalama Duzeltme + Kural Aciklamasi + Cetvel"
-- GOREV 2'de: "Senaryo Yazma + Isaret Koyma + Duygu Ifadesi"
-- GOREV 3'te: "Test + Eslestirme + XOX Puanlama"
-- GOREV 4'te: "Mini Yarisma + Dustundurucu Soru + Arkadasa Sor"
+  if (settings.errorCorrectionMode) {
+    prompt += `
+HATA DEDEKTİFİ MODU: Cümleleri BİLİNÇLİ OLARAK HATALI yaz. Öğrenciden hataları bulup altını çizmesini ve doğrusunu yazmasını iste. Her cümlede 1-2 yazım/noktalama hatası olsun.
+`;
+  }
 
-[CALISMA KAGIDI YAPISI - ZORUNLU]
-4 GOREV yapisi kullan:
-- GOREV 1 (Baglamsal Duzeltme): Noktalamsiz metni duzeltme.
-- GOREV 2 (Senaryo Uretimi): Kendi cumlelerini kurma.
-- GOREV 3 (Test): Dogru/yanlis veya coktan secmeli sorular.
-- GOREV 4 (Bonus): Mini yarisma sorusi veya tuyo kutusu.
+  if (settings.includeScenarioWriting) {
+    prompt += `
+SENARYO YAZMA: Öğrenciden verilen duruma uygun doğru cümleler yazmasını iste. Cümlelerde odak kuralları uygulatsın. Senaryo kutuları ekle.
+`;
+  }
 
-[PAGINATION]
-ICERIK UZUN OLURSA su ayraci koy ve yeni sayfaya gec:
-===SAYFA_SONU===
+  if (settings.includeTestSection) {
+    prompt += `
+TEST BÖLÜMÜ: Doğru/Yanlış soruları + çoktan seçmeli sorular ekle. Hepsinde yazım/noktalama bilgisi sorsun.
+`;
+  }
 
-[YANIT FORMATI]:
-Gecerli JSON dondur:
-{
-  "title": "${topic} - Yazim ve Noktalama",
-  "content": "Tum yonerge, calisma sorulari ve kurallar.",
-  "pedagogicalNote": "ZORUNLU: Ogretmene yonelik en az 50 karakterlik detayli pedagojik aciklama. Bu etkinligin hangi becerileri gelistirdigini, disleksi destegi nasil sagladigini ve ogretmenin dikkat etmesi gereken noktalari acikla."
-}
-Markdown bloguna # H1 Baslik ile basla.
+  if (settings.includeBonusSection) {
+    prompt += `
+BONUS BÖLÜM: "Noktalama Yarışması" tablosu + "Arkadaşına Sor" bölümü + tüyo kutusu ekle.
+`;
+  }
+
+  prompt += `
+GÖREV BLOKLARI YAPISI (${settings.taskCount} GÖREV):
 `;
 
-    return prompt;
+  for (let i = 1; i <= settings.taskCount; i++) {
+    prompt += `- GÖREV ${i}: `;
+    const activities: string[] = [];
+    if (i === 1) {
+      activities.push('Bağlamsal düzeltme', 'Hatalı cümle bulma');
+    } else if (i === 2) {
+      activities.push('Boşluk doldurma', 'Noktalama yerleştirme');
+    } else if (i === 3) {
+      activities.push('Kural eşleştirme', 'Doğru/yanlış');
+    } else if (i === 4) {
+      activities.push('Senaryo yazma', 'Durum cümlesi');
+    } else if (i === 5) {
+      activities.push('Çoktan seçmeli test', 'Hata avı');
+    } else {
+      activities.push('Serbest uygulama', 'Kural tekrarı');
+    }
+    if (settings.includeTestSection && i === settings.taskCount) activities.push('Test bölümü');
+    if (settings.includeBonusSection && i === settings.taskCount) activities.push('Bonus yarışma');
+    prompt += activities.join(' + ') + '. ';
+    const exercisesForTask = Math.max(2, Math.floor(settings.exerciseCount / settings.taskCount));
+    prompt += `${exercisesForTask} egzersiz içerir. Her egzersiz numaralı ve düzeltme çizgili.\n`;
+  }
+
+  if (settings.includeAnswerKey) {
+    prompt += `
+CEVAP ANAHTARI: Tüm görevlerin sonunda "📋 CEVAP ANAHTARI" başlığıyla doğru cevapları listele.
+`;
+  }
+
+  prompt += `
+A4 DOLU SAYFA KURALI (ZORUNLU):
+- İçerik A4 kağıdın %95'ini doldurmalı. BOŞ ALAN KALMAMALI.
+- Her görev bloğu "═══ GÖREV X ═══" başlığıyla başlamalı.
+- Görevler arası geçişlerde ───────────────────── çizgisi kullan.
+- Sayfa sonu ayracı: ===SAYFA_SONU=== (görevler arasına koy, cümle ortasında kullanma).
+- Markdown formatında yaz. Tablolar, listeler, kutular kullan.
+
+YANIT FORMATI — GEÇERLİ JSON:
+{
+  "title": "${topic} - Yazım ve Noktalama",
+  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
+  "pedagogicalNote": "ZORUNLU: Bu etkinliğin yazım ve noktalama becerilerini nasıl geliştirdiğini, ${densityLabel} yerleşimin neden seçildiğini ve öğretmenin dikkat etmesi gereken noktaları açıkla (en az 100 karakter)."
+}
+`;
+
+  return prompt;
 }

@@ -1,10 +1,11 @@
 /**
  * GraphicRenderer — HD Kalite Matematik Görsel Motoru
  *
- * Desteklenen 21 tip:
+ * Desteklenen 28 tip:
  *   Veri:      siklik_tablosu · cetele_tablosu · sutun_grafigi · pasta_grafigi · cizgi_grafigi
  *   Geometri:  ucgen · dik_ucgen · kare · dikdortgen · paralel_kenar · cokgen · daire
- *              dogru_parcasi · aci · simetri
+ *              dogru_parcasi · aci · simetri · kesisen_dogrular · paralel_dogrular
+ *   3D Geometri: kup · silindir · koni · piramit · dikdortgenler_prizmasi
  *   Analitik:  koordinat_sistemi · koordinat_grafigi · sayi_dogrusu
  *   Kavramsal: kesir_modeli · venn_diyagrami · olaslik_cark
  *
@@ -38,22 +39,23 @@ const FILL_OPACITY_MED = '20';     // ~12%
 
 const SvgDefs: React.FC<{ id: string; color: string }> = ({ id, color }) => (
     <defs>
-        <filter id={`shadow-${id}`} x="-15%" y="-15%" width="130%" height="140%">
-            <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#00000020" />
+        <filter id={`shadow-${id}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor={color} floodOpacity="0.15" />
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#0f172a" floodOpacity="0.06" />
         </filter>
         <linearGradient id={`gradV-${id}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.92" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.6" />
+            <stop offset="0%" stopColor={color} stopOpacity="0.95" />
+            <stop offset="100%" stopColor={color} stopOpacity="0.75" />
         </linearGradient>
         <linearGradient id={`shapeFill-${id}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.18" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.06" />
+            <stop offset="0%" stopColor={color} stopOpacity="0.12" />
+            <stop offset="100%" stopColor={color} stopOpacity="0.03" />
         </linearGradient>
-        <marker id={`arrow-${id}`} markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L8,3 Z" fill={color} />
+        <marker id={`arrow-${id}`} markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto-start-reverse">
+            <path d="M0,1 L0,7 L8,4 Z" fill={color} />
         </marker>
-        <marker id={`arrowL-${id}`} markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto-start-reverse">
-            <path d="M0,0 L0,6 L8,3 Z" fill={color} />
+        <marker id={`arrowL-${id}`} markerWidth="10" markerHeight="10" refX="2" refY="4" orient="auto-start-reverse">
+            <path d="M0,1 L0,7 L8,4 Z" fill={color} />
         </marker>
     </defs>
 );
@@ -887,6 +889,173 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
             );
         }
 
+        /* ── KESİŞEN DOĞRULAR / AÇILAR KAVŞAĞI ────────────────────────────────────────── */
+        if (tip === 'kesisen_dogrular' || tip === 'acilar_kavsagi') {
+            const aciDegerleri = ozellikler?.acilar || [];
+            const isimler = ozellikler?.etiketler || ['d1', 'd2'];
+            return (
+                <svg viewBox="0 0 240 200" className="w-full max-w-xs mx-auto mt-2" style={{ fontFamily: FONT, filter: 'drop-shadow(0 2px 4px #0001)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    {/* Doğrular */}
+                    <line x1="20" y1="40" x2="220" y2="160" stroke={anaRenk} strokeWidth="2.5" markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    <line x1="40" y1="170" x2="200" y2="30" stroke={anaRenk} strokeWidth="2.5" markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    
+                    {/* Doğru İsimleri */}
+                    <text x="30" y="30" fontSize="12" fill={anaRenk} fontWeight="bold">{isimler[0] || 'd1'}</text>
+                    <text x="200" y="20" fontSize="12" fill={anaRenk} fontWeight="bold">{isimler[1] || 'd2'}</text>
+
+                    {/* Merkez Kesişim Noktası */}
+                    <circle cx="120" cy="100" r="4" fill="#0f172a" />
+                    <text x="120" y="90" fontSize="12" fill="#0f172a" fontWeight="bold" textAnchor="middle">O</text>
+
+                    {/* Açı Yayları ve Değerleri */}
+                    {aciDegerleri[0] && (
+                        <>
+                            <path d="M 135 109 A 20 20 0 0 0 135 91" fill="none" stroke="#ef4444" strokeWidth="2" />
+                            <text x="155" y="105" fontSize="11" fill="#ef4444" fontWeight="bold">{aciDegerleri[0]}°</text>
+                        </>
+                    )}
+                    {aciDegerleri[1] && (
+                        <>
+                            <path d="M 105 109 A 20 20 0 0 1 105 91" fill="none" stroke="#3b82f6" strokeWidth="2" />
+                            <text x="85" y="105" fontSize="11" fill="#3b82f6" fontWeight="bold">{aciDegerleri[1]}°</text>
+                        </>
+                    )}
+                    {aciDegerleri[2] && (
+                        <>
+                            <path d="M 109 85 A 20 20 0 0 1 131 85" fill="none" stroke="#10b981" strokeWidth="2" />
+                            <text x="120" y="75" fontSize="11" fill="#10b981" fontWeight="bold" textAnchor="middle">{aciDegerleri[2]}°</text>
+                        </>
+                    )}
+                    {aciDegerleri[3] && (
+                        <>
+                            <path d="M 109 115 A 20 20 0 0 0 131 115" fill="none" stroke="#f59e0b" strokeWidth="2" />
+                            <text x="120" y="135" fontSize="11" fill="#f59e0b" fontWeight="bold" textAnchor="middle">{aciDegerleri[3]}°</text>
+                        </>
+                    )}
+                </svg>
+            );
+        }
+
+        /* ── PARALEL DOĞRULAR ────────────────────────────────────────── */
+        if (tip === 'paralel_dogrular') {
+            const isimler = ozellikler?.etiketler || ['d1', 'd2'];
+            const kesen = ozellikler?.kenarlar?.[0] ? true : false; // Eğer bir özellik varsa kesen doğru çiz
+            const aci = ozellikler?.acilar?.[0];
+
+            return (
+                <svg viewBox="0 0 240 180" className="w-full max-w-xs mx-auto mt-2" style={{ fontFamily: FONT, filter: 'drop-shadow(0 2px 4px #0001)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    {/* Paralel Doğrular */}
+                    <line x1="20" y1="60" x2="220" y2="60" stroke={anaRenk} strokeWidth="2.5" markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    <line x1="20" y1="120" x2="220" y2="120" stroke={anaRenk} strokeWidth="2.5" markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    
+                    <text x="25" y="50" fontSize="12" fill={anaRenk} fontWeight="bold">{isimler[0] || 'd1'}</text>
+                    <text x="25" y="110" fontSize="12" fill={anaRenk} fontWeight="bold">{isimler[1] || 'd2'}</text>
+                    <text x="200" y="95" fontSize="14" fill={anaRenk} fontWeight="bold">d1 // d2</text>
+
+                    {/* Kesen Doğru (varsa) */}
+                    {kesen && (
+                        <>
+                            <line x1="80" y1="20" x2="160" y2="160" stroke="#0f172a" strokeWidth="2" markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                            <text x="75" y="15" fontSize="12" fill="#0f172a" fontWeight="bold">d3</text>
+                            
+                            {/* Açı (varsa) */}
+                            {aci && (
+                                <>
+                                    <path d="M 115 60 A 15 15 0 0 0 105 45" fill="none" stroke="#ef4444" strokeWidth="2" />
+                                    <text x="120" y="45" fontSize="11" fill="#ef4444" fontWeight="bold">{aci}°</text>
+                                </>
+                            )}
+                        </>
+                    )}
+                </svg>
+            );
+        }
+
+        /* ── KÜP ────────────────────────────────────────── */
+        if (tip === 'kup' || tip === 'dikdortgenler_prizmasi') {
+            const isRect = tip === 'dikdortgenler_prizmasi';
+            const w = isRect ? 120 : 80;
+            const h = 80;
+            const d = 40; // derinlik
+            const ox = 60;
+            const oy = 60;
+            const kenarlar = ozellikler?.kenarlar || [];
+
+            return (
+                <svg viewBox="0 0 240 220" className="w-full max-w-xs mx-auto mt-2" style={{ fontFamily: FONT, filter: 'drop-shadow(0 4px 10px #0002)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    
+                    {/* Arka Yüz (Noktalı Çizgiler) */}
+                    <rect x={ox + d} y={oy - d} width={w} height={h} fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 4" />
+                    <line x1={ox} y1={oy + h} x2={ox + d} y2={oy + h - d} stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 4" />
+                    <line x1={ox + w} y1={oy + h} x2={ox + w + d} y2={oy + h - d} stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 4" />
+                    <line x1={ox} y1={oy} x2={ox + d} y2={oy - d} stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 4" />
+                    
+                    {/* Ön Yüz ve Üst/Yan Yüzeyler (Katı Çizgiler & Gradient) */}
+                    <polygon points={`${ox},${oy} ${ox+w},${oy} ${ox+w+d},${oy-d} ${ox+d},${oy-d}`} fill={`${anaRenk}33`} stroke={anaRenk} strokeWidth="2" strokeLinejoin="round" />
+                    <polygon points={`${ox+w},${oy} ${ox+w},${oy+h} ${ox+w+d},${oy+h-d} ${ox+w+d},${oy-d}`} fill={`${anaRenk}1A`} stroke={anaRenk} strokeWidth="2" strokeLinejoin="round" />
+                    <rect x={ox} y={oy} width={w} height={h} fill={`url(#shapeFill-${uid})`} stroke={anaRenk} strokeWidth="2.5" strokeLinejoin="round" />
+                    
+                    {/* Ölçüler */}
+                    {kenarlar[0] && (
+                        <text x={ox + w/2} y={oy + h + 15} fontSize="12" fill="#1e293b" fontWeight="bold" textAnchor="middle">{kenarlar[0]}</text>
+                    )}
+                    {kenarlar[1] && (
+                        <text x={ox - 15} y={oy + h/2 + 5} fontSize="12" fill="#1e293b" fontWeight="bold" textAnchor="end">{kenarlar[1]}</text>
+                    )}
+                    {kenarlar[2] && (
+                        <text x={ox + w + d/2 + 10} y={oy + h - d/2} fontSize="12" fill="#1e293b" fontWeight="bold" transform={`rotate(-45, ${ox + w + d/2 + 10}, ${oy + h - d/2})`}>{kenarlar[2]}</text>
+                    )}
+                </svg>
+            );
+        }
+
+        /* ── SİLİNDİR ────────────────────────────────────────── */
+        if (tip === 'silindir') {
+            const ox = 120;
+            const oy = 60;
+            const w = 80; // Elips genişliği
+            const h = 25; // Elips yüksekliği
+            const bodyH = 100;
+            const r = ozellikler?.yaricap;
+            const yukseklik = ozellikler?.kenarlar?.[0];
+
+            return (
+                <svg viewBox="0 0 240 240" className="w-full max-w-xs mx-auto mt-2" style={{ fontFamily: FONT, filter: 'drop-shadow(0 4px 10px #0002)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    
+                    {/* Arka Alt Elips Yayı (Noktalı) */}
+                    <path d={`M ${ox-w/2} ${oy+bodyH} A ${w/2} ${h/2} 0 0 1 ${ox+w/2} ${oy+bodyH}`} fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 4" />
+                    
+                    {/* Ön Alt Elips Yayı */}
+                    <path d={`M ${ox-w/2} ${oy+bodyH} A ${w/2} ${h/2} 0 0 0 ${ox+w/2} ${oy+bodyH}`} fill={`${anaRenk}1A`} stroke={anaRenk} strokeWidth="2.5" />
+                    
+                    {/* Gövde */}
+                    <path d={`M ${ox-w/2} ${oy} L ${ox-w/2} ${oy+bodyH} A ${w/2} ${h/2} 0 0 0 ${ox+w/2} ${oy+bodyH} L ${ox+w/2} ${oy} Z`} fill={`url(#shapeFill-${uid})`} opacity="0.6" />
+                    <line x1={ox-w/2} y1={oy} x2={ox-w/2} y2={oy+bodyH} stroke={anaRenk} strokeWidth="2.5" />
+                    <line x1={ox+w/2} y1={oy} x2={ox+w/2} y2={oy+bodyH} stroke={anaRenk} strokeWidth="2.5" />
+                    
+                    {/* Üst Elips */}
+                    <ellipse cx={ox} cy={oy} rx={w/2} ry={h/2} fill={`${anaRenk}33`} stroke={anaRenk} strokeWidth="2.5" />
+                    
+                    {/* Yarıçap Çizgisi ve Etiketi */}
+                    <circle cx={ox} cy={oy} r="3" fill="#1e293b" />
+                    <line x1={ox} y1={oy} x2={ox+w/2} y2={oy} stroke="#1e293b" strokeWidth="1.5" strokeDasharray="2 2" />
+                    {r && <text x={ox + w/4} y={oy - 5} fontSize="12" fill="#1e293b" fontWeight="bold" textAnchor="middle">r = {r}</text>}
+                    
+                    {/* Yükseklik Etiketi */}
+                    {yukseklik && (
+                        <>
+                            <line x1={ox+w/2 + 10} y1={oy} x2={ox+w/2 + 10} y2={oy+bodyH} stroke="#94a3b8" strokeWidth="1.5" markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                            <text x={ox+w/2 + 20} y={oy + bodyH/2} fontSize="12" fill="#1e293b" fontWeight="bold">h = {yukseklik}</text>
+                        </>
+                    )}
+                </svg>
+            );
+        }
+
         /* ── DEFAULT fallback ───────────────────────────────────────────── */
         return (
             <div className="flex flex-wrap gap-2 mt-3">
@@ -902,14 +1071,20 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
     };
 
     return (
-        <div className={`my-4 p-4 bg-white border border-gray-100 rounded-2xl shadow-sm print:shadow-none print:border-gray-300 ${className}`}>
-            {baslik && (
-                <h4 className="text-sm font-bold text-center text-gray-800 mb-1" style={{ fontFamily: FONT }}>{baslik}</h4>
-            )}
-            {not && (
-                <p className="text-xs text-center text-gray-500 mb-2 italic" style={{ fontFamily: FONT }}>{not}</p>
-            )}
-            {renderContent()}
+        <div className={`relative my-5 p-6 bg-gradient-to-b from-slate-50/80 to-white backdrop-blur-xl border border-slate-200/60 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] print:shadow-none print:border-slate-300 print:bg-transparent overflow-hidden ${className}`}>
+            {/* Ultra Premium Background Grid Effect */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.03] print:hidden" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+            <div className="relative z-10">
+                {baslik && (
+                    <h4 className="text-[15px] font-extrabold text-center text-slate-800 tracking-tight mb-1" style={{ fontFamily: FONT }}>{baslik}</h4>
+                )}
+                {not && (
+                    <p className="text-[11px] font-medium text-center text-slate-500 mb-4 bg-slate-100/50 inline-block px-3 py-1 rounded-full mx-auto block max-w-fit" style={{ fontFamily: FONT }}>{not}</p>
+                )}
+                <div className="bg-white/40 rounded-2xl p-2 shadow-inner border border-slate-50/50">
+                    {renderContent()}
+                </div>
+            </div>
         </div>
     );
 };

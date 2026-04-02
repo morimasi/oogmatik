@@ -19,7 +19,7 @@ const TOAST_COLORS: Record<ToastType, string> = {
     success: 'bg-emerald-600 border-emerald-500',
     error: 'bg-red-600 border-red-500',
     warning: 'bg-amber-600 border-amber-500',
-    info: 'bg-blue-600 border-blue-500',
+    info: 'bg-accent border-accent/80',
 };
 
 const TOAST_ICONS: Record<ToastType, string> = {

@@ -2,13 +2,14 @@ import React from 'react';
 import { PedagogicalNoteCard } from './PedagogicalNoteCard';
 import { ExportActions } from './ExportActions';
 import { TemplateInfoCard } from './TemplateInfoCard';
-import { InfographicActivityResult } from '../../../../types/infographic';
+import { CompositeWorksheet } from '../../../../types/worksheet';
 
 interface RightPanelProps {
-    result: InfographicActivityResult | null;
+    result: CompositeWorksheet | null;
     onExportWorksheet: () => void;
     onExportPDF: () => void;
     onPrint: () => void;
+    onSubmitForApproval: () => void;
     isGenerating: boolean;
 }
 
@@ -17,6 +18,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     onExportWorksheet,
     onExportPDF,
     onPrint,
+    onSubmitForApproval,
     isGenerating
 }) => {
     const hasResult = !!result && !isGenerating;
@@ -32,12 +34,12 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                             onExportWorksheet={onExportWorksheet}
                             onExportPDF={onExportPDF}
                             onPrint={onPrint}
+                            onSubmitForApproval={onSubmitForApproval}
                             disabled={!hasResult}
                         />
 
                         <PedagogicalNoteCard note={result.pedagogicalNote} />
 
-                        <TemplateInfoCard templateType={result.templateType} />
                     </>
                 ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center text-white/40 space-y-4">
@@ -45,7 +47,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                             <span className="text-xl opacity-50">🧭</span>
                         </div>
                         <p className="text-sm">
-                            Üretilen infografiğe ait yapısal ayarlar, pedagojik açıklamalar ve kayıt butonları üretim tamamlandığında burada görünecektir.
+                            Üretilen sayfaya ait yapısal ayarlar, pedagojik açıklamalar ve kayıt butonları üretim tamamlandığında burada görünecektir.
                         </p>
                     </div>
                 )}

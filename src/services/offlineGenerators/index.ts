@@ -26,3 +26,8 @@ export * from '../generators/offline/oddEvenSudoku';
 export * from './visualInterpretation';
 export * from './boxMath';
 export * from './heceParkuru';
+export * from './fallback';
+export * from './premiumReading';
+export * from './premiumMath';
+export * from './premiumVisual';
+export * from './premiumPuzzles';

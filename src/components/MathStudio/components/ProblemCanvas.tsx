@@ -56,8 +56,8 @@ export const ProblemCanvas: React.FC<ProblemCanvasProps> = ({
                         themeConfig={themeConfig}
                     >
                         {pageIdx === 0 && instruction && (
-                            <div className="mb-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg shadow-sm">
-                                <p className="text-indigo-900 font-medium italic text-sm">
+                            <div className="mb-6 p-4 bg-accent/10 border-l-4 border-accent rounded-r-lg shadow-sm">
+                                <p className="text-accent font-medium italic text-sm">
                                     <i className="fa-solid fa-bullhorn mr-2"></i>
                                     {instruction}
                                 </p>

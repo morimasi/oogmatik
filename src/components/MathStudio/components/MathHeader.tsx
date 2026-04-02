@@ -40,7 +40,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
 
             <div>
                 <h1 className="font-black text-lg tracking-tight text-white flex items-center gap-2">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">MATH STUDIO</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent/70 to-accent">MATH STUDIO</span>
                     <span className="bg-zinc-800 text-zinc-500 px-1.5 rounded text-[9px] border border-zinc-700 font-bold uppercase tracking-widest">PRO</span>
                 </h1>
             </div>
@@ -48,11 +48,11 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
 
         {/* CENTER — Mode Switch */}
         <div className="flex bg-zinc-800 border border-zinc-700 rounded-xl p-1 gap-1">
-            <button onClick={() => setMode('drill')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${mode === 'drill' ? 'bg-indigo-600 text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
+            <button onClick={() => setMode('drill')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${mode === 'drill' ? 'bg-accent text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
                 <i className="fa-solid fa-calculator"></i>
                 <span className="hidden sm:inline">İşlem Atölyesi</span>
             </button>
-            <button onClick={() => setMode('problem_ai')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${mode === 'problem_ai' ? 'bg-indigo-600 text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
+            <button onClick={() => setMode('problem_ai')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${mode === 'problem_ai' ? 'bg-accent text-white shadow' : 'text-zinc-400 hover:text-white'}`}>
                 <i className="fa-solid fa-robot"></i>
                 <span className="hidden sm:inline">AI Problemleri</span>
             </button>
@@ -61,7 +61,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
         {/* RIGHT — Actions */}
         <div className="flex items-center gap-1.5">
             {/* Regenerate */}
-            <button onClick={onRegenerate} className="w-9 h-9 rounded-xl bg-zinc-800 hover:bg-indigo-600 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Yeniden Üret">
+            <button onClick={onRegenerate} className="w-9 h-9 rounded-xl bg-zinc-800 hover:bg-accent flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Yeniden Üret">
                 <i className="fa-solid fa-rotate"></i>
             </button>
 

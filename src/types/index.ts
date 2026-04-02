@@ -7,3 +7,4 @@ export * from './admin';
 export * from './screening';
 export * from './ocr-activity';
 export * from './infographic';
+export * from './worksheet';

@@ -18,7 +18,7 @@ export const ModeSwitcher: React.FC<ModeSwitcherProps> = ({ mode, onChange, disa
                 className={cn(
                     "flex-1 flex items-center justify-center space-x-2 py-2 rounded-lg text-sm font-medium transition-all",
                     mode === 'ai'
-                        ? "bg-indigo-500 text-white shadow-lg"
+                        ? "bg-accent text-white shadow-lg"
                         : "text-white/60 hover:text-white hover:bg-white/5",
                     disabled && "opacity-50 cursor-not-allowed"
                 )}

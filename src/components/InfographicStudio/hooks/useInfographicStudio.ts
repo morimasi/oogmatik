@@ -19,8 +19,6 @@ export const useInfographicStudio = ({
     const [mode, setMode] = useState<InfographicGenMode>('ai'); // Default AI in V3
     const [isAnonymousMode, setIsAnonymousMode] = useState(false); // KVKK compliance for Clinical
 
-    const { openConfirmModal } = useUIStore();
-
     const handleCategoryChange = useCallback((categoryId: InfographicCategoryId) => {
         setSelectedCategory(categoryId);
         setSelectedActivity(null); // Kategori değişince seçili aktiviteyi sıfırla
@@ -39,17 +37,11 @@ export const useInfographicStudio = ({
     const handleModeChange = useCallback((newMode: InfographicGenMode) => {
         // Clinical kategoride offline mod seçilemez
         if (selectedCategory === 'clinical-bep' && newMode === 'fast') {
-            openConfirmModal({
-                title: 'Yetki Hatası',
-                message: 'Klinik ve BEP içerikleri rastgele (Hızlı) modda üretilemez. Yalnızca Dr. Ahmet Kaya onaylı AI modeli ile üretilebilir.',
-                confirmLabel: 'Tamam',
-                cancelLabel: 'Kapat',
-                onConfirm: () => { },
-            });
+            alert('Yetki Hatası: Klinik ve BEP içerikleri rastgele (Hızlı) modda üretilemez. Yalnızca Dr. Ahmet Kaya onaylı AI modeli ile üretilebilir.');
             return;
         }
         setMode(newMode);
-    }, [selectedCategory, openConfirmModal]);
+    }, [selectedCategory]);
 
     return {
         selectedCategory,

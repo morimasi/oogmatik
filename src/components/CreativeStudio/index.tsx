@@ -175,7 +175,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 px-4">
                 <div>
                     <h2 className="text-4xl font-black tracking-tighter text-white flex items-center gap-3">
-                        <i className="fa-solid fa-wand-magic-sparkles text-indigo-500"></i> AI Creative Studio
+                        <i className="fa-solid fa-wand-magic-sparkles text-accent"></i> AI Creative Studio
                     </h2>
                     <p className="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-bold opacity-60">Professional Clinical Content Designer</p>
                 </div>

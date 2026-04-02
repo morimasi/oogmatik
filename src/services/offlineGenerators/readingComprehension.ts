@@ -1,5 +1,5 @@
-
-import { GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, MissingPartsData, StoryQuestion, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData } from '../../types';
+import { ActivityType, GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, MissingPartsData, StoryQuestion, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData } from '../../types';
+import { WorksheetBuilder } from '../generators/core/WorksheetBuilder';
 import { shuffle, getRandomItems, generateSudokuGrid, getRandomInt } from './helpers';
 import { COHERENT_STORY_TEMPLATES } from '../../data/sentences';
 import { TR_VOCAB } from './helpers';
@@ -66,33 +66,41 @@ export const generateOfflineReadingSudoku = async (options: GeneratorOptions): P
     });
 };
 
-export const generateOfflineSynonymAntonymMatch = async (options: GeneratorOptions): Promise<SynonymAntonymMatchData[]> => {
-    const { worksheetCount, itemCount = 6, variant = 'mixed' } = options;
+export const generateOfflineSynonymAntonymMatch = async (options: GeneratorOptions): Promise<any> => {
+    const { difficulty = 'Orta', itemCount = 8, variant = 'mixed' } = options;
 
-    return Array.from({ length: worksheetCount }, () => {
-        const pool = variant === 'synonym' ? TR_VOCAB.synonyms : variant === 'antonym' ? TR_VOCAB.antonyms : shuffle([...TR_VOCAB.synonyms, ...TR_VOCAB.antonyms]);
-        const selection = shuffle(pool).slice(0, itemCount);
+    const pool = variant === 'synonym' ? TR_VOCAB.synonyms : variant === 'antonym' ? TR_VOCAB.antonyms : shuffle([...TR_VOCAB.synonyms, ...TR_VOCAB.antonyms]);
+    const selection = shuffle(pool).slice(0, itemCount);
 
-        const pairs = selection.map(item => ({
-            source: item.word,
-            target: (item as any).synonym || (item as any).antonym,
-            type: (item as any).synonym ? 'synonym' : 'antonym'
-        }));
+    const pairs = selection.map(item => ({
+        source: item.word,
+        target: (item as any).synonym || (item as any).antonym,
+        type: (item as any).synonym ? 'synonym' : 'antonym'
+    }));
 
-        const sentences = [
-            { text: "Bugün hava çok _______. (Sıcak zıt anlamlısı)", word: "Sıcak", target: "Soğuk", type: "antonym" },
-            { text: "En sevdiğim _______ bugün geliyor. (Konuk eş anlamlısı)", word: "Konuk", target: "Misafir", type: "synonym" }
-        ];
+    const title = variant === 'synonym' ? 'Eş Anlamlı Kelimeler' : variant === 'antonym' ? 'Zıt Anlamlı Kelimeler' : 'Eş ve Zıt Anlamlar';
 
-        return {
-            title: "Anlam Avcısı (Eş ve Zıt Anlamlar)",
-            instruction: "Kelimeleri anlamdaşları veya zıt anlamlıları ile eşleştirin, ardından cümleleri tamamlayın.",
-            pedagogicalNote: "Semantik hafıza, kelime dağarcığı ve bağlamsal akıl yürütme becerilerini destekler.",
-            mode: variant as any,
-            pairs: pairs as any,
-            sentences: sentences as any
-        };
+    const builder = new WorksheetBuilder(ActivityType.SYNONYM_ANTONYM_MATCH, title)
+        .addPremiumHeader()
+        .addPedagogicalNote("Semantik hafıza, kelime dağarcığı ve bağlamsal akıl yürütme becerilerini destekler. Disleksik öğrenciler için kelime-anlam ilişkilerini güçlendirir.")
+        .addPrimaryActivity('match_columns', {
+            leftTitle: 'Kelime',
+            rightTitle: 'Anlamdaşı/Zıttı',
+            pairs: shuffle(pairs.map(p => ({ left: p.source, right: p.target })))
+        });
+
+    // Destekleyici alıştırma: Cümle tamamlama
+    const drillSentences = [
+        { text: "Bugün hava çok _______. (Sıcak zıt anlamlısı)", target: "Soğuk" },
+        { text: "En sevdiğim _______ bugün geliyor. (Konuk eş anlamlısı)", target: "Misafir" }
+    ];
+
+    builder.addSupportingDrill('Cümle Tamamlama', {
+        sentences: drillSentences,
+        instruction: 'Parantez içindeki ipuçlarına göre boşlukları doldurun.'
     });
+
+    return [builder.addSuccessIndicator().build()];
 };
 
 export const generateOfflineReadingStroop = async (options: GeneratorOptions): Promise<ReadingStroopData[]> => {

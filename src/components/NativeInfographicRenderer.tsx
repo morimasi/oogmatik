@@ -198,13 +198,32 @@ function parseXmlInfographicSyntax(xml: string): ParsedInfographic {
 
     // 3. Verileri Ayrıştır (Kategoriye Özel)
     if (templateType === '5w1h-grid') {
+        const get5W1H = (key: string) => {
+            let val = _extractTagContent(xml, key);
+            if (val) return val;
+
+            val = _extractAttr(xml, key, 'question') || _extractAttr(xml, 'item', key);
+            if (val) return val;
+
+            const trKeys: Record<string, string> = { 'who': 'kim', 'what': 'ne', 'where': 'nerede', 'when': 'ne zaman', 'why': 'neden', 'how': 'nasıl' };
+            const trKey = trKeys[key];
+            val = _extractTagContent(xml, trKey);
+            if (val) return val;
+
+            const itemRegex = new RegExp(`<item[^>]*key=['"]?${trKey}['"]?[^>]*value=['"]([^'"]+)['"]`, 'i');
+            const itemMatch = xml.match(itemRegex);
+            if (itemMatch) return itemMatch[1].trim();
+
+            return '';
+        };
+
         data.q5w1h = {
-            who: _extractTagContent(xml, 'who') || _extractAttr(xml, 'who', 'question'),
-            what: _extractTagContent(xml, 'what') || _extractAttr(xml, 'what', 'question'),
-            where: _extractTagContent(xml, 'where') || _extractAttr(xml, 'where', 'question'),
-            when: _extractTagContent(xml, 'when') || _extractAttr(xml, 'when', 'question'),
-            why: _extractTagContent(xml, 'why') || _extractAttr(xml, 'why', 'question'),
-            how: _extractTagContent(xml, 'how') || _extractAttr(xml, 'how', 'question')
+            who: get5W1H('who'),
+            what: get5W1H('what'),
+            where: get5W1H('where'),
+            when: get5W1H('when'),
+            why: get5W1H('why'),
+            how: get5W1H('how')
         };
     } else if (templateType === 'venn-diagram') {
         data.venn = {
@@ -280,11 +299,11 @@ function parseXmlInfographicSyntax(xml: string): ParsedInfographic {
 
 function resolveXmlTagToTemplate(tag: string): TemplateType {
     const t = (tag || '').toLowerCase();
-    if (t === 'five-w-one-h') return '5w1h-grid';
-    if (t === 'venn-diagram') return 'venn-diagram';
-    if (t === 'sequence-steps') return 'sequence-steps';
-    if (t === 'fishbone-diagram') return 'fishbone-diagram';
-    if (t === 'concept-map') return 'hierarchy-structure';
+    if (t === 'five-w-one-h' || t === 'activity-5w1h' || t.includes('5w1h')) return '5w1h-grid';
+    if (t === 'venn-diagram' || t === 'activity-venn' || t.includes('venn')) return 'venn-diagram';
+    if (t === 'sequence-steps' || t === 'activity-sequence') return 'sequence-steps';
+    if (t === 'fishbone-diagram' || t === 'activity-fishbone' || t.includes('fishbone')) return 'fishbone-diagram';
+    if (t === 'concept-map' || t === 'hierarchy-structure') return 'hierarchy-structure';
     if (t === 'math-steps-visual') return 'math-steps';
     if (t === 'cycle-process') return 'cycle-process';
     if (t === 'matrix-grid') return 'matrix-grid';
@@ -297,32 +316,107 @@ function resolveXmlTagToTemplate(tag: string): TemplateType {
 function _extractTagContent(xml: string, tag: string): string {
     const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i');
     const match = xml.match(regex);
-    return match ? match[1].trim().replace(/<[^>]+>/g, '') : '';
+    if (match) return match[1].trim().replace(/<[^>]+>/g, '');
+
+    // Ayrıca <* id="tag">...<content>...</content></*> şeklinde HTML benzeri blokları kontrol et
+    const sectionRegex = new RegExp(`<\\w+[^>]*(?:id|class|key)=['"]${tag}['"][^>]*>([\\s\\S]*?)<\\/\\w+>`, 'i');
+    const sectionMatch = xml.match(sectionRegex);
+    if (sectionMatch) {
+        const inner = sectionMatch[1];
+        const contentMatch = inner.match(/<content[^>]*>([\s\S]*?)<\/content>/i);
+        if (contentMatch) return contentMatch[1].trim().replace(/<[^>]+>/g, '');
+        const descMatch = inner.match(/<desc[^>]*>([\s\S]*?)<\/desc>/i);
+        if (descMatch) return descMatch[1].trim().replace(/<[^>]+>/g, '');
+        const instructionMatch = inner.match(/<instruction[^>]*>([\s\S]*?)<\/instruction>/i);
+        if (instructionMatch) return instructionMatch[1].trim().replace(/<[^>]+>/g, '');
+        const promptMatch = inner.match(/<prompt[^>]*>([\s\S]*?)<\/prompt>/i);
+        if (promptMatch) return promptMatch[1].trim().replace(/<[^>]+>/g, '');
+        
+        // Sadece düz metni al, başlık etiketlerini uçur
+        let rawText = inner;
+        rawText = rawText.replace(/<title>[\s\S]*?<\/title>/gi, '');
+        rawText = rawText.replace(/<label>[\s\S]*?<\/label>/gi, '');
+        return rawText.trim().replace(/<[^>]+>/g, '');
+    }
+
+    return '';
 }
 
 function _extractAttr(xml: string, tag: string, attr: string): string {
-    const regex = new RegExp(`<${tag}[^>]*${attr}=['"]([^'"]+)['"]`, 'i');
-    const match = xml.match(regex);
-    return match ? match[1] : '';
+    const exactRegex = new RegExp(`<${tag}[^>]*${attr}=['"]([^'"]+)['"]`, 'i');
+    const match = xml.match(exactRegex);
+    if (match) return match[1];
+
+    const anyRegex = new RegExp(`<\\w+[^>]*(?:id|class|key)=['"]${tag}['"][^>]*${attr}=['"]([^'"]+)['"]`, 'i');
+    const matchAny = xml.match(anyRegex);
+    if (matchAny) return matchAny[1];
+
+    // Yapay zeka bazen attribute yerine XML etiketi kullanır: Örn: <title>...</title>
+    if (attr === 'title' || attr === 'label' || attr === 'date') {
+        const fallbackRegex = new RegExp(`<${attr}[^>]*>([\\s\\S]*?)<\\/${attr}>`, 'i');
+        const fMatch = xml.match(fallbackRegex);
+        if (fMatch) return fMatch[1].trim().replace(/<[^>]+>/g, '');
+    }
+
+    return '';
 }
 
 function _extractRepeatedBlocks(xml: string, tag: string): string[] {
-    const regex = new RegExp(`<${tag}[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi');
-    return xml.match(regex) || [];
+    const exactRegex = new RegExp(`<${tag}[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi');
+    const exactMatches = xml.match(exactRegex);
+    if (exactMatches && exactMatches.length > 0) return exactMatches;
+
+    const sectionRegex = new RegExp(`<(\\w+)[^>]*(?:id|class|key)=['"]${tag}['"][^>]*>[\\s\\S]*?<\\/\\1>`, 'gi');
+    const sectionMatches = xml.match(sectionRegex);
+    return sectionMatches || [];
 }
 
 function _extractItems(xml: string, parentTag: string): string[] {
+    let inner = '';
     const parentRegex = new RegExp(`<${parentTag}[^>]*>([\\s\\S]*?)<\\/${parentTag}>`, 'i');
     const parentMatch = xml.match(parentRegex);
-    if (!parentMatch) return [];
-
-    const itemRegex = /<item>([\s\\S]*?)<\/item>/gi;
-    const items = [];
-    let match;
-    while ((match = itemRegex.exec(parentMatch[1])) !== null) {
-        items.push(match[1].trim());
+    
+    if (parentMatch) {
+        inner = parentMatch[1];
+    } else {
+        const sectionRegex = new RegExp(`<\\w+[^>]*(?:id|class|key)=['"]${parentTag}['"][^>]*>([\\s\\S]*?)<\\/\\w+>`, 'i');
+        const sectionMatch = xml.match(sectionRegex);
+        if (sectionMatch) inner = sectionMatch[1];
     }
-    return items;
+
+    if (!inner) return [];
+
+    const items: string[] = [];
+    
+    // <item>...</item> veya <item value="..." />
+    const itemRegex = /<item[^>]*>([\s\S]*?)<\/item>|<item[^>]*value=['"]([^'"]+)['"][^>]*>/gi;
+    let match;
+    let found = false;
+    while ((match = itemRegex.exec(inner)) !== null) {
+        const valMatch = match[0].match(/value=['"]([^'"]+)['"]/i);
+        if (valMatch) items.push(valMatch[1].trim());
+        else if (match[1]) items.push(match[1].trim().replace(/<[^>]+>/g, ''));
+        found = true;
+    }
+    if (found) return items;
+
+    // <content>...</content>
+    const contentRegex = /<content[^>]*>([\s\S]*?)<\/content>/gi;
+    while ((match = contentRegex.exec(inner)) !== null) {
+        items.push(match[1].trim().replace(/<[^>]+>/g, ''));
+        found = true;
+    }
+    if (found) return items;
+
+    // <li>...</li>
+    const liRegex = /<li[^>]*>([\s\S]*?)<\/li>/gi;
+    while ((match = liRegex.exec(inner)) !== null) {
+        items.push(match[1].trim().replace(/<[^>]+>/g, ''));
+        found = true;
+    }
+    if (found) return items;
+
+    return inner.split('\n').map(s => s.replace(/<[^>]+>/g, '').trim()).filter(Boolean);
 }
 
 function resolveTemplate(raw: string): TemplateType {
@@ -1083,19 +1177,93 @@ const TimelineRenderer: React.FC<{ data: ParsedData; title: string }> = ({ data,
     );
 };
 
-/** Bilinmeyen format: ham syntax'ı göster */
-const UnknownRenderer: React.FC<{ syntax: string }> = ({ syntax }) => (
-    <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px' }}>
-        <div style={{ background: '#fef9c3', border: '1px solid #fde68a', borderRadius: '10px', padding: '12px', marginBottom: '16px' }}>
-            <p style={{ color: '#92400e', fontSize: '13px', fontWeight: 600, margin: 0 }}>
-                ⚠️ Format tanınamadı — syntax önizlemesi:
-            </p>
+/** Bilinmeyen format: Herhangi bir XML yapısını jenerik ve şık kartlara dönüştürür (Evrensel Fallback Motoru) */
+const UnknownRenderer: React.FC<{ syntax: string }> = ({ syntax }) => {
+    // Tüm olası başlıkları, içerikleri, etiketleri ve elementleri ayıklayan süper jenerik parser
+    const sections: Array<{ title: string; content: string }> = [];
+    
+    // 1. <section> ... </section> veya <panel> ... </panel> veya <item> ... </item>
+    const blockRegex = /<(section|panel|item|div|article|step|phase|row)[^>]*>([\s\S]*?)<\/\1>/gi;
+    let match;
+    while ((match = blockRegex.exec(syntax)) !== null) {
+        const inner = match[2];
+        const titleMatch = inner.match(/<(title|label|header)[^>]*>([\s\S]*?)<\/\1>/i) || match[0].match(/(title|label|name)=['"]([^'"]+)['"]/i) || match[0].match(/id=['"]([^'"]+)['"]/i);
+        const title = titleMatch ? titleMatch[2] || titleMatch[1] : 'Bölüm';
+        
+        let content = '';
+        // instruction, prompt, desc, content vb. içerik etiketlerini dene
+        const contentRegex = /<(content|desc|description|instruction|prompt|p|text|value)[^>]*>([\s\S]*?)<\/\1>/gi;
+        let contentMatch;
+        let foundContent = false;
+        
+        while ((contentMatch = contentRegex.exec(inner)) !== null) {
+             content += contentMatch[2].trim().replace(/<[^>]+>/g, '') + ' ';
+             foundContent = true;
+        }
+
+        if (!foundContent) {
+            content = inner.replace(/<(title|label|header)[^>]*>[\s\S]*?<\/\1>/gi, '').replace(/<[^>]+>/g, '').trim();
+        }
+        
+        if (content.trim()) sections.push({ title: title.trim(), content: content.trim() });
+    }
+
+    // 2. Eğer hiç blok bulamadıysa, sadece bağımsız <item> veya attribute'ları ara
+    if (sections.length === 0) {
+        const itemRegex = /<item[^>]*value=['"]([^'"]+)['"]/gi;
+        while ((match = itemRegex.exec(syntax)) !== null) {
+            const keyMatch = match[0].match(/key=['"]([^'"]+)['"]/i) || match[0].match(/id=['"]([^'"]+)['"]/i);
+            sections.push({ title: keyMatch ? keyMatch[1] : 'Detay', content: match[1] });
+        }
+    }
+
+    // 3. Hala boşsa, tüm XML içindeki başlık ve paragrafları kabaca eşleştir
+    if (sections.length === 0) {
+        const titleMatch = syntax.match(/<(title|header)[^>]*>([\s\S]*?)<\/\1>/i) || syntax.match(/title=['"]([^'"]+)['"]/i);
+        const mainTitle = titleMatch ? (titleMatch[2] || titleMatch[1]).trim() : 'Açıklama';
+        
+        const rawText = syntax.replace(/<(title|header)[^>]*>[\s\S]*?<\/\1>/gi, '')
+                              .replace(/<[^>]+>/g, ' ')
+                              .replace(/\s+/g, ' ')
+                              .trim();
+                              
+        if (rawText) {
+            sections.push({ title: mainTitle, content: rawText });
+        }
+    }
+
+    return (
+        <div style={{ ...fontStyle, padding: '24px', background: PALETTE.bg, borderRadius: '16px' }}>
+            <h2 style={{ textAlign: 'center', color: PALETTE.text, fontSize: '20px', fontWeight: 700, marginBottom: '24px' }}>
+                Etkinlik Panosu
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+                {sections.map((sec, idx) => (
+                    <div key={idx} style={{ background: PALETTE.card, border: `2px solid ${PALETTE.primary}`, borderRadius: '12px', padding: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', borderBottom: `1px solid ${PALETTE.primary}40`, paddingBottom: '8px' }}>
+                             <span style={{ background: PALETTE.primary, color: '#fff', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, flexShrink: 0 }}>
+                                 {idx + 1}
+                             </span>
+                             <span style={{ color: PALETTE.primary, fontWeight: 800, fontSize: '14px', textTransform: 'uppercase' }}>
+                                 {sec.title}
+                             </span>
+                        </div>
+                        <div style={{ color: PALETTE.text, fontSize: '14px', lineHeight: 1.6, flex: 1 }}>
+                            {sec.content || 'İçerik bulunamadı.'}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            
+            {/* Eğer gerçekten hiçbir şey parse edilemediyse ham syntax'ı gizli bir şekilde göster (sadece geliştirici için) */}
+            {sections.length === 0 && (
+                <div style={{ marginTop: '20px', fontSize: '10px', color: '#ccc', textAlign: 'center' }}>
+                    (İçerik ayrıştırılamadı. Ham veri işleniyor.)
+                </div>
+            )}
         </div>
-        <pre style={{ background: '#f1f5f9', borderRadius: '8px', padding: '12px', fontSize: '12px', color: '#475569', overflowX: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-            {syntax}
-        </pre>
-    </div>
-);
+    );
+};
 
 // ── Ana Bileşen ──────────────────────────────────────────────────────────────
 
