@@ -81,7 +81,7 @@ export const AdminAgentManagement: React.FC = () => {
 
   const AgentCard: React.FC<{ profile: AgentProfile; metrics?: AgentMetrics }> = ({ profile, metrics }) => (
     <div
-      className="group relative overflow-hidden rounded-[2.5rem] border border-white/10 backdrop-blur-xl p-8 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl"
+      className="group relative overflow-hidden rounded-[2.5rem] border border-[var(--border-color)] bg-[var(--panel-bg-solid)] p-8 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl"
       style={{
         background: `linear-gradient(135deg, ${profile.color}15 0%, ${profile.color}05 100%)`
       }}
@@ -103,7 +103,7 @@ export const AdminAgentManagement: React.FC = () => {
             {profile.title}
           </p>
           {metrics && (
-            <div className="flex items-center gap-4 text-xs font-bold text-zinc-400">
+            <div className="flex items-center gap-3 mb-4 text-xs font-bold text-[var(--text-muted)]">
               <span className="flex items-center gap-1">
                 <i className="fa-solid fa-check-circle text-emerald-500"></i>
                 {metrics.completedTasks} Görev
@@ -119,7 +119,7 @@ export const AdminAgentManagement: React.FC = () => {
 
       {/* Expertise */}
       <div className="mb-6">
-        <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-3">
+        <h4 className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">
           Uzmanlık Alanları
         </h4>
         <div className="flex flex-wrap gap-2">
@@ -141,12 +141,12 @@ export const AdminAgentManagement: React.FC = () => {
 
       {/* Responsibilities */}
       <div className="mb-6">
-        <h4 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-3">
+        <h4 className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">
           Temel Sorumluluklar
         </h4>
         <div className="space-y-2">
           {profile.responsibilities.slice(0, 3).map((resp, i) => (
-            <div key={i} className="flex items-start gap-2 text-xs text-zinc-300">
+            <div key={i} className="flex items-start gap-2 text-xs text-[var(--text-secondary)]">
               <i className="fa-solid fa-check-circle mt-0.5" style={{ color: profile.color }}></i>
               <span>{resp}</span>
             </div>
@@ -169,7 +169,7 @@ export const AdminAgentManagement: React.FC = () => {
           Test Et
         </button>
         <button
-          className="w-12 h-12 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition-all"
+          className="w-12 h-12 rounded-2xl bg-[var(--panel-bg-subtle)] hover:bg-[var(--accent-muted)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-primary)] transition-all"
           title="Detaylar"
         >
           <i className="fa-solid fa-chart-line"></i>
@@ -188,7 +188,7 @@ export const AdminAgentManagement: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0c] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center text-[var(--text-primary)]">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white font-bold">Ajanlar yükleniyor...</p>
@@ -198,14 +198,14 @@ export const AdminAgentManagement: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white font-['Lexend']">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-['Lexend']">
       {/* Header */}
-      <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-950/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50">
+      <div className="bg-[var(--panel-bg-solid)] border-b border-[var(--border-color)] sticky top-0 z-50">
         <div className="max-w-[1920px] mx-auto px-8 py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-4xl font-black mb-2 tracking-tight">AI Ajan Yönetim Merkezi</h1>
-              <p className="text-zinc-400 font-medium">
+              <p className="text-[var(--text-muted)] font-medium">
                 4 Uzman Lider Ajan Koordinasyonu ve Performans İzleme
               </p>
             </div>
@@ -231,8 +231,8 @@ export const AdminAgentManagement: React.FC = () => {
                 onClick={() => setActiveTab(tab.id as typeof activeTab)}
                 className={`px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border-2 ${
                   activeTab === tab.id
-                    ? 'bg-white text-black border-white'
-                    : 'bg-white/5 text-white border-white/10 hover:bg-white/10'
+                    ? 'bg-[var(--accent-color)] text-[var(--bg-primary)] border-[var(--accent-color)]'
+                    : 'bg-[var(--panel-bg-subtle)] text-[var(--text-secondary)] border-[var(--border-color)] hover:bg-[var(--accent-muted)]'
                 }`}
               >
                 <i className={`fa-solid ${tab.icon} mr-2`}></i>
@@ -257,7 +257,7 @@ export const AdminAgentManagement: React.FC = () => {
                   return (
                     <div
                       key={role}
-                      className="rounded-[2.5rem] p-6 border backdrop-blur-xl"
+                      className="rounded-[2.5rem] p-6 border border-[var(--border-color)] bg-[var(--panel-bg-subtle)]"
                       style={{
                         background: `linear-gradient(135deg, ${profile.color}15 0%, ${profile.color}05 100%)`,
                         borderColor: `${profile.color}30`
@@ -271,8 +271,8 @@ export const AdminAgentManagement: React.FC = () => {
                           <img src={profile.avatar} alt="" className="w-full h-full rounded-2xl" />
                         </div>
                         <div>
-                          <h3 className="font-black text-white text-sm">{profile.name}</h3>
-                          <p className="text-[10px] text-zinc-400 uppercase tracking-widest">
+                          <h3 className="font-black text-[var(--text-primary)] text-sm">{profile.name}</h3>
+                          <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest">
                             {profile.title}
                           </p>
                         </div>
@@ -280,11 +280,11 @@ export const AdminAgentManagement: React.FC = () => {
 
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-bold text-zinc-400">Toplam Görev</span>
-                          <span className="text-lg font-black text-white">{metric.totalTasks}</span>
+                          <span className="text-xs font-bold text-[var(--text-muted)]">Toplam Görev</span>
+                          <span className="text-lg font-black text-[var(--text-primary)]">{metric.totalTasks}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-bold text-zinc-400">Başarı Oranı</span>
+                          <span className="text-xs font-bold text-[var(--text-muted)]">Başarı Oranı</span>
                           <span
                             className="text-lg font-black"
                             style={{ color: profile.color }}
@@ -293,8 +293,8 @@ export const AdminAgentManagement: React.FC = () => {
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-bold text-zinc-400">Ort. Yanıt</span>
-                          <span className="text-sm font-bold text-zinc-300">
+                          <span className="text-xs font-bold text-[var(--text-muted)]">Ort. Yanıt</span>
+                          <span className="text-sm font-bold text-[var(--text-secondary)]">
                             {(metric.avgResponseTime / 1000).toFixed(1)}s
                           </span>
                         </div>
@@ -319,27 +319,27 @@ export const AdminAgentManagement: React.FC = () => {
         )}
 
         {activeTab === 'tasks' && (
-          <div className="rounded-[2.5rem] bg-zinc-900/50 backdrop-blur-xl border border-white/10 p-8">
+          <div className="rounded-[2.5rem] bg-[var(--panel-bg-subtle)] border border-[var(--border-color)] p-8">
             <h2 className="text-2xl font-black mb-6">Görev Geçmişi</h2>
-            <p className="text-zinc-400 text-center py-20">
+            <p className="text-[var(--text-muted)] text-center py-20">
               Görev listesi yakında eklenecek...
             </p>
           </div>
         )}
 
         {activeTab === 'conversations' && (
-          <div className="rounded-[2.5rem] bg-zinc-900/50 backdrop-blur-xl border border-white/10 p-8">
+          <div className="rounded-[2.5rem] bg-[var(--panel-bg-subtle)] border border-[var(--border-color)] p-8">
             <h2 className="text-2xl font-black mb-6">Konuşma Geçmişi</h2>
-            <p className="text-zinc-400 text-center py-20">
+            <p className="text-[var(--text-muted)] text-center py-20">
               Konuşma listesi yakında eklenecek...
             </p>
           </div>
         )}
 
         {activeTab === 'settings' && (
-          <div className="rounded-[2.5rem] bg-zinc-900/50 backdrop-blur-xl border border-white/10 p-8">
+          <div className="rounded-[2.5rem] bg-[var(--panel-bg-subtle)] border border-[var(--border-color)] p-8">
             <h2 className="text-2xl font-black mb-6">Ajan Ayarları</h2>
-            <p className="text-zinc-400 text-center py-20">
+            <p className="text-[var(--text-muted)] text-center py-20">
               Ayarlar yakında eklenecek...
             </p>
           </div>
@@ -348,8 +348,8 @@ export const AdminAgentManagement: React.FC = () => {
 
       {/* Test Modal */}
       {selectedAgent && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-          <div className="bg-zinc-900 rounded-[3rem] border border-white/10 max-w-3xl w-full p-10 shadow-2xl">
+        <div className="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-6">
+          <div className="bg-[var(--panel-bg-solid)] rounded-[3rem] border border-[var(--border-color)] max-w-3xl w-full p-10 shadow-2xl">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-4">
                 <div
@@ -363,7 +363,7 @@ export const AdminAgentManagement: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black text-white">
+                  <h2 className="text-2xl font-black text-[var(--text-primary)]">
                     {AGENT_PROFILES[selectedAgent].name}
                   </h2>
                   <p
@@ -380,22 +380,22 @@ export const AdminAgentManagement: React.FC = () => {
                   setTestPrompt('');
                   setTestResult(null);
                 }}
-                className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all"
+                className="w-12 h-12 rounded-full bg-[var(--panel-bg-subtle)] hover:bg-[var(--accent-muted)] border border-[var(--border-color)] flex items-center justify-center transition-all"
               >
-                <i className="fa-solid fa-times text-white"></i>
+                <i className="fa-solid fa-times text-[var(--text-primary)]"></i>
               </button>
             </div>
 
             <div className="space-y-6">
               <div>
-                <label className="block text-xs font-black text-zinc-400 uppercase tracking-widest mb-3">
+                <label className="block text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">
                   Test İçeriği
                 </label>
                 <textarea
                   value={testPrompt}
                   onChange={(e) => setTestPrompt(e.target.value)}
                   placeholder="Ajan tarafından değerlendirilecek içeriği girin..."
-                  className="w-full h-40 px-6 py-4 bg-zinc-800/50 border border-white/10 rounded-3xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium resize-none"
+                  className="w-full h-40 px-6 py-4 bg-[var(--panel-bg-subtle)] border border-[var(--border-color)] rounded-3xl text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] font-medium resize-none"
                 />
               </div>
 
@@ -422,11 +422,11 @@ export const AdminAgentManagement: React.FC = () => {
               </button>
 
               {testResult && (
-                <div className="mt-6 p-6 bg-zinc-800/50 border border-white/10 rounded-3xl">
-                  <h3 className="text-sm font-black text-white mb-4 uppercase tracking-widest">
+                <div className="mt-6 p-6 bg-[var(--panel-bg-subtle)] border border-[var(--border-color)] rounded-3xl">
+                  <h3 className="text-sm font-black text-[var(--text-primary)] mb-4 uppercase tracking-widest">
                     Test Sonucu
                   </h3>
-                  <pre className="text-xs text-zinc-300 font-mono overflow-auto max-h-64 custom-scrollbar">
+                  <pre className="text-xs text-[var(--text-secondary)] font-mono overflow-auto max-h-64 custom-scrollbar">
                     {JSON.stringify(testResult, null, 2)}
                   </pre>
                 </div>

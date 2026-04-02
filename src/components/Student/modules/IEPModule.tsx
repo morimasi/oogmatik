@@ -152,7 +152,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
             className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap
                 ${activeTab === id
                     ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-2xl scale-105'
-                    : 'bg-white dark:bg-zinc-900 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 border border-zinc-100 dark:border-zinc-800'}`}
+                    : 'bg-[var(--panel-bg-subtle)] text-[var(--text-muted)] hover:text-[var(--text-secondary)] border border-[var(--border-color)]'}`}
         >
             <i className={`fa-solid ${icon} ${activeTab === id ? 'text-indigo-500' : 'text-zinc-300'}`}></i>
             {label}
@@ -160,18 +160,18 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
     );
 
     return (
-        <div className="h-full flex flex-col font-['Lexend'] bg-zinc-50 dark:bg-black/50 relative">
+        <div className="h-full flex flex-col font-['Lexend'] bg-[var(--bg-primary)] relative">
             {/* Modal for New Goal */}
             {showGoalModal && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 w-full max-w-lg shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 duration-200">
-                        <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-6">Yeni Hedef Oluştur</h3>
+                    <div className="bg-[var(--panel-bg-solid)] rounded-3xl p-8 w-full max-w-lg shadow-2xl border border-[var(--border-color)] animate-in zoom-in-95 duration-200">
+                        <h3 className="text-xl font-black text-[var(--text-primary)] mb-6">Yeni Hedef Oluştur</h3>
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">Hedef Başlığı</label>
                                 <input
                                     type="text"
-                                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 font-bold"
+                                    className="w-full px-4 py-3 rounded-xl bg-[var(--panel-bg-subtle)] border-none focus:ring-2 focus:ring-indigo-500 font-bold"
                                     placeholder="Örn: Okuma Hızını Artırma"
                                     value={newGoal.title || ''}
                                     onChange={e => setNewGoal({ ...newGoal, title: e.target.value })}
@@ -180,7 +180,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">Kategori</label>
                                 <select
-                                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 font-bold"
+                                    className="w-full px-4 py-3 rounded-xl bg-[var(--panel-bg-subtle)] border-none focus:ring-2 focus:ring-indigo-500 font-bold"
                                     value={newGoal.category || 'academic'}
                                     onChange={e => setNewGoal({ ...newGoal, category: e.target.value as any })}
                                 >
@@ -193,7 +193,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">Açıklama</label>
                                 <textarea
-                                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 text-sm min-h-[100px]"
+                                    className="w-full px-4 py-3 rounded-xl bg-[var(--panel-bg-subtle)] border-none focus:ring-2 focus:ring-indigo-500 text-sm min-h-[100px]"
                                     placeholder="Hedefin detayları ve başarı kriterleri..."
                                     value={newGoal.description || ''}
                                     onChange={e => setNewGoal({ ...newGoal, description: e.target.value })}
@@ -203,7 +203,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 mb-1">Öncelik</label>
                                     <select
-                                        className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 font-bold"
+                                        className="w-full px-4 py-3 rounded-xl bg-[var(--panel-bg-subtle)] border-none focus:ring-2 focus:ring-indigo-500 font-bold"
                                         value={newGoal.priority || 'medium'}
                                         onChange={e => setNewGoal({ ...newGoal, priority: e.target.value as any })}
                                     >
@@ -216,7 +216,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                     <label className="block text-xs font-bold text-zinc-500 mb-1">Hedef Tarih</label>
                                     <input
                                         type="date"
-                                        className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 font-bold"
+                                        className="w-full px-4 py-3 rounded-xl bg-[var(--panel-bg-subtle)] border-none focus:ring-2 focus:ring-indigo-500 font-bold"
                                         value={newGoal.targetDate ? newGoal.targetDate.split('T')[0] : ''}
                                         onChange={e => setNewGoal({ ...newGoal, targetDate: new Date(e.target.value).toISOString() })}
                                     />
@@ -244,8 +244,8 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
             {/* Modal for Review */}
             {showReviewModal && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 w-full max-w-lg shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 duration-200">
-                        <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-6">Değerlendirme Ekle</h3>
+                    <div className="bg-[var(--panel-bg-solid)] rounded-3xl p-8 w-full max-w-lg shadow-2xl border border-[var(--border-color)] animate-in zoom-in-95 duration-200">
+                        <h3 className="text-xl font-black text-[var(--text-primary)] mb-6">Değerlendirme Ekle</h3>
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">İlerleme Durumu (%)</label>
@@ -253,7 +253,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                     type="number"
                                     min="0"
                                     max="100"
-                                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 font-bold"
+                                    className="w-full px-4 py-3 rounded-xl bg-[var(--panel-bg-subtle)] border-none focus:ring-2 focus:ring-indigo-500 font-bold"
                                     value={newReview.progressSnapshot}
                                     onChange={e => setNewReview({ ...newReview, progressSnapshot: parseInt(e.target.value) })}
                                 />
@@ -261,7 +261,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                             <div>
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">Değerlendirme Notu</label>
                                 <textarea
-                                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 text-sm min-h-[100px]"
+                                    className="w-full px-4 py-3 rounded-xl bg-[var(--panel-bg-subtle)] border-none focus:ring-2 focus:ring-indigo-500 text-sm min-h-[100px]"
                                     placeholder="Öğrencinin bu hedefteki performansı hakkında gözlemleriniz..."
                                     value={newReview.comment}
                                     onChange={e => setNewReview({ ...newReview, comment: e.target.value })}
@@ -271,7 +271,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                 <label className="block text-xs font-bold text-zinc-500 mb-1">Sonraki Adımlar</label>
                                 <input
                                     type="text"
-                                    className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                                    className="w-full px-4 py-3 rounded-xl bg-[var(--panel-bg-subtle)] border-none focus:ring-2 focus:ring-indigo-500 text-sm"
                                     placeholder="Gerekirse alınacak önlemler veya strateji değişikliği..."
                                     value={newReview.nextSteps}
                                     onChange={e => setNewReview({ ...newReview, nextSteps: e.target.value })}
@@ -361,15 +361,15 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                             </div>
 
                             {/* AI Tahmin Paneli (Bento Card) */}
-                            <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-zinc-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
-                                <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-8 uppercase tracking-tighter">AI Projeksiyonu</h3>
+                            <div className="bg-[var(--panel-bg-solid)] p-10 rounded-[3.5rem] border border-[var(--border-color)] shadow-sm relative overflow-hidden group">
+                                <h3 className="text-xl font-black text-[var(--text-primary)] mb-8 uppercase tracking-tighter">AI Projeksiyonu</h3>
                                 <div className="space-y-6">
                                     {predictions.map((pred, i) => (
-                                        <div key={i} className="p-6 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 flex items-center justify-between group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800 transition-all">
+                                        <div key={i} className="p-6 bg-[var(--panel-bg-subtle)]/50 rounded-[2rem] border border-[var(--border-color)] flex items-center justify-between group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800 transition-all">
                                             <div className="flex-1">
                                                 <p className="text-[10px] text-zinc-400 font-black uppercase tracking-widest mb-2">{pred.metric}</p>
                                                 <div className="flex items-center gap-3">
-                                                    <span className="text-2xl font-black text-zinc-900 dark:text-white">{pred.currentValue}</span>
+                                                    <span className="text-2xl font-black text-[var(--text-primary)]">{pred.currentValue}</span>
                                                     <i className="fa-solid fa-arrow-right text-[10px] text-zinc-300"></i>
                                                     <span className={`text-2xl font-black ${pred.trend === 'up' ? 'text-emerald-500' : 'text-rose-500'
                                                         }`}>
@@ -389,8 +389,8 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
 
                         {/* Grafikler Alanı (Bento Grid Medium) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-zinc-100 dark:border-zinc-800 shadow-sm">
-                                <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-8 uppercase tracking-tighter">Bilişsel Dağılım</h3>
+                            <div className="bg-[var(--panel-bg-solid)] p-10 rounded-[3.5rem] border border-[var(--border-color)] shadow-sm">
+                                <h3 className="text-lg font-black text-[var(--text-primary)] mb-8 uppercase tracking-tighter">Bilişsel Dağılım</h3>
                                 <div className="w-full flex justify-center py-4 scale-110">
                                     <RadarChart data={[
                                         { label: 'Dikkat', value: 45 },
@@ -402,8 +402,8 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                     ]} />
                                 </div>
                             </div>
-                            <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-zinc-100 dark:border-zinc-800 shadow-sm">
-                                <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-8 uppercase tracking-tighter">Gelişim Trendi</h3>
+                            <div className="bg-[var(--panel-bg-solid)] p-10 rounded-[3.5rem] border border-[var(--border-color)] shadow-sm">
+                                <h3 className="text-lg font-black text-[var(--text-primary)] mb-8 uppercase tracking-tighter">Gelişim Trendi</h3>
                                 <div className="w-full h-72">
                                     <LineChart
                                         data={Array.from({ length: 6 }).map((_, i) => ({
@@ -427,7 +427,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 space-y-8">
                         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                             <div>
-                                <h3 className="text-3xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Akademik Hedef Matrisi</h3>
+                                <h3 className="text-3xl font-black text-[var(--text-primary)] uppercase tracking-tighter">Akademik Hedef Matrisi</h3>
                                 <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mt-2">SMART Metodolojisi ile Takip</p>
                             </div>
                             <div className="flex gap-3">
@@ -476,7 +476,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
 
                         <div className="grid grid-cols-1 gap-6 pb-10">
                             {goals.map(goal => (
-                                <div key={goal.id} className="bg-white dark:bg-zinc-900 p-8 rounded-[3.5rem] border border-zinc-100 dark:border-zinc-800 hover:border-indigo-500/30 transition-all group shadow-sm flex flex-col lg:flex-row gap-8">
+                                <div key={goal.id} className="bg-[var(--panel-bg-solid)] p-8 rounded-[3.5rem] border border-[var(--border-color)] hover:border-indigo-500/30 transition-all group shadow-sm flex flex-col lg:flex-row gap-8">
                                     <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-3xl shadow-xl shrink-0
                                         ${goal.category === 'academic' ? 'bg-indigo-50 text-indigo-600' :
                                             goal.category === 'behavioral' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'}`}>
@@ -497,7 +497,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                                         {goal.category}
                                                     </span>
                                                 </div>
-                                                <h4 className="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tight">{goal.title}</h4>
+                                                <h4 className="text-xl font-black text-[var(--text-primary)] uppercase tracking-tight">{goal.title}</h4>
                                             </div>
                                             <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button className="w-10 h-10 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 font-black">
@@ -513,7 +513,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                         </div>
                                         <p className="text-zinc-500 text-sm leading-relaxed mb-6 font-medium italic border-l-2 border-zinc-100 pl-4 py-1">{goal.description}</p>
 
-                                        <div className="bg-zinc-50 dark:bg-zinc-800/50 p-6 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-800">
+                                        <div className="bg-[var(--panel-bg-subtle)]/50 p-6 rounded-[2.5rem] border border-[var(--border-color)]">
                                             <div className="flex justify-between items-end mb-4">
                                                 <div>
                                                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block mb-1">Mevcut İlerleme</span>
@@ -521,7 +521,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                                 </div>
                                                 <div className="text-right">
                                                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block mb-1">Hedef Tarih</span>
-                                                    <span className="text-xs font-black text-zinc-900 dark:text-white">{new Date(goal.targetDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                                                    <span className="text-xs font-black text-[var(--text-primary)]">{new Date(goal.targetDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                                 </div>
                                             </div>
                                             <div className="relative h-3 w-full bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
@@ -544,7 +544,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                         <h5 className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-4">Son Operasyon</h5>
                                         {goal.reviews && goal.reviews.length > 0 ? (
                                             <div className="space-y-3">
-                                                <p className="text-xs font-bold text-zinc-900 dark:text-white leading-relaxed">
+                                                <p className="text-xs font-bold text-[var(--text-primary)] leading-relaxed">
                                                     "{goal.reviews[goal.reviews.length - 1].comment}"
                                                 </p>
                                                 <span className="text-[9px] font-black text-indigo-500 uppercase">
@@ -556,7 +556,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                         )}
                                         <button
                                             onClick={() => openReviewModal(goal.id)}
-                                            className="mt-6 w-full py-3 border border-zinc-100 dark:border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-indigo-600 transition-all"
+                                            className="mt-6 w-full py-3 border border-[var(--border-color)] rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-indigo-600 transition-all"
                                         >
                                             Veri Girişi Yap
                                         </button>
@@ -587,16 +587,16 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {aiInsights.map((insight, i) => (
-                                <div key={i} className={`p-10 rounded-[3.5rem] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm relative overflow-hidden group hover:shadow-2xl transition-all`}>
+                                <div key={i} className={`p-10 rounded-[3.5rem] bg-[var(--panel-bg-solid)] border border-[var(--border-color)] shadow-sm relative overflow-hidden group hover:shadow-2xl transition-all`}>
                                     <div className="flex justify-between items-start mb-8">
                                         <div className="flex items-center gap-4">
                                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl
                                                 ${insight.type === 'strength' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
                                                 <i className={`fa-solid ${insight.type === 'strength' ? 'fa-shield-halved' : 'fa-triangle-exclamation'}`}></i>
                                             </div>
-                                            <h4 className="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tight">{insight.title}</h4>
+                                            <h4 className="text-xl font-black text-[var(--text-primary)] uppercase tracking-tight">{insight.title}</h4>
                                         </div>
-                                        <span className="px-3 py-1 bg-zinc-50 dark:bg-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                                        <span className="px-3 py-1 bg-[var(--panel-bg-subtle)] rounded-lg text-[10px] font-black uppercase tracking-widest text-zinc-400">
                                             %{insight.confidence} Güven
                                         </span>
                                     </div>
@@ -617,7 +617,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
 
                 {/* REPORTS TAB */}
                 {activeTab === 'reports' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 bg-white dark:bg-zinc-900 rounded-[3.5rem] p-16 text-center border border-zinc-100 dark:border-zinc-800 flex flex-col items-center justify-center min-h-[500px] shadow-sm relative overflow-hidden group">
+                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 bg-[var(--panel-bg-solid)] rounded-[3.5rem] p-16 text-center border border-[var(--border-color)] flex flex-col items-center justify-center min-h-[500px] shadow-sm relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
 
                         <div className="w-28 h-28 bg-indigo-600 rounded-[2.5rem] flex items-center justify-center mb-10 text-white shadow-2xl shadow-indigo-600/40 relative group cursor-pointer transition-transform hover:scale-110">
@@ -625,14 +625,14 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                             <div className="absolute inset-0 border-4 border-indigo-400 rounded-[2.5rem] animate-ping opacity-20"></div>
                         </div>
 
-                        <h3 className="text-4xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter mb-4">Akademik Rapor Jeneratörü</h3>
+                        <h3 className="text-4xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-4">Akademik Rapor Jeneratörü</h3>
                         <p className="text-zinc-500 max-w-lg mx-auto mb-12 text-sm font-medium leading-relaxed">
                             Öğrencinin tüm BEP süreçlerini içeren, profesyonel dizayn edilmiş, görselleştirilmiş performans raporunu tek tıkla hazırlayın.
                         </p>
 
                         <div className="flex flex-wrap justify-center gap-6 mb-12">
                             {['Performans Özetleri', 'Gelişim Grafikleri', 'AI Analizleri', 'Gözlem Notları'].map(item => (
-                                <div key={item} className="px-6 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 flex items-center gap-3">
+                                <div key={item} className="px-6 py-3 bg-[var(--panel-bg-subtle)] rounded-2xl border border-zinc-100 dark:border-zinc-700 flex items-center gap-3">
                                     <i className="fa-solid fa-square-check text-indigo-500"></i>
                                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400">{item}</span>
                                 </div>

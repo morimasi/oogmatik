@@ -47,13 +47,13 @@ export const BehaviorModule: React.FC<BehaviorModuleProps> = ({ student, onUpdat
         <div className="p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 h-full animate-in fade-in duration-700">
             {/* Timeline Column (Bento Card Tall) */}
             <div className="lg:col-span-2 space-y-8">
-                <div className="bg-white dark:bg-zinc-900 rounded-[3.5rem] border border-zinc-200 dark:border-zinc-800 p-10 shadow-sm flex flex-col h-full">
+                <div className="bg-[var(--panel-bg-solid)] rounded-[3.5rem] border border-[var(--border-color)] p-10 shadow-sm flex flex-col h-full">
                     <div className="flex justify-between items-center mb-10">
                         <div>
-                            <h3 className="text-2xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Klinik Gözlem Günlüğü</h3>
-                            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-1">Davranışsal Veri Akışı</p>
+                            <h3 className="text-2xl font-black text-[var(--text-primary)] uppercase tracking-tighter">Klinik Gözlem Günlüğü</h3>
+                            <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mt-1">Davranışsal Veri Akışı</p>
                         </div>
-                        <button onClick={handleAddFakeIncident} className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
+                        <button onClick={handleAddFakeIncident} className="bg-[var(--accent-color)] text-[var(--bg-primary)] px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
                             <i className="fa-solid fa-plus-circle mr-2"></i>
                             Yeni Kayıt
                         </button>
@@ -62,12 +62,12 @@ export const BehaviorModule: React.FC<BehaviorModuleProps> = ({ student, onUpdat
                     <div className="relative pl-12 space-y-12 before:absolute before:left-5 before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-indigo-500 before:via-zinc-200 before:to-transparent dark:before:via-zinc-800 flex-1 overflow-y-auto custom-scrollbar pr-4">
                         {sortedDates.map((date) => (
                             <div key={date} className="relative group/date">
-                                <div className="absolute -left-[38px] top-1 w-6 h-6 rounded-full bg-white dark:bg-zinc-900 border-4 border-indigo-500 shadow-xl z-10 group-hover/date:scale-125 transition-transform"></div>
+                                <div className="absolute -left-[38px] top-1 w-6 h-6 rounded-full bg-[var(--panel-bg-solid)] border-4 border-indigo-500 shadow-xl z-10 group-hover/date:scale-125 transition-transform"></div>
                                 <h4 className="text-xs font-black text-indigo-500 uppercase tracking-widest mb-6">{date}</h4>
 
                                 <div className="grid gap-6">
                                     {groupedIncidents[date].map((incident) => (
-                                        <div key={incident.id} className="group/item relative bg-zinc-50 dark:bg-zinc-800/50 rounded-[2.5rem] p-8 border border-zinc-100 dark:border-zinc-800 hover:border-indigo-500/30 transition-all hover:shadow-2xl">
+                                        <div key={incident.id} className="group/item relative bg-[var(--panel-bg-subtle)] rounded-[2.5rem] p-8 border border-[var(--border-color)] hover:border-indigo-500/30 transition-all hover:shadow-2xl">
                                             <div className="flex justify-between items-start mb-4">
                                                 <div className="flex items-center gap-4">
                                                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-inner
@@ -79,12 +79,12 @@ export const BehaviorModule: React.FC<BehaviorModuleProps> = ({ student, onUpdat
                                                             }`}></i>
                                                     </div>
                                                     <div>
-                                                        <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400 block mb-1">
+                                                        <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] block mb-1">
                                                             {incident.category === 'participation' ? 'Derse Katılım' :
                                                                 incident.category === 'respect' ? 'Sosyal Uyum' :
                                                                     incident.category === 'responsibility' ? 'Sorumluluk Bilinci' : incident.category}
                                                         </span>
-                                                        <h5 className="text-lg font-black text-zinc-900 dark:text-white leading-tight uppercase tracking-tight">{incident.title}</h5>
+                                                        <h5 className="text-lg font-black text-[var(--text-primary)] leading-tight uppercase tracking-tight">{incident.title}</h5>
                                                     </div>
                                                 </div>
                                                 <div className={`px-4 py-2 rounded-2xl font-black text-xl shadow-sm
@@ -99,7 +99,7 @@ export const BehaviorModule: React.FC<BehaviorModuleProps> = ({ student, onUpdat
                                             </p>
 
                                             {incident.actionTaken && (
-                                                <div className="mt-6 p-4 bg-white dark:bg-zinc-900 rounded-2xl text-[10px] font-bold border border-zinc-100 dark:border-zinc-800 text-zinc-400 flex items-center gap-3">
+                                                <div className="mt-6 p-4 bg-[var(--panel-bg-solid)] rounded-2xl text-[10px] font-bold border border-[var(--border-color)] text-[var(--text-muted)] flex items-center gap-3">
                                                     <i className="fa-solid fa-reply-all text-indigo-500"></i>
                                                     <span className="font-black text-indigo-600 uppercase tracking-widest">Müdahale:</span> {incident.actionTaken}
                                                 </div>
@@ -130,7 +130,7 @@ export const BehaviorModule: React.FC<BehaviorModuleProps> = ({ student, onUpdat
                 <div className="bg-gradient-to-br from-indigo-900 via-zinc-950 to-black rounded-[3.5rem] p-10 text-white shadow-2xl relative overflow-hidden group border border-white/5">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full -mr-40 -mt-40 blur-3xl animate-pulse"></div>
                     <div className="relative z-10 flex flex-col items-center">
-                        <div className="px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/10 mb-8">
+                        <div className="px-4 py-1.5 bg-white/10 rounded-full border border-white/10 mb-8">
                             <span className="text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300">Kümülatif Davranış Skoru</span>
                         </div>
 
@@ -151,10 +151,10 @@ export const BehaviorModule: React.FC<BehaviorModuleProps> = ({ student, onUpdat
                 </div>
 
                 {/* Badges Module (Bento Card High Intensity) */}
-                <div className="bg-white dark:bg-zinc-900 rounded-[3.5rem] border border-zinc-200 dark:border-zinc-800 p-10 shadow-sm overflow-hidden">
+                <div className="bg-[var(--panel-bg-solid)] rounded-[3.5rem] border border-[var(--border-color)] p-10 shadow-sm overflow-hidden">
                     <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Dijital Rozetler</h3>
-                        <i className="fa-solid fa-award text-zinc-200 text-2xl"></i>
+                        <h3 className="text-lg font-black text-[var(--text-primary)] uppercase tracking-tighter">Dijital Rozetler</h3>
+                        <i className="fa-solid fa-award text-[var(--text-muted)] text-2xl"></i>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                         {[
@@ -182,8 +182,8 @@ export const BehaviorModule: React.FC<BehaviorModuleProps> = ({ student, onUpdat
                 </div>
 
                 {/* Analysis Module (Bento Card Contextual) */}
-                <div className="bg-white dark:bg-zinc-900 rounded-[3.5rem] border border-zinc-200 dark:border-zinc-800 p-10 shadow-sm">
-                    <h3 className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-tighter mb-8">Davranış Spektrumu</h3>
+                <div className="bg-[var(--panel-bg-solid)] rounded-[3.5rem] border border-[var(--border-color)] p-10 shadow-sm">
+                    <h3 className="text-lg font-black text-[var(--text-primary)] uppercase tracking-tighter mb-8">Davranış Spektrumu</h3>
                     <div className="space-y-8">
                         <div>
                             <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-widest mb-3">

@@ -435,7 +435,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       </div>
 
       {currentView === 'assessment' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+        <div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto">
           <React.Suspense
             fallback={
               <div className="flex items-center justify-center h-full">
@@ -454,7 +454,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       )}
 
       {currentView === 'screening' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+        <div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto">
           <React.Suspense
             fallback={
               <div className="flex items-center justify-center h-full">
@@ -472,7 +472,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       )}
 
       {currentView === 'sinav-studyosu' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+        <div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto">
           <React.Suspense
             fallback={
               <div className="flex items-center justify-center h-full">
@@ -486,7 +486,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       )}
 
       {currentView === 'mat-sinav-studyosu' && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+        <div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto">
           <React.Suspense
             fallback={
               <div className="flex items-center justify-center h-full">

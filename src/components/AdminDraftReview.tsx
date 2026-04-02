@@ -72,10 +72,10 @@ export const AdminDraftReview = () => {
     };
 
     return (
-        <div className="h-[calc(100vh-140px)] flex bg-zinc-50 dark:bg-[#070708] rounded-[2.5rem] border border-zinc-200 dark:border-white/5 shadow-2xl overflow-hidden font-lexend">
+        <div className="h-[calc(100vh-140px)] flex bg-[var(--bg-primary)] rounded-[2.5rem] border border-[var(--border-color)] shadow-[var(--shadow-premium)] overflow-hidden font-lexend">
             {/* Sidebar: Draft List */}
-            <div className="w-80 border-r border-zinc-200 dark:border-white/5 flex flex-col bg-white dark:bg-black/20">
-                <div className="p-8 border-b border-zinc-100 dark:border-white/5 bg-zinc-50/50 dark:bg-zinc-900/10">
+            <div className="w-80 border-r border-[var(--border-color)] flex flex-col bg-[var(--panel-bg-solid)]">
+                <div className="p-8 border-b border-[var(--border-color)] bg-[var(--panel-bg-subtle)]">
                     <h3 className="font-black text-xl text-zinc-900 dark:text-white mb-1 uppercase tracking-tighter text-lexend">OCR HAVUZU</h3>
                     <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                         <i className="fa-solid fa-bolt text-indigo-500"></i> Bekleyen Analizler
@@ -98,7 +98,7 @@ export const AdminDraftReview = () => {
                             <div
                                 key={item.id}
                                 onClick={() => handleSelectDraft(item)}
-                                className={`p-5 rounded-[1.5rem] cursor-pointer transition-all duration-300 group ${selectedDraft?.id === item.id ? 'bg-white dark:bg-zinc-800 shadow-xl scale-[1.02] border-2 border-indigo-500/20' : 'hover:bg-zinc-100 dark:hover:bg-zinc-900/50 border-2 border-transparent opacity-60'}`}
+                                className={`p-5 rounded-[1.5rem] cursor-pointer transition-all duration-300 group ${selectedDraft?.id === item.id ? 'bg-[var(--panel-bg-solid)] shadow-xl scale-[1.02] border-2 border-[var(--accent-color)]/20' : 'hover:bg-[var(--panel-bg-subtle)] border-2 border-transparent opacity-60'}`}
                             >
                                 <div className="flex justify-between items-start mb-3">
                                     <span className="text-[8px] font-black px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 uppercase tracking-widest border border-amber-500/20">{item.baseType}</span>
@@ -113,11 +113,11 @@ export const AdminDraftReview = () => {
             </div>
 
             {/* Main Content: Review & Refinement */}
-            <div className="flex-1 flex flex-col bg-white/50 dark:bg-zinc-950/20 overflow-hidden">
+            <div className="flex-1 flex flex-col bg-[var(--bg-primary)] overflow-hidden">
                 {selectedDraft ? (
                     <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-500">
                         {/* Header Actions */}
-                        <div className="p-8 border-b border-zinc-100 dark:border-white/5 flex justify-between items-center bg-white/80 dark:bg-zinc-900/40 backdrop-blur-xl">
+                        <div className="p-8 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--panel-bg-solid)]">
                             <div>
                                 <h2 className="text-2xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">RAFINERİ İNCELEMESİ</h2>
                                 <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] ml-0.5">Taslak Kimliği: {selectedDraft.id}</p>
@@ -141,7 +141,7 @@ export const AdminDraftReview = () => {
                                 <div className="space-y-8">
                                     <h4 className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2"><div className="w-8 h-[1px] bg-zinc-400 opacity-20"></div> HAM OCR VERİSİ</h4>
 
-                                    <div className="p-8 bg-zinc-100/50 dark:bg-zinc-900/50 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 relative group">
+                                    <div className="p-8 bg-[var(--panel-bg-subtle)] rounded-[2.5rem] border border-[var(--border-color)] relative group">
                                         <div className="absolute top-6 right-6 opacity-20"><i className="fa-solid fa-quote-right text-4xl"></i></div>
                                         <p className="text-zinc-500 dark:text-zinc-400 font-mono text-xs leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto custom-scrollbar-minimal pr-4 italic">
                                             {JSON.stringify(selectedDraft.draftData, null, 2)}
@@ -160,8 +160,8 @@ export const AdminDraftReview = () => {
                                 <div className="space-y-8">
                                     <h4 className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.3em] flex items-center gap-2"><div className="w-8 h-[1px] bg-emerald-500 opacity-20"></div> RAFİNE EDİLMİŞ MİMARİ</h4>
 
-                                    <div className="space-y-6 bg-white dark:bg-zinc-900 p-10 rounded-[3rem] shadow-2xl border-2 border-zinc-100 dark:border-white/5 relative">
-                                        {isRefining && <div className="absolute inset-0 z-10 bg-white/60 dark:bg-black/80 backdrop-blur-sm rounded-[3rem] flex items-center justify-center flex-col gap-4 animate-in fade-in">
+                                    <div className="space-y-6 bg-[var(--panel-bg-solid)] p-10 rounded-[3rem] shadow-[var(--shadow-premium)] border-2 border-[var(--border-color)] relative">
+                                        {isRefining && <div className="absolute inset-0 z-10 bg-[var(--panel-bg-solid)]/80 backdrop-blur-sm rounded-[3rem] flex items-center justify-center flex-col gap-4 animate-in fade-in">
                                             <div className="w-16 h-16 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
                                             <span className="text-xs font-black uppercase tracking-widest text-indigo-500 animate-pulse">Mimari Çekirdek Oluşturuluyor</span>
                                         </div>}
@@ -172,7 +172,7 @@ export const AdminDraftReview = () => {
                                                 type="text"
                                                 value={refinedData.title || ''}
                                                 onChange={(e: any) => setRefinedData({ ...refinedData, title: e.target.value })}
-                                                className="w-full p-5 bg-zinc-50 dark:bg-black border-2 border-zinc-100 dark:border-zinc-800 rounded-[1.5rem] text-sm font-black focus:border-indigo-500 outline-none transition-all uppercase"
+                                                className="w-full p-5 bg-[var(--panel-bg-subtle)] border-2 border-[var(--border-color)] rounded-[1.5rem] text-sm font-black focus:border-[var(--accent-color)] outline-none transition-all uppercase text-[var(--text-primary)]"
                                             />
                                         </div>
 
@@ -182,7 +182,7 @@ export const AdminDraftReview = () => {
                                                 <select
                                                     value={refinedData.category || ''}
                                                     onChange={(e: any) => setRefinedData({ ...refinedData, category: e.target.value })}
-                                                    className="w-full p-5 bg-zinc-50 dark:bg-black border-2 border-zinc-100 dark:border-zinc-800 rounded-[1.5rem] text-xs font-black focus:border-indigo-500 outline-none transition-all appearance-none uppercase"
+                                                    className="w-full p-5 bg-[var(--panel-bg-subtle)] border-2 border-[var(--border-color)] rounded-[1.5rem] text-xs font-black focus:border-[var(--accent-color)] outline-none transition-all appearance-none uppercase text-[var(--text-primary)]"
                                                 >
                                                     {ACTIVITY_CATEGORIES.map((c: any) => <option key={c.id} value={c.id}>{c.title}</option>)}
                                                 </select>
@@ -194,7 +194,7 @@ export const AdminDraftReview = () => {
                                                     <select
                                                         value={refinedData.icon || ''}
                                                         onChange={(e: any) => setRefinedData({ ...refinedData, icon: e.target.value })}
-                                                        className="w-full pl-16 pr-5 py-5 bg-zinc-50 dark:bg-black border-2 border-zinc-100 dark:border-zinc-800 rounded-[1.5rem] text-xs font-black focus:border-indigo-500 outline-none transition-all appearance-none uppercase"
+                                                        className="w-full pl-16 pr-5 py-5 bg-[var(--panel-bg-subtle)] border-2 border-[var(--border-color)] rounded-[1.5rem] text-xs font-black focus:border-[var(--accent-color)] outline-none transition-all appearance-none uppercase text-[var(--text-primary)]"
                                                     >
                                                         {ICON_LIST.map((i: string) => <option key={i} value={i}>{i.split('-')[1].toUpperCase()}</option>)}
                                                     </select>
@@ -207,25 +207,25 @@ export const AdminDraftReview = () => {
                                             <textarea
                                                 value={refinedData.description || ''}
                                                 onChange={(e: any) => setRefinedData({ ...refinedData, description: e.target.value })}
-                                                className="w-full p-5 bg-zinc-50 dark:bg-black border-2 border-zinc-100 dark:border-zinc-800 rounded-[1.5rem] text-xs font-bold leading-relaxed focus:border-indigo-500 outline-none transition-all h-28 resize-none"
+                                                className="w-full p-5 bg-[var(--panel-bg-subtle)] border-2 border-[var(--border-color)] rounded-[1.5rem] text-xs font-bold leading-relaxed focus:border-[var(--accent-color)] outline-none transition-all h-28 resize-none text-[var(--text-primary)]"
                                             />
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-6">
                                             <div className="space-y-4">
                                                 <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">HEDEF BECERİLER</label>
-                                                <div className="flex flex-wrap gap-2 p-4 bg-zinc-50 dark:bg-black rounded-2xl border dark:border-zinc-800 min-h-[4rem]">
+                                                <div className="flex flex-wrap gap-2 p-4 bg-[var(--panel-bg-subtle)] rounded-2xl border border-[var(--border-color)] min-h-[4rem]">
                                                     {(refinedData.targetSkills || []).map((s: string, idx: number) => (
-                                                        <span key={idx} className="px-3 py-1 bg-white dark:bg-zinc-800 text-[8px] font-black border dark:border-zinc-700 rounded-lg text-indigo-500 uppercase">{s}</span>
+                                                        <span key={idx} className="px-3 py-1 bg-[var(--panel-bg-solid)] text-[8px] font-black border border-[var(--border-color)] rounded-lg text-[var(--accent-color)] uppercase">{s}</span>
                                                     ))}
                                                     {isRefining && <span className="text-[8px] font-bold text-zinc-400 italic">Analiz ediliyor...</span>}
                                                 </div>
                                             </div>
                                             <div className="space-y-4">
                                                 <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">ÖĞRENME HEDEFLERİ</label>
-                                                <div className="flex flex-wrap gap-2 p-4 bg-zinc-50 dark:bg-black rounded-2xl border dark:border-zinc-800 min-h-[4rem]">
+                                                <div className="flex flex-wrap gap-2 p-4 bg-[var(--panel-bg-subtle)] rounded-2xl border border-[var(--border-color)] min-h-[4rem]">
                                                     {(refinedData.learningObjectives || []).map((obj: string, idx: number) => (
-                                                        <span key={idx} className="px-3 py-1 bg-white dark:bg-zinc-800 text-[8px] font-black border dark:border-zinc-700 rounded-lg text-emerald-500 uppercase leading-none">{obj}</span>
+                                                        <span key={idx} className="px-3 py-1 bg-[var(--panel-bg-solid)] text-[8px] font-black border border-[var(--border-color)] rounded-lg text-emerald-500 uppercase leading-none">{obj}</span>
                                                     ))}
                                                     {isRefining && <span className="text-[8px] font-bold text-zinc-400 italic">Planlanıyor...</span>}
                                                 </div>
@@ -250,7 +250,7 @@ export const AdminDraftReview = () => {
                     </div>
                 ) : (
                     <div className="flex-1 flex flex-col items-center justify-center p-24 text-center">
-                        <div className="w-32 h-32 bg-zinc-100 dark:bg-zinc-900 rounded-[3rem] flex items-center justify-center text-5xl text-zinc-300 dark:text-zinc-800 mb-8 border border-zinc-200 dark:border-white/5 shadow-inner">
+                        <div className="w-32 h-32 bg-[var(--panel-bg-subtle)] rounded-[3rem] flex items-center justify-center text-5xl text-[var(--text-muted)] mb-8 border border-[var(--border-color)] shadow-inner">
                             <i className="fa-solid fa-microscope text-lexend"></i>
                         </div>
                         <h3 className="font-black text-2xl text-zinc-900 dark:text-white uppercase tracking-tighter mb-4">İNCELEME MODÜLÜ</h3>

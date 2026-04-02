@@ -44,7 +44,7 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
 
           <div className="relative z-10">
             <div className="flex items-center gap-4 mb-10">
-              <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20 shadow-xl">
+              <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20 shadow-xl">
                 <i className="fa-solid fa-brain-circuit text-2xl text-indigo-400"></i>
               </div>
               <div>
@@ -54,7 +54,7 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
             </div>
 
             <div className="space-y-6">
-              <div className="p-6 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-sm">
+              <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-4">Derin Öğrenme Özeti</h3>
                 <p className="text-slate-300 leading-relaxed italic text-sm md:text-base">
                   "{data.summary}"
@@ -82,8 +82,8 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
         </div>
 
         {/* Sağ: Radar Grafik Kartı */}
-        <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col items-center justify-center">
-          <h3 className="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter mb-8 w-full text-center">Beceriler Analiz Radarı</h3>
+        <div className="bg-[var(--panel-bg-solid)] p-10 rounded-[3.5rem] border border-[var(--border-color)] shadow-sm flex flex-col items-center justify-center">
+          <h3 className="text-xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-8 w-full text-center">Beceriler Analiz Radarı</h3>
           <div className="scale-110 lg:scale-[1.2]">
             <RadarChart data={data.radarData} />
           </div>
@@ -93,14 +93,14 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
       {/* Orta: Stratejik Öneriler (Bento Grid) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {data.strategies.map((item, i) => (
-          <div key={i} className="bg-white dark:bg-zinc-900 p-8 rounded-[3rem] border border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-2xl transition-all group overflow-hidden relative">
+          <div key={i} className="bg-[var(--panel-bg-solid)] p-8 rounded-[3rem] border border-[var(--border-color)] shadow-sm hover:shadow-2xl transition-all group overflow-hidden relative">
             <div className={`w-14 h-14 rounded-2xl bg-${item.color}-50 dark:bg-${item.color}-900/20 flex items-center justify-center text-${item.color}-600 mb-6 group-hover:scale-110 transition-transform shadow-inner`}>
               <i className={`fa-solid ${item.icon} text-2xl`}></i>
             </div>
-            <h4 className="font-black text-zinc-900 dark:text-white mb-2 uppercase text-xs tracking-wider">
+            <h4 className="font-black text-[var(--text-primary)] mb-2 uppercase text-xs tracking-wider">
               {item.title}
             </h4>
-            <p className="text-sm text-zinc-500 leading-relaxed">
+            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
               {item.text}
             </p>
           </div>
@@ -108,12 +108,12 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
       </div>
 
       {/* Alt: Akıllı Zaman Çizelgesi */}
-      <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+      <div className="bg-[var(--panel-bg-solid)] p-10 rounded-[3.5rem] border border-[var(--border-color)] shadow-sm relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
           <i className="fa-solid fa-timeline text-9xl"></i>
         </div>
 
-        <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-10 uppercase tracking-tighter flex items-center gap-3">
+        <h3 className="text-2xl font-black text-[var(--text-primary)] mb-10 uppercase tracking-tighter flex items-center gap-3">
           <i className="fa-solid fa-bolt-lightning text-indigo-500"></i>
           Dinamik Müdahale Akışı
         </h3>

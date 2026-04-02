@@ -22,14 +22,14 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
             {/* Üst Karşılama ve Hızlı Durum */}
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Sol: Gelişim Radarı / Ana Skor (Bento Card Large) */}
-                <div className="flex-1 bg-white dark:bg-zinc-900 rounded-[3.5rem] p-10 border border-zinc-200 dark:border-zinc-800 shadow-2xl shadow-indigo-500/5 relative overflow-hidden group">
+                <div className="flex-1 bg-[var(--panel-bg-solid)] rounded-[3.5rem] p-10 border border-[var(--border-color)] shadow-2xl shadow-indigo-500/5 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
 
                     <div className="relative z-10">
                         <div className="flex justify-between items-start mb-10">
                             <div>
-                                <h3 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tighter uppercase mb-2">Genel Gelişim</h3>
-                                <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Kümülatif Başarı Endeksi</p>
+                                <h3 className="text-3xl font-black text-[var(--text-primary)] tracking-tighter uppercase mb-2">Genel Gelişim</h3>
+                                <p className="text-sm font-bold text-[var(--text-muted)] uppercase tracking-widest">Kümülatif Başarı Endeksi</p>
                             </div>
                             <div className="w-16 h-16 bg-indigo-600 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-indigo-600/30">
                                 <i className="fa-solid fa-chart-line-up text-2xl"></i>
@@ -43,13 +43,13 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
                                     <circle cx="80" cy="80" r="70" fill="none" stroke="currentColor" strokeWidth="12" strokeDasharray={440} strokeDashoffset={440 - (440 * getCognitiveScore()) / 100} className="text-indigo-600 transition-all duration-1000 ease-out" strokeLinecap="round" />
                                 </svg>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-5xl font-black text-zinc-900 dark:text-white">%{getCognitiveScore()}</span>
-                                    <span className="text-[10px] font-black uppercase text-zinc-400">Skor</span>
+                                    <span className="text-5xl font-black text-[var(--text-primary)]">%{getCognitiveScore()}</span>
+                                    <span className="text-[10px] font-black uppercase text-[var(--text-muted)]">Skor</span>
                                 </div>
                             </div>
 
                             <div className="flex-1 space-y-6">
-                                <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+                                <div className="p-4 bg-[var(--panel-bg-subtle)] rounded-2xl border border-[var(--border-color)]">
                                     <div className="flex justify-between items-center mb-2">
                                         <span className="text-xs font-bold text-zinc-500">Bilişsel Esneklik</span>
                                         <span className="text-xs font-black text-emerald-500">+12%</span>
@@ -58,7 +58,7 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
                                         <div className="h-full bg-emerald-500 w-[75%] rounded-full"></div>
                                     </div>
                                 </div>
-                                <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+                                <div className="p-4 bg-[var(--panel-bg-subtle)] rounded-2xl border border-[var(--border-color)]">
                                     <div className="flex justify-between items-center mb-2">
                                         <span className="text-xs font-bold text-zinc-500">Hafıza Kapasitesi</span>
                                         <span className="text-xs font-black text-indigo-500">+8%</span>
@@ -77,7 +77,7 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
                     <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full -mr-40 -mt-40 blur-3xl animate-pulse"></div>
 
                     <div className="relative z-10">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/10 backdrop-blur-sm mb-6">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/10 mb-6">
                             <i className="fa-solid fa-sparkles text-indigo-400 text-[10px]"></i>
                             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-200">AI Öngörüsü</span>
                         </div>
@@ -88,7 +88,7 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
                     </div>
 
                     <div className="mt-8 space-y-4 relative z-10">
-                        <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                        <div className="p-4 bg-[var(--panel-bg-subtle)] rounded-2xl border border-white/5">
                             <p className="text-[10px] font-black uppercase text-indigo-400 mb-2">Önerilen Aksiyon</p>
                             <p className="text-xs font-medium text-indigo-50">Sabah seanslarında 'Sözel Mantık' ağırlıklı çalışılmalı.</p>
                         </div>
@@ -102,12 +102,12 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
             {/* Orta Katman: Aktivite Trendi ve Kritik Uyarılar */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Son Aktiviteler (Bento Card Tall) */}
-                <div className="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-[3.5rem] p-8 border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden flex flex-col">
+                <div className="lg:col-span-2 bg-[var(--panel-bg-solid)] rounded-[3.5rem] p-8 border border-[var(--border-color)] shadow-sm overflow-hidden flex flex-col">
                     <div className="flex justify-between items-center mb-10 px-2">
-                        <h3 className="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Performans Trendi</h3>
+                        <h3 className="text-xl font-black text-[var(--text-primary)] uppercase tracking-tighter">Performans Trendi</h3>
                         <div className="flex gap-2">
                             {['7G', '30G', '12A'].map(t => (
-                                <button key={t} className={`px-4 py-1.5 rounded-xl text-[10px] font-black ${t === '7G' ? 'bg-zinc-100 dark:bg-zinc-800 text-indigo-600' : 'text-zinc-400 hover:text-zinc-600'}`}>{t}</button>
+                                <button key={t} className={`px-4 py-1.5 rounded-xl text-[10px] font-black ${t === '7G' ? 'bg-[var(--panel-bg-subtle)] text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--accent-color)]'}`}>{t}</button>
                             ))}
                         </div>
                     </div>
@@ -115,7 +115,7 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
                     <div className="flex-1 flex items-end gap-3 h-48 px-2">
                         {performanceTrend.map((h, i) => (
                             <div key={i} className="flex-1 flex flex-col items-center gap-4 group/bar">
-                                <div className="w-full bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl relative overflow-hidden h-40">
+                                <div className="w-full bg-[var(--panel-bg-subtle)] rounded-2xl relative overflow-hidden h-40">
                                     <div
                                         className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-indigo-700 to-indigo-500 rounded-2xl transition-all duration-1000 ease-out group-hover/bar:from-indigo-600 group-hover/bar:to-indigo-400 cursor-help"
                                         style={{ height: `${h}%` }}
@@ -132,8 +132,8 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
                 </div>
 
                 {/* Kritik Gözlemler (Bento Card Contextual) */}
-                <div className="bg-white dark:bg-zinc-900 rounded-[3.5rem] p-8 border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col">
-                    <h3 className="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter mb-8">Kritik Gözlemler</h3>
+                <div className="bg-[var(--panel-bg-solid)] rounded-[3.5rem] p-8 border border-[var(--border-color)] shadow-sm flex flex-col">
+                    <h3 className="text-xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-8">Kritik Gözlemler</h3>
                     <div className="space-y-4 flex-1 overflow-y-auto custom-scrollbar pr-2">
                         <div className="p-5 rounded-3xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
                             <div className="flex gap-4 items-center mb-3">
@@ -159,27 +159,27 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
                             </p>
                         </div>
                     </div>
-                    <button className="w-full mt-6 py-4 border border-zinc-100 dark:border-zinc-800 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-indigo-600 transition-all">
+                    <button className="w-full mt-6 py-4 border border-[var(--border-color)] rounded-2xl text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all">
                         Tüm Notları İncele
                     </button>
                 </div>
             </div>
 
             {/* Alt Katman: Son Eğitim Materyalleri */}
-            <div className="bg-white dark:bg-zinc-900 rounded-[3.5rem] p-10 border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden group">
+            <div className="bg-[var(--panel-bg-solid)] rounded-[3.5rem] p-10 border border-[var(--border-color)] shadow-sm relative overflow-hidden group">
                 <div className="flex justify-between items-center mb-10">
                     <div>
-                        <h3 className="text-2xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Dijital Portfolyo</h3>
-                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mt-1">Son Hazırlanan Eğitim Materyalleri</p>
+                        <h3 className="text-2xl font-black text-[var(--text-primary)] uppercase tracking-tighter">Dijital Portfolyo</h3>
+                        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mt-1">Son Hazırlanan Eğitim Materyalleri</p>
                     </div>
-                    <button className="px-8 py-3 bg-zinc-900 text-white dark:bg-white dark:text-black rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
+                    <button className="px-8 py-3 bg-[var(--accent-color)] text-[var(--bg-primary)] rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
                         Tüm Arşive Git
                     </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="group/item relative bg-zinc-50 dark:bg-zinc-800/50 rounded-[2.5rem] p-6 border border-zinc-100 dark:border-zinc-800 hover:border-indigo-500/30 transition-all hover:shadow-2xl hover:shadow-indigo-500/10">
+                        <div key={i} className="group/item relative bg-[var(--panel-bg-subtle)] rounded-[2.5rem] p-6 border border-[var(--border-color)] hover:border-indigo-500/30 transition-all hover:shadow-2xl hover:shadow-indigo-500/10">
                             <div className="flex justify-between items-start mb-6">
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-inner ${i === 1 ? 'bg-indigo-50 text-indigo-600' :
                                         i === 2 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
@@ -188,12 +188,12 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
                                 </div>
                                 <span className="text-[10px] font-black text-zinc-400 uppercase">{i} Gün Önce</span>
                             </div>
-                            <h4 className="text-lg font-black text-zinc-900 dark:text-white uppercase mb-2">
+                            <h4 className="text-lg font-black text-[var(--text-primary)] uppercase mb-2">
                                 {i === 1 ? 'Akıcı Okuma Seti v2' : i === 2 ? 'Görsel Matematik #4' : 'Dikkat Geliştirme #12'}
                             </h4>
                             <div className="flex gap-2">
-                                <span className="px-3 py-1 bg-white dark:bg-zinc-900 rounded-lg text-[9px] font-black text-zinc-500 uppercase">Seviye 2</span>
-                                <span className="px-3 py-1 bg-white dark:bg-zinc-900 rounded-lg text-[9px] font-black text-zinc-500 uppercase">12 Sayfa</span>
+                                <span className="px-3 py-1 bg-[var(--panel-bg-subtle)] rounded-lg text-[9px] font-black text-[var(--text-muted)] uppercase">Seviye 2</span>
+                                <span className="px-3 py-1 bg-[var(--panel-bg-subtle)] rounded-lg text-[9px] font-black text-[var(--text-muted)] uppercase">12 Sayfa</span>
                             </div>
                         </div>
                     ))}

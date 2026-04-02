@@ -22,9 +22,9 @@ export const PortfolioModule: React.FC<PortfolioModuleProps> = ({ student, onUpd
     };
 
     const PortfolioCard = ({ item }: { item: PortfolioItem }) => (
-        <div className="group relative break-inside-avoid mb-8 rounded-[2.5rem] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
+        <div className="group relative break-inside-avoid mb-8 rounded-[2.5rem] bg-[var(--panel-bg-solid)] border border-[var(--border-color)] overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
             {/* Medya Alanı */}
-            <div className="aspect-[4/3] bg-zinc-50 dark:bg-zinc-800/50 relative overflow-hidden">
+            <div className="aspect-[4/3] bg-[var(--panel-bg-subtle)] relative overflow-hidden">
                 {item.type === 'image' ? (
                     <img src={item.url} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
                 ) : (
@@ -35,19 +35,19 @@ export const PortfolioModule: React.FC<PortfolioModuleProps> = ({ student, onUpd
                 )}
 
                 {/* Overlay on hover */}
-                <div className="absolute inset-0 bg-zinc-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-sm">
-                    <button className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl text-white hover:bg-indigo-600 transition-all flex items-center justify-center shadow-lg">
+                <div className="absolute inset-0 bg-[var(--panel-bg-solid)]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+                    <button className="w-12 h-12 bg-[var(--panel-bg-subtle)] rounded-2xl text-white hover:bg-indigo-600 transition-all flex items-center justify-center shadow-lg">
                         <i className="fa-solid fa-expand"></i>
                     </button>
-                    <button className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl text-white hover:bg-emerald-600 transition-all flex items-center justify-center shadow-lg">
+                    <button className="w-12 h-12 bg-[var(--panel-bg-subtle)] rounded-2xl text-white hover:bg-emerald-600 transition-all flex items-center justify-center shadow-lg">
                         <i className="fa-solid fa-arrow-down-to-bracket"></i>
                     </button>
-                    <button className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl text-white hover:bg-rose-600 transition-all flex items-center justify-center shadow-lg">
+                    <button className="w-12 h-12 bg-[var(--panel-bg-subtle)] rounded-2xl text-white hover:bg-rose-600 transition-all flex items-center justify-center shadow-lg">
                         <i className="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
 
-                <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-full text-[9px] font-black uppercase tracking-widest text-zinc-900 dark:text-white shadow-sm">
+                <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1 bg-[var(--panel-bg-solid)] rounded-full text-[9px] font-black uppercase tracking-widest text-[var(--text-primary)] shadow-sm">
                     <span className={`w-1.5 h-1.5 rounded-full ${item.type === 'image' ? 'bg-indigo-500' : item.type === 'video' ? 'bg-amber-500' : 'bg-rose-500'}`}></span>
                     {item.type === 'image' ? 'Görüntü' : item.type === 'video' ? 'Görüntü' : 'Belge'}
                 </div>
@@ -64,7 +64,7 @@ export const PortfolioModule: React.FC<PortfolioModuleProps> = ({ student, onUpd
                 </p>
                 <div className="flex flex-wrap gap-2">
                     {item.tags?.map(tag => (
-                        <span key={tag} className="text-[9px] font-black uppercase tracking-widest bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 px-3 py-1 rounded-lg border border-zinc-100 dark:border-zinc-700/50">
+                        <span key={tag} className="text-[9px] font-black uppercase tracking-widest bg-[var(--panel-bg-subtle)] text-[var(--text-muted)] px-3 py-1 rounded-lg border border-zinc-100 dark:border-zinc-700/50">
                             #{tag}
                         </span>
                     ))}
@@ -86,7 +86,7 @@ export const PortfolioModule: React.FC<PortfolioModuleProps> = ({ student, onUpd
                     { label: 'Videolar', value: stats.videos, color: 'amber', icon: 'fa-play' },
                     { label: 'Belgeler', value: stats.docs, color: 'rose', icon: 'fa-file-pdf' }
                 ].map((s) => (
-                    <div key={s.label} className="bg-white dark:bg-zinc-900 p-6 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center gap-4">
+                    <div key={s.label} className="bg-[var(--panel-bg-solid)] p-6 rounded-[2.5rem] border border-[var(--border-color)] shadow-sm flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-2xl bg-${s.color}-50 dark:bg-${s.color}-900/20 text-${s.color}-600 flex items-center justify-center text-xl`}>
                             <i className={`fa-solid ${s.icon}`}></i>
                         </div>
@@ -99,8 +99,8 @@ export const PortfolioModule: React.FC<PortfolioModuleProps> = ({ student, onUpd
             </div>
 
             {/* Orta: Filtreleme ve Aksiyonlar */}
-            <div className="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-zinc-900 p-4 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 shadow-sm gap-4">
-                <div className="flex gap-2 p-1 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl w-full md:w-auto">
+            <div className="flex flex-col md:flex-row justify-between items-center bg-[var(--panel-bg-solid)] p-4 rounded-[2.5rem] border border-[var(--border-color)] shadow-sm gap-4">
+                <div className="flex gap-2 p-1 bg-[var(--panel-bg-subtle)] rounded-2xl w-full md:w-auto">
                     {['all', 'image', 'video', 'document'].map((f) => (
                         <button
                             key={f}
@@ -130,8 +130,8 @@ export const PortfolioModule: React.FC<PortfolioModuleProps> = ({ student, onUpd
                     ))}
 
                     {filteredItems.length === 0 && (
-                        <div className="col-span-full py-32 flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-800/20 rounded-[4rem] border-2 border-dashed border-zinc-200 dark:border-zinc-800">
-                            <div className="w-24 h-24 bg-white dark:bg-zinc-900 rounded-[2rem] flex items-center justify-center mb-6 shadow-xl text-zinc-200 animate-bounce">
+                        <div className="col-span-full py-32 flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-800/20 rounded-[4rem] border-2 border-dashed border-[var(--border-color)]">
+                            <div className="w-24 h-24 bg-[var(--panel-bg-solid)] rounded-[2rem] flex items-center justify-center mb-6 shadow-xl text-[var(--text-muted)] animate-bounce">
                                 <i className="fa-regular fa-folder-open text-4xl"></i>
                             </div>
                             <h3 className="text-zinc-400 font-black uppercase tracking-[0.2em]">Bu kategoride henüz öğe yok</h3>

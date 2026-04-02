@@ -109,7 +109,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
     return (
         <header
-            className={`relative bg-[var(--panel-bg-solid)] border-b border-[var(--border-color)] shadow-premium z-[90] transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
+            className={`sticky top-0 bg-[var(--panel-bg-solid)] border-b border-[var(--border-color)] shadow-[var(--shadow-premium)] z-[100] transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
         >
             <div className="w-full px-6 py-4 flex justify-between items-center gap-6">
                 <div className="flex items-center gap-4">
