@@ -68,22 +68,22 @@ export const ActivityPublisher: React.FC<ActivityPublisherProps> = ({ blueprint,
                         <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Menü Başlığı</label>
                         <input 
                             type="text" value={config.title} onChange={e => setConfig({...config, title: e.target.value})}
-                            className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500"
+                            className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-accent"
                         />
                     </div>
                     <div>
                         <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Hedef Kategori</label>
                         <select 
                             value={config.category} onChange={e => setConfig({...config, category: e.target.value})}
-                            className="w-full p-4 bg-zinc-800 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500"
+                            className="w-full p-4 bg-zinc-800 border border-white/10 rounded-2xl text-white outline-none focus:border-accent"
                         >
                             {ACTIVITY_CATEGORIES.map(cat => (
                                 <option key={cat.id} value={cat.id}>{cat.title}</option>
                             ))}
                         </select>
                     </div>
-                    <div className="p-4 bg-indigo-500/5 rounded-2xl border border-indigo-500/10">
-                        <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3">Aktif Parametreler</h4>
+                    <div className="p-4 bg-accent/5 rounded-2xl border border-accent/10">
+                        <h4 className="text-[10px] font-black text-accent/70 uppercase tracking-widest mb-3">Aktif Parametreler</h4>
                         <div className="flex gap-4">
                             {['Zorluk', 'Çeldirici', 'Punto'].map(p => (
                                 <span key={p} className="px-3 py-1 bg-zinc-800 rounded-full text-[10px] text-zinc-400 font-bold border border-zinc-700">✓ {p}</span>

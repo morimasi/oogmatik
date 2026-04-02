@@ -18,7 +18,7 @@ export const PageSettingsPanel: React.FC<PageSettingsPanelProps> = ({ pageConfig
                     type="text"
                     value={pageConfig.title}
                     onChange={e => setPageConfig({ ...pageConfig, title: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none font-bold"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-xs text-white focus:border-accent focus:ring-1 focus:ring-accent/5 outline-none font-bold"
                 />
             </div>
             <div className="flex gap-2 bg-zinc-900 p-1 rounded-xl border border-zinc-800">
@@ -38,7 +38,7 @@ export const PageSettingsPanel: React.FC<PageSettingsPanelProps> = ({ pageConfig
                         type="checkbox"
                         checked={pageConfig.showDate}
                         onChange={e => setPageConfig({ ...pageConfig, showDate: e.target.checked })}
-                        className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-black border-zinc-700"
+                        className="w-4 h-4 rounded text-accent focus:ring-accent/5 bg-black border-zinc-700"
                     />
                     Tarih
                 </label>
@@ -47,7 +47,7 @@ export const PageSettingsPanel: React.FC<PageSettingsPanelProps> = ({ pageConfig
                         type="checkbox"
                         checked={pageConfig.showName}
                         onChange={e => setPageConfig({ ...pageConfig, showName: e.target.checked })}
-                        className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-black border-zinc-700"
+                        className="w-4 h-4 rounded text-accent focus:ring-accent/5 bg-black border-zinc-700"
                     />
                     Ad Soyad
                 </label>

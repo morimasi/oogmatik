@@ -85,7 +85,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                             onAddWidget(selectedActivity);
                             onActivitySelect(null as any); // clear selection
                         }}
-                        className="w-full mt-2 mb-4 flex items-center justify-center space-x-2 py-2 rounded-lg text-sm font-semibold transition-all shadow-md bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 border border-indigo-500/50"
+                        className="w-full mt-2 mb-4 flex items-center justify-center space-x-2 py-2 rounded-lg text-sm font-semibold transition-all shadow-md bg-accent/20 text-accent/70 hover:bg-accent/30 border border-accent/50"
                     >
                         <Plus className="w-4 h-4" />
                         <span>Sayfaya Ekle</span>
@@ -134,7 +134,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                     className={cn(
                         "w-full flex items-center justify-center space-x-2 py-3 rounded-xl text-sm font-semibold transition-all shadow-lg",
                         canGenerate
-                            ? "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white shadow-indigo-500/25"
+                            ? "bg-accent hover:bg-accent/90 text-white shadow-accent/20"
                             : "bg-white/5 text-white/40 cursor-not-allowed"
                     )}
                 >

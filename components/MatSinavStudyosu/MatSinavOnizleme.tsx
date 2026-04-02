@@ -49,7 +49,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
             {/* Sınav Başlığı - Premium Gradient */}
             <div
                 className="rounded-2xl p-6 mb-6 shadow-lg text-white"
-                style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)' }}
+                style={{ background: 'linear-gradient(135deg, hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 8%)) 0%, hsl(var(--accent-h) var(--accent-s) var(--accent-l)) 100%)' }}
             >
                 <h1 className="text-2xl font-extrabold mb-4 tracking-tight drop-shadow-sm">
                     {sinav.baslik}
@@ -62,7 +62,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                         { label: 'SÜRE', val: `~${Math.ceil(sinav.tahminiSure / 60)} dk` },
                     ].map(({ label, val }) => (
                         <div key={label} className="flex flex-col">
-                            <span className="text-sky-100 text-[10px] font-bold uppercase tracking-widest">{label}</span>
+                            <span className="text-white/80 text-[10px] font-bold uppercase tracking-widest">{label}</span>
                             <span className="text-white font-extrabold text-base">{val}</span>
                         </div>
                     ))}

@@ -50,7 +50,7 @@ export const MatCevapAnahtariComponent: React.FC<MatCevapAnahtariComponentProps>
                     <tbody>
                         {cevapAnahtari.sorular.map((cevap) => (
                             <tr key={cevap.soruNo} className="hover:bg-gray-50 transition-colors even:bg-gray-50/50">
-                                <td className="px-3 py-2.5 font-bold text-indigo-700 border-b border-gray-100">
+                                <td className="px-3 py-2.5 font-bold text-accent border-b border-gray-100">
                                     {cevap.soruNo}.
                                 </td>
                                 <td className="px-3 py-2.5 font-bold border-b border-gray-100">
@@ -72,7 +72,7 @@ export const MatCevapAnahtariComponent: React.FC<MatCevapAnahtariComponentProps>
                     <tfoot>
                         <tr className="bg-indigo-50 font-bold">
                             <td className="px-3 py-2" colSpan={3}>Toplam</td>
-                            <td className="px-3 py-2 text-indigo-700">{toplamPuan} puan</td>
+                            <td className="px-3 py-2 text-accent">{toplamPuan} puan</td>
                             <td className="px-3 py-2" colSpan={2}></td>
                         </tr>
                     </tfoot>
@@ -81,11 +81,11 @@ export const MatCevapAnahtariComponent: React.FC<MatCevapAnahtariComponentProps>
 
             {/* Pedagojik Not */}
             {pedagogicalNote && (
-                <div className="mt-5 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                    <h3 className="text-xs font-bold text-blue-800 mb-1.5 flex items-center gap-1.5">
+                <div className="mt-5 p-4 bg-accent/10 border border-accent/30 rounded-xl">
+                    <h3 className="text-xs font-bold text-accent mb-1.5 flex items-center gap-1.5">
                         📋 Öğretmenin Dikkatine
                     </h3>
-                    <p className="text-xs text-blue-700 leading-relaxed whitespace-pre-line">{pedagogicalNote}</p>
+                    <p className="text-xs text-accent leading-relaxed whitespace-pre-line">{pedagogicalNote}</p>
                 </div>
             )}
         </div>

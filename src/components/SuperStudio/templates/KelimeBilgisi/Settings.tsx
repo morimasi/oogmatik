@@ -55,8 +55,8 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
             onClick={() => onChange({ generationMode: 'ai' })}
             className={`p-3 rounded-xl border-2 transition-all ${
               settings.generationMode === 'ai'
-                ? 'bg-gradient-to-br from-purple-600 to-indigo-600 border-purple-400 text-white'
-                : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-purple-500'
+                ? 'bg-accent border-accent/60 text-white'
+                : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-accent/40'
             }`}
           >
             <div className="text-xl mb-1">🤖</div>
@@ -87,7 +87,7 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
               onClick={() => toggleWordType(type.id)}
               className={`p-2 rounded-lg border transition-all ${
                 settings.wordTypes.includes(type.id as any)
-                  ? 'bg-purple-600/20 border-purple-500 text-white'
+                  ? 'bg-accent/20 border-accent text-white'
                   : 'bg-slate-800 border-slate-700 text-slate-400'
               }`}
               style={{
@@ -115,8 +115,8 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
       </div>
 
       {settings.generationMode === 'ai' && (
-        <div className="space-y-3 p-3 bg-gradient-to-br from-purple-900/20 to-indigo-900/20 rounded-xl border border-purple-800/30">
-          <h4 className="text-xs font-bold text-purple-300 flex items-center gap-2">
+        <div className="space-y-3 p-3 bg-accent/5 rounded-xl border border-accent/10">
+          <h4 className="text-xs font-bold text-accent/80 flex items-center gap-2">
             <span>🤖</span> AI Ayarları
           </h4>
           <div className="grid grid-cols-2 gap-3">
@@ -158,7 +158,7 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
                   type="checkbox"
                   checked={settings.aiSettings[key as keyof typeof settings.aiSettings] as boolean}
                   onChange={(e) => updateAiSettings(key, e.target.checked)}
-                  className="form-checkbox text-purple-500 rounded h-3.5 w-3.5"
+                  className="form-checkbox text-accent rounded h-3.5 w-3.5"
                 />
                 <span className="text-xs text-slate-300">{label}</span>
               </label>
@@ -245,7 +245,7 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
                   settings.visualSettings[key as keyof typeof settings.visualSettings] as boolean
                 }
                 onChange={(e) => updateVisualSettings(key, e.target.checked)}
-                className="form-checkbox text-blue-500 rounded h-3.5 w-3.5"
+                className="form-checkbox text-accent rounded h-3.5 w-3.5"
               />
               <span className="text-xs text-slate-300">{label}</span>
             </label>
@@ -266,7 +266,7 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
             onChange={(e) =>
               onChange({ taskCount: parseInt(e.target.value) } as Partial<KelimeBilgisiSettings>)
             }
-            className="w-full accent-blue-500"
+            className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -280,7 +280,7 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
                 onClick={() => onChange({ layoutDensity: d })}
                 className={`py-1 px-1.5 rounded-lg border text-[10px] font-bold transition-all ${
                   (settings as unknown as Record<string, string>).layoutDensity === d
-                    ? 'bg-blue-600 border-blue-400 text-white'
+                    ? 'bg-accent border-accent/60 text-white'
                     : 'bg-slate-800 border-slate-700 text-slate-400'
                 }`}
               >
@@ -313,10 +313,10 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
               onChange={(e) =>
                 onChange({ [key]: e.target.checked } as Partial<KelimeBilgisiSettings>)
               }
-              className="form-checkbox text-blue-500 rounded h-4 w-4 bg-slate-900 border-slate-700 mt-0.5 flex-shrink-0"
+              className="form-checkbox text-accent rounded h-4 w-4 bg-slate-900 border-slate-700 mt-0.5 flex-shrink-0"
             />
             <div className="flex flex-col min-w-0">
-              <span className="text-xs text-slate-200 font-semibold group-hover:text-blue-300 transition-colors leading-tight">
+              <span className="text-xs text-slate-200 font-semibold group-hover:text-accent/80 transition-colors leading-tight">
                 {icon} {label}
               </span>
               <span className="text-[10px] text-slate-500 leading-tight">{desc}</span>

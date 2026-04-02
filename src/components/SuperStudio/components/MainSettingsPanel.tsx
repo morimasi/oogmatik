@@ -66,7 +66,7 @@ export const MainSettingsPanel: React.FC = () => {
                         </button>
                         <button
                             onClick={() => setGenerationMode('ai')}
-                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${generationMode === 'ai' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${generationMode === 'ai' ? 'bg-accent text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
                         >
                             ✨ AI Mod (Gemini)
                         </button>

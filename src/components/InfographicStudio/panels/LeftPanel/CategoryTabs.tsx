@@ -18,7 +18,6 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({ selectedCategory, on
                     const isSelected = selectedCategory === cat.id;
                     const IconComponent = (Icons as any)[cat.icon] || Icons.HelpCircle;
                     const isClinical = cat.id === 'clinical-bep';
-                    const color = 'indigo';
 
                     return (
                         <button
@@ -27,12 +26,12 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({ selectedCategory, on
                             className={cn(
                                 "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all duration-200 border",
                                 isSelected
-                                    ? `bg-${color}-500/20 border-${color}-500/50 text-${color}-400`
+                                    ? "bg-accent/20 border-accent/50 text-accent/70"
                                     : "bg-transparent border-transparent hover:bg-white/5 text-white/70"
                             )}
                         >
                             <div className="flex items-center space-x-3">
-                                <IconComponent className={cn("w-4 h-4", isSelected ? `text-${color}-400` : "text-white/50")} />
+                                <IconComponent className={cn("w-4 h-4", isSelected ? "text-accent/70" : "text-white/50")} />
                                 <span className="font-medium">{cat.label}</span>
                             </div>
                             {isClinical && (

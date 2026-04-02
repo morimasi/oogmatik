@@ -94,7 +94,7 @@ const DraggableItem = ({ item, children }: { item: any, children: any, key?: any
 
     return (
         <div
-            className={`absolute group transition-shadow ${designMode ? 'cursor-move ring-indigo-500/20' : ''} ${isSelected && designMode ? 'ring-2 ring-indigo-500 shadow-2xl z-50' : ''}`}
+            className={`absolute group transition-shadow ${designMode ? 'cursor-move ring-accent/20' : ''} ${isSelected && designMode ? 'ring-2 ring-accent shadow-2xl z-50' : ''}`}
             style={{
                 left: item.style.x,
                 top: item.style.y,
@@ -107,18 +107,18 @@ const DraggableItem = ({ item, children }: { item: any, children: any, key?: any
         >
             {designMode && isSelected && (
                 <>
-                    <div className="absolute -top-10 left-0 bg-indigo-600 text-white text-[8px] font-black px-3 py-1.5 rounded-lg shadow-xl uppercase tracking-widest flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-2">
+                    <div className="absolute -top-10 left-0 bg-accent text-white text-[8px] font-black px-3 py-1.5 rounded-lg shadow-xl uppercase tracking-widest flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-2">
                         <i className="fa-solid fa-arrows-up-down-left-right"></i>
                         {item.label}
                         <div className="w-px h-3 bg-white/20 mx-1"></div>
                         <button onClick={(e: any) => { e.stopPropagation(); updateComponent(item.instanceId, { isVisible: false }, true); }} className="hover:text-red-300"><i className="fa-solid fa-trash"></i></button>
                     </div>
                     {/* Resize Handle */}
-                    <div className="resize-handle absolute -right-1.5 -bottom-1.5 w-4 h-4 bg-white border-2 border-indigo-600 rounded-md shadow-lg cursor-nwse-resize z-50 flex items-center justify-center">
-                        <div className="w-1 h-1 bg-indigo-600 rounded-full"></div>
+                    <div className="resize-handle absolute -right-1.5 -bottom-1.5 w-4 h-4 bg-white border-2 border-accent rounded-md shadow-lg cursor-nwse-resize z-50 flex items-center justify-center">
+                        <div className="w-1 h-1 bg-accent rounded-full"></div>
                     </div>
                     {/* Selection Frame */}
-                    <div className="absolute inset-0 ring-2 ring-indigo-500 ring-offset-2 pointer-events-none"></div>
+                    <div className="absolute inset-0 ring-2 ring-accent ring-offset-2 pointer-events-none"></div>
                 </>
             )}
             {children}
@@ -170,7 +170,7 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
                         {word.split('-').map((syllable, sIdx) => (
                             <span 
                                 key={sIdx} 
-                                className="syllable transition-all duration-300 hover:text-indigo-600 hover:scale-110 inline-block px-0.5 cursor-help border-b border-transparent hover:border-indigo-300"
+                                className="syllable transition-all duration-300 hover:text-accent hover:scale-110 inline-block px-0.5 cursor-help border-b border-transparent hover:border-accent/30"
                             >
                                 {syllable}
                                 {sIdx < word.split('-').length - 1 && <span className="opacity-20 text-[0.8em] font-light">-</span>}
@@ -184,7 +184,7 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
                 <div className="relative" style={boxStyle}>
                     <style>{`
                         .syllable:hover {
-                            text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+                            text-shadow: 0 0 10px hsl(var(--accent-h) var(--accent-s) var(--accent-l) / 0.3);
                             font-weight: 700;
                         }
                     `}</style>
@@ -211,7 +211,7 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                         {(data.words || []).map((v: any, i: number) => (
                             <div key={i} className="text-sm">
-                                <span className="font-bold border-b-2 border-indigo-200">{v.word}:</span>
+                                <span className="font-bold border-b-2 border-accent/30">{v.word}:</span>
                                 <span className="ml-1 opacity-80">{v.definition}</span>
                             </div>
                         ))}
@@ -229,7 +229,7 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
                     <div className="grid grid-cols-2 gap-4">
                         {(data.questions || []).map((q: any, i: number) => (
                             <div key={i} className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black text-indigo-600 uppercase">{typeMap[q.type] || 'SORU'}</span>
+                                <span className="text-[10px] font-black text-accent uppercase">{typeMap[q.type] || 'SORU'}</span>
                                 <p className="text-sm font-bold">{q.question}</p>
                                 <div className="h-6 border-b border-zinc-200 border-dashed"></div>
                             </div>
@@ -289,15 +289,15 @@ export const ReadingStudioContentRenderer = ({ layout, storyData }: { layout: La
             return (
                 <div className="h-full flex flex-col" style={boxStyle}>
                     <h4 className="font-black text-xs uppercase mb-3 flex items-center gap-2">
-                        <i className="fa-solid fa-brain-circuit text-indigo-600"></i>
+                        <i className="fa-solid fa-brain-circuit text-accent"></i>
                         Mantıksal Akıl Yürütme
                     </h4>
                     {puzzle ? (
-                        <div className="bg-white/80 p-4 rounded-xl border-2 border-indigo-100 shadow-sm flex-1">
+                        <div className="bg-white/80 p-4 rounded-xl border-2 border-accent/20 shadow-sm flex-1">
                             <p className="text-sm font-bold text-zinc-900 mb-2">{puzzle.question || puzzle.text}</p>
                             <div className="h-12 border-b-2 border-zinc-200 border-dashed opacity-50"></div>
                             {puzzle.hint && (
-                                <p className="mt-3 text-[11px] italic text-indigo-500 flex items-center gap-1">
+                                <p className="mt-3 text-[11px] italic text-accent/70 flex items-center gap-1">
                                     <i className="fa-solid fa-lightbulb"></i>
                                     İpucu: {puzzle.hint}
                                 </p>

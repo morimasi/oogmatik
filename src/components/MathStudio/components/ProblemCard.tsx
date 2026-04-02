@@ -27,7 +27,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({ problem, showSolutionB
         <div className={`w-full mb-4 break-inside-avoid p-3 ${borderClass}`}>
             <div className="flex gap-3">
                 {themeConfig.numberingStyle !== 'none' && (
-                    <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1 shadow-md">
+                    <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1 shadow-md">
                         {numStr}
                     </div>
                 )}
@@ -38,7 +38,7 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({ problem, showSolutionB
 
                     {/* AI Generated Image Indicator (Simulation/Placeholder) */}
                     {problem.imagePrompt && (
-                        <div className="mt-2 text-xs text-indigo-500 bg-indigo-50/50 border border-indigo-100 p-2 rounded flex items-center gap-2">
+                        <div className="mt-2 text-xs text-accent bg-accent/10 border border-accent/30 p-2 rounded flex items-center gap-2">
                             <i className="fa-solid fa-image"></i>
                             <span className="italic">Görsel İpucu: {problem.imagePrompt}</span>
                         </div>

@@ -41,7 +41,7 @@ export const OkumaAnlamaSettingsPanel: React.FC<TemplateSettingsProps<OkumaAnlam
                 ) as OkumaAnlamaSettings['cognitiveLoadLimit'],
               })
             }
-            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent/20 outline-none"
           >
             <option value={6}>Max 6 (Disleksi)</option>
             <option value={8}>Max 8 (Kısa)</option>
@@ -59,7 +59,7 @@ export const OkumaAnlamaSettingsPanel: React.FC<TemplateSettingsProps<OkumaAnlam
             onChange={(e) =>
               onChange({ readingLength: e.target.value as OkumaAnlamaSettings['readingLength'] })
             }
-            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent/20 outline-none"
           >
             <option value="kisa">Kısa (80-120)</option>
             <option value="orta">Orta (120-200)</option>
@@ -76,7 +76,7 @@ export const OkumaAnlamaSettingsPanel: React.FC<TemplateSettingsProps<OkumaAnlam
             onChange={(e) =>
               onChange({ layoutDensity: e.target.value as OkumaAnlamaSettings['layoutDensity'] })
             }
-            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent/20 outline-none"
           >
             <option value="standart">Standart</option>
             <option value="yogun">Yoğun</option>
@@ -96,7 +96,7 @@ export const OkumaAnlamaSettingsPanel: React.FC<TemplateSettingsProps<OkumaAnlam
             max="20"
             value={settings.questionCount}
             onChange={(e) => onChange({ questionCount: parseInt(e.target.value) })}
-            className="w-full accent-blue-500"
+            className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -109,7 +109,7 @@ export const OkumaAnlamaSettingsPanel: React.FC<TemplateSettingsProps<OkumaAnlam
             max="8"
             value={settings.taskCount}
             onChange={(e) => onChange({ taskCount: parseInt(e.target.value) })}
-            className="w-full accent-blue-500"
+            className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"
           />
         </div>
       </div>
@@ -125,7 +125,7 @@ export const OkumaAnlamaSettingsPanel: React.FC<TemplateSettingsProps<OkumaAnlam
               onClick={() => toggleQuestionType(qt.id)}
               className={`py-2 px-1 flex flex-col items-center gap-1 rounded-lg border text-[10px] font-medium transition-all ${
                 settings.questionTypes.includes(qt.id)
-                  ? 'bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-900/20'
+                  ? 'bg-accent border-accent/60 text-white shadow-lg shadow-accent/20'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
               }`}
             >
@@ -177,10 +177,10 @@ export const OkumaAnlamaSettingsPanel: React.FC<TemplateSettingsProps<OkumaAnlam
               onChange={(e) =>
                 onChange({ [key]: e.target.checked } as Partial<OkumaAnlamaSettings>)
               }
-              className="form-checkbox text-blue-500 rounded h-3.5 w-3.5 bg-slate-900 border-slate-700 mt-0.5 flex-shrink-0"
+              className="form-checkbox text-accent rounded h-3.5 w-3.5 bg-slate-900 border-slate-700 mt-0.5 flex-shrink-0"
             />
             <div className="flex flex-col min-w-0">
-              <span className="text-[11px] text-slate-200 font-semibold group-hover:text-blue-300 transition-colors leading-tight">
+              <span className="text-[11px] text-slate-200 font-semibold group-hover:text-accent/80 transition-colors leading-tight">
                 {icon} {label}
               </span>
               <span className="text-[9px] text-slate-500 leading-tight">{desc}</span>

@@ -73,7 +73,7 @@ export const InfographicStudio: React.FC = () => {
       {/* Üst Header */}
       <div className="h-16 flex items-center px-6 border-b border-white/10 bg-slate-900/80 backdrop-blur-md">
         <div>
-          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-accent to-accent/70 bg-clip-text text-transparent">
             Premium Worksheet Studio <span className="text-xs text-white/50 font-normal ml-2 tracking-widest uppercase">Composite Generator</span>
           </h1>
         </div>

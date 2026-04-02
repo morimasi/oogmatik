@@ -31,14 +31,14 @@ export const ExportActions: React.FC<ExportActionsProps> = ({
                         "w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all group",
                         disabled
                             ? "bg-white/5 text-white/30 cursor-not-allowed"
-                            : "bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 border border-indigo-500/30"
+                            : "bg-accent/20 text-accent/70 hover:bg-accent/30 border border-accent/30"
                     )}
                 >
                     <div className="flex items-center space-x-2">
                         <PlusSquare className="w-4 h-4 transition-transform group-hover:scale-110" />
                         <span>Arşive Kaydet</span>
                     </div>
-                    {!disabled && <FileCheck2 className="w-4 h-4 text-indigo-400 opacity-50" />}
+                    {!disabled && <FileCheck2 className="w-4 h-4 text-accent/70 opacity-50" />}
                 </button>
 
                 {/* PDF İndir */}

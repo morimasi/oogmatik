@@ -18,14 +18,14 @@ export const TemplateInfoCard: React.FC<TemplateInfoCardProps> = ({ templateType
             <div className="space-y-3 font-mono text-xs text-slate-300">
                 <div className="flex items-start justify-between">
                     <span className="text-slate-500">Render Şablonu:</span>
-                    <span className="text-indigo-300 font-medium bg-indigo-500/10 px-2 py-0.5 rounded">
+                    <span className="text-accent/70 font-medium bg-accent/10 px-2 py-0.5 rounded">
                         {templateType}
                     </span>
                 </div>
 
                 <div className="flex items-start justify-between">
                     <span className="text-slate-500">Disleksi Fontu:</span>
-                    <div className="flex items-center gap-1.5 bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded">
+                    <div className="flex items-center gap-1.5 bg-accent/10 text-accent/70 px-2 py-0.5 rounded">
                         <Type className="w-3 h-3" />
                         <span>Lexend</span>
                     </div>

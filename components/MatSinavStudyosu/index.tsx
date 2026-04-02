@@ -24,24 +24,24 @@ type TabType = 'onizleme' | 'cevap-anahtari' | 'gecmis';
 
 // ─── Alt bileşenler ──────────────────────────────────────────
 const FmtBtn: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode; icon?: string; title?: string; }> = ({ active, onClick, children, icon, title }) => (
-    <button onClick={onClick} title={title} className={`px-3 py-1.5 rounded-xl text-xs font-bold border-2 flex items-center justify-center gap-2 transition-all duration-300 ${active ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 scale-105 z-10' : 'bg-white/80 text-slate-600 border-slate-100 hover:border-blue-200 hover:text-blue-600 hover:bg-white hover:shadow-md'}`}>
+    <button onClick={onClick} title={title} className={`px-3 py-1.5 rounded-xl text-xs font-bold border-2 flex items-center justify-center gap-2 transition-all duration-300 ${active ? 'bg-accent text-white border-accent shadow-lg shadow-accent/20 scale-105 z-10' : 'bg-white/80 text-slate-600 border-slate-100 hover:border-accent/30 hover:text-accent hover:bg-white hover:shadow-md'}`}>
         {icon && <span className="text-sm">{icon}</span>}
         {children}
     </button>
 );
 
 const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isOpen: boolean; onToggle: () => void; }> = ({ icon, title, badge, isOpen, onToggle }) => (
-    <button onClick={onToggle} className="w-full flex items-center justify-between px-5 py-4 bg-transparent hover:bg-blue-50/30 transition-all duration-300 group rounded-xl">
+    <button onClick={onToggle} className="w-full flex items-center justify-between px-5 py-4 bg-transparent hover:bg-accent/5 transition-all duration-300 group rounded-xl">
         <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 rotate-6' : 'bg-slate-100/80 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600 group-hover:rotate-3'}`}>
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-accent text-white shadow-lg shadow-accent/20 rotate-6' : 'bg-slate-100/80 text-slate-500 group-hover:bg-accent/20 group-hover:text-accent group-hover:rotate-3'}`}>
                 <span className="text-lg">{icon}</span>
             </div>
             <div className="flex flex-col items-start text-left">
-                <span className={`text-[13px] font-bold tracking-tight transition-colors ${isOpen ? 'text-blue-900' : 'text-slate-600 group-hover:text-blue-700'}`}>{title}</span>
-                {badge && <span className="text-[9px] font-bold text-blue-400 uppercase tracking-widest mt-0.5">{badge}</span>}
+                <span className={`text-[13px] font-bold tracking-tight transition-colors ${isOpen ? 'text-accent' : 'text-slate-600 group-hover:text-accent'}`}>{title}</span>
+                {badge && <span className="text-[9px] font-bold text-accent/70 uppercase tracking-widest mt-0.5">{badge}</span>}
             </div>
         </div>
-        <span className={`text-slate-400 transition-all duration-500 ${isOpen ? 'rotate-180 text-blue-600' : 'group-hover:text-blue-400'}`}>
+        <span className={`text-slate-400 transition-all duration-500 ${isOpen ? 'rotate-180 text-accent' : 'group-hover:text-accent/70'}`}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-sm"><path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
     </button>
@@ -294,32 +294,32 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
     };
 
     return (
-        <div className="h-screen flex flex-col bg-slate-50 font-sans overflow-hidden selection:bg-blue-100 selection:text-blue-900">
+        <div className="h-screen flex flex-col bg-slate-50 font-sans overflow-hidden selection:bg-accent/20 selection:text-accent">
 
             {/* Background Decor */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-                <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-200/20 blur-[120px] rounded-full animate-pulse" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-200/20 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
+                <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/20 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
             </div>
 
             {/* Header */}
             <div className="flex-none px-6 py-3 border-b border-white/40 bg-white/60 backdrop-blur-2xl flex items-center justify-between gap-4 z-50">
                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-100">
+                    <div className="w-10 h-10 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20">
                         <span className="text-xl">🧮</span>
                     </div>
                     <div>
                         <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none">
                             Süper Matematik Sınav Stüdyosu
                         </h1>
-                        <p className="text-[10px] text-blue-500 font-bold uppercase tracking-widest mt-1 opacity-80">MEB 2024-2025 · AI Destekli · 1-8. Sınıf</p>
+                        <p className="text-[10px] text-accent/70 font-bold uppercase tracking-widest mt-1 opacity-80">MEB 2024-2025 · AI Destekli · 1-8. Sınıf</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
                     {ayarlar.sinif && (
-                        <div className="px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-100/50 flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                            <span className="text-[11px] font-bold text-blue-700">{ayarlar.sinif}. Sınıf</span>
+                        <div className="px-3 py-1.5 rounded-xl bg-accent/10 border border-accent/20 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                            <span className="text-[11px] font-bold text-accent">{ayarlar.sinif}. Sınıf</span>
                         </div>
                     )}
                     {kazanimCount > 0 && (
@@ -351,7 +351,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                                         <div className="grid grid-cols-4 gap-1.5">
                                             {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
                                                 <button key={g} onClick={() => setSinif(g)}
-                                                    className={`py-3 rounded-xl text-xs font-black transition-all duration-300 ${ayarlar.sinif === g ? 'bg-blue-600 text-white shadow-lg shadow-blue-100 scale-105 z-10' : 'text-slate-500 hover:bg-white hover:text-blue-600 hover:shadow-sm'}`}>
+                                                    className={`py-3 rounded-xl text-xs font-black transition-all duration-300 ${ayarlar.sinif === g ? 'bg-accent text-white shadow-lg shadow-accent/20 scale-105 z-10' : 'text-slate-500 hover:bg-white hover:text-accent hover:shadow-sm'}`}>
                                                     {g}.
                                                 </button>
                                             ))}
@@ -404,7 +404,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                         <button
                             onClick={handleGenerate}
                             disabled={!canGenerate() || isGenerating}
-                            className={`relative w-full py-4.5 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-xl ${canGenerate() && !isGenerating ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200 hover:translate-y-[-4px] active:scale-95 active:translate-y-0' : 'bg-slate-200/50 cursor-not-allowed text-slate-400 shadow-none'}`}
+                            className={`relative w-full py-4.5 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-xl ${canGenerate() && !isGenerating ? 'bg-accent hover:bg-accent shadow-accent/20 hover:translate-y-[-4px] active:scale-95 active:translate-y-0' : 'bg-slate-200/50 cursor-not-allowed text-slate-400 shadow-none'}`}
                         >
                             {canGenerate() && !isGenerating && (
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
@@ -433,7 +433,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                         <div className="flex bg-slate-200/50 p-1 rounded-2xl backdrop-blur-md">
                             {(['onizleme', 'cevap-anahtari', 'gecmis'] as TabType[]).map((tab) => (
                                 <button key={tab} onClick={() => setActiveTab(tab)} disabled={tab !== 'gecmis' && !aktifSinav}
-                                    className={`px-5 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${activeTab === tab ? 'bg-white text-blue-700 shadow-lg shadow-blue-100 scale-105' : (tab === 'gecmis' || aktifSinav) ? 'text-slate-500 hover:text-blue-600' : 'text-slate-300 cursor-not-allowed'}`}>
+                                    className={`px-5 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${activeTab === tab ? 'bg-white text-accent shadow-lg shadow-accent/20 scale-105' : (tab === 'gecmis' || aktifSinav) ? 'text-slate-500 hover:text-accent' : 'text-slate-300 cursor-not-allowed'}`}>
                                     {tab === 'onizleme' ? <span className="flex items-center gap-2">👁️ <span className="hidden sm:inline">Önizleme</span></span> : tab === 'cevap-anahtari' ? <span className="flex items-center gap-2">✓ <span className="hidden sm:inline">Cevap Anahtarı</span></span> : <span className="flex items-center gap-2">📋 <span className="hidden sm:inline">Geçmiş ({sinavGecmisi.length})</span></span>}
                                 </button>
                             ))}
@@ -468,30 +468,30 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
 
                     {/* Format Settings Sub-Toolbar */}
                     {aktifSinav && activeTab === 'onizleme' && (
-                        <div className="flex-none bg-blue-50/40 backdrop-blur-3xl border-b border-blue-100/50 px-6 py-2.5 flex flex-wrap items-center gap-x-8 gap-y-3 z-0 anim-slide-in shadow-[inset_0_8px_16px_-8px_rgba(0,0,0,0.05)]">
+                        <div className="flex-none bg-accent/10 backdrop-blur-3xl border-b border-accent/20 px-6 py-2.5 flex flex-wrap items-center gap-x-8 gap-y-3 z-0 anim-slide-in shadow-[inset_0_8px_16px_-8px_rgba(0,0,0,0.05)]">
                             <div className="flex items-center gap-2 bg-white/40 p-1 rounded-2xl border border-white/60 shadow-sm backdrop-blur-md">
-                                <span className="text-[9px] text-blue-400 font-black uppercase tracking-widest pl-2 pr-1">Tasarım</span>
+                                <span className="text-[9px] text-accent/70 font-black uppercase tracking-widest pl-2 pr-1">Tasarım</span>
                                 <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Fontu">Inter</FmtBtn>
                                 <FmtBtn active={printConfig.fontFamily === 'times'} onClick={() => updateConfig('fontFamily', 'times')} title="Times New Roman">Times</FmtBtn>
-                                <div className="w-px h-5 bg-blue-200/50 mx-1"></div>
+                                <div className="w-px h-5 bg-accent/30 mx-1"></div>
                                 {([9, 10, 11, 12] as const).map((s) => (
                                     <FmtBtn key={s} active={printConfig.fontSize === s} onClick={() => updateConfig('fontSize', s)} title={`${s} Punto`}>{s}pt</FmtBtn>
                                 ))}
                             </div>
                             <div className="flex items-center gap-2 bg-white/40 p-1 rounded-2xl border border-white/60 shadow-sm backdrop-blur-md">
-                                <span className="text-[9px] text-blue-400 font-black uppercase tracking-widest pl-2 pr-1">Yerleşim</span>
+                                <span className="text-[9px] text-accent/70 font-black uppercase tracking-widest pl-2 pr-1">Yerleşim</span>
                                 <FmtBtn active={printConfig.marginMm === 10} onClick={() => updateConfig('marginMm', 10)} icon="⤢">Dar</FmtBtn>
                                 <FmtBtn active={printConfig.marginMm === 18} onClick={() => updateConfig('marginMm', 18)} icon="◻️">Orta</FmtBtn>
                                 <FmtBtn active={printConfig.marginMm === 25} onClick={() => updateConfig('marginMm', 25)} icon="⤡">Geniş</FmtBtn>
-                                <div className="w-px h-5 bg-blue-200/50 mx-1"></div>
+                                <div className="w-px h-5 bg-accent/30 mx-1"></div>
                                 <FmtBtn active={printConfig.columns === 1} onClick={() => updateConfig('columns', 1)} icon="📄">Tek</FmtBtn>
                                 <FmtBtn active={printConfig.columns === 2} onClick={() => updateConfig('columns', 2)} icon="📖">Çift</FmtBtn>
                             </div>
                             <div className="flex items-center gap-2 bg-white/40 p-1 rounded-2xl border border-white/60 shadow-sm backdrop-blur-md">
-                                <span className="text-[9px] text-blue-400 font-black uppercase tracking-widest pl-2 pr-1">Metin</span>
+                                <span className="text-[9px] text-accent/70 font-black uppercase tracking-widest pl-2 pr-1">Metin</span>
                                 <FmtBtn active={printConfig.textAlign === 'left'} onClick={() => updateConfig('textAlign', 'left')} icon="⫷">Sola</FmtBtn>
                                 <FmtBtn active={printConfig.textAlign === 'justify'} onClick={() => updateConfig('textAlign', 'justify')} icon="⫹">Yasla</FmtBtn>
-                                <div className="w-px h-5 bg-blue-200/50 mx-1"></div>
+                                <div className="w-px h-5 bg-accent/30 mx-1"></div>
                                 <FmtBtn active={printConfig.lineHeight === 1.4} onClick={() => updateConfig('lineHeight', 1.4)}>Sıkı</FmtBtn>
                                 <FmtBtn active={printConfig.lineHeight === 1.6} onClick={() => updateConfig('lineHeight', 1.6)}>Normal</FmtBtn>
                                 <FmtBtn active={printConfig.lineHeight === 1.8} onClick={() => updateConfig('lineHeight', 1.8)}>Ayrık</FmtBtn>
@@ -520,14 +520,14 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                                             {sinavGecmisi.map((sinav) => (
                                                 <div key={sinav.id} className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 p-4 flex items-center justify-between hover:shadow-xl hover:translate-y-[-4px] transition-all duration-300 group">
                                                     <div>
-                                                        <p className="text-[13px] font-black text-slate-800 group-hover:text-blue-600 transition-colors uppercase tracking-tight">{sinav.baslik}</p>
+                                                        <p className="text-[13px] font-black text-slate-800 group-hover:text-accent transition-colors uppercase tracking-tight">{sinav.baslik}</p>
                                                         <div className="flex items-center gap-2 mt-1.5 font-bold">
-                                                            <span className="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-md uppercase tracking-widest border border-blue-100/50">{sinav.sinif}. Sınıf</span>
+                                                            <span className="text-[9px] bg-accent/10 text-accent px-1.5 py-0.5 rounded-md uppercase tracking-widest border border-accent/20">{sinav.sinif}. Sınıf</span>
                                                             <span className="text-[9px] text-slate-400">{new Date(sinav.olusturmaTarihi).toLocaleDateString('tr-TR')}</span>
                                                         </div>
                                                     </div>
                                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <button onClick={() => handleLoadFromHistory(sinav)} className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-100 hover:scale-110 active:scale-95 transition-transform">👁️</button>
+                                                        <button onClick={() => handleLoadFromHistory(sinav)} className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20 hover:scale-110 active:scale-95 transition-transform">👁️</button>
                                                         <button onClick={() => removeSinavGecmisi(sinav.id)} className="w-8 h-8 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center border border-rose-100 hover:bg-rose-100 hover:scale-110 active:scale-95 transition-transform">🗑</button>
                                                     </div>
                                                 </div>
@@ -565,7 +565,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                                     <div className="text-center">
                                         <p className="text-lg font-black text-slate-400 tracking-tight">Önizleme Alanı</p>
                                         <p className="text-sm text-slate-400 mt-2 font-medium">
-                                            Sol panelden ayarları yapın ve <strong className="text-blue-500">Sınavı Oluştur</strong>'a basın.
+                                            Sol panelden ayarları yapın ve <strong className="text-accent">Sınavı Oluştur</strong>'a basın.
                                         </p>
                                     </div>
                                 </div>
@@ -583,8 +583,8 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
         }
         .toolbar-btn:disabled { opacity: 0.35; cursor: not-allowed; }
         .custom-scrollbar::-webkit-scrollbar { width:6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background:rgba(59,130,246,0.1); border-radius:10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background:rgba(59,130,246,0.3); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background:hsl(var(--accent-h) var(--accent-s) var(--accent-l) / 0.1); border-radius:10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background:hsl(var(--accent-h) var(--accent-s) var(--accent-l) / 0.3); }
         .anim-fade-in { animation: fadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
         .anim-slide-in { animation: slideIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
         @keyframes fadeIn { from{opacity:0;transform:scale(0.98) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }

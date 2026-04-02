@@ -22,7 +22,7 @@ export const MantikMuhakemeSettingsPanel: React.FC<
                 sequenceSteps: parseInt(e.target.value),
               } as Partial<MantikMuhakemeSettings>)
             }
-            className="w-full accent-indigo-500"
+            className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -34,9 +34,7 @@ export const MantikMuhakemeSettingsPanel: React.FC<
             onChange={(e) =>
               onChange({ matrixSize: e.target.value as MantikMuhakemeSettings['matrixSize'] })
             }
-            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-          >
-            <option value="3x3">3×3</option>
+            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent outline-none"
             <option value="3x4">3×4</option>
             <option value="4x4">4×4</option>
             <option value="5x5">5×5</option>
@@ -59,7 +57,7 @@ export const MantikMuhakemeSettingsPanel: React.FC<
                 questionCount: parseInt(e.target.value),
               } as Partial<MantikMuhakemeSettings>)
             }
-            className="w-full accent-indigo-500"
+            className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -74,7 +72,7 @@ export const MantikMuhakemeSettingsPanel: React.FC<
             onChange={(e) =>
               onChange({ taskCount: parseInt(e.target.value) } as Partial<MantikMuhakemeSettings>)
             }
-            className="w-full accent-indigo-500"
+            className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -88,7 +86,7 @@ export const MantikMuhakemeSettingsPanel: React.FC<
                 storyComplexity: e.target.value as MantikMuhakemeSettings['storyComplexity'],
               })
             }
-            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-accent/20 outline-none"
           >
             <option value="Kolay">Kolay</option>
             <option value="Orta">Orta</option>
@@ -108,7 +106,7 @@ export const MantikMuhakemeSettingsPanel: React.FC<
               onClick={() => onChange({ layoutDensity: d })}
               className={`py-1.5 px-2 rounded-lg border text-xs font-bold transition-all ${
                 (settings as unknown as Record<string, string>).layoutDensity === d
-                  ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg'
+                  ? 'bg-accent border-accent/60 text-white shadow-lg'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
               }`}
             >
@@ -157,10 +155,10 @@ export const MantikMuhakemeSettingsPanel: React.FC<
               onChange={(e) =>
                 onChange({ [key]: e.target.checked } as Partial<MantikMuhakemeSettings>)
               }
-              className="form-checkbox text-indigo-500 rounded h-4 w-4 bg-slate-900 border-slate-700 mt-0.5 flex-shrink-0"
+              className="form-checkbox text-accent rounded h-4 w-4 bg-slate-900 border-slate-700 mt-0.5 flex-shrink-0"
             />
             <div className="flex flex-col min-w-0">
-              <span className="text-xs text-slate-200 font-semibold group-hover:text-indigo-300 transition-colors leading-tight">
+              <span className="text-xs text-slate-200 font-semibold group-hover:text-accent/80 transition-colors leading-tight">
                 {icon} {label}
               </span>
               <span className="text-[10px] text-slate-500 leading-tight">{desc}</span>

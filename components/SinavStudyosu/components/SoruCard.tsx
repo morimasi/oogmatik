@@ -125,7 +125,7 @@ export const SoruCard: React.FC<SoruCardProps> = ({
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-2">
           <span
-            className="font-extrabold text-indigo-700"
+            className="font-extrabold text-accent"
             style={{ fontSize: `calc(${fontSizePx} + 1px)` }}
           >
             {soruNo}.
@@ -153,7 +153,7 @@ export const SoruCard: React.FC<SoruCardProps> = ({
 
       {/* Kazanım kodu */}
       <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between">
-        <span className="text-[10px] font-mono text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded">
+        <span className="text-[10px] font-mono text-accent bg-accent/10 px-2 py-0.5 rounded">
           {soru.kazanimKodu}
         </span>
         <span className="text-[10px] text-gray-400">~{Math.ceil(soru.tahminiSure / 60)} dk</span>

@@ -51,7 +51,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
       {/* Üst Bar */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 text-white flex items-center justify-center text-xs font-extrabold shadow-sm">
+          <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent to-accent/80 text-white flex items-center justify-center text-xs font-extrabold shadow-sm">
             {index + 1}
           </span>
           <span
@@ -68,7 +68,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-indigo-600 transition-all"
+            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-accent transition-all"
             title="Düzenle"
           >
             ✏️
@@ -108,14 +108,14 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
           <textarea
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border-2 border-indigo-300 text-sm focus:border-indigo-500 outline-none resize-none"
+            className="w-full px-3 py-2 rounded-lg border-2 border-accent/40 text-sm focus:border-accent outline-none resize-none"
             rows={3}
             autoFocus
           />
           <div className="flex gap-1.5 mt-1.5">
             <button
               onClick={handleSaveEdit}
-              className="px-3 py-1 rounded-lg bg-indigo-600 text-white text-[10px] font-bold hover:bg-indigo-700"
+              className="px-3 py-1 rounded-lg bg-accent text-white text-[10px] font-bold hover:bg-accent/90"
             >
               Kaydet
             </button>
@@ -129,7 +129,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
         </div>
       ) : (
         <p
-          className="text-sm text-gray-800 leading-relaxed mb-3 cursor-pointer hover:bg-indigo-50 rounded-lg px-2 py-1 -mx-2 transition-all"
+          className="text-sm text-gray-800 leading-relaxed mb-3 cursor-pointer hover:bg-accent/5 rounded-lg px-2 py-1 -mx-2 transition-all"
           onClick={() => {
             setEditText(soru.soruMetni);
             setIsEditing(true);
@@ -145,12 +145,12 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
 
       {/* Gerçek Yaşam Bağlantısı */}
       {soru.gercek_yasam_baglantisi && (
-        <div className="flex items-start gap-1.5 mb-3 bg-blue-50/50 p-2 rounded-lg border border-blue-100">
+        <div className="flex items-start gap-1.5 mb-3 bg-accent/10 p-2 rounded-lg border border-accent/20">
           <span className="text-[12px]" title="Gerçek Yaşam Bağlantısı">
             🌍
           </span>
           <p
-            className="text-[11px] text-blue-700 leading-tight font-medium"
+            className="text-[11px] text-accent leading-tight font-medium"
             style={{ fontFamily: 'Lexend, sans-serif' }}
           >
             {soru.gercek_yasam_baglantisi}
@@ -216,13 +216,13 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
 
       {/* Çözüm Anahtarı */}
       {soru.cozum_anahtari && (
-        <details className="mb-3 group/details bg-indigo-50/50 rounded-lg border border-indigo-100/60 overflow-hidden">
-          <summary className="text-[11px] font-bold text-indigo-700 cursor-pointer list-none flex items-center gap-1.5 hover:bg-indigo-50 px-2.5 py-1.5 transition-colors">
+        <details className="mb-3 group/details bg-accent/5 rounded-lg border border-accent/10 overflow-hidden">
+          <summary className="text-[11px] font-bold text-accent cursor-pointer list-none flex items-center gap-1.5 hover:bg-accent/5 px-2.5 py-1.5 transition-colors">
             <span className="group-open/details:rotate-90 transition-transform text-[8px]">▶</span>
             Çözüm Anahtarı
           </summary>
           <div
-            className="p-2.5 pt-1 text-[11px] text-indigo-900 leading-relaxed font-medium"
+            className="p-2.5 pt-1 text-[11px] text-accent/90 leading-relaxed font-medium"
             style={{ fontFamily: 'Lexend, sans-serif' }}
           >
             {soru.cozum_anahtari}
