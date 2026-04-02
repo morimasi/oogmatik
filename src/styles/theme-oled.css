@@ -1,0 +1,245 @@
+/* src/styles/theme-oled.css */
+/* True OLED Dark Mode - Pixel-off optimization for OLED/AMOLED displays */
+
+.theme-oled-black {
+  /* True Black - OLED pixels completely off */
+  --bg-h: 0;
+  --bg-s: 0%;
+  --bg-l: 0%;
+
+  /* High contrast text for OLED */
+  --text-primary: #e8e8e8;
+  --text-secondary: #b0b0b0;
+  --text-muted: #808080;
+
+  /* Accent with glow effect */
+  --accent-h: 210;
+  --accent-s: 100%;
+  --accent-l: 60%;
+
+  /* Glass effects for OLED */
+  --surface-glass: rgba(15, 15, 15, 0.85);
+  --glass-base: rgba(10, 10, 10, 0.7);
+  --glass-elevated: rgba(15, 15, 15, 0.85);
+  --glass-floating: rgba(20, 20, 20, 0.9);
+  --glass-popup: rgba(25, 25, 25, 0.95);
+  --glass-focus: rgba(30, 30, 30, 0.98);
+
+  /* OLED-specific panels */
+  --panel-bg-solid: #000000;
+  --panel-bg-subtle: #0a0a0a;
+
+  /* Minimal borders to save power */
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-medium: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.15);
+
+  /* OLED glow effects (power-efficient) */
+  --glow-soft: 0 0 10px rgba(59, 130, 246, 0.2);
+  --glow-medium: 0 0 20px rgba(59, 130, 246, 0.3);
+  --glow-strong: 0 0 30px rgba(59, 130, 246, 0.4);
+
+  /* Shadow system (subtle for OLED) */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.9);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.95);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 1);
+  --shadow-xl: 0 8px 24px rgba(0, 0, 0, 1);
+
+  /* Adaptive blur (reduced for OLED performance) */
+  --glass-blur: 12px;
+  --blur-near: 6px;
+  --blur-mid: 10px;
+  --blur-far: 14px;
+}
+
+/* OLED accent glow effect */
+.theme-oled-black .accent-element {
+  box-shadow: var(--glow-soft);
+}
+
+.theme-oled-black .accent-element:hover {
+  box-shadow: var(--glow-medium);
+}
+
+.theme-oled-black .accent-element:active,
+.theme-oled-black .accent-element:focus {
+  box-shadow: var(--glow-strong);
+}
+
+/* OLED optimized buttons */
+.theme-oled-black button,
+.theme-oled-black .glass-panel {
+  /* Minimal background to save pixels */
+  background: var(--glass-base);
+}
+
+/* High contrast mode for OLED */
+@media (prefers-contrast: more) {
+  .theme-oled-black {
+    --text-primary: #ffffff;
+    --text-secondary: #d0d0d0;
+    --accent-l: 70%;
+    --border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* === Dyslexia-Optimized Themes === */
+
+/* Cream & Blue (British Dyslexia Association recommended) */
+.theme-dyslexia-cream {
+  --bg-h: 47;
+  --bg-s: 50%;
+  --bg-l: 92%;
+
+  /* Dark blue text (BDA recommendation) */
+  --text-primary: hsl(210, 80%, 30%);
+  --text-secondary: hsl(210, 70%, 45%);
+  --text-muted: hsl(210, 60%, 60%);
+
+  /* Blue accent */
+  --accent-h: 210;
+  --accent-s: 80%;
+  --accent-l: 50%;
+
+  /* Soft glass effects */
+  --surface-glass: rgba(255, 252, 240, 0.85);
+  --glass-base: rgba(255, 250, 235, 0.7);
+  --glass-elevated: rgba(255, 248, 230, 0.8);
+  --glass-floating: rgba(255, 246, 225, 0.9);
+
+  /* Cream panels */
+  --panel-bg-solid: hsl(47, 50%, 96%);
+  --panel-bg-subtle: hsl(47, 50%, 93%);
+
+  /* Subtle borders */
+  --border-color: rgba(210, 180, 140, 0.3);
+  --border-subtle: rgba(210, 180, 140, 0.2);
+  --border-medium: rgba(210, 180, 140, 0.35);
+  --border-strong: rgba(210, 180, 140, 0.5);
+
+  /* Soft shadows */
+  --shadow-premium: 0 8px 32px rgba(139, 69, 19, 0.08);
+  --shadow-sm: 0 2px 8px rgba(139, 69, 19, 0.04);
+  --shadow-md: 0 4px 16px rgba(139, 69, 19, 0.06);
+  --shadow-lg: 0 8px 32px rgba(139, 69, 19, 0.08);
+
+  /* Minimal blur (reduced eye strain) */
+  --glass-blur: 8px;
+  --blur-near: 6px;
+  --blur-mid: 10px;
+  --blur-far: 14px;
+}
+
+/* Mint Green (calming, dyslexia-friendly) */
+.theme-dyslexia-mint {
+  --bg-h: 160;
+  --bg-s: 40%;
+  --bg-l: 95%;
+
+  /* Dark text on mint background */
+  --text-primary: hsl(0, 0%, 10%);
+  --text-secondary: hsl(0, 0%, 30%);
+  --text-muted: hsl(0, 0%, 50%);
+
+  /* Green accent */
+  --accent-h: 160;
+  --accent-s: 60%;
+  --accent-l: 45%;
+
+  /* Soft mint glass */
+  --surface-glass: rgba(240, 255, 248, 0.85);
+  --glass-base: rgba(235, 255, 245, 0.7);
+  --glass-elevated: rgba(230, 255, 242, 0.8);
+  --glass-floating: rgba(225, 255, 239, 0.9);
+
+  /* Mint panels */
+  --panel-bg-solid: hsl(160, 40%, 98%);
+  --panel-bg-subtle: hsl(160, 40%, 95%);
+
+  /* Subtle borders */
+  --border-color: rgba(120, 190, 160, 0.25);
+  --border-subtle: rgba(120, 190, 160, 0.15);
+  --border-medium: rgba(120, 190, 160, 0.3);
+  --border-strong: rgba(120, 190, 160, 0.45);
+
+  /* Soft shadows */
+  --shadow-premium: 0 8px 32px rgba(80, 120, 100, 0.08);
+  --shadow-sm: 0 2px 8px rgba(80, 120, 100, 0.04);
+  --shadow-md: 0 4px 16px rgba(80, 120, 100, 0.06);
+  --shadow-lg: 0 8px 32px rgba(80, 120, 100, 0.08);
+
+  /* Minimal blur */
+  --glass-blur: 8px;
+  --blur-near: 6px;
+  --blur-mid: 10px;
+  --blur-far: 14px;
+}
+
+/* === Dyslexia-Friendly Typography === */
+
+body.dyslexia-mode,
+.theme-dyslexia-cream,
+.theme-dyslexia-mint {
+  /* MANDATORY: Lexend font (ASLA değiştirme) */
+  font-family: 'Lexend', -apple-system, BlinkMacSystemFont, sans-serif !important;
+
+  /* BDA recommendations */
+  letter-spacing: 0.05em;
+  word-spacing: 0.15em;
+  line-height: 1.8;
+
+  /* Optimized rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Prevent hyphenation */
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+
+/* Dyslexia-friendly headings */
+.theme-dyslexia-cream h1,
+.theme-dyslexia-cream h2,
+.theme-dyslexia-cream h3,
+.theme-dyslexia-mint h1,
+.theme-dyslexia-mint h2,
+.theme-dyslexia-mint h3 {
+  font-weight: 600; /* Not too bold */
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+
+/* Dyslexia-friendly paragraphs */
+.theme-dyslexia-cream p,
+.theme-dyslexia-mint p {
+  max-width: 70ch; /* Optimal line length */
+  margin-bottom: 1.5em;
+}
+
+/* Avoid justified text (BDA recommendation) */
+.theme-dyslexia-cream *,
+.theme-dyslexia-mint * {
+  text-align: left !important;
+}
+
+/* === Print Optimization for Dyslexia Themes === */
+
+@media print {
+  .theme-dyslexia-cream,
+  .theme-dyslexia-mint {
+    /* Preserve cream/mint background for print */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  .theme-dyslexia-cream {
+    background: hsl(47, 50%, 92%) !important;
+  }
+
+  .theme-dyslexia-mint {
+    background: hsl(160, 40%, 95%) !important;
+  }
+}

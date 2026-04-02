@@ -1,0 +1,273 @@
+/* src/styles/theme-print.css */
+/* Print-Optimized Theme - PDF/Print Fidelity */
+
+@media print {
+  /* === Global Print Optimizations === */
+
+  :root {
+    /* Print-safe colors */
+    --bg-h: 0;
+    --bg-s: 0%;
+    --bg-l: 100%;
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --text-muted: #666666;
+    --border-color: #cccccc;
+
+    /* Disable glassmorphism (ink saving) */
+    --surface-glass: transparent;
+    --glass-blur: 0px;
+    --blur-near: 0px;
+    --blur-mid: 0px;
+    --blur-far: 0px;
+
+    /* Minimal shadows (may not print well) */
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
+    --shadow-premium: none;
+  }
+
+  /* Override all theme classes for print */
+  [class*='theme-'] {
+    --bg-l: 100% !important;
+    --text-primary: #000000 !important;
+  }
+
+  /* === Remove Interactive Elements === */
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Remove all glass effects */
+  .glass-panel,
+  .glass-layer-1,
+  .glass-layer-2,
+  .glass-layer-3,
+  .glass-layer-4,
+  .glass-layer-5 {
+    background: white !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid #e0e0e0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Remove shadows globally */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* === Hide Non-Printable Elements === */
+
+  /* Hide navigation, buttons, controls */
+  nav,
+  .sidebar,
+  .toolbar,
+  .modal-overlay,
+  button:not(.print-visible),
+  .no-print {
+    display: none !important;
+  }
+
+  /* Hide interactive indicators */
+  .hover-indicator,
+  .focus-ring,
+  .tooltip,
+  [role='tooltip'] {
+    display: none !important;
+  }
+
+  /* === Optimize Typography for Print === */
+
+  body {
+    font-family: 'Lexend', 'Georgia', serif !important;
+    font-size: 12pt !important;
+    line-height: 1.6 !important;
+  }
+
+  h1 {
+    font-size: 24pt !important;
+    page-break-after: avoid;
+  }
+
+  h2 {
+    font-size: 18pt !important;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 14pt !important;
+    page-break-after: avoid;
+  }
+
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* === Page Break Control === */
+
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .page-break-avoid {
+    page-break-inside: avoid;
+  }
+
+  /* Avoid breaking inside these elements */
+  pre,
+  blockquote,
+  tr,
+  img,
+  .worksheet-item,
+  .activity-card {
+    page-break-inside: avoid;
+  }
+
+  /* === Link Handling === */
+
+  /* Show URLs after links (optional) */
+  a[href]:after {
+    content: ' (' attr(href) ')';
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  /* Don't show URLs for internal anchors */
+  a[href^='#']:after,
+  a[href^='javascript:']:after {
+    content: '';
+  }
+
+  /* === Table Optimization === */
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th,
+  td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+
+  thead {
+    display: table-header-group; /* Repeat on each page */
+  }
+
+  /* === Color Adjustments === */
+
+  /* Convert colored backgrounds to light gray */
+  .accent-bg,
+  .highlight-bg {
+    background: #f5f5f5 !important;
+    color: #000000 !important;
+  }
+
+  /* Ensure sufficient contrast */
+  .text-light,
+  .text-white {
+    color: #000000 !important;
+  }
+
+  /* === Images === */
+
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* === Margins & Spacing === */
+
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+
+  /* Adjust margins for print */
+  .container,
+  .content-area {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* === PDF Export Mode (Preserve Theme) === */
+
+body.pdf-export-mode {
+  /* A4 dimensions */
+  width: 210mm;
+  height: 297mm;
+  margin: 0;
+  padding: 15mm;
+
+  /* Allow theme colors in PDF */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  color-adjust: exact;
+
+  /* But disable effects that won't render */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Simplify borders */
+  .glass-panel,
+  .glass-layer-1,
+  .glass-layer-2,
+  .glass-layer-3 {
+    border: 1px solid currentColor !important;
+    opacity: 0.8;
+  }
+}
+
+/* === Preserve Specific Theme Colors in PDF === */
+
+body.pdf-export-mode.preserve-theme {
+  /* Theme colors will be maintained */
+  background: hsl(var(--bg-h), var(--bg-s), var(--bg-l)) !important;
+  color: var(--text-primary) !important;
+}
+
+body.pdf-export-mode.preserve-theme .glass-panel {
+  background: hsla(
+    var(--accent-h),
+    var(--accent-s),
+    var(--accent-l),
+    0.1
+  ) !important;
+  border-color: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.3) !important;
+}
+
+/* === Black & White Print Mode === */
+
+@media print and (monochrome) {
+  * {
+    color: black !important;
+    background: white !important;
+    border-color: black !important;
+  }
+
+  /* Ensure visibility of important elements */
+  .accent-element,
+  .highlight {
+    border: 2px solid black !important;
+  }
+}

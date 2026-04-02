@@ -204,7 +204,10 @@ export type AppTheme =
   | 'nature'
   | 'ocean'
   | 'anthracite-gold'
-  | 'anthracite-cyber';
+  | 'anthracite-cyber'
+  | 'oled-black'
+  | 'dyslexia-cream'
+  | 'dyslexia-mint';
 
 export interface HistoryItem {
   id: string;

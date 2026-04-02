@@ -90,6 +90,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       accent: '#ec4899',
       desc: 'Yüksek kontrastlı neon',
     },
+    {
+      id: 'oled-black',
+      name: 'OLED Siyah',
+      color: '#000000',
+      accent: '#3b82f6',
+      desc: 'True black - OLED ekranlar için',
+    },
+    {
+      id: 'dyslexia-cream',
+      name: 'Disleksi Krem',
+      color: '#fff8e7',
+      accent: '#1e40af',
+      desc: 'Disleksi dostu krem & mavi',
+    },
+    {
+      id: 'dyslexia-mint',
+      name: 'Disleksi Nane',
+      color: '#f0fdf4',
+      accent: '#059669',
+      desc: 'Disleksi dostu mint yeşil',
+    },
   ];
 
   const fonts: { id: UiSettings['fontFamily']; name: string; desc: string }[] = [
