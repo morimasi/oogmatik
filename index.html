@@ -123,14 +123,35 @@
       }
 
       :root.theme-anthracite-gold {
-        --bg-primary-rgb: 18, 18, 20;
-        --bg-paper-rgb: 28, 28, 31;
-        --accent-color: #fbbf24;
-        --accent-hover: #f59e0b;
-        --accent-muted: rgba(251, 191, 36, 0.1);
-        --border-color: rgba(251, 191, 36, 0.15);
-        --bg-viewport: rgb(20, 18, 14);
-        --bg-viewport-dot: rgba(251, 191, 36, 0.05);
+        /* Premium Anthracite & Gold Theme */
+        --bg-primary-rgb: 45, 45, 48;         /* #2D2D30 - Ana antrasit gri */
+        --bg-secondary-rgb: 30, 30, 32;       /* #1E1E20 - Daha koyu antrasit */
+        --bg-paper-rgb: 58, 58, 61;           /* #3A3A3D - Açık antrasit (kağıt yüzeyi) */
+        --bg-inset-rgb: 24, 24, 26;           /* #18181A - En koyu antrasit */
+
+        /* Premium Gold Accent */
+        --accent-color: #D4AF37;              /* Klasik altın rengi */
+        --accent-hover: #C5A028;              /* Koyu altın (hover) */
+        --accent-muted: rgba(212, 175, 55, 0.12);
+
+        /* Glass & Surface Effects */
+        --surface-glass: rgba(58, 58, 61, 0.75);
+        --surface-elevated: rgba(212, 175, 55, 0.08);
+
+        /* Text Colors */
+        --text-primary: #F5F5F5;              /* Neredeyse beyaz */
+        --text-secondary: #C8C8C8;            /* Açık gri */
+        --text-muted: #8E8E8E;                /* Orta gri */
+
+        /* Borders & Shadows */
+        --border-color: rgba(212, 175, 55, 0.25);
+        --shadow-premium: 0 12px 40px -8px rgba(0, 0, 0, 0.4),
+                          0 0 30px -10px rgba(212, 175, 55, 0.15);
+        --blur-premium: 24px;
+
+        /* Viewport (Masa arka planı) */
+        --bg-viewport: rgb(35, 33, 30);       /* Antrasit-kahve karışımı */
+        --bg-viewport-dot: rgba(212, 175, 55, 0.06);
       }
 
       :root.theme-anthracite-cyber {
@@ -196,6 +217,48 @@
         background-color: #050505;
         background-image: none;
       }
+
+      /* Premium Anthracite-Gold Theme Enhancements */
+      :root.theme-anthracite-gold {
+        /* Premium gold gradient for special elements */
+        --gold-gradient: linear-gradient(135deg, #D4AF37 0%, #F4E5C2 50%, #C5A028 100%);
+        --gold-shimmer: linear-gradient(90deg,
+          transparent 0%,
+          rgba(212, 175, 55, 0.3) 50%,
+          transparent 100%);
+      }
+
+      /* Premium button styling for anthracite-gold */
+      :root.theme-anthracite-gold button:hover,
+      :root.theme-anthracite-gold .btn-primary:hover {
+        background: var(--gold-gradient);
+        box-shadow: 0 8px 30px rgba(212, 175, 55, 0.25),
+                    0 0 20px rgba(212, 175, 55, 0.15);
+        transform: translateY(-2px);
+      }
+
+      /* Premium card/panel hover effect for anthracite-gold */
+      :root.theme-anthracite-gold .glass-panel:hover {
+        border-color: rgba(212, 175, 55, 0.4);
+        box-shadow: 0 15px 45px -10px rgba(0, 0, 0, 0.5),
+                    0 0 35px -12px rgba(212, 175, 55, 0.2);
+      }
+
+      /* Premium scrollbar for anthracite-gold */
+      :root.theme-anthracite-gold ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #D4AF37, #C5A028);
+        border: 2px solid #2D2D30;
+      }
+
+      :root.theme-anthracite-gold ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #F4E5C2, #D4AF37);
+      }
+
+      /* Premium accent elements for anthracite-gold */
+      :root.theme-anthracite-gold .accent-border {
+        border-image: var(--gold-gradient) 1;
+      }
+
 
       /* Global Reset & Body Styles */
       * {
