@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 import { ScreeningResult, EvaluationCategory } from '../../types/screening';
 import { SavedAssessment, AssessmentReport } from '../../types';
 import { CATEGORY_LABELS } from '../../data/screeningQuestions';
@@ -22,7 +22,7 @@ interface Props {
   ) => void;
 }
 
-export const ResultDashboard: React.FC<Props> = ({
+export const ResultDashboard: FC<Props> = ({
   result,
   onRestart,
   onSelectActivity,
@@ -364,7 +364,9 @@ export const ResultDashboard: React.FC<Props> = ({
         ) : aiAnalysis ? (
           <div className="space-y-6 relative z-10">
             <div className="prose prose-indigo max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed bg-white/50 p-6 rounded-2xl border border-white/20 shadow-sm">
-              {(aiAnalysis as any).letter}
+              {typeof (aiAnalysis as any).letter === 'string'
+                ? (aiAnalysis as any).letter
+                : JSON.stringify((aiAnalysis as any).letter)}
             </div>
 
             <h4 className="font-black text-xs text-indigo-400 uppercase tracking-widest mt-4">
@@ -421,7 +423,9 @@ export const ResultDashboard: React.FC<Props> = ({
                 Genel Değerlendirme
               </h3>
               <p className="text-sm leading-relaxed text-justify italic font-medium">
-                {aiAnalysis?.letter}
+                {typeof aiAnalysis?.letter === 'string'
+                  ? aiAnalysis.letter
+                  : JSON.stringify(aiAnalysis?.letter)}
               </p>
             </div>
 
