@@ -42,8 +42,8 @@ export const HeaderDropdown = ({
                 <i className="fa-solid fa-chevron-down text-[8px] opacity-50"></i>
             </button>
             {isOpen && (
-                <div className="absolute right-0 top-full pt-2 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
-                    <div className="bg-[var(--panel-bg)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 min-w-[200px] overflow-hidden backdrop-blur-xl ring-1 ring-white/5">
+                <div className="absolute right-0 top-full pt-2 z-[100] animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="bg-[var(--panel-bg-solid)] border border-[var(--border-color)] rounded-2xl shadow-premium p-2 min-w-[220px] overflow-hidden ring-1 ring-black/5 dark:ring-white/5">
                         {children}
                     </div>
                 </div>
@@ -70,18 +70,18 @@ export const DropdownItem = ({
                 onClick();
             }
         }}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--surface-glass)] rounded-xl transition-colors group"
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--panel-bg-subtle)] hover:pl-5 rounded-xl transition-all duration-300 group"
     >
         <div className="flex items-center gap-3">
             <i
-                className={`fa-solid ${icon} w-4 text-center text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-colors`}
+                className={`fa-solid ${icon} w-4 text-center text-[var(--text-muted)] group-hover:text-[var(--accent-color)] group-hover:scale-110 transition-all`}
             ></i>
             <span className="text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
                 {label}
             </span>
         </div>
         {badge !== undefined && badge > 0 && (
-            <span className="bg-[var(--accent-color)] text-[var(--bg-primary)] text-[9px] font-black px-1.5 py-0.5 rounded-full">
+            <span className="bg-[var(--accent-color)] text-[var(--bg-primary)] text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-sm">
                 {badge}
             </span>
         )}
@@ -109,7 +109,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
     return (
         <header
-            className={`relative bg-[var(--bg-paper)]/80 backdrop-blur-md border-b border-[var(--border-color)] shadow-sm z-50 transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
+            className={`relative bg-[var(--panel-bg-solid)] border-b border-[var(--border-color)] shadow-premium z-[90] transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
         >
             <div className="w-full px-6 py-4 flex justify-between items-center gap-6">
                 <div className="flex items-center gap-4">

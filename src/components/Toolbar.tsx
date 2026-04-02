@@ -235,8 +235,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between gap-2 h-12 select-none relative">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-1 md:gap-2 min-h-12 py-1 select-none relative">
+      <div className="flex items-center gap-1 md:gap-2 flex-wrap">
         <div className="relative">
           <MenuButton
             icon="fa-font"
