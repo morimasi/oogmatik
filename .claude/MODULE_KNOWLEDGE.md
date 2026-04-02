@@ -911,6 +911,72 @@
 
 ---
 
+### 9.11 Workbook AI Assistant — Calisma Kitapcigi AI Asistani
+
+**Dosya Konumu**: `services/workbookAIAssistant/`
+
+**Amac**: Calisma Kitapcigi modulu icin entegre AI asistan sistemi. Akilli icerik onerileri, gercek zamanli geri bildirim ve otomatik tamamlama saglar.
+
+**Ana Bilesenler**:
+- `WorkbookAIAssistant.ts` — Ana orchestrator sinif
+- `prompts/workbookPrompts.ts` — Prompt sablonlari
+- `schemas/workbookAISchemas.ts` — JSON schema tanimlari
+- `cache/assistantCache.ts` — 10 dakika TTL ile prompt cache
+- `validators/contentValidator.ts` — Hallucination onleme (5 katmanli dogrulama)
+
+**Temel Islevler**:
+
+1. **Smart Content Suggestions**:
+   - `suggestActivities(context)` — ZPD analizi ile aktivite onerileri
+   - `detectSkillGaps(items)` — Eksik beceri alani tespiti
+   - `optimizeSequence(items)` — Optimal siralama onerisi
+
+2. **Real-time Feedback**:
+   - `analyzePageBalance(items)` — Sayfa dengesizligi uyarisi
+   - `analyzeDifficultyDistribution(items)` — Zorluk dagilimi analizi
+   - `checkThemeConsistency(items, settings)` — Tema tutarliligi kontrolu
+
+3. **Auto-Complete**:
+   - `fillMissingMetadata(item)` — Eksik metadata doldurma
+   - `generatePedagogicalNote(item)` — Tek aktivite icin pedagojik not
+   - `batchGeneratePedagogicalNotes(items)` — Batch pedagojik not (5'li gruplar)
+   - `generatePreface(settings, items)` — Onsoz uretimi (optimize edilmis)
+
+**Teknik Ozellikler**:
+- Model: `gemini-2.5-flash` (sabit)
+- Max Token: 600/istek
+- Rate Limit: 100 istek/saat/kullanici
+- Cache TTL: 10 dakika
+- Batch Size: 5
+
+**Hallucination Onleme** (5 Katman):
+1. JSON Schema Uyumu
+2. ActivityType Dogrulama (enum kontrolu)
+3. MEB Kazanim Referans Dogrulama
+4. Pedagojik Guvenlik (olumsuz dil, uygunsuz icerik)
+5. Tutarlilik Kontrolu (context ile uyum)
+
+**Kullanim**:
+```typescript
+import { workbookAIAssistant, buildWorkbookContext } from '../services/workbookAIAssistant';
+
+// Context olustur
+const context = buildWorkbookContext(items, settings, studentProfile);
+
+// Aktivite onerileri al
+const suggestions = await workbookAIAssistant.suggestActivities(context);
+
+// Sayfa dengesi analizi
+const balance = await workbookAIAssistant.analyzePageBalance(items);
+
+// Pedagojik not uret
+const note = await workbookAIAssistant.generatePedagogicalNote(item);
+```
+
+**AI Muhendisi Notu**: Bu servis tum AI cagrilarini merkezi cache ve validasyon katmanindan gecirir. Hallucination riski minimize edilmistir. Prompt degisiklikleri icin `prompts/workbookPrompts.ts` dosyasini duzenleyin.
+
+---
+
 ## 10. Utility Servisleri {#utility-servisleri}
 
 ### 10.1 AppError — Merkezi Hata Standardı
