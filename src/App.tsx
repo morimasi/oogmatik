@@ -1,4 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { pageTransition } from './utils/motionPresets';
 import { useToastStore } from './store/useToastStore';
 import { ToastContainer } from './components/ToastContainer';
 import {
@@ -350,12 +352,10 @@ const AppContent = () => {
   // Theme effect
   useEffect(() => {
     // Handle basic dark/light first
-    if (
-      theme === 'dark' ||
-      theme === 'anthracite' ||
-      theme === 'space' ||
-      theme.includes('anthracite')
-    ) {
+    const DARK_THEMES: AppTheme[] = [
+      'dark', 'anthracite', 'space', 'anthracite-gold', 'anthracite-cyber', 'oled-black'
+    ];
+    if (DARK_THEMES.includes(theme) || theme.includes('anthracite')) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
@@ -370,7 +370,10 @@ const AppContent = () => {
       'theme-nature',
       'theme-ocean',
       'theme-anthracite-gold',
-      'theme-anthracite-cyber'
+      'theme-anthracite-cyber',
+      'theme-oled-black',
+      'theme-dyslexia-cream',
+      'theme-dyslexia-mint'
     );
     // Add selected theme class
     document.documentElement.classList.add(`theme-${theme}`);
@@ -813,13 +816,21 @@ const AppContent = () => {
           />
 
           {/* SPECIAL RENDER FOR STUDIOS WHEN IN THAT VIEW - MOVED INSIDE CONTENT CONTAINER */}
+          <AnimatePresence mode="wait">
           {[
             'curriculum', 'reading-studio', 'math-studio', 'super-turkce', 
             'infographic-studio', 'remotion-studio', 'ocr', 'profile', 
             'students', 'messages', 'admin', 'screening', 
             'sinav-studyosu', 'mat-sinav-studyosu'
           ].includes(currentView) && (
-            <div className={`absolute inset-0 bg-[var(--bg-primary)] overflow-hidden ${currentView === 'admin' ? 'z-[75]' : 'z-[60]'}`}>
+            <motion.div
+              key={currentView}
+              className={`absolute inset-0 bg-[var(--bg-primary)] overflow-hidden ${currentView === 'admin' ? 'z-[75]' : 'z-[60]'}`}
+              variants={pageTransition}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
               <Suspense fallback={<LoadingSpinner />}>
                 {currentView === 'curriculum' && (
                   <CurriculumView
