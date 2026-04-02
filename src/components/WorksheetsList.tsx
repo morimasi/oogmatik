@@ -4,10 +4,12 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { SavedWorksheet } from '../types';
 import { useGetUserWorksheets, useCreateWorksheet, useDeleteWorksheet, useShareWorksheet } from '../hooks/useWorksheets';
 import { ErrorDisplay } from './ErrorDisplay';
 import { AppError } from '../utils/AppError';
+import { premiumMotion } from '../utils/motionPresets';
 
 interface WorksheetsListProps {
     userId: string;
@@ -165,8 +167,15 @@ export const WorksheetsList: React.FC<WorksheetsListProps> = ({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {filteredWorksheets.map(worksheet => (
-                                <tr key={worksheet.id} className="hover:bg-gray-50 transition-colors">
+                            {filteredWorksheets.map((worksheet, index) => (
+                                <motion.tr
+                                  key={worksheet.id}
+                                  className="hover:bg-gray-50 transition-colors"
+                                  variants={premiumMotion.staggerChild}
+                                  initial="initial"
+                                  animate="animate"
+                                  transition={{ delay: index * 0.05, duration: 0.3 }}
+                                >
                                     <td className="px-4 py-3">
                                         <input
                                             type="checkbox"
@@ -239,7 +248,7 @@ export const WorksheetsList: React.FC<WorksheetsListProps> = ({
                                             )}
                                         </div>
                                     </td>
-                                </tr>
+                                </motion.tr>
                             ))}
                         </tbody>
                     </table>

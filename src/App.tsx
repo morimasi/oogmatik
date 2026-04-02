@@ -350,12 +350,8 @@ const AppContent = () => {
   // Theme effect
   useEffect(() => {
     // Handle basic dark/light first
-    if (
-      theme === 'dark' ||
-      theme === 'anthracite' ||
-      theme === 'space' ||
-      theme.includes('anthracite')
-    ) {
+    const DARK_THEMES: AppTheme[] = ['dark', 'anthracite', 'space', 'anthracite-gold', 'anthracite-cyber', 'oled-black'];
+    if (DARK_THEMES.includes(theme)) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
@@ -370,7 +366,10 @@ const AppContent = () => {
       'theme-nature',
       'theme-ocean',
       'theme-anthracite-gold',
-      'theme-anthracite-cyber'
+      'theme-anthracite-cyber',
+      'theme-oled-black',
+      'theme-dyslexia-cream',
+      'theme-dyslexia-mint'
     );
     // Add selected theme class
     document.documentElement.classList.add(`theme-${theme}`);
