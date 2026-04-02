@@ -168,7 +168,7 @@ const DropdownPanel = ({ title, children, onClose, className = '' }: any) => {
   return (
     <div
       ref={ref}
-      className={`absolute top-full mt-2 left-0 bg-[var(--panel-bg)] border border-[var(--border-color)] rounded-xl shadow-2xl z-50 p-5 animate-in fade-in zoom-in-95 origin-top-left backdrop-blur-xl ring-1 ring-white/5 ${className}`}
+      className={`absolute top-full mt-2 left-0 bg-[var(--panel-bg-solid)] border border-[var(--border-color)] rounded-xl shadow-2xl z-[100] p-5 animate-in fade-in zoom-in-95 origin-top-left ring-1 ring-black/5 ${className}`}
     >
       <div className="flex justify-between items-center mb-4 pb-3 border-b border-[var(--border-color)]">
         <h4 className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em]">
@@ -235,7 +235,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-1 md:gap-2 min-h-12 py-1 select-none relative">
+    <div className="flex flex-wrap items-center justify-between gap-1 md:gap-2 min-h-12 py-1 select-none relative z-[60]">
       <div className="flex items-center gap-1 md:gap-2 flex-wrap">
         <div className="relative">
           <MenuButton

@@ -109,6 +109,7 @@ export interface InfographicActivityContent {
     storyElements?: InfographicStoryMap;
     scienceData?: InfographicScienceContent;
     strategicContent?: InfographicLearningStrategy;
+    supportingDrill?: any; // [NEW] Destekleyici alıştırma verisi
 }
 
 export interface InfographicQuestion {

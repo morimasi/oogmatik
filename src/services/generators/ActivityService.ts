@@ -52,14 +52,19 @@ export class ActivityService {
         Object.values(ActivityType).forEach((type) => {
             const activityType = type as ActivityType;
             if (activityType.startsWith('INFOGRAPHIC_') && !this.generators.has(activityType)) {
-                // İnfografik aktiviteleri için merkezi bir AI yönlendirici oluştur
-                const generator = new GenericActivityGenerator(
+                
+                // [FAZ 10] Hem AI hem de Offline motorunu dinamik olarak bağla
+                const generator = new GenericActivityGenerator<any>(
                     DEFAULT_MODE,
                     async (options) => {
-                        // Faz 10 Fix: Placeholder yerine gerçek AI jeneratörünü çağır
+                        // AI Üretim Motoru (Gemini 2.5 Flash)
                         return await generateInfographic(activityType, options);
                     },
-                    undefined
+                    async (options) => {
+                        // [NEW] Çevrimdışı (Hızlı) Üretim Motoru
+                        const { generateOfflineInfographic } = await import('../offlineGenerators/infographic');
+                        return await generateOfflineInfographic(activityType, options);
+                    }
                 );
                 this.generators.set(activityType, generator);
             }

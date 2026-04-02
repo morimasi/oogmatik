@@ -24,3 +24,4 @@ export * from './mathStudio';
 export * from './assessment';
 export * from './visualInterpretation';
 export * from './boxMath';
+export * from './core/SmartFallbackGenerator';
