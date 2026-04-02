@@ -120,7 +120,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   // 2. MATEMATİK & MANTIK
   [ActivityType.NUMBER_PATTERN]: {
     ai: aiGenerators.generateNumberPatternFromAI,
-    offline: withOffline(ActivityType.NUMBER_PATTERN),
+    offline: offlineGenerators.generateOfflinePremiumNumberPattern,
   },
   [ActivityType.ABC_CONNECT]: {
     ai: aiGenerators.generateAbcConnectFromAI,
@@ -144,11 +144,11 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.KENDOKU]: {
     ai: aiGenerators.generateKendokuFromAI,
-    offline: withOffline(ActivityType.KENDOKU),
+    offline: offlineGenerators.generateOfflinePremiumKendoku,
   },
   [ActivityType.NUMBER_PYRAMID]: {
     ai: aiGenerators.generateNumberPyramidFromAI,
-    offline: withOffline(ActivityType.NUMBER_PYRAMID),
+    offline: offlineGenerators.generateOfflinePremiumNumberPyramid,
   },
   [ActivityType.APARTMENT_LOGIC_PUZZLE]: {
     ai: aiGenerators.generateApartmentLogicPuzzleFromAI,
@@ -192,15 +192,15 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.LOGIC_GRID_PUZZLE]: {
     ai: aiGenerators.generateLogicGridPuzzleFromAI,
-    offline: withOffline(ActivityType.LOGIC_GRID_PUZZLE),
+    offline: offlineGenerators.generateOfflinePremiumLogicGridPuzzle,
   },
   [ActivityType.PUNCTUATION_MAZE]: {
     ai: aiGenerators.generatePunctuationMazeFromAI,
-    offline: withOffline(ActivityType.PUNCTUATION_MAZE),
+    offline: offlineGenerators.generateOfflinePremiumPunctuationMaze,
   },
   [ActivityType.MATH_STUDIO]: {
     ai: (options) => aiGenerators.generateMathProblemsAI(options as any),
-    offline: withOffline(ActivityType.MATH_STUDIO), // generateMathDrillSet has different signature
+    offline: offlineGenerators.generateOfflinePremiumMathStudio,
   },
   [ActivityType.ALGORITHM_GENERATOR]: {
     ai: aiGenerators.generateAlgorithmGeneratorFromAI,
@@ -314,7 +314,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.THEMATIC_ODD_ONE_OUT]: {
     ai: aiGenerators.generateThematicOddOneOutFromAI,
-    offline: withOffline(ActivityType.THEMATIC_ODD_ONE_OUT),
+    offline: offlineGenerators.generateOfflinePremiumThematicOddOneOut,
   },
   [ActivityType.VISUAL_INTERPRETATION]: {
     ai: aiGenerators.generateVisualInterpretationFromAI,
@@ -372,15 +372,15 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   [ActivityType.OCR_CONTENT]: { ai: withAI(ActivityType.OCR_CONTENT), offline: withOffline(ActivityType.OCR_CONTENT) },
   [ActivityType.ASSESSMENT_REPORT]: { ai: withAI(ActivityType.ASSESSMENT_REPORT), offline: withOffline(ActivityType.ASSESSMENT_REPORT) },
   [ActivityType.WORKBOOK]: { ai: withAI(ActivityType.WORKBOOK), offline: withOffline(ActivityType.WORKBOOK) },
-  [ActivityType.REAL_LIFE_MATH_PROBLEMS]: { ai: withAI(ActivityType.REAL_LIFE_MATH_PROBLEMS), offline: withOffline(ActivityType.REAL_LIFE_MATH_PROBLEMS) },
-  [ActivityType.ATTENTION_DEVELOPMENT]: { ai: withAI(ActivityType.ATTENTION_DEVELOPMENT), offline: withOffline(ActivityType.ATTENTION_DEVELOPMENT) },
-  [ActivityType.ATTENTION_FOCUS]: { ai: withAI(ActivityType.ATTENTION_FOCUS), offline: withOffline(ActivityType.ATTENTION_FOCUS) },
-  [ActivityType.ANAGRAM]: { ai: withAI(ActivityType.ANAGRAM), offline: withOffline(ActivityType.ANAGRAM) },
-  [ActivityType.CROSSWORD]: { ai: withAI(ActivityType.CROSSWORD), offline: withOffline(ActivityType.CROSSWORD) },
-  [ActivityType.ODD_ONE_OUT]: { ai: withAI(ActivityType.ODD_ONE_OUT), offline: withOffline(ActivityType.ODD_ONE_OUT) },
-  [ActivityType.CONCEPT_MATCH]: { ai: withAI(ActivityType.CONCEPT_MATCH), offline: withOffline(ActivityType.CONCEPT_MATCH) },
-  [ActivityType.ESTIMATION]: { ai: withAI(ActivityType.ESTIMATION), offline: withOffline(ActivityType.ESTIMATION) },
-  [ActivityType.SPATIAL_GRID]: { ai: withAI(ActivityType.SPATIAL_GRID), offline: withOffline(ActivityType.SPATIAL_GRID) },
-  [ActivityType.DOT_PAINTING]: { ai: withAI(ActivityType.DOT_PAINTING), offline: withOffline(ActivityType.DOT_PAINTING) },
-  [ActivityType.SHAPE_SUDOKU]: { ai: withAI(ActivityType.SHAPE_SUDOKU), offline: withOffline(ActivityType.SHAPE_SUDOKU) },
+  [ActivityType.REAL_LIFE_MATH_PROBLEMS]: { ai: withAI(ActivityType.REAL_LIFE_MATH_PROBLEMS), offline: offlineGenerators.generateOfflinePremiumRealLifeMath },
+  [ActivityType.ATTENTION_DEVELOPMENT]: { ai: withAI(ActivityType.ATTENTION_DEVELOPMENT), offline: offlineGenerators.generateOfflinePremiumAttentionDevelopment },
+  [ActivityType.ATTENTION_FOCUS]: { ai: withAI(ActivityType.ATTENTION_FOCUS), offline: offlineGenerators.generateOfflinePremiumAttentionFocus },
+  [ActivityType.ANAGRAM]: { ai: withAI(ActivityType.ANAGRAM), offline: offlineGenerators.generateOfflinePremiumAnagram },
+  [ActivityType.CROSSWORD]: { ai: withAI(ActivityType.CROSSWORD), offline: offlineGenerators.generateOfflinePremiumCrossword },
+  [ActivityType.ODD_ONE_OUT]: { ai: withAI(ActivityType.ODD_ONE_OUT), offline: offlineGenerators.generateOfflinePremiumOddOneOut },
+  [ActivityType.CONCEPT_MATCH]: { ai: withAI(ActivityType.CONCEPT_MATCH), offline: offlineGenerators.generateOfflinePremiumConceptMatch },
+  [ActivityType.ESTIMATION]: { ai: withAI(ActivityType.ESTIMATION), offline: offlineGenerators.generateOfflinePremiumEstimation },
+  [ActivityType.SPATIAL_GRID]: { ai: withAI(ActivityType.SPATIAL_GRID), offline: offlineGenerators.generateOfflinePremiumSpatialGrid },
+  [ActivityType.DOT_PAINTING]: { ai: withAI(ActivityType.DOT_PAINTING), offline: offlineGenerators.generateOfflinePremiumDotPainting },
+  [ActivityType.SHAPE_SUDOKU]: { ai: withAI(ActivityType.SHAPE_SUDOKU), offline: offlineGenerators.generateOfflinePremiumShapeSudoku },
 };
