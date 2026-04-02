@@ -120,68 +120,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [popupRect, setPopupRect] = useState<DOMRect | null>(null);
 
   const studioItems = [
-    {
-      id: 'ocr',
-      label: 'Klon (OCR)',
-      icon: 'fa-camera-viewfinder',
-      color: 'bg-indigo-500',
-      onClick: onOpenOCR,
-    },
-    {
-      id: 'curriculum',
-      label: 'Plan & Müfredat',
-      icon: 'fa-calendar-check',
-      color: 'bg-emerald-500',
-      onClick: onOpenCurriculum,
-    },
-    {
-      id: 'reading',
-      label: 'Okuma Stüdyosu',
-      icon: 'fa-book-open',
-      color: 'bg-rose-500',
-      onClick: onOpenReadingStudio,
-    },
-    {
-      id: 'math',
-      label: 'Matematik Stüdyosu',
-      icon: 'fa-calculator',
-      color: 'bg-blue-500',
-      onClick: onOpenMathStudio,
-    },
-    {
-      id: 'super-turkce',
-      label: 'Süper Türkçe Stüdyosu',
-      icon: 'fa-wand-magic-sparkles',
-      color: 'bg-teal-500',
-      onClick: onOpenSuperTurkce,
-    },
-    {
-      id: 'infographic-studio',
-      label: 'İnfografik Stüdyosu',
-      icon: 'fa-chart-pie',
-      color: 'bg-violet-500',
-      onClick: onOpenInfographicStudio,
-    },
-    {
-      id: 'remotion-studio',
-      label: 'Animasyon Stüdyosu',
-      icon: 'fa-film',
-      color: 'bg-pink-500',
-      onClick: onOpenRemotionStudio,
-    },
-    {
-      id: 'screening',
-      label: 'Tarama & Analiz',
-      icon: 'fa-clipboard-question',
-      color: 'bg-purple-500',
-      onClick: onOpenScreening,
-    },
+    // GRUP 1: SINAV STÜDYOLARİ
     {
       id: 'sinav-studyosu',
       label: 'Sınav Stüdyosu',
       icon: 'fa-clipboard-check',
       color: 'bg-amber-500',
       onClick: onOpenSinavStudyosu,
+      group: 'exam',
     },
     {
       id: 'mat-sinav-studyosu',
@@ -189,6 +135,73 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: 'fa-square-root-variable',
       color: 'bg-blue-600',
       onClick: onOpenMatSinavStudyosu,
+      group: 'exam',
+    },
+    // GRUP 2: DERS STÜDYOLARİ
+    {
+      id: 'reading',
+      label: 'Okuma Stüdyosu',
+      icon: 'fa-book-open',
+      color: 'bg-rose-500',
+      onClick: onOpenReadingStudio,
+      group: 'lesson',
+    },
+    {
+      id: 'math',
+      label: 'Matematik Stüdyosu',
+      icon: 'fa-calculator',
+      color: 'bg-blue-500',
+      onClick: onOpenMathStudio,
+      group: 'lesson',
+    },
+    {
+      id: 'super-turkce',
+      label: 'Süper Türkçe Stüdyosu',
+      icon: 'fa-wand-magic-sparkles',
+      color: 'bg-teal-500',
+      onClick: onOpenSuperTurkce,
+      group: 'lesson',
+    },
+    // GRUP 3: DİĞER MODÜLLER
+    {
+      id: 'ocr',
+      label: 'Klon (OCR)',
+      icon: 'fa-camera-viewfinder',
+      color: 'bg-indigo-500',
+      onClick: onOpenOCR,
+      group: 'other',
+    },
+    {
+      id: 'curriculum',
+      label: 'Plan & Müfredat',
+      icon: 'fa-calendar-check',
+      color: 'bg-emerald-500',
+      onClick: onOpenCurriculum,
+      group: 'other',
+    },
+    {
+      id: 'screening',
+      label: 'Tarama & Analiz',
+      icon: 'fa-clipboard-question',
+      color: 'bg-purple-500',
+      onClick: onOpenScreening,
+      group: 'other',
+    },
+    {
+      id: 'infographic-studio',
+      label: 'İnfografik Stüdyosu',
+      icon: 'fa-chart-pie',
+      color: 'bg-violet-500',
+      onClick: onOpenInfographicStudio,
+      group: 'other',
+    },
+    {
+      id: 'remotion-studio',
+      label: 'Animasyon Stüdyosu',
+      icon: 'fa-film',
+      color: 'bg-pink-500',
+      onClick: onOpenRemotionStudio,
+      group: 'other',
     },
   ];
 
@@ -553,41 +566,139 @@ const Sidebar: React.FC<SidebarProps> = ({
                             role="listbox"
                             aria-label="Stüdyolar Listesi"
                           >
-                            {studioItems.map((item, index) => (
-                              <button
-                                key={item.id}
-                                onClick={() => {
-                                  handleStudioClick(item);
-                                  setHoveredCategory(null);
-                                }}
-                                className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
-                                role="option"
-                                aria-selected={selectedStudio === item.id}
-                                tabIndex={0}
-                                style={{
-                                  animationDelay: `${index * 20}ms`,
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
+                            {/* GRUP 1: SINAV STÜDYOLARİ */}
+                            <div className="px-3 py-1 mt-1">
+                              <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-wider">
+                                Sınav Stüdyoları
+                              </span>
+                            </div>
+                            {studioItems
+                              .filter((item) => item.group === 'exam')
+                              .map((item, index) => (
+                                <button
+                                  key={item.id}
+                                  onClick={() => {
                                     handleStudioClick(item);
                                     setHoveredCategory(null);
-                                  }
-                                }}
-                              >
-                                <div
-                                  className={`premium-popup-activity-icon ${item.color.replace('bg-', 'text-')}`}
+                                  }}
+                                  className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
+                                  role="option"
+                                  aria-selected={selectedStudio === item.id}
+                                  tabIndex={0}
+                                  style={{
+                                    animationDelay: `${index * 20}ms`,
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.preventDefault();
+                                      handleStudioClick(item);
+                                      setHoveredCategory(null);
+                                    }
+                                  }}
                                 >
-                                  <i className={`fa-solid ${item.icon}`}></i>
-                                </div>
-                                <span className="premium-popup-activity-title block truncate">
-                                  {item.label}
-                                </span>
-                                {selectedStudio === item.id && (
-                                  <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
-                                )}
-                              </button>
-                            ))}
+                                  <div
+                                    className={`premium-popup-activity-icon ${item.color.replace('bg-', 'text-')}`}
+                                  >
+                                    <i className={`fa-solid ${item.icon}`}></i>
+                                  </div>
+                                  <span className="premium-popup-activity-title block truncate">
+                                    {item.label}
+                                  </span>
+                                  {selectedStudio === item.id && (
+                                    <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
+                                  )}
+                                </button>
+                              ))}
+
+                            {/* GRUP 2: DERS STÜDYOLARİ */}
+                            <div className="h-px bg-[var(--border-color)] my-2 mx-3"></div>
+                            <div className="px-3 py-1">
+                              <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-wider">
+                                Ders Stüdyoları
+                              </span>
+                            </div>
+                            {studioItems
+                              .filter((item) => item.group === 'lesson')
+                              .map((item, index) => (
+                                <button
+                                  key={item.id}
+                                  onClick={() => {
+                                    handleStudioClick(item);
+                                    setHoveredCategory(null);
+                                  }}
+                                  className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
+                                  role="option"
+                                  aria-selected={selectedStudio === item.id}
+                                  tabIndex={0}
+                                  style={{
+                                    animationDelay: `${(index + 2) * 20}ms`,
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.preventDefault();
+                                      handleStudioClick(item);
+                                      setHoveredCategory(null);
+                                    }
+                                  }}
+                                >
+                                  <div
+                                    className={`premium-popup-activity-icon ${item.color.replace('bg-', 'text-')}`}
+                                  >
+                                    <i className={`fa-solid ${item.icon}`}></i>
+                                  </div>
+                                  <span className="premium-popup-activity-title block truncate">
+                                    {item.label}
+                                  </span>
+                                  {selectedStudio === item.id && (
+                                    <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
+                                  )}
+                                </button>
+                              ))}
+
+                            {/* GRUP 3: DİĞER MODÜLLER */}
+                            <div className="h-px bg-[var(--border-color)] my-2 mx-3"></div>
+                            <div className="px-3 py-1">
+                              <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-wider">
+                                Diğer Modüller
+                              </span>
+                            </div>
+                            {studioItems
+                              .filter((item) => item.group === 'other')
+                              .map((item, index) => (
+                                <button
+                                  key={item.id}
+                                  onClick={() => {
+                                    handleStudioClick(item);
+                                    setHoveredCategory(null);
+                                  }}
+                                  className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
+                                  role="option"
+                                  aria-selected={selectedStudio === item.id}
+                                  tabIndex={0}
+                                  style={{
+                                    animationDelay: `${(index + 5) * 20}ms`,
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.preventDefault();
+                                      handleStudioClick(item);
+                                      setHoveredCategory(null);
+                                    }
+                                  }}
+                                >
+                                  <div
+                                    className={`premium-popup-activity-icon ${item.color.replace('bg-', 'text-')}`}
+                                  >
+                                    <i className={`fa-solid ${item.icon}`}></i>
+                                  </div>
+                                  <span className="premium-popup-activity-title block truncate">
+                                    {item.label}
+                                  </span>
+                                  {selectedStudio === item.id && (
+                                    <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
+                                  )}
+                                </button>
+                              ))}
                           </div>
                         </div>
                       </div>,
