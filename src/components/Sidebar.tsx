@@ -119,76 +119,91 @@ const Sidebar: React.FC<SidebarProps> = ({
   const closeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const [popupRect, setPopupRect] = useState<DOMRect | null>(null);
 
-  const studioItems = [
+  const studioGroups = [
     {
-      id: 'ocr',
-      label: 'Klon (OCR)',
-      icon: 'fa-camera-viewfinder',
-      color: 'bg-indigo-500',
-      onClick: onOpenOCR,
+      title: 'Değerlendirme & Plan',
+      items: [
+        {
+          id: 'screening',
+          label: 'Tarama & Analiz',
+          icon: 'fa-clipboard-question',
+          color: 'bg-purple-500',
+          onClick: onOpenScreening,
+        },
+        {
+          id: 'curriculum',
+          label: 'Plan & Müfredat',
+          icon: 'fa-calendar-check',
+          color: 'bg-emerald-500',
+          onClick: onOpenCurriculum,
+        },
+        {
+          id: 'ocr',
+          label: 'Klon (OCR)',
+          icon: 'fa-camera-viewfinder',
+          color: 'bg-indigo-500',
+          onClick: onOpenOCR,
+        },
+      ],
     },
     {
-      id: 'curriculum',
-      label: 'Plan & Müfredat',
-      icon: 'fa-calendar-check',
-      color: 'bg-emerald-500',
-      onClick: onOpenCurriculum,
+      title: 'Alan Stüdyoları',
+      items: [
+        {
+          id: 'reading',
+          label: 'Okuma Stüdyosu',
+          icon: 'fa-book-open',
+          color: 'bg-rose-500',
+          onClick: onOpenReadingStudio,
+        },
+        {
+          id: 'math',
+          label: 'Matematik Stüdyosu',
+          icon: 'fa-calculator',
+          color: 'bg-blue-500',
+          onClick: onOpenMathStudio,
+        },
+        {
+          id: 'super-turkce',
+          label: 'Süper Türkçe Stüdyosu',
+          icon: 'fa-wand-magic-sparkles',
+          color: 'bg-teal-500',
+          onClick: onOpenSuperTurkce,
+        },
+        {
+          id: 'sinav-studyosu',
+          label: 'Sınav Stüdyosu',
+          icon: 'fa-clipboard-check',
+          color: 'bg-amber-500',
+          onClick: onOpenSinavStudyosu,
+        },
+        {
+          id: 'mat-sinav-studyosu',
+          label: 'Matematik Sınav Stüdyosu',
+          icon: 'fa-square-root-variable',
+          color: 'bg-blue-600',
+          onClick: onOpenMatSinavStudyosu,
+        },
+      ],
     },
     {
-      id: 'reading',
-      label: 'Okuma Stüdyosu',
-      icon: 'fa-book-open',
-      color: 'bg-rose-500',
-      onClick: onOpenReadingStudio,
-    },
-    {
-      id: 'math',
-      label: 'Matematik Stüdyosu',
-      icon: 'fa-calculator',
-      color: 'bg-blue-500',
-      onClick: onOpenMathStudio,
-    },
-    {
-      id: 'super-turkce',
-      label: 'Süper Türkçe Stüdyosu',
-      icon: 'fa-wand-magic-sparkles',
-      color: 'bg-teal-500',
-      onClick: onOpenSuperTurkce,
-    },
-    {
-      id: 'infographic-studio',
-      label: 'İnfografik Stüdyosu',
-      icon: 'fa-chart-pie',
-      color: 'bg-violet-500',
-      onClick: onOpenInfographicStudio,
-    },
-    {
-      id: 'remotion-studio',
-      label: 'Animasyon Stüdyosu',
-      icon: 'fa-film',
-      color: 'bg-pink-500',
-      onClick: onOpenRemotionStudio,
-    },
-    {
-      id: 'screening',
-      label: 'Tarama & Analiz',
-      icon: 'fa-clipboard-question',
-      color: 'bg-purple-500',
-      onClick: onOpenScreening,
-    },
-    {
-      id: 'sinav-studyosu',
-      label: 'Sınav Stüdyosu',
-      icon: 'fa-clipboard-check',
-      color: 'bg-amber-500',
-      onClick: onOpenSinavStudyosu,
-    },
-    {
-      id: 'mat-sinav-studyosu',
-      label: 'Matematik Sınav Stüdyosu',
-      icon: 'fa-square-root-variable',
-      color: 'bg-blue-600',
-      onClick: onOpenMatSinavStudyosu,
+      title: 'Yaratıcı Atölye',
+      items: [
+        {
+          id: 'infographic-studio',
+          label: 'İnfografik Stüdyosu',
+          icon: 'fa-chart-pie',
+          color: 'bg-violet-500',
+          onClick: onOpenInfographicStudio,
+        },
+        {
+          id: 'remotion-studio',
+          label: 'Animasyon Stüdyosu',
+          icon: 'fa-film',
+          color: 'bg-pink-500',
+          onClick: onOpenRemotionStudio,
+        },
+      ],
     },
   ];
 
@@ -553,40 +568,47 @@ const Sidebar: React.FC<SidebarProps> = ({
                             role="listbox"
                             aria-label="Stüdyolar Listesi"
                           >
-                            {studioItems.map((item, index) => (
-                              <button
-                                key={item.id}
-                                onClick={() => {
-                                  handleStudioClick(item);
-                                  setHoveredCategory(null);
-                                }}
-                                className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
-                                role="option"
-                                aria-selected={selectedStudio === item.id}
-                                tabIndex={0}
-                                style={{
-                                  animationDelay: `${index * 20}ms`,
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    handleStudioClick(item);
-                                    setHoveredCategory(null);
-                                  }
-                                }}
-                              >
-                                <div
-                                  className={`premium-popup-activity-icon ${item.color.replace('bg-', 'text-')}`}
-                                >
-                                  <i className={`fa-solid ${item.icon}`}></i>
+                            {studioGroups.map((group, groupIndex) => (
+                              <div key={groupIndex} className="mb-2 last:mb-0">
+                                <div className="px-3 py-1.5 text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest bg-zinc-50 dark:bg-zinc-800/30">
+                                  {group.title}
                                 </div>
-                                <span className="premium-popup-activity-title block truncate">
-                                  {item.label}
-                                </span>
-                                {selectedStudio === item.id && (
-                                  <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
-                                )}
-                              </button>
+                                {group.items.map((item, index) => (
+                                  <button
+                                    key={item.id}
+                                    onClick={() => {
+                                      handleStudioClick(item);
+                                      setHoveredCategory(null);
+                                    }}
+                                    className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
+                                    role="option"
+                                    aria-selected={selectedStudio === item.id}
+                                    tabIndex={0}
+                                    style={{
+                                      animationDelay: `${(groupIndex * group.items.length + index) * 20}ms`,
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        handleStudioClick(item);
+                                        setHoveredCategory(null);
+                                      }
+                                    }}
+                                  >
+                                    <div
+                                      className={`premium-popup-activity-icon ${item.color.replace('bg-', 'text-')}`}
+                                    >
+                                      <i className={`fa-solid ${item.icon}`}></i>
+                                    </div>
+                                    <span className="premium-popup-activity-title block truncate">
+                                      {item.label}
+                                    </span>
+                                    {selectedStudio === item.id && (
+                                      <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
                             ))}
                           </div>
                         </div>
