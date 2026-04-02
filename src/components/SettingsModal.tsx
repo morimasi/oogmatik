@@ -79,9 +79,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     {
       id: 'anthracite-gold',
       name: 'Premium Altın',
-      color: '#1f1f22',
-      accent: '#fbbf24',
-      desc: 'Siyah ve altın uyumu',
+      color: '#2D2D30',
+      accent: '#D4AF37',
+      desc: 'Antrasit ve premium altın uyumu',
     },
     {
       id: 'anthracite-cyber',
