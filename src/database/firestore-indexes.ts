@@ -44,7 +44,31 @@ export const FIRESTORE_INDEXES = {
         },
 
         /**
-         * Index 2: Shared With Me
+         * Index 2: User Worksheets Query (no category filter)
+         * Query: Get user's own worksheets without category filter, ordered by date
+         * Fields: sharedWith, userId, createdAt
+         */
+        {
+            "collectionGroup": "saved_worksheets",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "sharedWith",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "userId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "createdAt",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+
+        /**
+         * Index 3: Shared With Me
          * Query: Get worksheets shared with user, ordered by creation date
          * Fields: sharedWith, createdAt
          */
@@ -64,7 +88,7 @@ export const FIRESTORE_INDEXES = {
         },
 
         /**
-         * Index 3: Student Worksheets
+         * Index 4: Student Worksheets
          * Query: Get all worksheets for a student
          * Fields: studentId, createdAt
          */
@@ -84,7 +108,7 @@ export const FIRESTORE_INDEXES = {
         },
 
         /**
-         * Index 4: Activity Type and Date Range
+         * Index 5: Activity Type and Date Range
          * Query: Get worksheets by activity type within date range
          * Fields: activityType, createdAt
          */
@@ -104,7 +128,7 @@ export const FIRESTORE_INDEXES = {
         },
 
         /**
-         * Index 5: User Activity Type
+         * Index 6: User Activity Type
          * Query: Get user's worksheets by activity type
          * Fields: userId, activityType, createdAt
          */
