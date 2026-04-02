@@ -325,16 +325,16 @@ export const ACTIVITIES: Activity[] = [
     icon: 'fa-solid fa-clipboard-question',
   },
   {
-    id: ActivityType.INFOGRAPHIC_LIFE_CYCLE,
-    title: 'Yaşam Döngüsü',
-    description: 'Canlıların veya süreçlerin evrelerini dairesel şema ile göster.',
-    icon: 'fa-solid fa-sync',
+    id: ActivityType.INFOGRAPHIC_CONCEPT_MAP,
+    title: 'Kavram Haritası (İnfografik)',
+    description: 'Konular arası hiyerarşik bağları görselleştiren gelişmiş zihin haritası.',
+    icon: 'fa-solid fa-sitemap',
   },
   {
-    id: ActivityType.INFOGRAPHIC_BEP_GOAL_MAP,
-    title: 'BEP Hedef Haritası',
-    description: 'Öğrencinin BEP hedeflerini görselleştirilmiş bir yol haritası üzerinde takip et.',
-    icon: 'fa-solid fa-bullseye',
+    id: ActivityType.INFOGRAPHIC_5W1H_BOARD,
+    title: '5N1K Panosu',
+    description: 'Kim, Ne, Nerede, Ne Zaman, Nasıl, Niçin sorularını görsel bir panoda analiz et.',
+    icon: 'fa-solid fa-clipboard-question',
   },
   // Diğer 92 aktivite, InfographicStudio içindeki activityMeta.ts üzerinden 
   // dinamik olarak yüklendiği için burada en kritik olanlar (Arama Indexi için) listelenmiştir.
@@ -445,19 +445,6 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     ],
   },
   {
-    id: 'science-nature',
-    title: 'Fen ve Doğa',
-    description: 'Canlılar, uzay, deney süreçleri ve bilimsel infografikler.',
-    icon: 'fa-solid fa-microscope',
-    activities: [
-      ActivityType.INFOGRAPHIC_LIFE_CYCLE,
-      ActivityType.INFOGRAPHIC_FOOD_CHAIN,
-      ActivityType.INFOGRAPHIC_SOLAR_SYSTEM,
-      ActivityType.INFOGRAPHIC_HUMAN_BODY,
-      ActivityType.INFOGRAPHIC_SCIENTIFIC_METHOD,
-    ],
-  },
-  {
     id: 'social-history',
     title: 'Sosyal & Tarih',
     description: 'Tarihsel kronolojiler, haritalar ve kültürel analizler.',
@@ -480,18 +467,6 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.INFOGRAPHIC_ADHD_FOCUS,
       ActivityType.INFOGRAPHIC_EXECUTIVE_FUNCTION,
       ActivityType.INFOGRAPHIC_ROUTINE_BUILDER,
-    ],
-  },
-  {
-    id: 'clinical-bep',
-    title: 'Klinik & BEP',
-    description: 'Bireyselleştirilmiş Eğitim Planları (BEP) için raporlama ve haritalama.',
-    icon: 'fa-solid fa-user-doctor',
-    activities: [
-      ActivityType.INFOGRAPHIC_BEP_GOAL_MAP,
-      ActivityType.INFOGRAPHIC_IEP_PROGRESS,
-      ActivityType.INFOGRAPHIC_COGNITIVE_PROFILE,
-      ActivityType.INFOGRAPHIC_ACCOMMODATION_LIST,
     ],
   },
 ];
