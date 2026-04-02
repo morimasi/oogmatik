@@ -15,6 +15,7 @@
  */
 
 import React, { useMemo } from 'react';
+import { getInfographicPalette } from '../utils/themeUtils';
 
 // ── Tip tanımları ────────────────────────────────────────────────────────────
 
@@ -92,10 +93,15 @@ export interface NativeInfographicRendererProps {
     height?: string;
     className?: string;
     onError?: (error: Error) => void;
+    /** A4/print modunda true — sabit renkler kullanılır (Dr. Ahmet Kaya standardı) */
+    forPrint?: boolean;
 }
 
 // ── Renk Paleti ─────────────────────────────────────────────────────────────
 // Disleksi dostu: yüksek kontrast, canlı ama rahatsız etmez
+// Selin Arslan — Palette Reflection: Ekran modunda tema rengi kullanılır.
+// NOT: Bu sabit değerler yalnızca print/A4 modu için fallback olarak kalır.
+// Bileşen render sırasında `getInfographicPalette(forPrint)` çağrısıyla dinamikleştirilir.
 
 const PALETTE = {
     primary: '#7c3aed',      // violet-700
@@ -1266,7 +1272,17 @@ export const NativeInfographicRenderer: React.FC<NativeInfographicRendererProps>
     height = '400px',
     className = '',
     onError,
+    forPrint = false,
 }) => {
+    // Selin Arslan — Palette Reflection: Ekran modunda tema rengini oku
+    const themePalette = useMemo(() => getInfographicPalette(forPrint), [forPrint]);
+    // Mevcut PALETTE'yi tema renkleriyle zenginleştir (primary/secondary/accent)
+    const activePalette = useMemo(() => ({
+        ...PALETTE,
+        primary: themePalette.primary,
+        secondary: themePalette.secondary,
+    }), [themePalette]);
+
     const parsed = useMemo(() => {
         try {
             return parseInfographicSyntax(syntax);
@@ -1280,7 +1296,7 @@ export const NativeInfographicRenderer: React.FC<NativeInfographicRendererProps>
     if (!parsed) {
         return (
             <div className={className} style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <p style={{ color: PALETTE.textMuted, fontSize: '14px' }}>Syntax parse edilemedi.</p>
+                <p style={{ color: activePalette.textMuted, fontSize: '14px' }}>Syntax parse edilemedi.</p>
             </div>
         );
     }
@@ -1319,12 +1335,16 @@ export const NativeInfographicRenderer: React.FC<NativeInfographicRendererProps>
     return (
         <div
             className={className}
-            style={{
+            style={Object.assign({
                 height,
                 overflowY: 'auto',
                 overflowX: 'hidden',
                 fontFamily: "'Lexend', 'Inter', sans-serif",
-            }}
+            } as React.CSSProperties, {
+                // Selin Arslan — Palette Reflection: tema accent rengi CSS değişkeni olarak enjekte edilir
+                '--infographic-primary': activePalette.primary,
+                '--infographic-secondary': activePalette.secondary,
+            })}
         >
             {renderContent()}
         </div>

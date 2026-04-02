@@ -347,15 +347,13 @@ const AppContent = () => {
     }
   }, [uiSettings]);
 
+  // Tüm koyu temalar — tema sınıflandırması için merkezi sabit
+  const DARK_THEMES: AppTheme[] = ['dark', 'anthracite', 'space', 'anthracite-gold', 'anthracite-cyber', 'ocean', 'nature'];
+
   // Theme effect
   useEffect(() => {
     // Handle basic dark/light first
-    if (
-      theme === 'dark' ||
-      theme === 'anthracite' ||
-      theme === 'space' ||
-      theme.includes('anthracite')
-    ) {
+    if (DARK_THEMES.includes(theme)) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
@@ -379,6 +377,33 @@ const AppContent = () => {
   useEffect(() => {
     document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
   }, [sidebarWidth]);
+
+  // FAZ 4: Print trigger — yazdırmadan önce light tema zorlama, sonra eski haline döndürme
+  useEffect(() => {
+    const handleBeforePrint = () => {
+      // Tüm tema sınıflarını kaldır ve light tema uygula
+      document.documentElement.classList.add('printing-forced-light');
+      document.documentElement.classList.remove('dark');
+      document.body.style.filter = 'none';
+    };
+
+    const handleAfterPrint = () => {
+      document.documentElement.classList.remove('printing-forced-light');
+      // Eski temayı geri yükle
+      if (DARK_THEMES.includes(theme)) {
+        document.documentElement.classList.add('dark');
+      }
+      document.body.style.filter = `saturate(${uiSettings.saturation}%)`;
+    };
+
+    window.addEventListener('beforeprint', handleBeforePrint);
+    window.addEventListener('afterprint', handleAfterPrint);
+
+    return () => {
+      window.removeEventListener('beforeprint', handleBeforePrint);
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+  }, [theme, uiSettings.saturation]);
   const [styleSettings, setStyleSettings] = useState(initialStyleSettings as StyleSettings);
   const [historyItems, setHistoryItems] = useState(
     (() => {
