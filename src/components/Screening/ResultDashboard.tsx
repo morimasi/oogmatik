@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 import { ScreeningResult, EvaluationCategory } from '../../types/screening';
 import { SavedAssessment, AssessmentReport } from '../../types';
 import { CATEGORY_LABELS } from '../../data/screeningQuestions';
@@ -22,7 +22,7 @@ interface Props {
   ) => void;
 }
 
-export const ResultDashboard: React.FC<Props> = ({
+export const ResultDashboard: FC<Props> = ({
   result,
   onRestart,
   onSelectActivity,

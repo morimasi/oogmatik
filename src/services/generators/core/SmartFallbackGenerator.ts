@@ -1,7 +1,7 @@
 import { ActivityType, GeneratorOptions, SingleWorksheetData } from '../../../types';
 import { generateCreativeMultimodal } from '../../geminiClient';
 import { WorksheetBuilder } from './WorksheetBuilder';
-import { getPromptTemplate } from './promptTemplates';
+import { getPromptTemplate } from '../prompts/index.js';
 
 /**
  * EnhancedSmartGenerator — Premium AI Üretim Motoru
