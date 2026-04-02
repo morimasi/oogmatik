@@ -343,7 +343,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
             {(content.options || []).map((opt: string, oIdx: number) => (
               <div key={oIdx} className="flex flex-col items-center gap-1">
                 <div className="logic-option-btn w-9 h-9 rounded-xl border-2 border-zinc-200 flex items-center justify-center font-black text-sm">
-                  {opt}
+                  {recursiveSafeText(opt)}
                 </div>
                 <span className="text-[8px] font-black text-zinc-300 uppercase">
                   {String.fromCharCode(65 + oIdx)}
@@ -371,7 +371,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
                 HEDEF
               </span>
               <div className="target-value text-3xl font-black text-amber-400 font-mono">
-                {content.targetValue}
+                {recursiveSafeText(content.targetValue)}
               </div>
             </div>
             <div className="w-px h-10 bg-white/20"></div>
@@ -569,10 +569,10 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
           </div>
           <div className="flex-1 min-w-0">
             <h5 className="text-[9px] font-black text-indigo-500 uppercase tracking-[0.15em] mb-0.5">
-              {content.title || 'KLİNİK İPUCU'}
+              {recursiveSafeText(content.title) || 'KLİNİK İPUCU'}
             </h5>
             <p className="text-xs font-bold text-zinc-700 leading-snug italic">
-              {content.clue || content.description}
+              {recursiveSafeText(content.clue || content.description)}
             </p>
           </div>
         </div>
