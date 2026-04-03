@@ -111,6 +111,8 @@ export interface PrintOptions {
   quality?: PdfQuality;
   /** İlerleme callback'i (0-100 arasında yüzde) */
   onProgress?: (percent: number, message: string) => void;
+  /** Tema renklerini PDF'de koru (varsayılan: false - siyah-beyaz) */
+  preserveTheme?: boolean;
 }
 
 export type PaperSize = 'A4' | 'Letter' | 'Legal';

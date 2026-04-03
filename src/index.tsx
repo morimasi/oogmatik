@@ -4,6 +4,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import './styles/tailwind.css';
+import './styles/theme-tokens.css';
+import './styles/theme-premium.css';
+import './styles/theme-oled.css';
+import './styles/theme-print.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
