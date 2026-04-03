@@ -67,7 +67,7 @@ export async function addCollaborator(
     if (workbook.collaborators.some((c) => c.userEmail === collaboratorEmail)) {
       throw new ValidationError(
         'Bu kullanıcı zaten işbirlikçi',
-        'COLLABORATOR_ALREADY_EXISTS'
+        { code: 'COLLABORATOR_ALREADY_EXISTS' }
       );
     }
 
@@ -129,7 +129,7 @@ export async function removeCollaborator(
     if (!collaborator) {
       throw new ValidationError(
         'İşbirlikçi bulunamadı',
-        'COLLABORATOR_NOT_FOUND'
+        { code: 'COLLABORATOR_NOT_FOUND' }
       );
     }
 
@@ -178,7 +178,7 @@ export async function updateCollaboratorPermission(
     if (collaboratorIndex === -1) {
       throw new ValidationError(
         'İşbirlikçi bulunamadı',
-        'COLLABORATOR_NOT_FOUND'
+        { code: 'COLLABORATOR_NOT_FOUND' }
       );
     }
 
@@ -234,7 +234,7 @@ export async function updateShareSettings(
       if (!settings.anonymizeStudentData) {
         throw new ValidationError(
           'Atanmış öğrenci verisi olan workbook paylaşılırken anonimleştirme zorunludur (KVKV)',
-          'STUDENT_DATA_ANONYMIZATION_REQUIRED'
+          { code: 'STUDENT_DATA_ANONYMIZATION_REQUIRED' }
         );
       }
     }
