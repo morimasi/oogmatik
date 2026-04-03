@@ -66,7 +66,10 @@ export const AnimationStudio: React.FC = () => {
     }
 
     // Ekrandaki max objeyi (ai'nin ürettiği cognitive load limitini) logluyoruz.
-    console.log('[Klinik Kısıt] Ekranda Maksimum Obje:', animationData.cognitiveLoadParams.maxConcurrentObjects);
+    console.log(
+      '[Klinik Kısıt] Ekranda Maksimum Obje:',
+      animationData.cognitiveLoadParams.maxConcurrentObjects
+    );
 
     return (
       <Player
@@ -84,6 +87,7 @@ export const AnimationStudio: React.FC = () => {
         }}
         controls
         loop
+        acknowledgeRemotionLicense={true}
       />
     );
   };
@@ -180,7 +184,8 @@ export const AnimationStudio: React.FC = () => {
                   Nesne Yükü: {animationData.cognitiveLoadParams.maxConcurrentObjects} / 3 Max
                 </span>
                 <span className="text-xs font-mono text-cyan-400">
-                  Kalabalık Puanı (Crowding): {animationData.cognitiveLoadParams.visualCrowdingScore}/100
+                  Kalabalık Puanı (Crowding):{' '}
+                  {animationData.cognitiveLoadParams.visualCrowdingScore}/100
                 </span>
               </div>
             </div>

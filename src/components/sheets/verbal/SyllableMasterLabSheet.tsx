@@ -40,14 +40,17 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
           {isCombine && (
             <div className="flex flex-col items-center gap-2">
               <div className="flex gap-1 flex-wrap justify-center">
-                {item.syllables.map((s: string, sIdx: number) => (
-                  <div
-                    key={sIdx}
-                    className="px-3 py-1 bg-zinc-900 text-white rounded-md font-black text-sm uppercase"
-                  >
-                    <EditableText value={s} tag="span" />
-                  </div>
-                ))}
+                {item.syllables.map((s: any, sIdx: number) => {
+                  const textVal = typeof s === 'object' && s !== null ? s.value || s.text || '' : s;
+                  return (
+                    <div
+                      key={sIdx}
+                      className="px-3 py-1 bg-zinc-900 text-white rounded-md font-black text-sm uppercase"
+                    >
+                      <EditableText value={textVal} tag="span" />
+                    </div>
+                  );
+                })}
               </div>
               <div className="w-full h-8 border-b-[1.5px] border-dashed border-zinc-300 bg-zinc-50 rounded-t-md"></div>
             </div>
@@ -55,9 +58,10 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
 
           {isRainbow && (
             <div className="flex items-center justify-center gap-1.5 flex-wrap py-1">
-              {item.syllables.map((s: string, sIdx: number) => {
+              {item.syllables.map((s: any, sIdx: number) => {
                 const colors = ['#be123c', '#1d4ed8', '#047857', '#b45309', '#6d28d9', '#0e7490'];
                 const color = colors[sIdx % colors.length];
+                const textVal = typeof s === 'object' && s !== null ? s.value || s.text || '' : s;
                 return (
                   <div
                     key={sIdx}
@@ -65,7 +69,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
                     style={{ backgroundColor: `${color}10`, borderColor: color }}
                   >
                     <span className="text-sm font-black uppercase" style={{ color: color }}>
-                      <EditableText value={s} tag="span" />
+                      <EditableText value={textVal} tag="span" />
                     </span>
                   </div>
                 );
@@ -76,14 +80,19 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
           {isScrambled && (
             <div className="flex flex-col gap-2">
               <div className="flex gap-1 flex-wrap justify-center">
-                {item.scrambledIndices?.map((origIdx: number) => (
-                  <div
-                    key={origIdx}
-                    className="px-2.5 py-1 bg-white border-2 border-zinc-300 rounded-full font-bold text-xs text-zinc-800 shadow-sm uppercase"
-                  >
-                    {item.syllables[origIdx]}
-                  </div>
-                ))}
+                {item.scrambledIndices?.map((origIdx: number) => {
+                  const syl = item.syllables[origIdx];
+                  const textVal =
+                    typeof syl === 'object' && syl !== null ? syl.value || syl.text || '' : syl;
+                  return (
+                    <div
+                      key={origIdx}
+                      className="px-2.5 py-1 bg-white border-2 border-zinc-300 rounded-full font-bold text-xs text-zinc-800 shadow-sm uppercase"
+                    >
+                      {textVal}
+                    </div>
+                  );
+                })}
               </div>
               <div className="flex gap-1.5 px-1">
                 {item.syllables.map((_: any, i: number) => (
@@ -121,6 +130,3 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
     </div>
   );
 };
-
-
-
