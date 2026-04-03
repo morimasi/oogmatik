@@ -285,8 +285,10 @@ KURALLAR:
               className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-blue-500 outline-none transition-all"
             />
           </div>
+        </div>
 
-          {/* ÜRET BUTONU */}
+        {/* ÜRET BUTONU (Sabit Alt Kısım) */}
+        <div className="p-6 bg-slate-800/90 border-t border-slate-700/50 backdrop-blur-md shrink-0">
           <button
             onClick={handleGenerate}
             disabled={isGenerating}

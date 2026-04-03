@@ -3,58 +3,11 @@ import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { worksheetService } from '../../../services/worksheetService';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
-import { generateSuperStudioContent } from '../../../services/generators/superStudioGenerator';
 
 export const ActionToolbar: React.FC = () => {
-  const {
-    generatedContents,
-    isGenerating,
-    selectedTemplates,
-    templateSettings,
-    grade,
-    topic,
-    difficulty,
-    studentId,
-    addGeneratedContent,
-    clearGeneratedContents,
-    setIsGenerating,
-  } = useSuperStudioStore();
+  const { generatedContents, isGenerating } = useSuperStudioStore();
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
-
-  const handleGenerate = async () => {
-    if (selectedTemplates.length === 0) {
-      addToast('Lütfen sol panelden en az bir şablon seçin.', 'warning');
-      return;
-    }
-    if (!grade) {
-      addToast('Lütfen sınıf seviyesi seçin.', 'warning');
-      return;
-    }
-
-    setIsGenerating(true);
-    clearGeneratedContents();
-
-    try {
-      const results = await generateSuperStudioContent({
-        templates: selectedTemplates,
-        settings: templateSettings,
-        mode: 'ai',
-        grade,
-        topic: topic || 'Genel',
-        difficulty,
-        studentId: studentId || null,
-      });
-
-      results.forEach((content) => addGeneratedContent(content));
-      addToast(`${results.length} sayfa başarıyla üretildi!`, 'success');
-    } catch (error: any) {
-      console.error('Üretim hatası:', error);
-      addToast(error?.userMessage || 'AI üretim başarısız. Tekrar deneyin.', 'error');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const handleSave = async () => {
     if (!user) {
@@ -102,19 +55,6 @@ export const ActionToolbar: React.FC = () => {
 
   return (
     <div className="flex gap-3">
-      <button
-        onClick={handleGenerate}
-        disabled={isGenerating}
-        className={`px-6 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-violet-500/20 flex items-center gap-2 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${isGenerating ? 'animate-pulse' : ''}`}
-        title="AI ile İçerik Üret"
-      >
-        <i
-          className={`fa-solid ${isGenerating ? 'fa-circle-notch fa-spin' : 'fa-wand-magic-sparkles'}`}
-        ></i>
-        <span className="uppercase tracking-tight">
-          {isGenerating ? 'Üretiliyor...' : '🚀 AI ile Üret'}
-        </span>
-      </button>
       <button
         onClick={handleSave}
         disabled={isGenerating || generatedContents.length === 0}
