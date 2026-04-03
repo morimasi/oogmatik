@@ -69,13 +69,13 @@ function validateTitle(title: string): void {
   if (!title || title.trim().length < 3) {
     throw new ValidationError(
       'Workbook başlığı en az 3 karakter olmalıdır',
-      'INVALID_TITLE'
+      { code: 'INVALID_TITLE' }
     );
   }
   if (title.length > 100) {
     throw new ValidationError(
       'Workbook başlığı en fazla 100 karakter olabilir',
-      'TITLE_TOO_LONG'
+      { code: 'TITLE_TOO_LONG' }
     );
   }
 }
@@ -87,13 +87,13 @@ function validatePageCount(pages: WorkbookPage[]): void {
   if (pages.length < 1) {
     throw new ValidationError(
       'Workbook en az 1 sayfa içermelidir',
-      'INSUFFICIENT_PAGES'
+      { code: 'INSUFFICIENT_PAGES' }
     );
   }
   if (pages.length > 200) {
     throw new ValidationError(
       'Workbook en fazla 200 sayfa içerebilir',
-      'TOO_MANY_PAGES'
+      { code: 'TOO_MANY_PAGES' }
     );
   }
 }
@@ -105,7 +105,7 @@ function validateUserId(userId: string | undefined): void {
   if (!userId || userId.trim() === '') {
     throw new ValidationError(
       'Kullanıcı kimliği gereklidir',
-      'MISSING_USER_ID'
+      { code: 'MISSING_USER_ID' }
     );
   }
 }
@@ -516,7 +516,7 @@ export async function restoreWorkbook(
     if (workbook.status !== 'deleted') {
       throw new ValidationError(
         'Bu workbook silinmemiş, geri yükleme gereksiz',
-        'WORKBOOK_NOT_DELETED'
+        { code: 'WORKBOOK_NOT_DELETED' }
       );
     }
 
