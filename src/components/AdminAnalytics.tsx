@@ -81,7 +81,7 @@ const StatCard: React.FC<{ item: AdminStatCard }> = ({ item }) => (
         <div className="opacity-50 group-hover:opacity-100 transition-opacity">
           <Sparkline
             data={item.chartData}
-            color={item.trendUp ? 'hsl(var(--accent-h), 80%, 50%)' : '#f43f5e'}
+            color={item.trendUp ? 'var(--accent-color)' : '#f43f5e'}
           />
         </div>
       )}
@@ -92,171 +92,113 @@ const StatCard: React.FC<{ item: AdminStatCard }> = ({ item }) => (
   </div>
 );
 
-const UsageBarChart = ({ data }: { data: { label: string; value: number; color: string }[] }) => {
-  const maxVal = Math.max(...data.map((d) => d.value), 1);
-
-  return (
-    <div className="w-full h-64 flex items-end justify-between gap-2 md:gap-4 mt-6">
-      {data.map((item, i) => (
-        <div key={i} className="flex-1 flex flex-col items-center group relative">
-          {/* Tooltip */}
-          <div className="absolute bottom-full mb-2 bg-zinc-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-            {item.value} Üretim
-          </div>
-
-          <div
-            className="w-full bg-accent/10 rounded-t-lg relative overflow-hidden transition-all duration-500 hover:opacity-80"
-            style={{ height: `${(item.value / maxVal) * 100}%` }}
-          >
-            <div className={`absolute bottom-0 left-0 w-full h-1 ${item.color}`}></div>
-            <div className={`w-full h-full opacity-20 ${item.color}`}></div>
-          </div>
-          <span className="text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-wide truncate w-full text-center">
-            {item.label.substring(0, 3)}
-          </span>
+const UsageBarChart = ({ data }: { data: { label: string, value: number, color: string }[] }) => {
+    const maxVal = Math.max(...data.map(d => d.value), 1);
+    
+    return (
+        <div className="w-full h-64 flex items-end justify-between gap-2 md:gap-4 mt-6">
+            {data.map((item, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center group relative">
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full mb-2 bg-zinc-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                        {item.value} Üretim
+                    </div>
+                    
+                    <div 
+                        className="w-full rounded-t-lg relative overflow-hidden transition-all duration-500 hover:opacity-80"
+                        style={{ 
+                            height: `${(item.value / maxVal) * 100}%`,
+                            backgroundColor: 'var(--accent-muted)'
+                        }}
+                    >
+                        <div className={`absolute bottom-0 left-0 w-full h-1 ${item.color}`}></div>
+                        <div className="w-full h-full" style={{ opacity: 0.25, backgroundColor: 'var(--accent-color)' }}></div>
+                    </div>
+                    <span className="text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-wide truncate w-full text-center">
+                        {item.label.substring(0, 3)}
+                    </span>
+                </div>
+            ))}
         </div>
-      ))}
-    </div>
   );
 };
 
 export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUsers }) => {
-  const totalGenerations = stats.reduce((acc, curr) => acc + (curr.generationCount || 0), 0);
-  const avgTime =
-    stats.length > 0
-      ? Math.round(stats.reduce((a, b) => a + (b.avgCompletionTime || 0), 0) / stats.length)
-      : 0;
+    const totalGenerations = stats.reduce((acc, curr) => acc + (curr.generationCount || 0), 0);
+    const avgTime = stats.length > 0 ? Math.round(stats.reduce((a,b) => a + (b.avgCompletionTime || 0), 0) / stats.length) : 0;
+    
+    // Simulated Time Series Data
+    const generateTimeSeries = (points: number, min: number, max: number) => 
+        Array.from({length: points}, () => Math.floor(Math.random() * (max - min + 1) + min));
 
-  // Simulated Time Series Data
-  const generateTimeSeries = (points: number, min: number, max: number) =>
-    Array.from({ length: points }, () => Math.floor(Math.random() * (max - min + 1) + min));
+    const metrics: AdminStatCard[] = [
+        { 
+            label: 'Toplam Kullanıcı', value: totalUsers, 
+            trend: '%12', trendUp: true, icon: 'fa-users', color: 'bg-blue-100 text-blue-600',
+            chartData: generateTimeSeries(10, 80, 120)
+        },
+        { 
+            label: 'Üretilen İçerik', value: totalGenerations, 
+            trend: '%24', trendUp: true, icon: 'fa-wand-magic-sparkles', color: 'bg-purple-100 text-purple-600',
+            chartData: generateTimeSeries(10, 200, 500)
+        },
+        { 
+            label: 'Ort. Süre (sn)', value: avgTime, 
+            trend: '%5', trendUp: true, icon: 'fa-clock', color: 'bg-amber-100 text-amber-600',
+            chartData: generateTimeSeries(10, 8, 15)
+        },
+        { 
+            label: 'Başarı Oranı', value: '%98', 
+            trend: '%1', trendUp: true, icon: 'fa-check-circle', color: 'bg-emerald-100 text-emerald-600',
+            chartData: [90, 92, 91, 94, 95, 96, 95, 97, 98, 98]
+        },
+    ];
 
-  const metrics: AdminStatCard[] = [
-    {
-      label: 'Toplam Kullanıcı',
-      value: totalUsers,
-      trend: '%12',
-      trendUp: true,
-      icon: 'fa-users',
-      color: 'bg-blue-100 text-blue-600',
-      chartData: generateTimeSeries(10, 80, 120),
-    },
-    {
-      label: 'Üretilen İçerik',
-      value: totalGenerations,
-      trend: '%24',
-      trendUp: true,
-      icon: 'fa-wand-magic-sparkles',
-      color: 'bg-purple-100 text-purple-600',
-      chartData: generateTimeSeries(10, 200, 500),
-    },
-    {
-      label: 'Ort. Süre (sn)',
-      value: avgTime,
-      trend: '%5',
-      trendUp: true,
-      icon: 'fa-clock',
-      color: 'bg-amber-100 text-amber-600',
-      chartData: generateTimeSeries(10, 8, 15),
-    },
-    {
-      label: 'Başarı Oranı',
-      value: '%98',
-      trend: '%1',
-      trendUp: true,
-      icon: 'fa-check-circle',
-      color: 'bg-emerald-100 text-emerald-600',
-      chartData: [90, 92, 91, 94, 95, 96, 95, 97, 98, 98],
-    },
-  ];
+    const topActivities = useMemo(() => 
+        [...stats].sort((a, b) => b.generationCount - a.generationCount).slice(0, 7)
+    , [stats]);
 
-  const topActivities = useMemo(
-    () => [...stats].sort((a, b) => b.generationCount - a.generationCount).slice(0, 7),
-    [stats]
-  );
+    const chartData = topActivities.map((act, i) => ({
+        label: act.title,
+        value: act.generationCount,
+        color: i % 2 === 0 ? 'bg-[var(--accent-color)]' : 'bg-[var(--accent-hover)]'
+    }));
 
-  const chartData = topActivities.map((act, i) => ({
-    label: act.title,
-    value: act.generationCount,
-    color: i % 2 === 0 ? 'bg-accent' : 'bg-accent/70',
-  }));
-
-  return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-end gap-4">
-        <div>
-          <h2 className="text-2xl font-black text-zinc-900 dark:text-white">Platform Özeti</h2>
-          <p className="text-zinc-500 text-sm">Son 30 günlük performans verileri.</p>
-        </div>
-        <div className="flex bg-white dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
-          <button className="px-3 py-1 text-xs font-bold bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded shadow-sm">
-            30 Gün
-          </button>
-          <button className="px-3 py-1 text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300">
-            90 Gün
-          </button>
-          <button className="px-3 py-1 text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300">
-            Yıl
-          </button>
-        </div>
-      </div>
-
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metrics.map((m, i) => (
-          <StatCard key={i} item={m} />
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Usage Chart */}
-        <div className="lg:col-span-2 bg-white dark:bg-zinc-800 p-8 rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-sm relative overflow-hidden">
-          <div className="flex justify-between items-center">
-            <h3 className="font-bold text-zinc-800 dark:text-zinc-100">En Popüler İçerikler</h3>
-            <button className="text-indigo-600 text-xs font-bold hover:underline">
-              Raporu İndir
-            </button>
-          </div>
-
-          <UsageBarChart data={chartData} />
-        </div>
-
-        {/* System Health / Logs */}
-        <div className="bg-white dark:bg-zinc-800 p-6 rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col">
-          <h3 className="font-bold text-zinc-800 dark:text-zinc-100 mb-6 flex items-center gap-2">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-            </span>
-            Sistem Durumu
-          </h3>
-
-          <div className="flex-1 space-y-6">
-            <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700/30 rounded-xl border border-zinc-100 dark:border-zinc-700">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center text-sm">
-                  <i className="fa-solid fa-server"></i>
+    return (
+        <div className="space-y-8 animate-in fade-in duration-500">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-end gap-4">
+                <div>
+                    <h2 className="text-2xl font-black text-zinc-900 dark:text-white">Platform Özeti</h2>
+                    <p className="text-zinc-500 text-sm">Son 30 günlük performans verileri.</p>
                 </div>
                 <div>
                   <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">API Latency</p>
                   <p className="text-[10px] text-zinc-500">Google Gemini</p>
+                  <span className="text-sm font-mono font-bold text-green-600">120ms</span>
                 </div>
-              </div>
-              <span className="text-sm font-mono font-bold text-green-600">120ms</span>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700/30 rounded-xl border border-zinc-100 dark:border-zinc-700">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm">
-                  <i className="fa-solid fa-database"></i>
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {metrics.map((m, i) => <StatCard key={i} item={m} />)}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main Usage Chart */}
+                <div className="lg:col-span-2 bg-white dark:bg-zinc-800 p-8 rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-sm relative overflow-hidden">
+                    <div className="flex justify-between items-center">
+                        <h3 className="font-bold text-zinc-800 dark:text-zinc-100">En Popüler İçerikler</h3>
+                        <button className="text-xs font-bold hover:underline" style={{ color: 'var(--accent-color)' }}>Raporu İndir</button>
+                    </div>
+                    
+                    <UsageBarChart data={chartData} />
                 </div>
                 <div>
                   <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">Veritabanı</p>
                   <p className="text-[10px] text-zinc-500">Firebase Firestore</p>
+                  <span className="text-sm font-mono font-bold text-blue-600">Aktif</span>
                 </div>
-              </div>
-              <span className="text-sm font-mono font-bold text-blue-600">Aktif</span>
             </div>
 
             <div className="border-t border-zinc-100 dark:border-zinc-700 pt-4">
@@ -278,9 +220,6 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
                 ))}
               </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
   );
 };

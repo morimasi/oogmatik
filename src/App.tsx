@@ -879,8 +879,9 @@ const AppContent = () => {
                 {currentView === 'sinav-studyosu' && <SinavStudyosu />}
                 {currentView === 'mat-sinav-studyosu' && <MatSinavStudyosu />}
               </Suspense>
-            </div>
+            </motion.div>
           )}
+          </AnimatePresence>
         </div>
 
       </div>
