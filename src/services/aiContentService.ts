@@ -1,5 +1,7 @@
 import { generateWithSchema } from './geminiClient.js';
-import { ActivityType, SingleWorksheetData } from '../types.js';
+import { ActivityType, SingleWorksheetData, AssessmentReport } from '../types.js';
+import { cacheService } from './cacheService.js';
+import { adaptiveLearningService } from './adaptiveLearningService.js';
 
 /**
  * AI-Powered Content Generation Service
@@ -20,8 +22,10 @@ export const aiContentService = {
       questionCount?: number;
       focusAreas?: string[];
       theme?: string;
+      historicalReports?: AssessmentReport[]; // Adaptif öğrenme için eklendi
+      useAdaptiveDifficulty?: boolean; // Adaptif öğrenme açık mı?
     },
-    studentProfile?: { age: number; grade: string; weaknesses?: string[]; strengths?: string[] }
+    studentProfile?: { name?: string; age: number; grade: string; weaknesses?: string[]; strengths?: string[] }
   ) => {
     // Get activity title for context
     const activities: Record<string, string> = {
@@ -74,10 +78,25 @@ export const aiContentService = {
 
     try {
       // Set defaults
-      const difficulty = options.difficulty || 'Orta';
+      let difficulty = options.difficulty || 'Orta';
       const questionCount = options.questionCount || 10;
-      const focusAreas = options.focusAreas || [];
+      let focusAreas = options.focusAreas || [];
       const theme = options.theme || 'Genel';
+      let pedagogicalRecommendation = '';
+
+      // ADAPTİF ÖĞRENME MÜDAHALESİ (FAZ 4)
+      if (options.useAdaptiveDifficulty && options.historicalReports) {
+        const adaptiveProfile = adaptiveLearningService.analyzePerformanceHistory(options.historicalReports, studentProfile as any);
+        difficulty = adaptiveProfile.suggestedDifficulty;
+        if (adaptiveProfile.dynamicFocusAreas.length > 0) {
+          // Mevcut odak alanlarıyla birleştir
+          focusAreas = [...new Set([...focusAreas, ...adaptiveProfile.dynamicFocusAreas])];
+        }
+        // AI'a verilecek ekstra pedogojik içgörü notu
+        if (adaptiveProfile.performanceScore < 60) {
+           pedagogicalRecommendation = `\nÖNEMLİ NOT: Bu öğrencinin geçmiş performansı düşük (${adaptiveProfile.performanceScore}/100). Lütfen soruları ekstra kolay, görsel olarak daha aralıklı ve adım adım yönergeli kurgula. Çeldiricileri azalt.`;
+        }
+      }
 
       // Create student context
       const studentContext = studentProfile
@@ -96,7 +115,7 @@ ${studentContext}
 - Zorluk Seviyesi: ${difficulty}
 - Soru/Alıştırma Sayısı: ${questionCount}
 - Odak Alanları: ${focusAreas.length > 0 ? focusAreas.join(', ') : 'Belirtilmedi'}
-- Tema: ${theme}
+- Tema: ${theme}${pedagogicalRecommendation}
 
 İSTENEN ÇIKTI:
 ${questionCount} adet disleksi dostu alıştırma/soru (aktivite tipine göre uygun formatta)
@@ -184,5 +203,56 @@ UYARI:
       }
       return fallbackContent;
     }
+  },
+
+  /**
+   * FAZ 3: Batch İşleme (5'li Gruplar)
+   * Limit aşımı olan büyük isteklerde sistemi yormamak için görevleri 5'li gruplara böler ve önbellekleme yapar.
+   */
+  batchGenerateContent: async (
+    activityType: ActivityType,
+    totalItems: number,
+    options: {
+      difficulty?: 'Başlangıç' | 'Orta' | 'Zor' | 'Uzman';
+      focusAreas?: string[];
+      theme?: string;
+      historicalReports?: AssessmentReport[];
+      useAdaptiveDifficulty?: boolean;
+    },
+    studentProfile?: { name?: string; age: number; grade: string; weaknesses?: string[]; strengths?: string[] }
+  ): Promise<SingleWorksheetData[]> => {
+    const BATCH_SIZE = 5;
+    const allContent: SingleWorksheetData[] = [];
+    const cacheKeyBase = `batch-${activityType}-${options.difficulty || 'Orta'}-${options.theme || 'Genel'}`;
+
+    let remaining = totalItems;
+    let batchIndex = 0;
+
+    while (remaining > 0) {
+      const currentBatchCount = Math.min(remaining, BATCH_SIZE);
+      const cacheKey = `${cacheKeyBase}-part-${batchIndex}`;
+      
+      // Önce cache kontrolü
+      const cached = await cacheService.get(cacheKey);
+      if (cached && Array.isArray(cached) && cached.length === currentBatchCount) {
+        allContent.push(...(cached as SingleWorksheetData[]));
+      } else {
+        // Yoksa AI ile generate et
+        const batchOptions = { ...options, questionCount: currentBatchCount };
+        const result = await aiContentService.generateContent(activityType, batchOptions, studentProfile);
+        
+        allContent.push(...result);
+        
+        if (result.length > 0) {
+          // Cache'e yaz
+          await cacheService.set(cacheKey, result);
+        }
+      }
+      
+      remaining -= currentBatchCount;
+      batchIndex++;
+    }
+
+    return allContent;
   },
 };

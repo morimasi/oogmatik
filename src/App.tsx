@@ -568,7 +568,22 @@ const AppContent = () => {
       setStudentProfile(null);
       setActiveStudent(null);
     }
-    navigateTo('generator');
+    
+    // Gelişmiş Routing (etkinlik.md Faz 3 Modeli)
+    if (item.activityType === ActivityType.SINAV) {
+      navigateTo('sinav-studyosu');
+    } else if (item.activityType === ActivityType.MAT_SINAV) {
+      navigateTo('mat-sinav-studyosu');
+    } else if (item.activityType === ActivityType.MATH_STUDIO) {
+      navigateTo('math-studio');
+    } else if (String(item.activityType).startsWith('INFOGRAPHIC_')) {
+      navigateTo('infographic-studio');
+    } else if (item.activityType === ActivityType.PREMIUM_STUDIO || String(item.activityType).startsWith('SUPER_TURKCE_')) {
+      navigateTo('super-turkce');
+    } else {
+      navigateTo('generator');
+    }
+    
     setIsSidebarExpanded(true);
   };
 
