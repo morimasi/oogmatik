@@ -88,7 +88,27 @@ export const ResultDashboard: FC<Props> = ({
       };
 
       const response: any = await generateWithSchema(prompt, schema);
-      setAiAnalysis(response);
+
+      // Normalize response: ensure actionSteps items are always strings.
+      // Gemini sometimes returns objects like {intervention, description, area}
+      // instead of plain strings despite the schema — this prevents React Error #31.
+      const normalizedActionSteps = Array.isArray(response?.actionSteps)
+        ? response.actionSteps.map((step: unknown) => {
+            if (typeof step === 'string') return step;
+            if (step !== null && typeof step === 'object') {
+              const s = step as Record<string, unknown>;
+              return [s.area, s.description, s.intervention]
+                .filter(Boolean)
+                .join(' - ') || String(step);
+            }
+            return String(step ?? '');
+          })
+        : [];
+
+      setAiAnalysis({
+        letter: typeof response?.letter === 'string' ? response.letter : String(response?.letter ?? ''),
+        actionSteps: normalizedActionSteps,
+      });
     } catch (e) {
       console.error('AI Error', e);
     } finally {
@@ -373,7 +393,7 @@ export const ResultDashboard: FC<Props> = ({
               Ev & Okul İçin Öneriler
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {(aiAnalysis as any).actionSteps.map((step: string, i: number) => (
+              {(aiAnalysis as any).actionSteps?.map((step: string, i: number) => (
                 <div
                   key={i}
                   className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm flex gap-3"
@@ -381,11 +401,7 @@ export const ResultDashboard: FC<Props> = ({
                   <div className="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">
                     {i + 1}
                   </div>
-                  <p className="text-sm font-bold text-zinc-700">
-                    {typeof step === 'string'
-                      ? step
-                      : `${(step as any).area || ''} - ${(step as any).description || ''} - ${(step as any).intervention || ''}`}
-                  </p>
+                  <p className="text-sm font-bold text-zinc-700">{step}</p>
                 </div>
               ))}
             </div>
@@ -503,16 +519,12 @@ export const ResultDashboard: FC<Props> = ({
                 <i className="fa-solid fa-road"></i> Önerilen Yol Haritası
               </h3>
               <div className="space-y-4">
-                {aiAnalysis?.actionSteps.map((step: string, i: number) => (
+                {aiAnalysis?.actionSteps?.map((step: string, i: number) => (
                   <div key={i} className="flex gap-4">
                     <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
                       {i + 1}
                     </div>
-                    <p className="text-sm font-bold text-zinc-800 pt-1">
-                      {typeof step === 'string'
-                        ? step
-                        : `${(step as any).area || ''} - ${(step as any).description || ''} - ${(step as any).intervention || ''}`}
-                    </p>
+                    <p className="text-sm font-bold text-zinc-800 pt-1">{step}</p>
                   </div>
                 ))}
               </div>

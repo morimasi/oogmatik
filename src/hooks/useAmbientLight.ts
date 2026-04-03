@@ -52,7 +52,7 @@ export function useAmbientLight(): AmbientLightData {
           } else if (illuminance < 200) {
             // Dim lighting (e.g., evening, indoor low light)
             brightnessLevel = 'dim';
-            theme = 'obsidian'; // Dark but not pure black
+            theme = 'anthracite'; // Dark but not pure black
           } else if (illuminance < 1000) {
             // Normal indoor lighting
             brightnessLevel = 'normal';
@@ -138,7 +138,7 @@ export function useAutoTheme(
  */
 export function getThemeForLux(lux: number): AppTheme {
   if (lux < 50) return 'oled-black';
-  if (lux < 200) return 'obsidian';
+  if (lux < 200) return 'anthracite';
   if (lux < 1000) return 'anthracite';
   return 'light';
 }

@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { UiSettings, AppTheme } from '../types';
+import { premiumMotion } from '../utils/motionPresets';
+import { useReducedMotion } from '../hooks/useReducedMotion';
+import { themeIntelligence, ThemeRecommendation } from '../services/themeIntelligence';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -21,6 +25,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [activeTab, setActiveTab] = useState<'appearance' | 'typography' | 'accessibility'>(
     'appearance'
   );
+  const prefersReducedMotion = useReducedMotion();
+  const [themeRecommendation, setThemeRecommendation] = useState<ThemeRecommendation | null>(null);
+
+  // Load theme recommendation on open
+  useEffect(() => {
+    if (isOpen) {
+      themeIntelligence.recommendTheme('system').then(rec => {
+        if (rec && rec.theme !== theme && rec.confidence >= 0.6) {
+          setThemeRecommendation(rec);
+        }
+      }).catch(() => { /* silently fail */ });
+    }
+  }, [isOpen]);
 
   // Esc tuşu ile kapatma
   useEffect(() => {
@@ -36,59 +53,59 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const themes: { id: AppTheme; name: string; color: string; desc: string; accent: string }[] = [
     {
       id: 'light',
-      name: 'Aydınlık',
-      color: '#ffffff',
-      accent: '#4f46e5',
-      desc: 'Klasik ferah görünüm',
-    },
-    {
-      id: 'dark',
-      name: 'Karanlık',
-      color: '#18181b',
-      accent: '#818cf8',
-      desc: 'Göz yormayan gece modu',
+      name: 'Milk & Honey',
+      color: '#F8FAFC',
+      accent: '#4F46E5',
+      desc: 'Temiz, ferah, klasik eğitim',
     },
     {
       id: 'anthracite',
-      name: 'Antrasit',
-      color: '#222226',
+      name: 'Anthracite',
+      color: '#121214',
       accent: '#6366f1',
-      desc: 'Yumuşak kontrastlı koyu',
+      desc: 'Varsayılan — derin profesyonel',
     },
     {
-      id: 'space',
-      name: 'Uzay',
-      color: '#0b0d17',
-      accent: '#38bdf8',
-      desc: 'Derin mavi ve siyah tonlar',
-    },
-    {
-      id: 'nature',
-      name: 'Doğa',
-      color: '#f0fdf4',
-      accent: '#22c55e',
-      desc: 'Sakinleştirici yeşil tonlar',
+      id: 'dark',
+      name: 'Obsidian Deep',
+      color: '#09090B',
+      accent: '#818CF8',
+      desc: 'Kararlı, derin, profesyonel',
     },
     {
       id: 'ocean',
-      name: 'Okyanus',
-      color: '#ecfeff',
-      accent: '#06b6d4',
-      desc: 'Ferah açık mavi tonlar',
+      name: 'Nordic Mist',
+      color: '#082F49',
+      accent: '#38BDF8',
+      desc: 'Dingin, odaklı, huzurlu',
+    },
+    {
+      id: 'nature',
+      name: 'Emerald Forest',
+      color: '#052E16',
+      accent: '#4ADE80',
+      desc: 'Doğal, büyümeyi teşvik eden',
     },
     {
       id: 'anthracite-gold',
-      name: 'Premium Altın',
-      color: '#1f1f22',
-      accent: '#fbbf24',
-      desc: 'Siyah ve altın uyumu',
+      name: 'Imperial Stone',
+      color: '#1C1917',
+      accent: '#F59E0B',
+      desc: 'Prestijli, kurumsal, güçlü',
     },
     {
       id: 'anthracite-cyber',
-      name: 'Siberpunk',
-      color: '#000000',
-      accent: '#ec4899',
-      desc: 'Yüksek kontrastlı neon',
+      name: 'Cyber Punk',
+      color: '#020202',
+      accent: '#F43F5E',
+      desc: 'Dinamik, enerjik, gelecekçi',
+    },
+    {
+      id: 'space',
+      name: 'Deep Space',
+      color: '#020617',
+      accent: '#38bdf8',
+      desc: 'Sonsuz derin mavi evren',
     },
     {
       id: 'oled-black',
@@ -163,9 +180,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-2 sm:p-6 animate-in fade-in duration-300">
+    <AnimatePresence>
+      {isOpen && (
+    <motion.div
+      className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-2 sm:p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+    >
       {/* Container Wrapper: Max width and height with scrolling enabled */}
-      <div className="bg-white dark:bg-[#121214] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.3)] w-full max-w-5xl h-full max-h-[95vh] flex flex-col md:flex-row overflow-hidden border border-zinc-200 dark:border-zinc-800/60 transform transition-all">
+      <motion.div
+        className="bg-white dark:bg-[#121214] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.3)] w-full max-w-5xl h-full max-h-[95vh] flex flex-col md:flex-row overflow-hidden border border-zinc-200 dark:border-zinc-800/60"
+        variants={prefersReducedMotion ? {} : premiumMotion.glassEnter}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+      >
         {/* SOL PANEL: Navigasyon (Sabit genişlik, taşma durumunda kayar) */}
         <div className="w-full md:w-72 bg-zinc-50 dark:bg-[#0a0a0c] border-r border-zinc-200 dark:border-zinc-800/60 flex flex-col shrink-0 h-full max-h-[20vh] md:max-h-full overflow-y-auto">
           <div className="p-6 border-b border-zinc-200 dark:border-zinc-800/60 shrink-0">
@@ -349,6 +380,43 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         </button>
                       ))}
                     </div>
+
+                    {/* Theme Intelligence Recommendation Banner */}
+                    <AnimatePresence>
+                      {themeRecommendation && (
+                        <motion.div
+                          className="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-200 dark:border-indigo-700/40 flex items-center gap-3"
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                        >
+                          <div className="w-9 h-9 shrink-0 bg-indigo-500 rounded-xl flex items-center justify-center text-white">
+                            <i className="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-indigo-800 dark:text-indigo-200">AI Tema Önerisi</p>
+                            <p className="text-xs text-indigo-600 dark:text-indigo-400 truncate">{themeRecommendation.reason}</p>
+                          </div>
+                          <div className="flex gap-2 shrink-0">
+                            <button
+                              onClick={() => {
+                                onUpdateTheme(themeRecommendation.theme);
+                                setThemeRecommendation(null);
+                              }}
+                              className="px-3 py-1.5 text-xs font-bold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                            >
+                              Uygula
+                            </button>
+                            <button
+                              onClick={() => setThemeRecommendation(null)}
+                              className="px-3 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-800/30 rounded-lg transition-colors"
+                            >
+                              Kapat
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -635,7 +703,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
