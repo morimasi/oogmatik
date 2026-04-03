@@ -102,6 +102,7 @@ export interface ActivityDraft {
   createdBy: string;
   createdAt: string;
   customInstructions: string;
+  draftData?: any;
   // OCR Activity Generation fields
   productionMode?: 'architecture_clone' | 'prompt_generation' | 'exact_clone';
   status?: 'draft' | 'pending_review' | 'approved' | 'rejected';
@@ -127,11 +128,32 @@ export interface ActivityDraft {
 }
 
 export type AuditAction =
-  | 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'EXPORT' | 'APPROVE' | 'REJECT' | 'OTHER'
-  | 'user.created' | 'user.updated' | 'user.deleted' | 'user.login' | 'user.logout' | 'user.role_changed'
-  | 'worksheet.created' | 'worksheet.updated' | 'worksheet.deleted' | 'worksheet.exported'
-  | 'permission.granted' | 'permission.revoked'
-  | 'system.settings_changed' | 'system.backup' | 'cloud.sync' | 'batch.export' | (string & {});
+  | 'CREATE'
+  | 'UPDATE'
+  | 'DELETE'
+  | 'LOGIN'
+  | 'LOGOUT'
+  | 'EXPORT'
+  | 'APPROVE'
+  | 'REJECT'
+  | 'OTHER'
+  | 'user.created'
+  | 'user.updated'
+  | 'user.deleted'
+  | 'user.login'
+  | 'user.logout'
+  | 'user.role_changed'
+  | 'worksheet.created'
+  | 'worksheet.updated'
+  | 'worksheet.deleted'
+  | 'worksheet.exported'
+  | 'permission.granted'
+  | 'permission.revoked'
+  | 'system.settings_changed'
+  | 'system.backup'
+  | 'cloud.sync'
+  | 'batch.export'
+  | (string & {});
 
 export interface UserRoleDefinition {
   id: string;
@@ -159,7 +181,14 @@ export interface ServiceHealth {
   lastChecked?: string;
 }
 export type ServiceStatus = 'up' | 'down' | 'degraded' | 'operational';
-export type UserRoleType = 'admin' | 'teacher' | 'student' | 'editor' | 'superadmin' | 'parent' | 'guest';
+export type UserRoleType =
+  | 'admin'
+  | 'teacher'
+  | 'student'
+  | 'editor'
+  | 'superadmin'
+  | 'parent'
+  | 'guest';
 export interface ManagedUser {
   id: string;
   email: string;
