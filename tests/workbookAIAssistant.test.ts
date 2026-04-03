@@ -14,7 +14,9 @@ import {
   compressItemsForPrompt,
   buildWorkbookContext,
 } from '../src/services/workbookAIAssistant/prompts/workbookPrompts';
-import { AssistantCache } from '../src/services/workbookAIAssistant/cache/assistantCache';
+import {
+  AssistantCache,
+} from '../src/services/workbookAIAssistant/cache/assistantCache';
 import type { CollectionItem, WorkbookSettings } from '../src/types';
 import { ActivityType } from '../src/types';
 
@@ -22,22 +24,20 @@ import { ActivityType } from '../src/types';
 // MOCK DATA
 // ============================================================
 
-const mockItem = (overrides: Partial<CollectionItem> = {}): CollectionItem =>
-  ({
-    id: 'test-item-1',
-    activityType: ActivityType.FIVE_W_ONE_H,
-    title: 'Test Aktivite',
-    data: [],
-    settings: {} as any,
-    ...overrides,
-  }) as any;
+const mockItem = (overrides: Partial<CollectionItem> = {}): CollectionItem => ({
+  id: 'test-item-1',
+  activityType: ActivityType.FIVE_W_ONE_H,
+  title: 'Test Aktivite',
+  data: [],
+  settings: {},
+  ...overrides,
+});
 
-const mockSettings = (overrides: Partial<WorkbookSettings> = {}): WorkbookSettings =>
-  ({
-    title: 'Test Kitapcik',
-    studentName: 'Test Ogrenci',
-    ...overrides,
-  }) as any;
+const mockSettings = (overrides: Partial<WorkbookSettings> = {}): WorkbookSettings => ({
+  title: 'Test Kitapcik',
+  studentName: 'Test Ogrenci',
+  ...overrides,
+});
 
 // ============================================================
 // CONTENT VALIDATOR TESTS
@@ -173,7 +173,9 @@ describe('Prompt Builders', () => {
     });
 
     it('should mark dividers with DIV', () => {
-      const items = [mockItem({ itemType: 'divider', title: 'Bolum 1' })];
+      const items = [
+        mockItem({ itemType: 'divider', title: 'Bolum 1' }),
+      ];
 
       const result = compressItemsForPrompt(items);
 
@@ -181,7 +183,9 @@ describe('Prompt Builders', () => {
     });
 
     it('should truncate long titles', () => {
-      const items = [mockItem({ title: 'Bu cok uzun bir baslik ve kisaltilmali' })];
+      const items = [
+        mockItem({ title: 'Bu cok uzun bir baslik ve kisaltilmali' }),
+      ];
 
       const result = compressItemsForPrompt(items);
       const titlePart = result.split('|')[2];

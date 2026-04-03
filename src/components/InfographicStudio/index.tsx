@@ -1,4 +1,3 @@
-import { AppError } from '../../utils/AppError';
 import React, { useState } from 'react';
 import { LeftPanel } from './panels/LeftPanel';
 import { CenterPanel } from './panels/CenterPanel';
@@ -135,7 +134,7 @@ export const InfographicStudio: React.FC = () => {
 
                 if (!response.ok) {
                   const errJson = await response.json().catch(()=>({}));
-                  throw new AppError(errJson.error?.message || 'Kaydetme hatası', 'INTERNAL_ERROR', 500);
+                  throw new Error(errJson.error?.message || 'Kaydetme hatası');
                 }
                 
                 alert('Başarılı! Çalışma kağıdı klinik kurula (Admin onayına) gönderildi.');

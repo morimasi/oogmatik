@@ -1,4 +1,3 @@
-import { logger } from '../../utils/logger';
 /**
  * OOGMATIK — Workbook Export Service
  *
@@ -21,7 +20,11 @@ import { jsPDF } from 'jspdf';
 import { AppError } from '../../utils/AppError';
 import { logError } from '../../utils/errorHandler';
 import { anonymizeWorkbookForSharing } from './workbookSharingService';
-import type { Workbook, WorkbookExportConfig, WorkbookExportFormat } from '../../types/workbook';
+import type {
+  Workbook,
+  WorkbookExportConfig,
+  WorkbookExportFormat,
+} from '../../types/workbook';
 
 // ============================================================================
 // MAIN EXPORT FUNCTION
@@ -56,17 +59,22 @@ export async function exportWorkbook(
       case 'scorm':
         return await exportToSCORM(workbookToExport, config);
       default:
-        throw new AppError('Desteklenmeyen export formatı', 'UNSUPPORTED_EXPORT_FORMAT', 400, {
-          format: config.format,
-        });
+        throw new AppError(
+          'Desteklenmeyen export formatı',
+          'UNSUPPORTED_EXPORT_FORMAT',
+          400,
+          { format: config.format }
+        );
     }
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError(new AppError('Export hatası', 'EXPORT_ERROR', 500), { originalError: error });
-    throw new AppError('Workbook export edilirken bir hata oluştu', 'WORKBOOK_EXPORT_FAILED', 500, {
-      workbookId: workbook.id,
-      format: config.format,
-    });
+    logError('exportWorkbook', error);
+    throw new AppError(
+      'Workbook export edilirken bir hata oluştu',
+      'WORKBOOK_EXPORT_FAILED',
+      500,
+      { workbookId: workbook.id, format: config.format }
+    );
   }
 }
 
@@ -77,7 +85,10 @@ export async function exportWorkbook(
 /**
  * Standard PDF export
  */
-async function exportToPDF(workbook: Workbook, config: WorkbookExportConfig): Promise<Blob> {
+async function exportToPDF(
+  workbook: Workbook,
+  config: WorkbookExportConfig
+): Promise<Blob> {
   const pdf = new jsPDF({
     orientation: workbook.settings.orientation === 'landscape' ? 'l' : 'p',
     unit: 'mm',
@@ -149,11 +160,18 @@ async function exportToPrintReadyPDF(
 /**
  * Microsoft Word export
  */
-async function exportToDOCX(workbook: Workbook, _config: WorkbookExportConfig): Promise<Blob> {
+async function exportToDOCX(
+  workbook: Workbook,
+  _config: WorkbookExportConfig
+): Promise<Blob> {
   // TODO: Implement using docx library
   // https://github.com/dolanmiu/docx
 
-  throw new AppError('DOCX export henüz uygulanmadı', 'DOCX_NOT_IMPLEMENTED', 501);
+  throw new AppError(
+    'DOCX export henüz uygulanmadı',
+    'DOCX_NOT_IMPLEMENTED',
+    501
+  );
 }
 
 // ============================================================================
@@ -163,11 +181,18 @@ async function exportToDOCX(workbook: Workbook, _config: WorkbookExportConfig): 
 /**
  * Microsoft PowerPoint export
  */
-async function exportToPPTX(workbook: Workbook, _config: WorkbookExportConfig): Promise<Blob> {
+async function exportToPPTX(
+  workbook: Workbook,
+  _config: WorkbookExportConfig
+): Promise<Blob> {
   // TODO: Implement using pptxgenjs library
   // https://github.com/gitbrent/PptxGenJS
 
-  throw new AppError('PPTX export henüz uygulanmadı', 'PPTX_NOT_IMPLEMENTED', 501);
+  throw new AppError(
+    'PPTX export henüz uygulanmadı',
+    'PPTX_NOT_IMPLEMENTED',
+    501
+  );
 }
 
 // ============================================================================
@@ -177,11 +202,18 @@ async function exportToPPTX(workbook: Workbook, _config: WorkbookExportConfig): 
 /**
  * E-book (EPUB) export
  */
-async function exportToEPUB(workbook: Workbook, config: WorkbookExportConfig): Promise<Blob> {
+async function exportToEPUB(
+  workbook: Workbook,
+  config: WorkbookExportConfig
+): Promise<Blob> {
   // TODO: Implement using epub-gen or similar
   // EPUB format: container.xml + content.opf + chapters HTML
 
-  throw new AppError('EPUB export henüz uygulanmadı', 'EPUB_NOT_IMPLEMENTED', 501);
+  throw new AppError(
+    'EPUB export henüz uygulanmadı',
+    'EPUB_NOT_IMPLEMENTED',
+    501
+  );
 }
 
 // ============================================================================
@@ -244,7 +276,7 @@ async function exportToInteractiveHTML(
   </div>
   <script>
     // Interactive features
-    logger.info('Workbook loaded: ${workbook.title}');
+    console.log('Workbook loaded: ${workbook.title}');
   </script>
 </body>
 </html>
@@ -260,7 +292,10 @@ async function exportToInteractiveHTML(
 /**
  * SCORM 1.2/2004 package export (LMS uyumlu)
  */
-async function exportToSCORM(workbook: Workbook, config: WorkbookExportConfig): Promise<Blob> {
+async function exportToSCORM(
+  workbook: Workbook,
+  config: WorkbookExportConfig
+): Promise<Blob> {
   // TODO: SCORM package structure:
   // - imsmanifest.xml
   // - content/ (HTML pages)
@@ -271,9 +306,12 @@ async function exportToSCORM(workbook: Workbook, config: WorkbookExportConfig): 
     trackingMode: 'completed',
   };
 
-  throw new AppError('SCORM export henüz uygulanmadı', 'SCORM_NOT_IMPLEMENTED', 501, {
-    scormOptions,
-  });
+  throw new AppError(
+    'SCORM export henüz uygulanmadı',
+    'SCORM_NOT_IMPLEMENTED',
+    501,
+    { scormOptions }
+  );
 }
 
 // ============================================================================

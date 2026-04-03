@@ -20,7 +20,7 @@ import {
   AgeGroup,
   Difficulty,
   StudentProfile,
-  IEPGoal as BEPGoal,
+  BEPGoal
 } from './index';
 
 // ============================================================================
@@ -31,28 +31,28 @@ import {
  * Workbook dışa aktarma formatları (7 format)
  */
 export type WorkbookExportFormat =
-  | 'pdf' // Standard PDF export
-  | 'docx' // Microsoft Word
-  | 'pptx' // Microsoft PowerPoint
-  | 'epub' // E-book format
-  | 'interactive' // Interactive HTML5
-  | 'print-ready' // Print-optimized PDF (CMYK, bleeds)
-  | 'scorm'; // SCORM 1.2/2004 package
+  | 'pdf'           // Standard PDF export
+  | 'docx'          // Microsoft Word
+  | 'pptx'          // Microsoft PowerPoint
+  | 'epub'          // E-book format
+  | 'interactive'   // Interactive HTML5
+  | 'print-ready'   // Print-optimized PDF (CMYK, bleeds)
+  | 'scorm';        // SCORM 1.2/2004 package
 
 /**
  * Workbook içe aktarma kaynakları (10 kaynak)
  */
 export type WorkbookImportSource =
-  | 'file-upload' // Local file upload
-  | 'url' // Remote URL
-  | 'google-drive' // Google Drive integration
-  | 'onedrive' // Microsoft OneDrive
-  | 'dropbox' // Dropbox
-  | 'curriculum' // MEB Müfredat
-  | 'template' // Hazır şablon
-  | 'ocr-scan' // Gemini Vision OCR
-  | 'ai-generate' // AI ile üretim
-  | 'community'; // Topluluk paylaşımı
+  | 'file-upload'     // Local file upload
+  | 'url'             // Remote URL
+  | 'google-drive'    // Google Drive integration
+  | 'onedrive'        // Microsoft OneDrive
+  | 'dropbox'         // Dropbox
+  | 'curriculum'      // MEB Müfredat
+  | 'template'        // Hazır şablon
+  | 'ocr-scan'        // Gemini Vision OCR
+  | 'ai-generate'     // AI ile üretim
+  | 'community';      // Topluluk paylaşımı
 
 // ============================================================================
 // WORKBOOK TEMPLATE SYSTEM
@@ -62,18 +62,18 @@ export type WorkbookImportSource =
  * Workbook şablon türleri (12 premium template)
  */
 export type WorkbookTemplateType =
-  | 'academic-standard' // Standart akademik kitapçık
-  | 'dyslexia-friendly' // Disleksi dostu tasarım
-  | 'dyscalculia-support' // Diskalkuli destek
-  | 'adhd-focus' // ADHD odak artırıcı
-  | 'exam-prep' // Sınav hazırlık
-  | 'skill-practice' // Beceri pratiği
-  | 'assessment-portfolio' // Değerlendirme portfolyosu
-  | 'bep-aligned' // BEP uyumlu
-  | 'creative-journal' // Yaratıcı günlük
-  | 'progress-tracker' // İlerleme takip
-  | 'multi-subject' // Çok dersli
-  | 'custom'; // Özel tasarım
+  | 'academic-standard'      // Standart akademik kitapçık
+  | 'dyslexia-friendly'      // Disleksi dostu tasarım
+  | 'dyscalculia-support'    // Diskalkuli destek
+  | 'adhd-focus'             // ADHD odak artırıcı
+  | 'exam-prep'              // Sınav hazırlık
+  | 'skill-practice'         // Beceri pratiği
+  | 'assessment-portfolio'   // Değerlendirme portfolyosu
+  | 'bep-aligned'            // BEP uyumlu
+  | 'creative-journal'       // Yaratıcı günlük
+  | 'progress-tracker'       // İlerleme takip
+  | 'multi-subject'          // Çok dersli
+  | 'custom';                // Özel tasarım
 
 /**
  * Workbook teması (UI görünüm)
@@ -104,9 +104,9 @@ export interface WorkbookTemplate {
   readonly ageGroup: AgeGroup;
   readonly recommendedActivityCount: number;
   readonly difficultyDistribution: {
-    readonly kolay: number; // Yüzde (örn: 40)
-    readonly orta: number; // Yüzde (örn: 40)
-    readonly zor: number; // Yüzde (örn: 20)
+    readonly kolay: number;    // Yüzde (örn: 40)
+    readonly orta: number;     // Yüzde (örn: 40)
+    readonly zor: number;      // Yüzde (örn: 20)
   };
 
   // Görsel tasarım
@@ -156,13 +156,13 @@ export interface WorkbookCoverDesign {
  */
 export interface WorkbookPageLayout {
   readonly columns: 1 | 2;
-  readonly marginTop: number; // mm
+  readonly marginTop: number;    // mm
   readonly marginBottom: number; // mm
-  readonly marginLeft: number; // mm
-  readonly marginRight: number; // mm
+  readonly marginLeft: number;   // mm
+  readonly marginRight: number;  // mm
   readonly headerHeight: number; // mm
   readonly footerHeight: number; // mm
-  readonly gutterWidth: number; // mm (columns > 1)
+  readonly gutterWidth: number;  // mm (columns > 1)
 }
 
 // ============================================================================
@@ -206,12 +206,12 @@ export interface Workbook {
 
   // Metadata
   readonly createdAt: string; // ISO 8601
-  updatedAt: string; // ISO 8601
-  lastAccessedAt: string; // ISO 8601
+  updatedAt: string;          // ISO 8601
+  lastAccessedAt: string;     // ISO 8601
 
   // Durum
   status: 'draft' | 'active' | 'archived' | 'deleted';
-  deletedAt?: string; // Soft delete (KVKV uyumu — 30 gün)
+  deletedAt?: string;         // Soft delete (KVKV uyumu — 30 gün)
 
   // Etiketler & kategoriler
   tags: string[];
@@ -250,14 +250,14 @@ export interface WorkbookPage {
  * Sayfa türleri
  */
 export type WorkbookPageType =
-  | 'cover' // Kapak sayfası
-  | 'table-of-contents' // İçindekiler
-  | 'divider' // Bölüm ayırıcı
-  | 'activity' // Aktivite sayfası
-  | 'blank' // Boş sayfa (öğrenci notu için)
-  | 'assessment' // Değerlendirme sayfası
-  | 'answer-key' // Cevap anahtarı
-  | 'back-cover'; // Arka kapak
+  | 'cover'              // Kapak sayfası
+  | 'table-of-contents'  // İçindekiler
+  | 'divider'            // Bölüm ayırıcı
+  | 'activity'           // Aktivite sayfası
+  | 'blank'              // Boş sayfa (öğrenci notu için)
+  | 'assessment'         // Değerlendirme sayfası
+  | 'answer-key'         // Cevap anahtarı
+  | 'back-cover';        // Arka kapak
 
 /**
  * Sayfa içeriği (union type — type'a göre değişir)
@@ -316,9 +316,9 @@ export interface WorkbookDividerContent {
  */
 export interface WorkbookActivityContent {
   readonly type: 'activity';
-  activityId?: string; // Kayıtlı aktivite ID (varsa)
+  activityId?: string;      // Kayıtlı aktivite ID (varsa)
   activityType: ActivityType;
-  activityData: unknown; // Aktiviteye özel veri (any yasak — unknown kullan)
+  activityData: unknown;     // Aktiviteye özel veri (any yasak — unknown kullan)
 
   // Pedagojik bilgi (ZORUNLU)
   pedagogicalNote: string;
@@ -427,7 +427,7 @@ export interface WorkbookSettings {
   baseFontSize: number; // px
   lineHeight: number;
   letterSpacing: number; // px
-  wordSpacing: number; // px
+  wordSpacing: number;   // px
 
   // Disleksi uyumu
   dyslexiaMode: boolean;
@@ -477,8 +477,8 @@ export interface WorkbookVersion {
 }
 
 export interface WorkbookVersionDiff {
-  pagesAdded: string[]; // page IDs
-  pagesRemoved: string[]; // page IDs
+  pagesAdded: string[];    // page IDs
+  pagesRemoved: string[];  // page IDs
   pagesModified: string[]; // page IDs
   settingsChanged: boolean;
 }
@@ -503,18 +503,18 @@ export interface WorkbookCollaborator {
  * İşbirliği izin seviyeleri (KVKV uyumu — Dr. Ahmet Kaya onaylı)
  */
 export type CollaborationPermission =
-  | 'view' // Sadece görüntüleme
-  | 'comment' // Görüntüleme + yorum
-  | 'edit' // Düzenleme (sayfa ekle/sil/değiştir)
-  | 'admin'; // Tam kontrol (paylaşım, silme dahil)
+  | 'view'      // Sadece görüntüleme
+  | 'comment'   // Görüntüleme + yorum
+  | 'edit'      // Düzenleme (sayfa ekle/sil/değiştir)
+  | 'admin';    // Tam kontrol (paylaşım, silme dahil)
 
 /**
  * Paylaşım ayarları
  */
 export interface WorkbookShareSettings {
   isPublic: boolean;
-  allowCopy: boolean; // Kopya alınabilir mi?
-  allowDownload: boolean; // İndirilebilir mi?
+  allowCopy: boolean;       // Kopya alınabilir mi?
+  allowDownload: boolean;   // İndirilebilir mi?
   requireApproval: boolean; // Erişim için onay gerekli mi?
 
   // KVKV uyumu — öğrenci verisi anonimleştirme
@@ -588,7 +588,7 @@ export interface AISuggestionCache {
   readonly workbookId: string;
   suggestions: AISuggestion[];
   readonly generatedAt: string; // ISO 8601
-  readonly expiresAt: string; // ISO 8601
+  readonly expiresAt: string;   // ISO 8601
 }
 
 /**
@@ -613,14 +613,14 @@ export interface AISuggestion {
  * AI öneri türleri
  */
 export type AIWorkbookSuggestionType =
-  | 'add-activity' // Yeni aktivite önerisi
-  | 'reorder-pages' // Sayfa sıralaması önerisi
-  | 'adjust-difficulty' // Zorluk ayarlama
-  | 'add-divider' // Bölüm ayırıcı önerisi
-  | 'improve-balance' // Aktivite dengesi
-  | 'fill-skill-gap' // Beceri boşluğu doldurma
-  | 'add-assessment' // Değerlendirme önerisi
-  | 'improve-pedagogy'; // Pedagojik not iyileştirme
+  | 'add-activity'          // Yeni aktivite önerisi
+  | 'reorder-pages'         // Sayfa sıralaması önerisi
+  | 'adjust-difficulty'     // Zorluk ayarlama
+  | 'add-divider'           // Bölüm ayırıcı önerisi
+  | 'improve-balance'       // Aktivite dengesi
+  | 'fill-skill-gap'        // Beceri boşluğu doldurma
+  | 'add-assessment'        // Değerlendirme önerisi
+  | 'improve-pedagogy';     // Pedagojik not iyileştirme
 
 // ============================================================================
 // IMPORT/EXPORT TYPES
@@ -646,8 +646,8 @@ export interface PDFExportOptions {
   quality: 'low' | 'medium' | 'high' | 'print-ready';
   colorMode: 'RGB' | 'CMYK';
   embedFonts: boolean;
-  addBleed: boolean; // Print-ready için
-  bleedSize?: number; // mm
+  addBleed: boolean;   // Print-ready için
+  bleedSize?: number;  // mm
 }
 
 export interface DocxExportOptions {
@@ -729,8 +729,8 @@ export const WORKBOOK_CONSTRAINTS = {
 export const AI_RATE_LIMITS = {
   MAX_SUGGESTIONS_PER_REQUEST: 10,
   MAX_REQUESTS_PER_HOUR: 100,
-  CACHE_TTL_SECONDS: 600, // 10 dakika
-  MAX_BATCH_SIZE: 5, // Batch processing
+  CACHE_TTL_SECONDS: 600,      // 10 dakika
+  MAX_BATCH_SIZE: 5,            // Batch processing
   TOKEN_LIMIT_PER_REQUEST: 600,
 } as const;
 
@@ -760,8 +760,6 @@ export interface UpdateWorkbookPayload {
   settings?: Partial<WorkbookSettings>;
   tags?: string[];
   category?: string;
-  collaborators?: WorkbookCollaborator[];
-  shareSettings?: Partial<WorkbookShareSettings>;
 }
 
 /**
