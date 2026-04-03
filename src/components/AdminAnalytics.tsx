@@ -76,22 +76,13 @@ const StatCard: React.FC<{ item: AdminStatCard }> = ({ item }) => (
           ></i>
           {item.trend}
         </div>
-        
-        <div className="flex items-end justify-between relative z-10">
-            {item.trend && (
-                <div className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-lg ${item.trendUp ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20' : 'text-rose-600 bg-rose-50 dark:bg-rose-900/20'}`}>
-                    <i className={`fa-solid ${item.trendUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}`}></i>
-                    {item.trend}
-                </div>
-            )}
-            {item.chartData && (
-                <div className="opacity-50 group-hover:opacity-100 transition-opacity">
-                    <Sparkline
-                        data={item.chartData}
-                        color={item.trendUp ? 'var(--accent-color)' : '#f43f5e'}
-                    />
-                </div>
-            )}
+      )}
+      {item.chartData && (
+        <div className="opacity-50 group-hover:opacity-100 transition-opacity">
+          <Sparkline
+            data={item.chartData}
+            color={item.trendUp ? 'var(--accent-color)' : '#f43f5e'}
+          />
         </div>
       )}
     </div>
@@ -129,8 +120,6 @@ const UsageBarChart = ({ data }: { data: { label: string, value: number, color: 
                 </div>
             ))}
         </div>
-      ))}
-    </div>
   );
 };
 
@@ -186,9 +175,8 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
                 <div>
                   <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">API Latency</p>
                   <p className="text-[10px] text-zinc-500">Google Gemini</p>
+                  <span className="text-sm font-mono font-bold text-green-600">120ms</span>
                 </div>
-              </div>
-              <span className="text-sm font-mono font-bold text-green-600">120ms</span>
             </div>
 
             {/* Metrics Grid */}
@@ -209,9 +197,8 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
                 <div>
                   <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">Veritabanı</p>
                   <p className="text-[10px] text-zinc-500">Firebase Firestore</p>
+                  <span className="text-sm font-mono font-bold text-blue-600">Aktif</span>
                 </div>
-              </div>
-              <span className="text-sm font-mono font-bold text-blue-600">Aktif</span>
             </div>
 
             <div className="border-t border-zinc-100 dark:border-zinc-700 pt-4">
@@ -233,9 +220,6 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
                 ))}
               </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
   );
 };

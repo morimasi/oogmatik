@@ -246,57 +246,6 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                     )}
                 </div>
             </div>
-          </>
-        )}
-
-        {/* MAIN CANVAS */}
-        <div
-          className="flex-1 bg-[#09090b] relative overflow-auto flex flex-col items-center p-8 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] custom-scrollbar gap-8"
-          id="math-canvas-container"
-        >
-          {mode === 'drill' && (
-            <DrillCanvas
-              drillConfig={drill.drillConfig}
-              pageConfig={pageConfig}
-              themeConfig={themeConfig}
-              generatedDrills={drill.generatedDrills}
-              studentName={selectedStudentName}
-            />
-          )}
-
-          {mode === 'problem_ai' && (
-            <ProblemCanvas
-              problemConfig={problem.problemConfig}
-              pageConfig={pageConfig}
-              themeConfig={themeConfig}
-              generatedProblems={problem.generatedProblems}
-              instruction={problem.instruction}
-              studentName={selectedStudentName}
-            />
-          )}
-
-          {/* Answer Key Page (if enabled) */}
-          {drill.drillConfig.showAnswer && mode === 'drill' && drill.generatedDrills.length > 0 && (
-            <AnswerKeyPage
-              pageConfig={pageConfig}
-              themeConfig={themeConfig}
-              drillAnswers={drill.generatedDrills}
-              totalContentPages={totalContentPages}
-            />
-          )}
-
-          {problem.problemConfig.includeSolutionBox &&
-            mode === 'problem_ai' &&
-            problem.generatedProblems.length > 0 && (
-              <AnswerKeyPage
-                pageConfig={pageConfig}
-                themeConfig={themeConfig}
-                problemAnswers={problem.generatedProblems}
-                totalContentPages={totalContentPages}
-              />
-            )}
-        </div>
-      </div>
 
       <ShareModal
         isOpen={isShareModalOpen}

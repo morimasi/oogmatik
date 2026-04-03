@@ -4,12 +4,12 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SavedWorksheet } from '../types';
-import { useGetUserWorksheets, useCreateWorksheet, useDeleteWorksheet, useShareWorksheet } from '../hooks/useWorksheets';
+import { useGetUserWorksheets, useDeleteWorksheet, useShareWorksheet } from '../hooks/useWorksheets';
 import { ErrorDisplay } from './ErrorDisplay';
 import { AppError } from '../utils/AppError';
-import { premiumMotion } from '../utils/motionPresets';
+import { staggerContainer, staggerChild, buttonHover } from '../utils/motionPresets';
 
 interface WorksheetsListProps {
     userId: string;
@@ -166,15 +166,19 @@ export const WorksheetsList: React.FC<WorksheetsListProps> = ({
                                 <th className="px-4 py-3 text-right font-semibold text-gray-700">İşlem</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {filteredWorksheets.map((worksheet, index) => (
+                        <motion.tbody
+                            className="divide-y divide-gray-200"
+                            variants={staggerContainer}
+                            initial="initial"
+                            animate="animate"
+                        >
+                            <AnimatePresence>
+                            {filteredWorksheets.map(worksheet => (
                                 <motion.tr
-                                  key={worksheet.id}
-                                  className="hover:bg-gray-50 transition-colors"
-                                  variants={premiumMotion.staggerChild}
-                                  initial="initial"
-                                  animate="animate"
-                                  transition={{ delay: index * 0.05, duration: 0.3 }}
+                                    key={worksheet.id}
+                                    className="hover:bg-gray-50 transition-colors"
+                                    variants={staggerChild}
+                                    layout
                                 >
                                     <td className="px-4 py-3">
                                         <input
@@ -210,17 +214,20 @@ export const WorksheetsList: React.FC<WorksheetsListProps> = ({
                                         <div className="flex justify-end gap-2">
                                             {/* Düzenleme */}
                                             {worksheet.userId === userId && (
-                                                <button
+                                                <motion.button
                                                     className="inline-flex items-center justify-center w-8 h-8 text-blue-600 hover:bg-blue-50 rounded transition-colors"
                                                     title="Düzenle"
+                                                    variants={buttonHover}
+                                                    whileHover="hover"
+                                                    whileTap="tap"
                                                 >
                                                     <i className="fa-solid fa-pen-to-square"></i>
-                                                </button>
+                                                </motion.button>
                                             )}
 
                                             {/* Paylaş */}
                                             {userRole === 'teacher' || userRole === 'admin' ? (
-                                                <button
+                                                <motion.button
                                                     onClick={() => {
                                                         const recipientId = prompt('Alıcı kullanıcı ID\'sini girin:');
                                                         if (recipientId) {
@@ -230,27 +237,34 @@ export const WorksheetsList: React.FC<WorksheetsListProps> = ({
                                                     disabled={shareLoading}
                                                     className="inline-flex items-center justify-center w-8 h-8 text-green-600 hover:bg-green-50 disabled:opacity-50 rounded transition-colors"
                                                     title="Paylaş"
+                                                    variants={buttonHover}
+                                                    whileHover="hover"
+                                                    whileTap="tap"
                                                 >
                                                     <i className="fa-solid fa-share-alt"></i>
-                                                </button>
+                                                </motion.button>
                                             ) : null}
 
                                             {/* Sil */}
                                             {worksheet.userId === userId && (
-                                                <button
+                                                <motion.button
                                                     onClick={() => handleDelete(worksheet.id)}
                                                     disabled={deleteLoading}
                                                     className="inline-flex items-center justify-center w-8 h-8 text-red-600 hover:bg-red-50 disabled:opacity-50 rounded transition-colors"
                                                     title="Sil"
+                                                    variants={buttonHover}
+                                                    whileHover="hover"
+                                                    whileTap="tap"
                                                 >
                                                     <i className="fa-solid fa-trash"></i>
-                                                </button>
+                                                </motion.button>
                                             )}
                                         </div>
                                     </td>
                                 </motion.tr>
                             ))}
-                        </tbody>
+                            </AnimatePresence>
+                        </motion.tbody>
                     </table>
                 </div>
             ) : (
