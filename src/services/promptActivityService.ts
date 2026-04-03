@@ -1,3 +1,4 @@
+import { AppError } from '../utils/AppError';
 /**
  * OOGMATIK — Prompt Tabanlı Etkinlik Üretim Servisi (Mod 2)
  *
@@ -263,7 +264,11 @@ ZORUNLU KURALLAR:
     const data = result as GeneratedActivity;
 
     if (!data.pedagogicalNote || data.pedagogicalNote.length < 20) {
-      throw new Error('Pedagojik not çok kısa veya eksik (en az 20 karakter olmalıdır).');
+      throw new AppError(
+        'Pedagojik not çok kısa veya eksik (en az 20 karakter olmalıdır).',
+        'INTERNAL_ERROR',
+        500
+      );
     }
 
     // ActivityTemplate'e dönüştür

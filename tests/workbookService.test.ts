@@ -119,7 +119,7 @@ describe('Workbook Service', () => {
 
     it('should create workbook with default settings', async () => {
       // Mock Firestore setDoc
-      const { setDoc } = await import('firebase/firestore');
+      const { setDoc } = (await import('firebase/firestore')) as any;
       (setDoc as any).mockResolvedValue(undefined);
 
       const workbook = await createWorkbook(mockUserId, mockPayload);
@@ -130,7 +130,7 @@ describe('Workbook Service', () => {
     });
 
     it('should enforce KVKV anonymization default', async () => {
-      const { setDoc } = await import('firebase/firestore');
+      const { setDoc } = (await import('firebase/firestore')) as any;
       (setDoc as any).mockResolvedValue(undefined);
 
       const workbook = await createWorkbook(mockUserId, mockPayload);

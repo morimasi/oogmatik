@@ -14,13 +14,7 @@
  * - Paylaşım izinleri granular (view/comment/edit/admin)
  */
 
-import {
-  doc,
-  updateDoc,
-  arrayUnion,
-  arrayRemove,
-  Timestamp,
-} from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, arrayRemove, Timestamp } from 'firebase/firestore';
 import { db } from '../firebaseClient';
 import { AppError, ValidationError } from '../../utils/AppError';
 import { logError } from '../../utils/errorHandler';
@@ -55,20 +49,15 @@ export async function addCollaborator(
         (c) => c.userId === ownerId && c.permission === 'admin'
       );
       if (!isAdmin) {
-        throw new AppError(
-          'İşbirlikçi ekleme yetkiniz yok',
-          'COLLABORATOR_ADD_DENIED',
-          403
-        );
+        throw new AppError('İşbirlikçi ekleme yetkiniz yok', 'COLLABORATOR_ADD_DENIED', 403);
       }
     }
 
     // Zaten collaborator mı kontrol et
     if (workbook.collaborators.some((c) => c.userEmail === collaboratorEmail)) {
-      throw new ValidationError(
-        'Bu kullanıcı zaten işbirlikçi',
-        { code: 'COLLABORATOR_ALREADY_EXISTS' }
-      );
+      throw new ValidationError('Bu kullanıcı zaten işbirlikçi', {
+        code: 'COLLABORATOR_ALREADY_EXISTS',
+      });
     }
 
     // Yeni collaborator
@@ -94,13 +83,15 @@ export async function addCollaborator(
     return await getWorkbookById(workbookId, ownerId);
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('addCollaborator', error);
-    throw new AppError(
-      'İşbirlikçi eklenirken bir hata oluştu',
-      'COLLABORATOR_ADD_FAILED',
-      500,
-      { workbookId, collaboratorEmail }
-    );
+    logError(new AppError('İşbirlikçi eklenirken hata', 'COLLABORATOR_ADD_ERROR', 500), {
+      originalError: error,
+      workbookId,
+      collaboratorEmail,
+    });
+    throw new AppError('İşbirlikçi eklenirken bir hata oluştu', 'COLLABORATOR_ADD_FAILED', 500, {
+      workbookId,
+      collaboratorEmail,
+    });
   }
 }
 
@@ -116,21 +107,12 @@ export async function removeCollaborator(
     const workbook = await getWorkbookById(workbookId, ownerId);
 
     if (workbook.userId !== ownerId) {
-      throw new AppError(
-        'İşbirlikçi kaldırma yetkiniz yok',
-        'COLLABORATOR_REMOVE_DENIED',
-        403
-      );
+      throw new AppError('İşbirlikçi kaldırma yetkiniz yok', 'COLLABORATOR_REMOVE_DENIED', 403);
     }
 
-    const collaborator = workbook.collaborators.find(
-      (c) => c.userId === collaboratorUserId
-    );
+    const collaborator = workbook.collaborators.find((c) => c.userId === collaboratorUserId);
     if (!collaborator) {
-      throw new ValidationError(
-        'İşbirlikçi bulunamadı',
-        { code: 'COLLABORATOR_NOT_FOUND' }
-      );
+      throw new ValidationError('İşbirlikçi bulunamadı', { code: 'COLLABORATOR_NOT_FOUND' });
     }
 
     const workbookRef = doc(db, 'workbooks', workbookId);
@@ -142,7 +124,11 @@ export async function removeCollaborator(
     return await getWorkbookById(workbookId, ownerId);
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('removeCollaborator', error);
+    logError(new AppError('İşbirlikçi kaldırılırken hata', 'COLLABORATOR_REMOVE_ERROR', 500), {
+      originalError: error,
+      workbookId,
+      collaboratorUserId,
+    });
     throw new AppError(
       'İşbirlikçi kaldırılırken bir hata oluştu',
       'COLLABORATOR_REMOVE_FAILED',
@@ -165,21 +151,14 @@ export async function updateCollaboratorPermission(
     const workbook = await getWorkbookById(workbookId, ownerId);
 
     if (workbook.userId !== ownerId) {
-      throw new AppError(
-        'İzin değiştirme yetkiniz yok',
-        'PERMISSION_UPDATE_DENIED',
-        403
-      );
+      throw new AppError('İzin değiştirme yetkiniz yok', 'PERMISSION_UPDATE_DENIED', 403);
     }
 
     const collaboratorIndex = workbook.collaborators.findIndex(
       (c) => c.userId === collaboratorUserId
     );
     if (collaboratorIndex === -1) {
-      throw new ValidationError(
-        'İşbirlikçi bulunamadı',
-        { code: 'COLLABORATOR_NOT_FOUND' }
-      );
+      throw new ValidationError('İşbirlikçi bulunamadı', { code: 'COLLABORATOR_NOT_FOUND' });
     }
 
     // Collaborator listesini güncelle
@@ -196,7 +175,11 @@ export async function updateCollaboratorPermission(
     return await getWorkbookById(workbookId, ownerId);
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('updateCollaboratorPermission', error);
+    logError(new AppError('İşbirlikçi izni güncellenirken hata', 'PERMISSION_UPDATE_ERROR', 500), {
+      originalError: error,
+      workbookId,
+      collaboratorUserId,
+    });
     throw new AppError(
       'İşbirlikçi izni güncellenirken bir hata oluştu',
       'PERMISSION_UPDATE_FAILED',
@@ -251,7 +234,10 @@ export async function updateShareSettings(
     return await getWorkbookById(workbookId, userId);
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('updateShareSettings', error);
+    logError(
+      new AppError('Paylaşım ayarları güncellenirken hata', 'SHARE_SETTINGS_UPDATE_ERROR', 500),
+      { originalError: error, workbookId }
+    );
     throw new AppError(
       'Paylaşım ayarları güncellenirken bir hata oluştu',
       'SHARE_SETTINGS_UPDATE_FAILED',
@@ -274,11 +260,7 @@ export async function generateShareLink(
     const workbook = await getWorkbookById(workbookId, userId);
 
     if (workbook.userId !== userId) {
-      throw new AppError(
-        'Paylaşım linki oluşturma yetkiniz yok',
-        'SHARE_LINK_CREATE_DENIED',
-        403
-      );
+      throw new AppError('Paylaşım linki oluşturma yetkiniz yok', 'SHARE_LINK_CREATE_DENIED', 403);
     }
 
     // Link oluştur
@@ -303,7 +285,10 @@ export async function generateShareLink(
     return shareLink;
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('generateShareLink', error);
+    logError(new AppError('Paylaşım linki oluşturulurken hata', 'SHARE_LINK_CREATE_ERROR', 500), {
+      originalError: error,
+      workbookId,
+    });
     throw new AppError(
       'Paylaşım linki oluşturulurken bir hata oluştu',
       'SHARE_LINK_CREATE_FAILED',
@@ -316,10 +301,7 @@ export async function generateShareLink(
 /**
  * Paylaşım linkini iptal et
  */
-export async function revokeShareLink(
-  workbookId: string,
-  userId: string
-): Promise<void> {
+export async function revokeShareLink(workbookId: string, userId: string): Promise<void> {
   try {
     const workbook = await getWorkbookById(workbookId, userId);
 
@@ -343,7 +325,10 @@ export async function revokeShareLink(
     });
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('revokeShareLink', error);
+    logError(new AppError('Paylaşım linki iptal edilirken hata', 'SHARE_LINK_REVOKE_ERROR', 500), {
+      originalError: error,
+      workbookId,
+    });
     throw new AppError(
       'Paylaşım linki iptal edilirken bir hata oluştu',
       'SHARE_LINK_REVOKE_FAILED',
@@ -374,10 +359,7 @@ export function anonymizeWorkbookForSharing(workbook: Workbook): Workbook {
     // Sayfa içeriğinde öğrenci adı varsa kaldır
     pages: workbook.pages.map((page) => ({
       ...page,
-      content:
-        page.type === 'cover'
-          ? { ...page.content, studentName: undefined }
-          : page.content,
+      content: page.type === 'cover' ? { ...page.content, studentName: undefined } : page.content,
       studentNotes: undefined,
     })),
   };

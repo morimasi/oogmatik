@@ -49,6 +49,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         grade: '5. Sınıf',
         difficulty: 'Orta',
         studentId: null,
+        topic: 'Test',
       });
 
       expect(result).toHaveLength(1);
@@ -77,6 +78,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         grade: '5. Sınıf',
         difficulty: 'Orta',
         studentId: null,
+        topic: 'Test',
       });
 
       expect(result).toHaveLength(1);
@@ -101,6 +103,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         grade: '5. Sınıf',
         difficulty: 'Orta',
         studentId: null,
+        topic: 'Test',
       });
 
       expect(result).toHaveLength(1);
@@ -128,6 +131,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         grade: '5. Sınıf',
         difficulty: 'Orta',
         studentId: null,
+        topic: 'Test',
       });
 
       expect(result).toHaveLength(1);
@@ -159,6 +163,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         grade: '5. Sınıf',
         difficulty: 'Orta',
         studentId: null,
+        topic: 'Test',
       });
 
       expect(result).toHaveLength(1);
@@ -184,6 +189,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         grade: '5. Sınıf',
         difficulty: 'Orta',
         studentId: null,
+        topic: 'Test',
       });
 
       expect(result).toHaveLength(1);
@@ -213,6 +219,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         grade: '5. Sınıf',
         difficulty: 'Orta',
         studentId: null,
+        topic: 'Test',
       });
 
       expect(result).toHaveLength(1);
@@ -237,6 +244,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         grade: '5. Sınıf',
         difficulty: 'Orta',
         studentId: null,
+        topic: 'Test',
       });
 
       expect(result).toHaveLength(1);
@@ -263,6 +271,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           grade: '5. Sınıf',
           difficulty: 'Orta',
           studentId: null,
+          topic: 'Test',
         })
       ).rejects.toThrow('Tüm şablonlar için üretim başarısız oldu. Lütfen tekrar deneyin.');
     });
@@ -278,6 +287,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           grade: '5. Sınıf',
           difficulty: 'Orta',
           studentId: null,
+          topic: 'Test',
         })
       ).rejects.toThrow('Tüm şablonlar için üretim başarısız oldu. Lütfen tekrar deneyin.');
     });
@@ -292,6 +302,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         grade: '5. Sınıf',
         difficulty: 'Orta',
         studentId: null,
+        topic: 'Test',
       });
 
       expect(result).toHaveLength(2);
