@@ -408,7 +408,7 @@ export async function updateWorkbook(
     }
 
     // Güncelleme verisini hazırla
-    const updates: Partial<Workbook> = {
+    const updates = {
       ...payload,
       updatedAt: new Date().toISOString(),
       version: existing.version + 1,
