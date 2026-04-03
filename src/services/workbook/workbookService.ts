@@ -33,9 +33,9 @@ import {
   runTransaction,
   type QueryConstraint,
   type DocumentData,
-} from 'firebase/firestore';
-import { db } from '../firebaseClient';
-import { AppError, ValidationError } from '../../utils/AppError';
+  db,
+} from '../firebaseClient.js';
+import { AppError, ValidationError, toAppError } from '../../utils/AppError';
 import { logError } from '../../utils/errorHandler';
 import { v4 as uuidv4 } from 'uuid';
 import type {
@@ -227,7 +227,8 @@ export async function createWorkbook(
     return workbook;
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('createWorkbook', error);
+    const appError = toAppError(error);
+    logError(appError, { context: 'createWorkbook', userId, payload });
     throw new AppError(
       'Workbook oluşturulurken bir hata oluştu',
       'WORKBOOK_CREATE_FAILED',
@@ -281,7 +282,8 @@ export async function getWorkbookById(
     return workbook;
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('getWorkbookById', error);
+    const appError = toAppError(error);
+    logError(appError, { context: 'getWorkbookById', workbookId, userId });
     throw new AppError(
       'Workbook getirilirken bir hata oluştu',
       'WORKBOOK_FETCH_FAILED',
@@ -357,7 +359,8 @@ export async function listWorkbooks(
 
     return { workbooks, total, hasMore };
   } catch (error) {
-    logError('listWorkbooks', error);
+    const appError = toAppError(error);
+    logError(appError, { context: 'listWorkbooks', userId, queryParams });
     throw new AppError(
       'Workbook listesi getirilirken bir hata oluştu',
       'WORKBOOK_LIST_FAILED',
@@ -429,7 +432,8 @@ export async function updateWorkbook(
     return updated;
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('updateWorkbook', error);
+    const appError = toAppError(error);
+    logError(appError, { context: 'updateWorkbook', workbookId, userId, payload });
     throw new AppError(
       'Workbook güncellenirken bir hata oluştu',
       'WORKBOOK_UPDATE_FAILED',
@@ -473,7 +477,8 @@ export async function deleteWorkbook(
     // (Cloud Functions veya Vercel Cron)
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('deleteWorkbook', error);
+    const appError = toAppError(error);
+    logError(appError, { context: 'deleteWorkbook', workbookId, userId });
     throw new AppError(
       'Workbook silinirken bir hata oluştu',
       'WORKBOOK_DELETE_FAILED',
@@ -525,7 +530,8 @@ export async function restoreWorkbook(
     return await getWorkbookById(workbookId, userId);
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('restoreWorkbook', error);
+    const appError = toAppError(error);
+    logError(appError, { context: 'restoreWorkbook', workbookId, userId });
     throw new AppError(
       'Workbook geri yüklenirken bir hata oluştu',
       'WORKBOOK_RESTORE_FAILED',
@@ -578,7 +584,8 @@ export async function duplicateWorkbook(
     return await getWorkbookById(copy.id, userId);
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('duplicateWorkbook', error);
+    const appError = toAppError(error);
+    logError(appError, { context: 'duplicateWorkbook', workbookId, userId });
     throw new AppError(
       'Workbook kopyalanırken bir hata oluştu',
       'WORKBOOK_DUPLICATE_FAILED',
@@ -626,7 +633,8 @@ async function createVersionSnapshot(
     // 50 versiyondan eski olanları sil (WORKBOOK_CONSTRAINTS.MAX_VERSIONS)
     // TODO: Implement cleanup logic
   } catch (error) {
-    logError('createVersionSnapshot', error);
+    const appError = toAppError(error);
+    logError(appError, { context: 'createVersionSnapshot' });
     // Version snapshot hatası workbook oluşturmayı engellemez
   }
 }
@@ -659,7 +667,8 @@ export async function getWorkbookVersionHistory(
     return versions;
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError('getWorkbookVersionHistory', error);
+    const appError = toAppError(error);
+    logError(appError, { context: 'getWorkbookVersionHistory', workbookId, userId });
     throw new AppError(
       'Versiyon geçmişi getirilirken bir hata oluştu',
       'VERSION_HISTORY_FAILED',
@@ -763,7 +772,8 @@ export async function getWorkbookStats(userId: string): Promise<WorkbookStats> {
       recentActivity,
     };
   } catch (error) {
-    logError('getWorkbookStats', error);
+    const appError = toAppError(error);
+    logError(appError, { context: 'getWorkbookStats', userId });
     throw new AppError(
       'İstatistikler hesaplanırken bir hata oluştu',
       'STATS_CALCULATION_FAILED',

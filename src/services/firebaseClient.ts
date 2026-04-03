@@ -1,4 +1,3 @@
-
 // @ts-ignore
 import { initializeApp, getApp, getApps } from "firebase/app";
 // @ts-ignore
@@ -10,6 +9,28 @@ import { initializeFirestore } from "firebase/firestore";
 import { persistentLocalCache } from "firebase/firestore";
 // @ts-ignore
 import { persistentMultipleTabManager } from "firebase/firestore";
+
+// Re-export Firestore functions for use in services
+// @ts-ignore
+export {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  startAfter,
+  Timestamp,
+  writeBatch,
+  runTransaction,
+  type QueryConstraint,
+  type DocumentData,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDEnRDzfZ65myaEFTXVjdYu6tyKyFhXP3w",
