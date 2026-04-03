@@ -69,7 +69,7 @@ const _StudioMenuItem = ({ icon, label, onClick, color, isExpanded }: any) => (
     </div>
 
     {isExpanded && (
-      <span className="flex-1 text-left text-xs font-bold text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+      <span className="flex-1 text-left text-xs font-normal text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
         {label}
       </span>
     )}
@@ -454,22 +454,22 @@ const Sidebar: React.FC<SidebarProps> = ({
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[var(--bg-primary)]">
                 <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--accent-color)] mb-4"></i>
-                <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                <p className="text-xs font-normal text-[var(--text-muted)] uppercase tracking-widest">
                   Etkinlik Yükleniyor...
                 </p>
               </div>
             )
           ) : (
-            <nav className="flex-1 overflow-y-auto px-4 py-6 custom-scrollbar scroll-smooth">
+            <nav className="flex-1 overflow-y-auto px-4 py-3 custom-scrollbar scroll-smooth">
               {isExpanded && (
-                <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.4em] mb-4 mt-2 block ml-3">
+                <span className="text-[9px] font-normal text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.4em] mb-2 mt-1 block ml-3">
                   Akıllı Modüller
                 </span>
               )}
 
-              <div className="space-y-2 px-2">
+              <div className="space-y-0.5 px-2">
                 {/* STÜDYOLAR - SINGLE BUTTON WITH POPUP */}
-                <div className="relative mb-2">
+                <div className="relative mb-1">
                   <button
                     onClick={(e) => {
                       setPopupRect(e.currentTarget.getBoundingClientRect());
@@ -477,7 +477,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     }}
                     onMouseEnter={(e) => handleCategoryMouseEnter('studios', e)}
                     onMouseLeave={handleCategoryMouseLeave}
-                    className={`studio-trigger-btn w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-3 rounded-2xl transition-all duration-300 bg-[var(--bg-paper)] hover:shadow-lg border border-[var(--border-color)] relative overflow-hidden`}
+                    className={`studio-trigger-btn w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-1.5 rounded-2xl transition-all duration-300 bg-[var(--bg-paper)] hover:shadow-lg border border-[var(--border-color)] relative overflow-hidden`}
                     aria-haspopup="true"
                     aria-expanded={hoveredCategory === 'studios'}
                     role="button"
@@ -498,10 +498,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
                     {isExpanded && (
                       <div className="flex-1 flex flex-col items-start relative z-10">
-                        <span className="text-xs font-black text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors">
+                        <span className="text-xs font-normal text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors">
                           Stüdyolar
                         </span>
-                        <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wide">
+                        <span className="text-[9px] font-normal text-[var(--text-muted)] uppercase tracking-wide">
                           Tüm Modüller
                         </span>
                       </div>
@@ -627,12 +627,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                     'math-logic': 'text-amber-500 bg-amber-500/10 border-amber-500/20',
                   };
                   return (
-                    <div key={category.id} className="relative mb-2">
+                    <div key={category.id} className="relative mb-1">
                       <button
                         onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)}
                         onMouseEnter={(e) => handleCategoryMouseEnter(category.id, e)}
                         onMouseLeave={handleCategoryMouseLeave}
-                        className={`category-trigger-btn w-full group flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-500 relative ${isOpen && isExpanded ? 'bg-[var(--bg-paper)] shadow-xl' : 'hover:bg-[var(--surface-elevated)]'}`}
+                        className={`category-trigger-btn w-full group flex items-center gap-3 px-3 py-1.5 rounded-2xl transition-all duration-500 relative ${isOpen && isExpanded ? 'bg-[var(--bg-paper)] shadow-xl' : 'hover:bg-[var(--surface-elevated)]'}`}
                         aria-haspopup="true"
                         aria-expanded={isHovered}
                         role="button"
@@ -660,7 +660,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         {isExpanded && (
                           <>
                             <span
-                              className={`flex-1 text-left text-[12px] font-bold tracking-tight transition-colors ${isOpen ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 group-hover:text-zinc-800 dark:group-hover:text-zinc-300'}`}
+                              className={`flex-1 text-left text-[12px] font-normal tracking-tight transition-colors ${isOpen ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 group-hover:text-zinc-800 dark:group-hover:text-zinc-300'}`}
                             >
                               {category.title}
                             </span>
@@ -762,12 +762,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                         )}
 
                       {isExpanded && isOpen && (
-                        <div className="ml-8 pl-5 mt-2 space-y-1 pr-2 border-l-2 border-zinc-100 dark:border-zinc-800 animate-in slide-in-from-left-2 fade-in duration-500">
+                        <div className="ml-8 pl-5 mt-1 space-y-0.5 pr-2 border-l-2 border-zinc-100 dark:border-zinc-800 animate-in slide-in-from-left-2 fade-in duration-500">
                           {category.items.map((activity) => (
                             <button
                               key={activity.id}
                               onClick={() => onSelectActivity(activity.id)}
-                              className={`w-full group flex items-center gap-2 text-left py-2.5 px-3 rounded-xl text-[11px] font-bold transition-all duration-300 relative ${selectedActivity === activity.id ? 'bg-[var(--accent-color)] text-white shadow-lg' : 'text-[var(--text-secondary)] hover:text-[var(--accent-color)] hover:bg-[var(--accent-muted)]'}`}
+                              className={`w-full group flex items-center gap-2 text-left py-1 px-3 rounded-xl text-[11px] font-normal transition-all duration-300 relative ${selectedActivity === activity.id ? 'bg-[var(--accent-color)] text-white shadow-lg' : 'text-[var(--text-secondary)] hover:text-[var(--accent-color)] hover:bg-[var(--accent-muted)]'}`}
                             >
                               {selectedActivity !== activity.id && (
                                 <div className="w-1.5 h-1.5 rounded-full bg-[var(--border-color)] transition-colors group-hover:bg-[var(--accent-color)]" />
