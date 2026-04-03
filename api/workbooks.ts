@@ -11,7 +11,7 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { AppError, ValidationError } from '../src/utils/AppError.js';
+import { AppError, ValidationError, toAppError } from '../src/utils/AppError.js';
 import { logError } from '../src/utils/errorHandler.js';
 import { RateLimiter } from '../src/services/rateLimiter.js';
 import {
@@ -170,7 +170,8 @@ export default async function handler(
       });
     }
 
-    logError(error instanceof Error ? error : new Error(String(error)));
+    const appError = toAppError(error);
+    logError(appError);
     return res.status(500).json({
       success: false,
       error: {
