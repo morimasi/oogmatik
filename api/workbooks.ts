@@ -34,10 +34,7 @@ import type {
 // RATE LIMITING
 // ============================================================================
 
-const rateLimiter = new RateLimiter({
-  maxRequests: 100,
-  windowMs: 60 * 60 * 1000, // 1 saat
-});
+const rateLimiter = new RateLimiter(60 * 60 * 1000); // 1 saat cleanup interval
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -137,12 +134,12 @@ export default async function handler(
   }
 
   try {
-    // Rate limiting
-    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || 'unknown';
-    await rateLimiter.checkLimit(clientIp);
-
     // User ID
     const userId = getUserIdFromRequest(req);
+
+    // Rate limiting (using userId and assuming 'free' tier)
+    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || 'unknown';
+    await rateLimiter.enforceLimit(userId, 'free', 'worksheetSave', 1);
 
     // Route based on method
     switch (req.method) {
@@ -173,7 +170,7 @@ export default async function handler(
       });
     }
 
-    logError('workbooks-api', error);
+    logError(error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       success: false,
       error: {
@@ -253,7 +250,7 @@ async function handlePOST(
   if (action === 'duplicate') {
     const { id, newTitle } = req.body;
     if (!id || typeof id !== 'string') {
-      throw new ValidationError('Workbook ID gerekli', 'MISSING_WORKBOOK_ID');
+      throw new ValidationError('Workbook ID gerekli', { code: 'MISSING_WORKBOOK_ID' });
     }
 
     const duplicated = await duplicateWorkbook(id, userId, newTitle);
@@ -268,7 +265,7 @@ async function handlePOST(
   if (action === 'restore') {
     const { id } = req.body;
     if (!id || typeof id !== 'string') {
-      throw new ValidationError('Workbook ID gerekli', 'MISSING_WORKBOOK_ID');
+      throw new ValidationError('Workbook ID gerekli', { code: 'MISSING_WORKBOOK_ID' });
     }
 
     const restored = await restoreWorkbook(id, userId);
@@ -305,7 +302,7 @@ async function handlePUT(
   const { id } = req.query;
 
   if (!id || typeof id !== 'string') {
-    throw new ValidationError('Workbook ID gerekli', 'MISSING_WORKBOOK_ID');
+    throw new ValidationError('Workbook ID gerekli', { code: 'MISSING_WORKBOOK_ID' });
   }
 
   const payload: UpdateWorkbookPayload = req.body;
@@ -333,7 +330,7 @@ async function handleDELETE(
   const { id } = req.query;
 
   if (!id || typeof id !== 'string') {
-    throw new ValidationError('Workbook ID gerekli', 'MISSING_WORKBOOK_ID');
+    throw new ValidationError('Workbook ID gerekli', { code: 'MISSING_WORKBOOK_ID' });
   }
 
   await deleteWorkbook(id, userId);
