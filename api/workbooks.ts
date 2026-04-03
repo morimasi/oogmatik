@@ -11,9 +11,9 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { AppError, ValidationError } from '../utils/AppError';
-import { logError } from '../utils/errorHandler';
-import { RateLimiter } from '../services/rateLimiter';
+import { AppError, ValidationError } from '../src/utils/AppError.js';
+import { logError } from '../src/utils/errorHandler.js';
+import { RateLimiter } from '../src/services/rateLimiter.js';
 import {
   createWorkbook,
   getWorkbookById,
@@ -23,12 +23,12 @@ import {
   restoreWorkbook,
   duplicateWorkbook,
   getWorkbookStats,
-} from '../services/workbook/workbookService';
+} from '../src/services/workbook/workbookService.js';
 import type {
   CreateWorkbookPayload,
   UpdateWorkbookPayload,
   WorkbookListQuery,
-} from '../types/workbook';
+} from '../src/types/workbook.js';
 
 // ============================================================================
 // RATE LIMITING
