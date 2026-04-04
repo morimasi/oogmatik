@@ -1,10 +1,10 @@
-import { ActivityType } from '../../types/activity';
+import { ActivityType } from '../../../../types/activity';
 import {
   UltraCustomizationParams,
   InfographicGeneratorPair,
   InfographicGeneratorResult,
-} from '../../types/infographic';
-import { generateWithSchema } from '../geminiClient';
+} from '../../../../types/infographic';
+import { generateWithSchema } from '../../../geminiClient';
 
 function buildAIPrompt(
   activityName: string,

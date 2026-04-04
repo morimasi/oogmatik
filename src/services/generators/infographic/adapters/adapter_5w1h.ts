@@ -1,11 +1,11 @@
-import { ActivityType } from '../../types/activity';
+import { ActivityType } from '../../../../types/activity';
 import {
   UltraCustomizationParams,
   InfographicGeneratorPair,
   InfographicGeneratorResult,
   CustomizationSchema,
-} from '../../types/infographic';
-import { generateWithSchema } from '../geminiClient';
+} from '../../../../types/infographic';
+import { generateWithSchema } from '../../../geminiClient';
 
 // Helper Functions
 function detectCategory(topic: string): string {
