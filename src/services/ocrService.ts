@@ -16,7 +16,8 @@ const MASTER_MODEL = 'gemini-2.5-flash';
  */
 const callGeminiWithImage = async (
     base64Image: string,
-    prompt: string
+    prompt: string,
+    schema?: Record<string, unknown>
 ): Promise<unknown> => {
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY;
     if (!apiKey) throw new InternalServerError('API Key bulunamadı (ocrService).');
@@ -48,7 +49,13 @@ const callGeminiWithImage = async (
                     { inlineData: { mimeType, data: imageData } },
                     { text: prompt }
                 ]
-            }]
+            }],
+            ...(schema ? {
+                generationConfig: {
+                    responseMimeType: 'application/json',
+                    responseSchema: schema
+                }
+            } : {})
         })
     });
 
@@ -197,9 +204,10 @@ export const ocrService = {
         6. LAYOUT_HINTS: Sütun sayısı, görsel varlığı, toplam soru sayısı tahmini.
         
         SADECE metni okuma; sayfa hiyerarşisini, mimari yapısını ve ASIL VERİYİ eksiksiz çöz.
+        ÇIKTI FORMAT: JSON formatında döndür. worksheetBlueprint alanı MUTLAKA doldurulmalıdır (boş bırakılamaz).
         `;
 
-        const _schema = {
+        const schema: Record<string, unknown> = {
             type: 'OBJECT',
             properties: {
                 title: {
@@ -228,7 +236,7 @@ export const ocrService = {
         };
 
         try {
-            const result = await callGeminiWithImage(base64Image, prompt) as OCRBlueprint;
+            const result = await callGeminiWithImage(base64Image, prompt, schema) as OCRBlueprint;
             const validation = validateBlueprint(result.worksheetBlueprint);
 
             if (!validation.isValid) {
