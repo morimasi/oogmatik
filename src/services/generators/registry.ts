@@ -2,6 +2,7 @@ import { ActivityType, GeneratorOptions } from '../../types/core.js';
 import * as aiGenerators from './index.js';
 import * as offlineGenerators from '../offlineGenerators/index.js';
 import { INFOGRAPHIC_ADAPTERS_FIRST_10 } from './infographic/infographicAdapter.js';
+import { INFOGRAPHIC_ADAPTERS_REMAINING_84 } from './infographic/infographicFactory.js';
 
 /**
  * Aktivite Jeneratör Haritası
@@ -432,6 +433,33 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   // ── INFOGRAPHIC ADAPTERS (İlk 10 Aktivite) ────────────────────────────────
   ...Object.fromEntries(
     Object.entries(INFOGRAPHIC_ADAPTERS_FIRST_10).map(([key, pair]) => [
+      key,
+      {
+        ai: (options: GeneratorOptions) =>
+          pair.aiGenerator({
+            topic: options.topic || 'Konu',
+            ageGroup: options.ageGroup || '8-10',
+            difficulty: options.difficulty || 'Orta',
+            profile: options.profile || 'general',
+            itemCount: options.count || 5,
+            activityParams: options.customParams || {},
+          }),
+        offline: async (options: GeneratorOptions) =>
+          pair.offlineGenerator({
+            topic: options.topic || 'Konu',
+            ageGroup: options.ageGroup || '8-10',
+            difficulty: options.difficulty || 'Orta',
+            profile: options.profile || 'general',
+            itemCount: options.count || 5,
+            activityParams: options.customParams || {},
+          }),
+      },
+    ])
+  ),
+
+  // ── INFOGRAPHIC FACTORY (Kalan 84 Aktivite) ───────────────────────────────
+  ...Object.fromEntries(
+    Object.entries(INFOGRAPHIC_ADAPTERS_REMAINING_84).map(([key, pair]) => [
       key,
       {
         ai: (options: GeneratorOptions) =>
