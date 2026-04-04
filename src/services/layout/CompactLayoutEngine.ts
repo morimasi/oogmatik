@@ -32,7 +32,7 @@ export interface CompactLayoutConfig {
 }
 
 export class CompactLayoutEngine {
-  private config: CompactLayoutConfig;
+  public config: CompactLayoutConfig;
   private readonly PAGE_DIMENSIONS: Record<string, { width: number; height: number }> = {
     A4: { width: 210, height: 297 },
     Letter: { width: 215.9, height: 279.4 },
