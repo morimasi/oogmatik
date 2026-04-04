@@ -42,9 +42,9 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
           </span>
         )}
 
-        <div className="flex flex-col items-end pr-2 pt-1 border-r-2 border-black min-h-[3.5em] min-w-[2.5em]">
+        <div className="flex flex-col items-end pr-2 pt-1 border-r-2 border-black min-h-[5em] min-w-[2.5em] pb-6">
           <div>{op.num1}</div>
-          {/* Boş alan (çocuğun işlem adımları için) */}
+          {/* Boş alan (çocuğun işlem adımları için daha geniş) */}
         </div>
         <div className="flex flex-col pl-2 pt-1 min-w-[2.5em]">
           <div className="text-center">{op.num2}</div>
@@ -57,6 +57,10 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
       </div>
     );
   }
+
+  // Çarpma ve bölme işlemleri için çözüm/ara işlem boşlukları
+  const isMultiplication = op.symbol === '×' || op.symbol === 'x';
+  const isMultiDigitMultiplication = isMultiplication && op.num2 >= 10;
 
   return (
     <div
@@ -98,10 +102,19 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
 
       <div className="w-full border-b-2 border-black mb-1"></div>
 
+      {isMultiDigitMultiplication && (
+        <div className="w-full flex flex-col items-end gap-1 mb-1">
+          <div className="h-[1em] w-3/4 border-b-2 border-zinc-200 border-dashed"></div>
+          <div className="h-[1em] w-full border-b-2 border-zinc-200 border-dashed"></div>
+          <div className="w-full border-b-2 border-black my-1"></div>
+        </div>
+      )}
+
       <span className="text-transparent select-none h-[1.2em] w-full text-right block border-2 border-zinc-200 border-dashed rounded bg-white">
         {op.answer}
       </span>
       {op.remainder !== undefined && <span className="text-xs text-zinc-400 mt-0.5">Kal: ...</span>}
+      <div className={`${isMultiplication ? 'h-6' : 'h-3'} w-full`}></div>
     </div>
   );
 };
