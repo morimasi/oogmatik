@@ -46,15 +46,18 @@ const tryRepairJson = (jsonStr: string): unknown => {
 };
 
 // ─── Inline Rate Limiter ─────────────────────────────────────────────────
+// NOTE: In-memory Map is intentionally consistent with the rest of the codebase
+// (src/services/rateLimiter.ts is also in-memory). Serverless cold-starts reset
+// the counter, which is acceptable for a best-effort abuse prevention layer.
 const requestLog = new Map<string, number[]>();
 const RATE_LIMIT = { windowMs: 60_000, max: 5 };
 
-const checkRateLimit = (userId: string): boolean => {
+const checkRateLimit = (key: string): boolean => {
   const now = Date.now();
-  const times = (requestLog.get(userId) ?? []).filter(t => now - t < RATE_LIMIT.windowMs);
+  const times = (requestLog.get(key) ?? []).filter(t => now - t < RATE_LIMIT.windowMs);
   if (times.length >= RATE_LIMIT.max) return false;
   times.push(now);
-  requestLog.set(userId, times);
+  requestLog.set(key, times);
   return true;
 };
 
@@ -159,7 +162,7 @@ VARYASYON KURALLARI:
 2. Sadece içerik (sorular, sayılar, kelimeler, metinler) farklı olmalı.
 3. İlk soru/madde mutlaka kolay olmalı (başarı mimarisi — güven inşası).
 4. Türkçe içerik üret.
-5. Tanı koyucu dil KULLANMA: "disleksisi var" değil dolaylı ifade kullan.
+5. Tanı koyucu dil KULLANMA: "disleksisi var" yerine "disleksi desteğine ihtiyacı var", "hiperaktif" yerine "DEHB desteğine ihtiyacı var" gibi dolaylı ifadeler kullan.
 6. pedagogicalNote alanı ZORUNLU: Öğretmene bu aktivitenin pedagojik katkısını açıkla.
 
 ÇIKTI: ${count} elemanlı JSON dizisi.`;
@@ -266,7 +269,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const { blueprint, count, userId, config } = body;
-    const effectiveUserId = (userId as string) || (req.headers['x-user-id'] as string) || 'anonymous';
+    // Use authenticated userId; fall back to IP for anonymous requests so each
+    // client IP gets its own rate-limit bucket (prevents shared 'anonymous' bypass).
+    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
+      || (req.headers['x-real-ip'] as string)
+      || 'unknown-ip';
+    const effectiveUserId = (userId as string) || (req.headers['x-user-id'] as string) || `anon:${clientIp}`;
 
     // Rate limiting
     if (!checkRateLimit(effectiveUserId)) {
@@ -303,7 +311,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         return true;
       })
-      .map((v, i) => ({ ...v, id: `ocr-variation-${Date.now()}-${i}` }));
+      .map((v, i) => ({ ...v, id: `ocr-variation-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}` }));
 
     if (variations.length === 0) {
       return res.status(500).json({
