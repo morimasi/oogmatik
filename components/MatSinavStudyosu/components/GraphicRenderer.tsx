@@ -1,19 +1,96 @@
 /**
  * GraphicRenderer — HD Kalite Matematik Görsel Motoru
  *
- * Desteklenen 28 tip:
- *   Veri:      siklik_tablosu · cetele_tablosu · sutun_grafigi · pasta_grafigi · cizgi_grafigi
+ * Desteklenen 32 tip:
+ *   Veri:      siklik_tablosu · cetele_tablosu · sutun_grafigi · nesne_grafigi · pasta_grafigi · cizgi_grafigi
  *   Geometri:  ucgen · dik_ucgen · kare · dikdortgen · paralel_kenar · cokgen · daire
- *              dogru_parcasi · aci · simetri · kesisen_dogrular · paralel_dogrular
+ *              dogru_parcasi · isin · dogru · aci · simetri
+ *              kesisen_dogrular · dik_kesisen_dogrular · paralel_dogrular
  *   3D Geometri: kup · silindir · koni · piramit · dikdortgenler_prizmasi
  *   Analitik:  koordinat_sistemi · koordinat_grafigi · sayi_dogrusu
  *   Kavramsal: kesir_modeli · venn_diyagrami · olaslik_cark
  *
  * Tasarım: Lexend font · gradient fills · drop-shadow filtresi · yüksek kontrast
+ *
+ * parseGeometryVeri(): AI'ın veri[] dizisini köşe/kenar/açı verilerine parse eder.
+ * normalizeTip(): Türkçe karakterli tip isimlerini normalleştirir (ğ→g vb.)
  */
 
 import React from 'react';
-import type { GrafikVerisi } from '../../../src/types/matSinav';
+import type { GrafikVerisi, GrafikVeriOgesi } from '../../../src/types/matSinav';
+
+// ── Geometry Veri Parser ─────────────────────────────────────────────────────
+// AI, geometrik şekil verilerini veri[] dizisinde döndürür. Bu parser,
+// "A Köşesi", "AB Kenarı", "B Açısı" gibi etiketleri yapısal veriye dönüştürür.
+
+interface ParsedGeometry {
+    vertexLabels: string[];   // ["A","B","C"]
+    edgeLengths: number[];    // [8, 6, 10]
+    edgeLabels: string[];     // ["AB","BC","AC"]
+    angles: number[];         // [90, 45]
+    angleLabels: string[];    // ["B","A"]
+    unit: string;             // "cm" | "m" | ""
+    radius?: number;          // yarıçap
+}
+
+function parseGeometryVeri(veri: GrafikVeriOgesi[]): ParsedGeometry {
+    const vertexLabels: string[] = [];
+    const edgeLengths: number[] = [];
+    const edgeLabels: string[] = [];
+    const angles: number[] = [];
+    const angleLabels: string[] = [];
+    let radius: number | undefined;
+    const unitCounts: Record<string, number> = {};
+
+    for (const item of veri) {
+        const label = item.etiket;
+        const labelL = label.toLowerCase();
+
+        // Köşe / vertex: "A Köşesi", "B Noktası", "A köşesi" veya tek büyük harf
+        if (labelL.includes('köşe') || labelL.includes('kose') || labelL.includes('nokta')) {
+            const letter = label.match(/^([A-ZÇĞIİÖŞÜ])/)?.[1];
+            if (letter && !vertexLabels.includes(letter)) vertexLabels.push(letter);
+        } else if (/^[A-ZÇĞIİÖŞÜ]$/.test(label.trim())) {
+            if (!vertexLabels.includes(label.trim())) vertexLabels.push(label.trim());
+        }
+
+        // Kenar / edge: "AB Kenarı", "BC kenar", "uzunluk"
+        if ((labelL.includes('kenar') || labelL.includes('uzunluk')) && item.deger !== undefined) {
+            edgeLengths.push(item.deger);
+            const edgeLbl = label.match(/^([A-ZÇĞIİÖŞÜ]{1,3})/)?.[1] || '';
+            edgeLabels.push(edgeLbl);
+            if (item.birim) unitCounts[item.birim] = (unitCounts[item.birim] ?? 0) + 1;
+        }
+
+        // Yarıçap: "Yarıçap", "yaricap", "r = 5"
+        if ((labelL.includes('yarıçap') || labelL.includes('yaricap') || /^r\s*=/.test(labelL)) && item.deger !== undefined) {
+            radius = item.deger;
+            if (item.birim) unitCounts[item.birim] = (unitCounts[item.birim] ?? 0) + 1;
+        }
+
+        // Açı / angle: "B Açısı", "ABC açısı"
+        if ((labelL.includes('açı') || labelL.includes('aci') || labelL.includes('angle')) && item.deger !== undefined) {
+            angles.push(item.deger);
+            const angleLbl = label.match(/^([A-ZÇĞIİÖŞÜ]+)/)?.[1] || '';
+            angleLabels.push(angleLbl);
+        }
+    }
+
+    // En çok kullanılan birimi seç
+    const unit = Object.entries(unitCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? '';
+
+    return { vertexLabels, edgeLengths, edgeLabels, angles, angleLabels, unit, radius };
+}
+
+// ── Tip İsmi Normalizer ──────────────────────────────────────────────────────
+// AI bazen Türkçe karakterli tip ismi döndürür: 'sutun_grafiği' → 'sutun_grafigi'
+function normalizeTip(tip: string): string {
+    return tip
+        .replace(/ğ/g, 'g')
+        .replace(/Ğ/g, 'G')
+        .replace(/ı/g, 'i')
+        .replace(/İ/g, 'I');
+}
 
 // ── Ortak sabitler ───────────────────────────────────────────────────────────
 
@@ -77,7 +154,8 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 }) => {
     if (!grafik) return null;
 
-    const { tip, baslik, veri, ozellikler, not } = grafik;
+    const { tip: rawTip, baslik, veri, ozellikler, not } = grafik;
+    const tip = normalizeTip(rawTip);
     const anaRenk = ozellikler?.renk || COLORS[0];
     const uid = tip.replace(/_/g, '-');
 
@@ -328,8 +406,18 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── ÜÇGEN ──────────────────────────────────────────────────────── */
         if (tip === 'ucgen') {
-            const pts_raw = ozellikler?.etiketler ?? ['A', 'B', 'C'];
-            const sides = ozellikler?.kenarlar;
+            const geo = parseGeometryVeri(veri);
+            const pts_raw = ozellikler?.etiketler?.length
+                ? ozellikler.etiketler
+                : geo.vertexLabels.length >= 3
+                    ? geo.vertexLabels
+                    : ['A', 'B', 'C'];
+            const sides = ozellikler?.kenarlar?.length
+                ? ozellikler.kenarlar
+                : geo.edgeLengths.length > 0
+                    ? geo.edgeLengths
+                    : undefined;
+            const edgeUnit = geo.unit || ozellikler?.birim || '';
             return (
                 <svg viewBox="0 0 240 180" className="w-full max-w-xs mx-auto mt-2"
                     style={{ fontFamily: FONT, filter: 'drop-shadow(0 3px 6px #0001)' }}>
@@ -346,13 +434,22 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                         </g>
                     ))}
                     {sides && sides.length >= 1 && (
-                        <text x="64" y="96" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle" transform="rotate(-56,64,96)">{sides[0]}</text>
+                        <text x="64" y="96" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle"
+                            transform="rotate(-56,64,96)">{sides[0]}{edgeUnit ? ` ${edgeUnit}` : ''}</text>
                     )}
                     {sides && sides.length >= 2 && (
-                        <text x="176" y="96" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle" transform="rotate(56,176,96)">{sides[1]}</text>
+                        <text x="176" y="96" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle"
+                            transform="rotate(56,176,96)">{sides[1]}{edgeUnit ? ` ${edgeUnit}` : ''}</text>
                     )}
                     {sides && sides.length >= 3 && (
-                        <text x="120" y="175" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">{sides[2]}</text>
+                        <text x="120" y="175" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">
+                            {sides[2]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                        </text>
+                    )}
+                    {geo.angles.length > 0 && geo.angles[0] !== 90 && (
+                        <text x="44" y="148" fontSize="11" fill="#64748b" textAnchor="middle">
+                            {geo.angles[0]}°
+                        </text>
                     )}
                 </svg>
             );
@@ -360,8 +457,18 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── DİK ÜÇGEN ──────────────────────────────────────────────────── */
         if (tip === 'dik_ucgen') {
-            const sides = ozellikler?.kenarlar;
-            const pts_raw = ozellikler?.etiketler ?? ['A', 'B', 'C'];
+            const geo = parseGeometryVeri(veri);
+            const sides = ozellikler?.kenarlar?.length
+                ? ozellikler.kenarlar
+                : geo.edgeLengths.length > 0
+                    ? geo.edgeLengths
+                    : undefined;
+            const pts_raw = ozellikler?.etiketler?.length
+                ? ozellikler.etiketler
+                : geo.vertexLabels.length >= 3
+                    ? geo.vertexLabels
+                    : ['A', 'B', 'C'];
+            const edgeUnit = geo.unit || ozellikler?.birim || '';
             return (
                 <svg viewBox="0 0 240 180" className="w-full max-w-xs mx-auto mt-2"
                     style={{ fontFamily: FONT, filter: 'drop-shadow(0 3px 6px #0001)' }}>
@@ -379,13 +486,18 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                         </g>
                     ))}
                     {sides && sides.length >= 1 && (
-                        <text x="9" y="100" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">{sides[0]}</text>
+                        <text x="9" y="100" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">
+                            {sides[0]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                        </text>
                     )}
                     {sides && sides.length >= 2 && (
-                        <text x="120" y="176" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">{sides[1]}</text>
+                        <text x="120" y="176" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">
+                            {sides[1]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                        </text>
                     )}
                     {sides && sides.length >= 3 && (
-                        <text x="132" y="89" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle" transform="rotate(35,132,89)">{sides[2]}</text>
+                        <text x="132" y="89" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle"
+                            transform="rotate(35,132,89)">{sides[2]}{edgeUnit ? ` ${edgeUnit}` : ''}</text>
                     )}
                 </svg>
             );
@@ -393,10 +505,16 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── KARE / DİKDÖRTGEN ──────────────────────────────────────────── */
         if (tip === 'kare' || tip === 'dikdortgen') {
+            const geo = parseGeometryVeri(veri);
             const rW = tip === 'kare' ? 130 : 180;
             const rH = tip === 'kare' ? 130 : 90;
             const ox = (240 - rW) / 2, oy = (180 - rH) / 2;
-            const sides = ozellikler?.kenarlar;
+            const sides = ozellikler?.kenarlar?.length
+                ? ozellikler.kenarlar
+                : geo.edgeLengths.length > 0
+                    ? geo.edgeLengths
+                    : undefined;
+            const edgeUnit = geo.unit || ozellikler?.birim || '';
             return (
                 <svg viewBox="0 0 240 180" className="w-full max-w-xs mx-auto mt-2"
                     style={{ fontFamily: FONT, filter: 'drop-shadow(0 3px 6px #0001)' }}>
@@ -409,13 +527,19 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                     <polyline points={`${ox + rW - 11},${oy} ${ox + rW - 11},${oy + 11} ${ox + rW},${oy + 11}`}
                         fill="none" stroke={anaRenk} strokeWidth="1.5" opacity="0.5" />
                     {sides && sides.length >= 1 && (
-                        <text x={ox + rW / 2} y={oy - 8} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="middle">{sides[0]}</text>
+                        <text x={ox + rW / 2} y={oy - 8} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="middle">
+                            {sides[0]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                        </text>
                     )}
                     {sides && sides.length >= 2 && tip === 'dikdortgen' && (
-                        <text x={ox + rW + 13} y={oy + rH / 2 + 5} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="start">{sides[1]}</text>
+                        <text x={ox + rW + 13} y={oy + rH / 2 + 5} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="start">
+                            {sides[1]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                        </text>
                     )}
                     {tip === 'kare' && sides && (
-                        <text x={ox + rW + 13} y={oy + rH / 2 + 5} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="start">{sides[0]}</text>
+                        <text x={ox + rW + 13} y={oy + rH / 2 + 5} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="start">
+                            {sides[0]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                        </text>
                     )}
                     {/* Equal side tick marks for square */}
                     {tip === 'kare' && (
@@ -512,7 +636,8 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
         /* ── DAİRE ──────────────────────────────────────────────────────── */
         if (tip === 'daire') {
             const r = 72;
-            const yaricap = ozellikler?.yaricap;
+            const geo = parseGeometryVeri(veri);
+            const yaricap = ozellikler?.yaricap ?? geo.radius ?? geo.edgeLengths[0];
             const cap = ozellikler?.kenarlar?.[0];
             return (
                 <svg viewBox="0 0 240 200" className="w-full max-w-xs mx-auto mt-2"
@@ -545,10 +670,17 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── DOĞRU PARÇASI ──────────────────────────────────────────────── */
         if (tip === 'dogru_parcasi') {
-            const uzunluk = ozellikler?.kenarlar?.[0];
-            const birim = ozellikler?.birim ?? '';
-            const A = veri[0]?.etiket ?? 'A';
-            const B = veri[1]?.etiket ?? 'B';
+            const geo = parseGeometryVeri(veri);
+            const uzunluk = ozellikler?.kenarlar?.[0] ?? geo.edgeLengths[0];
+            const birim = (geo.unit || ozellikler?.birim) ?? '';
+            const stripSuffix = (s: string) =>
+                s.replace(/\s*(Noktası|Köşesi|noktası|köşesi)/g, '').trim();
+            const A = veri[0]?.etiket
+                ? stripSuffix(veri[0].etiket) || geo.vertexLabels[0] || 'A'
+                : geo.vertexLabels[0] || 'A';
+            const B = veri[1]?.etiket
+                ? stripSuffix(veri[1].etiket) || geo.vertexLabels[1] || 'B'
+                : geo.vertexLabels[1] || 'B';
             return (
                 <svg viewBox="0 0 340 96" className="w-full max-w-sm mx-auto mt-2" style={{ fontFamily: FONT }}>
                     <SvgDefs id={uid} color={anaRenk} />
@@ -573,7 +705,8 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── AÇI ────────────────────────────────────────────────────────── */
         if (tip === 'aci') {
-            const deg = ozellikler?.acilar?.[0] ?? 60;
+            const geo = parseGeometryVeri(veri);
+            const deg = ozellikler?.acilar?.[0] ?? geo.angles[0] ?? 60;
             const rad = (deg * Math.PI) / 180;
             const cx = 64, cy = 136, len = 116, arcR = 38;
             const x1 = cx + len, y1 = cy;
@@ -584,7 +717,9 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
             const midA = -rad / 2;
             const lx = cx + (arcR + 16) * Math.cos(midA);
             const ly = cy + (arcR + 16) * Math.sin(midA);
-            const vs = veri.slice(0, 3);
+            const vs = geo.vertexLabels.length >= 3
+                ? geo.vertexLabels.slice(0, 3).map(l => ({ etiket: l }))
+                : veri.slice(0, 3);
             return (
                 <svg viewBox="0 0 300 170" className="w-full max-w-sm mx-auto mt-2"
                     style={{ fontFamily: FONT, filter: 'drop-shadow(0 2px 4px #0001)' }}>
