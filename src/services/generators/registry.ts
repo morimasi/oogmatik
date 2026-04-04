@@ -1,6 +1,7 @@
 import { ActivityType, GeneratorOptions } from '../../types/core.js';
 import * as aiGenerators from './index.js';
 import * as offlineGenerators from '../offlineGenerators/index.js';
+import { INFOGRAPHIC_ADAPTERS_FIRST_10 } from './infographic/infographicAdapter.js';
 
 /**
  * Aktivite Jeneratör Haritası
@@ -11,8 +12,10 @@ export interface GeneratorMapping {
   offline?: (options: GeneratorOptions) => Promise<any>;
 }
 
-const withAI = (type: ActivityType) => (options: GeneratorOptions) => aiGenerators.generateSmartFallbackAI(type, options);
-const withOffline = (type: ActivityType) => (options: GeneratorOptions) => offlineGenerators.generateOfflineFallback(type, options);
+const withAI = (type: ActivityType) => (options: GeneratorOptions) =>
+  aiGenerators.generateSmartFallbackAI(type, options);
+const withOffline = (type: ActivityType) => (options: GeneratorOptions) =>
+  offlineGenerators.generateOfflineFallback(type, options);
 
 export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, GeneratorMapping>> = {
   [ActivityType.HECE_PARKURU]: {
@@ -369,18 +372,87 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
 
   // 5. BOŞ / TANIMSIZ AKTİVİTELER (Placeholder)
   // Bu aktivitelerin henüz spesifik bir generator fonksiyonu olmayabilir.
-  [ActivityType.OCR_CONTENT]: { ai: withAI(ActivityType.OCR_CONTENT), offline: withOffline(ActivityType.OCR_CONTENT) },
-  [ActivityType.ASSESSMENT_REPORT]: { ai: withAI(ActivityType.ASSESSMENT_REPORT), offline: withOffline(ActivityType.ASSESSMENT_REPORT) },
-  [ActivityType.WORKBOOK]: { ai: withAI(ActivityType.WORKBOOK), offline: withOffline(ActivityType.WORKBOOK) },
-  [ActivityType.REAL_LIFE_MATH_PROBLEMS]: { ai: withAI(ActivityType.REAL_LIFE_MATH_PROBLEMS), offline: offlineGenerators.generateOfflinePremiumRealLifeMath },
-  [ActivityType.ATTENTION_DEVELOPMENT]: { ai: withAI(ActivityType.ATTENTION_DEVELOPMENT), offline: offlineGenerators.generateOfflinePremiumAttentionDevelopment },
-  [ActivityType.ATTENTION_FOCUS]: { ai: withAI(ActivityType.ATTENTION_FOCUS), offline: offlineGenerators.generateOfflinePremiumAttentionFocus },
-  [ActivityType.ANAGRAM]: { ai: withAI(ActivityType.ANAGRAM), offline: offlineGenerators.generateOfflinePremiumAnagram },
-  [ActivityType.CROSSWORD]: { ai: withAI(ActivityType.CROSSWORD), offline: offlineGenerators.generateOfflinePremiumCrossword },
-  [ActivityType.ODD_ONE_OUT]: { ai: withAI(ActivityType.ODD_ONE_OUT), offline: offlineGenerators.generateOfflinePremiumOddOneOut },
-  [ActivityType.CONCEPT_MATCH]: { ai: withAI(ActivityType.CONCEPT_MATCH), offline: offlineGenerators.generateOfflinePremiumConceptMatch },
-  [ActivityType.ESTIMATION]: { ai: withAI(ActivityType.ESTIMATION), offline: offlineGenerators.generateOfflinePremiumEstimation },
-  [ActivityType.SPATIAL_GRID]: { ai: withAI(ActivityType.SPATIAL_GRID), offline: offlineGenerators.generateOfflinePremiumSpatialGrid },
-  [ActivityType.DOT_PAINTING]: { ai: withAI(ActivityType.DOT_PAINTING), offline: offlineGenerators.generateOfflinePremiumDotPainting },
-  [ActivityType.SHAPE_SUDOKU]: { ai: withAI(ActivityType.SHAPE_SUDOKU), offline: offlineGenerators.generateOfflinePremiumShapeSudoku },
+  [ActivityType.OCR_CONTENT]: {
+    ai: withAI(ActivityType.OCR_CONTENT),
+    offline: withOffline(ActivityType.OCR_CONTENT),
+  },
+  [ActivityType.ASSESSMENT_REPORT]: {
+    ai: withAI(ActivityType.ASSESSMENT_REPORT),
+    offline: withOffline(ActivityType.ASSESSMENT_REPORT),
+  },
+  [ActivityType.WORKBOOK]: {
+    ai: withAI(ActivityType.WORKBOOK),
+    offline: withOffline(ActivityType.WORKBOOK),
+  },
+  [ActivityType.REAL_LIFE_MATH_PROBLEMS]: {
+    ai: withAI(ActivityType.REAL_LIFE_MATH_PROBLEMS),
+    offline: offlineGenerators.generateOfflinePremiumRealLifeMath,
+  },
+  [ActivityType.ATTENTION_DEVELOPMENT]: {
+    ai: withAI(ActivityType.ATTENTION_DEVELOPMENT),
+    offline: offlineGenerators.generateOfflinePremiumAttentionDevelopment,
+  },
+  [ActivityType.ATTENTION_FOCUS]: {
+    ai: withAI(ActivityType.ATTENTION_FOCUS),
+    offline: offlineGenerators.generateOfflinePremiumAttentionFocus,
+  },
+  [ActivityType.ANAGRAM]: {
+    ai: withAI(ActivityType.ANAGRAM),
+    offline: offlineGenerators.generateOfflinePremiumAnagram,
+  },
+  [ActivityType.CROSSWORD]: {
+    ai: withAI(ActivityType.CROSSWORD),
+    offline: offlineGenerators.generateOfflinePremiumCrossword,
+  },
+  [ActivityType.ODD_ONE_OUT]: {
+    ai: withAI(ActivityType.ODD_ONE_OUT),
+    offline: offlineGenerators.generateOfflinePremiumOddOneOut,
+  },
+  [ActivityType.CONCEPT_MATCH]: {
+    ai: withAI(ActivityType.CONCEPT_MATCH),
+    offline: offlineGenerators.generateOfflinePremiumConceptMatch,
+  },
+  [ActivityType.ESTIMATION]: {
+    ai: withAI(ActivityType.ESTIMATION),
+    offline: offlineGenerators.generateOfflinePremiumEstimation,
+  },
+  [ActivityType.SPATIAL_GRID]: {
+    ai: withAI(ActivityType.SPATIAL_GRID),
+    offline: offlineGenerators.generateOfflinePremiumSpatialGrid,
+  },
+  [ActivityType.DOT_PAINTING]: {
+    ai: withAI(ActivityType.DOT_PAINTING),
+    offline: offlineGenerators.generateOfflinePremiumDotPainting,
+  },
+  [ActivityType.SHAPE_SUDOKU]: {
+    ai: withAI(ActivityType.SHAPE_SUDOKU),
+    offline: offlineGenerators.generateOfflinePremiumShapeSudoku,
+  },
+
+  // ── INFOGRAPHIC ADAPTERS (İlk 10 Aktivite) ────────────────────────────────
+  ...Object.fromEntries(
+    Object.entries(INFOGRAPHIC_ADAPTERS_FIRST_10).map(([key, pair]) => [
+      key,
+      {
+        ai: (options: GeneratorOptions) =>
+          pair.aiGenerator({
+            topic: options.topic || 'Konu',
+            ageGroup: options.ageGroup || '8-10',
+            difficulty: options.difficulty || 'Orta',
+            profile: options.profile || 'general',
+            itemCount: options.count || 5,
+            activityParams: options.customParams || {},
+          }),
+        offline: async (options: GeneratorOptions) =>
+          pair.offlineGenerator({
+            topic: options.topic || 'Konu',
+            ageGroup: options.ageGroup || '8-10',
+            difficulty: options.difficulty || 'Orta',
+            profile: options.profile || 'general',
+            itemCount: options.count || 5,
+            activityParams: options.customParams || {},
+          }),
+      },
+    ])
+  ),
 };
