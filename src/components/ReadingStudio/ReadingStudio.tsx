@@ -422,24 +422,6 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
               <i className="fa-solid fa-rotate-right"></i>
             </button>
           </div>
-          <div className="w-px h-6 mx-1" style={{ backgroundColor: 'var(--border-color)' }}></div>
-          <button
-            onClick={handleGenerate}
-            disabled={isLoading}
-            className="px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest disabled:opacity-50 active:scale-95 transition-all text-white"
-            style={{
-              backgroundColor: 'var(--accent-color)',
-              boxShadow: '0 4px 12px -2px var(--accent-muted)',
-            }}
-          >
-            {isLoading ? (
-              <>
-                <i className="fa-solid fa-circle-notch fa-spin mr-2"></i> Üretiliyor...
-              </>
-            ) : (
-              'AI İle Baştan Yarat'
-            )}
-          </button>
           <div className="w-px h-6 mx-2" style={{ backgroundColor: 'var(--border-color)' }}></div>
           <button
             onClick={() => handlePrint('print')}
@@ -515,6 +497,18 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
             {sidebarTab === 'content' && <ContentPanel />}
             {sidebarTab === 'styling' && <StylePanel />}
             {sidebarTab === 'archive' && <ArchivePanel />}
+          </div>
+
+          {/* Sticky Bottom Generate Button */}
+          <div className="p-4 bg-zinc-900 border-t border-zinc-800 shrink-0 z-10 w-full relative mt-auto shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.5)]">
+            <button
+              onClick={handleGenerate}
+              disabled={isLoading}
+              className="w-full py-4 bg-accent text-white font-black rounded-xl text-sm shadow-xl shadow-accent/20 hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-70 uppercase tracking-wider"
+            >
+              {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
+              {isLoading ? 'BEKLEYİN...' : 'SINAVI OLUŞTUR'}
+            </button>
           </div>
         </aside>
 

@@ -122,15 +122,7 @@ export const ProblemSettingsPanel: React.FC<ProblemSettingsPanelProps> = ({
                     </div>
                 </div>
 
-                {/* Generate Button */}
-                <button
-                    onClick={onGenerate}
-                    disabled={isGenerating}
-                    className="w-full py-3.5 bg-white text-accent font-black rounded-xl text-sm shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-3"
-                >
-                    {isGenerating ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
-                    {isGenerating ? 'Düşünülüyor...' : 'Problemleri Yaz'}
-                </button>
+                {/* Form fields exist below... */}
             </div>
         </div>
 

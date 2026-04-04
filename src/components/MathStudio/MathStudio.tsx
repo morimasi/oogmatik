@@ -31,8 +31,8 @@ import { AdvancedPanel } from './panels/AdvancedPanel';
 import { useDrillPagination } from './hooks/usePagination';
 
 interface MathStudioProps {
-  onBack: () => void;
-  onAddToWorkbook?: (data: any) => void;
+    onBack: () => void;
+    onAddToWorkbook?: (data: any) => void;
 }
 
 export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook }) => {
@@ -161,39 +161,63 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                             onClick={() => setIsSidebarOpen(false)}
                         />
                         <div
-                            className="w-80 flex flex-col overflow-y-auto custom-scrollbar shrink-0 z-50 lg:relative lg:z-auto absolute inset-y-0 left-0 lg:static"
+                            className="w-80 flex flex-col overflow-hidden shrink-0 z-50 lg:relative lg:z-auto absolute inset-y-0 left-0 lg:static"
                             style={{
                                 backgroundColor: 'var(--bg-paper)',
                                 borderRight: '1px solid var(--border-color)',
                                 backdropFilter: `blur(var(--surface-glass-blur))`,
                             }}
                         >
-                            <StudentPanel
-                                selectedStudentId={selectedStudentId}
-                                students={students}
-                                onSelectStudent={handleSelectStudent}
-                            />
-                            <PageSettingsPanel pageConfig={pageConfig} setPageConfig={setPageConfig} />
-                            <AdvancedPanel themeConfig={themeConfig} setThemeConfig={setThemeConfig} />
-
-                            {mode === 'drill' && (
-                                <DrillSettingsPanel
-                                    drillConfig={drill.drillConfig}
-                                    setDrillConfig={drill.setDrillConfig}
-                                    toggleDrillOp={drill.toggleDrillOp}
+                            <div className="flex-1 overflow-y-auto custom-scrollbar">
+                                <StudentPanel
+                                    selectedStudentId={selectedStudentId}
+                                    students={students}
+                                    onSelectStudent={handleSelectStudent}
                                 />
-                            )}
+                                <PageSettingsPanel pageConfig={pageConfig} setPageConfig={setPageConfig} />
+                                <AdvancedPanel themeConfig={themeConfig} setThemeConfig={setThemeConfig} />
 
-                            {mode === 'problem_ai' && (
-                                <ProblemSettingsPanel
-                                    problemConfig={problem.problemConfig}
-                                    setProblemConfig={problem.setProblemConfig}
-                                    toggleProblemOp={problem.toggleProblemOp}
-                                    toggleProblemType={problem.toggleProblemType}
-                                    isGenerating={problem.isGenerating}
-                                    onGenerate={handleGenerate}
-                                />
-                            )}
+                                {mode === 'drill' && (
+                                    <DrillSettingsPanel
+                                        drillConfig={drill.drillConfig}
+                                        setDrillConfig={drill.setDrillConfig}
+                                        toggleDrillOp={drill.toggleDrillOp}
+                                    />
+                                )}
+
+                                {mode === 'problem_ai' && (
+                                    <ProblemSettingsPanel
+                                        problemConfig={problem.problemConfig}
+                                        setProblemConfig={problem.setProblemConfig}
+                                        toggleProblemOp={problem.toggleProblemOp}
+                                        toggleProblemType={problem.toggleProblemType}
+                                        isGenerating={problem.isGenerating}
+                                        onGenerate={handleGenerate}
+                                    />
+                                )}
+                            </div>
+
+                            {/* Sticky Bottom Generate Button */}
+                            <div className="p-4 bg-zinc-900 border-t border-zinc-800 shrink-0 z-10 w-full relative mt-auto shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.5)]">
+                                {mode === 'problem_ai' ? (
+                                    <button
+                                        onClick={handleGenerate}
+                                        disabled={problem.isGenerating}
+                                        className="w-full py-4 bg-accent text-white font-black rounded-xl text-sm shadow-xl shadow-accent/20 hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-70 uppercase tracking-wider"
+                                    >
+                                        {problem.isGenerating ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
+                                        {problem.isGenerating ? 'BEKLEYİN...' : 'SINAVI OLUŞTUR'}
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={handleRegenerate}
+                                        className="w-full py-4 bg-emerald-600 text-white font-black rounded-xl text-sm shadow-xl shadow-emerald-500/20 hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-70 uppercase tracking-wider"
+                                    >
+                                        <i className="fa-solid fa-bolt"></i>
+                                        SAYFAYI OLUŞTUR
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </>
                 )}
@@ -247,14 +271,14 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                 </div>
             </div>
 
-      <ShareModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        onShare={handleShare}
-        worksheetTitle={pageConfig.title}
-      />
+            <ShareModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                onShare={handleShare}
+                worksheetTitle={pageConfig.title}
+            />
 
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-    </div>
-  );
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
+        </div>
+    );
 };
