@@ -71,8 +71,8 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
 
             {/* MEB Kazanımları - Badge Style */}
             {sinav.secilenKazanimlar && sinav.secilenKazanimlar.length > 0 && (
-                <div className="mb-6 bg-slate-50/80 border border-slate-200/60 rounded-xl p-4 backdrop-blur-sm">
-                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <div className="mb-6 bg-[var(--bg-secondary)]/80 border border-[var(--border-color)]/60 rounded-xl p-4 backdrop-blur-sm">
+                    <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-2">
                         <span className="p-1 bg-sky-100 rounded-lg text-sky-600">
                             <i className="fa-solid fa-layer-group text-[10px]"></i>
                         </span>
@@ -82,7 +82,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                         {sinav.secilenKazanimlar.map((kod) => (
                             <span
                                 key={kod}
-                                className="px-2.5 py-1 bg-white border border-slate-200 text-slate-700 text-[11px] font-mono font-bold rounded-lg shadow-sm"
+                                className="px-2.5 py-1 bg-white border border-[var(--border-color)] text-[var(--text-primary)] text-[11px] font-mono font-bold rounded-lg shadow-sm"
                             >
                                 {kod}
                             </span>
@@ -92,18 +92,18 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
             )}
 
             {/* Öğrenci Bilgi Satırı - High Contrast */}
-            <div className="bg-white border-2 border-slate-100 rounded-2xl px-6 py-4 mb-8 flex flex-wrap gap-8 text-sm text-slate-600 font-medium shadow-sm">
+            <div className="bg-white border-2 border-[var(--border-color)] rounded-2xl px-6 py-4 mb-8 flex flex-wrap gap-8 text-sm text-[var(--text-muted)] font-medium shadow-sm">
                 <div className="flex items-center gap-2">
                     <span>Ad Soyad:</span>
-                    <span className="border-b-2 border-slate-200 w-48 h-6"></span>
+                    <span className="border-b-2 border-[var(--border-color)] w-48 h-6"></span>
                 </div>
                 <div className="flex items-center gap-2">
                     <span>Sınıf/Şube:</span>
-                    <span className="border-b-2 border-slate-200 w-24 h-6"></span>
+                    <span className="border-b-2 border-[var(--border-color)] w-24 h-6"></span>
                 </div>
                 <div className="flex items-center gap-2">
                     <span>Tarih:</span>
-                    <span className="border-b-2 border-slate-200 w-28 h-6"></span>
+                    <span className="border-b-2 border-[var(--border-color)] w-28 h-6"></span>
                 </div>
             </div>
 
@@ -138,8 +138,8 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
             )}
 
             {/* Alt Bilgi */}
-            <div className="mt-12 pt-6 border-t border-slate-100 text-center opacity-40">
-                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-[0.2em]">
+            <div className="mt-12 pt-6 border-t border-[var(--border-color)] text-center opacity-40">
+                <p className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-[0.2em]">
                     Oogmatik Süper Matematik Sınav Stüdyosu — MEB 2024-2025
                 </p>
             </div>

@@ -106,13 +106,13 @@ export const MatKazanimPicker: React.FC<MatKazanimPickerProps> = ({
                 const ikon = OGRENME_ALANI_IKONLARI[unite.ogrenmeAlani] || '📚';
 
                 return (
-                    <div key={unite.id} className="rounded-2xl border border-slate-100 overflow-hidden transition-all duration-300 bg-white">
+                    <div key={unite.id} className="rounded-2xl border border-[var(--border-color)] overflow-hidden transition-all duration-300 bg-white">
                         {/* Ünite Başlığı */}
                         <button
                             onClick={() => toggleUnite(unite.id, unite)}
                             className={`w-full flex items-center justify-between px-4 py-3.5 text-left transition-all duration-300 group ${isUniteSelected
-                                ? 'bg-slate-50/80'
-                                : 'hover:bg-slate-50/50'
+                                ? 'bg-[var(--bg-secondary)]/80'
+                                : 'hover:bg-[var(--bg-primary)]'
                                 }`}
                         >
                             <div className="flex items-center gap-3 min-w-0">
@@ -120,9 +120,9 @@ export const MatKazanimPicker: React.FC<MatKazanimPickerProps> = ({
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
                                         <span className="text-sm">{ikon}</span>
-                                        <span className={`text-[13px] font-bold truncate tracking-tight transition-colors ${isUniteSelected ? 'text-slate-900' : 'text-slate-700'}`}>{unite.baslik}</span>
+                                        <span className={`text-[13px] font-bold truncate tracking-tight transition-colors ${isUniteSelected ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>{unite.baslik}</span>
                                     </div>
-                                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5 opacity-80">
+                                    <div className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest mt-0.5 opacity-80">
                                         {unite.ogrenmeAlani}
                                     </div>
                                 </div>
@@ -133,7 +133,7 @@ export const MatKazanimPicker: React.FC<MatKazanimPickerProps> = ({
                                         {selectedCount}
                                     </span>
                                 )}
-                                <span className={`text-slate-300 transition-transform duration-300 ${isUniteSelected ? 'rotate-180' : ''}`}>
+                                <span className={`text-[var(--text-muted)] opacity-70 transition-transform duration-300 ${isUniteSelected ? 'rotate-180' : ''}`}>
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </span>
                             </div>
@@ -147,7 +147,7 @@ export const MatKazanimPicker: React.FC<MatKazanimPickerProps> = ({
                                     onClick={() => toggleAllKazanimlar(unite)}
                                     className="w-full px-5 py-2.5 text-[11px] font-bold text-accent hover:bg-accent/10 text-left border-b border-slate-50 flex items-center gap-2 transition-colors"
                                 >
-                                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${selectedCount === unite.kazanimlar.length ? 'bg-accent border-accent text-white' : 'bg-white border-slate-200'}`}>
+                                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${selectedCount === unite.kazanimlar.length ? 'bg-accent border-accent text-white' : 'bg-white border-[var(--border-color)]'}`}>
                                         {selectedCount === unite.kazanimlar.length && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                                     </div>
                                     <span>Tüm Kazanımları Seç</span>
@@ -162,20 +162,20 @@ export const MatKazanimPicker: React.FC<MatKazanimPickerProps> = ({
                                                 onClick={() => toggleKazanim(kazanim.kod)}
                                                 className={`w-full text-left px-5 py-3 flex items-start gap-3 transition-all duration-150 border-b border-slate-50 last:border-0 group ${isSelected
                                                     ? 'bg-accent/5'
-                                                    : 'hover:bg-slate-50/40'
+                                                    : 'hover:bg-[var(--bg-secondary)]/40'
                                                     }`}
                                             >
                                                 <div className={`mt-0.5 flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-all ${isSelected
                                                     ? 'bg-accent border-accent text-white'
-                                                    : 'bg-white border-slate-200 group-hover:border-slate-300'
+                                                    : 'bg-white border-[var(--border-color)] group-hover:border-[var(--border-color)]'
                                                     }`}>
                                                     {isSelected && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <span className="inline-block text-[9px] font-black font-mono tracking-tighter px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 mb-1.5 group-hover:bg-accent/10 group-hover:text-accent transition-colors">
+                                                    <span className="inline-block text-[9px] font-black font-mono tracking-tighter px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] text-[var(--text-muted)] mb-1.5 group-hover:bg-accent/10 group-hover:text-accent transition-colors">
                                                         {kazanim.kod}
                                                     </span>
-                                                    <span className="text-[11px] font-medium text-slate-600 leading-relaxed block" style={{ fontFamily: 'Lexend, sans-serif' }}>
+                                                    <span className="text-[11px] font-medium text-[var(--text-muted)] leading-relaxed block" style={{ fontFamily: 'Lexend, sans-serif' }}>
                                                         {kazanim.tanim}
                                                     </span>
                                                 </div>

@@ -88,8 +88,8 @@ export const KazanimPicker: React.FC<KazanimPickerProps> = ({
       {/* Ünite Seçimi */}
       <div>
         <div className="flex items-center gap-2 mb-3 px-1">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">İçerik Havuzu</span>
-          <div className="h-px flex-1 bg-slate-100"></div>
+          <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">İçerik Havuzu</span>
+          <div className="h-px flex-1 bg-[var(--bg-secondary)]"></div>
         </div>
         <div className="grid grid-cols-1 gap-2">
           {uniteler.map(unite => (
@@ -98,19 +98,19 @@ export const KazanimPicker: React.FC<KazanimPickerProps> = ({
               onClick={() => handleUniteToggle(unite.id)}
               className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all duration-200 group ${selectedUnites.includes(unite.id)
                 ? 'bg-accent/5 border-accent/30 shadow-sm'
-                : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'
+                : 'bg-white border-[var(--border-color)] hover:border-[var(--border-color)] hover:bg-[var(--bg-primary)]'
                 }`}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className={`w-1.5 h-6 rounded-full transition-colors ${selectedUnites.includes(unite.id) ? 'bg-accent' : 'bg-slate-200 group-hover:bg-slate-300'}`}></div>
+                <div className={`w-1.5 h-6 rounded-full transition-colors ${selectedUnites.includes(unite.id) ? 'bg-accent' : 'bg-[var(--bg-secondary)] group-hover:bg-slate-300'}`}></div>
                 <div className="truncate">
-                  <div className={`text-[13px] font-semibold transition-colors ${selectedUnites.includes(unite.id) ? 'text-accent' : 'text-slate-700'}`}>
+                  <div className={`text-[13px] font-semibold transition-colors ${selectedUnites.includes(unite.id) ? 'text-accent' : 'text-[var(--text-primary)]'}`}>
                     Ünite {unite.uniteNo}: {unite.baslik}
                   </div>
-                  <div className="text-[10px] text-slate-400 font-medium">{unite.kazanimlar.length} kazanım mevcut</div>
+                  <div className="text-[10px] text-[var(--text-muted)] font-medium">{unite.kazanimlar.length} kazanım mevcut</div>
                 </div>
               </div>
-              <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all ${selectedUnites.includes(unite.id) ? 'bg-accent border-accent text-white' : 'bg-white border-slate-200 group-hover:border-slate-300'
+              <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all ${selectedUnites.includes(unite.id) ? 'bg-accent border-accent text-white' : 'bg-white border-[var(--border-color)] group-hover:border-[var(--border-color)]'
                 }`}>
                 {selectedUnites.includes(unite.id) && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
               </div>
@@ -123,10 +123,10 @@ export const KazanimPicker: React.FC<KazanimPickerProps> = ({
       {selectedUnites.length > 0 && (
         <div className="pt-2">
           <div className="flex items-center justify-between mb-3 px-1">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Kazanım Detayları</span>
+            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Kazanım Detayları</span>
             <div className="flex gap-4">
               <button onClick={handleSelectAllKazanim} className="text-[10px] font-bold text-accent hover:text-accent/70 transition">Hepsini Seç</button>
-              <button onClick={handleClearAllKazanim} className="text-[10px] font-bold text-slate-400 hover:text-slate-600 transition">Sıfırla</button>
+              <button onClick={handleClearAllKazanim} className="text-[10px] font-bold text-[var(--text-muted)] hover:text-[var(--text-muted)] transition">Sıfırla</button>
             </div>
           </div>
 
@@ -137,20 +137,20 @@ export const KazanimPicker: React.FC<KazanimPickerProps> = ({
                 onClick={() => handleKazanimToggle(kazanim.kod)}
                 className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all duration-200 group ${selectedKazanimlar.includes(kazanim.kod)
                   ? 'bg-emerald-50/40 border-emerald-100'
-                  : 'bg-white border-slate-50 hover:bg-slate-50/50 hover:border-slate-100'
+                  : 'bg-white border-slate-50 hover:bg-[var(--bg-primary)] hover:border-[var(--border-color)]'
                   }`}
               >
-                <div className={`mt-0.5 w-4 h-4 rounded-md border flex-shrink-0 flex items-center justify-center transition-all ${selectedKazanimlar.includes(kazanim.kod) ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white border-slate-200 group-hover:border-slate-300'
+                <div className={`mt-0.5 w-4 h-4 rounded-md border flex-shrink-0 flex items-center justify-center transition-all ${selectedKazanimlar.includes(kazanim.kod) ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white border-[var(--border-color)] group-hover:border-[var(--border-color)]'
                   }`}>
                   {selectedKazanimlar.includes(kazanim.kod) && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <span className="text-[9px] font-black font-mono tracking-tighter px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 group-hover:bg-accent/10 group-hover:text-accent transition-colors">
+                    <span className="text-[9px] font-black font-mono tracking-tighter px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] text-[var(--text-muted)] group-hover:bg-accent/10 group-hover:text-accent transition-colors">
                       {kazanim.kod}
                     </span>
                   </div>
-                  <div className="text-[11px] font-medium text-slate-600 leading-relaxed" style={{ fontFamily: 'Lexend, sans-serif' }}>
+                  <div className="text-[11px] font-medium text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: 'Lexend, sans-serif' }}>
                     {kazanim.tanim}
                   </div>
                 </div>

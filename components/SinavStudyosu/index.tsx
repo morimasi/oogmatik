@@ -20,15 +20,15 @@ type TabType = 'onizleme' | 'cevap-anahtari';
 const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isOpen: boolean; onToggle: () => void; }> = ({ icon, title, badge, isOpen, onToggle }) => (
   <button onClick={onToggle} className="w-full flex items-center justify-between px-5 py-4 bg-transparent hover:bg-accent/5 transition-all duration-300 group rounded-xl">
     <div className="flex items-center gap-3">
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-accent text-white shadow-lg shadow-accent/20 rotate-6' : 'bg-slate-100/80 text-slate-500 group-hover:bg-accent/10 group-hover:text-accent group-hover:rotate-3'}`}>
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-accent text-white shadow-lg shadow-accent/20 rotate-6' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] group-hover:bg-accent/10 group-hover:text-accent group-hover:rotate-3'}`}>
         <span className="text-lg">{icon}</span>
       </div>
       <div className="flex flex-col items-start">
-        <span className={`text-[13px] font-bold tracking-tight transition-colors ${isOpen ? 'text-accent' : 'text-slate-600 group-hover:text-accent'}`}>{title}</span>
+        <span className={`text-[13px] font-bold tracking-tight transition-colors ${isOpen ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`}>{title}</span>
         {badge && <span className="text-[9px] font-bold text-accent/70 uppercase tracking-widest mt-0.5">{badge}</span>}
       </div>
     </div>
-    <span className={`text-slate-400 transition-all duration-500 ${isOpen ? 'rotate-180 text-accent' : 'group-hover:text-accent/70'}`}>
+    <span className={`text-[var(--text-muted)] transition-all duration-500 ${isOpen ? 'rotate-180 text-accent' : 'group-hover:text-accent/70'}`}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-sm"><path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
     </span>
   </button>
@@ -57,7 +57,7 @@ const FmtBtn: React.FC<{
     title={title}
     className={`px-3 py-1.5 rounded-xl text-xs font-bold border-2 flex items-center justify-center gap-2 transition-all duration-300 ${active
       ? 'bg-accent text-white border-accent shadow-lg shadow-accent/20 scale-105 z-10'
-      : 'bg-white/80 text-slate-600 border-slate-100 hover:border-accent/30 hover:text-accent hover:bg-white hover:shadow-md'
+      : 'bg-[var(--bg-paper)]/90 text-[var(--text-muted)] border-[var(--border-color)] hover:border-accent/30 hover:text-accent hover:bg-[var(--bg-paper)] hover:shadow-md'
       }`}
   >
     {icon && <span className="text-sm">{icon}</span>}
@@ -314,7 +314,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
     ayarlar.soruDagilimi['acik-uclu'];
 
   return (
-    <div className="h-screen flex flex-col bg-slate-50 font-sans overflow-hidden selection:bg-accent/20 selection:text-accent">
+    <div className="h-screen flex flex-col bg-[var(--bg-secondary)] font-sans overflow-hidden selection:bg-accent/20 selection:text-accent">
 
       {/* Background Decor */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -323,13 +323,13 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
       </div>
 
       {/* Header */}
-      <div className="flex-none px-6 py-3 border-b border-white/40 bg-white/60 backdrop-blur-2xl flex items-center justify-between gap-4 z-50">
+      <div className="flex-none px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-paper)]/70 backdrop-blur-2xl flex items-center justify-between gap-4 z-50">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20">
             <span className="text-xl">📝</span>
           </div>
           <div>
-            <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none">
+            <h1 className="text-lg font-black text-[var(--text-primary)] tracking-tight leading-none">
               Sınav Stüdyosu
             </h1>
             <p className="text-[10px] text-accent/80 font-bold uppercase tracking-widest mt-1 opacity-80">MEB 2024-2025 · AI Destekli</p>
@@ -348,8 +348,8 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
               <span className="text-[11px] font-bold text-purple-700">{kazanimCount} Kazanım</span>
             </div>
           )}
-          <div className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200/50 flex items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-600">{toplamSoru} Soru</span>
+          <div className="px-3 py-1.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)]/50 flex items-center gap-2">
+            <span className="text-[11px] font-bold text-[var(--text-muted)]">{toplamSoru} Soru</span>
           </div>
         </div>
       </div>
@@ -358,20 +358,20 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 overflow-hidden min-h-0">
 
         {/* SOL PANEL (SaaS Premium Sidebar) */}
-        <div className="lg:col-span-3 flex flex-col bg-white/40 backdrop-blur-3xl border-r border-white/40 shadow-[20px_0_40px_-20px_rgba(0,0,0,0.05)] z-20 overflow-hidden">
+        <div className="lg:col-span-3 flex flex-col bg-[var(--bg-paper)]/50 backdrop-blur-3xl border-r border-[var(--border-color)] shadow-[20px_0_40px_-20px_rgba(0,0,0,0.05)] z-20 overflow-hidden min-h-0">
 
           <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
 
             {/* Sınıf Seçimi */}
-            <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
+            <div className="bg-[var(--bg-paper)]/70 backdrop-blur-md rounded-2xl border border-[var(--border-color)] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
               <SectionHeader icon="🏫" title="Sınıf Seçimi" badge={ayarlar.sinif ? `${ayarlar.sinif}. Sınıf` : undefined} isOpen={openSections.sinif} onToggle={() => toggleSection('sinif')} />
               <div className={`transition-all duration-500 ease-in-out ${openSections.sinif ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
                 <div className="px-5 pb-5 pt-1">
-                  <div className="bg-slate-100/50 p-2 rounded-2xl border border-white/40">
+                  <div className="bg-[var(--bg-secondary)]/50 p-2 rounded-2xl border border-[var(--border-color)]">
                     <div className="grid grid-cols-4 gap-1.5">
                       {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
                         <button key={g} onClick={() => setSinif(g)}
-                          className={`py-3 rounded-xl text-xs font-black transition-all duration-300 ${ayarlar.sinif === g ? 'bg-accent text-white shadow-lg shadow-accent/20 scale-105 z-10' : 'text-slate-500 hover:bg-white hover:text-accent hover:shadow-sm'}`}>
+                          className={`py-3 rounded-xl text-xs font-black transition-all duration-300 ${ayarlar.sinif === g ? 'bg-accent text-white shadow-lg shadow-accent/20 scale-105 z-10' : 'text-[var(--text-muted)] hover:bg-[var(--bg-paper)] hover:text-accent hover:shadow-sm'}`}>
                           {g}.
                         </button>
                       ))}
@@ -382,7 +382,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
             </div>
 
             {/* Kazanımlar */}
-            <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
+            <div className="bg-[var(--bg-paper)]/70 backdrop-blur-md rounded-2xl border border-[var(--border-color)] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
               <SectionHeader icon="🎯" title="Kazanımlar" badge={kazanimCount > 0 ? `${kazanimCount} seçildi` : undefined} isOpen={openSections.kazanim} onToggle={() => toggleSection('kazanim')} />
               <div className={`transition-all duration-500 ease-in-out ${openSections.kazanim ? 'max-h-none opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
                 <div className="px-5 pb-5 pt-1">
@@ -392,16 +392,16 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
             </div>
 
             {/* Soru Ayarları */}
-            <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
+            <div className="bg-[var(--bg-paper)]/70 backdrop-blur-md rounded-2xl border border-[var(--border-color)] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
               <SectionHeader icon="⚙️" title="Soru Ayarları" badge={toplamSoru > 0 ? `${toplamSoru} soru` : undefined} isOpen={openSections.ayarlar} onToggle={() => toggleSection('ayarlar')} />
               <div className={`transition-all duration-500 ease-in-out ${openSections.ayarlar ? 'max-h-none opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
                 <div className="px-5 pb-5 pt-1">
                   {ayarlar.secilenKazanimlar.length > 0 ? (
                     <SoruAyarlari ayarlar={ayarlar} onSoruDagilimiChange={setSoruDagilimi} onOzelKonuChange={(k) => setAyarlar({ ozelKonu: k })} />
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-slate-200/50 rounded-2xl bg-slate-50/50">
-                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3 text-2xl opacity-40">🎯</div>
-                      <span className="text-[11px] font-bold text-slate-400 text-center px-4 uppercase tracking-wider leading-relaxed">Kazanım haritası tamamlandıktan sonra açılır</span>
+                    <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-[var(--border-color)]/50 rounded-2xl bg-[var(--bg-primary)]">
+                      <div className="w-12 h-12 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center mb-3 text-2xl opacity-40">🎯</div>
+                      <span className="text-[11px] font-bold text-[var(--text-muted)] text-center px-4 uppercase tracking-wider leading-relaxed">Kazanım haritası tamamlandıktan sonra açılır</span>
                     </div>
                   )}
                 </div>
@@ -409,12 +409,12 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
             </div>
 
             {/* Başarı Anı Mimarisi */}
-            <div className="border-b border-slate-100">
+            <div className="border-b border-[var(--border-color)]">
               <SectionHeader icon="🌟" title="Başarı Anı Mimarisi" isOpen={openSections.basariMimarisi} onToggle={() => toggleSection('basariMimarisi')} />
               <div className={`transition-all duration-300 ease-in-out ${openSections.basariMimarisi ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                <div className="px-5 pb-5 pt-1 space-y-2.5 text-xs text-slate-600 font-medium tracking-wide">
+                <div className="px-5 pb-5 pt-1 space-y-2.5 text-xs text-[var(--text-muted)] font-medium tracking-wide">
                   {[['🟢', 'İlk 2 soru — Basit ZPD'], ['🟡', '3-4. soru — Kademeli Geçiş'], ['🔴', '5+ — Bağımsız Çalışma']].map(([ic, tx]) => (
-                    <div key={tx} className="flex items-center gap-3 bg-slate-50/80 px-4 py-2.5 rounded-xl border border-slate-100/50">
+                    <div key={tx} className="flex items-center gap-3 bg-[var(--bg-secondary)]/80 px-4 py-2.5 rounded-xl border border-[var(--border-color)]/50">
                       <span className="text-base leading-none">{ic}</span><span>{tx}</span>
                     </div>
                   ))}
@@ -432,11 +432,11 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
           </div>
 
           {/* Sticky Oluştur Butonu */}
-          <div className="flex-none p-5 bg-white/60 backdrop-blur-2xl border-t border-white/40 z-30">
+          <div className="flex-none p-5 bg-[var(--bg-paper)]/90 backdrop-blur-2xl border-t border-[var(--border-color)] z-30 shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
             <button
               onClick={handleGenerateExam}
               disabled={!canGenerate() || isGenerating}
-              className={`relative w-full py-4.5 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-xl ${canGenerate() && !isGenerating ? 'bg-accent hover:bg-accent/90 shadow-accent/20 hover:translate-y-[-4px] active:scale-95 active:translate-y-0' : 'bg-slate-200/50 cursor-not-allowed text-slate-400 shadow-none'}`}
+              className={`relative w-full py-4.5 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-xl ${canGenerate() && !isGenerating ? 'bg-accent hover:bg-accent/90 shadow-accent/20 hover:translate-y-[-4px] active:scale-95 active:translate-y-0' : 'bg-[var(--bg-secondary)]/50 cursor-not-allowed text-[var(--text-muted)] shadow-none'}`}
             >
               {canGenerate() && !isGenerating && (
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
@@ -448,8 +448,8 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
               )}
             </button>
             {!canGenerate() && !isGenerating && (
-              <div className="mt-4 p-3 bg-slate-50/50 rounded-xl border border-white/40">
-                <p className="text-[10px] text-slate-400 text-center font-bold uppercase tracking-widest leading-relaxed">
+              <div className="mt-4 p-3 bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)]">
+                <p className="text-[10px] text-[var(--text-muted)] text-center font-bold uppercase tracking-widest leading-relaxed">
                   {ayarlar.sinif === null ? 'Sınıf seçimi bekleniyor' : kazanimCount === 0 ? 'Kazanım haritası tamamlanmalı' : toplamSoru < 4 ? `Hedef: En az 4 soru (${4 - toplamSoru} eksik)` : ''}
                 </p>
               </div>
@@ -459,14 +459,14 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
         </div>
 
         {/* SAĞ PANEL */}
-        <div className="lg:col-span-9 flex flex-col overflow-hidden">
+        <div className="lg:col-span-9 flex flex-col overflow-hidden min-h-0">
 
           {/* Ana Actions Toolbar */}
-          <div className="flex-none bg-white/40 backdrop-blur-3xl border-b border-white/60 px-6 py-3 flex flex-wrap items-center justify-between gap-4 z-10 transition-all duration-300">
-            <div className="flex bg-slate-200/50 p-1 rounded-2xl backdrop-blur-md">
+          <div className="flex-none bg-[var(--bg-paper)]/50 backdrop-blur-3xl border-b border-[var(--border-color)] px-6 py-3 flex flex-wrap items-center justify-between gap-4 z-10 transition-all duration-300">
+            <div className="flex bg-[var(--bg-secondary)]/50 p-1 rounded-2xl backdrop-blur-md">
               {(['onizleme', 'cevap-anahtari'] as TabType[]).map((tab) => (
                 <button key={tab} onClick={() => setActiveTab(tab)} disabled={!aktifSinav}
-                  className={`px-5 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${activeTab === tab ? 'bg-white text-accent shadow-lg shadow-accent/10 scale-105' : aktifSinav ? 'text-slate-500 hover:text-accent' : 'text-slate-300 cursor-not-allowed'}`}>
+                  className={`px-5 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${activeTab === tab ? 'bg-[var(--bg-paper)] text-accent shadow-lg shadow-accent/10 scale-105' : aktifSinav ? 'text-[var(--text-muted)] hover:text-accent' : 'text-[var(--text-muted)] opacity-70 cursor-not-allowed'}`}>
                   {tab === 'onizleme' ? <span className="flex items-center gap-2">👁️ <span className="hidden sm:inline">Önizleme</span></span> : <span className="flex items-center gap-2">✓ <span className="hidden sm:inline">Cevap Anahtarı</span></span>}
                 </button>
               ))}
@@ -478,14 +478,14 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                 { label: 'Paylaş', icon: '🔗', fn: handleShareExam, loading: false, color: 'hover:bg-purple-600' },
               ].map(({ label, icon, fn, color }) => (
                 <button key={label} onClick={fn} disabled={!aktifSinav}
-                  className={`toolbar-btn bg-white/80 border-2 border-white text-slate-600 ${color} hover:text-white shadow-sm hover:shadow-lg backdrop-blur-md hover:translate-y-[-2px]`}>
+                  className={`toolbar-btn bg-[var(--bg-paper)]/90 border-2 border-[var(--border-color)] text-[var(--text-muted)] ${color} hover:text-white shadow-sm hover:shadow-lg backdrop-blur-md hover:translate-y-[-2px]`}>
                   <span className="text-base">{icon}</span><span className="hidden lg:inline">{label}</span>
                 </button>
               ))}
               <button
                 onClick={handleAddToWorkbook}
                 disabled={!aktifSinav || isSavingToWorkbook}
-                className="toolbar-btn bg-emerald-600 text-white border-none shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:translate-y-[-2px] active:scale-95"
+                className="toolbar-btn bg-emerald-600 text-[var(--bg-primary)] border-none shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:translate-y-[-2px] active:scale-95"
               >
                 {isSavingToWorkbook ? (
                   <>
@@ -501,13 +501,13 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                   </>
                 )}
               </button>
-              <div className="w-px h-8 bg-slate-300 mx-2 self-center opacity-40"></div>
+              <div className="w-px h-8 bg-[var(--border-color)] mx-2 self-center opacity-40"></div>
               <button onClick={handlePrint} disabled={!aktifSinav}
-                className="toolbar-btn bg-slate-900 text-white border-none shadow-lg hover:bg-black hover:translate-y-[-2px]">
+                className="toolbar-btn bg-[var(--text-primary)] text-[var(--bg-primary)] text-[var(--bg-primary)] border-none shadow-lg hover:bg-black hover:translate-y-[-2px]">
                 <span className="text-base">🖨️</span><span className="hidden sm:inline">Yazdır</span>
               </button>
               <button onClick={handleDownloadPDF} disabled={!aktifSinav}
-                className="toolbar-btn bg-rose-600 text-white border-none shadow-lg shadow-rose-100 hover:bg-rose-700 hover:translate-y-[-2px]">
+                className="toolbar-btn bg-rose-600 text-[var(--bg-primary)] border-none shadow-lg shadow-rose-100 hover:bg-rose-700 hover:translate-y-[-2px]">
                 <span className="text-base">📄</span>İndir
               </button>
             </div>
@@ -516,7 +516,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
           {/* Format Settings Sub-Toolbar */}
           {aktifSinav && activeTab === 'onizleme' && (
             <div className="flex-none bg-accent/5 backdrop-blur-3xl border-b border-accent/10 px-6 py-2.5 flex flex-wrap items-center gap-x-8 gap-y-3 z-0 anim-slide-in shadow-[inset_0_8px_16px_-8px_rgba(0,0,0,0.05)]">
-              <div className="flex items-center gap-2 bg-white/40 p-1 rounded-2xl border border-white/60 shadow-sm backdrop-blur-md">
+              <div className="flex items-center gap-2 bg-[var(--bg-paper)]/50 p-1 rounded-2xl border border-[var(--border-color)] shadow-sm backdrop-blur-md">
                 <span className="text-[9px] text-accent/70 font-black uppercase tracking-widest pl-2 pr-1">Tasarım</span>
                 <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Fontu">Inter</FmtBtn>
                 <FmtBtn active={printConfig.fontFamily === 'times'} onClick={() => updateConfig('fontFamily', 'times')} title="Times New Roman">Times</FmtBtn>
@@ -526,7 +526,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                 ))}
               </div>
 
-              <div className="flex items-center gap-2 bg-white/40 p-1 rounded-2xl border border-white/60 shadow-sm backdrop-blur-md">
+              <div className="flex items-center gap-2 bg-[var(--bg-paper)]/50 p-1 rounded-2xl border border-[var(--border-color)] shadow-sm backdrop-blur-md">
                 <span className="text-[9px] text-accent/70 font-black uppercase tracking-widest pl-2 pr-1">Yerleşim</span>
                 <FmtBtn active={printConfig.marginMm === 10} onClick={() => updateConfig('marginMm', 10)} title="Dar Kenar Boşluğu (10mm)" icon="⤢">Dar</FmtBtn>
                 <FmtBtn active={printConfig.marginMm === 18} onClick={() => updateConfig('marginMm', 18)} title="Normal Kenar Boşluğu (18mm)" icon="◻️">Orta</FmtBtn>
@@ -536,7 +536,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                 <FmtBtn active={printConfig.columns === 2} onClick={() => updateConfig('columns', 2)} icon="📖">Çift</FmtBtn>
               </div>
 
-              <div className="flex items-center gap-2 bg-white/40 p-1 rounded-2xl border border-white/60 shadow-sm backdrop-blur-md">
+              <div className="flex items-center gap-2 bg-[var(--bg-paper)]/50 p-1 rounded-2xl border border-[var(--border-color)] shadow-sm backdrop-blur-md">
                 <span className="text-[9px] text-accent/70 font-black uppercase tracking-widest pl-2 pr-1">Metin</span>
                 <FmtBtn active={printConfig.textAlign === 'left'} onClick={() => updateConfig('textAlign', 'left')} title="Sola Dayalı" icon="⫷">Sola</FmtBtn>
                 <FmtBtn active={printConfig.textAlign === 'justify'} onClick={() => updateConfig('textAlign', 'justify')} title="İki Yana Yasla" icon="⫹">Yasla</FmtBtn>
@@ -557,7 +557,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
           )}
 
           {/* İçerik */}
-          <div ref={printRef} className="flex-1 overflow-y-auto custom-scrollbar bg-slate-100/30">
+          <div ref={printRef} className="flex-1 overflow-y-auto custom-scrollbar bg-[var(--bg-secondary)]/30">
             <div className="p-8 lg:p-12 min-h-full flex justify-center">
               {aktifSinav ? (
                 <div className="anim-fade-in w-full max-w-[900px]">
@@ -566,19 +566,19 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                       <SinavOnizleme sinav={aktifSinav} showAnswers={false} config={printConfig} />
                     </div>
                   ) : (
-                    <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-white/60">
+                    <div className="bg-[var(--bg-paper)]/90 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-[var(--border-color)]">
                       <CevapAnahtariComponent cevapAnahtari={aktifSinav.cevapAnahtari} sinavBaslik={aktifSinav.baslik} />
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-32 text-slate-300 space-y-6">
-                  <div className="w-32 h-32 bg-white/40 backdrop-blur-xl rounded-full flex items-center justify-center shadow-xl border border-white/60 group">
+                <div className="flex flex-col items-center justify-center py-32 text-[var(--text-muted)] opacity-70 space-y-6">
+                  <div className="w-32 h-32 bg-[var(--bg-paper)]/50 backdrop-blur-xl rounded-full flex items-center justify-center shadow-xl border border-[var(--border-color)] group">
                     <span className="text-6xl opacity-30 group-hover:scale-110 transition-transform duration-500">📝</span>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg font-black text-slate-400 tracking-tight">Önizleme Alanı</p>
-                    <p className="text-sm text-slate-400 mt-2 font-medium">
+                    <p className="text-lg font-black text-[var(--text-muted)] tracking-tight">Önizleme Alanı</p>
+                    <p className="text-sm text-[var(--text-muted)] mt-2 font-medium">
                       Sol panelden ayarları yapın ve <strong className="text-accent">Sınavı Oluştur</strong>'a basın.
                     </p>
                   </div>
