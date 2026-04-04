@@ -44,6 +44,16 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({ problem, showSolutionB
                         </div>
                     )}
 
+                    {/* AI Vector SVG Graphic Generator Output */}
+                    {problem.svgCode && problem.svgCode.trim() !== "" && (
+                        <div className="mt-4 flex justify-center w-full px-2 py-4 bg-zinc-50 border border-zinc-200 rounded-lg overflow-hidden vector-math-container">
+                            <div
+                                className="w-full max-w-xl mx-auto flex justify-center items-center svg-content"
+                                dangerouslySetInnerHTML={{ __html: problem.svgCode }}
+                            />
+                        </div>
+                    )}
+
                     {/* Options (if type needs it or provided) */}
                     {problem.options && problem.options.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-4">

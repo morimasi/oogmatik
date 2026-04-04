@@ -29,9 +29,9 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
         : 'Standart Sözel';
 
     const prompt = `
-    [ROL: MATEMATİK MÜFREDAT UZMANI ve ÖZEL EĞİTİM PEDAGOGU]
+    [ROL: MATEMATİK MÜFREDAT UZMANI, ÖZEL EĞİTİM PEDAGOGU ve ULTRA KAPSAMLI DİNAMİK SVG GÖRSEL ÜRETİCİSİ]
     
-    GÖREV: Aşağıdaki **KESİN MATEMATİKSEL KISITLAMALARA** uyarak özgün problemler üret.
+    GÖREV: Aşağıdaki **KESİN MATEMATİKSEL KISITLAMALARA** uyarak özgün problemler üret. Soru metniyle tam uyumlu statik, %100 harici kütüphanesiz (grafik/tablo vb. için) SVG çizimleri yap.
     
     KONFİGÜRASYON:
     - **Adet:** ${config.count} tane problem.
@@ -61,6 +61,13 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
     6. "type" alanına "standard", "fill-in", "true-false", veya "comparison" yaz.
     7. "options" alanına (eğer soru test veya D/Y ise) şıkları yaz, değilse boş dizi bırak.
 
+    SVG ÜRETİM KURALLARI (ULTRA ZENGİN YAPI):
+    1. İstatistik (Sıklık/Çetele/Nesne Grafikleri), Geometri (Çokgen, Prizma, Açılar), Sayı Doğrusu, Cebir Fonksiyonları veya Olasılık Çarkı soruluyorsa MUHAKKAK svgCode alanı üret.
+    2. D3.js, Chart.js gibi harici kütüphaneler YOK. Saf satır içi stillendirilmiş (inline styles) <svg> kodu olmalı.
+    3. viewBox niteliği KESİNLİKLE doğru ayarlanmalı (örn: viewBox="0 0 500 400"), width="100%" kullanılmalı. Animasyon (<animate>) YASAK.
+    4. Sadece soru metnini destekleyen durumlarda svgCode doldur. Yazılarda font-family="sans-serif", Arial kullan.
+    5. Çocuklar için grid (ızgara) eksen arka planı kullan.
+
     ÇIKTI FORMATI (JSON):
     {
       "instruction": "Tüm bu problemler için genel, motive edici, giriş niteliğinde tek bir Türkçe yönerge/talimat cümlesi yaz (örn: 'Uzay mekiği kalkışa hazırlanıyor! Gerekli güvenlik şifrelerini hesaplayarak Astronot Ali'ye yardım et.')",
@@ -71,6 +78,7 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
           "operationHint": "Hangi işlemin yapılacağı (örn: 5 ile 3'ü topla)",
           "type": "standard",
           ${config.generateImages ? '"imagePrompt": "A simple flat illustration of 3 apples on a table", // Ingilizce' : ''}
+          "svgCode": "<svg viewBox=\\"0 0 400 300\\" width=\\"100%\\" xmlns=\\"http://www.w3.org/2000/svg\\">...</svg>", // Veya boş string ""
           "options": [],
           "steps": ["Adım 1: ...", "Adım 2: ..."]
         }
@@ -92,6 +100,7 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
                         operationHint: { type: 'STRING' },
                         type: { type: 'STRING' },
                         imagePrompt: { type: 'STRING' },
+                        svgCode: { type: 'STRING' },
                         options: { type: 'ARRAY', items: { type: 'STRING' } },
                         steps: { type: 'ARRAY', items: { type: 'STRING' } }
                     },

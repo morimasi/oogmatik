@@ -241,6 +241,7 @@ export interface MathProblem {
   answer: string;
   operationHint?: string;
   imagePrompt?: string; // AI tarafından üretilen görsel istemi
+  svgCode?: string; // Soru metniyle tam uyumlu, %100 mantıklı saf SVG kodu
   type?: 'standard' | 'fill-in' | 'true-false' | 'comparison'; // Soru tipi
   options?: string[]; // Çoktan seçmeli/doğru-yanlış için opsiyonel şıklar
   steps?: string[]; // Çözüm adımları
