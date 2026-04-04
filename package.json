@@ -29,7 +29,7 @@
     "@remotion/transitions": "^4.0.441",
     "clsx": "^2.1.1",
     "core-js": "^3.49.0",
-    "firebase": "^12.10.0",
+    "firebase": "^11.2.0",
     "framer-motion": "^11.11.17",
     "html2canvas": "^1.4.1",
     "isomorphic-dompurify": "^3.6.0",
