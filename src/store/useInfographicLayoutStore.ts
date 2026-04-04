@@ -1,14 +1,16 @@
 /**
  * @file src/store/useInfographicLayoutStore.ts
- * @description InfographicStudio v3 Ultra Premium — Layout State Management
+ * @description İnfografik Stüdyosu v3 — Layout State Management
+ * Sprint 2-3: Premium Edit Toolbar + Layout State
  *
- * Zustand store for layout configuration with undo/redo support.
+ * ZUSTAND STORE: Undo/Redo destekli layout configuration
+ * MAX HISTORY: 20 (memory optimization)
  */
 
 import { create } from 'zustand';
-import { CompactLayoutConfig } from '../services/layout/CompactLayoutEngine';
+import { CompactLayoutConfig, DEFAULT_LAYOUT_CONFIG } from '../services/layout/CompactLayoutEngine';
 
-interface InfographicLayoutState {
+export interface InfographicLayoutState {
   layoutConfig: CompactLayoutConfig;
   history: CompactLayoutConfig[];
   historyIndex: number;
@@ -21,65 +23,49 @@ interface InfographicLayoutState {
   resetLayout: () => void;
 }
 
-const DEFAULT_LAYOUT_CONFIG: CompactLayoutConfig = {
-  pageSize: 'A4',
-  orientation: 'portrait',
-  margins: { top: 15, right: 15, bottom: 15, left: 15 },
-  contentDensity: 70,
-  columnCount: 2,
-  gutterWidth: 5,
-  typography: { baseFontSize: 11, lineHeight: 1.5, headingScale: 1.5 },
-  gridSystem: { enabled: false, rows: 3, cols: 2, cellGap: 5 },
-};
-
 export const useInfographicLayoutStore = create<InfographicLayoutState>((set, get) => ({
-  layoutConfig: { ...DEFAULT_LAYOUT_CONFIG },
-  history: [],
-  historyIndex: -1,
+  layoutConfig: DEFAULT_LAYOUT_CONFIG,
+  history: [DEFAULT_LAYOUT_CONFIG],
+  historyIndex: 0,
 
-  updateLayout: (updates) =>
-    set((state) => {
-      const newConfig = { ...state.layoutConfig, ...updates };
-      const newHistory = state.history.slice(0, state.historyIndex + 1);
-      newHistory.push(newConfig);
-      const trimmedHistory = newHistory.slice(-20);
+  updateLayout: (updates) => set((state) => {
+    const newConfig = { ...state.layoutConfig, ...updates };
+    const newHistory = state.history.slice(0, state.historyIndex + 1);
+    newHistory.push(newConfig);
 
+    return {
+      layoutConfig: newConfig,
+      history: newHistory.slice(-20), // Max 20 history
+      historyIndex: Math.min(newHistory.length - 1, 19)
+    };
+  }),
+
+  undo: () => set((state) => {
+    if (state.historyIndex > 0) {
       return {
-        layoutConfig: newConfig,
-        history: trimmedHistory,
-        historyIndex: Math.min(trimmedHistory.length - 1, 19),
+        historyIndex: state.historyIndex - 1,
+        layoutConfig: state.history[state.historyIndex - 1]
       };
-    }),
+    }
+    return state;
+  }),
 
-  undo: () =>
-    set((state) => {
-      if (state.historyIndex > 0) {
-        return {
-          historyIndex: state.historyIndex - 1,
-          layoutConfig: state.history[state.historyIndex - 1],
-        };
-      }
-      return state;
-    }),
-
-  redo: () =>
-    set((state) => {
-      if (state.historyIndex < state.history.length - 1) {
-        return {
-          historyIndex: state.historyIndex + 1,
-          layoutConfig: state.history[state.historyIndex + 1],
-        };
-      }
-      return state;
-    }),
+  redo: () => set((state) => {
+    if (state.historyIndex < state.history.length - 1) {
+      return {
+        historyIndex: state.historyIndex + 1,
+        layoutConfig: state.history[state.historyIndex + 1]
+      };
+    }
+    return state;
+  }),
 
   canUndo: () => get().historyIndex > 0,
   canRedo: () => get().historyIndex < get().history.length - 1,
 
-  resetLayout: () =>
-    set({
-      layoutConfig: { ...DEFAULT_LAYOUT_CONFIG },
-      history: [],
-      historyIndex: -1,
-    }),
+  resetLayout: () => set({
+    layoutConfig: DEFAULT_LAYOUT_CONFIG,
+    history: [DEFAULT_LAYOUT_CONFIG],
+    historyIndex: 0
+  })
 }));

@@ -1,9 +1,9 @@
 /**
  * @file src/services/layout/CompactLayoutEngine.ts
- * @description InfographicStudio v3 Ultra Premium — Compact Layout Engine
+ * @description İnfografik Stüdyosu v3 — Kompakt A4 Layout Engine
+ * Sprint 2, Gün 1-2: CompactLayoutEngine Core Implementation
  *
- * A4 sayfa yerleşimi, margin optimizasyonu, grid hesaplama ve typography
- * ölçeklendirmesi yapar. Disleksi uyumlu minimum satır aralığı (1.5) zorunludur.
+ * AMAÇ: A4 kağıt boyutunda maksimum içerik yoğunluğu (80-95%) sağlama
  */
 
 export interface CompactLayoutConfig {
@@ -33,26 +33,41 @@ export interface CompactLayoutConfig {
 
 export class CompactLayoutEngine {
   private config: CompactLayoutConfig;
-  private readonly PAGE_DIMENSIONS: Record<string, { width: number; height: number }> = {
+  private readonly PAGE_DIMENSIONS = {
     A4: { width: 210, height: 297 },
     Letter: { width: 215.9, height: 279.4 },
-    B5: { width: 176, height: 250 },
+    B5: { width: 176, height: 250 }
   };
 
   constructor(config: CompactLayoutConfig) {
-    this.config = config;
+    this.config = this.validateConfig(config);
+  }
+
+  private validateConfig(config: CompactLayoutConfig): CompactLayoutConfig {
+    const validated = { ...config };
+    if (validated.typography.lineHeight < 1.5) {
+      validated.typography.lineHeight = 1.5;
+    }
+    if (validated.typography.baseFontSize < 9) {
+      validated.typography.baseFontSize = 9;
+    }
+    validated.columnCount = Math.max(1, Math.min(4, validated.columnCount));
+    validated.contentDensity = Math.max(0, Math.min(100, validated.contentDensity));
+    return validated;
   }
 
   calculateContentArea(): { width: number; height: number } {
     const pageDim = this.PAGE_DIMENSIONS[this.config.pageSize];
-    const isLandscape = this.config.orientation === 'landscape';
-    const pageWidth = isLandscape ? pageDim.height : pageDim.width;
-    const pageHeight = isLandscape ? pageDim.width : pageDim.height;
     const { margins } = this.config;
-
+    if (this.config.orientation === 'landscape') {
+      return {
+        width: pageDim.height - margins.left - margins.right,
+        height: pageDim.width - margins.top - margins.bottom
+      };
+    }
     return {
-      width: pageWidth - margins.left - margins.right,
-      height: pageHeight - margins.top - margins.bottom,
+      width: pageDim.width - margins.left - margins.right,
+      height: pageDim.height - margins.top - margins.bottom
     };
   }
 
@@ -61,12 +76,11 @@ export class CompactLayoutEngine {
     const baseMargin = 20;
     const minMargin = 10;
     const calculatedMargin = baseMargin - (contentDensity / 100) * (baseMargin - minMargin);
-
     return {
       top: calculatedMargin,
       right: calculatedMargin,
       bottom: calculatedMargin,
-      left: calculatedMargin,
+      left: calculatedMargin
     };
   }
 
@@ -76,7 +90,6 @@ export class CompactLayoutEngine {
     const totalGutterSpace = gutterWidth * (columnCount - 1);
     const availableWidth = contentArea.width - totalGutterSpace;
     const columnWidth = availableWidth / columnCount;
-
     return Array(columnCount).fill(columnWidth);
   }
 
@@ -84,55 +97,55 @@ export class CompactLayoutEngine {
     const { contentDensity, typography } = this.config;
     const fontSizeMultiplier = 1 - (contentDensity / 100) * 0.15;
     const lineHeightMultiplier = 1 - (contentDensity / 100) * 0.1;
-
     return {
-      baseFontSize: Math.max(9, Math.round(typography.baseFontSize * fontSizeMultiplier * 10) / 10),
-      lineHeight: Math.max(1.5, Math.round(typography.lineHeight * lineHeightMultiplier * 10) / 10),
-      headingScale: typography.headingScale,
+      baseFontSize: Math.max(9, typography.baseFontSize * fontSizeMultiplier),
+      lineHeight: Math.max(1.5, typography.lineHeight * lineHeightMultiplier),
+      headingScale: typography.headingScale
     };
   }
 
   calculateGridLayout(): { cellWidth: number; cellHeight: number } | null {
     if (!this.config.gridSystem.enabled) return null;
-
     const contentArea = this.calculateContentArea();
     const { rows, cols, cellGap } = this.config.gridSystem;
     const totalHorizontalGap = cellGap * (cols - 1);
     const totalVerticalGap = cellGap * (rows - 1);
-
     return {
       cellWidth: (contentArea.width - totalHorizontalGap) / cols,
-      cellHeight: (contentArea.height - totalVerticalGap) / rows,
+      cellHeight: (contentArea.height - totalVerticalGap) / rows
     };
   }
 
-  exportCSS(): string {
+  getLayoutMetrics() {
     const contentArea = this.calculateContentArea();
     const typography = this.optimizeTypography();
     const margins = this.optimizeMargins();
-
-    return `
-.compact-layout {
-    width: ${contentArea.width}mm;
-    height: ${contentArea.height}mm;
-    margin: ${margins.top}mm ${margins.right}mm ${margins.bottom}mm ${margins.left}mm;
-    font-family: 'Lexend', sans-serif;
-    font-size: ${typography.baseFontSize}pt;
-    line-height: ${typography.lineHeight};
-}
-.compact-layout h1 {
-    font-size: ${typography.baseFontSize * typography.headingScale}pt;
-}
-`;
-  }
-
-  exportTailwindClasses(): Record<string, string> {
-    const typography = this.optimizeTypography();
+    const gridLayout = this.calculateGridLayout();
+    const pageDim = this.PAGE_DIMENSIONS[this.config.pageSize];
+    const totalArea = this.config.orientation === 'landscape' ? pageDim.height * pageDim.width : pageDim.width * pageDim.height;
+    const usableArea = contentArea.width * contentArea.height;
+    const actualDensity = (usableArea / totalArea) * 100;
     return {
-      container: 'font-lexend print:break-inside-avoid',
-      heading: `text-[${typography.baseFontSize * typography.headingScale}pt] font-bold`,
-      body: `text-[${typography.baseFontSize}pt] leading-[${typography.lineHeight}]`,
-      column: `flex-1 px-[${this.config.gutterWidth / 2}mm]`,
+      pageSize: this.config.pageSize,
+      orientation: this.config.orientation,
+      contentArea,
+      margins,
+      typography,
+      columnWidths: this.calculateColumnWidths(),
+      gridLayout,
+      actualDensity,
+      targetDensity: this.config.contentDensity
     };
   }
 }
+
+export const DEFAULT_LAYOUT_CONFIG: CompactLayoutConfig = {
+  pageSize: 'A4',
+  orientation: 'portrait',
+  margins: { top: 15, right: 15, bottom: 15, left: 15 },
+  contentDensity: 70,
+  columnCount: 2,
+  gutterWidth: 5,
+  typography: { baseFontSize: 11, lineHeight: 1.5, headingScale: 1.5 },
+  gridSystem: { enabled: false, rows: 3, cols: 2, cellGap: 5 }
+};
