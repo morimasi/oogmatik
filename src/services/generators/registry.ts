@@ -439,7 +439,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
           pair.aiGenerator({
             topic: options.topic || 'Konu',
             ageGroup: options.ageGroup || '8-10',
-            difficulty: options.difficulty || 'Orta',
+            difficulty: (options.difficulty as any) || 'Orta',
             profile: options.profile || 'general',
             itemCount: options.count || 5,
             activityParams: options.customParams || {},
@@ -448,7 +448,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
           pair.offlineGenerator({
             topic: options.topic || 'Konu',
             ageGroup: options.ageGroup || '8-10',
-            difficulty: options.difficulty || 'Orta',
+            difficulty: (options.difficulty as any) || 'Orta',
             profile: options.profile || 'general',
             itemCount: options.count || 5,
             activityParams: options.customParams || {},
@@ -466,7 +466,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
           pair.aiGenerator({
             topic: options.topic || 'Konu',
             ageGroup: options.ageGroup || '8-10',
-            difficulty: options.difficulty || 'Orta',
+            difficulty: (options.difficulty as any) || 'Orta',
             profile: options.profile || 'general',
             itemCount: options.count || 5,
             activityParams: options.customParams || {},
@@ -475,7 +475,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
           pair.offlineGenerator({
             topic: options.topic || 'Konu',
             ageGroup: options.ageGroup || '8-10',
-            difficulty: options.difficulty || 'Orta',
+            difficulty: (options.difficulty as any) || 'Orta',
             profile: options.profile || 'general',
             itemCount: options.count || 5,
             activityParams: options.customParams || {},

@@ -11,7 +11,7 @@ export default function buildOkumaAnlamaPrompt(
   const densityMap = { standart: '1.8', yogun: '1.5', 'ultra-yogun': '1.3' };
   const lineSpacing = densityMap[settings.layoutDensity] || '1.5';
   const qTypesText =
-    settings.questionTypes.length > 0
+    settings.questionTypes && settings.questionTypes.length > 0
       ? settings.questionTypes
           .map((t: string) => {
             const map: Record<string, string> = {

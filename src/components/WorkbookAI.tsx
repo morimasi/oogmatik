@@ -48,41 +48,44 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
       };
 
       // Multiple AI queries in parallel
-      const [activitySuggestions, skillGaps, balanceAnalysis] = await Promise.all([
-        aiAssistant.suggestActivities(workbook.id, context as any),
-        aiAssistant.detectSkillGaps(workbook.id),
-        aiAssistant.analyzePageBalance(workbook.id),
+      const [activityRes, skillRes, balanceAnalysis] = await Promise.all([
+        aiAssistant.suggestActivities(context as any),
+        aiAssistant.detectSkillGaps(context as any),
+        aiAssistant.analyzePageBalance(context as any),
       ]);
+
+      const activitySuggestions = activityRes.suggestions || [];
+      const skillGaps = skillRes.gaps || [];
 
       // Combine all suggestions
       const allSuggestions: AISuggestion[] = [
-        ...activitySuggestions.map((s) => ({
+        ...activitySuggestions.map((s: any) => ({
           id: crypto.randomUUID(),
           type: 'add-activity' as AIWorkbookSuggestionType,
           title: `${s.activityType} ekle`,
           description: s.reason,
-          confidence: s.confidence,
+          confidence: s.recommendedDifficulty === 'Orta' ? 0.8 : 0.6,
           data: s,
           status: 'pending' as const,
         })),
-        ...skillGaps.map((gap) => ({
+        ...skillGaps.map((gap: any) => ({
           id: crypto.randomUUID(),
           type: 'fill-skill-gap' as AIWorkbookSuggestionType,
-          title: `${gap.skill} becerisi eksik`,
-          description: gap.suggestion,
-          confidence: gap.severity > 0.7 ? 0.9 : 0.6,
+          title: `${gap.skillArea} becerisi eksik`,
+          description: gap.suggestedActivities?.join(', ') || 'Aktivite önerisi yok',
+          confidence: 0.7,
           data: gap,
           status: 'pending' as const,
         })),
       ];
 
       // Balance suggestions
-      if (balanceAnalysis.needsRebalancing) {
+      if (balanceAnalysis.verdict !== 'Mukemmel' && balanceAnalysis.verdict !== 'Iyi') {
         allSuggestions.push({
           id: crypto.randomUUID(),
           type: 'improve-balance',
           title: 'Sayfa dengesi iyileştir',
-          description: `${balanceAnalysis.suggestions.join(', ')}`,
+          description: balanceAnalysis.recommendations?.join(', ') || 'Tavsiye yok',
           confidence: 0.8,
           data: balanceAnalysis,
           status: 'pending',
@@ -102,9 +105,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
     try {
       await onApplySuggestion(suggestion);
       setSuggestions(
-        suggestions.map((s) =>
-          s.id === suggestion.id ? { ...s, status: 'applied' as const } : s
-        )
+        suggestions.map((s) => (s.id === suggestion.id ? { ...s, status: 'applied' as const } : s))
       );
     } catch (error) {
       console.error('Öneri uygulanırken hata:', error);
@@ -113,9 +114,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
 
   function handleReject(suggestionId: string) {
     setSuggestions(
-      suggestions.map((s) =>
-        s.id === suggestionId ? { ...s, status: 'rejected' as const } : s
-      )
+      suggestions.map((s) => (s.id === suggestionId ? { ...s, status: 'rejected' as const } : s))
     );
   }
 
@@ -213,11 +212,7 @@ interface SuggestionCardProps {
   onReject: (id: string) => void;
 }
 
-const SuggestionCard: React.FC<SuggestionCardProps> = ({
-  suggestion,
-  onAccept,
-  onReject,
-}) => {
+const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onAccept, onReject }) => {
   const isApplied = suggestion.status === 'applied';
   const isRejected = suggestion.status === 'rejected';
   const isPending = suggestion.status === 'pending';
@@ -228,8 +223,8 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
         isApplied
           ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
           : isRejected
-          ? 'bg-gray-50 dark:bg-gray-900/20 border-gray-300 dark:border-gray-700 opacity-60'
-          : 'bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700'
+            ? 'bg-gray-50 dark:bg-gray-900/20 border-gray-300 dark:border-gray-700 opacity-60'
+            : 'bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700'
       }`}
     >
       <div className="flex items-start gap-3 mb-3">
@@ -237,27 +232,21 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
           {getTypeIcon(suggestion.type)}
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 dark:text-white">
-            {suggestion.title}
-          </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {suggestion.description}
-          </p>
+          <h3 className="font-semibold text-gray-900 dark:text-white">{suggestion.title}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{suggestion.description}</p>
         </div>
         <div className="flex flex-col items-end gap-1">
           <div className="text-xs font-medium text-gray-600 dark:text-gray-400">
             Güven: {Math.round(suggestion.confidence * 100)}%
           </div>
-          <div
-            className="h-2 w-20 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"
-          >
+          <div className="h-2 w-20 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
               className={`h-full ${
                 suggestion.confidence > 0.7
                   ? 'bg-green-500'
                   : suggestion.confidence > 0.5
-                  ? 'bg-yellow-500'
-                  : 'bg-red-500'
+                    ? 'bg-yellow-500'
+                    : 'bg-red-500'
               }`}
               style={{ width: `${suggestion.confidence * 100}%` }}
             />

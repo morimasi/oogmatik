@@ -8,3 +8,5 @@ export * from './screening';
 export * from './ocr-activity';
 export * from './infographic';
 export * from './worksheet';
+export * from './creativeStudio';
+export * from './student-advanced';

@@ -37,7 +37,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           { question: 'Soru 1?', answer: 'Cevap 1' },
           { question: 'Soru 2?', answer: 'Cevap 2' },
         ],
-        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
+        pedagogicalNote: 'Bu cok uzun bir pedagojik nottur en az 20 karakterdir.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -48,7 +48,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         mode: 'ai',
         grade: '5. Sınıf',
         difficulty: 'Orta',
-        studentId: null,
+        studentId: null, topic: 'Test Topic',
       });
 
       expect(result).toHaveLength(1);
@@ -65,7 +65,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         title: 'Test Okuma Metni',
         text: 'Bu bir test metnidir.',
         // questions eksik!
-        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
+        pedagogicalNote: 'Bu cok uzun bir pedagojik nottur en az 20 karakterdir.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -76,7 +76,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         mode: 'ai',
         grade: '5. Sınıf',
         difficulty: 'Orta',
-        studentId: null,
+        studentId: null, topic: 'Test Topic',
       });
 
       expect(result).toHaveLength(1);
@@ -89,7 +89,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         title: 'Test Okuma Metni',
         text: 'Bu bir test metnidir.',
         questions: [], // boş array
-        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
+        pedagogicalNote: 'Bu cok uzun bir pedagojik nottur en az 20 karakterdir.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -100,7 +100,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         mode: 'ai',
         grade: '5. Sınıf',
         difficulty: 'Orta',
-        studentId: null,
+        studentId: null, topic: 'Test Topic',
       });
 
       expect(result).toHaveLength(1);
@@ -116,7 +116,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           { answer: 'Cevap 2' }, // question eksik
           {}, // her ikisi de eksik
         ],
-        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
+        pedagogicalNote: 'Bu cok uzun bir pedagojik nottur en az 20 karakterdir.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -127,7 +127,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         mode: 'ai',
         grade: '5. Sınıf',
         difficulty: 'Orta',
-        studentId: null,
+        studentId: null, topic: 'Test Topic',
       });
 
       expect(result).toHaveLength(1);
@@ -147,7 +147,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           { question: 'Alıştırma 1?', answer: 'Cevap 1' },
           { question: 'Alıştırma 2?', answer: 'Cevap 2' },
         ],
-        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
+        pedagogicalNote: 'Bu cok uzun bir pedagojik nottur en az 20 karakterdir.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -158,7 +158,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         mode: 'ai',
         grade: '5. Sınıf',
         difficulty: 'Orta',
-        studentId: null,
+        studentId: null, topic: 'Test Topic',
       });
 
       expect(result).toHaveLength(1);
@@ -172,7 +172,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         title: 'İsimler',
         topic: 'İsim Çeşitleri',
         // rules ve exercises eksik!
-        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
+        pedagogicalNote: 'Bu cok uzun bir pedagojik nottur en az 20 karakterdir.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -183,7 +183,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         mode: 'ai',
         grade: '5. Sınıf',
         difficulty: 'Orta',
-        studentId: null,
+        studentId: null, topic: 'Test Topic',
       });
 
       expect(result).toHaveLength(1);
@@ -201,7 +201,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           { question: 'Problem 1?', hint: 'İpucu 1', answer: 'Cevap 1' },
           { question: 'Problem 2?', answer: 'Cevap 2' }, // hint opsiyonel
         ],
-        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
+        pedagogicalNote: 'Bu cok uzun bir pedagojik nottur en az 20 karakterdir.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -212,7 +212,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         mode: 'ai',
         grade: '5. Sınıf',
         difficulty: 'Orta',
-        studentId: null,
+        studentId: null, topic: 'Test Topic',
       });
 
       expect(result).toHaveLength(1);
@@ -225,7 +225,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
       const mockResponse = {
         title: 'Mantık Problemleri',
         // problems eksik!
-        pedagogicalNote: 'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.',
+        pedagogicalNote: 'Bu cok uzun bir pedagojik nottur en az 20 karakterdir.',
       };
 
       vi.mocked(generateWithSchema).mockResolvedValueOnce(mockResponse);
@@ -236,7 +236,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         mode: 'ai',
         grade: '5. Sınıf',
         difficulty: 'Orta',
-        studentId: null,
+        studentId: null, topic: 'Test Topic',
       });
 
       expect(result).toHaveLength(1);
@@ -262,7 +262,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           mode: 'ai',
           grade: '5. Sınıf',
           difficulty: 'Orta',
-          studentId: null,
+          studentId: null, topic: 'Test Topic',
         })
       ).rejects.toThrow('Tüm şablonlar için üretim başarısız oldu. Lütfen tekrar deneyin.');
     });
@@ -277,7 +277,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
           mode: 'ai',
           grade: '5. Sınıf',
           difficulty: 'Orta',
-          studentId: null,
+          studentId: null, topic: 'Test Topic',
         })
       ).rejects.toThrow('Tüm şablonlar için üretim başarısız oldu. Lütfen tekrar deneyin.');
     });
@@ -291,7 +291,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
         mode: 'fast',
         grade: '5. Sınıf',
         difficulty: 'Orta',
-        studentId: null,
+        studentId: null, topic: 'Test Topic',
       });
 
       expect(result).toHaveLength(2);

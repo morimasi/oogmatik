@@ -14,9 +14,7 @@ import {
   compressItemsForPrompt,
   buildWorkbookContext,
 } from '../src/services/workbookAIAssistant/prompts/workbookPrompts';
-import {
-  AssistantCache,
-} from '../src/services/workbookAIAssistant/cache/assistantCache';
+import { AssistantCache } from '../src/services/workbookAIAssistant/cache/assistantCache';
 import type { CollectionItem, WorkbookSettings } from '../src/types';
 import { ActivityType } from '../src/types';
 
@@ -29,15 +27,20 @@ const mockItem = (overrides: Partial<CollectionItem> = {}): CollectionItem => ({
   activityType: ActivityType.FIVE_W_ONE_H,
   title: 'Test Aktivite',
   data: [],
-  settings: {},
+  settings: {} as any,
   ...overrides,
 });
 
-const mockSettings = (overrides: Partial<WorkbookSettings> = {}): WorkbookSettings => ({
-  title: 'Test Kitapcik',
-  studentName: 'Test Ogrenci',
-  ...overrides,
-});
+const mockSettings = (overrides: Partial<WorkbookSettings> = {}): WorkbookSettings =>
+  ({
+    title: 'Test Kitapcik',
+    studentName: 'Test Ogrenci',
+    schoolName: '',
+    year: '',
+    teacherNote: '',
+    theme: 'modern',
+    ...overrides,
+  }) as WorkbookSettings;
 
 // ============================================================
 // CONTENT VALIDATOR TESTS
@@ -173,9 +176,7 @@ describe('Prompt Builders', () => {
     });
 
     it('should mark dividers with DIV', () => {
-      const items = [
-        mockItem({ itemType: 'divider', title: 'Bolum 1' }),
-      ];
+      const items = [mockItem({ itemType: 'divider', title: 'Bolum 1' })];
 
       const result = compressItemsForPrompt(items);
 
@@ -183,9 +184,7 @@ describe('Prompt Builders', () => {
     });
 
     it('should truncate long titles', () => {
-      const items = [
-        mockItem({ title: 'Bu cok uzun bir baslik ve kisaltilmali' }),
-      ];
+      const items = [mockItem({ title: 'Bu cok uzun bir baslik ve kisaltilmali' })];
 
       const result = compressItemsForPrompt(items);
       const titlePart = result.split('|')[2];

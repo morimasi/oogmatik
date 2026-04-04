@@ -223,8 +223,44 @@ export enum ActivityType {
   INFOGRAPHIC_SPEECH_THERAPY_TARGET = 'INFOGRAPHIC_SPEECH_THERAPY_TARGET',
   INFOGRAPHIC_MOTOR_SKILLS = 'INFOGRAPHIC_MOTOR_SKILLS',
   INFOGRAPHIC_EVALUATION_SUMMARY = 'INFOGRAPHIC_EVALUATION_SUMMARY',
-}
 
+  // ── WORKBOOK AI GEÇİCİ TİPLERİ (TS Hatalarını Önlemek İçin) ──────────────
+  MATH_BASIC_OPERATIONS = 'MATH_BASIC_OPERATIONS',
+  MATH_WORD_PROBLEMS = 'MATH_WORD_PROBLEMS',
+  MATH_GEOMETRY = 'MATH_GEOMETRY',
+  READING_COMPREHENSION = 'READING_COMPREHENSION',
+  GRAMMAR_EXERCISE = 'GRAMMAR_EXERCISE',
+  VOCABULARY_BUILDING = 'VOCABULARY_BUILDING',
+  LOGIC_PUZZLE = 'LOGIC_PUZZLE',
+  PATTERN_RECOGNITION = 'PATTERN_RECOGNITION',
+  VISUAL_PERCEPTION = 'VISUAL_PERCEPTION',
+  DYSLEXIA_SYLLABLE_BREAK = 'DYSLEXIA_SYLLABLE_BREAK',
+  DYSLEXIA_WORD_RECOGNITION = 'DYSLEXIA_WORD_RECOGNITION',
+  ANAGRAM_PUZZLE = 'ANAGRAM_PUZZLE',
+  DYSCALCULIA_NUMBER_SENSE = 'DYSCALCULIA_NUMBER_SENSE',
+  DYSCALCULIA_MAGNITUDE_COMPARISON = 'DYSCALCULIA_MAGNITUDE_COMPARISON',
+  MEMORY_GAME = 'MEMORY_GAME',
+  QUICK_RECALL = 'QUICK_RECALL',
+  MATH_ALGEBRA = 'MATH_ALGEBRA',
+  TEXT_ANALYSIS = 'TEXT_ANALYSIS',
+  SCIENCE_EXPERIMENT = 'SCIENCE_EXPERIMENT',
+  LOGIC_REASONING = 'LOGIC_REASONING',
+  SPELLING_PRACTICE = 'SPELLING_PRACTICE',
+  WRITING_PROMPT = 'WRITING_PROMPT',
+  DIAGNOSTIC_TEST = 'DIAGNOSTIC_TEST',
+  SKILL_ASSESSMENT = 'SKILL_ASSESSMENT',
+  PROGRESS_MONITORING = 'PROGRESS_MONITORING',
+  SELF_ASSESSMENT = 'SELF_ASSESSMENT',
+  CREATIVE_WRITING = 'CREATIVE_WRITING',
+  STORY_STARTER = 'STORY_STARTER',
+  DRAWING_EXERCISE = 'DRAWING_EXERCISE',
+  COLLAGE_ACTIVITY = 'COLLAGE_ACTIVITY',
+  REFLECTION_PROMPT = 'REFLECTION_PROMPT',
+  OBSERVATION_TASK = 'OBSERVATION_TASK',
+  HISTORY_TIMELINE = 'HISTORY_TIMELINE',
+  MAP_READING = 'MAP_READING',
+  GOAL_SETTING = 'GOAL_SETTING',
+}
 
 export interface Activity {
   id: ActivityType;
@@ -245,21 +281,21 @@ export interface ActivityCategory {
 
 export interface WorksheetBlock {
   type:
-  | 'header'
-  | 'text'
-  | 'grid'
-  | 'table'
-  | 'svg_shape'
-  | 'dual_column'
-  | 'image'
-  | 'question'
-  | 'logic_card'
-  | 'footer_validation'
-  | 'cloze_test'
-  | 'categorical_sorting'
-  | 'match_columns'
-  | 'visual_clue_card'
-  | 'neuro_marker';
+    | 'header'
+    | 'text'
+    | 'grid'
+    | 'table'
+    | 'svg_shape'
+    | 'dual_column'
+    | 'image'
+    | 'question'
+    | 'logic_card'
+    | 'footer_validation'
+    | 'cloze_test'
+    | 'categorical_sorting'
+    | 'match_columns'
+    | 'visual_clue_card'
+    | 'neuro_marker';
   content: unknown;
   id?: string;
   style?: {

@@ -344,7 +344,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
 
   // Kat 3: Okuma & Dil (10)
   {
-    type: ActivityType.INFOGRAPHIC_SYLLABLE_TREE,
+    type: ActivityType.INFOGRAPHIC_SYLLABLE_MAP,
     name: 'Hece Ağacı',
     rules:
       '1. Kelimeleri hecelerine ayır\n2. Her heceyi ağaç yapısında göster\n3. En az 5 kelime\n4. Pedagojik not: Hece bilincinin okumaya katkısı (min 100 kelime)',
@@ -378,7 +378,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_SENTENCE_BUILD,
+    type: ActivityType.INFOGRAPHIC_SENTENCE_BUILDER,
     name: 'Cümle İnşası',
     rules:
       '1. Verilen kelimelerle cümle kur\n2. Özne-yüklem-nesne yapısını göster\n3. En az 3 cümle\n4. Pedagojik not: Cümle kurma becerisinin gelişimi (min 100 kelime)',
@@ -395,7 +395,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_VOCAB_MAP,
+    type: ActivityType.INFOGRAPHIC_VOCAB_TREE,
     name: 'Kelime Haritası',
     rules:
       '1. Kelimenin anlamı, eş anlamlısı, zıt anlamlısı\n2. Örnek cümle ekle\n3. Pedagojik not: Kelime haritasının sözcük dağarcığına katkısı (min 100 kelime)',
@@ -412,7 +412,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_PHONEME_GRID,
+    type: ActivityType.INFOGRAPHIC_PREFIX_SUFFIX,
     name: 'Fonem Izgarası',
     rules:
       '1. Sesleri harflerle eşleştir\n2. Benzer sesleri grupla\n3. Pedagojik not: Fonem farkındalığının okumaya katkısı (min 100 kelime)',
@@ -429,7 +429,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_GRAMMAR_TREE,
+    type: ActivityType.INFOGRAPHIC_ANTONYM_SYNONYM,
     name: 'Dilbilgisi Ağacı',
     rules:
       '1. Cümlenin dilbilgisi yapısını ağaç olarak göster\n2. Özne, yüklem, nesne, tümleç dalları\n3. Pedagojik not: Dilbilgisi analizi yazmaya katkı (min 100 kelime)',
@@ -446,7 +446,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_SPELLING_RULES,
+    type: ActivityType.INFOGRAPHIC_WORD_ORIGIN,
     name: 'Yazım Kuralları Tablosu',
     rules:
       '1. Yazım kurallarını örneklerle göster\n2. Doğru/Yanlış karşılaştırması\n3. En az 5 kural\n4. Pedagojik not: Yazım kurallarının önemi (min 100 kelime)',
@@ -463,7 +463,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_PUNCTUATION_GUIDE,
+    type: ActivityType.INFOGRAPHIC_COMPOUND_WORD,
     name: 'Noktalama Rehberi',
     rules:
       '1. Noktalama işaretlerini kullanım örnekleriyle göster\n2. En az 5 işaret\n3. Pedagojik not: Noktalama bilincinin okumaya katkısı (min 100 kelime)',
@@ -480,7 +480,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_WRITING_PLAN,
+    type: ActivityType.INFOGRAPHIC_GENRE_CHART,
     name: 'Yazma Planı',
     rules:
       '1. Yazma sürecini adım adım planla\n2. Giriş-Gelişme-Sonuç yapısı\n3. Pedagojik not: Planlı yazmanın kaliteye etkisi (min 100 kelime)',
@@ -497,8 +497,8 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_POETRY_MAP,
-    name: 'Şiir Analiz Haritası',
+    type: ActivityType.INFOGRAPHIC_MATH_STEPS,
+    name: 'Matematik Adımları',
     rules:
       '1. Şiirin teması, duygusu, imgeleri\n2. Kafiye şeması\n3. Pedagojik not: Şiir analizi duygusal zekaya katkı (min 100 kelime)',
     schema: {
@@ -550,7 +550,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_GEOMETRY_SHAPES,
+    type: ActivityType.INFOGRAPHIC_GEOMETRY_EXPLORER,
     name: 'Geometrik Şekiller',
     rules:
       '1. Şekillerin özelliklerini tablo halinde göster\n2. Kenar, açı, simetri bilgisi\n3. Pedagojik not: Geometri farkındalığının gelişimi (min 100 kelime)',
@@ -567,7 +567,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_MEASURE_CONVERT,
+    type: ActivityType.INFOGRAPHIC_MEASUREMENT_GUIDE,
     name: 'Ölçü Dönüştürme Tablosu',
     rules:
       '1. Ölçü birimleri arası dönüşümleri göster\n2. Örnek hesaplamalar ekle\n3. Pedagojik not: Ölçü bilincinin günlük yaşama katkısı (min 100 kelime)',
@@ -584,7 +584,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_PATTERN_DESIGN,
+    type: ActivityType.INFOGRAPHIC_PATTERN_RULE,
     name: 'Desen Tasarımı',
     rules:
       '1. Desen örüntüsü oluştur\n2. Devamını öğrenci tamamlasın\n3. Pedagojik not: Örüntü tanımanın matematiksel düşünmeye katkısı (min 100 kelime)',
@@ -601,7 +601,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_DATA_GRAPH,
+    type: ActivityType.INFOGRAPHIC_DATA_CHART,
     name: 'Veri Grafiği',
     rules:
       '1. Verileri çubuk/pasta grafiği olarak göster\n2. Yorum soruları ekle\n3. Pedagojik not: Veri okuryazarlığının gelişimi (min 100 kelime)',
@@ -618,7 +618,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_MATH_STORY,
+    type: ActivityType.INFOGRAPHIC_ALGEBRA_BALANCE,
     name: 'Matematik Hikayesi',
     rules:
       '1. Matematiksel durumu hikaye olarak anlat\n2. Adım adım çözüm yolu göster\n3. Pedagojik not: Hikayeleştirilmiş matematiğin motivasyona etkisi (min 100 kelime)',
@@ -635,7 +635,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_SYMMETRY_GRID,
+    type: ActivityType.INFOGRAPHIC_WORD_PROBLEM_MAP,
     name: 'Simetri Izgarası',
     rules:
       '1. Simetri eksenini göster\n2. Yarım şekli tamamla etkinliği\n3. Pedagojik not: Simetri algısının görsel gelişime katkısı (min 100 kelime)',
@@ -652,7 +652,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_TIME_CLOCK,
+    type: ActivityType.INFOGRAPHIC_SUMMARY_PYRAMID,
     name: 'Zaman ve Saat',
     rules:
       '1. Saat okuma etkinlikleri\n2. Zaman çizelgesi\n3. Pedagojik not: Zaman kavramının gelişimi (min 100 kelime)',
@@ -669,7 +669,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_MONEY_MATH,
+    type: ActivityType.INFOGRAPHIC_PREDICTION_BOARD,
     name: 'Para Matematiği',
     rules:
       '1. Para üstü, toplama, çıkarma problemleri\n2. Gerçek yaşam senaryoları\n3. Pedagojik not: Finansal okuryazarlık temeli (min 100 kelime)',
@@ -722,7 +722,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_WATER_CYCLE,
+    type: ActivityType.INFOGRAPHIC_SCIENTIFIC_METHOD,
     name: 'Su Döngüsü',
     rules:
       '1. Buharlaşma-yoğuşma-yağış-toplanma döngüsünü göster\n2. Her evreyi açıkla\n3. Pedagojik not: Su döngüsü bilincinin çevre farkındalığına katkısı (min 100 kelime)',
@@ -756,7 +756,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_PLANT_PARTS,
+    type: ActivityType.INFOGRAPHIC_CELL_DIAGRAM,
     name: 'Bitki Bölümleri',
     rules:
       '1. Bitkinin kök-gövde-yaprak-çiçek bölümlerini göster\n2. Her bölümün görevini yaz\n3. Pedagojik not: Bitki biyolojisi farkındalığı (min 100 kelime)',
@@ -773,7 +773,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_ANIMAL_CLASSIFY,
+    type: ActivityType.INFOGRAPHIC_ECOSYSTEM_WEB,
     name: 'Hayvan Sınıflandırma',
     rules:
       '1. Hayvanları grupla (memeli, kuş, balık, sürüngen, amfibyen)\n2. Her gruptan örnek ver\n3. Pedagojik not: Sınıflandırma becerisinin bilimsel düşünceye katkısı (min 100 kelime)',
@@ -790,7 +790,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_EXPERIMENT_STEPS,
+    type: ActivityType.INFOGRAPHIC_STATES_MATTER,
     name: 'Deney Basamakları',
     rules:
       '1. Deney adımlarını sırayla yaz\n2. Malzeme listesi ekle\n3. Pedagojik not: Bilimsel yöntem farkındalığı (min 100 kelime)',
@@ -807,7 +807,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_ENERGY_TYPES,
+    type: ActivityType.INFOGRAPHIC_HUMAN_BODY,
     name: 'Enerji Türleri',
     rules:
       '1. Enerji türlerini örneklerle göster\n2. Dönüşümlerini oklarla belirt\n3. Pedagojik not: Enerji farkındalığının fen okuryazarlığına katkısı (min 100 kelime)',
@@ -843,7 +843,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_MAP_SKILLS,
+    type: ActivityType.INFOGRAPHIC_MAP_EXPLORER,
     name: 'Harita Okuma',
     rules:
       '1. Harita sembollerini ve anlamlarını göster\n2. Yön, ölçek, lejant bilgisi\n3. Pedagojik not: Mekansal okuryazarlık gelişimi (min 100 kelime)',
@@ -860,7 +860,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_CULTURE_WEB,
+    type: ActivityType.INFOGRAPHIC_CULTURE_COMPARE,
     name: 'Kültür Ağı',
     rules:
       '1. Kültür unsurlarını ağ yapısında göster\n2. Gelenekler, bayramlar, yemekler, giysiler\n3. Pedagojik not: Kültürel farkındalık gelişimi (min 100 kelime)',
@@ -877,7 +877,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_COMMUNITY_ROLES,
+    type: ActivityType.INFOGRAPHIC_GOVERNMENT_CHART,
     name: 'Toplumda Roller',
     rules:
       '1. Toplum bireylerinin rollerini göster\n2. Meslekler ve görevleri\n3. Pedagojik not: Sosyal sorumluluk bilinci (min 100 kelime)',
@@ -894,7 +894,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_GEOGRAPHY_FACTS,
+    type: ActivityType.INFOGRAPHIC_GEOGRAPHY_PROFILE,
     name: 'Coğrafya Bilgileri',
     rules:
       '1. Bölge özelliklerini tablo halinde göster\n2. İklim, nüfus, ekonomik faaliyetler\n3. Pedagojik not: Coğrafi okuryazarlık gelişimi (min 100 kelime)',
@@ -911,7 +911,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_GOVT_BRANCHES,
+    type: ActivityType.INFOGRAPHIC_EVENT_ANALYSIS,
     name: 'Yönetim Yapısı',
     rules:
       '1. Yönetim organlarını hiyerarşik göster\n2. Görev ve sorumlulukları yaz\n3. Pedagojik not: Vatandaşlık bilinci gelişimi (min 100 kelime)',
@@ -928,7 +928,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_ECONOMY_CYCLE,
+    type: ActivityType.INFOGRAPHIC_ECONOMIC_FLOW,
     name: 'Ekonomi Döngüsü',
     rules:
       '1. Üretim-tüketim-tasarruf döngüsünü göster\n2. Basit ekonomik kavramlar\n3. Pedagojik not: Ekonomik okuryazarlık temeli (min 100 kelime)',
@@ -945,7 +945,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_HERO_TIMELINE,
+    type: ActivityType.INFOGRAPHIC_BIOGRAPHY_BOARD,
     name: 'Kahraman Zaman Çizelgesi',
     rules:
       '1. Önemli kişinin hayat olaylarını kronolojik göster\n2. Her olayın önemini belirt\n3. Pedagojik not: Rol model farkındalığı (min 100 kelime)',
@@ -998,7 +998,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_THINKING_HATS,
+    type: ActivityType.INFOGRAPHIC_ASSOCIATIONS,
     name: 'Düşünme Şapkaları',
     rules:
       '1. 6 düşünme şapkasını göster\n2. Her şapka için örnek düşünce\n3. Pedagojik not: Çok yönlü düşünme becerisi (min 100 kelime)',
@@ -1015,7 +1015,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_MIND_DUMP,
+    type: ActivityType.INFOGRAPHIC_ROLE_PLAY_SCENARIO,
     name: 'Zihin Boşaltma',
     rules:
       '1. Konuyla ilgili tüm fikirleri serbest yaz\n2. Sonra grupla ve önceliklendir\n3. Pedagojik not: Fikir üretme becerisi gelişimi (min 100 kelime)',
@@ -1032,7 +1032,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_CREATIVE_PROMPT,
+    type: ActivityType.INFOGRAPHIC_FUTURE_VISION,
     name: 'Yaratıcı Yazma İstemi',
     rules:
       '1. Yaratıcı yazma için istem cümleleri üret\n2. En az 3 istem\n3. Pedagojik not: Yaratıcı yazma becerisi gelişimi (min 100 kelime)',
@@ -1049,7 +1049,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_DESIGN_CHALLENGE,
+    type: ActivityType.INFOGRAPHIC_DESIGN_THINKING,
     name: 'Tasarım Meydan Okuması',
     rules:
       '1. Tasarım problemi ve kısıtları tanımla\n2. Çözüm önerileri için alan bırak\n3. Pedagojik not: Tasarım düşünce becerisi (min 100 kelime)',
@@ -1066,7 +1066,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_ANALOGY_MAP,
+    type: ActivityType.INFOGRAPHIC_ALTERNATIVE_ENDS,
     name: 'Analoji Haritası',
     rules:
       '1. İki farklı alan arasında benzerlik kur\n2. En az 3 analoji\n3. Pedagojik not: Analojik düşünce soyutlamayı geliştirir (min 100 kelime)',
@@ -1102,7 +1102,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
 
   // Kat 8: Öğrenme Stratejileri (8)
   {
-    type: ActivityType.INFOGRAPHIC_CORNELL_NOTES,
+    type: ActivityType.INFOGRAPHIC_NOTE_TAKING,
     name: 'Cornell Not Alma',
     rules:
       '1. Cornell not formatında bölümler oluştur\n2. Anahtar kelimeler, notlar, özet\n3. Pedagojik not: Etkili not alma stratejisi (min 100 kelime)',
@@ -1119,7 +1119,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_KWL_CHART,
+    type: ActivityType.INFOGRAPHIC_TEST_PREPARATION,
     name: 'KWL Tablosu',
     rules:
       '1. Ne Biliyorum, Ne Öğrenmek İstiyorum, Ne Öğrendim sütunları\n2. Her sütuna en az 3 madde\n3. Pedagojik not: Üstbilişsel farkındalık gelişimi (min 100 kelime)',
@@ -1153,41 +1153,41 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_MEMORY_PALACE,
-    name: 'Hafıza Sarayı',
+    type: ActivityType.INFOGRAPHIC_TIME_MANAGEMENT,
+    name: 'Zaman ve Saat',
     rules:
-      '1. Bilgileri mekanlarla ilişkilendir\n2. En az 5 oda/bölge\n3. Pedagojik not: Mekansal hafıza tekniği (min 100 kelime)',
+      '1. Saat okuma etkinlikleri\n2. Zaman çizelgesi\n3. Pedagojik not: Zaman kavramının gelişimi (min 100 kelime)',
     schema: {
       parameters: [
         {
-          name: 'roomCount',
+          name: 'eventCount',
           type: 'number',
-          label: 'Oda Sayısı',
-          defaultValue: 5,
-          description: 'Hafıza sarayı kaç odalı olsun?',
+          label: 'Etkinlik Sayısı',
+          defaultValue: 4,
+          description: 'Kaç zaman etkinliği olsun?',
         },
       ],
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_MNEMONIC_DEVICE,
-    name: 'Hafıza Cihazı',
+    type: ActivityType.INFOGRAPHIC_GOAL_SETTING,
+    name: 'Para Matematiği',
     rules:
-      '1. Ezberlenecek bilgi için kısaltma/kelime üret\n2. En az 3 hafıza cihazı\n3. Pedagojik not: Mnemonik tekniklerin hafızaya etkisi (min 100 kelime)',
+      '1. Para üstü, toplama, çıkarma problemleri\n2. Gerçek yaşam senaryoları\n3. Pedagojik not: Finansal okuryazarlık temeli (min 100 kelime)',
     schema: {
       parameters: [
         {
-          name: 'deviceCount',
+          name: 'problemCount',
           type: 'number',
-          label: 'Hafıza Cihazı Sayısı',
+          label: 'Problem Sayısı',
           defaultValue: 3,
-          description: 'Kaç hafıza cihazı oluşturulsun?',
+          description: 'Kaç para problemi olsun?',
         },
       ],
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_GOAL_TRACKER,
+    type: ActivityType.INFOGRAPHIC_SELF_REFLECTION,
     name: 'Hedef Takip',
     rules:
       '1. SMART hedefler belirle\n2. İlerleme göstergesi ekle\n3. Pedagojik not: Hedef belirleme motivasyonu artırır (min 100 kelime)',
@@ -1204,7 +1204,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_SELF_ASSESS,
+    type: ActivityType.INFOGRAPHIC_MOTIVATION_BOARD,
     name: 'Öz Değerlendirme',
     rules:
       '1. Öğrencinin kendini değerlendirmesi için kriterler\n2. Radar veya puanlama skalası\n3. Pedagojik not: Öz değerlendirme üstbilişsel beceridir (min 100 kelime)',
@@ -1221,7 +1221,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_REFLECTION_JOURNAL,
+    type: ActivityType.INFOGRAPHIC_NOTE_TAKING,
     name: 'Yansıtma Günlüğü',
     rules:
       '1. Günlük yansıtma soruları oluştur\n2. Ne öğrendim, ne hissettim, ne yapacağım\n3. Pedagojik not: Yansıtıcı düşünme öğrenmeyi derinleştirir (min 100 kelime)',
@@ -1240,7 +1240,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
 
   // Kat 9: SpLD Destek (10)
   {
-    type: ActivityType.INFOGRAPHIC_READING_RULER,
+    type: ActivityType.INFOGRAPHIC_DYSLEXIA_READING,
     name: 'Okuma Cetveli',
     rules:
       '1. Satır takibi için görsel cetvel tasarla\n2. Renkli overlay efekti\n3. Pedagojik not: Okuma cetveli satır takibini kolaylaştırır (min 100 kelime)',
@@ -1257,7 +1257,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_COLOR_OVERLAY,
+    type: ActivityType.INFOGRAPHIC_DYSGRAPHIA_WRITING,
     name: 'Renk Kaplama',
     rules:
       '1. Farklı renk kaplamalarının okumaya etkisini göster\n2. En az 3 renk seçeneği\n3. Pedagojik not: Renk kaplaması disleksi okuma konforunu artırır (min 100 kelime)',
@@ -1274,7 +1274,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_PHONICS_MAP,
+    type: ActivityType.INFOGRAPHIC_DYSCALCULIA_MATH,
     name: 'Fonik Haritası',
     rules:
       '1. Harf-ses eşleştirmelerini göster\n2. En az 6 harf-ses çifti\n3. Pedagojik not: Fonik farkındalık okuma becerisinin temelidir (min 100 kelime)',
@@ -1291,7 +1291,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_VISUAL_SCHEDULE,
+    type: ActivityType.INFOGRAPHIC_ADHD_FOCUS,
     name: 'Görsel Program',
     rules:
       '1. Günlük programı görsel ikonlarla göster\n2. En az 5 etkinlik\n3. Pedagojik not: Görsel program DEHB dikkat düzenlemesine yardımcı olur (min 100 kelime)',
@@ -1308,7 +1308,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_BREAK_DOWN_TASK,
+    type: ActivityType.INFOGRAPHIC_EXECUTIVE_FUNCTION,
     name: 'Görev Parçalama',
     rules:
       '1. Karmaşık görevi küçük adımlara böl\n2. En az 4 adım\n3. Pedagojik not: Görev parçalama DEHB yürütücü işlevleri destekler (min 100 kelime)',
@@ -1325,7 +1325,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_MULTISENSORY,
+    type: ActivityType.INFOGRAPHIC_SENSORY_INTEGRATION,
     name: 'Çok Duyulu Öğrenme',
     rules:
       '1. Görsel-işitsel-dokunsal öğrenme yollarını göster\n2. Her duyuya yönelik etkinlik öner\n3. Pedagojik not: Çok duyulu yaklaşım SpLD öğrencilerine etkilidir (min 100 kelime)',
@@ -1342,7 +1342,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_EMOTION_METER,
+    type: ActivityType.INFOGRAPHIC_EMOTION_GAUGE,
     name: 'Duygu Ölçer',
     rules:
       '1. Duygu durumunu görsel ölçekle göster\n2. En az 5 duygu seviyesi\n3. Pedagojik not: Duygu farkındalığı öz düzenlemeyi destekler (min 100 kelime)',
@@ -1359,7 +1359,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_FOCUS_TOOLS,
+    type: ActivityType.INFOGRAPHIC_SOCIAL_SKILLS,
     name: 'Odaklanma Araçları',
     rules:
       '1. Dikkat artırıcı stratejileri listele\n2. Her araç için kısa açıklama\n3. Pedagojik not: Odaklanma araçları DEHB semptomlarını yönetmeye yardımcı olur (min 100 kelime)',
@@ -1376,7 +1376,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_STRENGTHS_WHEEL,
+    type: ActivityType.INFOGRAPHIC_ROUTINE_BUILDER,
     name: 'Güçlü Yönler Çarkı',
     rules:
       '1. Öğrencinin güçlü yönlerini çark halinde göster\n2. En az 6 alan\n3. Pedagojik not: Güçlü yön farkındalığı özgüveni artırır (min 100 kelime)',
@@ -1393,7 +1393,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_CALM_DOWN_PLAN,
+    type: ActivityType.INFOGRAPHIC_ANXIETY_RELIEF,
     name: 'Sakinleşme Planı',
     rules:
       '1. Stres anında uygulanacak adımlar\n2. Nefes egzersizi, sayma, görselleştirme\n3. Pedagojik not: Öz düzenleme becerisi duygusal sağlığı destekler (min 100 kelime)',
@@ -1412,7 +1412,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
 
   // Kat 10: Klinik & BEP (12)
   {
-    type: ActivityType.INFOGRAPHIC_BEP_GOALS,
+    type: ActivityType.INFOGRAPHIC_BEP_GOAL_MAP,
     name: 'BEP Hedefleri',
     rules:
       '1. SMART formatında BEP hedefleri yaz\n2. Domain, hedef, tarih, destek stratejileri\n3. Pedagojik not: BEP hedefleri bireyselleştirilmiş eğitimin temelidir (min 100 kelime)',
@@ -1429,7 +1429,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_PROGRESS_MONITOR,
+    type: ActivityType.INFOGRAPHIC_IEP_PROGRESS,
     name: 'İlerleme İzleme',
     rules:
       '1. Hedeflere yönelik ilerleme göstergesi\n2. Başlangıç-şimdiki-hedef seviyeleri\n3. Pedagojik not: İlerleme izleme veriye dayalı karar vermeyi sağlar (min 100 kelime)',
@@ -1446,7 +1446,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_BEHAVIOR_CHART,
+    type: ActivityType.INFOGRAPHIC_OBSERVATION_MATRIX,
     name: 'Davranış Çizelgesi',
     rules:
       '1. Hedef davranışları ve gözlem verilerini göster\n2. Günlük/haftalık takip\n3. Pedagojik not: Davranış izleme pozitif pekiştirmeyi destekler (min 100 kelime)',
@@ -1463,7 +1463,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_INTERVENTION_PLAN,
+    type: ActivityType.INFOGRAPHIC_COGNITIVE_PROFILE,
     name: 'Müdahale Planı',
     rules:
       '1. Müdahale stratejilerini adım adım yaz\n2. Sorun, strateji, süre, değerlendirme\n3. Pedagojik not: Erken müdahale öğrenme güçlüklerini azaltır (min 100 kelime)',
@@ -1480,7 +1480,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_SKILL_GAP,
+    type: ActivityType.INFOGRAPHIC_BEHAVIOR_INTERVENTION,
     name: 'Beceri Açığı Analizi',
     rules:
       '1. Beklenen ve mevcut beceri seviyesini karşılaştır\n2. Radar grafik formatında göster\n3. Pedagojik not: Beceri açığı analizi hedef belirlemeyi kolaylaştırır (min 100 kelime)',
@@ -1531,7 +1531,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_COLLABORATION_MAP,
+    type: ActivityType.INFOGRAPHIC_SENSORY_DIET,
     name: 'İş Birliği Haritası',
     rules:
       '1. Öğretmen-aile-uzman iş birliği ağını göster\n2. Her rolün sorumluluğunu belirt\n3. Pedagojik not: İş birliği öğrenci başarısını artırır (min 100 kelime)',
@@ -1548,7 +1548,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_ASSESSMENT_SUMMARY,
+    type: ActivityType.INFOGRAPHIC_SPEECH_THERAPY_TARGET,
     name: 'Değerlendirme Özeti',
     rules:
       '1. Değerlendirme sonuçlarını özetle\n2. Güçlü ve gelişim alanları\n3. Pedagojik not: Değerlendirme özeti bütünsel bakış sağlar (min 100 kelime)',
@@ -1582,7 +1582,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_RTILAYERS,
+    type: ActivityType.INFOGRAPHIC_MOTOR_SKILLS,
     name: 'RTI Katmanları',
     rules:
       '1. RTI (Response to Intervention) 3 katmanını göster\n2. Her katmanda destek düzeyini belirt\n3. Pedagojik not: RTI modeli erken müdahale için kanıta dayalıdır (min 100 kelime)',
@@ -1599,7 +1599,7 @@ const ACTIVITY_DEFINITIONS: ActivityDefinition[] = [
     },
   },
   {
-    type: ActivityType.INFOGRAPHIC_IEP_SUMMARY,
+    type: ActivityType.INFOGRAPHIC_EVALUATION_SUMMARY,
     name: 'BEP Özet Raporu',
     rules:
       '1. BEP özetini tek sayfada göster\n2. Mevcut seviye, hedefler, destekler, değerlendirme\n3. Pedagojik not: BEP özeti ekip iletişimini kolaylaştırır (min 100 kelime)',

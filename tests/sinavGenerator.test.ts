@@ -9,6 +9,33 @@ import type { SinavAyarlari } from '../src/types/sinav';
 
 // Mock geminiClient
 vi.mock('../src/services/geminiClient', () => ({
+  callGeminiDirect: vi.fn().mockResolvedValue(`\`\`\`json
+{
+  "baslik": "Değerlendirme Sınavı",
+  "sorular": [
+    {
+      "id": "1",
+      "tip": "coktan-secmeli",
+      "zorluk": "Kolay",
+      "soruMetni": "Aşağıdakilerden hangisi hikâye unsurlarından biridir?",
+      "secenekler": ["A) Olay", "B) Başlık", "C) Sayfa numarası", "D) Renk"],
+      "dogruCevap": "0",
+      "puan": 10,
+      "tahminiSure": 90
+    },
+    {
+      "id": "2",
+      "tip": "bosluk-doldurma",
+      "zorluk": "Kolay",
+      "soruMetni": "Bir diğer soru",
+      "dogruCevap": "cevap",
+      "puan": 10,
+      "tahminiSure": 60
+    }
+  ],
+  "pedagojikNot": "Bu bir pedagojik nottur ve yüz karakterden uzun olmalıdır ki testi geçsin. Öğrencinin bilişsel gelişimini desteklemek için bu test dikkatle hazırlanmıştır ve başarı anı mimarisi kullanılarak ilk sorular kolay tutulmuştur."
+}
+\`\`\``),
   generateWithSchema: vi.fn(async () => ({
     baslik: '5. Sınıf Türkçe Değerlendirme Sınavı',
     sorular: [
@@ -21,18 +48,23 @@ vi.mock('../src/services/geminiClient', () => ({
         dogruCevap: '0',
         kazanimKodu: 'T.5.3.1',
         puan: 5,
-        tahminiSure: 90
+        tahminiSure: 90,
       },
       {
         id: 'soru-2',
         tip: 'coktan-secmeli',
         zorluk: 'Kolay',
         soruMetni: 'Metindeki ana fikir ne anlama gelir?',
-        secenekler: ['A) Konunun özeti', 'B) Yazarın asıl vermek istediği mesaj', 'C) Kitap adı', 'D) Karakter sayısı'],
+        secenekler: [
+          'A) Konunun özeti',
+          'B) Yazarın asıl vermek istediği mesaj',
+          'C) Kitap adı',
+          'D) Karakter sayısı',
+        ],
         dogruCevap: '1',
         kazanimKodu: 'T.5.3.1',
         puan: 5,
-        tahminiSure: 90
+        tahminiSure: 90,
       },
       {
         id: 'soru-3',
@@ -42,21 +74,24 @@ vi.mock('../src/services/geminiClient', () => ({
         dogruCevap: 'mekân',
         kazanimKodu: 'T.5.3.2',
         puan: 5,
-        tahminiSure: 60
+        tahminiSure: 60,
       },
       {
         id: 'soru-4',
         tip: 'acik-uclu',
         zorluk: 'Orta',
-        soruMetni: 'Okuduğunuz bir metnin ana fikrini belirlerken nelere dikkat edersiniz? Açıklayınız.',
-        dogruCevap: 'Metnin bütününü okumak, tekrarlanan kavramlar, başlık ve sonuç cümlesi gibi unsurlara dikkat etmek gerekir.',
+        soruMetni:
+          'Okuduğunuz bir metnin ana fikrini belirlerken nelere dikkat edersiniz? Açıklayınız.',
+        dogruCevap:
+          'Metnin bütününü okumak, tekrarlanan kavramlar, başlık ve sonuç cümlesi gibi unsurlara dikkat etmek gerekir.',
         kazanimKodu: 'T.5.3.1',
         puan: 10,
-        tahminiSure: 300
-      }
+        tahminiSure: 300,
+      },
     ],
-    pedagogicalNote: 'Bu sınav T.5.3.1 ve T.5.3.2 kazanımlarını ölçmektedir. Öğretmen dikkat noktaları: İlk iki soru kolay seviyede başarı anı mimarisini desteklemektedir. Üçüncü soru mekân kavramını pekiştirirken, son soru öğrencinin metni analiz etme becerisini değerlendirir. Disleksi desteğine ihtiyaç duyan öğrenciler için sade dil kullanılmıştır.'
-  }))
+    pedagogicalNote:
+      'Bu sınav T.5.3.1 ve T.5.3.2 kazanımlarını ölçmektedir. Öğretmen dikkat noktaları: İlk iki soru kolay seviyede başarı anı mimarisini desteklemektedir. Üçüncü soru mekân kavramını pekiştirirken, son soru öğrencinin metni analiz etme becerisini değerlendirir. Disleksi desteğine ihtiyaç duyan öğrenciler için sade dil kullanılmıştır.',
+  })),
 }));
 
 describe('sinavGenerator', () => {
@@ -71,13 +106,13 @@ describe('sinavGenerator', () => {
         'coktan-secmeli': 2,
         'dogru-yanlis-duzeltme': 0,
         'bosluk-doldurma': 1,
-        'acik-uclu': 1
+        'acik-uclu': 1,
       },
       zorlukDagilimi: {
-        'Kolay': 2,
-        'Orta': 2,
-        'Zor': 0
-      }
+        Kolay: 2,
+        Orta: 2,
+        Zor: 0,
+      },
     };
   });
 
@@ -90,7 +125,9 @@ describe('sinavGenerator', () => {
   it('should throw error if no kazanim selected', async () => {
     const invalidSettings = { ...validSettings, secilenKazanimlar: [] };
 
-    await expect(generateExam(invalidSettings)).rejects.toThrow('En az bir MEB kazanımı seçilmelidir.');
+    await expect(generateExam(invalidSettings)).rejects.toThrow(
+      'En az bir MEB kazanımı seçilmelidir.'
+    );
   });
 
   it('should throw error if less than 4 questions total', async () => {
@@ -100,11 +137,13 @@ describe('sinavGenerator', () => {
         'coktan-secmeli': 1,
         'dogru-yanlis-duzeltme': 1,
         'bosluk-doldurma': 1,
-        'acik-uclu': 0
-      }
+        'acik-uclu': 0,
+      },
     };
 
-    await expect(generateExam(invalidSettings)).rejects.toThrow('En az 4 soru olmalıdır (Başarı Anı Mimarisi için).');
+    await expect(generateExam(invalidSettings)).rejects.toThrow(
+      'En az 4 soru olmalıdır (Başarı Anı Mimarisi için).'
+    );
   });
 
   it('should generate exam with valid settings', async () => {
@@ -175,7 +214,7 @@ describe('sinavGenerator', () => {
   it('should handle optional special topic', async () => {
     const settingsWithTopic = {
       ...validSettings,
-      ozelKonu: 'Uzay keşfi'
+      ozelKonu: 'Uzay keşfi',
     };
 
     const sinav = await generateExam(settingsWithTopic);

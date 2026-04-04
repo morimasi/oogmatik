@@ -54,12 +54,7 @@ export function getAllTemplates(): WorkbookTemplate[] {
 export function getTemplateById(templateId: string): WorkbookTemplate {
   const template = getAllTemplates().find((t) => t.id === templateId);
   if (!template) {
-    throw new AppError(
-      'Şablon bulunamadı',
-      'TEMPLATE_NOT_FOUND',
-      404,
-      { templateId }
-    );
+    throw new AppError('Şablon bulunamadı', 'TEMPLATE_NOT_FOUND', 404, { templateId });
   }
   return template;
 }
@@ -67,17 +62,10 @@ export function getTemplateById(templateId: string): WorkbookTemplate {
 /**
  * Template type'a göre getir
  */
-export function getTemplateByType(
-  type: WorkbookTemplateType
-): WorkbookTemplate {
+export function getTemplateByType(type: WorkbookTemplateType): WorkbookTemplate {
   const template = getAllTemplates().find((t) => t.type === type);
   if (!template) {
-    throw new AppError(
-      'Şablon tipi bulunamadı',
-      'TEMPLATE_TYPE_NOT_FOUND',
-      404,
-      { type }
-    );
+    throw new AppError('Şablon tipi bulunamadı', 'TEMPLATE_TYPE_NOT_FOUND', 404, { type });
   }
   return template;
 }
@@ -89,9 +77,7 @@ export function getRecommendedTemplates(
   profile: LearningDisabilityProfile,
   ageGroup: AgeGroup
 ): WorkbookTemplate[] {
-  return getAllTemplates().filter(
-    (t) => t.targetProfile === profile && t.ageGroup === ageGroup
-  );
+  return getAllTemplates().filter((t) => t.targetProfile === profile && t.ageGroup === ageGroup);
 }
 
 // ============================================================================
@@ -474,10 +460,7 @@ const TEMPLATE_EXAM_PREP: WorkbookTemplate = {
     },
     {
       title: 'Fen Bilimleri',
-      activityTypes: [
-        ActivityType.SCIENCE_EXPERIMENT,
-        ActivityType.LOGIC_REASONING,
-      ],
+      activityTypes: [ActivityType.SCIENCE_EXPERIMENT, ActivityType.LOGIC_REASONING],
       minActivities: 5,
       maxActivities: 10,
       allowCustomActivities: false,
@@ -503,8 +486,7 @@ const TEMPLATE_SKILL_PRACTICE: WorkbookTemplate = {
   id: 'skill-practice-001',
   name: 'Beceri Pratiği Kitapçığı',
   type: 'skill-practice',
-  description:
-    'Belirli bir beceriyi (örn: çarpım tablosu, okuma akıcılığı) yoğun pratik yapma.',
+  description: 'Belirli bir beceriyi (örn: çarpım tablosu, okuma akıcılığı) yoğun pratik yapma.',
 
   targetProfile: 'mixed',
   ageGroup: '8-10',
@@ -577,8 +559,7 @@ const TEMPLATE_ASSESSMENT_PORTFOLIO: WorkbookTemplate = {
   id: 'assessment-portfolio-001',
   name: 'Değerlendirme Portfolyosu',
   type: 'assessment-portfolio',
-  description:
-    'Öğrenci gelişimini izlemek için periyodik değerlendirme aktiviteleri.',
+  description: 'Öğrenci gelişimini izlemek için periyodik değerlendirme aktiviteleri.',
 
   targetProfile: 'mixed',
   ageGroup: '8-10',
@@ -611,20 +592,14 @@ const TEMPLATE_ASSESSMENT_PORTFOLIO: WorkbookTemplate = {
   sections: [
     {
       title: 'Ön Değerlendirme',
-      activityTypes: [
-        ActivityType.DIAGNOSTIC_TEST,
-        ActivityType.SKILL_ASSESSMENT,
-      ],
+      activityTypes: [ActivityType.DIAGNOSTIC_TEST, ActivityType.SKILL_ASSESSMENT],
       minActivities: 5,
       maxActivities: 8,
       allowCustomActivities: false,
     },
     {
       title: 'Gelişim Takibi',
-      activityTypes: [
-        ActivityType.PROGRESS_MONITORING,
-        ActivityType.SELF_ASSESSMENT,
-      ],
+      activityTypes: [ActivityType.PROGRESS_MONITORING, ActivityType.SELF_ASSESSMENT],
       minActivities: 5,
       maxActivities: 8,
       allowCustomActivities: false,
@@ -717,8 +692,7 @@ const TEMPLATE_CREATIVE_JOURNAL: WorkbookTemplate = {
   id: 'creative-journal-001',
   name: 'Yaratıcı Günlük',
   type: 'creative-journal',
-  description:
-    'Serbest yazma, çizim, yaratıcı ifade için alan. Haftalık/aylık yansıtma.',
+  description: 'Serbest yazma, çizim, yaratıcı ifade için alan. Haftalık/aylık yansıtma.',
 
   targetProfile: 'mixed',
   ageGroup: '8-10',
@@ -762,10 +736,7 @@ const TEMPLATE_CREATIVE_JOURNAL: WorkbookTemplate = {
     },
     {
       title: 'Görsel İfade',
-      activityTypes: [
-        ActivityType.DRAWING_EXERCISE,
-        ActivityType.COLLAGE_ACTIVITY,
-      ],
+      activityTypes: [ActivityType.DRAWING_EXERCISE, ActivityType.COLLAGE_ACTIVITY],
       minActivities: 3,
       maxActivities: 6,
       allowCustomActivities: true,
@@ -791,8 +762,7 @@ const TEMPLATE_PROGRESS_TRACKER: WorkbookTemplate = {
   id: 'progress-tracker-001',
   name: 'İlerleme Takip Kitapçığı',
   type: 'progress-tracker',
-  description:
-    'Haftalık/aylık hedef takibi, öz değerlendirme, motivasyon aktiviteleri.',
+  description: 'Haftalık/aylık hedef takibi, öz değerlendirme, motivasyon aktiviteleri.',
 
   targetProfile: 'mixed',
   ageGroup: '8-10',
@@ -808,7 +778,7 @@ const TEMPLATE_PROGRESS_TRACKER: WorkbookTemplate = {
     backgroundColor: '#1a237e',
     textColor: '#ffffff',
     borderStyle: 'geometric',
-    illustration: 'space',
+    illustration: 'abstract',
     logoPosition: 'bottom',
   },
   pageLayout: {
@@ -825,20 +795,14 @@ const TEMPLATE_PROGRESS_TRACKER: WorkbookTemplate = {
   sections: [
     {
       title: 'Hedefler',
-      activityTypes: [
-        ActivityType.GOAL_SETTING,
-        ActivityType.PROGRESS_MONITORING,
-      ],
+      activityTypes: [ActivityType.GOAL_SETTING, ActivityType.PROGRESS_MONITORING],
       minActivities: 4,
       maxActivities: 6,
       allowCustomActivities: false,
     },
     {
       title: 'Yansıtma',
-      activityTypes: [
-        ActivityType.SELF_ASSESSMENT,
-        ActivityType.REFLECTION_PROMPT,
-      ],
+      activityTypes: [ActivityType.SELF_ASSESSMENT, ActivityType.REFLECTION_PROMPT],
       minActivities: 4,
       maxActivities: 6,
       allowCustomActivities: false,
@@ -864,8 +828,7 @@ const TEMPLATE_MULTI_SUBJECT: WorkbookTemplate = {
   id: 'multi-subject-001',
   name: 'Çok Dersli Kitapçık',
   type: 'multi-subject',
-  description:
-    'Matematik, Türkçe, Fen, Sosyal dengelenerek birden fazla ders.',
+  description: 'Matematik, Türkçe, Fen, Sosyal dengelenerek birden fazla ders.',
 
   targetProfile: 'mixed',
   ageGroup: '8-10',
@@ -945,8 +908,7 @@ const TEMPLATE_CUSTOM: WorkbookTemplate = {
   id: 'custom-001',
   name: 'Özel Tasarım Kitapçık',
   type: 'custom',
-  description:
-    'Tamamen özelleştirilebilir boş şablon. Tüm ayarlar kullanıcı kontrolünde.',
+  description: 'Tamamen özelleştirilebilir boş şablon. Tüm ayarlar kullanıcı kontrolünde.',
 
   targetProfile: 'mixed',
   ageGroup: '8-10',

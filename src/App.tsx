@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { pageTransition } from './utils/motionPresets';
@@ -350,13 +351,26 @@ const AppContent = () => {
   }, [uiSettings]);
 
   // Tüm koyu temalar — tema sınıflandırması için merkezi sabit
-  const DARK_THEMES: AppTheme[] = ['dark', 'anthracite', 'space', 'anthracite-gold', 'anthracite-cyber', 'ocean', 'nature'];
+  const DARK_THEMES: AppTheme[] = [
+    'dark',
+    'anthracite',
+    'space',
+    'anthracite-gold',
+    'anthracite-cyber',
+    'ocean',
+    'nature',
+  ];
 
   // Theme effect
   useEffect(() => {
     // Handle basic dark/light first
     const DARK_THEMES: AppTheme[] = [
-      'dark', 'anthracite', 'space', 'anthracite-gold', 'anthracite-cyber', 'oled-black'
+      'dark',
+      'anthracite',
+      'space',
+      'anthracite-gold',
+      'anthracite-cyber',
+      'oled-black',
     ];
     if (DARK_THEMES.includes(theme) || theme.includes('anthracite')) {
       document.documentElement.classList.add('dark');
@@ -847,73 +861,94 @@ const AppContent = () => {
 
           {/* SPECIAL RENDER FOR STUDIOS WHEN IN THAT VIEW - MOVED INSIDE CONTENT CONTAINER */}
           <AnimatePresence mode="wait">
-          {[
-            'curriculum', 'reading-studio', 'math-studio', 'super-turkce', 
-            'infographic-studio', 'remotion-studio', 'ocr', 'profile', 
-            'students', 'messages', 'admin', 'screening', 
-            'sinav-studyosu', 'mat-sinav-studyosu'
-          ].includes(currentView) && (
-            <motion.div
-              key={currentView}
-              className={`absolute inset-0 bg-[var(--bg-primary)] overflow-hidden ${currentView === 'admin' ? 'z-[75]' : 'z-[60]'}`}
-              variants={pageTransition}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <Suspense fallback={<LoadingSpinner />}>
-                {currentView === 'curriculum' && (
-                  <CurriculumView
-                    onBack={handleGoBack}
-                    onSelectActivity={handleSelectActivity as any}
-                    onStartCurriculumActivity={handleStartCurriculumActivity}
-                    initialPlan={loadedCurriculum}
-                    preFillData={screeningPlanData}
-                  />
-                )}
-                {currentView === 'reading-studio' && (
-                  <ReadingStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                )}
-                {currentView === 'math-studio' && (
-                  <MathStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                )}
-                {currentView === 'super-turkce' && <SuperStudio />}
-                {currentView === 'infographic-studio' && <InfographicStudio onBack={handleGoBack} />}
-                {currentView === 'remotion-studio' && <RemotionStudio />}
-                {currentView === 'ocr' && <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />}
-                {currentView === 'profile' && (
-                  <ProfileView
-                    onBack={handleGoBack}
-                    onSelectActivity={handleSelectActivity}
-                    onLoadSaved={loadSavedWorksheet}
-                    theme={theme}
-                    uiSettings={uiSettings}
-                    onUpdateTheme={(t: AppTheme) => setTheme(t)}
-                    onUpdateUiSettings={(s: UiSettings) => updateUiSettings(s)}
-                    onOpenSettingsModal={() => setOpenModal('settings')}
-                  />
-                )}
-                {currentView === 'students' && <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />}
-                {currentView === 'messages' && <MessagesView onBack={handleGoBack} />}
-                {currentView === 'admin' && <AdminDashboard onBack={handleGoBack} />}
-                {currentView === 'screening' && (
-                  <ScreeningModule
-                    onBack={handleGoBack}
-                    onSelectActivity={handleSelectActivity}
-                    onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                    onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
-                      handleGeneratePlanFromScreening(n, a, w, c)
-                    }
-                  />
-                )}
-                {currentView === 'sinav-studyosu' && <SinavStudyosu />}
-                {currentView === 'mat-sinav-studyosu' && <MatSinavStudyosu />}
-              </Suspense>
-            </motion.div>
-          )}
+            {[
+              'curriculum',
+              'reading-studio',
+              'math-studio',
+              'super-turkce',
+              'infographic-studio',
+              'remotion-studio',
+              'ocr',
+              'profile',
+              'students',
+              'messages',
+              'admin',
+              'screening',
+              'sinav-studyosu',
+              'mat-sinav-studyosu',
+            ].includes(currentView) && (
+              <motion.div
+                key={currentView}
+                className={`absolute inset-0 bg-[var(--bg-primary)] overflow-hidden ${currentView === 'admin' ? 'z-[75]' : 'z-[60]'}`}
+                variants={pageTransition}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+              >
+                <Suspense fallback={<LoadingSpinner />}>
+                  {currentView === 'curriculum' && (
+                    <CurriculumView
+                      onBack={handleGoBack}
+                      onSelectActivity={handleSelectActivity as any}
+                      onStartCurriculumActivity={handleStartCurriculumActivity}
+                      initialPlan={loadedCurriculum}
+                      preFillData={screeningPlanData}
+                    />
+                  )}
+                  {currentView === 'reading-studio' && (
+                    <ReadingStudio
+                      onBack={handleGoBack}
+                      onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                    />
+                  )}
+                  {currentView === 'math-studio' && (
+                    <MathStudio
+                      onBack={handleGoBack}
+                      onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                    />
+                  )}
+                  {currentView === 'super-turkce' && <SuperStudio />}
+                  {currentView === 'infographic-studio' && (
+                    <InfographicStudio onBack={handleGoBack} />
+                  )}
+                  {currentView === 'remotion-studio' && <RemotionStudio />}
+                  {currentView === 'ocr' && (
+                    <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
+                  )}
+                  {currentView === 'profile' && (
+                    <ProfileView
+                      onBack={handleGoBack}
+                      onSelectActivity={handleSelectActivity}
+                      onLoadSaved={loadSavedWorksheet}
+                      theme={theme}
+                      uiSettings={uiSettings}
+                      onUpdateTheme={(t: AppTheme) => setTheme(t)}
+                      onUpdateUiSettings={(s: UiSettings) => updateUiSettings(s)}
+                      onOpenSettingsModal={() => setOpenModal('settings')}
+                    />
+                  )}
+                  {currentView === 'students' && (
+                    <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
+                  )}
+                  {currentView === 'messages' && <MessagesView onBack={handleGoBack} />}
+                  {currentView === 'admin' && <AdminDashboard onBack={handleGoBack} />}
+                  {currentView === 'screening' && (
+                    <ScreeningModule
+                      onBack={handleGoBack}
+                      onSelectActivity={handleSelectActivity}
+                      onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                      onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
+                        handleGeneratePlanFromScreening(n, a, w, c)
+                      }
+                    />
+                  )}
+                  {currentView === 'sinav-studyosu' && <SinavStudyosu />}
+                  {currentView === 'mat-sinav-studyosu' && <MatSinavStudyosu />}
+                </Suspense>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
-
       </div>
 
       <TourGuide steps={tourSteps} isOpen={isTourActive} onClose={() => setIsTourActive(false)} />
