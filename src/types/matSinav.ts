@@ -19,6 +19,7 @@ export type GrafikVeriTipi =
   | 'siklik_tablosu'
   | 'cetele_tablosu'
   | 'sutun_grafigi'
+  | 'nesne_grafigi'            // Emoji/resim tabanlı nesne grafiği
   | 'pasta_grafigi'
   | 'cizgi_grafigi'
   | 'ucgen'
@@ -29,6 +30,8 @@ export type GrafikVeriTipi =
   | 'cokgen'
   | 'daire'
   | 'dogru_parcasi'
+  | 'isin'                     // Tek yönlü ışın
+  | 'dogru'                    // Sonsuz çift yönlü doğru
   | 'aci'
   | 'koordinat_sistemi'
   | 'koordinat_grafigi'
@@ -36,7 +39,15 @@ export type GrafikVeriTipi =
   | 'kesir_modeli'
   | 'simetri'
   | 'venn_diyagrami'
-  | 'olaslik_cark';
+  | 'olaslik_cark'
+  | 'kesisen_dogrular'
+  | 'dik_kesisen_dogrular'     // 90° dik kesişen doğrular
+  | 'paralel_dogrular'
+  | 'kup'
+  | 'silindir'
+  | 'koni'
+  | 'piramit'
+  | 'dikdortgenler_prizmasi';
 
 // ─── Grafik Veri Ögesi ────────────────────────────────────────
 export interface GrafikVeriOgesi {

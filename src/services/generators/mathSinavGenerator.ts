@@ -32,10 +32,11 @@ import {
  * görsel gerektiren kazanımlar için gereksinim nesnelerini döner.
  */
 const GORSEL_TIPLER_LISTESI =
-  'siklik_tablosu, cetele_tablosu, sutun_grafigi, pasta_grafigi, cizgi_grafigi, ' +
+  'siklik_tablosu, cetele_tablosu, sutun_grafigi, nesne_grafigi, pasta_grafigi, cizgi_grafigi, ' +
   'ucgen, dik_ucgen, kare, dikdortgen, paralel_kenar, cokgen, daire, ' +
-  'dogru_parcasi, aci, koordinat_sistemi, koordinat_grafigi, sayi_dogrusu, ' +
-  'kesir_modeli, simetri, venn_diyagrami, olaslik_cark, kup, silindir, koni, piramit, dikdortgenler_prizmasi, kesisen_dogrular, paralel_dogrular';
+  'dogru_parcasi, isin, dogru, aci, koordinat_sistemi, koordinat_grafigi, sayi_dogrusu, ' +
+  'kesir_modeli, simetri, venn_diyagrami, olaslik_cark, ' +
+  'kup, silindir, koni, piramit, dikdortgenler_prizmasi, kesisen_dogrular, dik_kesisen_dogrular, paralel_dogrular';
 
 interface KazanimGorselGereksinim {
   kazanimKodu: string;
@@ -663,15 +664,15 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
 "grafik_verisi" alanı aşağıdaki yapılardan birinde olmalıdır:
 
 1. VERİ İŞLEME GRAFİKLERİ:
-   - "tip": 'siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği'.
+   - "tip": 'siklik_tablosu', 'nesne_grafigi', 'sutun_grafigi'.
    - "baslik": Grafik için kısa bir başlık.
    - "veri": Bir dizi (array) olmalıdır. Her eleman KESİNLİKLE {"etiket": "Elma", "deger": 8} şeklinde olmalı ve "deger" (sayısal) alanı MUTLAKA bulunmalıdır. "deger" alanı asla eksik olamaz!
    - **ÖNEMLİ TUTARLILIK KURALI**: "soru_metni" içinde eğer grafikteki verilerin TOPLAMI (örn: "Sınıfta toplam 30 öğrenci var") veya tamamı belirtilmişse, "veri" dizisindeki "deger" alanlarının aritmetik TOPLAMI soru metnindeki toplam ile BİREBİR EŞİT olmalıdır. (18 != 30 hatası kesinlikle yapılmamalıdır!)
-   - "nesne": (Sadece 'nesne_grafiği' için) Veri elemanına eklenecek sembol. örn: "🍎".
+   - "nesne": (Sadece 'nesne_grafigi' için) Veri elemanına eklenecek sembol. örn: "🍎".
    - "not": (İsteğe bağlı) Grafik altında gösterilecek not.
 
 2. GEOMETRİ ŞEKİLLERİ VE KAVRAMLARI:
-   - "tip": 'ucgen', 'dikdortgen', 'kare', 'besgen', 'altıgen', 'kup', 'silindir', 'koni', 'piramit', 'dikdortgenler_prizmasi', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'.
+   - "tip": 'ucgen', 'dik_ucgen', 'dikdortgen', 'kare', 'cokgen', 'daire', 'kup', 'silindir', 'koni', 'piramit', 'dikdortgenler_prizmasi', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_dogrular'.
    - "baslik": Şekil/kavram için bir başlık (örn: "ABC Üçgeni").
    - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar.
      **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen harf/isimler (örn: AB doğru parçası) ile "grafik_verisi" içindeki etiketler (örn: "A Köşesi") BİREBİR AYNI OLMALIDIR.**
@@ -766,7 +767,7 @@ const MATH_EXAM_SCHEMA = {
               tip: {
                 type: 'STRING',
                 description:
-                  "Görsel türü: 'siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği', 'ucgen' vb.",
+                  "Görsel türü: 'siklik_tablosu', 'nesne_grafigi', 'sutun_grafigi', 'ucgen', 'dik_ucgen', 'kare', 'dikdortgen', 'daire', 'isin', 'dogru', 'dik_kesisen_dogrular' vb.",
               },
               baslik: { type: 'STRING', description: 'Görsel için bir başlık.' },
               veri: {

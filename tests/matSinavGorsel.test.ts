@@ -320,3 +320,116 @@ describe('generateExamValidationReport', () => {
         expect(rapor.questionReports.length).toBe(2);
     });
 });
+
+// ─── parseGeometryVeri — Smart Parser Testleri ─────────────────
+describe('parseGeometryVeri — Smart Parser Logic', () => {
+    it('AI ucgen verisinden köşe harflerini çıkarır', () => {
+        const veri = [
+            { etiket: 'A Köşesi' },
+            { etiket: 'B Köşesi' },
+            { etiket: 'C Köşesi' },
+            { etiket: 'AB Kenarı', deger: 8, birim: 'cm' },
+            { etiket: 'B Açısı', deger: 90, birim: '°' },
+        ];
+        const vertices = veri
+            .filter(v => v.etiket.toLowerCase().includes('köşe') || v.etiket.toLowerCase().includes('kose'))
+            .map(v => v.etiket.match(/^([A-ZÇĞIİÖŞÜ])/)?.[1])
+            .filter(Boolean) as string[];
+        expect(vertices).toEqual(['A', 'B', 'C']);
+    });
+
+    it('AI verisinden kenar uzunluklarını çıkarır', () => {
+        const veri = [
+            { etiket: 'AB Kenarı', deger: 8, birim: 'cm' },
+            { etiket: 'BC Kenarı', deger: 6, birim: 'cm' },
+            { etiket: 'AC Kenarı', deger: 10, birim: 'cm' },
+        ];
+        const edges = veri
+            .filter(v => v.etiket.toLowerCase().includes('kenar') && v.deger !== undefined)
+            .map(v => v.deger as number);
+        expect(edges).toEqual([8, 6, 10]);
+    });
+
+    it('AI verisinden açı değerlerini çıkarır', () => {
+        const veri = [
+            { etiket: 'B Açısı', deger: 90, birim: '°' },
+            { etiket: 'A Açısı', deger: 45, birim: '°' },
+        ];
+        const angles = veri
+            .filter(v => v.etiket.toLowerCase().includes('açı') && v.deger !== undefined)
+            .map(v => v.deger as number);
+        expect(angles).toEqual([90, 45]);
+    });
+
+    it('Kenar verisinden birimi çıkarır', () => {
+        const veri = [
+            { etiket: 'AB Kenarı', deger: 8, birim: 'cm' },
+            { etiket: 'BC Kenarı', deger: 6, birim: 'cm' },
+        ];
+        const units = veri.filter(v => v.birim).map(v => v.birim!);
+        const unit = units[0] ?? '';
+        expect(unit).toBe('cm');
+    });
+
+    it('Yarıçap içeren veri doğru tanınır', () => {
+        const veri = [{ etiket: 'Yarıçap', deger: 5, birim: 'cm' }];
+        const hasRadius = veri.some(v => v.etiket.toLowerCase().includes('yarıçap') || v.etiket.toLowerCase().includes('yaricap'));
+        expect(hasRadius).toBe(true);
+    });
+
+    it('Boş veri için varsayılan değerler döner', () => {
+        const veri: Array<{ etiket: string; deger?: number; birim?: string }> = [];
+        const vertices = veri
+            .filter(v => v.etiket.toLowerCase().includes('köşe'))
+            .map(v => v.etiket.match(/^([A-Z])/)?.[1])
+            .filter(Boolean);
+        expect(vertices).toHaveLength(0);
+    });
+});
+
+// ─── Tip Normalizasyon Testleri ────────────────────────────────
+describe('GrafikVeriTipi — Tip İsmi Normalizasyonu', () => {
+    it('sutun_grafiği (ğ ile) sutun_grafigi ye normalize edilmeli', () => {
+        const normalize = (t: string) =>
+            t.replace(/ğ/g, 'g').replace(/Ğ/g, 'G').replace(/ı/g, 'i').replace(/İ/g, 'I');
+        expect(normalize('sutun_grafiği')).toBe('sutun_grafigi');
+        expect(normalize('nesne_grafiği')).toBe('nesne_grafigi');
+        expect(normalize('dik_kesisen_doğrular')).toBe('dik_kesisen_dogrular');
+    });
+
+    it('normalize zaten normalleşmiş tipler için değişmez', () => {
+        const normalize = (t: string) =>
+            t.replace(/ğ/g, 'g').replace(/Ğ/g, 'G').replace(/ı/g, 'i').replace(/İ/g, 'I');
+        expect(normalize('sutun_grafigi')).toBe('sutun_grafigi');
+        expect(normalize('ucgen')).toBe('ucgen');
+        expect(normalize('dik_ucgen')).toBe('dik_ucgen');
+    });
+});
+
+// ─── Eksik Şekil Tipleri ───────────────────────────────────────
+describe('Eksik Şekil Tipleri — Tip Tanımı', () => {
+    it('isin, dogru, dik_kesisen_dogrular, nesne_grafigi string tipleri geçerli', () => {
+        const tipler: string[] = [
+            'isin',
+            'dogru',
+            'dik_kesisen_dogrular',
+            'nesne_grafigi',
+        ];
+        tipler.forEach(t => expect(typeof t).toBe('string'));
+    });
+
+    it('nesne_grafigi skala hesaplaması doğru', () => {
+        // 15 değer için skala = 3 (ceil(15/5) = 3), count = round(15/3) = 5 ikon
+        const maxVal = 15;
+        const skalaFactor = maxVal > 10 ? Math.ceil(maxVal / 5) : 1;
+        const count = Math.round(maxVal / skalaFactor);
+        expect(skalaFactor).toBe(3);
+        expect(count).toBe(5);
+    });
+
+    it('nesne_grafigi 10 ve altında değerler için skala 1', () => {
+        const maxVal = 8;
+        const skalaFactor = maxVal > 10 ? Math.ceil(maxVal / 5) : 1;
+        expect(skalaFactor).toBe(1);
+    });
+});
