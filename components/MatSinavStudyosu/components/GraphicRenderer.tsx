@@ -92,6 +92,18 @@ function normalizeTip(tip: string): string {
         .replace(/İ/g, 'I');
 }
 
+// ── Ortak yardımcılar ────────────────────────────────────────────────────────
+
+/** Kenar/ölçü değerini birimle birlikte formatlar: 8 cm → "8 cm", 8 → "8" */
+function formatWithUnit(value: number | string, unit: string): string {
+    return unit ? `${value} ${unit}` : String(value);
+}
+
+/** Etiket sonundaki "Noktası"/"Köşesi" vb. son eklerini kaldırır */
+function stripVertexSuffix(s: string): string {
+    return s.replace(/\s*(Noktası|Köşesi|noktası|köşesi)/g, '').trim();
+}
+
 // ── Ortak sabitler ───────────────────────────────────────────────────────────
 
 const FONT = 'Lexend, system-ui, sans-serif';
@@ -435,15 +447,15 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                     ))}
                     {sides && sides.length >= 1 && (
                         <text x="64" y="96" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle"
-                            transform="rotate(-56,64,96)">{sides[0]}{edgeUnit ? ` ${edgeUnit}` : ''}</text>
+                            transform="rotate(-56,64,96)">{formatWithUnit(sides[0], edgeUnit)}</text>
                     )}
                     {sides && sides.length >= 2 && (
                         <text x="176" y="96" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle"
-                            transform="rotate(56,176,96)">{sides[1]}{edgeUnit ? ` ${edgeUnit}` : ''}</text>
+                            transform="rotate(56,176,96)">{formatWithUnit(sides[1], edgeUnit)}</text>
                     )}
                     {sides && sides.length >= 3 && (
                         <text x="120" y="175" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">
-                            {sides[2]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                            {formatWithUnit(sides[2], edgeUnit)}
                         </text>
                     )}
                     {geo.angles.length > 0 && geo.angles[0] !== 90 && (
@@ -487,17 +499,17 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                     ))}
                     {sides && sides.length >= 1 && (
                         <text x="9" y="100" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">
-                            {sides[0]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                            {formatWithUnit(sides[0], edgeUnit)}
                         </text>
                     )}
                     {sides && sides.length >= 2 && (
                         <text x="120" y="176" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle">
-                            {sides[1]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                            {formatWithUnit(sides[1], edgeUnit)}
                         </text>
                     )}
                     {sides && sides.length >= 3 && (
                         <text x="132" y="89" fontSize="12" fill={anaRenk} fontWeight="700" textAnchor="middle"
-                            transform="rotate(35,132,89)">{sides[2]}{edgeUnit ? ` ${edgeUnit}` : ''}</text>
+                            transform="rotate(35,132,89)">{formatWithUnit(sides[2], edgeUnit)}</text>
                     )}
                 </svg>
             );
@@ -528,17 +540,17 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                         fill="none" stroke={anaRenk} strokeWidth="1.5" opacity="0.5" />
                     {sides && sides.length >= 1 && (
                         <text x={ox + rW / 2} y={oy - 8} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="middle">
-                            {sides[0]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                            {formatWithUnit(sides[0], edgeUnit)}
                         </text>
                     )}
                     {sides && sides.length >= 2 && tip === 'dikdortgen' && (
                         <text x={ox + rW + 13} y={oy + rH / 2 + 5} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="start">
-                            {sides[1]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                            {formatWithUnit(sides[1], edgeUnit)}
                         </text>
                     )}
                     {tip === 'kare' && sides && (
                         <text x={ox + rW + 13} y={oy + rH / 2 + 5} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="start">
-                            {sides[0]}{edgeUnit ? ` ${edgeUnit}` : ''}
+                            {formatWithUnit(sides[0], edgeUnit)}
                         </text>
                     )}
                     {/* Equal side tick marks for square */}
@@ -673,8 +685,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
             const geo = parseGeometryVeri(veri);
             const uzunluk = ozellikler?.kenarlar?.[0] ?? geo.edgeLengths[0];
             const birim = (geo.unit || ozellikler?.birim) ?? '';
-            const stripSuffix = (s: string) =>
-                s.replace(/\s*(Noktası|Köşesi|noktası|köşesi)/g, '').trim();
+            const stripSuffix = stripVertexSuffix;
             const A = veri[0]?.etiket
                 ? stripSuffix(veri[0].etiket) || geo.vertexLabels[0] || 'A'
                 : geo.vertexLabels[0] || 'A';
@@ -1187,6 +1198,111 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                             <text x={ox+w/2 + 20} y={oy + bodyH/2} fontSize="12" fill="#1e293b" fontWeight="bold">h = {yukseklik}</text>
                         </>
                     )}
+                </svg>
+            );
+        }
+
+        /* ── NESNE GRAFİĞİ (Emoji/İkon Tabanlı) ────────────────────────── */
+        if (tip === 'nesne_grafigi') {
+            const maxVal = veri.reduce((max, v) => Math.max(max, v.deger || 0), 1);
+            const skalaFactor = maxVal > 10 ? Math.ceil(maxVal / 5) : 1;
+            return (
+                <div className="w-full mt-3 overflow-x-auto">
+                    <div className="flex flex-col gap-2 min-w-[280px]">
+                        {veri.map((item, idx) => {
+                            const count = Math.round((item.deger || 0) / skalaFactor);
+                            const emoji = item.nesne || '⬛';
+                            return (
+                                <div key={idx} className="flex items-center gap-2">
+                                    <span className="text-[11px] font-semibold text-gray-600 min-w-[80px] text-right shrink-0"
+                                        style={{ fontFamily: FONT }}>
+                                        {item.etiket}
+                                    </span>
+                                    <div className="flex flex-wrap gap-0.5">
+                                        {Array.from({ length: count }).map((_, i) => (
+                                            <span key={i} className="text-lg leading-none">{emoji}</span>
+                                        ))}
+                                    </div>
+                                    <span className="text-[10px] text-gray-400 ml-1">({item.deger})</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    {skalaFactor > 1 && (
+                        <p className="text-[10px] text-gray-400 mt-2 text-center" style={{ fontFamily: FONT }}>
+                            Her {veri[0]?.nesne || 'ikon'} = {skalaFactor} adet
+                        </p>
+                    )}
+                </div>
+            );
+        }
+
+        /* ── IŞIN (tek yönlü) ───────────────────────────────────────────── */
+        if (tip === 'isin') {
+            const geo = parseGeometryVeri(veri);
+            const stripSuffix = (s: string) => s.replace(/\s*(Noktası|Köşesi|noktası|köşesi)/g, '').trim();
+            const A = veri[0]?.etiket ? stripVertexSuffix(veri[0].etiket) || geo.vertexLabels[0] || 'A' : geo.vertexLabels[0] || 'A';
+            const B = veri[1]?.etiket ? stripVertexSuffix(veri[1].etiket) || geo.vertexLabels[1] || 'B' : geo.vertexLabels[1] || 'B';
+            return (
+                <svg viewBox="0 0 340 80" className="w-full max-w-sm mx-auto mt-2" style={{ fontFamily: FONT }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <line x1="52" y1="40" x2="300" y2="40"
+                        stroke={anaRenk} strokeWidth="3" strokeLinecap="round"
+                        markerEnd={`url(#arrow-${uid})`} />
+                    <circle cx="52" cy="40" r="5.5" fill={anaRenk} stroke="white" strokeWidth="1.5" />
+                    <text x="52" y="26" fontSize="14" fill="#1e293b" fontWeight="700" textAnchor="middle">{A}</text>
+                    <text x="290" y="26" fontSize="14" fill="#1e293b" fontWeight="700" textAnchor="middle">{B}</text>
+                </svg>
+            );
+        }
+
+        /* ── DOĞRU (sonsuz, çift yönlü) ────────────────────────────────── */
+        if (tip === 'dogru') {
+            const geo = parseGeometryVeri(veri);
+            const isimler = ozellikler?.etiketler ?? geo.vertexLabels;
+            const dogruAdi = isimler[0] ?? (veri[0]?.etiket || 'd');
+            return (
+                <svg viewBox="0 0 340 80" className="w-full max-w-sm mx-auto mt-2" style={{ fontFamily: FONT }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <line x1="20" y1="40" x2="320" y2="40"
+                        stroke={anaRenk} strokeWidth="3" strokeLinecap="round"
+                        markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    {veri.slice(0, 2).map((v, idx) => {
+                        const px = idx === 0 ? 110 : 230;
+                        return (
+                            <g key={idx}>
+                                <circle cx={px} cy="40" r="4" fill={anaRenk} />
+                                <text x={px} y="26" fontSize="13" fill="#1e293b" fontWeight="700" textAnchor="middle">
+                                    {stripVertexSuffix(v.etiket)}
+                                </text>
+                            </g>
+                        );
+                    })}
+                    <text x="16" y="60" fontSize="11" fill={anaRenk} fontWeight="700">{dogruAdi}</text>
+                </svg>
+            );
+        }
+
+        /* ── DİK KESİŞEN DOĞRULAR (90° açılı) ─────────────────────────── */
+        if (tip === 'dik_kesisen_dogrular') {
+            const isimler = ozellikler?.etiketler || ['d1', 'd2'];
+            return (
+                <svg viewBox="0 0 240 200" className="w-full max-w-xs mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 2px 4px #0001)' }}>
+                    <SvgDefs id={uid} color={anaRenk} />
+                    <line x1="20" y1="100" x2="220" y2="100"
+                        stroke={anaRenk} strokeWidth="2.5"
+                        markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    <line x1="120" y1="20" x2="120" y2="180"
+                        stroke={anaRenk} strokeWidth="2.5"
+                        markerStart={`url(#arrowL-${uid})`} markerEnd={`url(#arrow-${uid})`} />
+                    {/* 90° işareti */}
+                    <polyline points="120,100 132,100 132,112 120,112"
+                        fill="none" stroke={anaRenk} strokeWidth="2" />
+                    <text x="210" y="90" fontSize="12" fill={anaRenk} fontWeight="bold">{isimler[0] || 'd1'}</text>
+                    <text x="128" y="18" fontSize="12" fill={anaRenk} fontWeight="bold">{isimler[1] || 'd2'}</text>
+                    <circle cx="120" cy="100" r="4" fill={anaRenk} />
+                    <text x="110" y="94" fontSize="10" fill="#0f172a" fontWeight="bold" textAnchor="end">O</text>
                 </svg>
             );
         }
