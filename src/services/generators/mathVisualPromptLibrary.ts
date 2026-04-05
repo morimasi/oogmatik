@@ -727,7 +727,7 @@ Soru: "A(-3, 5) noktası önce y eksenine göre yansıtılıyor, ardından 1 bir
       {"etiket": "A''", "x": 4,  "y": 1}
     ],
     "ozellikler": {
-      "yansımaEkseni": "y",
+      "yansimaEkseni": "y",
       "otelemeVektoru": {"dx": 1, "dy": -4}
     }
   }

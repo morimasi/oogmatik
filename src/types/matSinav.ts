@@ -78,7 +78,7 @@ export interface GrafikVerisi {
     kenarSayisi?: number;
     etiketler?: string[];
     /** koordinat_donusum: Yansıma ekseni — 'x' | 'y' | 'y=x' vb. */
-    yansımaEkseni?: string;
+    yansimaEkseni?: string;
     /** koordinat_donusum: Öteleme vektörü { dx, dy } */
     otelemeVektoru?: { dx: number; dy: number };
   };

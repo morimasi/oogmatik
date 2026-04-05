@@ -717,7 +717,7 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
            {"etiket": "A''", "x": 4,  "y": 1}
          ],
          "ozellikler": {
-           "yansımaEkseni": "y",
+           "yansimaEkseni": "y",
            "otelemeVektoru": {"dx": 1, "dy": -4}
          }
        }
@@ -860,9 +860,9 @@ const MATH_EXAM_SCHEMA = {
               ozellikler: {
                 type: 'OBJECT',
                 description:
-                  "Geometrik şekiller ve dönüşümler için ek özellikler. koordinat_donusum için: yansımaEkseni ('x'|'y'), otelemeVektoru ({dx,dy})",
+                  "Geometrik şekiller ve dönüşümler için ek özellikler. koordinat_donusum için: yansimaEkseni ('x'|'y'), otelemeVektoru ({dx,dy})",
                 properties: {
-                  yansımaEkseni: {
+                  yansimaEkseni: {
                     type: 'STRING',
                     description: "Yansıma ekseni: 'x', 'y' veya 'y=x' gibi.",
                     nullable: true,

@@ -860,11 +860,17 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── KOORDİNAT DÖNÜŞÜM GRAFİĞİ (Yansıma / Öteleme) ────────────────── */
         if (tip === 'koordinat_donusum') {
-            const pts = veri.filter(v => v.x !== undefined && v.y !== undefined) as Array<{x: number; y: number; etiket: string}>;
+            const pts = veri.filter(
+                v => v.x !== undefined && v.y !== undefined && v.etiket !== undefined
+            ) as Array<{x: number; y: number; etiket: string}>;
             if (pts.length === 0) return null;
 
-            const yansımaEkseni = (ozellikler as Record<string, unknown>)?.['yansımaEkseni'] as string | undefined;
-            const otelemeVektoru = (ozellikler as Record<string, unknown>)?.['otelemeVektoru'] as {dx: number; dy: number} | undefined;
+            const donusumOzellikler = ozellikler as ({
+                yansimaEkseni?: string;
+                otelemeVektoru?: { dx: number; dy: number };
+            } & typeof ozellikler) | undefined;
+            const yansimaEkseni = donusumOzellikler?.yansimaEkseni;
+            const otelemeVektoru = donusumOzellikler?.otelemeVektoru;
 
             // Koordinat aralığını hesapla
             const allCoords = pts.flatMap(p => [Math.abs(p.x), Math.abs(p.y)]);
@@ -929,35 +935,35 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                     ))}
 
                     {/* Yansıma Ekseni vurgusu */}
-                    {yansımaEkseni === 'y' && (
+                    {yansimaEkseni === 'y' && (
                         <line x1={cx} y1={10} x2={cx} y2={H - 10}
                             stroke="#dc2626" strokeWidth="2" strokeDasharray="7 4" opacity="0.75" />
                     )}
-                    {yansımaEkseni === 'x' && (
+                    {yansimaEkseni === 'x' && (
                         <line x1={10} y1={cy} x2={W - 10} y2={cy}
                             stroke="#dc2626" strokeWidth="2" strokeDasharray="7 4" opacity="0.75" />
                     )}
-                    {yansımaEkseni && yansımaEkseni !== 'x' && yansımaEkseni !== 'y' && (
+                    {yansimaEkseni && yansimaEkseni !== 'x' && yansimaEkseni !== 'y' && (
                         /* y=x gibi özel eksen: 45° çizgi */
                         <line x1={10} y1={H - 10} x2={W - 10} y2={10}
                             stroke="#dc2626" strokeWidth="2" strokeDasharray="7 4" opacity="0.75" />
                     )}
                     {/* Yansıma ekseni etiketi */}
-                    {yansımaEkseni === 'y' && (
+                    {yansimaEkseni === 'y' && (
                         <text x={cx + 5} y={18} fontSize="9" fill="#dc2626" fontWeight="700">yansıma ekseni</text>
                     )}
-                    {yansımaEkseni === 'x' && (
+                    {yansimaEkseni === 'x' && (
                         <text x={W - 55} y={cy - 5} fontSize="9" fill="#dc2626" fontWeight="700">yansıma ekseni</text>
                     )}
 
                     {/* Nokta A'dan yansıma eksenine dikme kesik çizgisi */}
-                    {pts.length >= 2 && yansımaEkseni === 'y' && (
+                    {pts.length >= 2 && yansimaEkseni === 'y' && (
                         <line
                             x1={toSvgX(pts[0].x)} y1={toSvgY(pts[0].y)}
                             x2={toSvgX(0)} y2={toSvgY(pts[0].y)}
                             stroke="#dc2626" strokeWidth="1" strokeDasharray="3 3" opacity="0.5" />
                     )}
-                    {pts.length >= 2 && yansımaEkseni === 'x' && (
+                    {pts.length >= 2 && yansimaEkseni === 'x' && (
                         <line
                             x1={toSvgX(pts[0].x)} y1={toSvgY(pts[0].y)}
                             x2={toSvgX(pts[0].x)} y2={toSvgY(0)}
@@ -990,7 +996,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                     })()}
 
                     {/* Yansıma oku — ilk iki nokta arasında (yaysal gösterim yerine düz ok) */}
-                    {pts.length >= 2 && yansımaEkseni && (() => {
+                    {pts.length >= 2 && yansimaEkseni && (() => {
                         const x1s = toSvgX(pts[0].x);
                         const y1s = toSvgY(pts[0].y);
                         const x2s = toSvgX(pts[1].x);
