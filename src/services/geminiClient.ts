@@ -137,6 +137,32 @@ const _tryRepairJson = (jsonStr: string): any => {
     );
     return result;
   } catch (_e3) {
+    /* devam */
+  }
+
+  // STRATEJİ 4: Sondan geriye tarayarak ilk geçerli JSON bloğunu bul.
+  // Token sınırı nedeniyle kesilen veya gömülü metin içeren yanıtlar için son savunma hattı.
+  try {
+    for (let i = cleaned.length - 1; i > 0; i--) {
+      const ch = cleaned[i];
+      if (ch === '}' || ch === ']') {
+        const candidate = cleaned.substring(0, i + 1);
+        try {
+          const result = JSON.parse(candidate);
+          console.warn(
+            '[GeminiClient] STRATEJİ 4: Sondan tarayarak geçerli JSON bulundu (karakter ' +
+              (i + 1) +
+              '/' +
+              cleaned.length +
+              ').'
+          );
+          return result;
+        } catch {
+          /* bu noktada geçerli değil, devam et */
+        }
+      }
+    }
+  } catch (_e4) {
     /* tüm stratejiler başarısız */
   }
 

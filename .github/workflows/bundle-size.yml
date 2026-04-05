@@ -1,0 +1,80 @@
+name: Bundle Size Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+
+jobs:
+  bundle-size:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Analyze bundle sizes
+        id: bundle_stats
+        run: |
+          echo "## 📦 Bundle Size Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Chunk | Size (gzip est.) |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-----------------|" >> $GITHUB_STEP_SUMMARY
+
+          TOTAL=0
+          BUDGET_EXCEEDED=0
+
+          for f in dist/assets/*.js; do
+            SIZE=$(wc -c < "$f")
+            TOTAL=$((TOTAL + SIZE))
+            NAME=$(basename "$f")
+            SIZE_KB=$((SIZE / 1024))
+
+            # Bütçe aşımı kontrolü (1500 KB per chunk)
+            if [ $SIZE_KB -gt 1500 ]; then
+              echo "| ⚠️ \`$NAME\` | **${SIZE_KB} KB** (bütçe aşıldı!) |" >> $GITHUB_STEP_SUMMARY
+              BUDGET_EXCEEDED=$((BUDGET_EXCEEDED + 1))
+            else
+              echo "| \`$NAME\` | ${SIZE_KB} KB |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+          TOTAL_KB=$((TOTAL / 1024))
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Toplam JS: ${TOTAL_KB} KB**" >> $GITHUB_STEP_SUMMARY
+
+          if [ $BUDGET_EXCEEDED -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **$BUDGET_EXCEEDED chunk 1500 KB bütçesini aştı.** Code-splitting veya lazy loading ile optimize et." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Tüm chunk'lar 1500 KB bütçesi içinde." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # CI'ı başarısız yapmaz — sadece raporlar (uyarı modunda)
+          echo "total_kb=${TOTAL_KB}" >> $GITHUB_OUTPUT
+          echo "budget_exceeded=${BUDGET_EXCEEDED}" >> $GITHUB_OUTPUT
+
+      - name: Upload bundle stats artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bundle-stats
+          path: dist/assets/
+          retention-days: 30
