@@ -1214,8 +1214,8 @@ export function getVisualPromptsForKazanimlar(
             }
         }
 
-        // Ölçme — 3D cisimler ve alan/hacim (.3.3. veya tanim ile tespit)
-        if (/\.3\.3\./.test(kodLower) || kodLower.includes('prizma') || kodLower.includes('hacim')) {
+        // Ölçme — 3D cisimler ve alan/hacim (M.5.3.3.x veya üzeri sınıf ölçme kodları)
+        if (/^m\.[5-8]\.\d+\.3\./.test(kodLower) || kodLower.includes('prizma') || kodLower.includes('hacim')) {
             gorselTipler.add('dikdortgenler_prizmasi');
         }
         if (kodLower.includes('silindir')) gorselTipler.add('silindir');

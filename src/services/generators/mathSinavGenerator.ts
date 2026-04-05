@@ -937,7 +937,7 @@ const MATH_EXAM_SCHEMA = {
               tip: {
                 type: 'STRING',
                 description:
-                  "Görsel türü — desteklenen 33 tip: " +
+                  "Görsel türü — desteklenen tipler: " +
                   "VERİ: 'siklik_tablosu'|'cetele_tablosu'|'nesne_grafigi'|'sutun_grafigi'|'pasta_grafigi'|'cizgi_grafigi'. " +
                   "GEOMETRİ 2D: 'ucgen'|'dik_ucgen'|'kare'|'dikdortgen'|'paralel_kenar'|'cokgen'|'daire'|'aci'|'simetri'|'dogru_parcasi'|'isin'|'dogru'|'paralel_dogrular'|'kesisen_dogrular'|'dik_kesisen_dogrular'. " +
                   "3D CİSİMLER: 'kup'|'silindir'|'koni'|'piramit'|'dikdortgenler_prizmasi'. " +
