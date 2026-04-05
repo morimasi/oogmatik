@@ -1,13 +1,13 @@
 /**
  * GraphicRenderer — HD Kalite Matematik Görsel Motoru
  *
- * Desteklenen 32 tip:
+ * Desteklenen 33 tip:
  *   Veri:      siklik_tablosu · cetele_tablosu · sutun_grafigi · nesne_grafigi · pasta_grafigi · cizgi_grafigi
  *   Geometri:  ucgen · dik_ucgen · kare · dikdortgen · paralel_kenar · cokgen · daire
  *              dogru_parcasi · isin · dogru · aci · simetri
  *              kesisen_dogrular · dik_kesisen_dogrular · paralel_dogrular
  *   3D Geometri: kup · silindir · koni · piramit · dikdortgenler_prizmasi
- *   Analitik:  koordinat_sistemi · koordinat_grafigi · sayi_dogrusu
+ *   Analitik:  koordinat_sistemi · koordinat_grafigi · koordinat_donusum · sayi_dogrusu
  *   Kavramsal: kesir_modeli · venn_diyagrami · olaslik_cark
  *
  * Tasarım: Lexend font · gradient fills · drop-shadow filtresi · yüksek kontrast
@@ -854,6 +854,198 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                             </g>
                         );
                     })}
+                </svg>
+            );
+        }
+
+        /* ── KOORDİNAT DÖNÜŞÜM GRAFİĞİ (Yansıma / Öteleme) ────────────────── */
+        if (tip === 'koordinat_donusum') {
+            const pts = veri.filter(
+                v => v.x !== undefined && v.y !== undefined && v.etiket !== undefined
+            ) as Array<{x: number; y: number; etiket: string}>;
+            if (pts.length === 0) return null;
+
+            const donusumOzellikler = ozellikler as ({
+                yansimaEkseni?: string;
+                otelemeVektoru?: { dx: number; dy: number };
+            } & typeof ozellikler) | undefined;
+            const yansimaEkseni = donusumOzellikler?.yansimaEkseni;
+            const otelemeVektoru = donusumOzellikler?.otelemeVektoru;
+
+            // Koordinat aralığını hesapla
+            const allCoords = pts.flatMap(p => [Math.abs(p.x), Math.abs(p.y)]);
+            const maxCoord = Math.max(...allCoords, 3);
+            const range = Math.ceil(maxCoord) + 1;
+            const W = 300, H = 300;
+            const cx = W / 2, cy = H / 2;
+            const step = Math.min(Math.floor((W - 40) / (range * 2)), 28);
+            const uid2 = 'donusum';
+
+            const toSvgX = (x: number) => cx + x * step;
+            const toSvgY = (y: number) => cy - y * step;
+
+            // Renk paleti: Orijinal=indigo, Yansıma sonrası=emerald, Öteleme sonrası=amber
+            const PT_COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ec4899'];
+            // Ok renkleri: Yansıma oku=emerald, Öteleme oku=amber
+            const ARROW_COLORS = ['#10b981', '#f59e0b', '#ec4899'];
+
+            return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full max-w-xs mx-auto mt-2"
+                    style={{ fontFamily: FONT, filter: 'drop-shadow(0 2px 5px #0001)' }}>
+                    <defs>
+                        <filter id={`shadow-${uid2}`} x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#0f172a" floodOpacity="0.08" />
+                        </filter>
+                        {/* Ok marker'ları — her renk için ayrı */}
+                        {ARROW_COLORS.map((col, i) => (
+                            <marker key={i} id={`arr-${uid2}-${i}`} markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+                                <path d="M0,0 L0,6 L7,3 Z" fill={col} />
+                            </marker>
+                        ))}
+                        {/* Eksen ok marker'ı */}
+                        <marker id={`axarr-${uid2}`} markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L7,3 Z" fill="#94a3b8" />
+                        </marker>
+                        <marker id={`axarrl-${uid2}`} markerWidth="9" markerHeight="9" refX="2" refY="3" orient="auto-start-reverse">
+                            <path d="M0,0 L0,6 L7,3 Z" fill="#94a3b8" />
+                        </marker>
+                    </defs>
+
+                    {/* Grid */}
+                    {Array.from({ length: range * 2 + 1 }, (_, i) => i - range).flatMap(v => [
+                        <line key={`gv${v}`} x1={toSvgX(v)} y1={10} x2={toSvgX(v)} y2={H - 10} stroke="#f1f5f9" strokeWidth="1" />,
+                        <line key={`gh${v}`} x1={10} y1={toSvgY(v)} x2={W - 10} y2={toSvgY(v)} stroke="#f1f5f9" strokeWidth="1" />,
+                    ])}
+
+                    {/* Eksenler */}
+                    <line x1={10} y1={cy} x2={W - 10} y2={cy} stroke="#94a3b8" strokeWidth="1.5"
+                        markerEnd={`url(#axarr-${uid2})`} markerStart={`url(#axarrl-${uid2})`} />
+                    <line x1={cx} y1={H - 10} x2={cx} y2={10} stroke="#94a3b8" strokeWidth="1.5"
+                        markerEnd={`url(#axarr-${uid2})`} markerStart={`url(#axarrl-${uid2})`} />
+
+                    {/* Eksen etiketleri */}
+                    <text x={W - 12} y={cy + 13} fontSize="10" fill="#64748b" textAnchor="middle">x</text>
+                    <text x={cx + 6} y={13} fontSize="10" fill="#64748b">y</text>
+                    <text x={cx - 8} y={cy + 13} fontSize="9" fill="#94a3b8" textAnchor="end">0</text>
+                    {Array.from({ length: range * 2 + 1 }, (_, i) => i - range).filter(v => v !== 0).map(v => (
+                        <React.Fragment key={`tl${v}`}>
+                            <text x={toSvgX(v)} y={cy + 13} fontSize="8" fill="#94a3b8" textAnchor="middle">{v}</text>
+                            <text x={cx - 7} y={toSvgY(v) + 3} fontSize="8" fill="#94a3b8" textAnchor="end">{v}</text>
+                        </React.Fragment>
+                    ))}
+
+                    {/* Yansıma Ekseni vurgusu */}
+                    {yansimaEkseni === 'y' && (
+                        <line x1={cx} y1={10} x2={cx} y2={H - 10}
+                            stroke="#dc2626" strokeWidth="2" strokeDasharray="7 4" opacity="0.75" />
+                    )}
+                    {yansimaEkseni === 'x' && (
+                        <line x1={10} y1={cy} x2={W - 10} y2={cy}
+                            stroke="#dc2626" strokeWidth="2" strokeDasharray="7 4" opacity="0.75" />
+                    )}
+                    {yansimaEkseni && yansimaEkseni !== 'x' && yansimaEkseni !== 'y' && (
+                        /* y=x gibi özel eksen: 45° çizgi */
+                        <line x1={10} y1={H - 10} x2={W - 10} y2={10}
+                            stroke="#dc2626" strokeWidth="2" strokeDasharray="7 4" opacity="0.75" />
+                    )}
+                    {/* Yansıma ekseni etiketi */}
+                    {yansimaEkseni === 'y' && (
+                        <text x={cx + 5} y={18} fontSize="9" fill="#dc2626" fontWeight="700">yansıma ekseni</text>
+                    )}
+                    {yansimaEkseni === 'x' && (
+                        <text x={W - 55} y={cy - 5} fontSize="9" fill="#dc2626" fontWeight="700">yansıma ekseni</text>
+                    )}
+
+                    {/* Nokta A'dan yansıma eksenine dikme kesik çizgisi */}
+                    {pts.length >= 2 && yansimaEkseni === 'y' && (
+                        <line
+                            x1={toSvgX(pts[0].x)} y1={toSvgY(pts[0].y)}
+                            x2={toSvgX(0)} y2={toSvgY(pts[0].y)}
+                            stroke="#dc2626" strokeWidth="1" strokeDasharray="3 3" opacity="0.5" />
+                    )}
+                    {pts.length >= 2 && yansimaEkseni === 'x' && (
+                        <line
+                            x1={toSvgX(pts[0].x)} y1={toSvgY(pts[0].y)}
+                            x2={toSvgX(pts[0].x)} y2={toSvgY(0)}
+                            stroke="#dc2626" strokeWidth="1" strokeDasharray="3 3" opacity="0.5" />
+                    )}
+
+                    {/* Öteleme vektörü — son iki nokta arasında */}
+                    {pts.length >= 2 && otelemeVektoru && (() => {
+                        const lastIdx = pts.length - 1;
+                        const prevIdx = lastIdx - 1;
+                        const x1s = toSvgX(pts[prevIdx].x);
+                        const y1s = toSvgY(pts[prevIdx].y);
+                        const x2s = toSvgX(pts[lastIdx].x);
+                        const y2s = toSvgY(pts[lastIdx].y);
+                        const arrowIdx = Math.min(lastIdx - 1, ARROW_COLORS.length - 1);
+                        // Biraz kısalt uç noktayı ok için
+                        const dx2 = x2s - x1s, dy2 = y2s - y1s;
+                        const len = Math.sqrt(dx2 * dx2 + dy2 * dy2) || 1;
+                        const shorten = 10;
+                        const ex = x2s - (dx2 / len) * shorten;
+                        const ey = y2s - (dy2 / len) * shorten;
+                        return (
+                            <line x1={x1s} y1={y1s} x2={ex} y2={ey}
+                                stroke={ARROW_COLORS[arrowIdx]}
+                                strokeWidth="1.8"
+                                markerEnd={`url(#arr-${uid2}-${arrowIdx})`}
+                                strokeDasharray="5 3"
+                                opacity="0.85" />
+                        );
+                    })()}
+
+                    {/* Yansıma oku — ilk iki nokta arasında (yaysal gösterim yerine düz ok) */}
+                    {pts.length >= 2 && yansimaEkseni && (() => {
+                        const x1s = toSvgX(pts[0].x);
+                        const y1s = toSvgY(pts[0].y);
+                        const x2s = toSvgX(pts[1].x);
+                        const y2s = toSvgY(pts[1].y);
+                        const dx2 = x2s - x1s, dy2 = y2s - y1s;
+                        const len = Math.sqrt(dx2 * dx2 + dy2 * dy2) || 1;
+                        const shorten = 10;
+                        const ex = x2s - (dx2 / len) * shorten;
+                        const ey = y2s - (dy2 / len) * shorten;
+                        return (
+                            <line x1={x1s} y1={y1s} x2={ex} y2={ey}
+                                stroke={ARROW_COLORS[0]}
+                                strokeWidth="1.8"
+                                markerEnd={`url(#arr-${uid2}-0)`}
+                                strokeDasharray="5 3"
+                                opacity="0.85" />
+                        );
+                    })()}
+
+                    {/* Noktalar */}
+                    {pts.map((p, idx) => {
+                        const px = toSvgX(p.x);
+                        const py = toSvgY(p.y);
+                        const col = PT_COLORS[idx % PT_COLORS.length];
+                        // Etiket konumu — noktalara çarpmaması için yön hesabı
+                        const labelX = px + (p.x >= 0 ? 10 : -10);
+                        const labelAnchor = p.x >= 0 ? 'start' : 'end';
+                        const labelY = py - 8;
+                        return (
+                            <g key={idx}>
+                                <circle cx={px} cy={py} r="7" fill={col} stroke="white" strokeWidth="2"
+                                    filter={`url(#shadow-${uid2})`} />
+                                {/* Koordinat gösterimi */}
+                                <text x={labelX} y={labelY} fontSize="11" fill={col} fontWeight="800"
+                                    textAnchor={labelAnchor}
+                                    style={{ fontFamily: FONT }}>
+                                    {p.etiket}({p.x},{p.y})
+                                </text>
+                            </g>
+                        );
+                    })}
+
+                    {/* Öteleme vektörü etiketi */}
+                    {otelemeVektoru && (
+                        <text x={W - 10} y={H - 10} fontSize="9" fill="#f59e0b" fontWeight="700"
+                            textAnchor="end" style={{ fontFamily: FONT }}>
+                            ötele({otelemeVektoru.dx > 0 ? '+' : ''}{otelemeVektoru.dx},{otelemeVektoru.dy > 0 ? '+' : ''}{otelemeVektoru.dy})
+                        </text>
+                    )}
                 </svg>
             );
         }
