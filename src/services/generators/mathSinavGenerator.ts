@@ -34,7 +34,7 @@ import {
 const GORSEL_TIPLER_LISTESI =
   'siklik_tablosu, cetele_tablosu, sutun_grafigi, nesne_grafigi, pasta_grafigi, cizgi_grafigi, ' +
   'ucgen, dik_ucgen, kare, dikdortgen, paralel_kenar, cokgen, daire, ' +
-  'dogru_parcasi, isin, dogru, aci, koordinat_sistemi, koordinat_grafigi, sayi_dogrusu, ' +
+  'dogru_parcasi, isin, dogru, aci, koordinat_sistemi, koordinat_grafigi, koordinat_donusum, sayi_dogrusu, ' +
   'kesir_modeli, simetri, venn_diyagrami, olaslik_cark, ' +
   'kup, silindir, koni, piramit, dikdortgenler_prizmasi, kesisen_dogrular, dik_kesisen_dogrular, paralel_dogrular';
 
@@ -212,6 +212,24 @@ function kazanimGorselBelirle(kazanimKodu: string): KazanimGorselGereksinim | nu
         kazanimMetni: tanim,
         zorunluGorsel: 'koordinat_sistemi',
         aciklama: 'Koordinat sisteminde noktaları göster',
+      };
+    }
+    if (
+      tanim_lower.includes('yansıma') ||
+      tanim_lower.includes('yansima') ||
+      tanim_lower.includes('öteleme') ||
+      tanim_lower.includes('oteleme') ||
+      tanim_lower.includes('dönüşüm') ||
+      tanim_lower.includes('donusum') ||
+      tanim_lower.includes('görüntü') ||
+      tanim_lower.includes('goruntu')
+    ) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'koordinat_donusum',
+        aciklama:
+          'Koordinat düzleminde orijinal nokta/şekil ve dönüşüm sonuçlarını (A, A\', A\'\') göster',
       };
     }
     // Genel Geometri → kare varsayılan
@@ -678,6 +696,32 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
      **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen harf/isimler (örn: AB doğru parçası) ile "grafik_verisi" içindeki etiketler (örn: "A Köşesi") BİREBİR AYNI OLMALIDIR.**
    - "not": (İsteğe bağlı) Şekille ilgili ek bilgi.
 
+3. KOORDİNAT DÖNÜŞÜM GRAFİĞİ (Yansıma / Öteleme / Döndürme):
+   - "tip": 'koordinat_donusum'
+   - "baslik": Ör. "Koordinat Dönüşümü"
+   - "veri": Her dönüşüm adımının noktası. x/y koordinatları ZORUNLU.
+     Sıra önemlidir: [Orijinal nokta, Yansıma sonrası, Öteleme sonrası, ...]
+     Etiketler: "A", "A'", "A''" şeklinde asal işaretleri kullan
+   - "ozellikler.yansımaEkseni": Yansıma gerçekleştirildiyse 'x', 'y' veya 'y=x' vb.
+   - "ozellikler.otelemeVektoru": Öteleme gerçekleştirildiyse {"dx": 1, "dy": -4}
+   - ÖNEMLİ: Tüm koordinatlar soru metnindeki değerlerle BİREBİR eşleşmeli.
+   - ÖRNEK (y eksenine yansıma + öteleme):
+     Soru: "A(-3, 5) noktası önce y eksenine göre yansıtılıyor (→ A'), ardından 1 birim sağa
+            4 birim aşağı ötelen iyor (→ A''). A'' koordinatları nedir?"
+     → grafik_verisi: {
+         "tip": "koordinat_donusum",
+         "baslik": "Koordinat Dönüşümü",
+         "veri": [
+           {"etiket": "A",   "x": -3, "y": 5},
+           {"etiket": "A'",  "x": 3,  "y": 5},
+           {"etiket": "A''", "x": 4,  "y": 1}
+         ],
+         "ozellikler": {
+           "yansımaEkseni": "y",
+           "otelemeVektoru": {"dx": 1, "dy": -4}
+         }
+       }
+
 `;
 
   if (settings.islemSayisi) {
@@ -767,7 +811,7 @@ const MATH_EXAM_SCHEMA = {
               tip: {
                 type: 'STRING',
                 description:
-                  "Görsel türü: 'siklik_tablosu', 'nesne_grafigi', 'sutun_grafigi', 'ucgen', 'dik_ucgen', 'kare', 'dikdortgen', 'daire', 'isin', 'dogru', 'dik_kesisen_dogrular' vb.",
+                  "Görsel türü: 'siklik_tablosu', 'nesne_grafigi', 'sutun_grafigi', 'ucgen', 'dik_ucgen', 'kare', 'dikdortgen', 'daire', 'isin', 'dogru', 'dik_kesisen_dogrular', 'koordinat_donusum' (yansıma/öteleme/dönüşüm adımları için) vb.",
               },
               baslik: { type: 'STRING', description: 'Görsel için bir başlık.' },
               veri: {
@@ -777,7 +821,7 @@ const MATH_EXAM_SCHEMA = {
                   properties: {
                     etiket: {
                       type: 'STRING',
-                      description: "Veri noktasının etiketi (örn: 'Elma', 'AB Kenarı').",
+                      description: "Veri noktasının etiketi (örn: 'Elma', 'AB Kenarı', 'A', \"A'\", \"A''\").",
                     },
                     deger: {
                       type: 'NUMBER',
@@ -796,12 +840,12 @@ const MATH_EXAM_SCHEMA = {
                     },
                     x: {
                       type: 'NUMBER',
-                      description: 'Etiketin x-koordinatı (sürükle-bırak için).',
+                      description: 'Etiketin x-koordinatı.',
                       nullable: true,
                     },
                     y: {
                       type: 'NUMBER',
-                      description: 'Etiketin y-koordinatı (sürükle-bırak için).',
+                      description: 'Etiketin y-koordinatı.',
                       nullable: true,
                     },
                   },
@@ -811,6 +855,33 @@ const MATH_EXAM_SCHEMA = {
               not: {
                 type: 'STRING',
                 description: 'Grafik altında gösterilecek ek not.',
+                nullable: true,
+              },
+              ozellikler: {
+                type: 'OBJECT',
+                description:
+                  "Geometrik şekiller ve dönüşümler için ek özellikler. koordinat_donusum için: yansımaEkseni ('x'|'y'), otelemeVektoru ({dx,dy})",
+                properties: {
+                  yansımaEkseni: {
+                    type: 'STRING',
+                    description: "Yansıma ekseni: 'x', 'y' veya 'y=x' gibi.",
+                    nullable: true,
+                  },
+                  otelemeVektoru: {
+                    type: 'OBJECT',
+                    description: 'Öteleme vektörü. dx: yatay kaydırma, dy: dikey kaydırma.',
+                    properties: {
+                      dx: { type: 'NUMBER', description: 'Yatay öteleme (+ sağa, - sola).' },
+                      dy: { type: 'NUMBER', description: 'Dikey öteleme (+ yukarı, - aşağı).' },
+                    },
+                    nullable: true,
+                  },
+                  kenarlar: { type: 'ARRAY', items: { type: 'NUMBER' }, nullable: true },
+                  acilar: { type: 'ARRAY', items: { type: 'NUMBER' }, nullable: true },
+                  etiketler: { type: 'ARRAY', items: { type: 'STRING' }, nullable: true },
+                  birim: { type: 'STRING', nullable: true },
+                  renk: { type: 'STRING', nullable: true },
+                },
                 nullable: true,
               },
               x: {

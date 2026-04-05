@@ -702,6 +702,64 @@ Soru: "Bir pastanın 3/4'ü yenmiştir. Kaç parça kalmıştır?"
         },
     },
 
+    koordinat_donusum: {
+        sistemTalimati: `
+[GEOMETRİ — KOORDİNAT DÖNÜŞÜM GRAFİĞİ ZORUNLU]
+
+Yansıma ve öteleme (veya döndürme) sorularında her dönüşüm adımı koordinat düzleminde AÇIKÇA gösterilmeli.
+
+📐 DÖNÜŞÜM KURALLARI:
+• Y eksenine yansıma:  A(x, y) → A'(-x, y)      [x işareti tersine döner]
+• X eksenine yansıma:  A(x, y) → A'(x, -y)      [y işareti tersine döner]
+• y=x'e yansıma:       A(x, y) → A'(y, x)       [x ve y yer değiştirir]
+• Öteleme (dx, dy):    A'(x, y) → A''(x+dx, y+dy)
+
+✅ DOĞRU ÖRNEK:
+Soru: "A(-3, 5) noktası önce y eksenine göre yansıtılıyor, ardından 1 birim sağa 4 birim aşağı öteleniyor. A'' nedir?"
+→ ADIM 1 — Y eksenine yansıma: A(-3,5) → A'(3,5)   [sadece x işareti değişir]
+→ ADIM 2 — (dx=1, dy=-4) öteleme: A'(3,5) → A''(3+1, 5-4) = A''(4,1)
+→ grafik_verisi: {
+    "tip": "koordinat_donusum",
+    "baslik": "Koordinat Dönüşümü",
+    "veri": [
+      {"etiket": "A",   "x": -3, "y": 5},
+      {"etiket": "A'",  "x": 3,  "y": 5},
+      {"etiket": "A''", "x": 4,  "y": 1}
+    ],
+    "ozellikler": {
+      "yansımaEkseni": "y",
+      "otelemeVektoru": {"dx": 1, "dy": -4}
+    }
+  }
+
+✅ TEK ADIM ÖRNEK (sadece öteleme):
+Soru: "B(2, -3) noktası 3 birim sola 2 birim yukarı öteleniyor. B' nedir?"
+→ grafik_verisi: {
+    "tip": "koordinat_donusum",
+    "baslik": "Öteleme",
+    "veri": [
+      {"etiket": "B",  "x": 2,  "y": -3},
+      {"etiket": "B'", "x": -1, "y": -1}
+    ],
+    "ozellikler": {
+      "otelemeVektoru": {"dx": -3, "dy": 2}
+    }
+  }
+
+🚨 KRİTİK KONTROLLER:
+1. HER koordinat çifti matematiksel olarak doğru hesaplanmalı — kural dışı değer YASAK
+2. Veri dizisindeki sıra dönüşüm adımlarının sırasını takip etmeli (orijinal → ara → son)
+3. Etiketler soru metnindeki harf ve asal işaretleriyle BİREBİR eşleşmeli
+4. Soru metninde geçen koordinatlar veri dizisinde AYNEN bulunmalı
+`,
+        mebKazanimlar: ['M.8.5.2.1', 'M.7.5.*.', 'yansıma', 'öteleme', 'dönüşüm'],
+        sinifLimitleri: {
+            minSinif: 6,
+            maxSinif: 8,
+            veriLimiti: () => 4,
+        },
+    },
+
     koordinat_sistemi: {
         sistemTalimati: `
 [CEBİR — KOORDİNAT SİSTEMİ ZORUNLU]
@@ -918,6 +976,19 @@ export function getVisualPromptsForKazanimlar(
             if (kodLower.includes('kare')) gorselTipler.add('kare');
             if (kodLower.includes('dikdörtgen')) gorselTipler.add('dikdortgen');
             if (kodLower.includes('açı') || kodLower.includes('aci')) gorselTipler.add('aci');
+            // M.8.5.2.1 ve benzeri — yansıma/öteleme/dönüşüm kazanımları
+            if (
+                kodLower.includes('yansıma') ||
+                kodLower.includes('yansima') ||
+                kodLower.includes('öteleme') ||
+                kodLower.includes('oteleme') ||
+                kodLower.includes('dönüşüm') ||
+                kodLower.includes('donusum') ||
+                // M.8.5.2.x kodlarındaki .5.2. deseni dönüşümleri içerir
+                /\.5\.2\./.test(kodLower)
+            ) {
+                gorselTipler.add('koordinat_donusum');
+            }
         }
 
         // Sayılar ve İşlemler

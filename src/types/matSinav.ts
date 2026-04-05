@@ -47,7 +47,8 @@ export type GrafikVeriTipi =
   | 'silindir'
   | 'koni'
   | 'piramit'
-  | 'dikdortgenler_prizmasi';
+  | 'dikdortgenler_prizmasi'
+  | 'koordinat_donusum';   // Yansıma/Öteleme/Döndürme dönüşüm adımları
 
 // ─── Grafik Veri Ögesi ────────────────────────────────────────
 export interface GrafikVeriOgesi {
@@ -76,6 +77,10 @@ export interface GrafikVerisi {
     renk?: string;
     kenarSayisi?: number;
     etiketler?: string[];
+    /** koordinat_donusum: Yansıma ekseni — 'x' | 'y' | 'y=x' vb. */
+    yansımaEkseni?: string;
+    /** koordinat_donusum: Öteleme vektörü { dx, dy } */
+    otelemeVektoru?: { dx: number; dy: number };
   };
 }
 
