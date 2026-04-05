@@ -62,7 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       blueprint,
       count: parsedCount,
       userId,
-      ...(config !== undefined && { config }),
+      ...(config && { config }),
     };
 
     const result = await generateVariations(request);

@@ -1202,7 +1202,7 @@ export const SheetRenderer = React.memo(
         ? DOMPurify.sanitize(String(ocrData.content), {
             ALLOWED_TAGS: ['div','p','span','strong','em','u','b','i','br','ul','ol','li',
                            'table','tr','td','th','thead','tbody','h1','h2','h3','h4'],
-            ALLOWED_ATTR: ['class','style'],
+            ALLOWED_ATTR: ['class'],
           })
         : '';
 
