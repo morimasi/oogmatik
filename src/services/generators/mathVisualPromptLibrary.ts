@@ -444,11 +444,229 @@ Soru: "AB doğru parçasının uzunluğu 12 cm ise, M noktası orta nokta olduğ
 `,
         sinifLimitleri: { minSinif: 3, maxSinif: 8, veriLimiti: () => 3 },
     },
+
+    isin: {
+        sistemTalimati: `
+[GEOMETRİ — IŞIN GÖRSELİ ZORUNLU]
+
+Bir başlangıç noktasından tek yönde uzayan geometrik nesne. Sembolü: →
+
+✅ DOĞRU ÖRNEK:
+Soru: "O noktasından başlayan OA ışını ile OB ışını arasındaki açı 55°'dir. OA ışınının yönü nedir?"
+→ grafik_verisi: {
+    "tip": "isin",
+    "baslik": "OA Işını",
+    "veri": [
+      {"etiket": "O"},
+      {"etiket": "A"}
+    ],
+    "ozellikler": {
+      "etiketler": ["O", "A"],
+      "acilar": [55]
+    }
+  }
+
+📐 IŞIN ÖZELLİKLERİ:
+• Başlangıç noktası (O) belirtilmeli
+• Işın ismi soru metnindeki harf çiftiyle eşleşmeli (OA ışını)
+• Açıyı ölçen ışınlar grafik_verisi.veri'de yer almalı
+
+⚠️ Işın tek yönlüdür — doğru çift yönlü, doğru parçası iki uçludur.
+`,
+        sinifLimitleri: { minSinif: 3, maxSinif: 8, veriLimiti: () => 3 },
+    },
+
+    dogru: {
+        sistemTalimati: `
+[GEOMETRİ — DOĞRU GÖRSELİ ZORUNLU]
+
+Her iki yönde sonsuz uzanan geometrik nesne. İki noktayla adlandırılır (AB doğrusu).
+
+✅ DOĞRU ÖRNEK:
+Soru: "d1 doğrusu üzerindeki A(2, 0) ve B(0, 4) noktaları verilmektedir. d1 doğrusunun eğimi nedir?"
+→ grafik_verisi: {
+    "tip": "dogru",
+    "baslik": "d1 Doğrusu",
+    "veri": [
+      {"etiket": "A", "x": 2, "y": 0},
+      {"etiket": "B", "x": 0, "y": 4}
+    ],
+    "ozellikler": {
+      "etiketler": ["A", "B"]
+    }
+  }
+
+📐 EĞİM FORMÜLÜ: m = (y2 - y1) / (x2 - x1)
+
+⚠️ Soru metnindeki nokta koordinatları grafik_verisi.veri'de AYNEN yer almalı.
+`,
+        sinifLimitleri: { minSinif: 5, maxSinif: 8, veriLimiti: () => 3 },
+    },
+
+    dik_kesisen_dogrular: {
+        sistemTalimati: `
+[GEOMETRİ — DİK KESİŞEN DOĞRULAR (DİKME) GÖRSELİ ZORUNLU]
+
+İki doğrunun 90° açıyla kesiştiği durum. Dik açı köşe işareti (□) ile gösterilir.
+
+✅ DOĞRU ÖRNEK:
+Soru: "d1 doğrusuna B noktasından dikme çizilmektedir. Dikme uzunluğu 6 cm'dir."
+→ grafik_verisi: {
+    "tip": "dik_kesisen_dogrular",
+    "baslik": "d1 Doğrusuna Dikme",
+    "veri": [
+      {"etiket": "d1"},
+      {"etiket": "B"}
+    ],
+    "ozellikler": {
+      "etiketler": ["d1", "B"],
+      "acilar": [90],
+      "kenarlar": [6],
+      "birim": "cm"
+    }
+  }
+
+📐 DİKME KURALLARI:
+• Dik açı (90°) köşede kare işareti ile gösterilir
+• Dikmenin uzunluğu "kenarlar" alanında belirtilir
+• Doğru ismi ve nokta ismi soru metnindeki ile AYNI olmalı
+
+⚠️ Dik açı ≠ Dik üçgen: İki doğru kesişmesi (dik_kesisen_dogrular) üçgen oluşturmaz.
+`,
+        sinifLimitleri: { minSinif: 4, maxSinif: 8, veriLimiti: () => 3 },
+    },
+
+    koni: {
+        sistemTalimati: `
+[3D GEOMETRİ — KONİ GÖRSELİ ZORUNLU]
+
+Taban dairesi + tepe noktası. Taban yarıçapı (r) ve yükseklik (h) zorunlu.
+Yanal yüzey formülü: πrl (l = yanal yüzey yüksekliği = √(r²+h²))
+
+✅ DOĞRU ÖRNEK:
+Soru: "Taban yarıçapı 4 cm, yüksekliği 3 cm olan koninin hacmi kaç cm³'tür? (π ≈ 3,14)"
+→ grafik_verisi: {
+    "tip": "koni",
+    "baslik": "Dik Dairesel Koni",
+    "ozellikler": {
+      "yaricap": 4,
+      "kenarlar": [3],  // yükseklik
+      "birim": "cm"
+    }
+  }
+
+📐 FORMÜLLER:
+• Hacim = (1/3)πr²h
+• Yanal yüzey alanı = πrl, l = √(r²+h²)
+• Toplam yüzey alanı = πrl + πr²
+
+⚠️ r (yarıçap) ve h (yükseklik) değerleri soru metnindeki ile BİREBİR AYNI OLMALI!
+`,
+        sinifLimitleri: { minSinif: 8, maxSinif: 8, veriLimiti: () => 2 },
+    },
+
+    piramit: {
+        sistemTalimati: `
+[3D GEOMETRİ — PİRAMİT GÖRSELİ ZORUNLU]
+
+Kare veya dikdörtgen taban + tepe noktası (T). Köşe isimleri: A, B, C, D (taban) ve T (tepe).
+
+✅ DOĞRU ÖRNEK:
+Soru: "Kare tabanlı bir piramidin taban kenarı 6 cm, yüksekliği 4 cm'dir. Hacmi kaç cm³'tür?"
+→ grafik_verisi: {
+    "tip": "piramit",
+    "baslik": "Kare Tabanlı Piramit",
+    "veri": [
+      {"etiket": "A"}, {"etiket": "B"}, {"etiket": "C"}, {"etiket": "D"},
+      {"etiket": "T"}
+    ],
+    "ozellikler": {
+      "kenarlar": [6, 6, 4],  // taban kenarı, taban kenarı, yükseklik
+      "etiketler": ["A", "B", "C", "D", "T"],
+      "birim": "cm"
+    }
+  }
+
+📐 FORMÜLLER:
+• Hacim = (1/3) × taban alanı × yükseklik
+• Kare tabanlı piramit: V = (1/3) × a² × h
+
+⚠️ Soru metninde "kare tabanlı" ise taban kenarları eşit, "dikdörtgen tabanlı" ise farklı olabilir.
+`,
+        sinifLimitleri: { minSinif: 8, maxSinif: 8, veriLimiti: () => 5 },
+    },
+
+    dikdortgenler_prizmasi: {
+        sistemTalimati: `
+[3D GEOMETRİ — DİKDÖRTGENLER PRİZMASI GÖRSELİ ZORUNLU]
+
+3 kenar ölçüsü (genişlik a, derinlik b, yükseklik c) mutlaka belirtilmeli.
+Özel durum: a = b = c ise kup tipini kullan!
+
+✅ DOĞRU ÖRNEK:
+Soru: "Boyutları 10 cm × 5 cm × 4 cm olan dikdörtgenler prizmasının hacmi kaç cm³'tür?"
+→ grafik_verisi: {
+    "tip": "dikdortgenler_prizmasi",
+    "baslik": "Dikdörtgenler Prizması",
+    "ozellikler": {
+      "kenarlar": [10, 5, 4],  // genişlik, derinlik, yükseklik
+      "birim": "cm"
+    }
+  }
+
+📐 FORMÜLLER:
+• Hacim = a × b × c
+• Yüzey alanı = 2(ab + bc + ca)
+• Köşegen = √(a² + b² + c²)
+
+⚠️ "kenarlar" dizisinde 3 değer MUTLAKA olmalı: [genişlik, derinlik, yükseklik]
+Soru metnindeki değerlerle BİREBİR eşleşmeli! (10×5×4 ≠ 10×4×5 aynı hacim ama yüzey alanı farklı)
+`,
+        sinifLimitleri: { minSinif: 5, maxSinif: 8, veriLimiti: () => 3 },
+    },
 };
 
 // ─── VERİ İŞLEME PROMPT ŞABLONLARI ───────────────────────────────
 
 export const VERI_ISLEME_PROMPT_SABLONLARI: Record<string, PromptTemplate> = {
+    nesne_grafigi: {
+        sistemTalimati: `
+[VERİ İŞLEME — NESNE/PİKTOGRAF GRAFİĞİ ZORUNLU]
+
+Her emoji/sembol 1 birimi temsil eder. Veri değerleri soru metninde AYNEN geçmeli.
+
+✅ DOĞRU ÖRNEK:
+Soru: "Grafiğe göre Ahmet kaç kitap okumuştur? (Her kitap sembolü 2 kitabı temsil eder)"
+→ grafik_verisi: {
+    "tip": "nesne_grafigi",
+    "baslik": "Aylık Okunan Kitap Sayısı",
+    "not": "Her 📚 sembolü = 2 kitap",
+    "veri": [
+      {"etiket": "Ahmet", "deger": 8, "nesne": "📚"},
+      {"etiket": "Ayşe",  "deger": 6, "nesne": "📚"},
+      {"etiket": "Mehmet","deger": 10, "nesne": "📚"}
+    ]
+  }
+→ Ahmet: 8 kitap (4 sembol × 2 kitap/sembol) ✓
+
+🔢 TUTARLILIK KURALLARI:
+1. "nesne" alanı tüm satırlarda AYNI sembol olmalı (karışık sembol kullanma)
+2. "deger" alanı GERÇEK SAYI (sembol sayısı değil!)
+3. Eğer "1 sembol = N birim" ise "not" alanında belirt
+4. Soruda toplam soruluyorsa: tüm "deger" değerlerinin toplamı soruda geçen toplamla eşit olmalı
+
+⚠️ "nesne_grafigi" ve "siklik_tablosu" farkı:
+• nesne_grafigi: Pictograf (semboller satır halinde)
+• siklik_tablosu: Frekans tablosu (sayısal değerler)
+`,
+        mebKazanimlar: ['M.*.4.*.', 'veri işleme', 'nesne grafik', 'piktograf'],
+        sinifLimitleri: {
+            minSinif: 1,
+            maxSinif: 5,
+            veriLimiti: (sinif) => Math.min(sinif + 1, 6),
+        },
+    },
+
     sutun_grafigi: {
         sistemTalimati: `
 [VERİ İŞLEME — SÜTUN GRAFİĞİ ZORUNLU]
@@ -958,25 +1176,31 @@ export function getVisualPromptsForKazanimlar(
     for (const kod of kazanimKodlari) {
         const kodLower = kod.toLowerCase();
 
-        // Veri İşleme
+        // Veri İşleme (.4. alt alanı)
         if (kodLower.includes('.4.')) {
             if (kodLower.includes('çetele')) gorselTipler.add('cetele_tablosu');
+            else if (kodLower.includes('nesne') || kodLower.includes('piktograf')) gorselTipler.add('nesne_grafigi');
             else if (kodLower.includes('sütun')) gorselTipler.add('sutun_grafigi');
             else if (kodLower.includes('pasta')) gorselTipler.add('pasta_grafigi');
-            else if (kodLower.includes('çizgi')) gorselTipler.add('cizgi_grafigi');
+            else if (kodLower.includes('çizgi') || kodLower.includes('kırık')) gorselTipler.add('cizgi_grafigi');
             else gorselTipler.add('siklik_tablosu');
         }
 
-        // Geometri
-        if (kodLower.includes('.2.')) {
+        // Geometri — NOT: .2. genel Geometri, .5.1. üçgen inşa, .5.2. dönüşüm
+        if (kodLower.includes('.2.') || /\.5\.[12]\./.test(kodLower)) {
             if (kodLower.includes('üçgen') || kodLower.includes('ucgen')) {
                 gorselTipler.add('ucgen');
             }
-            if (kodLower.includes('dik')) gorselTipler.add('dik_ucgen');
+            if (kodLower.includes('dik') && (kodLower.includes('üçgen') || kodLower.includes('ucgen'))) {
+                gorselTipler.add('dik_ucgen');
+            }
             if (kodLower.includes('kare')) gorselTipler.add('kare');
             if (kodLower.includes('dikdörtgen')) gorselTipler.add('dikdortgen');
             if (kodLower.includes('açı') || kodLower.includes('aci')) gorselTipler.add('aci');
-            // M.8.5.2.1 ve benzeri — yansıma/öteleme/dönüşüm kazanımları
+            if (kodLower.includes('paralel') && kodLower.includes('doğru')) gorselTipler.add('paralel_dogrular');
+            if (kodLower.includes('dikme')) gorselTipler.add('dik_kesisen_dogrular');
+            if (kodLower.includes('ışın')) gorselTipler.add('isin');
+            // M.8.5.2.1 ve benzeri — yansıma/öteleme/dönüşüm
             if (
                 kodLower.includes('yansıma') ||
                 kodLower.includes('yansima') ||
@@ -984,26 +1208,48 @@ export function getVisualPromptsForKazanimlar(
                 kodLower.includes('oteleme') ||
                 kodLower.includes('dönüşüm') ||
                 kodLower.includes('donusum') ||
-                // M.8.5.2.x kodlarındaki .5.2. deseni dönüşümleri içerir
                 /\.5\.2\./.test(kodLower)
             ) {
                 gorselTipler.add('koordinat_donusum');
             }
         }
 
-        // Sayılar ve İşlemler
+        // Ölçme — 3D cisimler ve alan/hacim (.3.3. veya tanim ile tespit)
+        if (/\.3\.3\./.test(kodLower) || kodLower.includes('prizma') || kodLower.includes('hacim')) {
+            gorselTipler.add('dikdortgenler_prizmasi');
+        }
+        if (kodLower.includes('silindir')) gorselTipler.add('silindir');
+        if (kodLower.includes('koni')) gorselTipler.add('koni');
+        if (kodLower.includes('piramit')) gorselTipler.add('piramit');
+
+        // Sayılar ve İşlemler (.1. alt alanı)
         if (kodLower.includes('.1.')) {
             if (kodLower.includes('sayı doğrusu')) gorselTipler.add('sayi_dogrusu');
             if (kodLower.includes('kesir')) gorselTipler.add('kesir_modeli');
         }
 
-        // Cebir / Koordinat
-        if (kodLower.includes('.3.') || kodLower.includes('koordinat')) {
+        // Eşitsizlik → sayı doğrusu
+        if (kodLower.includes('eşitsizlik') || kodLower.includes('esitsizlik') || /\.4\.3\./.test(kodLower)) {
+            gorselTipler.add('sayi_dogrusu');
+        }
+
+        // Cebir / Koordinat — yalnızca gerçek koordinat/fonksiyon kazanımları
+        // M.6.3.x, M.7.3.x, M.8.3.x (NOT: M.5.3.x = Ölçme, farklı bloktakileri kapsar)
+        if (
+            kodLower.includes('koordinat') ||
+            /^m\.[6-8]\.3\./.test(kodLower)
+        ) {
             gorselTipler.add('koordinat_sistemi');
         }
 
-        // Olasılık
-        if (kodLower.includes('.5.') || kodLower.includes('olasılık')) {
+        // Olasılık — SADECE gerçek olasılık kazanımları
+        // M.8.3.1.x = olasılık, M.7.4.x = olasılık başlangıcı
+        if (
+            kodLower.includes('olasılık') ||
+            kodLower.includes('olasilik') ||
+            /^m\.[78]\.3\.1\./.test(kodLower) ||
+            /^m\.[78]\.4\./.test(kodLower)
+        ) {
             gorselTipler.add('olaslik_cark');
         }
     }

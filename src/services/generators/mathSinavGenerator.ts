@@ -194,16 +194,73 @@ function kazanimGorselBelirle(kazanimKodu: string): KazanimGorselGereksinim | nu
         aciklama: 'Simetri eksenini ve şekli göster',
       };
     }
+    // 3D cisimler (Geometri ve Ölçme kazanımları için)
+    if (tanim_lower.includes('silindir')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'silindir',
+        aciklama: 'Silindiri çiz, yarıçap ve yüksekliği belirt',
+      };
+    }
+    if (tanim_lower.includes('koni')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'koni',
+        aciklama: 'Koniyi çiz, yarıçap ve yüksekliği belirt',
+      };
+    }
+    if (tanim_lower.includes('piramit')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'piramit',
+        aciklama: 'Piramidi çiz, taban ve yüksekliği belirt',
+      };
+    }
+    if (tanim_lower.includes('prizma') || tanim_lower.includes('prizması')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'dikdortgenler_prizmasi',
+        aciklama: 'Dikdörtgenler prizmasını çiz, 3 kenar ölçüsünü belirt',
+      };
+    }
+    // Özel doğru ilişkileri — paralel ve dikme önceden kontrol edilmeli
     if (
-      tanim_lower.includes('doğru parçası') ||
-      tanim_lower.includes('doğru') ||
-      tanim_lower.includes('ışın')
+      tanim_lower.includes('paralel') &&
+      (tanim_lower.includes('doğru') || tanim_lower.includes('dogru'))
     ) {
       return {
         kazanimKodu,
         kazanimMetni: tanim,
+        zorunluGorsel: 'paralel_dogrular',
+        aciklama: 'Paralel doğruları ve kesen doğruyu çiz, açıları belirt',
+      };
+    }
+    if (tanim_lower.includes('dikme')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'dik_kesisen_dogrular',
+        aciklama: 'Dikme (dik kesişen doğrular) çiz, dik açıyı göster',
+      };
+    }
+    if (tanim_lower.includes('doğru parçası') || tanim_lower.includes('doğru')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
         zorunluGorsel: 'dogru_parcasi',
-        aciklama: 'Doğru, doğru parçası veya ışını çiz',
+        aciklama: 'Doğru veya doğru parçasını çiz',
+      };
+    }
+    if (tanim_lower.includes('ışın')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'isin',
+        aciklama: 'Işını çiz, başlangıç noktasını göster',
       };
     }
     if (tanim_lower.includes('koordinat')) {
@@ -260,6 +317,14 @@ function kazanimGorselBelirle(kazanimKodu: string): KazanimGorselGereksinim | nu
         aciklama: 'Koordinat düzleminde noktaları ve fonksiyonu göster',
       };
     }
+    if (tanim_lower.includes('eşitsizlik') || tanim_lower.includes('esitsizlik')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'sayi_dogrusu',
+        aciklama: 'Eşitsizliği sayı doğrusunda göster',
+      };
+    }
     if (
       tanim_lower.includes('kesir') ||
       tanim_lower.includes('ondalık') ||
@@ -282,6 +347,67 @@ function kazanimGorselBelirle(kazanimKodu: string): KazanimGorselGereksinim | nu
           aciklama: 'Kesir modelini görsel olarak göster',
         };
       }
+    }
+  }
+
+  // Ölçme → 3D cisimler, alan ve hacim hesaplamaları
+  if (ogrenmeAlani === 'Ölçme') {
+    const tanim_lower = tanim.toLowerCase();
+    if (tanim_lower.includes('silindir')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'silindir',
+        aciklama: 'Silindiri çiz, yarıçap ve yüksekliği belirt',
+      };
+    }
+    if (tanim_lower.includes('koni')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'koni',
+        aciklama: 'Koniyi çiz, yarıçap ve yüksekliği belirt',
+      };
+    }
+    if (tanim_lower.includes('piramit')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'piramit',
+        aciklama: 'Piramidi çiz, taban ve yüksekliği belirt',
+      };
+    }
+    if (tanim_lower.includes('prizma') || tanim_lower.includes('prizması')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'dikdortgenler_prizmasi',
+        aciklama: 'Dikdörtgenler prizmasını çiz, 3 kenar ölçüsünü belirt',
+      };
+    }
+    if (tanim_lower.includes('hacim') || tanim_lower.includes('yüzey')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'dikdortgenler_prizmasi',
+        aciklama: 'Hacim veya yüzey alanı için 3D cismi çiz',
+      };
+    }
+    if (tanim_lower.includes('üçgen')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'ucgen',
+        aciklama: 'Üçgeni çiz, alan hesabı için yüksekliği belirt',
+      };
+    }
+    if (tanim_lower.includes('dikdörtgen') || tanim_lower.includes('kare')) {
+      return {
+        kazanimKodu,
+        kazanimMetni: tanim,
+        zorunluGorsel: 'dikdortgen',
+        aciklama: 'Dikdörtgeni çiz, kenar ölçülerini belirt',
+      };
     }
   }
 
@@ -811,7 +937,13 @@ const MATH_EXAM_SCHEMA = {
               tip: {
                 type: 'STRING',
                 description:
-                  "Görsel türü: 'siklik_tablosu', 'nesne_grafigi', 'sutun_grafigi', 'ucgen', 'dik_ucgen', 'kare', 'dikdortgen', 'daire', 'isin', 'dogru', 'dik_kesisen_dogrular', 'koordinat_donusum' (yansıma/öteleme/dönüşüm adımları için) vb.",
+                  "Görsel türü — desteklenen 33 tip: " +
+                  "VERİ: 'siklik_tablosu'|'cetele_tablosu'|'nesne_grafigi'|'sutun_grafigi'|'pasta_grafigi'|'cizgi_grafigi'. " +
+                  "GEOMETRİ 2D: 'ucgen'|'dik_ucgen'|'kare'|'dikdortgen'|'paralel_kenar'|'cokgen'|'daire'|'aci'|'simetri'|'dogru_parcasi'|'isin'|'dogru'|'paralel_dogrular'|'kesisen_dogrular'|'dik_kesisen_dogrular'. " +
+                  "3D CİSİMLER: 'kup'|'silindir'|'koni'|'piramit'|'dikdortgenler_prizmasi'. " +
+                  "KOORDİNAT: 'koordinat_sistemi'|'koordinat_grafigi'|'koordinat_donusum' (yansıma/öteleme/dönüşüm adımları için). " +
+                  "SAYI/CEBİR: 'sayi_dogrusu'|'kesir_modeli'. " +
+                  "OLASILIK: 'olaslik_cark'|'venn_diyagrami'.",
               },
               baslik: { type: 'STRING', description: 'Görsel için bir başlık.' },
               veri: {
