@@ -323,6 +323,9 @@ export const PEDAGOGICAL_KEYWORDS = [
   'inhibisyon',
 ] as const;
 
+// Anahtar kelimeleri bir kez küçük harfe çevir — her doğrulama çağrısında tekrar hesaplama yok
+const _PEDAGOGICAL_KEYWORDS_LOWER = PEDAGOGICAL_KEYWORDS.map((kw) => kw.toLowerCase());
+
 export const PedagogicalNoteSchema = z
   .string()
   .min(
@@ -330,8 +333,10 @@ export const PedagogicalNoteSchema = z
     'Pedagojik not en az 80 karakter olmalı — öğretmene "neden bu aktivite" tam olarak açıklanmalı'
   )
   .refine(
-    (note) =>
-      PEDAGOGICAL_KEYWORDS.some((kw) => note.toLowerCase().includes(kw.toLowerCase())),
+    (note) => {
+      const lower = note.toLowerCase();
+      return _PEDAGOGICAL_KEYWORDS_LOWER.some((kw) => lower.includes(kw));
+    },
     {
       message:
         'Pedagojik not en az bir hedef beceri/alan ifadesi içermeli (örn: "fonolojik farkındalık", "çalışma belleği", "görsel algı", "okuma akıcılığı")',

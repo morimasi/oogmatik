@@ -25,11 +25,10 @@ import {
  * Herhangi bir external monitoring servisi (Sentry, Datadog, Loggly vb.) bağlanabilir.
  * VITE_SENTRY_DSN tanımlıysa, lightweight HTTP reporter otomatik aktif olur.
  */
-let _externalReporter: ((errorLog: Record<string, unknown>) => void) | null = null;
+type ErrorReporter = (errorLog: Record<string, unknown>) => void;
+let _externalReporter: ErrorReporter | null = null;
 
-export const setErrorReporter = (
-  reporter: (errorLog: Record<string, unknown>) => void
-): void => {
+export const setErrorReporter = (reporter: ErrorReporter | null): void => {
   _externalReporter = reporter;
 };
 

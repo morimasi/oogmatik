@@ -143,7 +143,7 @@ const _tryRepairJson = (jsonStr: string): any => {
   // STRATEJİ 4: Sondan geriye tarayarak ilk geçerli JSON bloğunu bul.
   // Token sınırı nedeniyle kesilen veya gömülü metin içeren yanıtlar için son savunma hattı.
   try {
-    for (let i = cleaned.length - 1; i > 0; i--) {
+    for (let i = cleaned.length - 1; i >= 0; i--) {
       const ch = cleaned[i];
       if (ch === '}' || ch === ']') {
         const candidate = cleaned.substring(0, i + 1);

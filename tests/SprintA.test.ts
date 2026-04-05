@@ -19,8 +19,7 @@ import { PedagogicalNoteSchema, PEDAGOGICAL_KEYWORDS } from '@/utils/schemas';
 describe('logError — External Monitoring Routing', () => {
   afterEach(() => {
     // Her testten sonra reporter'ı temizle (boş fallback'e dön)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setErrorReporter(null as any);
+    setErrorReporter(null);
   });
 
   it('should return errorLog object', () => {
@@ -154,7 +153,7 @@ describe('JSON Repair — 4. Katman Algoritma Doğruluğu', () => {
   it('STRATEJİ 4: should find last valid JSON object by scanning backward', () => {
     // 4. katman algoritmasını inline olarak test et (gerçek implementasyonla eşdeğer)
     const findLastValidSubstring = (s: string): unknown | null => {
-      for (let i = s.length - 1; i > 0; i--) {
+      for (let i = s.length - 1; i >= 0; i--) {
         const ch = s[i];
         if (ch === '}' || ch === ']') {
           const candidate = s.substring(0, i + 1);
@@ -178,7 +177,7 @@ describe('JSON Repair — 4. Katman Algoritma Doğruluğu', () => {
 
   it('STRATEJİ 4: should handle deeply nested truncated JSON', () => {
     const findLastValidSubstring = (s: string): unknown | null => {
-      for (let i = s.length - 1; i > 0; i--) {
+      for (let i = s.length - 1; i >= 0; i--) {
         const ch = s[i];
         if (ch === '}' || ch === ']') {
           const candidate = s.substring(0, i + 1);
@@ -201,7 +200,7 @@ describe('JSON Repair — 4. Katman Algoritma Doğruluğu', () => {
 
   it('STRATEJİ 4: should return null for completely invalid input', () => {
     const findLastValidSubstring = (s: string): unknown | null => {
-      for (let i = s.length - 1; i > 0; i--) {
+      for (let i = s.length - 1; i >= 0; i--) {
         const ch = s[i];
         if (ch === '}' || ch === ']') {
           const candidate = s.substring(0, i + 1);
