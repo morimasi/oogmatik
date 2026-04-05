@@ -379,6 +379,14 @@ export async function updateWorkbook(
   payload: UpdateWorkbookPayload
 ): Promise<Workbook> {
   try {
+    // Erken validasyon — Firestore'a gitmeden önce girişi doğrula
+    if (payload.title) {
+      validateTitle(payload.title);
+    }
+    if (payload.pages) {
+      validatePageCount(payload.pages);
+    }
+
     const workbookRef = doc(db, WORKBOOKS_COLLECTION, workbookId);
 
     // Mevcut workbook'u al ve yetki kontrolü yap
@@ -397,14 +405,6 @@ export async function updateWorkbook(
         403,
         { workbookId, userId }
       );
-    }
-
-    // Validasyonlar
-    if (payload.title) {
-      validateTitle(payload.title);
-    }
-    if (payload.pages) {
-      validatePageCount(payload.pages);
     }
 
     // Güncelleme verisini hazırla

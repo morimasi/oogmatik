@@ -38,6 +38,21 @@ import type { CreateWorkbookPayload } from '../src/types/workbook';
 
 vi.mock('../src/services/firebaseClient', () => ({
   db: {},
+  collection: vi.fn(),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  getDocs: vi.fn(),
+  setDoc: vi.fn(),
+  updateDoc: vi.fn(),
+  deleteDoc: vi.fn(),
+  query: vi.fn(),
+  where: vi.fn(),
+  orderBy: vi.fn(),
+  limit: vi.fn(),
+  startAfter: vi.fn(),
+  Timestamp: { now: () => ({ seconds: 1234567890 }) },
+  writeBatch: vi.fn(),
+  runTransaction: vi.fn(),
 }));
 
 vi.mock('firebase/firestore', () => ({

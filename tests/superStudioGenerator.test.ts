@@ -56,7 +56,7 @@ describe('superStudioGenerator - Defensive Coding Tests', () => {
       expect(result[0].pages[0].content).toContain('Bu bir test metnidir.');
       expect(result[0].pages[0].content).toContain('Soru 1?');
       expect(result[0].pages[0].pedagogicalNote).toBe(
-        'Bu bir test pedagojik notudur ve yirmi karakterden uzundur.'
+        'Bu cok uzun bir pedagojik nottur en az 20 karakterdir.'
       );
     });
 
