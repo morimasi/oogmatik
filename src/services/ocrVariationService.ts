@@ -170,6 +170,12 @@ const buildVariationPrompt = (
   const targetProfile = config?.targetProfile || 'mixed';
   const ageGroup = config?.ageGroup || '8-10';
 
+  const visualContext = blueprint.structuredData.visualDescriptors?.length
+    ? `\nMEVCUT GÖRSELLER: ${blueprint.structuredData.visualDescriptors
+        .map(v => `${v.tipi}: ${v.aciklama}`)
+        .join('; ')}`
+    : '';
+
   return `
 [VARYASYON ÜRETME MOTORU - GEMINI 2.5 FLASH]
 Aşağıdaki BLUEPRINT'ten ${count} adet FARKLI VERİLİ aktivite varyasyonu üret.
@@ -182,7 +188,7 @@ KAYNAK BİLGİLERİ:
 - Tip: ${detectedType}
 - Sütun sayısı: ${context.metadata.layoutHints.columns}
 - Soru sayısı: ~${context.metadata.layoutHints.questionCount}
-- Görsel içeriyor: ${context.metadata.layoutHints.hasImages ? 'Evet' : 'Hayır'}
+- Görsel içeriyor: ${context.metadata.layoutHints.hasImages ? 'Evet' : 'Hayır'}${visualContext}
 
 KRİTİK KURALLAR (İHLAL EDİLEMEZ):
 1. MİMARİ YAPISI AYNI KALMALI: Sütun sayısı, soru formatı, layout tamamen aynı.
@@ -201,6 +207,11 @@ Blueprint: "Boşluğu doldurun: Ali ___ gitti." → Varyasyon 1: "okula", Varyas
 - Her varyasyon bağımsız bir aktivite olmalı
 - Tüm varyantlar aynı pedagojik hedefleri desteklemeli
 - HTML içeriği disleksi-dostu olmalı (Lexend font, büyük metin)
+
+GÖRSEL ÜRETİM:
+- Orijinal materyal görsel içeriyorsa (hasImages: true veya blueprint'te grafik/tablo/şekil varsa):
+  Her varyasyonda grafikVeri alanını doldur. Aynı tip görseli (örn: sutun_grafigi) farklı verilerle üret.
+- Orijinal materyal görsel içermiyorsa: grafikVeri alanını null bırak.
 
 ${count} adet tam varyasyon üret. Her biri eksiksiz WorksheetData objesi olmalı.
   `.trim();
@@ -240,6 +251,32 @@ const getVariationSchema = () => ({
             type: 'ARRAY' as const,
             items: { type: 'STRING' as const },
             description: 'Hedef beceriler listesi (örn: "Okuma hızı", "Sayı algısı")'
+          },
+          grafikVeri: {
+            type: 'OBJECT' as const,
+            nullable: true,
+            description: 'Aktivitenin görsel/grafik verisi — orijinal materyalde grafik/tablo/şekil varsa doldur',
+            properties: {
+              tip: {
+                type: 'STRING' as const,
+                description: 'Görsel tipi: sutun_grafigi | pasta_grafigi | cizgi_grafigi | tablo | ucgen | dikdortgen | daire | koordinat_sistemi | sayi_dogrusu | venn_diyagrami'
+              },
+              baslik: {
+                type: 'STRING' as const,
+                description: 'Grafiğin başlığı'
+              },
+              veri: {
+                type: 'ARRAY' as const,
+                items: {
+                  type: 'OBJECT' as const,
+                  properties: {
+                    etiket: { type: 'STRING' as const },
+                    deger: { type: 'NUMBER' as const },
+                    birim: { type: 'STRING' as const }
+                  }
+                }
+              }
+            }
           }
         },
         required: ['title', 'type', 'content', 'pedagogicalNote', 'difficultyLevel', 'targetSkills']
@@ -286,6 +323,8 @@ const postProcessVariation = (
   return {
     ...variation,
     id: `ocr_var_${Date.now()}_${index}_${Math.random().toString(36).substring(7)}`,
+    type: 'OCR_CONTENT' as ActivityType,
+    grafikVeri: variation.grafikVeri ?? null,
     createdAt: timestamp,
     updatedAt: timestamp,
     source: 'ocr_variation',

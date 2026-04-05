@@ -8,6 +8,8 @@ import React, { useState } from 'react';
 import type { WorksheetData } from '../types';
 import { useWorksheetStore } from '../store/useWorksheetStore';
 import DOMPurify from 'isomorphic-dompurify';
+import { GraphicRenderer } from '../../components/MatSinavStudyosu/components/GraphicRenderer';
+import type { GrafikVerisi } from '../types/matSinav';
 
 interface VariationResultsViewProps {
   variations: WorksheetData;
@@ -197,12 +199,22 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                       className="prose prose-sm prose-invert max-w-none text-xs leading-relaxed"
                       dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(String(variation.content || ''), {
-                          ALLOWED_TAGS: ['div', 'p', 'span', 'strong', 'em', 'u', 'br', 'ul', 'ol', 'li', 'table', 'tr', 'td', 'th'],
+                          ALLOWED_TAGS: ['div', 'p', 'span', 'strong', 'em', 'u', 'br', 'ul', 'ol', 'li', 'table', 'tr', 'td', 'th', 'svg', 'path', 'rect', 'circle', 'line', 'text', 'g', 'defs', 'filter', 'feDropShadow'],
                           ALLOWED_ATTR: ['class', 'style'],
                         }),
                       }}
                     />
                   </div>
+
+                  {/* Görsel veri varsa GraphicRenderer ile göster */}
+                  {variation.grafikVeri && (
+                    <div className="mt-2 flex justify-center rounded-xl overflow-hidden bg-slate-700/30 p-2">
+                      <GraphicRenderer
+                        grafik={variation.grafikVeri as GrafikVerisi}
+                        className="w-full"
+                      />
+                    </div>
+                  )}
 
                   {/* Expand Button */}
                   <button
