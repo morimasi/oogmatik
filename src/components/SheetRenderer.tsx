@@ -182,6 +182,8 @@ import { PedagogicalHeader, ImageDisplay } from './sheets/common';
 
 import { EditableText } from './Editable';
 import { useA4EditorStore } from '../store/useA4EditorStore';
+import DOMPurify from 'isomorphic-dompurify';
+import { GraphicRenderer } from '../../components/MatSinavStudyosu/components/GraphicRenderer';
 
 const recursiveSafeText = (val: any): string => {
   if (val === null || val === undefined) return '';
@@ -1185,6 +1187,57 @@ export const SheetRenderer = React.memo(
 
     if (activityType === ActivityType.BRAIN_TEASERS) {
       return <BrainTeasersSheet data={data as any} settings={settings || ({} as any)} />;
+    }
+
+    // OCR aktiviteleri: grafikVeri varsa GraphicRenderer + content göster
+    if (activityType === ActivityType.OCR_CONTENT) {
+      const ocrData = data as unknown as {
+        content?: string;
+        grafikVeri?: Record<string, unknown>;
+        title?: string;
+        pedagogicalNote?: string;
+        targetSkills?: string[];
+      };
+      const sanitizedContent = ocrData.content
+        ? DOMPurify.sanitize(String(ocrData.content), {
+            ALLOWED_TAGS: ['div','p','span','strong','em','u','b','i','br','ul','ol','li',
+                           'table','tr','td','th','thead','tbody','h1','h2','h3','h4'],
+            ALLOWED_ATTR: ['class'],
+          })
+        : '';
+
+      return (
+        <div className="ocr-content-sheet font-['Lexend'] p-4 print:p-2">
+          {ocrData.title && (
+            <h2 className="text-xl font-black mb-3 text-center uppercase tracking-wide">
+              {ocrData.title}
+            </h2>
+          )}
+
+          {ocrData.grafikVeri && (
+            <div className="visual-block flex justify-center my-4 print:my-2">
+              <GraphicRenderer
+                grafik={ocrData.grafikVeri as any}
+              />
+            </div>
+          )}
+
+          {sanitizedContent && (
+            <div
+              className="content-block text-sm leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+            />
+          )}
+
+          {ocrData.pedagogicalNote && (
+            <div className="pedagogical-note mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg print:hidden">
+              <p className="text-xs text-indigo-700">
+                <strong>Öğretmen Notu:</strong> {ocrData.pedagogicalNote}
+              </p>
+            </div>
+          )}
+        </div>
+      );
     }
 
     // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)

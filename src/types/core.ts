@@ -514,6 +514,11 @@ export interface OCRBlueprint {
     hasImages: boolean;
     questionCount: number;
   };
+  visualDescriptors?: Array<{
+    tipi: string;
+    aciklama: string;
+    veri?: Array<{ etiket: string; deger?: number; birim?: string }>;
+  }>;
 }
 
 export interface OCRResult {
