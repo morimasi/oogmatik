@@ -99,12 +99,14 @@ const buildSchemaForTemplate = (_templateId: string): any => {
   };
 };
 
+const CONTENT_FALLBACK = '[İçerik üretilemedi]';
+
 /**
  * AI yanıtını A4 içeriğine dönüştürür — şablon tipine göre alanları birleştirir.
  * Fallback: Eğer AI şemayı es geçip düz metin / content alanı döndürürse bunu yakala.
  */
 const formatContentForA4 = (templateId: string, aiResponse: any): string => {
-  if (!aiResponse) return '[İçerik üretilemedi]';
+  if (!aiResponse) return CONTENT_FALLBACK;
 
   // Standart şema (content alanı var) — önce bunu dene
   if (aiResponse.content) return aiResponse.content;
@@ -177,7 +179,7 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
   // Fallback 2: Obje komple string ise (nadiren)
   if (typeof aiResponse === 'string') return aiResponse;
 
-  return '[İçerik üretilemedi]';
+  return CONTENT_FALLBACK;
 };
 
 /**

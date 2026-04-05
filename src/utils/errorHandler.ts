@@ -56,6 +56,9 @@ const sendToSentryHttp = (errorLog: Record<string, unknown>): void => {
   if (!match) return;
   const [, key, host, projectId] = match;
 
+  // Güvenlik: host yalnızca bilinen Sentry domainlerine izin ver (SSRF önleme)
+  if (!host.endsWith('.sentry.io') && host !== 'sentry.io') return;
+
   // Fire-and-forget — uygulama akışını engellemesin
   fetch(`https://${host}/api/${projectId}/store/`, {
     method: 'POST',
