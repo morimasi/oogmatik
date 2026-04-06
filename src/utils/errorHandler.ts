@@ -46,7 +46,7 @@ const sendToSentryHttp = (errorLog: Record<string, unknown>): void => {
   const dsn =
     sentryDsn ??
     (typeof (globalThis as Record<string, unknown>).__VITE_SENTRY_DSN__ === 'string'
-      ? (globalThis as Record<string, string>).__VITE_SENTRY_DSN__
+      ? (globalThis as unknown as Record<string, string>).__VITE_SENTRY_DSN__
       : undefined);
 
   if (!dsn) return;
