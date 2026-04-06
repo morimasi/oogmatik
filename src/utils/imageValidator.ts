@@ -24,7 +24,7 @@ export const FILE_SIZE_LIMITS = {
 // ─── MIME TYPE WHITELIST ────────────────────────────────────────────────
 
 export const ALLOWED_MIME_TYPES = {
-  images: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'],
+  images: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
   pdf: ['application/pdf']
 } as const;
 

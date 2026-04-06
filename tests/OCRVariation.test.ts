@@ -354,3 +354,146 @@ describe('OCR Variation Service - Quality Validation', () => {
     expect(score).toBeGreaterThanOrEqual(0);
   });
 });
+
+// NOTE: The mock for `analyzeImage` from '@/services/geminiClient' may not fully
+// intercept calls when the service uses a direct Gemini REST API internally.
+// These tests verify the service's data-passing contract (grafikVeri passthrough,
+// type normalisation) using the same mocking pattern as the existing suite above.
+describe('OCR Variation Service - Visual Data (grafikVeri)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should pass through grafikVeri from AI response', async () => {
+    const mockGrafikVeri = {
+      tip: 'sutun_grafigi',
+      baslik: 'Haftalık Okuma Süresi',
+      veri: [
+        { etiket: 'Pazartesi', deger: 30 },
+        { etiket: 'Salı', deger: 45 },
+        { etiket: 'Çarşamba', deger: 25 },
+      ],
+    };
+
+    const mockVariations = [
+      {
+        title: 'Grafik Okuma Aktivitesi',
+        type: 'OCR_CONTENT',
+        content: '<div>Tablodaki verileri inceleyiniz.</div>',
+        pedagogicalNote:
+          'Bu aktivite grafik okuma ve veri yorumlama becerilerini destekler. Disleksi uyumlu tasarım ile sunulmuştur.',
+        difficultyLevel: 'Orta',
+        targetSkills: ['Grafik okuma', 'Veri yorumlama'],
+        grafikVeri: mockGrafikVeri,
+      },
+    ];
+
+    vi.mocked(analyzeImage).mockResolvedValue({
+      variations: mockVariations,
+    } as any);
+
+    const request: VariationRequest = {
+      blueprint: {
+        structuredData: {
+          worksheetBlueprint: 'Sutun grafiği içeren matematik çalışması',
+          title: 'Grafik Okuma',
+          detectedType: 'MATH_WORKSHEET',
+          layoutHints: { columns: 1, hasImages: true, questionCount: 5 },
+          visualDescriptors: [
+            { tipi: 'sutun_grafigi', aciklama: 'Haftalık okuma süresi grafiği' },
+          ],
+        },
+        title: 'Grafik Okuma',
+        quality: 'high',
+        rawText: 'test',
+      } as any,
+      count: 1,
+      userId: 'test-user',
+    };
+
+    const result = await generateVariations(request);
+
+    expect(result.variations).toHaveLength(1);
+    expect(result.variations[0].grafikVeri).toBeDefined();
+    expect((result.variations[0] as any).grafikVeri?.tip).toBe('sutun_grafigi');
+  });
+
+  it('should set type to OCR_CONTENT regardless of AI response type', async () => {
+    const mockVariations = [
+      {
+        title: 'Test Aktivitesi',
+        type: 'MATH_STUDIO', // AI returns wrong type
+        content: '<div>Bu bir test aktivitesidir ve yeterli uzunluktaki içerik burada yer almaktadır.</div>',
+        pedagogicalNote:
+          'Bu aktivite öğrencinin matematik becerilerini ölçmek için tasarlanmıştır. Disleksi uyumlu formatta sunulmuştur.',
+        difficultyLevel: 'Kolay',
+        targetSkills: ['Matematik', 'Problem çözme'],
+        grafikVeri: null,
+      },
+    ];
+
+    vi.mocked(analyzeImage).mockResolvedValue({
+      variations: mockVariations,
+    } as any);
+
+    const request: VariationRequest = {
+      blueprint: {
+        structuredData: {
+          worksheetBlueprint: 'test blueprint',
+          title: 'Test',
+          detectedType: 'MATH_WORKSHEET',
+        },
+        title: 'Test',
+        quality: 'high',
+        rawText: 'test',
+      } as any,
+      count: 1,
+      userId: 'test-user',
+    };
+
+    const result = await generateVariations(request);
+
+    expect(result.variations[0].type).toBe('OCR_CONTENT');
+  });
+
+  it('should handle null grafikVeri gracefully', async () => {
+    const mockVariations = [
+      {
+        title: 'Metin Aktivitesi',
+        type: 'OCR_CONTENT',
+        content: '<div>Bu aktivite metin içeriklidir ve görsel içermez. Yeterli uzunlukta içerik.</div>',
+        pedagogicalNote:
+          'Bu aktivite metin anlama ve okuma akıcılığı becerilerini destekler. Disleksi uyumlu tasarım.',
+        difficultyLevel: 'Kolay',
+        targetSkills: ['Okuma', 'Anlama'],
+        grafikVeri: null,
+      },
+    ];
+
+    vi.mocked(analyzeImage).mockResolvedValue({
+      variations: mockVariations,
+    } as any);
+
+    const request: VariationRequest = {
+      blueprint: {
+        structuredData: {
+          worksheetBlueprint: 'test',
+          title: 'Metin',
+          detectedType: 'READING_COMPREHENSION',
+          layoutHints: { columns: 1, hasImages: false, questionCount: 3 },
+        },
+        title: 'Metin',
+        quality: 'high',
+        rawText: 'test',
+      } as any,
+      count: 1,
+      userId: 'test-user',
+    };
+
+    const result = await generateVariations(request);
+
+    // Should not throw, grafikVeri should be null
+    expect(result.variations).toHaveLength(1);
+    expect((result.variations[0] as any).grafikVeri).toBeNull();
+  });
+});

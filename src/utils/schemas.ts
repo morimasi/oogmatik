@@ -268,9 +268,15 @@ export const validateOCRScanRequest = (
 
   const img = d.image as Record<string, unknown> | undefined;
 
-  if (!img || !img.data || typeof img.data !== 'string') {
+  const dataLen =
+    img?.data instanceof Uint8Array
+      ? (img.data as Uint8Array).length
+      : typeof img?.data === 'string'
+        ? img.data.length
+        : -1;
+  if (!img || !img.data || dataLen < 0) {
     errors.image = 'Görüntü gereklidir';
-  } else if (img.data.length > 10_000_000) {
+  } else if (dataLen > 10_000_000) {
     errors.image = "Görüntü 10MB'den küçük olmalı";
   }
 

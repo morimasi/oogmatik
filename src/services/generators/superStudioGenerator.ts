@@ -226,7 +226,7 @@ export const generateSuperStudioContent = async (
 
     // AI mode: Gemini ile gerçek içerik üretimi (paralel batch optimizasyonu + cache)
 
-    // Cache kontrolü (IndexedDB - opsiyonel, hata durumunda devam et)
+    // Cache servisi (IndexedDB tabanlı, opsiyonel — hata durumunda üretim devam eder)
     let cacheService: any = null;
 
     try {

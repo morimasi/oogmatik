@@ -195,8 +195,13 @@ export const ocrService = {
         4. SOLUTION_LOGIC: Cevaba giden mantıksal yol ve örüntü.
         5. DETECTED_TYPE: Materyal türü (MATH_WORKSHEET | READING_COMPREHENSION | FILL_IN_THE_BLANK | MATCHING | TRUE_FALSE | MULTIPLE_CHOICE | OTHER).
         6. LAYOUT_HINTS: Sütun sayısı, görsel varlığı, toplam soru sayısı tahmini.
+        7. VISUAL_EXTRACTION: Sayfadaki her grafik, tablo, geometrik şekil için:
+           - tipi: 'sutun_grafigi' | 'pasta_grafigi' | 'cizgi_grafigi' | 'tablo' | 'ucgen' | 'dikdortgen' | 'daire' | 'koordinat_sistemi' | 'sayi_dogrusu' | 'venn_diyagrami' | diğer
+           - aciklama: Türkçe kısa açıklama (içerik, değerler, boyutlar dahil)
+           - veri: Grafik/tablo için sayısal veriler [{ etiket, deger, birim }] — geçerliyse
+           Görsel yoksa visualDescriptors [] (boş dizi) döndür.
         
-        SADECE metni okuma; sayfa hiyerarşisini, mimari yapısını ve ASIL VERİYİ eksiksiz çöz.
+        Metni eksiksiz oku; sayfa hiyerarşisini, mimari yapısını ve ASIL VERİYİ çöz. Varsa grafik, tablo ve geometrik şekilleri de analiz et.
         `;
 
         const _schema = {
@@ -222,6 +227,29 @@ export const ocrService = {
                         questionCount: { type: 'NUMBER', description: "Tahmini soru/madde sayısı" }
                     },
                     required: [] // Hiçbiri zorunlu değil (Robusti artırır)
+                },
+                visualDescriptors: {
+                    type: 'ARRAY',
+                    description: 'Sayfadaki grafikler, tablolar ve geometrik şekiller',
+                    items: {
+                        type: 'OBJECT',
+                        properties: {
+                            tipi: { type: 'STRING', description: 'Görsel tipi (sutun_grafigi, tablo, ucgen, daire vb.)' },
+                            aciklama: { type: 'STRING', description: 'Görselin Türkçe açıklaması' },
+                            veri: {
+                                type: 'ARRAY',
+                                items: {
+                                    type: 'OBJECT',
+                                    properties: {
+                                        etiket: { type: 'STRING' },
+                                        deger: { type: 'NUMBER' },
+                                        birim: { type: 'STRING' }
+                                    }
+                                }
+                            }
+                        },
+                        required: ['tipi', 'aciklama']
+                    }
                 }
             },
             required: ['title', 'detectedType', 'worksheetBlueprint']
