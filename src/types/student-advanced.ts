@@ -8,6 +8,16 @@ export interface IEPGoal {
     category: 'academic' | 'behavioral' | 'social' | 'motor' | 'speech';
     title: string;
     description: string;
+
+    // Sprint 4: SMART Scaffold Fields
+    baseline: {
+        description: string;
+        measurementDate: string;
+        measurementMethod: 'observation' | 'test' | 'work_sample';
+    };
+    shortTermObjective: string;  // Kısa vadeli ara hedef
+    successCriteria: string;     // Ölçülebilir başarı kriteri
+
     targetDate: string;
     status: 'not_started' | 'in_progress' | 'achieved' | 'deferred' | 'needs_revision';
     progress: number; // 0-100
