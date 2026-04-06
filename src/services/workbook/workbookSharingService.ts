@@ -190,6 +190,14 @@ export async function updateShareSettings(
   settings: Partial<WorkbookShareSettings>
 ): Promise<Workbook> {
   try {
+    // KVKV erken kontrol — herkese açık paylaşımda anonimleştirme zorunlu
+    if (settings.isPublic && settings.anonymizeStudentData === false) {
+      throw new ValidationError(
+        'Herkese açık paylaşımda öğrenci verisi anonimleştirmesi zorunludur (KVKV — anonimleştirme zorunludur)',
+        { code: 'STUDENT_DATA_ANONYMIZATION_REQUIRED' }
+      );
+    }
+
     const workbook = await getWorkbookById(workbookId, userId);
 
     if (workbook.userId !== userId) {
@@ -200,16 +208,7 @@ export async function updateShareSettings(
       );
     }
 
-    // KVKV uyarısı — öğrenci verisi varsa anonimleştirme zorunlu
-    if (settings.isPublic && workbook.assignedStudentId) {
-      if (!settings.anonymizeStudentData) {
-        throw new ValidationError(
-          'Atanmış öğrenci verisi olan workbook paylaşılırken anonimleştirme zorunludur (KVKV)',
-          { code: 'STUDENT_DATA_ANONYMIZATION_REQUIRED' }
-        );
-      }
-    }
-
+    // KVKV uyarısı — assignedStudentId varsa da anonimleştirme kontrol edildi (yukarıda erken kontrol)
     const updatedSettings: WorkbookShareSettings = {
       ...workbook.shareSettings,
       ...settings,

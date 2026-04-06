@@ -14,10 +14,75 @@ import {
 } from './AppError.js';
 
 /**
+ * EXTERNAL MONITORING: Pluggable error reporter
+ *
+ * Kullanım (main.tsx veya App.tsx içinde):
+ * ```
+ * import * as Sentry from '@sentry/browser';
+ * Sentry.init({ dsn: import.meta.env.VITE_SENTRY_DSN });
+ * setErrorReporter((log) => Sentry.captureException(new Error(log.userMessage), { extra: log }));
+ * ```
+ * Herhangi bir external monitoring servisi (Sentry, Datadog, Loggly vb.) bağlanabilir.
+ * VITE_SENTRY_DSN tanımlıysa, lightweight HTTP reporter otomatik aktif olur.
+ */
+type ErrorReporter = (errorLog: Record<string, unknown>) => void;
+let _externalReporter: ErrorReporter | null = null;
+
+export const setErrorReporter = (reporter: ErrorReporter | null): void => {
+  _externalReporter = reporter;
+};
+
+/**
+ * Lightweight Sentry HTTP reporter — SDK kurulumu gerektirmez.
+ * VITE_SENTRY_DSN tanımlanmışsa otomatik devreye girer.
+ */
+const sendToSentryHttp = (errorLog: Record<string, unknown>): void => {
+  const sentryDsn =
+    typeof window !== 'undefined'
+      ? (window as unknown as Record<string, string>).__SENTRY_DSN__
+      : undefined;
+
+  // Vite env var desteği (build-time inject)
+  const dsn =
+    sentryDsn ??
+    (typeof (globalThis as Record<string, unknown>).__VITE_SENTRY_DSN__ === 'string'
+      ? (globalThis as Record<string, string>).__VITE_SENTRY_DSN__
+      : undefined);
+
+  if (!dsn) return;
+
+  // DSN parse: https://<key>@<host>/<projectId>
+  const match = dsn.match(/^https?:\/\/([^@]+)@([^/]+)\/(.+)$/);
+  if (!match) return;
+  const [, key, host, projectId] = match;
+
+  // Güvenlik: host yalnızca bilinen Sentry domainlerine izin ver (SSRF önleme)
+  if (!host.endsWith('.sentry.io') && host !== 'sentry.io') return;
+
+  // Fire-and-forget — uygulama akışını engellemesin
+  fetch(`https://${host}/api/${projectId}/store/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Sentry-Auth': `Sentry sentry_version=7, sentry_key=${key}`,
+    },
+    body: JSON.stringify({
+      message: String(errorLog.userMessage ?? 'Unknown error'),
+      level: 'error',
+      extra: errorLog,
+      timestamp: String(errorLog.timestamp ?? new Date().toISOString()),
+    }),
+    keepalive: true,
+  }).catch(() => {
+    /* monitoring hatası uygulamayı bozmamalı */
+  });
+};
+
+/**
  * LOGGING: Centralized error logging
  */
-export const logError = (error: AppError, context?: Record<string, any>) => {
-  const errorLog = {
+export const logError = (error: AppError, context?: Record<string, unknown>) => {
+  const errorLog: Record<string, unknown> = {
     ...error.toJSON(),
     context,
     userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
@@ -29,7 +94,7 @@ export const logError = (error: AppError, context?: Record<string, any>) => {
   let isDev = false;
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
     isDev = true;
-  } else if (typeof window !== 'undefined' && (window as any).__VITE_IS_DEV__) {
+  } else if (typeof window !== 'undefined' && (window as unknown as Record<string, boolean>).__VITE_IS_DEV__) {
     isDev = true;
   }
 
@@ -37,9 +102,17 @@ export const logError = (error: AppError, context?: Record<string, any>) => {
     console.error('[AppError]', errorLog);
   }
 
-  // Production'da external service'e gönder
-  // TODO: Sentry, Loggly, DataDog vb. entegrasyonu
-  // sendToLoggingService(errorLog);
+  // External monitoring — eklenti tabanlı (Sentry, Datadog, Loggly vb.)
+  if (_externalReporter) {
+    try {
+      _externalReporter(errorLog);
+    } catch {
+      /* monitoring hatası uygulamayı bozmamalı */
+    }
+  } else {
+    // Sentry DSN varsa lightweight HTTP reporter kullan (SDK gerektirmez)
+    sendToSentryHttp(errorLog);
+  }
 
   return errorLog;
 };
@@ -93,15 +166,15 @@ export const retryWithBackoff = async <T>(
         throw appError;
       }
 
-      // Exponential backoff + jitter
+      // Exponential backoff (üstel artış)
       const exponentialDelay = Math.min(
         initialDelay * Math.pow(backoffMultiplier, attempt),
         maxDelay
       );
 
-      // Jitter: ±10% rastgelelik
-      const jitter = exponentialDelay * 0.1 * (Math.random() * 2 - 1);
-      const finalDelay = Math.max(100, exponentialDelay + jitter);
+      // Full jitter (AWS önerisi): [0, exponentialDelay] aralığında rastgele seç.
+      // ±10%'lik kısmi jitter yerine tam yayılım → thundering herd tamamen önlenir.
+      const finalDelay = Math.max(100, Math.random() * exponentialDelay);
 
       console.warn(
         `[Retry] Attempt ${attempt + 1}/${maxRetries} failed. Retrying in ${finalDelay.toFixed(0)}ms...`,

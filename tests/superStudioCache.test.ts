@@ -13,7 +13,7 @@ const mockCacheService = {
 };
 
 vi.mock('../src/services/cacheService', () => ({
-  default: mockCacheService,
+  cacheService: mockCacheService,
 }));
 
 import { generateWithSchema } from '../src/services/geminiClient';
@@ -59,7 +59,7 @@ describe('Super Türkçe Generator - Cache Integration', () => {
       const secondCallKey = mockCacheService.get.mock.calls[1][0];
 
       expect(firstCallKey).toBe(secondCallKey);
-      expect(firstCallKey).toMatch(/^super-turkce:[a-f0-9]{16}$/);
+      expect(firstCallKey).toMatch(/^super-turkce:okuma-anlama:[a-f0-9]{8}$/);
     });
 
     it('should generate different cache key for different parameters', async () => {
@@ -217,7 +217,7 @@ describe('Super Türkçe Generator - Cache Integration', () => {
       const cacheKey = cacheSetCall[0];
       const cachedData = cacheSetCall[1];
 
-      expect(cacheKey).toMatch(/^super-turkce:[a-f0-9]{16}$/);
+      expect(cacheKey).toMatch(/^super-turkce:okuma-anlama:[a-f0-9]{8}$/);
       expect(cachedData).toHaveProperty('id');
       expect(cachedData).toHaveProperty('templateId', 'okuma-anlama');
       expect(cachedData).toHaveProperty('pages');

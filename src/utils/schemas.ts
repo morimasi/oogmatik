@@ -294,6 +294,61 @@ export const validateOCRScanRequest = (
  * ============================================================
  */
 
+/**
+ * PedagogicalNote Kalite Doğrulayıcı
+ *
+ * Kural (Elif Yıldız, Pedagoji Direktörü):
+ * - Minimum 80 karakter — öğretmene "neden bu aktivite" tam açıklanmalı
+ * - En az bir pedagojik beceri/alan anahtar kelimesi içermeli
+ *   (örn: "fonolojik farkındalık", "çalışma belleği", "görsel algı", vb.)
+ *
+ * Neden: "pedagogicalNote zorunlu kalır, ama artık KALİTELİ olmak zorunda."
+ */
+export const PEDAGOGICAL_KEYWORDS = [
+  'fonolojik',
+  'görsel',
+  'bellek',
+  'dikkat',
+  'motor',
+  'okuma',
+  'matematik',
+  'yazma',
+  'iskele',
+  'farkındalık',
+  'kavrama',
+  'beceri',
+  'zpd',
+  'scaffold',
+  'algı',
+  'akıcılık',
+  'anlama',
+  'sözel',
+  'sayısal',
+  'uzamsal',
+  'yürütücü',
+  'inhibisyon',
+] as const;
+
+// Anahtar kelimeleri bir kez küçük harfe çevir — her doğrulama çağrısında tekrar hesaplama yok
+const _PEDAGOGICAL_KEYWORDS_LOWER = PEDAGOGICAL_KEYWORDS.map((kw) => kw.toLowerCase());
+
+export const PedagogicalNoteSchema = z
+  .string()
+  .min(
+    80,
+    'Pedagojik not en az 80 karakter olmalı — öğretmene "neden bu aktivite" tam olarak açıklanmalı'
+  )
+  .refine(
+    (note) => {
+      const lower = note.toLowerCase();
+      return _PEDAGOGICAL_KEYWORDS_LOWER.some((kw) => lower.includes(kw));
+    },
+    {
+      message:
+        'Pedagojik not en az bir hedef beceri/alan ifadesi içermeli (örn: "fonolojik farkındalık", "çalışma belleği", "görsel algı", "okuma akıcılığı")',
+    }
+  );
+
 export const NeuroProfileParamsSchema = z.object({
   profileType: z.enum(['dyslexia', 'adhd', 'dyscalculia', 'mixed']),
   ageGroup: z.enum(['5-7', '8-10', '11-13', '14+']),
@@ -309,7 +364,8 @@ export const AnimationTimingSchema = z.object({
 
 export const AnimationPayloadSchema = z.object({
   title: z.string().min(3).max(100),
-  pedagogicalNote: z.string().min(10), // Kural: Her AI çıktısında öğretmene "neden" açıklaması zorunludur.
+  // Kural: Her AI çıktısında öğretmene "neden" açıklaması zorunludur — artık kalite de şart.
+  pedagogicalNote: PedagogicalNoteSchema,
   cognitiveLoadParams: z.object({
     maxConcurrentObjects: z.number().max(3),
     visualCrowdingScore: z.number().min(0).max(100), // 0 en az (disleksi/dehb için ideal)
@@ -327,6 +383,7 @@ export const AnimationPayloadSchema = z.object({
 
 export type NeuroProfileParamsType = z.infer<typeof NeuroProfileParamsSchema>;
 export type AnimationPayloadType = z.infer<typeof AnimationPayloadSchema>;
+export type PedagogicalNoteType = z.infer<typeof PedagogicalNoteSchema>;
 
 
 /**

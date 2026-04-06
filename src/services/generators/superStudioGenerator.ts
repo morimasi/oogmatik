@@ -31,7 +31,7 @@ const simpleHash = (str: string): string => {
 };
 
 /**
- * Cache key oluşturur (hash tabanlı)
+ * Cache key oluşturur (hash tabanlı, templateId prefix ile)
  */
 const generateCacheKey = (
   templateId: string,
@@ -46,7 +46,7 @@ const generateCacheKey = (
     difficulty,
   });
   const hash = simpleHash(data);
-  return `super-turkce:${hash}`;
+  return `super-turkce:${templateId}:${hash}`;
 };
 
 import {
@@ -99,79 +99,87 @@ const buildSchemaForTemplate = (_templateId: string): any => {
   };
 };
 
+const CONTENT_FALLBACK = '[İçerik üretilemedi]';
+
 /**
- * AI yanıtını A4 içeriğine dönüştürür (Markdown tabanlı yeni render sistemi)
- * Yeni şema: content alanı kullanılır.
- * Eski şema (backwards compat): questions/rules/problems alanları formatlanır.
+ * AI yanıtını A4 içeriğine dönüştürür — şablon tipine göre alanları birleştirir.
+ * Fallback: Eğer AI şemayı es geçip düz metin / content alanı döndürürse bunu yakala.
  */
 const formatContentForA4 = (templateId: string, aiResponse: any): string => {
-  if (!aiResponse) return '[İçerik üretilemedi]';
+  if (!aiResponse) return CONTENT_FALLBACK;
 
-  // Yeni şema: content alanı doğrudan kullanılır
+  // Standart şema (content alanı var) — önce bunu dene
   if (aiResponse.content) return aiResponse.content;
 
-  // Eski şema — template-spesifik formatlama
-  switch (templateId) {
-    case 'okuma-anlama': {
-      const parts: string[] = [];
-      if (aiResponse.text) parts.push(aiResponse.text);
-      const questions = aiResponse.questions;
-      if (!Array.isArray(questions) || questions.length === 0) {
-        parts.push('[Sorular üretilemedi — lütfen tekrar deneyin]');
-      } else {
-        questions.forEach((q: any, i: number) => {
-          const soruNo = `${i + 1}.`;
-          const soruMetni = q?.question || '[Soru metni eksik]';
-          const cevap = q?.answer || '[Cevap eksik]';
-          parts.push(`${soruNo} ${soruMetni}`);
-          parts.push(`   Cevap: ${cevap}`);
-        });
-      }
-      return parts.join('\n');
+  // okuma-anlama: metin + soru/cevap listesi
+  if (templateId === 'okuma-anlama') {
+    const text: string = aiResponse.text || '';
+    const questions: unknown = aiResponse.questions;
+    let content = text;
+    if (!Array.isArray(questions) || questions.length === 0) {
+      content += '\n\n[Sorular üretilemedi — AI yanıtında sorular bulunamadı]';
+    } else {
+      content += '\n\n## Sorular\n';
+      (questions as any[]).forEach((q: any, i: number) => {
+        const questionText: string = q?.question || '[Soru metni eksik]';
+        const answerText: string = q?.answer || '[Cevap eksik]';
+        content += `\n${i + 1}. ${questionText}\n   Cevap: ${answerText}\n`;
+      });
     }
-    case 'dilbilgisi': {
-      const parts: string[] = [];
-      if (aiResponse.topic) parts.push(`Konu: ${aiResponse.topic}`);
-      const rules = aiResponse.rules;
-      if (!Array.isArray(rules) || rules.length === 0) {
-        parts.push('[Kurallar üretilemedi]');
-      } else {
-        parts.push('Kurallar:');
-        rules.forEach((r: any) => parts.push(`• ${r}`));
-      }
-      const exercises = aiResponse.exercises;
-      if (!Array.isArray(exercises) || exercises.length === 0) {
-        parts.push('[Alıştırmalar üretilemedi]');
-      } else {
-        parts.push('Alıştırmalar:');
-        exercises.forEach((e: any, i: number) => {
-          parts.push(`${i + 1}. ${e?.question || '[Soru eksik]'}`);
-          if (e?.answer) parts.push(`   Cevap: ${e.answer}`);
-        });
-      }
-      return parts.join('\n');
-    }
-    case 'mantik-muhakeme': {
-      const parts: string[] = [];
-      const problems = aiResponse.problems;
-      if (!Array.isArray(problems) || problems.length === 0) {
-        parts.push('[Problemler üretilemedi — lütfen tekrar deneyin]');
-      } else {
-        problems.forEach((p: any, i: number) => {
-          parts.push(`${i + 1}. ${p?.question || '[Problem metni eksik]'}`);
-          if (p?.hint) parts.push(`   İpucu: ${p.hint}`);
-          if (p?.answer) parts.push(`   Cevap: ${p.answer}`);
-        });
-      }
-      return parts.join('\n');
-    }
-    default: {
-      // Generic fallback
-      if (aiResponse.text) return aiResponse.text;
-      if (typeof aiResponse === 'string') return aiResponse;
-      return '[İçerik üretilemedi]';
-    }
+    return content;
   }
+
+  // dilbilgisi: konu başlığı + kurallar + alıştırmalar
+  if (templateId === 'dilbilgisi') {
+    const topic: string = aiResponse.topic || '';
+    const rules: unknown = aiResponse.rules;
+    const exercises: unknown = aiResponse.exercises;
+    let content = topic ? `## ${topic}\n\n` : '';
+    if (!Array.isArray(rules) || rules.length === 0) {
+      content += '[Kurallar üretilemedi]\n\n';
+    } else {
+      content += '### Kurallar\n';
+      (rules as any[]).forEach((rule: any) => {
+        content += `- ${rule || '[Kural eksik]'}\n`;
+      });
+      content += '\n';
+    }
+    if (!Array.isArray(exercises) || exercises.length === 0) {
+      content += '[Alıştırmalar üretilemedi]';
+    } else {
+      content += '### Alıştırmalar\n';
+      (exercises as any[]).forEach((ex: any, i: number) => {
+        const q: string = ex?.question || '[Alıştırma metni eksik]';
+        const a: string = ex?.answer || '[Cevap eksik]';
+        content += `\n${i + 1}. ${q}\n   Cevap: ${a}\n`;
+      });
+    }
+    return content;
+  }
+
+  // mantik-muhakeme: problem listesi (soru + ipucu opsiyonel + cevap)
+  if (templateId === 'mantik-muhakeme') {
+    const problems: unknown = aiResponse.problems;
+    if (!Array.isArray(problems) || problems.length === 0) {
+      return '[Problemler üretilemedi — AI yanıtında problem bulunamadı]';
+    }
+    let content = '';
+    (problems as any[]).forEach((p: any, i: number) => {
+      const q: string = p?.question || '[Problem metni eksik]';
+      content += `\n${i + 1}. ${q}\n`;
+      if (p?.hint) content += `   İpucu: ${p.hint}\n`;
+      if (p?.answer) content += `   Cevap: ${p.answer}\n`;
+    });
+    return content;
+  }
+
+  // Fallback 1: Proxy'den gelen ham metin (text alanı)
+  if (aiResponse.text) return aiResponse.text;
+
+  // Fallback 2: Obje komple string ise (nadiren)
+  if (typeof aiResponse === 'string') return aiResponse;
+
+  return CONTENT_FALLBACK;
 };
 
 /**
@@ -220,11 +228,13 @@ export const generateSuperStudioContent = async (
 
     // Cache servisi (IndexedDB tabanlı, opsiyonel — hata durumunda üretim devam eder)
     let cacheService: any = null;
+
     try {
+      // Dynamic import ile cacheService'i al (browser'da IndexedDB, test'te mock)
       const module = await import('../cacheService.js');
-      cacheService = module.cacheService ?? module.default ?? null;
+      cacheService = module.cacheService;
     } catch (e) {
-      console.warn('[Super Türkçe] Cache servisi yüklenemedi, cache atlanıyor.', e);
+      // Cache servisi yüklenemezse (Node/SSR) sessizce devam et
     }
 
     // Cache'ten kontrol et
@@ -318,7 +328,6 @@ export const generateSuperStudioContent = async (
           data: payload,
         };
       } catch (apiError: any) {
-        console.error(`AI üretim hatası (${tpl}):`, apiError);
         throw apiError;
       }
     });
