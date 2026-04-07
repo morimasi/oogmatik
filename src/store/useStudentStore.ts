@@ -103,5 +103,11 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
 
   deleteStudent: async (id) => {
     await deleteDoc(doc(db, 'students', id));
+
+    // Fix race condition: Clear activeStudent if it's the one being deleted
+    const { activeStudent } = get();
+    if (activeStudent?.id === id) {
+      set({ activeStudent: null });
+    }
   },
 }));

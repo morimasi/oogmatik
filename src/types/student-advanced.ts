@@ -8,6 +8,16 @@ export interface IEPGoal {
     category: 'academic' | 'behavioral' | 'social' | 'motor' | 'speech';
     title: string;
     description: string;
+
+    // Sprint 4: SMART Scaffold Fields
+    baseline: {
+        description: string;
+        measurementDate: string;
+        measurementMethod: 'observation' | 'test' | 'work_sample';
+    };
+    shortTermObjective: string;  // Kısa vadeli ara hedef
+    successCriteria: string;     // Ölçülebilir başarı kriteri
+
     targetDate: string;
     status: 'not_started' | 'in_progress' | 'achieved' | 'deferred' | 'needs_revision';
     progress: number; // 0-100
@@ -530,6 +540,110 @@ export interface StudentPrivacySettings {
     schemaVersion: '1.0';
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// FACTORY FUNCTIONS — Sprint 3: Type Safety
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Varsayılan IEP planı fabrikası
+ * @description Boş IEP planı ile başlatır (taslak durumda)
+ */
+export const createDefaultIEP = (studentId: string): IEPPlan => ({
+    id: crypto.randomUUID(),
+    studentId,
+    startDate: new Date().toISOString(),
+    endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 yıl sonra
+    diagnosis: [],
+    strengths: [],
+    needs: [],
+    goals: [],
+    accommodations: [],
+    teamMembers: [],
+    status: 'draft',
+    lastUpdated: new Date().toISOString()
+});
+
+/**
+ * Varsayılan finansal profil fabrikası
+ * @description Boş işlem geçmişi ve sıfır bakiye ile başlatır
+ */
+export const createDefaultFinancial = (studentId: string): FinancialProfile => ({
+    studentId,
+    balance: 0,
+    transactions: [],
+    paymentMethods: [],
+    billingHistory: [],
+    discountsApplied: [],
+    lastTransactionDate: undefined,
+    monthlyPaymentStatus: 'pending'
+});
+
+/**
+ * Varsayılan devamsızlık verisi fabrikası
+ * @description Boş kayıt ve sıfır istatistikler
+ */
+export const createDefaultAttendance = (): {
+    records: AttendanceRecord[];
+    stats: AttendanceStats;
+} => ({
+    records: [],
+    stats: {
+        totalDays: 0,
+        present: 0,
+        absent: 0,
+        late: 0,
+        excused: 0,
+        attendanceRate: 100,
+        trend: 'stable'
+    }
+});
+
+/**
+ * Varsayılan akademik profil fabrikası
+ * @description Boş not listesi ve sıfırlanmış metrikler
+ */
+export const createDefaultAcademic = (): {
+    grades: GradeEntry[];
+    metrics: PerformanceMetrics;
+} => ({
+    grades: [],
+    metrics: {
+        gpa: 0,
+        subjectAverages: {},
+        attendanceRate: 100,
+        participationRate: 0,
+        homeworkCompletionRate: 0,
+        strongestSubject: '-',
+        weakestSubject: '-',
+        recentTrend: 'flat'
+    }
+});
+
+/**
+ * Varsayılan davranış profil fabrikası
+ * @description Boş olay listesi ve sıfır puan
+ */
+export const createDefaultBehavior = (): {
+    incidents: BehaviorIncident[];
+    score: number;
+} => ({
+    incidents: [],
+    score: 0
+});
+
+/**
+ * Varsayılan AI profil fabrikası
+ * @description Temel öğrenme stili ataması ve boş analizler
+ */
+export const createDefaultAIProfile = (): StudentAIProfile => ({
+    learningStyle: 'visual',
+    strengthAnalysis: 'Henüz yeterli veri yok',
+    struggleAnalysis: 'Henüz yeterli veri yok',
+    recommendedActivities: [],
+    riskFactors: [],
+    lastUpdated: new Date().toISOString()
+});
+
 /**
  * Varsayılan gizlilik ayarları fabrikası
  * @description Yeni öğrenci kaydında kullanılacak güvenli varsayılanlar
@@ -598,4 +712,39 @@ export const createDefaultPrivacySettings = (
     lastUpdated: new Date().toISOString(),
     lastUpdatedBy: updatedBy,
     schemaVersion: '1.0',
+});
+
+/**
+ * Ana AdvancedStudent fabrikası
+ * @description Temel Student nesnesini alır ve tüm modülleri ekleyerek AdvancedStudent'a dönüştürür
+ *
+ * [TEKNIK NOT - Bora Demir]
+ * Bu factory, Runtime'da `undefined` hatalarını önlemek için tüm modülleri başlatır.
+ * Optional field'lar yerine default value'lar kullanarak TypeScript strict mode uyumluluğu sağlanır.
+ *
+ * @example
+ * ```typescript
+ * const baseStudent: Student = {
+ *   id: '123',
+ *   name: 'Ali Yılmaz',
+ *   age: 10,
+ *   grade: '4',
+ *   teacherId: 'teacher-456',
+ *   // ... other required fields
+ * };
+ *
+ * const advancedStudent = createAdvancedStudent(baseStudent);
+ * // Artık advancedStudent.iep.goals güvenle erişilebilir
+ * ```
+ */
+export const createAdvancedStudent = (base: Student): AdvancedStudent => ({
+    ...base,
+    iep: createDefaultIEP(base.id),
+    financial: createDefaultFinancial(base.id),
+    attendance: createDefaultAttendance(),
+    academic: createDefaultAcademic(),
+    behavior: createDefaultBehavior(),
+    portfolio: [],
+    aiProfile: createDefaultAIProfile(),
+    privacySettings: createDefaultPrivacySettings(base.teacherId)
 });

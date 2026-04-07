@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useAuthStore } from '../../store/useAuthStore';
-import { AdvancedStudentForm } from './modules/AdvancedStudentForm';
-import { AdvancedStudent } from '../../types/student-advanced';
+import { SimplifiedStudentForm } from './SimplifiedStudentForm';
+import type { Student } from '../../types/student';
 
 export const StudentSelector = () => {
     const { user } = useAuthStore();
@@ -14,16 +14,18 @@ export const StudentSelector = () => {
         s.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleSaveStudent = async (studentData: Partial<AdvancedStudent>) => {
+    const handleSaveStudent = async (studentData: Partial<Student>) => {
         try {
             if (!user) return;
             await addStudent(user.id, {
                 ...studentData,
-                age: 7,
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${studentData.name}-${Math.random()}`,
-                interests: [],
-                notes: studentData.initialNotes?.observations || ''
-            } as any);
+                avatar: studentData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${studentData.name}-${Math.random()}`,
+                interests: studentData.interests || [],
+                strengths: studentData.strengths || [],
+                weaknesses: studentData.weaknesses || [],
+                diagnosis: studentData.diagnosis || [],
+                learningStyle: studentData.learningStyle || 'Karma',
+            } as Student);
             setShowAddForm(false);
         } catch (error) {
             console.error('Error adding student:', error);
@@ -32,12 +34,10 @@ export const StudentSelector = () => {
 
     if (showAddForm) {
         return (
-            <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-black overflow-y-auto">
-                <AdvancedStudentForm
-                    onSave={handleSaveStudent}
-                    onCancel={() => setShowAddForm(false)}
-                />
-            </div>
+            <SimplifiedStudentForm
+                onSave={handleSaveStudent}
+                onCancel={() => setShowAddForm(false)}
+            />
         );
     }
 
