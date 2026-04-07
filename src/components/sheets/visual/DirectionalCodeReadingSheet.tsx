@@ -41,7 +41,9 @@ const getInstructionLabel = (inst: { count: number; direction: string; label?: s
     if (inst.label) return inst.label;
     const legend = CIPHER_LEGEND[cipherType];
     if (!legend) return `${inst.count} ${inst.direction}`;
-    const sym = legend.symbols.find(s => s.dir.toLowerCase().startsWith(inst.direction?.toLowerCase()?.slice(0, 3) ?? ''));
+    const dir = (inst.direction ?? '').toLowerCase();
+    if (!dir) return `${inst.count}`;
+    const sym = legend.symbols.find(s => dir.startsWith(s.dir.toLowerCase().slice(0, 3)));
     return sym ? `${inst.count}${sym.sym}` : `${inst.count} ${inst.direction}`;
 };
 

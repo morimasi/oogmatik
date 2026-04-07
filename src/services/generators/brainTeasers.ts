@@ -35,8 +35,8 @@ ZORUNLU JSON ÇIKTISI:
     "instruction": "Soruları dikkatlice oku ve yaratıcı düşünerek çöz.",
     "pedagogicalNote": "Bu etkinlik lateral düşünme, çalışma belleği ve sözel akıl yürütme becerilerini geliştirir.",
     "difficultyLevel": "${difficulty}",
-    "ageGroup": "8-10",
-    "profile": "adhd",
+    "ageGroup": "${options.ageGroup || '8-10'}",
+    "profile": "${options.profile || 'adhd'}",
     "puzzles": [
         {
             "id": "p1",

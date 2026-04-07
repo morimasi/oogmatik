@@ -3,6 +3,8 @@ import { EsAnlamliKelimeItem, EsAnlamliKelimelerData } from '../../../types/verb
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
+const BLANK_SEPARATOR = '_______';
+
 interface Props {
   data: EsAnlamliKelimelerData | EsAnlamliKelimelerData[] | null;
 }
@@ -83,7 +85,7 @@ export const EsAnlamliKelimelerSheet: React.FC<Props> = ({ data }) => {
                 <div className="bg-zinc-50 rounded-xl p-2 border border-zinc-100">
                   <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">CÜMLE</p>
                   <p className="text-[11px] font-bold text-zinc-700 leading-relaxed">
-                    {item.exampleSentence.split('_______').map((part, i, arr) => (
+                    {item.exampleSentence.split(BLANK_SEPARATOR).map((part, i, arr) => (
                       <React.Fragment key={i}>
                         {part}
                         {i < arr.length - 1 && (
