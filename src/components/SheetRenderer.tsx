@@ -163,6 +163,7 @@ import { FiveWOneHSheet } from './sheets/verbal/FiveWOneHSheet';
 import { ColorfulSyllableReadingSheet } from './sheets/verbal/ColorfulSyllableReadingSheet';
 import { FamilyTreeMatrixSheet } from './sheets/verbal/FamilyTreeMatrixSheet';
 import { KavramHaritasiSheet } from './sheets/verbal/KavramHaritasiSheet';
+import { EsAnlamliKelimelerSheet } from './sheets/verbal/EsAnlamliKelimelerSheet';
 import { ApartmentLogicSheet } from './sheets/math/ApartmentLogicSheet';
 import { FinancialMarketSheet } from './sheets/math/FinancialMarketSheet';
 import { DirectionalCodeReadingSheet } from './sheets/visual/DirectionalCodeReadingSheet';
@@ -1192,6 +1193,10 @@ export const SheetRenderer = React.memo(
 
     if (activityType === ActivityType.KAVRAM_HARITASI) {
       return <KavramHaritasiSheet data={data as any} />;
+    }
+
+    if (activityType === ActivityType.ES_ANLAMLI_KELIMELER) {
+      return <EsAnlamliKelimelerSheet data={data as any} />;
     }
 
     // OCR aktiviteleri: grafikVeri varsa GraphicRenderer + content göster

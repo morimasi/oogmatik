@@ -591,3 +591,28 @@ export interface KavramHaritasiData extends BaseActivityData {
   edges: KavramHaritasiEdge[];
   examples?: string[];
 }
+
+export interface EsAnlamliKelimeItem {
+  id: string;
+  sourceWord: string;
+  synonyms: string[];
+  antonym?: string;
+  exampleSentence: string;
+  correctAnswer: string;
+  emoji?: string;
+  etymologyNote?: string;
+  usageContext?: string; // "Resmi" | "Günlük" | "Edebi"
+}
+
+export interface EsAnlamliKelimelerData extends BaseActivityData {
+  activityType: 'ES_ANLAMLI_KELIMELER';
+  settings?: {
+    wordCount?: number;
+    includeAntonyms?: boolean;
+    includeExamples?: boolean;
+    includeEtymology?: boolean;
+    topic?: string;
+    layout?: 'card_grid' | 'list' | 'match_columns';
+  };
+  items: EsAnlamliKelimeItem[];
+}

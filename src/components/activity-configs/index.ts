@@ -38,6 +38,7 @@ import { PatternCompletionConfig } from './PatternCompletionConfig';
 import { VisualInterpretationConfig } from './VisualInterpretationConfig';
 import { BrainTeasersConfig } from './BrainTeasersConfig';
 import { KavramHaritasiConfig } from './KavramHaritasiConfig';
+import { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';
 import { BoxMathConfig } from './BoxMathConfig';
 
 export const ActivityConfigRegistry: Record<string, any> = {
@@ -81,4 +82,7 @@ export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.BRAIN_TEASERS]: BrainTeasersConfig,
   [ActivityType.BOX_MATH]: BoxMathConfig,
   [ActivityType.KAVRAM_HARITASI]: KavramHaritasiConfig,
+  [ActivityType.ES_ANLAMLI_KELIMELER]: EsAnlamliKelimelerConfig,
 };
+
+export { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';
