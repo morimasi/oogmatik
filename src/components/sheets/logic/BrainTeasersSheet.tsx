@@ -6,99 +6,129 @@ interface BrainTeasersSheetProps {
   settings: StyleSettings;
 }
 
+type CategoryKey = 'Dil' | 'Mantık' | 'Sayı' | 'Görsel';
+
+const CATEGORY_STYLE: Record<CategoryKey, { bg: string; border: string; badge: string }> = {
+  'Dil':    { bg: 'bg-purple-50', border: 'border-purple-200', badge: 'bg-purple-500' },
+  'Mantık': { bg: 'bg-blue-50',   border: 'border-blue-200',   badge: 'bg-blue-500'   },
+  'Sayı':   { bg: 'bg-emerald-50', border: 'border-emerald-200', badge: 'bg-emerald-500' },
+  'Görsel': { bg: 'bg-amber-50',  border: 'border-amber-200',  badge: 'bg-amber-500'  },
+};
+
+const DEFAULT_STYLE = CATEGORY_STYLE['Mantık'];
+
+interface Puzzle {
+  id?: string;
+  type?: string;
+  category?: string;
+  difficulty_stars?: number;
+  q: string;
+  hint?: string;
+  visual?: string | null;
+  a: string;
+}
+
+function renderStars(count: number): React.ReactNode {
+  return Array.from({ length: 3 }, (_, i) => (
+    <span key={i} className={i < count ? 'text-amber-400' : 'text-zinc-300'}>
+      {i < count ? '★' : '☆'}
+    </span>
+  ));
+}
+
 export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, settings }) => {
   if (!data || !Array.isArray(data) || data.length === 0) return null;
-  const activity = data[0];
-  const blocks = activity.layoutArchitecture?.blocks || [];
-  const puzzlesBlock = blocks.find((b) => (b.type as string) === 'puzzles');
-  const puzzles = (puzzlesBlock?.content as any)?.items || [];
+  const activity = data[0] as Record<string, unknown>;
+  const blocks = (activity.layoutArchitecture as { blocks?: { type: string; content: unknown }[] })?.blocks || [];
+  const puzzlesBlock = blocks.find((b) => b.type === 'puzzles');
+  const puzzles: Puzzle[] = (
+    (activity.puzzles as Puzzle[] | undefined) ||
+    ((puzzlesBlock?.content as { items?: Puzzle[] } | undefined)?.items) ||
+    []
+  );
 
   return (
     <div
-      className="w-full h-full  flex flex-col gap-8 print:gap-2 print:gap-3 print:p-3 p-8 print:p-2 print:p-3"
+      className="w-full h-full flex flex-col gap-4 print:gap-2 p-6 print:p-3"
       style={{ fontFamily: settings.fontFamily }}
     >
       {/* Header */}
       {settings.showTitle && (
-        <div className="text-center mb-8 print:mb-2 pb-4 print:pb-1 border-b-2 border-dashed border-zinc-200">
-          <div className="inline-block p-4 print:p-1 rounded-full bg-amber-100 text-amber-600 mb-4 print:mb-1">
-            <i className="fa-solid fa-lightbulb text-4xl animate-pulse"></i>
+        <div className="text-center pb-3 print:pb-1 border-b-2 border-dashed border-zinc-200">
+          <div className="inline-block p-3 print:p-1 rounded-full bg-amber-100 text-amber-600 mb-2 print:mb-1">
+            <i className="fa-solid fa-lightbulb text-3xl"></i>
           </div>
           <h1
-            className="text-4xl font-black text-zinc-800 uppercase tracking-tight"
+            className="text-3xl font-black text-zinc-800 uppercase tracking-tight"
             style={{ color: settings.borderColor }}
           >
-            {activity.title}
+            {(activity.title as string) || 'Kafayı Çalıştır'}
           </h1>
           {settings.showInstruction && (
-            <p className="text-lg text-zinc-500 font-medium mt-2">{activity.instruction}</p>
+            <p className="text-sm text-zinc-500 font-medium mt-1">
+              {(activity.instruction as string) || ''}
+            </p>
           )}
         </div>
       )}
 
-      {/* Puzzles Grid */}
-      <div className="grid grid-cols-1 gap-8 print:gap-2 print:gap-3 print:p-3">
-        {puzzles.map((puzzle: any, idx: number) => (
-          <div
-            key={idx}
-            className="bg-white rounded-3xl border-2 border-zinc-100 shadow-xl overflow-hidden group hover:border-amber-200 transition-colors"
-          >
-            <div className="p-8 print:p-2 print:p-3">
-              <div className="flex items-start gap-6 print:gap-2">
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-black shrink-0">
-                  {idx + 1}
-                </div>
-                <div className="flex-1">
-                  <h3
-                    className="text-2xl font-bold text-zinc-800 leading-relaxed mb-6 print:mb-2"
-                    style={{ lineHeight: settings.lineHeight }}
-                  >
-                    {puzzle.q}
-                  </h3>
+      {/* Puzzles Grid — 2 columns */}
+      <div className="grid grid-cols-2 gap-3 print:gap-2 flex-1">
+        {puzzles.map((puzzle, idx) => {
+          const cat = (puzzle.category || 'Mantık') as CategoryKey;
+          const style = CATEGORY_STYLE[cat] ?? DEFAULT_STYLE;
+          const stars = puzzle.difficulty_stars ?? 1;
 
-                  {/* Visual Content if available */}
-                  {puzzle.visual && (
-                    <div className="my-6 print:my-2 p-4 print:p-1 bg-zinc-50 rounded-xl border border-zinc-200 flex justify-center">
-                      {/* Placeholder for visual puzzle content */}
-                      <div className="text-6xl">{puzzle.visual}</div>
-                    </div>
-                  )}
+          return (
+            <div
+              key={puzzle.id || idx}
+              className={`rounded-2xl border-2 ${style.bg} ${style.border} overflow-hidden flex flex-col`}
+            >
+              {/* Card Header */}
+              <div className={`flex items-center justify-between px-4 py-2 print:px-3 print:py-1 ${style.badge} bg-opacity-10`}>
+                <span className={`text-[10px] font-black uppercase tracking-widest text-white px-2 py-0.5 rounded-full ${style.badge}`}>
+                  {cat}
+                </span>
+                <span className="text-sm leading-none">{renderStars(stars)}</span>
+                <span className="text-xs font-bold text-zinc-500">#{idx + 1}</span>
+              </div>
 
-                  {/* Answer Area */}
-                  <div className="mt-8 print:mt-2 p-6 print:p-2 bg-zinc-50 rounded-2xl border border-zinc-100 flex justify-between items-center group/answer">
-                    <span className="text-xs font-black text-zinc-400 uppercase tracking-widest">
-                      CEVABINIZ:
-                    </span>
-                    <div className="flex-1 h-8 border-b-2 border-zinc-300 border-dashed mx-4 print:mx-1"></div>
-                  </div>
+              {/* Card Body */}
+              <div className="p-4 print:p-3 flex flex-col flex-1 gap-3 print:gap-2">
+                {/* Visual emoji */}
+                {puzzle.visual && typeof puzzle.visual === 'string' && (
+                  <div className="flex justify-center text-3xl print:text-2xl">{puzzle.visual}</div>
+                )}
+
+                {/* Question */}
+                <p
+                  className="text-sm font-semibold text-zinc-800 leading-snug flex-1"
+                  style={{ lineHeight: settings.lineHeight }}
+                >
+                  {puzzle.q}
+                </p>
+
+                {/* Answer line */}
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider whitespace-nowrap">Cevap:</span>
+                  <div className="flex-1 border-b border-dashed border-zinc-400"></div>
                 </div>
+
+                {/* Hint */}
+                {puzzle.hint && (
+                  <p className="text-[10px] italic text-zinc-400 mt-0.5">💡 {puzzle.hint}</p>
+                )}
               </div>
             </div>
-
-            {/* Solution Footer (Rotated or Hidden) */}
-            <div className="bg-zinc-50 p-4 print:p-1 border-t border-zinc-100 flex justify-end">
-              <div className="text-[10px] font-mono text-zinc-400 transform rotate-180 opacity-20 hover:opacity-100 transition-opacity select-none cursor-help">
-                Çözüm: {puzzle.a}
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Brain Power Meter */}
-      <div className="mt-auto pt-8 print:pt-2 flex justify-center">
-        <div className="flex items-center gap-2 px-6 print:px-2 py-3 bg-zinc-900 text-white rounded-full text-xs font-black uppercase tracking-widest shadow-lg">
-          <i className="fa-solid fa-brain text-amber-400"></i>
-          Beyin Gücü Skoru:
-          <div className="flex gap-1 ml-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="w-4 h-4 rounded-full border-2 border-zinc-700 bg-zinc-800"
-              ></div>
-            ))}
-          </div>
-        </div>
+      {/* Footer summary */}
+      <div className="pt-2 print:pt-1 border-t border-zinc-100 text-center">
+        <span className="text-xs text-zinc-400 font-medium">
+          Toplam {puzzles.length} Bulmaca
+        </span>
       </div>
     </div>
   );
