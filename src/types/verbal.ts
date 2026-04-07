@@ -563,3 +563,31 @@ export interface FamilyTreeMatrixData extends BaseActivityData {
     clues: string[]; // Çözüme götüren ipuçları
   };
 }
+
+export interface KavramHaritasiNode {
+  id: string;
+  label: string;
+  isEmpty: boolean;
+  level: number; // 0=center, 1=main branch, 2=sub branch
+}
+
+export interface KavramHaritasiEdge {
+  from: string;
+  to: string;
+  label?: string;
+}
+
+export interface KavramHaritasiData extends BaseActivityData {
+  activityType: 'KAVRAM_HARITASI';
+  settings?: {
+    concept?: string;
+    depth?: 1 | 2 | 3;
+    branchCount?: number;
+    fillRatio?: number;
+    showExamples?: boolean;
+    layout?: 'radial' | 'tree' | 'spider';
+  };
+  nodes: KavramHaritasiNode[];
+  edges: KavramHaritasiEdge[];
+  examples?: string[];
+}

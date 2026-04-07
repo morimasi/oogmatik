@@ -162,6 +162,7 @@ import {
 import { FiveWOneHSheet } from './sheets/verbal/FiveWOneHSheet';
 import { ColorfulSyllableReadingSheet } from './sheets/verbal/ColorfulSyllableReadingSheet';
 import { FamilyTreeMatrixSheet } from './sheets/verbal/FamilyTreeMatrixSheet';
+import { KavramHaritasiSheet } from './sheets/verbal/KavramHaritasiSheet';
 import { ApartmentLogicSheet } from './sheets/math/ApartmentLogicSheet';
 import { FinancialMarketSheet } from './sheets/math/FinancialMarketSheet';
 import { DirectionalCodeReadingSheet } from './sheets/visual/DirectionalCodeReadingSheet';
@@ -1187,6 +1188,10 @@ export const SheetRenderer = React.memo(
 
     if (activityType === ActivityType.BRAIN_TEASERS) {
       return <BrainTeasersSheet data={data as any} settings={settings || ({} as any)} />;
+    }
+
+    if (activityType === ActivityType.KAVRAM_HARITASI) {
+      return <KavramHaritasiSheet data={data as any} />;
     }
 
     // OCR aktiviteleri: grafikVeri varsa GraphicRenderer + content göster

@@ -37,6 +37,7 @@ import { LogicErrorHunterConfig } from './LogicErrorHunterConfig';
 import { PatternCompletionConfig } from './PatternCompletionConfig';
 import { VisualInterpretationConfig } from './VisualInterpretationConfig';
 import { BrainTeasersConfig } from './BrainTeasersConfig';
+import { KavramHaritasiConfig } from './KavramHaritasiConfig';
 import { BoxMathConfig } from './BoxMathConfig';
 
 export const ActivityConfigRegistry: Record<string, any> = {
@@ -79,4 +80,5 @@ export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.VISUAL_INTERPRETATION]: VisualInterpretationConfig,
   [ActivityType.BRAIN_TEASERS]: BrainTeasersConfig,
   [ActivityType.BOX_MATH]: BoxMathConfig,
+  [ActivityType.KAVRAM_HARITASI]: KavramHaritasiConfig,
 };
