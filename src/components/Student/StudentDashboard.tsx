@@ -229,7 +229,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
       <div className="p-6 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-black text-xl text-[var(--text-primary)] flex items-center gap-3 tracking-tighter uppercase">
-            <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+            <div className="w-10 h-10 rounded-xl bg-[var(--accent-color)] flex items-center justify-center text-white shadow-lg shadow-[var(--accent-color)]/20">
               <i className="fa-solid fa-users text-lg"></i>
             </div>
             Öğrencilerim
@@ -372,7 +372,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
       <div className="flex-1 flex flex-col bg-[var(--bg-primary)] overflow-hidden relative">
         {/* Student Header - Ultra Premium */}
         <div className="bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 shrink-0 shadow-sm z-10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent-color)]/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
 
           <div className="flex items-center gap-8 relative z-10">
             <div className="relative group">
@@ -394,7 +394,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                   <i className="fa-solid fa-school text-[var(--accent-color)]"></i> {selectedStudent.grade}
                 </span>
                 <span className="flex items-center gap-2 text-[var(--text-muted)] bg-[var(--bg-secondary)] px-3 py-1 rounded-xl">
-                  <i className="fa-solid fa-cake-candles text-amber-500"></i> {selectedStudent.age}{' '}
+                  <i className="fa-solid fa-cake-candles text-[var(--accent-color)]"></i> {selectedStudent.age}{' '}
                   Yaş
                 </span>
                 <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-xl border border-emerald-100 dark:border-emerald-800 flex items-center gap-2">
