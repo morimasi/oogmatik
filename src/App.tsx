@@ -77,8 +77,8 @@ const RemotionStudio = lazy(() =>
 );
 
 const StudentDashboard = lazy(() =>
-  import('./components/Student/AdvancedStudentManager').then((module) => ({
-    default: module.AdvancedStudentManager,
+  import('./components/Student/StudentDashboard').then((module) => ({
+    default: module.StudentDashboard,
   }))
 );
 const ScreeningModule = lazy(() =>
