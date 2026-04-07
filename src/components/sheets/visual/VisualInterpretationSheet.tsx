@@ -15,11 +15,12 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
   const activity = Array.isArray(data) ? data[0] : data;
   const blocks = activity.layoutArchitecture?.blocks || [];
 
-  const imageBlock = blocks.find((b: any) => b.type === 'image');
-  const questionsBlock = blocks.find((b: any) => b.type === 'question' || b.type === 'questions');
+  const imageBlock = blocks.find((b: Record<string, unknown>) => b.type === 'image');
+  const questionsBlock = blocks.find((b: Record<string, unknown>) => b.type === 'question' || b.type === 'questions');
 
-  const imagePrompt = (imageBlock?.content as any)?.prompt || 'Beautiful educational scene for children, minimalist flat vector art';
-  const questions = (questionsBlock?.content as any)?.items || [];
+  const imagePrompt = (imageBlock?.content as Record<string, unknown>)?.prompt as string || 'Beautiful educational scene for children, minimalist flat vector art';
+  const imageBase64 = (imageBlock?.content as Record<string, unknown>)?.base64 as string | undefined;
+  const questions = (questionsBlock?.content as Record<string, unknown>)?.items as Record<string, unknown>[] || [];
 
   return (
     <div
@@ -42,8 +43,9 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
         <div className="bg-white border-[3px] border-zinc-900 rounded-[3rem] p-4 shadow-[15px_15px_0px_#1e1b4b] overflow-hidden">
           <ImageDisplay
             prompt={imagePrompt}
-            description={(activity.layoutArchitecture?.blocks[0]?.content as any)?.alt}
-            className="w-full h-[450px] print:h-[400px] object-cover rounded-[2.5rem] shadow-inner"
+            base64={imageBase64}
+            description={(activity.layoutArchitecture?.blocks[0]?.content as Record<string, unknown>)?.alt as string | undefined}
+            className="w-full h-[260px] print:h-[240px] object-cover rounded-[2.5rem] shadow-inner"
           />
 
           <div className="mt-4 flex justify-between items-center px-6">
@@ -59,9 +61,9 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
       </div>
 
       {/* 3. ANALİZ MATRİSİ (Sorular) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-        {questions.map((q: any, idx: number) => (
-          <div key={idx} className="relative bg-zinc-50/50 border-2 border-zinc-100 rounded-[2rem] p-6 print:p-4 break-inside-avoid shadow-sm hover:border-indigo-200 hover:bg-white transition-all group/card">
+      <div className="grid grid-cols-2 gap-3 mt-3 print:gap-2">
+        {questions.map((q: Record<string, unknown>, idx: number) => (
+          <div key={idx} className="relative bg-zinc-50/50 border-2 border-zinc-100 rounded-[2rem] p-3 print:p-2 break-inside-avoid shadow-sm hover:border-indigo-200 hover:bg-white transition-all group/card">
             <div className="flex justify-between items-center mb-4">
               <div className="w-8 h-8 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-black text-sm shadow-lg border-2 border-white">
                 {idx + 1}
@@ -71,19 +73,19 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
               </span>
             </div>
 
-            <h3 className="text-[14px] font-black text-zinc-800 mb-5 leading-tight group-hover/card:text-indigo-600 transition-colors">
-              {q.q || q.questionText || q.text}
+            <h3 className="text-[12px] print:text-[11px] font-black text-zinc-800 mb-5 leading-tight group-hover/card:text-indigo-600 transition-colors">
+              {(q.q || q.questionText || q.text) as string}
             </h3>
 
             <div className="space-y-3">
               {q.type === 'multiple' && q.options && (
                 <div className="grid grid-cols-1 gap-2">
-                  {q.options.map((opt: string, i: number) => (
+                  {(q.options as string[]).map((opt: string, i: number) => (
                     <div key={i} className="flex items-center gap-3 p-2 bg-white rounded-xl border border-zinc-100 shadow-sm transition-transform hover:scale-[1.02]">
                       <div className="w-6 h-6 shrink-0 rounded-lg border-2 border-zinc-100 flex items-center justify-center text-[10px] font-black text-zinc-400">
                         {String.fromCharCode(65 + i)}
                       </div>
-                      <span className="text-[12px] font-bold text-zinc-600">{opt}</span>
+                      <span className="text-[11px] font-bold text-zinc-600">{opt}</span>
                     </div>
                   ))}
                 </div>
@@ -101,12 +103,7 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
       </div>
 
       {/* 4. KLİNİK DEĞERLENDİRME PANELİ */}
-      <div className="mt-auto pt-10 border-t-[3px] border-zinc-100 grid grid-cols-4 gap-6">
-        <div className="col-span-1">
-          <span className="text-[9px] font-black text-indigo-500 uppercase tracking-[0.4em] mb-1 block">Clinic Pro</span>
-          <span className="text-sm font-black text-zinc-800 uppercase leading-none">Bilişsel <br />Gözlem Raporu</span>
-        </div>
-
+      <div className="mt-auto pt-10 border-t-[3px] border-zinc-100 grid grid-cols-3 gap-6">
         <div className="bg-zinc-50 border-2 border-zinc-100 rounded-2xl p-4 flex flex-col justify-between h-20">
           <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest leading-none">Tamamlama Süresi</span>
           <div className="flex items-end gap-1">

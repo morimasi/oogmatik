@@ -44,12 +44,10 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('visualStyle', e.target.value)}
             className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
           >
-            <option value="illustration">Renkli İllüstrasyon</option>
-            <option value="cartoon">Karikatür / Çizgi Film</option>
-            <option value="realistic">Gerçekçi Çizim</option>
-            <option value="minimalist">Minimalist / Vektörel</option>
-            <option value="sketch">Karakalem / Eskiz</option>
-            <option value="photo">Fotoğraf (Stok)</option>
+            <option value="illustration">Çizim (İllüstrasyon)</option>
+            <option value="cartoon">Karikatür</option>
+            <option value="diagram">Diyagram</option>
+            <option value="photo_realistic">Gerçekçi</option>
           </select>
         </div>
 
@@ -107,6 +105,21 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
 
       {/* Ekstra Seçenekler */}
       <div className="space-y-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+        <label className="flex items-center gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors">
+          <input
+            type="checkbox"
+            checked={options.generateImage !== false}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('generateImage' as keyof GeneratorOptions, e.target.checked)}
+            className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 border-zinc-300"
+          />
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Görsel Üret (AI)
+            <span className="block text-xs text-zinc-400 font-normal">
+              Etkinlik için yapay zeka ile görsel üretir.
+            </span>
+          </span>
+        </label>
+
         <label className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
           <input
             type="checkbox"
