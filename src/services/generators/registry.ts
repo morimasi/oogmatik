@@ -224,6 +224,14 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: aiGenerators.generatePatternCompletionFromAI,
     offline: offlineGenerators.generateOfflinePatternCompletion,
   },
+  [ActivityType.KAVRAM_HARITASI]: {
+    ai: (options: GeneratorOptions) => new aiGenerators.KavramHaritasiGenerator().generate(options),
+    offline: (options: GeneratorOptions) => new aiGenerators.KavramHaritasiGenerator().generate(options),
+  },
+  [ActivityType.ES_ANLAMLI_KELIMELER]: {
+    ai: (options: GeneratorOptions) => new aiGenerators.EsAnlamliKelimelerGenerator().generate(options),
+    offline: (options: GeneratorOptions) => new aiGenerators.EsAnlamliKelimelerGenerator().generate(options),
+  },
   [ActivityType.DIRECTIONAL_CODE_READING]: {
     ai: aiGenerators.generateDirectionalCodeReadingFromAI,
     offline: offlineGenerators.generateOfflineDirectionalCodeReading,

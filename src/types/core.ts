@@ -145,6 +145,7 @@ export interface GeneratorOptions {
   includeCompass?: boolean;
   cognitiveLoad?: number;
   includeClinicalNotes?: boolean;
+  generateImage?: boolean;
   classLevel?: number;
   showCoordinates?: boolean;
   showSymmetryLine?: boolean;

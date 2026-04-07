@@ -563,3 +563,56 @@ export interface FamilyTreeMatrixData extends BaseActivityData {
     clues: string[]; // Çözüme götüren ipuçları
   };
 }
+
+export interface KavramHaritasiNode {
+  id: string;
+  label: string;
+  isEmpty: boolean;
+  level: number; // 0=center, 1=main branch, 2=sub branch
+}
+
+export interface KavramHaritasiEdge {
+  from: string;
+  to: string;
+  label?: string;
+}
+
+export interface KavramHaritasiData extends BaseActivityData {
+  activityType: 'KAVRAM_HARITASI';
+  settings?: {
+    concept?: string;
+    depth?: 1 | 2 | 3;
+    branchCount?: number;
+    fillRatio?: number;
+    showExamples?: boolean;
+    layout?: 'radial' | 'tree' | 'spider';
+  };
+  nodes: KavramHaritasiNode[];
+  edges: KavramHaritasiEdge[];
+  examples?: string[];
+}
+
+export interface EsAnlamliKelimeItem {
+  id: string;
+  sourceWord: string;
+  synonyms: string[];
+  antonym?: string;
+  exampleSentence: string;
+  correctAnswer: string;
+  emoji?: string;
+  etymologyNote?: string;
+  usageContext?: string; // "Resmi" | "Günlük" | "Edebi"
+}
+
+export interface EsAnlamliKelimelerData extends BaseActivityData {
+  activityType: 'ES_ANLAMLI_KELIMELER';
+  settings?: {
+    wordCount?: number;
+    includeAntonyms?: boolean;
+    includeExamples?: boolean;
+    includeEtymology?: boolean;
+    topic?: string;
+    layout?: 'card_grid' | 'list' | 'match_columns';
+  };
+  items: EsAnlamliKelimeItem[];
+}

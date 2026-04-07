@@ -74,62 +74,56 @@ export const WordSearchSheet = ({ data }: { data: WordSearchData }) => {
                 note={data?.pedagogicalNote}
             />
 
-            <div className={`flex flex-col md:flex-row gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1 mt-8 print:mt-2 items-start flex-1 pb-10 print:pb-3`}>
+            {/* KELIME BANDI — Üst Satır */}
+            <div className="w-full bg-zinc-900 rounded-[2rem] p-4 flex flex-wrap gap-2 mt-3 mb-4 print:mb-2">
+                {data.words.map((w, i) => (
+                    <span key={i} className="px-3 py-1 bg-zinc-800 border border-zinc-700 rounded-full text-white text-[11px] font-black uppercase tracking-wider flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0"></span>
+                        {w}
+                    </span>
+                ))}
+            </div>
+
+            <div className={`flex flex-col mt-2 print:mt-1 items-center flex-1 pb-6 print:pb-2`}>
                 {/* Bulmaca Alanı - Premium Frame */}
-                <div className="border-[6px] border-zinc-900 bg-white p-2 rounded-[2rem] shadow-2xl shrink-0 ring-8 ring-zinc-50 transform hover:scale-[1.01] transition-transform">
-                    <table className="border-collapse mx-auto font-mono">
-                        <tbody>
-                            {data.grid.map((row, r) => (
-                                <tr key={r}>
-                                    {row.map((cell, c) => (
-                                        <td
-                                            key={c}
-                                            style={{ width: cellSize, height: cellSize }}
-                                            className="border border-zinc-100 text-center font-black text-xl uppercase text-zinc-900 cursor-default select-none hover:bg-indigo-50 transition-colors"
-                                        >
-                                            <EditableText value={String(cell)} tag="span" />
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className="flex justify-center">
+                    <div className="border-[6px] border-zinc-900 bg-white p-2 rounded-[2rem] shadow-2xl shrink-0 ring-8 ring-zinc-50 transform hover:scale-[1.01] transition-transform">
+                        <table className="border-collapse mx-auto font-mono">
+                            <tbody>
+                                {data.grid.map((row, r) => (
+                                    <tr key={r}>
+                                        {row.map((cell, c) => (
+                                            <td
+                                                key={c}
+                                                style={{ width: cellSize, height: cellSize }}
+                                                className="border border-zinc-100 text-center font-black text-xl uppercase text-zinc-900 cursor-default select-none hover:bg-indigo-50 transition-colors"
+                                            >
+                                                <EditableText value={String(cell)} tag="span" />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                {/* Yan Panel: Kelime Listesi - Premium UI */}
-                <div className="flex-1 w-full md:max-w-xs flex flex-col gap-6 print:gap-2">
-                    <div className="bg-zinc-900 text-white p-8 print:p-2 print:p-3 rounded-[3rem] border-4 border-white shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-8 -mt-8 print:mt-2 group-hover:bg-white/10 transition-colors"></div>
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-400 mb-6 print:mb-2 flex items-center gap-3">
-                            <i className="fa-solid fa-magnifying-glass text-xs shadow-glow"></i> HEDEF SÖZCÜKLER
-                        </h4>
-                        <div className={`grid ${data.words.length > 10 ? 'grid-cols-2' : 'grid-cols-1'} gap-x-6 gap-y-3`}>
-                            {data.words.map((w, i) => (
-                                <div key={i} className="text-[13px] font-black uppercase tracking-tight border-b border-white/10 pb-2 flex items-center gap-3 group/item cursor-pointer">
-                                    <div className="w-2 h-2 rounded-full bg-indigo-500 group-hover/item:scale-125 group-hover/item:bg-amber-400 transition-all shadow-glow"></div>
-                                    <span className="group-hover/item:text-indigo-300 transition-colors">{w}</span>
-                                </div>
-                            ))}
+                {settings?.showClinicalNotes && data.clinicalMeta && (
+                    <div className="w-full mt-4 print:mt-2 p-4 print:p-2 bg-zinc-50 rounded-[2rem] border-2 border-zinc-100 text-[9px] font-bold text-zinc-400 uppercase tracking-widest leading-relaxed shadow-inner flex gap-6 flex-wrap">
+                        <div className="flex gap-1">
+                            <span>Kesişim İndeksi:</span>
+                            <span className="text-zinc-900">{data.clinicalMeta.intersections}</span>
+                        </div>
+                        <div className="flex gap-1">
+                            <span className="flex items-center gap-1">Ters Dizilim <i className="fa-solid fa-arrows-left-right text-[7px] text-rose-400"></i></span>
+                            <span className="text-zinc-900">{data.clinicalMeta.reversals} Adet</span>
+                        </div>
+                        <div className="flex gap-1">
+                            <span className="flex items-center gap-1">Leksikal Yoğunluk <i className="fa-solid fa-chart-area text-[7px] text-indigo-400"></i></span>
+                            <span className="text-zinc-900">%{Math.round(data.clinicalMeta.density * 100)}</span>
                         </div>
                     </div>
-
-                    {settings?.showClinicalNotes && data.clinicalMeta && (
-                        <div className="p-6 print:p-2 bg-zinc-50 rounded-[2.5rem] border-2 border-zinc-100 text-[9px] font-bold text-zinc-400 uppercase tracking-widest leading-relaxed shadow-inner">
-                            <div className="flex justify-between border-b border-zinc-200/50 pb-2 mb-2">
-                                <span>Kesişim İndeksi:</span>
-                                <span className="text-zinc-900">{data.clinicalMeta.intersections}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-zinc-200/50 pb-2 mb-2">
-                                <span className="flex items-center gap-2">Ters Dizilim <i className="fa-solid fa-arrows-left-right text-[7px] text-rose-400"></i></span>
-                                <span className="text-zinc-900">{data.clinicalMeta.reversals} Adet</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="flex items-center gap-2">Leksikal Yoğunluk <i className="fa-solid fa-chart-area text-[7px] text-indigo-400"></i></span>
-                                <span className="text-zinc-900">%{Math.round(data.clinicalMeta.density * 100)}</span>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                )}
             </div>
 
             {/* Footer Protokolü */}

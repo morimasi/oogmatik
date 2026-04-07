@@ -25,3 +25,5 @@ export * from './assessment';
 export * from './visualInterpretation';
 export * from './boxMath';
 export * from './core/SmartFallbackGenerator';
+export { KavramHaritasiGenerator } from './kavramHaritasi';
+export { EsAnlamliKelimelerGenerator } from './esAnlamliKelimeler';

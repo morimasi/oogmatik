@@ -71,22 +71,30 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
             <div
               className={`relative border-2 border-zinc-200 rounded-[2.5rem] bg-white overflow-hidden mb-6 print:mb-2 shadow-inner ring-4 ring-zinc-50 ${isSingle ? 'flex-1' : 'aspect-video'}`}
             >
-              <svg viewBox="0 0 100 100" className="w-full h-full">
-                {section.searchField.map((item: any) => (
-                  <path
-                    key={item.id}
-                    d={SHAPE_PATHS[item.type] || SHAPE_PATHS.triangle}
-                    fill={settings?.overlapping ? 'rgba(79, 70, 229, 0.08)' : 'none'}
-                    stroke="black"
-                    strokeWidth={isSingle ? 1 : 1.5}
-                    style={{
-                      transform: `translate(${item.x}%, ${item.y}%) rotate(${item.rotation}deg) scale(${item.size / 8})`,
-                      transformOrigin: 'center',
-                      transformBox: 'fill-box',
-                    }}
-                    className="mix-blend-multiply opacity-80"
-                  />
-                ))}
+              <svg
+                viewBox="0 0 500 500"
+                preserveAspectRatio="xMidYMid meet"
+                overflow="hidden"
+                className="w-full h-full"
+              >
+                {section.searchField.map((item: { id: string; type: string; x?: number; y?: number; rotation?: number; size?: number }) => {
+                  const tx = (item.x ?? 50) * 5;
+                  const ty = (item.y ?? 50) * 5;
+                  const rot = item.rotation ?? 0;
+                  const rawScale = ((item.size ?? 5) / 10) * 0.8;
+                  const sc = Math.min(1.0, Math.max(0.3, rawScale));
+                  return (
+                    <g key={item.id} transform={`translate(${tx}, ${ty}) rotate(${rot}) scale(${sc})`}>
+                      <path
+                        d={SHAPE_PATHS[item.type] ?? SHAPE_PATHS.triangle}
+                        fill={settings?.overlapping ? 'rgba(79, 70, 229, 0.08)' : 'none'}
+                        stroke="black"
+                        strokeWidth={isSingle ? 1.5 : 2}
+                        className="mix-blend-multiply opacity-80"
+                      />
+                    </g>
+                  );
+                })}
               </svg>
             </div>
 

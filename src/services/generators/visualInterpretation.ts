@@ -2,7 +2,7 @@ import { GeneratorOptions, WorksheetData } from '../../types';
 import { BaseGenerator } from './core/BaseGenerator';
 import { generateCreativeMultimodal } from '../geminiClient';
 
-export class VisualInterpretationGenerator extends BaseGenerator<any> {
+export class VisualInterpretationGenerator extends BaseGenerator<WorksheetData> {
   constructor() {
     super();
   }
@@ -33,12 +33,10 @@ ETKİNLİK PARAMETRELERİ:
 
 ${studentCtx}
 
-AŞAMA 1: ULTRA-DETAYLI GÖRSEL KURGUSU (ULTRA-PREMIUM IMAGE PROMPT)
-"imagePrompt" alanına, Midjourney V6 veya DALL-E 3 kalitesinde, muazzam bir İNGİLİZCE prompt yazmalısın. 
-Görsel üretim robotuna şu talimatları içerecek şekilde komut ver:
-- "Cinematic lighting, hyper-realistic details, 8k, masterwork, vivid colors."
-- "Composition: Wide shot, intricate background details that contain hidden educational clues."
-- "Focus: ${topic} temalı sahnede, öğrencinin dikkatini çekecek 5 spesifik nesne veya olay kurgula."
+AŞAMA 1: imagePrompt alanına ${visualStyle === 'illustration' ? 'educational flat illustration for children, bright colors, detailed scene, Pixar style' : visualStyle === 'cartoon' ? 'colorful cartoon scene for children, fun characters' : 'detailed educational diagram with labels'} formatında İNGİLİZCE prompt yaz. Prompt şunları içermeli:
+- "${topic}" teması ve eğitici içerik
+- Öğrencinin dikkatini çekecek 5 spesifik nesne veya olay
+- Çocuk dostu, uygun görsel unsurlar
 
 AŞAMA 2: PEDAGOJİK SORULAR VE 5N1K ANALİZİ
 Sorular, görseldeki spesifik detaylara odaklanmalı ve şu 5N1K yapısını mutlaka içermelidir:
@@ -53,10 +51,12 @@ Sorular disleksi dostu, kısa ve net olmalıdır.
 JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
 {
     "id": "visual_int_uuid",
+    "visualStyle": "${visualStyle}",
+    "difficultyLevel": "${difficulty}",
     "activityType": "VISUAL_INTERPRETATION",
     "title": "Pedagojik ve İlgi Çekici Başlık",
     "instruction": "Öğrenciye yönelik, motive edici ve net yönerge.",
-    "pedagogicalNote": "Bilişsel hedef notu.",
+    "pedagogicalNote": "Bu etkinlikte görsel algı ve analitik düşünme becerileri hedeflenir. [Spesifik beceri açıklaması]",
     "layoutArchitecture": {
         "blocks": [
             {
@@ -88,6 +88,31 @@ JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
       prompt: prompt,
       temperature: 0.7
     });
+
+    // Görsel üretimini dene
+    const blocks = (generatedData as Record<string, unknown>)?.layoutArchitecture as Record<string, unknown> | undefined;
+    const blockList = blocks?.blocks as Record<string, unknown>[] | undefined;
+    const imageBlock = blockList?.find(b => b.type === 'image');
+    if (imageBlock && (imageBlock.content as Record<string, unknown>)?.prompt) {
+      try {
+        const imgResponse = await fetch('/api/ai/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: (imageBlock.content as Record<string, unknown>).prompt,
+            style: options.visualStyle || 'illustration'
+          })
+        });
+        if (imgResponse.ok) {
+          const imgData = await imgResponse.json() as { base64?: string };
+          if (imgData.base64) {
+            (imageBlock.content as Record<string, unknown>).base64 = imgData.base64;
+          }
+        }
+      } catch {
+        // görsel opsiyonel; hata sessizce geç
+      }
+    }
 
     // Üretilen veriye UUID ekle
     if (generatedData && !generatedData.id) {
