@@ -211,7 +211,7 @@ const handleCreateStudent = async (req: VercelRequest, res: VercelResponse) => {
 
   if (!validationResult.success) {
     const errors: Record<string, string> = {};
-    validationResult.error.errors.forEach((err) => {
+    validationResult.error.issues.forEach((err) => {
       const path = err.path.join('.');
       errors[path] = err.message;
     });
@@ -230,13 +230,10 @@ const handleCreateStudent = async (req: VercelRequest, res: VercelResponse) => {
   });
 
   // Audit log
-  logError({
-    type: 'audit',
-    action: 'student_created',
-    userId,
-    studentId: docRef.id,
-    timestamp: new Date().toISOString(),
-  });
+  logError(
+    new AppError('Audit: öğrenci oluşturuldu', 'AUDIT', 200),
+    { action: 'student_created', userId, studentId: docRef.id, timestamp: new Date().toISOString() }
+  );
 
   return res.status(201).json({
     success: true,
@@ -274,7 +271,7 @@ const handleUpdateStudent = async (req: VercelRequest, res: VercelResponse) => {
 
   if (!validationResult.success) {
     const errors: Record<string, string> = {};
-    validationResult.error.errors.forEach((err) => {
+    validationResult.error.issues.forEach((err) => {
       const path = err.path.join('.');
       errors[path] = err.message;
     });
@@ -288,14 +285,10 @@ const handleUpdateStudent = async (req: VercelRequest, res: VercelResponse) => {
   await updateDoc(doc(db, 'students', studentId), sanitized);
 
   // Audit log
-  logError({
-    type: 'audit',
-    action: 'student_updated',
-    userId,
-    studentId,
-    changes: Object.keys(sanitized),
-    timestamp: new Date().toISOString(),
-  });
+  logError(
+    new AppError('Audit: öğrenci güncellendi', 'AUDIT', 200),
+    { action: 'student_updated', userId, studentId, changes: Object.keys(sanitized), timestamp: new Date().toISOString() }
+  );
 
   return res.status(200).json({
     success: true,
@@ -330,13 +323,10 @@ const handleDeleteStudent = async (req: VercelRequest, res: VercelResponse) => {
   await deleteDoc(doc(db, 'students', studentId));
 
   // Audit log
-  logError({
-    type: 'audit',
-    action: 'student_deleted',
-    userId,
-    studentId,
-    timestamp: new Date().toISOString(),
-  });
+  logError(
+    new AppError('Audit: öğrenci silindi', 'AUDIT', 200),
+    { action: 'student_deleted', userId, studentId, timestamp: new Date().toISOString() }
+  );
 
   return res.status(200).json({
     success: true,
