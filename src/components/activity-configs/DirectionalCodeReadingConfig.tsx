@@ -27,13 +27,15 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
     return (
         <div className="space-y-6 animate-in fade-in duration-500 font-['Lexend']">
             <div className="p-6 bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 flex items-center justify-center shadow-inner">
-                        <i className="fa-solid fa-map-location-dot"></i>
-                    </div>
-                    <div>
-                        <h4 className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Rota & Algoritma</h4>
-                        <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Premium Yapılandırma</p>
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 flex items-center justify-center shadow-inner">
+                            <i className="fa-solid fa-map-location-dot"></i>
+                        </div>
+                        <div>
+                            <h4 className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-tighter">Rota & Algoritma</h4>
+                            <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Premium Yapılandırma</p>
+                        </div>
                     </div>
                 </div>
 
@@ -48,6 +50,30 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                             { value: 'colors', label: 'RENKLER' }
                         ]}
                     />
+
+                    {/* Aesthetic Style */}
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black text-zinc-400 uppercase block tracking-widest">Görünüm Stili</label>
+                        <div className="grid grid-cols-3 gap-2">
+                            {[
+                                { id: 'standard', label: 'STANDART' },
+                                { id: 'premium', label: 'PREMIUM' },
+                                { id: 'glassmorphism', label: 'GLASS' },
+                            ].map((style) => (
+                                <button
+                                    key={style.id}
+                                    onClick={() => onChange('aestheticMode' as any, style.id)}
+                                    className={`py-2 text-[9px] font-black rounded-xl border-2 transition-all ${
+                                        (options.aestheticMode || 'standard') === style.id
+                                            ? 'border-indigo-500 bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400'
+                                            : 'border-zinc-100 dark:border-zinc-800 text-zinc-400 hover:border-zinc-200'
+                                    }`}
+                                >
+                                    {style.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -79,7 +105,7 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
 
                     <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/30">
                         <div className="flex justify-between items-center text-[9px] font-black text-indigo-700 uppercase tracking-widest mb-2">
-                            <span>Bilişsel Yük: % {options.obstacleDensity || 20}</span>
+                            <span>Bilişsel Yük (Engel): % {options.obstacleDensity || 20}</span>
                         </div>
                         <input
                             type="range" min={0} max={60} step={10}
@@ -91,10 +117,10 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                 </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30">
-                <i className="fa-solid fa-circle-info text-amber-500"></i>
-                <p className="text-[9px] font-bold text-amber-700 dark:text-amber-300 leading-tight italic">
-                    Zorluk seviyesi arttıkça, algoritmaların yönerge karmaşıklığı matematiksel ve mantıksal şifrelerle otomatik olarak derinleşir.
+            <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30 shadow-sm shadow-amber-900/5">
+                <i className="fa-solid fa-sparkles text-amber-500"></i>
+                <p className="text-[9px] font-bold text-amber-800 dark:text-amber-300 leading-tight italic">
+                    Premium modlar, A4 çıktılarını daha profesyonel ve klinik standartlarda optimize eder.
                 </p>
             </div>
         </div>

@@ -335,12 +335,12 @@ export const generateOfflineDirectionalTracking = async (
   options: GeneratorOptions
 ): Promise<DirectionalCodeReadingData[]> => {
   const {
-    worksheetCount,
-    difficulty,
-    _codeLength = 5,
+    worksheetCount = 1,
+    difficulty = 'Orta',
     itemCount = 2,
     concept = 'letters',
   } = options;
+  const aestheticMode = (options as any).aestheticMode || 'standard';
   const results: DirectionalCodeReadingData[] = [];
 
   const rows = options.gridRows || options.gridSize || 6;
@@ -404,10 +404,17 @@ export const generateOfflineDirectionalTracking = async (
       }
 
       puzzles.push({
+        id: `puzzle-${q}`,
         title: `ŞİFRE BLOĞU 0${q + 1}`,
         grid,
         // İlk eleman (start) yön içermediği için yörünge adımlarından (1. elemandan itibaren) yönleri alıyoruz
         path: path.slice(1).map((p) => p.direction),
+        steps: path.slice(1).map((p, i) => ({ 
+            step: i + 1, 
+            count: 1, 
+            dir: p.direction,
+            direction: p.direction
+        })),
         startPos: { r: path[0].r, c: path[0].c },
         // Başlangıç harfi + takip eden harfler hedef şifreyi oluşturur
         targetWord: path.map((pt) => pt.char).join(''),
@@ -419,8 +426,8 @@ export const generateOfflineDirectionalTracking = async (
     }
 
     // Grid boyutuna ve soru sayısına göre layout belirleme
-    let layout = 'single';
-    if (itemCount === 2) layout = 'grid_2x1';
+    let layout = 'grid_2x1';
+    if (itemCount === 1) layout = 'single';
     else if (itemCount > 2) layout = 'grid_compact';
 
     results.push({
@@ -432,6 +439,7 @@ export const generateOfflineDirectionalTracking = async (
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
         layout: layout as any,
+        aestheticMode: aestheticMode,
         rotationEnabled: false,
         pathComplexity: config.pathLength,
         isProfessionalMode: true,

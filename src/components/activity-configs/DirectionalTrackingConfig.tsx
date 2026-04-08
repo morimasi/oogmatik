@@ -106,18 +106,58 @@ export const DirectionalTrackingConfig: React.FC<{
         </div>
       </div>
 
+      {/* Aesthetic Style Configuration */}
+      <div className="p-6 bg-white dark:bg-zinc-900 rounded-[2rem] border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-6">
+        <div className="flex items-center gap-3 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+          <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-900/20 text-purple-600 flex items-center justify-center">
+            <i className="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <label className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-widest">
+            Estetik Stil & Görünüm
+          </label>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { id: 'standard', label: 'Standart', icon: 'fa-square' },
+            { id: 'premium', label: 'Premium', icon: 'fa-crown' },
+            { id: 'glassmorphism', label: 'Glassmorphism', icon: 'fa-layer-group' },
+          ].map((style) => (
+            <button
+              key={style.id}
+              onClick={() => onChange('aestheticMode', style.id)}
+              className={`flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-bold transition-all border-2 ${
+                (options.aestheticMode || 'standard') === style.id
+                  ? 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400'
+                  : 'border-zinc-100 dark:border-zinc-800 text-zinc-500 hover:border-zinc-200'
+              }`}
+            >
+              <i className={`fa-solid ${style.icon} opacity-50`}></i>
+              {style.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Layout Configuration */}
       <div className="p-6 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2rem] border border-zinc-200 dark:border-zinc-800 space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-            Sayfa Başı Soru (A4)
-          </span>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+              Sayfa Yoğunluğu
+            </span>
+            <span className="text-[8px] text-zinc-400 font-bold">A4 Başına Görev</span>
+          </div>
           <div className="flex gap-2">
             {[1, 2, 4].map((n) => (
               <button
                 key={n}
                 onClick={() => onChange('itemCount', n)}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-all ${options.itemCount === n ? 'bg-zinc-900 text-white shadow-lg scale-110' : 'bg-white dark:bg-zinc-800 text-zinc-500 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100'}`}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-all ${
+                  (options.itemCount || 2) === n
+                    ? 'bg-zinc-900 text-white shadow-lg scale-110'
+                    : 'bg-white dark:bg-zinc-800 text-zinc-500 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100'
+                }`}
               >
                 {n}
               </button>

@@ -176,13 +176,17 @@ export interface DirectionalTrackingData extends BaseActivityData {
     showClinicalNotes?: boolean;
     gridSize?: number;
     contentType?: 'letters' | 'numbers' | 'mixed' | 'words';
+    aestheticMode?: 'standard' | 'premium' | 'glassmorphism';
   };
   puzzles: {
     grid: string[][];
     path: string[];
+    steps?: { step: number; count: number; dir?: string; direction?: string }[];
     startPos: { r: number; c: number };
     targetWord: string;
     title: string;
+    answerLength?: number;
+    cipherAnswer?: string;
     clinicalMeta?: {
       perceptualLoad: number;
       attentionShiftCount: number;
@@ -297,6 +301,7 @@ export interface DirectionalCodeReadingData extends BaseActivityData {
     obstacleDensity: number;
     cipherType: 'arrows' | 'letters' | 'colors' | string;
     puzzleCount?: number;
+    aestheticMode?: 'standard' | 'premium' | 'glassmorphism';
   };
   content: {
     title: string;
