@@ -80,6 +80,7 @@ export interface FindIdenticalWordData extends BaseActivityData {
 
 export interface VisualOddOneOutItem {
   svg?: string; // Inline SVG content for clinical precision
+  svgPaths?: { d: string; fill?: string; stroke?: string }[];
   imagePrompt?: string;
   label?: string;
   rotation?: number;
@@ -96,12 +97,13 @@ export interface VisualOddOneOutItem {
 export interface VisualOddOneOutData extends BaseActivityData {
   settings?: {
     difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
-    layout: 'single' | 'grid_compact' | 'ultra_dense' | 'protocol';
+    layout: 'single' | 'grid_compact' | 'ultra_dense' | 'ultra_full' | 'protocol';
     itemType: 'svg' | 'text' | 'image' | 'character';
     subType?: 'character_discrimination' | 'symbolic_logic' | 'object_recognition';
     isProfessionalMode: boolean;
     showClinicalNotes?: boolean;
     cognitiveLoad?: number;
+    aestheticMode?: 'standard' | 'premium' | 'glassmorphism';
   };
   rows: {
     items: VisualOddOneOutItem[];

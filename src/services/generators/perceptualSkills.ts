@@ -8,11 +8,14 @@ import { ocrService } from '../ocrService.js';
 import { MAP_DETECTIVE_PROMPT, PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
 
 export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): Promise<VisualOddOneOutData[]> => {
-    const { difficulty, _worksheetCount, visualType, distractionLevel, gridSize, studentContext } = options;
+    const { difficulty, visualType, distractionLevel, gridSize, studentContext, layout, aestheticMode } = options;
 
     const typeDesc = visualType === 'geometric' ? 'Karmaşık Geometrik Şekiller' :
         visualType === 'abstract' ? 'Soyut Desenler' :
             visualType === 'character' ? 'Ayna Harf ve Rakamlar (b/d, p/q, 6/9 vb.)' : 'Karmaşık poligonlar';
+
+    // Sayfa doluluk oranını belirle
+    const rowCount = layout === 'ultra_full' ? 16 : layout === 'ultra_dense' ? 12 : 8;
 
     const prompt = `
     ${PEDAGOGICAL_BASE}
@@ -25,15 +28,17 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
     - Zorluk: ${difficulty}.
     - Çeldirici Hassasiyeti: ${distractionLevel}.
     - Bilişsel Yük Endeksi: ${options.cognitiveLoad || 5} / 10.
-    - Klinik Metrik Talebi: ${options.includeClinicalNotes ? 'AKTİF' : 'PASİF'}.
+    - Düzen: ${layout || 'Standart'}.
+    - Estetik Stil: ${aestheticMode || 'standard'}.
     - Satır Başı Öğe Sayısı: ${gridSize || 4}.
-    - Üretilecek Satır Sayısı: 8-10 (Bol içerikli çıktı).
+    - Üretilecek Satır Sayısı: ${rowCount} (Dopdolu bir sayfa için KESİNLİKLE bu sayıda satır üret).
     - Öğrenci Profili: ${studentContext?.diagnosis?.join(', ') || 'Genel Gelişim'}.
     
     STRATEJİ:
-    1. Bilişsel yük endeksi ${options.cognitiveLoad || 5} ise, şekiller arası benzerliği bu oranda artır.
-    2. Her satırda farklı bir disleksi alt hatasını hedefle (örn: rotasyonel hata, aynalamalı hata, konumsal hata).
-    3. [ÖNEMLİ]: "Bol içerik" talebi nedeniyle bir A4 sayfasını tamamen dolduracak kadar (en az 8 satır) veri üret.
+    1. Bilişsel yük endeksine göre şekiller arası görsel benzerliği ayarla.
+    2. SVG yolları üretirken (svgPaths) modern, estetik ve tanısal değeri yüksek paternler kullan (örn: ince dönüşler, eksik segmentler).
+    3. [KRİTİK]: Sayfayı tamamen doldurmak için tam ${rowCount} adet satır (row) oluştur.
+    4. Estetik stil "${aestheticMode}" ise, görsel karmaşıklığı ve zerafeti buna göre optimize et.
     
     ÇIKTI FORMATI:
     - rows: [{ items: [{ svgPaths: [...], label: string, rotation: number, isMirrored: boolean }], correctIndex: number, reason: string, clinicalMeta: { targetedError: string, cognitiveLoad: number } }]
@@ -45,6 +50,16 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
             title: { type: 'STRING' },
             instruction: { type: 'STRING' },
             pedagogicalNote: { type: 'STRING' },
+            settings: {
+                type: 'OBJECT',
+                properties: {
+                    difficulty: { type: 'STRING' },
+                    layout: { type: 'STRING' },
+                    aestheticMode: { type: 'STRING' },
+                    cognitiveLoad: { type: 'NUMBER' },
+                    showClinicalNotes: { type: 'BOOLEAN' }
+                }
+            },
             rows: {
                 type: 'ARRAY',
                 items: {
@@ -55,7 +70,17 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
                             items: {
                                 type: 'OBJECT',
                                 properties: {
-                                    svgPaths: { type: 'ARRAY', items: { type: 'OBJECT', properties: { d: { type: 'STRING' }, fill: { type: 'STRING' }, stroke: { type: 'STRING' } } } },
+                                    svgPaths: { 
+                                        type: 'ARRAY', 
+                                        items: { 
+                                            type: 'OBJECT', 
+                                            properties: { 
+                                                d: { type: 'STRING' }, 
+                                                fill: { type: 'STRING' }, 
+                                                stroke: { type: 'STRING' } 
+                                            } 
+                                        } 
+                                    },
                                     label: { type: 'STRING' },
                                     rotation: { type: 'NUMBER' },
                                     isMirrored: { type: 'BOOLEAN' }
@@ -79,7 +104,6 @@ export const generateVisualOddOneOutFromAI = async (options: GeneratorOptions): 
     };
 
     const schema = { type: 'ARRAY', items: singleSchema };
-    // Fix: Using stable gemini-3-flash for maximum speed and cost efficiency
     return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData[]>;
 };
 

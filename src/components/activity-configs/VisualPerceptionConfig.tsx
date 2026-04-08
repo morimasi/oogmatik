@@ -48,6 +48,37 @@ export const VisualPerceptionConfig: React.FC<{ options: GeneratorOptions; onCha
                     </div>
                 </div>
 
+                <div className="pt-2 border-t border-zinc-100 dark:border-zinc-700 mt-4 pt-4 space-y-4">
+                    <div>
+                        <label className="text-[10px] font-black text-zinc-400 uppercase mb-2 block tracking-widest">Sayfa Yerleşimi</label>
+                        <select
+                            value={options.layout || 'grid_compact'}
+                            onChange={e => onChange('layout', e.target.value)}
+                            className="w-full p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-[10px] font-bold outline-none"
+                        >
+                            <option value="single">Standart (Tekli)</option>
+                            <option value="grid_compact">Kompakt (Grid)</option>
+                            <option value="ultra_full">Ultra Dolu (Max İçerik)</option>
+                            <option value="protocol">Klinik Protokol</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="text-[10px] font-black text-zinc-400 uppercase mb-2 block tracking-widest">Görsel Stil</label>
+                        <div className="flex gap-2">
+                            {['standard', 'premium', 'glassmorphism'].map(style => (
+                                <button
+                                    key={style}
+                                    onClick={() => onChange('aestheticMode', style)}
+                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all border-2 ${options.aestheticMode === style ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 text-zinc-500'}`}
+                                >
+                                    {style}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
                 <div className="pt-2">
                     <label className="flex items-center gap-3 cursor-pointer group">
                         <div className="relative">
