@@ -72,9 +72,6 @@ const SuperStudio = lazy(() =>
 const InfographicStudio = lazy(() =>
   import('./components/InfographicStudio').then((module) => ({ default: module.InfographicStudio }))
 );
-const RemotionStudio = lazy(() =>
-  import('./components/RemotionStudio').then((module) => ({ default: module.RemotionStudio }))
-);
 
 const StudentDashboard = lazy(() =>
   import('./components/Student/StudentDashboard').then((module) => ({
@@ -812,7 +809,6 @@ const AppContent = () => {
             onOpenMathStudio={() => handleOpenStudio('math-studio')}
             onOpenSuperTurkce={() => handleOpenStudio('super-turkce')}
             onOpenInfographicStudio={() => handleOpenStudio('infographic-studio')}
-            onOpenRemotionStudio={() => handleOpenStudio('remotion-studio')}
             onOpenScreening={() => handleOpenStudio('screening')}
             onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
             onOpenMatSinavStudyosu={() => handleOpenStudio('mat-sinav-studyosu')}
@@ -867,7 +863,6 @@ const AppContent = () => {
               'math-studio',
               'super-turkce',
               'infographic-studio',
-              'remotion-studio',
               'ocr',
               'profile',
               'students',
@@ -911,7 +906,6 @@ const AppContent = () => {
                   {currentView === 'infographic-studio' && (
                     <InfographicStudio onBack={handleGoBack} />
                   )}
-                  {currentView === 'remotion-studio' && <RemotionStudio />}
                   {currentView === 'ocr' && (
                     <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
                   )}

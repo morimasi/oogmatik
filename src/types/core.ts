@@ -238,7 +238,6 @@ export type View =
   | 'math-studio'
   | 'super-turkce'
   | 'infographic-studio'
-  | 'remotion-studio'
   | 'sinav-studyosu'
   | 'mat-sinav-studyosu'
   | 'students';
