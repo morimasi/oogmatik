@@ -147,9 +147,9 @@ export const InfographicStudio: React.FC = () => {
         {/* Sağ Panel */}
         <RightPanel
           result={result}
-          onExportWorksheet={handleExportToWorksheet}
-          onExportPDF={handleExportToPDF}
-          onPrint={handlePrint}
+          onExportWorksheet={() => handleExportToWorksheet(result)}
+          onExportPDF={() => handleExportToPDF(result)}
+          onPrint={() => handlePrint(result)}
           onSubmitForApproval={() => {}}
           isGenerating={anyGenerating}
         />
