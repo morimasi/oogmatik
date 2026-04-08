@@ -64,19 +64,65 @@ export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange
                     />
                 </div>
 
-                {/* Zorluk Seviyesi (Renk Karmaşası) */}
-                <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-700">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase">Analiz Derinliği</span>
-                    <div className="flex gap-2">
-                        {['Başlangıç', 'Orta', 'Zor', 'Uzman'].map(lvl => (
-                            <button 
-                                key={lvl}
-                                onClick={() => onChange('difficulty', lvl)}
-                                className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[8px] transition-all border ${options.difficulty === lvl ? 'bg-zinc-900 text-white border-zinc-900 shadow-lg' : 'bg-white border-zinc-100 text-zinc-400'}`}
-                            >
-                                {lvl.substring(0, 1)}
-                            </button>
-                        ))}
+                {/* Gelişmiş Ayarlar */}
+                <div className="pt-4 border-t border-zinc-100 dark:border-zinc-700 space-y-5">
+                    <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest cursor-pointer flex items-center gap-3">
+                            <div className="relative">
+                                <input 
+                                    type="checkbox" 
+                                    checked={options.overlapping !== false} 
+                                    onChange={e => onChange('overlapping', e.target.checked)} 
+                                    className="sr-only" 
+                                />
+                                <div className={`w-10 h-5 rounded-full transition-colors ${options.overlapping !== false ? 'bg-amber-500' : 'bg-zinc-300'}`}></div>
+                                <div className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${options.overlapping !== false ? 'translate-x-5' : ''}`}></div>
+                            </div>
+                            Nesneler Üst Üste Binmeli mi?
+                        </label>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block">Görsel Stil</label>
+                        <div className="flex gap-1.5">
+                            {['standard', 'premium', 'glassmorphism'].map(style => (
+                                <button
+                                    key={style}
+                                    onClick={() => onChange('aestheticMode', style)}
+                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all border-2 ${options.aestheticMode === style ? 'bg-amber-500 border-amber-500 text-white shadow-md' : 'bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 text-zinc-500'}`}
+                                >
+                                    {style}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block">Sayfa Yerleşimi</label>
+                        <select
+                            value={options.layout || 'single'}
+                            onChange={e => onChange('layout', e.target.value)}
+                            className="w-full p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-[10px] font-bold outline-none"
+                        >
+                            <option value="single">Standart (Tam Sayfa)</option>
+                            <option value="grid_2x1">2'li Kompakt (Dikey)</option>
+                            <option value="grid_2x2">4'lü Ultra Kompakt (Matrix)</option>
+                        </select>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2">
+                        <span className="text-[10px] font-black text-zinc-400 uppercase">Analiz Derinliği</span>
+                        <div className="flex gap-2">
+                            {['Başlangıç', 'Orta', 'Zor', 'Uzman'].map(lvl => (
+                                <button 
+                                    key={lvl}
+                                    onClick={() => onChange('difficulty', lvl)}
+                                    className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[8px] transition-all border ${options.difficulty === lvl ? 'bg-zinc-900 text-white border-zinc-900 shadow-lg' : 'bg-white border-zinc-100 text-zinc-400'}`}
+                                >
+                                    {lvl.substring(0, 1)}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

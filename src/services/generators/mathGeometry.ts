@@ -1,34 +1,46 @@
 
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions, ShapeCountingData } from '../../types.js';
-import { PEDAGOGICAL_BASE, IMAGE_GENERATION_GUIDE } from './prompts.js';
+import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE, SHAPE_COUNTING_CORE_GUIDE } from './prompts.js';
 
 export const generateShapeCountingFromAI = async (options: GeneratorOptions): Promise<ShapeCountingData[]> => {
     const {
         difficulty,
-        itemCount = 24,
+        itemCount = 40,
         targetShape = 'triangle',
-        _distractionLevel = 'medium',
-        variant = 'standard' // 'standard' (grid) vs 'mixed' (chaotic)
+        variant = 'mixed',
+        overlapping = true,
+        aestheticMode = 'standard',
+        layout = 'single'
     } = options as any;
 
     const prompt = `
     ${PEDAGOGICAL_BASE}
+    ${CLINICAL_DIAGNOSTIC_GUIDE}
+    ${SHAPE_COUNTING_CORE_GUIDE}
     
-    GÖREV: [GÖRSEL TARAMA & AYRIŞTIRMA ETKİNLİĞİ] - "Hedef ŞEKİLİ Bul"
-    ZORLUK SEVİYESİ: ${difficulty}
-    HEDEF ŞEKİL: ${targetShape} (Öğrenci bu şekli sayacak).
-    TOPLAM NESNE ADEDİ: ${itemCount}
-    YERLEŞİM TİPİ: ${variant === 'mixed' ? 'Kaotik (Chaotic)' : 'Düzenli Izgara (Grid)'}.
-
-    ÜRETİM KURALLARI:
-    1. searchField: ${itemCount} adet nesne üret. Bunların bir kısmı '${targetShape}' olsun, kalanı çeldirici (circle, square, star, hexagon, pentagon) olsun.
-    2. Renk Havuzu: ${difficulty === 'Uzman' ? 'Birbirine yakın tonlar (Pastel)' : 'Keskin zıt renkler'}.
-    3. Koordinat: x (0-95), y (0-95) değerleri arasında nesnelerin çakışmamasına dikkat et.
-    4. Rotasyon: Her nesneye 0-360 arası rastgele açı ver (Özellikle üçgenler için ayırt etmeyi zorlaştırır).
-    5. correctCount: Üretilen '${targetShape}' sayısını KESİN olarak hesapla.
-
-    ÇIKTI: JSON formatında bir dizi döndür.
+    GÖREV: [ULTRA-PROFESYONEL GÖRSEL TARAMA & FİGÜR-ZEMİN ALGISI TESTİ]
+    
+    PARAMETRELER:
+    - Hedef Şekil: ${targetShape} (Öğrenci bu şekli sayacak).
+    - Toplam Nesne Sayısı: ${itemCount}.
+    - Yerleşim Stili: ${variant === 'mixed' ? 'Kaotik/Karmaşık (Chaotic)' : 'Düzenli Izgara (Grid)'}.
+    - Üst Üste Binme (Overlapping): ${overlapping ? 'EVET (Teşvik et, iç içe geçsinler)' : 'HAYIR'}.
+    - Zorluk Seviyesi: ${difficulty}.
+    - Estetik Mod: ${aestheticMode}.
+    - A4 Yerleşim: ${layout}.
+    
+    STRATEJİ:
+    1. [KRİTİK]: Şekillerin birbirinin üzerine binmesine, iç içe geçmesine ve yoğun kümelenmesine izin ver. Bu, figür-zemin ayırt etme becerisini ölçer.
+    2. Hedef şekil olan "${targetShape}" nesnelerini toplam nesne sayısının yaklaşık %25-30'u kadar üret.
+    3. Diğer nesneleri (circle, square, star, hexagon, pentagon, diamond) güçlü çeldiriciler olarak kullan.
+    4. Koordinatlar (x, y) 0-100 arasındadır. Yoğun kümeler oluşturmak için nesneleri birbirine yakın koordinatlara yerleştir.
+    5. Rotasyon (0-360) ve Boyut (0.5 - 1.5) çeşitliliği ile karmaşıklığı artır.
+    
+    ÇIKTI BİLGİSİ:
+    - correctCount: Hedef şeklin tam adedi.
+    - searchField: Nesne listesi (x, y, type, color, rotation, size).
+    - clinicalMeta: { figureGroundComplexity: number (1-10), overlappingRatio: number (0-1) }.
     `;
 
     const schema = {
@@ -46,7 +58,9 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
                         difficulty: { type: 'STRING' },
                         itemCount: { type: 'NUMBER' },
                         targetShape: { type: 'STRING' },
-                        layoutType: { type: 'STRING' }
+                        layout: { type: 'STRING' },
+                        overlapping: { type: 'BOOLEAN' },
+                        aestheticMode: { type: 'STRING' }
                     }
                 },
                 searchField: {
@@ -65,12 +79,17 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
                         required: ['type', 'color', 'x', 'y']
                     }
                 },
-                clues: { type: 'ARRAY', items: { type: 'STRING' } }
+                clinicalMeta: {
+                    type: 'OBJECT',
+                    properties: {
+                        figureGroundComplexity: { type: 'NUMBER' },
+                        overlappingRatio: { type: 'NUMBER' }
+                    }
+                }
             },
             required: ['title', 'instruction', 'searchField', 'correctCount']
         }
     };
 
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
     return await generateWithSchema(prompt, schema);
 };

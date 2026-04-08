@@ -17,13 +17,19 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
   const settings = data?.settings;
   const sections = data?.sections || [];
   const layout = settings?.layout || 'single';
+  const aestheticMode = settings?.aestheticMode || 'standard';
+  const isPremium = aestheticMode === 'premium' || aestheticMode === 'glassmorphism';
 
   const gridCols =
     layout === 'grid_2x1' ? 'grid-cols-2' : layout === 'grid_2x2' ? 'grid-cols-2' : 'grid-cols-1';
   const isSingle = layout === 'single' || !layout;
 
   return (
-    <div className="flex flex-col h-full bg-white font-sans text-black overflow-visible professional-worksheet">
+    <div className={`
+      flex flex-col min-h-full print:min-h-0 font-sans text-black overflow-visible professional-worksheet 
+      p-8 print:p-2 print:p-3
+      ${isPremium ? 'bg-slate-50/30' : 'bg-white'}
+    `}>
       <PedagogicalHeader
         title={data.title || 'FİGÜR-ZEMİN & SEÇİCİ DİKKAT'}
         instruction={
@@ -33,20 +39,23 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
       />
 
       {/* Hedef Hatırlatıcı Panel - Premium */}
-      <div className={`flex justify-center ${isSingle ? 'my-12 print:my-4' : 'my-6 print:my-2'}`}>
-        <div className="bg-zinc-900 text-white px-10 print:px-3 py-4 print:py-1 rounded-[2.5rem] flex items-center gap-8 print:gap-2 print:gap-3 print:p-3 shadow-2xl border-4 border-white ring-8 ring-zinc-50 transform hover:scale-105 transition-transform">
+      <div className={`flex justify-center ${isSingle ? 'my-8 print:my-2' : 'my-4 print:my-1'}`}>
+        <div className={`
+            px-12 print:px-4 py-5 print:py-1 rounded-[3rem] flex items-center gap-10 print:gap-4 shadow-2xl border-4 border-white ring-8 ring-zinc-50/50 transform hover:scale-105 transition-all
+            ${isPremium ? 'bg-zinc-950 text-white' : 'bg-indigo-950 text-white'}
+        `}>
           <div className="flex flex-col">
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-1">
+            <span className="text-[9px] font-black uppercase tracking-[0.5em] text-amber-500 mb-1">
               ARANAN HEDEF
             </span>
-            <span className="text-xl font-black uppercase tracking-tighter">
+            <span className="text-2xl font-black uppercase tracking-tighter">
               {settings?.targetShape || 'ÜÇGEN'}
             </span>
           </div>
-          <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center p-2 border border-white/20">
+          <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center p-3 border border-white/10 backdrop-blur-md">
             <svg
               viewBox="0 0 100 100"
-              className="w-full h-full fill-amber-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.6)]"
+              className="w-full h-full fill-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.8)]"
             >
               <path d={SHAPE_PATHS[settings?.targetShape || 'triangle']} />
             </svg>
@@ -55,42 +64,64 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
       </div>
 
       <div
-        className={`grid ${gridCols} gap-6 print:gap-2 mt-4 print:mt-1 flex-1 content-start items-start pb-10 print:pb-3`}
+        className={`grid ${gridCols} gap-6 print:gap-1 mt-4 print:mt-1 flex-1 content-start items-start pb-10 print:pb-2`}
       >
         {sections.map((section, idx) => (
           <EditableElement
             key={idx}
-            className={`flex flex-col border-2 border-zinc-100 rounded-[3rem] bg-zinc-50/50 group p-6 print:p-2 relative shadow-sm break-inside-avoid hover:border-indigo-200 hover:bg-white transition-all ${isSingle ? 'h-[650px] print:h-[800px]' : ''}`}
+            className={`
+                flex flex-col border-[1.5px] relative break-inside-avoid transition-all duration-300 group
+                ${isPremium 
+                    ? 'bg-white/80 backdrop-blur-sm border-zinc-200 rounded-[3rem] shadow-sm hover:shadow-2xl hover:border-indigo-400' 
+                    : 'bg-zinc-50/50 border-zinc-100 rounded-[2.5rem] hover:bg-white hover:border-zinc-200'}
+                ${isSingle ? 'h-[600px] print:h-[750px] p-8 print:p-2' : 'p-5 print:p-1'}
+            `}
           >
             {/* Bölüm Başlığı */}
-            <div className="absolute -top-3 left-10 px-4 print:px-1 py-1 bg-zinc-900 text-white rounded-xl font-black text-[9px] uppercase tracking-widest z-10 shadow-lg border-2 border-white">
+            <div className={`
+                absolute -top-3 left-10 px-5 print:px-2 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-widest z-10 shadow-lg border-2 border-white
+                ${isPremium ? 'bg-zinc-900 text-white' : 'bg-indigo-600 text-white'}
+            `}>
               {section.title || `GÖRSEL SAHA ${idx + 1}`}
             </div>
 
             {/* Arama Alanı - High Quality */}
             <div
-              className={`relative border-2 border-zinc-200 rounded-[2.5rem] bg-white overflow-hidden mb-6 print:mb-2 shadow-inner ring-4 ring-zinc-50 ${isSingle ? 'flex-1' : 'aspect-video'}`}
+              className={`
+                relative border-2 border-zinc-100 rounded-[2.5rem] bg-white overflow-hidden mb-6 print:mb-2 shadow-inner ring-4 ring-zinc-50/50
+                ${isSingle ? 'flex-1' : 'aspect-square'}
+              `}
             >
               <svg
                 viewBox="0 0 500 500"
                 preserveAspectRatio="xMidYMid meet"
-                overflow="hidden"
                 className="w-full h-full"
               >
-                {section.searchField.map((item: { id: string; type: string; x?: number; y?: number; rotation?: number; size?: number }) => {
+                {/* Arka plan dekoratif doku */}
+                <defs>
+                   <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                     <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f4f4f5" strokeWidth="1"/>
+                   </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+
+                {section.searchField.map((item: any) => {
                   const tx = (item.x ?? 50) * 5;
                   const ty = (item.y ?? 50) * 5;
                   const rot = item.rotation ?? 0;
-                  const rawScale = ((item.size ?? 5) / 10) * 0.8;
-                  const sc = Math.min(1.0, Math.max(0.3, rawScale));
+                  const sc = (item.size ?? 1) * 0.8;
+                  const isTarget = item.type === settings?.targetShape;
+                  
                   return (
                     <g key={item.id} transform={`translate(${tx}, ${ty}) rotate(${rot}) scale(${sc})`}>
                       <path
                         d={SHAPE_PATHS[item.type] ?? SHAPE_PATHS.triangle}
-                        fill={settings?.overlapping ? 'rgba(79, 70, 229, 0.08)' : 'none'}
-                        stroke="black"
-                        strokeWidth={isSingle ? 1.5 : 2}
-                        className="mix-blend-multiply opacity-80"
+                        fill={settings?.overlapping ? 'rgba(79, 70, 229, 0.05)' : 'none'}
+                        stroke={isTarget ? '#18181b' : '#71717a'}
+                        strokeWidth={isTarget ? 2.5 : 1.5}
+                        strokeLinejoin="round"
+                        className="mix-blend-multiply transition-opacity hover:opacity-100"
+                        style={{ opacity: isTarget ? 0.9 : 0.6 }}
                       />
                     </g>
                   );
@@ -99,54 +130,70 @@ export const ShapeCountingSheet = ({ data }: { data: ShapeCountingData }) => {
             </div>
 
             {/* Cevap & Klinik Bilgi */}
-            <div className="flex items-center justify-between px-2 py-4">
-              <div className="flex items-center gap-4 print:gap-1">
-                <span className="text-xs font-black text-zinc-400 uppercase tracking-widest">
-                  Tespit Edilen Adet:
+            <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-5">
+                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">
+                  TESPİT EDİLEN:
                 </span>
-                <div className="w-24 h-16 border-b-4 border-zinc-900 bg-zinc-100 rounded-t-2xl flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
+                <div className={`
+                    w-20 h-14 border-b-4 bg-zinc-50 rounded-t-2xl flex items-center justify-center transition-all
+                    ${isPremium ? 'border-zinc-900 group-hover:bg-zinc-100' : 'border-indigo-600 group-hover:bg-indigo-50'}
+                `}>
                   <EditableText
                     value=""
                     tag="div"
                     placeholder="?"
-                    className="font-black text-4xl text-zinc-900"
+                    className="font-black text-3xl text-zinc-900"
                   />
                 </div>
               </div>
 
               {settings?.showClinicalNotes && section.clinicalMeta && (
-                <div className="text-right flex flex-col items-end">
-                  <span className="text-[7px] font-black uppercase text-indigo-400 tracking-tighter mb-0.5">
-                    F/G İndeksi: {section.clinicalMeta.figureGroundComplexity}
-                  </span>
-                  <span className="text-[7px] font-black uppercase text-indigo-400 tracking-tighter">
-                    İç İçe Geçme: %{Math.round(section.clinicalMeta.overlappingRatio * 100)}
+                <div className="text-right flex flex-col items-end gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[8px] font-black uppercase text-zinc-400 tracking-tighter">KARMAŞIKLIK</span>
+                    <div className="flex gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i} className={`w-1 h-3 rounded-full ${i < (section.clinicalMeta!.figureGroundComplexity / 2) ? 'bg-indigo-500' : 'bg-zinc-200'}`}></div>
+                        ))}
+                    </div>
+                  </div>
+                  <span className="text-[8px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
+                    BİNME ORANI: %{Math.round(section.clinicalMeta.overlappingRatio * 100)}
                   </span>
                 </div>
               )}
             </div>
 
             {/* Hidden Solution */}
-            <div className="absolute bottom-2 right-8 opacity-0 group-hover:opacity-5 transition-opacity rotate-180 text-[7px] font-black select-none pointer-events-none">
-              ÇİS: {section.correctCount}
+            <div className="absolute bottom-3 right-10 opacity-0 group-hover:opacity-10 transition-opacity rotate-180 text-[8px] font-black select-none pointer-events-none text-zinc-900">
+              ADET: {section.correctCount}
             </div>
           </EditableElement>
         ))}
       </div>
 
       {/* Alt Bilgi - Klinik Tracker */}
-      <div className="mt-auto p-6 print:p-2 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-        <div className="flex gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1">
+      <div className={`
+        mt-auto p-6 print:p-2 rounded-t-[3.5rem] border-x-8 border-t-8 border-white flex justify-between items-center shadow-2xl mx-1
+        ${isPremium ? 'bg-zinc-950 text-white' : 'bg-indigo-950 text-white'}
+      `}>
+        <div className="flex gap-12 items-center">
           <div className="flex flex-col">
-            <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">
-              BİLİŞSEL HEDEF
+            <span className="text-[8px] font-black text-amber-500 uppercase tracking-[0.4em] mb-1">
+              KLİNİK PROTOKOL
             </span>
-            <span className="text-xs font-black uppercase">Figür-Zemin & Ketleme</span>
+            <span className="text-sm font-black uppercase tracking-tight">Figür-Zemin & Görsel Ketleme</span>
           </div>
         </div>
-        <div className="flex items-center gap-3 opacity-60">
-          <span className="text-[8px] font-bold tracking-[0.2em]">OKÜLER DİKKAT TESTİ v2.2</span>
-          <i className="fa-solid fa-eye text-indigo-400 text-xs shadow-glow"></i>
+        <div className="flex items-center gap-5">
+           <div className="text-right">
+             <span className="block text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">VİZYON ANALİZİ</span>
+             <span className="text-[10px] font-black tracking-tighter opacity-70 uppercase">Oogmatik Vision Engine v3.5</span>
+           </div>
+          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border ${isPremium ? 'bg-zinc-900 border-zinc-800' : 'bg-indigo-900 border-indigo-800'}`}>
+            <i className="fa-solid fa-crosshairs text-amber-400 text-lg"></i>
+          </div>
         </div>
       </div>
     </div>
