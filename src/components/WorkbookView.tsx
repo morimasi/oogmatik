@@ -1,11 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import {
-  CollectionItem,
-  WorkbookSettings,
-  StyleSettings,
-  ActivityType,
-  StudentProfile,
-} from '../types';
+import { CollectionItem, WorkbookSettings, StyleSettings, ActivityType, StudentProfile } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
 import { printService } from '../utils/printService';
@@ -14,6 +8,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
 import { ActivityImporterModal } from './ActivityImporterModal';
 import { evaluateContent, generateWithSchema } from '../services/geminiClient.js';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface WorkbookViewProps {
   items: CollectionItem[];
@@ -82,15 +77,17 @@ const SortablePageItem = React.memo(
         )}
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate">
+          <p className="text-sm font-black text-zinc-900 dark:text-white truncate tracking-tight">
             {isDivider ? item.dividerConfig?.title : item.title}
           </p>
-          <div className="flex items-center gap-2">
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest bg-zinc-100 dark:bg-zinc-800/50 px-1.5 py-0.5 rounded-md">
               {isDivider ? 'Bölüm Kapağı' : item.activityType}
-            </p>
+            </span>
             {item.overrideStyle && !isDivider && (
-              <span className="text-[8px] bg-amber-100 text-amber-700 px-1 rounded">Özel Stil</span>
+              <span className="text-[9px] font-black bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                <i className="fa-solid fa-wand-magic-sparkles text-[8px]"></i> Özel Stil
+              </span>
             )}
           </div>
         </div>
@@ -449,92 +446,98 @@ KRİTİK KURALLAR:
   };
 
   return (
-    <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-900 relative">
-      {/* Top Toolbar */}
-      <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 shadow-sm shrink-0">
-        <div className="flex items-center gap-4">
+    <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-950 relative font-['Lexend'] selection:bg-indigo-500/30">
+      {/* Top Toolbar - Premium Glassmorphism */}
+      <div className="flex justify-between items-center px-8 py-5 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl border-b border-zinc-200/50 dark:border-zinc-800/50 shadow-sm shrink-0 z-20">
+        <div className="flex items-center gap-6">
           <button
             onClick={onBack}
-            className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors flex items-center gap-2 text-sm font-bold"
+            className="group flex items-center gap-2 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-all duration-300"
           >
-            <i className="fa-solid fa-arrow-left"></i> Geri
+            <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <i className="fa-solid fa-arrow-left text-xs"></i>
+            </div>
+            <span className="text-sm font-bold tracking-tight">Geri Dön</span>
           </button>
-          <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-600"></div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-              <i className="fa-solid fa-book-open-reader text-xl"></i>
+          
+          <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-700 mx-2"></div>
+          
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+              <i className="fa-solid fa-book-open-reader text-2xl"></i>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
+              <h2 className="text-xl font-black text-zinc-900 dark:text-white leading-tight tracking-tight">
                 Çalışma Kitapçığı
               </h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                {items.length} Sayfa • {settings.theme.toUpperCase()} Tema
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[10px] font-black uppercase bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full">
+                  {items.length} Sayfa
+                </span>
+                <span className="text-[10px] font-black uppercase bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 px-2 py-0.5 rounded-full">
+                  {settings.theme} MODU
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex gap-3">
-          <div className="bg-zinc-100 dark:bg-zinc-700 p-1 rounded-lg flex">
+        <div className="flex items-center gap-4">
+          <div className="bg-zinc-100 dark:bg-zinc-800/50 p-1.5 rounded-2xl flex relative">
             <button
               onClick={() => setViewMode('edit')}
-              className={`px-4 py-2 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${viewMode === 'edit' ? 'bg-white dark:bg-zinc-600 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'}`}
+              className={`relative px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 z-10 ${viewMode === 'edit' ? 'text-indigo-600 dark:text-white' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'}`}
             >
               <i className="fa-solid fa-pen-ruler"></i> Düzenle
+              {viewMode === 'edit' && (
+                <motion.div layoutId="pill" className="absolute inset-0 bg-white dark:bg-indigo-600 rounded-xl shadow-md -z-10" />
+              )}
             </button>
             <button
               onClick={() => setViewMode('preview')}
-              className={`px-4 py-2 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${viewMode === 'preview' ? 'bg-white dark:bg-zinc-600 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800'}`}
+              className={`relative px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 z-10 ${viewMode === 'preview' ? 'text-indigo-600 dark:text-white' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'}`}
             >
               <i className="fa-solid fa-eye"></i> Önizle
+              {viewMode === 'preview' && (
+                <motion.div layoutId="pill" className="absolute inset-0 bg-white dark:bg-indigo-600 rounded-xl shadow-md -z-10" />
+              )}
             </button>
           </div>
-          {viewMode === 'preview' && (
-            <>
-              <button
-                onClick={() => handleAction('download')}
-                disabled={isPrinting}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
-              >
-                {isPrinting ? (
-                  <i className="fa-solid fa-circle-notch fa-spin"></i>
-                ) : (
-                  <i className="fa-solid fa-file-pdf"></i>
-                )}
-                PDF İndir
-              </button>
-              <button
-                onClick={() => handleAction('print')}
-                disabled={isPrinting}
-                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-900 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
-              >
-                <i className="fa-solid fa-print"></i> Yazdır
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSaving ? (
-                  <i className="fa-solid fa-spinner fa-spin"></i>
-                ) : (
-                  <i className="fa-solid fa-save"></i>
-                )}
-                Kaydet
-              </button>
-            </>
-          )}
+
+          <div className="flex items-center gap-2 ml-2">
+            <button
+              onClick={() => handleAction('download')}
+              disabled={isPrinting}
+              className="px-5 py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 font-bold rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-500 transition-all flex items-center gap-2 active:scale-95"
+            >
+              <i className="fa-solid fa-download text-indigo-500"></i> PDF
+            </button>
+            <button
+              onClick={() => handleAction('print')}
+              disabled={isPrinting}
+              className="px-5 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-2xl shadow-lg hover:shadow-indigo-500/20 transition-all flex items-center gap-2 active:scale-95"
+            >
+              <i className="fa-solid fa-print"></i> Yazdır
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 flex items-center gap-2 transition-all active:scale-95"
+            >
+              {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
+              Kaydet
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Main Content Area */}
       {viewMode === 'edit' ? (
         <div className="flex flex-1 overflow-hidden">
-          {/* Left Sidebar: Controls */}
-          <div className="w-80 md:w-96 bg-white dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700 flex flex-col z-10 shrink-0">
+          {/* Left Sidebar: Controls - Dark Glassmorphism */}
+          <div className="w-80 md:w-96 bg-white dark:bg-zinc-900/50 backdrop-blur-xl border-r border-zinc-200 dark:border-white/5 flex flex-col z-10 shrink-0">
             {/* Tabs */}
-            <div className="flex border-b border-zinc-200 dark:border-zinc-700">
+            <div className="flex border-b border-zinc-200 dark:border-white/5 p-2 gap-1 bg-zinc-50/50 dark:bg-black/20">
               {[
                 { id: 'content', icon: 'fa-layer-group', label: 'İçerik' },
                 { id: 'design', icon: 'fa-paintbrush', label: 'Tasarım' },
@@ -543,9 +546,10 @@ KRİTİK KURALLAR:
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex-1 py-4 text-xs font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${activeTab === tab.id ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700/50'}`}
+                  className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex flex-col items-center justify-center gap-1.5 ${activeTab === tab.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-zinc-500 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 opacity-70 hover:opacity-100'}`}
                 >
-                  <i className={`fa-solid ${tab.icon}`}></i> {tab.label}
+                  <i className={`fa-solid ${tab.icon} text-sm`}></i>
+                  {tab.label}
                 </button>
               ))}
             </div>
@@ -553,10 +557,13 @@ KRİTİK KURALLAR:
             {/* Tab Content */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
               {activeTab === 'assign' && (
-                <div className="space-y-6 animate-in fade-in">
-                  <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30">
-                    <h4 className="text-xs font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                      <i className="fa-solid fa-user-plus"></i> Öğrenci Atama
+                <div className="space-y-6 animate-in fade-in duration-500">
+                  <div className="p-5 bg-gradient-to-br from-indigo-50/50 to-white dark:from-indigo-950/20 dark:to-zinc-900 rounded-[2rem] border border-indigo-100/50 dark:border-indigo-500/20 shadow-xl shadow-indigo-500/5">
+                    <h4 className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                        <i className="fa-solid fa-user-plus text-[10px]"></i>
+                      </div>
+                      Öğrenci Atama
                     </h4>
                     <select
                       value={
@@ -564,7 +571,7 @@ KRİTİK KURALLAR:
                         'anonymous'
                       }
                       onChange={(e: any) => handleStudentAssign(e.target.value)}
-                      className="w-full p-3 bg-white dark:bg-zinc-800 border border-amber-200 dark:border-amber-700 rounded-xl text-sm font-bold outline-none focus:ring-2 ring-amber-500/20"
+                      className="w-full p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl text-sm font-bold outline-none focus:ring-4 ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
                     >
                       <option value="anonymous">Misafir / Atanmamış</option>
                       {students.map((s: any) => (
@@ -573,8 +580,8 @@ KRİTİK KURALLAR:
                         </option>
                       ))}
                     </select>
-                    <p className="text-[10px] text-amber-500 mt-2 italic font-medium leading-tight">
-                      * Bir öğrenci seçtiğinizde kapak ve sayfa künyeleri otomatik güncellenir.
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-4 italic font-medium leading-relaxed opacity-80 backdrop-blur-sm">
+                      * Bir öğrenci seçtiğinizde kapak ve sayfa künyeleri otomatik olarak kişiselleştirilir.
                     </p>
                   </div>
                 </div>
@@ -582,9 +589,9 @@ KRİTİK KURALLAR:
 
               {activeTab === 'content' && (
                 <>
-                  <div className="space-y-4">
+                  <div className="space-y-6 bg-zinc-50/50 dark:bg-black/10 p-5 rounded-[2rem] border border-zinc-200/50 dark:border-white/5">
                     <div>
-                      <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">
+                      <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-3 px-1">
                         Kitapçık Başlığı
                       </label>
                       <input
@@ -593,7 +600,7 @@ KRİTİK KURALLAR:
                         onChange={(e: any) =>
                           setSettings((s: any) => ({ ...s, title: e.target.value }))
                         }
-                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                        className="w-full p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all"
                         placeholder="Örn: Tatil Kitabım"
                       />
                     </div>
@@ -785,33 +792,36 @@ KRİTİK KURALLAR:
                     )}
 
                     <div
-                      className={`grid grid-cols-2 gap-3 ${settings.isAiGeneratedCover ? 'opacity-50 pointer-events-none' : ''}`}
+                      className={`grid grid-cols-2 gap-3 pb-4 ${settings.isAiGeneratedCover ? 'opacity-50 pointer-events-none' : ''}`}
                     >
                       {[
-                        { id: 'modern', icon: 'fa-clapperboard' },
-                        { id: 'classic', icon: 'fa-monument' },
-                        { id: 'minimal', icon: 'fa-leaf' },
-                        { id: 'academic', icon: 'fa-graduation-cap' },
-                        { id: 'artistic', icon: 'fa-palette' },
-                        { id: 'space', icon: 'fa-shuttle-space' },
-                        { id: 'nature', icon: 'fa-tree' },
-                        { id: 'cyber', icon: 'fa-microchip' },
-                        { id: 'luxury', icon: 'fa-gem' },
-                        { id: 'playful', icon: 'fa-child-reaching' },
+                        { id: 'modern', icon: 'fa-clapperboard', label: 'Modern' },
+                        { id: 'classic', icon: 'fa-monument', label: 'Klasik' },
+                        { id: 'minimal', icon: 'fa-leaf', label: 'Minimalist' },
+                        { id: 'academic', icon: 'fa-graduation-cap', label: 'Akademik' },
+                        { id: 'artistic', icon: 'fa-palette', label: 'Sanatsal' },
+                        { id: 'space', icon: 'fa-shuttle-space', label: 'Uzay' },
+                        { id: 'nature', icon: 'fa-tree', label: 'Doğa' },
+                        { id: 'cyber', icon: 'fa-microchip', label: 'Cyberpunk' },
+                        { id: 'luxury', icon: 'fa-gem', label: 'Premium' },
+                        { id: 'playful', icon: 'fa-child-reaching', label: 'Eğlenceli' },
                       ].map((t) => (
                         <button
                           key={t.id}
                           onClick={() =>
                             setSettings((s: WorkbookSettings) => ({ ...s, theme: t.id as any }))
                           }
-                          className={`p-3 rounded-xl border-2 text-sm font-bold capitalize transition-all text-left flex items-center gap-3 ${settings.theme === t.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 shadow-md' : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-700 text-zinc-600 hover:border-zinc-300'}`}
+                          className={`group p-4 rounded-2xl border-2 transition-all text-left flex flex-col gap-3 relative overflow-hidden ${settings.theme === t.id ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-300 shadow-xl' : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 hover:border-indigo-300 dark:hover:border-indigo-800'}`}
                         >
                           <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center ${settings.theme === t.id ? 'bg-indigo-600 text-white' : 'bg-zinc-100 dark:bg-zinc-600 text-zinc-400'}`}
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${settings.theme === t.id ? 'bg-indigo-600 text-white rotate-6' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 group-hover:rotate-6'}`}
                           >
-                            <i className={`fa-solid ${t.icon} text-xs`}></i>
+                            <i className={`fa-solid ${t.icon} text-sm`}></i>
                           </div>
-                          {t.id}
+                          <span className="text-[10px] font-black uppercase tracking-widest">{t.label}</span>
+                          {settings.theme === t.id && (
+                            <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></div>
+                          )}
                         </button>
                       ))}
                     </div>
