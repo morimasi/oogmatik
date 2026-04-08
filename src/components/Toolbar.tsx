@@ -2,10 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSettings, WorksheetData } from '../types';
-import { usePaperSizeStore } from '../store/usePaperSizeStore';
-import { printService, PaperSize } from '../utils/printService';
+import { printService } from '../utils/printService';
 import { snapshotService, _SnapshotAction } from '../utils/snapshotService';
-import { PremiumPaperSizeSelector } from './PremiumPaperSizeSelector';
 import { ExportProgressModal } from './ExportProgressModal';
 import { useA4EditorStore } from '../store/useA4EditorStore';
 import { useToastStore } from '../store/useToastStore';
@@ -69,23 +67,6 @@ const IconButton = ({
     )}
   </button>
 );
-
-// Paper size for print (A4, Letter, Legal) - default A4
-const _PaperSizeSelector = () => {
-  const { paperSize, setPaperSize } = usePaperSizeStore();
-  return (
-    <select
-      value={paperSize}
-      onChange={(e) => setPaperSize(e.target.value as PaperSize)}
-      className="ml-2 p-1 rounded bg-white border border-zinc-200 text-xs"
-      aria-label="Kağıt Boyutu"
-    >
-      <option value="A4">A4</option>
-      <option value="Letter">Letter</option>
-      <option value="Legal">Legal</option>
-    </select>
-  );
-};
 
 const MenuButton = ({ icon, label, onClick, active, isOpen }: any) => (
   <button
@@ -212,11 +193,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const [snapshotMenuOpen, setSnapshotMenuOpen] = useState(false);
   const [exportProgress, setExportProgress] = useState({ open: false, percent: 0, message: '' });
   const snapshotMenuRef = useRef<HTMLDivElement>(null);
-  const paperSizeStore = usePaperSizeStore();
   const toast = useToastStore();
-  const paperSize = paperSizeStore.paperSize;
-  const _setPaperSize = paperSizeStore.setPaperSize;
   const { isEditorOpen, setEditorOpen } = useA4EditorStore();
+
+  const isLandscape = settings.orientation === 'landscape';
 
   // Snapshot dropdown dışarı tıklanınca kapat
   useEffect(() => {
@@ -374,39 +354,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           />
           {activeMenu === 'layout' && (
             <DropdownPanel
-              title="Mizanpaj ve Kağıt Ayarları"
+              title="Mizanpaj Ayarları"
               onClose={() => setActiveMenu(null)}
               className="w-80"
             >
               <div className="space-y-4">
-                <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
-                  <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-3 block">
-                    <i className="fa-solid fa-scroll mr-1"></i> Kağıt Yönlendirmesi
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => updateSetting('orientation', 'portrait')}
-                      className={`flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all ${settings.orientation !== 'landscape'
-                          ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--text-primary)] shadow-sm'
-                          : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-secondary)] hover:bg-[var(--bg-paper)]'
-                        }`}
-                    >
-                      <i className="fa-solid fa-file-lines text-xl mb-1"></i>
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Dikey</span>
-                    </button>
-                    <button
-                      onClick={() => updateSetting('orientation', 'landscape')}
-                      className={`flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all ${settings.orientation === 'landscape'
-                          ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--text-primary)] shadow-sm'
-                          : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-secondary)] hover:bg-[var(--bg-paper)]'
-                        }`}
-                    >
-                      <i className="fa-solid fa-file-lines text-xl mb-1 rotate-90 transform origin-center"></i>
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Yatay</span>
-                    </button>
-                  </div>
-                </div>
-
                 <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
                   <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
                     <i className="fa-solid fa-grip-vertical mr-1"></i> İçerik Yapısı
@@ -539,6 +491,27 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
       {/* ═══════ PREMIUM AKSİYON ÇUBUĞU ═══════ */}
       <div className="flex items-center gap-2">
+        {/* Yönlendirme Geçiş Düğmesi — Ana Özellik */}
+        <button
+          title={isLandscape ? 'Dikey sayfaya geç (A4 Portrait)' : 'Yatay sayfaya geç (A4 Landscape)'}
+          onClick={() => updateSetting('orientation', isLandscape ? 'portrait' : 'landscape')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold transition-all duration-300 border-2 shadow-md
+            ${isLandscape
+              ? 'bg-gradient-to-r from-teal-500/20 to-cyan-500/20 border-teal-500/40 text-teal-400 hover:from-teal-500/30 hover:to-cyan-500/30'
+              : 'bg-gradient-to-r from-violet-500/10 to-indigo-500/10 border-[var(--border-color)] text-[var(--text-secondary)] hover:from-violet-500/20 hover:to-indigo-500/20 hover:text-[var(--text-primary)] hover:border-violet-500/30'
+            } hover:shadow-lg hover:scale-[1.02] active:scale-95`}
+        >
+          <span className={`relative transition-transform duration-300 ${isLandscape ? 'rotate-90' : 'rotate-0'}`}>
+            <i className="fa-solid fa-file-lines text-sm"></i>
+          </span>
+          <span className="tracking-wider uppercase">
+            {isLandscape ? 'Yatay' : 'Dikey'}
+          </span>
+          <i className={`fa-solid fa-rotate text-[9px] opacity-60`}></i>
+        </button>
+
+        <Divider />
+
         {/* Dışa Aktarma Grubu */}
         <div className="flex items-center bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl p-1 gap-0.5 shadow-lg backdrop-blur-sm">
           <button
@@ -551,7 +524,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   : '.worksheet-page';
                 await printService.generatePdf(targetSelector, settings.title, {
                   action: 'download',
-                  paperSize: paperSize,
+                  paperSize: 'A4',
+                  orientation: settings.orientation || 'portrait',
                   onProgress: (percent, message) => {
                     setExportProgress({ open: true, percent, message });
                   },
@@ -582,7 +556,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   : '.worksheet-page';
                 await printService.generatePdf(targetSelector, settings.title, {
                   action: 'print',
-                  paperSize: paperSize,
+                  paperSize: 'A4',
+                  orientation: settings.orientation || 'portrait',
                 });
               } catch (e) {
                 console.error(e);
@@ -644,11 +619,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </div>
             )}
           </div>
-          {/* Kağıt Boyutu */}
-          <PremiumPaperSizeSelector
-            value={paperSize}
-            onChange={(p: PaperSize) => paperSizeStore.setPaperSize(p)}
-          />
         </div>
 
         {/* Kaydetme & Paylaşma Grubu */}

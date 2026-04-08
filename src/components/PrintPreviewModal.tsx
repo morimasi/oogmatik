@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { printService } from '../utils/printService';
 import { snapshotService } from '../utils/snapshotService';
 import { WorksheetData, StyleSettings } from '../types';
-import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { ExportProgressModal } from './ExportProgressModal';
 
 interface PrintPreviewModalProps {
@@ -15,13 +14,14 @@ interface PrintPreviewModalProps {
     settings?: StyleSettings;
 }
 
-export const PrintPreviewModal = ({ isOpen, onClose, _worksheetData, title, _settings }: PrintPreviewModalProps) => {
+export const PrintPreviewModal = ({ isOpen, onClose, _worksheetData, title, settings }: PrintPreviewModalProps) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [exportProgress, setExportProgress] = useState({ open: false, percent: 0, message: '' });
     const previewContainerRef = useRef<HTMLDivElement>(null);
-    const { paperSize, setPaperSize } = usePaperSizeStore();
+    const orientation = settings?.orientation || 'portrait';
+    const isLandscape = orientation === 'landscape';
 
     useEffect(() => {
         if (isOpen) {
@@ -46,12 +46,14 @@ export const PrintPreviewModal = ({ isOpen, onClose, _worksheetData, title, _set
             if (action === 'print') {
                 await printService.generatePdf(targetSelector, title, {
                     action: 'print',
-                    paperSize: paperSize,
+                    paperSize: 'A4',
+                    orientation,
                 });
             } else if (action === 'pdf') {
                 setExportProgress({ open: true, percent: 0, message: 'PDF Hazırlanıyor...' });
                 await printService.generateRealPdf(targetSelector, title, {
-                    paperSize: paperSize,
+                    paperSize: 'A4',
+                    orientation,
                     quality: 'print',
                     onProgress: (percent, msg) => setExportProgress({ open: true, percent, message: msg })
                 });
@@ -96,20 +98,17 @@ export const PrintPreviewModal = ({ isOpen, onClose, _worksheetData, title, _set
                         <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
 
                             <div className="space-y-3">
-                                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider block">Kağıt Boyutu</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {(['A4', 'Letter', 'Legal'] as const).map(p => (
-                                        <button
-                                            key={p}
-                                            onClick={() => setPaperSize(p)}
-                                            className={`py-2 px-3 rounded-lg border text-sm font-semibold transition-all ${paperSize === p
-                                                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-500/10 dark:border-indigo-500/30 dark:text-indigo-300 shadow-sm'
-                                                    : 'bg-white border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:bg-zinc-800/80 dark:border-zinc-700 dark:text-zinc-300'
-                                                }`}
-                                        >
-                                            {p}
-                                        </button>
-                                    ))}
+                                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider block">Sayfa Yönlendirmesi</label>
+                                <div className={`flex items-center gap-3 p-4 rounded-xl border-2 ${isLandscape ? 'bg-teal-50 border-teal-200 dark:bg-teal-900/20 dark:border-teal-800' : 'bg-violet-50 border-violet-200 dark:bg-violet-900/20 dark:border-violet-800'}`}>
+                                    <i className={`fa-solid fa-file-lines text-2xl ${isLandscape ? 'rotate-90 text-teal-500' : 'text-violet-500'}`}></i>
+                                    <div>
+                                        <p className={`text-sm font-black ${isLandscape ? 'text-teal-700 dark:text-teal-300' : 'text-violet-700 dark:text-violet-300'}`}>
+                                            {isLandscape ? 'Yatay (Landscape)' : 'Dikey (Portrait)'}
+                                        </p>
+                                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                                            {isLandscape ? '297 × 210 mm' : '210 × 297 mm'}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 

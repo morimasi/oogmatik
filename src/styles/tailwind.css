@@ -107,7 +107,7 @@
       overflow: visible !important;
     }
 
-    /* Print Dialog Margin/Size */
+    /* Print Dialog Margin/Size — varsayılan dikey */
     @page {
       size: A4 portrait;
       margin: 0mm;
@@ -126,15 +126,13 @@
       display: none !important;
     }
 
-    /* Sayfa Bazlı Çalışma Kağıdı Container'ı */
+    /* Sayfa Bazlı Çalışma Kağıdı Container'ı — Dikey */
     .worksheet-page,
     .print-page {
       width: 210mm !important;
       min-height: 297mm !important;
       max-height: 297mm !important;
       margin: 0 auto !important;
-      padding: 15mm 10mm !important;
-      /* Standart A4 iç marj */
       page-break-after: always !important;
       /* Her worksheet divinden sonra yazıcı kağıdı yenilesin */
       break-after: page !important;
@@ -143,6 +141,14 @@
       overflow: hidden !important;
       /* Taşmaları engellemek için */
       background-color: white !important;
+    }
+
+    /* Yatay (Landscape) sayfalar */
+    .worksheet-page.landscape,
+    .print-page.landscape {
+      width: 297mm !important;
+      min-height: 210mm !important;
+      max-height: 210mm !important;
     }
 
     /* Son sayfanın altına ekstra boş sayfa çıkmasını engelleme */

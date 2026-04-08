@@ -378,7 +378,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                               m.printService.generatePdf(
                                 targetSelector,
                                 activeWorksheetTitle || 'Etkinlik',
-                                { action: 'print', paperSize: 'A4' }
+                                { action: 'print', paperSize: 'A4', orientation: styleSettings?.orientation || 'portrait' }
                               )
                             );
                           }}

@@ -915,6 +915,10 @@ const UnifiedContentRenderer = ({
           color: 'black',
           colorScheme: 'light' as any,
           padding: settings?.margin ? `${settings.margin}mm` : '15mm',
+          width: isLandscape ? '297mm' : '210mm',
+          minHeight: isLandscape ? '210mm' : '297mm',
+          maxHeight: isLandscape ? '210mm' : '297mm',
+          boxSizing: 'border-box',
         }}
       >
         {/* Ekranda Sayfa Numarası (Print'te gizli) */}

@@ -105,6 +105,8 @@ export interface PrintOptions {
   columnsPerPage?: 1 | 2;
   fontSize?: 10 | 11 | 12;
   paperSize?: PaperSize;
+  /** Sayfa yönlendirmesi: 'portrait' | 'landscape' */
+  orientation?: 'portrait' | 'landscape';
   /** html2canvas capture modu: true = her sayfayı canvas olarak yakala (varsayılan: true) */
   useCapture?: boolean;
   /** PDF kalitesi */
@@ -859,6 +861,7 @@ export const printService = {
         // GERÇEK PDF ÜRETİMİ — jsPDF ile tek dosya
         await printService.generateRealPdf(elementSelector, title, {
           paperSize,
+          orientation: options?.orientation,
           quality: options?.quality || 'high',
           onProgress: options?.onProgress,
         });
@@ -888,6 +891,7 @@ export const printService = {
     title: string = 'Oogmatik_Etkinlik',
     options?: {
       paperSize?: PaperSize;
+      orientation?: 'portrait' | 'landscape';
       quality?: PdfQuality;
       onProgress?: (percent: number, message: string) => void;
     }
@@ -905,10 +909,10 @@ export const printService = {
       };
       const captureScale = SCALE_MAP[quality];
 
-      // Kağıt boyutları (mm)
+      // Kağıt boyutları (mm) — yönlendirmeye göre boyutları belirle
       const dims = PAPER_DIMENSIONS[paperSize];
-      const pageW = parseFloat(dims.width);
-      const pageH = parseFloat(dims.height);
+      const baseW = parseFloat(dims.width);
+      const baseH = parseFloat(dims.height);
 
       onProgress?.(5, 'Sayfalar taranıyor...');
 
@@ -976,9 +980,17 @@ export const printService = {
         import('jspdf'),
       ]);
 
+      // Yönlendirme: options'tan al, yoksa DOM'dan tespit et
+      const isLandscape =
+        options?.orientation === 'landscape' ||
+        (options?.orientation === undefined && pages[0]?.classList.contains('landscape'));
+      const pageW = isLandscape ? baseH : baseW;
+      const pageH = isLandscape ? baseW : baseH;
+      const pdfOrientation: 'portrait' | 'landscape' = isLandscape ? 'landscape' : 'portrait';
+
       // PDF oluştur
       const pdf = new jsPDF({
-        orientation: 'portrait',
+        orientation: pdfOrientation,
         unit: 'mm',
         format: [pageW, pageH],
         compress: true,
@@ -1047,7 +1059,7 @@ export const printService = {
 
           // İlk sayfa zaten oluşturuldu, sonrakiler için yeni sayfa ekle
           if (i > 0) {
-            pdf.addPage([pageW, pageH], 'portrait');
+            pdf.addPage([pageW, pageH], pdfOrientation);
           }
 
           // Görüntüyü tam sayfa olarak ekle

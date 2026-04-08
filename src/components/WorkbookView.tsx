@@ -295,6 +295,8 @@ export const WorkbookView = ({
       await new Promise((resolve) => setTimeout(resolve, 50));
       await printService.generatePdf('.workbook-container', settings.title || 'Kitapcik', {
         action,
+        paperSize: 'A4',
+        orientation: settings.orientation || 'portrait',
       });
     } catch (error) {
       console.error('Kitapçık oluşturma hatası:', error);
