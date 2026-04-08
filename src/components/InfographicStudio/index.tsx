@@ -3,9 +3,11 @@ import { LeftPanel } from './panels/LeftPanel';
 import { CenterPanel } from './panels/CenterPanel';
 import { RightPanel } from './panels/RightPanel';
 import { ParameterPanelState } from './panels/LeftPanel/ParameterPanel';
+import { ActivityParamsState } from './panels/LeftPanel/UltraActivityParamsPanel';
 import { useInfographicStudio } from './hooks/useInfographicStudio';
 import { useInfographicGenerate } from './hooks/useInfographicGenerate';
 import { useInfographicExport } from './hooks/useInfographicExport';
+import { useUltraGenerate } from './hooks/useUltraGenerate';
 import { PremiumEditToolbar } from './Toolbar/PremiumEditToolbar';
 import { useInfographicLayoutStore } from '../../store/useInfographicLayoutStore';
 import { useDebouncedLayoutUpdate } from '../../hooks/useDebouncedLayoutUpdate';
@@ -27,8 +29,16 @@ export const InfographicStudio: React.FC = () => {
     handleModeChange,
   } = useInfographicStudio();
 
+  // Bileşik (composite) üretim
   const { isGenerating, result, generate, enrichPrompt } = useInfographicGenerate();
   const { handleExportToWorksheet, handleExportToPDF, handlePrint } = useInfographicExport();
+
+  // Tek aktivite ultra üretim
+  const {
+    isGenerating: isUltraGenerating,
+    result: ultraResult,
+    generate: ultraGenerate,
+  } = useUltraGenerate();
 
   const { layoutConfig } = useInfographicLayoutStore();
   const debouncedConfig = useDebouncedLayoutUpdate(layoutConfig, 300);
@@ -45,8 +55,6 @@ export const InfographicStudio: React.FC = () => {
 
   const onAddWidget = (activityId: string) => {
     setAddedWidgets((prev) => [...prev, { id: Date.now().toString(), activityId }]);
-
-    // Konu/Prompt metnine otomatik ekleme yap
     setParams((prev) => ({
       ...prev,
       topic: prev.topic
@@ -76,6 +84,14 @@ export const InfographicStudio: React.FC = () => {
     }
   };
 
+  // Tek aktivite: seçili aktivite + ultra params ile direkt üret
+  const onUltraGenerate = (activityParams: ActivityParamsState) => {
+    if (!selectedActivity) return;
+    ultraGenerate(selectedActivity, mode, params, activityParams);
+  };
+
+  const anyGenerating = isGenerating || isUltraGenerating;
+
   return (
     <div className="flex flex-col h-full w-full bg-[#0B1120] text-slate-200 overflow-hidden font-inter">
       {/* Üst Header */}
@@ -84,7 +100,7 @@ export const InfographicStudio: React.FC = () => {
           <h1 className="text-xl font-bold bg-gradient-to-r from-accent to-accent/70 bg-clip-text text-transparent">
             Premium Worksheet Studio{' '}
             <span className="text-xs text-white/50 font-normal ml-2 tracking-widest uppercase">
-              Composite Generator
+              Ultra Generator
             </span>
           </h1>
         </div>
@@ -94,7 +110,7 @@ export const InfographicStudio: React.FC = () => {
 
       {/* 3 Panelli İçerik Alanı */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sol Panel: Kategoriler, Aktiviteler, Parametreler */}
+        {/* Sol Panel */}
         <LeftPanel
           selectedCategory={selectedCategory}
           selectedActivity={selectedActivity}
@@ -106,18 +122,38 @@ export const InfographicStudio: React.FC = () => {
           onParamsChange={setParams}
           isClinicalMode={isAnonymousMode}
           onGenerate={onGenerate}
-          isGenerating={isGenerating}
+          onUltraGenerate={onUltraGenerate}
+          isGenerating={anyGenerating}
           addedWidgets={addedWidgets}
           onAddWidget={onAddWidget}
           onRemoveWidget={onRemoveWidget}
           onEnrichPrompt={handleEnrichPrompt}
         />
 
-        {/* Orta Panel: Önizleme Alanı */}
-        <CenterPanel result={result} isGenerating={isGenerating} layoutEngine={layoutEngine} />
+        {/* Orta Panel: composite veya single-activity sonucu */}
+        <CenterPanel
+          result={result}
+          ultraResult={ultraResult}
+          isGenerating={anyGenerating}
+          isUltraGenerating={isUltraGenerating}
+          layoutEngine={layoutEngine}
+          selectedActivityTitle={
+            selectedActivity
+              ? selectedActivity.replace(/INFOGRAPHIC_/g, '').replace(/_/g, ' ').toLowerCase()
+              : undefined
+          }
+        />
+
+        {/* Sağ Panel */}
+        <RightPanel
+          result={result}
+          onExportWorksheet={() => handleExportToWorksheet(result)}
+          onExportPDF={() => handleExportToPDF(result)}
+          onPrint={() => handlePrint(result)}
+          onSubmitForApproval={() => {}}
+          isGenerating={anyGenerating}
+        />
       </div>
     </div>
   );
 };
-
-export default InfographicStudio;
