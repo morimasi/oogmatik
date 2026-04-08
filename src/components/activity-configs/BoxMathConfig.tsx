@@ -98,6 +98,41 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
           ))}
         </div>
       </div>
+
+      {/* Punto Ayarı */}
+      <div className="p-4 bg-zinc-50 rounded-[2rem] border border-zinc-200 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-violet-500 text-white flex items-center justify-center text-xs shadow-lg">
+            <i className="fa-solid fa-text-height"></i>
+          </div>
+          <div>
+            <h4 className="text-xs font-black text-zinc-800 uppercase">Punto (Yazı Boyutu)</h4>
+            <p className="text-[9px] font-bold text-zinc-400 leading-none">
+              Kutu ve ifade büyüklüğünü ayarla
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { id: 'small',  label: 'Küçük', icon: 'fa-font',       desc: 'Kompakt' },
+            { id: 'medium', label: 'Orta',  icon: 'fa-font',       desc: 'Standart' },
+            { id: 'large',  label: 'Büyük', icon: 'fa-font',       desc: 'Geniş Kutu' },
+          ].map((v) => (
+            <button
+              key={v.id}
+              onClick={() => onChange('fontSizePreference', v.id as any)}
+              className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all ${(options.fontSizePreference ?? 'medium') === v.id ? 'border-violet-500 bg-violet-50 text-violet-600 shadow-sm' : 'border-zinc-100 bg-white text-zinc-400 hover:border-zinc-200'}`}
+            >
+              <i className={`fa-solid ${v.icon} ${v.id === 'small' ? 'text-sm' : v.id === 'large' ? 'text-xl' : 'text-base'}`}></i>
+              <div className="text-center">
+                <p className="text-[10px] font-black uppercase leading-none">{v.label}</p>
+                <p className="text-[8px] font-bold opacity-60 mt-0.5">{v.desc}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

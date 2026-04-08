@@ -469,5 +469,6 @@ export interface BoxMathProblem {
 export interface BoxMathData extends BaseActivityData {
   mode: 'reverse' | 'substitution' | 'simplification';
   problems: BoxMathProblem[];
+  fontSizePreference?: 'small' | 'medium' | 'large';
 }
 

@@ -5,7 +5,7 @@ import { getRandomInt } from './helpers';
  * Kutularla Matematik (Ters İşlem & Yerine Koyma) Yerel Üretici
  */
 export const generateOfflineBoxMath = async (options: GeneratorOptions): Promise<BoxMathData[]> => {
-  const { worksheetCount = 1, difficulty = 'Orta', itemCount = 10, variant = 'reverse' } = options;
+  const { worksheetCount = 1, difficulty = 'Orta', itemCount = 10, variant = 'reverse', fontSizePreference = 'medium' } = options;
   const pages: BoxMathData[] = [];
 
   const getRanges = () => {
@@ -113,6 +113,7 @@ export const generateOfflineBoxMath = async (options: GeneratorOptions): Promise
       pedagogicalNote: 'Cebirsel düşünme, işlem önceliği ve değişken kavramını pekiştirir.',
       mode: variant as any,
       problems,
+      fontSizePreference: fontSizePreference as 'small' | 'medium' | 'large',
     });
   }
 
