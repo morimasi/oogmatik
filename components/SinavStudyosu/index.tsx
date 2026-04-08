@@ -153,6 +153,8 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
     const ff = printConfig.fontFamily === 'times' ? 'Times New Roman, serif' : 'Lexend, Inter, sans-serif';
     const mg = printConfig.marginMm;
     const qs = printConfig.questionSpacingMm;
+    const lh = printConfig.lineHeight;
+    const ta = printConfig.textAlign;
 
     const html = `<!DOCTYPE html>
 <html>
@@ -168,28 +170,31 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
     color: #111;
     background: #fff;
     margin: ${mg}mm;
+    text-align: ${ta};
+    line-height: ${lh};
   }
   h1 { font-size: ${fs + 4}pt; font-weight: 800; color: #3730a3; margin-bottom: 4pt; }
   .meta { font-size: ${fs - 2}pt; color: #555; margin-bottom: 8pt; }
-  .student-row { border-bottom: 1px solid #ccc; padding-bottom: 4pt; margin-bottom: 10pt; font-size: ${fs - 1}pt; color: #444; }
-  .soru-wrap { margin-bottom: ${qs}mm; break-inside: avoid; }
+  .student-row { border-bottom: 1px solid #ccc; padding-bottom: 4pt; margin-bottom: 15pt; font-size: ${fs - 1}pt; color: #444; column-span: all; }
+  .sorula-kapsayici { ${printConfig.columns === 2 ? `column-count: 2; column-gap: 12mm;` : ''} }
+  .soru-wrap { margin-bottom: ${qs}mm; break-inside: avoid; display: block; }
   .soru-no { font-weight: 700; color: #3730a3; }
-  .soru-text { margin-top: 3pt; line-height: 1.6; }
+  .soru-text { margin-top: 3pt; }
   .secenekler { margin-top: 4pt; margin-left: 12pt; }
   .secenek { margin-bottom: 2pt; }
   .cevap-alani { border-bottom: 1px solid #999; margin-top: 4pt; min-height: 14pt; }
   .acik-alani { margin-top: 4pt; }
   .cizgi { border-bottom: 1px solid #bbb; margin-bottom: 6pt; }
   .kazanim { font-size: 7pt; color: #999; font-style: italic; text-align: right; margin-top: 3pt; }
-  .hr { border: 0; border-top: 0.5pt solid #ddd; margin: 8pt 0; }
-  .baslik-kutu { border: 1.5pt solid #4f46e5; border-radius: 4pt; padding: 8pt 10pt; margin-bottom: 10pt; }
-  .cevap-baslik { font-size: ${fs + 1}pt; font-weight: 700; color: #064e3b; margin-bottom: 8pt; page-break-before: always; }
-  .cevap-tablo { width: 100%; border-collapse: collapse; margin-bottom: 12pt; }
+  .hr { border: 0; border-top: 0.5pt solid #ddd; margin: 8pt 0; column-span: all; }
+  .baslik-kutu { border: 1.5pt solid #4f46e5; border-radius: 4pt; padding: 8pt 10pt; margin-bottom: 10pt; column-span: all; }
+  .cevap-baslik { font-size: ${fs + 1}pt; font-weight: 700; color: #064e3b; margin-bottom: 8pt; page-break-before: always; column-span: all; }
+  .cevap-tablo { width: 100%; border-collapse: collapse; margin-bottom: 12pt; column-span: all; }
   .cevap-tablo th { background: #e0e7ff; padding: 3pt 5pt; font-size: ${fs - 1}pt; text-align: left; }
   .cevap-tablo td { padding: 2.5pt 5pt; font-size: ${fs - 1}pt; border-bottom: 0.3pt solid #e5e7eb; }
   .cevap-tablo tr:nth-child(even) td { background: #f8f9fa; }
-  .pedanot { font-size: ${fs - 1}pt; color: #1e3a5f; background: #eff6ff; border: 0.5pt solid #93c5fd; border-radius: 3pt; padding: 6pt; margin-top: 10pt; page-break-before: always; }
-  .footer { font-size: 7pt; color: #bbb; text-align: center; margin-top: 20pt; }
+  .pedanot { font-size: ${fs - 1}pt; color: #1e3a5f; background: #eff6ff; border: 0.5pt solid #93c5fd; border-radius: 3pt; padding: 6pt; margin-top: 10pt; page-break-before: always; column-span: all; }
+  .footer { font-size: 7pt; color: #bbb; text-align: center; margin-top: 20pt; column-span: all; }
   @media print {
     @page { size: A4; margin: ${mg}mm; }
     body { margin: 0; }
@@ -203,6 +208,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
 </div>
 <div class="student-row">Ad Soyad: _________________________________ &nbsp;&nbsp; Sınıf/Şube: _________ &nbsp;&nbsp; Tarih: _________</div>
 
+<div class="sorula-kapsayici">
 ${aktifSinav.sorular.map((s, i) => {
       const lbl = ['A', 'B', 'C', 'D'];
       let secContent = '';
@@ -221,7 +227,8 @@ ${aktifSinav.sorular.map((s, i) => {
   ${secContent}
   <div class="kazanim">[${s.kazanimKodu}]</div>
 </div>`;
-    }).join('<hr class="hr"/>')}
+    }).join(printConfig.columns === 2 ? '' : '<hr class="hr"/>')}
+</div>
 
 <div class="cevap-baslik">CEVAP ANAHTARI</div>
 <table class="cevap-tablo">
@@ -237,7 +244,6 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
 <div class="footer">Oogmatik Sınav Stüdyosu — MEB 2024-2025</div>
 </body>
 </html>`;
-
     const w = window.open('', '_blank', 'width=900,height=700');
     if (!w) { setError('Yazdırma penceresi açılamadı. Pop-up engelleyiciyi devre dışı bırakın.'); return; }
     w.document.write(html);

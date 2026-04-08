@@ -146,17 +146,17 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
     };
 
     // ─── Yazdır ───────────────────────────────────────────────────
-    const handlePrint = () => {
-        if (!aktifSinav) return;
+  const handlePrint = () => {
+    if (!aktifSinav) return;
 
-        const fs = printConfig.fontSize + 2;
-        const ff = printConfig.fontFamily === 'times' ? 'Times New Roman, serif' : 'Lexend, Inter, sans-serif';
-        const mg = printConfig.marginMm;
-        const qs = printConfig.questionSpacingMm;
-        const lh = printConfig.lineHeight;
-        const ta = printConfig.textAlign;
+    const fs = printConfig.fontSize + 2;
+    const ff = printConfig.fontFamily === 'times' ? 'Times New Roman, serif' : 'Lexend, Inter, sans-serif';
+    const mg = printConfig.marginMm;
+    const qs = printConfig.questionSpacingMm;
+    const lh = printConfig.lineHeight;
+    const ta = printConfig.textAlign;
 
-        const html = `<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"/>
 <title>${aktifSinav.baslik}</title>
 <style>
@@ -165,22 +165,24 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
   body { font-family:${ff}; font-size:${fs}pt; color:#111; margin:${mg}mm; text-align:${ta}; line-height:${lh}; }
   h1 { font-size:${fs + 4}pt; font-weight:800; color:#3730a3; margin-bottom:4pt; text-align:left; }
   .meta { font-size:${fs - 2}pt; color:#555; margin-bottom:8pt; text-align:left; }
-  .student-row { border-bottom:1px solid #ccc; padding-bottom:4pt; margin-bottom:10pt; font-size:${fs - 1}pt; color:#444; text-align:left; }
+  .student-row { border-bottom:1px solid #ccc; padding-bottom:4pt; margin-bottom:15pt; font-size:${fs - 1}pt; color:#444; text-align:left; column-span: all; }
   .sorula-kapsayici { ${printConfig.columns === 2 ? `column-count: 2; column-gap: 12mm;` : ''} }
-  .soru-wrap { margin-bottom:${qs}mm; break-inside:avoid; }
+  .soru-wrap { margin-bottom:${qs}mm; break-inside:avoid; display: block; }
   .soru-no { font-weight:700; color:#3730a3; }
   .soru-text { margin-top:3pt; }
   .secenekler { margin-top:4pt; margin-left:12pt; text-align:left; }
   .secenek { margin-bottom:2pt; }
+  .grafik-wrap { margin-top:8pt; margin-bottom:8pt; display:flex; justify-content:center; max-width: 100%; overflow: hidden; }
+  .grafik-wrap svg { max-width: 100%; height: auto !important; }
   .kazanim { font-size:7pt; color:#999; font-style:italic; text-align:right; margin-top:3pt; }
   .hr { border:0; border-top:0.5pt solid #ddd; margin:8pt 0; column-span: all; }
   .baslik-kutu { border:1.5pt solid #4f46e5; border-radius:4pt; padding:8pt 10pt; margin-bottom:10pt; column-span: all; }
-  .cevap-baslik { font-size:${fs + 1}pt; font-weight:700; color:#064e3b; page-break-before:always; margin-bottom:8pt; text-align:left; }
-  .cevap-tablo { width:100%; border-collapse:collapse; margin-bottom:12pt; text-align:left; }
+  .cevap-baslik { font-size:${fs + 1}pt; font-weight:700; color:#064e3b; page-break-before:always; margin-bottom:8pt; text-align:left; column-span: all; }
+  .cevap-tablo { width:100%; border-collapse:collapse; margin-bottom:12pt; text-align:left; column-span: all; }
   .cevap-tablo th { background:#e0e7ff; padding:3pt 5pt; font-size:${fs - 1}pt; text-align:left; }
   .cevap-tablo td { padding:2.5pt 5pt; font-size:${fs - 1}pt; border-bottom:0.3pt solid #e5e7eb; }
   .cevap-tablo tr:nth-child(even) td { background:#f8f9fa; }
-  .pedanot { font-size:${fs - 1}pt; color:#1e3a5f; background:#eff6ff; border:0.5pt solid #93c5fd; border-radius:3pt; padding:6pt; margin-top:10pt; text-align:left; }
+  .pedanot { font-size:${fs - 1}pt; color:#1e3a5f; background:#eff6ff; border:0.5pt solid #93c5fd; border-radius:3pt; padding:6pt; margin-top:10pt; text-align:left; column-span: all; page-break-before: always; }
   .footer { font-size:7pt; color:#bbb; text-align:center; margin-top:20pt; column-span: all; }
   @media print { @page { size:A4; margin:${mg}mm; } body { margin:0; } }
 </style></head><body>
@@ -191,31 +193,31 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
 <div class="student-row">Ad Soyad: _________________________________ &nbsp;&nbsp; Sınıf/Şube: _________ &nbsp;&nbsp; Tarih: _________</div>
 <div class="sorula-kapsayici">
 ${aktifSinav.sorular.map((s, i) => {
-            const labels = ['A', 'B', 'C', 'D'];
-            let sec = '';
-            if (s.tip === 'coktan_secmeli' && s.secenekler) {
-                sec = `<div class="secenekler">${Object.entries(s.secenekler).map(([k, v], si) => `<div class="secenek">${labels[si]}) ${v}</div>`).join('')}</div>`;
-            } else if (s.tip === 'dogru_yanlis') {
-                sec = '<div class="secenekler">( ) Doğru &nbsp;&nbsp; ( ) Yanlış</div>';
-            } else if (s.tip === 'bosluk_doldurma') {
-                sec = '<div class="secenekler">Cevap: <span style="border-bottom:1px solid #999;display:inline-block;width:180pt;">&nbsp;</span></div>';
-            } else if (s.tip === 'acik_uclu') {
-                sec = '<div style="margin-top:4pt">' + [0, 1, 2, 3].map(() => '<div style="border-bottom:1px solid #bbb;margin-bottom:6pt">&nbsp;</div>').join('') + '</div>';
-            }
+      const labels = ['A', 'B', 'C', 'D'];
+      let sec = '';
+      if (s.tip === 'coktan_secmeli' && s.secenekler) {
+        sec = `<div class="secenekler">${Object.entries(s.secenekler).map(([k, v], si) => `<div class="secenek">${labels[si]}) ${v}</div>`).join('')}</div>`;
+      } else if (s.tip === 'dogru_yanlis') {
+        sec = '<div class="secenekler">( ) Doğru &nbsp;&nbsp; ( ) Yanlış</div>';
+      } else if (s.tip === 'bosluk_doldurma') {
+        sec = '<div class="secenekler">Cevap: <span style="border-bottom:1px solid #999;display:inline-block;width:180pt;">&nbsp;</span></div>';
+      } else if (s.tip === 'acik_uclu') {
+        sec = '<div style="margin-top:4pt">' + [0, 1, 2, 3].map(() => '<div style="border-bottom:1px solid #bbb;margin-bottom:6pt">&nbsp;</div>').join('') + '</div>';
+      }
 
-            let grafikHtml = '';
-            if (s.grafik_verisi) {
-                grafikHtml = `<div class="grafik-wrap" style="margin-top:8pt; margin-bottom:8pt; display:flex; justify-content:center;">${renderToString(<GraphicRenderer grafik={s.grafik_verisi} />)}</div>`;
-            }
+      let grafikHtml = '';
+      if (s.grafik_verisi) {
+        grafikHtml = `<div class="grafik-wrap">${renderToString(<GraphicRenderer grafik={s.grafik_verisi} />)}</div>`;
+      }
 
-            return `<div class="soru-wrap"><span class="soru-no">${i + 1}.</span> <span class="soru-text">${s.soruMetni}</span>${grafikHtml}${sec}<div class="kazanim">[${s.kazanimKodu}]</div></div>`;
-        }).join(printConfig.columns === 2 ? '' : '<hr class="hr"/>')}
+      return `<div class="soru-wrap"><span class="soru-no">${i + 1}.</span> <span class="soru-text">${s.soruMetni}</span>${grafikHtml}${sec}<div class="kazanim">[${s.kazanimKodu}]</div></div>`;
+    }).join(printConfig.columns === 2 ? '' : '<hr class="hr"/>')}
 </div>
 <div class="cevap-baslik">CEVAP ANAHTARI</div>
 <table class="cevap-tablo"><thead><tr><th>No</th><th>Doğru Cevap</th><th>Puan</th><th>Kazanım</th></tr></thead><tbody>
 ${aktifSinav.cevapAnahtari.sorular.map(c =>
-            `<tr><td>${c.soruNo}.</td><td>${c.dogruCevap}</td><td>${c.puan} puan</td><td>${c.kazanimKodu}</td></tr>`
-        ).join('')}
+      `<tr><td>${c.soruNo}.</td><td>${c.dogruCevap}</td><td>${c.puan} puan</td><td>${c.kazanimKodu}</td></tr>`
+    ).join('')}
 </tbody></table>
 <div class="pedanot"><strong>Öğretmenin Dikkatine:</strong><br/><br/>${aktifSinav.pedagogicalNote}</div>
 <div class="footer">Oogmatik Süper Matematik Sınav Stüdyosu — MEB 2024-2025</div>

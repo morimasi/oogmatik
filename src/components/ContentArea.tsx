@@ -400,7 +400,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 )}
               </>
             ) : (
-              <div className="p-8 w-full max-w-7xl h-full">
+              <div className={`w-full h-full ${currentView === 'workbook' ? '' : 'p-8 max-w-7xl'}`}>
                 {currentView === 'savedList' ? (
                   <SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
                 ) : currentView === 'workbook' ? (
