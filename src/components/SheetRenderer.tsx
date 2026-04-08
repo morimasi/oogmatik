@@ -186,6 +186,8 @@ import { EditableText } from './Editable';
 import { useA4EditorStore } from '../store/useA4EditorStore';
 import DOMPurify from 'isomorphic-dompurify';
 import { GraphicRenderer } from '../../components/MatSinavStudyosu/components/GraphicRenderer';
+import { SinavOnizleme } from '../../components/SinavStudyosu/SinavOnizleme';
+import { MatSinavOnizleme } from '../../components/MatSinavStudyosu/MatSinavOnizleme';
 
 const recursiveSafeText = (val: any): string => {
   if (val === null || val === undefined) return '';
@@ -1199,7 +1201,31 @@ export const SheetRenderer = React.memo(
       return <EsAnlamliKelimelerSheet data={data as any} />;
     }
 
-    // OCR aktiviteleri: grafikVeri varsa GraphicRenderer + content göster
+    // Türkçe Sınav Stüdyosu çıktısı
+    if (activityType === ActivityType.SINAV) {
+      const sinav = (data as any);
+      if (sinav && sinav.baslik && Array.isArray(sinav.sorular)) {
+        return <SinavOnizleme sinav={sinav} showAnswers={false} config={sinav.printConfig} />;
+      }
+    }
+
+    // Matematik Sınav Stüdyosu çıktısı
+    if (activityType === ActivityType.MAT_SINAV) {
+      const sinav = (data as any);
+      if (sinav && sinav.baslik && Array.isArray(sinav.sorular)) {
+        return (
+          <MatSinavOnizleme
+            sinav={sinav}
+            onUpdateSoru={() => undefined}
+            onRefreshSoru={() => undefined}
+            refreshingIndex={null}
+            config={sinav.printConfig}
+          />
+        );
+      }
+    }
+
+
     if (activityType === ActivityType.OCR_CONTENT) {
       const ocrData = data as unknown as {
         content?: string;

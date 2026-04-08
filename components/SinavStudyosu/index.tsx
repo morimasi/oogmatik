@@ -65,7 +65,11 @@ const FmtBtn: React.FC<{
   </button>
 );
 
-export const SinavStudyosu: React.FC = () => {
+interface SinavStudyosuProps {
+  onAddToWorkbook?: (activityType: ActivityType, data: unknown) => void;
+}
+
+export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook }) => {
   const {
     ayarlar,
     setSinif,
@@ -244,65 +248,52 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
   const handleSaveExam = () => showSuccess('Sınav kaydedildi! (Geliştirme aşamasında)');
   const handleShareExam = () => showSuccess('Paylaşım özelliği yakında!');
 
-  // Workbook Integration — Tek Tıkla Kaydet
-  const handleAddToWorkbook = async () => {
+  // Workbook Integration — Çalışma Kitabına Ekle
+  const handleAddToWorkbook = () => {
     if (!aktifSinav) {
       setError('Lütfen önce bir sınav oluşturun.');
       return;
     }
 
-    try {
+    if (onAddToWorkbook) {
+      // Canlı çalışma kitabına ekle (App state)
+      onAddToWorkbook(ActivityType.SINAV, {
+        ...aktifSinav,
+        title: aktifSinav.baslik || 'Türkçe Sınavı',
+        printConfig,
+      });
+      showSuccess('✅ Sınav çalışma kitabına eklendi!');
+    } else {
+      // Fallback: Arşive kaydet (onAddToWorkbook prop yoksa)
+      setIsSavingToWorkbook(true);
+      setError(null);
       const user = useAuthStore.getState().user;
       if (!user) {
         setError('Lütfen giriş yapın.');
+        setIsSavingToWorkbook(false);
         return;
       }
-
-      setIsSavingToWorkbook(true);
-      setError(null);
-
-      // Sınav verisini SingleWorksheetData formatına dönüştör
       const worksheetData = {
         title: aktifSinav.baslik || 'Türkçe Sınavı',
         instruction: 'Soruları dikkatlice okuyunuz ve en doğru cevabı veriniz.',
         activityType: ActivityType.SINAV,
         data: [aktifSinav],
-        settings: {
-          fontSize: printConfig.fontSize,
-          fontFamily: printConfig.fontFamily,
-          marginMm: printConfig.marginMm,
-          columns: printConfig.columns,
-          lineHeight: printConfig.lineHeight,
-          textAlign: printConfig.textAlign,
-          questionSpacingMm: printConfig.questionSpacingMm,
-          difficulty: 'Orta' as const
-        }
       };
-
-      // worksheetService.saveWorksheet ile kaydet
-      await worksheetService.saveWorksheet(
+      worksheetService.saveWorksheet(
         user.id,
         aktifSinav.baslik || 'Türkçe Sınavı',
         ActivityType.SINAV,
         [worksheetData],
         'fa-solid fa-file-lines',
-        { id: 'turkce', title: 'Türkçe' }, // Kategori: Türkçe
-        {
-          fontSize: printConfig.fontSize,
-          fontFamily: printConfig.fontFamily,
-          margin: printConfig.marginMm,
-          columns: printConfig.columns,
-          lineHeight: printConfig.lineHeight,
-          contentAlign: printConfig.textAlign,
-        } as any
-      );
-
-      showSuccess('✅ Sınav "Çalışma Kitapçığı" veri tabanına kaydedildi!');
-    } catch (err: any) {
-      console.error('Workbook kayıt hatası:', err);
-      setError(`Kaydetme hatası: ${err.message || 'Bilinmeyen hata'}`);
-    } finally {
-      setIsSavingToWorkbook(false);
+        { id: 'turkce', title: 'Türkçe' },
+      ).then(() => {
+        showSuccess('✅ Sınav arşive kaydedildi!');
+      }).catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : 'Bilinmeyen hata';
+        setError(`Kaydetme hatası: ${msg}`);
+      }).finally(() => {
+        setIsSavingToWorkbook(false);
+      });
     }
   };
 
