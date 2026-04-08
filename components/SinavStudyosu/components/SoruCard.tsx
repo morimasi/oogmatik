@@ -119,7 +119,7 @@ export const SoruCard: React.FC<SoruCardProps> = ({
   return (
     <div
       className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"
-      style={{ color: '#111', backgroundColor: '#ffffff' }}
+      style={{ color: '#111', backgroundColor: '#ffffff', breakInside: 'avoid' }}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-2">

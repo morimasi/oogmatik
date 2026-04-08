@@ -49,7 +49,10 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
             {/* Sınav Başlığı - Premium Gradient */}
             <div
                 className="rounded-2xl p-6 mb-6 shadow-lg text-white"
-                style={{ background: 'linear-gradient(135deg, hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 8%)) 0%, hsl(var(--accent-h) var(--accent-s) var(--accent-l)) 100%)' }}
+                style={{ 
+                    background: 'linear-gradient(135deg, hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 8%)) 0%, hsl(var(--accent-h) var(--accent-s) var(--accent-l)) 100%)',
+                    columnSpan: 'all'
+                }}
             >
                 <h1 className="text-2xl font-extrabold mb-4 tracking-tight drop-shadow-sm">
                     {sinav.baslik}
@@ -71,7 +74,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
 
             {/* MEB Kazanımları - Badge Style */}
             {sinav.secilenKazanimlar && sinav.secilenKazanimlar.length > 0 && (
-                <div className="mb-6 bg-[var(--bg-secondary)]/80 border border-[var(--border-color)]/60 rounded-xl p-4 backdrop-blur-sm">
+                <div className="mb-6 bg-[var(--bg-secondary)]/80 border border-[var(--border-color)]/60 rounded-xl p-4 backdrop-blur-sm" style={{ columnSpan: 'all', breakInside: 'avoid' }}>
                     <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-2">
                         <span className="p-1 bg-sky-100 rounded-lg text-sky-600">
                             <i className="fa-solid fa-layer-group text-[10px]"></i>
@@ -92,7 +95,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
             )}
 
             {/* Öğrenci Bilgi Satırı - High Contrast */}
-            <div className="bg-white border-2 border-[var(--border-color)] rounded-2xl px-6 py-4 mb-8 flex flex-wrap gap-8 text-sm text-[var(--text-muted)] font-medium shadow-sm">
+            <div className="bg-white border-2 border-[var(--border-color)] rounded-2xl px-6 py-4 mb-8 flex flex-wrap gap-8 text-sm text-[var(--text-muted)] font-medium shadow-sm" style={{ columnSpan: 'all', breakInside: 'avoid' }}>
                 <div className="flex items-center gap-2">
                     <span>Ad Soyad:</span>
                     <span className="border-b-2 border-[var(--border-color)] w-48 h-6"></span>
@@ -108,22 +111,23 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
             </div>
 
             {/* Sorular Listesi */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: questionGap }}>
+            <div className="sorular-container" style={{ display: 'block' }}>
                 {sinav.sorular.map((soru, index) => (
-                    <MatSoruCard
-                        key={soru.id || index}
-                        soru={soru}
-                        index={index}
-                        onUpdate={onUpdateSoru}
-                        onRefresh={onRefreshSoru}
-                        isRefreshing={refreshingIndex === index}
-                    />
+                    <div key={soru.id || index} style={{ marginBottom: questionGap, breakInside: 'avoid' }}>
+                        <MatSoruCard
+                            soru={soru}
+                            index={index}
+                            onUpdate={onUpdateSoru}
+                            onRefresh={onRefreshSoru}
+                            isRefreshing={refreshingIndex === index}
+                        />
+                    </div>
                 ))}
             </div>
 
             {/* Pedagojik Not - Klinik Destek */}
             {sinav.pedagogicalNote && (
-                <div className="mt-10 bg-amber-50/50 border-2 border-amber-100 rounded-2xl p-5 relative overflow-hidden group">
+                <div className="mt-10 bg-amber-50/50 border-2 border-amber-100 rounded-2xl p-5 relative overflow-hidden group" style={{ columnSpan: 'all', breakInside: 'avoid' }}>
                     <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                         <i className="fa-solid fa-graduation-cap text-4xl text-amber-900"></i>
                     </div>

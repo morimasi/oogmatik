@@ -47,7 +47,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-all duration-200 group relative">
+    <div className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-all duration-200 group relative" style={{ breakInside: 'avoid' }}>
       {/* Üst Bar */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">

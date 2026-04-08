@@ -44,7 +44,10 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
       {/* Başlık Bandı */}
       <div
         className="rounded-xl p-5 mb-5 text-white"
-        style={{ background: 'linear-gradient(135deg, hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 8%)) 0%, hsl(var(--accent-h) var(--accent-s) var(--accent-l)) 100%)' }}
+        style={{ 
+          background: 'linear-gradient(135deg, hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 8%)) 0%, hsl(var(--accent-h) var(--accent-s) var(--accent-l)) 100%)',
+          columnSpan: 'all'
+        }}
       >
         <h2 className="text-xl font-extrabold mb-3 text-white" style={{ fontFamily }}>
           {sinav.baslik}
@@ -65,7 +68,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
       </div>
 
       {/* Kazanımlar */}
-      <div className="border border-gray-200 bg-gray-50 rounded-xl p-4 mb-5">
+      <div className="border border-gray-200 bg-gray-50 rounded-xl p-4 mb-5" style={{ columnSpan: 'all', breakInside: 'avoid' }}>
         <h3 className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-1">
           <span>📚</span> MEB Kazanımları
         </h3>
@@ -82,30 +85,31 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
       </div>
 
       {/* Öğrenci Bilgi Satırı */}
-      <div className="border border-gray-200 rounded-xl px-4 py-3 mb-5 flex flex-wrap gap-6 text-sm text-gray-600">
+      <div className="border border-gray-200 rounded-xl px-4 py-3 mb-5 flex flex-wrap gap-6 text-sm text-gray-600" style={{ columnSpan: 'all', breakInside: 'avoid' }}>
         <span>Ad Soyad: <span className="border-b border-gray-400 inline-block w-40">&nbsp;</span></span>
         <span>Sınıf/Şube: <span className="border-b border-gray-400 inline-block w-20">&nbsp;</span></span>
         <span>Tarih: <span className="border-b border-gray-400 inline-block w-24">&nbsp;</span></span>
       </div>
 
       {/* Sorular */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: questionGap }}>
+      <div className="sorular-container" style={{ display: 'block' }}>
         {sinav.sorular.map((soru, index) => (
-          <SoruCard
-            key={soru.id}
-            soru={soru}
-            soruNo={index + 1}
-            showAnswer={showAnswers}
-            fontSizePx={fontSizePx}
-            fontFamily={fontFamily}
-            lineHeight={lineHeight}
-          />
+          <div key={soru.id} style={{ marginBottom: questionGap, breakInside: 'avoid' }}>
+            <SoruCard
+              soru={soru}
+              soruNo={index + 1}
+              showAnswer={showAnswers}
+              fontSizePx={fontSizePx}
+              fontFamily={fontFamily}
+              lineHeight={lineHeight}
+            />
+          </div>
         ))}
       </div>
 
       {/* Pedagojik Not */}
       {sinav.pedagogicalNote && (
-        <div className="mt-6 border-2 border-emerald-200 bg-emerald-50 rounded-xl p-4">
+        <div className="mt-6 border-2 border-emerald-200 bg-emerald-50 rounded-xl p-4" style={{ columnSpan: 'all', breakInside: 'avoid' }}>
           <h3 className="text-sm font-bold text-emerald-800 mb-2 flex items-center gap-1">
             <span>👨‍🏫</span> Öğretmenin Dikkatine
           </h3>

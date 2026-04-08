@@ -47,11 +47,16 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
 
   const PAGE_W = 210;
   const PAGE_H = 297;
-  const { marginMm: M, fontSize: FS, fontFamily: FF, questionSpacingMm: QS } = config;
+  const { marginMm: M, fontSize: FS, fontFamily: FF, questionSpacingMm: QS, columns: COLS } = config;
   const contentW = PAGE_W - 2 * M;
+  const colGap = 10;
+  const colW = (contentW - (COLS - 1) * colGap) / COLS;
 
   let y = M;
   let pageNum = 1;
+  let currentCol = 0;
+
+  const getX = (offset = 0) => M + currentCol * (colW + colGap) + offset;
 
   const newPage = () => {
     // Sayfa numarası footer
@@ -63,14 +68,35 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
     doc.addPage();
     pageNum++;
     y = M;
+    currentCol = 0;
   };
 
   const check = (need: number) => {
-    if (y + need > PAGE_H - 14) newPage();
+    if (y + need > PAGE_H - 14) {
+      if (COLS > 1 && currentCol < COLS - 1) {
+        currentCol++;
+        // Başlık ve öğrenci bilgisinden sonraki ilk sütun geçişi ise, 
+        // y değerini başlık sonrası y değerine çekmeliyiz.
+        // Ama basitleştirmek için: her sütun geçişinde en tepeye (M) çıkalım 
+        // veya header span olduğu için header sonrası sabit bir y'ye çıkalım.
+        
+        // Header her zaman ilk sayfada en üsttedir.
+        // Eğer ilk sayfadaysak ve header render edilmişse, 
+        // kolon geçişi header altından başlamalı.
+        // Değilse (diğer sayfalar) M'den başlamalı.
+        if (pageNum === 1) {
+          y = headerBottomY;
+        } else {
+          y = M;
+        }
+      } else {
+        newPage();
+      }
+    }
   };
 
   // ── BAŞLIK BÖLÜMÜ ──────────────────────────────────────────
-  // İnce çerçeve kutu
+  // Header her zaman tam genişliktedir (span all)
   doc.setDrawColor(80, 80, 160);
   doc.setLineWidth(0.4);
   doc.rect(M, y, contentW, 22, 'S');
@@ -106,36 +132,38 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
   doc.line(M, y, PAGE_W - M, y);
   y += 6;
 
+  const headerBottomY = y; // İkinci kolonun başlayacağı başlangıç noktası (ilk sayfa için)
+
   // ── SORULAR ─────────────────────────────────────────────────
   doc.setFont(FF, 'bold');
   doc.setFontSize(FS + 1);
   doc.setTextColor(40);
-  doc.text('SORULAR', M, y);
+  doc.text('SORULAR', getX(), y);
   y += 6;
 
   sinav.sorular.forEach((soru: Soru, i: number) => {
-    check(16);
+    check(20); // Soru başlığı ve en az bir satır için yer ayır
 
     // Soru No + tip etiketi
     doc.setFont(FF, 'bold');
     doc.setFontSize(FS);
     doc.setTextColor(0);
     const soruLabel = `${i + 1}.`;
-    doc.text(soruLabel, M, y);
+    doc.text(soruLabel, getX(), y);
 
     // Zorluk rengi (küçük kare)
     const zorlukColor: [number, number, number] =
       soru.zorluk === 'Kolay' ? [34, 197, 94] :
         soru.zorluk === 'Orta' ? [234, 179, 8] : [239, 68, 68];
     doc.setFillColor(...zorlukColor);
-    doc.rect(M + 7, y - 3, 2, 3, 'F');
+    doc.rect(getX(7), y - 3, 2, 3, 'F');
 
     // Soru metni
     doc.setFont(FF, 'normal');
     doc.setFontSize(FS);
     doc.setTextColor(0);
-    const soruLines = doc.splitTextToSize(tr(soru.soruMetni), contentW - 12);
-    doc.text(soruLines, M + 11, y);
+    const soruLines = doc.splitTextToSize(tr(soru.soruMetni), colW - 12);
+    doc.text(soruLines, getX(11), y);
     y += soruLines.length * (FS * 0.38) + 2;
 
     // Seçenekler
@@ -146,8 +174,8 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
         doc.setFont(FF, 'normal');
         doc.setFontSize(FS - 0.5);
         doc.setTextColor(30);
-        const secLines = doc.splitTextToSize(`${labels[si]}) ${tr(sec)}`, contentW - 18);
-        doc.text(secLines, M + 14, y);
+        const secLines = doc.splitTextToSize(`${labels[si]}) ${tr(sec)}`, colW - 18);
+        doc.text(secLines, getX(14), y);
         y += secLines.length * (FS * 0.36) + 1.5;
       });
     }
@@ -158,7 +186,7 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
       doc.setFont(FF, 'normal');
       doc.setFontSize(FS - 0.5);
       doc.setTextColor(60);
-      doc.text(tr('( ) Dogru   ( ) Yanlis   Duzeltme: _________________________________'), M + 14, y);
+      doc.text(tr('( ) Dogru   ( ) Yanlis   Duzeltme: ____________________'), getX(14), y);
       y += 7;
     }
 
@@ -167,7 +195,7 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
       check(7);
       doc.setFontSize(FS - 0.5);
       doc.setTextColor(60);
-      doc.text(tr('Cevap: _______________________________________'), M + 14, y);
+      doc.text(tr('Cevap: ___________________________'), getX(14), y);
       y += 7;
     }
 
@@ -177,7 +205,7 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
         check(6);
         doc.setDrawColor(200);
         doc.setLineWidth(0.15);
-        doc.line(M + 14, y + 1, PAGE_W - M, y + 1);
+        doc.line(getX(14), y + 1, getX() + colW, y + 1);
         y += 6;
       }
     }
@@ -187,13 +215,13 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
     doc.setFont(FF, 'italic');
     doc.setFontSize(7.5);
     doc.setTextColor(140);
-    doc.text(tr(`[${soru.kazanimKodu}]`), PAGE_W - M, y, { align: 'right' });
+    doc.text(tr(`[${soru.kazanimKodu}]`), getX() + colW, y, { align: 'right' });
     doc.setTextColor(0);
 
     y += QS; // Sorular arası boşluk
   });
 
-  // Sayfa footer son sayfa
+  // Sayfa footer son sayfa (içerik bittikten sonra)
   doc.setFontSize(8);
   doc.setFont(FF, 'normal');
   doc.setTextColor(160);
@@ -204,6 +232,7 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
   doc.addPage();
   pageNum++;
   y = M;
+  currentCol = 0;
 
   doc.setFont(FF, 'bold');
   doc.setFontSize(FS + 2);
@@ -213,7 +242,7 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
   y += 8;
 
   // Tablo başlıkları
-  const colW = [12, 60, 22, 50];
+  const colWidths = [12, 60, 22, 50];
   const headers = ['No', 'Dogru Cevap', 'Puan', 'Kazanim'];
   let cx = M;
   doc.setFont(FF, 'bold');
@@ -222,13 +251,16 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
   doc.rect(M, y - 4, contentW, 7, 'F');
   headers.forEach((h, i) => {
     doc.text(tr(h), cx + 1, y);
-    cx += colW[i];
+    cx += colWidths[i];
   });
   y += 5;
 
   doc.setFont(FF, 'normal');
   sinav.cevapAnahtari.sorular.forEach((c, i) => {
-    check(7);
+    if (y + 7 > PAGE_H - 14) {
+      doc.addPage();
+      y = M;
+    }
     if (i % 2 === 0) {
       doc.setFillColor(248, 250, 252);
       doc.rect(M, y - 4, contentW, 6.5, 'F');
@@ -237,9 +269,9 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
     const row = [`${c.soruNo}.`, tr(String(c.dogruCevap)), `${c.puan} puan`, tr(c.kazanimKodu)];
     doc.setFontSize(FS - 0.5);
     row.forEach((cell, i) => {
-      const lines = doc.splitTextToSize(cell, colW[i] - 2);
+      const lines = doc.splitTextToSize(cell, colWidths[i] - 2);
       doc.text(lines, cx + 1, y);
-      cx += colW[i];
+      cx += colWidths[i];
     });
     y += 6.5;
   });
@@ -255,7 +287,10 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
   y += 12;
 
   // ── PEDAGOJİK NOT ─────────────────────────────────────────
-  check(20);
+  if (y + 20 > PAGE_H - 14) {
+    doc.addPage();
+    y = M;
+  }
   doc.setFont(FF, 'bold');
   doc.setFontSize(FS + 1);
   doc.setTextColor(0, 60, 140);
@@ -267,7 +302,6 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
   doc.setFontSize(FS - 1);
   doc.setTextColor(40);
   const noteLines = doc.splitTextToSize(tr(sinav.pedagogicalNote), contentW);
-  check(noteLines.length * (FS * 0.38) + 6);
   doc.text(noteLines, M, y);
   y += noteLines.length * (FS * 0.38) + 8;
 
