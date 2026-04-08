@@ -1448,6 +1448,8 @@ export const SheetRenderer = React.memo(
         return <CrosswordSheet data={data as unknown as CrosswordData} />;
       case ActivityType.BOX_MATH:
         return <BoxMathSheet data={data as any} />;
+      case ActivityType.VISUAL_INTERPRETATION:
+        return <VisualInterpretationSheet data={data as any} settings={settings} />;
       case activityType as any: // Herhangi bir modül blok yapısı içeriyorsa pagination desteği alabilir
 
       default:
