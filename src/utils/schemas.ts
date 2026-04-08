@@ -133,8 +133,8 @@ export const validateGenerateActivityRequest = (
     errors.prompt = 'Talimat gereklidir';
   } else if (d.prompt.length < 5) {
     errors.prompt = 'Talimat en az 5 karakter olmalı';
-  } else if (d.prompt.length > 5000) {
-    errors.prompt = 'Talimat 5000 karakterden fazla olamaz';
+  } else if (d.prompt.length > 10000) {
+    errors.prompt = 'Talimat 10.000 karakterden fazla olamaz';
   } else if (
     d.prompt.toLowerCase().includes('drop table') ||
     d.prompt.toLowerCase().includes('delete from')
