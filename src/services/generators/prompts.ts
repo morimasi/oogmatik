@@ -46,10 +46,12 @@ export const IMAGE_GENERATION_GUIDE = `
 
 export const MAP_DETECTIVE_PROMPT = `
 [GÖREV: HARİTA DEDEKTİFİ YÖNERGE ÜRETİMİ]
-Eğer kullanıcı özel bir harita yüklediyse (imageBase64 mevcutsa), yönergeleri SADECE o harita üzerindeki nesneler ve yazılar üzerinden kurgula.
-- "Kuzeydeki şehre git" yerine "Kırmızı çatılı evin yanındaki ağaca bak" gibi görsel detaylar kullan.
-- Harita bir kroki ise yönleri (sağ, sol, üst, alt) ve renkleri baz al.
-- Disleksik bireyler için "Sol üstteki mavi kare" gibi net uzamsal referanslar ver.
+Sana sağlanan Türkiye şehir listesi ve komşuluk verilerine KESİNLİKLE sadık kal.
+1. **Coğrafi Doğruluk:** Asla halüsinasyon görme. Bursa'nın doğusunda İzmir, Ankara'nın güneyinde İstanbul olduğunu iddia etme.
+2. **Yönsel Mantık:** Kuzey (K), Güney (G), Doğu (D), Batı (B) yönlerini gerçek Türkiye haritası üzerindeki konumlarına göre kullan.
+3. **Komşuluk:** Bir şehirden diğerine geçerken gerçek sınır komşularını veya mantıklı rotaları kullan.
+4. **Görsel Detaylar:** Eğer kullanıcı özel bir harita yüklediyse (imageBase64), bu kuralları o görseldeki nesnelere (renk, şekil, konum) uyarla.
+5. **Format:** Yönergeler "X'den başla, şu yöne git, şu özelliği olan şehri bul" şeklinde etkileşimli ve disleksi dostu (net, kısa) olmalıdır.
 `;
 
 export const FIND_THE_DIFFERENCE_CORE_GUIDE = `
