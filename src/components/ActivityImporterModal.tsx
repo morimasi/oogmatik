@@ -35,10 +35,22 @@ export const ActivityImporterModal: React.FC<ActivityImporterModalProps> = ({ is
     const loadWorksheets = async () => {
         setLoading(true);
         try {
-            const res = await worksheetService.getUserWorksheets(user!.id, 1, 100);
+            // Get both private and shared worksheets
+            const [privateRes, sharedRes] = await Promise.all([
+                worksheetService.getUserWorksheets(user!.id, 0, 100),
+                worksheetService.getSharedWithMe(user!.id, 0, 100)
+            ]);
+            
+            // Combine items
+            const allItems = [...privateRes.items, ...sharedRes.items];
+            
             // SingleWorksheetData içerenleri çek (Kitapçık içi ham veriler)
-            const filtered = res.items.filter(w => w.activityType !== ActivityType.WORKBOOK);
-            setWorksheets(filtered);
+            const filtered = allItems.filter(w => w.activityType !== ActivityType.WORKBOOK);
+            
+            // Remove duplicates if any (same worksheet might be private and shared in edge cases)
+            const unique = Array.from(new Map(filtered.map(item => [item.id, item])).values());
+            
+            setWorksheets(unique);
         } catch (error) {
             console.error("[ActivityImporter] Yukleme hatasi:", error);
         } finally {
