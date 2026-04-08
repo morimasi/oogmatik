@@ -33,20 +33,19 @@ ETKİNLİK PARAMETRELERİ:
 
 ${studentCtx}
 
-AŞAMA 1: imagePrompt alanına ${visualStyle === 'illustration' ? 'educational flat illustration for children, bright colors, detailed scene, Pixar style' : visualStyle === 'cartoon' ? 'colorful cartoon scene for children, fun characters' : 'detailed educational diagram with labels'} formatında İNGİLİZCE prompt yaz. Prompt şunları içermeli:
-- "${topic}" teması ve eğitici içerik
-- Öğrencinin dikkatini çekecek 5 spesifik nesne veya olay
-- Çocuk dostu, uygun görsel unsurlar
+AŞAMA 1: GÖRSEL KURGUSU (imagePrompt)
+${visualStyle === 'illustration' ? 'educational flat illustration for children, bright colors, detailed scene, Pixar style' : visualStyle === 'cartoon' ? 'colorful cartoon scene for children, fun characters' : 'detailed educational diagram with labels'} formatında İNGİLİZCE prompt yaz. 
+[KRİTİK]: Görseldeki detayların zenginliği, 5N1K sorularının derinliğini belirler. Bu yüzden sahnede en az 8-10 adet spesifik, isimlendirilebilir ve analiz edilebilir nesne/olay kurgula.
 
 AŞAMA 2: PEDAGOJİK SORULAR VE 5N1K ANALİZİ
 Sorular, görseldeki spesifik detaylara odaklanmalı ve şu 5N1K yapısını mutlaka içermelidir:
-- KİM: Görseldeki karakterlerin kimliği veya rolleri.
-- NE: Gerçekleşen olay veya nesnelerin işlevi.
-- NEREDE: Mekan analizi ve konum ipuçları.
-- NE ZAMAN: Zaman dilimi, mevsim veya günün saati ipuçları.
-- NASIL/NİÇİN: Olayların oluş biçimi ve karakterlerin duygu durumları/motivasyonları.
+- KİM: Görseldeki karakterlerin kimliği, rolleri, kıyafetleri veya duyguları.
+- NE: Gerçekleşen olay, nesnelerin işlevi veya dikkat çekici objeler (örn: masanın üzerindeki nesne).
+- NEREDE: Mekan analizi, nesnelerin birbirine göre konumu (sağında, altında vb.).
+- NE ZAMAN: Zaman dilimi ipuçları (gölge boyu, ışık rengi, mevsim, saat).
+- NASIL/NİÇİN: Olayların oluş biçimi, mantıksal çıkarımlar ve neden-sonuç ilişkileri.
 
-Sorular disleksi dostu, kısa ve net olmalıdır.
+Sorular disleksi dostu, kısa ve net olmalıdır. Zorluk seviyesine (${difficulty}) göre detay seviyesini ayarla.
 
 JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
 {
@@ -54,15 +53,15 @@ JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
     "visualStyle": "${visualStyle}",
     "difficultyLevel": "${difficulty}",
     "activityType": "VISUAL_INTERPRETATION",
-    "title": "Pedagojik ve İlgi Çekici Başlık",
-    "instruction": "Öğrenciye yönelik, motive edici ve net yönerge.",
-    "pedagogicalNote": "Bu etkinlikte görsel algı ve analitik düşünme becerileri hedeflenir. [Spesifik beceri açıklaması]",
+    "title": "Üst Düzey Analitik Başlık",
+    "instruction": "Öğrenciyi dedektifliğe davet eden, merak uyandırıcı yönerge.",
+    "pedagogicalNote": "Bu etkinlikte görsel ayrıştırma, figür-zemin algısı ve mantıksal çıkarım becerileri hedeflenir.",
     "layoutArchitecture": {
         "blocks": [
             {
                 "type": "image",
                 "content": {
-                    "prompt": "İNGİLİZCE detaylı görsel üretim promptu",
+                    "prompt": "İNGİLİZCE detaylı kurgusal prompt",
                     "alt": "Görselin Türkçe kısa betimlemesi"
                 }
             },
@@ -71,10 +70,15 @@ JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
                 "content": {
                     "items": [
                         {
-                            "q": "Soru metni",
+                            "q": "Görseldeki [nesne/kişi] ne renktedir?",
                             "type": "multiple",
-                            "options": ["Seçenek A", "Seçenek B", "Seçenek C", "Seçenek D"],
-                            "answer": "Doğru Cevap"
+                            "options": ["Seçenek 1", "Seçenek 2", "Seçenek 3", "Seçenek 4"],
+                            "answer": "Doğru Seçenek"
+                        },
+                        {
+                            "q": "[Olay/Durum] hakkında ne söyleyebiliriz?",
+                            "type": "open",
+                            "answer": "Beklenen çıkarım"
                         }
                     ]
                 }

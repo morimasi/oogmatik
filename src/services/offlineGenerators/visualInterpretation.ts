@@ -9,10 +9,10 @@ const VISUAL_SCENES = [
         alt: "Parkta güneşli bir günde piknik yapan aile ve göletteki ördekler.",
         pedagogicalNote: "Görsel-mekansal algı ve detay odaklı dikkat becerilerini hedefler.",
         questions: [
-            { q: "Piknik örtüsünün deseni ve rengi nedir?", type: "multiple", options: ["Kırmızı-Beyaz Kareli", "Mavi-Sarı Çizgili", "Düz Yeşil", "Pembe Puantiyeli"], answer: "Kırmızı-Beyaz Kareli" },
-            { q: "Görseldeki gölette toplam kaç tane ördek yüzüyor?", type: "multiple", options: ["2", "3", "4", "5"], answer: "3" },
-            { q: "Çocukların oynadığı oyuncağın (frisbee) rengi tam olarak nedir?", type: "multiple", options: ["Canlı Yeşil", "Parlak Kırmızı", "Gök Mavisi", "Turuncu"], answer: "Canlı Yeşil" },
-            { q: "Sepetin içindeki ekmeğin türü nedir?", type: "open", answer: "Ekşi mayalı (Sourdough) ekmek" }
+            { q: "Piknik örtüsünün deseni ve rengi nedir?", type: "multiple", options: ["Kırmızı-Beyaz Kareli", "Mavi-Sarı Çizgili", "Düz Yeşil", "Pembe Puantiyeli"], answer: "Kırmızı-Beyaz Kareli", category: 'NE' },
+            { q: "Görseldeki gölette toplam kaç tane ördek yüzüyor?", type: "multiple", options: ["2", "3", "4", "5"], answer: "3", category: 'NE' },
+            { q: "Çocukların oynadığı oyuncağın (frisbee) rengi tam olarak nedir?", type: "multiple", options: ["Canlı Yeşil", "Parlak Kırmızı", "Gök Mavisi", "Turuncu"], answer: "Canlı Yeşil", category: 'NE' },
+            { q: "Sepetin içindeki ekmeğin türü nedir?", type: "open", answer: "Ekşi mayalı (Sourdough) ekmek", category: 'NE' }
         ]
     },
     {
@@ -22,10 +22,10 @@ const VISUAL_SCENES = [
         alt: "Karlı bir kış akşamında sokak lambaları ve kırmızı araba.",
         pedagogicalNote: "Şekil-zemin algısı ve düşük ışıkta görsel ayırım becerilerini geliştirir.",
         questions: [
-            { q: "Sokak lambalarından yayılan ışığın rengi nedir?", type: "multiple", options: ["Sıcak Turuncu", "Soğuk Mavi", "Parlak Beyaz", "Mor"], answer: "Sıcak Turuncu" },
-            { q: "Bakery (Fırın) camında hangi hayvanın silüeti görünüyor?", type: "multiple", options: ["Kedi", "Köpek", "Kuş", "Tavşan"], answer: "Kedi" },
-            { q: "Yaşlı adamın yanındaki köpeğin cinsi/rengi nedir?", type: "multiple", options: ["Beyaz Poodle", "Siyah Labrador", "Kahverengi Golden", "Gri Kurt Köpeği"], answer: "Beyaz Poodle" },
-            { q: "Park halindeki antika araba ne renktir?", type: "open", answer: "Kırmızı" }
+            { q: "Sokak lambalarından yayılan ışığın rengi nedir?", type: "multiple", options: ["Sıcak Turuncu", "Soğuk Mavi", "Parlak Beyaz", "Mor"], answer: "Sıcak Turuncu", category: 'NE ZAMAN' },
+            { q: "Bakery (Fırın) camında hangi hayvanın silüeti görünüyor?", type: "multiple", options: ["Kedi", "Köpek", "Kuş", "Tavşan"], answer: "Kedi", category: 'NE' },
+            { q: "Yaşlı adamın yanındaki köpeğin cinsi/rengi nedir?", type: "multiple", options: ["Beyaz Poodle", "Siyah Labrador", "Kahverengi Golden", "Gri Kurt Köpeği"], answer: "Beyaz Poodle", category: 'KİM' },
+            { q: "Park halindeki antika araba ne renktir?", type: "open", answer: "Kırmızı", category: 'NE' }
         ]
     },
     {
@@ -35,10 +35,10 @@ const VISUAL_SCENES = [
         alt: "Mercan resifleri arasında saklanan ahtapot ve hazine sandığı.",
         pedagogicalNote: "Görsel tarama ve renk-biçim sabitliği becerilerini destekler.",
         questions: [
-            { q: "Turuncu ahtapot hangi renk mercanın arkasına saklanmış?", type: "multiple", options: ["Mor", "Yeşil", "Sarı", "Kırmızı"], answer: "Mor" },
-            { q: "Mavi balık sürüsü hangi formda yüzüyor?", type: "multiple", options: ["Sarmal (Spiral)", "Düz Hat", "Üçgen", "Dağınık"], answer: "Sarmal (Spiral)" },
-            { q: "Kumların arasına yarı gömülü duran nesne nedir?", type: "multiple", options: ["Hazine Sandığı", "Eski Bir Gemi", "Dev Bir İnci", "Denizaltı"], answer: "Hazine Sandığı" },
-            { q: "Hazine sandığının içinde ne parlıyor?", type: "open", answer: "Altın sikkeler" }
+            { q: "Turuncu ahtapot hangi renk mercanın arkasına saklanmış?", type: "multiple", options: ["Mor", "Yeşil", "Sarı", "Kırmızı"], answer: "Mor", category: 'NEREDE' },
+            { q: "Mavi balık sürüsü hangi formda yüzüyor?", type: "multiple", options: ["Sarmal (Spiral)", "Düz Hat", "Üçgen", "Dağınık"], answer: "Sarmal (Spiral)", category: 'NASIL/NİÇİN' },
+            { q: "Kumların arasına yarı gömülü duran nesne nedir?", type: "multiple", options: ["Hazine Sandığı", "Eski Bir Gemi", "Dev Bir İnci", "Denizaltı"], answer: "Hazine Sandığı", category: 'NE' },
+            { q: "Hazine sandığının içinde ne parlıyor?", type: "open", answer: "Altın sikkeler", category: 'NE' }
         ]
     },
     {
@@ -48,10 +48,10 @@ const VISUAL_SCENES = [
         alt: "Uçan kitaplar ve ışıldayan fenerlerle dolu masalsı bir kütüphane.",
         pedagogicalNote: "Mekansal organizasyon ve detaylı görsel dikkat üzerine odaklanır.",
         questions: [
-            { q: "Kütüphane tavanlarının mimari şekli nasıldır?", type: "multiple", options: ["Yüksek Kemerli", "Düz ve Alçak", "Cam Tavan", "Kubbeli"], answer: "Yüksek Kemerli" },
-            { q: "Merdivende oturan kızın elindeki kitap ne renktir?", type: "multiple", options: ["Mavi", "Kırmızı", "Yeşil", "Sarı"], answer: "Mavi" },
-            { q: "Ansiklopedilerin üzerinde duran mekanik hayvan hangisidir?", type: "multiple", options: ["Baykuş", "Kedi", "Fare", "Ejderha"], answer: "Baykuş" },
-            { q: "Işık demetlerinin içinde ne dans ediyor?", type: "open", answer: "Toz zerreleri" }
+            { q: "Kütüphane tavanlarının mimari şekli nasıldır?", type: "multiple", options: ["Yüksek Kemerli", "Düz ve Alçak", "Cam Tavan", "Kubbeli"], answer: "Yüksek Kemerli", category: 'NE' },
+            { q: "Merdivende oturan kızın elindeki kitap ne renktir?", type: "multiple", options: ["Mavi", "Kırmızı", "Yeşil", "Sarı"], answer: "Mavi", category: 'NE' },
+            { q: "Ansiklopedilerin üzerinde duran mekanik hayvan hangisidir?", type: "multiple", options: ["Baykuş", "Kedi", "Fare", "Ejderha"], answer: "Baykuş", category: 'NE' },
+            { q: "Işık demetlerinin içinde ne dans ediyor?", type: "open", answer: "Toz zerreleri", category: 'NE' }
         ]
     }
 ];
