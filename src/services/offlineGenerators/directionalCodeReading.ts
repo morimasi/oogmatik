@@ -112,23 +112,43 @@ export const generateOfflineDirectionalCodeReading = async (
   return {
     id: 'directional_code_' + Date.now(),
     activityType: 'DIRECTIONAL_CODE_READING' as any,
-    title: theme.name + ' (Premium)',
+    title: theme.name + ' (Hızlı Mod)',
     settings: {
       difficulty,
       gridSize,
       obstacleDensity: config.obstacles * 100,
       cipherType: 'arrows',
+      aestheticMode: (options as any).aestheticMode || 'standard',
     },
     content: {
       title: theme.name,
       storyIntro: theme.intro,
-      startPos: { x: startX, y: startY },
-      targetPos,
-      grid,
-      instructions: instructions.map((ins) => ({
-        ...ins,
-        label: `${ins.count} ${ins.label === 'Sağ' ? '➡️' : ins.label === 'Sol' ? '⬅️' : ins.label === 'Aşağı' ? '⬇️' : '⬆️'}`,
-      })),
+      puzzles: [
+        {
+          id: 'p1',
+          title: theme.name,
+          startPos: { x: startX, y: startY },
+          targetPos,
+          grid: grid.map((row) =>
+            row.map((cell) => ({
+              x: cell.x,
+              y: cell.y,
+              type: cell.type === 'start' ? 'start' : cell.type === 'target' ? 'target' : cell.type === 'obstacle' ? 'obstacle' : 'empty',
+              icon: cell.icon,
+            }))
+          ),
+          instructions: instructions.map((ins) => ({
+            step: ins.step,
+            count: ins.count,
+            direction: ins.direction,
+            label: `${ins.count} ${ins.direction === 'right' ? '➡️' : ins.direction === 'left' ? '⬅️' : ins.direction === 'down' ? '⬇️' : '⬆️'}`,
+          })),
+          clinicalMeta: {
+            cognitiveLoad: 0.7,
+            planningComplexity: 'Orta',
+          }
+        },
+      ],
     },
   } as any;
 };
