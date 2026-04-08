@@ -18,7 +18,19 @@ export interface AddedWidget {
   activityId: string;
 }
 
-export const InfographicStudio: React.FC = () => {
+interface InfographicStudioProps {
+  onBack: () => void;
+  onSave?: (name: string, activityType: any, data: any) => Promise<any>;
+  onAddToWorkbook?: (item: any) => void;
+  initialData?: any;
+}
+
+export const InfographicStudio: React.FC<InfographicStudioProps> = ({
+  onBack,
+  onSave,
+  onAddToWorkbook,
+  initialData,
+}) => {
   const {
     selectedCategory,
     selectedActivity,
@@ -30,8 +42,14 @@ export const InfographicStudio: React.FC = () => {
   } = useInfographicStudio();
 
   // Bileşik (composite) üretim
-  const { isGenerating, result, generate, enrichPrompt } = useInfographicGenerate();
-  const { handleExportToWorksheet, handleExportToPDF, handlePrint } = useInfographicExport();
+  const { isGenerating, result, generate, enrichPrompt } = useInfographicGenerate(initialData);
+  const {
+    handleExportToWorksheet,
+    handleExportToPDF,
+    handlePrint,
+    handleSaveToArchive,
+    handleAddToWorkbook: handleAddToWorkbookInternal,
+  } = useInfographicExport(onSave, onAddToWorkbook);
 
   // Tek aktivite ultra üretim
   const {
@@ -150,6 +168,8 @@ export const InfographicStudio: React.FC = () => {
           onExportWorksheet={() => handleExportToWorksheet(result)}
           onExportPDF={() => handleExportToPDF(result)}
           onPrint={() => handlePrint(result)}
+          onSaveToArchive={() => handleSaveToArchive(result)}
+          onAddToWorkbook={() => handleAddToWorkbookInternal(result)}
           onSubmitForApproval={() => {}}
           isGenerating={anyGenerating}
         />

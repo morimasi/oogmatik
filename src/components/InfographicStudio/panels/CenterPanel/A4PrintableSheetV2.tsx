@@ -8,6 +8,7 @@ import { GridWrapper } from '../../layout/GridWrapper';
 interface A4PrintableSheetV2Props {
   worksheet: CompositeWorksheet;
   layoutEngine?: CompactLayoutEngine;
+  hideWrapper?: boolean;
 }
 
 const WidgetRenderer = ({ widget }: { widget: WorksheetWidget }) => {
@@ -80,6 +81,7 @@ const WidgetRenderer = ({ widget }: { widget: WorksheetWidget }) => {
 export const A4PrintableSheetV2: React.FC<A4PrintableSheetV2Props> = ({
   worksheet,
   layoutEngine,
+  hideWrapper = false,
 }) => {
   let dynamicStyles = { padding: '20mm' };
   let dynamicClasses = '';
@@ -94,15 +96,29 @@ export const A4PrintableSheetV2: React.FC<A4PrintableSheetV2Props> = ({
     dynamicClasses = tClass.container;
   }
 
-  return (
-    <div className="flex-1 overflow-y-auto w-full h-full p-6 flex justify-center bg-transparent">
-      <div
-        id="a4-printable-sheet"
-        className={`bg-white w-full h-full overflow-hidden print:w-auto print:h-auto print:shadow-none print:border-none print:m-0 ${dynamicClasses}`}
-        style={dynamicStyles}
-      >
-        {/* Header */}
-        <div className="mb-6 border-b-2 border-slate-800 pb-4">
+  // Gelişmiş Sayfalama Mantığı
+  const widgetsPerPage = 4;
+  const pages: WorksheetWidget[][] = [];
+  
+  for (let i = 0; i < worksheet.widgets.length; i += widgetsPerPage) {
+    pages.push(worksheet.widgets.slice(i, i + widgetsPerPage));
+  }
+
+  if (pages.length === 0) pages.push([]);
+
+  const content = pages.map((pageWidgets, pageIndex) => (
+    <div
+      key={pageIndex}
+      className={`infographic-page-container bg-white shadow-2xl relative flex flex-col ${dynamicClasses}`}
+      style={{
+        width: '210mm',
+        minHeight: '297mm',
+        ...dynamicStyles,
+      }}
+    >
+      {/* Header */}
+      {pageIndex === 0 && (
+         <div className="mb-6 border-b-2 border-slate-800 pb-4">
           <h1 className="text-2xl font-bold font-lexend text-slate-800 text-center mb-2">
             {worksheet.title || worksheet.topic || 'Çalışma Kağıdı'}
           </h1>
@@ -113,28 +129,43 @@ export const A4PrintableSheetV2: React.FC<A4PrintableSheetV2Props> = ({
             </span>
           </div>
         </div>
+      )}
 
-        {/* Widgets */}
-        <div className="space-y-8">
-          {layoutEngine ? (
-            <GridWrapper engine={layoutEngine}>
-              {worksheet.widgets.map((widget: WorksheetWidget) => (
-                <WidgetRenderer key={widget.id} widget={widget} />
-              ))}
-            </GridWrapper>
-          ) : (
-            worksheet.widgets.map((widget: WorksheetWidget) => (
+      {/* Widgets */}
+      <div className="flex-1 space-y-8">
+        {layoutEngine ? (
+          <GridWrapper engine={layoutEngine}>
+            {pageWidgets.map((widget: WorksheetWidget) => (
               <WidgetRenderer key={widget.id} widget={widget} />
-            ))
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="mt-12 pt-4 border-t border-slate-200 text-center text-xs text-slate-400 font-lexend print:absolute print:bottom-4 print:w-full">
-          <p>Oogmatik Premium Worksheet Motoru ile Üretilmiştir</p>
-          <p>Onay Durumu: {worksheet.status === 'approved' ? '✅ Onaylandı' : '⏳ Bekliyor'}</p>
-        </div>
+            ))}
+          </GridWrapper>
+        ) : (
+          pageWidgets.map((widget: WorksheetWidget) => (
+            <WidgetRenderer key={widget.id} widget={widget} />
+          ))
+        )}
       </div>
+
+      {/* Footer */}
+      <div className="mt-12 pt-4 border-t border-slate-200 flex justify-between items-end text-[10px] text-slate-400 font-lexend">
+         <div className="text-left">
+            <p>Oogmatik Premium Worksheet Motoru</p>
+            <p>Onay: {worksheet.status === 'approved' ? '✅' : '⏳'}</p>
+         </div>
+         <div className="text-right">
+            <span>Sayfa {pageIndex + 1} / {pages.length}</span>
+         </div>
+      </div>
+    </div>
+  ));
+
+  if (hideWrapper) {
+    return <>{content}</>;
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto w-full h-full p-6 flex flex-col items-center gap-8 bg-transparent custom-scrollbar">
+      {content}
     </div>
   );
 };

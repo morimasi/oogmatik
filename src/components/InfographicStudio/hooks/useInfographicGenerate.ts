@@ -6,10 +6,25 @@ import { generateCompositeWorksheet } from '../../../services/generators/premium
 import { CompositeWorksheet } from '../../../types/worksheet';
 import { generateCreativeMultimodal } from '../../../services/geminiClient';
 
-export const useInfographicGenerate = () => {
+export const useInfographicGenerate = (initialData?: any) => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [result, setResult] = useState<CompositeWorksheet | null>(null);
     const { show } = useToastStore(); 
+
+    // Veri yükleme mantığı
+    useState(() => {
+        if (initialData) {
+            // Eğer veri standard blok yapısında geliyorsa (Arşivden yükleme)
+            if (Array.isArray(initialData) && initialData[0]?.content) {
+                setResult(initialData[0].content);
+            } 
+            // Eğer doğrudan CompositeWorksheet olarak geliyorsa
+            else if (initialData.widgets) {
+                setResult(initialData);
+            }
+        }
+    });
+
 
     const generate = useCallback(async (
         widgets: { id: string; activityId: string }[],

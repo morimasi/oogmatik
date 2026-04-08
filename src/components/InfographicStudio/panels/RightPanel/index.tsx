@@ -9,6 +9,8 @@ interface RightPanelProps {
     onExportWorksheet: () => void;
     onExportPDF: () => void;
     onPrint: () => void;
+    onSaveToArchive: () => void;
+    onAddToWorkbook: () => void;
     onSubmitForApproval: () => void;
     isGenerating: boolean;
 }
@@ -18,6 +20,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     onExportWorksheet,
     onExportPDF,
     onPrint,
+    onSaveToArchive,
+    onAddToWorkbook,
     onSubmitForApproval,
     isGenerating
 }) => {
@@ -34,6 +38,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                             onExportWorksheet={onExportWorksheet}
                             onExportPDF={onExportPDF}
                             onPrint={onPrint}
+                            onSaveToArchive={onSaveToArchive}
+                            onAddToWorkbook={onAddToWorkbook}
                             onSubmitForApproval={onSubmitForApproval}
                             disabled={!hasResult}
                         />

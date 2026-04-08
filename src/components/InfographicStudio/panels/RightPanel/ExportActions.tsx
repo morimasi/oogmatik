@@ -6,6 +6,8 @@ interface ExportActionsProps {
     onExportWorksheet: () => void;
     onExportPDF: () => void;
     onPrint: () => void;
+    onSaveToArchive: () => void;
+    onAddToWorkbook: () => void;
     onSubmitForApproval?: () => void;
     disabled: boolean;
 }
@@ -14,6 +16,8 @@ export const ExportActions: React.FC<ExportActionsProps> = ({
     onExportWorksheet,
     onExportPDF,
     onPrint,
+    onSaveToArchive,
+    onAddToWorkbook,
     onSubmitForApproval,
     disabled
 }) => {
@@ -23,9 +27,26 @@ export const ExportActions: React.FC<ExportActionsProps> = ({
                 Dışa Aktar ve Kaydet
             </h3>
             <div className="space-y-2 font-lexend">
-                {/* Çalışma Kâğıdına Ekle */}
+                {/* Kitapçığa Ekle */}
                 <button
-                    onClick={onExportWorksheet}
+                    onClick={onAddToWorkbook}
+                    disabled={disabled}
+                    className={cn(
+                        "w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all group",
+                        disabled
+                            ? "bg-white/5 text-white/30 cursor-not-allowed"
+                            : "bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 border border-indigo-500/30"
+                    )}
+                >
+                    <div className="flex items-center space-x-2">
+                        <PlusSquare className="w-4 h-4 transition-transform group-hover:scale-110" />
+                        <span>Kitapçığa Ekle</span>
+                    </div>
+                </button>
+
+                {/* Arşive Kaydet */}
+                <button
+                    onClick={onSaveToArchive}
                     disabled={disabled}
                     className={cn(
                         "w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all group",
@@ -35,11 +56,12 @@ export const ExportActions: React.FC<ExportActionsProps> = ({
                     )}
                 >
                     <div className="flex items-center space-x-2">
-                        <PlusSquare className="w-4 h-4 transition-transform group-hover:scale-110" />
+                        <FileCheck2 className="w-4 h-4 transition-transform group-hover:scale-110" />
                         <span>Arşive Kaydet</span>
                     </div>
-                    {!disabled && <FileCheck2 className="w-4 h-4 text-accent/70 opacity-50" />}
                 </button>
+
+                <div className="pt-2 pb-1 border-t border-white/5 my-2"></div>
 
                 {/* PDF İndir */}
                 <button

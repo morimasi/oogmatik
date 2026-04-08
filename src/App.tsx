@@ -308,6 +308,8 @@ const AppContent = () => {
     null as { name: string; age: number; weaknesses: string[]; diagnosisContext?: string } | null
   );
 
+  const [loadedInfographicData, setLoadedInfographicData] = useState(null);
+
   // Apply UI settings to document root when they change
   useEffect(() => {
     document.documentElement.style.setProperty('--app-font-family', uiSettings.fontFamily);
@@ -563,6 +565,11 @@ const AppContent = () => {
         setWorkbookSettings(item.workbookSettings);
         navigateTo('workbook');
       }
+      return;
+    }
+    if (item.activityType === ActivityType.INFOGRAPHIC_STUDIO) {
+      setLoadedInfographicData(item.worksheetData);
+      navigateTo('infographic-studio');
       return;
     }
     setSelectedActivity(item.activityType);
@@ -904,7 +911,15 @@ const AppContent = () => {
                   )}
                   {currentView === 'super-turkce' && <SuperStudio />}
                   {currentView === 'infographic-studio' && (
-                    <InfographicStudio onBack={handleGoBack} />
+                    <InfographicStudio
+                      onBack={() => {
+                        setLoadedInfographicData(null);
+                        handleGoBack();
+                      }}
+                      onSave={addSavedWorksheet}
+                      onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                      initialData={loadedInfographicData}
+                    />
                   )}
                   {currentView === 'ocr' && (
                     <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CollectionItem, WorkbookSettings } from '../types';
+import { CollectionItem, WorkbookSettings, ActivityType } from '../types';
 import Worksheet from './Worksheet';
 import DyslexiaLogo from './DyslexiaLogo';
 import { Toolbar } from './Toolbar';
@@ -582,6 +582,24 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
           isPremium: true,
           fontFamily: font,
         };
+
+        if (item.activityType === ActivityType.INFOGRAPHIC_STUDIO) {
+          return (
+            <div key={item.id} className="relative w-full flex flex-col items-center">
+              <Worksheet
+                activityType={item.activityType}
+                data={item.data as any}
+                settings={mergedSettings}
+                studentProfile={{
+                  name: settings.studentName,
+                  school: settings.schoolName,
+                  grade: '',
+                  date: new Date().toLocaleDateString('tr-TR'),
+                }}
+              />
+            </div>
+          );
+        }
 
         return (
           <div key={item.id} className="relative w-full flex justify-center print:m-0">

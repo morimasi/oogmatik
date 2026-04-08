@@ -86,6 +86,8 @@ import {
   CrosswordData,
 } from '../types';
 
+import { A4PrintableSheetV2 } from './InfographicStudio/panels/CenterPanel/A4PrintableSheetV2';
+
 import { MathPuzzleSheet } from './sheets/math/MathPuzzleSheet';
 import { NumberPatternSheet } from './sheets/math/NumberPatternSheet';
 import { RealLifeMathProblemsSheet } from './sheets/math/RealLifeMathProblemsSheet';
@@ -1438,6 +1440,8 @@ export const SheetRenderer = React.memo(
         return <HiddenPasswordGridSheet data={data as unknown as HiddenPasswordGridData} />;
       case ActivityType.WORD_SEARCH:
         return <WordSearchSheet data={data as unknown as WordSearchData} />;
+      case ActivityType.INFOGRAPHIC_STUDIO:
+        return <A4PrintableSheetV2 worksheet={data as any} hideWrapper={true} />;
       case ActivityType.ANAGRAM:
         return <AnagramSheet data={data as unknown as AnagramsData} />;
       case ActivityType.CROSSWORD:

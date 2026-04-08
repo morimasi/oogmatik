@@ -113,25 +113,10 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
               viewMode === 'mobile' && 'px-6'
             )}
           >
-            <div
-              className={cn(
-                'transition-all duration-500 shadow-2xl overflow-hidden relative',
-                viewMode === 'a4'
-                  ? 'w-[210mm] min-h-[297mm] bg-white border border-slate-300'
-                  : viewMode === 'presentation'
-                    ? 'w-full min-h-[80vh] bg-white rounded-2xl'
-                    : viewMode === 'dark'
-                      ? 'w-[210mm] min-h-[297mm] bg-white border border-slate-300'
-                      : viewMode === 'mobile'
-                        ? 'w-[375px] min-h-[812px] bg-white rounded-[3rem] border-[12px] border-slate-800'
-                        : ''
-              )}
-            >
               <SingleActivitySheet
                 result={ultraResult}
                 activityTitle={selectedActivityTitle}
               />
-            </div>
           </div>
         ) : result ? (
           /* ── Bileşik (Composite) Sonucu ── */
@@ -144,22 +129,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
               viewMode === 'mobile' && 'px-6'
             )}
           >
-            <div
-              className={cn(
-                'transition-all duration-500 shadow-2xl overflow-hidden relative',
-                viewMode === 'a4'
-                  ? 'w-[210mm] min-h-[297mm] bg-white border border-slate-300'
-                  : viewMode === 'presentation'
-                    ? 'w-full min-h-[80vh] bg-white rounded-2xl'
-                    : viewMode === 'dark'
-                      ? 'w-[210mm] min-h-[297mm] bg-white border border-slate-300'
-                      : viewMode === 'mobile'
-                        ? 'w-[375px] min-h-[812px] bg-white rounded-[3rem] border-[12px] border-slate-800'
-                        : ''
-              )}
-            >
               <A4PrintableSheetV2 worksheet={result} layoutEngine={layoutEngine} />
-            </div>
           </div>
         ) : (
           <EmptyState />

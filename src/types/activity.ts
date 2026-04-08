@@ -262,6 +262,7 @@ export enum ActivityType {
   HISTORY_TIMELINE = 'HISTORY_TIMELINE',
   MAP_READING = 'MAP_READING',
   GOAL_SETTING = 'GOAL_SETTING',
+  INFOGRAPHIC_STUDIO = 'INFOGRAPHIC_STUDIO',
 }
 
 export interface Activity {
