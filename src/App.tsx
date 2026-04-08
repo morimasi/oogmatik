@@ -942,8 +942,8 @@ const AppContent = () => {
                       }
                     />
                   )}
-                  {currentView === 'sinav-studyosu' && <SinavStudyosu />}
-                  {currentView === 'mat-sinav-studyosu' && <MatSinavStudyosu />}
+                  {currentView === 'sinav-studyosu' && <SinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />}
+                  {currentView === 'mat-sinav-studyosu' && <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />}
                 </Suspense>
               </motion.div>
             )}

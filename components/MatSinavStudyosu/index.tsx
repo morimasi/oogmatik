@@ -47,7 +47,11 @@ const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isO
     </button>
 );
 
-export const MatSinavStudyosu: React.FC = () => {
+interface MatSinavStudyosuProps {
+    onAddToWorkbook?: (activityType: ActivityType, data: unknown) => void;
+}
+
+export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkbook }) => {
     const {
         ayarlar,
         setSinif,
@@ -231,65 +235,52 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
         setActiveTab('onizleme');
     };
 
-    // ─── Workbook Integration — Tek Tıkla Kaydet ──────────────────
-    const handleAddToWorkbook = async () => {
+    // ─── Workbook Integration — Çalışma Kitabına Ekle ──────────────
+    const handleAddToWorkbook = () => {
         if (!aktifSinav) {
             setError('Lütfen önce bir sınav oluşturun.');
             return;
         }
 
-        try {
+        if (onAddToWorkbook) {
+            // Canlı çalışma kitabına ekle (App state)
+            onAddToWorkbook(ActivityType.MAT_SINAV, {
+                ...aktifSinav,
+                title: aktifSinav.baslik || 'Matematik Sınavı',
+                printConfig,
+            });
+            showSuccess('✅ Sınav çalışma kitabına eklendi!');
+        } else {
+            // Fallback: Arşive kaydet (onAddToWorkbook prop yoksa)
+            setIsSavingToWorkbook(true);
+            setError(null);
             const user = useAuthStore.getState().user;
             if (!user) {
                 setError('Lütfen giriş yapın.');
+                setIsSavingToWorkbook(false);
                 return;
             }
-
-            setIsSavingToWorkbook(true);
-            setError(null);
-
-            // Sınav verisini SingleWorksheetData formatına dönüştür
             const worksheetData = {
                 title: aktifSinav.baslik || 'Matematik Sınavı',
                 instruction: 'Matematik problemlerini dikkatlice çözünüz.',
-                activityType: ActivityType.SINAV,
+                activityType: ActivityType.MAT_SINAV,
                 data: [aktifSinav],
-                settings: {
-                    fontSize: printConfig.fontSize,
-                    fontFamily: printConfig.fontFamily,
-                    marginMm: printConfig.marginMm,
-                    columns: printConfig.columns,
-                    lineHeight: printConfig.lineHeight,
-                    textAlign: printConfig.textAlign,
-                    questionSpacingMm: printConfig.questionSpacingMm,
-                    difficulty: 'Orta' as const
-                }
             };
-
-            // worksheetService.saveWorksheet ile kaydet
-            await worksheetService.saveWorksheet(
+            worksheetService.saveWorksheet(
                 user.id,
                 aktifSinav.baslik || 'Matematik Sınavı',
-                ActivityType.SINAV,
+                ActivityType.MAT_SINAV,
                 [worksheetData],
                 'fa-solid fa-square-root-variable',
-                { id: 'matematik', title: 'Matematik' }, // Kategori: Matematik
-                {
-                    fontSize: printConfig.fontSize,
-                    fontFamily: printConfig.fontFamily,
-                    margin: printConfig.marginMm,
-                    columns: printConfig.columns,
-                    lineHeight: printConfig.lineHeight,
-                    contentAlign: printConfig.textAlign,
-                } as any
-            );
-
-            showSuccess('✅ Sınav "Çalışma Kitapçığı" veri tabanına kaydedildi!');
-        } catch (err: any) {
-            console.error('Workbook kayıt hatası:', err);
-            setError(`Kaydetme hatası: ${err.message || 'Bilinmeyen hata'}`);
-        } finally {
-            setIsSavingToWorkbook(false);
+                { id: 'matematik', title: 'Matematik' },
+            ).then(() => {
+                showSuccess('✅ Sınav arşive kaydedildi!');
+            }).catch((err: unknown) => {
+                const msg = err instanceof Error ? err.message : 'Bilinmeyen hata';
+                setError(`Kaydetme hatası: ${msg}`);
+            }).finally(() => {
+                setIsSavingToWorkbook(false);
+            });
         }
     };
 
