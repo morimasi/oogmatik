@@ -116,7 +116,7 @@ const NumberControl = ({ label, value, onChange, min, max, step = 1, unit = '' }
     <div className="flex items-center gap-2 bg-[var(--bg-secondary)] rounded-md p-0.5 border border-[var(--border-color)]">
       <button
         onClick={() => onChange(Math.max(min, value - step))}
-        className="w-6 h-6 flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] rounded shadow-sm transition-all"
+        className="w-6 h-6 flex items-center justify-center text-[var(--text-secondary)] hover:bg-white rounded shadow-sm transition-all"
         disabled={value <= min}
       >
         <i className="fa-solid fa-minus text-[10px]"></i>
@@ -127,7 +127,7 @@ const NumberControl = ({ label, value, onChange, min, max, step = 1, unit = '' }
       </span>
       <button
         onClick={() => onChange(Math.min(max, value + step))}
-        className="w-6 h-6 flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] rounded shadow-sm transition-all"
+        className="w-6 h-6 flex items-center justify-center text-[var(--text-secondary)] hover:bg-white rounded shadow-sm transition-all"
         disabled={value >= max}
       >
         <i className="fa-solid fa-plus text-[10px]"></i>
@@ -381,7 +381,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               className="w-80"
             >
               <div className="space-y-4">
-                <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
+                <div className="bg-white p-3 rounded-lg border border-[var(--border-color)]">
                   <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
                     <i className="fa-solid fa-grip-vertical mr-1"></i> İçerik Yapısı
                   </label>
@@ -408,7 +408,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 </div>
 
                 {/* Kenarlık Teması */}
-                <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
+                <div className="bg-white p-3 rounded-lg border border-[var(--border-color)]">
                   <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
                     <i className="fa-solid fa-border-all mr-1"></i> Kenarlık Teması
                   </label>
@@ -440,7 +440,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 </div>
 
                 {/* Renk Paleti */}
-                <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
+                <div className="bg-white p-3 rounded-lg border border-[var(--border-color)]">
                   <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
                     <i className="fa-solid fa-palette mr-1"></i> Kenarlık Rengi
                   </label>
@@ -469,7 +469,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 </div>
 
                 {/* Altbilgi Özelleştirme */}
-                <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
+                <div className="bg-white p-3 rounded-lg border border-[var(--border-color)]">
                   <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
                     <i className="fa-solid fa-shoe-prints mr-1"></i> Altbilgi
                   </label>
@@ -597,7 +597,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     setSnapshotMenuOpen(false);
                     snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'download');
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)] transition-all"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-white hover:text-[var(--text-primary)] transition-all"
                 >
                   <i className="fa-solid fa-download text-purple-400 w-4 text-center"></i>
                   Mevcut Sayfa (PNG)
@@ -607,7 +607,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     setSnapshotMenuOpen(false);
                     snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'download_zip');
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)] transition-all"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-white hover:text-[var(--text-primary)] transition-all"
                 >
                   <i className="fa-solid fa-file-zipper text-indigo-400 w-4 text-center"></i>
                   Tüm Sayfalar (ZIP)
@@ -618,7 +618,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     setSnapshotMenuOpen(false);
                     await snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'clipboard');
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)] transition-all"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-medium text-[var(--text-secondary)] hover:bg-white hover:text-[var(--text-primary)] transition-all"
                 >
                   <i className="fa-solid fa-clipboard text-blue-400 w-4 text-center"></i>
                   Panoya Kopyala
