@@ -389,6 +389,13 @@
   animation: theme-shimmer 0.6s ease-in-out forwards;
 }
 
+/* Orientation helper for A4 landscape rendering */
+.landscape {
+  /* Override default page dimensions for landscape orientation */
+  --page-w: 1123px;
+  --page-h: 794px;
+}
+
 /* Success Glow — Aktivite tamamlandığında çevre animasyonu (Elif Yıldız) */
 @keyframes success-breathing {
   0%,
