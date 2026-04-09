@@ -24,7 +24,7 @@
   --accent-l: 73%;
   --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
   --accent-hover: hsl(var(--accent-h), 83%, 62%);
-  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.10);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.1);
 
   /* Arka Plan (RGB tabanlı — Tailwind uyumluluğu için) */
   --bg-primary-rgb: 9, 9, 11;
@@ -52,7 +52,7 @@
 
   /* Gölge ve Kenar Radius */
   --radius-premium: 16px;
-  --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.40);
+  --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
   --blur-premium: 20px;
 
   /* Görünüm Yüzeyi (A4 etrafındaki masa) */
@@ -111,7 +111,7 @@
   --accent-l: 73%;
   --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
   --accent-hover: hsl(var(--accent-h), 83%, 62%);
-  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.10);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.1);
 
   --bg-primary-rgb: 9, 9, 11;
   --bg-secondary-rgb: 2, 2, 3;
@@ -140,7 +140,7 @@
   --accent-l: 67%;
   --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
   --accent-hover: hsl(var(--accent-h), 77%, 58%);
-  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.10);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.1);
 
   --bg-primary-rgb: 18, 18, 20;
   --bg-secondary-rgb: 10, 10, 11;
@@ -183,7 +183,7 @@
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  --border-color: rgba(56, 189, 248, 0.10);
+  --border-color: rgba(56, 189, 248, 0.1);
 
   --bg-viewport: rgb(4, 10, 32);
   --bg-viewport-dot: rgba(56, 189, 248, 0.04);
@@ -225,7 +225,7 @@
   --accent-l: 45%;
   --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
   --accent-hover: hsl(var(--accent-h), 69%, 37%);
-  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.10);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.1);
 
   --bg-primary-rgb: 5, 46, 22;
   --bg-secondary-rgb: 2, 44, 34;
@@ -270,7 +270,7 @@
   --text-muted: #a8936e;
   --border-color: rgba(251, 191, 36, 0.15);
 
-  --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.50), 0 0 15px -3px rgba(251, 191, 36, 0.10);
+  --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(251, 191, 36, 0.1);
   --bg-viewport: rgb(20, 18, 14);
   --bg-viewport-dot: rgba(251, 191, 36, 0.05);
 }
@@ -298,9 +298,9 @@
   --text-primary: #ffffff;
   --text-secondary: #f9a8b8;
   --text-muted: #fb7185;
-  --border-color: rgba(244, 63, 94, 0.20);
+  --border-color: rgba(244, 63, 94, 0.2);
 
-  --shadow-premium: 0 0 20px rgba(244, 63, 94, 0.18), 0 10px 25px -5px rgba(0, 0, 0, 0.60);
+  --shadow-premium: 0 0 20px rgba(244, 63, 94, 0.18), 0 10px 25px -5px rgba(0, 0, 0, 0.6);
   --bg-viewport: rgb(8, 3, 8);
   --bg-viewport-dot: rgba(244, 63, 94, 0.04);
 }
@@ -384,19 +384,15 @@
   inset: 0;
   pointer-events: none;
   z-index: 9998;
-  background: linear-gradient(
-    105deg,
-    transparent 35%,
-    var(--accent-muted) 50%,
-    transparent 65%
-  );
+  background: linear-gradient(105deg, transparent 35%, var(--accent-muted) 50%, transparent 65%);
   background-size: 200% 100%;
   animation: theme-shimmer 0.6s ease-in-out forwards;
 }
 
 /* Success Glow — Aktivite tamamlandığında çevre animasyonu (Elif Yıldız) */
 @keyframes success-breathing {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 var(--accent-muted);
   }
   50% {
@@ -445,7 +441,9 @@
   z-index: 901;
   background: var(--bg-paper);
   border-radius: var(--radius-premium);
-  box-shadow: 0 0 0 4px var(--accent-muted), 0 40px 80px -20px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 0 0 4px var(--accent-muted),
+    0 40px 80px -20px rgba(0, 0, 0, 0.6);
 }
 
 /* ----------------------------------------------------------------
@@ -472,7 +470,10 @@
  * ReadingStudio, MathStudio için ortak stil
  * ---------------------------------------------------------------- */
 .studio-icon-btn {
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
   background-color: transparent;
   border-color: transparent;
   color: var(--text-secondary);
@@ -555,4 +556,29 @@
   --text-primary: #0f172a !important;
   --text-secondary: #475569 !important;
   --border-color: #e4e4e7 !important;
+
+  /* Dinamik Boyutlandırma (Zenginlik Dikey/Yatay) */
+  width: 210mm !important;
+  min-height: 297mm !important;
+  transition:
+    width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    min-height 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.worksheet-page.landscape {
+  width: 297mm !important;
+  min-height: 210mm !important;
+}
+
+@media print {
+  .worksheet-page {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 auto !important;
+    page-break-after: always !important;
+  }
+  .worksheet-page.landscape {
+    width: 297mm !important;
+    min-height: 210mm !important;
+  }
 }

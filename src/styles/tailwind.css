@@ -9,24 +9,30 @@
   html {
     scroll-behavior: smooth;
   }
-  
+
   body {
     font-family: 'Lexend', sans-serif;
-    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     background-color: var(--bg-primary);
     color: var(--text-primary);
   }
 
   /* Global Theme Transition for all Themed Elements */
-  *, ::before, ::after {
+  *,
+  ::before,
+  ::after {
     transition-property: background-color, border-color, color, fill, stroke, box-shadow;
     transition-duration: 400ms;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Exclude transitions for fixed elements or where it might cause flickering */
-  .no-transition, .no-transition *, .worksheet-page, .worksheet-page * {
+  .no-transition,
+  .no-transition *,
+  .worksheet-page,
+  .worksheet-page * {
     transition: none !important;
   }
 }
@@ -129,9 +135,6 @@
     /* Sayfa Bazlı Çalışma Kağıdı Container'ı */
     .worksheet-page,
     .print-page {
-      width: 210mm !important;
-      min-height: 297mm !important;
-      max-height: 297mm !important;
       margin: 0 auto !important;
       padding: 15mm 10mm !important;
       /* Standart A4 iç marj */

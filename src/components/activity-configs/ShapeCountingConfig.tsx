@@ -12,7 +12,7 @@ export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange
     ];
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-300">
+        <div className="space-y-6 animate-in fade-in duration-300 bg-white/10 backdrop-blur-xl border border-amber-200/30 rounded-[2.5rem] p-6 shadow-[0_4px_12px_rgba(0,0,0,0.1)]" style={{ fontFamily: 'Lexend, sans-serif' }}>
             {/* Hedef Şekil Seçimi */}
             <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-[2rem] border border-amber-100 dark:border-amber-800/30">
                 <label className="text-[10px] font-black text-amber-600 uppercase mb-3 block text-center tracking-widest">Aranacak Hedef</label>
@@ -85,7 +85,7 @@ export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block">Görsel Stil</label>
                         <div className="flex gap-1.5">
-                            {['standard', 'premium', 'glassmorphism'].map(style => (
+                            {['glassmorphism', 'premium', 'standard'].map(style => (
                                 <button
                                     key={style}
                                     onClick={() => onChange('aestheticMode', style)}

@@ -137,7 +137,9 @@ const UniversalWorksheetInner = ({
   }, [worksheetData, activityType, setLayout, styleSettings]);
 
   return (
-    <div className={`flex max-w-full ${designMode ? 'w-full h-full' : 'w-fit h-auto max-w-none flex-col items-center'}`}>
+    <div
+      className={`flex max-w-full ${designMode ? 'w-full h-full' : 'w-fit h-auto max-w-none flex-col items-center'}`}
+    >
       <div
         className={`relative flex justify-center ${designMode ? 'flex-1 overflow-auto' : 'w-fit max-w-none overflow-visible'}`}
       >
@@ -152,7 +154,7 @@ const UniversalWorksheetInner = ({
               transformOrigin: 'top center',
             }}
           >
-            <UniversalCanvas />
+            <UniversalCanvas settings={styleSettings} />
           </div>
         )}
       </div>

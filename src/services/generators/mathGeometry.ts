@@ -10,7 +10,7 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
         targetShape = 'triangle',
         variant = 'mixed',
         overlapping = true,
-        aestheticMode = 'standard',
+        aestheticMode = 'glassmorphism',
         layout = 'single'
     } = options as any;
 
