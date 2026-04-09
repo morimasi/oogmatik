@@ -558,11 +558,27 @@
   --border-color: #e4e4e7 !important;
 
   /* Dinamik Boyutlandırma (Zenginlik Dikey/Yatay) */
-  width: 210mm !important;
-  min-height: 297mm !important;
+  --page-w: 210mm;
+  --page-h: 297mm;
+  width: var(--page-w) !important;
+  min-height: var(--page-h) !important;
   transition:
     width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
     min-height 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.worksheet-page.landscape {
+  --page-w: 297mm;
+  --page-h: 210mm;
+}
+
+@media print {
+  .worksheet-page {
+    width: var(--page-w) !important;
+    min-height: var(--page-h) !important;
+    margin: 0 auto !important;
+    page-break-after: always !important;
+  }
 }
 
 .worksheet-page.landscape {
