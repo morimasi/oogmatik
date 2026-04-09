@@ -1,6 +1,7 @@
 import React from 'react';
 import { WorksheetData, StyleSettings } from '../../../types';
 import { ImageDisplay, PedagogicalHeader } from '../common';
+import { EditableText, EditableElement } from '../../Editable';
 
 interface VisualInterpretationSheetProps {
   data: WorksheetData;
