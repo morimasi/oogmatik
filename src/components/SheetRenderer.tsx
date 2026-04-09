@@ -8,6 +8,8 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { A4PrintableWrapper } from '../A4Printable/A4PrintableWrapper';
+import InfoGraphicRenderer from '../sheet-renderers/InfoGraphicRenderer';
 import { Modifier } from '@dnd-kit/core';
 import {
   ActivityType,
@@ -1744,13 +1746,8 @@ export const SheetRenderer = React.memo(
         );
         break;
       case ActivityType.INFOGRAPHIC_STUDIO:
-        // Render A4 Printable sheet with orientation-aware wrapper to ensure
-        // portrait/landscape affects the final print preview.
-        return withWrapper(
-          <div className={settings?.orientation === 'landscape' ? 'landscape' : ''}>
-            <A4PrintableSheetV2 worksheet={data as any} hideWrapper={true} settings={settings} />
-          </div>
-        );
+        // Delegate to modular renderer to support orientation-aware layout
+        return withWrapper(<InfoGraphicRenderer data={data} settings={settings} />);
       case ActivityType.ANAGRAM:
         renderedSheet = <AnagramSheet data={data as unknown as AnagramsData} settings={settings} />;
         break;
