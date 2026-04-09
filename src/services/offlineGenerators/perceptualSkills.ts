@@ -104,9 +104,9 @@ export const generateOfflineShapeCounting = async (
         const type = isTarget
           ? 'triangle'
           : getRandomItems(
-            config.types.filter((t) => t !== 'triangle'),
-            1
-          )[0];
+              config.types.filter((t) => t !== 'triangle'),
+              1
+            )[0];
 
         if (type === 'triangle') targetCount++;
 
@@ -270,9 +270,11 @@ export const generateOfflineFindTheDifference = async (
 
     // Veri havuzu seçimi
     let sourcePool = EMOJIS;
-    if (findDiffType === 'char') {
+    if (findDiffType === 'char' || findDiffType === 'linguistic') {
       sourcePool = turkishAlphabet.split('');
-    } else if (findDiffType === 'word') {
+    } else if (findDiffType === 'number' || findDiffType === 'numeric') {
+      sourcePool = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    } else if (findDiffType === 'word' || findDiffType === 'semantic') {
       sourcePool =
         difficulty === 'Başlangıç'
           ? TURKISH_WORDS_EASY
@@ -334,12 +336,7 @@ export const generateOfflineFindTheDifference = async (
 export const generateOfflineDirectionalTracking = async (
   options: GeneratorOptions
 ): Promise<DirectionalCodeReadingData[]> => {
-  const {
-    worksheetCount = 1,
-    difficulty = 'Orta',
-    itemCount = 2,
-    concept = 'letters',
-  } = options;
+  const { worksheetCount = 1, difficulty = 'Orta', itemCount = 2, concept = 'letters' } = options;
   const aestheticMode = (options as any).aestheticMode || 'standard';
   const results: DirectionalCodeReadingData[] = [];
 
@@ -351,10 +348,10 @@ export const generateOfflineDirectionalTracking = async (
 
     // 2. Determine Difficulty Parameters
     const configMap: Record<string, { pathLength: number; obstacles: number }> = {
-      'Başlangıç': { pathLength: 4, obstacles: 0.1 },
-      'Orta': { pathLength: 6, obstacles: 0.2 },
-      'Zor': { pathLength: 9, obstacles: 0.25 },
-      'Uzman': { pathLength: 12, obstacles: 0.3 }
+      Başlangıç: { pathLength: 4, obstacles: 0.1 },
+      Orta: { pathLength: 6, obstacles: 0.2 },
+      Zor: { pathLength: 9, obstacles: 0.25 },
+      Uzman: { pathLength: 12, obstacles: 0.3 },
     };
     const difficultyKey = difficulty as string;
     const config = configMap[difficultyKey] || configMap['Orta'];
@@ -409,11 +406,11 @@ export const generateOfflineDirectionalTracking = async (
         grid,
         // İlk eleman (start) yön içermediği için yörünge adımlarından (1. elemandan itibaren) yönleri alıyoruz
         path: path.slice(1).map((p) => p.direction),
-        steps: path.slice(1).map((p, i) => ({ 
-            step: i + 1, 
-            count: 1, 
-            dir: p.direction,
-            direction: p.direction
+        steps: path.slice(1).map((p, i) => ({
+          step: i + 1,
+          count: 1,
+          dir: p.direction,
+          direction: p.direction,
         })),
         startPos: { r: path[0].r, c: path[0].c },
         // Başlangıç harfi + takip eden harfler hedef şifreyi oluşturur
@@ -458,19 +455,47 @@ export const generateOfflineVisualOddOneOut = async (
 ): Promise<VisualOddOneOutData[]> => {
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
+  const visualType = options.visualType || 'mixed';
   const results: VisualOddOneOutData[] = [];
 
   // Görsel benzerlik ve yön karışıklığı yaratan setler (Özellikle disleksi için)
   const letterSets = [
-    ['b', 'd'], ['p', 'q'], ['m', 'n'], ['s', 'ş'], ['c', 'ç'], ['O', 'Q'],
-    ['E', 'F'], ['6', '9'], ['3', 'E'], ['5', 'S'], ['u', 'n'], ['f', 't'],
-    ['v', 'y'], ['a', 'e'], ['g', 'ğ'], ['ı', 'i'], ['o', 'ö'], ['u', 'ü']
+    ['b', 'd'],
+    ['p', 'q'],
+    ['m', 'n'],
+    ['s', 'ş'],
+    ['c', 'ç'],
+    ['O', 'Q'],
+    ['E', 'F'],
+    ['6', '9'],
+    ['3', 'E'],
+    ['5', 'S'],
+    ['u', 'n'],
+    ['f', 't'],
+    ['v', 'y'],
+    ['a', 'e'],
+    ['g', 'ğ'],
+    ['ı', 'i'],
+    ['o', 'ö'],
+    ['u', 'ü'],
   ];
 
   const emojiSets = [
-    ['🙂', '🙃'], ['🚗', '🚙'], ['🍎', '🍅'], ['☀️', '🏵️'], ['🌲', '🌳'],
-    ['🐶', '🐻'], ['⚽', '🏀'], ['🎈', '🪀'], ['🏠', '🏡'], ['🚲', '🛵'],
-    ['🐱', '🐯'], ['🐟', '🐬'], ['🚀', '🛸'], ['🌜', '🌛'], ['🌻', '🌷']
+    ['🙂', '🙃'],
+    ['🚗', '🚙'],
+    ['🍎', '🍅'],
+    ['☀️', '🏵️'],
+    ['🌲', '🌳'],
+    ['🐶', '🐻'],
+    ['⚽', '🏀'],
+    ['🎈', '🪀'],
+    ['🏠', '🏡'],
+    ['🚲', '🛵'],
+    ['🐱', '🐯'],
+    ['🐟', '🐬'],
+    ['🚀', '🛸'],
+    ['🌜', '🌛'],
+    ['🌻', '🌷'],
   ];
 
   for (let p = 0; p < worksheetCount; p++) {
@@ -478,10 +503,15 @@ export const generateOfflineVisualOddOneOut = async (
 
     // Profesyonel bol içerik: A4'ü dolduracak şekilde optimize edildi
     const rowCount = difficulty === 'Başlangıç' ? 10 : difficulty === 'Orta' ? 14 : 18;
-    const itemCount = difficulty === 'Başlangıç' ? 5 : difficulty === 'Orta' ? 6 : 8;
+    const itemCount =
+      options.itemCount || (difficulty === 'Başlangıç' ? 5 : difficulty === 'Orta' ? 6 : 8);
 
     for (let r = 0; r < rowCount; r++) {
-      const useEmoji = Math.random() > 0.6;
+      const isCharType = visualType === 'character';
+      const isVisualType =
+        visualType === 'geometric' || visualType === 'abstract' || visualType === 'complex';
+
+      const useEmoji = isVisualType ? true : isCharType ? false : Math.random() > 0.6;
       const set = getRandomItems(useEmoji ? emojiSets : letterSets, 1)[0];
       const isReversed = Math.random() > 0.5;
       const baseChar = isReversed ? set[1] : set[0];
@@ -493,7 +523,10 @@ export const generateOfflineVisualOddOneOut = async (
       for (let i = 0; i < itemCount; i++) {
         items.push({
           label: i === correctIndex ? oddChar : baseChar,
-          rotation: (difficulty === 'Zor' || difficulty === 'Uzman') && !useEmoji ? getRandomInt(-10, 10) : 0,
+          rotation:
+            (difficulty === 'Zor' || difficulty === 'Uzman') && !useEmoji
+              ? getRandomInt(-10, 10)
+              : 0,
           scale: 1,
           isMirrored: false,
         });
@@ -507,7 +540,7 @@ export const generateOfflineVisualOddOneOut = async (
           discriminationFactor: 0.85,
           isMirrorTask: ['b', 'd', 'p', 'q', 'u', 'n', '3', 'E', '6', '9'].includes(baseChar),
           targetCognitiveSkill: 'Visual Discrimination',
-          errorType: 'Görsel Farklılık'
+          errorType: 'Görsel Farklılık',
         },
       });
     }

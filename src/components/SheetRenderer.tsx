@@ -1205,7 +1205,7 @@ export const SheetRenderer = React.memo(
 
     // Türkçe Sınav Stüdyosu çıktısı
     if (activityType === ActivityType.SINAV) {
-      const sinav = (data as any);
+      const sinav = data as any;
       if (sinav && sinav.baslik && Array.isArray(sinav.sorular)) {
         return <SinavOnizleme sinav={sinav} showAnswers={false} config={sinav.printConfig} />;
       }
@@ -1213,7 +1213,7 @@ export const SheetRenderer = React.memo(
 
     // Matematik Sınav Stüdyosu çıktısı
     if (activityType === ActivityType.MAT_SINAV) {
-      const sinav = (data as any);
+      const sinav = data as any;
       if (sinav && sinav.baslik && Array.isArray(sinav.sorular)) {
         return (
           <MatSinavOnizleme
@@ -1227,7 +1227,6 @@ export const SheetRenderer = React.memo(
       }
     }
 
-
     if (activityType === ActivityType.OCR_CONTENT) {
       const ocrData = data as unknown as {
         content?: string;
@@ -1238,8 +1237,30 @@ export const SheetRenderer = React.memo(
       };
       const sanitizedContent = ocrData.content
         ? DOMPurify.sanitize(String(ocrData.content), {
-            ALLOWED_TAGS: ['div','p','span','strong','em','u','b','i','br','ul','ol','li',
-                           'table','tr','td','th','thead','tbody','h1','h2','h3','h4'],
+            ALLOWED_TAGS: [
+              'div',
+              'p',
+              'span',
+              'strong',
+              'em',
+              'u',
+              'b',
+              'i',
+              'br',
+              'ul',
+              'ol',
+              'li',
+              'table',
+              'tr',
+              'td',
+              'th',
+              'thead',
+              'tbody',
+              'h1',
+              'h2',
+              'h3',
+              'h4',
+            ],
             ALLOWED_ATTR: ['class'],
           })
         : '';
@@ -1254,9 +1275,7 @@ export const SheetRenderer = React.memo(
 
           {ocrData.grafikVeri && (
             <div className="visual-block flex justify-center my-4 print:my-2">
-              <GraphicRenderer
-                grafik={ocrData.grafikVeri as any}
-              />
+              <GraphicRenderer grafik={ocrData.grafikVeri as any} />
             </div>
           )}
 
@@ -1423,19 +1442,33 @@ export const SheetRenderer = React.memo(
       case ActivityType.LOGIC_ERROR_HUNTER:
         return <LogicErrorHunterSheet data={data as any} />;
       case ActivityType.PATTERN_COMPLETION:
-        return <PatternCompletionSheet data={data as any} />;
+        return <PatternCompletionSheet data={data as any} settings={settings} />;
       case ActivityType.FIND_THE_DIFFERENCE:
-        return <FindTheDifferenceSheet data={data as unknown as FindTheDifferenceData} />;
+        return (
+          <FindTheDifferenceSheet
+            data={data as unknown as FindTheDifferenceData}
+            settings={settings}
+          />
+        );
       case ActivityType.VISUAL_ODD_ONE_OUT:
-        return <VisualOddOneOutSheet data={data as unknown as VisualOddOneOutData} />;
+        return (
+          <VisualOddOneOutSheet data={data as unknown as VisualOddOneOutData} settings={settings} />
+        );
       case ActivityType.GRID_DRAWING:
         return <GridDrawingSheet data={data as unknown as GridDrawingData} />;
       case ActivityType.SYMMETRY_DRAWING:
         return <SymmetryDrawingSheet data={data as unknown as SymmetryDrawingData} />;
       case ActivityType.SHAPE_COUNTING:
-        return <ShapeCountingSheet data={data as unknown as ShapeCountingData} />;
+        return (
+          <ShapeCountingSheet data={data as unknown as ShapeCountingData} settings={settings} />
+        );
       case ActivityType.DIRECTIONAL_TRACKING:
-        return <DirectionalTrackingSheet data={data as unknown as DirectionalTrackingData} />;
+        return (
+          <DirectionalTrackingSheet
+            data={data as unknown as DirectionalTrackingData}
+            settings={settings}
+          />
+        );
       case ActivityType.HIDDEN_PASSWORD_GRID:
         return <HiddenPasswordGridSheet data={data as unknown as HiddenPasswordGridData} />;
       case ActivityType.WORD_SEARCH:
