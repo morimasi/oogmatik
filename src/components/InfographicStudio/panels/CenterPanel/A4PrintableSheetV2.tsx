@@ -99,7 +99,7 @@ export const A4PrintableSheetV2: React.FC<A4PrintableSheetV2Props> = ({
   // Gelişmiş Sayfalama Mantığı
   const widgetsPerPage = 4;
   const pages: WorksheetWidget[][] = [];
-  
+
   for (let i = 0; i < worksheet.widgets.length; i += widgetsPerPage) {
     pages.push(worksheet.widgets.slice(i, i + widgetsPerPage));
   }
@@ -109,16 +109,14 @@ export const A4PrintableSheetV2: React.FC<A4PrintableSheetV2Props> = ({
   const content = pages.map((pageWidgets, pageIndex) => (
     <div
       key={pageIndex}
-      className={`infographic-page-container bg-white shadow-2xl relative flex flex-col ${dynamicClasses}`}
+      className={`infographic-page-container worksheet-page bg-white shadow-2xl relative flex flex-col ${dynamicClasses}`}
       style={{
-        width: '210mm',
-        minHeight: '297mm',
         ...dynamicStyles,
       }}
     >
       {/* Header */}
       {pageIndex === 0 && (
-         <div className="mb-6 border-b-2 border-slate-800 pb-4">
+        <div className="mb-6 border-b-2 border-slate-800 pb-4">
           <h1 className="text-2xl font-bold font-lexend text-slate-800 text-center mb-2">
             {worksheet.title || worksheet.topic || 'Çalışma Kağıdı'}
           </h1>
@@ -148,13 +146,15 @@ export const A4PrintableSheetV2: React.FC<A4PrintableSheetV2Props> = ({
 
       {/* Footer */}
       <div className="mt-12 pt-4 border-t border-slate-200 flex justify-between items-end text-[10px] text-slate-400 font-lexend">
-         <div className="text-left">
-            <p>Oogmatik Premium Worksheet Motoru</p>
-            <p>Onay: {worksheet.status === 'approved' ? '✅' : '⏳'}</p>
-         </div>
-         <div className="text-right">
-            <span>Sayfa {pageIndex + 1} / {pages.length}</span>
-         </div>
+        <div className="text-left">
+          <p>Oogmatik Premium Worksheet Motoru</p>
+          <p>Onay: {worksheet.status === 'approved' ? '✅' : '⏳'}</p>
+        </div>
+        <div className="text-right">
+          <span>
+            Sayfa {pageIndex + 1} / {pages.length}
+          </span>
+        </div>
       </div>
     </div>
   ));

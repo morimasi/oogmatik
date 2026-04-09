@@ -5,7 +5,6 @@ import { BlockRenderer, SheetRenderer } from '../SheetRenderer';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 
 interface DraggableItemProps {
-  key?: string | number;
   item: LayoutItem;
   children: React.ReactNode;
   canvasWidth: number;
@@ -15,7 +14,6 @@ const DraggableItem = ({ item, children, canvasWidth }: DraggableItemProps) => {
   const {
     designMode,
     updateComponent,
-    _setSelectedId,
     selectedId,
     layout,
     setLayout,
@@ -31,6 +29,23 @@ const DraggableItem = ({ item, children, canvasWidth }: DraggableItemProps) => {
   const isLocked = lockedItems.includes(item.instanceId);
   const isSelected = selectedId === item.instanceId || selectedIds.includes(item.instanceId);
   const isInGroup = !!item.groupId;
+
+  const getGroupColor = (groupId: string, groupedItems: Record<string, string[]>): string => {
+    const GROUP_COLORS = [
+      '#6366f1',
+      '#ec4899',
+      '#8b5cf6',
+      '#14b8a6',
+      '#f59e0b',
+      '#ef4444',
+      '#3b82f6',
+      '#10b981',
+    ];
+    const groupIds = Object.keys(groupedItems);
+    const index = groupIds.indexOf(groupId);
+    return GROUP_COLORS[index % GROUP_COLORS.length];
+  };
+
   const groupColor = isInGroup ? getGroupColor(item.groupId!, groupedItems) : undefined;
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -221,170 +236,23 @@ const DraggableItem = ({ item, children, canvasWidth }: DraggableItemProps) => {
   );
 };
 
-// Grup renkleri
-const GROUP_COLORS = [
-  '#6366f1',
-  '#ec4899',
-  '#8b5cf6',
-  '#14b8a6',
-  '#f59e0b',
-  '#ef4444',
-  '#3b82f6',
-  '#10b981',
-];
-
-function getGroupColor(groupId: string, groupedItems: Record<string, string[]>): string {
-  const groupIds = Object.keys(groupedItems);
-  const index = groupIds.indexOf(groupId);
-  return GROUP_COLORS[index % GROUP_COLORS.length];
-}
-
 export const UniversalCanvas = ({ settings }: { settings?: any }) => {
-    const { layout, designMode, clearSelection } = useCreativeStore();
-    const canvasRef = useRef<HTMLDivElement>(null);
-    const [isMarqueeSelecting, setIsMarqueeSelecting] = useState(false);
-    const [marqueeStart, setMarqueeStart] = useState({ x: 0, y: 0 });
-    const [marqueeEnd, setMarqueeEnd] = useState({ x: 0, y: 0 });
+  const { layout, designMode, clearSelection } = useCreativeStore();
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [isMarqueeSelecting, setIsMarqueeSelecting] = useState(false);
+  const [marqueeStart, setMarqueeStart] = useState({ x: 0, y: 0 });
+  const [marqueeEnd, setMarqueeEnd] = useState({ x: 0, y: 0 });
 
-    const isLandscape = settings?.orientation === 'landscape';
-    const canvasWidth = isLandscape ? A4_HEIGHT_PX : A4_WIDTH_PX;
-    const canvasHeight = isLandscape ? A4_WIDTH_PX : A4_HEIGHT_PX;
+  const isLandscape = settings?.orientation === 'landscape';
+  const canvasWidth = isLandscape ? A4_HEIGHT_PX : A4_WIDTH_PX;
+  const canvasHeight = isLandscape ? A4_WIDTH_PX : A4_HEIGHT_PX;
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                clearSelection();
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [clearSelection]);
-
-    const handleCanvasMouseDown = (e: React.MouseEvent) => {
-        if (!designMode || e.target !== e.currentTarget) return;
-
-        const rect = canvasRef.current?.getBoundingClientRect();
-        if (!rect) return;
-
-        setIsMarqueeSelecting(true);
-        setMarqueeStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-        setMarqueeEnd({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-
-        if (!e.ctrlKey && !e.metaKey) {
-            clearSelection();
-        }
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        clearSelection();
+      }
     };
-
-    const handleCanvasMouseMove = (e: React.MouseEvent) => {
-        if (!isMarqueeSelecting) return;
-
-        const rect = canvasRef.current?.getBoundingClientRect();
-        if (!rect) return;
-
-        setMarqueeEnd({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    };
-
-    const handleCanvasMouseUp = () => {
-        if (!isMarqueeSelecting) return;
-        setIsMarqueeSelecting(false);
-    };
-
-    if (!layout || layout.length === 0) return null;
-
-    const renderItemContent = (item: LayoutItem) => {
-        const s = item.style;
-        const boxStyle: React.CSSProperties = {
-            padding: `${s.padding}px`, backgroundColor: s.backgroundColor as string, borderColor: s.borderColor as string,
-            borderWidth: `${s.borderWidth}px`, borderStyle: (s.borderStyle || 'solid') as any, borderRadius: `${s.borderRadius}px`,
-            boxShadow: s.boxShadow !== 'none' ? `var(--shadow-${s.boxShadow})` : 'none', opacity: s.opacity as number,
-            color: s.color as string, fontFamily: s.fontFamily as string, fontSize: `${s.fontSize}px`, lineHeight: s.lineHeight as string,
-            textAlign: s.textAlign as any, letterSpacing: `${s.letterSpacing}px`, fontWeight: (s.fontWeight || 'normal') as any
-        };
-
-        if (item.id === 'activity_component') {
-            const isFullPage = !item.groupId;
-            return (
-                <div
-                    style={{
-                        ...boxStyle,
-                        height: isFullPage ? 'auto' : '100%',
-                        minHeight: isFullPage ? `${item.style.h}px` : undefined
-                    }}
-                    className="w-full overflow-visible"
-                >
-                    <SheetRenderer 
-                        activityType={item.specificData.activityType as any} 
-                        data={(item.specificData.data as any) || { title: '', instruction: '' }} 
-                        settings={settings} 
-                        hideWrapper={true}
-                    />
-                </div>
-            );
-        }
-
-        if (item.id === 'header') {
-            return (
-                <div style={boxStyle} className="h-full flex flex-col justify-center">
-                    <h2 className="text-xl font-bold uppercase border-b-2 border-zinc-200 pb-1">{item.specificData.title as any}</h2>
-                </div>
-            );
-        }
-
-        return (
-            <div style={boxStyle} className="h-full w-full">
-                <BlockRenderer block={{ type: item.id as any, content: item.specificData.content as any, style: {} as any }} />
-            </div>
-        );
-    };
-
-    const marqueeStyle = isMarqueeSelecting ? {
-        left: Math.min(marqueeStart.x, marqueeEnd.x),
-        top: Math.min(marqueeStart.y, marqueeEnd.y),
-        width: Math.abs(marqueeEnd.x - marqueeStart.x),
-        height: Math.abs(marqueeEnd.y - marqueeStart.y),
-    } : null;
-
-    return (
-        <div className="flex flex-col gap-8 w-full items-center pb-20">
-            <style>{`
-                .design-grid {
-                    background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-                    background-size: 8px 8px;
-                }
-            `}</style>
-
-            {Array.from({ length: Math.max(1, ...layout.map((l: LayoutItem) => (l.pageIndex || 0) + 1)) }).map((_: any, pageIndex: number) => {
-                const pageItems = layout.filter((l: LayoutItem) => l.isVisible && (l.pageIndex || 0) === pageIndex);
-
-                return (
-                    <div
-                        key={pageIndex}
-                        ref={pageIndex === 0 ? canvasRef : null}
-                        className={`universal-mode-canvas worksheet-page print-page relative bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid' : ''} ${isLandscape ? 'landscape' : ''}`}
-                        style={{ width: canvasWidth, minHeight: canvasHeight, padding: 0 }}
-                        onMouseDown={handleCanvasMouseDown}
-                        onMouseMove={handleCanvasMouseMove}
-                        onMouseUp={handleCanvasMouseUp}
-                    >
-                        {pageItems.map((item: LayoutItem) => (
-                            <DraggableItem key={item.instanceId} item={item} canvasWidth={canvasWidth}>
-                                {renderItemContent(item)}
-                            </DraggableItem>
-                        ))}
-
-                        {/* Marquee Selection Box */}
-                        {isMarqueeSelecting && marqueeStyle && (
-                            <div
-                                className="absolute border-2 border-indigo-500 bg-indigo-500/10 pointer-events-none z-50"
-                                style={marqueeStyle}
-                            />
-                        )}
-                    </div>
-                );
-            })}
-        </div>
-    );
-};
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [clearSelection]);
@@ -455,6 +323,7 @@ export const UniversalCanvas = ({ settings }: { settings?: any }) => {
             activityType={item.specificData.activityType as any}
             data={(item.specificData.data as any) || { title: '', instruction: '' }}
             settings={settings}
+            hideWrapper={true}
           />
         </div>
       );

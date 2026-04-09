@@ -385,36 +385,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
                     <i className="fa-solid fa-grip-vertical mr-1"></i> İçerik Yapısı
                   </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => updateSetting('orientation', 'portrait')}
-                      className={`flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all ${
-                        settings.orientation !== 'landscape'
-                          ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--text-primary)] shadow-sm'
-                          : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-secondary)] hover:bg-[var(--bg-paper)]'
-                      }`}
-                    >
-                      <i className="fa-solid fa-file-lines text-xl mb-1"></i>
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Dikey</span>
-                    </button>
-                    <button
-                      onClick={() => updateSetting('orientation', 'landscape')}
-                      className={`flex flex-col items-center justify-center py-3 rounded-lg border-2 transition-all ${
-                        settings.orientation === 'landscape'
-                          ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--text-primary)] shadow-sm'
-                          : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-secondary)] hover:bg-[var(--bg-paper)]'
-                      }`}
-                    >
-                      <i className="fa-solid fa-file-lines text-xl mb-1 rotate-90 transform origin-center"></i>
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Yatay</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-[var(--surface-glass)] p-3 rounded-lg border border-[var(--border-color)]">
-                  <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
-                    <i className="fa-solid fa-grip-vertical mr-1"></i> İçerik Yapısı
-                  </label>
                   <Toggle
                     label="Etkinlik Başlığını Göster"
                     checked={settings.showTitle !== false}

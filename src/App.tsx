@@ -778,7 +778,9 @@ const AppContent = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[var(--bg-primary)] font-sans transition-colors duration-300">
+    <div
+      className={`flex flex-col h-screen bg-[var(--bg-primary)] font-sans transition-colors duration-300 ${styleSettings.orientation === 'landscape' ? 'app-orientation-landscape' : 'app-orientation-portrait'}`}
+    >
       <AppHeader
         workbookItemsCount={workbookItems.length}
         unreadCount={unreadCount}
@@ -797,8 +799,8 @@ const AppContent = () => {
           ></div>
         )}
         <div
-          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${(zenMode || currentView === 'workbook') ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
-          style={{ width: (zenMode || currentView === 'workbook') ? 0 : sidebarWidth }}
+          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${zenMode || currentView === 'workbook' ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
+          style={{ width: zenMode || currentView === 'workbook' ? 0 : sidebarWidth }}
         >
           <Sidebar
             isSidebarOpen={isSidebarOpen}
@@ -951,8 +953,12 @@ const AppContent = () => {
                       }
                     />
                   )}
-                  {currentView === 'sinav-studyosu' && <SinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />}
-                  {currentView === 'mat-sinav-studyosu' && <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />}
+                  {currentView === 'sinav-studyosu' && (
+                    <SinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                  )}
+                  {currentView === 'mat-sinav-studyosu' && (
+                    <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                  )}
                 </Suspense>
               </motion.div>
             )}
