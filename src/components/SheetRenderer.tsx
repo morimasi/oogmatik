@@ -9,7 +9,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { A4PrintableWrapper } from '../A4Printable/A4PrintableWrapper';
-import InfoGraphicRenderer from '../sheet-renderers/InfoGraphicRenderer';
+import InfoGraphicRenderer from './sheet-renderers/InfoGraphicRenderer';
 import { Modifier } from '@dnd-kit/core';
 import {
   ActivityType,

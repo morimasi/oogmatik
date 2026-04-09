@@ -95,7 +95,7 @@ const MenuButton = ({ icon, label, onClick, active, isOpen }: any) => (
     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all border select-none ${
       active || isOpen
         ? 'bg-[var(--accent-muted)] border-[var(--accent-color)]/30 text-[var(--accent-color)]'
-        : 'bg-[var(--bg-paper)] border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:border-[var(--border-color)]'
+        : 'bg-[var(--bg-paper)] border-transparent text-[var(--text-secondary)] hover:bg-white hover:border-[var(--border-color)]'
     }`}
   >
     <i
@@ -170,7 +170,7 @@ const DropdownPanel = ({ title, children, onClose, className = '' }: any) => {
   return (
     <div
       ref={ref}
-      className={`absolute top-full mt-2 left-0 bg-[var(--panel-bg-solid)] border border-[var(--border-color)] rounded-xl shadow-2xl z-[100] p-5 animate-in fade-in zoom-in-95 origin-top-left ring-1 ring-black/5 ${className}`}
+      className={`absolute top-full mt-2 left-0 bg-white border border-[var(--border-color)] rounded-xl shadow-2xl z-[100] p-5 animate-in fade-in zoom-in-95 origin-top-left ring-1 ring-black/5 ${className}`}
     >
       <div className="flex justify-between items-center mb-4 pb-3 border-b border-[var(--border-color)]">
         <h4 className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em]">
