@@ -415,5 +415,4 @@ export const convertToLayoutItems = (
   return layout;
 };
 
-  return layout;
-};
+
