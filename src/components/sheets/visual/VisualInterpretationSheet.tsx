@@ -52,79 +52,91 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
         <div className="absolute -top-4 -left-4 w-24 h-24 border-t-4 border-l-4 border-indigo-600 rounded-tl-3xl z-10 opacity-20"></div>
         <div className="absolute -bottom-4 -right-4 w-24 h-24 border-b-4 border-r-4 border-amber-500 rounded-br-3xl z-10 opacity-20"></div>
 
-        <div className="bg-white border-[4px] border-zinc-900 rounded-[3.5rem] p-4 shadow-[20px_20px_0px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="bg-white border-[4px] border-zinc-900 rounded-[3.5rem] p-4 shadow-[30px_30px_0px_rgba(0,0,0,0.05)] overflow-hidden">
           <ImageDisplay
             prompt={imagePrompt}
             base64={imageBase64}
             description={(activity.layoutArchitecture?.blocks[0]?.content as Record<string, unknown>)?.alt as string | undefined}
-            className="w-full h-[380px] print:h-[350px] object-cover rounded-[2.8rem] shadow-inner"
+            className="w-full h-[500px] print:h-[480px] object-cover rounded-[2.8rem] shadow-inner"
           />
 
-          <div className="mt-5 flex justify-between items-center px-8">
-            <div className="flex items-center gap-3">
-              <div className="flex -space-x-2">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-indigo-50 flex items-center justify-center text-[10px] font-black text-indigo-400">
-                    <i className="fa-solid fa-star"></i>
+          <div className="mt-6 flex justify-between items-center px-10">
+            <div className="flex items-center gap-6">
+              <div className="flex -space-x-4">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="w-8 h-8 rounded-full border-4 border-white bg-indigo-600 flex items-center justify-center text-[12px] font-black text-white shadow-lg">
+                    <i className="fa-solid fa-microscope scale-75"></i>
                   </div>
                 ))}
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Detay Analizi Seviyesi: {activity.difficultyLevel || 'Orta'}</span>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-900 leading-none">ANALİZ DERİNLİĞİ</span>
+                <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mt-1 opacity-70">{activity.difficultyLevel || 'KLİNİK STANDART'}</span>
+              </div>
             </div>
-            <div className="bg-zinc-900 text-white px-5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-tighter">
-              Bilişsel Odak: {activity.visualStyle?.toUpperCase() || 'OPTİMAL'}
+            <div className="flex flex-col items-end">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">GÖRSEL STİL</span>
+                <div className="bg-zinc-900 text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter mt-1 shadow-xl">
+                  {activity.visualStyle?.toUpperCase() || 'MODERN FLAT'}
+                </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* 3. ANALİZ MATRİSİ (Sorular) */}
-      <div className="grid grid-cols-2 gap-4 mt-8 print:gap-3 flex-1 content-start">
+      <div className="grid grid-cols-2 gap-6 mt-10 print:gap-4 flex-1 content-start">
         {questions.map((q: Record<string, unknown>, idx: number) => {
           const cat = getCategory(recursiveSafeText(q.q || q.questionText || q.text));
           return (
-            <div key={idx} className="relative bg-zinc-50/40 border-2 border-zinc-100 rounded-[2.2rem] p-5 print:p-4 break-inside-avoid shadow-sm hover:border-indigo-300 hover:bg-white transition-all group/card overflow-hidden">
+            <div key={idx} className="relative bg-zinc-50/20 border-2 border-zinc-100 rounded-[3rem] p-6 print:p-4 break-inside-avoid shadow-sm hover:border-indigo-400 hover:bg-white transition-all group/card overflow-hidden">
               {/* Kategori Badge */}
               <div className="absolute top-0 right-0">
-                <div className={`${cat.color} text-white px-4 py-1.5 rounded-bl-3xl text-[8px] font-black tracking-widest flex items-center gap-2 shadow-sm`}>
+                <div className={`${cat.color} text-white px-6 py-2 rounded-bl-[2rem] text-[9px] font-black tracking-widest flex items-center gap-3 shadow-md`}>
                   <i className={`fa-solid ${cat.icon}`}></i>
                   {cat.label}
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 mb-5">
-                <div className="w-10 h-10 bg-white border-2 border-zinc-900 text-zinc-900 rounded-2xl flex items-center justify-center font-black text-lg shadow-[4px_4px_0px_#f59e0b] shrink-0 transform -rotate-6">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-12 h-12 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-[6px_6px_0px_#4f46e5] shrink-0 transform -rotate-12 group-hover/card:rotate-0 transition-transform">
                   {idx + 1}
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-[13px] print:text-[12px] font-black text-zinc-800 leading-tight group-hover/card:text-indigo-600 transition-colors">
-                    {(q.q || q.questionText || q.text) as string}
+                <div className="flex-1 pr-6">
+                  <h3 className="text-[14px] print:text-[13px] font-black text-zinc-900 leading-[1.3] group-hover/card:text-indigo-600 transition-colors">
+                    <EditableText value={(q.q || q.questionText || q.text) as string} tag="span" />
                   </h3>
                 </div>
               </div>
 
-              <div className="space-y-3 pl-2">
+              <div className="space-y-4">
                 {q.type === 'multiple' && q.options && (
-                  <div className="grid grid-cols-1 gap-2 mt-4">
+                  <div className="grid grid-cols-1 gap-2 mt-4 pr-2">
                     {(q.options as string[]).map((opt: string, i: number) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-white rounded-2xl border border-zinc-100 shadow-sm transition-all hover:border-indigo-200 hover:scale-[1.02]">
-                        <div className="w-7 h-7 shrink-0 rounded-xl bg-zinc-50 border-2 border-zinc-100 flex items-center justify-center text-[10px] font-black text-zinc-400 group-hover/card:bg-indigo-50 group-hover/card:text-indigo-500 transition-all">
+                      <div key={i} className="flex items-center gap-4 p-3.5 bg-white rounded-2xl border-2 border-zinc-50 shadow-sm transition-all hover:border-indigo-100 hover:scale-[1.01] group/opt">
+                        <div className="w-8 h-8 shrink-0 rounded-xl bg-zinc-900 border-2 border-white flex items-center justify-center text-[11px] font-black text-white group-hover/opt:bg-indigo-600 transition-all">
                           {String.fromCharCode(65 + i)}
                         </div>
-                        <span className="text-[11px] font-bold text-zinc-600 tracking-tight">{opt}</span>
+                        <span className="text-[12px] font-bold text-zinc-700 tracking-tight leading-tight">{opt}</span>
                       </div>
                     ))}
                   </div>
                 )}
 
-                {(q.type !== 'multiple') && (
-                  <div className="space-y-4 mt-4 pr-4">
-                    <div className="w-full h-8 border-b-2 border-zinc-200 border-dotted relative">
-                      <div className="absolute -left-2 top-0 text-[10px] font-black text-zinc-200 uppercase transform -rotate-90 origin-left">CEVAP</div>
+                {/* Akıllı Satırlar (Cevap Alanı) */}
+                <div className="space-y-4 mt-6 px-2 pb-2">
+                    <div className="flex items-center gap-3 mb-1">
+                         <div className="w-2 h-2 rounded-full bg-indigo-200"></div>
+                         <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">ÖĞRENCİ NOTU / CEVAP</span>
                     </div>
-                    <div className="w-full h-8 border-b-2 border-zinc-200 border-dotted"></div>
-                  </div>
-                )}
+                    <div className="w-full h-8 border-b-2 border-zinc-100 border-dotted relative flex items-center">
+                        <div className="absolute left-0 bottom-1 w-full h-[1px] bg-zinc-50 opacity-10"></div>
+                        <i className="fa-solid fa-pen-nib absolute -left-1 text-zinc-100 text-[10px] opacity-0 group-hover/card:opacity-100 transition-opacity"></i>
+                    </div>
+                    {q.type !== 'multiple' && (
+                        <div className="w-full h-8 border-b-2 border-zinc-100 border-dotted"></div>
+                    )}
+                </div>
               </div>
             </div>
           );
