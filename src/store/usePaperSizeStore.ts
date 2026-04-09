@@ -11,7 +11,7 @@ export const usePaperSizeStore = create<PaperSizeState>((set: any) => ({
   paperSize:
     (typeof window !== 'undefined'
       ? (localStorage.getItem('oogmatik.paperSize') as PaperSize)
-      : null) || 'A4',
+      : null) || 'Extreme_Dikey',
   setPaperSize: (p: PaperSize) => {
     set({ paperSize: p });
     if (typeof window !== 'undefined') localStorage.setItem('oogmatik.paperSize', p);
@@ -63,9 +63,9 @@ export const initPaperSizeForCurrentUser = async (user: any) => {
   }
 };
 
-// Reset to default (A4) and clear local user-specific value
+// Reset to default (Extreme_Dikey) and clear local user-specific value
 export const resetPaperSizeToDefault = () => {
   const { setPaperSize } = usePaperSizeStore.getState();
-  setPaperSize('A4');
+  setPaperSize('Extreme_Dikey');
   if (typeof window !== 'undefined') localStorage.removeItem('oogmatik.paperSize');
 };

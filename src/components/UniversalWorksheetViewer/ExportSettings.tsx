@@ -1,6 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import styles from './UniversalWorksheetViewer.module.css';
-import type { ExportSettings, ExportFormat, PageSize, PageOrientation, ExportPreset } from './types/worksheet';
+import type {
+  ExportSettings,
+  ExportFormat,
+  PageSize,
+  PageOrientation,
+  ExportPreset,
+} from './types/worksheet';
 
 const DPI_OPTIONS = [72, 96, 150, 300] as const;
 
@@ -12,8 +18,8 @@ const FORMAT_LABELS: Record<ExportFormat, string> = {
 };
 
 const PAGE_SIZE_LABELS: Record<PageSize, string> = {
-  A4: 'A4 (210×297 mm)',
-  Letter: 'Letter (216×279 mm)',
+  A4: 'Zenginlik Dikey (Kompakt)',
+  Letter: 'Zenginlik Yatay (Geniş)',
   Legal: 'Legal (216×356 mm)',
   A3: 'A3 (297×420 mm)',
   Custom: 'Özel Boyut',
@@ -255,7 +261,11 @@ export const ExportSettingsPanel: React.FC<ExportSettingsProps> = React.memo(
                       onKeyDown={(e) => e.key === 'Enter' && handleSavePreset()}
                       autoFocus
                     />
-                    <button className={styles.exportBtn} onClick={handleSavePreset} disabled={!presetName.trim()}>
+                    <button
+                      className={styles.exportBtn}
+                      onClick={handleSavePreset}
+                      disabled={!presetName.trim()}
+                    >
                       Kaydet
                     </button>
                     <button className={styles.cancelBtn} onClick={() => setShowPresetSave(false)}>
@@ -273,7 +283,7 @@ export const ExportSettingsPanel: React.FC<ExportSettingsProps> = React.memo(
         )}
       </div>
     );
-  },
+  }
 );
 
 ExportSettingsPanel.displayName = 'ExportSettingsPanel';

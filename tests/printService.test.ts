@@ -73,7 +73,7 @@ describe('printService - Tablet Blank Page Fix', () => {
       expect(window.print).toHaveBeenCalled();
     });
 
-    it('canvas içerikleri overlay\'e kopyalanmalı', async () => {
+    it("canvas içerikleri overlay'e kopyalanmalı", async () => {
       const page = document.createElement('div');
       page.className = 'worksheet-page';
 
@@ -148,7 +148,7 @@ describe('printService - Tablet Blank Page Fix', () => {
   });
 
   describe('Download — Blob URL', () => {
-    it('indirme link\'i DOM\'a eklenmeli ve Blob URL kullanmalı', async () => {
+    it("indirme link'i DOM'a eklenmeli ve Blob URL kullanmalı", async () => {
       // fetch mock — data URL → blob
       const mockBlob = new Blob(['fake-png'], { type: 'image/png' });
       const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
@@ -235,18 +235,18 @@ describe('printService - Tablet Blank Page Fix', () => {
       expect(styleEl!.textContent).toContain('210mm');
     });
 
-    it('Letter kağıt boyutu desteklenmeli', () => {
+    it('Extreme_Yatay kağıt boyutu desteklenmeli', () => {
       const page = document.createElement('div');
       page.className = 'worksheet-page';
-      page.innerHTML = '<p>Letter test</p>';
+      page.innerHTML = '<p>Extreme Yatay test</p>';
       document.body.appendChild(page);
 
-      printService.print('.worksheet-page', 'Letter');
+      printService.print('.worksheet-page', 'Extreme_Yatay');
 
       const styleEl = document.getElementById('oogmatik-print-style');
       expect(styleEl).not.toBeNull();
-      expect(styleEl!.textContent).toContain('216mm');
-      expect(styleEl!.textContent).toContain('279mm');
+      expect(styleEl!.textContent).toContain('297mm');
+      expect(styleEl!.textContent).toContain('210mm');
     });
   });
 

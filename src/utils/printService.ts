@@ -115,18 +115,22 @@ export interface PrintOptions {
   preserveTheme?: boolean;
 }
 
-export type PaperSize = 'A4' | 'Letter' | 'Legal';
+export type PaperSize = 'A4' | 'Letter' | 'Legal' | 'Extreme_Yatay' | 'Extreme_Dikey';
 export type PaperMargins = { top: string; bottom: string; left?: string; right?: string };
 const _PAPER_MARGINS: Record<PaperSize, PaperMargins> = {
   A4: { top: '15mm', bottom: '10mm' },
   Letter: { top: '12mm', bottom: '12mm' },
   Legal: { top: '15mm', bottom: '15mm' },
+  Extreme_Yatay: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
+  Extreme_Dikey: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
 };
 
 const PAPER_DIMENSIONS: Record<PaperSize, { width: string; height: string }> = {
   A4: { width: '210mm', height: '297mm' },
   Letter: { width: '216mm', height: '279mm' },
   Legal: { width: '216mm', height: '356mm' },
+  Extreme_Yatay: { width: '297mm', height: '210mm' },
+  Extreme_Dikey: { width: '210mm', height: '297mm' },
 };
 
 const PRINT_STYLE_ID = 'oogmatik-print-style';
@@ -332,7 +336,12 @@ const buildCapturedPrintOverlay = (
 const ensurePrintStyle = (paperSize: PaperSize) => {
   if (typeof document === 'undefined') return;
 
-  const pageSize = paperSize === 'A4' ? 'A4' : paperSize;
+  const pageSize =
+    paperSize === 'A4' || paperSize === 'Extreme_Dikey'
+      ? 'A4'
+      : paperSize === 'Extreme_Yatay'
+        ? 'A4 landscape'
+        : paperSize;
   const dims = PAPER_DIMENSIONS[paperSize];
   const styleText = `
     @page { size: ${pageSize}; margin: 0; }

@@ -1,6 +1,13 @@
 import React from 'react';
 import styles from './UniversalWorksheetViewer.module.css';
-import type { ExportSettings, ExportJob, ExportFormat, PageSize, PageOrientation, ExportHistoryEntry } from './types/worksheet';
+import type {
+  ExportSettings,
+  ExportJob,
+  ExportFormat,
+  PageSize,
+  PageOrientation,
+  ExportHistoryEntry,
+} from './types/worksheet';
 
 interface ExportPanelProps {
   settings: ExportSettings;
@@ -28,9 +35,9 @@ const FORMAT_LABELS: Record<ExportFormat, string> = {
   json: 'JSON Verisi',
 };
 
-const PAGE_SIZE_LABELS: Record<PageSize, string> = {
-  A4: 'A4 (210×297 mm)',
-  Letter: 'Letter (216×279 mm)',
+const PAGE_SIZE_LABELS: Record<string, string> = {
+  A4: 'Zenginlik Dikey (Kompakt)',
+  Letter: 'Zenginlik Yatay (Geniş)',
   Legal: 'Legal (216×356 mm)',
   A3: 'A3 (297×420 mm)',
   Custom: 'Özel Boyut',
@@ -59,11 +66,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = React.memo(
     cloudStatusNode,
   }) => {
     return (
-      <div
-        className={styles.exportPanel}
-        role="region"
-        aria-label="Dışa aktarma paneli"
-      >
+      <div className={styles.exportPanel} role="region" aria-label="Dışa aktarma paneli">
         <h3 className={styles.panelTitle}>Dışa Aktar</h3>
 
         {/* Format selection */}
@@ -221,12 +224,20 @@ export const ExportPanel: React.FC<ExportPanelProps> = React.memo(
             </button>
           )}
           {onOpenBatchExport && (
-            <button className={styles.toolbarBtn} onClick={onOpenBatchExport} title="Toplu dışa aktarma">
+            <button
+              className={styles.toolbarBtn}
+              onClick={onOpenBatchExport}
+              title="Toplu dışa aktarma"
+            >
               📦 Toplu
             </button>
           )}
           {onOpenCloudStorage && (
-            <button className={styles.toolbarBtn} onClick={onOpenCloudStorage} title="Bulut depolama">
+            <button
+              className={styles.toolbarBtn}
+              onClick={onOpenCloudStorage}
+              title="Bulut depolama"
+            >
               ☁️ Bulut
             </button>
           )}
@@ -289,7 +300,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = React.memo(
         )}
       </div>
     );
-  },
+  }
 );
 
 ExportPanel.displayName = 'ExportPanel';

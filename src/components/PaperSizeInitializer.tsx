@@ -34,7 +34,7 @@ export const PaperSizeInitializer: React.FC = () => {
 
   useEffect(() => {
     if (!auth?.user) {
-      paperSizeStore.setPaperSize('A4');
+      paperSizeStore.setPaperSize('Extreme_Dikey');
       localStorage.removeItem('oogmatik.paperSize');
     }
   }, [auth?.user]);

@@ -25,6 +25,7 @@ import { ShareModal } from './ShareModal';
 import { WorkbookView } from './WorkbookView';
 import { useAppStore } from '../store/useAppStore';
 import { useWorksheetStore } from '../store/useWorksheetStore';
+import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { paginationService } from '../services/paginationService';
 
 import { UniversalWorksheetWrapper } from './UniversalStudio/UniversalWorksheetWrapper';
@@ -264,7 +265,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   );
 
   const MatSinavStudyosu = React.lazy(() =>
-    import('../../components/MatSinavStudyosu').then((module) => ({ default: module.MatSinavStudyosu }))
+    import('../../components/MatSinavStudyosu').then((module) => ({
+      default: module.MatSinavStudyosu,
+    }))
   );
 
   return (
@@ -374,13 +377,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                             const targetSelector = document.getElementById('print-container')
                               ? '#print-container'
                               : '.worksheet-page';
-                            import('../utils/printService').then((m) =>
+                            import('../utils/printService').then((m) => {
+                              const store = usePaperSizeStore.getState();
                               m.printService.generatePdf(
                                 targetSelector,
                                 activeWorksheetTitle || 'Etkinlik',
-                                { action: 'print', paperSize: 'A4' }
-                              )
-                            );
+                                { action: 'print', paperSize: store.paperSize }
+                              );
+                            });
                           }}
                           className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm"
                         >
