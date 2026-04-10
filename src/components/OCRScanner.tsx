@@ -644,9 +644,13 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     maxAttempts: 4,
     delays: [1500, 3000, 6000, 12000] as number[], // Exponential backoff in ms
     retryableErrors: ['503', '502', '429', 'timeout', 'ECONNREFUSED', 'ETIMEDOUT'],
+    // Aynı görsel her seferinde aynı sonucu verir — yeniden deneme işe yaramaz
+    nonRetryableErrors: ['blueprint boş', 'blueprint çok kısa'],
   };
 
   const isRetryableError = (errorMsg: string): boolean => {
+    const lower = errorMsg.toLowerCase();
+    if (RETRY_CONFIG.nonRetryableErrors.some((p) => lower.includes(p))) return false;
     return RETRY_CONFIG.retryableErrors.some((pattern) =>
       errorMsg.toUpperCase().includes(pattern.toUpperCase())
     );
@@ -703,17 +707,8 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         );
 
         setTimeout(() => startAnalysis(img, attemptNumber + 1), delayMs);
-      } else if (!isRetryable && remainingAttempts > 0) {
-        // Non-retryable error but retry anyway (content issue, not service)
-        const delayMs = 2000; // Shorter delay for non-service errors
-        setRetryCount(attemptNumber);
-        showToast(
-          `🔄 Farklı bir görsel deneyin. ${attemptNumber}/${RETRY_CONFIG.maxAttempts} denemeler yapıldı.`,
-          'info'
-        );
-        setTimeout(() => startAnalysis(img, attemptNumber + 1), delayMs);
       } else {
-        // Max retries exceeded
+        // İçerik kalitesi hatası veya max retry aşıldı — aynı görseli yeniden denemek anlamsız
         setRetryCount(0);
 
         const friendlyErrorMap: Record<string, string> = {
@@ -742,7 +737,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
 
         showToast(`❌ ${friendlyMessage}`, 'error');
         console.error(
-          `[OCR Analysis] Max retries exceeded after ${RETRY_CONFIG.maxAttempts} attempts`,
+          `[OCR Analysis] Failed after ${attemptNumber} attempt(s)`,
           {
             originalError: errorMessage,
             friendlyMessage,
