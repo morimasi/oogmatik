@@ -14,6 +14,7 @@ import {
 import { assessmentService } from '../services/assessmentService';
 import { worksheetService } from '../services/worksheetService';
 import { curriculumService } from '../services/curriculumService';
+import { authService } from '../services/authService';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
 import { LineChart } from './LineChart';
 import { RadarChart } from './RadarChart';
@@ -21,6 +22,9 @@ import { printService } from '../utils/printService';
 import { ACTIVITIES } from '../constants';
 import { StudentDashboard } from './Student/StudentDashboard';
 import { AdvancedStudentManager } from './Student/AdvancedStudentManager';
+import { logError } from '../utils/errorHandler';
+import { AppError } from '../utils/AppError';
+import { useToastStore } from '../store/useToastStore';
 
 interface ProfileViewProps {
   onBack: () => void;
@@ -32,6 +36,23 @@ interface ProfileViewProps {
   onUpdateTheme?: (theme: AppTheme) => void;
   onUpdateUiSettings?: (settings: UiSettings) => void;
   onOpenSettingsModal?: () => void;
+}
+
+/**
+ * Avatar URL'sini sanitize eder — yalnızca http/https URL'lerine izin verir.
+ * XSS saldırılarına karşı güvenlik katmanı (javascript: protokolü engellenir).
+ */
+function sanitizeImageUrl(url: string): string {
+  if (!url.trim()) return '';
+  try {
+    const parsed = new URL(url.trim());
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return url.trim();
+    }
+    return '';
+  } catch {
+    return '';
+  }
 }
 
 // --- BENTO COMPONENTS ---
@@ -196,15 +217,48 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     'profile' | 'appearance' | 'ai' | 'notifications' | 'security'
   >('profile');
 
-  const [aiSettings, setAiSettings] = useState({
-    model: 'gemini-2.5-pro',
-    creativity: 75,
-    autoSuggest: true,
-    analysisDepth: 'detailed',
-    voiceAssistant: false,
-    dataPrivacy: 'balanced',
-    tone: 'kurumsal',
+  const [aiSettings, setAiSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('oogmatik-ai-settings');
+      if (saved) {
+        const parsed = JSON.parse(saved) as Record<string, unknown>;
+        return {
+          model: 'gemini-2.5-flash',
+          creativity: typeof parsed.creativity === 'number' ? parsed.creativity : 75,
+          autoSuggest: typeof parsed.autoSuggest === 'boolean' ? parsed.autoSuggest : true,
+          analysisDepth: typeof parsed.analysisDepth === 'string' ? parsed.analysisDepth : 'detailed',
+          voiceAssistant: typeof parsed.voiceAssistant === 'boolean' ? parsed.voiceAssistant : false,
+          dataPrivacy: typeof parsed.dataPrivacy === 'string' ? parsed.dataPrivacy : 'balanced',
+          tone: typeof parsed.tone === 'string' ? parsed.tone : 'kurumsal',
+        };
+      }
+    } catch {
+      // localStorage erişim hatası — varsayılan kullan
+    }
+    return {
+      model: 'gemini-2.5-flash',
+      creativity: 75,
+      autoSuggest: true,
+      analysisDepth: 'detailed',
+      voiceAssistant: false,
+      dataPrivacy: 'balanced',
+      tone: 'kurumsal',
+    };
   });
+
+  // Avatar URL inline değiştirme state'leri
+  const [showAvatarUrlInput, setShowAvatarUrlInput] = useState(false);
+  const [avatarUrlInput, setAvatarUrlInput] = useState('');
+
+  // Şifre değiştirme inline form state'leri
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ next: '', confirm: '' });
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+
+  // Hesap silme onay adımları
+  const [deleteConfirmStep, setDeleteConfirmStep] = useState<0 | 1 | 2>(0);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const [customUi, setCustomUi] = useState(() => ({
     density: externalUiSettings?.compactMode ? 'compact' : 'comfortable',
@@ -216,7 +270,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [darkModeEnabled, setDarkModeEnabled] = useState(isDarkTheme);
   const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('emailNotifications') || 'true');
+      const parsed = JSON.parse(localStorage.getItem('emailNotifications') || 'true');
+      return typeof parsed === 'boolean' ? parsed : true;
     } catch {
       return true;
     }
@@ -225,6 +280,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   useEffect(() => {
     setDarkModeEnabled(isDarkTheme);
   }, [isDarkTheme]);
+
+  // AI ayarları değiştiğinde localStorage'a kaydet
+  useEffect(() => {
+    try {
+      localStorage.setItem('oogmatik-ai-settings', JSON.stringify(aiSettings));
+    } catch {
+      // localStorage yazma hatası — sessizce devam et
+    }
+  }, [aiSettings]);
 
   const handleToggleDarkMode = () => {
     const newTheme = darkModeEnabled ? 'light' : 'anthracite';
@@ -253,6 +317,48 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     localStorage.setItem('emailNotifications', JSON.stringify(newValue));
   };
 
+  const handlePasswordChange = async () => {
+    if (passwordForm.next.length < 8) {
+      useToastStore.getState().error('Şifre en az 8 karakter olmalıdır.');
+      return;
+    }
+    if (passwordForm.next !== passwordForm.confirm) {
+      useToastStore.getState().error('Şifreler eşleşmiyor.');
+      return;
+    }
+    setIsSavingPassword(true);
+    try {
+      await authService.updatePassword(passwordForm.next);
+      useToastStore.getState().success('Şifreniz başarıyla güncellendi.');
+      setShowPasswordForm(false);
+      setPasswordForm({ next: '', confirm: '' });
+    } catch (e) {
+      const err = e instanceof AppError ? e : new AppError(String(e), 'PASSWORD_UPDATE_ERROR', 500);
+      logError(err, { context: 'handlePasswordChange' });
+      useToastStore.getState().error('Şifre güncellenirken hata oluştu. Yeniden giriş yapmanız gerekebilir.');
+    } finally {
+      setIsSavingPassword(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'HESABIMI SİL') return;
+    if (!user) return;
+    setIsDeletingAccount(true);
+    try {
+      await authService.deleteUser(user.id);
+      await logout();
+    } catch (e) {
+      const err = e instanceof AppError ? e : new AppError(String(e), 'DELETE_ACCOUNT_ERROR', 500);
+      logError(err, { context: 'handleDeleteAccount' });
+      useToastStore.getState().error('Hesap silinirken hata oluştu. Lütfen destek ile iletişime geçin.');
+      setDeleteConfirmStep(0);
+      setDeleteConfirmText('');
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       setEditName(user.name);
@@ -278,7 +384,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       setWorksheets(wsResult.items);
       setCurriculums(plData);
     } catch (e) {
-      console.error(e);
+      const err = e instanceof AppError ? e : new AppError(String(e), 'LOAD_DATA_ERROR', 500);
+      logError(err, { context: 'ProfileView.loadData' });
     } finally {
       setLoading(false);
     }
@@ -314,6 +421,23 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         date: a.createdAt,
         puan: a.report.scores.attention || 0,
       }));
+  }, [assessments]);
+
+  // Bu ay eklenen öğrenci sayısını hesapla
+  const monthlyNewStudents = useMemo(() => {
+    const now = new Date();
+    return students.filter((s: Student) => {
+      if (!s.createdAt) return false;
+      const created = new Date(s.createdAt);
+      return created.getFullYear() === now.getFullYear() && created.getMonth() === now.getMonth();
+    }).length;
+  }, [students]);
+
+  // Ortalama değerlendirme skoru (dikkat skoru)
+  const avgAssessmentScore = useMemo(() => {
+    if (assessments.length === 0) return 0;
+    const total = assessments.reduce((sum: number, a: SavedAssessment) => sum + (a.report.scores.attention || 0), 0);
+    return Math.round(total / assessments.length);
   }, [assessments]);
 
   const settingsTabs = [
@@ -507,8 +631,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       <StatValue
                         value={students.length}
                         label="Öğrenci"
-                        subValue="+2 Bu Ay"
-                        trend="up"
+                        subValue={monthlyNewStudents > 0 ? `+${monthlyNewStudents} Bu Ay` : 'Kayıtlı'}
+                        trend={monthlyNewStudents > 0 ? 'up' : undefined}
                       />
                       <StatValue
                         value={worksheets.length}
@@ -518,8 +642,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       <StatValue
                         value={assessments.length}
                         label="Rapor"
-                        subValue="%94 Başarı"
-                        trend="up"
+                        subValue={avgAssessmentScore > 0 ? `%${avgAssessmentScore} Ort.` : 'Rapor Yok'}
+                        trend={avgAssessmentScore >= 70 ? 'up' : undefined}
                       />
                       <StatValue
                         value={curriculums.length}
@@ -565,16 +689,30 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                           </div>
                         </div>
                         <div className="space-y-4 mb-8">
-                          <div className="flex justify-between text-xs font-bold">
-                            <span className="text-zinc-400">GELİŞİM</span>
-                            <span className="text-emerald-500">%78</span>
-                          </div>
-                          <div className="w-full h-3 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden shadow-inner">
-                            <div
-                              className="h-full bg-emerald-500 transition-all duration-1000 shadow-lg shadow-emerald-500/20"
-                              style={{ width: '78%' }}
-                            ></div>
-                          </div>
+                          {(() => {
+                            const studentAssessments = assessments.filter(
+                              (a: SavedAssessment) => a.studentName === activeStudent.name
+                            );
+                            const score = studentAssessments.length > 0
+                              ? Math.round(studentAssessments.reduce((sum: number, a: SavedAssessment) => sum + (a.report.scores.attention || 0), 0) / studentAssessments.length)
+                              : null;
+                            return (
+                              <>
+                                <div className="flex justify-between text-xs font-bold">
+                                  <span className="text-zinc-400">GELİŞİM</span>
+                                  <span className="text-emerald-500">
+                                    {score !== null ? `%${score}` : 'Veri Yok'}
+                                  </span>
+                                </div>
+                                <div className="w-full h-3 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden shadow-inner">
+                                  <div
+                                    className="h-full bg-emerald-500 transition-all duration-1000 shadow-lg shadow-emerald-500/20"
+                                    style={{ width: `${score ?? 0}%` }}
+                                  ></div>
+                                </div>
+                              </>
+                            );
+                          })()}
                         </div>
                         <div className="mt-auto">
                           <ActionButton
@@ -737,33 +875,36 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                         </div>
                       </div>
                       <div className="space-y-4 mb-8">
-                        <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                          <span className="text-zinc-400">Genel İlerleme</span>
-                          <span className="text-zinc-900 dark:text-white">
-                            %{' '}
-                            {Math.round(
-                              (plan.schedule.filter((d) => d.isCompleted).length /
-                                plan.schedule.length) *
-                              100
-                            )}
-                          </span>
-                        </div>
-                        <div className="w-full h-3 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/20"
-                            style={{
-                              width: `${(plan.schedule.filter((d) => d.isCompleted).length / plan.schedule.length) * 100}%`,
-                            }}
-                          ></div>
-                        </div>
+                        {(() => {
+                          const completedCount = plan.schedule.filter((d) => d.isCompleted).length;
+                          const totalCount = plan.schedule.length;
+                          const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+                          return (
+                            <>
+                              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                                <span className="text-zinc-400">Genel İlerleme</span>
+                                <span className="text-zinc-900 dark:text-white">%{progressPct}</span>
+                              </div>
+                              <div className="w-full h-3 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/20"
+                                  style={{ width: `${progressPct}%` }}
+                                ></div>
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
                       <div className="flex gap-4">
-                        <button className="flex-1 py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-2xl font-black text-xs uppercase tracking-widest transition-transform hover:scale-[1.02]">
+                        <button
+                          onClick={() => useToastStore.getState().info(`"${plan.studentName}" için plan görünümü yakında açılacak.`)}
+                          className="flex-1 py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-2xl font-black text-xs uppercase tracking-widest transition-transform hover:scale-[1.02]"
+                        >
                           PLANA GİT
                         </button>
                         <button
-                          onClick={() => { }}
-                          className="w-14 h-14 bg-zinc-100 dark:bg-zinc-700 rounded-2xl flex items-center justify-center text-zinc-500"
+                          onClick={() => useToastStore.getState().info(`${plan.studentName} planı yazdırılıyor...`)}
+                          className="w-14 h-14 bg-zinc-100 dark:bg-zinc-700 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
                         >
                           <i className="fa-solid fa-print"></i>
                         </button>
@@ -790,7 +931,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       Karşılaştırmalı analitikler ve aylık gelişim özetleri içerir.
                     </p>
                     <button
-                      onClick={() => alert('Bu modül toplu veri analizi için hazırlanmaktadır.')}
+                      onClick={() => useToastStore.getState().info('Rapor sihirbazı hazırlanıyor. Yakında aktif olacak.')}
                       className="px-6 py-3 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-500/20"
                     >
                       RAPOR SİHİRBAZINI AÇ
@@ -818,7 +959,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                         <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
                           ORT. ANALİZ SKORU
                         </span>
-                        <span className="font-black text-lg text-indigo-600">%82</span>
+                        <span className="font-black text-lg text-indigo-600">
+                          {avgAssessmentScore > 0 ? `%${avgAssessmentScore}` : '—'}
+                        </span>
                       </div>
                     </div>
                   </BentoCard>
@@ -875,15 +1018,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                               <div className="relative group/avatar">
                                 <div className="w-40 h-40 rounded-[3.5rem] p-1 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl overflow-hidden transform group-hover/avatar:scale-105 transition-all duration-500">
                                   <img
-                                    src={avatarUrl}
+                                    src={sanitizeImageUrl(avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
                                     alt="Avatar"
                                     className="w-full h-full rounded-[3.3rem] object-cover bg-white dark:bg-zinc-800"
                                   />
                                 </div>
                                 <button
                                   onClick={() => {
-                                    const url = prompt('Profil resmi URL giriniz:', avatarUrl);
-                                    if (url) setAvatarUrl(url);
+                                    setAvatarUrlInput(avatarUrl);
+                                    setShowAvatarUrlInput(true);
                                   }}
                                   className="absolute inset-0 bg-black/60 rounded-[3.5rem] opacity-0 group-hover/avatar:opacity-100 transition-all flex flex-col items-center justify-center text-white"
                                 >
@@ -893,6 +1036,40 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                                   </span>
                                 </button>
                               </div>
+                              {showAvatarUrlInput && (
+                                <div className="w-full space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                                  <input
+                                    type="url"
+                                    value={avatarUrlInput}
+                                    onChange={(e) => setAvatarUrlInput(e.target.value)}
+                                    placeholder="https://example.com/avatar.png"
+                                    className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                                    autoFocus
+                                  />
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => {
+                                        const safe = sanitizeImageUrl(avatarUrlInput);
+                                        if (safe) {
+                                          setAvatarUrl(safe);
+                                        } else if (avatarUrlInput.trim()) {
+                                          useToastStore.getState().error('Geçersiz URL. Yalnızca http/https adresleri kabul edilir.');
+                                        }
+                                        setShowAvatarUrlInput(false);
+                                      }}
+                                      className="flex-1 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
+                                    >
+                                      Uygula
+                                    </button>
+                                    <button
+                                      onClick={() => setShowAvatarUrlInput(false)}
+                                      className="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded-xl text-[10px] font-black"
+                                    >
+                                      İptal
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
                               <div className="flex gap-2">
                                 <button
                                   onClick={() =>
@@ -1182,17 +1359,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                               <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">
                                 Model
                               </label>
-                              <select
-                                value={aiSettings.model}
-                                onChange={(e) =>
-                                  setAiSettings((prev) => ({ ...prev, model: e.target.value }))
-                                }
-                                className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
-                              >
-                                <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-                                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-                                <option value="internal-pro">Oogmatik Pro</option>
-                              </select>
+                              <div className="w-full p-4 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-500 dark:text-zinc-400 cursor-not-allowed flex items-center gap-2">
+                                <i className="fa-solid fa-lock text-xs opacity-50"></i>
+                                <span>Gemini 2.5 Flash</span>
+                                <span className="ml-auto text-[10px] font-black uppercase tracking-widest bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-lg">Sabit</span>
+                              </div>
                             </div>
                             <div>
                               <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">
@@ -1397,36 +1568,82 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                           icon="fa-solid fa-shield-halved"
                           iconColor="bg-blue-50 text-blue-600"
                         >
-                          <div className="h-full flex flex-col justify-between pt-2">
-                            <div className="p-6 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-3xl mb-8">
+                          <div className="flex flex-col gap-6 pt-2">
+                            <div className="p-6 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-3xl">
                               <div className="flex items-start gap-4">
                                 <i className="fa-solid fa-info-circle text-blue-600 mt-1"></i>
                                 <p className="text-xs font-bold text-blue-700 dark:text-blue-400 leading-relaxed">
                                   Güvenliğiniz için şifrenizi en az 3 ayda bir değiştirmenizi
-                                  öneririz. Şifreniz en az 8 karakter, büyük harf ve sembol
-                                  içermelidir.
+                                  öneririz. Şifreniz en az 8 karakter içermelidir.
                                 </p>
                               </div>
                             </div>
-                            <div className="flex gap-4">
-                              <button
-                                onClick={() => {
-                                  const pass = prompt('Yeni şifre giriniz:');
-                                  if (pass && pass.length >= 6) {
-                                    alert('Şifre güncelleme isteği gönderildi.');
-                                  }
-                                }}
-                                className="flex-1 px-6 py-4 bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-white text-zinc-900 dark:text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
-                              >
-                                Şifre Değiştir
-                              </button>
-                              <button
-                                onClick={onOpenSettingsModal}
-                                className="px-6 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
-                              >
-                                Gelişmiş Ayarlar
-                              </button>
-                            </div>
+
+                            {!showPasswordForm ? (
+                              <div className="flex gap-4">
+                                <button
+                                  onClick={() => setShowPasswordForm(true)}
+                                  className="flex-1 px-6 py-4 bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-white text-zinc-900 dark:text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
+                                >
+                                  Şifre Değiştir
+                                </button>
+                                <button
+                                  onClick={() => onOpenSettingsModal?.()}
+                                  className="px-6 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
+                                >
+                                  Gelişmiş Ayarlar
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="space-y-4 p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Yeni Şifre Belirle</h4>
+                                <div>
+                                  <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">
+                                    Yeni Şifre (min. 8 karakter)
+                                  </label>
+                                  <input
+                                    type="password"
+                                    value={passwordForm.next}
+                                    onChange={(e) => setPasswordForm((prev) => ({ ...prev, next: e.target.value }))}
+                                    className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-sm"
+                                    placeholder="••••••••"
+                                    autoFocus
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">
+                                    Şifreyi Onayla
+                                  </label>
+                                  <input
+                                    type="password"
+                                    value={passwordForm.confirm}
+                                    onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirm: e.target.value }))}
+                                    className={`w-full px-4 py-3 bg-white dark:bg-zinc-800 border rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm ${passwordForm.confirm && passwordForm.next !== passwordForm.confirm ? 'border-red-400 focus:border-red-500' : 'border-zinc-200 dark:border-zinc-700 focus:border-indigo-500'}`}
+                                    placeholder="••••••••"
+                                  />
+                                  {passwordForm.confirm && passwordForm.next !== passwordForm.confirm && (
+                                    <p className="text-[10px] text-red-500 font-bold mt-1">Şifreler eşleşmiyor</p>
+                                  )}
+                                </div>
+                                <div className="flex gap-3 pt-2">
+                                  <button
+                                    onClick={handlePasswordChange}
+                                    disabled={isSavingPassword || passwordForm.next.length < 8 || passwordForm.next !== passwordForm.confirm}
+                                    className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                  >
+                                    {isSavingPassword ? (
+                                      <><i className="fa-solid fa-circle-notch fa-spin mr-2"></i>Kaydediliyor</>
+                                    ) : 'Şifreyi Güncelle'}
+                                  </button>
+                                  <button
+                                    onClick={() => { setShowPasswordForm(false); setPasswordForm({ next: '', confirm: '' }); }}
+                                    className="px-6 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all"
+                                  >
+                                    İptal
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </BentoCard>
 
@@ -1436,20 +1653,84 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                           icon="fa-solid fa-triangle-exclamation"
                           iconColor="bg-red-50 text-red-600"
                         >
-                          <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-red-50/30 dark:bg-red-900/5 rounded-[2.5rem]">
-                            <div className="text-center md:text-left">
-                              <h5 className="font-black text-red-700 dark:text-red-400 text-sm mb-1 uppercase tracking-tight">
-                                Hesabı Kalıcı Olarak Kapat
-                              </h5>
-                              <p className="text-[11px] text-zinc-500 font-bold">
-                                Tüm öğrenci verileriniz, raporlarınız ve arşiviniz geri dönülemez
-                                şekilde silinecektir.
-                              </p>
+                          {deleteConfirmStep === 0 && (
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-red-50/30 dark:bg-red-900/5 rounded-[2.5rem]">
+                              <div className="text-center md:text-left">
+                                <h5 className="font-black text-red-700 dark:text-red-400 text-sm mb-1 uppercase tracking-tight">
+                                  Hesabı Kalıcı Olarak Kapat
+                                </h5>
+                                <p className="text-[11px] text-zinc-500 font-bold">
+                                  Tüm öğrenci verileriniz, raporlarınız ve arşiviniz geri dönülemez
+                                  şekilde silinecektir.
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => setDeleteConfirmStep(1)}
+                                className="px-8 py-4 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-red-500/20 hover:scale-105 active:scale-95 transition-all"
+                              >
+                                HESABI SİL
+                              </button>
                             </div>
-                            <button className="px-8 py-4 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-red-500/20 hover:scale-105 active:scale-95 transition-all">
-                              HESABI SİL
-                            </button>
-                          </div>
+                          )}
+                          {deleteConfirmStep === 1 && (
+                            <div className="p-6 space-y-6 animate-in fade-in slide-in-from-top-2 duration-200">
+                              <div className="p-5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/40 rounded-3xl">
+                                <p className="text-sm font-bold text-red-700 dark:text-red-300 leading-relaxed">
+                                  ⚠️ Bu işlem geri alınamaz. Tüm verileriniz — öğrenci profilleri,
+                                  değerlendirme raporları, eğitim planları ve materyaller — kalıcı
+                                  olarak silinecektir.
+                                </p>
+                              </div>
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={() => setDeleteConfirmStep(2)}
+                                  className="flex-1 px-6 py-4 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-red-500/20 hover:bg-red-700 transition-all"
+                                >
+                                  Anlıyorum, Devam Et
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirmStep(0)}
+                                  className="px-6 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all"
+                                >
+                                  Vazgeç
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          {deleteConfirmStep === 2 && (
+                            <div className="p-6 space-y-5 animate-in fade-in slide-in-from-top-2 duration-200">
+                              <p className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                                Onaylamak için aşağıya{' '}
+                                <span className="font-black text-red-600 dark:text-red-400">HESABIMI SİL</span>{' '}
+                                yazın:
+                              </p>
+                              <input
+                                type="text"
+                                value={deleteConfirmText}
+                                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                placeholder="HESABIMI SİL"
+                                className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-red-200 dark:border-red-700/50 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-red-500/10 focus:border-red-500 transition-all text-sm"
+                                autoFocus
+                              />
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={handleDeleteAccount}
+                                  disabled={deleteConfirmText !== 'HESABIMI SİL' || isDeletingAccount}
+                                  className="flex-1 px-6 py-4 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-red-500/20 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                >
+                                  {isDeletingAccount ? (
+                                    <><i className="fa-solid fa-circle-notch fa-spin mr-2"></i>Siliniyor</>
+                                  ) : 'Hesabımı Kalıcı Olarak Sil'}
+                                </button>
+                                <button
+                                  onClick={() => { setDeleteConfirmStep(0); setDeleteConfirmText(''); }}
+                                  className="px-6 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all"
+                                >
+                                  İptal
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </BentoCard>
                       </div>
                     )}
