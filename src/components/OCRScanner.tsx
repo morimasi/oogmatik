@@ -1,4 +1,5 @@
 import { AppError } from '../utils/AppError';
+import { DEFAULT_BLUEPRINT, getBlueprintOrFallback } from '../utils/blueprint';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ocrService } from '../services/ocrService';
 import { ActivityType, WorksheetData, StyleSettings, GeneratorOptions, Student } from '../types';
@@ -668,9 +669,12 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
 
     try {
       const result = await ocrService.processImage(img);
-      setBlueprintData(result.structuredData);
-      setEditedTitle(result.structuredData?.title || '');
-      setEditedBlueprint(result.structuredData?.worksheetBlueprint || '');
+      // Safely normalize blueprint data using defensive utilities
+      const rawStruct = result.structuredData as any;
+      const safeBlueprint = getBlueprintOrFallback(rawStruct, DEFAULT_BLUEPRINT);
+      setBlueprintData(safeBlueprint);
+      setEditedTitle(rawStruct?.title ?? safeBlueprint?.title ?? '');
+      setEditedBlueprint(rawStruct?.worksheetBlueprint ?? safeBlueprint?.worksheetBlueprint ?? '');
 
       // Show all warnings, not just first
       if (result.warnings && result.warnings.length > 0) {
@@ -736,13 +740,10 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         }
 
         showToast(`❌ ${friendlyMessage}`, 'error');
-        console.error(
-          `[OCR Analysis] Failed after ${attemptNumber} attempt(s)`,
-          {
-            originalError: errorMessage,
-            friendlyMessage,
-          }
-        );
+        console.error(`[OCR Analysis] Failed after ${attemptNumber} attempt(s)`, {
+          originalError: errorMessage,
+          friendlyMessage,
+        });
 
         setStep('upload');
       }
