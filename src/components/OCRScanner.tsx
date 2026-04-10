@@ -764,13 +764,26 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         return;
       }
 
+      const blueprintToUse = isEditingBlueprint
+        ? editedBlueprint
+        : blueprintData.worksheetBlueprint;
+      const titleToUse = editedTitle || blueprintData.title;
+
       const response = await fetch('/api/ocr/generate-variations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          blueprint: blueprintData,
+          blueprint: {
+            detectedType: blueprintData?.detectedType || 'ARCH_CLONE',
+            quality: 'high',
+            structuredData: {
+              ...blueprintData,
+              worksheetBlueprint: blueprintToUse,
+              title: titleToUse,
+            },
+          },
           count: variationCount,
           userId: user?.uid || 'anonymous',
           config: {

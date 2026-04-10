@@ -6,8 +6,10 @@ export type BlueprintLike = { [key: string]: any };
 // A permissive default blueprint to fall back to when data is invalid
 export const DEFAULT_BLUEPRINT: BlueprintLike = {
   id: 'default_blueprint',
-  // Minimal structure; real integration can extend as needed
-  // This should be safe to use for OCR generation as a placeholder
+  title: 'Otomatik Şablon',
+  detectedType: 'ARCH_CLONE',
+  worksheetBlueprint: '{\n  "questions": []\n}',
+  layoutHints: { columns: 1, questionCount: 1, hasImages: false },
   content: [],
   metadata: {},
 };
@@ -20,6 +22,7 @@ export function isValidBlueprint(bp: unknown): bp is BlueprintLike {
   const obj = bp as BlueprintLike;
   // Accept if it has a recognizable hint for blueprint data
   return (
+    typeof obj.worksheetBlueprint === 'string' ||
     (typeof obj.id === 'string' && obj.id.length > 0) ||
     Array.isArray(obj.content) ||
     obj.metadata !== undefined
