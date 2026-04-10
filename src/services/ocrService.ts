@@ -10,6 +10,13 @@ import {
 } from './generators/ocrPromptLibrary.js';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────
+
+/** callGeminiWithImage raw response — worksheetBlueprint guaranteed by structured output,
+ *  but fallback fields (description, analysis) handle edge cases. */
+interface OCRBlueprintRaw extends OCRBlueprint {
+    description?: string;
+    analysis?: string;
+}
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 // ─── DIRECT GEMINI WITH IMAGE (server-side only) ──────────────────────────
@@ -21,7 +28,8 @@ const MASTER_MODEL = 'gemini-2.5-flash';
  */
 const callGeminiWithImage = async (
     base64Image: string,
-    prompt: string
+    prompt: string,
+    schema?: Record<string, unknown>
 ): Promise<unknown> => {
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY;
     if (!apiKey) throw new InternalServerError('API Key bulunamadı (ocrService).');
@@ -43,18 +51,28 @@ const callGeminiWithImage = async (
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${MASTER_MODEL}:generateContent?key=${apiKey}`;
 
+    const requestBody: Record<string, unknown> = {
+        contents: [{
+            role: 'user',
+            parts: [
+                { inlineData: { mimeType, data: imageData } },
+                { text: prompt }
+            ]
+        }]
+    };
+
+    // Structured output: garantili alan sıralaması ve boş yanıt riskini ortadan kaldırır
+    if (schema) {
+        requestBody.generationConfig = {
+            responseMimeType: 'application/json',
+            responseSchema: schema,
+        };
+    }
+
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{
-                role: 'user',
-                parts: [
-                    { inlineData: { mimeType, data: imageData } },
-                    { text: prompt }
-                ]
-            }]
-        })
+        body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -207,7 +225,7 @@ export const ocrService = {
         Metni eksiksiz oku; sayfa hiyerarşisini, mimari yapısını ve ASIL VERİYİ çöz. Varsa grafik, tablo ve geometrik şekilleri de analiz et.
         `;
 
-        const _schema = {
+        const schema = {
             type: 'OBJECT',
             properties: {
                 title: {
@@ -284,21 +302,29 @@ export const ocrService = {
         };
 
         try {
-            const result = await callGeminiWithImage(base64Image, prompt) as OCRBlueprint;
-            const validation = validateBlueprint(result.worksheetBlueprint);
+            const result = await callGeminiWithImage(base64Image, prompt, schema) as OCRBlueprintRaw;
+
+            // worksheetBlueprint boş gelirse diğer alanlardan kurtarma dene
+            const blueprintText = result.worksheetBlueprint
+                || result.description
+                || result.analysis
+                || '';
+
+            const validation = validateBlueprint(blueprintText);
 
             if (!validation.isValid) {
                 throw new AppError(validation.warnings.join(' '), 'INTERNAL_ERROR', 500);
             }
 
             const ocrResult: OCRResult = {
-                rawText: result.worksheetBlueprint,
+                rawText: blueprintText,
                 detectedType: (result.detectedType as OCRDetectedType) || 'ARCH_CLONE',
                 title: result.title || 'Başlıksız Materyal',
                 description: `Mimari DNA başarıyla analiz edildi. Kalite: ${validation.quality.toUpperCase()}. Klonlama için hazır.`,
-                generatedTemplate: result.worksheetBlueprint,
+                generatedTemplate: blueprintText,
                 structuredData: {
                     ...result,
+                    worksheetBlueprint: blueprintText,
                     detectedType: (result.detectedType as OCRDetectedType) || 'OTHER'
                 },
                 baseType: 'OCR_CONTENT',
