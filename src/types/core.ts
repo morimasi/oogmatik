@@ -505,6 +505,34 @@ export type OCRDetectedType =
   | 'ARCH_CLONE'
   | 'OTHER';
 
+export interface OCRBlueprintComponentRequirements {
+  /** Grafik, şekil veya geometrik çizim gerekiyor mu? */
+  requiresGraphic: boolean;
+  /** Tablo veya ızgara yapısı gerekiyor mu? */
+  requiresTable: boolean;
+  /** Cevap kutuları veya yazma alanları gerekiyor mu? */
+  requiresAnswerBoxes: boolean;
+  /** Kelime bankası kutusu gerekiyor mu? */
+  requiresWordBank: boolean;
+  /** Eşleştirme sütunları gerekiyor mu? */
+  requiresMatchingColumns: boolean;
+  /** Çoktan seçmeli format (A/B/C/D) gerekiyor mu? */
+  requiresMultipleChoice: boolean;
+}
+
+export interface OCRBlueprintDensityHints {
+  /** Sayfanın doluluk oranı 0-100 */
+  densityScore: number;
+  /** Tahmini font boyutu (pt) */
+  estimatedFontSize: number;
+  /** Tahmini satır aralığı katsayısı */
+  estimatedLineHeight: number;
+  /** Önerilen sütun sayısı (1-3) */
+  recommendedColumns: number;
+  /** A4'ü doldurmak için minimum madde/soru sayısı */
+  recommendedItemCount: number;
+}
+
 export interface OCRBlueprint {
   title: string;
   detectedType: OCRDetectedType;
@@ -519,6 +547,10 @@ export interface OCRBlueprint {
     aciklama: string;
     veri?: Array<{ etiket: string; deger?: number; birim?: string }>;
   }>;
+  /** Hangi UI bileşenlerinin gerektiğini belirtir (analiz sırasında otomatik çıkarılır) */
+  componentRequirements?: OCRBlueprintComponentRequirements;
+  /** Sayfa yoğunluk analizi (A4 doluluk optimizasyonu için) */
+  densityHints?: OCRBlueprintDensityHints;
 }
 
 export interface OCRResult {

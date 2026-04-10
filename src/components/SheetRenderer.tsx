@@ -1243,6 +1243,8 @@ export const SheetRenderer = React.memo(
               title?: string;
               pedagogicalNote?: string;
               targetSkills?: string[];
+              columns?: number;
+              estimatedFontSize?: number;
             }
           }
         />

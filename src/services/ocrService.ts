@@ -3,6 +3,11 @@ import { logger } from '../utils/logger';
 
 import { InternalServerError } from '../utils/AppError.js';
 import { OCRResult, OCRBlueprint, OCRDetectedType } from '../types.js';
+import {
+  VISUAL_EXTRACTION_DIRECTIVE,
+  DENSITY_ANALYSIS_DIRECTIVE,
+  COMPONENT_REQUIREMENTS_DIRECTIVE,
+} from './generators/ocrPromptLibrary.js';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────
 const MASTER_MODEL = 'gemini-2.5-flash';
@@ -185,21 +190,19 @@ export const ocrService = {
         }
 
         const prompt = `
-        [MİMARİ KLONLAMA MOTORU - GEMINI 3 FLASH THINKING]
-        Bu çalışma sayfasını derinlemesine analiz et ve 'BLUEPRINT_V1.0' formatında mimari DNA'sını çıkar.
+        [MİMARİ KLONLAMA MOTORU - GEMINI 2.5 FLASH THINKING]
+        Bu çalışma sayfasını derinlemesine analiz et ve 'BLUEPRINT_V2.0' formatında mimari DNA'sını çıkar.
         
-        ANALİZ PROTOKOLÜ (Thinking):
+        ANALİZ PROTOKOLÜ (9 Katman):
         1. ROOT_CONTAINER: Sayfa genel yerleşimi (sütun sayısı, grid yapısı, kenar boşlukları).
         2. LOGIC_MODULES: Soru bloklarının teknik yapısı (soru tipi, format, boşluk tasarımı).
         3. EXACT_TEXT_EXTRACTION: Görselde okuduğun metinleri, yönergeleri, tabloları ve soruları KESİNLİKLE DEĞİŞTİRMEDEN (1:1 Birebir) Blueprint içerisine veri olarak aktar.
         4. SOLUTION_LOGIC: Cevaba giden mantıksal yol ve örüntü.
         5. DETECTED_TYPE: Materyal türü (MATH_WORKSHEET | READING_COMPREHENSION | FILL_IN_THE_BLANK | MATCHING | TRUE_FALSE | MULTIPLE_CHOICE | OTHER).
         6. LAYOUT_HINTS: Sütun sayısı, görsel varlığı, toplam soru sayısı tahmini.
-        7. VISUAL_EXTRACTION: Sayfadaki her grafik, tablo, geometrik şekil için:
-           - tipi: 'sutun_grafigi' | 'pasta_grafigi' | 'cizgi_grafigi' | 'tablo' | 'ucgen' | 'dikdortgen' | 'daire' | 'koordinat_sistemi' | 'sayi_dogrusu' | 'venn_diyagrami' | diğer
-           - aciklama: Türkçe kısa açıklama (içerik, değerler, boyutlar dahil)
-           - veri: Grafik/tablo için sayısal veriler [{ etiket, deger, birim }] — geçerliyse
-           Görsel yoksa visualDescriptors [] (boş dizi) döndür.
+        7. VISUAL_EXTRACTION: ${VISUAL_EXTRACTION_DIRECTIVE}
+        8. DENSITY_ANALYSIS: ${DENSITY_ANALYSIS_DIRECTIVE}
+        9. COMPONENT_REQUIREMENTS: ${COMPONENT_REQUIREMENTS_DIRECTIVE}
         
         Metni eksiksiz oku; sayfa hiyerarşisini, mimari yapısını ve ASIL VERİYİ çöz. Varsa grafik, tablo ve geometrik şekilleri de analiz et.
         `;
@@ -217,7 +220,7 @@ export const ocrService = {
                 },
                 worksheetBlueprint: {
                     type: 'STRING',
-                    description: "BLUEPRINT_V1.0 formatında teknik mimari DNA — sütunlar, bloklar, soru tipleri, yerleşim mantığı"
+                    description: "BLUEPRINT_V2.0 formatında teknik mimari DNA — sütunlar, bloklar, soru tipleri, yerleşim mantığı"
                 },
                 layoutHints: {
                     type: 'OBJECT',
@@ -226,7 +229,7 @@ export const ocrService = {
                         hasImages: { type: 'BOOLEAN', description: "Görseller içeriyor mu?" },
                         questionCount: { type: 'NUMBER', description: "Tahmini soru/madde sayısı" }
                     },
-                    required: [] // Hiçbiri zorunlu değil (Robusti artırır)
+                    required: []
                 },
                 visualDescriptors: {
                     type: 'ARRAY',
@@ -250,6 +253,31 @@ export const ocrService = {
                         },
                         required: ['tipi', 'aciklama']
                     }
+                },
+                densityHints: {
+                    type: 'OBJECT',
+                    description: 'Sayfa yoğunluk analizi — A4 doluluk optimizasyonu için',
+                    properties: {
+                        densityScore: { type: 'NUMBER', description: 'Sayfanın doluluk oranı 0-100' },
+                        estimatedFontSize: { type: 'NUMBER', description: 'Tahmini font boyutu (pt)' },
+                        estimatedLineHeight: { type: 'NUMBER', description: 'Tahmini satır aralığı katsayısı (örn: 1.3)' },
+                        recommendedColumns: { type: 'NUMBER', description: 'Önerilen sütun sayısı (1-3)' },
+                        recommendedItemCount: { type: 'NUMBER', description: 'A4 için minimum madde/soru sayısı' }
+                    },
+                    required: []
+                },
+                componentRequirements: {
+                    type: 'OBJECT',
+                    description: 'Aktiviteyi doğru üretmek için gereken UI bileşenleri',
+                    properties: {
+                        requiresGraphic: { type: 'BOOLEAN', description: 'Grafik veya geometrik şekil gerekiyor mu?' },
+                        requiresTable: { type: 'BOOLEAN', description: 'Tablo veya ızgara gerekiyor mu?' },
+                        requiresAnswerBoxes: { type: 'BOOLEAN', description: 'Cevap alanları gerekiyor mu?' },
+                        requiresWordBank: { type: 'BOOLEAN', description: 'Kelime bankası gerekiyor mu?' },
+                        requiresMatchingColumns: { type: 'BOOLEAN', description: 'Eşleştirme sütunları gerekiyor mu?' },
+                        requiresMultipleChoice: { type: 'BOOLEAN', description: 'Çoktan seçmeli format gerekiyor mu?' }
+                    },
+                    required: []
                 }
             },
             required: ['title', 'detectedType', 'worksheetBlueprint']

@@ -2,13 +2,28 @@
 import { generateCreativeMultimodal } from '../geminiClient.js';
 import { GeneratorOptions, ActivityType } from '../../types.js';
 import { PEDAGOGICAL_BASE } from './prompts.js';
+import {
+  A4_COMPACT_INSTRUCTION,
+  buildDetectedTypePromptPatch,
+  buildDensityDirective,
+  type OCRDetectedType,
+} from './ocrPromptLibrary.js';
 
 /**
  * generateFromRichPrompt:
- * Gemini 3 Flash 'Thinking' motoruyla bir görselin mimari DNA'sından 
+ * Gemini 2.5 Flash ile bir görselin mimari DNA'sından
  * tamamen yeni ama aynı düzende bir içerik üretir.
+ * A4 doluluk direktifleri ve tip bazlı prompt yanamamaları dahildir.
  */
-export const generateFromRichPrompt = async (activityType: ActivityType, blueprint: string, options: GeneratorOptions & { isExactClone?: boolean }): Promise<any> => {
+export const generateFromRichPrompt = async (
+  activityType: ActivityType,
+  blueprint: string,
+  options: GeneratorOptions & {
+    isExactClone?: boolean;
+    detectedType?: OCRDetectedType | string;
+    densityHints?: { densityScore?: number; recommendedItemCount?: number; recommendedColumns?: number };
+  }
+): Promise<any> => {
     const cloneInstructions = options.isExactClone
         ? `
         [!!! KRİTİK ZORUNLULUK: 1:1 MEKANİK DİJİTALLEŞTİRME !!!]
@@ -26,11 +41,25 @@ export const generateFromRichPrompt = async (activityType: ActivityType, bluepri
         - Yapısal sadakat (Structural Integrity) %100 korunmalı.
         `;
 
+    // Tip bazlı direktif (sadece yeni içerik üretiminde)
+    const typePatch = !options.isExactClone && options.detectedType
+        ? buildDetectedTypePromptPatch(options.detectedType as OCRDetectedType)
+        : '';
+
+    // Yoğunluk direktifi (sadece yeni içerik üretiminde)
+    const densityDirective = !options.isExactClone
+        ? buildDensityDirective(options.densityHints)
+        : '';
+
     const prompt = `
+    ${options.isExactClone ? '' : A4_COMPACT_INSTRUCTION}
+    
     ${PEDAGOGICAL_BASE}
     
     ${cloneInstructions}
     
+    ${typePatch ? typePatch + '\n' : ''}
+    ${densityDirective ? densityDirective + '\n' : ''}
     MİMARİ DNA (Görselden Çıkarılan veya Referans Alınan):
     ${blueprint}
     

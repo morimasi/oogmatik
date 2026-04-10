@@ -852,6 +852,9 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         itemCount: itemCount,
         topic: concept ? `${titleToUse} (${concept} bağlamında)` : titleToUse,
         isExactClone: isExact,
+        // Pass blueprint metadata so newActivities.ts can inject type-specific prompts
+        detectedType: blueprintData?.detectedType,
+        densityHints: blueprintData?.densityHints,
         ...(activeStudent ? { studentContext: activeStudent } : {}),
       };
       const result = await generateFromRichPrompt(
