@@ -95,7 +95,10 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
             const combined = [...attachedFiles, ...newFiles];
             setAttachedFiles(combined);
             const analysisResult = await analyzeReferenceFiles(combined, prompt);
-            setPrompt(prev => prev.trim() ? `${prev}\n\n---\n\n${analysisResult}` : analysisResult);
+            setPrompt(prev => {
+                const safePrev = typeof prev === 'string' ? prev : '';
+                return safePrev.trim() ? `${safePrev}\n\n---\n\n${analysisResult}` : analysisResult;
+            });
             setStatus("Analiz başarılı.");
         } catch (_e) {
             setStatus("Hata oluştu.");
@@ -108,15 +111,19 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         setIsProcessing(true);
         try {
             const refined = await refinePromptWithAI(prompt, mode);
-            setPrompt(refined);
+            setPrompt(typeof refined === 'string' ? refined : '');
+            setStatus('');
+        } catch (_e) {
+            setStatus('Prompt iyileştirme başarısız oldu.');
         } finally { setIsProcessing(false); }
     };
 
     const handleGenerate = async () => {
-        if (!prompt.trim() && attachedFiles.length === 0) return;
+        const safePrompt = typeof prompt === 'string' ? prompt : '';
+        if (!safePrompt.trim() && attachedFiles.length === 0) return;
         setIsProcessing(true);
         try {
-            const result = await generateCreativeStudioActivity(prompt, {
+            const result = await generateCreativeStudioActivity(safePrompt, {
                 difficulty,
                 itemCount,
                 distractionLevel,
