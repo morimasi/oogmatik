@@ -64,6 +64,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     const [hoveredItem, setHoveredItem] = useState<ActivityLibraryItem | null>(null);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [attachedFiles, setAttachedFiles] = useState<MultimodalFile[]>([]);
+    const toSafePrompt = (value: unknown): string => (typeof value === 'string' ? value : '');
 
     useEffect(() => {
         const savedLib = localStorage.getItem('custom_pedagogical_lib');
@@ -95,7 +96,10 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
             const combined = [...attachedFiles, ...newFiles];
             setAttachedFiles(combined);
             const analysisResult = await analyzeReferenceFiles(combined, prompt);
-            setPrompt(prev => prev.trim() ? `${prev}\n\n---\n\n${analysisResult}` : analysisResult);
+            setPrompt(prev => {
+                const safePrev = toSafePrompt(prev);
+                return safePrev.trim() ? `${safePrev}\n\n---\n\n${analysisResult}` : analysisResult;
+            });
             setStatus("Analiz başarılı.");
         } catch (_e) {
             setStatus("Hata oluştu.");
@@ -108,7 +112,13 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         setIsProcessing(true);
         try {
             const refined = await refinePromptWithAI(prompt, mode);
-            setPrompt(refined);
+            setPrompt(prev => {
+                const safeRefined = toSafePrompt(refined).trim();
+                if (safeRefined.length === 0) {
+                    return toSafePrompt(prev);
+                }
+                return safeRefined;
+            });
             setStatus('');
         } catch (_e) {
             setStatus('Prompt iyileştirme başarısız oldu. Lütfen tekrar deneyin veya farklı bir mod seçin.');
@@ -116,10 +126,11 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     };
 
     const handleGenerate = async () => {
-        if (!prompt.trim() && attachedFiles.length === 0) return;
+        const safePrompt = toSafePrompt(prompt);
+        if (!safePrompt.trim() && attachedFiles.length === 0) return;
         setIsProcessing(true);
         try {
-            const result = await generateCreativeStudioActivity(prompt, {
+            const result = await generateCreativeStudioActivity(safePrompt, {
                 difficulty,
                 itemCount,
                 distractionLevel,
