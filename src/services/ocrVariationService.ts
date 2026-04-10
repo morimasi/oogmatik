@@ -17,6 +17,14 @@ import type {
   AgeGroup,
   Difficulty
 } from '../types.js';
+import {
+  A4_COMPACT_INSTRUCTION,
+  COMPONENT_CHECKLIST_PROMPT,
+  buildDetectedTypePromptPatch,
+  buildComponentChecklist,
+  buildDensityDirective,
+  type OCRDetectedType as OCRDetectedTypeLib,
+} from './generators/ocrPromptLibrary.js';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────
 
@@ -165,7 +173,7 @@ const buildVariationPrompt = (
   context: VariantContext
 ): string => {
   const { blueprint, count, config } = request;
-  const { worksheetBlueprint, title, detectedType } = blueprint.structuredData;
+  const { worksheetBlueprint, title, detectedType, componentRequirements, densityHints } = blueprint.structuredData;
 
   const targetProfile = config?.targetProfile || 'mixed';
   const ageGroup = config?.ageGroup || '8-10';
@@ -176,7 +184,21 @@ const buildVariationPrompt = (
         .join('; ')}`
     : '';
 
+  // Tip bazlı direktif
+  const typePatch = buildDetectedTypePromptPatch(detectedType as OCRDetectedTypeLib);
+
+  // Bileşen checklist direktifi (sadece true olan bileşenler için)
+  const componentChecklist = buildComponentChecklist(componentRequirements);
+
+  // Yoğunluk hedefi direktifi
+  const densityDirective = buildDensityDirective(densityHints);
+
   return `
+${A4_COMPACT_INSTRUCTION}
+
+${typePatch}
+
+${componentChecklist ? componentChecklist + '\n' : ''}
 [VARYASYON ÜRETME MOTORU - GEMINI 2.5 FLASH]
 Aşağıdaki BLUEPRINT'ten ${count} adet FARKLI VERİLİ aktivite varyasyonu üret.
 
@@ -190,28 +212,34 @@ KAYNAK BİLGİLERİ:
 - Soru sayısı: ~${context.metadata.layoutHints.questionCount}
 - Görsel içeriyor: ${context.metadata.layoutHints.hasImages ? 'Evet' : 'Hayır'}${visualContext}
 
+${densityDirective}
+
 KRİTİK KURALLAR (İHLAL EDİLEMEZ):
 1. MİMARİ YAPISI AYNI KALMALI: Sütun sayısı, soru formatı, layout tamamen aynı.
 2. VERİ FARKLI OLMALI: Sayılar, metinler, kelimeler, cümleler her varyasyonda farklı.
 3. ZORLUK SEVİYESİ AYNI: Blueprint'teki zorluk seviyesi korunmalı.
 4. PEDAGOJİK UYUM: Öğrenme profili = ${targetProfile}, Yaş grubu = ${ageGroup}
 5. pedagogicalNote ZORUNLU: Her varyasyonda öğretmen için açıklama olmalı (min 50 karakter).
-6. DISLEKSI-DOSTU: Lexend fontu, geniş satır aralığı, net görsel hiyerarşi.
+6. DISLEKSI-DOSTU: Lexend fontu (font-family:'Lexend',sans-serif), geniş satır aralığı, net görsel hiyerarşi.
+
+${COMPONENT_CHECKLIST_PROMPT}
 
 VARYASYON ÖRNEKLERİ:
 Blueprint: "3 + 5 = ?" → Varyasyon 1: "7 + 2 = ?", Varyasyon 2: "9 + 4 = ?"
 Blueprint: "Kelimedeki ünlüleri bulun: elma" → Varyasyon 1: "armut", Varyasyon 2: "kiraz"
 Blueprint: "Boşluğu doldurun: Ali ___ gitti." → Varyasyon 1: "okula", Varyasyon 2: "parka"
 
-ÖNEMLİ:
-- Her varyasyon bağımsız bir aktivite olmalı
-- Tüm varyantlar aynı pedagojik hedefleri desteklemeli
-- HTML içeriği disleksi-dostu olmalı (Lexend font, büyük metin)
-
 GÖRSEL ÜRETİM:
 - Orijinal materyal görsel içeriyorsa (hasImages: true veya blueprint'te grafik/tablo/şekil varsa):
   Her varyasyonda grafikVeri alanını doldur. Aynı tip görseli (örn: sutun_grafigi) farklı verilerle üret.
 - Orijinal materyal görsel içermiyorsa: grafikVeri alanını null bırak.
+
+HTML İÇERİK KALİTE KURALLARI:
+- Her content HTML olarak döndür — düz metin değil.
+- Inline style kullan: font-family:'Lexend',sans-serif; font-size:11px; line-height:1.3
+- Sorular arası: margin-bottom:6px; paragraflar arası: margin-bottom:4px
+- Tablo, grid yapıları için: padding:4px; border:1px solid #999; border-collapse:collapse
+- 2 sütun layout gerekiyorsa: display:grid; grid-template-columns:1fr 1fr; gap:8px
 
 ${count} adet tam varyasyon üret. Her biri eksiksiz WorksheetData objesi olmalı.
   `.trim();
@@ -237,7 +265,7 @@ const getVariationSchema = () => ({
           },
           content: {
             type: 'STRING' as const,
-            description: 'HTML aktivite içeriği (Lexend font, disleksi-dostu)'
+            description: 'HTML aktivite içeriği. ZORUNLU: inline style ile font-family:Lexend,sans-serif; font-size:11px; line-height:1.3 kullan. A4 sayfasını %80+ dolduracak yoğunlukta üret. Sorular arası margin-bottom:6px.'
           },
           pedagogicalNote: {
             type: 'STRING' as const,
