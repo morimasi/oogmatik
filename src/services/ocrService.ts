@@ -10,6 +10,13 @@ import {
 } from './generators/ocrPromptLibrary.js';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────
+
+/** callGeminiWithImage raw response — worksheetBlueprint guaranteed by structured output,
+ *  but fallback fields (description, analysis) handle edge cases. */
+interface OCRBlueprintRaw extends OCRBlueprint {
+    description?: string;
+    analysis?: string;
+}
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 // ─── DIRECT GEMINI WITH IMAGE (server-side only) ──────────────────────────
@@ -295,12 +302,12 @@ export const ocrService = {
         };
 
         try {
-            const result = await callGeminiWithImage(base64Image, prompt, schema) as OCRBlueprint;
+            const result = await callGeminiWithImage(base64Image, prompt, schema) as OCRBlueprintRaw;
 
             // worksheetBlueprint boş gelirse diğer alanlardan kurtarma dene
             const blueprintText = result.worksheetBlueprint
-                || (result as any).description
-                || (result as any).analysis
+                || result.description
+                || result.analysis
                 || '';
 
             const validation = validateBlueprint(blueprintText);
