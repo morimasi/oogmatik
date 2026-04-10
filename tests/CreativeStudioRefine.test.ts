@@ -25,6 +25,17 @@ describe('refinePromptWithAI', () => {
     expect(result).toBe(currentPrompt);
   });
 
+  it('refined null/undefined/boş veya string dışıysa mevcut promptu korur', async () => {
+    const currentPrompt = 'Korunacak prompt';
+    const invalidCases = [{ refined: null }, { refined: undefined }, { refined: '' }, { refined: 123 }, { refined: { text: 'x' } }];
+
+    for (const mocked of invalidCases) {
+      mockGenerateWithSchema.mockResolvedValue(mocked);
+      const result = await refinePromptWithAI(currentPrompt, 'expand');
+      expect(result).toBe(currentPrompt);
+    }
+  });
+
   it('geçerli refined dönerse onu kullanır', async () => {
     mockGenerateWithSchema.mockResolvedValue({ refined: 'Yeni prompt' });
 
