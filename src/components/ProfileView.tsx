@@ -38,6 +38,23 @@ interface ProfileViewProps {
   onOpenSettingsModal?: () => void;
 }
 
+/**
+ * Avatar URL'sini sanitize eder — yalnızca http/https URL'lerine izin verir.
+ * XSS saldırılarına karşı güvenlik katmanı (javascript: protokolü engellenir).
+ */
+function sanitizeImageUrl(url: string): string {
+  if (!url.trim()) return '';
+  try {
+    const parsed = new URL(url.trim());
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return url.trim();
+    }
+    return '';
+  } catch {
+    return '';
+  }
+}
+
 // --- BENTO COMPONENTS ---
 
 const BentoCard: React.FC<{
@@ -253,7 +270,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [darkModeEnabled, setDarkModeEnabled] = useState(isDarkTheme);
   const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('emailNotifications') || 'true') as boolean;
+      const parsed = JSON.parse(localStorage.getItem('emailNotifications') || 'true');
+      return typeof parsed === 'boolean' ? parsed : true;
     } catch {
       return true;
     }
@@ -857,28 +875,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                         </div>
                       </div>
                       <div className="space-y-4 mb-8">
-                        <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                          <span className="text-zinc-400">Genel İlerleme</span>
-                          <span className="text-zinc-900 dark:text-white">
-                            %{plan.schedule.length > 0
-                              ? Math.round(
-                                  (plan.schedule.filter((d) => d.isCompleted).length /
-                                    plan.schedule.length) *
-                                  100
-                                )
-                              : 0}
-                          </span>
-                        </div>
-                        <div className="w-full h-3 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/20"
-                            style={{
-                              width: `${plan.schedule.length > 0
-                                ? (plan.schedule.filter((d) => d.isCompleted).length / plan.schedule.length) * 100
-                                : 0}%`,
-                            }}
-                          ></div>
-                        </div>
+                        {(() => {
+                          const completedCount = plan.schedule.filter((d) => d.isCompleted).length;
+                          const totalCount = plan.schedule.length;
+                          const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+                          return (
+                            <>
+                              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                                <span className="text-zinc-400">Genel İlerleme</span>
+                                <span className="text-zinc-900 dark:text-white">%{progressPct}</span>
+                              </div>
+                              <div className="w-full h-3 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/20"
+                                  style={{ width: `${progressPct}%` }}
+                                ></div>
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
                       <div className="flex gap-4">
                         <button
@@ -1003,7 +1018,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                               <div className="relative group/avatar">
                                 <div className="w-40 h-40 rounded-[3.5rem] p-1 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl overflow-hidden transform group-hover/avatar:scale-105 transition-all duration-500">
                                   <img
-                                    src={avatarUrl}
+                                    src={sanitizeImageUrl(avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
                                     alt="Avatar"
                                     className="w-full h-full rounded-[3.3rem] object-cover bg-white dark:bg-zinc-800"
                                   />
@@ -1034,7 +1049,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                                   <div className="flex gap-2">
                                     <button
                                       onClick={() => {
-                                        if (avatarUrlInput.trim()) setAvatarUrl(avatarUrlInput.trim());
+                                        const safe = sanitizeImageUrl(avatarUrlInput);
+                                        if (safe) {
+                                          setAvatarUrl(safe);
+                                        } else if (avatarUrlInput.trim()) {
+                                          useToastStore.getState().error('Geçersiz URL. Yalnızca http/https adresleri kabul edilir.');
+                                        }
                                         setShowAvatarUrlInput(false);
                                       }}
                                       className="flex-1 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
