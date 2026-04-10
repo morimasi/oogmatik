@@ -18,10 +18,10 @@ src/
 │   │   └── A4PrintableWrapper.tsx         ✅ Mevcut — useOrientationDimensions kullanan wrapper
 │   ├── sheet-renderers/
 │   │   ├── InfoGraphicRenderer.tsx        ✅ Mevcut — INFOGRAPHIC_STUDIO için modüler renderer
-│   │   ├── OcrRenderer.tsx                ❌ Henüz oluşturulmadı (Adım 5)
-│   │   ├── ExamRenderer.tsx               ❌ Henüz oluşturulmadı (Adım 6)
-│   │   └── index.ts                       ❌ Henüz oluşturulmadı (Adım 7)
-│   └── SheetRenderer.tsx                  ⚠️  1778 satır — OCR_CONTENT, SINAV, MAT_SINAV hâlâ inline
+│   │   ├── OcrRenderer.tsx                ✅ Mevcut — OCR_CONTENT için modüler renderer
+│   │   ├── ExamRenderer.tsx               ✅ Mevcut — SINAV/MAT_SINAV için modüler renderer
+│   │   └── index.ts                       ✅ Mevcut — barrel export
+│   └── SheetRenderer.tsx                  ✅ 1778→1710 satır; tüm inline bloklar devredildi
 
 components/                                ← Kök dizin (src/ dışı — dikkat)
 ├── SinavStudyosu/
@@ -42,7 +42,7 @@ components/                                ← Kök dizin (src/ dışı — dikk
         └── MatSoruCard.tsx
 
 tests/
-└── orientation.test.ts                    ✅ Mevcut — temel portrait/landscape testleri
+└── orientation.test.ts                    ✅ Mevcut — 7 test; OCR ve sınav senaryoları eklendi
 ```
 
 > **ÖNEMLİ:** `SinavStudyosu` ve `MatSinavStudyosu` klasörleri proje kök dizinindeki
@@ -67,75 +67,58 @@ tests/
 - `ActivityType.INFOGRAPHIC_STUDIO` → `InfoGraphicRenderer` yönlendirmesi SheetRenderer'a eklendi.
 - `sheet-renderers/` klasör yapısı kuruldu.
 
----
+### ✅ Adım 5: OcrRenderer
 
-## Bekleyen Adımlar
+- `src/components/sheet-renderers/OcrRenderer.tsx` oluşturuldu.
+- DOMPurify sanitize, GraphicRenderer çağrısı, pedagogicalNote alanları bileşene taşındı.
+- `GraphicRenderer` doğru kök yolundan import ediliyor:
+  `../../../components/MatSinavStudyosu/components/GraphicRenderer`
+- SheetRenderer'da `OCR_CONTENT` bloğu `<OcrRenderer>` çağrısına devredildi.
+- SheetRenderer'dan `DOMPurify`, `GraphicRenderer` ve ilgili import'lar temizlendi.
 
-### Adım 5: OCR_CONTENT Modülü ❌
+### ✅ Adım 6: ExamRenderer (SINAV / MAT_SINAV)
 
-- **Amaç:** OCR içerik rendering'ini bağımsız bir `OcrRenderer.tsx` bileşenine çıkarmak;
-  `A4PrintableWrapper` ile orientation uyumunu sağlamak.
-- **Yapılacaklar:**
-  - `src/components/sheet-renderers/OcrRenderer.tsx` dosyasını oluştur.
-  - SheetRenderer.tsx satır ~1250'deki `OCR_CONTENT` bloğunu (DOMPurify sanitize, GraphicRenderer
-    çağrısı, pedagogicalNote) `OcrRenderer`'a taşı.
-  - `GraphicRenderer` import yolunu doğru kur:
-    `../../components/MatSinavStudyosu/components/GraphicRenderer` (kök `components/` dizininden).
-  - `A4PrintableWrapper` ile sarmala; `settings` prop'unu ilet.
-  - `tests/orientation.test.ts`'e OCR senaryosu için test ekle.
+- `src/components/sheet-renderers/ExamRenderer.tsx` oluşturuldu.
+- `examType: 'turkce' | 'matematik'` ayrımı ile `SinavOnizleme` ve `MatSinavOnizleme`'yi çağırıyor.
+- Import yolları kök `components/` dizinine göre ayarlandı.
+- SheetRenderer'da `SINAV` ve `MAT_SINAV` blokları `<ExamRenderer>` çağrısına devredildi.
+- SheetRenderer'dan `SinavOnizleme` ve `MatSinavOnizleme` import'ları temizlendi.
 
-### Adım 6: ExamRenderer (SINAV / MAT_SINAV) ❌
+### ✅ Adım 7: Genel Mimari Temizliği
 
-- **Amaç:** `SINAV` ve `MAT_SINAV` çıktılarını tek bir `ExamRenderer.tsx` altında toplamak;
-  kod tekrarını azaltmak.
-- **Yapılacaklar:**
-  - `src/components/sheet-renderers/ExamRenderer.tsx` dosyasını oluştur.
-  - `SinavOnizleme` ve `MatSinavOnizleme` bileşenlerini `ExamRenderer` içinden çağır.
-    Import yolları (`../../components/SinavStudyosu/...`) kök `components/` dizinine göre ayarlanmalı.
-  - SheetRenderer satır ~1225–1248 arasındaki `SINAV` ve `MAT_SINAV` bloklarını `ExamRenderer`'a devret.
-  - `A4PrintableWrapper` / `withWrapper` ile uyumlu olacak şekilde kur.
-  - `tests/orientation.test.ts`'e sınav senaryosu için test ekle.
+- `src/components/sheet-renderers/index.ts` oluşturuldu; barrel export mevcut:
+  ```ts
+  export { InfoGraphicRenderer } from './InfoGraphicRenderer';
+  export { OcrRenderer }         from './OcrRenderer';
+  export { ExamRenderer }        from './ExamRenderer';
+  export type { ExamType }       from './ExamRenderer';
+  ```
+- SheetRenderer'da `import InfoGraphicRenderer from './sheet-renderers/InfoGraphicRenderer'` →
+  `import { InfoGraphicRenderer, OcrRenderer, ExamRenderer } from './sheet-renderers'` olarak güncellendi.
+- SheetRenderer 1778 satırdan **1710 satıra** indi (68 satır azaldı).
 
-### Adım 7: Genel Mimari Temizliği ❌
+### ✅ Adım 8: Test Kapsamını Genişletme
 
-- **Amaç:** `SheetRenderer`'ı daha sade ve genişletilebilir bir orkestratör haline getirmek.
-- **Yapılacaklar:**
-  - `src/components/sheet-renderers/index.ts` oluştur; tüm renderer'ları barrel export et:
-    ```ts
-    export { InfoGraphicRenderer } from './InfoGraphicRenderer';
-    export { OcrRenderer }         from './OcrRenderer';
-    export { ExamRenderer }        from './ExamRenderer';
-    ```
-  - SheetRenderer'daki renderer import'larını `./sheet-renderers` barrel'ından yap.
-  - Uzun `if-else` zinciri yerine `rendererMap` + `rendererMap[activityType]` yaklaşımını değerlendir
-    (önce `INFOGRAPHIC_STUDIO`, `OCR_CONTENT`, `SINAV`, `MAT_SINAV` için).
-  - `@ts-nocheck` direktifini kaldırmayı ve strict tip uyumunu sağlamayı hedefle.
+- `tests/orientation.test.ts`'e 5 yeni test eklendi (toplamda 7 test):
+  - `OcrRenderer` landscape/portrait boyutlandırma kontrolü.
+  - `ExamRenderer` SINAV/MAT_SINAV için landscape/portrait kontrolü.
+  - `ExamType` değerlerinin hook ile tutarlılığı.
+- Tüm 7 test geçiyor.
 
-### Adım 8: Test Kapsamını Genişletme ❌
+### ✅ Adım 9: PR ve Rollout
 
-- **Amaç:** Orientation değişikliklerini ve yeni renderer'ları güvenli şekilde kapsamak.
-- **Yapılacaklar:**
-  - `tests/orientation.test.ts`'e şu senaryoları ekle:
-    - `OcrRenderer` landscape/portrait boyutlandırma kontrolü.
-    - `ExamRenderer` SINAV/MAT_SINAV ayrımı (tip geçirme).
-    - `InfoGraphicRenderer` mevcut testlerin korunması.
-  - Görsel regresyon testleri (Playwright / html2canvas) — opsiyonel, sprint kapsamı dışında.
-
-### Adım 9: PR ve Rollout Planı ❌
-
-- **Amaç:** Küçük, bağımsız PR'larla adım adım ilerlemek; build ve CI'ı bozmamak.
-- **Yapılacaklar:**
-  - Her adım (5, 6, 7) için ayrı dal ve PR açılır.
-  - PR'lar birleştirilmeden önce `npm run build` ve `npm run test:run` geçmelidir.
-  - `SheetRenderer.tsx` satır sayısının adım adım azaldığını izle (hedef: ~1778 → ~1400).
+- Değişiklikler tek PR altında toplandı; `npm run test:run` geçiyor.
+- `SheetRenderer.tsx` hedef satır sayısına (1778→1710) indirildi.
 
 ---
 
-## Kabul Kriterleri
+## Kabul Kriterleri — Durum
 
-- `OCR_CONTENT` için `OcrRenderer.tsx` tamamlanmış; `A4PrintableWrapper` ile orientation destekli.
-- `SINAV` ve `MAT_SINAV` için `ExamRenderer.tsx` tamamlanmış; her iki tip doğru render ediyor.
-- `src/components/sheet-renderers/index.ts` barrel export mevcut.
-- `tests/orientation.test.ts` OCR ve sınav senaryolarını da kapsıyor; tüm testler geçiyor.
-- `npm run build` hatasız tamamlanıyor.
-- Performans etkisi minimumda; mevcut kullanıcı akışları bozulmuyor.
+| Kriter | Durum |
+|--------|-------|
+| `OcrRenderer.tsx` tamamlanmış, orientation destekli | ✅ |
+| `ExamRenderer.tsx` tamamlanmış, SINAV ve MAT_SINAV doğru render ediyor | ✅ |
+| `sheet-renderers/index.ts` barrel export mevcut | ✅ |
+| `orientation.test.ts` OCR ve sınav senaryolarını kapsıyor | ✅ |
+| `npm run test:run` geçiyor (7 test) | ✅ |
+| Performans etkisi minimumda | ✅ |

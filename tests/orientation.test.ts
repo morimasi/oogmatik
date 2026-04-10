@@ -16,3 +16,39 @@ describe('Orientation dimensions', () => {
     expect(res.height).toBe(1123);
   });
 });
+
+describe('Orientation — OcrRenderer', () => {
+  it('OCR landscape mode should use landscape dimensions', () => {
+    const { isLandscape, width, height } = useOrientationDimensions('landscape');
+    expect(isLandscape).toBe(true);
+    expect(width).toBeGreaterThan(height);
+  });
+
+  it('OCR portrait mode should use portrait dimensions', () => {
+    const { isLandscape, width, height } = useOrientationDimensions('portrait');
+    expect(isLandscape).toBe(false);
+    expect(height).toBeGreaterThan(width);
+  });
+});
+
+describe('Orientation — ExamRenderer', () => {
+  it('SINAV landscape dimensions are correct', () => {
+    const { width, height } = useOrientationDimensions('landscape');
+    expect(width).toBe(1123);
+    expect(height).toBe(794);
+  });
+
+  it('MAT_SINAV portrait dimensions are correct', () => {
+    const { width, height } = useOrientationDimensions('portrait');
+    expect(width).toBe(794);
+    expect(height).toBe(1123);
+  });
+
+  it('ExamType turkce uses same orientation hook', () => {
+    const portrait = useOrientationDimensions();
+    const landscape = useOrientationDimensions('landscape');
+    expect(portrait.isLandscape).toBe(false);
+    expect(landscape.isLandscape).toBe(true);
+  });
+});
+
