@@ -109,6 +109,9 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         try {
             const refined = await refinePromptWithAI(prompt, mode);
             setPrompt(refined);
+            setStatus('');
+        } catch (_e) {
+            setStatus('Prompt iyileştirme başarısız oldu. Lütfen tekrar deneyin veya farklı bir mod seçin.');
         } finally { setIsProcessing(false); }
     };
 

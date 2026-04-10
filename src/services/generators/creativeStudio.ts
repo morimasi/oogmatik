@@ -173,12 +173,16 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
 /**
  * refinePromptWithAI: Prompt mühendisliği asistanı.
  */
-export const refinePromptWithAI = async (currentPrompt: string, mode: 'expand' | 'clinical'): Promise<string> => {
+export const refinePromptWithAI = async (currentPrompt: string | undefined, mode: 'expand' | 'clinical'): Promise<string> => {
+  const safeCurrentPrompt = typeof currentPrompt === 'string' ? currentPrompt : '';
   const prompt = `
     GÖREV: Bu kullanıcı komutunu Gemini 3 Pro "Thinking" motoru için teknik bir blueprint üretim talimatına dönüştür.
-    İSTEM: "${currentPrompt}"
+    İSTEM: "${safeCurrentPrompt}"
     MOD: ${mode}
     `;
   const result = await generateWithSchema(prompt, { type: 'OBJECT', properties: { refined: { type: 'STRING' } }, required: ['refined'] });
-  return result.refined;
+  const refined = (result as { refined?: unknown } | null | undefined)?.refined;
+  if (typeof refined !== 'string') return safeCurrentPrompt;
+  const normalized = refined.trim();
+  return normalized.length > 0 ? normalized : safeCurrentPrompt;
 };
