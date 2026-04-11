@@ -183,6 +183,31 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
 };
 
 /**
+ * Extract pedagogicalNote from AI response - handles templates with non-standard response formats
+ */
+const extractPedagogicalNote = (templateId: string, aiResponse: any): string => {
+  // Standard response
+  if (aiResponse.pedagogicalNote && aiResponse.pedagogicalNote.length >= 20) {
+    return aiResponse.pedagogicalNote;
+  }
+
+  // Template-specific fallbacks for missing pedagogicalNote
+  if (templateId === 'soz-varligi' && aiResponse.text) {
+    return 'Bu etkinlik, öğrencinin kelime dağarcığını zenginleştirmeye yönelik çalışmalar içermektedir. Öğrenciye rehberlik ederek yeni kelimeler öğrenmesini destekleyin.';
+  }
+
+  if (templateId === 'hece-ses' && aiResponse.text) {
+    return 'Hece ve ses bilgisi etkinliği. Öğrencinin sesli okuma becerisini geliştirmek için tekrarlı okuma çalışmaları yapın.';
+  }
+
+  // Default fallback if pedagogicalNote is too short or missing
+  return (
+    aiResponse.pedagogicalNote ||
+    `Bu etkinlik ${templateId} konusunda öğrenciye destekleyici çalışmalar içermektedir.`
+  );
+};
+
+/**
  * Super Türkçe Stüdyosu için AI destekli içerik üretici
  */
 export const generateSuperStudioContent = async (
@@ -293,7 +318,7 @@ export const generateSuperStudioContent = async (
         const content = formatContentForA4(tpl, aiResponse);
 
         // Ensure pedagogicalNote exists (critical requirement)
-        const pedagogicalNote = aiResponse.pedagogicalNote;
+        const pedagogicalNote = extractPedagogicalNote(tpl, aiResponse);
         if (!pedagogicalNote || pedagogicalNote.length < 20) {
           throw new AppError(
             'Pedagojik not çok kısa veya eksik (en az 20 karakter olmalıdır).',
