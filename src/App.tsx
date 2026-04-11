@@ -799,8 +799,13 @@ const AppContent = () => {
           ></div>
         )}
         <div
-          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${zenMode || currentView === 'workbook' ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
-          style={{ width: zenMode || currentView === 'workbook' ? 0 : sidebarWidth }}
+          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${zenMode || currentView === 'workbook' || currentView === 'assessment' ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
+          style={{
+            width:
+              zenMode || currentView === 'workbook' || currentView === 'assessment'
+                ? 0
+                : sidebarWidth,
+          }}
         >
           <Sidebar
             isSidebarOpen={isSidebarOpen}
