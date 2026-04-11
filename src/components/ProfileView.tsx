@@ -507,67 +507,67 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   return (
     <div className="bg-[#f8fafc] dark:bg-[#09090b] h-full flex flex-col font-['Lexend'] overflow-hidden">
-      {/* 1. PROFESSIONAL HEADER */}
-      <div className="shrink-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-8 md:p-12 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+      {/* 1. PROFESSIONAL HEADER (Minimized) */}
+      <div className="shrink-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-4 md:p-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-end gap-10 relative z-10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-center gap-6 relative z-10">
           <div className="relative group">
-            <div className="w-40 h-40 rounded-[3rem] p-1 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl overflow-hidden transform group-hover:rotate-6 transition-transform duration-500">
+            <div className="w-20 h-20 rounded-2xl p-0.5 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-lg overflow-hidden transform group-hover:rotate-3 transition-transform duration-500">
               <img
                 src={user.avatar}
                 alt={user.name}
-                className="w-full h-full rounded-[2.8rem] object-cover bg-white dark:bg-zinc-800"
+                className="w-full h-full rounded-[0.9rem] object-cover bg-white dark:bg-zinc-800"
               />
             </div>
-            <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-2xl flex items-center justify-center shadow-xl border-4 border-white dark:border-zinc-900">
-              <i className="fa-solid fa-shield-halved text-lg"></i>
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center shadow-md border-2 border-white dark:border-zinc-900">
+              <i className="fa-solid fa-shield-halved text-[10px]"></i>
             </div>
           </div>
 
           <div className="flex-1 text-center md:text-left">
-            <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-              <h1 className="text-5xl font-black text-zinc-900 dark:text-white tracking-tighter">
+            <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
+              <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight leading-none">
                 {user.name}
               </h1>
-              <span className="px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800/50 w-fit mx-auto md:mx-0">
+              <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg text-[8px] font-black uppercase tracking-wider border border-indigo-100 dark:border-indigo-800/50 w-fit mx-auto md:mx-0">
                 {user.role === 'admin' ? 'SİSTEM YÖNETİCİSİ' : 'UZMAN EĞİTMEN'}
               </span>
             </div>
-            <div className="flex flex-wrap justify-center md:justify-start gap-4">
-              <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 font-bold text-sm">
-                <i className="fa-solid fa-envelope opacity-40"></i> {user.email}
+            <div className="flex flex-wrap justify-center md:justify-start gap-3 opacity-60">
+              <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 font-bold text-xs">
+                <i className="fa-solid fa-envelope text-[10px]"></i> {user.email}
               </div>
-              <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-700 hidden md:block"></div>
-              <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 font-bold text-sm">
-                <i className="fa-solid fa-calendar-check opacity-40"></i>{' '}
-                {new Date(user.createdAt).toLocaleDateString('tr-TR')} tarihinde katıldı
+              <div className="h-3 w-px bg-zinc-200 dark:bg-zinc-700 hidden md:block"></div>
+              <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 font-bold text-xs">
+                <i className="fa-solid fa-calendar-check text-[10px]"></i>{' '}
+                {new Date(user.createdAt).toLocaleDateString('tr-TR')}
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
+          <div className="flex gap-2 w-full md:w-auto shrink-0">
             <button
               onClick={onBack}
-              className="w-full md:w-auto px-8 py-4 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all"
+              className="flex-1 md:flex-none px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border border-zinc-200 dark:border-zinc-700"
             >
               Geri Dön
             </button>
             {!isReadOnly && (
               <button
                 onClick={logout}
-                className="w-full md:w-auto px-8 py-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all border border-red-100 dark:border-red-900/30"
+                className="flex-1 md:flex-none px-4 py-2 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 hover:bg-red-100 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border border-red-100 dark:border-red-900/20"
               >
-                Oturumu Kapat
+                Kapat
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* 2. TAB NAVIGATION */}
-      <div className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800 px-8">
-        <div className="max-w-7xl mx-auto flex gap-2 py-4 overflow-x-auto custom-scrollbar no-scrollbar">
+      {/* 2. TAB NAVIGATION (Minimized) */}
+      <div className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800 px-4">
+        <div className="max-w-7xl mx-auto flex gap-1.5 py-2.5 overflow-x-auto custom-scrollbar no-scrollbar">
           <TabPill
             active={activeTab === 'overview'}
             onClick={() => setActiveTab('overview')}
