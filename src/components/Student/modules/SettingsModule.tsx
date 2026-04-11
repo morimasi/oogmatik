@@ -82,61 +82,61 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({ student, onUpdat
       <div className="flex-1 bg-white dark:bg-zinc-900/50 rounded-xl border border-zinc-100 dark:border-zinc-800 p-3 overflow-y-auto flex flex-col">
         <div className="flex-1">
           {activeSection === 'profile' && (
-            <div className="space-y-3 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
-                <h3 className="text-xs font-black text-zinc-800 dark:text-zinc-200">
-                  Öğrenci Profili
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-1.5 mb-1">
+                <h3 className="text-[10px] font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">
+                  Profil
                 </h3>
-                <span className="text-[9px] px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded-md font-bold">
+                <span className="text-[8px] px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded font-bold">
                   ID: {student.id}
                 </span>
               </div>
 
-              <div className="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-800/30 p-2 rounded-lg">
+              <div className="flex items-center gap-2 bg-zinc-50/50 dark:bg-zinc-800/20 p-1.5 rounded-lg border border-zinc-100/50 dark:border-zinc-800/50">
                 <img
                   src={student.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'}
                   alt={student.name}
-                  className="w-10 h-10 rounded-full object-cover border border-zinc-200 dark:border-zinc-700 bg-white"
+                  className="w-8 h-8 rounded-lg object-cover border border-zinc-200 dark:border-zinc-700 bg-white shadow-sm"
                 />
-                <div className="flex-1 grid grid-cols-2 gap-2">
+                <div className="flex-1 grid grid-cols-2 gap-1.5">
                   <input
                     type="text"
                     placeholder="Ad Soyad"
-                    className="px-2 py-1.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-[11px] font-bold text-zinc-800 dark:text-zinc-200 w-full focus:ring-1 focus:ring-indigo-500 outline-none transition-shadow"
+                    className="px-2 py-1 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-[10px] font-bold text-zinc-800 dark:text-zinc-200 w-full outline-none"
                     value={profileData.name}
                     onChange={(e) => handleProfileChange('name', e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Sınıf"
-                    className="px-2 py-1.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-[11px] font-bold text-zinc-800 dark:text-zinc-200 w-full focus:ring-1 focus:ring-indigo-500 outline-none transition-shadow"
+                    className="px-2 py-1 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-[10px] font-bold text-zinc-800 dark:text-zinc-200 w-full outline-none"
                     value={profileData.grade}
                     onChange={(e) => handleProfileChange('grade', e.target.value)}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-zinc-400 uppercase ml-1">
-                    Veli Bilgisi
+              <div className="grid grid-cols-2 gap-1.5 mt-1">
+                <div className="space-y-0.5">
+                  <label className="text-[8px] font-black text-zinc-400 uppercase ml-1 opacity-50">
+                    Veli
                   </label>
                   <input
                     type="text"
-                    placeholder="Veli Adı"
-                    className="px-2 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 text-[11px] font-bold text-zinc-800 dark:text-zinc-200 w-full focus:ring-1 focus:ring-indigo-500 outline-none transition-shadow"
+                    placeholder="Ad"
+                    className="px-2 py-1 rounded bg-zinc-50/50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 text-[10px] font-bold text-zinc-800 dark:text-zinc-200 w-full outline-none"
                     value={profileData.parentName}
                     onChange={(e) => handleProfileChange('parentName', e.target.value)}
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-zinc-400 uppercase ml-1">
-                    İletişim
+                <div className="space-y-0.5">
+                  <label className="text-[8px] font-black text-zinc-400 uppercase ml-1 opacity-50">
+                    Tel
                   </label>
                   <input
                     type="tel"
-                    placeholder="Telefon"
-                    className="px-2 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 text-[11px] font-bold text-zinc-800 dark:text-zinc-200 w-full focus:ring-1 focus:ring-indigo-500 outline-none transition-shadow"
+                    placeholder="No"
+                    className="px-2 py-1 rounded bg-zinc-50/50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 text-[10px] font-bold text-zinc-800 dark:text-zinc-200 w-full outline-none"
                     value={profileData.parentPhone}
                     onChange={(e) => handleProfileChange('parentPhone', e.target.value)}
                   />

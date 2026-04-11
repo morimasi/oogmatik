@@ -33,16 +33,18 @@ const ContentWrapper: React.FC<{
   actions?: React.ReactNode;
 }> = ({ title, subtitle, children, actions }) => (
   <div className="h-full flex flex-col animate-in fade-in duration-300">
-    <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur shrink-0">
-      <div>
-        <h2 className="text-sm font-black text-zinc-900 dark:text-white tracking-tight leading-none">
+    <div className="px-3 py-1.5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/30 dark:bg-zinc-900/30 backdrop-blur shrink-0">
+      <div className="flex items-baseline gap-2">
+        <h2 className="text-[11px] font-black text-zinc-900 dark:text-white tracking-tight uppercase leading-none">
           {title}
         </h2>
-        <p className="text-zinc-500 text-[10px] mt-1 font-medium">{subtitle}</p>
+        <p className="text-zinc-500 text-[9px] font-bold uppercase tracking-wider opacity-60 leading-none">
+          {subtitle}
+        </p>
       </div>
-      {actions && <div className="flex gap-2">{actions}</div>}
+      {actions && <div className="flex gap-1.5">{actions}</div>}
     </div>
-    <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-white dark:bg-zinc-950">
+    <div className="flex-1 overflow-y-auto p-3 custom-scrollbar bg-white dark:bg-zinc-950">
       {children}
     </div>
   </div>
@@ -55,27 +57,24 @@ const ManagerSidebar: React.FC<{
   student: AdvancedStudent;
   visibleModules: string[];
 }> = ({ activeModule, onSelectModule, student, visibleModules }) => (
-  <div className="w-48 bg-zinc-900 text-zinc-400 flex flex-col h-full border-r border-zinc-800 shrink-0">
-    <div className="p-4 flex flex-col items-center border-b border-zinc-800/50 bg-black/10">
+  <div className="w-40 bg-zinc-900 text-zinc-400 flex flex-col h-full border-r border-zinc-800 shrink-0">
+    <div className="p-3 flex flex-col items-center border-b border-zinc-800/50 bg-black/10">
       <div className="relative group cursor-pointer">
         <img
           src={student.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'}
           alt={student.name}
-          className="w-12 h-12 rounded-xl object-cover border-2 border-zinc-800 group-hover:border-zinc-700 transition-colors shadow-lg"
+          className="w-10 h-10 rounded-lg object-cover border-2 border-zinc-800 group-hover:border-zinc-700 transition-colors shadow-md"
         />
-        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-md flex items-center justify-center text-white text-[8px] border-2 border-zinc-900">
-          <i className="fa-solid fa-check"></i>
-        </div>
       </div>
-      <h3 className="mt-2 font-black text-white text-sm text-center leading-tight">
+      <h3 className="mt-1.5 font-bold text-white text-[11px] text-center leading-none truncate w-full px-1">
         {student.name}
       </h3>
-      <p className="text-[9px] font-bold uppercase tracking-widest mt-1 text-zinc-500 opacity-60">
+      <p className="text-[8px] font-black uppercase tracking-tighter mt-1 text-zinc-600">
         {student.grade || 'Öğrenci'}
       </p>
     </div>
 
-    <div className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5 custom-scrollbar">
+    <div className="flex-1 overflow-y-auto py-1.5 px-1.5 space-y-0.5 custom-scrollbar">
       {Object.entries(MODULE_ICONS).map(([key, icon]) => {
         if (!visibleModules.includes(key)) return null;
         return (
