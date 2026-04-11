@@ -1,9 +1,10 @@
-# OOGMATIK — Platform Tamamlama & Kalite Güvencesi Master Planı (v5.0 Ultra Premium)
+# OOGMATIK — Platform Tamamlama & Kalite Güvencesi Master Planı (v6.0 Ultra Premium)
 
-> **İlk Sürüm:** 2026-04-11 | **Revize:** 2026-04-11 (2. Tur Derinlemesli Analiz)  
+> **İlk Sürüm:** 2026-04-11 | **Son Revize:** 2026-04-11 (3. Tur — Ölü Kod & Gereksiz Dosya Analizi)  
 > **Analiz Kapsamı:** 157.191 satır TypeScript/TSX | 36 test dosyası + 4 E2E spec | 11 API endpoint | 10 Zustand store | 40+ AI generator | 25+ offline generator | 70+ React bileşeni  
 > **Durum:** 🚨 Canlıya Alma Öncesi Zorunlu Müdahale Gerektiriyor  
-> **v5.0 Değişiklikleri:** +3 güvenlik açığı (SG-5..7) | +5 mimari sorun (MA-8..12) | +4 eksik özellik (EK-12..15) | +1 test uyumsuzluğu (TK-6) | CORS tablosu düzeltildi
+> **v5.0:** +3 güvenlik (SG-5..7) | +5 mimari (MA-8..12) | +4 özellik (EK-12..15) | +1 test (TK-6)  
+> **v6.0 Değişiklikleri:** +1 yeni bölüm (DC — Ölü Kod) | 12 dead service | 2 dead util | 4 dead component | 3 dead context/type | 50+ gereksiz kök dosya | EK-13 güncellendi | Faz G eklendi
 
 ---
 
@@ -16,11 +17,12 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 | **Güvenlik Açıkları** | 🔴 KRİTİK | 7 sorun | JWT bypass, wildcard CORS, crypto hatası, HTML injection |
 | **TypeScript Uyumu** | 🔴 KRİTİK | 4 sorun | `strict: false`, `@ts-nocheck` kullanımı — kural ihlali |
 | **Build Bozucu Hatalar** | 🔴 KRİTİK | 1 sorun | `@remotion/player` import'u — package.json'da yok |
+| **Ölü Kod / Dead Code** | 🟠 YÜKSEK | ~5.000 satır | 12 dead service, 2 dead util, 4 dead component, 3 dead type |
 | **Eksik API Özellikleri** | 🟠 YÜKSEK | 15 sorun | WorkbookExport (DOCX/PPTX/EPUB/SCORM), PDFViewer, Focus Mode |
 | **Mimari Artıklar** | 🟠 YÜKSEK | 12 sorun | Çift dizin, kopya JSON repair, 2 RBAC sistemi, 2 AnimationService |
 | **Test Kapsamı** | 🟡 ORTA | 6 sorun | Stüdyo testleri eksik, JWT test/kaynak uyumsuzluğu |
 | **Performans** | 🟡 ORTA | 3 sorun | Mega bileşenler (SheetRenderer: 1712 satır, ProfileView: 1834 satır) |
-| **Tamamlanmamış Özellikler** | 🟡 ORTA | 8 sorun | AnimationStudio, palette reflection, success glow, ThemeIntelligence |
+| **Tamamlanmamış Özellikler** | 🟡 ORTA | 8 sorun | AnimationStudio, palette reflection, success glow |
 
 ---
 
@@ -233,10 +235,11 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 - **Sorun:** `pdfjs-dist` paketi `package.json`'da mevcut; tam özellikli PDF görüntüleyici (zoom, disleksi araç çubuğu, hata sınırı, özel hook'lar) oluşturulmuş — ancak **App.tsx, Sidebar.tsx veya ContentArea.tsx içinde hiçbir import yok**. Öğretmenin dışarıdan PDF yükleyip çalışma kağıdı olarak kullanması senaryosu tamamlanmamış.
 - **Çözüm:** `App.tsx`'e `'pdf-viewer'` view ekle; Sidebar'a "PDF Görüntüle" menü maddesi; SavedWorksheetsView'dan PDF açma butonu ekle.
 
-### EK-13: ThemeIntelligence Servisi — UI'ya Bağlanmamış ⚠️ DÜŞÜK — v5.0 YENİ
+### EK-13: ThemeIntelligence Servisi — Kısmen Bağlı ⚠️ DÜŞÜK — v5.0 | v6.0 Güncellendi
 - **Dosya:** `src/services/themeIntelligence.ts`
-- **Sorun:** Kullanım istatistiği tabanlı tema öneri sistemi (IndexedDB, `timeOfDayPreferences`, göz yorgunluğu raporu) oluşturulmuş ancak `App.tsx` veya `SettingsModal.tsx`'te hiç kullanılmıyor. `trackThemeSwitch()`, `recommendTheme()` fonksiyonları çağrılmıyor.
-- **Çözüm:** `useThemeIntelligence()` hook'u oluştur; App'e tema değişimini kaydet; SettingsModal'da "Akıllı Tema Önerisi" göster.
+- **Durum (v6.0):** `SettingsModal.tsx:6` ve `SettingsModal.tsx:34`'te `themeIntelligence` import ediliyor ancak yalnızca `themeIntelligence` nesnesi referans alınıyor. `trackThemeSwitch()`, `recommendTheme()` ve zaman bazlı öneri API'leri henüz çağrılmıyor.
+- **Eksik:** `trackThemeSwitch()` çağrısı App.tsx'teki tema değişim noktasına eklenmemiş; SettingsModal'da öneri kutusu yok.
+- **Çözüm:** SettingsModal'a "Akıllı Tema Önerisi" kutusu ekle; App.tsx'te tema değişimini `trackThemeSwitch()` ile kaydet.
 
 ### EK-14: WorkbookAIAssistant — Müfredat Doğrulaması TODO ⚠️ DÜŞÜK — v5.0 YENİ
 - **Dosya:** `src/services/workbookAIAssistant/validators/contentValidator.ts`
@@ -250,7 +253,100 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 
 ---
 
-## 🟡 PERFORMANS & YENIDEN DÜZENLEME
+## 🗑️ ÖLÜKOD & GEREKSİZ DOSYALAR (Dead Code Analysis) — v6.0 YENİ
+
+> 3. tur analizde tüm servis/bileşen/util dosyalarının import kullanımı sayıldı.  
+> Aşağıdaki dosyalar **hiçbir yerden import edilmiyor** — tamamen ölü kod.  
+> Toplam: **~5.000 satır ölü kod + 50+ gereksiz kök dosya**
+
+### DC-1: Ölü Servis Dosyaları — Kaldırılmalı
+
+| Dosya | Satır | Açıklama |
+|---|---|---|
+| `src/services/aiAnonymizationService.ts` | 400 | KVKK anonimleştirme pipeline — hiç çağrılmıyor |
+| `src/services/aiValidationService.ts` | 469 | IEP/kognitif içerik doğrulama — hiç çağrılmıyor |
+| `src/services/exactCloneService.ts` | 369 | OCR Mod 3 birebir klonlama — hiç çağrılmıyor |
+| `src/services/promptActivityService.ts` | 384 | Mod 2 doğal dil → etkinlik — hiç çağrılmıyor |
+| `src/services/aiTemplateService.ts` | 216 | AI şablon öneri servisi — hiç çağrılmıyor |
+| `src/services/auditLogger.ts` | 388 | Audit log sistemi — yalnızca 1 TODO yorumunda geçiyor |
+| `src/services/auditService.ts` | 102 | Enterprise audit servis — hiç çağrılmıyor |
+| `src/services/templateCacheService.ts` | 136 | Şablon önbellek — hiç çağrılmıyor |
+| `src/services/infographicService.ts` | 317 | @antv/infographic wrapper — hiç çağrılmıyor |
+| `src/services/ocrBlueprintLoader.ts` | 57 | Blueprint loader stub — hiç çağrılmıyor |
+| **TOPLAM** | **2.838** | |
+
+### DC-2: Ölü Util Dosyaları — Kaldırılmalı
+
+| Dosya | Satır | Açıklama |
+|---|---|---|
+| `src/utils/speechService.ts` | 113 | Web Speech API wrapper — hiç import edilmiyor (speechSynthesis doğrudan çağrılıyor) |
+| `src/utils/contrastChecker.ts` | 275 | WCAG kontrast kontrolü — F4 checklist'e yazılmış ama hiç bağlanmamış |
+| **TOPLAM** | **388** | |
+
+### DC-3: Ölü Bileşenler — Kaldırılmalı
+
+| Dosya | Satır | Açıklama |
+|---|---|---|
+| `src/components/AdminDashboardNew.tsx` | 373 | Admin dashboard yedek sürümü — App.tsx'te import yok |
+| `src/components/AdminDashboardV2.tsx` | 392 | Admin dashboard V2 — App.tsx'te import yok (yalnızca AdminAgentManagement'ı barındırıyor) |
+| `src/components/AdminAgentManagement.tsx` | 442 | Agent yönetim paneli — yalnızca kullanılmayan V2'de import ediliyor |
+| `src/components/remotion/AnimationStudio.tsx` | 197 | Remotion animasyon stüdyosu — hiçbir view'a route edilmemiş; `@remotion/player` paketi de yok (MA-9/build blocker) |
+| `src/components/RemotionStudio/index.tsx` | ~30 | "Yapım aşamasında" stub — kullanılmıyor |
+| **TOPLAM** | **~1.434** | |
+
+### DC-4: Ölü Context Dosyaları — İncelenecek
+
+| Dosya | Satır | Durum |
+|---|---|---|
+| `src/context/AuthContext.tsx` | 44 | `AuthProvider` hiçbir yerde kullanılmıyor; `useAuth()` hook'u da çağrılmıyor. Zustand `useAuthStore` zaten canonical. **Kaldır.** |
+
+### DC-5: Ölü/Gereksiz Tip Dosyaları — Kaldırılmalı
+
+| Dosya | Satır | Açıklama |
+|---|---|---|
+| `src/types/studio.ts` | 95 | `LayoutSectionId` gibi tipler tanımlıyor ama `src/types.ts` barrel'ından export edilmiyor → hiçbir yerden erişilemiyor |
+| `src/types/animation.ts` | 28 | Yalnızca ölü kod olan `AnimationService.ts` (v1.0) tarafından import ediliyor |
+| `src/services/generators/AnimationService.ts` | 93 | v1.0 AnimationService — `animationService.ts` (v2.0) canonical; bu v1.0 hiç çağrılmıyor (bkz. MA-8) |
+| **TOPLAM** | **216** | |
+
+### DC-6: Kök Dizinde 50+ Gereksiz Dosya
+
+**Arşive Taşınacak .md Dosyaları (`docs/archive/` altına):**
+```
+AI_MIMARI_ANALIZ_RAPORU.md      ARCHITECTURE_OCR_VARIATION.md    BEP_TECHNICAL_ANALYSIS.md
+ESM_FIX_LOG.md                   EXECUTIVE_SUMMARY.md              FIRESTORE_INDEX_DEPLOYMENT.md
+IMPLEMENTATION_COMPLETE.md       IMPLEMENTATION_RECIPES.md         IMPLEMENTATION_SUMMARY.md
+INFOGRAFIK-STUDYO-V3-ULTRA-PREMIUM-PLAN.md   IYILESTIRME_PLANI.md   OCR_AUDIT_REPORT.md
+OCR_VARIATION_COMPLETION_SUMMARY.md          OCR_VARIATION_EXECUTIVE_SUMMARY.md
+OCR_VARIATION_FILE_STRUCTURE.md              OCR_VARIATION_IMPLEMENTATION_PLAN.md
+PHASE2_COMPLETE.md               PHASE2_INTEGRATION_GUIDE.md      PREMIUM_EXPORT_PLAN.md
+PROMPT_STUDIO_BLUEPRINT.md       QUICK_FIX_CHECKLIST.md           QUICK_REFERENCE.md
+README_OCR_VARIATION.md          SCREENING_MODULE_BLUEPRINT.md    TECHNICAL_ANALYSIS_REPORT.md
+animasyon.md  antigravity_report.md  etkinlik.md  genelplan.md  infografiv2.md  kazanimlar.md
+mana.md  matmufredat.md  modular_architecture_plan.md  moduler.md  ocr.md  ogrenci.md
+pdf-preview-extraction-plan.md  premium_studio_checklist.md  premium_worksheet_studio_plan.md
+profile.md  soru.md  super_english_plan.md  supermatsınav.md  universal-viewer-migration-plan.md  yeni.md
+```
+
+**Silinecek Script Dosyaları (tek kullanımlık fix script'leri):**
+```
+audit_useeffect.cjs   autofix.cjs           check_git.js         check_git_remote.js
+find_bad_hooks.cjs    fix-api-imports.cjs   fix-print-grids.js   fix-vars.js
+fix.cjs               generate_infographics.cjs  generate_templates.cjs  generate_templates.js
+update-okuma-anlama-schemas.js
+```
+
+**Git'ten Silinecek PDF Dosyaları:**
+```
+1.pdf
+7. Sınıf Matematik Yeni Nesil Soru Bankası.pdf
+8-Snf-Trke-Dersi-Okuma-ve-Anlam-Bilgisi-Snav.pdf
+```
+
+**Kalsın (gerekli kök dosyalar):**
+`README.md`, `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `SECURITY.md`, `STUDENT.md`, `VERCEL_DEPLOYMENT.md`, `update.md`, `eslint.config.js`, `postcss.config.js`, `tailwind.config.js`
+
+---
 
 ### PF-1: Mega Bileşenler — Parçalanmalı
 | Bileşen | Satır | Öneri |
@@ -614,19 +710,95 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 
 ---
 
+## 🗑️ FAZ G: ÖLÜKOD TEMİZLEMESİ (Hızlı Kazanım — 1-2 Gün) — v6.0 YENİ
+
+> Bu faz herhangi bir sprint'e paralel olarak yapılabilir. Test, review, merge risk'i minimumdur.  
+> Silme işlemleri öncesi `git log` ile son commit tarihini not al.
+
+### G1 — Ölü Servis Dosyalarını Sil
+- [ ] `src/services/aiAnonymizationService.ts` → sil (400 satır, 0 import)
+- [ ] `src/services/aiValidationService.ts` → sil (469 satır, 0 import)
+- [ ] `src/services/exactCloneService.ts` → sil (369 satır, 0 import)
+- [ ] `src/services/promptActivityService.ts` → sil (384 satır, 0 import)
+- [ ] `src/services/aiTemplateService.ts` → sil (216 satır, 0 import)
+- [ ] `src/services/auditLogger.ts` → sil (388 satır, yalnızca 1 TODO yorumunda geçiyor)
+- [ ] `src/services/auditService.ts` → sil (102 satır, 0 import)
+- [ ] `src/services/templateCacheService.ts` → sil (136 satır, 0 import)
+- [ ] `src/services/infographicService.ts` → sil (317 satır, 0 import)
+- [ ] `src/services/ocrBlueprintLoader.ts` → sil (57 satır, placeholder stub)
+- [ ] `workbookSharingService.ts:81` satırındaki TODO auditLogger yorumunu temizle
+- [ ] **Kazanım: ~2.838 satır kaldırıldı**
+
+### G2 — Ölü Util Dosyalarını Sil
+- [ ] `src/utils/speechService.ts` → sil (113 satır, 0 import)
+- [ ] `src/utils/contrastChecker.ts` → sil (275 satır, 0 import; F4 geldiğinde yeniden yazılabilir)
+- [ ] **Kazanım: ~388 satır kaldırıldı**
+
+### G3 — Ölü Bileşenleri ve Context'i Sil
+- [ ] `src/components/AdminDashboardNew.tsx` → sil (373 satır)
+- [ ] `src/components/AdminDashboardV2.tsx` → sil (392 satır; zaten AdminDashboard canonical)
+- [ ] `src/components/AdminAgentManagement.tsx` → sil (442 satır; V2 kaldırılınca zaten ulaşılamaz)
+- [ ] `src/components/remotion/AnimationStudio.tsx` → sil (197 satır; build blocker + route yok)
+- [ ] `src/components/remotion/templates/` → sil (DyslexiaSyllablePulse, AdhdZenMode, DyscalculiaLiquidBars)
+- [ ] `src/components/remotion/` klasörünü tamamen sil
+- [ ] `src/components/RemotionStudio/index.tsx` → sil (stub)
+- [ ] `src/components/RemotionStudio/` klasörünü sil
+- [ ] `src/context/AuthContext.tsx` → sil (AuthProvider hiç kullanılmıyor; Zustand canonical)
+- [ ] `vite.config.ts`'te `vendor-3d` chunk tanımını kaldır (`@remotion/`, `@react-three/`, `three/`)
+- [ ] **Kazanım: ~1.434+ satır kaldırıldı**
+
+### G4 — Ölü Tip ve Servis Dosyalarını Sil
+- [ ] `src/types/studio.ts` → sil (barrel'da export edilmiyor, 95 satır)
+- [ ] `src/types/animation.ts` → sil (yalnızca dead code referans ediyor, 28 satır)
+- [ ] `src/services/generators/AnimationService.ts` (v1.0) → sil (93 satır; animationService.ts v2.0 canonical)
+- [ ] **Kazanım: ~216 satır kaldırıldı**
+
+> ⚠️ **Not:** `src/services/animationService.ts` (v2.0) — AnimationStudio silinince bu da orphan olur. AnimationStudio kararı netleşinceye kadar tut.
+
+### G5 — Kök Dizindeki Tek Kullanımlık Script Dosyalarını Sil
+- [ ] `audit_useeffect.cjs`, `autofix.cjs`, `check_git.js`, `check_git_remote.js`
+- [ ] `find_bad_hooks.cjs`, `fix-api-imports.cjs`, `fix-print-grids.js`, `fix-vars.js`, `fix.cjs`
+- [ ] `generate_infographics.cjs`, `generate_templates.cjs`, `generate_templates.js`
+- [ ] `update-okuma-anlama-schemas.js`
+- [ ] `.gitignore`'a `scripts/temp/` ve `*.local.js` ekle
+
+### G6 — Kök Dizindeki Orphan .md Plan Dosyalarını Arşivle ve PDF'leri Sil
+- [ ] `docs/archive/` klasörünü oluştur
+- [ ] Aşağıdaki 40+ plan .md dosyasını `docs/archive/` altına git mv ile taşı:
+  - `AI_MIMARI_ANALIZ_RAPORU.md`, `ARCHITECTURE_OCR_VARIATION.md`, `BEP_TECHNICAL_ANALYSIS.md`
+  - `ESM_FIX_LOG.md`, `EXECUTIVE_SUMMARY.md`, `FIRESTORE_INDEX_DEPLOYMENT.md`
+  - `IMPLEMENTATION_COMPLETE.md`, `IMPLEMENTATION_RECIPES.md`, `IMPLEMENTATION_SUMMARY.md`
+  - `INFOGRAFIK-STUDYO-V3-ULTRA-PREMIUM-PLAN.md`, `IYILESTIRME_PLANI.md`, `OCR_AUDIT_REPORT.md`
+  - `OCR_VARIATION_COMPLETION_SUMMARY.md`, `OCR_VARIATION_EXECUTIVE_SUMMARY.md`
+  - `OCR_VARIATION_FILE_STRUCTURE.md`, `OCR_VARIATION_IMPLEMENTATION_PLAN.md`
+  - `PHASE2_COMPLETE.md`, `PHASE2_INTEGRATION_GUIDE.md`, `PREMIUM_EXPORT_PLAN.md`
+  - `PROMPT_STUDIO_BLUEPRINT.md`, `QUICK_FIX_CHECKLIST.md`, `QUICK_REFERENCE.md`
+  - `README_OCR_VARIATION.md`, `SCREENING_MODULE_BLUEPRINT.md`, `TECHNICAL_ANALYSIS_REPORT.md`
+  - `animasyon.md`, `antigravity_report.md`, `etkinlik.md`, `genelplan.md`, `infografiv2.md`
+  - `kazanimlar.md`, `mana.md`, `matmufredat.md`, `modular_architecture_plan.md`, `moduler.md`
+  - `ocr.md`, `ogrenci.md`, `pdf-preview-extraction-plan.md`, `premium_studio_checklist.md`
+  - `premium_worksheet_studio_plan.md`, `profile.md`, `soru.md`, `super_english_plan.md`
+  - `supermatsınav.md`, `universal-viewer-migration-plan.md`, `yeni.md`
+- [ ] `1.pdf`, `7. Sınıf...pdf`, `8-Snf...pdf` — `git rm` ile sil
+- [ ] `.gitignore`'a `*.pdf` ve `docs/archive/` ekle
+
+---
+
 ## 📊 DURUM TAKİP TABLOSU
 
 | Faz | Başlık | Öncelik | Tahmini Süre | Durum |
 |---|---|---|---|---|
 | **A** | Güvenlik & Altyapı (A1–A8) | 🔴 KRİTİK | 4-7 gün | ⬜ Bekliyor |
 | **B** | Mimari Düzeltmeler (B1–B10) | 🟠 YÜKSEK | 7-10 gün | ⬜ Bekliyor |
+| **G** | Ölü Kod Temizlemesi (G1–G6) | 🟠 YÜKSEK | **1-2 gün** | ⬜ Bekliyor |
 | **C** | Eksik Özellikler (C1–C10) | 🟠 YÜKSEK | 10-14 gün | ⬜ Bekliyor |
 | **D** | Performans & Refactor | 🟡 ORTA | 7-10 gün | ⬜ Bekliyor |
 | **E** | Test Kapsaması | 🟡 ORTA | 5-7 gün | ⬜ Bekliyor |
 | **F** | Yeni Platform Özellikleri | 🟢 DÜŞÜK | 14+ gün | ⬜ Bekliyor |
 
-**Toplam Açık Görev:** ~55 checklist maddesi  
-**Canlıya Alma Blocker'ları:** A1 + A7 + A8 + B9 + TS-1 + TS-2
+**Toplam Açık Görev:** ~70 checklist maddesi  
+**Canlıya Alma Blocker'ları:** A1 + A7 + A8 + B9 + TS-1 + TS-2  
+**Hızlı Kazanım (G Fazı):** ~4.876 satır ölü kod + 50+ kök dosya kaldırılabilir
 
 ---
 
@@ -654,7 +826,8 @@ Aşağıdaki tüm koşullar sağlanmadan canlıya alma **YASAKLANMIŞTIR**:
 
 *Bu döküman Oogmatik Agent Koordinasyon Sistemi tarafından üretilmiştir.*  
 *v4.0 — 2026-04-11: İlk kapsamlı analiz (157.191 satır, 46+ test, 8 endpoint)*  
-*v5.0 — 2026-04-11: 2. tur derinlemesli analiz — +3 güvenlik (SG-5..7) | +5 mimari (MA-8..12) | +4 eksik özellik (EK-12..15) | +1 test uyumsuzluğu (TK-6) | CORS tablosu düzeltildi*
+*v5.0 — 2026-04-11: 2. tur — +3 güvenlik (SG-5..7) | +5 mimari (MA-8..12) | +4 özellik (EK-12..15) | +1 test (TK-6)*  
+*v6.0 — 2026-04-11: 3. tur — Ölü kod tam tespiti: 12 dead service (~2.838 satır) | 2 dead util (~388 satır) | 4 dead bileşen (~1.434 satır) | 50+ gereksiz kök dosya | Faz G eklendi | EK-13 güncellendi*
 
 ---
 
