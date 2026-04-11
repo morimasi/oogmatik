@@ -61,137 +61,204 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({ student, onUpdat
   );
 
   return (
-    <div className="flex gap-3 h-full">
-      {/* Compact Sidebar */}
-      <div className="w-44 shrink-0 space-y-1">
+    <div className="flex gap-2 h-full">
+      {/* Ultra Compact Sidebar */}
+      <div className="w-10 md:w-32 shrink-0 space-y-1">
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveSection(item.id)}
-            className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all
-                            ${activeSection === item.id ? 'bg-indigo-500 text-white' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+            className={`w-full text-left px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold flex items-center justify-center md:justify-start gap-2 transition-all
+                            ${activeSection === item.id ? 'bg-indigo-500 text-white shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+            title={item.label}
           >
-            <i className={`fa-solid ${item.icon} w-4 text-[10px]`} />
-            {item.label}
+            <i className={`fa-solid ${item.icon} text-xs md:text-[10px]`} />
+            <span className="hidden md:inline">{item.label}</span>
           </button>
         ))}
       </div>
 
-      {/* Compact Content */}
-      <div className="flex-1 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 overflow-y-auto">
-        {activeSection === 'profile' && (
-          <div className="space-y-4">
-            <h3 className="text-sm font-black text-zinc-900 dark:text-white">Öğrenci Profili</h3>
-
-            <div className="flex items-center gap-3">
-              <img
-                src={student.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'}
-                alt={student.name}
-                className="w-14 h-14 rounded-full object-cover border-2 border-zinc-100"
-              />
-              <div>
-                <h4 className="font-bold text-sm text-zinc-900">{student.name}</h4>
-                <p className="text-[10px] text-zinc-400">ID: {student.id}</p>
+      {/* Ultra Compact Content */}
+      <div className="flex-1 bg-white dark:bg-zinc-900/50 rounded-xl border border-zinc-100 dark:border-zinc-800 p-3 overflow-y-auto flex flex-col">
+        <div className="flex-1">
+          {activeSection === 'profile' && (
+            <div className="space-y-3 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                <h3 className="text-xs font-black text-zinc-800 dark:text-zinc-200">
+                  Öğrenci Profili
+                </h3>
+                <span className="text-[9px] px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded-md font-bold">
+                  ID: {student.id}
+                </span>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <input
-                type="text"
-                placeholder="Ad Soyad"
-                className="px-3 py-2 rounded-lg bg-zinc-50 text-xs font-bold"
-                value={profileData.name}
-                onChange={(e) => handleProfileChange('name', e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Sınıf"
-                className="px-3 py-2 rounded-lg bg-zinc-50 text-xs font-bold"
-                value={profileData.grade}
-                onChange={(e) => handleProfileChange('grade', e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Veli"
-                className="px-3 py-2 rounded-lg bg-zinc-50 text-xs font-bold"
-                value={profileData.parentName}
-                onChange={(e) => handleProfileChange('parentName', e.target.value)}
-              />
-              <input
-                type="tel"
-                placeholder="Tel"
-                className="px-3 py-2 rounded-lg bg-zinc-50 text-xs font-bold"
-                value={profileData.parentPhone}
-                onChange={(e) => handleProfileChange('parentPhone', e.target.value)}
-              />
-            </div>
-          </div>
-        )}
-
-        {activeSection === 'notifications' && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-black text-zinc-900">Bildirimler</h3>
-            {Object.entries(settings.notifications).map(([key, value]) => (
-              <div
-                key={key}
-                className="flex items-center justify-between p-2 bg-zinc-50 rounded-lg cursor-pointer"
-                onClick={() => handleToggle('notifications', key)}
-              >
-                <div>
-                  <h4 className="font-bold text-xs text-zinc-900">{key}</h4>
-                </div>
-                {renderToggle(value)}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {activeSection === 'privacy' && (
-          <div className="space-y-3">
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 flex gap-2">
-              <i className="fa-solid fa-triangle-exclamation text-amber-500 text-xs mt-0.5"></i>
-              <p className="text-[10px] text-amber-700">Veri paylaşımı ayarları</p>
-            </div>
-            {Object.entries(settings.privacy).map(([key, value]) => (
-              <div
-                key={key}
-                className="flex items-center justify-between p-2 bg-zinc-50 rounded-lg cursor-pointer"
-                onClick={() => handleToggle('privacy', key)}
-              >
-                <h4 className="font-bold text-xs text-zinc-900">{key}</h4>
-                {renderToggle(value)}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {activeSection === 'modules' && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-black text-zinc-900">Modüller</h3>
-            <p className="text-[10px] text-zinc-500">Aktif modüller</p>
-            <div className="grid grid-cols-3 gap-2">
-              {Object.entries(settings.modules).map(([key, value]) => (
-                <div
-                  key={key}
-                  className={`p-3 rounded-lg border cursor-pointer text-center ${value ? 'border-indigo-500 bg-indigo-50' : 'border-zinc-200 opacity-50'}`}
-                  onClick={() => handleToggle('modules', key)}
-                >
-                  <i
-                    className={`fa-solid text-lg mb-1 ${key === 'iep' ? 'fa-hands-holding-child' : key === 'financial' ? 'fa-wallet' : key === 'attendance' ? 'fa-calendar-days' : key === 'academic' ? 'fa-graduation-cap' : 'fa-scale-balanced'}`}
+              <div className="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-800/30 p-2 rounded-lg">
+                <img
+                  src={student.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'}
+                  alt={student.name}
+                  className="w-10 h-10 rounded-full object-cover border border-zinc-200 dark:border-zinc-700 bg-white"
+                />
+                <div className="flex-1 grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Ad Soyad"
+                    className="px-2 py-1.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-[11px] font-bold text-zinc-800 dark:text-zinc-200 w-full focus:ring-1 focus:ring-indigo-500 outline-none transition-shadow"
+                    value={profileData.name}
+                    onChange={(e) => handleProfileChange('name', e.target.value)}
                   />
-                  <p className="text-[9px] font-bold">{key}</p>
+                  <input
+                    type="text"
+                    placeholder="Sınıf"
+                    className="px-2 py-1.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-[11px] font-bold text-zinc-800 dark:text-zinc-200 w-full focus:ring-1 focus:ring-indigo-500 outline-none transition-shadow"
+                    value={profileData.grade}
+                    onChange={(e) => handleProfileChange('grade', e.target.value)}
+                  />
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              </div>
 
-        {/* Compact Footer */}
-        <div className="mt-4 pt-3 border-t border-zinc-100 flex justify-end gap-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-zinc-400 uppercase ml-1">
+                    Veli Bilgisi
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Veli Adı"
+                    className="px-2 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 text-[11px] font-bold text-zinc-800 dark:text-zinc-200 w-full focus:ring-1 focus:ring-indigo-500 outline-none transition-shadow"
+                    value={profileData.parentName}
+                    onChange={(e) => handleProfileChange('parentName', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-zinc-400 uppercase ml-1">
+                    İletişim
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="Telefon"
+                    className="px-2 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 text-[11px] font-bold text-zinc-800 dark:text-zinc-200 w-full focus:ring-1 focus:ring-indigo-500 outline-none transition-shadow"
+                    value={profileData.parentPhone}
+                    onChange={(e) => handleProfileChange('parentPhone', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'notifications' && (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <h3 className="text-xs font-black text-zinc-800 dark:text-zinc-200 border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                Bildirim Tercihleri
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                {Object.entries(settings.notifications).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className="flex items-center justify-between px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg cursor-pointer border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition-all"
+                    onClick={() => handleToggle('notifications', key)}
+                  >
+                    <h4 className="font-bold text-[10px] text-zinc-700 dark:text-zinc-300 uppercase tracking-wide">
+                      {key.replace('Report', ' Rapor')}
+                    </h4>
+                    {renderToggle(value)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'privacy' && (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <h3 className="text-xs font-black text-zinc-800 dark:text-zinc-200 border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                Gizlilik ve Güvenlik
+              </h3>
+              <div className="bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-lg p-2 flex gap-2 items-center mb-1">
+                <i className="fa-solid fa-shield-check text-amber-500 text-[10px]"></i>
+                <p className="text-[9px] font-medium text-amber-700 dark:text-amber-500">
+                  Veri paylaşımı KVKK standartlarına uygun olarak yönetilir.
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                {Object.entries(settings.privacy).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className="flex items-center justify-between px-3 py-2 bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg cursor-pointer transition-colors"
+                    onClick={() => handleToggle('privacy', key)}
+                  >
+                    <h4 className="font-bold text-[10px] text-zinc-700 dark:text-zinc-300">
+                      {key === 'shareProfile'
+                        ? 'Profili Paylaş'
+                        : key === 'publicPortfolio'
+                          ? 'Açık Portfolyo'
+                          : 'Notları Velilere Göster'}
+                    </h4>
+                    {renderToggle(value)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'modules' && (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                <h3 className="text-xs font-black text-zinc-800 dark:text-zinc-200">
+                  Aktif Modüller
+                </h3>
+                <span className="text-[9px] text-zinc-400 font-medium">
+                  Kullanılacak araçları seçin
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                {Object.entries(settings.modules).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className={`p-2 rounded-lg border cursor-pointer flex items-center gap-2 transition-all ${
+                      value
+                        ? 'border-indigo-200 bg-indigo-50/50 text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-400'
+                        : 'border-zinc-200 bg-zinc-50 text-zinc-400 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                    }`}
+                    onClick={() => handleToggle('modules', key)}
+                  >
+                    <div
+                      className={`w-6 h-6 rounded flex items-center justify-center shrink-0 ${value ? 'bg-indigo-100 dark:bg-indigo-500/20' : 'bg-zinc-200 dark:bg-zinc-800'}`}
+                    >
+                      <i
+                        className={`fa-solid text-[10px] ${
+                          key === 'iep'
+                            ? 'fa-hands-holding-child'
+                            : key === 'financial'
+                              ? 'fa-wallet'
+                              : key === 'attendance'
+                                ? 'fa-calendar-days'
+                                : key === 'academic'
+                                  ? 'fa-graduation-cap'
+                                  : 'fa-scale-balanced'
+                        }`}
+                      />
+                    </div>
+                    <div className="flex-1 truncate">
+                      <p className="text-[10px] font-bold capitalize truncate">
+                        {key === 'iep' ? 'BEP' : key}
+                      </p>
+                    </div>
+                    {value && (
+                      <i className="fa-solid fa-circle-check text-[10px] text-indigo-500"></i>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Ultra Compact Footer */}
+        <div className="mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-800 flex justify-end gap-2 shrink-0">
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-xs font-bold"
+            className="px-4 py-1.5 bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 text-white rounded-md text-[10px] font-bold shadow-sm transition-colors flex items-center gap-1.5"
           >
+            <i className="fa-solid fa-check text-[9px]"></i>
             Kaydet
           </button>
         </div>
