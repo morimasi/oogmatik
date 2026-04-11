@@ -606,44 +606,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           />
         </div>
       </div>
-          <TabPill
-            active={activeTab === 'overview'}
-            onClick={() => setActiveTab('overview')}
-            label="Özet"
-            icon="fa-solid fa-chart-pie"
-          />
-          <TabPill
-            active={activeTab === 'students'}
-            onClick={() => setActiveTab('students')}
-            label="Öğrenciler"
-            icon="fa-solid fa-user-graduate"
-          />
-          <TabPill
-            active={activeTab === 'evaluations'}
-            onClick={() => setActiveTab('evaluations')}
-            label="Değerlendirme"
-            icon="fa-solid fa-clipboard-check"
-          />
-          <TabPill
-            active={activeTab === 'plans'}
-            onClick={() => setActiveTab('plans')}
-            label="Eğitim Planları"
-            icon="fa-solid fa-graduation-cap"
-          />
-          <TabPill
-            active={activeTab === 'reports'}
-            onClick={() => setActiveTab('reports')}
-            label="Raporlar"
-            icon="fa-solid fa-file-medical"
-          />
-          <TabPill
-            active={activeTab === 'settings'}
-            onClick={() => setActiveTab('settings')}
-            label="Ayarlar"
-            icon="fa-solid fa-gear"
-          />
-        </div>
-      </div>
 
       {/* 3. MODULE CONTENT AREA */}
       <div className={`flex-1 overflow-y-auto custom-scrollbar ${modulePadding}`}>
