@@ -266,11 +266,24 @@ export const generateSuperStudioContent = async (
     // Cache'te olmayanlar için API çağrısı yap
     const promises = remainingTemplates.map(async (tpl) => {
       const templateSettings = settings[tpl] || {};
-      const prompt = buildPromptForTemplate(tpl, templateSettings, grade, topic, difficulty, studentId);
+      const prompt = buildPromptForTemplate(
+        tpl,
+        templateSettings,
+        grade,
+        topic,
+        difficulty,
+        studentId
+      );
       const schema = buildSchemaForTemplate(tpl);
 
       try {
+        console.log(`[Super Türkçe] Calling API for: ${tpl}`);
         const aiResponse = await generateWithSchema(prompt, schema);
+        console.log(
+          `[Super Türkçe] API response for ${tpl}:`,
+          typeof aiResponse,
+          aiResponse ? Object.keys(aiResponse) : 'null'
+        );
 
         // Validate AI response structure
         if (!aiResponse) {
@@ -328,6 +341,7 @@ export const generateSuperStudioContent = async (
           data: payload,
         };
       } catch (apiError: any) {
+        console.error(`[Super Türkçe] Şablon hatası (${tpl}):`, apiError?.message || apiError);
         throw apiError;
       }
     });
@@ -357,9 +371,15 @@ export const generateSuperStudioContent = async (
     );
 
     if (failures.length > 0) {
+      const failureDetails = failures.map((f) => {
+        if (f.status === 'rejected') {
+          return { type: 'rejected', reason: f.reason?.message || String(f.reason) };
+        }
+        return { type: 'failed', templateId: f.value?.templateId, success: f.value?.success };
+      });
       console.error(
         `[Super Türkçe] ${failures.length}/${templates.length} şablon başarısız oldu.`,
-        failures
+        failureDetails
       );
     }
 
