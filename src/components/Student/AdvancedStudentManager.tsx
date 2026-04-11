@@ -33,18 +33,18 @@ const ContentWrapper: React.FC<{
   actions?: React.ReactNode;
 }> = ({ title, subtitle, children, actions }) => (
   <div className="h-full flex flex-col animate-in fade-in duration-300">
-    <div className="px-3 py-1.5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/30 dark:bg-zinc-900/30 backdrop-blur shrink-0">
+    <div className="px-3 py-1 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-paper)] backdrop-blur shrink-0">
       <div className="flex items-baseline gap-2">
-        <h2 className="text-[11px] font-black text-zinc-900 dark:text-white tracking-tight uppercase leading-none">
+        <h2 className="text-[10px] font-black text-[var(--text-primary)] tracking-tight uppercase leading-none">
           {title}
         </h2>
-        <p className="text-zinc-500 text-[9px] font-bold uppercase tracking-wider opacity-60 leading-none">
+        <p className="text-[var(--text-muted)] text-[8px] font-bold uppercase tracking-wider opacity-60 leading-none">
           {subtitle}
         </p>
       </div>
-      {actions && <div className="flex gap-1.5">{actions}</div>}
+      {actions && <div className="flex gap-1">{actions}</div>}
     </div>
-    <div className="flex-1 overflow-y-auto p-3 custom-scrollbar bg-white dark:bg-zinc-950">
+    <div className="flex-1 overflow-y-auto p-2 custom-scrollbar bg-[var(--bg-secondary)]">
       {children}
     </div>
   </div>
@@ -57,70 +57,73 @@ const ManagerSidebar: React.FC<{
   student: AdvancedStudent;
   visibleModules: string[];
 }> = ({ activeModule, onSelectModule, student, visibleModules }) => (
-  <div className="w-40 bg-zinc-900 text-zinc-400 flex flex-col h-full border-r border-zinc-800 shrink-0">
-    <div className="p-3 flex flex-col items-center border-b border-zinc-800/50 bg-black/10">
+  <div className="w-32 bg-[var(--bg-inset)] text-[var(--text-secondary)] flex flex-col h-full border-r border-[var(--border-color)] shrink-0">
+    <div className="p-2 flex flex-col items-center border-b border-[var(--border-color)] bg-black/20">
       <div className="relative group cursor-pointer">
         <img
           src={student.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'}
           alt={student.name}
-          className="w-10 h-10 rounded-lg object-cover border-2 border-zinc-800 group-hover:border-zinc-700 transition-colors shadow-md"
+          className="w-8 h-8 rounded-lg object-cover border border-[var(--border-color)] group-hover:border-[var(--accent-color)] transition-colors shadow-sm"
         />
       </div>
-      <h3 className="mt-1.5 font-bold text-white text-[11px] text-center leading-none truncate w-full px-1">
+      <h3 className="mt-1 font-bold text-[var(--text-primary)] text-[10px] text-center leading-none truncate w-full px-1">
         {student.name}
       </h3>
-      <p className="text-[8px] font-black uppercase tracking-tighter mt-1 text-zinc-600">
+      <p className="text-[7px] font-black uppercase tracking-tighter mt-0.5 text-[var(--text-muted)]">
         {student.grade || 'Öğrenci'}
       </p>
     </div>
 
-    <div className="flex-1 overflow-y-auto py-1.5 px-1.5 space-y-0.5 custom-scrollbar">
+    <div className="flex-1 overflow-y-auto py-1 px-1 space-y-0.5 custom-scrollbar">
       {Object.entries(MODULE_ICONS).map(([key, icon]) => {
         if (!visibleModules.includes(key)) return null;
         return (
           <button
             key={key}
             onClick={() => onSelectModule(key)}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+            className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[9px] font-black uppercase tracking-wider transition-all ${
               activeModule === key
-                ? 'bg-indigo-600 text-white shadow-md translate-x-0.5'
-                : 'hover:bg-zinc-800/50 hover:text-zinc-200'
+                ? 'bg-[var(--accent-color)] text-white shadow-sm'
+                : 'hover:bg-[var(--surface-elevated)]'
             }`}
           >
             <i
-              className={`fa-solid ${icon} w-4 text-center text-xs ${activeModule === key ? 'text-white' : 'text-indigo-400/80'}`}
+              className={`fa-solid ${icon} w-3 text-center text-[9px] ${activeModule === key ? 'text-white' : 'text-[var(--accent-color)]'}`}
             ></i>
             <span className="truncate">
               {key === 'iep'
-                ? 'BEP / IEP'
+                ? 'BEP'
                 : key === 'financial'
-                  ? 'Finans'
+                  ? 'FİNANS'
                   : key === 'attendance'
-                    ? 'Yoklama'
+                    ? 'YOKLAMA'
                     : key === 'academic'
-                      ? 'Akademik'
+                      ? 'AKADEMİK'
                       : key === 'behavior'
-                        ? 'Davranış'
+                        ? 'DAVRANIŞ'
                         : key === 'overview'
-                          ? 'Özet'
+                          ? 'ÖZET'
                           : key === 'portfolio'
-                            ? 'Portfolyo'
+                            ? 'DOSYA'
                             : key === 'ai_insights'
-                              ? 'AI Analiz'
-                              : 'Ayarlar'}
+                              ? 'ANALİZ'
+                              : 'AYAR'}
             </span>
           </button>
         );
       })}
     </div>
 
-    <div className="p-3 border-t border-zinc-800 bg-black/20">
-      <div className="bg-zinc-800/30 rounded-lg p-2.5 border border-white/5">
-        <div className="flex justify-between items-center mb-1.5">
-          <span className="text-[8px] font-bold uppercase tracking-widest opacity-40">Skor</span>
-          <span className="text-[10px] font-black text-emerald-400">88%</span>
-        </div>
-        <div className="w-full h-1 bg-zinc-700 rounded-full overflow-hidden">
+    <div className="p-2 border-t border-[var(--border-color)] bg-black/10">
+      <div className="w-full h-1 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
+        <div
+          className="h-full bg-[var(--accent-color)] rounded-full"
+          style={{ width: '88%' }}
+        ></div>
+      </div>
+    </div>
+  </div>
+);
           <div
             className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full"
             style={{ width: '88%' }}

@@ -41,24 +41,24 @@ export const AdminDashboardNew: React.FC<AdminDashboardNewProps> = ({ onBack, in
 
   return (
     <div style={{ display: 'flex', height: '100%', minHeight: 0, fontFamily: 'inherit', fontSize: '0.85rem' }}>
-      {/* Ultra Compact Sidebar */}
+      {/* Ultra Compact Sidebar (Themed) */}
       <nav
         style={{
-          width: 160,
-          background: '#0f172a',
-          color: '#e2e8f0',
+          width: 140,
+          background: 'var(--bg-paper)',
+          color: 'var(--text-secondary)',
           display: 'flex',
           flexDirection: 'column',
-          padding: '12px 6px',
+          padding: '10px 6px',
           gap: 2,
           flexShrink: 0,
-          borderRight: '1px solid #1e293b'
+          borderRight: '1px solid var(--border-color)'
         }}
         aria-label="Admin navigasyonu"
       >
-        <div style={{ padding: '4px 10px', marginBottom: 12 }}>
-          <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fff', letterSpacing: '0.05em' }}>⚙️ ADMIN</div>
-          <div style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>KONTROL MERKEZİ</div>
+        <div style={{ padding: '2px 8px', marginBottom: 10 }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.05em' }}>⚙️ ADMIN</div>
+          <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 600 }}>MERKEZ</div>
         </div>
 
         {NAV_ITEMS.map(({ id, label, icon }) => (
@@ -68,23 +68,22 @@ export const AdminDashboardNew: React.FC<AdminDashboardNewProps> = ({ onBack, in
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 8,
-              padding: '6px 10px',
+              gap: 6,
+              padding: '5px 8px',
               border: 'none',
               borderRadius: 6,
-              background: activeTab === id ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
-              color: activeTab === id ? '#60a5fa' : '#64748b',
+              background: activeTab === id ? 'var(--accent-muted)' : 'transparent',
+              color: activeTab === id ? 'var(--accent-color)' : 'var(--text-muted)',
               cursor: 'pointer',
-              fontSize: '0.75rem',
-              fontWeight: 800,
+              fontSize: '0.7rem',
+              fontWeight: activeTab === id ? 800 : 500,
               textAlign: 'left',
               transition: 'all 0.2s',
               textTransform: 'uppercase',
-              letterSpacing: '0.02em'
             }}
             aria-current={activeTab === id ? 'page' : undefined}
           >
-            <span style={{ fontSize: '1rem', opacity: activeTab === id ? 1 : 0.5 }}>{icon}</span>
+            <span style={{ fontSize: '0.9rem', opacity: activeTab === id ? 1 : 0.5 }}>{icon}</span>
             <span>{label}</span>
           </button>
         ))}
@@ -96,14 +95,14 @@ export const AdminDashboardNew: React.FC<AdminDashboardNewProps> = ({ onBack, in
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 6,
-              padding: '8px',
-              border: '1px solid #1e293b',
+              gap: 4,
+              padding: '6px',
+              border: '1px solid var(--border-color)',
               borderRadius: 6,
               background: 'transparent',
-              color: '#475569',
+              color: 'var(--text-muted)',
               cursor: 'pointer',
-              fontSize: '0.7rem',
+              fontSize: '0.65rem',
               fontWeight: 700,
               marginTop: 'auto',
               textTransform: 'uppercase'
@@ -114,16 +113,16 @@ export const AdminDashboardNew: React.FC<AdminDashboardNewProps> = ({ onBack, in
         )}
       </nav>
 
-      {/* Main content */}
-      <div style={{ flex: 1, overflow: 'auto', background: '#fdfdfd', minWidth: 0 }}>
+      {/* Main content (Themed) */}
+      <div style={{ flex: 1, overflow: 'auto', background: 'var(--bg-secondary)', minWidth: 0 }}>
         {activeTab === 'overview' && (
-          <div style={{ padding: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, borderBottom: '1px solid #f1f5f9', pb: 12 }}>
-              <h1 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>🏠 GENEL BAKIŞ</h1>
-              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                <button onClick={refresh} style={{ ...btnStyle, fontSize: '0.7rem', padding: '4px 10px', borderRadius: 4 }}>Yenile</button>
+          <div style={{ padding: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, borderBottom: '1px solid var(--border-color)', paddingBottom: 8 }}>
+              <h1 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-primary)' }}>🏠 GENEL BAKIŞ</h1>
+              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                <button onClick={refresh} style={{ ...btnStyle, fontSize: '0.65rem', padding: '2px 8px', borderRadius: 4, background: 'var(--bg-paper)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>Yenile</button>
                 {lastUpdatedAt && (
-                  <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                     {new Date(lastUpdatedAt).toLocaleTimeString('tr-TR')}
                   </span>
                 )}
@@ -131,13 +130,13 @@ export const AdminDashboardNew: React.FC<AdminDashboardNewProps> = ({ onBack, in
             </div>
 
             {loading ? (
-              <div style={{ textAlign: 'center', color: '#94a3b8', padding: 40, fontSize: '0.8rem' }}>⏳ Yükleniyor...</div>
+              <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 40, fontSize: '0.75rem' }}>⏳ Yükleniyor...</div>
             ) : stats ? (
               <>
-                {/* Metric cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 20 }}>
+                {/* Metric cards (Themed) */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8, marginBottom: 16 }}>
                   {[
-                    { label: 'Kullanıcı', value: stats.totalUsers, icon: '👥', color: '#3b82f6', sub: `${stats.activeUsers} aktif` },
+                    { label: 'Kullanıcı', value: stats.totalUsers, icon: '👥', color: 'var(--accent-color)', sub: `${stats.activeUsers} aktif` },
                     { label: 'Kağıtlar', value: stats.totalWorksheets, icon: '📄', color: '#10b981', sub: 'toplam' },
                     { label: 'İndirme', value: stats.exportsToday, icon: '⬇', color: '#f59e0b', sub: `bugün` },
                     { label: 'Oturum', value: stats.activeSessionsCount || 0, icon: '👤', color: '#8b5cf6', sub: 'şu an' },
@@ -147,16 +146,26 @@ export const AdminDashboardNew: React.FC<AdminDashboardNewProps> = ({ onBack, in
                     <div
                       key={label}
                       style={{
-                        background: '#fff',
-                        border: '1px solid #f1f5f9',
+                        background: 'var(--bg-paper)',
+                        border: '1px solid var(--border-color)',
                         borderRadius: 8,
-                        padding: '12px',
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+                        padding: '10px',
+                        boxShadow: 'var(--shadow-premium)',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 2
+                        gap: 1
                       }}
                     >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{label}</span>
+                        <span style={{ fontSize: '0.8rem' }}>{icon}</span>
+                      </div>
+                      <div style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1 }}>{value}</div>
+                      <div style={{ fontSize: '0.55rem', color: 'var(--text-muted)', marginTop: 2, fontWeight: 600 }}>{sub}</div>
+                    </div>
+                  ))}
+                </div>
+
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>{label}</span>
                         <span style={{ fontSize: '1rem' }}>{icon}</span>

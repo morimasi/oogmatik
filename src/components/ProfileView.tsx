@@ -507,56 +507,56 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   return (
     <div className="bg-[#f8fafc] dark:bg-[#09090b] h-full flex flex-col font-['Lexend'] overflow-hidden">
-      {/* 1. PROFESSIONAL HEADER (Minimized) */}
-      <div className="shrink-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-4 md:p-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+      {/* 1. MINIMAL THEMED HEADER */}
+      <div className="shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-3 md:p-4 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[var(--accent-muted)] rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2 pointer-events-none opacity-20"></div>
 
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-center gap-6 relative z-10">
-          <div className="relative group">
-            <div className="w-20 h-20 rounded-2xl p-0.5 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-lg overflow-hidden transform group-hover:rotate-3 transition-transform duration-500">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-4 relative z-10">
+          <div className="relative">
+            <div className="w-12 h-12 rounded-xl p-0.5 bg-gradient-to-tr from-[var(--accent-color)] to-purple-500 shadow-sm overflow-hidden">
               <img
                 src={user.avatar}
                 alt={user.name}
-                className="w-full h-full rounded-[0.9rem] object-cover bg-white dark:bg-zinc-800"
+                className="w-full h-full rounded-[0.5rem] object-cover bg-[var(--bg-secondary)]"
               />
             </div>
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center shadow-md border-2 border-white dark:border-zinc-900">
-              <i className="fa-solid fa-shield-halved text-[10px]"></i>
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[var(--bg-inset)] text-[var(--accent-color)] rounded-md flex items-center justify-center shadow-md border border-[var(--border-color)]">
+              <i className="fa-solid fa-shield-halved text-[7px]"></i>
             </div>
           </div>
 
           <div className="flex-1 text-center md:text-left">
-            <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
-              <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight leading-none">
+            <div className="flex flex-col md:flex-row md:items-baseline gap-2 mb-0.5">
+              <h1 className="text-lg font-black text-[var(--text-primary)] tracking-tight leading-none">
                 {user.name}
               </h1>
-              <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg text-[8px] font-black uppercase tracking-wider border border-indigo-100 dark:border-indigo-800/50 w-fit mx-auto md:mx-0">
-                {user.role === 'admin' ? 'SİSTEM YÖNETİCİSİ' : 'UZMAN EĞİTMEN'}
+              <span className="px-1.5 py-0.5 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded text-[7px] font-black uppercase tracking-wider border border-[var(--border-color)] w-fit mx-auto md:mx-0">
+                {user.role === 'admin' ? 'SİSTEM' : 'UZMAN'}
               </span>
             </div>
-            <div className="flex flex-wrap justify-center md:justify-start gap-3 opacity-60">
-              <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 font-bold text-xs">
-                <i className="fa-solid fa-envelope text-[10px]"></i> {user.email}
+            <div className="flex flex-wrap justify-center md:justify-start gap-2 opacity-50">
+              <div className="flex items-center gap-1 text-[var(--text-secondary)] font-bold text-[10px]">
+                <i className="fa-solid fa-envelope text-[8px]"></i> {user.email}
               </div>
-              <div className="h-3 w-px bg-zinc-200 dark:bg-zinc-700 hidden md:block"></div>
-              <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 font-bold text-xs">
-                <i className="fa-solid fa-calendar-check text-[10px]"></i>{' '}
+              <div className="h-2 w-px bg-[var(--border-color)] hidden md:block"></div>
+              <div className="flex items-center gap-1 text-[var(--text-secondary)] font-bold text-[10px]">
+                <i className="fa-solid fa-calendar-check text-[8px]"></i>{' '}
                 {new Date(user.createdAt).toLocaleDateString('tr-TR')}
               </div>
             </div>
           </div>
 
-          <div className="flex gap-2 w-full md:w-auto shrink-0">
+          <div className="flex gap-1.5 w-full md:w-auto shrink-0">
             <button
               onClick={onBack}
-              className="flex-1 md:flex-none px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border border-zinc-200 dark:border-zinc-700"
+              className="flex-1 md:flex-none px-3 py-1 bg-[var(--bg-secondary)] hover:bg-[var(--surface-elevated)] text-[var(--text-primary)] rounded-lg font-black text-[9px] uppercase tracking-wider transition-all border border-[var(--border-color)]"
             >
-              Geri Dön
+              Geri
             </button>
             {!isReadOnly && (
               <button
                 onClick={logout}
-                className="flex-1 md:flex-none px-4 py-2 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 hover:bg-red-100 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border border-red-100 dark:border-red-900/20"
+                className="flex-1 md:flex-none px-3 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg font-black text-[9px] uppercase tracking-wider transition-all border border-red-500/20"
               >
                 Kapat
               </button>
@@ -565,9 +565,47 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
       </div>
 
-      {/* 2. TAB NAVIGATION (Minimized) */}
-      <div className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800 px-4">
-        <div className="max-w-7xl mx-auto flex gap-1.5 py-2.5 overflow-x-auto custom-scrollbar no-scrollbar">
+      {/* 2. MINIMAL TAB NAVIGATION */}
+      <div className="sticky top-0 z-40 bg-[var(--bg-paper)]/80 backdrop-blur-xl border-b border-[var(--border-color)] px-4">
+        <div className="max-w-7xl mx-auto flex gap-1 py-1.5 overflow-x-auto no-scrollbar">
+          <TabPill
+            active={activeTab === 'overview'}
+            onClick={() => setActiveTab('overview')}
+            label="Özet"
+            icon="fa-solid fa-chart-pie"
+          />
+          <TabPill
+            active={activeTab === 'students'}
+            onClick={() => setActiveTab('students')}
+            label="Öğrenciler"
+            icon="fa-solid fa-user-graduate"
+          />
+          <TabPill
+            active={activeTab === 'evaluations'}
+            onClick={() => setActiveTab('evaluations')}
+            label="Analiz"
+            icon="fa-solid fa-clipboard-check"
+          />
+          <TabPill
+            active={activeTab === 'plans'}
+            onClick={() => setActiveTab('plans')}
+            label="Planlar"
+            icon="fa-solid fa-graduation-cap"
+          />
+          <TabPill
+            active={activeTab === 'reports'}
+            onClick={() => setActiveTab('reports')}
+            label="Raporlar"
+            icon="fa-solid fa-file-medical"
+          />
+          <TabPill
+            active={activeTab === 'settings'}
+            onClick={() => setActiveTab('settings')}
+            label="Ayarlar"
+            icon="fa-solid fa-gear"
+          />
+        </div>
+      </div>
           <TabPill
             active={activeTab === 'overview'}
             onClick={() => setActiveTab('overview')}
