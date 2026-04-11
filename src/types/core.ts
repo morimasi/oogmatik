@@ -1,6 +1,6 @@
 declare global {
   namespace JSX {
-    interface IntrinsicElements extends Record<string, unknown> { }
+    interface IntrinsicElements extends Record<string, unknown> {}
   }
 }
 
@@ -111,15 +111,15 @@ export interface GeneratorOptions {
   hintLevel?: 'low' | 'medium' | 'high' | 'none';
   textLength?: 'kısa' | 'orta' | 'uzun';
   questionStyle?:
-  | 'test_and_open'
-  | 'only_test'
-  | 'only_open_ended'
-  | 'mixed'
-  | '5n1k'
-  | 'detail'
-  | 'inference'
-  | 'true_false'
-  | 'open_ended';
+    | 'test_and_open'
+    | 'only_test'
+    | 'only_open_ended'
+    | 'mixed'
+    | '5n1k'
+    | 'detail'
+    | 'inference'
+    | 'true_false'
+    | 'open_ended';
   syllableColoring?: boolean;
   wpmTarget?: number;
   colorPalette?: 'red_blue' | 'contrast' | 'pastel';
@@ -152,6 +152,44 @@ export interface GeneratorOptions {
   pathType?: 'straight' | 'curved' | 'angular';
   connectDots?: boolean;
   showPoints?: boolean;
+  // Yeni Aktiviteler - Gizemli Sayılar
+  numberRange?: [number, number];
+  clueCount?: number;
+  operationTypes?: ('topla' | 'cikar' | 'carp' | 'bol')[];
+  includeMultiStep?: boolean;
+  includeModular?: boolean;
+  includeDigitClue?: boolean;
+  layoutStyle?: 'ipucu-liste' | 'matris' | 'kartezyen';
+  // Yeni Aktiviteler - Meyveli Toplama
+  fruitTypes?: string[];
+  maxSum?: number;
+  maxFruitCount?: number;
+  mode?: 'classic' | 'bulmaca' | 'savas';
+  includeNegative?: boolean;
+  // Yeni Aktiviteler - Sayı Dedektifi
+  mysteryNumber?: number;
+  clueTypes?: ('greater' | 'less' | 'mod' | 'digit' | 'prime' | 'square')[];
+  includeRangeClue?: boolean;
+  // Yeni Aktiviteler - Kavram Haritası
+  depth?: number;
+  branchCount?: number;
+  fillRatio?: number;
+  layout?: 'radial' | 'tree' | 'horizontal' | 'vertical';
+  nodeStyle?: 'rounded' | 'sharp' | 'circle';
+  edgeStyle?: 'straight' | 'curved' | 'orthogonal';
+  includeExamples?: boolean;
+  includeDefinitions?: boolean;
+  colorScheme?: 'monochrome' | 'rainbow' | 'pastel';
+  // Yeni Aktiviteler - Eş Anlamlı Kelimeler
+  wordCount?: number;
+  pairsPerRow?: number;
+  includeAntonyms?: boolean;
+  includeHomophones?: boolean;
+  wordCategory?: 'all' | 'nouns' | 'verbs' | 'adjectives';
+  // Yeni Aktiviteler - 5N1K
+  includeAllQuestions?: boolean;
+  passageLength?: 'short' | 'medium' | 'long';
+  includeMultipleChoice?: boolean;
   [key: string]: any;
 }
 
@@ -275,18 +313,18 @@ export interface WorkbookSettings {
   year: string;
   teacherNote: string;
   theme:
-  | 'modern'
-  | 'classic'
-  | 'fun'
-  | 'minimal'
-  | 'academic'
-  | 'artistic'
-  | 'space'
-  | 'nature'
-  | 'geometric'
-  | 'cyber'
-  | 'luxury'
-  | 'playful';
+    | 'modern'
+    | 'classic'
+    | 'fun'
+    | 'minimal'
+    | 'academic'
+    | 'artistic'
+    | 'space'
+    | 'nature'
+    | 'geometric'
+    | 'cyber'
+    | 'luxury'
+    | 'playful';
   accentColor: string;
   coverStyle: 'centered' | 'left' | 'split' | 'hero' | 'minimalist';
   showTOC: boolean;

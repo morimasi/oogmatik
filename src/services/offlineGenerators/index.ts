@@ -31,3 +31,4 @@ export * from './premiumReading';
 export * from './premiumMath';
 export * from './premiumVisual';
 export * from './premiumPuzzles';
+export * from './gizemliSayilar';
