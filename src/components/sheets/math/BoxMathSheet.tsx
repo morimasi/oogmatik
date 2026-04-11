@@ -7,37 +7,43 @@ import { EditableText, EditableElement } from '../../Editable';
 export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
   const pref = data.fontSizePreference ?? 'medium';
 
-  // Font ve kutu boyutları — punto ayarına göre (2x büyük kutular)
+  // Font ve kutu boyutları — punto ayarına göre (Premium & Compact)
   const sizeMap = {
     small: {
-      expr: 'text-base',
-      num: 'text-2xl',
-      box: 'min-w-[140px] py-3   px-5  text-lg',
-      inBox: 'inline-flex items-center justify-center min-w-[50px] h-10 px-2 text-lg font-bold',
-      badgeText: 'text-sm',
-      badge: 'w-10 h-10',
-      label: 'text-[10px]',
-      result: 'text-[10px]',
+      expr: 'text-sm',
+      num: 'text-lg',
+      box: 'min-w-[80px] h-9 px-2 text-sm',
+      inBox: 'inline-flex items-center justify-center w-8 h-8 mx-0.5 text-sm font-bold',
+      badge: 'w-6 h-6',
+      badgeText: 'text-[10px]',
+      label: 'text-[8px]',
+      result: 'text-[8px]',
+      grid: 'grid-cols-3 gap-3',
+      padding: 'p-2',
     },
     medium: {
-      expr: 'text-xl',
-      num: 'text-3xl',
-      box: 'min-w-[180px] py-4   px-6  text-xl',
-      inBox: 'inline-flex items-center justify-center min-w-[60px] h-12 px-3 text-xl font-bold',
-      badgeText: 'text-base',
-      badge: 'w-12 h-12',
-      label: 'text-xs',
-      result: 'text-xs',
+      expr: 'text-base',
+      num: 'text-xl',
+      box: 'min-w-[100px] h-10 px-3 text-base',
+      inBox: 'inline-flex items-center justify-center w-10 h-10 mx-1 text-base font-bold',
+      badge: 'w-7 h-7',
+      badgeText: 'text-[11px]',
+      label: 'text-[9px]',
+      result: 'text-[9px]',
+      grid: 'grid-cols-2 gap-4',
+      padding: 'p-3',
     },
     large: {
-      expr: 'text-2xl',
-      num: 'text-4xl',
-      box: 'min-w-[220px] py-5   px-8  text-2xl',
-      inBox: 'inline-flex items-center justify-center min-w-[70px] h-14 px-4 text-2xl font-bold',
-      badgeText: 'text-lg',
-      badge: 'w-14 h-14',
-      label: 'text-sm',
-      result: 'text-sm',
+      expr: 'text-xl',
+      num: 'text-2xl',
+      box: 'min-w-[120px] h-12 px-4 text-xl',
+      inBox: 'inline-flex items-center justify-center w-12 h-12 mx-1.5 text-xl font-bold',
+      badge: 'w-8 h-8',
+      badgeText: 'text-xs',
+      label: 'text-[10px]',
+      result: 'text-[10px]',
+      grid: 'grid-cols-2 gap-6',
+      padding: 'p-4',
     },
   } as const;
 
@@ -52,9 +58,9 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
         return (
           <span
             key={i}
-            className={`${sz.inBox} bg-white border-2 border-zinc-900 rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-zinc-900 mx-0.5`}
+            className={`${sz.inBox} bg-white border-[1.5px] border-zinc-900 rounded shadow-sm text-zinc-900`}
           >
-            □
+            &nbsp;
           </span>
         );
       }
@@ -63,112 +69,80 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
   };
 
   return (
-    <div className="flex flex-col bg-white p-2 text-black font-lexend overflow-visible">
+    <div className="flex flex-col bg-white p-2 text-black font-lexend overflow-visible min-h-[1123px]">
       <PedagogicalHeader
         title={data.title}
         instruction={data.instruction}
         note={data.pedagogicalNote}
       />
 
-      <div className="flex flex-col gap-8 mt-6">
-        {/* 2 Sütunlu Izgara Düzeni - A4 Verimliliği İçin */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8">
-          {(data.problems || []).map((prob: BoxMathProblem, idx: number) => (
-            <EditableElement
-              key={idx}
-              className="flex items-center justify-between p-4 border-2 border-zinc-100 bg-zinc-50/30 rounded-[2rem] hover:bg-white hover:border-indigo-200 transition-all group"
+      <div className={`grid ${sz.grid} mt-4`}>
+        {(data.problems || []).map((prob: BoxMathProblem, idx: number) => (
+          <EditableElement
+            key={idx}
+            className={`flex items-center gap-3 ${sz.padding} border border-zinc-200 bg-zinc-50/10 rounded-2xl hover:bg-white hover:border-indigo-300 transition-all group relative break-inside-avoid`}
+          >
+            {/* Soru Numarası (Yüzen Tip) */}
+            <div
+              className={`absolute -top-1.5 -left-1.5 ${sz.badge} rounded-lg bg-zinc-900 text-white font-black ${sz.badgeText} flex items-center justify-center shadow-md z-10`}
             >
-              <div className="flex items-center gap-4 flex-1">
-                <span
-                  className={`flex items-center justify-center ${sz.badge} rounded-xl bg-zinc-900 text-white font-black ${sz.badgeText} shadow-lg group-hover:scale-110 transition-transform`}
-                >
-                  {idx + 1}
-                </span>
-                <div
-                  className={`${sz.expr} font-bold tracking-tighter text-zinc-800 flex items-center flex-wrap gap-y-1`}
-                >
-                  {renderExpression(prob.expression)}
-                  {data.mode === 'reverse' && (
-                    <>
-                      <span className="mx-1 text-zinc-400 font-black">=</span>
-                      <span
-                        className={`bg-white px-3 py-1 rounded-xl border-2 border-zinc-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-black ${sz.num}`}
-                      >
-                        {prob.targetValue}
-                      </span>
-                    </>
-                  )}
-                  {data.mode === 'substitution' && (
+              {idx + 1}
+            </div>
+
+            <div className="flex flex-col gap-2 w-full">
+              <div
+                className={`${sz.expr} font-bold tracking-tight text-zinc-800 flex items-center flex-wrap`}
+              >
+                {renderExpression(prob.expression)}
+                {data.mode === 'reverse' && (
+                  <>
                     <span className="mx-1 text-zinc-400 font-black">=</span>
-                  )}
-                </div>
+                    <span className={`font-black ${sz.num} text-indigo-600`}>{prob.targetValue}</span>
+                  </>
+                )}
+                {data.mode === 'substitution' && (
+                  <span className="mx-1 text-zinc-400 font-black">=</span>
+                )}
               </div>
 
-              <div className="flex items-center gap-3 shrink-0 ml-4">
+              {/* Alt Bilgi veya Ek Alanlar */}
+              <div className="flex items-center justify-end mt-1">
                 {data.mode === 'reverse' && (
-                  <div className="flex flex-col items-center gap-1">
-                    <span
-                      className={`${sz.label} font-black text-indigo-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity`}
-                    >
-                      HEDEF
-                    </span>
-                    <div
-                      className={`${sz.box} bg-white border-2 border-dashed border-indigo-300 rounded-xl font-black text-indigo-500 shadow-sm text-center min-h-[60px] flex items-center justify-center`}
-                    >
-                      □ = ?
-                    </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`${sz.label} font-black text-indigo-400 uppercase tracking-tighter`}>Kutu</span>
+                    <div className="w-6 h-6 border-b-[1.5px] border-dashed border-indigo-300 flex items-center justify-center text-[10px] text-indigo-300">?</div>
                   </div>
                 )}
                 {data.mode === 'substitution' && (
-                  <div className="flex flex-col items-center gap-1">
-                    <span
-                      className={`${sz.label} font-black text-emerald-500 uppercase tracking-widest`}
-                    >
-                      DEĞER
-                    </span>
-                    <div
-                      className={`${sz.box} bg-zinc-900 text-white rounded-xl font-black shadow-md text-center min-h-[60px] flex items-center justify-center`}
-                    >
-                      □ = {prob.givenValue}
-                    </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`${sz.label} font-black text-emerald-500 uppercase tracking-tighter`}>Kutu = {prob.givenValue}</span>
                   </div>
                 )}
                 {data.mode === 'simplification' && (
-                  <div className="flex flex-col items-center gap-1">
-                    <span
-                      className={`${sz.label} font-black text-amber-500 uppercase tracking-widest`}
-                    >
-                      SADELEŞTİR
-                    </span>
-                    <div
-                      className={`${sz.box} border-b-2 border-dashed border-zinc-400 flex items-end justify-center pb-2 min-h-[60px]`}
-                    >
-                      <span className={`${sz.result} text-zinc-300 font-bold uppercase italic`}>
-                        Sonuç
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`${sz.label} font-black text-amber-500 uppercase tracking-tighter`}>Sonuç</span>
+                    <div className="w-10 h-6 border-b-[1.5px] border-dashed border-zinc-300"></div>
                   </div>
                 )}
               </div>
-            </EditableElement>
-          ))}
-        </div>
+            </div>
+          </EditableElement>
+        ))}
       </div>
 
       {/* Alt Bilgi */}
-      <div className="mt-12 print:mt-3 pt-6 print:pt-2 border-t border-zinc-100 flex justify-between items-center px-10 print:px-3 opacity-30">
-        <div className="flex items-center gap-4 print:gap-1">
-          <i className="fa-solid fa-microchip text-2xl text-indigo-500"></i>
-          <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">
-            Bursa Disleksi AI • Nöro-Bilişsel Matematik Sistemi v4.0
+      <div className="mt-auto pt-4 border-t border-zinc-100 flex justify-between items-center opacity-30">
+        <div className="flex items-center gap-2">
+          <i className="fa-solid fa-microchip text-lg text-indigo-500"></i>
+          <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-widest">
+            Bursa Disleksi AI • Nöro-Bilişsel Matematik Sistemi
           </p>
         </div>
-        <div className="flex gap-2">
-          <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-          <div className="w-2 h-2 bg-zinc-200 rounded-full"></div>
-          <div className="w-2 h-2 bg-zinc-200 rounded-full"></div>
-        </div>
       </div>
+    </div>
+  );
+};
+
     </div>
   );
 };

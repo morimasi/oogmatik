@@ -5,7 +5,13 @@ import { getRandomInt } from './helpers';
  * Kutularla Matematik (Ters İşlem & Yerine Koyma) Yerel Üretici
  */
 export const generateOfflineBoxMath = async (options: GeneratorOptions): Promise<BoxMathData[]> => {
-  const { worksheetCount = 1, difficulty = 'Orta', itemCount = 10, variant = 'reverse', fontSizePreference = 'medium' } = options;
+  const {
+    worksheetCount = 1,
+    difficulty = 'Orta',
+    itemCount = 18,
+    variant = 'reverse',
+    fontSizePreference = 'medium',
+  } = options;
   const pages: BoxMathData[] = [];
 
   const getRanges = () => {
