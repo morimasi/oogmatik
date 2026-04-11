@@ -10,7 +10,6 @@ import { PortfolioModule } from './modules/PortfolioModule';
 import { BehaviorModule } from './modules/BehaviorModule';
 import { SettingsModule } from './modules/SettingsModule';
 import { StudentSelector } from './StudentSelector';
-
 import { AIInsightsModule } from './modules/AIInsightsModule';
 
 // Icons mapping for sub-modules
@@ -50,7 +49,6 @@ const ContentWrapper: React.FC<{
   </div>
 );
 
-// ... (ManagerSidebar component remains mostly same, just updating labels)
 const ManagerSidebar: React.FC<{
   activeModule: string;
   onSelectModule: (m: string) => void;
@@ -124,27 +122,14 @@ const ManagerSidebar: React.FC<{
     </div>
   </div>
 );
-          <div
-            className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full"
-            style={{ width: '88%' }}
-          ></div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
 
-// ... (ContentWrapper remains same)
-
-// Main Manager Component
 export const AdvancedStudentManager: React.FC<{
   onBack: () => void;
   onLoadMaterial?: (ws: any) => void;
 }> = ({ onBack, onLoadMaterial }) => {
-  const { activeStudent, students, setActiveStudent, _addStudent, updateStudent, _deleteStudent } =
-    useStudentStore();
+  const { activeStudent, students, setActiveStudent, updateStudent } = useStudentStore();
   const [selectedModule, setSelectedModule] = useState('overview');
-  const [visibleModules, setVisibleModules] = useState<string[]>(Object.keys(MODULE_ICONS));
+  const [visibleModules] = useState<string[]>(Object.keys(MODULE_ICONS));
 
   const handleStudentUpdate = async (updates: Partial<AdvancedStudent>) => {
     if (!activeStudent) return;
@@ -155,62 +140,61 @@ export const AdvancedStudentManager: React.FC<{
     }
   };
 
-  // ... (currentStudent logic remains same)
-  const baseStudent = activeStudent;
-  const currentStudent: AdvancedStudent = baseStudent
-    ? ({
-        ...baseStudent,
-        iep: (baseStudent as any).iep || { goals: [], status: 'draft' },
-        financial: (baseStudent as any).financial || { balance: 0, transactions: [] },
-        attendance: (baseStudent as any).attendance || { stats: { attendanceRate: 0 } },
-        academic: (baseStudent as any).academic || { metrics: { gpa: 0 } },
-        behavior: (baseStudent as any).behavior || { score: 100, incidents: [] },
-        portfolio: (baseStudent as any).portfolio || [],
-        aiProfile: (baseStudent as any).aiProfile || {},
-      } as AdvancedStudent)
-    : (null as any);
-
-  if (!currentStudent)
+  if (!activeStudent) {
     return (
-      <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-black overflow-y-auto flex items-center justify-center">
-        <div className="max-w-md w-full p-8 text-center bg-white dark:bg-zinc-900 rounded-[3rem] shadow-2xl border border-zinc-200 dark:border-zinc-800">
-          <div className="w-24 h-24 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <i className="fa-solid fa-user-graduate text-4xl text-indigo-600"></i>
+      <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-black overflow-y-auto flex items-center justify-center p-4">
+        <div className="max-w-md w-full p-6 text-center bg-white dark:bg-zinc-900 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-800">
+          <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <i className="fa-solid fa-user-graduate text-2xl text-indigo-600"></i>
           </div>
-          <h2 className="text-2xl font-black text-zinc-900 dark:text-white mb-2">
+          <h2 className="text-xl font-black text-zinc-900 dark:text-white mb-2">
             Öğrenci Seçilmedi
           </h2>
-          <p className="text-zinc-500 mb-8">
+          <p className="text-zinc-500 text-xs mb-6">
             Yönetim panelini kullanmak için lütfen bir öğrenci profili seçin.
           </p>
-          <div className="space-y-3">
-            <button
-              onClick={() => setActiveStudent(students[0])}
-              className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-900/20 hover:scale-105 transition-transform"
-            >
-              Hızlı Seçim (Son Öğrenci)
-            </button>
+          <div className="space-y-2">
+            {students.length > 0 && (
+              <button
+                onClick={() => setActiveStudent(students[0])}
+                className="w-full py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-transform"
+              >
+                Hızlı Seçim
+              </button>
+            )}
             <button
               onClick={onBack}
-              className="w-full py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-2xl font-bold"
+              className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-xl font-bold text-xs uppercase tracking-widest"
             >
-              Giriş Ekranına Dön
+              Geri Dön
             </button>
           </div>
         </div>
       </div>
     );
+  }
+
+  const currentStudent: AdvancedStudent = {
+    ...activeStudent,
+    iep: (activeStudent as any).iep || { goals: [], status: 'draft' },
+    financial: (activeStudent as any).financial || { balance: 0, transactions: [] },
+    attendance: (activeStudent as any).attendance || { stats: { attendanceRate: 0 } },
+    academic: (activeStudent as any).academic || { metrics: { gpa: 0 } },
+    behavior: (activeStudent as any).behavior || { score: 100, incidents: [] },
+    portfolio: (activeStudent as any).portfolio || [],
+    aiProfile: (activeStudent as any).aiProfile || {},
+  };
 
   const renderContent = () => {
     switch (selectedModule) {
       case 'overview':
         return (
           <ContentWrapper
-            title="Profesyonel Özet"
-            subtitle="Öğrencinin anlık durumu ve kritik uyarılar."
+            title="Özet"
+            subtitle="Genel durum."
             actions={
-              <button className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-indigo-900/20 hover:scale-105 transition-transform flex items-center gap-2">
-                <i className="fa-solid fa-file-pdf"></i> PDF Rapor
+              <button className="bg-indigo-600 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase">
+                PDF
               </button>
             }
           >
@@ -219,126 +203,50 @@ export const AdvancedStudentManager: React.FC<{
         );
       case 'ai_insights':
         return (
-          <ContentWrapper
-            title="AI Bilişsel Analiz"
-            subtitle="Yapay zeka motoru tarafından oluşturulan derinlemesine öğrenci profili."
-            actions={
-              <button className="bg-emerald-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-emerald-900/20 hover:scale-105 transition-transform flex items-center gap-2">
-                <i className="fa-solid fa-rotate"></i> Yeniden Analiz Et
-              </button>
-            }
-          >
+          <ContentWrapper title="AI Analiz" subtitle="Yapay zeka öngörüleri.">
             <AIInsightsModule student={currentStudent} />
           </ContentWrapper>
         );
       case 'iep':
         return (
-          <ContentWrapper
-            title="BEP / IEP Yönetimi"
-            subtitle="Hedefler, kazanımlar ve müdahale programı."
-          >
+          <ContentWrapper title="BEP" subtitle="Bireyselleştirilmiş eğitim planı.">
             <IEPModule student={currentStudent} onUpdate={(iep) => handleStudentUpdate({ iep })} />
           </ContentWrapper>
         );
       case 'financial':
         return (
-          <ContentWrapper
-            title="Finansal Kayıtlar"
-            subtitle="Muhasebe, taksitler ve ödeme geçmişi."
-          >
-            <FinancialModule
-              student={currentStudent}
-              onUpdate={(data) => handleStudentUpdate(data)}
-            />
+          <ContentWrapper title="Finans" subtitle="Ödeme ve kayıt bilgileri.">
+            <FinancialModule student={currentStudent} onUpdate={handleStudentUpdate} />
           </ContentWrapper>
         );
       case 'attendance':
         return (
-          <ContentWrapper title="Devam Takibi" subtitle="Ders katılımı ve mazeret kayıtları.">
-            <AttendanceModule
-              student={currentStudent}
-              onUpdate={(data) => handleStudentUpdate(data)}
-            />
+          <ContentWrapper title="Yoklama" subtitle="Devam durumu.">
+            <AttendanceModule student={currentStudent} onUpdate={handleStudentUpdate} />
           </ContentWrapper>
         );
       case 'academic':
         return (
-          <ContentWrapper
-            title="Akademik Gelişim"
-            subtitle="Sınav sonuçları, beceri grafikleri ve ödev takibi."
-          >
-            <AcademicModule
-              student={currentStudent}
-              onUpdate={(data) => handleStudentUpdate(data)}
-            />
+          <ContentWrapper title="Akademik" subtitle="Ders ve sınav başarısı.">
+            <AcademicModule student={currentStudent} onUpdate={handleStudentUpdate} />
           </ContentWrapper>
         );
       case 'portfolio':
         return (
-          <ContentWrapper
-            title="Dijital Portfolyo"
-            subtitle="Öğrenciye ait materyal ve çalışma galerisi."
-          >
-            <PortfolioModule
-              student={currentStudent}
-              onUpdate={(data) => handleStudentUpdate(data)}
-            />
+          <ContentWrapper title="Dosya" subtitle="Öğrenci çalışmaları.">
+            <PortfolioModule student={currentStudent} onUpdate={handleStudentUpdate} />
           </ContentWrapper>
         );
       case 'behavior':
         return (
-          <ContentWrapper
-            title="Davranış & Sosyal Uyum"
-            subtitle="Gözlem notları ve davranışsal gelişim takibi."
-          >
-            <BehaviorModule
-              student={currentStudent}
-              onUpdate={(data) => handleStudentUpdate(data)}
-            />
+          <ContentWrapper title="Davranış" subtitle="Sosyal ve davranışsal notlar.">
+            <BehaviorModule student={currentStudent} onUpdate={handleStudentUpdate} />
           </ContentWrapper>
         );
       case 'settings':
         return (
-          <ContentWrapper
-            title="Panel Özelleştirme"
-            subtitle="Modül görünürlüğünü ve bildirimleri ayarlayın."
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <SettingsModule student={currentStudent} onUpdate={handleStudentUpdate} />
-
-              <div className="bg-white dark:bg-zinc-900 p-8 rounded-[3rem] border border-zinc-200 dark:border-zinc-800">
-                <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-6">
-                  Modül Yönetimi
-                </h3>
-                <div className="space-y-4">
-                  {Object.entries(MODULE_ICONS).map(([key, icon]) => (
-                    <label
-                      key={key}
-                      className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 cursor-pointer hover:bg-zinc-100 transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        <i className={`fa-solid ${icon} text-indigo-500`}></i>
-                        <span className="font-bold text-sm capitalize">
-                          {key.replace('_', ' ')}
-                        </span>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={visibleModules.includes(key)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setVisibleModules([...visibleModules, key]);
-                          } else {
-                            setVisibleModules(visibleModules.filter((m) => m !== key));
-                          }
-                        }}
-                        className="w-5 h-5 accent-indigo-600"
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
+          <ContentWrapper title="Ayar" subtitle="Profil ayarları.">
+            <SettingsModule student={currentStudent} onUpdate={handleStudentUpdate} />
           </ContentWrapper>
         );
       default:
@@ -347,53 +255,32 @@ export const AdvancedStudentManager: React.FC<{
   };
 
   return (
-    <div className="w-full h-full flex bg-black font-['Lexend']">
-      {/* 1. Global Navigation Rail (Mini) */}
-      <div className="w-20 bg-black border-r border-zinc-800 flex flex-col items-center py-8 gap-8 shrink-0">
-        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-900/40">
+    <div className="w-full h-full flex bg-black font-lexend overflow-hidden">
+      <div className="w-14 bg-black border-r border-zinc-800 flex flex-col items-center py-4 gap-4 shrink-0">
+        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-black text-sm">
           O
         </div>
-
-        <div className="flex-1 flex flex-col gap-4">
+        <div className="flex-1 flex flex-col gap-3">
           <button
             onClick={onBack}
-            className="w-12 h-12 rounded-2xl bg-zinc-900 text-zinc-400 hover:text-white hover:bg-indigo-600 flex items-center justify-center transition-all group"
-            title="Ana Menü"
+            className="w-8 h-8 rounded-lg bg-zinc-900 text-zinc-400 hover:text-white flex items-center justify-center transition-all"
           >
-            <i className="fa-solid fa-house group-hover:scale-110 transition-transform"></i>
+            <i className="fa-solid fa-house text-xs"></i>
           </button>
           <button
-            onClick={() => setActiveStudent(null)}
-            className="w-12 h-12 rounded-2xl bg-zinc-900 text-zinc-400 hover:text-white hover:bg-indigo-600 flex items-center justify-center transition-all group"
-            title="Öğrenci Değiştir"
+            onClick={() => useStudentStore.getState().setActiveStudent(null)}
+            className="w-8 h-8 rounded-lg bg-zinc-900 text-zinc-400 hover:text-white flex items-center justify-center transition-all"
           >
-            <i className="fa-solid fa-users-rectangle group-hover:scale-110 transition-transform"></i>
-          </button>
-          <button
-            className="w-12 h-12 rounded-2xl bg-zinc-900 text-zinc-400 hover:text-white hover:bg-indigo-600 flex items-center justify-center transition-all group"
-            title="Sistem Ayarları"
-          >
-            <i className="fa-solid fa-gear group-hover:rotate-45 transition-transform"></i>
+            <i className="fa-solid fa-users text-xs"></i>
           </button>
         </div>
-
-        <button
-          className="w-12 h-12 rounded-2xl bg-rose-900/20 text-rose-500 hover:bg-rose-600 hover:text-white flex items-center justify-center transition-all group"
-          title="Çıkış"
-        >
-          <i className="fa-solid fa-power-off group-hover:scale-110 transition-transform"></i>
-        </button>
       </div>
-
-      {/* 2. Context Sidebar (Student & Modules) */}
       <ManagerSidebar
         activeModule={selectedModule}
         onSelectModule={setSelectedModule}
         student={currentStudent}
         visibleModules={visibleModules}
       />
-
-      {/* 3. Main Content Area */}
       <div className="flex-1 min-w-0 bg-white dark:bg-black">{renderContent()}</div>
     </div>
   );
