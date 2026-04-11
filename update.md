@@ -1,8 +1,9 @@
-# OOGMATIK — Platform Tamamlama & Kalite Güvencesi Master Planı (v4.0 Ultra Premium)
+# OOGMATIK — Platform Tamamlama & Kalite Güvencesi Master Planı (v5.0 Ultra Premium)
 
-> **Güncelleme Tarihi:** 2026-04-11  
-> **Analiz Kapsamı:** 157.191 satır TypeScript/TSX | 46+ test dosyası | 8 API endpoint | 10 Zustand store | 40+ AI generator | 25+ offline generator | 60+ React bileşeni  
-> **Durum:** 🚨 Canlıya Alma Öncesi Zorunlu Müdahale Gerektiriyor
+> **İlk Sürüm:** 2026-04-11 | **Revize:** 2026-04-11 (2. Tur Derinlemesli Analiz)  
+> **Analiz Kapsamı:** 157.191 satır TypeScript/TSX | 36 test dosyası + 4 E2E spec | 11 API endpoint | 10 Zustand store | 40+ AI generator | 25+ offline generator | 70+ React bileşeni  
+> **Durum:** 🚨 Canlıya Alma Öncesi Zorunlu Müdahale Gerektiriyor  
+> **v5.0 Değişiklikleri:** +3 güvenlik açığı (SG-5..7) | +5 mimari sorun (MA-8..12) | +4 eksik özellik (EK-12..15) | +1 test uyumsuzluğu (TK-6) | CORS tablosu düzeltildi
 
 ---
 
@@ -10,15 +11,16 @@
 
 Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya almadan önce** aşağıdaki kritik alanlarda müdahale zorunludur:
 
-| Kategori | Risk Seviyesi | Durum |
-|---|---|---|
-| **Güvenlik Açıkları** | 🔴 KRİTİK | JWT doğrulama eksik, 9 yüksek önem seviyeli npm güvenlik açığı |
-| **TypeScript Uyumu** | 🔴 KRİTİK | `strict: false`, `@ts-nocheck` kullanımı — kural ihlali |
-| **Eksik API Özellikleri** | 🟠 YÜKSEK | WorkbookExport (DOCX/PPTX/EPUB/SCORM), Focus Mode, RBAC |
-| **Mimari Artıklar** | 🟠 YÜKSEK | Çift dizin yapısı, kopya JSON repair motoru, 3 admin dashboard |
-| **Test Kapsamı** | 🟡 ORTA | Stüdyo bileşenleri test edilmemiş, workbook testleri TODO dolu |
-| **Performans** | 🟡 ORTA | Mega bileşenler (SheetRenderer: 1712 satır, ProfileView: 1834 satır) |
-| **Tamamlanmamış Özellikler** | 🟡 ORTA | AnimationStudio, palette reflection, success glow bağlantısı |
+| Kategori | Risk Seviyesi | Sorun Sayısı | Durum |
+|---|---|---|---|
+| **Güvenlik Açıkları** | 🔴 KRİTİK | 7 sorun | JWT bypass, wildcard CORS, crypto hatası, HTML injection |
+| **TypeScript Uyumu** | 🔴 KRİTİK | 4 sorun | `strict: false`, `@ts-nocheck` kullanımı — kural ihlali |
+| **Build Bozucu Hatalar** | 🔴 KRİTİK | 1 sorun | `@remotion/player` import'u — package.json'da yok |
+| **Eksik API Özellikleri** | 🟠 YÜKSEK | 15 sorun | WorkbookExport (DOCX/PPTX/EPUB/SCORM), PDFViewer, Focus Mode |
+| **Mimari Artıklar** | 🟠 YÜKSEK | 12 sorun | Çift dizin, kopya JSON repair, 2 RBAC sistemi, 2 AnimationService |
+| **Test Kapsamı** | 🟡 ORTA | 6 sorun | Stüdyo testleri eksik, JWT test/kaynak uyumsuzluğu |
+| **Performans** | 🟡 ORTA | 3 sorun | Mega bileşenler (SheetRenderer: 1712 satır, ProfileView: 1834 satır) |
+| **Tamamlanmamış Özellikler** | 🟡 ORTA | 8 sorun | AnimationStudio, palette reflection, success glow, ThemeIntelligence |
 
 ---
 
@@ -43,6 +45,38 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 - **Dosya:** `src/services/rateLimiter.ts`
 - **Sorun:** Rate limiter server yeniden başladığında sıfırlanıyor; Vercel serverless'ta her invocation ayrı process olduğu için pratikte rate limiting çalışmıyor.
 - **Çözüm:** Firestore veya Upstash Redis tabanlı distributed rate limiting.
+
+### SG-5: 5 API Endpoint'te Wildcard CORS (`*`) ⚠️ YÜKSEK — v5.0 YENİ
+- **Dosyalar:**
+  - `api/activity/approve.ts:11` → `res.setHeader('Access-Control-Allow-Origin', '*')`
+  - `api/generate-exam.ts:40` → aynı
+  - `api/ocr/generate-variations.ts:13` → aynı
+  - `api/ai/generate-image.ts:9` → aynı
+  - `api/workbooks.ts:116` → aynı
+- **Sorun:** `src/utils/cors.ts` whitelist tabanlı `corsMiddleware()` fonksiyonu yazılmış ve `api/generate.ts`'te kullanılıyor, ancak diğer 5 endpoint'te hiç kullanılmamış. Wildcard CORS credentials ile birlikte kullanılamaz ve güvenlik riski oluşturur.
+- **Çözüm:** Tüm endpoint'lerde `corsMiddleware(req, res)` kullan; `Access-Control-Allow-Origin: *` kaldır.
+
+### SG-6: `privacyService.ts` — Node.js `crypto` Tarayıcıda Çalışmaz ⚠️ YÜKSEK — v5.0 YENİ
+- **Dosya:** `src/services/privacyService.ts:16` — `import { createHash } from 'crypto'`
+- **Sorun:** KVKK uyumlu TC Kimlik No hash'leme için Node.js'in `crypto` modülü kullanılıyor. Bu servis `src/` içinde (frontend kod tabanı) — tarayıcıda çalışmaz. Ayrıca `superStudioGenerator.ts`'te aynı sorun daha önce FNV-1a hash ile çözülmüş (bkz. memory).
+- **Etki:** TC kimlik hash'leme fonksiyonu tarayıcıda runtime error fırlatır; KVKK pipeline bozulur.
+- **Çözüm:** `createHash('sha256')` → Web Crypto API: `crypto.subtle.digest('SHA-256', ...)` veya FNV-1a gibi browser-compatible alternatif.
+
+### SG-7: `api/export-infographic.ts` — Kimlik Doğrulama, CORS, Rate Limit ve Input Validasyonu Yok ⚠️ KRİTİK — v5.0 YENİ
+- **Dosya:** `api/export-infographic.ts`
+- **Sorun:** Bu endpoint Puppeteer ile headless Chromium çalıştırıyor ve **ham HTML içeriğini** hiçbir doğrulama yapmadan `page.setContent(html)` ile render ediyor. Sorunlar:
+  - Kimlik doğrulama yok (herkes çağırabilir)
+  - Rate limiting yok (maliyet saldırısı için açık)
+  - CORS başlığı yok (yanıtlar her origin'e döner)
+  - Input validation yok — gönderilen `html`, `format`, `quality` parametreleri Zod ile doğrulanmıyor
+  - `html` parametresi kötü amaçlı içerik barındırabilir (Server-Side XSS via headless browser)
+- **Çözüm:**
+  - `corsMiddleware()` ekle
+  - JWT authentication middleware ekle
+  - Rate limiting ekle
+  - `z.string().max(500_000)` ile HTML boyut sınırı koy
+  - `format` ve `quality` parametrelerini enum ile doğrula
+  - HTML sanitization veya URL-only yaklaşımına geç
 
 ---
 
@@ -105,6 +139,38 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 - **Sorun:** 20+ orphan .md plan dosyası, geçici script dosyaları (fix.cjs, autofix.cjs, audit_useeffect.cjs, fix-api-imports.cjs vb.) ve 3 PDF dosyası kök dizinde.
 - **Çözüm:** Plan .md'leri `docs/archive/` altına taşı; script dosyalarını `/tmp` veya `scripts/` altına al; PDF'leri sil.
 
+### MA-8: İki AnimationService Implementasyonu — Konsolidasyon Gerekli ⚠️ YÜKSEK — v5.0 YENİ
+- **Sorun:** Animasyon servisi iki ayrı implementasyonla çoğaltılmış:
+  - `src/services/generators/AnimationService.ts` → Singleton sınıf, `generateAnimation()`, `ActivityType` bazlı, **v1.0**
+  - `src/services/animationService.ts` → Fonksiyon tabanlı, Gemini 2.5 Flash + NeuroProfile parametreli, `generateAnimationTimeline()`, **v2.0**
+- `src/components/remotion/AnimationStudio.tsx` → v2.0'dan import ediyor
+- Hangi versiyonun canonical olduğu belirsiz; her ikisi de çelişen API'lere sahip.
+- **Çözüm:** v2.0 (`animationService.ts`) canonical yap; v1.0 (`generators/AnimationService.ts`) kaldır veya v2.0'a adapte et.
+
+### MA-9: `@remotion/player` — package.json'da Yok → Build Hatası 🔴 KRİTİK — v5.0 YENİ
+- **Dosya:** `src/components/remotion/AnimationStudio.tsx:2` → `import { Player } from '@remotion/player'`
+- **Sorun:** `@remotion/player` paketi `package.json`'daki `dependencies` veya `devDependencies` içinde **mevcut değil**. Bu dosya `vite.config.ts`'teki `vendor-3d` chunk'a (`@remotion/` prefix) dahil edilmek üzere yapılandırılmış ancak paket yüklü değil.
+- **Etki:** `npm run build` komutu `Cannot find module '@remotion/player'` hatasıyla başarısız olur.
+- **Çözüm:** Ya `npm install @remotion/player @remotion/core` ile paketi ekle ve entegre et, ya da `src/components/remotion/` klasörünü tamamen kaldır.
+
+### MA-10: `RemotionStudio/index.tsx` — Placeholder Stub ⚠️ ORTA — v5.0 YENİ
+- **Dosya:** `src/components/RemotionStudio/index.tsx`
+- **Sorun:** Bileşen içeriği yalnızca "Bu modül yapım aşamasındadır." metni. `src/components/remotion/AnimationStudio.tsx`'ten farklı bir konum — iki ayrı Remotion bileşen klasörü mevcut.
+- **Çözüm:** MA-9 kararına göre ya gerçek içerikle doldur ya da kaldır.
+
+### MA-11: `activityApprovalService.ts` — Firestore Değil In-Memory Store ⚠️ YÜKSEK — v5.0 YENİ
+- **Dosya:** `src/services/activityApprovalService.ts`
+- **Sorun:** Onay kuyruğu `let approvalQueue: ActivityDraft[] = []` in-memory dizisinde tutuluyor. Kaynak kod yorumu: `// In-Memory Store (Firestore bağlantısı sonra eklenecek)`. Vercel serverless'ta her function restart sırasında tüm onay verileri kaybolur.
+- **Bileşen:** `AdminActivityApproval.tsx` → `AdminDashboard.tsx` içine entegre edilmiş, yani bu özellik kullanıcıya açık ama verileri kalıcı değil.
+- **Çözüm:** `approvalQueue` → Firestore `activity_approvals` koleksiyonuna taşı; `submitForReview()`, `approve()`, `reject()` metodlarını Firestore CRUD olarak yeniden yaz.
+
+### MA-12: İki RBAC Sistemi — Farklı Rol Şemaları ⚠️ YÜKSEK — v5.0 YENİ
+- **Sorun:**
+  - `src/services/rbac.ts` → 4 rol: `admin | teacher | parent | student`
+  - `src/hooks/useRBAC.ts` → 7 rol: `admin | teacher | student | parent | guest | editor | superadmin`
+- İki sistemin izin matrisleri farklı; hangi sistem canonical belirsiz. Frontend `useRBAC.ts` kullanırken API middleware `rbac.ts` kullanıyor — rol uyumsuzluğu runtime authorization hatalarına yol açabilir.
+- **Çözüm:** `src/types/user.ts`'te canonical `UserRole` tipi tanımla; her iki dosyayı bu tiple hizala; `editor` ve `superadmin` rolleri meşruysa `rbac.ts`'e de ekle.
+
 ---
 
 ## 🟠 TAMAMLANMAMIŞ ÖZELLİKLER
@@ -162,6 +228,26 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 - **Dosya:** `src/components/SharedWorksheetsView.tsx:158`
 - **Sorun:** `// TODO: Add logic to view shared assessment report modal`
 
+### EK-12: PDFViewer Modülü — Hiç Entegre Edilmemiş ⚠️ ORTA — v5.0 YENİ
+- **Dosya:** `src/components/PDFViewer/` (PDFViewer.tsx, PDFViewerControls, PDFPageRenderer, DyslexiaToolbar, PDFErrorBoundary, usePDFViewer, useDyslexiaSettings, PDFViewer.module.css)
+- **Sorun:** `pdfjs-dist` paketi `package.json`'da mevcut; tam özellikli PDF görüntüleyici (zoom, disleksi araç çubuğu, hata sınırı, özel hook'lar) oluşturulmuş — ancak **App.tsx, Sidebar.tsx veya ContentArea.tsx içinde hiçbir import yok**. Öğretmenin dışarıdan PDF yükleyip çalışma kağıdı olarak kullanması senaryosu tamamlanmamış.
+- **Çözüm:** `App.tsx`'e `'pdf-viewer'` view ekle; Sidebar'a "PDF Görüntüle" menü maddesi; SavedWorksheetsView'dan PDF açma butonu ekle.
+
+### EK-13: ThemeIntelligence Servisi — UI'ya Bağlanmamış ⚠️ DÜŞÜK — v5.0 YENİ
+- **Dosya:** `src/services/themeIntelligence.ts`
+- **Sorun:** Kullanım istatistiği tabanlı tema öneri sistemi (IndexedDB, `timeOfDayPreferences`, göz yorgunluğu raporu) oluşturulmuş ancak `App.tsx` veya `SettingsModal.tsx`'te hiç kullanılmıyor. `trackThemeSwitch()`, `recommendTheme()` fonksiyonları çağrılmıyor.
+- **Çözüm:** `useThemeIntelligence()` hook'u oluştur; App'e tema değişimini kaydet; SettingsModal'da "Akıllı Tema Önerisi" göster.
+
+### EK-14: WorkbookAIAssistant — Müfredat Doğrulaması TODO ⚠️ DÜŞÜK — v5.0 YENİ
+- **Dosya:** `src/services/workbookAIAssistant/validators/contentValidator.ts`
+- **Sorun:** `// TODO: curriculumService.verifyReferences(detectedReferences) ile doğrula` — AI'nın ürettiği çalışma kitabı içeriğinin MEB müfredat referanslarını doğrulayan adım eksik.
+- **Çözüm:** `curriculumService.ts` içindeki MEB kazanım veri tabanıyla çapraz kontrol implement et.
+
+### EK-15: `prompts/` Alt Dizini — Yedek Prompt Sistemi ⚠️ DÜŞÜK — v5.0 YENİ
+- **Dosya:** `src/services/generators/prompts/` (readingPrompts.ts, mathPrompts.ts, visualPrompts.ts, puzzlePrompts.ts, index.ts)
+- **Sorun:** `generators/promptLibrary.ts` ile `generators/prompts/` iki ayrı prompt yönetim sistemi. `PROMPTS_REGISTRY` dizini `ActivityType` bazlı şablonlar içeriyor; `promptLibrary.ts` ise paylaşılan şablonlar için. Her ikisi de aktif kullanılıyor ama kayıt mekanizmaları örtüşüyor.
+- **Çözüm:** İki sistemi birleştir; `generators/promptLibrary.ts` canonical prompt deposu olsun; `prompts/` klasörü içindeki kayıtları oraya taşı.
+
 ---
 
 ## 🟡 PERFORMANS & YENIDEN DÜZENLEME
@@ -207,6 +293,13 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 ### TK-5: OCR Akışı End-to-End Testi Eksik
 - OCR Scanner → Varyasyon üretimi → SheetRenderer akışı için entegrasyon testi yok.
 
+### TK-6: `authMiddlewareSecurity.test.ts` — Test/Kaynak Uyumsuzluğu ⚠️ KRİTİK — v5.0 YENİ
+- **Dosya:** `tests/authMiddlewareSecurity.test.ts`
+- **Sorun:** Test dosyası `should prioritize JWT over unverified headers` ve `should disable fallback in production` senaryolarını test ediyor; `extractUserInfo()` fonksiyonunun JWT'yi doğrulayıp `x-user-id` header'ını görmezden gelmesini bekliyor.
+- **Gerçek Durum:** `src/middleware/permissionValidator.ts:23-36` içinde JWT doğrulama kodu YORUM SATIRI olarak bekliyor. Bu testler **şu anda başarısız oluyor**.
+- **Etki:** Test suite geçiyor görünse bile güvenlik testi yanlış — `npm test` CI kırmızı gösterebilir.
+- **Çözüm:** SG-1 (A1 checklist) tamamlandığında bu testler otomatik geçer; ancak önce bunu doğrula.
+
 ---
 
 ## 🟡 EKSİK PLATFORM ÖZELLİKLERİ
@@ -247,9 +340,13 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 | Firestore CRUD | ✅ Tamamlandı | Worksheet, Student, Workbook |
 | AppError Standardı | ✅ Tamamlandı | 10+ hata tipi, type guard |
 | Rate Limiter (API) | ✅ Tamamlandı | In-memory (dağıtık için geliştirme gerekli) |
-| CORS Güvenliği | ✅ Tamamlandı | Wildcard yasak, origin validation |
+| CORS Güvenliği — `api/generate.ts` | ✅ Tamamlandı | Whitelist tabanlı, `corsMiddleware()` kullanıyor |
+| CORS Güvenliği — Diğer 5 endpoint | ⚠️ EKSİK | `api/workbooks, approve, generate-exam, generate-variations, generate-image` → wildcard `*` |
 | Disleksi Odaklı Tasarım | ✅ Tamamlandı | Lexend font, geniş satır aralığı |
 | Tarama (Screening) Modülü | ✅ Tamamlandı | Risk seviyesi, domain skorları |
+| Admin Onay Paneli | ⚠️ KISMİ | `AdminActivityApproval` UI hazır; servis in-memory (MA-11) |
+| PDFViewer Modülü | ⚠️ EKSİK | Bileşen tamamlandı; App'e entegre edilmemiş (EK-12) |
+| WorkbookAI Asistanı | ⚠️ KISMİ | Servis hazır; curriculum doğrulama TODO (EK-14) |
 
 ---
 
@@ -281,6 +378,28 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 - [ ] `src/services/worksheetService.ts:59`: `console.error` → `logError()`
 - [ ] `src/services/generators/superStudioGenerator.ts`: `console.log` → `logError()`
 - [ ] `src/services/workbook/workbookExport.ts`: `console.log` → `logError()`
+- [ ] `src/components/AdminActivityApproval.tsx:96`: `console.error` → `logError()`
+
+### A6 — Wildcard CORS Düzeltme — 5 Endpoint ⚡ YENİ
+- [ ] `api/activity/approve.ts`: `Access-Control-Allow-Origin: *` → `corsMiddleware(req, res)` ile değiştir
+- [ ] `api/generate-exam.ts`: aynı
+- [ ] `api/ocr/generate-variations.ts`: aynı
+- [ ] `api/ai/generate-image.ts`: aynı
+- [ ] `api/workbooks.ts`: aynı
+- [ ] Her endpoint'te `corsMiddleware()` import'unu ekle
+
+### A7 — `api/export-infographic.ts` Güvenlik Sertleştirmesi ⚡ YENİ
+- [ ] `corsMiddleware(req, res)` ekle
+- [ ] JWT authentication middleware ekle
+- [ ] Rate limiting ekle (dakikada max 10 istek)
+- [ ] Zod ile input validation: `format: z.enum(['pdf', 'png', 'jpeg'])`, `html: z.string().max(500_000)`
+- [ ] HTML sanitization veya yalnızca URL kabul et
+
+### A8 — `privacyService.ts` — Node.js Crypto → Web Crypto API ⚡ YENİ
+- [ ] `import { createHash } from 'crypto'` → Web Crypto API: `crypto.subtle.digest('SHA-256', ...)`
+- [ ] `hashTcNo()` ve `generateAnonymousId()` fonksiyonlarını async yaparak Web Crypto kullan
+- [ ] `tests/PrivacyService.test.ts` testlerini güncelle (async API değişikliği)
+- [ ] Browser uyumluluğunu `vite.config.ts`'te doğrula
 
 ---
 
@@ -320,6 +439,31 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 - [ ] Geçici script dosyalarını `scripts/` veya `/tmp` altına al: `fix.cjs`, `autofix.cjs`, `audit_useeffect.cjs`, `fix-api-imports.cjs`, `fix-print-grids.js`, `fix-vars.js`, `fix-vars.mjs`, `check_git.js`, `check_git_remote.js`, `generate_infographics.cjs`, `generate_templates.cjs`, `generate_templates.js`, `update-okuma-anlama-schemas.js`
 - [ ] `1.pdf`, `7. Sınıf...pdf`, `8-Snf...pdf` — git'ten kaldır
 - [ ] `.gitignore`'a `*.pdf`, `temp/` ekle
+
+### B7 — AnimationService Konsolidasyonu ⚡ YENİ
+- [ ] `src/services/generators/AnimationService.ts` (v1.0 singleton) → kaldır
+- [ ] `src/services/animationService.ts` (v2.0, Gemini 2.5 Flash + NeuroProfile) → canonical yap
+- [ ] `AnimationStudio.tsx`'teki importları doğrula (zaten v2.0'a bağlı)
+- [ ] `types/animation.ts` → `AnimationPayloadType` ve `NeuroProfileParamsType` tiplerinin v2.0 ile uyumunu kontrol et
+
+### B8 — RBAC Sistemi Konsolidasyonu ⚡ YENİ
+- [ ] `src/types/user.ts`'te canonical `UserRole` tipini tanımla: 7 rol (`admin | teacher | student | parent | guest | editor | superadmin`)
+- [ ] `src/services/rbac.ts` → `UserRole` tipini canonical kaynaktan import et; eksik rolleri ekle
+- [ ] `src/hooks/useRBAC.ts` → aynı canonical tipten import et; yerel tanımı kaldır
+- [ ] Her iki sistemin izin matrislerini hizala
+
+### B9 — `@remotion/player` Build Hatası Çözümü ⚡ YENİ — BLOCKER
+- [ ] **Karar ver:** AnimationStudio özelliği şart mı?
+  - **Evet:** `npm install @remotion/player @remotion/core` → `package.json`'a ekle → `AnimationStudio.tsx` ve Sidebar route'unu aktif et
+  - **Hayır:** `src/components/remotion/` ve `src/components/RemotionStudio/` klasörlerini sil; `vite.config.ts`'teki `vendor-3d` chunk'ı güncelle
+
+### B10 — `activityApprovalService.ts` → Firestore Migrasyonu ⚡ YENİ
+- [ ] Firestore'da `activity_approvals` koleksiyonu oluştur
+- [ ] `submitForReview()` → `addDoc()` ile Firestore'a yaz
+- [ ] `getPendingReviews()` → `getDocs(query(...where('status', '==', 'pending_review')))` ile çek
+- [ ] `approve()` ve `reject()` → `updateDoc()` ile durumu güncelle
+- [ ] `feedbackSignals` dizisi → `approval_feedback` koleksiyonu
+- [ ] `tests/ActivityApprovalService.test.ts` testlerini Firestore mock ile güncelle
 
 ---
 
@@ -363,6 +507,17 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 - [ ] `src/App.tsx`: `'mobile-viewer'` view case ekle
 - [ ] `src/components/Sidebar.tsx`: Mobil görünüm için koşullu buton ekle
 - [ ] Responsive breakpoint ile otomatik tetikle
+
+### C9 — PDFViewer Entegrasyonu ⚡ YENİ
+- [ ] `src/App.tsx`'e `'pdf-viewer'` view case ekle; `React.lazy(() => import('./components/PDFViewer/PDFViewer'))` kullan
+- [ ] `src/components/Sidebar.tsx`'e "PDF Görüntüle" menü maddesi ekle (öğretmen + admin için)
+- [ ] `SavedWorksheetsView.tsx`'de PDF tipindeki çalışmalar için "Görüntüle" butonu ekle
+- [ ] `PDFViewer`'a `url` prop'u ile disleksi araç çubuğunu etkinleştir
+
+### C10 — Prompt Sistemi Konsolidasyonu ⚡ YENİ
+- [ ] `src/services/generators/prompts/` içindeki `PROMPTS_REGISTRY` kayıtlarını `promptLibrary.ts` ile birleştir
+- [ ] Her iki sistemdeki `getPromptTemplate(type)` fonksiyonlarını tek API'ye indir
+- [ ] `generators/prompts/` klasörünü sil; import yollarını güncelle
 
 ---
 
@@ -463,12 +618,15 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 
 | Faz | Başlık | Öncelik | Tahmini Süre | Durum |
 |---|---|---|---|---|
-| **A** | Güvenlik & Altyapı | 🔴 KRİTİK | 3-5 gün | ⬜ Bekliyor |
-| **B** | Mimari Düzeltmeler | 🟠 YÜKSEK | 5-7 gün | ⬜ Bekliyor |
-| **C** | Eksik Özellikler | 🟠 YÜKSEK | 7-10 gün | ⬜ Bekliyor |
+| **A** | Güvenlik & Altyapı (A1–A8) | 🔴 KRİTİK | 4-7 gün | ⬜ Bekliyor |
+| **B** | Mimari Düzeltmeler (B1–B10) | 🟠 YÜKSEK | 7-10 gün | ⬜ Bekliyor |
+| **C** | Eksik Özellikler (C1–C10) | 🟠 YÜKSEK | 10-14 gün | ⬜ Bekliyor |
 | **D** | Performans & Refactor | 🟡 ORTA | 7-10 gün | ⬜ Bekliyor |
 | **E** | Test Kapsaması | 🟡 ORTA | 5-7 gün | ⬜ Bekliyor |
-| **F** | Yeni Özellikler | 🟢 DÜŞÜK | 14+ gün | ⬜ Bekliyor |
+| **F** | Yeni Platform Özellikleri | 🟢 DÜŞÜK | 14+ gün | ⬜ Bekliyor |
+
+**Toplam Açık Görev:** ~55 checklist maddesi  
+**Canlıya Alma Blocker'ları:** A1 + A7 + A8 + B9 + TS-1 + TS-2
 
 ---
 
@@ -476,21 +634,27 @@ Oogmatik platformu fonksiyonel olarak ileri bir seviyededir; ancak **canlıya al
 
 Aşağıdaki tüm koşullar sağlanmadan canlıya alma **YASAKLANMIŞTIR**:
 
-- [ ] **SG-1**: JWT doğrulaması aktif ✅
-- [ ] **SG-2**: `npm audit` → 0 high severity açığı ✅
-- [ ] **SG-3**: RBAC Firestore'dan çalışıyor ✅
-- [ ] **TS-1**: `strict: true` yapılandırıldı ✅
-- [ ] **TS-2**: `@ts-nocheck` kaldırıldı ✅
-- [ ] **MA-1**: Tek `src/components/` dizin yapısı ✅
-- [ ] **A4 İzolasyonu**: Print testleri geçiyor ✅
-- [ ] **EK-5**: WorkbookSharing gerçek userId kullanıyor ✅
-- [ ] **KVKK Uyumu**: Öğrenci adı + tanı + skor aynı anda görünmüyor ✅
-- [ ] `pedagogicalNote` her AI aktivite çıktısında mevcut ✅
+- [ ] **SG-1 / A1**: JWT doğrulaması aktif ve `authMiddlewareSecurity` testleri geçiyor
+- [ ] **SG-2 / A2**: `npm audit` → 0 high severity açığı
+- [ ] **SG-3 / A3**: RBAC Firestore'dan çalışıyor
+- [ ] **SG-5 / A6**: Tüm 5 endpoint wildcard CORS → `corsMiddleware()`
+- [ ] **SG-7 / A7**: `export-infographic` endpoint güvenli (auth + validation)
+- [ ] **SG-6 / A8**: `privacyService.ts` → Web Crypto API
+- [ ] **TS-1 / A4**: `strict: true` yapılandırıldı
+- [ ] **TS-2 / A4**: `@ts-nocheck` kaldırıldı
+- [ ] **MA-1 / B1**: Tek `src/components/` dizin yapısı
+- [ ] **MA-9 / B9**: `@remotion/player` build hatası giderildi (kaldır veya ekle)
+- [ ] **MA-11 / B10**: `activityApprovalService` → Firestore
+- [ ] **A4 İzolasyonu**: Print testleri geçiyor
+- [ ] **EK-5 / C5**: WorkbookSharing gerçek userId kullanıyor
+- [ ] **KVKK Uyumu**: Öğrenci adı + tanı + skor aynı anda görünmüyor
+- [ ] `pedagogicalNote` her AI aktivite çıktısında mevcut
 
 ---
 
-*Bu döküman Oogmatik Agent Koordinasyon Sistemi (v4.0) tarafından 2026-04-11 tarihinde kapsamlı kod tabanı analizi sonucunda üretilmiştir.*  
-*Analizci: GitHub Copilot Task Agent | 157.191 satır, 46+ test, 8 API endpoint, 10 store incelendi.*
+*Bu döküman Oogmatik Agent Koordinasyon Sistemi tarafından üretilmiştir.*  
+*v4.0 — 2026-04-11: İlk kapsamlı analiz (157.191 satır, 46+ test, 8 endpoint)*  
+*v5.0 — 2026-04-11: 2. tur derinlemesli analiz — +3 güvenlik (SG-5..7) | +5 mimari (MA-8..12) | +4 eksik özellik (EK-12..15) | +1 test uyumsuzluğu (TK-6) | CORS tablosu düzeltildi*
 
 ---
 
