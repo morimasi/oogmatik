@@ -97,7 +97,9 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
                 {data.mode === 'reverse' && (
                   <>
                     <span className="mx-1 text-zinc-400 font-black">=</span>
-                    <span className={`font-black ${sz.num} text-indigo-600`}>{prob.targetValue}</span>
+                    <span className={`font-black ${sz.num} text-indigo-600`}>
+                      {prob.targetValue}
+                    </span>
                   </>
                 )}
                 {data.mode === 'substitution' && (
@@ -109,18 +111,32 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
               <div className="flex items-center justify-end mt-1">
                 {data.mode === 'reverse' && (
                   <div className="flex items-center gap-1.5">
-                    <span className={`${sz.label} font-black text-indigo-400 uppercase tracking-tighter`}>Kutu</span>
-                    <div className="w-6 h-6 border-b-[1.5px] border-dashed border-indigo-300 flex items-center justify-center text-[10px] text-indigo-300">?</div>
+                    <span
+                      className={`${sz.label} font-black text-indigo-400 uppercase tracking-tighter`}
+                    >
+                      Kutu
+                    </span>
+                    <div className="w-6 h-6 border-b-[1.5px] border-dashed border-indigo-300 flex items-center justify-center text-[10px] text-indigo-300">
+                      ?
+                    </div>
                   </div>
                 )}
                 {data.mode === 'substitution' && (
                   <div className="flex items-center gap-1.5">
-                    <span className={`${sz.label} font-black text-emerald-500 uppercase tracking-tighter`}>Kutu = {prob.givenValue}</span>
+                    <span
+                      className={`${sz.label} font-black text-emerald-500 uppercase tracking-tighter`}
+                    >
+                      Kutu = {prob.givenValue}
+                    </span>
                   </div>
                 )}
                 {data.mode === 'simplification' && (
                   <div className="flex items-center gap-1.5">
-                    <span className={`${sz.label} font-black text-amber-500 uppercase tracking-tighter`}>Sonuç</span>
+                    <span
+                      className={`${sz.label} font-black text-amber-500 uppercase tracking-tighter`}
+                    >
+                      Sonuç
+                    </span>
                     <div className="w-10 h-6 border-b-[1.5px] border-dashed border-zinc-300"></div>
                   </div>
                 )}
@@ -139,10 +155,6 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
           </p>
         </div>
       </div>
-    </div>
-  );
-};
-
     </div>
   );
 };
