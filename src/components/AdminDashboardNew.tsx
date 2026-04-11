@@ -40,24 +40,25 @@ export const AdminDashboardNew: React.FC<AdminDashboardNewProps> = ({ onBack, in
   const { stats, loading, refresh, lastUpdatedAt } = useAdminStats();
 
   return (
-    <div style={{ display: 'flex', height: '100%', minHeight: 0, fontFamily: 'inherit', fontSize: '0.9rem' }}>
-      {/* Sidebar */}
+    <div style={{ display: 'flex', height: '100%', minHeight: 0, fontFamily: 'inherit', fontSize: '0.85rem' }}>
+      {/* Ultra Compact Sidebar */}
       <nav
         style={{
-          width: 200,
-          background: '#1e293b',
+          width: 160,
+          background: '#0f172a',
           color: '#e2e8f0',
           display: 'flex',
           flexDirection: 'column',
-          padding: '16px 8px',
-          gap: 4,
+          padding: '12px 6px',
+          gap: 2,
           flexShrink: 0,
+          borderRight: '1px solid #1e293b'
         }}
         aria-label="Admin navigasyonu"
       >
-        <div style={{ padding: '8px 12px', marginBottom: 8 }}>
-          <div style={{ fontSize: '1rem', fontWeight: 700, color: '#fff' }}>⚙️ Admin</div>
-          <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Yönetim Paneli</div>
+        <div style={{ padding: '4px 10px', marginBottom: 12 }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fff', letterSpacing: '0.05em' }}>⚙️ ADMIN</div>
+          <div style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>KONTROL MERKEZİ</div>
         </div>
 
         {NAV_ITEMS.map(({ id, label, icon }) => (
@@ -68,20 +69,22 @@ export const AdminDashboardNew: React.FC<AdminDashboardNewProps> = ({ onBack, in
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              padding: '8px 12px',
+              padding: '6px 10px',
               border: 'none',
-              borderRadius: 8,
-              background: activeTab === id ? '#3b82f6' : 'transparent',
-              color: activeTab === id ? '#fff' : '#94a3b8',
+              borderRadius: 6,
+              background: activeTab === id ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
+              color: activeTab === id ? '#60a5fa' : '#64748b',
               cursor: 'pointer',
-              fontSize: '0.85rem',
-              fontWeight: activeTab === id ? 600 : 400,
+              fontSize: '0.75rem',
+              fontWeight: 800,
               textAlign: 'left',
-              transition: 'background 0.15s',
+              transition: 'all 0.2s',
+              textTransform: 'uppercase',
+              letterSpacing: '0.02em'
             }}
             aria-current={activeTab === id ? 'page' : undefined}
           >
-            <span>{icon}</span>
+            <span style={{ fontSize: '1rem', opacity: activeTab === id ? 1 : 0.5 }}>{icon}</span>
             <span>{label}</span>
           </button>
         ))}
@@ -92,32 +95,35 @@ export const AdminDashboardNew: React.FC<AdminDashboardNewProps> = ({ onBack, in
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 8,
-              padding: '8px 12px',
-              border: '1px solid #334155',
-              borderRadius: 8,
+              justifyContent: 'center',
+              gap: 6,
+              padding: '8px',
+              border: '1px solid #1e293b',
+              borderRadius: 6,
               background: 'transparent',
-              color: '#94a3b8',
+              color: '#475569',
               cursor: 'pointer',
-              fontSize: '0.85rem',
+              fontSize: '0.7rem',
+              fontWeight: 700,
               marginTop: 'auto',
+              textTransform: 'uppercase'
             }}
           >
-            ← Geri Dön
+            ← Geri
           </button>
         )}
       </nav>
 
       {/* Main content */}
-      <div style={{ flex: 1, overflow: 'auto', background: '#f8fafc', minWidth: 0 }}>
+      <div style={{ flex: 1, overflow: 'auto', background: '#fdfdfd', minWidth: 0 }}>
         {activeTab === 'overview' && (
-          <div style={{ padding: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>🏠 Genel Bakış</h1>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <button onClick={refresh} style={btnStyle}>🔄 Yenile</button>
+          <div style={{ padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, borderBottom: '1px solid #f1f5f9', pb: 12 }}>
+              <h1 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>🏠 GENEL BAKIŞ</h1>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <button onClick={refresh} style={{ ...btnStyle, fontSize: '0.7rem', padding: '4px 10px', borderRadius: 4 }}>Yenile</button>
                 {lastUpdatedAt && (
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                  <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 600 }}>
                     {new Date(lastUpdatedAt).toLocaleTimeString('tr-TR')}
                   </span>
                 )}
@@ -125,29 +131,42 @@ export const AdminDashboardNew: React.FC<AdminDashboardNewProps> = ({ onBack, in
             </div>
 
             {loading ? (
-              <div style={{ textAlign: 'center', color: '#94a3b8', padding: 40 }}>⏳ Yükleniyor...</div>
+              <div style={{ textAlign: 'center', color: '#94a3b8', padding: 40, fontSize: '0.8rem' }}>⏳ Yükleniyor...</div>
             ) : stats ? (
               <>
                 {/* Metric cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 20 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 20 }}>
                   {[
-                    { label: 'Toplam Kullanıcı', value: stats.totalUsers, icon: '👥', color: '#3b82f6', sub: `${stats.activeUsers} aktif` },
-                    { label: 'Çalışma Kağıtları', value: stats.totalWorksheets, icon: '📄', color: '#10b981', sub: 'toplam' },
-                    { label: 'Bugün İndir', value: stats.exportsToday, icon: '⬇', color: '#f59e0b', sub: `${stats.exportsThisWeek} bu hafta` },
-                    { label: 'Aktif Oturum', value: stats.activeSessionsCount || 0, icon: '👤', color: '#8b5cf6', sub: 'şu an' },
-                    { label: 'Yanıt Süresi', value: `${stats.avgResponseMs || 0}ms`, icon: '⚡', color: '#06b6d4', sub: 'ortalama' },
-                    { label: 'Hata Oranı', value: `${stats.errorRatePercent || 0}%`, icon: '⚠️', color: (stats.errorRatePercent || 0) > 1 ? '#ef4444' : '#22c55e', sub: 'son 24s' },
+                    { label: 'Kullanıcı', value: stats.totalUsers, icon: '👥', color: '#3b82f6', sub: `${stats.activeUsers} aktif` },
+                    { label: 'Kağıtlar', value: stats.totalWorksheets, icon: '📄', color: '#10b981', sub: 'toplam' },
+                    { label: 'İndirme', value: stats.exportsToday, icon: '⬇', color: '#f59e0b', sub: `bugün` },
+                    { label: 'Oturum', value: stats.activeSessionsCount || 0, icon: '👤', color: '#8b5cf6', sub: 'şu an' },
+                    { label: 'Hız', value: `${stats.avgResponseMs || 0}ms`, icon: '⚡', color: '#06b6d4', sub: 'ortalama' },
+                    { label: 'Hata', value: `${stats.errorRatePercent || 0}%`, icon: '⚠️', color: (stats.errorRatePercent || 0) > 1 ? '#ef4444' : '#22c55e', sub: '24s' },
                   ].map(({ label, value, icon, color, sub }) => (
                     <div
                       key={label}
                       style={{
                         background: '#fff',
-                        border: `1px solid ${color}22`,
-                        borderRadius: 12,
-                        padding: '14px 16px',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                        border: '1px solid #f1f5f9',
+                        borderRadius: 8,
+                        padding: '12px',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 2
                       }}
                     >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>{label}</span>
+                        <span style={{ fontSize: '1rem' }}>{icon}</span>
+                      </div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1e293b', lineHeight: 1 }}>{value}</div>
+                      <div style={{ fontSize: '0.6rem', color: '#94a3b8', marginTop: 4, fontWeight: 600 }}>{sub}</div>
+                    </div>
+                  ))}
+                </div>
+
                       <div style={{ fontSize: '1.4rem', marginBottom: 6 }}>{icon}</div>
                       <div style={{ fontSize: '1.4rem', fontWeight: 700, color, marginBottom: 2 }}>{value}</div>
                       <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#374151' }}>{label}</div>

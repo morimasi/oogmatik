@@ -72,31 +72,31 @@ const BentoCard: React.FC<{
   iconColor = 'bg-zinc-100 text-zinc-500',
   action,
 }) => (
-    <div
-      className={`bg-white dark:bg-zinc-800 p-6 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col group ${className}`}
-    >
-      {(title || icon || action) && (
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            {icon && (
-              <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-inner transition-transform group-hover:scale-110 duration-300 ${iconColor}`}
-              >
-                <i className={icon}></i>
-              </div>
-            )}
-            {title && (
-              <h3 className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em]">
-                {title}
-              </h3>
-            )}
-          </div>
-          {action && <div>{action}</div>}
+  <div
+    className={`bg-white dark:bg-zinc-900/50 p-4 rounded-3xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group ${className}`}
+  >
+    {(title || icon || action) && (
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          {icon && (
+            <div
+              className={`w-9 h-9 rounded-xl flex items-center justify-center text-base transition-transform group-hover:scale-105 duration-300 ${iconColor}`}
+            >
+              <i className={icon}></i>
+            </div>
+          )}
+          {title && (
+            <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
+              {title}
+            </h3>
+          )}
         </div>
-      )}
-      <div className="flex-1 flex flex-col">{children}</div>
-    </div>
-  );
+        {action && <div>{action}</div>}
+      </div>
+    )}
+    <div className="flex-1 flex flex-col">{children}</div>
+  </div>
+);
 
 const StatValue: React.FC<{
   value: string | number;
@@ -105,20 +105,21 @@ const StatValue: React.FC<{
   trend?: 'up' | 'down';
 }> = ({ value, label, subValue, trend }) => (
   <div className="flex flex-col">
-    <div className="text-4xl md:text-5xl font-black text-zinc-900 dark:text-white tracking-tighter mb-1">
+    <div className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight mb-0.5">
       {value}
     </div>
     {label && (
-      <div className="text-sm text-zinc-500 font-bold uppercase tracking-wide">{label}</div>
+      <div className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider">{label}</div>
     )}
     {subValue && (
       <div
-        className={`text-[10px] font-black px-2 py-1 rounded-full inline-flex items-center gap-1 mt-3 w-fit ${trend === 'up'
-            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20'
-            : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-700'
-          }`}
+        className={`text-[8px] font-black px-1.5 py-0.5 rounded-md inline-flex items-center gap-1 mt-2 w-fit ${
+          trend === 'up'
+            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/10'
+            : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800'
+        }`}
       >
-        {trend === 'up' && <i className="fa-solid fa-arrow-trend-up"></i>}
+        {trend === 'up' && <i className="fa-solid fa-arrow-trend-up text-[7px]"></i>}
         {subValue}
       </div>
     )}
@@ -133,12 +134,13 @@ const TabPill: React.FC<{ active: boolean; onClick: () => void; label: string; i
 }) => (
   <button
     onClick={onClick}
-    className={`px-6 py-3.5 rounded-2xl text-xs font-black flex items-center gap-3 transition-all duration-300 uppercase tracking-widest border-2 ${active
-        ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white shadow-2xl scale-105 z-10'
-        : 'bg-white dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 border-transparent hover:border-zinc-100 dark:hover:border-zinc-700'
-      }`}
+    className={`px-4 py-2 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all duration-200 uppercase tracking-wider border ${
+      active
+        ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white shadow-md z-10'
+        : 'bg-white dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 border-zinc-100 dark:border-zinc-800 hover:border-zinc-200'
+    }`}
   >
-    <i className={`${icon} ${active ? 'animate-bounce' : ''}`}></i>
+    <i className={`${icon} ${active ? 'animate-pulse' : ''} text-xs`}></i>
     <span>{label}</span>
   </button>
 );
@@ -226,8 +228,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           model: 'gemini-2.5-flash',
           creativity: typeof parsed.creativity === 'number' ? parsed.creativity : 75,
           autoSuggest: typeof parsed.autoSuggest === 'boolean' ? parsed.autoSuggest : true,
-          analysisDepth: typeof parsed.analysisDepth === 'string' ? parsed.analysisDepth : 'detailed',
-          voiceAssistant: typeof parsed.voiceAssistant === 'boolean' ? parsed.voiceAssistant : false,
+          analysisDepth:
+            typeof parsed.analysisDepth === 'string' ? parsed.analysisDepth : 'detailed',
+          voiceAssistant:
+            typeof parsed.voiceAssistant === 'boolean' ? parsed.voiceAssistant : false,
           dataPrivacy: typeof parsed.dataPrivacy === 'string' ? parsed.dataPrivacy : 'balanced',
           tone: typeof parsed.tone === 'string' ? parsed.tone : 'kurumsal',
         };
@@ -335,7 +339,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     } catch (e) {
       const err = e instanceof AppError ? e : new AppError(String(e), 'PASSWORD_UPDATE_ERROR', 500);
       logError(err, { context: 'handlePasswordChange' });
-      useToastStore.getState().error('Şifre güncellenirken hata oluştu. Yeniden giriş yapmanız gerekebilir.');
+      useToastStore
+        .getState()
+        .error('Şifre güncellenirken hata oluştu. Yeniden giriş yapmanız gerekebilir.');
     } finally {
       setIsSavingPassword(false);
     }
@@ -351,7 +357,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     } catch (e) {
       const err = e instanceof AppError ? e : new AppError(String(e), 'DELETE_ACCOUNT_ERROR', 500);
       logError(err, { context: 'handleDeleteAccount' });
-      useToastStore.getState().error('Hesap silinirken hata oluştu. Lütfen destek ile iletişime geçin.');
+      useToastStore
+        .getState()
+        .error('Hesap silinirken hata oluştu. Lütfen destek ile iletişime geçin.');
       setDeleteConfirmStep(0);
       setDeleteConfirmText('');
     } finally {
@@ -436,7 +444,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   // Ortalama değerlendirme skoru (dikkat skoru)
   const avgAssessmentScore = useMemo(() => {
     if (assessments.length === 0) return 0;
-    const total = assessments.reduce((sum: number, a: SavedAssessment) => sum + (a.report.scores.attention || 0), 0);
+    const total = assessments.reduce(
+      (sum: number, a: SavedAssessment) => sum + (a.report.scores.attention || 0),
+      0
+    );
     return Math.round(total / assessments.length);
   }, [assessments]);
 
@@ -631,7 +642,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       <StatValue
                         value={students.length}
                         label="Öğrenci"
-                        subValue={monthlyNewStudents > 0 ? `+${monthlyNewStudents} Bu Ay` : 'Kayıtlı'}
+                        subValue={
+                          monthlyNewStudents > 0 ? `+${monthlyNewStudents} Bu Ay` : 'Kayıtlı'
+                        }
                         trend={monthlyNewStudents > 0 ? 'up' : undefined}
                       />
                       <StatValue
@@ -642,7 +655,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       <StatValue
                         value={assessments.length}
                         label="Rapor"
-                        subValue={avgAssessmentScore > 0 ? `%${avgAssessmentScore} Ort.` : 'Rapor Yok'}
+                        subValue={
+                          avgAssessmentScore > 0 ? `%${avgAssessmentScore} Ort.` : 'Rapor Yok'
+                        }
                         trend={avgAssessmentScore >= 70 ? 'up' : undefined}
                       />
                       <StatValue
@@ -693,9 +708,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                             const studentAssessments = assessments.filter(
                               (a: SavedAssessment) => a.studentName === activeStudent.name
                             );
-                            const score = studentAssessments.length > 0
-                              ? Math.round(studentAssessments.reduce((sum: number, a: SavedAssessment) => sum + (a.report.scores.attention || 0), 0) / studentAssessments.length)
-                              : null;
+                            const score =
+                              studentAssessments.length > 0
+                                ? Math.round(
+                                    studentAssessments.reduce(
+                                      (sum: number, a: SavedAssessment) =>
+                                        sum + (a.report.scores.attention || 0),
+                                      0
+                                    ) / studentAssessments.length
+                                  )
+                                : null;
                             return (
                               <>
                                 <div className="flex justify-between text-xs font-bold">
@@ -878,12 +900,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                         {(() => {
                           const completedCount = plan.schedule.filter((d) => d.isCompleted).length;
                           const totalCount = plan.schedule.length;
-                          const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+                          const progressPct =
+                            totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
                           return (
                             <>
                               <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
                                 <span className="text-zinc-400">Genel İlerleme</span>
-                                <span className="text-zinc-900 dark:text-white">%{progressPct}</span>
+                                <span className="text-zinc-900 dark:text-white">
+                                  %{progressPct}
+                                </span>
                               </div>
                               <div className="w-full h-3 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden">
                                 <div
@@ -897,13 +922,21 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       </div>
                       <div className="flex gap-4">
                         <button
-                          onClick={() => useToastStore.getState().info(`"${plan.studentName}" için plan görünümü yakında açılacak.`)}
+                          onClick={() =>
+                            useToastStore
+                              .getState()
+                              .info(`"${plan.studentName}" için plan görünümü yakında açılacak.`)
+                          }
                           className="flex-1 py-4 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-2xl font-black text-xs uppercase tracking-widest transition-transform hover:scale-[1.02]"
                         >
                           PLANA GİT
                         </button>
                         <button
-                          onClick={() => useToastStore.getState().info(`${plan.studentName} planı yazdırılıyor...`)}
+                          onClick={() =>
+                            useToastStore
+                              .getState()
+                              .info(`${plan.studentName} planı yazdırılıyor...`)
+                          }
                           className="w-14 h-14 bg-zinc-100 dark:bg-zinc-700 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
                         >
                           <i className="fa-solid fa-print"></i>
@@ -931,7 +964,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       Karşılaştırmalı analitikler ve aylık gelişim özetleri içerir.
                     </p>
                     <button
-                      onClick={() => useToastStore.getState().info('Rapor sihirbazı hazırlanıyor. Yakında aktif olacak.')}
+                      onClick={() =>
+                        useToastStore
+                          .getState()
+                          .info('Rapor sihirbazı hazırlanıyor. Yakında aktif olacak.')
+                      }
                       className="px-6 py-3 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-500/20"
                     >
                       RAPOR SİHİRBAZINI AÇ
@@ -1018,7 +1055,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                               <div className="relative group/avatar">
                                 <div className="w-40 h-40 rounded-[3.5rem] p-1 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl overflow-hidden transform group-hover/avatar:scale-105 transition-all duration-500">
                                   <img
-                                    src={sanitizeImageUrl(avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
+                                    src={
+                                      sanitizeImageUrl(avatarUrl) ||
+                                      `https://api.dicebear.com/7.x/avataaars/svg?seed=default`
+                                    }
                                     alt="Avatar"
                                     className="w-full h-full rounded-[3.3rem] object-cover bg-white dark:bg-zinc-800"
                                   />
@@ -1053,7 +1093,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                                         if (safe) {
                                           setAvatarUrl(safe);
                                         } else if (avatarUrlInput.trim()) {
-                                          useToastStore.getState().error('Geçersiz URL. Yalnızca http/https adresleri kabul edilir.');
+                                          useToastStore
+                                            .getState()
+                                            .error(
+                                              'Geçersiz URL. Yalnızca http/https adresleri kabul edilir.'
+                                            );
                                         }
                                         setShowAvatarUrlInput(false);
                                       }}
@@ -1362,7 +1406,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                               <div className="w-full p-4 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-500 dark:text-zinc-400 cursor-not-allowed flex items-center gap-2">
                                 <i className="fa-solid fa-lock text-xs opacity-50"></i>
                                 <span>Gemini 2.5 Flash</span>
-                                <span className="ml-auto text-[10px] font-black uppercase tracking-widest bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-lg">Sabit</span>
+                                <span className="ml-auto text-[10px] font-black uppercase tracking-widest bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-lg">
+                                  Sabit
+                                </span>
                               </div>
                             </div>
                             <div>
@@ -1596,7 +1642,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                               </div>
                             ) : (
                               <div className="space-y-4 p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800 animate-in fade-in slide-in-from-top-2 duration-200">
-                                <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Yeni Şifre Belirle</h4>
+                                <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest">
+                                  Yeni Şifre Belirle
+                                </h4>
                                 <div>
                                   <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">
                                     Yeni Şifre (min. 8 karakter)
@@ -1604,7 +1652,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                                   <input
                                     type="password"
                                     value={passwordForm.next}
-                                    onChange={(e) => setPasswordForm((prev) => ({ ...prev, next: e.target.value }))}
+                                    onChange={(e) =>
+                                      setPasswordForm((prev) => ({ ...prev, next: e.target.value }))
+                                    }
                                     className="w-full px-4 py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-sm"
                                     placeholder="••••••••"
                                     autoFocus
@@ -1617,26 +1667,46 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                                   <input
                                     type="password"
                                     value={passwordForm.confirm}
-                                    onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirm: e.target.value }))}
+                                    onChange={(e) =>
+                                      setPasswordForm((prev) => ({
+                                        ...prev,
+                                        confirm: e.target.value,
+                                      }))
+                                    }
                                     className={`w-full px-4 py-3 bg-white dark:bg-zinc-800 border rounded-2xl font-bold text-zinc-800 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm ${passwordForm.confirm && passwordForm.next !== passwordForm.confirm ? 'border-red-400 focus:border-red-500' : 'border-zinc-200 dark:border-zinc-700 focus:border-indigo-500'}`}
                                     placeholder="••••••••"
                                   />
-                                  {passwordForm.confirm && passwordForm.next !== passwordForm.confirm && (
-                                    <p className="text-[10px] text-red-500 font-bold mt-1">Şifreler eşleşmiyor</p>
-                                  )}
+                                  {passwordForm.confirm &&
+                                    passwordForm.next !== passwordForm.confirm && (
+                                      <p className="text-[10px] text-red-500 font-bold mt-1">
+                                        Şifreler eşleşmiyor
+                                      </p>
+                                    )}
                                 </div>
                                 <div className="flex gap-3 pt-2">
                                   <button
                                     onClick={handlePasswordChange}
-                                    disabled={isSavingPassword || passwordForm.next.length < 8 || passwordForm.next !== passwordForm.confirm}
+                                    disabled={
+                                      isSavingPassword ||
+                                      passwordForm.next.length < 8 ||
+                                      passwordForm.next !== passwordForm.confirm
+                                    }
                                     className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                   >
                                     {isSavingPassword ? (
-                                      <><i className="fa-solid fa-circle-notch fa-spin mr-2"></i>Kaydediliyor</>
-                                    ) : 'Şifreyi Güncelle'}
+                                      <>
+                                        <i className="fa-solid fa-circle-notch fa-spin mr-2"></i>
+                                        Kaydediliyor
+                                      </>
+                                    ) : (
+                                      'Şifreyi Güncelle'
+                                    )}
                                   </button>
                                   <button
-                                    onClick={() => { setShowPasswordForm(false); setPasswordForm({ next: '', confirm: '' }); }}
+                                    onClick={() => {
+                                      setShowPasswordForm(false);
+                                      setPasswordForm({ next: '', confirm: '' });
+                                    }}
                                     className="px-6 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all"
                                   >
                                     İptal
@@ -1701,7 +1771,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                             <div className="p-6 space-y-5 animate-in fade-in slide-in-from-top-2 duration-200">
                               <p className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
                                 Onaylamak için aşağıya{' '}
-                                <span className="font-black text-red-600 dark:text-red-400">HESABIMI SİL</span>{' '}
+                                <span className="font-black text-red-600 dark:text-red-400">
+                                  HESABIMI SİL
+                                </span>{' '}
                                 yazın:
                               </p>
                               <input
@@ -1715,15 +1787,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                               <div className="flex gap-3">
                                 <button
                                   onClick={handleDeleteAccount}
-                                  disabled={deleteConfirmText !== 'HESABIMI SİL' || isDeletingAccount}
+                                  disabled={
+                                    deleteConfirmText !== 'HESABIMI SİL' || isDeletingAccount
+                                  }
                                   className="flex-1 px-6 py-4 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-red-500/20 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                 >
                                   {isDeletingAccount ? (
-                                    <><i className="fa-solid fa-circle-notch fa-spin mr-2"></i>Siliniyor</>
-                                  ) : 'Hesabımı Kalıcı Olarak Sil'}
+                                    <>
+                                      <i className="fa-solid fa-circle-notch fa-spin mr-2"></i>
+                                      Siliniyor
+                                    </>
+                                  ) : (
+                                    'Hesabımı Kalıcı Olarak Sil'
+                                  )}
                                 </button>
                                 <button
-                                  onClick={() => { setDeleteConfirmStep(0); setDeleteConfirmText(''); }}
+                                  onClick={() => {
+                                    setDeleteConfirmStep(0);
+                                    setDeleteConfirmText('');
+                                  }}
                                   className="px-6 py-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all"
                                 >
                                   İptal

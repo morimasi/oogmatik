@@ -27,20 +27,22 @@ const MODULE_ICONS = {
 };
 
 const ContentWrapper: React.FC<{
-  title: string,
-  subtitle: string,
-  children: React.ReactNode,
-  actions?: React.ReactNode
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+  actions?: React.ReactNode;
 }> = ({ title, subtitle, children, actions }) => (
-  <div className="h-full flex flex-col animate-in fade-in duration-500">
-    <div className="p-8 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur">
+  <div className="h-full flex flex-col animate-in fade-in duration-300">
+    <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/50 backdrop-blur shrink-0">
       <div>
-        <h2 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">{title}</h2>
-        <p className="text-zinc-500 text-sm mt-1">{subtitle}</p>
+        <h2 className="text-sm font-black text-zinc-900 dark:text-white tracking-tight leading-none">
+          {title}
+        </h2>
+        <p className="text-zinc-500 text-[10px] mt-1 font-medium">{subtitle}</p>
       </div>
-      {actions && <div className="flex gap-3">{actions}</div>}
+      {actions && <div className="flex gap-2">{actions}</div>}
     </div>
-    <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+    <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-white dark:bg-zinc-950">
       {children}
     </div>
   </div>
@@ -53,42 +55,43 @@ const ManagerSidebar: React.FC<{
   student: AdvancedStudent;
   visibleModules: string[];
 }> = ({ activeModule, onSelectModule, student, visibleModules }) => (
-  <div className="w-64 bg-zinc-900 text-zinc-400 flex flex-col h-full border-r border-zinc-800">
-    <div className="p-6 flex flex-col items-center border-b border-zinc-800/50">
+  <div className="w-48 bg-zinc-900 text-zinc-400 flex flex-col h-full border-r border-zinc-800 shrink-0">
+    <div className="p-4 flex flex-col items-center border-b border-zinc-800/50 bg-black/10">
       <div className="relative group cursor-pointer">
         <img
           src={student.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'}
           alt={student.name}
-          className="w-20 h-20 rounded-2xl object-cover border-4 border-zinc-800 group-hover:border-zinc-700 transition-colors shadow-2xl"
+          className="w-12 h-12 rounded-xl object-cover border-2 border-zinc-800 group-hover:border-zinc-700 transition-colors shadow-lg"
         />
-        <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white text-xs border-4 border-zinc-900">
+        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-md flex items-center justify-center text-white text-[8px] border-2 border-zinc-900">
           <i className="fa-solid fa-check"></i>
         </div>
       </div>
-      <h3 className="mt-4 font-black text-white text-lg text-center leading-tight">
+      <h3 className="mt-2 font-black text-white text-sm text-center leading-tight">
         {student.name}
       </h3>
-      <p className="text-xs font-bold uppercase tracking-widest mt-1 text-zinc-500">
+      <p className="text-[9px] font-bold uppercase tracking-widest mt-1 text-zinc-500 opacity-60">
         {student.grade || 'Öğrenci'}
       </p>
     </div>
 
-    <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
+    <div className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5 custom-scrollbar">
       {Object.entries(MODULE_ICONS).map(([key, icon]) => {
         if (!visibleModules.includes(key)) return null;
         return (
           <button
             key={key}
             onClick={() => onSelectModule(key)}
-            className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${activeModule === key
-              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/40 translate-x-1'
-              : 'hover:bg-zinc-800 hover:text-zinc-200'
-              }`}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+              activeModule === key
+                ? 'bg-indigo-600 text-white shadow-md translate-x-0.5'
+                : 'hover:bg-zinc-800/50 hover:text-zinc-200'
+            }`}
           >
             <i
-              className={`fa-solid ${icon} w-5 text-center text-sm ${activeModule === key ? 'text-white' : 'text-indigo-400'}`}
+              className={`fa-solid ${icon} w-4 text-center text-xs ${activeModule === key ? 'text-white' : 'text-indigo-400/80'}`}
             ></i>
-            <span>
+            <span className="truncate">
               {key === 'iep'
                 ? 'BEP / IEP'
                 : key === 'financial'
@@ -112,15 +115,13 @@ const ManagerSidebar: React.FC<{
       })}
     </div>
 
-    <div className="p-4 border-t border-zinc-800 bg-black/20">
-      <div className="bg-zinc-800/50 rounded-2xl p-4 border border-white/5">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">
-            Gelişim Puanı
-          </span>
-          <span className="text-xs font-black text-emerald-400">88/100</span>
+    <div className="p-3 border-t border-zinc-800 bg-black/20">
+      <div className="bg-zinc-800/30 rounded-lg p-2.5 border border-white/5">
+        <div className="flex justify-between items-center mb-1.5">
+          <span className="text-[8px] font-bold uppercase tracking-widest opacity-40">Skor</span>
+          <span className="text-[10px] font-black text-emerald-400">88%</span>
         </div>
-        <div className="w-full h-1.5 bg-zinc-700 rounded-full overflow-hidden">
+        <div className="w-full h-1 bg-zinc-700 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full"
             style={{ width: '88%' }}
@@ -134,8 +135,12 @@ const ManagerSidebar: React.FC<{
 // ... (ContentWrapper remains same)
 
 // Main Manager Component
-export const AdvancedStudentManager: React.FC<{ onBack: () => void, onLoadMaterial?: (ws: any) => void }> = ({ onBack, onLoadMaterial }) => {
-  const { activeStudent, students, setActiveStudent, _addStudent, updateStudent, _deleteStudent } = useStudentStore();
+export const AdvancedStudentManager: React.FC<{
+  onBack: () => void;
+  onLoadMaterial?: (ws: any) => void;
+}> = ({ onBack, onLoadMaterial }) => {
+  const { activeStudent, students, setActiveStudent, _addStudent, updateStudent, _deleteStudent } =
+    useStudentStore();
   const [selectedModule, setSelectedModule] = useState('overview');
   const [visibleModules, setVisibleModules] = useState<string[]>(Object.keys(MODULE_ICONS));
 
@@ -144,7 +149,7 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void, onLoadMateri
     try {
       await updateStudent(activeStudent.id, updates);
     } catch (e) {
-      console.error("Öğrenci güncelleme hatası:", e);
+      console.error('Öğrenci güncelleme hatası:', e);
     }
   };
 
@@ -152,15 +157,15 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void, onLoadMateri
   const baseStudent = activeStudent;
   const currentStudent: AdvancedStudent = baseStudent
     ? ({
-      ...baseStudent,
-      iep: (baseStudent as any).iep || { goals: [], status: 'draft' },
-      financial: (baseStudent as any).financial || { balance: 0, transactions: [] },
-      attendance: (baseStudent as any).attendance || { stats: { attendanceRate: 0 } },
-      academic: (baseStudent as any).academic || { metrics: { gpa: 0 } },
-      behavior: (baseStudent as any).behavior || { score: 100, incidents: [] },
-      portfolio: (baseStudent as any).portfolio || [],
-      aiProfile: (baseStudent as any).aiProfile || {},
-    } as AdvancedStudent)
+        ...baseStudent,
+        iep: (baseStudent as any).iep || { goals: [], status: 'draft' },
+        financial: (baseStudent as any).financial || { balance: 0, transactions: [] },
+        attendance: (baseStudent as any).attendance || { stats: { attendanceRate: 0 } },
+        academic: (baseStudent as any).academic || { metrics: { gpa: 0 } },
+        behavior: (baseStudent as any).behavior || { score: 100, incidents: [] },
+        portfolio: (baseStudent as any).portfolio || [],
+        aiProfile: (baseStudent as any).aiProfile || {},
+      } as AdvancedStudent)
     : (null as any);
 
   if (!currentStudent)
@@ -239,13 +244,19 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void, onLoadMateri
             title="Finansal Kayıtlar"
             subtitle="Muhasebe, taksitler ve ödeme geçmişi."
           >
-            <FinancialModule student={currentStudent} onUpdate={(data) => handleStudentUpdate(data)} />
+            <FinancialModule
+              student={currentStudent}
+              onUpdate={(data) => handleStudentUpdate(data)}
+            />
           </ContentWrapper>
         );
       case 'attendance':
         return (
           <ContentWrapper title="Devam Takibi" subtitle="Ders katılımı ve mazeret kayıtları.">
-            <AttendanceModule student={currentStudent} onUpdate={(data) => handleStudentUpdate(data)} />
+            <AttendanceModule
+              student={currentStudent}
+              onUpdate={(data) => handleStudentUpdate(data)}
+            />
           </ContentWrapper>
         );
       case 'academic':
@@ -254,7 +265,10 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void, onLoadMateri
             title="Akademik Gelişim"
             subtitle="Sınav sonuçları, beceri grafikleri ve ödev takibi."
           >
-            <AcademicModule student={currentStudent} onUpdate={(data) => handleStudentUpdate(data)} />
+            <AcademicModule
+              student={currentStudent}
+              onUpdate={(data) => handleStudentUpdate(data)}
+            />
           </ContentWrapper>
         );
       case 'portfolio':
@@ -263,7 +277,10 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void, onLoadMateri
             title="Dijital Portfolyo"
             subtitle="Öğrenciye ait materyal ve çalışma galerisi."
           >
-            <PortfolioModule student={currentStudent} onUpdate={(data) => handleStudentUpdate(data)} />
+            <PortfolioModule
+              student={currentStudent}
+              onUpdate={(data) => handleStudentUpdate(data)}
+            />
           </ContentWrapper>
         );
       case 'behavior':
@@ -272,7 +289,10 @@ export const AdvancedStudentManager: React.FC<{ onBack: () => void, onLoadMateri
             title="Davranış & Sosyal Uyum"
             subtitle="Gözlem notları ve davranışsal gelişim takibi."
           >
-            <BehaviorModule student={currentStudent} onUpdate={(data) => handleStudentUpdate(data)} />
+            <BehaviorModule
+              student={currentStudent}
+              onUpdate={(data) => handleStudentUpdate(data)}
+            />
           </ContentWrapper>
         );
       case 'settings':
