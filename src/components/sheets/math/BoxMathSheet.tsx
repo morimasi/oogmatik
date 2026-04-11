@@ -82,40 +82,19 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
                 </div>
               </div>
 
-<div className="flex items-center gap-3 shrink-0 ml-4">
+              <div className="flex items-center gap-3 shrink-0 ml-4">
                 {data.mode === 'reverse' && (
                   <div className="flex flex-col items-center gap-1">
-                    <span className={`${sz.label} font-black text-indigo-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity`}>
+                    <span
+                      className={`${sz.label} font-black text-indigo-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity`}
+                    >
                       HEDEF
                     </span>
-                    <div className={`${sz.box} bg-white border-2 border-dashed border-indigo-300 rounded-xl font-black text-indigo-500 shadow-sm text-center min-h-[60px] flex items-center justify-center`}>
+                    <div
+                      className={`${sz.box} bg-white border-2 border-dashed border-indigo-300 rounded-xl font-black text-indigo-500 shadow-sm text-center min-h-[60px] flex items-center justify-center`}
+                    >
                       □ = ?
                     </div>
-                  </div>
-                )}
-                {data.mode === 'substitution' && (
-                  <div className="flex flex-col items-center gap-1">
-                    <span className={`${sz.label} font-black text-emerald-500 uppercase tracking-widest`}>
-                      DEĞER
-                    </span>
-                    <div className={`${sz.box} bg-zinc-900 text-white rounded-xl font-black shadow-md text-center min-h-[60px] flex items-center justify-center`}>
-                      □ = {prob.givenValue}
-                    </div>
-                  </div>
-                )}
-                {data.mode === 'simplification' && (
-                  <div className="flex flex-col items-center gap-1">
-                    <span className={`${sz.label} font-black text-amber-500 uppercase tracking-widest`}>
-                      SADELEŞTİR
-                    </span>
-                    <div className={`${sz.box} border-b-2 border-dashed border-zinc-400 flex items-end justify-center pb-2 min-h-[60px]`}>
-                      <span className={`${sz.result} text-zinc-300 font-bold uppercase italic`}>
-                        Sonuç
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
                   </div>
                 )}
                 {data.mode === 'substitution' && (
@@ -126,7 +105,7 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
                       DEĞER
                     </span>
                     <div
-                      className={`${sz.box} bg-zinc-900 text-white rounded-xl font-black shadow-md text-center transform group-hover:rotate-2 transition-transform`}
+                      className={`${sz.box} bg-zinc-900 text-white rounded-xl font-black shadow-md text-center min-h-[60px] flex items-center justify-center`}
                     >
                       □ = {prob.givenValue}
                     </div>
@@ -140,7 +119,7 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
                       SADELEŞTİR
                     </span>
                     <div
-                      className={`${sz.box} border-b-2 border-dashed border-zinc-400 flex items-end justify-center pb-1`}
+                      className={`${sz.box} border-b-2 border-dashed border-zinc-400 flex items-end justify-center pb-2 min-h-[60px]`}
                     >
                       <span className={`${sz.result} text-zinc-300 font-bold uppercase italic`}>
                         Sonuç
