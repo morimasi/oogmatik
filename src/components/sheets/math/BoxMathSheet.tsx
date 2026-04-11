@@ -13,6 +13,7 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
       expr: 'text-base',
       num: 'text-2xl',
       box: 'min-w-[140px] py-3   px-5  text-lg',
+      inBox: 'inline-flex items-center justify-center min-w-[50px] h-10 px-2 text-lg font-bold',
       badgeText: 'text-sm',
       badge: 'w-10 h-10',
       label: 'text-[10px]',
@@ -22,6 +23,7 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
       expr: 'text-xl',
       num: 'text-3xl',
       box: 'min-w-[180px] py-4   px-6  text-xl',
+      inBox: 'inline-flex items-center justify-center min-w-[60px] h-12 px-3 text-xl font-bold',
       badgeText: 'text-base',
       badge: 'w-12 h-12',
       label: 'text-xs',
@@ -31,6 +33,7 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
       expr: 'text-2xl',
       num: 'text-4xl',
       box: 'min-w-[220px] py-5   px-8  text-2xl',
+      inBox: 'inline-flex items-center justify-center min-w-[70px] h-14 px-4 text-2xl font-bold',
       badgeText: 'text-lg',
       badge: 'w-14 h-14',
       label: 'text-sm',
@@ -39,6 +42,25 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
   } as const;
 
   const sz = sizeMap[pref];
+
+  // Expression'daki □ karakterlerini büyük kutuya dönüştür
+  const renderExpression = (expr: string) => {
+    if (!expr) return null;
+    const parts = expr.split(/(□)/g);
+    return parts.map((part, i) => {
+      if (part === '□') {
+        return (
+          <span
+            key={i}
+            className={`${sz.inBox} bg-white border-2 border-zinc-900 rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-zinc-900 mx-0.5`}
+          >
+            □
+          </span>
+        );
+      }
+      return <span key={i}>{part}</span>;
+    });
+  };
 
   return (
     <div className="flex flex-col bg-white p-2 text-black font-lexend overflow-visible">
@@ -63,9 +85,9 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
                   {idx + 1}
                 </span>
                 <div
-                  className={`${sz.expr} font-bold tracking-tighter text-zinc-800 flex items-center gap-1`}
+                  className={`${sz.expr} font-bold tracking-tighter text-zinc-800 flex items-center flex-wrap gap-y-1`}
                 >
-                  <EditableText value={prob.expression} tag="span" />
+                  {renderExpression(prob.expression)}
                   {data.mode === 'reverse' && (
                     <>
                       <span className="mx-1 text-zinc-400 font-black">=</span>
