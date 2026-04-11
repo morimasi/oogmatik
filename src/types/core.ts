@@ -74,7 +74,7 @@ export interface GeneratorOptions {
   visualType?: 'geometric' | 'abstract' | 'character' | 'complex';
   fontFamily?: string;
   case?: 'upper' | 'lower';
-  numberRange?: string;
+  numberRange?: string | [number, number];
   codeLength?: number;
   targetChar?: string;
   distractorChar?: string;
@@ -153,7 +153,6 @@ export interface GeneratorOptions {
   connectDots?: boolean;
   showPoints?: boolean;
   // Yeni Aktiviteler - Gizemli Sayılar
-  numberRange?: [number, number];
   clueCount?: number;
   operationTypes?: ('topla' | 'cikar' | 'carp' | 'bol')[];
   includeMultiStep?: boolean;
@@ -164,7 +163,6 @@ export interface GeneratorOptions {
   fruitTypes?: string[];
   maxSum?: number;
   maxFruitCount?: number;
-  mode?: 'classic' | 'bulmaca' | 'savas';
   includeNegative?: boolean;
   // Yeni Aktiviteler - Sayı Dedektifi
   mysteryNumber?: number;
