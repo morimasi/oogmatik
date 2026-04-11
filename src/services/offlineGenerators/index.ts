@@ -32,3 +32,7 @@ export * from './premiumMath';
 export * from './premiumVisual';
 export * from './premiumPuzzles';
 export * from './gizemliSayilar';
+export * from './meyveliToplama';
+export * from './sayiDedektifi';
+export * from './kavramHaritasi';
+export * from './esAnlamliKelimeler';
