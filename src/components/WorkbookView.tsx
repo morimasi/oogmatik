@@ -60,28 +60,29 @@ const SortablePageItem = React.memo(
         onDragStart={() => onDragStart(index)}
         onDragOver={(e: React.DragEvent) => onDragOver(e, index)}
         onDragEnd={onDragEnd}
-        className={`group flex items-center gap-3 p-3 border rounded-xl shadow-sm cursor-grab active:cursor-grabbing hover:border-indigo-400 transition-all ${isDragging ? 'opacity-50 border-dashed border-indigo-500' : ''} ${isDivider ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800' : 'bg-white dark:bg-zinc-700 border-zinc-200 dark:border-zinc-600'}`}
+        className={`group flex items-center gap-3 p-3 rounded-xl shadow-sm cursor-grab active:cursor-grabbing transition-all ${isDragging ? 'opacity-50 border-dashed' : ''}`}
+        style={isDivider ? { backgroundColor: 'var(--accent-muted)', border: '1px solid var(--accent-muted)' } : { backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}
       >
-        <div className="w-6 h-6 flex items-center justify-center text-zinc-400">
+        <div className="w-6 h-6 flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
           <i className="fa-solid fa-grip-vertical"></i>
         </div>
 
         {isDivider ? (
-          <div className="w-8 h-8 rounded-lg bg-indigo-200 dark:bg-indigo-700 flex items-center justify-center font-bold text-indigo-800 dark:text-indigo-200 text-xs shrink-0">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}>
             <i className={item.dividerConfig?.icon || 'fa-solid fa-bookmark'}></i>
           </div>
         ) : (
-          <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-600 flex items-center justify-center font-bold text-zinc-500 dark:text-zinc-300 text-xs shrink-0">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0" style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-secondary)' }}>
             {index + 1}
           </div>
         )}
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-black text-zinc-900 dark:text-white truncate tracking-tight">
+          <p className="text-sm font-black truncate tracking-tight" style={{ color: 'var(--text-primary)' }}>
             {isDivider ? item.dividerConfig?.title : item.title}
           </p>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest bg-zinc-100 dark:bg-zinc-800/50 px-1.5 py-0.5 rounded-md">
+            <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md" style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-muted)' }}>
               {isDivider ? 'Bölüm Kapağı' : item.activityType}
             </span>
             {item.overrideStyle && !isDivider && (
@@ -95,21 +96,24 @@ const SortablePageItem = React.memo(
         <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onDuplicate(item)}
-            className="text-zinc-400 hover:text-green-500 p-2 transition-colors"
+            className="p-2 transition-colors hover:opacity-80"
+            style={{ color: 'var(--text-muted)' }}
             title="Kopyala"
           >
             <i className="fa-solid fa-copy"></i>
           </button>
           <button
             onClick={() => onEditStyle(item)}
-            className="text-zinc-400 hover:text-indigo-500 p-2 transition-colors"
+            className="p-2 transition-colors hover:opacity-80"
+            style={{ color: 'var(--text-muted)' }}
             title={isDivider ? 'Bölüm Düzenle' : 'Stil Düzenle'}
           >
             <i className={`fa-solid ${isDivider ? 'fa-pen' : 'fa-wand-magic-sparkles'}`}></i>
           </button>
           <button
             onClick={() => onRemove(item.id)}
-            className="text-zinc-300 hover:text-red-500 p-2 transition-colors"
+            className="p-2 transition-colors hover:opacity-70"
+            style={{ color: 'var(--text-muted)' }}
             title="Sil"
           >
             <i className="fa-solid fa-trash"></i>
@@ -446,35 +450,36 @@ KRİTİK KURALLAR:
   };
 
   return (
-    <div className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-950 relative font-['Lexend'] selection:bg-indigo-500/30">
+    <div className="h-full flex flex-col relative font-['Lexend']" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Top Toolbar - Premium Glassmorphism */}
-      <div className="flex justify-between items-center px-8 py-5 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl border-b border-zinc-200/50 dark:border-zinc-800/50 shadow-sm shrink-0 z-20">
+      <div className="flex justify-between items-center px-8 py-5 backdrop-blur-xl shadow-sm shrink-0 z-20" style={{ backgroundColor: 'var(--surface-glass)', borderBottom: '1px solid var(--border-color)' }}>
         <div className="flex items-center gap-6">
           <button
             onClick={onBack}
-            className="group flex items-center gap-2 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-all duration-300"
+            className="group flex items-center gap-2 transition-all duration-300 hover:opacity-80"
+            style={{ color: 'var(--text-secondary)' }}
           >
-            <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform" style={{ backgroundColor: 'var(--surface-elevated)' }}>
               <i className="fa-solid fa-arrow-left text-xs"></i>
             </div>
             <span className="text-sm font-bold tracking-tight">Geri Dön</span>
           </button>
-          
-          <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-700 mx-2"></div>
-          
+
+          <div className="h-8 w-px mx-2" style={{ backgroundColor: 'var(--border-color)' }}></div>
+
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg" style={{ background: `linear-gradient(135deg, var(--accent-color), var(--accent-hover))` }}>
               <i className="fa-solid fa-book-open-reader text-2xl"></i>
             </div>
             <div>
-              <h2 className="text-xl font-black text-zinc-900 dark:text-white leading-tight tracking-tight">
+              <h2 className="text-xl font-black leading-tight tracking-tight" style={{ color: 'var(--text-primary)' }}>
                 Çalışma Kitapçığı
               </h2>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-[10px] font-black uppercase bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}>
                   {items.length} Sayfa
                 </span>
-                <span className="text-[10px] font-black uppercase bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-secondary)' }}>
                   {settings.theme} MODU
                 </span>
               </div>
@@ -483,23 +488,25 @@ KRİTİK KURALLAR:
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="bg-zinc-100 dark:bg-zinc-800/50 p-1.5 rounded-2xl flex relative">
+          <div className="p-1.5 rounded-2xl flex relative" style={{ backgroundColor: 'var(--surface-elevated)' }}>
             <button
               onClick={() => setViewMode('edit')}
-              className={`relative px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 z-10 ${viewMode === 'edit' ? 'text-indigo-600 dark:text-white' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'}`}
+              className={`relative px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 z-10`}
+              style={{ color: viewMode === 'edit' ? 'var(--text-primary)' : 'var(--text-muted)' }}
             >
               <i className="fa-solid fa-pen-ruler"></i> Düzenle
               {viewMode === 'edit' && (
-                <motion.div layoutId="pill" className="absolute inset-0 bg-white dark:bg-indigo-600 rounded-xl shadow-md -z-10" />
+                <motion.div layoutId="pill" className="absolute inset-0 rounded-xl shadow-md -z-10" style={{ backgroundColor: 'var(--accent-color)' }} />
               )}
             </button>
             <button
               onClick={() => setViewMode('preview')}
-              className={`relative px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 z-10 ${viewMode === 'preview' ? 'text-indigo-600 dark:text-white' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'}`}
+              className={`relative px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 z-10`}
+              style={{ color: viewMode === 'preview' ? 'var(--text-primary)' : 'var(--text-muted)' }}
             >
               <i className="fa-solid fa-eye"></i> Önizle
               {viewMode === 'preview' && (
-                <motion.div layoutId="pill" className="absolute inset-0 bg-white dark:bg-indigo-600 rounded-xl shadow-md -z-10" />
+                <motion.div layoutId="pill" className="absolute inset-0 rounded-xl shadow-md -z-10" style={{ backgroundColor: 'var(--accent-color)' }} />
               )}
             </button>
           </div>
@@ -508,21 +515,24 @@ KRİTİK KURALLAR:
             <button
               onClick={() => handleAction('download')}
               disabled={isPrinting}
-              className="px-5 py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 font-bold rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-500 transition-all flex items-center gap-2 active:scale-95"
+              className="px-5 py-3 font-bold rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 active:scale-95"
+              style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
             >
-              <i className="fa-solid fa-download text-indigo-500"></i> PDF
+              <i className="fa-solid fa-download" style={{ color: 'var(--accent-color)' }}></i> PDF
             </button>
             <button
               onClick={() => handleAction('print')}
               disabled={isPrinting}
-              className="px-5 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-2xl shadow-lg hover:shadow-indigo-500/20 transition-all flex items-center gap-2 active:scale-95"
+              className="px-5 py-3 font-bold rounded-2xl shadow-lg transition-all flex items-center gap-2 active:scale-95"
+              style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)' }}
             >
               <i className="fa-solid fa-print"></i> Yazdır
             </button>
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 flex items-center gap-2 transition-all active:scale-95"
+              className="px-6 py-3 text-white font-bold rounded-2xl shadow-lg flex items-center gap-2 transition-all active:scale-95 hover:opacity-90"
+              style={{ backgroundColor: 'var(--accent-color)' }}
             >
               {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
               Kaydet
@@ -534,10 +544,10 @@ KRİTİK KURALLAR:
       {/* Main Content Area */}
       {viewMode === 'edit' ? (
         <div className="flex flex-1 overflow-hidden">
-          {/* Left Sidebar: Controls - Dark Glassmorphism */}
-          <div className="w-80 md:w-96 bg-white dark:bg-zinc-900/50 backdrop-blur-xl border-r border-zinc-200 dark:border-white/5 flex flex-col z-10 shrink-0">
+          {/* Left Sidebar: Controls - Glassmorphism */}
+          <div className="w-80 md:w-96 backdrop-blur-xl flex flex-col z-10 shrink-0" style={{ backgroundColor: 'var(--bg-paper)', borderRight: '1px solid var(--border-color)' }}>
             {/* Tabs */}
-            <div className="flex border-b border-zinc-200 dark:border-white/5 p-2 gap-1 bg-zinc-50/50 dark:bg-black/20">
+            <div className="flex p-2 gap-1" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-inset)' }}>
               {[
                 { id: 'content', icon: 'fa-layer-group', label: 'İçerik' },
                 { id: 'design', icon: 'fa-paintbrush', label: 'Tasarım' },
@@ -546,7 +556,8 @@ KRİTİK KURALLAR:
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex flex-col items-center justify-center gap-1.5 ${activeTab === tab.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-zinc-500 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 opacity-70 hover:opacity-100'}`}
+                  className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex flex-col items-center justify-center gap-1.5 ${activeTab !== tab.id ? 'opacity-70 hover:opacity-100' : ''}`}
+                  style={activeTab === tab.id ? { backgroundColor: 'var(--accent-color)', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' } : { color: 'var(--text-secondary)' }}
                 >
                   <i className={`fa-solid ${tab.icon} text-sm`}></i>
                   {tab.label}
@@ -558,9 +569,9 @@ KRİTİK KURALLAR:
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
               {activeTab === 'assign' && (
                 <div className="space-y-6 animate-in fade-in duration-500">
-                  <div className="p-5 bg-gradient-to-br from-indigo-50/50 to-white dark:from-indigo-950/20 dark:to-zinc-900 rounded-[2rem] border border-indigo-100/50 dark:border-indigo-500/20 shadow-xl shadow-indigo-500/5">
-                    <h4 className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                  <div className="p-5 rounded-[2rem]" style={{ background: `linear-gradient(135deg, var(--accent-muted), var(--bg-paper))`, border: '1px solid var(--border-color)' }}>
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 flex items-center gap-2" style={{ color: 'var(--accent-color)' }}>
+                      <div className="w-6 h-6 rounded-lg text-white flex items-center justify-center shadow-md" style={{ backgroundColor: 'var(--accent-color)' }}>
                         <i className="fa-solid fa-user-plus text-[10px]"></i>
                       </div>
                       Öğrenci Atama
@@ -571,7 +582,8 @@ KRİTİK KURALLAR:
                         'anonymous'
                       }
                       onChange={(e: any) => handleStudentAssign(e.target.value)}
-                      className="w-full p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl text-sm font-bold outline-none focus:ring-4 ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
+                      className="w-full p-4 rounded-2xl text-sm font-bold outline-none focus:ring-4 transition-all appearance-none cursor-pointer"
+                      style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-muted)' } as React.CSSProperties}
                     >
                       <option value="anonymous">Misafir / Atanmamış</option>
                       {students.map((s: any) => (
@@ -580,7 +592,7 @@ KRİTİK KURALLAR:
                         </option>
                       ))}
                     </select>
-                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-4 italic font-medium leading-relaxed opacity-80 backdrop-blur-sm">
+                    <p className="text-[11px] mt-4 italic font-medium leading-relaxed opacity-80 backdrop-blur-sm" style={{ color: 'var(--text-muted)' }}>
                       * Bir öğrenci seçtiğinizde kapak ve sayfa künyeleri otomatik olarak kişiselleştirilir.
                     </p>
                   </div>
@@ -589,9 +601,9 @@ KRİTİK KURALLAR:
 
               {activeTab === 'content' && (
                 <>
-                  <div className="space-y-6 bg-zinc-50/50 dark:bg-black/10 p-5 rounded-[2rem] border border-zinc-200/50 dark:border-white/5">
+                  <div className="space-y-6 p-5 rounded-[2rem]" style={{ backgroundColor: 'var(--surface-glass)', border: '1px solid var(--border-color)' }}>
                     <div>
-                      <label className="block text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-3 px-1">
+                      <label className="block text-[10px] font-black uppercase tracking-widest mb-3 px-1" style={{ color: 'var(--text-muted)' }}>
                         Kitapçık Başlığı
                       </label>
                       <input
@@ -600,13 +612,14 @@ KRİTİK KURALLAR:
                         onChange={(e: any) =>
                           setSettings((s: any) => ({ ...s, title: e.target.value }))
                         }
-                        className="w-full p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all"
+                        className="w-full p-4 rounded-2xl text-sm font-bold focus:ring-4 outline-none transition-all"
+                        style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-muted)' } as React.CSSProperties}
                         placeholder="Örn: Tatil Kitabım"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">
+                        <label className="block text-xs font-bold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
                           Öğrenci
                         </label>
                         <input
@@ -615,32 +628,35 @@ KRİTİK KURALLAR:
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setSettings((s: WorkbookSettings) => ({ ...s, studentName: e.target.value }))
                           }
-                          className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                          className="w-full p-3 rounded-xl text-sm focus:ring-2 outline-none"
+                          style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                           placeholder="Ad Soyad"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">
+                        <label className="block text-xs font-bold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
                           Yıl / Dönem
                         </label>
                         <input
                           type="text"
                           value={settings.year}
                           onChange={(e) => setSettings((s) => ({ ...s, year: e.target.value }))}
-                          className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                          className="w-full p-3 rounded-xl text-sm focus:ring-2 outline-none"
+                          style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                           placeholder="2024-2025"
                         />
                       </div>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <label className="text-xs font-bold text-zinc-500 uppercase">
+                        <label className="text-xs font-bold uppercase" style={{ color: 'var(--text-muted)' }}>
                           Eğitmen Notu / Önsöz
                         </label>
                         <button
                           onClick={handleGeneratePreface}
                           disabled={isGeneratingPreface || items.length === 0}
-                          className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-full hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                          className="text-[10px] font-black px-3 py-1 rounded-full transition-colors disabled:opacity-50"
+                          style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}
                         >
                           {isGeneratingPreface ? (
                             <i className="fa-solid fa-circle-notch fa-spin mr-1"></i>
@@ -655,29 +671,32 @@ KRİTİK KURALLAR:
                         onChange={(e: any) =>
                           setSettings((s: any) => ({ ...s, teacherNote: e.target.value }))
                         }
-                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none h-32 resize-none"
+                        className="w-full p-3 rounded-xl text-sm focus:ring-2 outline-none h-32 resize-none"
+                        style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-color)' } as React.CSSProperties}
                         placeholder="Öğrenciye veya veliye bir not bırakın..."
                       />
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t border-zinc-200 dark:border-zinc-700">
+                  <div className="pt-6" style={{ borderTop: '1px solid var(--border-color)' }}>
                     <div className="flex justify-between items-center mb-4">
                       <div className="flex items-center gap-3">
-                        <h3 className="font-bold text-zinc-700 dark:text-zinc-200 text-sm">
+                        <h3 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
                           Sayfalar ({items.length})
                         </h3>
-                        <div className="flex bg-zinc-100 dark:bg-zinc-700 p-0.5 rounded-lg border border-zinc-200 dark:border-zinc-600">
+                        <div className="flex p-0.5 rounded-lg" style={{ backgroundColor: 'var(--surface-elevated)', border: '1px solid var(--border-color)' }}>
                           <button
                             onClick={() => setLayoutMode('list')}
-                            className={`w-6 h-6 rounded flex items-center justify-center transition-all ${layoutMode === 'list' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`}
+                            className="w-6 h-6 rounded flex items-center justify-center transition-all"
+                            style={layoutMode === 'list' ? { backgroundColor: 'var(--bg-paper)', color: 'var(--accent-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' } : { color: 'var(--text-muted)' }}
                             title="Liste Görünümü"
                           >
                             <i className="fa-solid fa-list text-[10px]"></i>
                           </button>
                           <button
                             onClick={() => setLayoutMode('grid')}
-                            className={`w-6 h-6 rounded flex items-center justify-center transition-all ${layoutMode === 'grid' ? 'bg-white dark:bg-zinc-600 text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`}
+                            className="w-6 h-6 rounded flex items-center justify-center transition-all"
+                            style={layoutMode === 'grid' ? { backgroundColor: 'var(--bg-paper)', color: 'var(--accent-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' } : { color: 'var(--text-muted)' }}
                             title="Izgara Görünümü"
                           >
                             <i className="fa-solid fa-border-all text-[10px]"></i>
@@ -695,7 +714,8 @@ KRİTİK KURALLAR:
                     <div className="mb-6 grid grid-cols-1 gap-3">
                       <button
                         onClick={() => setIsImporterOpen(true)}
-                        className="group w-full py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-[1.25rem] font-black text-sm flex items-center justify-center gap-3 shadow-lg shadow-indigo-600/20 transition-all active:scale-[0.98]"
+                        className="group w-full py-4 text-white rounded-[1.25rem] font-black text-sm flex items-center justify-center gap-3 shadow-lg transition-all active:scale-[0.98] hover:opacity-90"
+                        style={{ background: `linear-gradient(135deg, var(--accent-color), var(--accent-hover))` }}
                       >
                         <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                           <i className="fa-solid fa-cloud-arrow-down text-sm"></i>
@@ -705,7 +725,8 @@ KRİTİK KURALLAR:
 
                       <button
                         onClick={handleAddDivider}
-                        className="w-full py-3.5 border-2 border-dashed border-zinc-200 dark:border-zinc-700 hover:border-indigo-400 dark:hover:border-indigo-500 bg-white dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-[1.25rem] font-bold text-xs flex items-center justify-center gap-3 transition-all hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 active:scale-[0.98]"
+                        className="w-full py-3.5 border-2 border-dashed rounded-[1.25rem] font-bold text-xs flex items-center justify-center gap-3 transition-all active:scale-[0.98] hover:opacity-80"
+                        style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-paper)', color: 'var(--text-secondary)' }}
                       >
                         <i className="fa-solid fa-bookmark opacity-60"></i>
                         YENİ BÖLÜM KAPAĞI
@@ -730,7 +751,7 @@ KRİTİK KURALLAR:
                         />
                       ))}
                       {items.length === 0 && (
-                        <div className="text-center py-8 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-400 text-sm">
+                        <div className="text-center py-8 border-2 border-dashed rounded-xl text-sm" style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>
                           Henüz sayfa eklenmedi.
                         </div>
                       )}
@@ -1147,14 +1168,14 @@ KRİTİK KURALLAR:
           </div>
 
           {/* Right: Live Preview */}
-          <div className="flex-1 bg-zinc-100 dark:bg-zinc-950 p-8 overflow-auto flex flex-col items-center custom-scrollbar">
+          <div className="flex-1 p-8 overflow-auto flex flex-col items-center custom-scrollbar" style={{ backgroundColor: 'var(--bg-inset)' }}>
             <div className="scale-[0.6] sm:scale-[0.7] md:scale-[0.8] lg:scale-[0.9] origin-top transition-transform duration-300">
               <Workbook items={items} settings={settings} />
             </div>
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-auto bg-zinc-200 dark:bg-zinc-950 p-8 flex flex-col items-center custom-scrollbar">
+        <div className="flex-1 overflow-auto p-8 flex flex-col items-center custom-scrollbar" style={{ backgroundColor: 'var(--bg-inset)' }}>
           <div className="animate-in fade-in zoom-in-95 duration-500">
             <Workbook items={items} settings={settings} />
           </div>
