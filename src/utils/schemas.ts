@@ -410,7 +410,7 @@ export const sanitizeHtml = (html: string): string => {
   return sanitizeHtmlLib(html, {
     // By default sanitize-html removes <script> and dangerous attributes/protocols.
     // Here we keep a conservative set of common formatting tags.
-    allowedTags: sanitizeHtmlLib.defaults.allowedTags.filter((tag) => tag !== 'script'),
+    allowedTags: sanitizeHtmlLib.defaults.allowedTags.filter((tag: string) => tag !== 'script'),
     allowedAttributes: {
       // Use the default allowed attributes per tag, which do not include event handlers.
       ...sanitizeHtmlLib.defaults.allowedAttributes,
