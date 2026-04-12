@@ -764,15 +764,16 @@ KRİTİK KURALLAR:
                 <>
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-xs font-bold text-zinc-500 uppercase">
+                      <label className="text-xs font-bold uppercase" style={{ color: 'var(--text-muted)' }}>
                         Kapak Teması & AI Tasarım
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer group">
-                        <span className="text-[10px] font-black text-indigo-500 uppercase">
+                        <span className="text-[10px] font-black uppercase" style={{ color: 'var(--accent-color)' }}>
                           AI Kapak Üret
                         </span>
                         <div
-                          className={`w-8 h-4 rounded-full relative transition-colors ${settings.isAiGeneratedCover ? 'bg-indigo-500' : 'bg-zinc-300'}`}
+                          className={`w-8 h-4 rounded-full relative transition-colors`}
+                          style={{ backgroundColor: settings.isAiGeneratedCover ? 'var(--accent-color)' : 'var(--text-muted)' }}
                         >
                           <input
                             type="checkbox"
@@ -793,8 +794,8 @@ KRİTİK KURALLAR:
                     </div>
 
                     {settings.isAiGeneratedCover && (
-                      <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl space-y-2 animate-in fade-in slide-in-from-top-2">
-                        <label className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400">
+                      <div className="mb-4 p-3 rounded-xl space-y-2 animate-in fade-in slide-in-from-top-2" style={{ backgroundColor: 'var(--accent-muted)', border: '1px solid var(--border-color)' }}>
+                        <label className="text-[10px] font-bold" style={{ color: 'var(--accent-color)' }}>
                           AI Konsept Promtu (Örn: Uzay temalı öğrenme)
                         </label>
                         <input
@@ -806,7 +807,8 @@ KRİTİK KURALLAR:
                               aiCoverConcept: e.target.value,
                             }))
                           }
-                          className="w-full p-2.5 bg-white dark:bg-zinc-800 border border-indigo-200 dark:border-indigo-700 rounded-lg text-xs outline-none focus:ring-2 ring-indigo-500/30"
+                          className="w-full p-2.5 rounded-lg text-xs outline-none focus:ring-2"
+                          style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                           placeholder="Görsel konseptini tanımlayın..."
                         />
                       </div>
@@ -832,16 +834,18 @@ KRİTİK KURALLAR:
                           onClick={() =>
                             setSettings((s: WorkbookSettings) => ({ ...s, theme: t.id as any }))
                           }
-                          className={`group p-4 rounded-2xl border-2 transition-all text-left flex flex-col gap-3 relative overflow-hidden ${settings.theme === t.id ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-300 shadow-xl' : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 hover:border-indigo-300 dark:hover:border-indigo-800'}`}
+                          className="group p-4 rounded-2xl border-2 transition-all text-left flex flex-col gap-3 relative overflow-hidden"
+                          style={settings.theme === t.id ? { borderColor: 'var(--accent-color)', backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)', boxShadow: 'var(--shadow-premium)' } : { borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-paper)', color: 'var(--text-secondary)' }}
                         >
                           <div
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${settings.theme === t.id ? 'bg-indigo-600 text-white rotate-6' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 group-hover:rotate-6'}`}
+                            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
+                            style={settings.theme === t.id ? { backgroundColor: 'var(--accent-color)', color: '#fff', transform: 'rotate(6deg)' } : { backgroundColor: 'var(--surface-elevated)', color: 'var(--text-muted)' }}
                           >
                             <i className={`fa-solid ${t.icon} text-sm`}></i>
                           </div>
                           <span className="text-[10px] font-black uppercase tracking-widest">{t.label}</span>
                           {settings.theme === t.id && (
-                            <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></div>
+                            <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'var(--accent-color)' }}></div>
                           )}
                         </button>
                       ))}
@@ -850,7 +854,7 @@ KRİTİK KURALLAR:
 
                   {/* Accent Color */}
                   <div>
-                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">
+                    <label className="block text-xs font-bold uppercase mb-3" style={{ color: 'var(--text-muted)' }}>
                       Vurgu Rengi
                     </label>
                     <div className="flex flex-wrap gap-3">
@@ -858,15 +862,15 @@ KRİTİK KURALLAR:
                         <button
                           key={c}
                           onClick={() => setSettings((s) => ({ ...s, accentColor: c }))}
-                          className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110 ${settings.accentColor === c ? 'border-zinc-900 dark:border-white ring-2 ring-offset-2 ring-zinc-300' : 'border-transparent'}`}
-                          style={{ backgroundColor: c }}
+                          className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110 ${settings.accentColor === c ? 'ring-2 ring-offset-2' : 'border-transparent'}`}
+                          style={{ backgroundColor: c, ...(settings.accentColor === c ? { borderColor: 'var(--text-primary)', ringColor: 'var(--text-muted)' } : {}) }}
                         >
                           {settings.accentColor === c && (
                             <i className="fa-solid fa-check text-white text-xs"></i>
                           )}
                         </button>
                       ))}
-                      <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-zinc-200 cursor-pointer">
+                      <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 cursor-pointer" style={{ borderColor: 'var(--border-color)' }}>
                         <input
                           type="color"
                           value={settings.accentColor}
@@ -881,20 +885,21 @@ KRİTİK KURALLAR:
 
                   {/* Logo Upload */}
                   <div>
-                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">
+                    <label className="block text-xs font-bold uppercase mb-3" style={{ color: 'var(--text-muted)' }}>
                       Okul / Kurum Logosu
                     </label>
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-700 rounded-xl border-2 border-dashed border-zinc-300 flex items-center justify-center overflow-hidden">
+                      <div className="w-16 h-16 rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--surface-elevated)', borderColor: 'var(--border-color)' }}>
                         {settings.logoUrl ? (
                           <img src={settings.logoUrl} className="w-full h-full object-contain" />
                         ) : (
-                          <i className="fa-solid fa-image text-zinc-300 text-xl"></i>
+                          <i className="fa-solid fa-image text-xl" style={{ color: 'var(--text-muted)' }}></i>
                         )}
                       </div>
                       <button
                         onClick={() => fileInputRef.current?.click()}
-                        className="px-4 py-2 bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm font-bold hover:bg-zinc-50 transition-colors"
+                        className="px-4 py-2 rounded-lg text-sm font-bold transition-colors hover:opacity-80"
+                        style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                       >
                         Logo Seç
                       </button>
@@ -918,7 +923,7 @@ KRİTİK KURALLAR:
 
                   {/* Cover Layout */}
                   <div>
-                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-3">
+                    <label className="block text-xs font-bold uppercase mb-3" style={{ color: 'var(--text-muted)' }}>
                       Kapak Düzeni
                     </label>
                     <div className="grid grid-cols-2 gap-2">
@@ -934,7 +939,8 @@ KRİTİK KURALLAR:
                           onClick={() =>
                             setSettings((s) => ({ ...s, coverStyle: layout.id as any }))
                           }
-                          className={`py-2 px-3 text-[10px] font-black uppercase rounded-xl border-2 transition-all ${settings.coverStyle === layout.id ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-zinc-100 bg-zinc-50 text-zinc-400 hover:border-zinc-200'}`}
+                          className="py-2 px-3 text-[10px] font-black uppercase rounded-xl border-2 transition-all"
+                          style={settings.coverStyle === layout.id ? { borderColor: 'var(--accent-color)', backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' } : { borderColor: 'var(--border-color)', backgroundColor: 'var(--surface-elevated)', color: 'var(--text-muted)' }}
                         >
                           {layout.label}
                         </button>
@@ -945,13 +951,14 @@ KRİTİK KURALLAR:
                   {/* Premium Typography & Density */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">
+                      <label className="block text-xs font-bold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
                         Yazı Tipi
                       </label>
                       <select
                         value={settings.fontFamily || 'OpenDyslexic'}
                         onChange={(e) => setSettings((s) => ({ ...s, fontFamily: e.target.value }))}
-                        className="w-full p-2.5 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-xs font-bold outline-none"
+                        className="w-full p-2.5 rounded-xl text-xs font-bold outline-none"
+                        style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                       >
                         <option value="OpenDyslexic">OpenDyslexic</option>
                         <option value="Inter">Inter (Sade)</option>
@@ -960,7 +967,7 @@ KRİTİK KURALLAR:
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">
+                      <label className="block text-xs font-bold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
                         Yoğunluk
                       </label>
                       <select
@@ -968,7 +975,8 @@ KRİTİK KURALLAR:
                         onChange={(e) =>
                           setSettings((s) => ({ ...s, layoutDensity: e.target.value as any }))
                         }
-                        className="w-full p-2.5 bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-xs font-bold outline-none"
+                        className="w-full p-2.5 rounded-xl text-xs font-bold outline-none"
+                        style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                       >
                         <option value="compact">Sıkı</option>
                         <option value="comfortable">Rahat</option>
@@ -978,13 +986,14 @@ KRİTİK KURALLAR:
                   </div>
 
                   {/* Toggles */}
-                  <div className="space-y-3 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+                  <div className="space-y-3 pt-4" style={{ borderTop: '1px solid var(--border-color)' }}>
                     <label className="flex items-center justify-between cursor-pointer group">
-                      <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                      <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
                         İçindekiler Tablosu
                       </span>
                       <div
-                        className={`w-10 h-5 rounded-full relative transition-colors ${settings.showTOC ? 'bg-green-500' : 'bg-zinc-300'}`}
+                        className="w-10 h-5 rounded-full relative transition-colors"
+                        style={{ backgroundColor: settings.showTOC ? 'var(--accent-color)' : 'var(--text-muted)' }}
                       >
                         <input
                           type="checkbox"
@@ -1000,11 +1009,12 @@ KRİTİK KURALLAR:
                       </div>
                     </label>
                     <label className="flex items-center justify-between cursor-pointer group">
-                      <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                      <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
                         Sayfa Numaraları
                       </span>
                       <div
-                        className={`w-10 h-5 rounded-full relative transition-colors ${settings.showPageNumbers ? 'bg-green-500' : 'bg-zinc-300'}`}
+                        className="w-10 h-5 rounded-full relative transition-colors"
+                        style={{ backgroundColor: settings.showPageNumbers ? 'var(--accent-color)' : 'var(--text-muted)' }}
                       >
                         <input
                           type="checkbox"
@@ -1020,11 +1030,12 @@ KRİTİK KURALLAR:
                       </div>
                     </label>
                     <label className="flex items-center justify-between cursor-pointer group">
-                      <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                      <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
                         Arka Kapak
                       </span>
                       <div
-                        className={`w-10 h-5 rounded-full relative transition-colors ${settings.showBackCover ? 'bg-green-500' : 'bg-zinc-300'}`}
+                        className="w-10 h-5 rounded-full relative transition-colors"
+                        style={{ backgroundColor: settings.showBackCover ? 'var(--accent-color)' : 'var(--text-muted)' }}
                       >
                         <input
                           type="checkbox"
@@ -1041,11 +1052,12 @@ KRİTİK KURALLAR:
                     </label>
                     <div className="space-y-2">
                       <label className="flex items-center justify-between cursor-pointer group">
-                        <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                        <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
                           Filigran (Logo)
                         </span>
                         <div
-                          className={`w-10 h-5 rounded-full relative transition-colors ${settings.showWatermark ? 'bg-green-500' : 'bg-zinc-300'}`}
+                          className="w-10 h-5 rounded-full relative transition-colors"
+                          style={{ backgroundColor: settings.showWatermark ? 'var(--accent-color)' : 'var(--text-muted)' }}
                         >
                           <input
                             type="checkbox"
@@ -1061,10 +1073,10 @@ KRİTİK KURALLAR:
                         </div>
                       </label>
                       {settings.showWatermark && (
-                        <div className="bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                        <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--surface-elevated)', border: '1px solid var(--border-color)' }}>
                           <div className="flex justify-between mb-1">
-                            <span className="text-xs font-bold text-zinc-500">Opaklık</span>
-                            <span className="text-xs font-mono text-zinc-500">
+                            <span className="text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>Opaklık</span>
+                            <span className="text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
                               {Math.round((settings.watermarkOpacity || 0.05) * 100)}%
                             </span>
                           </div>
@@ -1088,13 +1100,13 @@ KRİTİK KURALLAR:
                   </div>
 
                   {/* AI Pedagojik Analiz */}
-                  <div className="mt-6 space-y-3 pt-4 border-t border-dashed border-indigo-200 dark:border-indigo-800">
+                  <div className="mt-6 space-y-3 pt-4 border-t border-dashed" style={{ borderColor: 'var(--accent-muted)' }}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                        <p className="text-xs font-black uppercase tracking-widest flex items-center gap-2" style={{ color: 'var(--accent-color)' }}>
                           <i className="fa-solid fa-brain"></i> AI Pedagojik Analiz
                         </p>
-                        <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1">
+                        <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>
                           Kitapçığın disleksi dostu tasarım ilkelerine uygunluğunu puanlar ve
                           öneriler sunar.
                         </p>
@@ -1102,7 +1114,8 @@ KRİTİK KURALLAR:
                       <button
                         onClick={handleAnalyzeWorkbook}
                         disabled={isAnalyzing || items.length === 0}
-                        className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 rounded-full text-[11px] font-bold text-white shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+                        style={{ backgroundColor: 'var(--accent-color)' }}
                       >
                         {isAnalyzing ? (
                           <>
@@ -1119,13 +1132,13 @@ KRİTİK KURALLAR:
                     </div>
 
                     {analysisResult && (
-                      <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 space-y-2 text-xs">
+                      <div className="p-3 rounded-xl space-y-2 text-xs" style={{ backgroundColor: 'var(--accent-muted)', border: '1px solid var(--border-color)' }}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 text-white">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black text-white" style={{ backgroundColor: 'var(--accent-color)' }}>
                               SKOR: {analysisResult.score ?? '--'}/100
                             </span>
-                            <span className="text-[11px] font-bold text-indigo-800 dark:text-indigo-200">
+                            <span className="text-[11px] font-bold" style={{ color: 'var(--text-primary)' }}>
                               {analysisResult.verdict || 'Değerlendirme'}
                             </span>
                           </div>
@@ -1146,11 +1159,11 @@ KRİTİK KURALLAR:
                                     <i className="fa-solid fa-circle"></i>
                                   </span>
                                   <div>
-                                    <p className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-100">
+                                    <p className="text-[11px] font-semibold" style={{ color: 'var(--text-primary)' }}>
                                       {item.message}
                                     </p>
                                     {item.suggestion && (
-                                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                                      <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
                                         Öneri: {item.suggestion}
                                       </p>
                                     )}
@@ -1185,20 +1198,21 @@ KRİTİK KURALLAR:
       {/* Per-Item Style Editor Modal */}
       {editingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700 w-full max-w-2xl overflow-hidden flex flex-col max-h-[80vh]">
-            <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900">
-              <h3 className="font-bold text-zinc-800 dark:text-zinc-100">
+          <div className="rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[80vh]" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
+            <div className="p-4 flex justify-between items-center" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-elevated)' }}>
+              <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>
                 Stil Düzenle: {editingItem.title}
               </h3>
               <button
                 onClick={() => setEditingItemId(null)}
-                className="w-8 h-8 rounded-full hover:bg-zinc-200 flex items-center justify-center text-zinc-500"
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-70"
+                style={{ color: 'var(--text-muted)' }}
               >
                 <i className="fa-solid fa-times"></i>
               </button>
             </div>
             <div className="p-6 overflow-y-auto">
-              <div className="mb-4 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm border border-blue-100">
+              <div className="mb-4 p-3 rounded-lg text-sm" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)', border: '1px solid var(--border-color)' }}>
                 <i className="fa-solid fa-circle-info mr-2"></i>
                 Burada yapılan değişiklikler sadece bu sayfa için geçerli olacaktır.
               </div>
@@ -1216,16 +1230,18 @@ KRİTİK KURALLAR:
                 worksheetData={[editingItem.data as any]}
               />
             </div>
-            <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-end gap-3 bg-zinc-50 dark:bg-zinc-900">
+            <div className="p-4 flex justify-end gap-3" style={{ borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--surface-elevated)' }}>
               <button
                 onClick={() => setEditingItemId(null)}
-                className="px-4 py-2 bg-zinc-200 hover:bg-zinc-300 text-zinc-700 rounded-lg font-bold"
+                className="px-4 py-2 rounded-lg font-bold hover:opacity-80"
+                style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               >
                 Vazgeç
               </button>
               <button
                 onClick={() => setEditingItemId(null)}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold"
+                className="px-4 py-2 text-white rounded-lg font-bold hover:opacity-90"
+                style={{ backgroundColor: 'var(--accent-color)' }}
               >
                 Tamam
               </button>
@@ -1237,8 +1253,8 @@ KRİTİK KURALLAR:
       {/* Divider Editor Modal */}
       {editingDivider && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700 w-full max-w-md overflow-hidden flex flex-col">
-            <div className="p-4 border-b border-zinc-200 dark:border-zinc-700 bg-indigo-600 text-white flex justify-between items-center">
+          <div className="rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
+            <div className="p-4 text-white flex justify-between items-center" style={{ backgroundColor: 'var(--accent-color)' }}>
               <h3 className="font-bold">Bölüm Kapağı Düzenle</h3>
               <button
                 onClick={() => setEditingDividerId(null)}
@@ -1249,44 +1265,48 @@ KRİTİK KURALLAR:
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">
+                <label className="block text-xs font-bold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
                   Bölüm Başlığı
                 </label>
                 <input
                   type="text"
                   value={editingDivider.dividerConfig?.title || ''}
                   onChange={(e) => handleDividerUpdate('title', e.target.value)}
-                  className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="w-full p-3 rounded-xl focus:ring-2 outline-none"
+                  style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">
+                <label className="block text-xs font-bold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
                   Alt Başlık / Açıklama
                 </label>
                 <input
                   type="text"
                   value={editingDivider.dividerConfig?.subtitle || ''}
                   onChange={(e) => handleDividerUpdate('subtitle', e.target.value)}
-                  className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="w-full p-3 rounded-xl focus:ring-2 outline-none"
+                  style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">
+                <label className="block text-xs font-bold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
                   İkon (FontAwesome)
                 </label>
                 <input
                   type="text"
                   value={editingDivider.dividerConfig?.icon || ''}
                   onChange={(e) => handleDividerUpdate('icon', e.target.value)}
-                  className="w-full p-3 border rounded-xl bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-600 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="w-full p-3 rounded-xl focus:ring-2 outline-none"
+                  style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                   placeholder="fa-solid fa-bookmark"
                 />
               </div>
             </div>
-            <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-end">
+            <div className="p-4 flex justify-end" style={{ borderTop: '1px solid var(--border-color)' }}>
               <button
                 onClick={() => setEditingDividerId(null)}
-                className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold"
+                className="px-6 py-2 text-white rounded-lg font-bold hover:opacity-90"
+                style={{ backgroundColor: 'var(--accent-color)' }}
               >
                 Kaydet
               </button>
