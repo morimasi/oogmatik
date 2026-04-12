@@ -1,16 +1,14 @@
 // @ts-ignore
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { Buffer } from 'buffer';
+import { corsMiddleware } from '../../src/utils/cors.js';
 
 // Hugging Face API Ayarları
 const HF_API_URL = 'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-    if (req.method === 'OPTIONS') return res.status(200).end();
+    // CORS Validation
+    if (!corsMiddleware(req, res)) return;
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
@@ -31,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (hfToken) {
             console.log('Hugging Face aktif. Model: FLUX.1-schnell');
-            
+
             // Disleksi dostu görsel yapısı
             const hfPrompt = `A high quality educational children's book illustration of: ${prompt}. Clean lines, bright pastel colors, solid white background, highly legible, simple, easy to understand, no confusing patterns.`;
 
@@ -45,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     inputs: hfPrompt,
                     parameters: {
                         guidance_scale: 3.5,
-                        num_inference_steps: 4, 
+                        num_inference_steps: 4,
                     }
                 }),
             });
@@ -54,8 +52,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 const imageBuffer = await response.arrayBuffer();
                 const base64Image = Buffer.from(imageBuffer).toString('base64');
                 const dataUrl = `data:image/jpeg;base64,${base64Image}`;
-                
-                return res.status(200).json({ 
+
+                return res.status(200).json({
                     url: dataUrl,
                     provider: 'huggingface'
                 });

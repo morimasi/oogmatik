@@ -13,6 +13,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { AppError, ValidationError, toAppError } from '../src/utils/AppError.js';
 import { logError } from '../src/utils/errorHandler.js';
+import { corsMiddleware } from '../src/utils/cors.js';
 import { RateLimiter } from '../src/services/rateLimiter.js';
 import {
   createWorkbook,
@@ -110,13 +111,8 @@ function getUserIdFromRequest(req: VercelRequest): string {
 }
 
 /**
- * CORS headers
+ * CORS handling is now done via corsMiddleware
  */
-function setCORSHeaders(res: VercelResponse): void {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-}
 
 // ============================================================================
 // MAIN HANDLER
@@ -126,12 +122,8 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ): Promise<void> {
-  setCORSHeaders(res);
-
-  // OPTIONS preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  // CORS Middleware Validation
+  if (!corsMiddleware(req, res)) return;
 
   try {
     // User ID

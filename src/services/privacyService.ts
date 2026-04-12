@@ -13,7 +13,6 @@
  * - Madde 12: Verilerin güvenliği
  */
 
-import { createHash } from 'crypto';
 import { ValidationError } from '../utils/AppError.js';
 
 /**
@@ -97,7 +96,7 @@ export class PrivacyService {
    * // result.hash: 'a7f3c2...'
    * // result.lastFour: '8901'
    */
-  static hashTcNo(tcNo: string): HashResult {
+  static async hashTcNo(tcNo: string): Promise<HashResult> {
     // Validation
     if (!tcNo || typeof tcNo !== 'string') {
       throw new ValidationError('TC Kimlik No zorunludur.', { field: 'tcNo' });
@@ -112,10 +111,11 @@ export class PrivacyService {
       });
     }
 
-    // SHA-256 + salt ile hash'le
-    const hash = createHash('sha256')
-      .update(cleaned + this.TC_HASH_SALT)
-      .digest('hex');
+    // SHA-256 + salt ile hash'le (Web Crypto API)
+    const msgUint8 = new TextEncoder().encode(cleaned + this.TC_HASH_SALT);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
     return {
       hash,
@@ -132,9 +132,9 @@ export class PrivacyService {
    * @param storedHash - Veritabanında saklanan hash
    * @returns boolean - Hash eşleşiyor mu?
    */
-  static verifyTcNo(tcNo: string, storedHash: string): boolean {
+  static async verifyTcNo(tcNo: string, storedHash: string): Promise<boolean> {
     try {
-      const { hash } = this.hashTcNo(tcNo);
+      const { hash } = await this.hashTcNo(tcNo);
       return hash === storedHash;
     } catch {
       return false;
@@ -154,15 +154,16 @@ export class PrivacyService {
    * const anon = PrivacyService.anonymizeStudentId('student-123-ahmet');
    * // anon.anonymousId: 'student_a7f3c2'
    */
-  static anonymizeStudentId(studentId: string): AnonymizationResult {
+  static async anonymizeStudentId(studentId: string): Promise<AnonymizationResult> {
     if (!studentId || typeof studentId !== 'string') {
       throw new ValidationError('Öğrenci ID zorunludur.', { field: 'studentId' });
     }
 
-    // Orijinal ID'yi hash'le (geri dönüş için saklanabilir)
-    const originalIdHash = createHash('sha256')
-      .update(studentId + this.STUDENT_ID_SALT)
-      .digest('hex');
+    // Orijinal ID'yi hash'le (Web Crypto API ile)
+    const msgUint8 = new TextEncoder().encode(studentId + this.STUDENT_ID_SALT);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const originalIdHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
     // Anonim ID oluştur (ilk 6 karakter + timestamp'in son 2 karakteri)
     const shortHash = originalIdHash.slice(0, 6);
@@ -400,7 +401,7 @@ export class PrivacyService {
    * @param profile - Orijinal öğrenci profili
    * @returns Sanitize edilmiş profil
    */
-  static createSafeStudentProfileForAI(profile: {
+  static async createSafeStudentProfileForAI(profile: {
     name?: string;
     diagnosis?: string[];
     age?: number;
@@ -408,10 +409,10 @@ export class PrivacyService {
     strengths?: string[];
     needs?: string[];
     [key: string]: unknown;
-  }): Record<string, unknown> {
+  }): Promise<Record<string, unknown>> {
     // Öğrenci ID'sini anonimleştir
     const anonymousId = profile.name
-      ? this.anonymizeStudentId(profile.name).anonymousId
+      ? (await this.anonymizeStudentId(profile.name)).anonymousId
       : 'student_anonymous';
 
     // Tanıları jenerikleştir
@@ -455,15 +456,15 @@ export class PrivacyService {
 /**
  * Hızlı TC No hash'leme
  */
-export const hashTcNo = (tcNo: string): string => {
-  return PrivacyService.hashTcNo(tcNo).hash;
+export const hashTcNo = async (tcNo: string): Promise<string> => {
+  return (await PrivacyService.hashTcNo(tcNo)).hash;
 };
 
 /**
  * Hızlı öğrenci ID anonimleştirme
  */
-export const anonymizeStudent = (studentId: string): string => {
-  return PrivacyService.anonymizeStudentId(studentId).anonymousId;
+export const anonymizeStudent = async (studentId: string): Promise<string> => {
+  return (await PrivacyService.anonymizeStudentId(studentId)).anonymousId;
 };
 
 /**

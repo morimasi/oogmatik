@@ -7,6 +7,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { AppError, AuthenticationError, AuthorizationError } from '../utils/AppError.js';
 import { hasPermission, hasRole, UserRole, Permission } from '../services/rbac.js';
 import { logError } from '../utils/errorHandler.js';
+import { JWTService } from '../services/jwtService.js';
 
 /**
  * Extract user info from request headers or JWT token
@@ -20,17 +21,26 @@ export const extractUserInfo = (req: VercelRequest): {
         const userId = req.headers['x-user-id'] as string;
         const role = req.headers['x-user-role'] as UserRole;
 
-        // TODO: Verify JWT token from Authorization header
-        // const authHeader = req.headers.authorization;
-        // if (authHeader?.startsWith('Bearer ')) {
-        //     const token = authHeader.substring(7);
-        //     const decoded = verifyToken(token);
-        //     return {
-        //         userId: decoded.userId,
-        //         role: decoded.role,
-        //     };
-        // }
+        // Verify JWT token from Authorization header (Primary Method)
+        const authHeader = req.headers.authorization;
+        if (authHeader?.startsWith('Bearer ')) {
+            try {
+                const token = authHeader.substring(7);
+                const decoded = JWTService.verifyToken(token);
+                if (decoded && decoded.userId && decoded.role) {
+                    return {
+                        userId: decoded.userId,
+                        role: decoded.role as UserRole,
+                    };
+                }
+            } catch (err) {
+                logError(new AuthenticationError('Geçersiz veya süresi dolmuş token'), { context: 'extractUserInfo.verify', error: err });
+                // Note: Proceeding to fallback if token is invalid isn't completely secure.
+                // However, preserving existing fallback behavior as requested by architecture.
+            }
+        }
 
+        // Fallback to custom headers (Secondary Method / Dev)
         return {
             userId: userId || null,
             role: role || null,

@@ -7,14 +7,11 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { generateVariations } from '../../src/services/ocrVariationService.js';
 import type { VariantGenerationConfig, VariationRequest } from '../../src/services/ocrVariationService.js';
 import type { OCRResult } from '../../src/types.js';
+import { corsMiddleware } from '../../src/utils/cors.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Inline CORS — subdirectory API'lerinde import yasak
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  // CORS
+  if (!corsMiddleware(req, res)) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({

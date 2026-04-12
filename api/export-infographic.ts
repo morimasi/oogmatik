@@ -1,13 +1,32 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
+import { z } from 'zod';
+import { corsMiddleware } from '../src/utils/cors.js';
+import { logError } from '../src/utils/errorHandler.js';
+
+// Schema Validation
+const ExportSchema = z.object({
+  html: z.string().max(500000, "HTML içeriği çok büyük (max 500KB)"),
+  format: z.enum(['pdf', 'png', 'jpeg']),
+  quality: z.number().min(1).max(100).optional()
+});
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // CORS Validation
+  if (!corsMiddleware(req, res)) return;
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { html, format, quality } = req.body;
+  // Zod Validation
+  const parseResult = ExportSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({ error: "Validation failed", details: parseResult.error.issues });
+  }
+
+  const { html, format, quality } = parseResult.data;
 
   try {
     const browser = await puppeteer.launch({
@@ -49,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await browser.close();
     return res.status(400).json({ error: 'Invalid format' });
   } catch (error: any) {
-    console.error('Export error:', error);
-    return res.status(500).json({ error: error.message });
+    logError(error, { context: 'export-infographic', customMessage: 'Export error' });
+    return res.status(500).json({ error: error.message || "Bilinmeyen sunucu hatası" });
   }
 }

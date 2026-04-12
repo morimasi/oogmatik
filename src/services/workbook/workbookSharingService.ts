@@ -17,9 +17,10 @@
 import { doc, updateDoc, arrayUnion, arrayRemove, Timestamp } from 'firebase/firestore';
 import { db } from '../firebaseClient';
 import { AppError, ValidationError } from '../../utils/AppError';
-import { logError } from '../../utils/errorHandler';
+import { logError } from '../../utils/errorHandler.js';
 import { v4 as uuidv4 } from 'uuid';
-import { getWorkbookById, updateWorkbook } from './workbookService';
+import { getWorkbookById, updateWorkbook } from './workbookService.js';
+import { useAuthStore } from '../../store/useAuthStore.js';
 import type {
   Workbook,
   WorkbookCollaborator,
@@ -61,8 +62,9 @@ export async function addCollaborator(
     }
 
     // Yeni collaborator
+    const user = useAuthStore.getState().user;
     const newCollaborator: WorkbookCollaborator = {
-      userId: uuidv4(), // TODO: Gerçek user ID'si authService'ten alınmalı
+      userId: user?.uid || uuidv4(),
       userName: collaboratorEmail.split('@')[0],
       userEmail: collaboratorEmail,
       permission,
