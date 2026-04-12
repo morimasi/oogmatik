@@ -29,7 +29,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Granüler manual chunk'lar — her kritik bağımlılık kendi bucket'ında
-        manualChunks(id) {
+        manualChunks(id: string) {
           // Firebase — runtime'da yüklenen büyük paket
           if (id.includes('/node_modules/firebase/') || id.includes('/node_modules/@firebase/')) return 'vendor-firebase';
           // React ekosistemi — en çok kullanılan temel
@@ -53,13 +53,6 @@ export default defineConfig({
             id.includes('/node_modules/@react-pdf/')
           )
             return 'vendor-export';
-          // 3D (Remotion/Three) — en büyük; isteğe bağlı yükleme için ayrı
-          if (
-            id.includes('/node_modules/@remotion/') ||
-            id.includes('/node_modules/@react-three/') ||
-            id.includes('/node_modules/three/')
-          )
-            return 'vendor-3d';
         },
       },
     },

@@ -72,6 +72,9 @@ const SuperStudio = lazy(() =>
 const InfographicStudio = lazy(() =>
   import('./components/InfographicStudio').then((module) => ({ default: module.InfographicStudio }))
 );
+const PDFViewer = lazy(() =>
+  import('./components/PDFViewer/PDFViewer').then((module) => ({ default: module.PDFViewer || module.default }))
+);
 
 const StudentDashboard = lazy(() =>
   import('./components/Student/StudentDashboard').then((module) => ({
@@ -124,7 +127,7 @@ const initialStyleSettings: StyleSettings = {
   footerText: '',
 };
 
-type ModalType = 'settings' | 'history' | 'about' | 'developer';
+type ModalType = 'settings' | 'history' | 'about' | 'developer' | 'pdf-viewer';
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center h-full w-full min-h-[200px]">
@@ -280,6 +283,7 @@ const AppContent = () => {
 
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [openModal, setOpenModal] = useState(null as ModalType | null);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [unreadCount] = useState(0);
@@ -886,87 +890,87 @@ const AppContent = () => {
               'sinav-studyosu',
               'mat-sinav-studyosu',
             ].includes(currentView) && (
-              <motion.div
-                key={currentView}
-                className={`absolute inset-0 bg-[var(--bg-primary)] overflow-hidden ${currentView === 'admin' ? 'z-[75]' : 'z-[60]'}`}
-                variants={pageTransition}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-              >
-                <Suspense fallback={<LoadingSpinner />}>
-                  {currentView === 'curriculum' && (
-                    <CurriculumView
-                      onBack={handleGoBack}
-                      onSelectActivity={handleSelectActivity as any}
-                      onStartCurriculumActivity={handleStartCurriculumActivity}
-                      initialPlan={loadedCurriculum}
-                      preFillData={screeningPlanData}
-                    />
-                  )}
-                  {currentView === 'reading-studio' && (
-                    <ReadingStudio
-                      onBack={handleGoBack}
-                      onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                    />
-                  )}
-                  {currentView === 'math-studio' && (
-                    <MathStudio
-                      onBack={handleGoBack}
-                      onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                    />
-                  )}
-                  {currentView === 'super-turkce' && <SuperStudio />}
-                  {currentView === 'infographic-studio' && (
-                    <InfographicStudio
-                      onBack={() => {
-                        setLoadedInfographicData(null);
-                        handleGoBack();
-                      }}
-                      onSave={addSavedWorksheet}
-                      onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                      initialData={loadedInfographicData}
-                    />
-                  )}
-                  {currentView === 'ocr' && (
-                    <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
-                  )}
-                  {currentView === 'profile' && (
-                    <ProfileView
-                      onBack={handleGoBack}
-                      onSelectActivity={handleSelectActivity}
-                      onLoadSaved={loadSavedWorksheet}
-                      theme={theme}
-                      uiSettings={uiSettings}
-                      onUpdateTheme={(t: AppTheme) => setTheme(t)}
-                      onUpdateUiSettings={(s: UiSettings) => updateUiSettings(s)}
-                      onOpenSettingsModal={() => setOpenModal('settings')}
-                    />
-                  )}
-                  {currentView === 'students' && (
-                    <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
-                  )}
-                  {currentView === 'messages' && <MessagesView onBack={handleGoBack} />}
-                  {currentView === 'admin' && <AdminDashboard onBack={handleGoBack} />}
-                  {currentView === 'screening' && (
-                    <ScreeningModule
-                      onBack={handleGoBack}
-                      onSelectActivity={handleSelectActivity}
-                      onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                      onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
-                        handleGeneratePlanFromScreening(n, a, w, c)
-                      }
-                    />
-                  )}
-                  {currentView === 'sinav-studyosu' && (
-                    <SinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                  )}
-                  {currentView === 'mat-sinav-studyosu' && (
-                    <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                  )}
-                </Suspense>
-              </motion.div>
-            )}
+                <motion.div
+                  key={currentView}
+                  className={`absolute inset-0 bg-[var(--bg-primary)] overflow-hidden ${currentView === 'admin' ? 'z-[75]' : 'z-[60]'}`}
+                  variants={pageTransition}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <Suspense fallback={<LoadingSpinner />}>
+                    {currentView === 'curriculum' && (
+                      <CurriculumView
+                        onBack={handleGoBack}
+                        onSelectActivity={handleSelectActivity as any}
+                        onStartCurriculumActivity={handleStartCurriculumActivity}
+                        initialPlan={loadedCurriculum}
+                        preFillData={screeningPlanData}
+                      />
+                    )}
+                    {currentView === 'reading-studio' && (
+                      <ReadingStudio
+                        onBack={handleGoBack}
+                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                      />
+                    )}
+                    {currentView === 'math-studio' && (
+                      <MathStudio
+                        onBack={handleGoBack}
+                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                      />
+                    )}
+                    {currentView === 'super-turkce' && <SuperStudio />}
+                    {currentView === 'infographic-studio' && (
+                      <InfographicStudio
+                        onBack={() => {
+                          setLoadedInfographicData(null);
+                          handleGoBack();
+                        }}
+                        onSave={addSavedWorksheet}
+                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        initialData={loadedInfographicData}
+                      />
+                    )}
+                    {currentView === 'ocr' && (
+                      <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
+                    )}
+                    {currentView === 'profile' && (
+                      <ProfileView
+                        onBack={handleGoBack}
+                        onSelectActivity={handleSelectActivity}
+                        onLoadSaved={loadSavedWorksheet}
+                        theme={theme}
+                        uiSettings={uiSettings}
+                        onUpdateTheme={(t: AppTheme) => setTheme(t)}
+                        onUpdateUiSettings={(s: UiSettings) => updateUiSettings(s)}
+                        onOpenSettingsModal={() => setOpenModal('settings')}
+                      />
+                    )}
+                    {currentView === 'students' && (
+                      <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
+                    )}
+                    {currentView === 'messages' && <MessagesView onBack={handleGoBack} />}
+                    {currentView === 'admin' && <AdminDashboard onBack={handleGoBack} />}
+                    {currentView === 'screening' && (
+                      <ScreeningModule
+                        onBack={handleGoBack}
+                        onSelectActivity={handleSelectActivity}
+                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
+                          handleGeneratePlanFromScreening(n, a, w, c)
+                        }
+                      />
+                    )}
+                    {currentView === 'sinav-studyosu' && (
+                      <SinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                    )}
+                    {currentView === 'mat-sinav-studyosu' && (
+                      <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                    )}
+                  </Suspense>
+                </motion.div>
+              )}
           </AnimatePresence>
         </div>
       </div>
@@ -1030,6 +1034,25 @@ const AppContent = () => {
               sunmak amacıyla geliştirilmiş yeni nesil bir yapay zeka platformudur.
             </p>
           </div>
+        </div>
+      </Modal>
+      <Modal
+        isOpen={openModal === 'pdf-viewer' || !!pdfPreviewUrl}
+        title="PDF Önizleme"
+        onClose={() => {
+          setOpenModal(null);
+          setPdfPreviewUrl(null);
+        }}
+      >
+        <div style={{ height: '70vh', width: '100%' }}>
+          <Suspense fallback={<LoadingSpinner />}>
+            {pdfPreviewUrl && <PDFViewer url={pdfPreviewUrl} />}
+            {!pdfPreviewUrl && (
+              <div className="flex items-center justify-center h-full text-zinc-500">
+                Görüntülenecek PDF dosyası bulunamadı.
+              </div>
+            )}
+          </Suspense>
         </div>
       </Modal>
     </div>

@@ -40,6 +40,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     'production' as 'production' | 'library' | 'styling' | 'content' | 'archive'
   );
   const [canvasScale, setCanvasScale] = useState(0.85);
+  const [isFocusMode, setIsFocusMode] = useState(false);
 
   // Initial layout setup
   React.useEffect(() => {
@@ -382,135 +383,139 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       style={{ backgroundColor: 'var(--bg-inset)', color: 'var(--text-primary)' }}
     >
       {/* Header */}
-      <header
-        className="h-16 flex justify-between items-center px-6 shrink-0 z-50"
-        style={{ backgroundColor: 'var(--bg-paper)', borderBottom: '1px solid var(--border-color)' }}
-      >
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors border border-transparent hover:opacity-80"
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            <i className="fa-solid fa-arrow-left"></i>
-          </button>
-          <div className="flex flex-col">
-            <h2 className="text-sm font-black flex items-center gap-2 tracking-tight uppercase italic" style={{ color: 'var(--text-primary)' }}>
-              Oogmatik <span className="not-italic" style={{ color: 'var(--accent-color)' }}>Reading Studio Pro</span>
-            </h2>
-            {storyData && (
-              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-                {storyData.title}
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex rounded-xl p-0.5" style={{ backgroundColor: 'var(--surface-elevated)', border: '1px solid var(--border-color)' }}>
+      {!isFocusMode && (
+        <header
+          className="h-16 flex justify-between items-center px-6 shrink-0 z-50"
+          style={{ backgroundColor: 'var(--bg-paper)', borderBottom: '1px solid var(--border-color)' }}
+        >
+          <div className="flex items-center gap-4">
             <button
-              disabled={!canUndo}
-              onClick={undo}
-              className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold"
+              onClick={onBack}
+              className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors border border-transparent hover:opacity-80"
+              style={{ color: 'var(--text-secondary)' }}
             >
-              <i className="fa-solid fa-rotate-left"></i>
+              <i className="fa-solid fa-arrow-left"></i>
+            </button>
+            <div className="flex flex-col">
+              <h2 className="text-sm font-black flex items-center gap-2 tracking-tight uppercase italic" style={{ color: 'var(--text-primary)' }}>
+                Oogmatik <span className="not-italic" style={{ color: 'var(--accent-color)' }}>Reading Studio Pro</span>
+              </h2>
+              {storyData && (
+                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                  {storyData.title}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex rounded-xl p-0.5" style={{ backgroundColor: 'var(--surface-elevated)', border: '1px solid var(--border-color)' }}>
+              <button
+                disabled={!canUndo}
+                onClick={undo}
+                className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold"
+              >
+                <i className="fa-solid fa-rotate-left"></i>
+              </button>
+              <button
+                disabled={!canRedo}
+                onClick={redo}
+                className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold"
+              >
+                <i className="fa-solid fa-rotate-right"></i>
+              </button>
+            </div>
+            <div className="w-px h-6 mx-2" style={{ backgroundColor: 'var(--border-color)' }}></div>
+            <button
+              onClick={() => handlePrint('print')}
+              className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ border: '1px solid var(--border-color)' }}
+            >
+              <i className="fa-solid fa-print"></i>
             </button>
             <button
-              disabled={!canRedo}
-              onClick={redo}
-              className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold"
+              onClick={handleSave}
+              className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ border: '1px solid var(--border-color)' }}
             >
-              <i className="fa-solid fa-rotate-right"></i>
+              <i className="fa-solid fa-floppy-disk"></i>
             </button>
           </div>
-          <div className="w-px h-6 mx-2" style={{ backgroundColor: 'var(--border-color)' }}></div>
-          <button
-            onClick={() => handlePrint('print')}
-            className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ border: '1px solid var(--border-color)' }}
-          >
-            <i className="fa-solid fa-print"></i>
-          </button>
-          <button
-            onClick={handleSave}
-            className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ border: '1px solid var(--border-color)' }}
-          >
-            <i className="fa-solid fa-floppy-disk"></i>
-          </button>
-        </div>
-      </header>
+        </header>
+      )}
 
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar */}
-        <aside
-          className="w-80 flex flex-col overflow-hidden shadow-2xl z-40"
-          style={{ backgroundColor: 'var(--bg-paper)', borderRight: '1px solid var(--border-color)' }}
-        >
-          <div className="p-4" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-glass)' }}>
-            <StudentSelector />
-          </div>
-
-          <div
-            className="flex shrink-0 overflow-x-auto custom-scrollbar"
-            style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-glass)' }}
+        {!isFocusMode && (
+          <aside
+            className="w-80 flex flex-col overflow-hidden shadow-2xl z-40"
+            style={{ backgroundColor: 'var(--bg-paper)', borderRight: '1px solid var(--border-color)' }}
           >
-            <button
-              onClick={() => setSidebarTab('production')}
-              className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
-              style={{
-                color: sidebarTab === 'production' ? 'var(--accent-color)' : 'var(--text-muted)',
-                borderBottomColor: sidebarTab === 'production' ? 'var(--accent-color)' : 'transparent',
-                backgroundColor: sidebarTab === 'production' ? 'var(--accent-muted)' : 'transparent',
-              }}
-            >
-              Üretim
-            </button>
-            <button
-              onClick={() => setSidebarTab('library')}
-              className={`flex-1 min-w-[80px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'library' ? 'text-emerald-500 border-emerald-500 bg-emerald-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
-            >
-              Bileşenler
-            </button>
-            <button
-              onClick={() => setSidebarTab('content')}
-              className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'content' ? 'text-sky-500 border-sky-500 bg-sky-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
-            >
-              İçerik
-            </button>
-            <button
-              onClick={() => setSidebarTab('styling')}
-              className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'styling' ? 'text-amber-500 border-amber-500 bg-amber-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
-            >
-              Stil
-            </button>
-            <button
-              onClick={() => setSidebarTab('archive')}
-              className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'archive' ? 'text-purple-500 border-purple-500 bg-purple-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
-            >
-              Arşiv
-            </button>
-          </div>
+            <div className="p-4" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-glass)' }}>
+              <StudentSelector />
+            </div>
 
-          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-8">
-            {sidebarTab === 'production' && <AIProductionPanel />}
-            {sidebarTab === 'library' && <ComponentLibrary />}
-            {sidebarTab === 'content' && <ContentPanel />}
-            {sidebarTab === 'styling' && <StylePanel />}
-            {sidebarTab === 'archive' && <ArchivePanel />}
-          </div>
-
-          {/* Sticky Bottom Generate Button */}
-          <div className="p-4 bg-zinc-900 border-t border-zinc-800 shrink-0 z-10 w-full relative mt-auto shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.5)]">
-            <button
-              onClick={handleGenerate}
-              disabled={isLoading}
-              className="w-full py-4 bg-accent text-white font-black rounded-xl text-sm shadow-xl shadow-accent/20 hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-70 uppercase tracking-wider"
+            <div
+              className="flex shrink-0 overflow-x-auto custom-scrollbar"
+              style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-glass)' }}
             >
-              {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
-              {isLoading ? 'BEKLEYİN...' : 'SINAVI OLUŞTUR'}
-            </button>
-          </div>
-        </aside>
+              <button
+                onClick={() => setSidebarTab('production')}
+                className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
+                style={{
+                  color: sidebarTab === 'production' ? 'var(--accent-color)' : 'var(--text-muted)',
+                  borderBottomColor: sidebarTab === 'production' ? 'var(--accent-color)' : 'transparent',
+                  backgroundColor: sidebarTab === 'production' ? 'var(--accent-muted)' : 'transparent',
+                }}
+              >
+                Üretim
+              </button>
+              <button
+                onClick={() => setSidebarTab('library')}
+                className={`flex-1 min-w-[80px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'library' ? 'text-emerald-500 border-emerald-500 bg-emerald-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+              >
+                Bileşenler
+              </button>
+              <button
+                onClick={() => setSidebarTab('content')}
+                className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'content' ? 'text-sky-500 border-sky-500 bg-sky-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+              >
+                İçerik
+              </button>
+              <button
+                onClick={() => setSidebarTab('styling')}
+                className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'styling' ? 'text-amber-500 border-amber-500 bg-amber-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+              >
+                Stil
+              </button>
+              <button
+                onClick={() => setSidebarTab('archive')}
+                className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'archive' ? 'text-purple-500 border-purple-500 bg-purple-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+              >
+                Arşiv
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-8">
+              {sidebarTab === 'production' && <AIProductionPanel />}
+              {sidebarTab === 'library' && <ComponentLibrary />}
+              {sidebarTab === 'content' && <ContentPanel />}
+              {sidebarTab === 'styling' && <StylePanel />}
+              {sidebarTab === 'archive' && <ArchivePanel />}
+            </div>
+
+            {/* Sticky Bottom Generate Button */}
+            <div className="p-4 bg-zinc-900 border-t border-zinc-800 shrink-0 z-10 w-full relative mt-auto shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.5)]">
+              <button
+                onClick={handleGenerate}
+                disabled={isLoading}
+                className="w-full py-4 bg-accent text-white font-black rounded-xl text-sm shadow-xl shadow-accent/20 hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-70 uppercase tracking-wider"
+              >
+                {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
+                {isLoading ? 'BEKLEYİN...' : 'SINAVI OLUŞTUR'}
+              </button>
+            </div>
+          </aside>
+        )}
 
         {/* Main Canvas Area */}
         <main className="flex-1 overflow-auto p-12 custom-scrollbar flex flex-col items-center relative" style={{ backgroundColor: 'var(--bg-inset)' }}>
@@ -538,6 +543,15 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
                 className="text-zinc-500 hover:text-white transition-colors"
               >
                 <i className="fa-solid fa-plus text-xs"></i>
+              </button>
+              <div className="w-px h-4" style={{ backgroundColor: 'var(--border-color)' }}></div>
+              <button
+                onClick={() => setIsFocusMode(!isFocusMode)}
+                className={`text-[10px] uppercase tracking-widest px-3 py-1 font-black rounded-lg transition-colors border ${isFocusMode ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-zinc-700 text-zinc-500 hover:text-white'}`}
+                title={isFocusMode ? 'Odaktan Çık' : 'Odak Modu'}
+              >
+                <i className={`fa-solid ${isFocusMode ? 'fa-compress' : 'fa-expand'} mr-2`}></i>
+                {isFocusMode ? 'ODAKTAN ÇIK' : 'ODAK MODU'}
               </button>
             </div>
           </div>

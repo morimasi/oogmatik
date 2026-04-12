@@ -10,6 +10,8 @@ import { AppError } from '../utils/AppError';
  * Bora Demir: Firestore CRUD, AppError standardı.
  */
 
+import { db, collection, doc, getDoc, getDocs, setDoc, updateDoc, query, where } from './firebaseClient.js';
+
 import type { ActivityDraft, DynamicActivity } from '../types/admin';
 import type {
     ActivityTemplate,
@@ -19,10 +21,10 @@ import type {
     AutoSettings,
 } from '../types/ocr-activity';
 
-// ─── In-Memory Store (Firestore bağlantısı sonra eklenecek) ──────────────
+// ─── Firestore Entegrasyonu ──────────────
 
-let approvalQueue: ActivityDraft[] = [];
-let feedbackSignals: Array<{ draftId: string; reason: string; timestamp: string }> = [];
+const QUEUE_COLLECTION = 'approval_queue';
+const FEEDBACK_COLLECTION = 'feedback_signals';
 
 // ─── ID Üretici ──────────────────────────────────────────────────────────
 
@@ -67,7 +69,8 @@ export const activityApprovalService = {
             updatedAt: now,
         };
 
-        approvalQueue.push(draft);
+        const draftRef = doc(collection(db, QUEUE_COLLECTION), draft.id);
+        await setDoc(draftRef, draft);
         return draft;
     },
 
@@ -75,24 +78,28 @@ export const activityApprovalService = {
      * Onay bekleyen taslakları listeler.
      */
     async getPendingReviews(filter?: ApprovalQueueFilter): Promise<ActivityDraft[]> {
-        let results = [...approvalQueue];
+        const qParams: any[] = [];
 
         if (filter?.status) {
-            results = results.filter((d) => d.status === filter.status);
+            qParams.push(where('status', '==', filter.status));
         } else {
-            results = results.filter((d) => d.status === 'pending_review');
+            qParams.push(where('status', '==', 'pending_review'));
         }
 
+        const baseQuery = query(collection(db, QUEUE_COLLECTION), ...qParams);
+        const snapshot = await getDocs(baseQuery);
+        let results: ActivityDraft[] = snapshot.docs.map((d: any) => d.data() as ActivityDraft);
+
         if (filter?.mode) {
-            results = results.filter((d) => d.productionMode === filter.mode);
+            results = results.filter((d: ActivityDraft) => d.productionMode === filter.mode);
         }
 
         if (filter?.createdBy) {
-            results = results.filter((d) => d.createdBy === filter.createdBy);
+            results = results.filter((d: ActivityDraft) => d.createdBy === filter.createdBy);
         }
 
         if (filter?.dateRange) {
-            results = results.filter((d) => {
+            results = results.filter((d: ActivityDraft) => {
                 const date = new Date(d.createdAt);
                 return date >= new Date(filter.dateRange!.start) && date <= new Date(filter.dateRange!.end);
             });
@@ -100,7 +107,7 @@ export const activityApprovalService = {
 
         // Sıralama
         const sortBy = filter?.sortBy || 'newest';
-        results.sort((a, b) => {
+        results.sort((a: ActivityDraft, b: ActivityDraft) => {
             if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             if (sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             return 0;
@@ -113,10 +120,14 @@ export const activityApprovalService = {
      * Taslağı onaylar — statü "approved" olur.
      */
     async approve(draftId: string, adminId: string): Promise<ActivityDraft> {
-        const draft = approvalQueue.find((d) => d.id === draftId);
-        if (!draft) {
+        const draftRef = doc(db, QUEUE_COLLECTION, draftId);
+        const snap = await getDoc(draftRef);
+
+        if (!snap.exists()) {
             throw new AppError(`Taslak bulunamadı: ${draftId}`, 'INTERNAL_ERROR', 500);
         }
+
+        const draft = snap.data() as ActivityDraft;
 
         if (draft.status !== 'pending_review') {
             throw new AppError(`Bu taslak onay beklemiyormuş. Mevcut durum: ${draft.status}`, 'INTERNAL_ERROR', 500);
@@ -126,6 +137,13 @@ export const activityApprovalService = {
         draft.approvedBy = adminId;
         draft.approvedAt = new Date().toISOString();
         draft.updatedAt = new Date().toISOString();
+
+        await updateDoc(draftRef, {
+            status: draft.status,
+            approvedBy: draft.approvedBy,
+            approvedAt: draft.approvedAt,
+            updatedAt: draft.updatedAt
+        });
 
         return draft;
     },
@@ -138,10 +156,14 @@ export const activityApprovalService = {
         adminId: string,
         reason: string
     ): Promise<ActivityDraft> {
-        const draft = approvalQueue.find((d) => d.id === draftId);
-        if (!draft) {
+        const draftRef = doc(db, QUEUE_COLLECTION, draftId);
+        const snap = await getDoc(draftRef);
+
+        if (!snap.exists()) {
             throw new AppError(`Taslak bulunamadı: ${draftId}`, 'INTERNAL_ERROR', 500);
         }
+
+        const draft = snap.data() as ActivityDraft;
 
         if (draft.status !== 'pending_review') {
             throw new AppError(`Bu taslak onay beklemiyormuş. Mevcut durum: ${draft.status}`, 'INTERNAL_ERROR', 500);
@@ -153,6 +175,14 @@ export const activityApprovalService = {
         draft.approvedAt = new Date().toISOString();
         draft.updatedAt = new Date().toISOString();
 
+        await updateDoc(draftRef, {
+            status: draft.status,
+            rejectionReason: draft.rejectionReason,
+            approvedBy: draft.approvedBy,
+            approvedAt: draft.approvedAt,
+            updatedAt: draft.updatedAt
+        });
+
         // Red gerekçesini öğrenme sinyali olarak kaydet
         await this.saveFeedbackSignal(draftId, reason);
 
@@ -163,10 +193,14 @@ export const activityApprovalService = {
      * Onaylanan taslaktan aktif etkinlik (DynamicActivity) oluşturur.
      */
     async publishActivity(draftId: string): Promise<DynamicActivity> {
-        const draft = approvalQueue.find((d) => d.id === draftId);
-        if (!draft) {
+        const draftRef = doc(db, QUEUE_COLLECTION, draftId);
+        const snap = await getDoc(draftRef);
+
+        if (!snap.exists()) {
             throw new AppError(`Taslak bulunamadı: ${draftId}`, 'INTERNAL_ERROR', 500);
         }
+
+        const draft = snap.data() as ActivityDraft;
 
         if (draft.status !== 'approved') {
             throw new AppError('Sadece onaylanmış taslaklar yayınlanabilir.', 'INTERNAL_ERROR', 500);
@@ -205,10 +239,12 @@ export const activityApprovalService = {
         draftId: string,
         changes: Partial<ActivityDraft>
     ): Promise<ActivityDraft> {
-        const original = approvalQueue.find((d) => d.id === draftId);
-        if (!original) {
+        const originalSnap = await getDoc(doc(db, QUEUE_COLLECTION, draftId));
+        if (!originalSnap.exists()) {
             throw new AppError(`Orijinal taslak bulunamadı: ${draftId}`, 'INTERNAL_ERROR', 500);
         }
+
+        const original = originalSnap.data() as ActivityDraft;
 
         const currentVersion = original.version || 'v1.0';
         const versionParts = currentVersion.replace('v', '').split('.');
@@ -229,7 +265,8 @@ export const activityApprovalService = {
             rejectionReason: undefined,
         };
 
-        approvalQueue.push(newDraft);
+        const draftRef = doc(collection(db, QUEUE_COLLECTION), newDraft.id);
+        await setDoc(draftRef, newDraft);
         return newDraft;
     },
 
@@ -238,18 +275,21 @@ export const activityApprovalService = {
      * Gelecekteki üretimlerde kaliteyi artırmak için referans alınır.
      */
     async saveFeedbackSignal(draftId: string, reason: string): Promise<void> {
-        feedbackSignals.push({
+        const signal = {
             draftId,
             reason,
             timestamp: new Date().toISOString(),
-        });
+        };
+        const ref = doc(collection(db, FEEDBACK_COLLECTION));
+        await setDoc(ref, signal);
     },
 
     /**
      * Kayıtlı öğrenme sinyallerini döndürür.
      */
     async getFeedbackSignals(): Promise<Array<{ draftId: string; reason: string; timestamp: string }>> {
-        return [...feedbackSignals];
+        const snap = await getDocs(collection(db, FEEDBACK_COLLECTION));
+        return snap.docs.map((d: any) => d.data() as { draftId: string; reason: string; timestamp: string });
     },
 
     /**
@@ -280,14 +320,15 @@ export const activityApprovalService = {
      * ID ile taslak getir.
      */
     async getDraftById(draftId: string): Promise<ActivityDraft | null> {
-        return approvalQueue.find((d) => d.id === draftId) ?? null;
+        const snap = await getDoc(doc(db, QUEUE_COLLECTION, draftId));
+        return snap.exists() ? (snap.data() as ActivityDraft) : null;
     },
 
     /**
      * Tüm taslakları temizle (test için).
      */
     clearAll(): void {
-        approvalQueue = [];
-        feedbackSignals = [];
+        // Disabled memory clear for testing. Needs firestore transaction.
+        console.warn('Memory mock clear not allowed in firestore mode');
     },
 };
