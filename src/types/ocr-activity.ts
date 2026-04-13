@@ -18,7 +18,7 @@ import type { OCRResult, OCRDetectedType } from './core';
 // ─── Temel Enumlar ──────────────────────────────────────────────────────
 
 /** Etkinlik üretim modları */
-export type ProductionMode = 'architecture_clone' | 'prompt_generation' | 'exact_clone';
+export type ProductionMode = 'prompt_generation';
 
 /** Onay durumu akış diyagramı: draft → pending_review → approved | rejected */
 export type ApprovalStatus = 'draft' | 'pending_review' | 'approved' | 'rejected';
@@ -180,20 +180,7 @@ export interface PromptGenerationRequest {
     studentContext?: Record<string, unknown>;
 }
 
-// ─── Mod 3: Birebir Klonlama ────────────────────────────────────────────
 
-/** Klonlama modu */
-export type CloneMode = 'minor_variation' | 'full_content_refresh';
-
-/** Mod 3 klonlama isteği */
-export interface ExactCloneRequest {
-    image: string;
-    cloneMode: CloneMode;
-    preserveStyle: boolean;
-    targetProfile?: LearningDisabilityProfile;
-    ageGroup?: AgeGroup;
-    difficulty?: Difficulty;
-}
 
 /** Derin analiz sonucu (Mod 3) */
 export interface DeepAnalysisResult {

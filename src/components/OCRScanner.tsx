@@ -114,17 +114,17 @@ const ProgressTracker = ({
   const phases =
     phase === 'analyzing'
       ? [
-          { label: 'Görsel İşleniyor', threshold: 10 },
-          { label: 'Yapısal Analiz', threshold: 35 },
-          { label: 'Blueprint Çıkarılıyor', threshold: 65 },
-          { label: 'Kalite Doğrulama', threshold: 90 },
-        ]
+        { label: 'Görsel İşleniyor', threshold: 10 },
+        { label: 'Yapısal Analiz', threshold: 35 },
+        { label: 'Blueprint Çıkarılıyor', threshold: 65 },
+        { label: 'Kalite Doğrulama', threshold: 90 },
+      ]
       : [
-          { label: 'Blueprint Okunuyor', threshold: 10 },
-          { label: 'İçerik Üretiliyor', threshold: 40 },
-          { label: 'Kalite Kontrolü', threshold: 75 },
-          { label: 'Sayfa İnşa Ediliyor', threshold: 90 },
-        ];
+        { label: 'Blueprint Okunuyor', threshold: 10 },
+        { label: 'İçerik Üretiliyor', threshold: 40 },
+        { label: 'Kalite Kontrolü', threshold: 75 },
+        { label: 'Sayfa İnşa Ediliyor', threshold: 90 },
+      ];
 
   const currentPhase = phases.reduce((acc, p) => (progress >= p.threshold ? p : acc), phases[0]);
 
@@ -152,9 +152,8 @@ const ProgressTracker = ({
           {phases.map((p: { label: string; threshold: number }, i: number) => (
             <div
               key={i}
-              className={`flex items-center gap-1 text-[9px] font-bold transition-all ${
-                progress >= p.threshold ? 'text-indigo-400' : 'text-slate-700'
-              }`}
+              className={`flex items-center gap-1 text-[9px] font-bold transition-all ${progress >= p.threshold ? 'text-indigo-400' : 'text-slate-700'
+                }`}
             >
               <i
                 className={`fa-solid ${progress >= p.threshold ? 'fa-circle-check' : 'fa-circle'} text-[6px]`}
@@ -204,11 +203,10 @@ const StudentSelector = ({ students, activeStudent, onSelect }: StudentSelectorP
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border transition-all text-xs font-bold ${
-          activeStudent
+        className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border transition-all text-xs font-bold ${activeStudent
             ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300'
             : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
-        }`}
+          }`}
       >
         <i className={`fa-solid ${activeStudent ? 'fa-user-graduate' : 'fa-user-plus'}`}></i>
         {activeStudent ? activeStudent.name : 'Öğrenci Seç'}
@@ -268,28 +266,28 @@ const DifficultyPicker = ({ selected, onChange }: DifficultyPickerProps) => {
     bg: string;
     border: string;
   }[] = [
-    {
-      value: 'Başlangıç',
-      icon: 'fa-seedling',
-      color: 'text-emerald-400',
-      bg: 'bg-emerald-500/20',
-      border: 'border-emerald-500/40',
-    },
-    {
-      value: 'Orta',
-      icon: 'fa-bolt',
-      color: 'text-amber-400',
-      bg: 'bg-amber-500/20',
-      border: 'border-amber-500/40',
-    },
-    {
-      value: 'Zor',
-      icon: 'fa-fire',
-      color: 'text-red-400',
-      bg: 'bg-red-500/20',
-      border: 'border-red-500/40',
-    },
-  ];
+      {
+        value: 'Başlangıç',
+        icon: 'fa-seedling',
+        color: 'text-emerald-400',
+        bg: 'bg-emerald-500/20',
+        border: 'border-emerald-500/40',
+      },
+      {
+        value: 'Orta',
+        icon: 'fa-bolt',
+        color: 'text-amber-400',
+        bg: 'bg-amber-500/20',
+        border: 'border-amber-500/40',
+      },
+      {
+        value: 'Zor',
+        icon: 'fa-fire',
+        color: 'text-red-400',
+        bg: 'bg-red-500/20',
+        border: 'border-red-500/40',
+      },
+    ];
   return (
     <div className="flex gap-2">
       {levels.map(
@@ -303,11 +301,10 @@ const DifficultyPicker = ({ selected, onChange }: DifficultyPickerProps) => {
           <button
             key={l.value}
             onClick={() => onChange(l.value)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-bold transition-all ${
-              selected === l.value
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-bold transition-all ${selected === l.value
                 ? `${l.bg} ${l.border} ${l.color}`
                 : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'
-            }`}
+              }`}
           >
             <i className={`fa-solid ${l.icon}`}></i>
             {l.value}
@@ -378,13 +375,13 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
   const { user } = useAuthStore();
   const [step, setStep] = useState(
     'upload' as
-      | 'upload'
-      | 'analyzing'
-      | 'studio'
-      | 'generating'
-      | 'result'
-      | 'creative'
-      | 'variations'
+    | 'upload'
+    | 'analyzing'
+    | 'studio'
+    | 'generating'
+    | 'result'
+    | 'creative'
+    | 'variations'
   );
   const [images, setImages] = useState([] as string[]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -833,54 +830,6 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     }
   };
 
-  // ─── Klonlama ──────────────────────────────────
-  const handleClone = async (isExact: boolean = false) => {
-    setStep('generating');
-    setProgressStartTime(Date.now());
-    try {
-      const blueprintToUse = isEditingBlueprint
-        ? editedBlueprint
-        : blueprintData.worksheetBlueprint;
-      const titleToUse = editedTitle || blueprintData.title;
-
-      // Student personalization: Adjust difficulty based on learningStyle if student is active
-      let effectiveDifficulty = difficulty;
-      if (activeStudent) {
-        // If student is selected and it's not a manual 'Zor' setting,
-        // we can bias towards their profile or just ensure context is passed.
-        // For now, let's implement a simple mapping as suggested in the audit.
-        if (activeStudent.learningStyle === 'Görsel' && difficulty === 'Başlangıç') {
-          effectiveDifficulty = 'Orta'; // Visual learners might handle more structure
-        }
-      }
-
-      const options: any = {
-        mode: 'ai',
-        difficulty: effectiveDifficulty,
-        worksheetCount: variantCount,
-        itemCount: itemCount,
-        topic: concept ? `${titleToUse} (${concept} bağlamında)` : titleToUse,
-        isExactClone: isExact,
-        // Pass blueprint metadata so newActivities.ts can inject type-specific prompts
-        detectedType: blueprintData?.detectedType,
-        densityHints: blueprintData?.densityHints,
-        ...(activeStudent ? { studentContext: activeStudent } : {}),
-      };
-      const result = await generateFromRichPrompt(
-        ActivityType.OCR_CONTENT,
-        blueprintToUse,
-        options
-      );
-      if (result) {
-        setFinalData(Array.isArray(result) ? result : [result]);
-        setStep('result');
-      }
-    } catch (_e) {
-      showToast('Mimari inşa edilemedi. Tekrar deneyin.', 'error');
-      setStep('studio');
-    }
-  };
-
   return (
     <div className="h-full flex flex-col bg-[#0d0d0f] absolute inset-0 z-50 overflow-hidden font-['Lexend'] text-white">
       {/* Header */}
@@ -893,10 +842,10 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         </button>
         <div className="flex flex-col items-center">
           <h2 className="text-xs font-black uppercase tracking-[0.4em] text-indigo-400">
-            ArchClone Stüdyosu
+            OCR Stüdyosu
           </h2>
           <span className="text-[8px] font-bold opacity-30 tracking-[0.2em]">
-            KAPSAMLI MİMARİ KLON & ÜRETİM
+            AKILLI MATERYAL TARAYICI
           </span>
         </div>
         <StudentSelector
@@ -915,9 +864,8 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`h-full flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-700 max-w-4xl mx-auto relative transition-all ${
-              isDragOver ? 'scale-[1.02]' : ''
-            }`}
+            className={`h-full flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-700 max-w-4xl mx-auto relative transition-all ${isDragOver ? 'scale-[1.02]' : ''
+              }`}
           >
             {/* Drag overlay */}
             {isDragOver && (
@@ -934,7 +882,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
               <i className="fa-solid fa-dna"></i>
             </div>
             <h1 className="text-5xl font-black mb-4 tracking-tighter text-white">
-              Materyal Klonla
+              Materyal Tara
             </h1>
             <p className="text-slate-400 max-w-xl mb-6 text-lg leading-relaxed font-medium">
               Görselleri sürükle-bırak veya dosya seçerek yükleyin. PDF desteği de var!
@@ -994,20 +942,6 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full px-4">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="group p-8 bg-white text-indigo-950 rounded-[2.5rem] hover:-translate-y-2 transition-all shadow-2xl flex flex-col items-center gap-3 text-center border-4 border-transparent hover:border-indigo-200"
-              >
-                <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-2xl text-indigo-600">
-                  <i className="fa-solid fa-file-import"></i>
-                </div>
-                <div>
-                  <h4 className="font-black text-lg mb-1">Görselden Klonla</h4>
-                  <p className="text-[10px] font-medium text-slate-500">
-                    Mevcut bir soruyu analiz et
-                  </p>
-                </div>
-              </button>
               {/* Blueprint Şablonları Butonu - Hazır Yapıları Tetikler */}
               <button
                 onClick={() => {
@@ -1269,11 +1203,10 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                         <button
                           key={n}
                           onClick={() => setVariationCount(n)}
-                          className={`flex-1 h-12 rounded-xl border font-black text-sm transition-all ${
-                            variationCount === n
+                          className={`flex-1 h-12 rounded-xl border font-black text-sm transition-all ${variationCount === n
                               ? 'bg-purple-500/20 border-purple-500/40 text-purple-400'
                               : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'
-                          }`}
+                            }`}
                         >
                           {n}×
                         </button>
@@ -1293,26 +1226,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                     </span>
                   </button>
 
-                  {/* Original Clone Buttons */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button
-                      onClick={() => handleClone(false)}
-                      className="py-6 bg-indigo-600 text-white font-black rounded-3xl hover:bg-indigo-700 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 text-sm group border-2 border-indigo-400/20"
-                    >
-                      <i className="fa-solid fa-wand-magic-sparkles group-hover:rotate-12 transition-transform"></i>
-                      {variantCount > 1
-                        ? `${variantCount} FARKLI VARYANT ÜRET`
-                        : 'YENİ İÇERİKLE KLONLA'}
-                    </button>
 
-                    <button
-                      onClick={() => handleClone(true)}
-                      className="py-6 bg-white text-indigo-950 font-black rounded-3xl hover:bg-slate-100 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3 text-sm group border-2 border-slate-200"
-                    >
-                      <i className="fa-solid fa-copy group-hover:-translate-y-1 transition-transform"></i>
-                      BİREBİR AYNI ÜRET (1:1)
-                    </button>
-                  </div>
                 </div>
 
                 <button

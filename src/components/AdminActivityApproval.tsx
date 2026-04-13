@@ -16,9 +16,7 @@ import type { ApprovalStatus, ProductionMode } from '../types/ocr-activity';
 // ─── Mod etiketi yardımcısı ─────────────────────────────────────────────
 
 const modeLabel: Record<string, string> = {
-    architecture_clone: '📸 Mimari Kopyalama',
     prompt_generation: '✍️ Sıfırdan Üretim',
-    exact_clone: '🔄 Birebir Klonlama',
 };
 
 const statusColors: Record<string, { bg: string; text: string; border: string }> = {

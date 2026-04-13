@@ -136,13 +136,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           color: 'bg-emerald-500',
           onClick: onOpenCurriculum,
         },
-        {
-          id: 'ocr',
-          label: 'Klon (OCR)',
-          icon: 'fa-camera-viewfinder',
-          color: 'bg-indigo-500',
-          onClick: onOpenOCR,
-        },
       ],
     },
     {

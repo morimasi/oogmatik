@@ -1,6 +1,6 @@
 declare global {
   namespace JSX {
-    interface IntrinsicElements extends Record<string, unknown> {}
+    interface IntrinsicElements extends Record<string, unknown> { }
   }
 }
 
@@ -111,15 +111,15 @@ export interface GeneratorOptions {
   hintLevel?: 'low' | 'medium' | 'high' | 'none';
   textLength?: 'kısa' | 'orta' | 'uzun';
   questionStyle?:
-    | 'test_and_open'
-    | 'only_test'
-    | 'only_open_ended'
-    | 'mixed'
-    | '5n1k'
-    | 'detail'
-    | 'inference'
-    | 'true_false'
-    | 'open_ended';
+  | 'test_and_open'
+  | 'only_test'
+  | 'only_open_ended'
+  | 'mixed'
+  | '5n1k'
+  | 'detail'
+  | 'inference'
+  | 'true_false'
+  | 'open_ended';
   syllableColoring?: boolean;
   wpmTarget?: number;
   colorPalette?: 'red_blue' | 'contrast' | 'pastel';
@@ -311,18 +311,18 @@ export interface WorkbookSettings {
   year: string;
   teacherNote: string;
   theme:
-    | 'modern'
-    | 'classic'
-    | 'fun'
-    | 'minimal'
-    | 'academic'
-    | 'artistic'
-    | 'space'
-    | 'nature'
-    | 'geometric'
-    | 'cyber'
-    | 'luxury'
-    | 'playful';
+  | 'modern'
+  | 'classic'
+  | 'fun'
+  | 'minimal'
+  | 'academic'
+  | 'artistic'
+  | 'space'
+  | 'nature'
+  | 'geometric'
+  | 'cyber'
+  | 'luxury'
+  | 'playful';
   accentColor: string;
   coverStyle: 'centered' | 'left' | 'split' | 'hero' | 'minimalist';
   showTOC: boolean;
@@ -538,7 +538,6 @@ export type OCRDetectedType =
   | 'MATCHING'
   | 'TRUE_FALSE'
   | 'MULTIPLE_CHOICE'
-  | 'ARCH_CLONE'
   | 'OTHER';
 
 export interface OCRBlueprintComponentRequirements {

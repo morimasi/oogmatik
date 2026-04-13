@@ -451,7 +451,7 @@ export const AdminPromptStudio = () => {
                         }}
                         className="px-6 py-2.5 bg-zinc-800 hover:bg-amber-500 hover:text-black text-white text-[10px] font-black rounded-xl opacity-0 group-hover:opacity-100 transition-all transform active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.2)]"
                       >
-                        KLONLA & UYGULA
+                        GERİ YÜKLE & UYGULA
                       </button>
                     </div>
                   ))}

@@ -10,7 +10,7 @@ export * from './readingComprehension';
 export * from './dyslexiaSupport';
 export * from './dyscalculia';
 export * from './newActivities';
-export * from './archClone';
+
 export * from './fiveWOneH';
 export * from './colorfulSyllable';
 export * from './familyTreeMatrix';

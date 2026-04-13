@@ -26,7 +26,7 @@ import { NumberPathLogicConfig } from './NumberPathLogicConfig';
 import { DirectionalTrackingConfig } from './DirectionalTrackingConfig';
 import { FutoshikiConfig } from './FutoshikiConfig';
 import { AbcConnectConfig } from './AbcConnectConfig';
-import { ArchCloneConfig } from './ArchCloneConfig';
+
 import { FiveWOneHConfig } from './FiveWOneHConfig';
 import { ColorfulSyllableReadingConfig } from './ColorfulSyllableReadingConfig';
 import { FamilyTreeMatrixConfig } from './FamilyTreeMatrixConfig';
@@ -69,7 +69,7 @@ export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.DIRECTIONAL_TRACKING]: DirectionalTrackingConfig,
   [ActivityType.FUTOSHIKI]: FutoshikiConfig,
   [ActivityType.ABC_CONNECT]: AbcConnectConfig,
-  [ActivityType.AI_WORKSHEET_CONVERTER]: ArchCloneConfig,
+
   [ActivityType.FIVE_W_ONE_H]: FiveWOneHConfig,
   [ActivityType.COLORFUL_SYLLABLE_READING]: ColorfulSyllableReadingConfig,
   [ActivityType.FAMILY_TREE_MATRIX]: FamilyTreeMatrixConfig,

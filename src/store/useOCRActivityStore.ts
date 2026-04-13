@@ -84,7 +84,7 @@ interface OCRActivityState {
 // ─── Initial State ───────────────────────────────────────────────────────
 
 const nonPersistedInitialState = {
-    activeMode: 'architecture_clone' as ProductionMode,
+    activeMode: 'prompt_generation' as ProductionMode,
     currentTemplate: null as ActivityTemplate | null,
     blueprintResult: null as OCRResult | null,
     isProcessing: false,
@@ -148,14 +148,14 @@ export const useOCRActivityStore = create<OCRActivityState>()(
             },
 
             deleteBlueprint: (id: string) => {
-                set(state => ({
-                    savedBlueprints: state.savedBlueprints.filter(bp => bp.id !== id),
+                set((state: OCRActivityState) => ({
+                    savedBlueprints: state.savedBlueprints.filter((bp: BlueprintEntry) => bp.id !== id),
                 }));
             },
 
             incrementBlueprintUse: (id: string) => {
-                set(state => ({
-                    savedBlueprints: state.savedBlueprints.map(bp =>
+                set((state: OCRActivityState) => ({
+                    savedBlueprints: state.savedBlueprints.map((bp: BlueprintEntry) =>
                         bp.id === id ? { ...bp, useCount: bp.useCount + 1 } : bp
                     ),
                 }));
@@ -164,7 +164,7 @@ export const useOCRActivityStore = create<OCRActivityState>()(
         {
             name: 'oogmatik-ocr-blueprints',
             // Sadece kütüphane verisini localStorage'da sakla
-            partialize: state => ({ savedBlueprints: state.savedBlueprints }),
+            partialize: (state: OCRActivityState) => ({ savedBlueprints: state.savedBlueprints }),
         }
     )
 );

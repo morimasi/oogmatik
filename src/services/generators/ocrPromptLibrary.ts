@@ -17,8 +17,7 @@ export type OCRDetectedType =
   | 'MATCHING'
   | 'MULTIPLE_CHOICE'
   | 'TRUE_FALSE'
-  | 'OTHER'
-  | 'ARCH_CLONE';
+  | 'OTHER';
 
 // ─── Bileşen gereksinimleri ───────────────────────────────────────────────
 export interface ComponentRequirements {
@@ -194,7 +193,7 @@ export const buildDetectedTypePromptPatch = (detectedType: OCRDetectedType | str
 - Gerekirse ek açıklama alanı: border-bottom:1px dotted #999; width:80%; display:block; margin-top:2px
 `.trim();
 
-    case 'ARCH_CLONE':
+
     case 'OTHER':
     default:
       return `

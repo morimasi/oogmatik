@@ -103,7 +103,7 @@ export interface ActivityDraft {
   createdAt: string;
   customInstructions: string;
   // OCR Activity Generation fields
-  productionMode?: 'architecture_clone' | 'prompt_generation' | 'exact_clone';
+  productionMode?: 'prompt_generation';
   status?: 'draft' | 'pending_review' | 'approved' | 'rejected';
   version?: string;
   metadata?: {
