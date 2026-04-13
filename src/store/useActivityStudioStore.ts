@@ -24,6 +24,8 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set) => ({
     preview: null,
     approval: null,
   },
+  selectedLibraryItemId: undefined,
+  enhancementTopic: undefined,
   setStep: (step) =>
     set((state) => ({
       currentStep: step,
@@ -45,6 +47,11 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set) => ({
         } as StudioGoalConfig,
       },
     })),
+  setSelectedLibraryItem: (id, topic) =>
+    set({
+      selectedLibraryItemId: id,
+      enhancementTopic: topic,
+    }),
   setGenerating: (value) => set({ isGenerating: value }),
   setError: (message) => set({ error: message }),
   resetStudio: () =>
@@ -61,5 +68,7 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set) => ({
         preview: null,
         approval: null,
       },
+      selectedLibraryItemId: undefined,
+      enhancementTopic: undefined,
     }),
 }));

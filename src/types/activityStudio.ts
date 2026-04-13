@@ -173,11 +173,56 @@ export interface ApprovalMetadata {
     | 'rejected';
 }
 
+export type ActivityLibraryCategory =
+  | 'fonolojik-farkindalik'
+  | 'okuma-akiciligi'
+  | 'matematik-mantigi'
+  | 'dikkat-yurutucu'
+  | 'gorsel-algi'
+  | 'yazili-anlatim';
+
+export interface ActivityLibraryItem {
+  id: string;
+  slug: string;
+  title: string;
+  shortDescription: string;
+  activityType: ActivityType | string;
+  category: ActivityLibraryCategory;
+  targetSkills: string[];
+  ageGroups: AgeGroup[];
+  profiles: LearningDisabilityProfile[];
+  difficultyLevels: Difficulty[];
+  suggestedGradeRange: {
+    min: number;
+    max: number;
+  };
+  suggestedDuration: number;
+  formats: StudioGoalConfig['format'][];
+  featured: boolean;
+  keywords: string[];
+  sortOrder: number;
+  topicTemplate: string;
+  pedagogicalNote: string;
+  searchIndex: string;
+}
+
+export interface ActivityLibraryQuery {
+  search?: string;
+  category?: ActivityLibraryCategory;
+  profile?: LearningDisabilityProfile;
+  ageGroup?: AgeGroup;
+  difficulty?: Difficulty;
+  targetSkill?: string;
+  featuredOnly?: boolean;
+}
+
 export interface ActivityStudioState {
   currentStep: WizardStepId;
   steps: WizardStep[];
   isGenerating: boolean;
   error: string | null;
+  selectedLibraryItemId?: string;
+  enhancementTopic?: string;
   wizardData: {
     goal: StudioGoalConfig | null;
     promptInput: SanitizedPromptInput | null;
@@ -188,6 +233,7 @@ export interface ActivityStudioState {
   };
   setStep: (step: WizardStepId) => void;
   updateGoal: (data: Partial<StudioGoalConfig>) => void;
+  setSelectedLibraryItem: (id: string, topic?: string) => void;
   setGenerating: (value: boolean) => void;
   setError: (message: string | null) => void;
   resetStudio: () => void;
