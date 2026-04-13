@@ -927,7 +927,10 @@ const AppContent = () => {
                     )}
                     {currentView === 'super-turkce' && <SuperStudio />}
                     {currentView === 'activity-studio' && (
-                      <ActivityStudio onBack={handleGoBack} />
+                      <ActivityStudio
+                        onBack={handleGoBack}
+                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                      />
                     )}
                     {currentView === 'infographic-studio' && (
                       <InfographicStudio

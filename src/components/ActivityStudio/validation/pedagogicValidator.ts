@@ -1,4 +1,5 @@
-import type { AgeGroup, Difficulty } from '../../../types/creativeStudio';
+import type { AgeGroup } from '../../../types/creativeStudio';
+import type { Difficulty } from '../../../types/activityStudio';
 
 export interface PedagogicValidationInput {
   ageGroup: AgeGroup;

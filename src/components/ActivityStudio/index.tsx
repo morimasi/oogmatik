@@ -1,29 +1,17 @@
 import React from 'react';
 import { useActivityStudioStore } from '@/store/useActivityStudioStore';
-import type { WizardStepId } from '@/types/activityStudio';
+import { WizardContainer } from '@/components/ActivityStudio/wizard/WizardContainer';
+import { usePedagogicGates } from '@/components/ActivityStudio/hooks/usePedagogicGates';
 
 interface ActivityStudioProps {
   onBack: () => void;
+  onAddToWorkbook?: (item: unknown) => void;
 }
 
-const stepTitles: Record<WizardStepId, string> = {
-  goal: '1. Hedef ve Kapsam',
-  content: '2. İçerik ve Bileşen',
-  customize: '3. Özelleştirme',
-  preview: '4. Önizleme',
-  approval: '5. Admin Onayı',
-};
-
-export const ActivityStudio: React.FC<ActivityStudioProps> = ({ onBack }) => {
-  const { currentStep, steps, setStep, isGenerating, error } = useActivityStudioStore();
-
-  const canAccessStep = (stepId: WizardStepId): boolean => {
-    const order: WizardStepId[] = ['goal', 'content', 'customize', 'preview', 'approval'];
-    const targetIndex = order.indexOf(stepId);
-    if (targetIndex <= 0) return true;
-    const previous = steps[targetIndex - 1];
-    return previous?.status === 'completed' || previous?.status === 'active';
-  };
+export const ActivityStudio: React.FC<ActivityStudioProps> = ({ onBack, onAddToWorkbook }) => {
+  const { wizardData, isGenerating, error } = useActivityStudioStore();
+  const { validateGoal } = usePedagogicGates();
+  const gateSummary = validateGoal(wizardData.goal);
 
   return (
     <section className="h-full w-full overflow-y-auto bg-[var(--bg-primary)]">
@@ -56,32 +44,34 @@ export const ActivityStudio: React.FC<ActivityStudioProps> = ({ onBack }) => {
           </div>
         )}
 
-        <div className="grid gap-3 md:grid-cols-5">
-          {steps.map((step) => (
-            <button
-              key={step.id}
-              type="button"
-              disabled={!canAccessStep(step.id)}
-              onClick={() => setStep(step.id)}
-              className={`rounded-2xl border px-3 py-3 text-left transition-all ${
-                step.id === currentStep
-                  ? 'border-[var(--accent-color)] bg-[var(--accent-muted)]'
-                  : 'border-[var(--border-color)] bg-[var(--bg-paper)] hover:border-[var(--accent-color)]/40'
-              } ${!canAccessStep(step.id) ? 'cursor-not-allowed opacity-50' : ''}`}
-            >
-              <div className="text-xs font-bold uppercase tracking-wide text-[var(--text-secondary)]">{step.status}</div>
-              <div className="mt-1 text-sm font-semibold text-[var(--text-primary)]">{stepTitles[step.id]}</div>
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-8 rounded-3xl border border-[var(--border-color)] bg-[var(--bg-paper)] p-6">
-          <h2 className="text-lg font-bold text-[var(--text-primary)]">Aktif Adim: {stepTitles[currentStep]}</h2>
-          <p className="mt-3 text-sm text-[var(--text-secondary)]">
-            Bu ilk dilimde altyapi entegre edildi: yeni view, sidebar girisi ve Zustand tabanli wizard state. Siradaki adimda
-            tip sistemi, validator katmani ve AI ajan servisleri eklenecek.
+        <div className="mb-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-paper)] px-4 py-3">
+          <p className="text-xs font-semibold text-[var(--text-secondary)]">Pedagojik Kapilar</p>
+          <p className="mt-1 text-sm text-[var(--text-primary)]">
+            {gateSummary.valid
+              ? 'Gecis uygun gorunuyor.'
+              : `${gateSummary.errors.length} hata, ${gateSummary.warnings.length} uyari bulundu.`}
           </p>
         </div>
+
+        <WizardContainer />
+
+        {onAddToWorkbook && (
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() =>
+                onAddToWorkbook({
+                  id: `activity-studio-${Date.now()}`,
+                  type: 'activity-studio',
+                  data: wizardData,
+                })
+              }
+              className="rounded-xl border border-[var(--border-color)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)]"
+            >
+              Calisma Kitapcigina Ekle
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
