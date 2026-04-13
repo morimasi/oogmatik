@@ -67,6 +67,7 @@ vi.mock('firebase/firestore', () => ({
   where: vi.fn(),
   orderBy: vi.fn(),
   limit: vi.fn(),
+  increment: vi.fn((value?: number) => ({ _mockIncrement: value ?? 1 })),
   runTransaction: vi.fn(),
   writeBatch: vi.fn(),
   Timestamp: { now: () => ({ seconds: 1234567890 }) },

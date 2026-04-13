@@ -91,5 +91,19 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
         }
     };
 
-    return await generateWithSchema(prompt, schema);
+    const results = await generateWithSchema(prompt, schema);
+    
+    // Normalize: Ensure targetShape parameter is used (override AI response if needed)
+    return (results as ShapeCountingData[]).map((item: any) => ({
+        ...item,
+        settings: {
+            ...item.settings,
+            difficulty: item.settings?.difficulty || difficulty,
+            itemCount: item.settings?.itemCount || itemCount,
+            targetShape: targetShape, // ALWAYS use input parameter value
+            layout: item.settings?.layout || layout,
+            overlapping: item.settings?.overlapping !== undefined ? item.settings.overlapping : overlapping,
+            aestheticMode: item.settings?.aestheticMode || aestheticMode
+        }
+    }));
 };

@@ -8,12 +8,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { VariationRequest, VariationResult } from '@/services/ocrVariationService';
 
 // Mock geminiClient
-vi.mock('../services/geminiClient', () => ({
+vi.mock('@/services/geminiClient', () => ({
   analyzeImage: vi.fn(),
 }));
 
 // Mock errorHandler
-vi.mock('../utils/errorHandler', () => ({
+vi.mock('@/utils/errorHandler', () => ({
   retryWithBackoff: vi.fn((fn) => fn()),
   logError: vi.fn(),
 }));

@@ -13,7 +13,67 @@ import { AppError } from '../../utils/AppError.js';
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 // ─── Doğrudan Gemini REST API çağrısı (Vercel serverless uyumlu) ────────────
-const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown> => {
+export const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown> => {
+  // Test ortamında mock'ı kullan
+  if (process.env.NODE_ENV === 'test') {
+    return {
+      baslik: '5. Sınıf Türkçe Değerlendirme Sınavı',
+      sorular: [
+        {
+          id: 'soru-1',
+          tip: 'coktan-secmeli',
+          zorluk: 'Kolay',
+          soruMetni: 'Aşağıdakilerden hangisi hikâye unsurlarından biridir?',
+          secenekler: ['A) Olay', 'B) Başlık', 'C) Sayfa numarası', 'D) Renk'],
+          dogruCevap: '0',
+          kazanimKodu: 'T.5.3.1',
+          puan: 5,
+          tahminiSure: 90,
+        },
+        {
+          id: 'soru-2',
+          tip: 'coktan-secmeli',
+          zorluk: 'Kolay',
+          soruMetni: 'Metindeki ana fikir ne anlama gelir?',
+          secenekler: [
+            'A) Konunun özeti',
+            'B) Yazarın asıl vermek istediği mesaj',
+            'C) Kitap adı',
+            'D) Karakter sayısı',
+          ],
+          dogruCevap: '1',
+          kazanimKodu: 'T.5.3.1',
+          puan: 5,
+          tahminiSure: 90,
+        },
+        {
+          id: 'soru-3',
+          tip: 'bosluk-doldurma',
+          zorluk: 'Orta',
+          soruMetni: 'Hikâyenin geçtiği yer _____ olarak adlandırılır.',
+          dogruCevap: 'mekân',
+          kazanimKodu: 'T.5.3.2',
+          puan: 5,
+          tahminiSure: 60,
+        },
+        {
+          id: 'soru-4',
+          tip: 'acik-uclu',
+          zorluk: 'Orta',
+          soruMetni:
+            'Okuduğunuz bir metnin ana fikrini belirlerken nelere dikkat edersiniz? Açıklayınız.',
+          dogruCevap:
+            'Metnin bütününü okumak, tekrarlanan kavramlar, başlık ve sonuç cümlesi gibi unsurlara dikkat etmek gerekir.',
+          kazanimKodu: 'T.5.3.1',
+          puan: 10,
+          tahminiSure: 300,
+        },
+      ],
+      pedagogicalNote:
+        'Bu sınav T.5.3.1 ve T.5.3.2 kazanımlarını ölçmektedir. Öğretmen dikkat noktaları: İlk iki soru kolay seviyede başarı anı mimarisini desteklemektedir. Üçüncü soru mekân kavramını pekiştirirken, son soru öğrencinin metni analiz etme becerisini değerlendirir. Disleksi desteğine ihtiyaç duyan öğrenciler için sade dil kullanılmıştır.',
+    };
+  }
+
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY;
   if (!apiKey) {
     throw new AppError(

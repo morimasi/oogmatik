@@ -10,7 +10,7 @@ import { AppError } from '../utils/AppError';
  * Bora Demir: Firestore CRUD, AppError standardı.
  */
 
-import { db, collection, doc, getDoc, getDocs, setDoc, updateDoc, query, where } from './firebaseClient.js';
+import { db, collection, doc, getDoc, getDocs, setDoc, updateDoc, query, where, deleteDoc } from './firebaseClient.js';
 
 import type { ActivityDraft, DynamicActivity } from '../types/admin';
 import type {
@@ -25,6 +25,23 @@ import type {
 
 const QUEUE_COLLECTION = 'approval_queue';
 const FEEDBACK_COLLECTION = 'feedback_signals';
+let resetPromise: Promise<void> = Promise.resolve();
+
+const stripUndefinedFields = <T>(value: T): T => {
+    if (Array.isArray(value)) {
+        return value.map((item) => stripUndefinedFields(item)) as T;
+    }
+
+    if (value && typeof value === 'object') {
+        const entries = Object.entries(value as Record<string, unknown>)
+            .filter(([, item]) => item !== undefined)
+            .map(([key, item]) => [key, stripUndefinedFields(item)]);
+
+        return Object.fromEntries(entries) as T;
+    }
+
+    return value;
+};
 
 // ─── ID Üretici ──────────────────────────────────────────────────────────
 
@@ -41,6 +58,7 @@ export const activityApprovalService = {
         template: ActivityTemplate,
         createdBy: string
     ): Promise<ActivityDraft> {
+        await resetPromise;
         const now = new Date().toISOString();
 
         const draft: ActivityDraft = {
@@ -70,7 +88,7 @@ export const activityApprovalService = {
         };
 
         const draftRef = doc(collection(db, QUEUE_COLLECTION), draft.id);
-        await setDoc(draftRef, draft);
+        await setDoc(draftRef, stripUndefinedFields(draft));
         return draft;
     },
 
@@ -78,6 +96,7 @@ export const activityApprovalService = {
      * Onay bekleyen taslakları listeler.
      */
     async getPendingReviews(filter?: ApprovalQueueFilter): Promise<ActivityDraft[]> {
+        await resetPromise;
         const qParams: any[] = [];
 
         if (filter?.status) {
@@ -120,6 +139,7 @@ export const activityApprovalService = {
      * Taslağı onaylar — statü "approved" olur.
      */
     async approve(draftId: string, adminId: string): Promise<ActivityDraft> {
+        await resetPromise;
         const draftRef = doc(db, QUEUE_COLLECTION, draftId);
         const snap = await getDoc(draftRef);
 
@@ -156,6 +176,7 @@ export const activityApprovalService = {
         adminId: string,
         reason: string
     ): Promise<ActivityDraft> {
+        await resetPromise;
         const draftRef = doc(db, QUEUE_COLLECTION, draftId);
         const snap = await getDoc(draftRef);
 
@@ -193,6 +214,7 @@ export const activityApprovalService = {
      * Onaylanan taslaktan aktif etkinlik (DynamicActivity) oluşturur.
      */
     async publishActivity(draftId: string): Promise<DynamicActivity> {
+        await resetPromise;
         const draftRef = doc(db, QUEUE_COLLECTION, draftId);
         const snap = await getDoc(draftRef);
 
@@ -239,6 +261,7 @@ export const activityApprovalService = {
         draftId: string,
         changes: Partial<ActivityDraft>
     ): Promise<ActivityDraft> {
+        await resetPromise;
         const originalSnap = await getDoc(doc(db, QUEUE_COLLECTION, draftId));
         if (!originalSnap.exists()) {
             throw new AppError(`Orijinal taslak bulunamadı: ${draftId}`, 'INTERNAL_ERROR', 500);
@@ -266,7 +289,7 @@ export const activityApprovalService = {
         };
 
         const draftRef = doc(collection(db, QUEUE_COLLECTION), newDraft.id);
-        await setDoc(draftRef, newDraft);
+        await setDoc(draftRef, stripUndefinedFields(newDraft));
         return newDraft;
     },
 
@@ -275,6 +298,7 @@ export const activityApprovalService = {
      * Gelecekteki üretimlerde kaliteyi artırmak için referans alınır.
      */
     async saveFeedbackSignal(draftId: string, reason: string): Promise<void> {
+        await resetPromise;
         const signal = {
             draftId,
             reason,
@@ -288,6 +312,7 @@ export const activityApprovalService = {
      * Kayıtlı öğrenme sinyallerini döndürür.
      */
     async getFeedbackSignals(): Promise<Array<{ draftId: string; reason: string; timestamp: string }>> {
+        await resetPromise;
         const snap = await getDocs(collection(db, FEEDBACK_COLLECTION));
         return snap.docs.map((d: any) => d.data() as { draftId: string; reason: string; timestamp: string });
     },
@@ -320,6 +345,7 @@ export const activityApprovalService = {
      * ID ile taslak getir.
      */
     async getDraftById(draftId: string): Promise<ActivityDraft | null> {
+        await resetPromise;
         const snap = await getDoc(doc(db, QUEUE_COLLECTION, draftId));
         return snap.exists() ? (snap.data() as ActivityDraft) : null;
     },
@@ -328,7 +354,16 @@ export const activityApprovalService = {
      * Tüm taslakları temizle (test için).
      */
     clearAll(): void {
-        // Disabled memory clear for testing. Needs firestore transaction.
-        console.warn('Memory mock clear not allowed in firestore mode');
+        resetPromise = (async () => {
+            const [draftsSnap, feedbackSnap] = await Promise.all([
+                getDocs(collection(db, QUEUE_COLLECTION)),
+                getDocs(collection(db, FEEDBACK_COLLECTION)),
+            ]);
+
+            await Promise.all([
+                ...draftsSnap.docs.map((draft) => deleteDoc(draft.ref)),
+                ...feedbackSnap.docs.map((signal) => deleteDoc(signal.ref)),
+            ]);
+        })();
     },
 };

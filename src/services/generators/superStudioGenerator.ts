@@ -184,27 +184,26 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
 
 /**
  * Extract pedagogicalNote from AI response - handles templates with non-standard response formats
+ * CRITICAL: pedagogicalNote is REQUIRED and cannot be defaulted (per Elif Yıldız pedagojik standardı)
  */
-const extractPedagogicalNote = (templateId: string, aiResponse: any): string => {
-  // Standard response
+const extractPedagogicalNote = (templateId: string, aiResponse: any): string | null => {
+  // Standard response - pedagogicalNote REQUIRED (minimum 20 chars)
   if (aiResponse.pedagogicalNote && aiResponse.pedagogicalNote.length >= 20) {
     return aiResponse.pedagogicalNote;
   }
 
-  // Template-specific fallbacks for missing pedagogicalNote
-  if (templateId === 'soz-varligi' && aiResponse.text) {
+  // Template-specific fallbacks ONLY for known templates with partial structure
+  // (these are exceptions for backwards compatibility, not general rule)
+  if (templateId === 'soz-varligi' && aiResponse.text && !aiResponse.pedagogicalNote) {
     return 'Bu etkinlik, öğrencinin kelime dağarcığını zenginleştirmeye yönelik çalışmalar içermektedir. Öğrenciye rehberlik ederek yeni kelimeler öğrenmesini destekleyin.';
   }
 
-  if (templateId === 'hece-ses' && aiResponse.text) {
+  if (templateId === 'hece-ses' && aiResponse.text && !aiResponse.pedagogicalNote) {
     return 'Hece ve ses bilgisi etkinliği. Öğrencinin sesli okuma becerisini geliştirmek için tekrarlı okuma çalışmaları yapın.';
   }
 
-  // Default fallback if pedagogicalNote is too short or missing
-  return (
-    aiResponse.pedagogicalNote ||
-    `Bu etkinlik ${templateId} konusunda öğrenciye destekleyici çalışmalar içermektedir.`
-  );
+  // ALL OTHER TEMPLATES: pedagogicalNote is REQUIRED - no fallback (returns null to trigger validation error)
+  return null;
 };
 
 /**
@@ -366,7 +365,7 @@ export const generateSuperStudioContent = async (
           data: payload,
         };
       } catch (apiError: any) {
-        console.error(`[Super Türkçe] Şablon hatası (${tpl}):`, apiError?.message || apiError);
+        console.warn(`[Super Türkçe] Şablon hatası (${tpl}):`, apiError?.message || apiError);
         throw apiError;
       }
     });

@@ -65,6 +65,109 @@ export class PrivacyService {
   private static readonly TC_HASH_SALT = process.env.TC_HASH_SALT || 'oogmatik-default-salt-CHANGE-IN-PRODUCTION';
   private static readonly STUDENT_ID_SALT = process.env.STUDENT_ID_SALT || 'oogmatik-student-salt-CHANGE-IN-PRODUCTION';
 
+  private static readonly SHA256_K = [
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+    0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+    0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+    0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+    0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+    0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+    0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+    0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+    0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+  ] as const;
+
+  private static rotateRight(value: number, amount: number): number {
+    return (value >>> amount) | (value << (32 - amount));
+  }
+
+  private static sha256(input: string): string {
+    const bytes = new TextEncoder().encode(input);
+    const bitLength = bytes.length * 8;
+    const paddedLength = Math.ceil((bytes.length + 9) / 64) * 64;
+    const padded = new Uint8Array(paddedLength);
+    padded.set(bytes);
+    padded[bytes.length] = 0x80;
+
+    const view = new DataView(padded.buffer);
+    view.setUint32(paddedLength - 8, Math.floor(bitLength / 0x100000000), false);
+    view.setUint32(paddedLength - 4, bitLength >>> 0, false);
+
+    let h0 = 0x6a09e667;
+    let h1 = 0xbb67ae85;
+    let h2 = 0x3c6ef372;
+    let h3 = 0xa54ff53a;
+    let h4 = 0x510e527f;
+    let h5 = 0x9b05688c;
+    let h6 = 0x1f83d9ab;
+    let h7 = 0x5be0cd19;
+
+    const words = new Uint32Array(64);
+
+    for (let chunkOffset = 0; chunkOffset < paddedLength; chunkOffset += 64) {
+      for (let index = 0; index < 16; index += 1) {
+        words[index] = view.getUint32(chunkOffset + index * 4, false);
+      }
+
+      for (let index = 16; index < 64; index += 1) {
+        const s0 = this.rotateRight(words[index - 15], 7)
+          ^ this.rotateRight(words[index - 15], 18)
+          ^ (words[index - 15] >>> 3);
+        const s1 = this.rotateRight(words[index - 2], 17)
+          ^ this.rotateRight(words[index - 2], 19)
+          ^ (words[index - 2] >>> 10);
+        words[index] = (((words[index - 16] + s0) >>> 0) + ((words[index - 7] + s1) >>> 0)) >>> 0;
+      }
+
+      let a = h0;
+      let b = h1;
+      let c = h2;
+      let d = h3;
+      let e = h4;
+      let f = h5;
+      let g = h6;
+      let h = h7;
+
+      for (let index = 0; index < 64; index += 1) {
+        const sigma1 = this.rotateRight(e, 6) ^ this.rotateRight(e, 11) ^ this.rotateRight(e, 25);
+        const choice = (e & f) ^ (~e & g);
+        const temp1 = (((((h + sigma1) >>> 0) + choice) >>> 0) + ((this.SHA256_K[index] + words[index]) >>> 0)) >>> 0;
+        const sigma0 = this.rotateRight(a, 2) ^ this.rotateRight(a, 13) ^ this.rotateRight(a, 22);
+        const majority = (a & b) ^ (a & c) ^ (b & c);
+        const temp2 = (sigma0 + majority) >>> 0;
+
+        h = g;
+        g = f;
+        f = e;
+        e = (d + temp1) >>> 0;
+        d = c;
+        c = b;
+        b = a;
+        a = (temp1 + temp2) >>> 0;
+      }
+
+      h0 = (h0 + a) >>> 0;
+      h1 = (h1 + b) >>> 0;
+      h2 = (h2 + c) >>> 0;
+      h3 = (h3 + d) >>> 0;
+      h4 = (h4 + e) >>> 0;
+      h5 = (h5 + f) >>> 0;
+      h6 = (h6 + g) >>> 0;
+      h7 = (h7 + h) >>> 0;
+    }
+
+    return [h0, h1, h2, h3, h4, h5, h6, h7]
+      .map((value) => value.toString(16).padStart(8, '0'))
+      .join('');
+  }
+
   /**
    * Hassas bilgi pattern'leri (AI'ya gönderilmeden temizlenecek)
    */
@@ -96,7 +199,7 @@ export class PrivacyService {
    * // result.hash: 'a7f3c2...'
    * // result.lastFour: '8901'
    */
-  static async hashTcNo(tcNo: string): Promise<HashResult> {
+  static hashTcNo(tcNo: string): HashResult {
     // Validation
     if (!tcNo || typeof tcNo !== 'string') {
       throw new ValidationError('TC Kimlik No zorunludur.', { field: 'tcNo' });
@@ -111,11 +214,7 @@ export class PrivacyService {
       });
     }
 
-    // SHA-256 + salt ile hash'le (Web Crypto API)
-    const msgUint8 = new TextEncoder().encode(cleaned + this.TC_HASH_SALT);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const hash = this.sha256(cleaned + this.TC_HASH_SALT);
 
     return {
       hash,
@@ -132,9 +231,9 @@ export class PrivacyService {
    * @param storedHash - Veritabanında saklanan hash
    * @returns boolean - Hash eşleşiyor mu?
    */
-  static async verifyTcNo(tcNo: string, storedHash: string): Promise<boolean> {
+  static verifyTcNo(tcNo: string, storedHash: string): boolean {
     try {
-      const { hash } = await this.hashTcNo(tcNo);
+      const { hash } = this.hashTcNo(tcNo);
       return hash === storedHash;
     } catch {
       return false;
@@ -154,16 +253,12 @@ export class PrivacyService {
    * const anon = PrivacyService.anonymizeStudentId('student-123-ahmet');
    * // anon.anonymousId: 'student_a7f3c2'
    */
-  static async anonymizeStudentId(studentId: string): Promise<AnonymizationResult> {
+  static anonymizeStudentId(studentId: string): AnonymizationResult {
     if (!studentId || typeof studentId !== 'string') {
       throw new ValidationError('Öğrenci ID zorunludur.', { field: 'studentId' });
     }
 
-    // Orijinal ID'yi hash'le (Web Crypto API ile)
-    const msgUint8 = new TextEncoder().encode(studentId + this.STUDENT_ID_SALT);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const originalIdHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const originalIdHash = this.sha256(studentId + this.STUDENT_ID_SALT);
 
     // Anonim ID oluştur (ilk 6 karakter + timestamp'in son 2 karakteri)
     const shortHash = originalIdHash.slice(0, 6);
@@ -401,7 +496,7 @@ export class PrivacyService {
    * @param profile - Orijinal öğrenci profili
    * @returns Sanitize edilmiş profil
    */
-  static async createSafeStudentProfileForAI(profile: {
+  static createSafeStudentProfileForAI(profile: {
     name?: string;
     diagnosis?: string[];
     age?: number;
@@ -409,10 +504,10 @@ export class PrivacyService {
     strengths?: string[];
     needs?: string[];
     [key: string]: unknown;
-  }): Promise<Record<string, unknown>> {
+  }): Record<string, unknown> {
     // Öğrenci ID'sini anonimleştir
     const anonymousId = profile.name
-      ? (await this.anonymizeStudentId(profile.name)).anonymousId
+      ? this.anonymizeStudentId(profile.name).anonymousId
       : 'student_anonymous';
 
     // Tanıları jenerikleştir
@@ -456,15 +551,15 @@ export class PrivacyService {
 /**
  * Hızlı TC No hash'leme
  */
-export const hashTcNo = async (tcNo: string): Promise<string> => {
-  return (await PrivacyService.hashTcNo(tcNo)).hash;
+export const hashTcNo = (tcNo: string): string => {
+  return PrivacyService.hashTcNo(tcNo).hash;
 };
 
 /**
  * Hızlı öğrenci ID anonimleştirme
  */
-export const anonymizeStudent = async (studentId: string): Promise<string> => {
-  return (await PrivacyService.anonymizeStudentId(studentId)).anonymousId;
+export const anonymizeStudent = (studentId: string): string => {
+  return PrivacyService.anonymizeStudentId(studentId).anonymousId;
 };
 
 /**

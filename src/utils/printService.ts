@@ -436,6 +436,8 @@ export const printService = {
   print: async (elementSelector: string = '.worksheet-page', paperSize: PaperSize = 'A4') => {
     if (typeof window === 'undefined') return;
 
+    ensurePrintStyle(paperSize);
+
     // 1. Yazdırılacak sayfaları topla
     const roots = Array.from(document.querySelectorAll(elementSelector)) as HTMLElement[];
     const pages: HTMLElement[] = [];
@@ -460,7 +462,11 @@ export const printService = {
     });
 
     if (pages.length === 0) {
-      alert('Yazdırılacak içerik bulunamadı. Lütfen sayfa yüklenene kadar bekleyin.');
+      try {
+        window.print();
+      } catch (err) {
+        console.error('Print fallback failed:', err);
+      }
       return;
     }
 
@@ -481,7 +487,24 @@ export const printService = {
     overlay.style.width = '100%';
     overlay.style.backgroundColor = 'white';
     overlay.style.zIndex = '2147483647';
-    overlay.style.display = 'none'; // Sadece medya sorgusu ile print esnasında görünür
+    overlay.style.display = 'block';
+
+    const printTable = document.createElement('table');
+    const tableHead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+    headRow.appendChild(document.createElement('th'));
+    tableHead.appendChild(headRow);
+
+    const tableBody = document.createElement('tbody');
+    const tableFoot = document.createElement('tfoot');
+    const footRow = document.createElement('tr');
+    footRow.appendChild(document.createElement('td'));
+    tableFoot.appendChild(footRow);
+
+    printTable.appendChild(tableHead);
+    printTable.appendChild(tableBody);
+    printTable.appendChild(tableFoot);
+    overlay.appendChild(printTable);
 
     const _dims = PAPER_DIMENSIONS[paperSize];
     const isLandscape = pages[0]?.classList.contains('landscape');
@@ -608,7 +631,11 @@ export const printService = {
       wrapper.className = 'oogmatik-print-wrapper';
       wrapper.appendChild(clone);
 
-      overlay!.appendChild(wrapper);
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.appendChild(wrapper);
+      row.appendChild(cell);
+      tableBody.appendChild(row);
     });
 
     // 5. Native Render Stabilizasyonu

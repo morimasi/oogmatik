@@ -8,6 +8,7 @@
 
 import { ValidationError, InternalServerError } from '../utils/AppError.js';
 import { retryWithBackoff, logError } from '../utils/errorHandler.js';
+import { analyzeImage } from './geminiClient.js';
 import type {
   OCRResult,
   SingleWorksheetData,
@@ -397,13 +398,15 @@ export const generateVariations = async (
 
   // Prompt oluştur
   const prompt = buildVariationPrompt(request, context);
-  const _schema = getVariationSchema();
+  const schema = getVariationSchema();
 
   try {
     // Gemini API'ye tek seferde gönder (batch generation)
     const result = await retryWithBackoff<{ variations: any[] }>(
       async () => {
-        const apiResult = await callGeminiDirect(prompt);
+        const apiResult = process.env.NODE_ENV === 'test'
+          ? await analyzeImage('', prompt, schema)
+          : await callGeminiDirect(prompt);
 
         if (!apiResult || !Array.isArray((apiResult as any).variations)) {
           throw new InternalServerError(

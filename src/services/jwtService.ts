@@ -19,7 +19,27 @@ export interface TokenPayload {
  * JWT Service for token generation and verification
  */
 export class JWTService {
-    private static readonly SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+    private static get SECRET_KEY(): string {
+        const env = process.env.NODE_ENV || 'production';
+        
+        // Production: JWT_SECRET is required
+        if (env === 'production' && !process.env.JWT_SECRET) {
+            throw new AppError(
+                'JWT_SECRET environment variable is missing in production!',
+                'CONFIG_ERROR',
+                500
+            );
+        }
+        
+        // Development: use dev key if JWT_SECRET not set
+        if ((env === 'development' || env === 'test') && !process.env.JWT_SECRET) {
+            return 'dev-secret-key-do-not-use-in-production';
+        }
+        
+        // Use JWT_SECRET if available, fallback to default
+        return process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+    }
+    
     private static readonly EXPIRATION_TIME = '24h'; // 24 hours
     private static readonly REFRESH_EXPIRATION = '7d'; // 7 days
 

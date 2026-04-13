@@ -62,7 +62,7 @@ export interface PromptSecurityConfig {
 // CONSTANTS
 // ============================================================
 
-export const DEFAULT_MAX_LENGTH = 5000;
+export const DEFAULT_MAX_LENGTH = 2000;
 
 export const DEFAULT_CONFIG: PromptSecurityConfig = {
   maxLength: DEFAULT_MAX_LENGTH,

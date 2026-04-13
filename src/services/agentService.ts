@@ -132,7 +132,7 @@ export const AGENT_PROFILES: Record<AgentRole, AgentProfile> = {
       'Güvenlik ve test'
     ],
     responsibilities: [
-      'any tipi yasağı denetimi',
+      'TypeScript tipi kontrol ve any yasağı denetimi',
       'AppError formatı koruması',
       'RateLimiter + validateRequest zorunluluğu',
       'Vitest test coverage'

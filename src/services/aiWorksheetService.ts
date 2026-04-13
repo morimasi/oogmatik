@@ -7,6 +7,7 @@ import { agentService } from './agentService.js';
 import { generateWithSchema } from './geminiClient.js';
 import { WorksheetData, ActivityType } from '../types/core.js';
 import { Student } from '../types/student.js';
+import { ValidationError } from '../utils/AppError.js';
 
 export interface WorksheetGenerationParams {
   student: Student;
@@ -46,6 +47,46 @@ export interface SmartWorksheetSuggestion {
   prerequisites: string[];
 }
 
+const VALID_DIFFICULTIES = ['Kolay', 'Orta', 'Zor'] as const;
+
+const normalizeDifficulty = (value: unknown): 'Kolay' | 'Orta' | 'Zor' => {
+  if (typeof value === 'string' && VALID_DIFFICULTIES.includes(value as 'Kolay' | 'Orta' | 'Zor')) {
+    return value as 'Kolay' | 'Orta' | 'Zor';
+  }
+
+  return 'Orta';
+};
+
+const normalizeSeverity = (value: unknown): 'critical' | 'warning' | 'info' => {
+  if (value === 'critical' || value === 'warning' || value === 'info') {
+    return value;
+  }
+
+  return 'warning';
+};
+
+const validateWorksheetParams = (params: WorksheetGenerationParams): void => {
+  if (!params.student?.id || !params.student?.name) {
+    throw new ValidationError('Öğrenci bilgisi zorunludur.', { field: 'student' });
+  }
+
+  if (!params.subject?.trim() || !params.topic?.trim()) {
+    throw new ValidationError('Ders ve konu zorunludur.', { field: 'subject/topic' });
+  }
+
+  if (!Array.isArray(params.activityTypes) || params.activityTypes.length === 0) {
+    throw new ValidationError('En az bir aktivite tipi seçilmelidir.', { field: 'activityTypes' });
+  }
+
+  if (!Number.isFinite(params.duration) || params.duration <= 0) {
+    throw new ValidationError('Süre pozitif bir sayı olmalıdır.', { field: 'duration' });
+  }
+
+  if (!Array.isArray(params.learningObjectives) || params.learningObjectives.length === 0) {
+    throw new ValidationError('En az bir öğrenme hedefi gereklidir.', { field: 'learningObjectives' });
+  }
+};
+
 export const aiWorksheetService = {
   /**
    * Generate AI-powered worksheet with multi-agent validation
@@ -53,6 +94,8 @@ export const aiWorksheetService = {
   generateIntelligentWorksheet: async (
     params: WorksheetGenerationParams
   ): Promise<{ worksheet: WorksheetData; validation: AIWorksheetValidation }> => {
+    validateWorksheetParams(params);
+
     // Step 1: Generate base worksheet content
     const worksheetPrompt = `
 [GÖREV: Zeki Çalışma Kâğıdı Üretimi]
@@ -138,6 +181,7 @@ YANIT FORMATI (JSON):
       activities: worksheet.activities.map((act: any, index: number) => ({
         id: `act_${index}`,
         type: act.type as ActivityType,
+        difficulty: normalizeDifficulty(act.difficulty),
         ...act
       })),
       metadata: {
@@ -188,6 +232,24 @@ YANIT FORMATI (JSON):
     const issues: AIWorksheetValidation['issues'] = [];
     const approvedBy: string[] = [];
 
+    if (!worksheetContent?.pedagogicalNote || typeof worksheetContent.pedagogicalNote !== 'string') {
+      issues.push({
+        severity: 'critical',
+        category: 'pedagogical',
+        message: 'pedagogicalNote eksik veya geçersiz.',
+        suggestion: 'Her çalışma kâğıdına anlamlı bir pedagogicalNote ekleyin.'
+      });
+    }
+
+    if (!Array.isArray(worksheetContent?.activities) || worksheetContent.activities.length === 0) {
+      issues.push({
+        severity: 'critical',
+        category: 'technical',
+        message: 'Çalışma kâğıdında en az bir aktivite bulunmalıdır.',
+        suggestion: 'En az bir yapılandırılmış aktivite ekleyin.'
+      });
+    }
+
     validationResults.forEach((result, index) => {
       const { category } = agents[index];
 
@@ -202,7 +264,7 @@ YANIT FORMATI (JSON):
         if (output.violations && Array.isArray(output.violations)) {
           output.violations.forEach((violation: string) => {
             issues.push({
-              severity: output.severity || 'warning',
+              severity: normalizeSeverity(output.severity),
               category,
               message: violation,
               suggestion: output.suggestions?.[0] || 'İyileştirme önerileri mevcut'
@@ -301,7 +363,10 @@ YANIT FORMATI (JSON):
       required: ['suggestions']
     });
 
-    return (result as any).suggestions;
+    return ((result as any).suggestions || []).map((suggestion: SmartWorksheetSuggestion) => ({
+      ...suggestion,
+      estimatedDifficulty: normalizeDifficulty(suggestion.estimatedDifficulty),
+    }));
   },
 
   /**
@@ -351,7 +416,21 @@ YANIT FORMATI (JSON):
       required: ['optimized', 'changes', 'improvements']
     });
 
-    return result as { optimized: WorksheetData; changes: string[]; improvements: string[] };
+    const typedResult = result as { optimized?: Partial<WorksheetData>; changes: string[]; improvements: string[] };
+
+    return {
+      optimized: {
+        ...worksheet,
+        ...(typedResult.optimized || {}),
+        name: typedResult.optimized?.name || worksheet.name,
+        description: typedResult.optimized?.description || worksheet.description,
+        activities: Array.isArray(typedResult.optimized?.activities)
+          ? typedResult.optimized.activities
+          : worksheet.activities,
+      } as WorksheetData,
+      changes: typedResult.changes,
+      improvements: typedResult.improvements,
+    };
   },
 
   /**

@@ -8,7 +8,7 @@ const DB_VERSION = 2; // Incremented version
 export const cacheService = {
   async openDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-      if (!('indexedDB' in window)) {
+      if (typeof window === 'undefined' || typeof indexedDB === 'undefined') {
         reject(new Error('IndexedDB not supported'));
         return;
       }

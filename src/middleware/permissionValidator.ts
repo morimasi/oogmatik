@@ -35,12 +35,19 @@ export const extractUserInfo = (req: VercelRequest): {
                 }
             } catch (err) {
                 logError(new AuthenticationError('Geçersiz veya süresi dolmuş token'), { context: 'extractUserInfo.verify', error: err });
-                // Note: Proceeding to fallback if token is invalid isn't completely secure.
-                // However, preserving existing fallback behavior as requested by architecture.
+                // Invalid token: Disable fallback (security reason in production + test expectations)
+                return { userId: null, role: null };
             }
         }
 
-        // Fallback to custom headers (Secondary Method / Dev)
+        // Fallback to custom headers (Secondary Method / Dev) - ONLY in development
+        const isProduction = process.env.NODE_ENV === 'production';
+        if (isProduction) {
+            // Disable fallback in production for security
+            return { userId: null, role: null };
+        }
+
+        // Development/Test: Allow fallback to custom headers
         return {
             userId: userId || null,
             role: role || null,
