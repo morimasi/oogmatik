@@ -170,7 +170,16 @@ export const agentService = {
    * Create a new agent task
    */
   createTask: async (task: Omit<AgentTask, 'id' | 'createdAt' | 'status'>): Promise<AgentTask> => {
-    const newTask: AgentTask = {
+     // Validate agent role
+     if (!AGENT_PROFILES[task.role]) {
+       throw new AppError(
+         `Invalid agent role: ${task.role}. Must be one of: ${Object.keys(AGENT_PROFILES).join(', ')}`,
+         'INVALID_AGENT_ROLE',
+         400
+       );
+     }
+
+     const newTask: AgentTask = {
       ...task,
       id: `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       createdAt: new Date().toISOString(),
