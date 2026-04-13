@@ -270,6 +270,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     }))
   );
 
+  const ActivityStudio = React.lazy(() =>
+    import('./ActivityStudio').then((module) => ({ default: module.ActivityStudio }))
+  );
+
   return (
     <main className="flex-1 flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       {/* TOOLBAR */}
@@ -499,6 +503,23 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             }
           >
             <MatSinavStudyosu />
+          </React.Suspense>
+        </div>
+      )}
+
+      {currentView === 'activity-studio' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <i className="fa-solid fa-spinner fa-spin text-4xl text-fuchsia-500"></i>
+              </div>
+            }
+          >
+            <ActivityStudio
+              onBack={onBackToGenerator}
+              onAddToWorkbook={onAddDirectToWorkbook}
+            />
           </React.Suspense>
         </div>
       )}

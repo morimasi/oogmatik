@@ -12,6 +12,7 @@ import { activityApprovalService } from '../services/activityApprovalService';
 import { templateEngine } from '../services/templateEngine';
 import type { ActivityDraft } from '../types/admin';
 import type { ApprovalStatus, ProductionMode } from '../types/ocr-activity';
+import { filterDraftsBySource, type ApprovalSourceFilter } from '../services/activityStudioApprovalFilter';
 
 // ─── Mod etiketi yardımcısı ─────────────────────────────────────────────
 
@@ -34,6 +35,7 @@ const AdminActivityApproval: React.FC = () => {
     const [rejectReason, setRejectReason] = useState('');
     const [showRejectForm, setShowRejectForm] = useState(false);
     const [filter, setFilter] = useState<ApprovalStatus | 'all'>('pending_review');
+    const [sourceFilter, setSourceFilter] = useState<ApprovalSourceFilter>('all');
     const [loading, setLoading] = useState(false);
 
     // Taslakları yükle
@@ -53,6 +55,8 @@ const AdminActivityApproval: React.FC = () => {
     useEffect(() => {
         loadDrafts();
     }, [loadDrafts]);
+
+    const filteredDrafts = filterDraftsBySource(drafts, sourceFilter);
 
     // Onayla
     const handleApprove = async (draftId: string) => {
@@ -116,6 +120,30 @@ const AdminActivityApproval: React.FC = () => {
                 </div>
             </div>
 
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                {([
+                    { id: 'all', label: 'Tum Kaynaklar' },
+                    { id: 'activity-studio', label: 'Activity Studio' },
+                    { id: 'other', label: 'Digerleri' },
+                ] as const).map((item) => (
+                    <button
+                        key={item.id}
+                        onClick={() => setSourceFilter(item.id)}
+                        style={{
+                            padding: '6px 12px',
+                            border: sourceFilter === item.id ? '1px solid #14b8a6' : '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '8px',
+                            background: sourceFilter === item.id ? 'rgba(20,184,166,0.15)' : 'transparent',
+                            color: sourceFilter === item.id ? '#99f6e4' : '#64748b',
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        {item.label}
+                    </button>
+                ))}
+            </div>
+
             <div style={{ display: 'grid', gridTemplateColumns: selectedDraft ? '380px 1fr' : '1fr', gap: '20px' }}>
                 {/* Taslak Listesi */}
                 <div style={{
@@ -128,12 +156,12 @@ const AdminActivityApproval: React.FC = () => {
                 }}>
                     {loading ? (
                         <p style={{ color: '#64748b', textAlign: 'center', padding: '40px 0' }}>Yükleniyor...</p>
-                    ) : drafts.length === 0 ? (
+                    ) : filteredDrafts.length === 0 ? (
                         <p style={{ color: '#64748b', textAlign: 'center', padding: '40px 0' }}>
                             {filter === 'pending_review' ? 'Onay bekleyen etkinlik yok.' : 'Sonuç bulunamadı.'}
                         </p>
                     ) : (
-                        drafts.map((draft) => {
+                        filteredDrafts.map((draft) => {
                             const statusStyle = statusColors[draft.status || 'draft'];
                             return (
                                 <div

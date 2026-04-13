@@ -11,7 +11,8 @@
     "format": "prettier --write \"{api,components,context,data,database,hooks,services,types,utils}/**/*.{js,jsx,ts,tsx,css,md}\" \"*.{ts,tsx,json,md}\"",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:e2e": "playwright test tests/e2e"
   },
   "dependencies": {
     "@antv/infographic": "^0.2.16",
@@ -79,6 +80,7 @@
     "globals": "^17.4.0",
     "jsdom": "^28.1.0",
     "prettier": "^3.8.1",
+    "@playwright/test": "^1.54.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.2",
     "vite": "^6.4.1",
