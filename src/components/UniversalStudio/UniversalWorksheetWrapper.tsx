@@ -39,21 +39,23 @@ const DesignModeToolbar = () => {
   if (!designMode) return null;
 
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white rounded-xl shadow-xl border border-zinc-200 p-2">
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-xl shadow-xl p-2" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
       <button
         onClick={() => setDesignMode(false)}
-        className="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider bg-zinc-100 text-zinc-600 hover:bg-zinc-200 transition-colors flex items-center gap-2"
+        className="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors flex items-center gap-2"
+        style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-secondary)' }}
       >
         <i className="fa-solid fa-eye"></i>
         Önizleme
       </button>
 
-      <div className="w-px h-6 bg-zinc-200"></div>
+      <div className="w-px h-6" style={{ backgroundColor: 'var(--border-color)' }}></div>
 
       <button
         onClick={clearSelection}
         disabled={!hasSelection}
-        className="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider bg-zinc-100 text-zinc-600 hover:bg-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-secondary)' }}
         title="Seçimi Temizle (Esc)"
       >
         <i className="fa-solid fa-xmark"></i>
@@ -62,7 +64,8 @@ const DesignModeToolbar = () => {
       <button
         onClick={groupSelected}
         disabled={!hasMultipleSelection}
-        className="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-600 hover:bg-indigo-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+        className="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+        style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}
         title="Grupla (Ctrl+G)"
       >
         <i className="fa-solid fa-object-group"></i>
@@ -161,7 +164,7 @@ const UniversalWorksheetInner = ({
 
       {/* Right Panel - Only visible in Design Mode */}
       {designMode && (
-        <div className="shrink-0 w-80 bg-white border-l border-zinc-200 z-40 h-full">
+        <div className="shrink-0 w-80 z-40 h-full" style={{ backgroundColor: 'var(--bg-paper)', borderLeft: '1px solid var(--border-color)' }}>
           <UniversalPropertiesPanel />
         </div>
       )}

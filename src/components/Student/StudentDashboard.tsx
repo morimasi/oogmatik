@@ -86,7 +86,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
   const [searchQuery, setSearchQuery] = useState('');
 
   const selectedStudent = useMemo(
-    () => students.find((s) => s.id === selectedStudentId),
+    () => students.find((s: Student) => s.id === selectedStudentId),
     [students, selectedStudentId]
   );
 
@@ -107,7 +107,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
   const loadStudentData = async (id: string) => {
     setLoadingDetails(true);
     try {
-      const currentStudent = students.find((s) => s.id === id);
+      const currentStudent = students.find((s: Student) => s.id === id);
       if (!currentStudent) return;
 
       const [ws, as, cr] = await Promise.all([
@@ -191,14 +191,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
 
   // --- Grouping Logic ---
   const groupedStudents = useMemo(() => {
-    const filtered = students.filter((s) =>
+    const filtered = students.filter((s: Student) =>
       (s.name || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     if (groupingMode === 'all') return { 'Tüm Öğrenciler': filtered };
 
     return filtered.reduce(
-      (acc, student) => {
+      (acc: Record<string, Student[]>, student: Student) => {
         const key = groupingMode === 'grade' ? student.grade : `${student.age} Yaş`;
         if (!acc[key]) acc[key] = [];
         acc[key].push(student);
@@ -240,7 +240,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
               setFormTab('identity');
               setShowAddForm(true);
             }}
-            className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-indigo-600/20"
+            className="w-10 h-10 rounded-xl text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+            style={{ backgroundColor: 'var(--accent-color)' }}
             title="Yeni Öğrenci Ekle"
           >
             <i className="fa-solid fa-plus"></i>
@@ -290,7 +291,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
 
             {(groupingMode === 'all' || openGroups[groupKey]) && (
               <div className="space-y-2">
-                {groupedStudents[groupKey].map((s) => {
+                {groupedStudents[groupKey].map((s: Student) => {
                   if (!s || !s.id) return null;
                   const isActive = selectedStudentId === s.id;
                   const isCurrentActive = activeStudent?.id === s.id;
@@ -453,7 +454,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
           {loadingDetails ? (
             <div className="flex flex-col items-center justify-center h-full opacity-40">
-              <i className="fa-solid fa-loader fa-spin text-5xl text-indigo-600 mb-4"></i>
+              <i className="fa-solid fa-loader fa-spin text-5xl mb-4" style={{ color: 'var(--accent-color)' }}></i>
               <p className="font-black text-xs uppercase tracking-widest">
                 {' '}
                 Veriler Senkronize Ediliyor...{' '}
@@ -464,16 +465,16 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
               {activeTab === 'overview' && (
                 <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
                   {/* AI Insight Highlight */}
-                  <div className="bg-gradient-to-r from-zinc-900 to-indigo-950 p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full -mr-20 -mt-20 blur-3xl animate-pulse"></div>
+                  <div className="p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden group" style={{ background: 'linear-gradient(to right, var(--surface-elevated), var(--accent-muted))' }}>
+                    <div className="absolute top-0 right-0 w-80 h-80 rounded-full -mr-20 -mt-20 blur-3xl animate-pulse" style={{ backgroundColor: 'var(--accent-color)', opacity: 0.1 }}></div>
                     <div className="relative z-10">
-                      <div className="flex items-center gap-3 mb-4 text-indigo-400">
+                      <div className="flex items-center gap-3 mb-4" style={{ color: 'var(--accent-color)' }}>
                         <i className="fa-solid fa-sparkles"></i>
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">
                           AI Öngörüsü (Beta)
                         </span>
                       </div>
-                      <p className="text-xl font-medium text-indigo-50 leading-relaxed mb-6">
+                      <p className="text-xl font-medium leading-relaxed mb-6" style={{ color: 'var(--text-primary)' }}>
                         "{selectedStudent.name}, son matematik aktivitelerinde{' '}
                         <strong> %18'lik bir gelişim </strong> sergiledi. Görsel tarama becerileri
                         şu an <strong> akran ortalamasının üzerinde. </strong> Bugün için önerilen
@@ -561,7 +562,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                             Tanı Grubu
                           </label>
                           <div className="flex flex-wrap gap-2">
-                            {selectedStudent.diagnosis.map((d, i) => (
+                            {selectedStudent.diagnosis.map((d: string, i: number) => (
                               <span
                                 key={i}
                                 className="px-3 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-xl text-[10px] font-black uppercase"
@@ -598,7 +599,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedStudent.interests.length > 0 ? (
-                          selectedStudent.interests.map((tag, i) => (
+                          selectedStudent.interests.map((tag: string, i: number) => (
                             <span
                               key={i}
                               className="px-3 py-1.5 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-2xl text-xs font-bold"
@@ -615,7 +616,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                           Güçlü Yönler
                         </label>
                         <div className="flex flex-wrap gap-2">
-                          {selectedStudent.strengths?.map((s, i) => (
+                          {selectedStudent.strengths?.map((s: string, i: number) => (
                             <span
                               key={i}
                               className="text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-lg"
@@ -647,7 +648,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
 
               {activeTab === 'materials' && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                    <div className="flex justify-between items-center mb-4 px-4">
+                  <div className="flex justify-between items-center mb-4 px-4">
                     <h3 className="font-black text-2xl tracking-tighter text-[var(--text-primary)] uppercase">
                       Dijital Arşiv
                     </h3>

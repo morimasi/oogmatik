@@ -52,11 +52,10 @@ const IconButton = ({
     onClick={onClick}
     disabled={disabled || isLoading}
     title={title}
-    className={`relative w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${
-      active
+    className={`relative w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${active
         ? 'bg-[var(--accent-color)] text-[var(--bg-primary)] shadow-md transform scale-105'
         : `text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] ${colorClass || 'hover:text-[var(--text-primary)]'}`
-    } ${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+      } ${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
   >
     {isLoading ? (
       <i className="fa-solid fa-circle-notch fa-spin"></i>
@@ -78,7 +77,8 @@ const _PaperSizeSelector = () => {
     <select
       value={paperSize}
       onChange={(e) => setPaperSize(e.target.value as PaperSize)}
-      className="ml-2 p-1 rounded bg-white border border-zinc-200 text-xs"
+      className="ml-2 p-1 rounded text-xs"
+      style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
       aria-label="Kağıt Boyutu"
     >
       <option value="A4">A4</option>
@@ -92,11 +92,10 @@ const MenuButton = ({ icon, label, onClick, active, isOpen }: any) => (
   <button
     onClick={onClick}
     data-dropdown-trigger
-    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all border select-none ${
-      active || isOpen
+    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all border select-none ${active || isOpen
         ? 'bg-[var(--accent-muted)] border-[var(--accent-color)]/30 text-[var(--accent-color)]'
         : 'bg-[var(--bg-paper)] border-transparent text-[var(--text-secondary)] hover:bg-white hover:border-[var(--border-color)]'
-    }`}
+      }`}
   >
     <i
       className={`fa-solid ${icon} ${active || isOpen ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}
@@ -170,7 +169,8 @@ const DropdownPanel = ({ title, children, onClose, className = '' }: any) => {
   return (
     <div
       ref={ref}
-      className={`absolute top-full mt-2 left-0 bg-white border border-[var(--border-color)] rounded-xl shadow-2xl z-[100] p-5 animate-in fade-in zoom-in-95 origin-top-left ring-1 ring-black/5 ${className}`}
+      className={`absolute top-full mt-2 left-0 border rounded-xl shadow-2xl z-[100] p-5 animate-in fade-in zoom-in-95 origin-top-left ring-1 ring-black/5 ${className}`}
+      style={{ backgroundColor: 'var(--bg-paper)', borderColor: 'var(--border-color)' }}
     >
       <div className="flex justify-between items-center mb-4 pb-3 border-b border-[var(--border-color)]">
         <h4 className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em]">
@@ -289,8 +289,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 min={0}
                 max={60}
               />
-              <div className="pt-2 border-t border-zinc-100">
-                <label className="text-[10px] font-black text-zinc-400 uppercase mb-2 block">
+              <div className="pt-2" style={{ borderTop: '1px solid var(--border-color)' }}>
+                <label className="text-[10px] font-black uppercase mb-2 block" style={{ color: 'var(--text-muted)' }}>
                   Yazı Tipi
                 </label>
                 <div className="grid grid-cols-2 gap-1">
@@ -298,8 +298,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     <button
                       key={f}
                       onClick={() => updateSetting('fontFamily', f)}
-                      className={`py-1.5 text-[10px] rounded border transition-all ${settings.fontFamily === f ? 'bg-indigo-600 text-white' : 'hover:bg-zinc-100'}`}
-                      style={{ fontFamily: f }}
+                      className={`py-1.5 text-[10px] rounded border transition-all`}
+                      style={settings.fontFamily === f ? { backgroundColor: 'var(--accent-color)', color: '#fff', borderColor: 'var(--accent-color)' } : { borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
                     >
                       {f}
                     </button>
@@ -330,7 +330,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 onChange={(v: any) => updateSetting('focusMode', v)}
               />
               {settings.focusMode && (
-                <div className="space-y-4 pt-2 border-t border-zinc-100 animate-in fade-in duration-300">
+                <div className="space-y-4 pt-2 animate-in fade-in duration-300" style={{ borderTop: '1px solid var(--border-color)' }}>
                   <NumberControl
                     label="Cetvel Yüksekliği"
                     value={settings.rulerHeight || 80}
@@ -347,7 +347,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     step={0.1}
                   />
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase">
+                    <label className="text-[10px] font-bold uppercase" style={{ color: 'var(--text-muted)' }}>
                       Cetvel Rengi
                     </label>
                     <div className="flex gap-2">
@@ -355,8 +355,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                         <button
                           key={c}
                           onClick={() => updateSetting('rulerColor', c)}
-                          className={`w-6 h-6 rounded-full border-2 transition-all ${settings.rulerColor === c ? 'border-zinc-900 scale-125' : 'border-transparent'}`}
-                          style={{ backgroundColor: c }}
+                          className={`w-6 h-6 rounded-full border-2 transition-all ${settings.rulerColor === c ? 'scale-125' : 'border-transparent'}`}
+                          style={{ backgroundColor: c, ...(settings.rulerColor === c ? { borderColor: 'var(--text-primary)' } : {}) }}
                         />
                       ))}
                     </div>
@@ -381,7 +381,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               className="w-80"
             >
               <div className="space-y-4">
-                <div className="bg-white p-3 rounded-lg border border-[var(--border-color)]">
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
                   <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-2 block">
                     <i className="fa-solid fa-grip-vertical mr-1"></i> İçerik Yapısı
                   </label>
@@ -426,11 +426,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                       <button
                         key={b.value}
                         onClick={() => updateSetting('themeBorder', b.value)}
-                        className={`flex flex-col items-center py-2 rounded-lg border transition-all text-[10px] ${
-                          settings.themeBorder === b.value
+                        className={`flex flex-col items-center py-2 rounded-lg border transition-all text-[10px] ${settings.themeBorder === b.value
                             ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--text-primary)] shadow-sm font-bold'
                             : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-secondary)]'
-                        }`}
+                          }`}
                       >
                         <i className={`fa-solid ${b.icon} text-sm mb-0.5`}></i>
                         {b.label}
@@ -457,11 +456,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                         key={p.color}
                         title={p.label}
                         onClick={() => updateSetting('borderColor', p.color)}
-                        className={`w-7 h-7 rounded-full border-2 transition-all ${
-                          settings.borderColor === p.color
+                        className={`w-7 h-7 rounded-full border-2 transition-all ${settings.borderColor === p.color
                             ? 'border-[var(--text-primary)] scale-125 shadow-md'
                             : 'border-transparent hover:scale-110'
-                        }`}
+                          }`}
                         style={{ backgroundColor: p.color }}
                       />
                     ))}
@@ -734,13 +732,14 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
 const _CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
   <div className="space-y-1">
-    <label className="text-[10px] font-bold text-zinc-500 uppercase block">{label}</label>
-    <div className="flex bg-zinc-100 p-1 rounded-lg">
+    <label className="text-[10px] font-bold uppercase block" style={{ color: 'var(--text-muted)' }}>{label}</label>
+    <div className="flex p-1 rounded-lg" style={{ backgroundColor: 'var(--surface-elevated)' }}>
       {options.map((opt: any) => (
         <button
           key={opt.value}
           onClick={() => onChange(opt.value)}
-          className={`flex-1 py-1.5 text-[10px] font-bold rounded ${selected === opt.value ? 'bg-white shadow-sm text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+          className="flex-1 py-1.5 text-[10px] font-bold rounded"
+          style={selected === opt.value ? { backgroundColor: 'var(--bg-paper)', color: 'var(--accent-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' } : { color: 'var(--text-muted)' }}
         >
           {opt.label}
         </button>

@@ -58,7 +58,8 @@ interface SidebarProps {
 const _StudioMenuItem = ({ icon, label, onClick, color, isExpanded }: any) => (
   <button
     onClick={onClick}
-    className={`w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-2 rounded-xl transition-all duration-300 hover:bg-white dark:hover:bg-zinc-800 hover:shadow-sm border border-transparent hover:border-zinc-100 dark:hover:border-zinc-700/50 relative`}
+    className={`w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-2 rounded-xl transition-all duration-300 hover:shadow-sm border border-transparent relative`}
+    style={{ '--hover-bg': 'var(--bg-paper)' } as React.CSSProperties}
   >
     <div
       className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:shadow-md ${color} relative overflow-hidden`}
@@ -68,13 +69,13 @@ const _StudioMenuItem = ({ icon, label, onClick, color, isExpanded }: any) => (
     </div>
 
     {isExpanded && (
-      <span className="flex-1 text-left text-xs font-normal text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+      <span className="flex-1 text-left text-xs font-normal transition-colors" style={{ color: 'var(--text-secondary)' }}>
         {label}
       </span>
     )}
 
     {isExpanded && (
-      <i className="fa-solid fa-chevron-right text-[10px] text-zinc-300 dark:text-zinc-600 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"></i>
+      <i className="fa-solid fa-chevron-right text-[10px] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" style={{ color: 'var(--text-muted)' }}></i>
     )}
   </button>
 );
@@ -428,7 +429,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             onMouseDown={() => setIsResizing(true)}
             className={`absolute -right-0.5 top-0 bottom-0 w-1.5 cursor-col-resize z-50 hover:bg-indigo-500/40 transition-colors group ${isResizing ? 'bg-indigo-500/60 w-2' : ''}`}
           >
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-8 bg-zinc-300 dark:bg-zinc-700 rounded-full opacity-0 group-hover:opacity-100" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full opacity-0 group-hover:opacity-100" style={{ backgroundColor: 'var(--border-color)' }} />
           </div>
         )}
 
@@ -453,7 +454,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           ) : (
             <nav className="flex-1 overflow-y-auto px-4 py-3 custom-scrollbar scroll-smooth">
               {isExpanded && (
-                <span className="text-[9px] font-normal text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.4em] mb-2 mt-1 block ml-3">
+                <span className="text-[9px] font-normal uppercase tracking-[0.4em] mb-2 mt-1 block ml-3" style={{ color: 'var(--text-muted)' }}>
                   Akıllı Modüller
                 </span>
               )}
@@ -561,7 +562,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                           >
                             {studioGroups.map((group, groupIndex) => (
                               <div key={groupIndex} className="mb-2 last:mb-0">
-                                <div className="px-3 py-1.5 text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest bg-zinc-50 dark:bg-zinc-800/30">
+                                <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)', backgroundColor: 'var(--surface-elevated)' }}>
                                   {group.title}
                                 </div>
                                 {group.items.map((item, index) => (
@@ -642,7 +643,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                         )}
 
                         <div
-                          className={`w-9 h-9 rounded-xl flex items-center justify-center text-base transition-all duration-500 border ${colors[category.id] || 'bg-zinc-100 border-zinc-200'}`}
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center text-base transition-all duration-500 border ${colors[category.id] || ''}`}
+                          style={!colors[category.id] ? { backgroundColor: 'var(--surface-elevated)', borderColor: 'var(--border-color)' } : {}}
                         >
                           <i
                             className={`${category.icon} ${isOpen ? 'scale-110' : 'scale-90 opacity-70'}`}
@@ -651,7 +653,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                         {isExpanded && (
                           <>
                             <span
-                              className={`flex-1 text-left text-[12px] font-normal tracking-tight transition-colors ${isOpen ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 group-hover:text-zinc-800 dark:group-hover:text-zinc-300'}`}
+                              className={`flex-1 text-left text-[12px] font-normal tracking-tight transition-colors`}
+                              style={{ color: isOpen ? 'var(--text-primary)' : 'var(--text-secondary)' }}
                             >
                               {category.title}
                             </span>
@@ -753,7 +756,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         )}
 
                       {isExpanded && isOpen && (
-                        <div className="ml-8 pl-5 mt-1 space-y-0.5 pr-2 border-l-2 border-zinc-100 dark:border-zinc-800 animate-in slide-in-from-left-2 fade-in duration-500">
+                        <div className="ml-8 pl-5 mt-1 space-y-0.5 pr-2 border-l-2 animate-in slide-in-from-left-2 fade-in duration-500" style={{ borderColor: 'var(--border-color)' }}>
                           {category.items.map((activity) => (
                             <button
                               key={activity.id}

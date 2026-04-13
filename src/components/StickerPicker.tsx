@@ -67,25 +67,22 @@ export const StickerPicker: React.FC<StickerPickerProps> = ({ onSelect, onClose 
     ];
 
     return (
-        <div className="absolute top-12 right-0 z-50 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 p-4 w-80 animate-in zoom-in-95">
+        <div className="absolute top-12 right-0 z-50 rounded-xl shadow-xl p-4 w-80 animate-in zoom-in-95" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
             <div className="flex justify-between items-center mb-3">
-                <h4 className="font-bold text-sm text-zinc-600 dark:text-zinc-300">
+                <h4 className="font-bold text-sm" style={{ color: 'var(--text-secondary)' }}>
                     <i className="fa-solid fa-icons mr-1"></i> Çıkartma Ekle
                 </h4>
-                <button onClick={onClose} className="text-zinc-400 hover:text-zinc-600"><i className="fa-solid fa-times"></i></button>
+                <button onClick={onClose} style={{ color: 'var(--text-muted)' }}><i className="fa-solid fa-times"></i></button>
             </div>
 
             {/* Tab bar */}
-            <div className="flex gap-1 mb-3 bg-zinc-100 dark:bg-zinc-700 p-0.5 rounded-lg">
+            <div className="flex gap-1 mb-3 p-0.5 rounded-lg" style={{ backgroundColor: 'var(--surface-elevated)' }}>
                 {tabs.map(t => (
                     <button
                         key={t.id}
                         onClick={() => setActiveTab(t.id)}
-                        className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${
-                            activeTab === t.id
-                                ? 'bg-white dark:bg-zinc-600 shadow-sm text-zinc-900 dark:text-white'
-                                : 'text-zinc-400 hover:text-zinc-600'
-                        }`}
+                        className="flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all"
+                        style={activeTab === t.id ? { backgroundColor: 'var(--bg-paper)', color: 'var(--text-primary)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' } : { color: 'var(--text-muted)' }}
                     >
                         <i className={`fa-solid ${t.icon} mr-1`}></i>
                         {t.label}
@@ -114,7 +111,8 @@ export const StickerPicker: React.FC<StickerPickerProps> = ({ onSelect, onClose 
                         <button
                             key={i}
                             onClick={() => handleSelectEmoji(e)}
-                            className="text-xl hover:scale-125 transition-transform p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                            className="text-xl hover:scale-125 transition-transform p-1 rounded"
+                            style={{ color: 'var(--text-primary)' }}
                         >
                             {e}
                         </button>
@@ -129,7 +127,8 @@ export const StickerPicker: React.FC<StickerPickerProps> = ({ onSelect, onClose 
                             key={i}
                             onClick={() => handleSelectShape(s.svg)}
                             title={s.name}
-                            className="p-2 rounded-lg border border-zinc-200 dark:border-zinc-600 hover:border-zinc-400 hover:scale-110 transition-all"
+                            className="p-2 rounded-lg border hover:scale-110 transition-all"
+                            style={{ borderColor: 'var(--border-color)' }}
                             dangerouslySetInnerHTML={{
                                 __html: `<svg viewBox="0 0 100 100" class="w-full h-full">${s.svg}</svg>`
                             }}
@@ -138,7 +137,7 @@ export const StickerPicker: React.FC<StickerPickerProps> = ({ onSelect, onClose 
                 </div>
             )}
 
-            <p className="text-[9px] text-zinc-400 mt-3 text-center">
+            <p className="text-[9px] mt-3 text-center" style={{ color: 'var(--text-muted)' }}>
                 Sürükleyerek çalışma sayfasına yerleştirin
             </p>
         </div>

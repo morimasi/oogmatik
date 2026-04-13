@@ -42,12 +42,12 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
     // Calculate position of the target element OR Skip if missing
     useLayoutEffect(() => {
         if (!isOpen || !isReady) return;
-        
+
         // Safety check: ensure steps exist and index is valid
         if (!steps || steps.length === 0 || currentStepIndex >= steps.length || currentStepIndex < 0) {
             // If we went out of bounds, close the tour safely
             if (currentStepIndex >= (steps?.length || 0) && (steps?.length || 0) > 0) {
-                 onClose();
+                onClose();
             }
             return;
         }
@@ -63,7 +63,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
                 onClose();
             }
         };
-        
+
         const updateRect = () => {
             const step = steps[currentStepIndex];
             if (!step || !step.targetId) {
@@ -72,12 +72,12 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
             }
 
             const element = document.getElementById(step.targetId);
-            
+
             if (element && element.offsetParent !== null) {
                 try {
                     element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                 } catch (_e) { /* ignore */ }
-                
+
                 scrollTimeout = setTimeout(() => {
                     // Check element existence again inside timeout to be safe
                     const el = document.getElementById(step.targetId);
@@ -88,7 +88,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
                     const rect = el.getBoundingClientRect();
                     // Check if element is visible (non-zero size)
                     if (rect.width === 0 && rect.height === 0) {
-                         handleNextAuto();
+                        handleNextAuto();
                     } else {
                         setTargetRect(rect);
                     }
@@ -101,7 +101,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
 
         updateRect();
         window.addEventListener('resize', updateRect);
-        
+
         return () => {
             window.removeEventListener('resize', updateRect);
             clearTimeout(skipTimeout);
@@ -111,7 +111,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
 
     // Robust check for rendering
     if (!isOpen || !isReady || !steps || steps.length === 0) return null;
-    
+
     const currentStep = steps[currentStepIndex];
     // If currentStep is undefined (e.g. during state transition), do not render
     if (!currentStep || !targetRect) return null;
@@ -142,16 +142,16 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
         const gap = 20;
         let top = 0;
         let left = 0;
-        const tooltipWidth = 320; 
-        const tooltipHeight = 200; 
-        
+        const tooltipWidth = 320;
+        const tooltipHeight = 200;
+
         const pos = currentStep.position || 'bottom';
 
         if (pos === 'bottom') {
             top = targetRect.bottom + gap;
             left = targetRect.left + (targetRect.width / 2) - (tooltipWidth / 2);
         } else if (pos === 'top') {
-            top = targetRect.top - gap - tooltipHeight; 
+            top = targetRect.top - gap - tooltipHeight;
             left = targetRect.left + (targetRect.width / 2) - (tooltipWidth / 2);
         } else if (pos === 'right') {
             top = targetRect.top;
@@ -175,7 +175,7 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
 
     const tooltipStyle = getTooltipStyle();
     const padding = 8;
-    
+
     return createPortal(
         <div className="fixed inset-0 z-[9999] overflow-hidden font-sans tour-overlay" onClick={onClose}>
             <div className="absolute inset-0 pointer-events-none transition-all duration-300 ease-in-out">
@@ -183,65 +183,67 @@ export const TourGuide: React.FC<TourGuideProps> = ({ steps = [], isOpen, onClos
                     <defs>
                         <mask id="tour-mask">
                             <rect x="0" y="0" width="100%" height="100%" fill="white" />
-                            <rect 
-                                x={targetRect.left - padding} 
-                                y={targetRect.top - padding} 
-                                width={Math.max(0, targetRect.width + (padding*2))} 
-                                height={Math.max(0, targetRect.height + (padding*2))} 
-                                fill="black" 
-                                rx="8" 
+                            <rect
+                                x={targetRect.left - padding}
+                                y={targetRect.top - padding}
+                                width={Math.max(0, targetRect.width + (padding * 2))}
+                                height={Math.max(0, targetRect.height + (padding * 2))}
+                                fill="black"
+                                rx="8"
                             />
                         </mask>
                     </defs>
                     <rect x="0" y="0" width="100%" height="100%" fill="rgba(0,0,0,0.6)" mask="url(#tour-mask)" />
-                    <rect 
-                        x={targetRect.left - padding} 
-                        y={targetRect.top - padding} 
-                        width={Math.max(0, targetRect.width + (padding*2))} 
-                        height={Math.max(0, targetRect.height + (padding*2))} 
-                        fill="none" 
-                        stroke="#6366F1" 
-                        strokeWidth="3" 
+                    <rect
+                        x={targetRect.left - padding}
+                        y={targetRect.top - padding}
+                        width={Math.max(0, targetRect.width + (padding * 2))}
+                        height={Math.max(0, targetRect.height + (padding * 2))}
+                        fill="none"
+                        stroke="#6366F1"
+                        strokeWidth="3"
                         rx="8"
                         className="tour-highlight transition-all duration-300 ease-out"
                     />
                 </svg>
             </div>
 
-            <div 
-                className="absolute bg-white dark:bg-zinc-900 rounded-xl shadow-2xl p-6 w-full max-w-xs border border-zinc-200 dark:border-zinc-700 flex flex-col gap-3 transition-all duration-300 ease-out z-[10000]"
-                style={{ top: tooltipStyle.top, left: tooltipStyle.left }}
+            <div
+                className="absolute rounded-xl shadow-2xl p-6 w-full max-w-xs flex flex-col gap-3 transition-all duration-300 ease-out z-[10000]"
+                style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)', top: tooltipStyle.top, left: tooltipStyle.left }}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-start">
                     <h3 className="font-bold text-lg text-indigo-600 dark:text-indigo-400">{currentStep.title}</h3>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">
+                    <button onClick={onClose} className="transition-colors" style={{ color: 'var(--text-muted)' }}>
                         <i className="fa-solid fa-times"></i>
                     </button>
                 </div>
-                
-                <p className="text-zinc-600 dark:text-zinc-300 text-sm leading-relaxed">
+
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                     {currentStep.content}
                 </p>
 
-                <div className="flex justify-between items-center pt-3 border-t border-zinc-100 dark:border-zinc-800 mt-1">
-                    <div className="text-[10px] font-bold text-zinc-400 font-mono tracking-widest">
+                <div className="flex justify-between items-center pt-3 mt-1" style={{ borderTop: '1px solid var(--border-color)' }}>
+                    <div className="text-[10px] font-bold font-mono tracking-widest" style={{ color: 'var(--text-muted)' }}>
                         {currentStepIndex + 1} / {steps.length}
                     </div>
                     <div className="flex gap-2">
                         {currentStepIndex > 0 && (
-                            <button 
+                            <button
                                 onClick={handlePrev}
-                                className="px-3 py-1.5 text-xs font-bold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                className="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors hover:opacity-80"
+                                style={{ color: 'var(--text-secondary)' }}
                             >
                                 Geri
                             </button>
                         )}
-                        <button 
+                        <button
                             onClick={handleNext}
-                            className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md transition-all transform active:scale-95 flex items-center gap-2"
+                            className="px-4 py-1.5 text-xs font-bold text-white rounded-lg shadow-md transition-all transform active:scale-95 flex items-center gap-2"
+                            style={{ backgroundColor: 'var(--accent-color)' }}
                         >
-                            {isLastStep ? 'Tamamla' : 'İleri'} 
+                            {isLastStep ? 'Tamamla' : 'İleri'}
                             {!isLastStep && <i className="fa-solid fa-chevron-right text-[10px]"></i>}
                         </button>
                     </div>

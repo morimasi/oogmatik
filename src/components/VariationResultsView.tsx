@@ -154,8 +154,8 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
               <div
                 key={index}
                 className={`group relative bg-slate-800/50 backdrop-blur-sm rounded-2xl border transition-all ${isSelected
-                    ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/20'
-                    : 'border-white/5 hover:border-white/10'
+                  ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/20'
+                  : 'border-white/5 hover:border-white/10'
                   }`}
               >
                 {/* Selection Checkbox */}
@@ -163,9 +163,10 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                   <button
                     onClick={() => toggleSelect(index)}
                     className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected
-                        ? 'bg-indigo-500 border-indigo-500'
-                        : 'bg-slate-700/50 border-slate-600 hover:border-slate-500'
+                      ? 'border-[var(--accent-color)]'
+                      : 'bg-slate-700/50 border-slate-600 hover:border-slate-500'
                       }`}
+                    style={isSelected ? { backgroundColor: 'var(--accent-color)', borderColor: 'var(--accent-color)' } : {}}
                   >
                     {isSelected && <i className="fa-solid fa-check text-white text-xs"></i>}
                   </button>
@@ -176,7 +177,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                   {/* Header */}
                   <div className="mb-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="px-2 py-1 text-xs font-bold bg-indigo-500/20 text-indigo-300 rounded-lg">
+                      <span className="px-2 py-1 text-xs font-bold rounded-lg" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}>
                         Varyant {index + 1}
                       </span>
                       {variation.difficultyLevel && (
@@ -258,7 +259,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
 
                   {/* Pedagogical Note (Collapsed) */}
                   {variation.pedagogicalNote && (
-                    <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--accent-muted)', border: '1px solid var(--accent-color)', opacity: 0.8 }}>
                       <p className="text-xs text-indigo-300/80 line-clamp-2">
                         <i className="fa-solid fa-lightbulb mr-1"></i>
                         {variation.pedagogicalNote}
@@ -278,9 +279,10 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                     <button
                       onClick={() => toggleSelect(index)}
                       className={`px-3 py-2 text-sm font-bold rounded-lg transition-all border ${isSelected
-                          ? 'bg-indigo-500 text-white border-indigo-500'
-                          : 'bg-white/5 text-white border-white/10 hover:bg-white/10'
+                        ? 'text-white'
+                        : 'bg-white/5 text-white border-white/10 hover:bg-white/10'
                         }`}
+                      style={isSelected ? { backgroundColor: 'var(--accent-color)', borderColor: 'var(--accent-color)' } : {}}
                     >
                       <i className={`fa-solid ${isSelected ? 'fa-check' : 'fa-circle'}`}></i>
                     </button>

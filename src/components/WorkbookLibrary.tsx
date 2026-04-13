@@ -9,7 +9,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Search, Grid, List, Plus, Trash2, Copy, Share2, Download } from 'lucide-react';
+import { Search, Grid, List, Plus, Trash2, Copy } from 'lucide-react';
 import { listWorkbooks, duplicateWorkbook, deleteWorkbook } from '../services/workbook/workbookService';
 import { getAllTemplates } from '../services/workbook/workbookTemplates';
 import type { Workbook, WorkbookTemplate } from '../types/workbook';
@@ -82,16 +82,17 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
   }
 
   return (
-    <div className="workbook-library h-full flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="workbook-library h-full flex flex-col" style={{ backgroundColor: 'var(--bg-default)' }}>
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6">
+      <header className="p-6" style={{ backgroundColor: 'var(--bg-paper)', borderBottom: '1px solid var(--border-color)' }}>
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white" style={{ fontFamily: 'Lexend' }}>
+          <h1 className="text-3xl font-bold" style={{ fontFamily: 'Lexend', color: 'var(--text-primary)' }}>
             Çalışma Kitapçığı Kütüphanesi
           </h1>
           <button
             onClick={() => onCreateNew()}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition hover:opacity-90"
+            style={{ backgroundColor: 'var(--accent-color)' }}
           >
             <Plus className="w-5 h-5" />
             Yeni Kitapçık
@@ -101,36 +102,40 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
         {/* Search + Filters */}
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
             <input
               type="text"
               placeholder="Kitapçık ara..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full pl-10 pr-4 py-2 rounded-lg outline-none"
+              style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            className="px-4 py-2 rounded-lg outline-none cursor-pointer"
+            style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
           >
             <option value="all">Tümü</option>
             <option value="active">Aktif</option>
             <option value="archived">Arşiv</option>
           </select>
 
-          <div className="flex gap-2 border border-gray-300 dark:border-gray-600 rounded-lg p-1 bg-white dark:bg-gray-700">
+          <div className="flex gap-2 rounded-lg p-1" style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)' }}>
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded ${viewMode === 'grid' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600'}`}
+              className="p-2 rounded transition-colors"
+              style={viewMode === 'grid' ? { backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' } : { color: 'var(--text-muted)' }}
             >
               <Grid className="w-5 h-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded ${viewMode === 'list' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600'}`}
+              className="p-2 rounded transition-colors"
+              style={viewMode === 'list' ? { backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' } : { color: 'var(--text-muted)' }}
             >
               <List className="w-5 h-5" />
             </button>
@@ -139,8 +144,8 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
       </header>
 
       {/* Templates Section */}
-      <section className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 p-6 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+      <section className="p-6" style={{ background: 'linear-gradient(to right, var(--surface-elevated), var(--bg-paper))', borderBottom: '1px solid var(--border-color)' }}>
+        <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
           Premium Şablonlar
         </h2>
         <div className="grid grid-cols-6 gap-4">
@@ -148,14 +153,15 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
             <button
               key={template.id}
               onClick={() => onCreateNew(template)}
-              className="p-4 bg-white dark:bg-gray-700 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-indigo-400 hover:shadow-lg transition text-center"
+              className="p-4 rounded-xl border-2 hover:shadow-lg transition text-center hover:border-[var(--accent-color)]"
+              style={{ backgroundColor: 'var(--bg-paper)', borderColor: 'var(--border-color)' }}
             >
               <div className="text-3xl mb-2">{getTemplateIcon(template.type)}</div>
-              <div className="text-sm font-medium text-gray-900 dark:text-white">
+              <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                 {template.name}
               </div>
               {template.isPremium && (
-                <span className="inline-block mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded-full" style={{ backgroundColor: 'rgba(234, 179, 8, 0.15)', color: '#ca8a04' }}>
                   Premium
                 </span>
               )}
@@ -167,9 +173,9 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
       {/* Workbooks Grid/List */}
       <main className="flex-1 overflow-auto p-6">
         {loading ? (
-          <div className="text-center py-12">Yükleniyor...</div>
+          <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>Yükleniyor...</div>
         ) : filteredWorkbooks.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
             Henüz kitapçık bulunamadı. Yeni bir kitapçık oluşturun!
           </div>
         ) : viewMode === 'grid' ? (
@@ -220,10 +226,11 @@ const WorkbookCard: React.FC<WorkbookCardProps> = ({
   onDelete,
 }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-xl transition cursor-pointer overflow-hidden group">
+    <div className="rounded-xl hover:shadow-xl transition cursor-pointer overflow-hidden group" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
       {/* Thumbnail */}
       <div
-        className="h-48 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center"
+        className="h-48 flex items-center justify-center"
+        style={{ background: 'linear-gradient(to bottom right, var(--surface-elevated), var(--bg-inset))' }}
         onClick={() => onSelect(workbook)}
       >
         <div className="text-6xl">{getTemplateIcon(workbook.templateType)}</div>
@@ -232,18 +239,19 @@ const WorkbookCard: React.FC<WorkbookCardProps> = ({
       {/* Content */}
       <div className="p-4">
         <h3
-          className="text-lg font-semibold text-gray-900 dark:text-white mb-1 truncate"
+          className="text-lg font-semibold mb-1 truncate"
+          style={{ color: 'var(--text-primary)' }}
           onClick={() => onSelect(workbook)}
         >
           {workbook.title}
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+        <p className="text-sm mb-3 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
           {workbook.description || 'Açıklama yok'}
         </p>
 
         {/* Meta */}
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-          <span>{workbook.pages.length} sayfa</span>
+        <div className="flex items-center justify-between text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
+          <span>{workbook.pages?.length || 0} sayfa</span>
           <span>{new Date(workbook.updatedAt).toLocaleDateString('tr-TR')}</span>
         </div>
 
@@ -251,14 +259,16 @@ const WorkbookCard: React.FC<WorkbookCardProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => onDuplicate(workbook.id)}
-            className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+            className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded transition hover:opacity-80"
+            style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-secondary)' }}
           >
             <Copy className="w-4 h-4" />
             Kopyala
           </button>
           <button
             onClick={() => onDelete(workbook.id)}
-            className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800 transition"
+            className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded transition hover:opacity-80"
+            style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}
           >
             <Trash2 className="w-4 h-4" />
             Sil
@@ -281,16 +291,17 @@ const WorkbookListItem: React.FC<WorkbookCardProps> = ({
 }) => {
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition flex items-center gap-4 cursor-pointer"
+      className="rounded-lg p-4 hover:shadow-md transition flex items-center gap-4 cursor-pointer"
+      style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}
       onClick={() => onSelect(workbook)}
     >
       <div className="text-4xl">{getTemplateIcon(workbook.templateType)}</div>
       <div className="flex-1">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
           {workbook.title}
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          {workbook.pages.length} sayfa · {new Date(workbook.updatedAt).toLocaleDateString('tr-TR')}
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+          {workbook.pages?.length || 0} sayfa · {new Date(workbook.updatedAt).toLocaleDateString('tr-TR')}
         </p>
       </div>
       <div className="flex items-center gap-2">
@@ -299,18 +310,20 @@ const WorkbookListItem: React.FC<WorkbookCardProps> = ({
             e.stopPropagation();
             onDuplicate(workbook.id);
           }}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+          className="p-2 rounded hover:opacity-80"
+          style={{ color: 'var(--text-muted)' }}
         >
-          <Copy className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          <Copy className="w-5 h-5" />
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
             onDelete(workbook.id);
           }}
-          className="p-2 hover:bg-red-100 dark:hover:bg-red-900 rounded"
+          className="p-2 rounded hover:opacity-80"
+          style={{ color: '#ef4444' }}
         >
-          <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+          <Trash2 className="w-5 h-5" />
         </button>
       </div>
     </div>

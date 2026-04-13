@@ -43,7 +43,7 @@ export const StudentInfoModal: React.FC<StudentInfoModalProps> = ({ isOpen, onCl
     };
 
     const handleClear = () => {
-        if(confirm("Öğrenci bilgilerini temizlemek istediğinize emin misiniz?")) {
+        if (confirm("Öğrenci bilgilerini temizlemek istediğinize emin misiniz?")) {
             onClear();
             onClose();
         }
@@ -51,8 +51,8 @@ export const StudentInfoModal: React.FC<StudentInfoModalProps> = ({ isOpen, onCl
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
-                <div className="bg-indigo-600 p-4 flex justify-between items-center">
+            <div className="rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col" style={{ backgroundColor: 'var(--bg-paper)' }}>
+                <div className="p-4 flex justify-between items-center text-white" style={{ backgroundColor: 'var(--accent-color)' }}>
                     <h3 className="text-white font-bold text-lg flex items-center gap-2">
                         <i className="fa-solid fa-user-graduate"></i> Öğrenci Bilgisi
                     </h3>
@@ -62,79 +62,85 @@ export const StudentInfoModal: React.FC<StudentInfoModalProps> = ({ isOpen, onCl
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-sm text-indigo-800 dark:text-indigo-200 mb-4">
+                    <div className="p-3 rounded-lg text-sm mb-4" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}>
                         <i className="fa-solid fa-circle-info mr-2"></i>
                         Buraya girdiğiniz bilgiler, oluşturacağınız tüm çalışma sayfalarının üzerine otomatik olarak eklenecektir.
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1">Adı Soyadı</label>
-                        <input 
-                            type="text" 
+                        <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>Adı Soyadı</label>
+                        <input
+                            type="text"
                             required
                             value={profile.name}
-                            onChange={e => setProfile({...profile, name: e.target.value})}
-                            className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            onChange={e => setProfile({ ...profile, name: e.target.value })}
+                            className="w-full p-2 rounded-lg focus:ring-2 outline-none"
+                            style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-inset)', color: 'var(--text-primary)' }}
                             placeholder="Örn: Ali Yılmaz"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Okul / Kurum</label>
-                            <input 
-                                type="text" 
+                            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Okul / Kurum</label>
+                            <input
+                                type="text"
                                 value={profile.school}
-                                onChange={e => setProfile({...profile, school: e.target.value})}
-                                className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                onChange={e => setProfile({ ...profile, school: e.target.value })}
+                                className="w-full p-2 rounded-lg focus:ring-2 outline-none"
+                                style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-inset)', color: 'var(--text-primary)' }}
                                 placeholder="Örn: Atatürk İÖO"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Sınıf</label>
-                            <input 
-                                type="text" 
+                            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Sınıf</label>
+                            <input
+                                type="text"
                                 value={profile.grade}
-                                onChange={e => setProfile({...profile, grade: e.target.value})}
-                                className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                onChange={e => setProfile({ ...profile, grade: e.target.value })}
+                                className="w-full p-2 rounded-lg focus:ring-2 outline-none"
+                                style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-inset)', color: 'var(--text-primary)' }}
                                 placeholder="Örn: 2-A"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Tarih</label>
-                        <input 
-                            type="text" 
+                        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Tarih</label>
+                        <input
+                            type="text"
                             value={profile.date}
-                            onChange={e => setProfile({...profile, date: e.target.value})}
-                            className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            onChange={e => setProfile({ ...profile, date: e.target.value })}
+                            className="w-full p-2 rounded-lg focus:ring-2 outline-none"
+                            style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-inset)', color: 'var(--text-primary)' }}
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Ek Notlar (Opsiyonel)</label>
-                        <textarea 
+                        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Ek Notlar (Opsiyonel)</label>
+                        <textarea
                             value={profile.notes}
-                            onChange={e => setProfile({...profile, notes: e.target.value})}
-                            className="w-full p-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 focus:ring-2 focus:ring-indigo-500 outline-none h-20 resize-none"
+                            onChange={e => setProfile({ ...profile, notes: e.target.value })}
+                            className="w-full p-2 rounded-lg focus:ring-2 outline-none h-20 resize-none"
+                            style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-inset)', color: 'var(--text-primary)' }}
                             placeholder="Örn: Dikkat çalışması..."
                         ></textarea>
                     </div>
 
                     <div className="flex gap-3 mt-6">
                         {currentProfile && (
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 onClick={handleClear}
                                 className="px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg font-bold transition-colors"
                             >
                                 Temizle
                             </button>
                         )}
-                        <button 
-                            type="submit" 
-                            className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold shadow-md transition-colors"
+                        <button
+                            type="submit"
+                            className="flex-1 px-4 py-2 text-white rounded-lg font-bold shadow-md transition-colors hover:opacity-90"
+                            style={{ backgroundColor: 'var(--accent-color)' }}
                         >
                             Bilgileri Kaydet
                         </button>

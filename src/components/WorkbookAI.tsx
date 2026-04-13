@@ -119,22 +119,23 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
   }
 
   return (
-    <div className="workbook-ai bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-lg">
+    <div className="workbook-ai rounded-xl p-6 shadow-lg" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg">
+        <div className="p-2 rounded-lg" style={{ background: 'linear-gradient(to bottom right, var(--accent-color), var(--accent-muted))' }}>
           <Sparkles className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">AI Asistan</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>AI Asistan</h2>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Kitapçığınızı iyileştirmek için öneriler
           </p>
         </div>
         <button
           onClick={loadSuggestions}
           disabled={loading}
-          className="ml-auto px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
+          className="ml-auto px-4 py-2 text-white rounded-lg transition disabled:opacity-50 hover:opacity-90"
+          style={{ backgroundColor: 'var(--accent-color)' }}
         >
           {loading ? 'Yükleniyor...' : 'Yenile'}
         </button>
@@ -142,22 +143,22 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
 
       {/* Error */}
       {error && (
-        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
-          <span className="text-red-800 dark:text-red-200">{error}</span>
+        <div className="mb-4 p-4 rounded-lg flex items-center gap-3" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+          <AlertTriangle className="w-5 h-5" style={{ color: '#ef4444' }} />
+          <span style={{ color: '#ef4444' }}>{error}</span>
         </div>
       )}
 
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader className="w-8 h-8 animate-spin text-indigo-600" />
+          <Loader className="w-8 h-8 animate-spin" style={{ color: 'var(--accent-color)' }} />
         </div>
       )}
 
       {/* Suggestions List */}
       {!loading && suggestions.length === 0 && (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
           Şu anda öneri yok. Kitapçığınızı geliştirdikçe AI önerileri burada görünecek!
         </div>
       )}
@@ -177,24 +178,24 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
 
       {/* Stats */}
       {!loading && suggestions.length > 0 && (
-        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 grid grid-cols-3 gap-4 text-center">
+        <div className="mt-6 pt-6 grid grid-cols-3 gap-4 text-center" style={{ borderTop: '1px solid var(--border-color)' }}>
           <div>
-            <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+            <div className="text-2xl font-bold" style={{ color: 'var(--accent-color)' }}>
               {suggestions.filter((s) => s.status === 'pending').length}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Bekleyen</div>
+            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Bekleyen</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+            <div className="text-2xl font-bold" style={{ color: '#22c55e' }}>
               {suggestions.filter((s) => s.status === 'applied').length}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Uygulandı</div>
+            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Uygulandı</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+            <div className="text-2xl font-bold" style={{ color: 'var(--text-muted)' }}>
               {suggestions.filter((s) => s.status === 'rejected').length}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Reddedildi</div>
+            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Reddedildi</div>
           </div>
         </div>
       )}
@@ -219,36 +220,32 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onAccept, o
 
   return (
     <div
-      className={`p-4 rounded-lg border-2 transition ${
-        isApplied
-          ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
-          : isRejected
-            ? 'bg-gray-50 dark:bg-gray-900/20 border-gray-300 dark:border-gray-700 opacity-60'
-            : 'bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700'
-      }`}
+      className="p-4 rounded-lg border-2 transition"
+      style={{
+        backgroundColor: isApplied ? 'rgba(34, 197, 94, 0.1)' : isRejected ? 'var(--bg-inset)' : 'var(--accent-muted)',
+        borderColor: isApplied ? 'rgba(34, 197, 94, 0.3)' : isRejected ? 'var(--border-color)' : 'var(--accent-color)',
+        opacity: isRejected ? 0.6 : 1
+      }}
     >
       <div className="flex items-start gap-3 mb-3">
-        <div className={`p-2 rounded-lg ${getTypeColor(suggestion.type)}`}>
+        <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--bg-paper)' }}>
           {getTypeIcon(suggestion.type)}
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 dark:text-white">{suggestion.title}</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{suggestion.description}</p>
+          <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{suggestion.title}</h3>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{suggestion.description}</p>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <div className="text-xs font-medium text-gray-600 dark:text-gray-400">
+          <div className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
             Güven: {Math.round(suggestion.confidence * 100)}%
           </div>
-          <div className="h-2 w-20 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-2 w-20 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--bg-inset)' }}>
             <div
-              className={`h-full ${
-                suggestion.confidence > 0.7
-                  ? 'bg-green-500'
-                  : suggestion.confidence > 0.5
-                    ? 'bg-yellow-500'
-                    : 'bg-red-500'
-              }`}
-              style={{ width: `${suggestion.confidence * 100}%` }}
+              className="h-full"
+              style={{
+                width: `${suggestion.confidence * 100}%`,
+                backgroundColor: suggestion.confidence > 0.7 ? '#22c55e' : suggestion.confidence > 0.5 ? '#eab308' : '#ef4444'
+              }}
             />
           </div>
         </div>
@@ -259,14 +256,16 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onAccept, o
         <div className="flex gap-2">
           <button
             onClick={() => onAccept(suggestion)}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition hover:opacity-90"
+            style={{ backgroundColor: 'var(--accent-color)' }}
           >
             <CheckCircle className="w-4 h-4" />
             Uygula
           </button>
           <button
             onClick={() => onReject(suggestion.id)}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:opacity-80"
+            style={{ backgroundColor: 'var(--bg-inset)', color: 'var(--text-primary)' }}
           >
             <X className="w-4 h-4" />
             Reddet
@@ -275,14 +274,14 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onAccept, o
       )}
 
       {isApplied && (
-        <div className="flex items-center gap-2 text-green-700 dark:text-green-300 text-sm font-medium">
+        <div className="flex items-center gap-2 text-sm font-medium" style={{ color: '#16a34a' }}>
           <CheckCircle className="w-4 h-4" />
           Uygulandı
         </div>
       )}
 
       {isRejected && (
-        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
+        <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-muted)' }}>
           <X className="w-4 h-4" />
           Reddedildi
         </div>
@@ -296,20 +295,11 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onAccept, o
 // ============================================================================
 
 function getTypeColor(type: AIWorkbookSuggestionType): string {
-  const colors: Record<AIWorkbookSuggestionType, string> = {
-    'add-activity': 'bg-blue-100 dark:bg-blue-900',
-    'reorder-pages': 'bg-purple-100 dark:bg-purple-900',
-    'adjust-difficulty': 'bg-orange-100 dark:bg-orange-900',
-    'add-divider': 'bg-gray-100 dark:bg-gray-700',
-    'improve-balance': 'bg-green-100 dark:bg-green-900',
-    'fill-skill-gap': 'bg-red-100 dark:bg-red-900',
-    'add-assessment': 'bg-yellow-100 dark:bg-yellow-900',
-    'improve-pedagogy': 'bg-pink-100 dark:bg-pink-900',
-  };
-  return colors[type] || 'bg-gray-100 dark:bg-gray-700';
+  // Not used directly in styles anymore due to custom tokening, but kept for logic
+  return 'var(--bg-inset)';
 }
 
 function getTypeIcon(type: AIWorkbookSuggestionType): React.ReactNode {
   // Simple icon representation
-  return <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />;
+  return <Sparkles className="w-5 h-5" style={{ color: 'var(--accent-color)' }} />;
 }
