@@ -259,6 +259,7 @@ export interface HistoryItem {
 export type View =
   | 'premium_studio'
   | 'generator'
+  | 'activity-studio'
   | 'savedList'
   | 'workbook'
   | 'favorites'

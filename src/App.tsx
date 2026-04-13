@@ -72,6 +72,9 @@ const SuperStudio = lazy(() =>
 const InfographicStudio = lazy(() =>
   import('./components/InfographicStudio').then((module) => ({ default: module.InfographicStudio }))
 );
+const ActivityStudio = lazy(() =>
+  import('./components/ActivityStudio').then((module) => ({ default: module.ActivityStudio }))
+);
 const PDFViewer = lazy(() =>
   import('./components/PDFViewer/PDFViewer').then((module) => ({ default: module.PDFViewer || module.default }))
 );
@@ -827,6 +830,7 @@ const AppContent = () => {
             onOpenMathStudio={() => handleOpenStudio('math-studio')}
             onOpenSuperTurkce={() => handleOpenStudio('super-turkce')}
             onOpenInfographicStudio={() => handleOpenStudio('infographic-studio')}
+            onOpenActivityStudio={() => handleOpenStudio('activity-studio')}
             onOpenScreening={() => handleOpenStudio('screening')}
             onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
             onOpenMatSinavStudyosu={() => handleOpenStudio('mat-sinav-studyosu')}
@@ -880,6 +884,7 @@ const AppContent = () => {
               'reading-studio',
               'math-studio',
               'super-turkce',
+              'activity-studio',
               'infographic-studio',
               'ocr',
               'profile',
@@ -921,6 +926,9 @@ const AppContent = () => {
                       />
                     )}
                     {currentView === 'super-turkce' && <SuperStudio />}
+                    {currentView === 'activity-studio' && (
+                      <ActivityStudio onBack={handleGoBack} />
+                    )}
                     {currentView === 'infographic-studio' && (
                       <InfographicStudio
                         onBack={() => {
