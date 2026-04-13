@@ -374,8 +374,10 @@ describe('Agent Service', () => {
         { activity: 'test', pedagogicalNote: null }
       );
 
-      expect(pedagogicalValidation.violations).toContain(
-        expect.stringContaining('pedagogicalNote')
+      expect(pedagogicalValidation.violations).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining('pedagogicalNote')
+        ])
       );
 
       // Test KVKK compliance (Dr. Ahmet Kaya)
@@ -384,8 +386,10 @@ describe('Agent Service', () => {
         { studentName: 'Ali', diagnosis: 'disleksi', score: 85 }
       );
 
-      expect(kvkkValidation.violations).toContain(
-        expect.stringContaining('KVKK')
+      expect(kvkkValidation.violations).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining('KVKK')
+        ])
       );
 
       // Test TypeScript standards (Bora Demir)
@@ -394,8 +398,10 @@ describe('Agent Service', () => {
         { code: 'const x: any = 5;' }
       );
 
-      expect(codeValidation.violations).toContain(
-        expect.stringContaining('any')
+      expect(codeValidation.violations).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining('any')
+        ])
       );
 
       // Test AI model constancy (Selin Arslan)
@@ -404,8 +410,10 @@ describe('Agent Service', () => {
         { model: 'gpt-4' }
       );
 
-      expect(aiValidation.violations).toContain(
-        expect.stringContaining('gemini-2.5-flash')
+      expect(aiValidation.violations).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining('gemini-2.5-flash')
+        ])
       );
     });
   });

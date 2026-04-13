@@ -385,6 +385,54 @@ export type NeuroProfileParamsType = z.infer<typeof NeuroProfileParamsSchema>;
 export type AnimationPayloadType = z.infer<typeof AnimationPayloadSchema>;
 export type PedagogicalNoteType = z.infer<typeof PedagogicalNoteSchema>;
 
+// ============================================================
+// ACTIVITY STUDIO SCHEMAS
+// ============================================================
+
+export const activityStudioGoalSchema = z.object({
+  ageGroup: z.enum(['5-7', '8-10', '11-13', '14+']),
+  profile: z.enum(['dyslexia', 'dyscalculia', 'adhd', 'mixed']),
+  difficulty: z.enum(['Kolay', 'Orta', 'Zor']),
+  internalLevel: z.number().int().min(1).max(10),
+  activityType: z.string().min(1),
+  customCategory: z.string().optional(),
+  topic: z.string().min(3).max(2000),
+  targetSkills: z.array(z.string().min(1)).min(2),
+  gradeLevel: z.number().int().min(1).max(12),
+  duration: z.number().int().min(5).max(240),
+  format: z.enum(['online', 'yuz-yuze', 'hibrit']),
+  participantRange: z.object({
+    min: z.number().int().min(1),
+    max: z.number().int().min(1),
+  }),
+});
+
+export const activityStudioGenerateSchema = z.object({
+  userId: z.string().min(1),
+  userTier: z.enum(['free', 'pro', 'admin']).default('free'),
+  goal: activityStudioGoalSchema,
+});
+
+export const activityStudioApprovalSchema = z.object({
+  activityId: z.string().min(1),
+  reviewerId: z.string().min(1),
+  action: z.enum(['approve', 'revise', 'reject']),
+  note: z.string().min(3).max(2000),
+});
+
+export const activityStudioDraftSchema = z.object({
+  id: z.string().min(1).optional(),
+  userId: z.string().min(1),
+  name: z.string().min(3).max(120),
+  payload: z.record(z.string(), z.unknown()),
+});
+
+export const activityStudioExportSchema = z.object({
+  activityId: z.string().min(1),
+  format: z.enum(['pdf', 'png', 'json']),
+  quality: z.enum(['standard', 'high']).optional(),
+});
+
 
 /**
  * ============================================================

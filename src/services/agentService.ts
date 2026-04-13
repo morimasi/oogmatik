@@ -9,7 +9,7 @@ import { generateWithSchema } from './geminiClient.js';
 import { db } from './firebaseClient.js';
 import * as firestore from 'firebase/firestore';
 
-const { collection, doc, setDoc, getDocs, query, orderBy, limit, where } = firestore;
+const { collection, doc, setDoc, getDocs, query, limit, where } = firestore;
 
 // ========================================
 // TYPES
@@ -300,19 +300,81 @@ YANIT FORMATI (JSON):
   "feedback": "Detaylı açıklama"
 }`;
 
-    const result = await generateWithSchema(prompt, {
-      type: 'OBJECT',
-      properties: {
-        isValid: { type: 'BOOLEAN' },
-        violations: { type: 'ARRAY', items: { type: 'STRING' } },
-        suggestions: { type: 'ARRAY', items: { type: 'STRING' } },
-        severity: { type: 'STRING' },
-        feedback: { type: 'STRING' }
-      },
-      required: ['isValid', 'violations', 'suggestions', 'severity', 'feedback']
-    });
+    let aiResult: Record<string, unknown> = {};
 
-    return result;
+    try {
+      aiResult = await generateWithSchema(prompt, {
+        type: 'OBJECT',
+        properties: {
+          isValid: { type: 'BOOLEAN' },
+          violations: { type: 'ARRAY', items: { type: 'STRING' } },
+          suggestions: { type: 'ARRAY', items: { type: 'STRING' } },
+          severity: { type: 'STRING' },
+          feedback: { type: 'STRING' }
+        },
+        required: ['isValid', 'violations', 'suggestions', 'severity', 'feedback']
+      });
+    } catch {
+      aiResult = {};
+    }
+
+    const violations = Array.isArray(aiResult.violations)
+      ? aiResult.violations.filter((item): item is string => typeof item === 'string')
+      : [];
+
+    const suggestions = Array.isArray(aiResult.suggestions)
+      ? aiResult.suggestions.filter((item): item is string => typeof item === 'string')
+      : [];
+
+    // Role-based deterministic guards keep core standards enforceable even if model output is noisy.
+    if (role === 'ozel-ogrenme-uzmani') {
+      const pedagogicalNote = content.pedagogicalNote;
+      if (typeof pedagogicalNote !== 'string' || pedagogicalNote.trim().length === 0) {
+        violations.push('pedagogicalNote zorunludur ve boş olamaz.');
+      }
+    }
+
+    if (role === 'ozel-egitim-uzmani') {
+      const hasStudentName = typeof content.studentName === 'string' && content.studentName.trim().length > 0;
+      const hasDiagnosis = typeof content.diagnosis === 'string' && content.diagnosis.trim().length > 0;
+      const hasScore = typeof content.score === 'number';
+
+      if (hasStudentName && hasDiagnosis && hasScore) {
+        violations.push('KVKK ihlali: ad, tanı ve skor aynı içerikte birlikte gösterilemez.');
+      }
+    }
+
+    if (role === 'yazilim-muhendisi') {
+      const codeText = typeof content.code === 'string' ? content.code : JSON.stringify(content);
+      if (codeText.includes(': any') || codeText.includes('<any>') || codeText.includes(' as any')) {
+        violations.push('TypeScript standardı ihlali: any kullanımı yasaktır.');
+      }
+    }
+
+    if (role === 'ai-muhendisi') {
+      const model = content.model;
+      if (typeof model === 'string' && model !== 'gemini-2.5-flash') {
+        violations.push('Model sabiti ihlali: gemini-2.5-flash kullanılmalıdır.');
+      }
+    }
+
+    const severity = violations.length > 0
+      ? 'critical'
+      : typeof aiResult.severity === 'string'
+        ? aiResult.severity
+        : 'info';
+
+    const feedback = typeof aiResult.feedback === 'string'
+      ? aiResult.feedback
+      : 'Doğrulama tamamlandı.';
+
+    return {
+      isValid: violations.length === 0,
+      violations,
+      suggestions,
+      severity,
+      feedback
+    };
   },
 
   /**
@@ -507,18 +569,22 @@ Lütfen içeriği bu standartlara göre optimize et ve iyileştirilmiş versiyon
     userId: string,
     role?: AgentRole
   ): Promise<AgentConversation[]> => {
-    let q = query(
+    const baseQuery = query(
       collection(db, 'agent_conversations'),
-      where('userId', '==', userId),
-      orderBy('updatedAt', 'desc')
+      where('userId', '==', userId)
     );
 
-    if (role) {
-      q = query(q, where('agentRole', '==', role));
-    }
+    const snapshot = await getDocs(baseQuery);
 
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(d => d.data() as AgentConversation);
+    const conversations = snapshot.docs.map(d => d.data() as AgentConversation);
+
+    const filtered = role
+      ? conversations.filter(conversation => conversation.agentRole === role)
+      : conversations;
+
+    return filtered.sort((a, b) =>
+      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
   },
 
   /**
@@ -558,7 +624,7 @@ Lütfen içeriği bu standartlara göre optimize et ve iyileştirilmiş versiyon
       sender,
       content,
       timestamp: new Date().toISOString(),
-      metadata
+      ...(metadata ? { metadata } : {})
     };
 
     const conversationRef = doc(db, 'agent_conversations', conversationId);
