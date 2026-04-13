@@ -1,79 +1,66 @@
 import type { Difficulty } from '@/types/activityStudio';
 
-const WCAG_AA_CONTRAST_RATIO = 4.5;
-
-/**
- * Basit hex rengi to RGB dönüştürü
- */
-const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
+export function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!result) return null;
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : null;
+}
 
-  return {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16),
-  };
-};
+export function getLuminance(hex: string): number {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return 0;
 
-/**
- * Rengin parlaklığını hesapla (0-1)
- */
-const getLuminance = (rgb: { r: number; g: number; b: number }): number => {
-  const { r, g, b } = rgb;
-  const luminanceValues = [r, g, b].map((v) => {
-    const normalized = v / 255;
+  const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((x) => {
+    const normalized = x / 255;
     return normalized <= 0.03928
       ? normalized / 12.92
       : Math.pow((normalized + 0.055) / 1.055, 2.4);
   });
 
-  return 0.2126 * luminanceValues[0] + 0.7152 * luminanceValues[1] + 0.0722 * luminanceValues[2];
-};
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
 
-/**
- * İki renk arasının kontrast oranını hesapla
- */
-const getContrastRatio = (rgb1: { r: number; g: number; b: number }, rgb2: { r: number; g: number; b: number }): number => {
-  const l1 = getLuminance(rgb1);
-  const l2 = getLuminance(rgb2);
-
+export function getContrastRatio(fg: string, bg: string): number {
+  const l1 = getLuminance(fg);
+  const l2 = getLuminance(bg);
   const lighter = Math.max(l1, l2);
   const darker = Math.min(l1, l2);
-
   return (lighter + 0.05) / (darker + 0.05);
-};
+}
 
-/**
- * Safe kontrast text rengini döndür (tema ve arka plan için)
- */
+export function isAccessibleContrast(ratio: number, level: 'AA' | 'AAA' = 'AAA'): boolean {
+  const threshold = level === 'AAA' ? 7.0 : 4.5;
+  return ratio >= threshold;
+}
+
 export function ensureReadableTextColor(
-  backgroundColor: string,
-  preferredColor: string = '#ffffff',
-  fallbackLight: string = '#ffffff',
-  fallbackDark: string = '#000000'
+  textColor: string,
+  bgColor: string,
+  minRatio: number = 7.0
 ): string {
-  const bgRgb = hexToRgb(backgroundColor);
-  const preferredRgb = hexToRgb(preferredColor);
+  let adjustedColor = textColor;
+  const initialRatio = getContrastRatio(adjustedColor, bgColor);
 
-  if (!bgRgb) return preferredColor;
-  if (!preferredRgb) return preferredColor;
+  if (initialRatio >= minRatio) return adjustedColor;
+  if (getContrastRatio('#000000', bgColor) >= minRatio) return '#000000';
+  if (getContrastRatio('#FFFFFF', bgColor) >= minRatio) return '#FFFFFF';
 
-  const contrastRatio = getContrastRatio(bgRgb, preferredRgb);
+  const bgRgb = hexToRgb(bgColor);
+  if (!bgRgb) return textColor;
 
-  if (contrastRatio >= WCAG_AA_CONTRAST_RATIO) {
-    return preferredColor;
-  }
+  const bgLum = (bgRgb.r + bgRgb.g + bgRgb.b) / 3;
+  adjustedColor = bgLum > 128 ? '#1A1A2E' : '#FFFFFF';
+  return adjustedColor;
+}
 
-  const fallbackLightRgb = hexToRgb(fallbackLight);
-  const fallbackDarkRgb = hexToRgb(fallbackDark);
-
-  if (!fallbackLightRgb || !fallbackDarkRgb) return preferredColor;
-
-  const lightContrast = getContrastRatio(bgRgb, fallbackLightRgb);
-  const darkContrast = getContrastRatio(bgRgb, fallbackDarkRgb);
-
-  return lightContrast > darkContrast ? fallbackLight : fallbackDark;
+export function isDarkBackground(bgColor: string): boolean {
+  const lum = getLuminance(bgColor);
+  return lum < 0.5;
 }
 
 /**
@@ -130,10 +117,10 @@ export function applyContrastSafety(
   difficulty: Difficulty = 'Orta'
 ): Record<string, unknown> {
   const safeOutput = { ...activityOutput };
-  const textColor = ensureReadableTextColor(bgColor);
+  const textColor = ensureReadableTextColor('#1A1A2E', bgColor, 7.0);
 
   if (safeOutput.configuration && typeof safeOutput.configuration === 'object') {
-    const config = safeOutput.configuration as Record<string, any>;
+    const config = safeOutput.configuration as Record<string, unknown>;
     config.backgroundColor = bgColor;
     config.textColor = textColor;
     config.theme = getDifficultyColorTheme(difficulty);

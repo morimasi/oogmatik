@@ -1,4 +1,4 @@
-import type { StudioGoalConfig } from '@/types/activityStudio';
+import type { AgeGroup, LearningDisabilityProfile } from '@/types/creativeStudio';
 
 export interface CompactA4Section {
   type: 'title' | 'content' | 'question' | 'spacing' | 'footer';
@@ -30,6 +30,25 @@ interface CompactLayoutConfig {
   };
 }
 
+export interface CompactA4LayoutOptions {
+  densityLevel: 0 | 1 | 2 | 3 | 4 | 5;
+  fontSize: 11 | 12 | 13 | 14;
+  lineHeight: 1.6 | 1.8 | 2.0;
+  marginMM: 10 | 12 | 15 | 20;
+}
+
+export function getMinFontPT(
+  ageGroup: AgeGroup,
+  profile: LearningDisabilityProfile
+): number {
+  if (ageGroup === '5-7') return 14;
+  if (ageGroup === '8-10') return 12;
+  if (ageGroup === '11-13') {
+    return profile === 'dyslexia' || profile === 'mixed' ? 12 : 11;
+  }
+  return 11;
+}
+
 export function buildCompactA4Layout(config: CompactLayoutConfig): CompactA4Layout {
   const sections: CompactA4Section[] = [];
 
@@ -50,8 +69,8 @@ export function buildCompactA4Layout(config: CompactLayoutConfig): CompactA4Layo
         type: 'content',
         content: `${idx + 1}. ${step}`,
         styling: {
-          fontSize: 10,
-          lineHeight: 1.4,
+          fontSize: 11,
+          lineHeight: 1.8,
           marginBottom: 3,
           paddingX: 8,
         },
@@ -71,8 +90,8 @@ export function buildCompactA4Layout(config: CompactLayoutConfig): CompactA4Layo
         type: 'question',
         content: `S${idx + 1}: ${question}`,
         styling: {
-          fontSize: 9,
-          lineHeight: 1.3,
+          fontSize: 11,
+          lineHeight: 1.6,
           marginBottom: 2,
           paddingX: 8,
         },
@@ -83,7 +102,7 @@ export function buildCompactA4Layout(config: CompactLayoutConfig): CompactA4Layo
   sections.push({
     type: 'footer',
     content: `Zorluk: Ortam: Online | Bitiş: ___`,
-    styling: { fontSize: 8, lineHeight: 1, marginBottom: 0, paddingX: 8 },
+    styling: { fontSize: 11, lineHeight: 1.6, marginBottom: 0, paddingX: 8 },
   });
 
   return {
@@ -91,6 +110,37 @@ export function buildCompactA4Layout(config: CompactLayoutConfig): CompactA4Layo
     title: config.title,
     sections,
     totalPages: Math.ceil(sections.length / 12),
+  };
+}
+
+export function buildCompactA4LayoutWithMinimums(
+  layout: CompactA4LayoutOptions,
+  ageGroup: AgeGroup,
+  profile: LearningDisabilityProfile
+): CompactA4Layout {
+  const baseTitle = 'Kompakt A4 Etkinlik Sayfası';
+  const originalLayout = buildCompactA4Layout({
+    title: baseTitle,
+    steps: [
+      `Yoğunluk Seviyesi: ${layout.densityLevel}`,
+      `Satır Aralığı: ${layout.lineHeight}`,
+      `Kenar Boşluğu: ${layout.marginMM}mm`,
+    ],
+    questions: ['Örnek soru alanı'],
+  });
+  const minFont = getMinFontPT(ageGroup, profile);
+
+  return {
+    ...originalLayout,
+    sections: originalLayout.sections.map((section) => ({
+      ...section,
+      styling: {
+        ...section.styling,
+        fontSize: Math.max(section.styling.fontSize, layout.fontSize, minFont),
+        lineHeight: Math.max(section.styling.lineHeight, layout.lineHeight),
+        paddingX: Math.max(section.styling.paddingX, layout.marginMM / 2),
+      },
+    })),
   };
 }
 
@@ -118,7 +168,7 @@ export function compactA4ToHtml(layout: CompactA4Layout): string {
         html += `<p style="${style} margin-left: 4mm;">${section.content}</p>`;
         break;
       case 'footer':
-        html += `<hr style="margin: 2mm 0;" /><p style="${style} font-size: 8pt; color: #666;">${section.content}</p>`;
+        html += `<hr style="margin: 2mm 0;" /><p style="${style} color: #666;">${section.content}</p>`;
         break;
       default:
         break;

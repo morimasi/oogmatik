@@ -1,6 +1,8 @@
 import type { ActivityType } from './activity';
 import type { AgeGroup, LearningDisabilityProfile } from './creativeStudio';
 
+export type { AgeGroup, LearningDisabilityProfile } from './creativeStudio';
+
 export type Difficulty = 'Kolay' | 'Orta' | 'Zor';
 
 // ─── AI Model Literal ───────────────────────────────────────────────
@@ -259,7 +261,7 @@ export interface ThemeConfig {
 
 export interface CompactA4Config {
   densityLevel: 0 | 1 | 2 | 3 | 4 | 5;
-  fontSize: 11 | 12 | 13;
+  fontSize: 11 | 12 | 13 | 14;
   lineHeight: 1.6 | 1.8 | 2.0;
   marginMM: 10 | 12 | 15 | 20;
   effectiveMinFontPT: number;

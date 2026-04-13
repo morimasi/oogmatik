@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { ComponentFactory } from '@/components/ActivityStudio/factory/ComponentFactory';
+import { ThemeSyncPanel } from '@/components/ActivityStudio/wizard/panels/ThemeSyncPanel';
+import { CompactA4LayoutPanel } from '@/components/ActivityStudio/wizard/panels/CompactA4LayoutPanel';
+import { useActivityStudioStore } from '@/store/useActivityStudioStore';
 import type { FactoryComponent } from '@/types/activityStudio';
 
 interface StepCustomizeProps {
@@ -9,10 +12,13 @@ interface StepCustomizeProps {
 
 export const StepCustomize: React.FC<StepCustomizeProps> = ({ onNext, onBack }) => {
   const [components, setComponents] = useState<FactoryComponent[]>([]);
+  const goal = useActivityStudioStore((state) => state.wizardData.goal);
 
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-bold">Ultra Ozellestirme</h3>
+      <CompactA4LayoutPanel ageGroup={goal?.ageGroup} profile={goal?.profile} />
+      <ThemeSyncPanel />
       <ComponentFactory components={components} onChange={setComponents} />
       <div className="flex gap-2">
         <button type="button" onClick={onBack} className="rounded-xl border border-[var(--border-color)] px-4 py-2 text-sm">Geri</button>
