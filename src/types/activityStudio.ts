@@ -228,6 +228,21 @@ export interface ContentBlock {
   pedagogicalNote: string;
 }
 
+// ─── Bileşen Fabrikası ──────────────────────────────────────────────
+export type FactoryBlockType =
+  | 'text' | 'image' | 'quiz' | 'timer'
+  | 'scoring' | 'qr' | 'watermark' | 'logo'
+  | 'divider' | 'spacer';
+
+export interface FactoryComponent {
+  id: string;
+  type: FactoryBlockType;
+  order: number;
+  content: Record<string, unknown>;
+  style: Record<string, unknown>;
+  isLocked: boolean;
+}
+
 export interface ThemeConfig {
   primaryColor: string;
   secondaryColor: string;
