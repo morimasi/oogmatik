@@ -1,5 +1,12 @@
 import { create } from 'zustand';
-import type { ActivityStudioState, StudioGoalConfig, WizardStep } from '@/types/activityStudio';
+import type {
+  ActivityStudioState,
+  CompactA4Config,
+  ExportSettings,
+  StudioGoalConfig,
+  ThemeConfig,
+  WizardStep,
+} from '@/types/activityStudio';
 
 const initialSteps: WizardStep[] = [
   { id: 'goal', status: 'active' },
@@ -24,6 +31,11 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set) => ({
     preview: null,
     approval: null,
   },
+  content: null,
+  themeConfig: null,
+  compactA4Config: null,
+  exportSettings: null,
+  pedagogicalNote: '',
   selectedLibraryItemId: undefined,
   enhancementTopic: undefined,
   setStep: (step) =>
@@ -52,6 +64,26 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set) => ({
       selectedLibraryItemId: id,
       enhancementTopic: topic,
     }),
+  setContent: (blocks) => set({ content: blocks }),
+  setThemeConfig: (config) =>
+    set((state) => ({
+      themeConfig: state.themeConfig
+        ? { ...state.themeConfig, ...config }
+        : (config as ThemeConfig),
+    })),
+  setCompactA4Config: (config) =>
+    set((state) => ({
+      compactA4Config: state.compactA4Config
+        ? { ...state.compactA4Config, ...config }
+        : (config as CompactA4Config),
+    })),
+  setExportSettings: (settings) =>
+    set((state) => ({
+      exportSettings: state.exportSettings
+        ? { ...state.exportSettings, ...settings }
+        : (settings as ExportSettings),
+    })),
+  setPedagogicalNote: (note) => set({ pedagogicalNote: note }),
   setGenerating: (value) => set({ isGenerating: value }),
   setError: (message) => set({ error: message }),
   resetStudio: () =>
@@ -68,6 +100,11 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set) => ({
         preview: null,
         approval: null,
       },
+      content: null,
+      themeConfig: null,
+      compactA4Config: null,
+      exportSettings: null,
+      pedagogicalNote: '',
       selectedLibraryItemId: undefined,
       enhancementTopic: undefined,
     }),

@@ -216,6 +216,56 @@ export interface ActivityLibraryQuery {
   featuredOnly?: boolean;
 }
 
+export type BlockType = 'title' | 'question' | 'explanation' | 'activity' | 'spacing' | 'resource';
+
+export interface ContentBlock {
+  id: string;
+  type: BlockType;
+  order: number;
+  content: string;
+  videoUrl?: string;
+  imageUrl?: string;
+  pedagogicalNote: string;
+}
+
+export interface ThemeConfig {
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  bgPaper: string;
+  textColor: string;
+  contrastChecks: {
+    primary_bgPaper: number;
+    secondary_bgPaper: number;
+    accent_bgPaper: number;
+    textColor_bgPaper: number;
+  };
+}
+
+export interface CompactA4Config {
+  densityLevel: 0 | 1 | 2 | 3 | 4 | 5;
+  fontSize: 11 | 12 | 13;
+  lineHeight: 1.6 | 1.8 | 2.0;
+  marginMM: 10 | 12 | 15 | 20;
+  effectiveMinFontPT: number;
+}
+
+export interface ExportSettings {
+  format: 'pdf' | 'png' | 'json';
+  pageSize: 'A4' | 'Letter' | 'B5';
+  fileName: string;
+  includeMetadata: boolean;
+  sanitizeForPrivacy: boolean;
+}
+
+export interface SafePDFMetadata {
+  difficultyLevel: Difficulty;
+  ageGroup: AgeGroup;
+  targetSkills: string[];
+  generatedDate: string;
+  pageCount: number;
+}
+
 export interface ActivityStudioState {
   currentStep: WizardStepId;
   steps: WizardStep[];
@@ -231,9 +281,19 @@ export interface ActivityStudioState {
     preview: Record<string, unknown> | null;
     approval: ApprovalMetadata | null;
   };
+  content: ContentBlock[] | null;
+  themeConfig: ThemeConfig | null;
+  compactA4Config: CompactA4Config | null;
+  exportSettings: ExportSettings | null;
+  pedagogicalNote: string;
   setStep: (step: WizardStepId) => void;
   updateGoal: (data: Partial<StudioGoalConfig>) => void;
   setSelectedLibraryItem: (id: string, topic?: string) => void;
+  setContent: (blocks: ContentBlock[]) => void;
+  setThemeConfig: (config: Partial<ThemeConfig>) => void;
+  setCompactA4Config: (config: Partial<CompactA4Config>) => void;
+  setExportSettings: (settings: Partial<ExportSettings>) => void;
+  setPedagogicalNote: (note: string) => void;
   setGenerating: (value: boolean) => void;
   setError: (message: string | null) => void;
   resetStudio: () => void;
