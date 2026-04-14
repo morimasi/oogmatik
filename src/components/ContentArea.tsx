@@ -274,6 +274,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     import('./ActivityStudio').then((module) => ({ default: module.ActivityStudio }))
   );
 
+  const SariKitapStudio = React.lazy(() =>
+    import('./SariKitapStudio').then((module) => ({ default: module.SariKitapStudio }))
+  );
+
   return (
     <main className="flex-1 flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       {/* TOOLBAR */}
@@ -518,6 +522,24 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           >
             <ActivityStudio
               onBack={onBackToGenerator}
+              onAddToWorkbook={onAddDirectToWorkbook}
+            />
+          </React.Suspense>
+        </div>
+      )}
+
+      {currentView === 'sari-kitap-studyosu' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <i className="fa-solid fa-spinner fa-spin text-4xl text-yellow-500"></i>
+              </div>
+            }
+          >
+            <SariKitapStudio
+              onBack={onBackToGenerator}
+              onSave={onSave}
               onAddToWorkbook={onAddDirectToWorkbook}
             />
           </React.Suspense>

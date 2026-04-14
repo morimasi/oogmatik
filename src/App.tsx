@@ -95,6 +95,9 @@ const SinavStudyosu = lazy(() =>
 const MatSinavStudyosu = lazy(() =>
   import('../components/MatSinavStudyosu').then((module) => ({ default: module.MatSinavStudyosu }))
 );
+const SariKitapStudio = lazy(() =>
+  import('./components/SariKitapStudio').then((module) => ({ default: module.SariKitapStudio }))
+);
 
 const initialStyleSettings: StyleSettings = {
   fontSize: 18,
@@ -834,6 +837,7 @@ const AppContent = () => {
             onOpenScreening={() => handleOpenStudio('screening')}
             onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
             onOpenMatSinavStudyosu={() => handleOpenStudio('mat-sinav-studyosu')}
+            onOpenSariKitapStudio={() => handleOpenStudio('sari-kitap-studyosu')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
             width={sidebarWidth}

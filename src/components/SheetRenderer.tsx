@@ -184,6 +184,7 @@ import { ReadingStudioContentRenderer } from './ReadingStudio/ReadingStudioConte
 import { VisualInterpretationSheet } from './sheets/visual/VisualInterpretationSheet';
 import { BrainTeasersSheet } from './sheets/logic/BrainTeasersSheet';
 import { BoxMathSheet } from './sheets/math/BoxMathSheet';
+import { SariKitapSheet } from './sheets/SariKitapSheet';
 import { PedagogicalHeader, ImageDisplay } from './sheets/common';
 
 import { EditableText } from './Editable';
@@ -1695,6 +1696,14 @@ export const SheetRenderer = React.memo(
         break;
       case ActivityType.VISUAL_INTERPRETATION:
         renderedSheet = <VisualInterpretationSheet data={data as any} settings={settings} />;
+        break;
+      case ActivityType.SARI_KITAP_PENCERE:
+      case ActivityType.SARI_KITAP_NOKTA:
+      case ActivityType.SARI_KITAP_KOPRU:
+      case ActivityType.SARI_KITAP_CIFT_METIN:
+      case ActivityType.SARI_KITAP_BELLEK_DERNEK:
+      case ActivityType.SARI_KITAP_HIZLI_OKUMA:
+        renderedSheet = <SariKitapSheet type={activityType} data={data} />;
         break;
       case activityType as any:
         renderedSheet = (

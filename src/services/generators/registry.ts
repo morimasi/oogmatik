@@ -438,6 +438,32 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflinePremiumShapeSudoku,
   },
 
+  // 6. SARI KİTAP ETKİNLİK STÜDYOSU
+  [ActivityType.SARI_KITAP_PENCERE]: {
+    ai: withAI(ActivityType.SARI_KITAP_PENCERE),
+    offline: withOffline(ActivityType.SARI_KITAP_PENCERE),
+  },
+  [ActivityType.SARI_KITAP_NOKTA]: {
+    ai: withAI(ActivityType.SARI_KITAP_NOKTA),
+    offline: withOffline(ActivityType.SARI_KITAP_NOKTA),
+  },
+  [ActivityType.SARI_KITAP_KOPRU]: {
+    ai: withAI(ActivityType.SARI_KITAP_KOPRU),
+    offline: withOffline(ActivityType.SARI_KITAP_KOPRU),
+  },
+  [ActivityType.SARI_KITAP_CIFT_METIN]: {
+    ai: withAI(ActivityType.SARI_KITAP_CIFT_METIN),
+    offline: withOffline(ActivityType.SARI_KITAP_CIFT_METIN),
+  },
+  [ActivityType.SARI_KITAP_BELLEK_DERNEK]: {
+    ai: withAI(ActivityType.SARI_KITAP_BELLEK_DERNEK),
+    offline: withOffline(ActivityType.SARI_KITAP_BELLEK_DERNEK),
+  },
+  [ActivityType.SARI_KITAP_HIZLI_OKUMA]: {
+    ai: withAI(ActivityType.SARI_KITAP_HIZLI_OKUMA),
+    offline: withOffline(ActivityType.SARI_KITAP_HIZLI_OKUMA),
+  },
+
   // ── INFOGRAPHIC ADAPTERS (İlk 10 Aktivite) ────────────────────────────────
   ...Object.fromEntries(
     Object.entries(INFOGRAPHIC_ADAPTERS_FIRST_10).map(([key, pair]) => [
