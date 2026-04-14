@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { pageTransition } from './utils/motionPresets';
@@ -88,6 +87,9 @@ const ScreeningModule = lazy(() =>
   import('./components/Screening/ScreeningModule').then((module) => ({
     default: module.ScreeningModule,
   }))
+);
+const AssessmentModule = lazy(() =>
+  import('./components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
 );
 const SinavStudyosu = lazy(() =>
   import('../components/SinavStudyosu').then((module) => ({ default: module.SinavStudyosu }))
@@ -896,6 +898,7 @@ const AppContent = () => {
               'messages',
               'admin',
               'screening',
+              'assessment',
               'sinav-studyosu',
               'mat-sinav-studyosu',
               'sari-kitap-studyosu',
@@ -976,6 +979,14 @@ const AppContent = () => {
                         onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
                           handleGeneratePlanFromScreening(n, a, w, c)
                         }
+                      />
+                    )}
+                    {currentView === 'assessment' && (
+                      <AssessmentModule
+                        onBack={handleGoBack}
+                        onSelectActivity={handleSelectActivity as any}
+                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        onAutoGenerateWorkbook={handleAutoGenerateWorkbook as any}
                       />
                     )}
                     {currentView === 'sinav-studyosu' && (

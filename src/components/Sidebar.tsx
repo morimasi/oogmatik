@@ -190,6 +190,13 @@ const Sidebar: React.FC<SidebarProps> = ({
           onClick: onOpenActivityStudio,
         },
         {
+          id: 'ocr',
+          label: 'AI PDF Analiz & OCR',
+          icon: 'fa-microchip',
+          color: 'bg-blue-400',
+          onClick: onOpenOCR,
+        },
+        {
           id: 'infographic-studio',
           label: 'İnfografik Stüdyosu',
           icon: 'fa-chart-pie',
@@ -527,10 +534,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                         aria-label="Stüdyolar menüsü"
                         aria-hidden="false"
                         style={{
-                          animation: 'slideInFade 0.35s ease-in-out',
                           position: 'fixed',
                           top: popupRect.top,
                           left: popupRect.left + popupRect.width * 0.5,
+                          transform: 'translateX(-50%)',
                         }}
                         onKeyDown={(e) => {
                           const items = Array.from(
@@ -685,10 +692,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                             aria-label={`${category.title} kategorisindeki etkinlikler`}
                             aria-hidden="false"
                             style={{
-                              animation: 'slideInFade 0.35s ease-in-out',
                               position: 'fixed',
                               top: popupRect.top,
                               left: popupRect.left + popupRect.width * 0.5,
+                              transform: 'translateX(-50%)',
                             }}
                             onKeyDown={(e) => {
                               const items = Array.from(
