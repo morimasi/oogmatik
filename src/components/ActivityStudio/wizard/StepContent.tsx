@@ -3,29 +3,41 @@ import { useActivityStudioStore } from '@/store/useActivityStudioStore';
 import { useAgentOrchestration } from '@/components/ActivityStudio/hooks/useAgentOrchestration';
 import { sanitizeMaterialsList, extractContentBlocks } from '@/services/activityStudioContentService';
 import { ComponentFactory } from '@/components/ActivityStudio/factory/ComponentFactory';
-import type { FactoryComponent } from '@/types/activityStudio';
+import type { FactoryComponent, ActivityStudioState } from '@/types/activityStudio';
 
 interface StepContentProps {
   onNext: () => void;
   onBack: () => void;
 }
 
-export const StepContent: React.FC<StepContentProps> = ({ onNext, onBack }) => {
+export const StepContent: React.FC<StepContentProps> = ({ onNext, onBack }: StepContentProps) => {
   const { isGenerating, wizardData } = useActivityStudioStore();
   const store = useActivityStudioStore();
   const { generate } = useAgentOrchestration();
-  const [materials, setMaterials] = useState<string>('');
-  const [components, setComponents] = useState<FactoryComponent[]>([]);
+  const [materials, setMaterials] = useState<string>(
+    (wizardData.customization as any)?.materials || ''
+  );
+  const [components, setComponents] = useState<FactoryComponent[]>(
+    (wizardData.customization as any)?.components || []
+  );
 
   const handleGenerate = async () => {
     const _sanitizedMaterials = sanitizeMaterialsList(
-      materials.split('\n').filter((line) => line.trim().length > 0)
+      materials.split('\n').filter((line: string) => line.trim().length > 0)
     );
 
     const result = await generate();
     if (!result) return;
 
     const { blocks, pedagogicalNote } = extractContentBlocks(result);
+
+    useActivityStudioStore.setState((prev: ActivityStudioState) => ({
+      wizardData: {
+        ...prev.wizardData,
+        customization: { components, materials },
+        generatedContent: true,
+      } as any,
+    }));
 
     store.setContent(blocks);
     store.setPedagogicalNote(pedagogicalNote);
@@ -51,14 +63,25 @@ export const StepContent: React.FC<StepContentProps> = ({ onNext, onBack }) => {
         <textarea
           placeholder={'Malzeme 1\nMalzeme 2\n(Maks. 5 madde, 500 karakter)'}
           value={materials}
-          onChange={(e) => setMaterials(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMaterials(e.target.value)}
           className="w-full border border-zinc-700 bg-zinc-800/40 p-3 rounded-xl text-sm font-['Lexend'] text-zinc-200 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 placeholder:text-zinc-600 transition-all"
           rows={4}
         />
       </div>
 
       {/* Content Blueprint Editor (ComponentFactory) */}
-      <ComponentFactory components={components} onChange={setComponents} />
+      <ComponentFactory 
+        components={components} 
+        onChange={(newComponents: FactoryComponent[]) => {
+          setComponents(newComponents);
+          useActivityStudioStore.setState((prev: ActivityStudioState) => ({
+            wizardData: {
+              ...prev.wizardData,
+              customization: { components: newComponents, materials },
+            } as any,
+          }));
+        }} 
+      />
 
       {/* Navigation Buttons */}
       <div className="flex gap-3">
