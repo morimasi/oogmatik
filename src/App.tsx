@@ -898,6 +898,7 @@ const AppContent = () => {
               'screening',
               'sinav-studyosu',
               'mat-sinav-studyosu',
+              'sari-kitap-studyosu',
             ].includes(currentView) && (
                 <motion.div
                   key={currentView}
@@ -982,6 +983,13 @@ const AppContent = () => {
                     )}
                     {currentView === 'mat-sinav-studyosu' && (
                       <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                    )}
+                    {currentView === 'sari-kitap-studyosu' && (
+                      <SariKitapStudio
+                        onBack={handleGoBack}
+                        onSave={addSavedWorksheet}
+                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                      />
                     )}
                   </Suspense>
                 </motion.div>
