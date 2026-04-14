@@ -8,7 +8,7 @@ export class ContentAgent extends BaseAgent {
   }
 
   buildPrompt(input: AgentInput): string {
-    return `Konu: ${input.goal.topic}. Hedef beceriler: ${input.goal.targetSkills.join(', ')}. Kisa ve adimli icerik uret.`;
+    return `Konu: ${input.goal.topic}. Hedef beceriler: ${input.goal.targetSkills.join(', ')}. Kısa ve adımlı içerik üret. Lütfen yanıtını sadece 'blocks' dizisi barındıran geçerli bir JSON olarak ver.`;
   }
 
   protected toPedagogicalNote(input: AgentInput): string {

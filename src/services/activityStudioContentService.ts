@@ -84,13 +84,20 @@ export function extractContentBlocks(
   }
 
   const agentPedNote = contentAgent.pedagogicalNote ?? '';
-  const rawData = contentAgent.data as unknown;
+  const rawData = contentAgent.data as Record<string, unknown>;
 
   if (typeof rawData !== 'object' || rawData === null) {
     return { blocks: [], pedagogicalNote: agentPedNote };
   }
 
-  const dataObj = rawData as Record<string, unknown>;
+  // BaseAgent içerisinden dönen raw property'si (AI'nin JSON çıktısı)
+  const payload = rawData.raw;
+
+  if (typeof payload !== 'object' || payload === null) {
+    return { blocks: [], pedagogicalNote: agentPedNote };
+  }
+
+  const dataObj = payload as Record<string, unknown>;
   const rawBlocks = Array.isArray(dataObj['blocks']) ? dataObj['blocks'] : [];
 
   const blocks: ContentBlock[] = rawBlocks.map((raw: unknown, idx: number) => {
