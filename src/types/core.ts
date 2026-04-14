@@ -277,7 +277,6 @@ export type View =
   | 'infographic-studio'
   | 'sinav-studyosu'
   | 'mat-sinav-studyosu'
-  | 'sari-kitap-studyosu'
   | 'students';
 
 export interface UiSettings {

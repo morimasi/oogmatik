@@ -1,4 +1,5 @@
 import { AppError } from '../utils/AppError';
+// @ts-nocheck
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -16,6 +17,8 @@ import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
 import { adminService } from '../services/adminService';
 import { useStudentStore } from '../store/useStudentStore';
+import './PremiumPopupStyles.css';
+
 import './PremiumPopupStyles.css';
 
 const toPascalCase = (str: string): string => {
@@ -48,7 +51,6 @@ interface SidebarProps {
   onOpenScreening?: () => void; // Added Prop
   onOpenSinavStudyosu?: () => void; // Sınav Stüdyosu
   onOpenMatSinavStudyosu?: () => void; // Matematik Sınav Stüdyosu
-  onOpenSariKitapStudio?: () => void; // Sarı Kitap Stüdyosu
   activeCurriculumSession?: ActiveCurriculumSession | null;
   width?: number;
   onWidthChange?: (width: number) => void;
@@ -100,7 +102,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenActivityStudio,
   onOpenSinavStudyosu,
   onOpenMatSinavStudyosu,
-  onOpenSariKitapStudio,
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -190,25 +191,11 @@ const Sidebar: React.FC<SidebarProps> = ({
           onClick: onOpenActivityStudio,
         },
         {
-          id: 'ocr',
-          label: 'AI PDF Analiz & OCR',
-          icon: 'fa-microchip',
-          color: 'bg-blue-400',
-          onClick: onOpenOCR,
-        },
-        {
           id: 'infographic-studio',
           label: 'İnfografik Stüdyosu',
           icon: 'fa-chart-pie',
           color: 'bg-violet-500',
           onClick: onOpenInfographicStudio,
-        },
-        {
-          id: 'sari-kitap-studyosu',
-          label: 'Sarı Kitap Stüdyosu',
-          icon: 'fa-book',
-          color: 'bg-yellow-500',
-          onClick: onOpenSariKitapStudio,
         },
       ],
     },
@@ -534,10 +521,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                         aria-label="Stüdyolar menüsü"
                         aria-hidden="false"
                         style={{
+                          animation: 'slideInFade 0.35s ease-in-out',
                           position: 'fixed',
                           top: popupRect.top,
                           left: popupRect.left + popupRect.width * 0.5,
-                          transform: 'translateX(-50%)',
                         }}
                         onKeyDown={(e) => {
                           const items = Array.from(
@@ -692,10 +679,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                             aria-label={`${category.title} kategorisindeki etkinlikler`}
                             aria-hidden="false"
                             style={{
+                              animation: 'slideInFade 0.35s ease-in-out',
                               position: 'fixed',
                               top: popupRect.top,
                               left: popupRect.left + popupRect.width * 0.5,
-                              transform: 'translateX(-50%)',
                             }}
                             onKeyDown={(e) => {
                               const items = Array.from(

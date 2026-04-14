@@ -274,10 +274,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     import('./ActivityStudio').then((module) => ({ default: module.ActivityStudio }))
   );
 
-  const SariKitapStudio = React.lazy(() =>
-    import('./SariKitapStudio').then((module) => ({ default: module.SariKitapStudio }))
-  );
-
   return (
     <main className="flex-1 flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       {/* TOOLBAR */}
@@ -445,6 +441,88 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
         <A4EditorPanel worksheetData={worksheetData} setWorksheetData={setWorksheetData} />
       </div>
+
+      {currentView === 'assessment' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <i className="fa-solid fa-spinner fa-spin text-4xl text-indigo-500"></i>
+              </div>
+            }
+          >
+            <AssessmentModule
+              onBack={onBackToGenerator}
+              onSelectActivity={onSelectActivity!}
+              onAddToWorkbook={onAddDirectToWorkbook}
+              onAutoGenerateWorkbook={onAutoGenerateWorkbook}
+            />
+          </React.Suspense>
+        </div>
+      )}
+
+      {currentView === 'screening' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <i className="fa-solid fa-spinner fa-spin text-4xl text-purple-500"></i>
+              </div>
+            }
+          >
+            <ScreeningModule
+              onBack={onBackToGenerator}
+              onSelectActivity={onSelectActivity}
+              onAddToWorkbook={onAddDirectToWorkbook}
+            />
+          </React.Suspense>
+        </div>
+      )}
+
+      {currentView === 'sinav-studyosu' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <i className="fa-solid fa-spinner fa-spin text-4xl text-amber-500"></i>
+              </div>
+            }
+          >
+            <SinavStudyosu />
+          </React.Suspense>
+        </div>
+      )}
+
+      {currentView === 'mat-sinav-studyosu' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <i className="fa-solid fa-spinner fa-spin text-4xl text-blue-500"></i>
+              </div>
+            }
+          >
+            <MatSinavStudyosu />
+          </React.Suspense>
+        </div>
+      )}
+
+      {currentView === 'activity-studio' && (
+        <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <i className="fa-solid fa-spinner fa-spin text-4xl text-fuchsia-500"></i>
+              </div>
+            }
+          >
+            <ActivityStudio
+              onBack={onBackToGenerator}
+              onAddToWorkbook={onAddDirectToWorkbook}
+            />
+          </React.Suspense>
+        </div>
+      )}
 
       <ShareModal
         isOpen={isShareModalOpen}

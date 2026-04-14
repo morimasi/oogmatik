@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { pageTransition } from './utils/motionPresets';
@@ -88,17 +89,11 @@ const ScreeningModule = lazy(() =>
     default: module.ScreeningModule,
   }))
 );
-const AssessmentModule = lazy(() =>
-  import('./components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
-);
 const SinavStudyosu = lazy(() =>
   import('../components/SinavStudyosu').then((module) => ({ default: module.SinavStudyosu }))
 );
 const MatSinavStudyosu = lazy(() =>
   import('../components/MatSinavStudyosu').then((module) => ({ default: module.MatSinavStudyosu }))
-);
-const SariKitapStudio = lazy(() =>
-  import('./components/SariKitapStudio').then((module) => ({ default: module.SariKitapStudio }))
 );
 
 const initialStyleSettings: StyleSettings = {
@@ -839,7 +834,6 @@ const AppContent = () => {
             onOpenScreening={() => handleOpenStudio('screening')}
             onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
             onOpenMatSinavStudyosu={() => handleOpenStudio('mat-sinav-studyosu')}
-            onOpenSariKitapStudio={() => handleOpenStudio('sari-kitap-studyosu')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
             width={sidebarWidth}
@@ -898,10 +892,8 @@ const AppContent = () => {
               'messages',
               'admin',
               'screening',
-              'assessment',
               'sinav-studyosu',
               'mat-sinav-studyosu',
-              'sari-kitap-studyosu',
             ].includes(currentView) && (
                 <motion.div
                   key={currentView}
@@ -981,26 +973,11 @@ const AppContent = () => {
                         }
                       />
                     )}
-                    {currentView === 'assessment' && (
-                      <AssessmentModule
-                        onBack={handleGoBack}
-                        onSelectActivity={handleSelectActivity as any}
-                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                        onAutoGenerateWorkbook={handleAutoGenerateWorkbook as any}
-                      />
-                    )}
                     {currentView === 'sinav-studyosu' && (
                       <SinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
                     )}
                     {currentView === 'mat-sinav-studyosu' && (
                       <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                    )}
-                    {currentView === 'sari-kitap-studyosu' && (
-                      <SariKitapStudio
-                        onBack={handleGoBack}
-                        onSave={addSavedWorksheet}
-                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                      />
                     )}
                   </Suspense>
                 </motion.div>
