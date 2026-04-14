@@ -95,6 +95,9 @@ const SinavStudyosu = lazy(() =>
 const MatSinavStudyosu = lazy(() =>
   import('../components/MatSinavStudyosu').then((module) => ({ default: module.MatSinavStudyosu }))
 );
+const SariKitapStudio = lazy(() =>
+  import('./components/SariKitapStudio').then((module) => ({ default: module.SariKitapStudio }))
+);
 
 const initialStyleSettings: StyleSettings = {
   fontSize: 18,
@@ -834,6 +837,7 @@ const AppContent = () => {
             onOpenScreening={() => handleOpenStudio('screening')}
             onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
             onOpenMatSinavStudyosu={() => handleOpenStudio('mat-sinav-studyosu')}
+            onOpenSariKitapStudio={() => handleOpenStudio('sari-kitap-studio')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
             width={sidebarWidth}
@@ -894,6 +898,7 @@ const AppContent = () => {
               'screening',
               'sinav-studyosu',
               'mat-sinav-studyosu',
+              'sari-kitap-studio',
             ].includes(currentView) && (
                 <motion.div
                   key={currentView}
@@ -978,6 +983,12 @@ const AppContent = () => {
                     )}
                     {currentView === 'mat-sinav-studyosu' && (
                       <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                    )}
+                    {currentView === 'sari-kitap-studio' && (
+                      <SariKitapStudio
+                        onBack={handleGoBack}
+                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                      />
                     )}
                   </Suspense>
                 </motion.div>

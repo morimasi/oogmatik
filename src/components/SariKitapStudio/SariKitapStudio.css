@@ -1,0 +1,433 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Sarı Kitap Stüdyosu — Dark Glassmorphism CSS
+   ═══════════════════════════════════════════════════════════════════ */
+
+.sari-kitap-studio {
+  --sk-primary: #eab308;
+  --sk-primary-muted: rgba(234, 179, 8, 0.1);
+  --sk-primary-border: rgba(234, 179, 8, 0.15);
+  --sk-primary-glow: rgba(234, 179, 8, 0.25);
+  --sk-surface: rgba(24, 24, 27, 0.85);
+  --sk-surface-hover: rgba(24, 24, 27, 0.92);
+  --sk-glass-blur: 20px;
+  --sk-border-radius: 1.5rem;
+  --sk-text-primary: rgba(255, 255, 255, 0.95);
+  --sk-text-secondary: rgba(255, 255, 255, 0.6);
+  --sk-text-muted: rgba(255, 255, 255, 0.4);
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  color: var(--sk-text-primary);
+}
+
+/* ─── Panel (Glassmorphism) ─────────────────────────────────────── */
+
+.sk-panel {
+  background: var(--sk-surface);
+  backdrop-filter: blur(var(--sk-glass-blur));
+  -webkit-backdrop-filter: blur(var(--sk-glass-blur));
+  border: 1px solid var(--sk-primary-border);
+  border-radius: var(--sk-border-radius);
+  padding: 1.25rem;
+}
+
+/* ─── Header ────────────────────────────────────────────────────── */
+
+.sk-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background: var(--sk-surface);
+  backdrop-filter: blur(var(--sk-glass-blur));
+  border-bottom: 1px solid var(--sk-primary-border);
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.sk-header-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--sk-primary);
+  font-family: 'Inter', sans-serif;
+}
+
+.sk-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* ─── Layout: 3 Panel Grid ──────────────────────────────────────── */
+
+.sk-body {
+  display: grid;
+  grid-template-columns: 320px 1fr 280px;
+  gap: 1rem;
+  flex: 1;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.sk-left-panel {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sk-center-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+
+.sk-right-panel {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ─── A4 Preview Shell ──────────────────────────────────────────── */
+
+.sk-a4-shell {
+  width: 210mm;
+  min-height: 297mm;
+  background: white;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  font-family: 'Lexend', sans-serif;
+  padding: 15mm;
+  box-sizing: border-box;
+  color: #18181b;
+  position: relative;
+}
+
+.sk-a4-shell * {
+  font-family: 'Lexend', sans-serif;
+}
+
+/* ─── Module Cards (Type Selector) ──────────────────────────────── */
+
+.sk-module-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
+}
+
+.sk-module-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.75rem 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+}
+
+.sk-module-card:hover {
+  transform: scale(1.03);
+  border-color: var(--sk-primary);
+  background: var(--sk-primary-muted);
+}
+
+.sk-module-card.active {
+  border-color: var(--sk-primary);
+  background: var(--sk-primary-muted);
+  box-shadow: 0 0 20px var(--sk-primary-glow);
+}
+
+.sk-module-card-icon {
+  font-size: 1.5rem;
+}
+
+.sk-module-card-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--sk-text-secondary);
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────── */
+
+.sk-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sk-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sk-btn-primary {
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+  color: #18181b;
+  border-color: transparent;
+}
+
+.sk-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--sk-primary-glow);
+}
+
+.sk-btn-ghost {
+  background: transparent;
+  color: var(--sk-text-secondary);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sk-btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--sk-text-primary);
+}
+
+.sk-btn-icon {
+  padding: 0.5rem;
+  border-radius: 0.625rem;
+  background: transparent;
+  color: var(--sk-text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sk-btn-icon:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--sk-primary);
+}
+
+/* ─── Form Controls ─────────────────────────────────────────────── */
+
+.sk-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--sk-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.375rem;
+  display: block;
+}
+
+.sk-select,
+.sk-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.625rem;
+  color: var(--sk-text-primary);
+  font-size: 0.8125rem;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.sk-select:focus,
+.sk-input:focus {
+  border-color: var(--sk-primary);
+}
+
+.sk-select option {
+  background: #18181b;
+  color: white;
+}
+
+/* ─── Section Header ────────────────────────────────────────────── */
+
+.sk-section-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--sk-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+/* ─── Generate Button ───────────────────────────────────────────── */
+
+.sk-generate-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+  color: #18181b;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.sk-generate-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--sk-primary-glow);
+}
+
+.sk-generate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.sk-generate-btn.generating {
+  animation: sk-pulse 1.5s infinite;
+}
+
+@keyframes sk-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* ─── Empty State ───────────────────────────────────────────────── */
+
+.sk-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem;
+  color: var(--sk-text-muted);
+  gap: 1rem;
+}
+
+.sk-empty-state-icon {
+  font-size: 3rem;
+  opacity: 0.3;
+}
+
+/* ─── History List ──────────────────────────────────────────────── */
+
+.sk-history-item {
+  padding: 0.625rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sk-history-item:hover {
+  border-color: var(--sk-primary-border);
+  background: var(--sk-primary-muted);
+}
+
+.sk-history-item-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sk-text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.sk-history-item-meta {
+  font-size: 0.6875rem;
+  color: var(--sk-text-muted);
+}
+
+/* ─── Toggle / Mode Switcher ────────────────────────────────────── */
+
+.sk-mode-toggle {
+  display: flex;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.625rem;
+  overflow: hidden;
+}
+
+.sk-mode-toggle button {
+  flex: 1;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--sk-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sk-mode-toggle button.active {
+  background: var(--sk-primary-muted);
+  color: var(--sk-primary);
+}
+
+/* ─── Error State ───────────────────────────────────────────────── */
+
+.sk-error {
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 0.75rem;
+  color: #f87171;
+  font-size: 0.8125rem;
+}
+
+/* ─── Print Overrides ───────────────────────────────────────────── */
+
+@media print {
+  .sari-kitap-studio {
+    display: block;
+  }
+
+  .sk-header,
+  .sk-left-panel,
+  .sk-right-panel {
+    display: none !important;
+  }
+
+  .sk-body {
+    display: block;
+  }
+
+  .sk-a4-shell {
+    box-shadow: none;
+    margin: 0;
+    width: 100%;
+    min-height: auto;
+    page-break-inside: avoid;
+  }
+}
+
+/* ─── Responsive ────────────────────────────────────────────────── */
+
+@media (max-width: 1200px) {
+  .sk-body {
+    grid-template-columns: 280px 1fr;
+  }
+  .sk-right-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .sk-body {
+    grid-template-columns: 1fr;
+  }
+  .sk-left-panel {
+    max-height: 300px;
+  }
+}

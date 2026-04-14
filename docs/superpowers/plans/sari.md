@@ -228,10 +228,12 @@ tests/
 │   ├── kopru.test.ts
 │   ├── ciftMetin.test.ts
 │   ├── bellek.test.ts
-│   └── hizliOkuma.test.ts
+│   ├── hizliOkuma.test.ts
+│   ├── cache.test.ts                         ← Cache hash + TTL testleri
+│   └── store.test.ts                         ← Zustand action testleri
 ```
 
-**Toplam: ~55 yeni dosya, 4 mevcut dosya modifikasyonu**
+**Toplam: ~57 yeni dosya, 4 mevcut dosya modifikasyonu**
 
 ---
 
@@ -286,6 +288,13 @@ export const MODULE_REGISTRY: Map<SariKitapActivityType, SariKitapModule> = new 
 ## 4. Tip Sistemi Detayı — Discriminated Union
 
 ### 4.1 Merkezi `sariKitap.ts` Genişletmesi
+
+> **Güncelleme (v2.0):** `src/types/sariKitap.ts` dosyasında `z.any()` kullanımı tamamen kaldırıldı.
+> `SariKitapConfigSchema` artık `z.discriminatedUnion('type', [...])` kullanıyor.
+> Her tip için spesifik config interface'leri tanımlandı (PencereConfig, NoktaConfig, vb.).
+> `SariKitapActivity` → `SariKitapDocument` olarak yeniden adlandırıldı.
+> `SariKitapDifficulty` özel tipi eklendi: `'Başlangıç' | 'Orta' | 'İleri' | 'Uzman'`.
+> Typography zorunlu alanlar: `fontSize` min 14, `lineHeight` min 1.6, `letterSpacing` min 0.02.
 
 ```typescript
 import { z } from 'zod';
@@ -429,6 +438,7 @@ export interface SariKitapGeneratedContent {
 }
 
 // ─── Firestore Dokümanı ──────────────────────────────────────────
+// NOT: SariKitapActivity → SariKitapDocument olarak yeniden adlandırıldı (v2.0)
 export interface SariKitapDocument {
   id: string;
   userId: string;
@@ -443,7 +453,7 @@ export interface SariKitapDocument {
   workbookId?: string;             // Hangi kitapçığa eklendi
 }
 
-// ─── Zod Şema (z.any() YASAK) ───────────────────────────────────
+// ─── Zod Şema (z.any() YASAK — discriminatedUnion kullanılıyor) ──
 
 const SariKitapBaseConfigSchema = z.object({
   ageGroup: z.enum(['5-7', '8-10', '11-13', '14+']),
@@ -456,7 +466,7 @@ const SariKitapBaseConfigSchema = z.object({
   typography: z.object({
     fontSize: z.number().min(14).max(28),
     lineHeight: z.number().min(1.6).max(3.0),
-    letterSpacing: z.number().min(0).max(0.2),
+    letterSpacing: z.number().min(0.02).max(0.2),  // min 0.02 zorunlu
     wordSpacing: z.number().min(0).max(0.5),
   }),
 });
@@ -526,6 +536,9 @@ export const SariKitapGenerationRequestSchema = z.object({
 > **Selin Arslan uyarısı:** Gemini Türkçe hece ayırma kurallarında hallucinate edebilir.
 > Post-processing hece doğrulaması zorunlu.
 
+> **Güncelleme (v2.0):** Tam algoritma implementasyonu `src/utils/heceAyirici.ts` dosyasında
+> mevcuttur. Aşağıdaki fonksiyonlar implement edilmiştir.
+
 ```typescript
 // utils/heceAyirici.ts
 
@@ -539,34 +552,165 @@ const UNSUZLER = new Set([
 ]);
 
 /**
- * Türkçe fonetik kurallara göre hece ayırma
+ * Türkçe fonetik kurallara göre tek kelime hece ayırma
+ *
  * Kurallar:
  * 1. Her hecede en az bir ünlü bulunur
- * 2. İki ünlü arasındaki tek ünsüz, sonraki hecenin başına geçer
- * 3. İki ünlü arasında iki ünsüz varsa, ilki önceki hecede kalır
- * 4. İki ünlü arasında üç ünsüz varsa, ilk ikisi önceki hecede kalır
+ * 2. 0 ünsüz → iki ünlü arasından direkt kes
+ * 3. 1 ünsüz → sonraki hecenin başına geçer (ör: "a-ra-ba")
+ * 4. 2 ünsüz → ilki önceki hecede kalır (ör: "or-man")
+ * 5. 3+ ünsüz → ilk ikisi önceki hecede kalır (ör: "Türk-çe")
  */
 export function hecelereAyir(kelime: string): string[] {
-  // Algoritma implementasyonu...
+  // Algoritma implementasyonu — src/utils/heceAyirici.ts
 }
 
 /**
- * Metni cümlelere, kelimelere ve hecelere parse eder
- * AI çıktısının post-processing'i için kullanılır
+ * Tam metin parse → HeceRow[]
+ * Satır satır, kelime kelime, hece hece ayrıştırır.
+ * AI çıktısının post-processing'i için kullanılır (metniHecele).
  */
 export function metniHecele(metin: string): HeceRow[] {
   // Satır satır parse → kelime kelime → hece hece
 }
 ```
 
+**Kural özeti:**
+| Ünsüz Sayısı | Kural | Örnek |
+|---|---|---|
+| 0 | İki ünlü arasından direkt kes | "aa" → "a-a" |
+| 1 | Ünsüz sonraki hecede | "ara" → "a-ra" |
+| 2 | İlki önceki hecede | "orman" → "or-man" |
+| 3+ | İlk ikisi önceki hecede | "Türkçe" → "Türk-çe" |
+
 **Test örnekleri (70+ kelime):**
 ```
-"ağaç"     → ["a", "ğaç"]
-"ormanda"  → ["or", "man", "da"]
-"karınca"  → ["ka", "rın", "ca"]
-"öğretmen" → ["öğ", "ret", "men"]
-"çiçek"    → ["çi", "çek"]
+"ağaç"      → ["a", "ğaç"]
+"ormanda"   → ["or", "man", "da"]
+"karınca"   → ["ka", "rın", "ca"]
+"öğretmen"  → ["öğ", "ret", "men"]
+"çiçek"     → ["çi", "çek"]
 "masallarda"→ ["ma", "sal", "lar", "da"]
+```
+
+---
+
+## 5.5 Prompt Builder Template'leri — `shared.ts`
+
+> **YENİ (v2.0):** `src/services/generators/sariKitap/shared.ts` dosyasında tüm prompt
+> builder'lar ve paylaşımlı system instruction tanımlanmıştır.
+
+### SARI_KITAP_SYSTEM_INSTRUCTION
+
+6 kurallı paylaşımlı system instruction, tüm modül prompt builder'ları tarafından kullanılır:
+
+1. Türkçe dil kurallarına uygunluk (saf Türkçe kelime tercihi)
+2. Pedagojik not (`pedagogicalNote`) her çıktıda zorunlu
+3. `targetSkills[]` her çıktıda zorunlu
+4. Disleksi dostu dil — kısa cümleler, basit kelimeler
+5. Sıkı JSON formatı (parse edilebilir çıktı)
+6. Tanı koyucu dil yasak (Dr. Ahmet Kaya koşulu)
+
+### Modül-Spesifik Prompt Builder'lar
+
+```typescript
+// src/services/generators/sariKitap/shared.ts
+
+export const SARI_KITAP_SYSTEM_INSTRUCTION: string;  // 6 kurallı system prompt
+
+// Modül-spesifik prompt builder'lar
+export function buildPencerePrompt(config: PencereConfig, pdfRef?: string): string;
+export function buildNoktaPrompt(config: NoktaConfig, pdfRef?: string): string;
+export function buildKopruPrompt(config: KopruConfig, pdfRef?: string): string;
+export function buildCiftMetinPrompt(config: CiftMetinConfig, pdfRef?: string): string;
+export function buildBellekPrompt(config: BellekConfig, pdfRef?: string): string;
+export function buildHizliOkumaPrompt(config: HizliOkumaConfig, pdfRef?: string): string;
+
+// Router fonksiyonu — tip bazlı prompt builder seçimi
+export function getPromptBuilder(
+  type: SariKitapActivityType
+): (config: SariKitapConfig, pdfRef?: string) => string;
+```
+
+### Güvenlik Katmanı
+
+```typescript
+// shared.ts içinde aktif güvenlik kontrolleri:
+sanitizePromptInput(input)       // XSS + injection temizleme
+// max 2000 karakter kullanıcı input sınırı
+tryRepairJson(aiOutput)          // AI çıktısı JSON onarımı
+metniHecele(rawText)             // Post-processing hece doğrulama
+```
+
+---
+
+## 5.6 Offline Metin Havuzu — `metinHavuzu.ts`
+
+> **YENİ (v2.0):** `src/services/offlineGenerators/sariKitap/metinHavuzu.ts` dosyasında
+> AI başarısız olduğunda devreye giren tam offline metin havuzu tanımlanmıştır.
+
+### Veri Yapısı
+
+```typescript
+// src/services/offlineGenerators/sariKitap/metinHavuzu.ts
+
+type Konu = 'Doğa' | 'Okul' | 'Hayvanlar' | 'Aile' | 'Macera';
+
+interface MetinEntry {
+  id: string;
+  text: string;
+  wordCount: number;
+  sentenceCount: number;
+  ageGroup: AgeGroup;
+  difficulty: SariKitapDifficulty;
+  konu: Konu;
+  targetSkills: string[];
+  pedagogicalNote: string;
+}
+
+interface CiftMetinCifti {
+  id: string;
+  a: MetinEntry;
+  b: MetinEntry;
+  difficulty: SariKitapDifficulty;
+}
+
+// Havuz yapısı: Konu × Zorluk → MetinEntry[]
+const METIN_HAVUZU: Record<Konu, Record<SariKitapDifficulty, MetinEntry[]>>;
+```
+
+### Kapsam
+
+| Boyut | Değer |
+|---|---|
+| Toplam metin | 50+ entry |
+| Konu sayısı | 5 (Doğa, Okul, Hayvanlar, Aile, Macera) |
+| Zorluk × Konu | 4 × 5 = 20 kombinasyon |
+| Çift metin çifti | 10 adet (`CiftMetinCifti`) |
+
+### Yaş Filtresi
+
+| Yaş Grubu | Cümle Başına Max Kelime |
+|---|---|
+| 5-7 | 5 kelime |
+| 8-10 | 8 kelime |
+| 11-13 | 12 kelime |
+| 14+ | Serbest |
+
+### API Fonksiyonları
+
+```typescript
+// Yaş grubuna ve zorluğa göre metin döndürür
+export function getMetinByAgeAndDifficulty(
+  ageGroup: AgeGroup,
+  difficulty: SariKitapDifficulty,
+  konu?: Konu
+): MetinEntry;
+
+// Çift metin formatı için çift döndürür (sadece 11-13 ve 14+)
+export function getCiftMetinCifti(
+  difficulty: SariKitapDifficulty
+): CiftMetinCifti;
 ```
 
 ---
@@ -758,10 +902,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 ## 8. Zustand Store Tasarımı
 
+> **Güncelleme (v2.0):** `src/store/useSariKitapStore.ts` dosyasında `createDefaultConfig(type)`
+> factory fonksiyonu ve tüm action'lar implement edilmiştir. Pattern olarak `useReadingStore`
+> ile aynı Zustand yapısı kullanılmaktadır.
+
 ```typescript
 // store/useSariKitapStore.ts
 import { create } from 'zustand';
 import type { SariKitapConfig, SariKitapActivityType, SariKitapGeneratedContent } from '../types/sariKitap';
+
+/**
+ * Her tip için varsayılan config üretir — factory fonksiyonu
+ * useReadingStore pattern'i ile uyumlu
+ */
+export function createDefaultConfig(type: SariKitapActivityType): SariKitapConfig {
+  // Her tip için ayrı varsayılan değerler döner
+  // Örn: type === 'pencere' → PencereConfig defaults
+}
 
 interface SariKitapState {
   // ─── Aktif Tip ───
@@ -785,7 +942,7 @@ interface SariKitapState {
   recentGenerations: SariKitapGeneratedContent[];
 
   // ─── Actions ───
-  setActiveType: (type: SariKitapActivityType) => void;
+  setActiveType: (type: SariKitapActivityType) => void;   // createDefaultConfig çağırır
   updateConfig: <K extends keyof SariKitapConfig>(key: K, value: SariKitapConfig[K]) => void;
   replaceConfig: (config: SariKitapConfig) => void;
   setGenerating: (value: boolean) => void;
@@ -794,7 +951,7 @@ interface SariKitapState {
   setPreviewScale: (scale: number) => void;
   toggleGrid: () => void;
   toggleFullscreen: () => void;
-  addToHistory: (content: SariKitapGeneratedContent) => void;
+  addToHistory: (content: SariKitapGeneratedContent) => void;  // max 10 üretim tutulur
   resetStudio: () => void;
 }
 ```
@@ -865,6 +1022,132 @@ interface SariKitapState {
     // ... mevcut view'ler
 +   | 'sari-kitap-studio'
     | 'students';
+```
+
+---
+
+## 9.5 Cache Hash Algoritması — `sariKitapService.ts`
+
+> **YENİ (v2.0):** `src/services/sariKitapService.ts` dosyasında deterministik cache key
+> üretimi ve TTL yönetimi implementasyonu mevcuttur.
+
+```typescript
+// src/services/sariKitapService.ts
+
+/**
+ * Deterministik cache key üretimi
+ * Aynı config kombinasyonu her zaman aynı key'i üretir
+ */
+export function buildCacheKey(config: SariKitapConfig): string {
+  const normalized = [
+    config.type,
+    config.ageGroup,
+    config.difficulty,
+    [...config.topics].sort().join(','),
+    [...config.targetSkills].sort().join(','),
+  ].join('|');
+
+  return `sari-kitap-${normalized}`;
+}
+
+// Örnek key formatı:
+// "sari-kitap-pencere|8-10|Orta|doğa,okul|reading_fluency,attention_focus"
+```
+
+### Cache Konfigürasyonu
+
+| Parametre | Değer |
+|---|---|
+| TTL | 15 dakika |
+| Key format | `sari-kitap-${normalized}` |
+| Bileşenler | type + ageGroup + difficulty + topics.sort() + targetSkills.sort() |
+| Backend | Mevcut `cacheService.ts` pattern'i (IndexedDB) |
+
+> `cacheService.ts` içinde kullanılan mevcut pattern ile uyumludur. Yeni bir cache katmanı
+> oluşturulmamış, entegrasyon sağlanmıştır.
+
+---
+
+## 9.6 Export Pipeline — `useExportActions.ts`
+
+> **YENİ (v2.0):** `src/components/SariKitapStudio/hooks/useExportActions.ts` dosyasında
+> PDF ve PNG export pipeline'ı implement edilmiştir.
+
+```typescript
+// hooks/useExportActions.ts
+
+/**
+ * PDF Export
+ * - html2canvas (scale: 2) → yüksek çözünürlük raster snapshot
+ * - jsPDF A4 (210×297mm) → A4 kağıt boyutuna fit
+ * - KVKK-safe metadata: yazar, başlık, öğrenci adı YOK
+ */
+export async function exportToPDF(
+  element: HTMLElement,
+  fileName: string
+): Promise<void>;
+
+/**
+ * PNG Export
+ * - html2canvas → canvas.toDataURL('image/png')
+ * - Otomatik indirme tetiklenir
+ */
+export async function exportToPNG(
+  element: HTMLElement,
+  fileName: string
+): Promise<void>;
+```
+
+### SVG Modülleri (Planlanan)
+
+```
+Nokta ve Köprü renderer'ları SVG tabanlıdır.
+svg2pdf.js entegrasyonu planlanmaktadır:
+- SVG içerik rasterize edilmeden PDF'e embed edilecek
+- Bora Demir koşulu: vektörel kalma garantisi
+- Durum: Planlama aşamasında (svg2pdf.js entegrasyonu)
+```
+
+---
+
+## 9.7 ErrorFallback İmplementasyonu
+
+> **YENİ (v2.0):** `src/components/SariKitapStudio/shared/ErrorFallback.tsx` dosyasında
+> her renderer için izole hata yakalama bileşeni implement edilmiştir.
+
+```typescript
+// shared/ErrorFallback.tsx
+
+interface ErrorFallbackProps {
+  error: Error;
+  resetErrorBoundary: () => void;
+}
+
+/**
+ * Dark Glassmorphism tasarım:
+ * - backdrop-filter: blur
+ * - border-radius: 2.5rem
+ * - border: rgba(234,179,8,0.15)  ← sarı accent
+ *
+ * Development modunda hata detayı (error.message + stack) gösterir
+ * Production modunda kullanıcı dostu mesaj gösterir
+ *
+ * Her renderer ErrorBoundary ile sarılır → izole hata yakalama
+ * Bir renderer crash olursa tüm stüdyo ölmez (Bora Demir koşulu)
+ */
+export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
+  error,
+  resetErrorBoundary,
+}) => {
+  return (
+    <div className="sk-error-fallback">
+      {/* Dark Glassmorphism panel */}
+      <p>Bir hata oluştu.</p>
+      {import.meta.env.DEV && <pre>{error.message}</pre>}
+      <button onClick={resetErrorBoundary}>Tekrar Dene</button>
+    </div>
+  );
+};
 ```
 
 ---
@@ -970,7 +1253,7 @@ firestore/
 ### Faz 2: Offline Generatörler + Metin Havuzu
 - `services/offlineGenerators/sariKitap/` → 6 offline üretici
 - `services/offlineGenerators/sariKitap/heceMotoru.ts` → Metin parse motoru
-- `services/offlineGenerators/sariKitap/metinHavuzu.ts` → Hazır Türkçe metinler
+- `services/offlineGenerators/sariKitap/metinHavuzu.ts` → Hazır Türkçe metinler (50+ entry)
 - Her tip için offline test dosyaları
 
 ### Faz 3: UI Bileşenleri — Shared + 6 Modül
@@ -988,13 +1271,14 @@ firestore/
 
 ### Faz 4: AI Endpoint + App Entegrasyonu
 - `api/sari-kitap/generate.ts` → Vercel serverless
-- `services/generators/sariKitap/` → 6 prompt builder
+- `services/generators/sariKitap/` → 6 prompt builder + system instruction
 - `App.tsx` → Lazy import + view rendering
 - `Sidebar.tsx` → Navigasyon item ekleme
-- `services/sariKitapService.ts` → Firestore CRUD + cache
+- `services/sariKitapService.ts` → Firestore CRUD + cache (buildCacheKey)
 
 ### Faz 5: Export, Test & Optimizasyon
-- PDF/PNG export entegrasyonu (jsPDF + html2canvas)
+- PDF/PNG export entegrasyonu (jsPDF + html2canvas + KVKK-safe metadata)
+- SVG export için svg2pdf.js entegrasyonu (planlama)
 - Workbook entegrasyonu (handleAddToWorkbook)
 - Vitest testleri (her modül için)
 - Build + lint doğrulama
@@ -1013,20 +1297,19 @@ npm run lint                       # ESLint kuralları
 ```
 
 ### Vitest Test Kapsamı
-```
-□ Zod şema — 6 config tipi validation
-□ Zod şema — invalid data rejection
-□ Hece ayırma — 70+ Türkçe kelime
-□ Hece ayırma — özel karakterler (â, î, û)
-□ Pencere offline gen — çıktı format doğrulama
-□ Nokta offline gen — dot alignment hesabı
-□ Köprü offline gen — SVG path hesabı
-□ Çift Metin offline gen — interleave algoritması
-□ Bellek offline gen — grid hesabı
-□ Hızlı Okuma offline gen — blok word count
-□ pedagogicalNote zorunluluk kontrolü
-□ Yaş grubu kısıtlaması (Çift Metin → sadece 11+)
-```
+
+| Test Dosyası | Test Sayısı | Kapsam |
+|---|---|---|
+| `types.test.ts` | 18 | Zod valid/invalid, yaş kısıtlaması, lineHeight < 1.6 reject |
+| `heceMotoru.test.ts` | 30+ | 70+ Türkçe kelime, özel karakter (â, î, û), edge case |
+| `pencere.test.ts` | 5 | Offline gen + render format doğrulama |
+| `nokta.test.ts` | 5 | Offline gen + render format doğrulama |
+| `kopru.test.ts` | 5 | Offline gen + render format doğrulama |
+| `bellek.test.ts` | 5 | Offline gen + render format doğrulama |
+| `hizliOkuma.test.ts` | 5 | Offline gen + render format doğrulama |
+| `ciftMetin.test.ts` | 8 | Interleave algoritması, yaş kısıtlaması (sadece 11+) |
+| `cache.test.ts` | 4 | Hash oluşturma deterministik, TTL doğrulama |
+| `store.test.ts` | 8 | Zustand action'ları (setActiveType, addToHistory max 10, vb.) |
 
 ### Browser Doğrulama
 ```
@@ -1038,6 +1321,8 @@ npm run lint                       # ESLint kuralları
 □ Lexend font tüm çıktılarda mevcut mu?
 □ SVG (Nokta/Köprü) export'ta vektörel mi?
 □ ErrorBoundary — renderer crash testi
+□ Cache — aynı config ikinci istek cache'ten mi geliyor?
+□ Offline fallback — ağ kesildiğinde metinHavuzu devreye giriyor mu?
 ```
 
 ---
@@ -1055,14 +1340,37 @@ npm run lint                       # ESLint kuralları
 | 7 | Epilepsi güvenliği yoktu | Pencere animasyonu max 3Hz koşulu |
 | 8 | ErrorBoundary stratejisi yoktu | Her renderer ErrorBoundary ile sarılacak |
 | 9 | CSS mimarisi yoktu | Dark Glassmorphism CSS detayı eklendi |
-| 10| Firestore şeması yoktu | Koleksiyon yapısı detaylandırıldı |
-| 11| Çift Metin yaş kısıtlaması yoktu | Sadece 11-13 ve 14+ (Elif Yıldız koşulu) |
-| 12| Registry pattern eksikti | Dinamik modül kayıt merkezi eklendi |
-| 13| Offline fallback stratejisi yoktu | AI fail → offline generatör devreye girer |
-| 14| targetSkills zorunluluğu yoktu | Her etkinlikte targetSkills[] zorunlu |
-| 15| BEP entegrasyonu belgenmemişti | SMART format BEP hedef bağlantısı eklendi |
-| 16| `Hızlı Okuma` 6. tip olarak atlanmıştı | Ayrı tam modül olarak eklendi |
-| 17| SVG export stratejisi yoktu | Vektörel kalma koşulu eklendi (raster yasak) |
-| 18| Rate limiting tipleri tanımsızdı | `apiGeneration` LimitKey kullanımı belirtildi |
-| 19| Cache stratejisi yoktu | 15 dk IndexedDB cache + config hash |
-| 20| Prompt security atlanmıştı | validatePromptSecurity() zorunlu eklendi |
+| 10 | Firestore şeması yoktu | Koleksiyon yapısı detaylandırıldı |
+| 11 | Çift Metin yaş kısıtlaması yoktu | Sadece 11-13 ve 14+ (Elif Yıldız koşulu) |
+| 12 | Registry pattern eksikti | Dinamik modül kayıt merkezi eklendi |
+| 13 | Offline fallback stratejisi yoktu | AI fail → offline generatör devreye girer |
+| 14 | targetSkills zorunluluğu yoktu | Her etkinlikte targetSkills[] zorunlu |
+| 15 | BEP entegrasyonu belgenmemişti | SMART format BEP hedef bağlantısı eklendi |
+| 16 | `Hızlı Okuma` 6. tip olarak atlanmıştı | Ayrı tam modül olarak eklendi |
+| 17 | SVG export stratejisi yoktu | Vektörel kalma koşulu eklendi (raster yasak) |
+| 18 | Rate limiting tipleri tanımsızdı | `apiGeneration` LimitKey kullanımı belirtildi |
+| 19 | Cache stratejisi yoktu | 15 dk IndexedDB cache + config hash |
+| 20 | Prompt security atlanmıştı | validatePromptSecurity() zorunlu eklendi |
+| 21 | Prompt builder implementasyonu yoktu | 6 modül-spesifik prompt builder + system instruction eklendi |
+| 22 | Metin havuzu yoktu | 50+ metin, 5 kategori, 10 çift metin çifti eklendi |
+| 23 | Zustand store action detayı yoktu | `createDefaultConfig` factory + tam action implementasyonu |
+| 24 | Export pipeline detayı yoktu | jsPDF + html2canvas + KVKK-safe metadata |
+| 25 | Cache algoritması yoktu | `buildCacheKey` + 15dk TTL + cacheService entegrasyonu |
+
+---
+
+## 15.5 Mevcut Stüdyo Pattern Uyum Tablosu
+
+> **YENİ (v2.0):** SariKitapStudio, mevcut ReadingStudio ve MathStudio pattern'leriyle
+> tam uyumlu tasarlanmıştır.
+
+| Özellik | ReadingStudio | MathStudio | SariKitapStudio |
+|---|---|---|---|
+| Props | `onBack`, `onAddToWorkbook` | `onBack`, `onAddToWorkbook` | `onBack`, `onAddToWorkbook` |
+| Store | `useReadingStore` | `useMathStore` | `useSariKitapStore` |
+| Lazy load | Evet | Evet | Evet |
+| Export | jsPDF + html2canvas | jsPDF + html2canvas | jsPDF + html2canvas + svg2pdf.js (planlama) |
+| CSS | Glassmorphism | Glassmorphism | Dark Glassmorphism (sarı accent) |
+| Error handling | Global ErrorBoundary | Global ErrorBoundary | Per-renderer ErrorBoundary |
+| Offline fallback | Evet | Evet | Evet (metinHavuzu.ts) |
+| Cache | cacheService | cacheService | cacheService + buildCacheKey |

@@ -51,6 +51,7 @@ interface SidebarProps {
   onOpenScreening?: () => void; // Added Prop
   onOpenSinavStudyosu?: () => void; // Sınav Stüdyosu
   onOpenMatSinavStudyosu?: () => void; // Matematik Sınav Stüdyosu
+  onOpenSariKitapStudio?: () => void; // Sarı Kitap Stüdyosu
   activeCurriculumSession?: ActiveCurriculumSession | null;
   width?: number;
   onWidthChange?: (width: number) => void;
@@ -102,6 +103,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenActivityStudio,
   onOpenSinavStudyosu,
   onOpenMatSinavStudyosu,
+  onOpenSariKitapStudio,
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -196,6 +198,13 @@ const Sidebar: React.FC<SidebarProps> = ({
           icon: 'fa-chart-pie',
           color: 'bg-violet-500',
           onClick: onOpenInfographicStudio,
+        },
+        {
+          id: 'sari-kitap-studio',
+          label: 'Sarı Kitap Stüdyosu',
+          icon: 'fa-book',
+          color: 'bg-yellow-500',
+          onClick: onOpenSariKitapStudio,
         },
       ],
     },
