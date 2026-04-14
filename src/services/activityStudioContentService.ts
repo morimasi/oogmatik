@@ -91,7 +91,21 @@ export function extractContentBlocks(
   }
 
   // BaseAgent içerisinden dönen raw property'si (AI'nin JSON çıktısı)
-  const payload = rawData.raw;
+  let payload = rawData.raw;
+
+  // JSON string olarak geldiyse ayrıştır
+  if (typeof payload === 'string') {
+    try {
+       payload = JSON.parse(payload);
+    } catch {}
+  }
+
+  // Vercel backend { text: "{\"blocks\":...}" } formuna sarıp dönerse:
+  if (typeof payload === 'object' && payload !== null && typeof (payload as Record<string, unknown>).text === 'string') {
+    try {
+       payload = JSON.parse((payload as Record<string, unknown>).text as string);
+    } catch {}
+  }
 
   if (typeof payload !== 'object' || payload === null) {
     return { blocks: [], pedagogicalNote: agentPedNote };
