@@ -9,7 +9,7 @@ interface StepPreviewProps {
   onBack: () => void;
 }
 
-export const StepPreview: React.FC<StepPreviewProps> = ({ onNext, onBack }) => {
+export const StepPreview: React.FC<StepPreviewProps> = ({ onNext, onBack }: StepPreviewProps) => {
   const { wizardData, content, pedagogicalNote, setError } = useActivityStudioStore();
   const { runExport } = useExport();
 
@@ -31,7 +31,7 @@ export const StepPreview: React.FC<StepPreviewProps> = ({ onNext, onBack }) => {
       <h3 className="text-xl font-bold font-['Lexend'] text-amber-400">Önizleme</h3>
       <PreviewRenderer
         title={wizardData.goal?.topic ?? 'Etkinlik'}
-        scenario={content && content.length > 0 ? 'AI içeriği başarıyla hazırlandı.' : 'İçerik henüz oluşmadı.'}
+        scenario={content && content.length > 0 ? `AI içeriği başarıyla hazırlandı — ${content.length} blok üretildi.` : 'İçerik henüz oluşmadı. Lütfen İçerik adımına geri dönüp "İçerik Üret" butonuna basın.'}
         pedagogicalNote={pedagogicalNote || 'Etkinlik öğrencinin hedef becerilerini aşamalı olarak pekiştirir.'}
       />
       <div className="flex flex-wrap gap-3 pt-4">
