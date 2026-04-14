@@ -98,12 +98,15 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
   };
 
   return (
-    <div className="space-y-6 rounded-2xl border border-[var(--border-color)] p-4">
-      <h4 className="text-base font-bold font-['Lexend']">Kompakt A4 Düzeni</h4>
+    <div className="space-y-6 rounded-3xl border border-zinc-800 bg-zinc-900/40 p-6 shadow-2xl shadow-black/40 backdrop-blur-md">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="h-1.5 w-1.5 rounded-full bg-amber-400"></div>
+        <h4 className="text-base font-black font-['Lexend'] text-amber-400 uppercase tracking-tight">Kompakt A4 Düzeni</h4>
+      </div>
 
       <div>
-        <label htmlFor="compact-density" className="mb-2 block text-sm font-semibold font-['Lexend']">
-          Density Level: {config.densityLevel}
+        <label htmlFor="compact-density" className="mb-3 block text-sm font-bold font-['Lexend'] text-zinc-300">
+          Yoğunluk Seviyesi: <span className="text-amber-500">{config.densityLevel}</span>
         </label>
         <input
           id="compact-density"
@@ -114,13 +117,13 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
           step={1}
           value={config.densityLevel}
           onChange={(e) => handleDensityChange(Number(e.target.value))}
-          className="w-full"
+          className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
         />
       </div>
 
       <div>
-        <label htmlFor="compact-font" className="mb-2 block text-sm font-semibold font-['Lexend']">
-          Font Size: {config.fontSize}pt
+        <label htmlFor="compact-font" className="mb-3 block text-sm font-bold font-['Lexend'] text-zinc-300">
+          Yazı Boyutu: <span className="text-amber-500">{config.fontSize}pt</span>
         </label>
         <input
           id="compact-font"
@@ -131,16 +134,16 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
           step={1}
           value={config.fontSize}
           onChange={(e) => handleFontChange(Number(e.target.value))}
-          className="w-full"
+          className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
         />
-        <p className="mt-1 text-xs text-[var(--text-secondary)]">
-          min {minFont}pt for age {ageGroup} ({profile})
+        <p className="mt-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+          {ageGroup} yaş için min {minFont}pt önerilir ({profile})
         </p>
       </div>
 
       <div>
-        <label htmlFor="compact-line-height" className="mb-2 block text-sm font-semibold font-['Lexend']">
-          Line Height: {config.lineHeight}
+        <label htmlFor="compact-line-height" className="mb-3 block text-sm font-bold font-['Lexend'] text-zinc-300">
+          Satır Aralığı: <span className="text-amber-500">{config.lineHeight}</span>
         </label>
         <input
           id="compact-line-height"
@@ -151,13 +154,13 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
           step={0.2}
           value={config.lineHeight}
           onChange={(e) => handleLineHeightChange(Number(e.target.value))}
-          className="w-full"
+          className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
         />
       </div>
 
       <div>
-        <label htmlFor="compact-margins" className="mb-2 block text-sm font-semibold font-['Lexend']">
-          Margins: {config.marginMM}mm
+        <label htmlFor="compact-margins" className="mb-3 block text-sm font-bold font-['Lexend'] text-zinc-300">
+          Kenar Boşlukları: <span className="text-amber-500">{config.marginMM}mm</span>
         </label>
         <input
           id="compact-margins"
@@ -168,15 +171,15 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
           step={1}
           value={config.marginMM}
           onChange={(e) => handleMarginChange(Number(e.target.value))}
-          className="w-full"
+          className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
         />
       </div>
 
       <div
-        className="rounded-xl bg-slate-100 p-4 text-sm text-slate-900"
+        className="rounded-2xl border border-zinc-700 bg-zinc-800/30 p-5 text-sm text-zinc-200 shadow-inner"
         style={{ fontSize: `${config.fontSize}pt`, lineHeight: config.lineHeight }}
       >
-        Oogmatik etkinlik sayfalari ozel ogrenme guclugu olan cocuklar icin okunabilirlik odakli tasarlandi.
+        Oogmatik etkinlik sayfaları özel öğrenme güçlüğü olan çocuklar için okunabilirlik odaklı tasarlandı.
       </div>
     </div>
   );

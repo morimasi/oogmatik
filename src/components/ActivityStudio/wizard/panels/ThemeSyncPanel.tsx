@@ -44,96 +44,124 @@ export const ThemeSyncPanel: React.FC = () => {
   const renderContrastBadge = (ratio: number) => {
     const accessible = isAccessibleContrast(ratio, 'AAA');
     return (
-      <span className={accessible ? 'text-green-600' : 'text-red-600'}>
-        {ratio.toFixed(2)}:1 {accessible ? 'OK WCAG AAA' : 'Below WCAG AAA'}
+      <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-black ${accessible ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-500'}`}>
+        {ratio.toFixed(2)}:1 {accessible ? '✓ GEÇER' : '✗ YETERSİZ'}
       </span>
     );
   };
 
   return (
-    <div className="space-y-6">
-      <h4 className="font-bold">Tema Renkleri (WCAG AAA 7:1)</h4>
+    <div className="space-y-6 rounded-3xl border border-zinc-800 bg-zinc-900/40 p-6 shadow-2xl shadow-black/40 backdrop-blur-md">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="h-1.5 w-1.5 rounded-full bg-amber-400"></div>
+        <h4 className="text-base font-black font-['Lexend'] text-amber-400 uppercase tracking-tight">Tema Renkleri (WCAG AAA 7:1)</h4>
+      </div>
 
-      <div className="space-y-3">
-        <div className="flex items-center gap-4">
-          <label htmlFor="primaryColor" className="w-40 text-sm font-semibold">Primary Color</label>
-          <input
-            id="primaryColor"
-            aria-label="Primary Color"
-            type="color"
-            value={colors.primaryColor}
-            onChange={(e) => setColors((prev) => ({ ...prev, primaryColor: e.target.value }))}
-            className="h-10 w-10 rounded border"
-          />
-          <span className="text-xs text-gray-500">{colors.primaryColor}</span>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+        <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-800/30 p-3">
+          <label htmlFor="primaryColor" className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Birincil Renk</label>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-mono text-zinc-500">{colors.primaryColor}</span>
+            <input
+              id="primaryColor"
+              type="color"
+              value={colors.primaryColor}
+              onChange={(e) => setColors((prev) => ({ ...prev, primaryColor: e.target.value }))}
+              className="h-8 w-8 rounded-lg cursor-pointer bg-transparent border-none"
+            />
+          </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <label htmlFor="secondaryColor" className="w-40 text-sm font-semibold">Secondary Color</label>
-          <input
-            id="secondaryColor"
-            aria-label="Secondary Color"
-            type="color"
-            value={colors.secondaryColor}
-            onChange={(e) => setColors((prev) => ({ ...prev, secondaryColor: e.target.value }))}
-            className="h-10 w-10 rounded border"
-          />
-          <span className="text-xs text-gray-500">{colors.secondaryColor}</span>
+        <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-800/30 p-3">
+          <label htmlFor="secondaryColor" className="text-xs font-bold text-zinc-400 uppercase tracking-wider">İkincil Renk</label>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-mono text-zinc-500">{colors.secondaryColor}</span>
+            <input
+              id="secondaryColor"
+              type="color"
+              value={colors.secondaryColor}
+              onChange={(e) => setColors((prev) => ({ ...prev, secondaryColor: e.target.value }))}
+              className="h-8 w-8 rounded-lg cursor-pointer bg-transparent border-none"
+            />
+          </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <label htmlFor="accentColor" className="w-40 text-sm font-semibold">Accent Color</label>
-          <input
-            id="accentColor"
-            aria-label="Accent Color"
-            type="color"
-            value={colors.accentColor}
-            onChange={(e) => setColors((prev) => ({ ...prev, accentColor: e.target.value }))}
-            className="h-10 w-10 rounded border"
-          />
-          <span className="text-xs text-gray-500">{colors.accentColor}</span>
+        <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-800/30 p-3">
+          <label htmlFor="accentColor" className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Vurgu Rengi</label>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-mono text-zinc-500">{colors.accentColor}</span>
+            <input
+              id="accentColor"
+              type="color"
+              value={colors.accentColor}
+              onChange={(e) => setColors((prev) => ({ ...prev, accentColor: e.target.value }))}
+              className="h-8 w-8 rounded-lg cursor-pointer bg-transparent border-none"
+            />
+          </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <label htmlFor="bgPaper" className="w-40 text-sm font-semibold">Paper Color</label>
-          <input
-            id="bgPaper"
-            aria-label="Paper Color"
-            type="color"
-            value={colors.bgPaper}
-            onChange={(e) => setColors((prev) => ({ ...prev, bgPaper: e.target.value }))}
-            className="h-10 w-10 rounded border"
-          />
-          <span className="text-xs text-gray-500">{colors.bgPaper}</span>
+        <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-800/30 p-3">
+          <label htmlFor="bgPaper" className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Kağıt Rengi</label>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-mono text-zinc-500">{colors.bgPaper}</span>
+            <input
+              id="bgPaper"
+              type="color"
+              value={colors.bgPaper}
+              onChange={(e) => setColors((prev) => ({ ...prev, bgPaper: e.target.value }))}
+              className="h-8 w-8 rounded-lg cursor-pointer bg-transparent border-none"
+            />
+          </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <label htmlFor="textColor" className="w-40 text-sm font-semibold">Text Color</label>
-          <input
-            id="textColor"
-            aria-label="Text Color"
-            type="color"
-            value={colors.textColor}
-            onChange={(e) => setColors((prev) => ({ ...prev, textColor: e.target.value }))}
-            className="h-10 w-10 rounded border"
-          />
-          <span className="text-xs text-gray-500">{colors.textColor}</span>
+        <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-800/30 p-3">
+          <label htmlFor="textColor" className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Metin Rengi</label>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-mono text-zinc-500">{colors.textColor}</span>
+            <input
+              id="textColor"
+              type="color"
+              value={colors.textColor}
+              onChange={(e) => setColors((prev) => ({ ...prev, textColor: e.target.value }))}
+              className="h-8 w-8 rounded-lg cursor-pointer bg-transparent border-none"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="mt-4 rounded bg-blue-50 p-4">
-        <h5 className="mb-2 text-sm font-semibold">Kontrast Oranlari</h5>
-        <ul className="space-y-1 text-sm">
-          <li>Primary vs Paper: {renderContrastBadge(contrastChecks.primary_bgPaper)}</li>
-          <li>Secondary vs Paper: {renderContrastBadge(contrastChecks.secondary_bgPaper)}</li>
-          <li>Accent vs Paper: {renderContrastBadge(contrastChecks.accent_bgPaper)}</li>
-          <li>Text vs Paper: {renderContrastBadge(contrastChecks.textColor_bgPaper)}</li>
+      <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-800/20 p-5 shadow-inner">
+        <div className="flex items-center justify-between mb-4 border-b border-zinc-800 pb-3">
+          <h5 className="text-xs font-black uppercase tracking-widest text-zinc-500">Kontrast Analizi</h5>
+          <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[9px] font-bold text-zinc-500">WCAG AAA Standardı</span>
+        </div>
+        <ul className="space-y-2.5 text-xs">
+          <li className="flex items-center justify-between font-medium text-zinc-300">
+            <span>Ana Renk vs Kağıt</span>
+            {renderContrastBadge(contrastChecks.primary_bgPaper)}
+          </li>
+          <li className="flex items-center justify-between font-medium text-zinc-300">
+            <span>İkincil vs Kağıt</span>
+            {renderContrastBadge(contrastChecks.secondary_bgPaper)}
+          </li>
+          <li className="flex items-center justify-between font-medium text-zinc-300">
+            <span>Vurgu vs Kağıt</span>
+            {renderContrastBadge(contrastChecks.accent_bgPaper)}
+          </li>
+          <li className="flex items-center justify-between font-bold text-amber-400">
+            <span>Metin vs Kağıt</span>
+            {renderContrastBadge(contrastChecks.textColor_bgPaper)}
+          </li>
         </ul>
       </div>
 
       {colors.bgPaper.toUpperCase() === '#FFFFFF' && (
-        <div className="rounded border border-yellow-400 bg-yellow-50 p-3 text-sm">
-          Uyari: #FFFFFF yerine #FFFDF7 onerilir.
+        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 flex items-start gap-3">
+          <div className="mt-0.5 text-amber-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <p className="text-xs font-medium text-amber-500/80 leading-relaxed">
+            Erişilebilirlik Önerisi: Saf beyaz (#FFFFFF) yerine göz yorgunluğunu azaltan <span className="font-bold text-amber-500">#FFFDF7</span> tonunu kullanmanızı öneririz.
+          </p>
         </div>
       )}
     </div>

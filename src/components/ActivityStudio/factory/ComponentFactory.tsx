@@ -25,10 +25,14 @@ export const ComponentFactory: React.FC<ComponentFactoryProps> = ({ components, 
     onChange(components.filter((component) => component.id !== id));
   };
 
-  return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <ComponentPalette onAdd={handleAdd} />
-      <DropZone components={components} onRemove={handleRemove} />
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 px-1">
+        <div className="h-1 w-4 rounded-full bg-amber-500"></div>
+        <h4 className="text-sm font-black font-['Lexend'] text-zinc-400 uppercase tracking-widest">Bileşen Fabrikası</h4>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <ComponentPalette onAdd={handleAdd} />
+        <DropZone components={components} onRemove={handleRemove} />
+      </div>
     </div>
-  );
 };
