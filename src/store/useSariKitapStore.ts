@@ -47,12 +47,12 @@ export const useSariKitapStore = create<SariKitapState>((set) => ({
   isGenerating: false,
   error: null,
 
-  setSelectedActivity: (activity) => set({ selectedActivity: activity }),
-  setMode: (mode) => set({ mode }),
-  setParams: (newParams) => set((state) => ({ params: { ...state.params, ...newParams } })),
-  setResult: (result) => set({ result }),
-  setIsGenerating: (isGenerating) => set({ isGenerating }),
-  setError: (error) => set({ error }),
+  setSelectedActivity: (activity: ActivityType | null) => set({ selectedActivity: activity }),
+  setMode: (mode: 'AI' | 'QUICK') => set({ mode }),
+  setParams: (newParams: Partial<SariKitapParams>) => set((state: SariKitapState) => ({ params: { ...state.params, ...newParams } })),
+  setResult: (result: SingleWorksheetData | null) => set({ result }),
+  setIsGenerating: (isGenerating: boolean) => set({ isGenerating }),
+  setError: (error: string | null) => set({ error }),
   reset: () => set({
     selectedActivity: null,
     mode: 'AI',

@@ -103,6 +103,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenActivityStudio,
   onOpenSinavStudyosu,
   onOpenMatSinavStudyosu,
+  onOpenSariKitapStudio,
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
