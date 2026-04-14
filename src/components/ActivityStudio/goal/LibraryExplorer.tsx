@@ -20,8 +20,8 @@ export const LibraryExplorer: React.FC<{
         ))}
       </div>
       {results.length === 0 && (
-        <div className="rounded-lg border border-dashed border-[var(--border-color)] p-8 text-center">
-          <p className="text-sm text-[var(--text-secondary)]">Uygun etkinlik bulunamadı. Filtreleri değiştirmeyi deneyin.</p>
+        <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 p-12 text-center backdrop-blur-sm">
+          <p className="text-sm text-zinc-500 font-['Lexend']">Uygun etkinlik bulunamadı. Filtreleri değiştirmeyi deneyin.</p>
         </div>
       )}
     </div>

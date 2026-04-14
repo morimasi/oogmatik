@@ -27,11 +27,15 @@ export const StepApproval: React.FC<StepApprovalProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-bold">Admin Onayi</h3>
+    <div className="space-y-6">
+      <h3 className="text-xl font-bold font-['Lexend'] text-amber-400">Admin Onayı</h3>
       <ApprovalPanel sourceText={wizardData.goal?.topic ?? ''} onSubmit={handleSubmit} />
-      <button type="button" onClick={onBack} className="rounded-xl border border-[var(--border-color)] px-4 py-2 text-sm">
-        Onizlemeye Don
+      <button
+        type="button"
+        onClick={onBack}
+        className="rounded-xl border border-zinc-700 bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all"
+      >
+        Önizlemeye Dön
       </button>
     </div>
   );

@@ -68,31 +68,31 @@ export const StepGoal: React.FC<StepGoalProps> = ({ onNext }) => {
   };
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-bold">Hedef ve Kapsam</h3>
+    <div className="space-y-6">
+      <h3 className="text-xl font-bold font-['Lexend'] text-amber-400">Hedef ve Kapsam</h3>
 
       <LibraryExplorer onSelectItem={handleSelectLibraryItem} />
 
       {selectedItem && (
-        <div className="rounded-lg border border-[var(--accent-color)]/30 bg-[var(--accent-color)]/5 p-4">
-          <h4 className="font-semibold text-[var(--text-primary)]">{selectedItem.title}</h4>
-          <p className="text-xs text-[var(--text-secondary)]">{selectedItem.pedagogicalNote}</p>
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+          <h4 className="font-semibold text-amber-300">{selectedItem.title}</h4>
+          <p className="text-xs mt-1 text-zinc-400">{selectedItem.pedagogicalNote}</p>
         </div>
       )}
 
       <AIEnhanceEntryPanel selectedItemId={selectedLibraryItemId} onRequestEnhancement={handleRequestEnhancement} />
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Ozel Konu</label>
+        <label className="text-sm font-semibold text-zinc-300 font-['Lexend']">Özel Konu</label>
         <input
           value={topic}
           onChange={(event) => setTopic(event.target.value)}
-          placeholder="Konu girin"
-          className="w-full rounded-xl border border-[var(--border-color)] p-3 text-sm"
+          placeholder="Konu girin..."
+          className="w-full rounded-xl border border-zinc-700 bg-zinc-800/50 p-3 text-sm text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all"
         />
       </div>
 
-      <button type="button" onClick={submit} className="w-full rounded-xl bg-[var(--accent-color)] px-4 py-2 text-sm font-semibold text-white">
+      <button type="button" onClick={submit} className="w-full rounded-xl bg-amber-500 hover:bg-amber-400 px-4 py-3 text-sm font-bold text-zinc-950 transition-colors">
         Devam Et
       </button>
     </div>

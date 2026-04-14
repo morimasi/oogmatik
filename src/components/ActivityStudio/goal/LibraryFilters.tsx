@@ -19,7 +19,7 @@ export const LibraryFilters: React.FC<{
   onQueryChange: (query: ActivityLibraryQuery) => void;
 }> = ({ query, onQueryChange }) => {
   return (
-    <div className="space-y-3 rounded-lg border border-[var(--border-color)] p-4">
+    <div className="space-y-3 rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 backdrop-blur-md">
       <input
         type="text"
         placeholder="Etkinlik ara..."
@@ -30,7 +30,7 @@ export const LibraryFilters: React.FC<{
             search: event.target.value || undefined,
           })
         }
-        className="w-full rounded-lg border border-[var(--border-color)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]"
+        className="w-full rounded-xl border border-zinc-700 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all"
       />
 
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -42,11 +42,11 @@ export const LibraryFilters: React.FC<{
               profile: (event.target.value as LearningDisabilityProfile) || undefined,
             })
           }
-          className="rounded-lg border border-[var(--border-color)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]"
+          className="rounded-xl border border-zinc-700 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all cursor-pointer"
         >
-          <option value="">Tüm Profiller</option>
+          <option value="" className="bg-zinc-900">Tüm Profiller</option>
           {PROFILE_OPTIONS.map((p) => (
-            <option key={p} value={p}>
+            <option key={p} value={p} className="bg-zinc-900">
               {p}
             </option>
           ))}
@@ -60,11 +60,11 @@ export const LibraryFilters: React.FC<{
               ageGroup: (event.target.value as AgeGroup) || undefined,
             })
           }
-          className="rounded-lg border border-[var(--border-color)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]"
+          className="rounded-xl border border-zinc-700 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all cursor-pointer"
         >
-          <option value="">Tüm Yaş Grupları</option>
+          <option value="" className="bg-zinc-900">Tüm Yaş Grupları</option>
           {AGE_GROUP_OPTIONS.map((ag) => (
-            <option key={ag} value={ag}>
+            <option key={ag} value={ag} className="bg-zinc-900">
               {ag}
             </option>
           ))}
@@ -78,11 +78,11 @@ export const LibraryFilters: React.FC<{
               difficulty: (event.target.value as Difficulty) || undefined,
             })
           }
-          className="rounded-lg border border-[var(--border-color)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]"
+          className="rounded-xl border border-zinc-700 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all cursor-pointer"
         >
-          <option value="">Tüm Zorluk Seviyeleri</option>
+          <option value="" className="bg-zinc-900">Tüm Zorluk Seviyeleri</option>
           {DIFFICULTY_OPTIONS.map((d) => (
-            <option key={d} value={d}>
+            <option key={d} value={d} className="bg-zinc-900">
               {d}
             </option>
           ))}
@@ -96,11 +96,11 @@ export const LibraryFilters: React.FC<{
               category: (event.target.value as ActivityLibraryCategory) || undefined,
             })
           }
-          className="rounded-lg border border-[var(--border-color)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]"
+          className="rounded-xl border border-zinc-700 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all cursor-pointer"
         >
-          <option value="">Tüm Kategoriler</option>
+          <option value="" className="bg-zinc-900">Tüm Kategoriler</option>
           {CATEGORY_OPTIONS.map((c) => (
-            <option key={c} value={c}>
+            <option key={c} value={c} className="bg-zinc-900">
               {c}
             </option>
           ))}

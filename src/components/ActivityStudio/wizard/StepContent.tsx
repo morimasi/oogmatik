@@ -34,26 +34,25 @@ export const StepContent: React.FC<StepContentProps> = ({ onNext, onBack }) => {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-xl font-bold font-['Lexend']">İçerik & Bileşen Tasarımı</h3>
+      <h3 className="text-xl font-bold font-['Lexend'] text-amber-400">İçerik & Bileşen Tasarımı</h3>
 
       {/* Library Item Preview */}
-      <div className="rounded-2xl border border-[var(--border-color)] p-4 bg-blue-50/10 backdrop-blur-sm">
-        <p className="text-sm text-[var(--text-secondary)]">
-          <strong className="text-[var(--text-primary)]">Kütüphane Ögesi:</strong>{' '}
-          {wizardData.goal?.topic ?? '—'}
+      <div className="rounded-2xl border border-zinc-800 p-4 bg-zinc-900/50 backdrop-blur-sm">
+        <p className="text-sm text-zinc-400">
+          <strong className="text-amber-500/80">Kütüphane Ögesi:</strong>{' '}
+          <span className="text-zinc-200">{wizardData.goal?.topic ?? '—'}</span>
         </p>
       </div>
 
-      {/* Materials Input */}
       <div>
-        <label className="block text-sm font-semibold mb-2 font-['Lexend']">
+        <label className="block text-sm font-semibold mb-2 font-['Lexend'] text-zinc-300">
           Malzemeler (satır başına bir madde)
         </label>
         <textarea
           placeholder={'Malzeme 1\nMalzeme 2\n(Maks. 5 madde, 500 karakter)'}
           value={materials}
           onChange={(e) => setMaterials(e.target.value)}
-          className="w-full border border-[var(--border-color)] p-3 rounded-xl text-sm font-['Lexend'] leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]"
+          className="w-full border border-zinc-700 bg-zinc-800/40 p-3 rounded-xl text-sm font-['Lexend'] text-zinc-200 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 placeholder:text-zinc-600 transition-all"
           rows={4}
         />
       </div>
@@ -66,7 +65,7 @@ export const StepContent: React.FC<StepContentProps> = ({ onNext, onBack }) => {
         <button
           type="button"
           onClick={onBack}
-          className="rounded-xl border border-[var(--border-color)] px-5 py-2.5 text-sm font-medium hover:bg-[var(--bg-secondary)] transition-colors"
+          className="rounded-xl border border-zinc-700 bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all"
         >
           Geri
         </button>
@@ -74,9 +73,9 @@ export const StepContent: React.FC<StepContentProps> = ({ onNext, onBack }) => {
           type="button"
           onClick={handleGenerate}
           disabled={isGenerating}
-          className="rounded-xl bg-[var(--accent-color)] px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 hover:brightness-110 transition-all"
+          className="flex-1 rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-bold text-zinc-950 disabled:opacity-50 hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10"
         >
-          {isGenerating ? 'Üretiliyor...' : 'Üret & Devam'}
+          {isGenerating ? 'Yapay Zeka Hazırlıyor...' : 'İçerik Üret'}
         </button>
       </div>
     </div>
