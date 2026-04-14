@@ -8,7 +8,7 @@ interface ComponentFactoryProps {
   onChange: (components: FactoryComponent[]) => void;
 }
 
-export const ComponentFactory: React.FC<ComponentFactoryProps> = ({ components, onChange }) => {
+export const ComponentFactory: React.FC<ComponentFactoryProps> = ({ components, onChange }: ComponentFactoryProps) => {
   const handleAdd = (type: FactoryBlockType) => {
     const next: FactoryComponent = {
       id: `cmp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
@@ -22,9 +22,10 @@ export const ComponentFactory: React.FC<ComponentFactoryProps> = ({ components, 
   };
 
   const handleRemove = (id: string) => {
-    onChange(components.filter((component) => component.id !== id));
+    onChange(components.filter((component: FactoryComponent) => component.id !== id));
   };
 
+  return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 px-1">
         <div className="h-1 w-4 rounded-full bg-amber-500"></div>
@@ -35,4 +36,5 @@ export const ComponentFactory: React.FC<ComponentFactoryProps> = ({ components, 
         <DropZone components={components} onRemove={handleRemove} />
       </div>
     </div>
+  );
 };
