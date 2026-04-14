@@ -24,9 +24,9 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({ onAdd }) => 
           key={block.type}
           type="button"
           onClick={() => onAdd(block.type)}
-          className="rounded-xl border border-[var(--border-color)] bg-white px-3 py-2 text-left text-sm text-[var(--text-primary)] hover:border-[var(--accent-color)]"
+          className="rounded-xl border border-zinc-700 bg-zinc-800/40 px-3 py-2.5 text-left text-sm text-zinc-400 hover:border-amber-500/50 hover:bg-zinc-800 hover:text-amber-400 transition-all font-medium active:scale-95"
         >
-          + {block.label}
+          <span className="mr-1 text-amber-500/50 group-hover:text-amber-500">+</span> {block.label}
         </button>
       ))}
     </div>
