@@ -10,7 +10,7 @@ interface StepPreviewProps {
 }
 
 export const StepPreview: React.FC<StepPreviewProps> = ({ onNext, onBack }) => {
-  const { wizardData, setError } = useActivityStudioStore();
+  const { wizardData, content, pedagogicalNote, setError } = useActivityStudioStore();
   const { runExport } = useExport();
 
   const doExport = async (format: 'pdf' | 'png' | 'json') => {
@@ -31,8 +31,8 @@ export const StepPreview: React.FC<StepPreviewProps> = ({ onNext, onBack }) => {
       <h3 className="text-xl font-bold font-['Lexend'] text-amber-400">Önizleme</h3>
       <PreviewRenderer
         title={wizardData.goal?.topic ?? 'Etkinlik'}
-        scenario={wizardData.generatedContent ? 'AI icerigi hazirlandi.' : 'Icerik henuz olusmadi.'}
-        pedagogicalNote="Etkinlik ogrencinin hedef becerilerini asamali olarak pekistirir."
+        scenario={content && content.length > 0 ? 'AI içeriği başarıyla hazırlandı.' : 'İçerik henüz oluşmadı.'}
+        pedagogicalNote={pedagogicalNote || 'Etkinlik öğrencinin hedef becerilerini aşamalı olarak pekiştirir.'}
       />
       <div className="flex flex-wrap gap-3 pt-4">
         <button
