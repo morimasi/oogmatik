@@ -21,7 +21,7 @@ export const SariKitapSheet: React.FC<SariKitapSheetProps> = ({ type, data }) =>
       <PedagogicalHeader 
         title={title || 'Sarı Kitap Etkinliği'} 
         instruction={instruction} 
-        pedagogicalNote={pedagogicalNote}
+        note={pedagogicalNote}
       />
 
       {/* Ana Etkinlik Alanı */}

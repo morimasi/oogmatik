@@ -4,13 +4,13 @@ import { LeftPanel } from './panels/LeftPanel';
 import { CenterPanel } from './panels/CenterPanel';
 import { RightPanel } from './panels/RightPanel';
 import { ACTIVITY_GENERATOR_REGISTRY } from '../../services/generators/registry';
-import { ActivityType } from '../../types';
+import { ActivityType, SingleWorksheetData } from '../../types';
 import { AppError } from '../../utils/AppError';
 
 interface SariKitapStudioProps {
   onBack: () => void;
-  onSave?: (name: string, activityType: any, data: any) => Promise<any>;
-  onAddToWorkbook?: (item: any) => void;
+  onSave?: (name: string, activityType: ActivityType, data: SingleWorksheetData) => Promise<any>;
+  onAddToWorkbook?: (item: SingleWorksheetData) => void;
 }
 
 /**
@@ -71,18 +71,18 @@ export const SariKitapStudio: React.FC<SariKitapStudioProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#0B1120] text-slate-200 overflow-hidden font-inter">
+    <div className="flex flex-col h-full w-full bg-[var(--bg-default)] text-[var(--text-primary)] overflow-hidden font-inter">
       {/* Üst Header */}
-      <div className="h-16 flex items-center justify-between px-6 border-b border-white/10 bg-slate-900/80 backdrop-blur-md">
+      <div className="h-16 flex items-center justify-between px-6 border-b border-[var(--border-color)] bg-[var(--bg-paper)]/80 backdrop-blur-md">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
-            className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+            className="p-2 hover:bg-white/5 rounded-lg transition-colors text-[var(--text-primary)]"
           >
             <i className="fa-solid fa-arrow-left"></i>
           </button>
           <h1 className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-amber-600 bg-clip-text text-transparent" style={{ fontFamily: 'Lexend' }}>
-            Sarı Kitap <span className="text-white/50 font-normal ml-2 tracking-widest uppercase text-xs">Etkinlik Stüdyosu</span>
+            Sarı Kitap <span className="text-[var(--text-muted)] font-normal ml-2 tracking-widest uppercase text-xs">Etkinlik Stüdyosu</span>
           </h1>
         </div>
         
