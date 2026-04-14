@@ -1,5 +1,4 @@
 import { AppError } from '../utils/AppError';
-// @ts-nocheck
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -17,8 +16,6 @@ import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
 import { adminService } from '../services/adminService';
 import { useStudentStore } from '../store/useStudentStore';
-import './PremiumPopupStyles.css';
-
 import './PremiumPopupStyles.css';
 
 const toPascalCase = (str: string): string => {
