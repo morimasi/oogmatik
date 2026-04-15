@@ -996,7 +996,10 @@ const AppContent = () => {
                       />
                     )}
                     {currentView === 'kelime-cumle-studio' && (
-                      <KelimeCumleStudio />
+                      <KelimeCumleStudio
+                        onBack={handleGoBack}
+                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                      />
                     )}
                   </Suspense>
                 </motion.div>

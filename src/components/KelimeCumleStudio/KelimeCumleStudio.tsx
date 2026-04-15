@@ -12,7 +12,12 @@ import { ErrorFallback } from './shared/ErrorFallback';
 import { A4PreviewShell } from '../SariKitapStudio/shared/A4PreviewShell';
 import './KelimeCumleStudio.css';
 
-const KelimeCumleStudio: React.FC = () => {
+interface KelimeCumleStudioProps {
+    onBack?: () => void;
+    onAddToWorkbook?: (activityType: any, data: any) => void;
+}
+
+const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWorkbook }) => {
     const [config, setConfig] = useState<KelimeCumleConfig>({
         id: crypto.randomUUID(),
         type: 'bosluk_doldurma',
@@ -56,7 +61,28 @@ const KelimeCumleStudio: React.FC = () => {
             {/* Sol Panel: Ayarlar */}
             <div className="kc-sidebar">
                 <div className="kc-sidebar-header">
-                    <h1>Kelime-Cümle Stüdyosu</h1>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                        {onBack && (
+                            <button 
+                                onClick={onBack}
+                                style={{ 
+                                    background: 'rgba(255,255,255,0.1)', 
+                                    border: 'none', 
+                                    color: 'white', 
+                                    width: '32px', 
+                                    height: '32px', 
+                                    borderRadius: '50%', 
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                ←
+                            </button>
+                        )}
+                        <h1 style={{ margin: 0 }}>Kelime-Cümle Stüdyosu</h1>
+                    </div>
                     <p>Profesyonel dil becerileri materyalleri</p>
                 </div>
 
@@ -100,7 +126,7 @@ const KelimeCumleStudio: React.FC = () => {
                     </div>
                     <div style={{ display: 'flex', gap: '1rem' }}>
                         <button className="kc-btn-secondary" onClick={() => console.log('Share')}>🔗 Paylaş</button>
-                        <button className="kc-btn-accent" onClick={() => console.log('Workbook')}>📚 Kitapçığa Ekle</button>
+                        <button className="kc-btn-accent" onClick={() => onAddToWorkbook?.('kelime-cumle', content)}>📚 Kitapçığa Ekle</button>
                     </div>
                 </div>
 
