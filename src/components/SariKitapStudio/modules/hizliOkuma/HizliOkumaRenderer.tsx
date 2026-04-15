@@ -8,15 +8,15 @@ export const HizliOkumaRenderer = React.memo(({ config, content }: RendererProps
     const blocks = content.wordBlocks ?? [];
 
     return (
-        <div className="sk-renderer-hizli-okuma">
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', textAlign: 'center', color: '#18181b' }}>
+        <div className="sk-renderer-hizli-okuma" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.25rem', textAlign: 'center', color: '#18181b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {content.title}
             </h2>
-            <p style={{ fontSize: '0.6875rem', color: '#4b5563', marginBottom: '1rem', fontStyle: 'italic', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.75rem', color: '#3f3f46', marginBottom: '0.75rem', fontWeight: 500, textAlign: 'center', borderBottom: '1px solid #e4e4e7', paddingBottom: '0.5rem' }}>
                 {content.instructions}
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem', flex: 1 }}>
                 {blocks.map((row: string[], ri: number) => (
                     <div
                         key={ri}
@@ -24,13 +24,14 @@ export const HizliOkumaRenderer = React.memo(({ config, content }: RendererProps
                             display: 'flex',
                             gap: '1rem',
                             justifyContent: 'center',
-                            padding: '0.375rem 0.75rem',
-                            borderRadius: '0.25rem',
-                            background: c.rhythmicMode && ri % 2 === 1 ? '#f4f4f5' : 'transparent',
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '0.375rem',
+                            background: c.rhythmicMode && ri % 2 === 1 ? '#f8fafc' : 'transparent',
+                            border: c.rhythmicMode && ri % 2 === 1 ? '1px solid #e2e8f0' : '1px solid transparent'
                         }}
                     >
                         {row.map((word: string, wi: number) => (
-                            <span key={wi} style={{ fontWeight: 600, minWidth: '3.5rem', textAlign: 'center', fontSize: '1rem' }}>
+                            <span key={wi} style={{ fontWeight: 700, minWidth: '4.5rem', textAlign: 'center', fontSize: '1.125rem', color: '#1e293b' }}>
                                 {word}
                             </span>
                         ))}
@@ -38,8 +39,13 @@ export const HizliOkumaRenderer = React.memo(({ config, content }: RendererProps
                 ))}
             </div>
 
-            <div style={{ marginTop: '1.5rem', padding: '0.5rem 0.75rem', borderLeft: '3px solid #06b6d4', background: '#ecfeff', fontSize: '0.6875rem', color: '#155e75' }}>
-                <strong>Pedagojik Not:</strong> {content.pedagogicalNote}
+            <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '2px solid #06b6d4', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <div style={{ background: '#06b6d4', color: 'white', padding: '0.2rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase' }}>
+                    Pedagojik Not
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#155e75', fontStyle: 'italic', flex: 1 }}>
+                    {content.pedagogicalNote}
+                </div>
             </div>
         </div>
     );

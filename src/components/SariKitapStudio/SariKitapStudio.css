@@ -221,11 +221,13 @@
   background: white;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   font-family: 'Lexend', sans-serif;
-  padding: 10mm;
+  padding: 12mm; /* 15mm'den 12mm'ye düşürüldü */
   box-sizing: border-box;
   color: #18181b;
   position: relative;
   margin-top: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .sk-a4-shell * {

@@ -1,5 +1,7 @@
 import type { AgeGroup, SariKitapDifficulty } from '../../types/sariKitap';
 
+import { SARI_KITAP_SOURCES } from '../../../kaynak/sari/sariKitapData';
+
 // ─── Metin Havuzu Yapısı ─────────────────────────────────────────
 
 interface MetinEntry {
@@ -7,9 +9,25 @@ interface MetinEntry {
   metin: string;
 }
 
-type Konu = 'Doğa' | 'Okul' | 'Hayvanlar' | 'Aile' | 'Macera';
+type Konu = 'Doğa' | 'Okul' | 'Hayvanlar' | 'Aile' | 'Macera' | 'Kaynak Kitap';
 
 const METIN_HAVUZU: Record<Konu, Record<SariKitapDifficulty, MetinEntry[]>> = {
+  'Kaynak Kitap': {
+    'Başlangıç': [
+      ...SARI_KITAP_SOURCES.pencere.filter(s => s.difficulty === 'Başlangıç').map(s => ({ baslik: s.title, metin: s.text })),
+      ...SARI_KITAP_SOURCES.nokta.filter(s => s.difficulty === 'Başlangıç').map(s => ({ baslik: s.title, metin: s.text }))
+    ],
+    'Orta': [
+      ...SARI_KITAP_SOURCES.pencere.filter(s => s.difficulty === 'Orta').map(s => ({ baslik: s.title, metin: s.text })),
+      ...SARI_KITAP_SOURCES.nokta.filter(s => s.difficulty === 'Orta').map(s => ({ baslik: s.title, metin: s.text })),
+      ...SARI_KITAP_SOURCES.kopru.filter(s => s.difficulty === 'Orta').map(s => ({ baslik: s.title, metin: s.text }))
+    ],
+    'İleri': [
+      ...SARI_KITAP_SOURCES.pencere.filter(s => s.difficulty === 'İleri').map(s => ({ baslik: s.title, metin: s.text })),
+      ...SARI_KITAP_SOURCES.kopru.filter(s => s.difficulty === 'İleri').map(s => ({ baslik: s.title, metin: s.text }))
+    ],
+    'Uzman': []
+  },
   Doğa: {
     'Başlangıç': [
       { baslik: 'Ağaç', metin: 'Ağaç çok güzel. Yaprakları yeşil. Kuşlar dalda öter. Rüzgar eser.' },
@@ -158,7 +176,8 @@ export function getMetinByAgeAndDifficulty(
   difficulty: SariKitapDifficulty,
   konu?: Konu
 ): MetinEntry {
-  const konular = konu ? [konu] : (Object.keys(METIN_HAVUZU) as Konu[]);
+  // Eğer konu belirtilmemişse 'Kaynak Kitap'ı en başa ekle (Kullanıcı "aynen analiz ederek" dediği için)
+  const konular = konu ? [konu] : (['Kaynak Kitap', ...Object.keys(METIN_HAVUZU).filter(k => k !== 'Kaynak Kitap')] as Konu[]);
   const maxKelime = YAS_KELIME_LIMITI[ageGroup];
 
   for (const k of konular) {

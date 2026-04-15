@@ -1,4 +1,4 @@
-import type { SariKitapActivityType, SariKitapConfig } from '../../../types/sariKitap';
+import { SARI_KITAP_SOURCES } from '../../../kaynak/sari/sariKitapData';
 
 // ─── Paylaşımlı System Instruction ──────────────────────────────
 export const SARI_KITAP_SYSTEM_INSTRUCTION = `Sen bir disleksi eğitim uzmanısın. Hızlı okumaya geçiş ve bellek geliştirme amaçlı profesyonel "Sarı Kitap" çalışma kağıtları üretiyorsun.
@@ -16,10 +16,12 @@ KURALLAR:
    - 11-13: daha karmaşık kelimeler
    - 14+: serbest
 
-ÇIKTI KALİTESİ:
+STİL REHBERİ (SARI KİTAP):
 - Metinler tutarlı, ilgi çekici ve pedagojik olarak yapılandırılmış olmalı.
 - Sayfa düzeni dopdolu ve profesyonel bir çalışma kağıdı görünümünde olmalı.
 - Boşluklar minimal tutulmalı, içerik maksimize edilmelidir.
+- Metinler gerçek hayat hikayeleri, doğa veya okul temalı olmalıdır.
+- İlk cümle her zaman güven inşası için çok kolay olmalıdır.
 
 ÇIKTI FORMATI (JSON):
 {
@@ -29,6 +31,13 @@ KURALLAR:
   "targetSkills": ["string"],
   "rawText": "string"
 }`;
+
+function getReferenceExample(type: SariKitapActivityType): string {
+  const examples = SARI_KITAP_SOURCES[type];
+  if (!examples || examples.length === 0) return '';
+  const ex = examples[0];
+  return `\nREFERANS ÖRNEK (Bu stile uygun üret):\nBaşlık: ${ex.title}\nMetin: ${ex.text}\n`;
+}
 
 // ─── Prompt Builder Tipleri ──────────────────────────────────────
 export type PromptBuilderFn = (config: SariKitapConfig, sourcePdfRef?: string) => string;
@@ -57,6 +66,7 @@ function difficultyDescription(difficulty: string): string {
 
 export function buildPencerePrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
+${getReferenceExample('pencere')}
 
 GÖREV: "Pencere Okuma" formatında metin üret.
 FORMAT: Metindeki belirli heceler görünür, diğerleri maskelenir. Öğrenci sadece "pencere" içindeki heceleri okur.
@@ -73,6 +83,7 @@ ${_sourcePdfRef ? `- Referans PDF: ${_sourcePdfRef}` : ''}
 
 export function buildNoktaPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
+${getReferenceExample('nokta')}
 
 GÖREV: "Nokta Takibi" formatında metin üret.
 FORMAT: Her hece altında nokta işareti bulunur. Göz takibi hızını artırır, satır atlamayı önler.
@@ -87,6 +98,7 @@ PARAMETRELER:
 
 export function buildKopruPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
+${getReferenceExample('kopru')}
 
 GÖREV: "Köprü Okuma" formatında metin üret.
 FORMAT: Heceleri birbirine bağlayan yay/köprü sembolleri ile göz sıçrama egzersizi.
@@ -101,6 +113,7 @@ PARAMETRELER:
 
 export function buildCiftMetinPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
+${getReferenceExample('cift_metin')}
 
 GÖREV: "Çift Metin" formatında İKİ AYRI hikaye üret.
 FORMAT: İki farklı hikaye iç içe geçirilir. Öğrenci dikkatini bölerek ayrıştırma pratiği yapar.
@@ -127,6 +140,7 @@ Her hikaye en az 10-12 cümle olsun. İki hikaye birbirinden tamamen farklı kon
 
 export function buildBellekPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
+${getReferenceExample('bellek')}
 
 GÖREV: "Bellek Egzersizi" formatında kelime blokları üret.
 FORMAT: Kelimeler ızgara şeklinde düzenlenir. Görsel hafıza ve hızlı tanıma çalışması.
@@ -150,6 +164,7 @@ Toplam 40-50 kelime üret. Kelimeler 4-5'li gruplar halinde (bloklar) olsun. Say
 
 export function buildHizliOkumaPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
+${getReferenceExample('hizli_okuma')}
 
 GÖREV: "Hızlı Okuma" formatında kelime blokları üret.
 FORMAT: Kelimeler blok halinde seriyal gösterilir. Ritmik okuma çalışması.

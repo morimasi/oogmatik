@@ -16,11 +16,11 @@ export const BellekRenderer = React.memo(({ config, content }: RendererProps) =>
     const blocks = content.wordBlocks ?? [];
 
     return (
-        <div className="sk-renderer-bellek">
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', textAlign: 'center', color: '#18181b' }}>
+        <div className="sk-renderer-bellek" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.25rem', textAlign: 'center', color: '#18181b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {content.title}
             </h2>
-            <p style={{ fontSize: '0.6875rem', color: '#4b5563', marginBottom: '1rem', fontStyle: 'italic', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.75rem', color: '#3f3f46', marginBottom: '0.75rem', fontWeight: 500, textAlign: 'center', borderBottom: '1px solid #e4e4e7', paddingBottom: '0.5rem' }}>
                 {content.instructions}
             </p>
 
@@ -28,28 +28,30 @@ export const BellekRenderer = React.memo(({ config, content }: RendererProps) =>
                 style={{
                     display: 'grid',
                     gridTemplateColumns: `repeat(${c.gridColumns}, 1fr)`,
-                    gap: '0.375rem',
+                    gap: '0.5rem',
+                    flex: 1
                 }}
             >
                 {blocks.flat().map((word: string, i: number) => (
                     <div
                         key={i}
                         style={{
-                            border: '1px solid #d4d4d8',
-                            borderRadius: '0.375rem',
+                            border: '2px solid #d4d4d8',
+                            borderRadius: '0.5rem',
                             padding: sizeStyle.padding,
-                            fontSize: sizeStyle.fontSize,
+                            fontSize: '1.125rem',
                             textAlign: 'center',
-                            fontWeight: 600,
+                            fontWeight: 700,
                             position: 'relative',
-                            minHeight: '2.5rem',
+                            minHeight: '3.5rem',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            background: '#f8fafc'
                         }}
                     >
                         {c.showNumbers && (
-                            <span style={{ position: 'absolute', top: '0.125rem', left: '0.25rem', fontSize: '0.5rem', color: '#a1a1aa' }}>
+                            <span style={{ position: 'absolute', top: '0.25rem', left: '0.375rem', fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8' }}>
                                 {i + 1}
                             </span>
                         )}
@@ -58,8 +60,13 @@ export const BellekRenderer = React.memo(({ config, content }: RendererProps) =>
                 ))}
             </div>
 
-            <div style={{ marginTop: '1.5rem', padding: '0.5rem 0.75rem', borderLeft: '3px solid #ef4444', background: '#fef2f2', fontSize: '0.6875rem', color: '#991b1b' }}>
-                <strong>Pedagojik Not:</strong> {content.pedagogicalNote}
+            <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '2px solid #ef4444', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <div style={{ background: '#ef4444', color: 'white', padding: '0.2rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase' }}>
+                    Pedagojik Not
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#991b1b', fontStyle: 'italic', flex: 1 }}>
+                    {content.pedagogicalNote}
+                </div>
             </div>
         </div>
     );

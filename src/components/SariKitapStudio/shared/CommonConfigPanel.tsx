@@ -23,14 +23,16 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                         <button
                             className={generationMode === 'ai' ? 'active' : ''}
                             onClick={() => onModeChange('ai')}
+                            title="AI Modu: İçerik anlayışına dayalı yeni üretim"
                         >
-                            🤖 AI
+                            🤖 AI Modu
                         </button>
                         <button
                             className={generationMode === 'offline' ? 'active' : ''}
                             onClick={() => onModeChange('offline')}
+                            title="Hızlı Mod: Kaynak kitaptan anlık kopyalama"
                         >
-                            📦 Çevrimdışı
+                            ⚡ Hızlı Mod
                         </button>
                     </div>
                 </div>

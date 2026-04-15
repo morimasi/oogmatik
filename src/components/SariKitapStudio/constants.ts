@@ -75,5 +75,5 @@ export const PROFILES = [
 ] as const;
 
 export const TOPICS = [
-    'Doğa', 'Okul', 'Hayvanlar', 'Aile', 'Macera',
+    'Kaynak Kitap', 'Doğa', 'Okul', 'Hayvanlar', 'Aile', 'Macera',
 ] as const;

@@ -40,26 +40,32 @@ export const CiftMetinRenderer = memo(({ config, content }: RendererProps) => {
     }
 
     return (
-        <div className="sk-renderer-cift-metin">
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', textAlign: 'center', color: '#18181b' }}>
+        <div className="sk-renderer-cift-metin" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.25rem', textAlign: 'center', color: '#18181b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {content.title}
             </h2>
-            <p style={{ fontSize: '0.6875rem', color: '#4b5563', marginBottom: '1rem', fontStyle: 'italic', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.75rem', color: '#3f3f46', marginBottom: '0.75rem', fontWeight: 500, textAlign: 'center', borderBottom: '1px solid #e4e4e7', paddingBottom: '0.5rem' }}>
                 {content.instructions}
             </p>
 
             {c.showSourceLabels && (
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '0.75rem' }}>
-                    <span style={{ color: c.sourceAColor, ...getStyle(c.sourceAStyle), fontSize: '0.6875rem' }}>
-                        ■ {src.a.title}
-                    </span>
-                    <span style={{ color: c.sourceBColor, ...getStyle(c.sourceBStyle), fontSize: '0.6875rem' }}>
-                        ■ {src.b.title}
-                    </span>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '50%', background: c.sourceAColor }}></div>
+                        <span style={{ color: '#3f3f46', ...getStyle(c.sourceAStyle), fontSize: '0.7rem', fontWeight: 700 }}>
+                            {src.a.title}
+                        </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '50%', background: c.sourceBColor }}></div>
+                        <span style={{ color: '#3f3f46', ...getStyle(c.sourceBStyle), fontSize: '0.7rem', fontWeight: 700 }}>
+                            {src.b.title}
+                        </span>
+                    </div>
                 </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
                 {interleavedLines.map((line: { text: string; source: 'a' | 'b' }, i: number) => (
                     <p
                         key={i}
@@ -68,8 +74,9 @@ export const CiftMetinRenderer = memo(({ config, content }: RendererProps) => {
                             color: line.source === 'a' ? c.sourceAColor : c.sourceBColor,
                             ...getStyle(line.source === 'a' ? c.sourceAStyle : c.sourceBStyle),
                             margin: 0,
-                            fontSize: '1rem',
-                            lineHeight: 1.5
+                            fontSize: '1.125rem',
+                            lineHeight: 1.3,
+                            padding: '0.125rem 0'
                         }}
                     >
                         {line.text}
@@ -77,8 +84,13 @@ export const CiftMetinRenderer = memo(({ config, content }: RendererProps) => {
                 ))}
             </div>
 
-            <div style={{ marginTop: '1.5rem', padding: '0.5rem 0.75rem', borderLeft: '3px solid #f59e0b', background: '#fffbeb', fontSize: '0.6875rem', color: '#92400e' }}>
-                <strong>Pedagojik Not:</strong> {content.pedagogicalNote}
+            <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '2px solid #f59e0b', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <div style={{ background: '#f59e0b', color: 'white', padding: '0.2rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase' }}>
+                    Pedagojik Not
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#92400e', fontStyle: 'italic', flex: 1 }}>
+                    {content.pedagogicalNote}
+                </div>
             </div>
         </div>
     );

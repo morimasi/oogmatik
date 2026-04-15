@@ -12,22 +12,22 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
     };
 
     return (
-        <div className="sk-renderer-kopru">
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', textAlign: 'center', color: '#18181b' }}>
+        <div className="sk-renderer-kopru" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.25rem', textAlign: 'center', color: '#18181b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {content.title}
             </h2>
-            <p style={{ fontSize: '0.6875rem', color: '#4b5563', marginBottom: '1rem', fontStyle: 'italic', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.75rem', color: '#3f3f46', marginBottom: '0.75rem', fontWeight: 500, textAlign: 'center', borderBottom: '1px solid #e4e4e7', paddingBottom: '0.5rem' }}>
                 {content.instructions}
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
                 {content.heceRows.map((row, ri) => {
-                    const syllableWidth = 40 + c.bridgeGap;
+                    const syllableWidth = 45 + c.bridgeGap;
                     const svgWidth = row.syllables.length * syllableWidth;
-                    const svgHeight = c.bridgeHeight + 30;
+                    const svgHeight = c.bridgeHeight + 25;
 
                     return (
-                        <div key={ri} style={{ marginBottom: '0.75rem', overflow: 'visible' }}>
+                        <div key={ri} style={{ marginBottom: '0.25rem', overflow: 'visible' }}>
                             <svg
                                 width={svgWidth}
                                 height={svgHeight}
@@ -42,9 +42,9 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                                         <text
                                             key={`t-${si}`}
                                             x={x}
-                                            y={svgHeight - 5}
+                                            y={svgHeight - 2}
                                             textAnchor="middle"
-                                            style={{ fontFamily: 'Lexend, sans-serif', fontSize: '1rem', fontWeight: 500, fill: '#18181b' }}
+                                            style={{ fontFamily: 'Lexend, sans-serif', fontSize: '1.125rem', fontWeight: 600, fill: '#18181b' }}
                                             role="text"
                                         >
                                             {s.syllable}
@@ -58,7 +58,7 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                                     const x1 = si * syllableWidth + syllableWidth / 2;
                                     const x2 = (si + 1) * syllableWidth + syllableWidth / 2;
                                     const cx = (x1 + x2) / 2;
-                                    const y = svgHeight - 20;
+                                    const y = svgHeight - 18;
                                     const cy = y - c.bridgeHeight;
 
                                     if (c.bridgeStyle === 'düz') {
@@ -92,8 +92,13 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                 })}
             </div>
 
-            <div style={{ marginTop: '1.5rem', padding: '0.5rem 0.75rem', borderLeft: '3px solid #8b5cf6', background: '#f3e8ff', fontSize: '0.6875rem', color: '#581c87' }}>
-                <strong>Pedagojik Not:</strong> {content.pedagogicalNote}
+            <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '2px solid #8b5cf6', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <div style={{ background: '#8b5cf6', color: 'white', padding: '0.2rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase' }}>
+                    Pedagojik Not
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#581c87', fontStyle: 'italic', flex: 1 }}>
+                    {content.pedagogicalNote}
+                </div>
             </div>
         </div>
     );
