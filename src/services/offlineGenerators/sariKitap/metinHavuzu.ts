@@ -16,16 +16,21 @@ const METIN_HAVUZU: Record<Konu, Record<SariKitapDifficulty, MetinEntry[]>> = {
   'Kaynak Kitap': {
     'Başlangıç': [
       ...SARI_KITAP_SOURCES.pencere.filter(s => s.difficulty === 'Başlangıç').map(s => ({ baslik: s.title, metin: s.text })),
-      ...SARI_KITAP_SOURCES.nokta.filter(s => s.difficulty === 'Başlangıç').map(s => ({ baslik: s.title, metin: s.text }))
+      ...SARI_KITAP_SOURCES.nokta.filter(s => s.difficulty === 'Başlangıç').map(s => ({ baslik: s.title, metin: s.text })),
+      ...SARI_KITAP_SOURCES.hizli_okuma.filter(s => s.difficulty === 'Başlangıç').map(s => ({ baslik: s.title, metin: s.text }))
     ],
     'Orta': [
       ...SARI_KITAP_SOURCES.pencere.filter(s => s.difficulty === 'Orta').map(s => ({ baslik: s.title, metin: s.text })),
       ...SARI_KITAP_SOURCES.nokta.filter(s => s.difficulty === 'Orta').map(s => ({ baslik: s.title, metin: s.text })),
-      ...SARI_KITAP_SOURCES.kopru.filter(s => s.difficulty === 'Orta').map(s => ({ baslik: s.title, metin: s.text }))
+      ...SARI_KITAP_SOURCES.kopru.filter(s => s.difficulty === 'Orta').map(s => ({ baslik: s.title, metin: s.text })),
+      ...SARI_KITAP_SOURCES.cift_metin.filter(s => s.difficulty === 'Orta').map(s => ({ baslik: s.title, metin: s.text })),
+      ...SARI_KITAP_SOURCES.bellek.filter(s => s.difficulty === 'Orta').map(s => ({ baslik: s.title, metin: s.text }))
     ],
     'İleri': [
       ...SARI_KITAP_SOURCES.pencere.filter(s => s.difficulty === 'İleri').map(s => ({ baslik: s.title, metin: s.text })),
-      ...SARI_KITAP_SOURCES.kopru.filter(s => s.difficulty === 'İleri').map(s => ({ baslik: s.title, metin: s.text }))
+      ...SARI_KITAP_SOURCES.nokta.filter(s => s.difficulty === 'İleri').map(s => ({ baslik: s.title, metin: s.text })),
+      ...SARI_KITAP_SOURCES.kopru.filter(s => s.difficulty === 'İleri').map(s => ({ baslik: s.title, metin: s.text })),
+      ...SARI_KITAP_SOURCES.cift_metin.filter(s => s.difficulty === 'İleri').map(s => ({ baslik: s.title, metin: s.text }))
     ],
     'Uzman': [
       ...SARI_KITAP_SOURCES.pencere.filter(s => s.difficulty === 'Uzman').map(s => ({ baslik: s.title, metin: s.text }))

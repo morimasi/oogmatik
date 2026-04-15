@@ -120,8 +120,15 @@ export const SARI_KITAP_SOURCES: Record<SariKitapActivityType, SariKitapSourceEn
         },
         {
             id: 'nokta-2',
-            title: 'Aslan ile Fare',
-            text: 'Aslan ormanda uyuyormuş. Bir fare gelip vücudunun üzerinde dolaşmaya başlamış. Aslan uyanmış, fareyi yakalamış. Küçük fare yalvarmaya başlamış: "Bırak beni, gün olur sana bir iyiliğim dokunur." demiş. Aslan gülmüş ve fareyi bırakmış. Aradan zaman geçmiş. Avcılar aslanı bir tuzağa düşürmüşler. Aslanı bir ağaca sımsıkı bağlamışlar. Fare aslanın inlemelerini duymuş, koşarak gelmiş. Keskin dişleriyle ipleri kemirmiş ve aslanı kurtarmış.',
+            title: 'Zeki Çocuk',
+            text: 'Ünlerden bir gün kralın kulağına gitmiş. Kral derhal küçük çobanın huzuruna getirilmesini kralın kendisini çağırdığını duyunca çok heyecanlanmış. Hemen telaşla hazırlanarak kralın huzuruna çıkartılmış. Kral küçük çobanı karşılayarak; "Heyy zeki çocuk! Sana üç soru soracağım eğer bunları doğru cevaplarsan seni saraya yanıma alacağım, divan üyesi yapacağım, ülke hakkındaki önemli meselelerde görevli olan istişare kuruluna gireceksin. Sarayda yatıp kalkacaksın, her türlü hizmetin burada hizmetçiler tarafından karşılanacak. Lakin bu soruları bilemezsen hakkını kaybedeceksin. Kabul mü?" diye sormuş. Küçük çoban hemen cevap vermiş. "Sevgili kralım, nasıl arzu ederseniz. Soruları bekliyorum." demiş. Kral sormuş; "Yeryüzündeki hangi denizde kaç damla su vardır, bunu nasıl öğrenebiliriz?" demiş. Küçük çoban "Sevgili kralım bunu hesaplayabilmek için denizleri besleyen kaynakları ve bulutları kontrol altına almak lazım. Bulutlardan sürekli yağmur damlaları denizlere dökülür derelerden de oluk oluk sular her gün denizlere akar. Bu kaynakları kontrol altına almadan denizlerdeki damlacıkları sayamayız." demiş. "Peki" demiş kral. "İkinci sorum da şu. Evrendeki sonsuzluğun süresi ne kadardır?" diye sormuş. Küçük çoban "Kafdağı\'nın yüksekliği bir saat, derinliği bir saattir. İşte Anka kuşu her yüz yılda bir Kafdağı\'na ulaşır ve Kafdağı\'nı gagalayıp bitirdiği zaman tam olarak bir saniye geçmiş demektir. Böylece sonsuzluğun bir saniyesi geride kalmış olur." diye cevap vermiş. Kral üçüncü soruya geçmiş. "Zeki çoban söyle bakalım gökyüzünde kaç yıldız var?" diye sormuş. Küçük çoban boş beyaz bir kağıt parçası istemiş ve üzerine noktalar koymaya başlamış. Kağıdın üzerine o kadar çok nokta çizmiş ki bunları saymak mümkün değilmiş. "Burada ne kadar çok nokta varsa gökyüzünde de o kadar yıldız var, saymak size kalmış." demiş. Kral sonuçtan memnun kalmış ve çobanı yanına almış.',
+            ageGroup: '11-13',
+            difficulty: 'İleri'
+        },
+        {
+            id: 'nokta-3',
+            title: 'Kartala Özenen Karga',
+            text: 'Kartal yüksek bir kayanın üzerinden sürüyü izliyormuş. Aniden uçup şimşek gibi sürünün üzerine inmiş. Sürüden kuzuyu kaptığı gibi havalanmış. Kartalı izleyen karganın iştahı kabarmış. Kendi kendine "Benim neyim eksik? Ben de kuşum." demiş. Hızla atılarak kocaman bir koyunun sırtına konmuş. Konmuş konmasına ama güçsüz tırnakları koyunun yününe takılmış. Ne kadar çırpındıysa bir türlü kurtulamamış. Çoban gelip kargayı yakalamış. Ayağını bağlayıp heybesine koymuş. Evdekiler heybesindeki kuşun ne olduğunu sormuşlar. Çoban "Ben karga olarak biliyorum ama o kendisini kartal sanıyor." demiş.',
             ageGroup: '8-10',
             difficulty: 'Orta'
         }
@@ -129,26 +136,26 @@ export const SARI_KITAP_SOURCES: Record<SariKitapActivityType, SariKitapSourceEn
     kopru: [
         {
             id: 'kopru-1',
-            title: 'Ormanlar Kralı',
-            text: 'Bir gün aslan ile fil ormanda tartışmaya başlamışlar. Aslan "Bu ormanın en güçlü hayvanı benim." demiş. Fil ise kendisinin daha güçlü olduğunu iddia etmiş. Bakmışlar böyle tartışarak bir yere varamıyorlar, ormandaki tüm hayvanları toplayıp onlara sormaya karar vermişler. En çok oyu alan orman kralı olacakmış. Bütün hayvanlara tek tek sormuşlar.',
+            title: 'Sivrisinek ve Aslan',
+            text: 'Dalga geçiyor herhalde bizimle, diye düşünmüşler. Sivrisinek vazgeçmemiş. Aslan sinirlenmiş "Sen bizimle dalga mı geçiyorsun? Senin gücün ne ki böyle rahat konuşuyorsun? İkimiz de seni tek ayağımızla ezeriz" demiş. Sivrisinek de "Yakalayın beni de görelim!" demiş. Aslan ile fil yakalamaya çalışmışlar ama sivrisinek çok hızlıymış. Bir o yana bir bu yana uçarak onlardan kaçmış. Sonunda aslan ve fil yorulmuşlar. Sivrisinek "Gördünüz mü, güç her şey değildir" demiş ve oradan uzaklaşmış.',
             ageGroup: '8-10',
             difficulty: 'Orta'
-        },
-        {
-            id: 'kopru-2',
-            title: 'Sivrisinek',
-            text: 'Sivrisinek ormanda aslan ve filin yanına gelmiş. "Siz neyi tartışıyorsunuz?" diye sormuş. Aslan ve fil sivrisineğe bakıp kahkahayı basmışlar. "Bizimle dalga mı geçiyorsun?" demişler. Sivrisinek "Siz benim gücümü biliyor musunuz?" demiş. Aslan sinirlenmiş, "Senin gücün ne ki böyle konuşuyorsun? İkimiz de seni tek ayağımızla ezeriz." demiş. Sivrisinek "Gelin de deneyelim." demiş.',
-            ageGroup: '11-13',
-            difficulty: 'İleri'
         }
     ],
     cift_metin: [
         {
             id: 'cift-metin-1',
-            title: 'Cici Kuş ve Kek',
-            text: 'Komşumuzun Kerim adında bir muhabbet kuşu var. Adı Cici Kuş. Annesi Kerim\'e sürpriz bir kek yapmaya karar verdi. Cici Kuş kafesinde neşeyle ötüyordu. Kerim mutfaktan gelen güzel kokuları duydu. Annesi fırından taze keki çıkardı. Kerim kuşuna bir parça kek vermek istedi ama annesi kuşların kek yememesi gerektiğini söyledi.',
+            title: 'Cici Kuş & Kek',
+            text: 'Komşumuzun Kerim adında bir muhabbet kuşu var. Adı Cici Kuş. Annesi Kerim\'e sürpriz bir kek yapmaya karar verdi. Cici Kuş kafesinde neşeyle ötüyordu. Kerim mutfaktan gelen güzel kokuları duydu. Annesi fırından taze keki çıkardı. Kerim kuşuna bir parça kek vermek istedi ama annesi kuşların kek yememesi gerektiğini söyledi. Bence kuşlar özgür olmalı. Ağaçtan ağaca konup şarkılar söylemeli. Bizi kafese koysalar mutlu olabilir miydik? İşte bu yüzden şöyle bir hayalim var. Bir gün cesaretimi toplayıp cici kuşun kafesini açacağım. Onu gökyüzüne uğurlayacağım. Arkasından mutlulukla el sallayacağım. Özgürce yaşamasını izleyeceğim. Annem ise mutfakta kek yapmaya devam etti. Keki kardeşimle beraber afiyetle yedik.',
             ageGroup: '11-13',
             difficulty: 'Orta'
+        },
+        {
+            id: 'cift-metin-2',
+            title: 'Aslan ile Fare & Bir Yaz Günü',
+            text: 'Aslan ormanda uyuyormuş. Güneşin ilk ışıklarıyla yuvadan bir serçe uçtu. Fare gelip aslanın üzerinde dolaşmaya başlamış. Yavru serçeler uyandıklarında yuvalarının bulunduğu ağacın altında piknik yapmak için gelen aileyi gördüler. Aslan uyanmış, fareyi yakalamış. Anne, baba ve çocuklar ağacın altında piknik yapıyorlardı. Fare yalvarmaya başlamış: "Bırak beni, gün olur sana bir iyiliğim dokunur." demiş. O sırada anne serçe yavruları için yiyecek arıyordu. Aslan gülmüş ve fareyi bırakmış. Çocuklar anne serçeyi fark ettiler. Aradan zaman geçmiş. Avcılar aslanı bir tuzağa düşürmüşler. Ellerindeki ekmek kırıntılarını serçeye attılar. Fare aslanın inlemelerini duymuş, koşarak gelmiş. Serçe ekmekleri alıp yavrularına götürüyordu. Keskin dişleriyle ipleri kemirmiş ve aslanı kurtarmış. Çocuklar serçeyi izleyerek neşeleniyorlardı. Fare aslanın yanına gelmiş: "Vaktiyle bana gülmüştün ama gördün ya, küçüklerin yardımı büyüklere dokunabilir." demiş. Serçe ve yavruları da karınları doyduğu için mutlu oldular.',
+            ageGroup: '11-13',
+            difficulty: 'İleri'
         }
     ],
     bellek: [
