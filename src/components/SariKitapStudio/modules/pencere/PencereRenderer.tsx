@@ -7,22 +7,29 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
     const c = config as PencereConfig;
 
     return (
-        <div className="sk-renderer-pencere" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%', gap: '1rem' }}>
+        <div className="sk-renderer-pencere" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%', gap: '1.5rem' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem', textAlign: 'center', color: '#18181b', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
                 {content.title}
             </h2>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', flex: 1, padding: '0 1rem' }}>
+            <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '1.5rem', 
+                flex: 1, 
+                padding: '0 1rem' 
+            }}>
                 {content.heceRows?.map((row: HeceRow, ri: number) => (
                     <div
                         key={ri}
                         style={{
                             display: 'flex',
                             flexWrap: 'wrap',
-                            columnGap: '0.5rem',
-                            rowGap: '0.75rem',
+                            columnGap: '0.75rem',
+                            rowGap: '1rem',
                             alignItems: 'baseline',
-                            justifyContent: 'space-between'
+                            justifyContent: 'space-between',
+                            padding: '0.25rem 0'
                         }}
                     >
                         {row.syllables.map((s: HeceData, si: number) => (
@@ -31,14 +38,16 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
                                 role="text"
                                 style={{
                                     display: 'inline-block',
-                                    padding: '0.125rem 0.5rem',
-                                    borderRadius: '0.25rem',
+                                    padding: '0.25rem 0.625rem',
+                                    borderRadius: '0.375rem',
                                     background: s.isHighlighted ? 'transparent' : '#f1f5f9',
                                     color: s.isHighlighted ? '#18181b' : '#f1f5f9',
+                                    border: s.isHighlighted ? '1.5px solid #18181b' : '1.5px solid #f1f5f9',
                                     fontSize: '1.25rem',
                                     fontWeight: 500,
                                     fontFamily: 'Lexend, sans-serif',
-                                    lineHeight: 1.2,
+                                    lineHeight: 1,
+                                    transition: 'all 0.2s ease'
                                 }}
                                 aria-hidden={!s.isHighlighted}
                             >

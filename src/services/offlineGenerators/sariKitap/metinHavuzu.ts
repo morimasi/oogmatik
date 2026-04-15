@@ -27,7 +27,9 @@ const METIN_HAVUZU: Record<Konu, Record<SariKitapDifficulty, MetinEntry[]>> = {
       ...SARI_KITAP_SOURCES.pencere.filter(s => s.difficulty === 'İleri').map(s => ({ baslik: s.title, metin: s.text })),
       ...SARI_KITAP_SOURCES.kopru.filter(s => s.difficulty === 'İleri').map(s => ({ baslik: s.title, metin: s.text }))
     ],
-    'Uzman': []
+    'Uzman': [
+      ...SARI_KITAP_SOURCES.pencere.filter(s => s.difficulty === 'Uzman').map(s => ({ baslik: s.title, metin: s.text }))
+    ]
   },
   Doğa: {
     'Başlangıç': [

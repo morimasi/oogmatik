@@ -31,6 +31,41 @@ export const SARI_KITAP_SOURCES: Record<SariKitapActivityType, SariKitapSourceEn
             text: 'Kardeşim Mehmet daha yeni doğdu. O hastanede iken ben onu evde bekliyordum. Babam ve annem hastaneye gitmişler, ben evde teyzem ile birlikte kalmıştım. Akşam saat 8\'de babam eve telefon etti. Teyzem ile konuştular. Teyzem telefonu bana verdi. Babam bana bir tane erkek kardeşin oldu, adını ise Mehmet koyduk dedi. Ben çok heyecanlanmıştım. İki gün sonra babam, annem ve kardeşim geldiler. Mehmet\'i gördüğümde çok sevdim. Küçücük oyuncak bir bebeğe benziyordu.',
             ageGroup: '8-10',
             difficulty: 'İleri'
+        },
+        {
+            id: 'pencere-4',
+            title: 'Güneşli Bir Gün',
+            text: 'Sabah erkenden güneş doğdu. Gökyüzü masmaviydi. Kuşlar neşeyle cıvıldıyordu. Ben de hemen bahçeye çıktım. Köpeğim Karabaş ile oyun oynadık. Annem bize taze süt getirdi. Sütümüzü içip kurabiyelerimizi yedik. Akşama kadar doyasıya eğlendik.',
+            ageGroup: '5-7',
+            difficulty: 'Başlangıç'
+        },
+        {
+            id: 'pencere-5',
+            title: 'Kütüphane Gezisi',
+            text: 'Bugün sınıfça kütüphaneye gittik. Orada binlerce kitap vardı. Sessizce raflar arasında dolaştık. Ben masallarla dolu bir kitap seçtim. Kitapta devler ve periler anlatılıyordu. Okurken kendimi o dünyanın içinde hissettim. Haftaya tekrar gitmek için sabırsızlanıyorum.',
+            ageGroup: '8-10',
+            difficulty: 'Orta'
+        },
+        {
+            id: 'pencere-6',
+            title: 'Uzay Yolculuğu',
+            text: 'Hayalimde bir uzay gemisiyle gökyüzüne çıktım. Ay\'ın etrafında tur attım. Diğer gezegenleri yakından gördüm. Yıldızlar çok parlaktı. Dünya uzaktan küçücük mavi bir top gibi görünüyordu. Bir gün gerçekten uzaya gitmeyi çok istiyorum.',
+            ageGroup: '11-13',
+            difficulty: 'İleri'
+        },
+        {
+            id: 'pencere-7',
+            title: 'Deniz Kıyısı',
+            text: 'Yaz tatilinde deniz kenarına gittik. Sahilde kumdan kaleler yaptık. Dalgaların sesi çok huzur vericiydi. Denizin içindeki küçük balıkları izledik. Akşam olunca güneşin batışını seyrettik. Her yer turuncu ve kırmızı renklere büründü.',
+            ageGroup: '8-10',
+            difficulty: 'Orta'
+        },
+        {
+            id: 'pencere-8',
+            title: 'Orman Koruyucusu',
+            text: 'Ormanlar bizim akciğerlerimizdir. Onları korumalıyız. Ağaç dikmek geleceğimize yatırım yapmaktır. Hayvanların yuvası olan ormanları temiz tutmak hepimizin görevidir. Bir fidan dikerek sen de bu zincirin bir parçası olabilirsin.',
+            ageGroup: '11-13',
+            difficulty: 'Uzman'
         }
     ],
     nokta: [
