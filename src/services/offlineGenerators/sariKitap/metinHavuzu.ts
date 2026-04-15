@@ -1,4 +1,5 @@
-import type { AgeGroup, SariKitapDifficulty } from '../../types/sariKitap';
+import type { SariKitapDifficulty } from '../../../types/sariKitap';
+import type { AgeGroup } from '../../../types/creativeStudio';
 
 import { SARI_KITAP_SOURCES } from '../../../kaynak/sari/sariKitapData';
 

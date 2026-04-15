@@ -1,4 +1,5 @@
-import type { AgeGroup, SariKitapDifficulty, SariKitapActivityType } from '../../types/sariKitap';
+import type { SariKitapDifficulty, SariKitapActivityType } from '../../types/sariKitap';
+import type { AgeGroup } from '../../types/creativeStudio';
 
 export interface SariKitapSourceEntry {
     id: string;
