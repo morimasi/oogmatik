@@ -278,6 +278,7 @@ export type View =
   | 'sinav-studyosu'
   | 'mat-sinav-studyosu'
   | 'sari-kitap-studio'
+  | 'kelime-cumle-studio'
   | 'students';
 
 export interface UiSettings {

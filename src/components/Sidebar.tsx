@@ -52,6 +52,7 @@ interface SidebarProps {
   onOpenSinavStudyosu?: () => void; // Sınav Stüdyosu
   onOpenMatSinavStudyosu?: () => void; // Matematik Sınav Stüdyosu
   onOpenSariKitapStudio?: () => void; // Sarı Kitap Stüdyosu
+  onOpenKelimeCumleStudio?: () => void; // Kelime-Cümle Stüdyosu
   activeCurriculumSession?: ActiveCurriculumSession | null;
   width?: number;
   onWidthChange?: (width: number) => void;
@@ -104,6 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenSinavStudyosu,
   onOpenMatSinavStudyosu,
   onOpenSariKitapStudio,
+  onOpenKelimeCumleStudio,
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -205,6 +207,13 @@ const Sidebar: React.FC<SidebarProps> = ({
           icon: 'fa-book',
           color: 'bg-yellow-500',
           onClick: onOpenSariKitapStudio,
+        },
+        {
+          id: 'kelime-cumle-studio',
+          label: 'Kelime-Cümle Stüdyosu',
+          icon: 'fa-font',
+          color: 'bg-indigo-500',
+          onClick: onOpenKelimeCumleStudio,
         },
       ],
     },
