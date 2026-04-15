@@ -133,6 +133,17 @@ export const evaluateContent = async (content: any) => {
 };
 
 /**
+ * Simple wrapper for basic text generation
+ */
+export const generateWithGemini = async (prompt: string, systemInstruction?: string): Promise<string> => {
+  const result = await generateCreativeMultimodal({
+    prompt,
+    systemInstruction: systemInstruction || SYSTEM_INSTRUCTION
+  });
+  return result;
+};
+
+/**
  * REST API Proxy Tabanlı Gemini İstemcisi (Güvenli)
  */
 export const generateCreativeMultimodal = async (params: {

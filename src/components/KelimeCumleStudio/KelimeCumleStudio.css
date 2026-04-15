@@ -1,0 +1,132 @@
+.kc-studio-container {
+    display: flex;
+    height: 100vh;
+    background: #0f172a;
+    color: #f8fafc;
+    overflow: hidden;
+}
+
+.kc-sidebar {
+    width: 400px;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+}
+
+.kc-sidebar-header {
+    padding: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.kc-sidebar-header h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(to right, #60a5fa, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.kc-sidebar-header p {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    margin: 0.5rem 0 0 0;
+}
+
+.kc-sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.kc-preview-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #1e293b;
+    position: relative;
+}
+
+.kc-preview-viewport {
+    flex: 1;
+    overflow-y: auto;
+    padding: 3rem;
+    display: flex;
+    justify-content: center;
+    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+}
+
+.kc-btn-primary, .kc-btn-secondary, .kc-btn-accent {
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.kc-btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.kc-btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.kc-btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: #f8fafc;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.kc-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.kc-btn-accent {
+    background: #a855f7;
+    color: white;
+}
+
+.kc-btn-accent:hover {
+    background: #9333ea;
+    transform: translateY(-1px);
+}
+
+/* Custom Scrollbar */
+.kc-sidebar-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.kc-sidebar-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.kc-sidebar-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+/* Printing */
+@media print {
+    .kc-sidebar, .kc-preview-area > *:not(.kc-preview-viewport) {
+        display: none !important;
+    }
+    .kc-preview-area {
+        background: white !important;
+    }
+    .kc-preview-viewport {
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+}
