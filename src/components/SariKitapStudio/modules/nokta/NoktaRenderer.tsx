@@ -18,20 +18,20 @@ export const NoktaRenderer: React.FC<RendererProps> = React.memo(({ config, cont
     };
 
     return (
-        <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>
+        <div className="sk-renderer-nokta">
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', textAlign: 'center', color: '#18181b' }}>
                 {content.title}
             </h2>
-            <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '1.5rem', fontStyle: 'italic', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.6875rem', color: '#4b5563', marginBottom: '1rem', fontStyle: 'italic', textAlign: 'center' }}>
                 {content.instructions}
             </p>
 
-            {content.heceRows.map((row, ri) => (
-                <div key={ri} style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'baseline' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {content.heceRows.map((row, ri) => (
+                    <div key={ri} style={{ display: 'flex', flexWrap: 'wrap', columnGap: '0.375rem', rowGap: '0.5rem', alignItems: 'baseline' }}>
                         {row.syllables.map((s, si) => (
-                            <div key={si} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
-                                <span role="text">{s.syllable}</span>
+                            <div key={si} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.125rem' }}>
+                                <span role="text" style={{ fontSize: '1rem', fontWeight: 500 }}>{s.syllable}</span>
                                 {s.dotBelow && (
                                     <svg
                                         width={c.dotSize}
@@ -42,16 +42,13 @@ export const NoktaRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                                         {getDotShape(c.dotStyle, c.dotSize, c.dotColor)}
                                     </svg>
                                 )}
-                                {c.showGuideLine && (
-                                    <div style={{ width: '100%', height: '1px', background: c.dotColor, opacity: 0.3 }} />
-                                )}
                             </div>
                         ))}
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
 
-            <div style={{ marginTop: '2rem', padding: '0.75rem', background: '#ecfdf5', borderRadius: '0.5rem', fontSize: '0.75rem', color: '#065f46' }}>
+            <div style={{ marginTop: '1.5rem', padding: '0.5rem 0.75rem', borderLeft: '3px solid #10b981', background: '#f0fdf4', fontSize: '0.6875rem', color: '#065f46' }}>
                 <strong>Pedagojik Not:</strong> {content.pedagogicalNote}
             </div>
         </div>

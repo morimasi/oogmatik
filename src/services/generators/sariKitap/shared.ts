@@ -1,19 +1,25 @@
-import type { SariKitapActivityType, SariKitapConfig } from '../../types/sariKitap';
+import type { SariKitapActivityType, SariKitapConfig } from '../../../types/sariKitap';
 
 // ─── Paylaşımlı System Instruction ──────────────────────────────
-export const SARI_KITAP_SYSTEM_INSTRUCTION = `Sen bir disleksi eğitim uzmanısın. Türkçe okuma materyali üretiyorsun.
+export const SARI_KITAP_SYSTEM_INSTRUCTION = `Sen bir disleksi eğitim uzmanısın. Hızlı okumaya geçiş ve bellek geliştirme amaçlı profesyonel "Sarı Kitap" çalışma kağıtları üretiyorsun.
 
 KURALLAR:
-1. Her zaman Türkçe yanıt ver
-2. Her aktivitede "pedagogicalNote" alanı ZORUNLU — öğretmene bu formatın neden kullanıldığını açıkla
-3. Tanı koyucu dil ASLA kullanma: "disleksisi var" yerine "okuma desteğine ihtiyaç duyan öğrenci"
-4. JSON formatında yanıt ver — başka hiçbir açıklama ekleme
-5. Hece ayırma Türkçe fonetik kurallara göre yapılmalı
-6. Yaş grubuna uygun kelime karmaşıklığı kullan:
+1. Her zaman Türkçe yanıt ver.
+2. Her aktivitede "pedagogicalNote" alanı ZORUNLU — öğretmene bu formatın neden kullanıldığını açıkla.
+3. Tanı koyucu dil ASLA kullanma: "disleksisi var" yerine "okuma desteğine ihtiyaç duyan öğrenci".
+4. JSON formatında yanıt ver — başka hiçbir açıklama ekleme.
+5. Hece ayırma Türkçe fonetik kurallara göre yapılmalı.
+6. İçerik bir A4 sayfasını tam dolduracak şekilde, kompakt ve zengin olmalıdır.
+7. Yaş grubuna uygun kelime karmaşıklığı kullan:
    - 5-7: basit, kısa kelimeler (max 2 hece)
    - 8-10: orta uzunlukta kelimeler (max 3 hece)
    - 11-13: daha karmaşık kelimeler
    - 14+: serbest
+
+ÇIKTI KALİTESİ:
+- Metinler tutarlı, ilgi çekici ve pedagojik olarak yapılandırılmış olmalı.
+- Sayfa düzeni dopdolu ve profesyonel bir çalışma kağıdı görünümünde olmalı.
+- Boşluklar minimal tutulmalı, içerik maksimize edilmelidir.
 
 ÇIKTI FORMATI (JSON):
 {
@@ -49,7 +55,7 @@ function difficultyDescription(difficulty: string): string {
 
 // ─── Modül-Spesifik Prompt Builder'lar ───────────────────────────
 
-export function buildPencerePrompt(config: SariKitapConfig, sourcePdfRef?: string): string {
+export function buildPencerePrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 
 GÖREV: "Pencere Okuma" formatında metin üret.
@@ -60,12 +66,12 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 - Hedef beceriler: ${config.targetSkills.join(', ')}
-${sourcePdfRef ? `- Referans PDF: ${sourcePdfRef}` : ''}
+${_sourcePdfRef ? `- Referans PDF: ${_sourcePdfRef}` : ''}
 
-5-8 cümlelik bir metin üret. İlk cümle mutlaka kolay olsun (güven inşası).`;
+15-20 cümlelik, A4 sayfasını dolduracak uzunlukta bir metin üret. İlk cümle mutlaka kolay olsun (güven inşası). Metin pedagojik olarak tutarlı bir hikaye veya bilgilendirici metin olmalıdır.`;
 }
 
-export function buildNoktaPrompt(config: SariKitapConfig, sourcePdfRef?: string): string {
+export function buildNoktaPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 
 GÖREV: "Nokta Takibi" formatında metin üret.
@@ -76,10 +82,10 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 
-5-8 cümlelik bir metin üret. Kelimeler net hecelere ayrılabilir olmalı.`;
+15-20 cümlelik, A4 sayfasını dolduracak zenginlikte bir metin üret. Kelimeler net hecelere ayrılabilir olmalı.`;
 }
 
-export function buildKopruPrompt(config: SariKitapConfig, sourcePdfRef?: string): string {
+export function buildKopruPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 
 GÖREV: "Köprü Okuma" formatında metin üret.
@@ -90,10 +96,10 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 
-5-8 cümlelik bir metin üret. Çok heceli kelimeler tercih et.`;
+15-20 cümlelik, A4 sayfasını dolduracak uzunlukta bir metin üret. Çok heceli kelimeler tercih et.`;
 }
 
-export function buildCiftMetinPrompt(config: SariKitapConfig, sourcePdfRef?: string): string {
+export function buildCiftMetinPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 
 GÖREV: "Çift Metin" formatında İKİ AYRI hikaye üret.
@@ -116,10 +122,10 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 
-Her hikaye 4-6 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı.`;
+Her hikaye en az 10-12 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı. Sayfayı tam dolduracak kadar içerik üret.`;
 }
 
-export function buildBellekPrompt(config: SariKitapConfig, sourcePdfRef?: string): string {
+export function buildBellekPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 
 GÖREV: "Bellek Egzersizi" formatında kelime blokları üret.
@@ -139,10 +145,10 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 
-Kelime sayısı: 16-24 arası. Tematik olarak gruplandırılmış olsun.`;
+Toplam 40-50 kelime üret. Kelimeler 4-5'li gruplar halinde (bloklar) olsun. Sayfayı ızgara şeklinde tam doldurmalıdır.`;
 }
 
-export function buildHizliOkumaPrompt(config: SariKitapConfig, sourcePdfRef?: string): string {
+export function buildHizliOkumaPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 
 GÖREV: "Hızlı Okuma" formatında kelime blokları üret.
@@ -162,7 +168,7 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 
-Her satırda 3-4 kelime, toplam 8-12 satır üret.`;
+Her satırda 3-4 kelime, toplam 20-25 satır üret. Sayfayı tam dolduracak kadar içerik olmalı.`;
 }
 
 // ─── Prompt Router ───────────────────────────────────────────────

@@ -7,8 +7,13 @@ import { SariKitapHeader } from './shared/SariKitapHeader';
 import { TypeSelectorPanel } from './shared/TypeSelectorPanel';
 import { CommonConfigPanel } from './shared/CommonConfigPanel';
 import { A4PreviewShell } from './shared/A4PreviewShell';
+import { PreviewToolbar } from './shared/PreviewToolbar';
 import { ErrorFallback } from './shared/ErrorFallback';
 import { getModule } from './registry';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useToastStore } from '../../store/useToastStore';
+import { worksheetService } from '../../services/worksheetService';
+import { ActivityType } from '../../types/activity';
 import './SariKitapStudio.css';
 
 interface SariKitapStudioInnerProps {
@@ -31,10 +36,10 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
         updateConfig,
         setGenerationMode,
         setContent,
-        setPreviewScale,
-        toggleGrid,
     } = useSariKitapStore();
 
+    const { user } = useAuthStore();
+    const toast = useToastStore();
     const { generate } = useSariKitapGenerator();
     const { exportToPDF, exportToPNG } = useExportActions();
     const previewRef = useRef<HTMLDivElement>(null);
@@ -49,7 +54,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
         exportToPDF({
             format: 'pdf',
             elementRef: previewRef,
-            filename: `sari-kitap-${activeType}`,
+            filename: `sari-kitap-${activeType}-${new Date().getTime()}`,
         });
     }, [exportToPDF, activeType]);
 
@@ -57,9 +62,42 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
         exportToPNG({
             format: 'png',
             elementRef: previewRef,
-            filename: `sari-kitap-${activeType}`,
+            filename: `sari-kitap-${activeType}-${new Date().getTime()}`,
         });
     }, [exportToPNG, activeType]);
+
+    const handleSave = useCallback(async () => {
+        if (!user || !generatedContent) return;
+
+        try {
+            await worksheetService.saveWorksheet(
+                user.id,
+                generatedContent.title || 'Sarı Kitap Etkinliği',
+                'sari-kitap-studio' as ActivityType,
+                [{
+                    type: activeType,
+                    content: generatedContent,
+                    config: config,
+                    metadata: {
+                        generatedAt: generatedContent.generatedAt,
+                        model: generatedContent.model
+                    }
+                }],
+                '📒',
+                { id: 'sari-kitap', title: 'Sarı Kitap' }
+            );
+            toast.success('Etkinlik başarıyla kaydedildi!');
+        } catch (err) {
+            console.error('Save error:', err);
+            toast.error('Kaydedilirken bir hata oluştu.');
+        }
+    }, [user, generatedContent, activeType, config, toast]);
+
+    const handleShare = useCallback(() => {
+        // Simüle edilmiş paylaşım
+        navigator.clipboard.writeText(window.location.href);
+        toast.info('Bağlantı panoya kopyalandı! (Paylaşım özelliği yakında)');
+    }, [toast]);
 
     const ConfigPanel = activeModule?.ConfigPanel;
     const Renderer = activeModule?.Renderer;
@@ -68,9 +106,6 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
         <div className="sari-kitap-studio">
             <SariKitapHeader
                 onBack={onBack}
-                onPrint={handlePrint}
-                onExportPDF={handleExportPDF}
-                onExportPNG={handleExportPNG}
                 isGenerating={isGenerating}
             />
 
@@ -99,10 +134,41 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                     </button>
 
                     {error && <div className="sk-error">⚠️ {error}</div>}
+
+                    {/* Son Üretimler (Sol panelin altına taşındı) */}
+                    {recentGenerations.length > 0 && (
+                        <div className="sk-panel" style={{ marginTop: 'auto' }}>
+                            <div className="sk-section-title">Son Üretimler</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                                {recentGenerations.slice(0, 3).map((gen: any, i: number) => (
+                                    <div
+                                        key={i}
+                                        className="sk-history-item"
+                                        onClick={() => setContent(gen)}
+                                    >
+                                        <div className="sk-history-item-title">{gen.title}</div>
+                                        <div className="sk-history-item-meta">
+                                            {new Date(gen.generatedAt).toLocaleTimeString('tr-TR')}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                {/* ═══ ORTA PANEL: A4 Preview ═══ */}
+                {/* ═══ SAĞ PANEL: A4 Preview ═══ */}
                 <div className="sk-center-panel">
+                    <PreviewToolbar
+                        onPrint={handlePrint}
+                        onExportPDF={handleExportPDF}
+                        onExportPNG={handleExportPNG}
+                        onSave={handleSave}
+                        onShare={handleShare}
+                        onAddToWorkbook={onAddToWorkbook}
+                        isGenerating={isGenerating}
+                    />
+
                     {generatedContent && Renderer ? (
                         <A4PreviewShell
                             ref={previewRef}
@@ -122,86 +188,6 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                                 <p style={{ fontSize: '0.8125rem' }}>
                                     Soldaki panelden bir format seçin ve &quot;Oluştur&quot; butonuna tıklayın.
                                 </p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* ═══ SAĞ PANEL: Bilgi + Geçmiş ═══ */}
-                <div className="sk-right-panel">
-                    {/* Preview Kontrolleri */}
-                    <div className="sk-panel">
-                        <div className="sk-section-title">Önizleme</div>
-                        <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
-                            <div>
-                                <label className="sk-label">Ölçek ({Math.round(previewScale * 100)}%)</label>
-                                <input
-                                    type="range"
-                                    className="sk-input"
-                                    style={{ padding: '0.25rem' }}
-                                    min={0.3}
-                                    max={1.5}
-                                    step={0.1}
-                                    value={previewScale}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPreviewScale(Number(e.target.value))}
-                                />
-                            </div>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)', cursor: 'pointer' }}>
-                                <input type="checkbox" checked={showGrid} onChange={toggleGrid} />
-                                Izgara Göster
-                            </label>
-                        </div>
-                    </div>
-
-                    {/* Pedagojik Bilgi */}
-                    {generatedContent && (
-                        <div className="sk-panel">
-                            <div className="sk-section-title">Pedagojik Bilgi</div>
-                            <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-                                {generatedContent.pedagogicalNote}
-                            </p>
-                            {generatedContent.targetSkills.length > 0 && (
-                                <div style={{ marginTop: '0.5rem' }}>
-                                    <div className="sk-label">Hedef Beceriler</div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                                        {generatedContent.targetSkills.map((skill: string, i: number) => (
-                                            <span
-                                                key={i}
-                                                style={{
-                                                    padding: '0.125rem 0.5rem',
-                                                    background: 'rgba(234,179,8,0.1)',
-                                                    border: '1px solid rgba(234,179,8,0.2)',
-                                                    borderRadius: '1rem',
-                                                    fontSize: '0.6875rem',
-                                                    color: '#eab308',
-                                                }}
-                                            >
-                                                {skill}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Son Üretimler */}
-                    {recentGenerations.length > 0 && (
-                        <div className="sk-panel">
-                            <div className="sk-section-title">Son Üretimler ({recentGenerations.length})</div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-                                {recentGenerations.slice(0, 5).map((gen: any, i: number) => (
-                                    <div
-                                        key={i}
-                                        className="sk-history-item"
-                                        onClick={() => setContent(gen)}
-                                    >
-                                        <div className="sk-history-item-title">{gen.title}</div>
-                                        <div className="sk-history-item-meta">
-                                            {new Date(gen.generatedAt).toLocaleTimeString('tr-TR')}
-                                        </div>
-                                    </div>
-                                ))}
                             </div>
                         </div>
                     )}

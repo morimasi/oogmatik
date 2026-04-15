@@ -31,26 +31,26 @@ export const CiftMetinRenderer: React.FC<RendererProps> = React.memo(({ config, 
     }
 
     return (
-        <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>
+        <div className="sk-renderer-cift-metin">
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', textAlign: 'center', color: '#18181b' }}>
                 {content.title}
             </h2>
-            <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '1rem', fontStyle: 'italic', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.6875rem', color: '#4b5563', marginBottom: '1rem', fontStyle: 'italic', textAlign: 'center' }}>
                 {content.instructions}
             </p>
 
             {c.showSourceLabels && (
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1rem' }}>
-                    <span style={{ color: c.sourceAColor, ...getStyle(c.sourceAStyle), fontSize: '0.75rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '0.75rem' }}>
+                    <span style={{ color: c.sourceAColor, ...getStyle(c.sourceAStyle), fontSize: '0.6875rem' }}>
                         ■ {src.a.title}
                     </span>
-                    <span style={{ color: c.sourceBColor, ...getStyle(c.sourceBStyle), fontSize: '0.75rem' }}>
+                    <span style={{ color: c.sourceBColor, ...getStyle(c.sourceBStyle), fontSize: '0.6875rem' }}>
                         ■ {src.b.title}
                     </span>
                 </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
                 {interleavedLines.map((line, i) => (
                     <p
                         key={i}
@@ -59,6 +59,8 @@ export const CiftMetinRenderer: React.FC<RendererProps> = React.memo(({ config, 
                             color: line.source === 'a' ? c.sourceAColor : c.sourceBColor,
                             ...getStyle(line.source === 'a' ? c.sourceAStyle : c.sourceBStyle),
                             margin: 0,
+                            fontSize: '1rem',
+                            lineHeight: 1.5
                         }}
                     >
                         {line.text}
@@ -66,7 +68,7 @@ export const CiftMetinRenderer: React.FC<RendererProps> = React.memo(({ config, 
                 ))}
             </div>
 
-            <div style={{ marginTop: '2rem', padding: '0.75rem', background: '#fffbeb', borderRadius: '0.5rem', fontSize: '0.75rem', color: '#92400e' }}>
+            <div style={{ marginTop: '1.5rem', padding: '0.5rem 0.75rem', borderLeft: '3px solid #f59e0b', background: '#fffbeb', fontSize: '0.6875rem', color: '#92400e' }}>
                 <strong>Pedagojik Not:</strong> {content.pedagogicalNote}
             </div>
         </div>
