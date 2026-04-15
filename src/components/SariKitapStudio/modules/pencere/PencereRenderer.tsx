@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RendererProps } from '../../registry';
-import type { PencereConfig } from '../../../../types/sariKitap';
+import type { PencereConfig, HeceRow, HeceData } from '../../../../types/sariKitap';
 
 export const PencereRenderer: React.FC<RendererProps> = React.memo(({ config, content }) => {
     if (config.type !== 'pencere') return null;
@@ -16,7 +16,7 @@ export const PencereRenderer: React.FC<RendererProps> = React.memo(({ config, co
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {content.heceRows.map((row, ri) => (
+                {content.heceRows?.map((row: HeceRow, ri: number) => (
                     <div
                         key={ri}
                         style={{
@@ -27,7 +27,7 @@ export const PencereRenderer: React.FC<RendererProps> = React.memo(({ config, co
                             alignItems: 'baseline',
                         }}
                     >
-                        {row.syllables.map((s, si) => (
+                        {row.syllables.map((s: HeceData, si: number) => (
                             <span
                                 key={si}
                                 role="text"

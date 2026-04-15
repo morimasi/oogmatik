@@ -8,7 +8,6 @@ import { TypeSelectorPanel } from './shared/TypeSelectorPanel';
 import { CommonConfigPanel } from './shared/CommonConfigPanel';
 import { A4PreviewShell } from './shared/A4PreviewShell';
 import { PreviewToolbar } from './shared/PreviewToolbar';
-import { ErrorFallback } from './shared/ErrorFallback';
 import { getModule } from './registry';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useToastStore } from '../../store/useToastStore';
@@ -75,6 +74,8 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                 generatedContent.title || 'Sarı Kitap Etkinliği',
                 'sari-kitap-studio' as ActivityType,
                 [{
+                    title: generatedContent.title || 'Sarı Kitap Etkinliği',
+                    instruction: generatedContent.instructions || '',
                     type: activeType,
                     content: generatedContent,
                     config: config,

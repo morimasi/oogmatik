@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RendererProps } from '../../registry';
-import type { NoktaConfig } from '../../../../types/sariKitap';
+import type { NoktaConfig, HeceRow, HeceData } from '../../../../types/sariKitap';
 
 export const NoktaRenderer: React.FC<RendererProps> = React.memo(({ config, content }) => {
     if (config.type !== 'nokta') return null;
@@ -27,9 +27,9 @@ export const NoktaRenderer: React.FC<RendererProps> = React.memo(({ config, cont
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {content.heceRows.map((row, ri) => (
+                {content.heceRows?.map((row: HeceRow, ri: number) => (
                     <div key={ri} style={{ display: 'flex', flexWrap: 'wrap', columnGap: '0.375rem', rowGap: '0.5rem', alignItems: 'baseline' }}>
-                        {row.syllables.map((s, si) => (
+                        {row.syllables.map((s: HeceData, si: number) => (
                             <div key={si} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.125rem' }}>
                                 <span role="text" style={{ fontSize: '1rem', fontWeight: 500 }}>{s.syllable}</span>
                                 {s.dotBelow && (
