@@ -16,42 +16,41 @@ export const BellekRenderer = React.memo(({ config, content }: RendererProps) =>
     const blocks = content.wordBlocks ?? [];
 
     return (
-        <div className="sk-renderer-bellek" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.25rem', textAlign: 'center', color: '#18181b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div className="sk-renderer-bellek" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%', gap: '1rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem', textAlign: 'center', color: '#18181b', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
                 {content.title}
             </h2>
-            <p style={{ fontSize: '0.75rem', color: '#3f3f46', marginBottom: '0.75rem', fontWeight: 500, textAlign: 'center', borderBottom: '1px solid #e4e4e7', paddingBottom: '0.5rem' }}>
-                {content.instructions}
-            </p>
 
             <div
                 style={{
                     display: 'grid',
                     gridTemplateColumns: `repeat(${c.gridColumns}, 1fr)`,
-                    gap: '0.5rem',
-                    flex: 1
+                    gap: '1rem',
+                    flex: 1,
+                    padding: '0 1rem'
                 }}
             >
                 {blocks.flat().map((word: string, i: number) => (
                     <div
                         key={i}
                         style={{
-                            border: '2px solid #d4d4d8',
+                            border: '1.5px solid #18181b',
                             borderRadius: '0.5rem',
-                            padding: sizeStyle.padding,
-                            fontSize: '1.125rem',
+                            padding: '1.25rem',
+                            fontSize: '1.25rem',
                             textAlign: 'center',
-                            fontWeight: 700,
+                            fontWeight: 600,
                             position: 'relative',
-                            minHeight: '3.5rem',
+                            minHeight: '4.5rem',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            background: '#f8fafc'
+                            background: 'white',
+                            fontFamily: 'Lexend, sans-serif'
                         }}
                     >
                         {c.showNumbers && (
-                            <span style={{ position: 'absolute', top: '0.25rem', left: '0.375rem', fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8' }}>
+                            <span style={{ position: 'absolute', top: '0.375rem', left: '0.5rem', fontSize: '0.75rem', fontWeight: 800, color: '#18181b' }}>
                                 {i + 1}
                             </span>
                         )}
@@ -60,13 +59,16 @@ export const BellekRenderer = React.memo(({ config, content }: RendererProps) =>
                 ))}
             </div>
 
-            <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '2px solid #ef4444', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                <div style={{ background: '#ef4444', color: 'white', padding: '0.2rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase' }}>
-                    Pedagojik Not
-                </div>
-                <div style={{ fontSize: '0.7rem', color: '#991b1b', fontStyle: 'italic', flex: 1 }}>
-                    {content.pedagogicalNote}
-                </div>
+            <div style={{ 
+                marginTop: 'auto', 
+                paddingTop: '1rem', 
+                borderTop: '1px solid #e2e8f0', 
+                display: 'flex', 
+                justifyContent: 'center',
+                fontSize: '0.75rem',
+                color: '#64748b'
+            }}>
+                1
             </div>
         </div>
     );

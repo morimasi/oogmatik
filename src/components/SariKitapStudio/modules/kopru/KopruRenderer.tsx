@@ -12,77 +12,77 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
     };
 
     return (
-        <div className="sk-renderer-kopru" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.25rem', textAlign: 'center', color: '#18181b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                {content.title}
-            </h2>
-            <p style={{ fontSize: '0.75rem', color: '#3f3f46', marginBottom: '0.75rem', fontWeight: 500, textAlign: 'center', borderBottom: '1px solid #e4e4e7', paddingBottom: '0.5rem' }}>
-                {content.instructions}
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
+        <div className="sk-renderer-kopru" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%', gap: '1.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3.5rem', flex: 1, padding: '1rem 0' }}>
                 {content.heceRows.map((row, ri) => {
-                    const syllableWidth = 45 + c.bridgeGap;
-                    const svgWidth = row.syllables.length * syllableWidth;
-                    const svgHeight = c.bridgeHeight + 25;
+                    const charWidth = 12;
+                    const bridgeGap = 15;
+                    const svgHeight = 45;
+                    
+                    let currentX = 0;
+                    const syllablePositions = row.syllables.map((s) => {
+                        const width = s.syllable.length * charWidth;
+                        const pos = {
+                            x: currentX,
+                            width: width,
+                            midX: currentX + width / 2
+                        };
+                        currentX += width + bridgeGap;
+                        return pos;
+                    });
+
+                    const svgWidth = currentX;
 
                     return (
-                        <div key={ri} style={{ marginBottom: '0.25rem', overflow: 'visible' }}>
+                        <div key={ri} style={{ overflow: 'visible' }}>
                             <svg
                                 width={svgWidth}
                                 height={svgHeight}
                                 viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-                                style={{ display: 'block', maxWidth: '100%' }}
+                                style={{ display: 'block', overflow: 'visible' }}
                                 aria-hidden="true"
                             >
-                                {/* Heceler (metin) */}
                                 {row.syllables.map((s, si) => {
-                                    const x = si * syllableWidth + syllableWidth / 2;
+                                    const pos = syllablePositions[si];
                                     return (
                                         <text
                                             key={`t-${si}`}
-                                            x={x}
-                                            y={svgHeight - 2}
+                                            x={pos.midX}
+                                            y={svgHeight - 10}
                                             textAnchor="middle"
-                                            style={{ fontFamily: 'Lexend, sans-serif', fontSize: '1.125rem', fontWeight: 600, fill: '#18181b' }}
-                                            role="text"
+                                            style={{ 
+                                                fontFamily: 'Lexend, sans-serif', 
+                                                fontSize: '1.5rem', 
+                                                fontWeight: 500, 
+                                                fill: '#18181b' 
+                                            }}
                                         >
                                             {s.syllable}
                                         </text>
                                     );
                                 })}
 
-                                {/* Köprü yayları */}
                                 {row.syllables.map((s, si) => {
-                                    if (!s.bridgeNext || si >= row.syllables.length - 1) return null;
-                                    const x1 = si * syllableWidth + syllableWidth / 2;
-                                    const x2 = (si + 1) * syllableWidth + syllableWidth / 2;
+                                    if (si >= row.syllables.length - 1) return null;
+                                    
+                                    const pos1 = syllablePositions[si];
+                                    const pos2 = syllablePositions[si + 1];
+                                    
+                                    const x1 = pos1.midX + (pos1.width / 2) - 2;
+                                    const x2 = pos2.midX - (pos2.width / 2) + 2;
                                     const cx = (x1 + x2) / 2;
-                                    const y = svgHeight - 18;
-                                    const cy = y - c.bridgeHeight;
-
-                                    if (c.bridgeStyle === 'düz') {
-                                        return (
-                                            <line
-                                                key={`b-${si}`}
-                                                x1={x1}
-                                                y1={y}
-                                                x2={x2}
-                                                y2={y}
-                                                stroke={c.bridgeColor}
-                                                strokeWidth={c.bridgeThickness}
-                                            />
-                                        );
-                                    }
+                                    const y = svgHeight - 15;
+                                    const bridgeH = 12;
+                                    const cy = y - bridgeH;
 
                                     return (
                                         <path
                                             key={`b-${si}`}
                                             d={`M ${x1},${y} Q ${cx},${cy} ${x2},${y}`}
                                             fill="none"
-                                            stroke={c.bridgeColor}
-                                            strokeWidth={c.bridgeThickness}
-                                            strokeDasharray={getStrokeDashArray(c.bridgeStyle)}
+                                            stroke="#18181b"
+                                            strokeWidth={2.5}
+                                            strokeLinecap="round"
                                         />
                                     );
                                 })}
@@ -92,13 +92,16 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                 })}
             </div>
 
-            <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '2px solid #8b5cf6', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                <div style={{ background: '#8b5cf6', color: 'white', padding: '0.2rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase' }}>
-                    Pedagojik Not
-                </div>
-                <div style={{ fontSize: '0.7rem', color: '#581c87', fontStyle: 'italic', flex: 1 }}>
-                    {content.pedagogicalNote}
-                </div>
+            <div style={{ 
+                marginTop: 'auto', 
+                paddingTop: '1rem', 
+                borderTop: '1px solid #e2e8f0', 
+                display: 'flex', 
+                justifyContent: 'center',
+                fontSize: '0.75rem',
+                color: '#64748b'
+            }}>
+                3
             </div>
         </div>
     );

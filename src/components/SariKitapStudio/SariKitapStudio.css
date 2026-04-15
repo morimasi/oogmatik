@@ -221,13 +221,26 @@
   background: white;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   font-family: 'Lexend', sans-serif;
-  padding: 12mm; /* 15mm'den 12mm'ye düşürüldü */
+  padding: 18mm 15mm; /* Kenar boşlukları PNG'deki gibi optimize edildi */
   box-sizing: border-box;
   color: #18181b;
   position: relative;
   margin-top: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+/* Sayfa Numarası ve Alt Bilgi */
+.sk-a4-shell::after {
+  content: "";
+  position: absolute;
+  bottom: 10mm;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #64748b;
 }
 
 .sk-a4-shell * {
