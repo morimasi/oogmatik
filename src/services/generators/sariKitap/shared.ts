@@ -20,6 +20,7 @@ STİL REHBERİ (SARI KİTAP):
 - Metinler tutarlı, ilgi çekici ve pedagojik olarak yapılandırılmış olmalı.
 - Sayfa düzeni dopdolu ve profesyonel bir çalışma kağıdı görünümünde olmalı.
 - Boşluklar minimal tutulmalı, içerik maksimize edilmelidir.
+- Zorluk seviyeleri arasında PROGRESİF (3x) artış olmalıdır (Uzunluk ve Karmaşıklık).
 - Metinler gerçek hayat hikayeleri, doğa veya okul temalı olmalıdır.
 - İlk cümle her zaman güven inşası için çok kolay olmalıdır.
 
@@ -44,20 +45,20 @@ export type PromptBuilderFn = (config: SariKitapConfig, sourcePdfRef?: string) =
 
 function ageGroupDescription(ageGroup: string): string {
   switch (ageGroup) {
-    case '5-7': return '5-7 yaş (okul öncesi / 1. sınıf), basit ve kısa kelimeler';
-    case '8-10': return '8-10 yaş (2-4. sınıf), orta düzey kelimeler';
-    case '11-13': return '11-13 yaş (5-7. sınıf), karmaşık kelimeler';
-    case '14+': return '14+ yaş (lise), gelişmiş kelime dağarcığı';
+    case '5-7': return '5-7 yaş (okul öncesi / 1. sınıf), basit ve kısa kelimeler (max 2 hece)';
+    case '8-10': return '8-10 yaş (2-4. sınıf), orta düzey kelimeler (max 3-4 hece)';
+    case '11-13': return '11-13 yaş (5-7. sınıf), karmaşık kelimeler ve soyut kavramlar';
+    case '14+': return '14+ yaş (lise), akademik ve teknik kelime dağarcığı';
     default: return '8-10 yaş';
   }
 }
 
 function difficultyDescription(difficulty: string): string {
   switch (difficulty) {
-    case 'Başlangıç': return 'Başlangıç seviyesi — kısa cümleler, sık kullanılan kelimeler';
-    case 'Orta': return 'Orta seviye — orta uzunlukta paragraflar';
-    case 'İleri': return 'İleri seviye — uzun paragraflar, nadir kelimeler';
-    case 'Uzman': return 'Uzman seviyesi — karmaşık metin yapısı';
+    case 'Başlangıç': return 'Başlangıç seviyesi — ~60 kelime, 10-12 kısa cümle, çok basit yapı';
+    case 'Orta': return 'Orta seviye (3x Başlangıç) — ~180 kelime, 25-30 cümle, birleşik cümle yapıları';
+    case 'İleri': return 'İleri seviye (3x Orta) — ~500 kelime, 50+ cümle, tam dolu A4 sayfa yoğunluğu, kompleks yapılar';
+    case 'Uzman': return 'Uzman seviyesi (Maksimum) — Maksimum A4 yoğunluğu, akademik/teknik dil, üst düzey okuma hızı gerektiren içerik';
     default: return 'Başlangıç seviyesi';
   }
 }

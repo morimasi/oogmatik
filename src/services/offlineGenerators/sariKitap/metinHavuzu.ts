@@ -168,10 +168,17 @@ export const CIFT_METIN_CIFTLERI: CiftMetinCifti[] = [
 // ─── Metin Erişim Fonksiyonları ──────────────────────────────────
 
 const YAS_KELIME_LIMITI: Record<AgeGroup, number> = {
-  '5-7': 5,
-  '8-10': 8,
-  '11-13': 12,
+  '5-7': 10
+  '8-10': 20,
+  '11-13': 45,
   '14+': 999,
+};
+
+const ZORLUK_UZUNLUK_ARALIGI: Record<SariKitapDifficulty, { min: number; max: number }> = {
+  'Başlangıç': { min: 0, max: 100 },
+  'Orta': { min: 100, max: 300 },
+  'İleri': { min: 300, max: 800 },
+  'Uzman': { min: 800, max: 9999 },
 };
 
 export function getMetinByAgeAndDifficulty(
@@ -179,26 +186,45 @@ export function getMetinByAgeAndDifficulty(
   difficulty: SariKitapDifficulty,
   konu?: Konu
 ): MetinEntry {
-  // Eğer konu belirtilmemişse 'Kaynak Kitap'ı en başa ekle (Kullanıcı "aynen analiz ederek" dediği için)
+  // Eğer konu belirtilmemişse 'Kaynak Kitap'ı en başa ekle
   const konular = konu ? [konu] : (['Kaynak Kitap', ...Object.keys(METIN_HAVUZU).filter(k => k !== 'Kaynak Kitap')] as Konu[]);
-  const maxKelime = YAS_KELIME_LIMITI[ageGroup];
+  
+  const yasLimit = YAS_KELIME_LIMITI[ageGroup];
+  const uzunlukSiniri = ZORLUK_UZUNLUK_ARALIGI[difficulty];
 
   for (const k of konular) {
     const entries = METIN_HAVUZU[k]?.[difficulty];
     if (entries && entries.length > 0) {
-      // Yaş grubuna uygun metni seç (kelime/cümle kontrolü)
-      const uygun = entries.filter((e) => {
+      // 1. Hem yaş limitine hem de uzunluk aralığına uyanları bul
+      const tamUygun = entries.filter((e) => {
+        const words = e.metin.split(/\s+/).filter(w => w.length > 0);
+        const wordCount = words.length;
         const cumleler = e.metin.split(/[.!?]+/).filter((c) => c.trim());
-        return cumleler.every((c) => c.trim().split(/\s+/).length <= maxKelime);
+        const cumleYapisiUygun = cumleler.every((c) => c.trim().split(/\s+/).length <= yasLimit);
+        const uzunlukUygun = wordCount >= uzunlukSiniri.min && wordCount <= uzunlukSiniri.max;
+        return cumleYapisiUygun && uzunlukUygun;
       });
-      if (uygun.length > 0) {
-        return uygun[Math.floor(Math.random() * uygun.length)];
+
+      if (tamUygun.length > 0) {
+        return tamUygun[Math.floor(Math.random() * tamUygun.length)];
       }
+
+      // 2. Sadece yaş limitine uyanları bul (Fallback)
+      const yasUygun = entries.filter((e) => {
+        const cumleler = e.metin.split(/[.!?]+/).filter((c) => c.trim());
+        return cumleler.every((c) => c.trim().split(/\s+/).length <= yasLimit);
+      });
+
+      if (yasUygun.length > 0) {
+        return yasUygun[Math.floor(Math.random() * yasUygun.length)];
+      }
+
+      // 3. Hiçbiri uymazsa zorluk kategorisindeki herhangi birini seç
       return entries[Math.floor(Math.random() * entries.length)];
     }
   }
 
-  // Fallback
+  // Global Fallback
   return { baslik: 'Metin', metin: 'Güzel bir gün. Güneş parlıyor. Kuşlar ötüyor.' };
 }
 
