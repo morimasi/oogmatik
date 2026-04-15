@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import type { RendererProps } from '../../registry';
 import type { CiftMetinConfig } from '../../../../types/sariKitap';
 
-export const CiftMetinRenderer = React.memo(({ config, content }: RendererProps) => {
+export const CiftMetinRenderer = memo(({ config, content }: RendererProps) => {
     if (config.type !== 'cift_metin') return null;
     const c = config as CiftMetinConfig;
     const src = content.sourceTexts;

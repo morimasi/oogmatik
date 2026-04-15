@@ -1,13 +1,15 @@
-import React from 'react';
+import { memo } from 'react';
 import type { RendererProps } from '../../registry';
 import type { NoktaConfig, HeceRow, HeceData } from '../../../../types/sariKitap';
 
-export const NoktaRenderer = React.memo(({ config, content }: RendererProps) => {
+export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
     if (config.type !== 'nokta') return null;
     const c = config as NoktaConfig;
 
     const getDotShape = (style: string, size: number, color: string) => {
         switch (style) {
+            case 'yuvarlak':
+                return <circle cx={size / 2} cy={size / 2} r={size / 2} fill={color} />;
             case 'kare':
                 return <rect x={0} y={0} width={size} height={size} fill={color} />;
             case 'elips':
