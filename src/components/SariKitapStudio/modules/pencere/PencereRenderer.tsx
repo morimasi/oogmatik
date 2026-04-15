@@ -2,7 +2,7 @@ import React from 'react';
 import type { RendererProps } from '../../registry';
 import type { PencereConfig, HeceRow, HeceData } from '../../../../types/sariKitap';
 
-export const PencereRenderer: React.FC<RendererProps> = React.memo(({ config, content }) => {
+export const PencereRenderer = React.memo(({ config, content }: RendererProps) => {
     if (config.type !== 'pencere') return null;
     const c = config as PencereConfig;
 

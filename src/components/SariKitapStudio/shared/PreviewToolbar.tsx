@@ -11,7 +11,7 @@ interface PreviewToolbarProps {
     isGenerating: boolean;
 }
 
-export const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
+export const PreviewToolbar = ({
     onPrint,
     onExportPDF,
     onExportPNG,
@@ -19,7 +19,7 @@ export const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
     onShare,
     onAddToWorkbook,
     isGenerating,
-}) => {
+}: PreviewToolbarProps) => {
     const { 
         previewScale, 
         setPreviewScale, 
@@ -89,7 +89,7 @@ export const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                         max={1.5}
                         step={0.1}
                         value={previewScale}
-                        onChange={(e) => setPreviewScale(Number(e.target.value))}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPreviewScale(Number(e.target.value))}
                         style={{ width: '80px' }}
                     />
                 </div>
@@ -112,7 +112,7 @@ export const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                         </p>
                         <div className="sk-section-title">Hedef Beceriler</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                            {generatedContent.targetSkills.map((skill, i) => (
+                            {generatedContent.targetSkills.map((skill: string, i: number) => (
                                 <span key={i} className="sk-skill-badge">{skill}</span>
                             ))}
                         </div>

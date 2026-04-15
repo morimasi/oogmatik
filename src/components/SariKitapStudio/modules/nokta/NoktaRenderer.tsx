@@ -2,7 +2,7 @@ import React from 'react';
 import type { RendererProps } from '../../registry';
 import type { NoktaConfig, HeceRow, HeceData } from '../../../../types/sariKitap';
 
-export const NoktaRenderer: React.FC<RendererProps> = React.memo(({ config, content }) => {
+export const NoktaRenderer = React.memo(({ config, content }: RendererProps) => {
     if (config.type !== 'nokta') return null;
     const c = config as NoktaConfig;
 

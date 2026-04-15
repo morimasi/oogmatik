@@ -2,7 +2,7 @@ import React from 'react';
 import type { RendererProps } from '../../registry';
 import type { CiftMetinConfig } from '../../../../types/sariKitap';
 
-export const CiftMetinRenderer: React.FC<RendererProps> = React.memo(({ config, content }) => {
+export const CiftMetinRenderer = React.memo(({ config, content }: RendererProps) => {
     if (config.type !== 'cift_metin') return null;
     const c = config as CiftMetinConfig;
     const src = content.sourceTexts;
@@ -20,8 +20,8 @@ export const CiftMetinRenderer: React.FC<RendererProps> = React.memo(({ config, 
         );
     }
 
-    const linesA = src.a.text.split(/[.!?]+/).filter((s) => s.trim()).map((s) => s.trim() + '.');
-    const linesB = src.b.text.split(/[.!?]+/).filter((s) => s.trim()).map((s) => s.trim() + '.');
+    const linesA = src.a.text.split(/[.!?]+/).filter((s: string) => s.trim()).map((s: string) => s.trim() + '.');
+    const linesB = src.b.text.split(/[.!?]+/).filter((s: string) => s.trim()).map((s: string) => s.trim() + '.');
     const maxLen = Math.max(linesA.length, linesB.length);
     const interleavedLines: Array<{ text: string; source: 'a' | 'b' }> = [];
 
@@ -51,7 +51,7 @@ export const CiftMetinRenderer: React.FC<RendererProps> = React.memo(({ config, 
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-                {interleavedLines.map((line, i) => (
+                {interleavedLines.map((line: { text: string; source: 'a' | 'b' }, i: number) => (
                     <p
                         key={i}
                         aria-label={line.source === 'a' ? src.a.title : src.b.title}
