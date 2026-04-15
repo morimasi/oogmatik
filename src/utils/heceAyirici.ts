@@ -53,7 +53,7 @@ export function hecelereAyir(kelime: string): string[] {
       breakPoints.push(currentVowel + 2);
     } else {
       // Üç+ ünsüz → ilk ikisi önceki hecede
-      breakPoints.push(currentVowel + 2);
+      breakPoints.push(currentVowel + 3);
     }
   }
 
@@ -84,14 +84,34 @@ export function metniHecele(metin: string): HeceRow[] {
     const syllables: HeceData[] = [];
 
     for (const word of words) {
-      // Noktalama işaretlerini ayır
-      const cleanWord = word.replace(/[.,!?;:'"()]/g, '');
-      if (!cleanWord) continue;
+      // Noktalama işaretlerini ayır (prefix, core, suffix)
+      const match = word.match(/^([.,!?;:'"()]*)(.*?)([.,!?;:'"()]*)$/);
+      if (!match) continue;
 
-      const heceler = hecelereAyir(cleanWord);
-      for (const hece of heceler) {
+      const prefix = match[1];
+      const coreWord = match[2];
+      const suffix = match[3];
+
+      if (!coreWord) {
+        if (prefix || suffix) {
+          syllables.push({
+            syllable: prefix + suffix,
+            isHighlighted: false,
+            dotBelow: false,
+            bridgeNext: false,
+          });
+        }
+        continue;
+      }
+
+      const heceler = hecelereAyir(coreWord);
+      for (let h = 0; h < heceler.length; h++) {
+        let displayHece = heceler[h];
+        if (h === 0) displayHece = prefix + displayHece;
+        if (h === heceler.length - 1) displayHece = displayHece + suffix;
+
         syllables.push({
-          syllable: hece,
+          syllable: displayHece,
           isHighlighted: false,
           dotBelow: false,
           bridgeNext: false,

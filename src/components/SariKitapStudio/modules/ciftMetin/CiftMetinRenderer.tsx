@@ -22,12 +22,21 @@ export const CiftMetinRenderer = memo(({ config, content }: RendererProps) => {
 
     const linesA = src.a.text.split(/[.!?]+/).filter((s: string) => s.trim()).map((s: string) => s.trim() + '.');
     const linesB = src.b.text.split(/[.!?]+/).filter((s: string) => s.trim()).map((s: string) => s.trim() + '.');
-    const maxLen = Math.max(linesA.length, linesB.length);
     const interleavedLines: Array<{ text: string; source: 'a' | 'b' }> = [];
 
-    for (let i = 0; i < maxLen; i++) {
-        if (i < linesA.length) interleavedLines.push({ text: linesA[i], source: 'a' });
-        if (i < linesB.length) interleavedLines.push({ text: linesB[i], source: 'b' });
+    const ratio = c.interleaveRatio || 1;
+    let iA = 0;
+    let iB = 0;
+
+    while (iA < linesA.length || iB < linesB.length) {
+        // Source A'dan ratio kadar ekle
+        for (let r = 0; r < ratio && iA < linesA.length; r++) {
+            interleavedLines.push({ text: linesA[iA++], source: 'a' });
+        }
+        // Source B'den ratio kadar ekle
+        for (let r = 0; r < ratio && iB < linesB.length; r++) {
+            interleavedLines.push({ text: linesB[iB++], source: 'b' });
+        }
     }
 
     return (
