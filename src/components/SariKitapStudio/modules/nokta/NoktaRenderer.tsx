@@ -13,7 +13,7 @@ export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
             case 'kare':
                 return <rect x={0} y={0} width={size} height={size} fill={color} />;
             case 'elips':
-                return <ellipse cx={size / 2} cy={size / 3} rx={size / 2} ry={size / 3} fill={color} />;
+                return <ellipse cx={size / 2} cy={size / 2} rx={size / 2} ry={size / 4} fill={color} />;
             default:
                 return <circle cx={size / 2} cy={size / 2} r={size / 2} fill={color} />;
         }
