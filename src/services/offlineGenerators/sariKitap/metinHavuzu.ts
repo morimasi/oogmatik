@@ -168,7 +168,7 @@ export const CIFT_METIN_CIFTLERI: CiftMetinCifti[] = [
 // ─── Metin Erişim Fonksiyonları ──────────────────────────────────
 
 const YAS_KELIME_LIMITI: Record<AgeGroup, number> = {
-  '5-7': 10
+  '5-7': 10,
   '8-10': 20,
   '11-13': 45,
   '14+': 999,
