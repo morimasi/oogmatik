@@ -1,7 +1,7 @@
 import React from 'react';
 import { CompositeWorksheet, WorksheetWidget } from '../../../../types/worksheet';
 import { NativeInfographicRenderer } from '../../../NativeInfographicRenderer';
-import { GraphicRenderer } from '../../../../../components/MatSinavStudyosu/components/GraphicRenderer';
+import { GraphicRenderer } from '../../../MatSinavStudyosu/components/GraphicRenderer';
 import { CompactLayoutEngine } from '../../../../services/layout/CompactLayoutEngine';
 import { GridWrapper } from '../../layout/GridWrapper';
 

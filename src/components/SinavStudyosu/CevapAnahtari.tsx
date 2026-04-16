@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { CevapAnahtari } from '../../src/types/sinav';
+import { CevapAnahtari } from '../../types/sinav';
 
 interface CevapAnahtariProps {
   cevapAnahtari: CevapAnahtari;

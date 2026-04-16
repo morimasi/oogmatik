@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import type { MatCevapAnahtari } from '../../src/types/matSinav';
+import type { MatCevapAnahtari } from '../../types/matSinav';
 
 interface MatCevapAnahtariComponentProps {
     cevapAnahtari: MatCevapAnahtari;

@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { Zorluk } from '../../../src/types/sinav';
+import { Zorluk } from '../../../types/sinav';
 
 interface ZorlukGostergesiProps {
   zorluk: Zorluk;

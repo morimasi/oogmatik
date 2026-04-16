@@ -4,8 +4,8 @@
  */
 
 import React, { useMemo } from 'react';
-import { getMatUnitesBySinif } from '../../src/data/meb-matematik-kazanim';
-import type { MatUnite } from '../../src/types/matSinav';
+import { getMatUnitesBySinif } from '../../data/meb-matematik-kazanim';
+import type { MatUnite } from '../../types/matSinav';
 
 interface MatKazanimPickerProps {
     selectedGrade: number | null;

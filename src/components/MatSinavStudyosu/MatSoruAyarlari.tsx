@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import type { MatSinavAyarlari } from '../../src/types/matSinav';
+import type { MatSinavAyarlari } from '../../types/matSinav';
 
 interface MatSoruAyarlariProps {
     ayarlar: MatSinavAyarlari;

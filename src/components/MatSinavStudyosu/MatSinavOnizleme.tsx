@@ -4,9 +4,9 @@
  */
 
 import React from 'react';
-import type { MatSinav, MatSoru } from '../../src/types/matSinav';
+import type { MatSinav, MatSoru } from '../../types/matSinav';
 import { MatSoruCard } from './components/MatSoruCard';
-import { PrintConfig } from '../../src/utils/sinavPdfGenerator';
+import { PrintConfig } from '../../utils/sinavPdfGenerator';
 
 interface MatSinavOnizlemeProps {
     sinav: MatSinav;

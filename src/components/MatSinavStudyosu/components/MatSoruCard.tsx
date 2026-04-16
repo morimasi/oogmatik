@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react';
-import type { MatSoru } from '../../../src/types/matSinav';
+import type { MatSoru } from '../../../types/matSinav';
 import { GraphicRenderer } from './GraphicRenderer';
 
 interface MatSoruCardProps {

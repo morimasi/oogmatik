@@ -90,10 +90,10 @@ const ScreeningModule = lazy(() =>
   }))
 );
 const SinavStudyosu = lazy(() =>
-  import('../components/SinavStudyosu').then((module) => ({ default: module.SinavStudyosu }))
+  import('./components/SinavStudyosu').then((module) => ({ default: module.SinavStudyosu }))
 );
 const MatSinavStudyosu = lazy(() =>
-  import('../components/MatSinavStudyosu').then((module) => ({ default: module.MatSinavStudyosu }))
+  import('./components/MatSinavStudyosu').then((module) => ({ default: module.MatSinavStudyosu }))
 );
 const SariKitapStudio = lazy(() =>
   import('./components/SariKitapStudio').then((module) => ({ default: module.SariKitapStudio }))

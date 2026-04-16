@@ -17,7 +17,7 @@
  */
 
 import React from 'react';
-import type { GrafikVerisi, GrafikVeriOgesi } from '../../../src/types/matSinav';
+import type { GrafikVerisi, GrafikVeriOgesi } from '../../../types/matSinav';
 
 // ── Geometry Veri Parser ─────────────────────────────────────────────────────
 // AI, geometrik şekil verilerini veri[] dizisinde döndürür. Bu parser,

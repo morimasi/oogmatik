@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { Soru } from '../../../src/types/sinav';
+import { Soru } from '../../../types/sinav';
 import { ZorlukGostergesi } from './ZorlukGostergesi';
 
 interface SoruCardProps {

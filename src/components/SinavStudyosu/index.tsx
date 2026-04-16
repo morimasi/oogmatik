@@ -3,17 +3,18 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { useSinavStore } from '../../src/store/useSinavStore';
-import { generateExamViaAPI } from '../../src/services/sinavService';
-import { generateExamPDF, PrintConfig, DEFAULT_PRINT_CONFIG } from '../../src/utils/sinavPdfGenerator';
+import { useSinavStore } from '../../store/useSinavStore';
+import { generateExamViaAPI } from '../../services/sinavService';
+import { generateExamPDF, PrintConfig, DEFAULT_PRINT_CONFIG } from '../../utils/sinavPdfGenerator';
 import { KazanimPicker } from './KazanimPicker';
 import { SoruAyarlari } from './SoruAyarlari';
 import { SinavOnizleme } from './SinavOnizleme';
 import { CevapAnahtariComponent } from './CevapAnahtari';
-import { AppError } from '../../src/utils/AppError';
-import { worksheetService } from '../../src/services/worksheetService';
-import { useAuthStore } from '../../src/store/useAuthStore';
-import { ActivityType } from '../../src/types';
+import { AppError } from '../../utils/AppError';
+import { worksheetService } from '../../services/worksheetService';
+import { useAuthStore } from '../../store/useAuthStore';
+import { ActivityType } from '../../types';
+import type { Soru, CevapAnahtari } from '../../types/sinav';
 
 type TabType = 'onizleme' | 'cevap-anahtari';
 
@@ -209,11 +210,11 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
 <div class="student-row">Ad Soyad: _________________________________ &nbsp;&nbsp; Sınıf/Şube: _________ &nbsp;&nbsp; Tarih: _________</div>
 
 <div class="sorula-kapsayici">
-${aktifSinav.sorular.map((s, i) => {
+${aktifSinav.sorular.map((s: Soru, i: number) => {
       const lbl = ['A', 'B', 'C', 'D'];
       let secContent = '';
       if (s.tip === 'coktan-secmeli' && Array.isArray(s.secenekler)) {
-        secContent = `<div class="secenekler">${s.secenekler.map((sec, si) => `<div class="secenek">${lbl[si]}) ${sec}</div>`).join('')}</div>`;
+        secContent = `<div class="secenekler">${s.secenekler.map((sec: string, si: number) => `<div class="secenek">${lbl[si]}) ${sec}</div>`).join('')}</div>`;
       } else if (s.tip === 'dogru-yanlis-duzeltme') {
         secContent = `<div class="secenekler">( ) Doğru &nbsp;&nbsp;&nbsp; ( ) Yanlış &nbsp;&nbsp;&nbsp; Düzeltme: ___________________________</div>`;
       } else if (s.tip === 'bosluk-doldurma') {
@@ -234,7 +235,7 @@ ${aktifSinav.sorular.map((s, i) => {
 <table class="cevap-tablo">
 <thead><tr><th>No</th><th>Doğru Cevap</th><th>Puan</th><th>Kazanım</th></tr></thead>
 <tbody>
-${aktifSinav.cevapAnahtari.sorular.map(c =>
+${aktifSinav.cevapAnahtari.sorular.map((c: CevapAnahtari['sorular'][number]) =>
       `<tr><td>${c.soruNo}.</td><td>${c.dogruCevap}</td><td>${c.puan} puan</td><td>${c.kazanimKodu}</td></tr>`
     ).join('')}
 </tbody>

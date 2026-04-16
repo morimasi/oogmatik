@@ -261,11 +261,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   );
 
   const SinavStudyosu = React.lazy(() =>
-    import('../../components/SinavStudyosu').then((module) => ({ default: module.SinavStudyosu }))
+    import('./SinavStudyosu').then((module) => ({ default: module.SinavStudyosu }))
   );
 
   const MatSinavStudyosu = React.lazy(() =>
-    import('../../components/MatSinavStudyosu').then((module) => ({
+    import('./MatSinavStudyosu').then((module) => ({
       default: module.MatSinavStudyosu,
     }))
   );

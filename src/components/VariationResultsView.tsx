@@ -5,10 +5,10 @@
  */
 
 import React, { useState } from 'react';
-import type { WorksheetData } from '../types';
+import type { WorksheetData, SingleWorksheetData } from '../types';
 import { useWorksheetStore } from '../store/useWorksheetStore';
 import DOMPurify from 'isomorphic-dompurify';
-import { GraphicRenderer } from '../../components/MatSinavStudyosu/components/GraphicRenderer';
+import { GraphicRenderer } from './MatSinavStudyosu/components/GraphicRenderer';
 import type { GrafikVerisi } from '../types/matSinav';
 
 interface VariationResultsViewProps {
@@ -21,7 +21,7 @@ interface VariationResultsViewProps {
     processingTimeMs: number;
   };
   onBack: () => void;
-  onAddToWorksheet: (variation: WorksheetData[0]) => void;
+  onAddToWorksheet: (variation: SingleWorksheetData) => void;
 }
 
 export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
@@ -49,6 +49,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
   };
 
   const handleAddSelected = () => {
+    if (!variations) return;
     const selectedVariations = variations.filter((_, i) => selectedIndices.has(i));
     selectedVariations.forEach(variation => {
       onAddToWorksheet(variation);
@@ -57,6 +58,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
   };
 
   const handleAddAll = () => {
+    if (!variations) return;
     variations.forEach(variation => {
       onAddToWorksheet(variation);
     });
@@ -126,11 +128,11 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
         <div className="mt-4 flex gap-3">
           <button
             onClick={handleAddAll}
-            disabled={variations.length === 0}
+            disabled={!variations || variations.length === 0}
             className="flex-1 px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-500 hover:to-purple-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <i className="fa-solid fa-layer-group"></i>
-            Tümünü Ekle ({variations.length})
+            Tümünü Ekle ({variations?.length || 0})
           </button>
           <button
             onClick={handleAddSelected}
@@ -146,7 +148,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
       {/* Grid */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto">
-          {variations.map((variation, index) => {
+          {variations?.map((variation, index) => {
             const isSelected = selectedIndices.has(index);
             const isExpanded = expandedIndex === index;
 
@@ -240,7 +242,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                     <div className="mb-3">
                       <p className="text-xs text-slate-400 font-medium mb-1">Hedef Beceriler:</p>
                       <div className="flex flex-wrap gap-1">
-                        {variation.targetSkills.slice(0, 3).map((skill, i) => (
+                        {(variation.targetSkills as string[]).slice(0, 3).map((skill: string, i: number) => (
                           <span
                             key={i}
                             className="px-2 py-0.5 text-xs bg-slate-700/30 text-slate-300 rounded-md"
@@ -248,93 +250,71 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                             {skill}
                           </span>
                         ))}
-                        {variation.targetSkills.length > 3 && (
-                          <span className="px-2 py-0.5 text-xs bg-slate-700/30 text-slate-400 rounded-md">
-                            +{variation.targetSkills.length - 3}
-                          </span>
-                        )}
                       </div>
                     </div>
                   )}
 
-                  {/* Pedagogical Note (Collapsed) */}
-                  {variation.pedagogicalNote && (
-                    <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--accent-muted)', border: '1px solid var(--accent-color)', opacity: 0.8 }}>
-                      <p className="text-xs text-indigo-300/80 line-clamp-2">
-                        <i className="fa-solid fa-lightbulb mr-1"></i>
-                        {variation.pedagogicalNote}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="mt-4 flex gap-2">
-                    <button
-                      onClick={() => onAddToWorksheet(variation)}
-                      className="flex-1 px-3 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-bold rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all flex items-center justify-center gap-2"
-                    >
-                      <i className="fa-solid fa-plus"></i>
-                      Ekle
-                    </button>
+                  {/* Activity Type */}
+                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-white/5">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                      {String(variation.type || 'Etkinlik')}
+                    </span>
                     <button
                       onClick={() => toggleSelect(index)}
-                      className={`px-3 py-2 text-sm font-bold rounded-lg transition-all border ${isSelected
-                        ? 'text-white'
-                        : 'bg-white/5 text-white border-white/10 hover:bg-white/10'
+                      className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${isSelected
+                        ? 'bg-indigo-500/20 text-indigo-400'
+                        : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
                         }`}
-                      style={isSelected ? { backgroundColor: 'var(--accent-color)', borderColor: 'var(--accent-color)' } : {}}
                     >
-                      <i className={`fa-solid ${isSelected ? 'fa-check' : 'fa-circle'}`}></i>
+                      {isSelected ? 'Seçildi' : 'Seç'}
                     </button>
                   </div>
                 </div>
-
-                {/* Metadata Badge */}
-                {variation.metadata && (
-                  <div className="absolute bottom-3 left-3 px-2 py-1 bg-slate-900/80 backdrop-blur-sm border border-white/10 rounded-md">
-                    <p className="text-[10px] text-slate-400">
-                      {Number(variation.metadata.variationIndex)} / {Number(variation.metadata.totalVariations)}
-                    </p>
-                  </div>
-                )}
               </div>
             );
           })}
         </div>
-
-        {/* Empty State */}
-        {variations.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-64 text-center">
-            <i className="fa-solid fa-inbox text-6xl text-slate-600 mb-4"></i>
-            <h3 className="text-xl font-bold text-slate-400 mb-2">Varyasyon Bulunamadı</h3>
-            <p className="text-sm text-slate-500">
-              Hiç varyasyon üretilemedi. Lütfen tekrar deneyin.
-            </p>
-          </div>
-        )}
       </div>
 
-      {/* Footer Stats */}
-      {metadata && (
-        <div className="px-6 py-4 border-t border-white/5 bg-slate-900/80 backdrop-blur-xl">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <div className="flex items-center gap-4">
-              <span>
-                <i className="fa-solid fa-clock mr-1"></i>
-                İşlem Süresi: {(metadata.processingTimeMs / 1000).toFixed(1)}s
-              </span>
-              <span>
-                <i className="fa-solid fa-layer-group mr-1"></i>
-                Toplam: {variations.length} varyant
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-slate-500">Powered by</span>
-              <span className="font-bold text-indigo-400">Gemini 2.5 Flash</span>
-            </div>
-          </div>
+      {/* Empty State */}
+      {(!variations || variations.length === 0) && (
+        <div className="flex-1 flex flex-col items-center justify-center text-slate-500">
+          <i className="fa-solid fa-wand-magic-sparkles text-5xl mb-4 opacity-20"></i>
+          <p className="text-lg font-medium">Henüz varyasyon üretilmedi</p>
         </div>
       )}
+
+      {/* Summary Footer */}
+      <div className="px-6 py-4 bg-slate-900/50 border-t border-white/5 backdrop-blur-md">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-6">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Toplam Üretilen</span>
+              <span className="text-lg font-bold text-white">{variations?.length || 0}</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Seçilen</span>
+              <span className="text-lg font-bold text-indigo-400">{selectedIndices.size}</span>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={onBack}
+              className="px-6 py-2.5 text-sm font-bold text-slate-400 hover:text-white transition-colors"
+            >
+              İptal
+            </button>
+            <button
+              onClick={handleAddSelected}
+              disabled={selectedIndices.size === 0}
+              className="px-8 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Seçilenleri Kitapçığa Ekle
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

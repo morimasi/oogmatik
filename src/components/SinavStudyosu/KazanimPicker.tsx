@@ -4,8 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { getUnitesByGrade, getKazanimByUniteId } from '../../src/data/meb-turkce-kazanim';
-import { MEBUnite, MEBKazanim } from '../../src/types/sinav';
+import { getUnitesByGrade, getKazanimByUniteId } from '../../data/meb-turkce-kazanim';
+import { MEBUnite, MEBKazanim } from '../../types/sinav';
 
 interface KazanimPickerProps {
   selectedGrade: number | null;

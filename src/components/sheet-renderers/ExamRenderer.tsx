@@ -1,6 +1,6 @@
 import React from 'react';
-import { SinavOnizleme } from '../../../components/SinavStudyosu/SinavOnizleme';
-import { MatSinavOnizleme } from '../../../components/MatSinavStudyosu/MatSinavOnizleme';
+import { SinavOnizleme } from '../SinavStudyosu/SinavOnizleme';
+import { MatSinavOnizleme } from '../MatSinavStudyosu/MatSinavOnizleme';
 import type { Sinav } from '../../types/sinav';
 import type { MatSinav } from '../../types/matSinav';
 import type { PrintConfig } from '../../utils/sinavPdfGenerator';

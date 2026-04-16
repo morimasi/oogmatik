@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { SinavAyarlari } from '../../src/types/sinav';
+import { SinavAyarlari } from '../../types/sinav';
 
 interface SoruAyarlariProps {
   ayarlar: SinavAyarlari;

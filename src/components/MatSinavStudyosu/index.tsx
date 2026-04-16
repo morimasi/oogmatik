@@ -5,20 +5,20 @@
  */
 
 import React, { useState } from 'react';
-import { useMatSinavStore } from '../../src/store/useMatSinavStore';
-import { generateMatExam, refreshSingleQuestion } from '../../src/services/matSinavService';
+import { useMatSinavStore } from '../../store/useMatSinavStore';
+import { generateMatExam, refreshSingleQuestion } from '../../services/matSinavService';
 import { MatKazanimPicker } from './MatKazanimPicker';
 import { MatSoruAyarlari } from './MatSoruAyarlari';
 import { MatSinavOnizleme } from './MatSinavOnizleme';
 import { MatCevapAnahtariComponent } from './MatCevapAnahtari';
-import { AppError } from '../../src/utils/AppError';
-import type { MatSoru } from '../../src/types/matSinav';
+import { AppError } from '../../utils/AppError';
+import type { MatSoru, MatSinav, MatCevapAnahtari } from '../../types/matSinav';
 import { renderToString } from 'react-dom/server';
 import { GraphicRenderer } from './components/GraphicRenderer';
-import { PrintConfig, DEFAULT_PRINT_CONFIG } from '../../src/utils/sinavPdfGenerator';
-import { worksheetService } from '../../src/services/worksheetService';
-import { useAuthStore } from '../../src/store/useAuthStore';
-import { ActivityType } from '../../src/types';
+import { PrintConfig, DEFAULT_PRINT_CONFIG } from '../../utils/sinavPdfGenerator';
+import { worksheetService } from '../../services/worksheetService';
+import { useAuthStore } from '../../store/useAuthStore';
+import { ActivityType } from '../../types';
 
 type TabType = 'onizleme' | 'cevap-anahtari' | 'gecmis';
 
@@ -192,7 +192,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
 </div>
 <div class="student-row">Ad Soyad: _________________________________ &nbsp;&nbsp; Sınıf/Şube: _________ &nbsp;&nbsp; Tarih: _________</div>
 <div class="sorula-kapsayici">
-${aktifSinav.sorular.map((s, i) => {
+${aktifSinav.sorular.map((s: MatSoru, i: number) => {
       const labels = ['A', 'B', 'C', 'D'];
       let sec = '';
       if (s.tip === 'coktan_secmeli' && s.secenekler) {
@@ -215,7 +215,7 @@ ${aktifSinav.sorular.map((s, i) => {
 </div>
 <div class="cevap-baslik">CEVAP ANAHTARI</div>
 <table class="cevap-tablo"><thead><tr><th>No</th><th>Doğru Cevap</th><th>Puan</th><th>Kazanım</th></tr></thead><tbody>
-${aktifSinav.cevapAnahtari.sorular.map(c =>
+${aktifSinav.cevapAnahtari.sorular.map((c: MatCevapAnahtari['sorular'][number]) =>
       `<tr><td>${c.soruNo}.</td><td>${c.dogruCevap}</td><td>${c.puan} puan</td><td>${c.kazanimKodu}</td></tr>`
     ).join('')}
 </tbody></table>
@@ -510,7 +510,7 @@ ${aktifSinav.cevapAnahtari.sorular.map(c =>
                                         <div className="text-center text-[var(--text-muted)] opacity-70 text-sm py-32 bg-[var(--bg-paper)]/50 backdrop-blur-xl rounded-3xl border-2 border-dashed border-[var(--border-color)] font-bold uppercase tracking-widest">Henüz sınav oluşturmadınız.</div>
                                     ) : (
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {sinavGecmisi.map((sinav) => (
+                                            {sinavGecmisi.map((sinav: MatSinav) => (
                                                 <div key={sinav.id} className="bg-white/70 backdrop-blur-md rounded-2xl border border-[var(--border-color)] p-4 flex items-center justify-between hover:shadow-xl hover:translate-y-[-4px] transition-all duration-300 group">
                                                     <div>
                                                         <p className="text-[13px] font-black text-[var(--text-primary)] group-hover:text-accent transition-colors uppercase tracking-tight">{sinav.baslik}</p>

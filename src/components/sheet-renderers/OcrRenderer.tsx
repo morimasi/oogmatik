@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import DOMPurify from 'isomorphic-dompurify';
-import { GraphicRenderer } from '../../../components/MatSinavStudyosu/components/GraphicRenderer';
+import { GraphicRenderer } from '../MatSinavStudyosu/components/GraphicRenderer';
 
 type OcrData = {
   content?: string;
