@@ -89,6 +89,10 @@ function buildPrompt(config: KelimeCumleConfig): string {
         'Uzman': 'Maksimum A4 yoğunluğu, akademik/teknik dil.'
     };
 
+    // İlgili türden örnekleri çek (few-shot)
+    const examples = KELIME_CUMLE_SOURCES[config.type]?.slice(0, 1).map(s => s.items.slice(0, 3));
+    const exampleStr = examples ? JSON.stringify(examples[0], null, 2) : '';
+
     return `Sen bir disleksi eğitim uzmanısın. "Kelime-Cümle Stüdyosu" için profesyonel çalışma kağıdı içeriği üretiyorsun.
 
 GÖREV: "${config.type}" türünde etkinlik üret.
@@ -97,12 +101,16 @@ ZORLUK SEVİYESİ: ${config.difficulty} (${difficultyRules[config.difficulty]})
 ADET: ${config.itemCount}
 KONULAR: ${config.topics.join(', ')}
 
+REFERANS ÖRNEKLER (Bu kalite ve yapıda üret):
+${exampleStr}
+
 KURALLAR:
 1. JSON formatında yanıt ver. Başka hiçbir açıklama ekleme.
-2. Pedagojik olarak disleksi ve öğrenme güçlüğü çeken çocuklara uygun, sade ve net bir dil kullan.
+2. Pedagojik olarak disleksi ve öğrenme güçlüğü çeken çocuklara uygun, sade ve net bir dil kullan. Tanı koyucu ("disleksisi var" gibi) ifadeler asla kullanma.
 3. Her zaman "pedagogicalNote" alanı ekle.
 4. "items" dizisi üretilen etkinlik maddelerini içermelidir.
 5. ZORLUK ARTIŞI: Seviyeler arasında PROGRESİF (3x) artış olmalıdır. İleri ve Uzman seviyeleri sayfayı tamamen dolduracak kadar yoğun içerik içermelidir.
+6. Gerçek hayattan, somut ve çocukların ZPD (Yakınsal Gelişim Alanı) seviyesine uygun örnekler seç.
 
 ÇIKTI FORMATI (JSON):
 {

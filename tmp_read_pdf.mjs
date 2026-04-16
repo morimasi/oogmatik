@@ -6,15 +6,20 @@ async function extractText(pdfPath) {
     const loadingTask = pdfjsLib.getDocument({ data });
     const pdfDocument = await loadingTask.promise;
     
-    let text = '';
-    const numPages = Math.min(pdfDocument.numPages, 10); // First 10 pages
-    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-        const page = await pdfDocument.getPage(pageNum);
+    let fullText = '';
+    for (let i = 1; i <= pdfDocument.numPages; i++) {
+        const page = await pdfDocument.getPage(i);
         const textContent = await page.getTextContent();
-        const pageText = textContent.items.map(item => item.str).join(' ');
-        text += `\n--- Page ${pageNum} ---\n${pageText}`;
+        const text = textContent.items.map(item => item.str).join(' ');
+        fullText += `--- Page ${i} ---\n${text}\n\n`;
     }
-    console.log(text);
+    return fullText;
 }
 
-extractText('d:/bbma/bursadisleksi/oogmatik/src/kaynak/kelime/KELİME_CÜMLE ÇALIŞMASI_2013.pdf').catch(console.error);
+const pdfPath = 'd:/bbma/bursadisleksi/oogmatik/src/kaynak/kelime/KELİME_CÜMLE ÇALIŞMASI_2013.pdf';
+extractText(pdfPath).then(text => {
+    fs.writeFileSync('pdf_extracted.txt', text);
+    console.log('PDF extracted to pdf_extracted.txt');
+}).catch(err => {
+    console.error(err);
+});
