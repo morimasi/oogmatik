@@ -14,12 +14,12 @@ export const ZitAnlamRenderer: React.FC<Props> = ({ content, showAnswers }) => {
     }, [content.items]);
 
     return (
-        <div className="kc-renderer-zit" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '0.2rem', fontFamily: 'Lexend, sans-serif', color: '#000' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, textAlign: 'center', letterSpacing: '0.05em', marginBottom: '0.2rem', fontFamily: 'Lexend, sans-serif' }}>
+        <div className="kc-renderer-zit" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '1rem', fontFamily: 'Lexend, sans-serif', color: '#000' }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, textAlign: 'center', letterSpacing: '0.02em', marginBottom: '0.5rem', color: '#1e293b' }}>
                 {content.title || "KELİME-CÜMLE ÇALIŞMASI (ZIT ANLAM)"}
             </h2>
-            <div style={{ fontSize: '0.85rem', textAlign: 'center', fontWeight: 600, marginBottom: '0.5rem' }}>
-                {content.instructions || "Cümlelerde boşluklara uygun kelimeyi yaz ve oku."}
+            <div style={{ fontSize: '1rem', textAlign: 'center', fontWeight: 600, marginBottom: '1rem', color: '#475569' }}>
+                {content.instructions || "Kelimelerin zıt anlamlılarını yazınız ve kelime havuzundan kontrol ediniz."}
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', flex: 1, borderTop: '2px solid #0f172a', borderBottom: '2px solid #0f172a', padding: '0.25rem 0', gap: '0.15rem' }}>

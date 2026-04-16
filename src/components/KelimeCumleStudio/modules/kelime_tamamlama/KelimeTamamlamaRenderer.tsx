@@ -8,12 +8,12 @@ interface Props {
 
 export const KelimeTamamlamaRenderer: React.FC<Props> = ({ content, showAnswers }) => {
     return (
-        <div className="kc-renderer-tamamlama" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '1rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <div className="kc-renderer-tamamlama" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '1.25rem', fontFamily: 'Lexend, sans-serif' }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#1e293b' }}>
                 {content.title}
             </h2>
             
-            <p style={{ fontSize: '0.875rem', textAlign: 'center', color: '#4b5563', fontStyle: 'italic', marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: '1rem', textAlign: 'center', color: '#4b5563', fontStyle: 'italic', marginBottom: '1.5rem' }}>
                 {content.instructions}
             </p>
 

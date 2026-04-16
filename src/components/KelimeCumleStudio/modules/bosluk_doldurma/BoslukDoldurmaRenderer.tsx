@@ -14,8 +14,8 @@ export const BoslukDoldurmaRenderer: React.FC<Props> = ({ content, showAnswers }
     }, [content.items]);
 
     return (
-        <div className="kc-renderer-bosluk" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '0.2rem', fontFamily: 'Lexend, sans-serif', color: '#000' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, textAlign: 'center', letterSpacing: '0.05em', marginBottom: '0.2rem', fontFamily: 'Lexend, sans-serif' }}>
+        <div className="kc-renderer-bosluk" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '0.5rem', fontFamily: 'Lexend, sans-serif', color: '#000' }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, textAlign: 'center', letterSpacing: '0.02em', marginBottom: '0.5rem', color: '#1e293b' }}>
                 {content.title || "KELİME-CÜMLE ÇALIŞMASI"}
             </h2>
             <div style={{ fontSize: '0.85rem', textAlign: 'center', fontWeight: 600, marginBottom: '0.5rem' }}>

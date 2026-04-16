@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { KelimeCumleConfig, KelimeCumleGeneratedContent, KelimeCumleActivityType } from '../../../types/kelimeCumle';
-import { KELIME_CUMLE_SOURCES } from '../../../kaynak/kelime/kelimeCumleData';
+import { KELIME_CUMLE_SOURCES } from '../../../kaynak/kelimeCumle';
 import { generateWithGemini } from '../../../services/geminiClient';
 
 export const useKelimeCumleGenerator = () => {
@@ -8,25 +8,21 @@ export const useKelimeCumleGenerator = () => {
     const [error, setError] = useState<string | null>(null);
 
     const generateOffline = useCallback((config: KelimeCumleConfig): KelimeCumleGeneratedContent => {
-        const sources = KELIME_CUMLE_SOURCES[config.type];
-        // Filtreleme: Yaş grubu ve zorluğa göre
-        let filtered = sources.filter(s => s.ageGroup === config.ageGroup && s.difficulty === config.difficulty);
+        const sourcePool = KELIME_CUMLE_SOURCES[config.type];
         
-        // Eğer tam eşleşme yoksa sadece zorluğa göre
-        if (filtered.length === 0) {
-            filtered = sources.filter(s => s.difficulty === config.difficulty);
+        if (!sourcePool || sourcePool.length === 0) {
+            throw new Error(`Belirtilen tip için veri kaynağı bulunamadı: ${config.type}`);
         }
 
-        // Yine yoksa herhangi birini seç
-        const source = filtered.length > 0 
-            ? filtered[Math.floor(Math.random() * filtered.length)]
-            : sources[0];
+        // Tüm havuzu karıştır ve istenen adet kadar benzersiz öğe seç
+        const shuffled = [...sourcePool].sort(() => Math.random() - 0.5);
+        const selectedItems = shuffled.slice(0, Math.min(config.itemCount, shuffled.length));
 
         return {
-            title: source.title,
+            title: config.title || "Yeni Etkinlik",
             instructions: getInstructions(config.type),
             pedagogicalNote: getPedagogicalNote(config.type),
-            items: source.items.slice(0, config.itemCount),
+            items: selectedItems,
             activityType: config.type
         };
     }, []);
@@ -89,9 +85,10 @@ function buildPrompt(config: KelimeCumleConfig): string {
         'Uzman': 'Maksimum A4 yoğunluğu, akademik/teknik dil.'
     };
 
-    // İlgili türden örnekleri çek (few-shot)
-    const examples = KELIME_CUMLE_SOURCES[config.type]?.slice(0, 1).map(s => s.items.slice(0, 3));
-    const exampleStr = examples ? JSON.stringify(examples[0], null, 2) : '';
+    // İlgili türden rastgele örnekler çek (few-shot)
+    const sources = KELIME_CUMLE_SOURCES[config.type];
+    const randomSamples = [...sources].sort(() => Math.random() - 0.5).slice(0, 3);
+    const exampleStr = JSON.stringify(randomSamples, null, 2);
 
     return `Sen bir disleksi eğitim uzmanısın. "Kelime-Cümle Stüdyosu" için profesyonel çalışma kağıdı içeriği üretiyorsun.
 

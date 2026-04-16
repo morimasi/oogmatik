@@ -7,7 +7,7 @@
     overflow: hidden;
     background-color: #020617; /* Slate 950 */
     color: #f8fafc;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Lexend', 'Inter', sans-serif; /* Lexend priority */
 }
 
 /* Animated Background Orbs */
@@ -72,16 +72,15 @@
 /* Sidebar Glass Panel */
 .kc-sidebar-glass {
     width: 380px;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 2rem;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     flex-shrink: 0;
+    z-index: 10;
 }
 
 .kc-sidebar-header {
@@ -183,21 +182,24 @@
 }
 
 .kc-btn-accent-glow {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
     border: none;
     color: #fff;
-    padding: 0.6rem 1.5rem;
-    border-radius: 1rem;
+    padding: 0.75rem 1.75rem;
+    border-radius: 1.25rem;
     cursor: pointer;
     font-weight: 700;
     font-size: 0.95rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .kc-btn-accent-glow:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.5);
+    filter: brightness(1.1);
 }
 
 .kc-preview-viewport {
@@ -277,21 +279,23 @@
 }
 
 .sk-module-card {
-    background: rgba(255,255,255,0.03) !important;
+    background: rgba(255,255,255,0.02) !important;
     border: 1px solid rgba(255,255,255,0.05) !important;
-    border-radius: 1rem !important;
-    transition: all 0.3s ease !important;
+    border-radius: 1.25rem !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    padding: 1.25rem !important;
 }
 
 .sk-module-card:hover {
     background: rgba(255,255,255,0.08) !important;
     border-color: rgba(255,255,255,0.15) !important;
+    transform: scale(1.02);
 }
 
 .sk-module-card.active {
-    background: rgba(99, 102, 241, 0.15) !important;
-    border-color: rgba(99, 102, 241, 0.5) !important;
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.1) !important;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(124, 58, 237, 0.2) 100%) !important;
+    border-color: rgba(124, 58, 237, 0.5) !important;
+    box-shadow: 0 0 30px rgba(79, 70, 229, 0.15) !important;
 }
 
 .sk-module-card-label {
