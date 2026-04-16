@@ -9,7 +9,7 @@ import { useKelimeCumleGenerator } from './hooks/useKelimeCumleGenerator';
 import { TypeSelectorPanel } from './shared/TypeSelectorPanel';
 import { CommonConfigPanel } from './shared/CommonConfigPanel';
 import { ErrorFallback } from './shared/ErrorFallback';
-import { A4PreviewShell } from '../SariKitapStudio/shared/A4PreviewShell';
+import { A4CompactRenderer } from './shared/A4CompactRenderer';
 import './KelimeCumleStudio.css';
 
 interface KelimeCumleStudioProps {
@@ -48,101 +48,101 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         }
     };
 
-    // İlk yüklemede bir tane üret
+    // İlk yüklemede ve tip değişiminde otomatik üret
     useEffect(() => {
         handleGenerate();
-    }, [config.type]); // Tip değiştiğinde otomatik üret
+    }, [config.type]);
 
     const activityInfo = KELIME_CUMLE_REGISTRY[config.type];
     const Renderer = activityInfo.renderer;
 
     return (
-        <div className="kc-studio-container">
-            {/* Sol Panel: Ayarlar */}
-            <div className="kc-sidebar">
-                <div className="kc-sidebar-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                        {onBack && (
-                            <button 
-                                onClick={onBack}
-                                style={{ 
-                                    background: 'rgba(255,255,255,0.1)', 
-                                    border: 'none', 
-                                    color: 'white', 
-                                    width: '32px', 
-                                    height: '32px', 
-                                    borderRadius: '50%', 
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                ←
-                            </button>
-                        )}
-                        <h1 style={{ margin: 0 }}>Kelime-Cümle Stüdyosu</h1>
-                    </div>
-                    <p>Profesyonel dil becerileri materyalleri</p>
-                </div>
-
-                <div className="kc-sidebar-content">
-                    <TypeSelectorPanel 
-                        types={Object.entries(KELIME_CUMLE_REGISTRY).map(([key, val]) => ({
-                            id: key,
-                            title: val.title,
-                            icon: val.icon,
-                            description: val.description
-                        }))}
-                        activeType={config.type}
-                        onTypeChange={(type) => setConfig(prev => ({ ...prev, type: type as KelimeCumleActivityType }))}
-                    />
-
-                    <CommonConfigPanel 
-                        config={config}
-                        generationMode={generationMode}
-                        onConfigChange={(updates) => setConfig(prev => ({ ...prev, ...updates }))}
-                        onModeChange={setGenerationMode}
-                        onGenerate={handleGenerate}
-                        isGenerating={isGenerating}
-                    />
-                </div>
+        <div className="kc-studio-premium-container">
+            {/* Animasyonlu Arkaplan */}
+            <div className="kc-premium-bg">
+                <div className="kc-bg-orb orb-1"></div>
+                <div className="kc-bg-orb orb-2"></div>
+                <div className="kc-bg-orb orb-3"></div>
             </div>
 
-            {/* Sağ Panel: Önizleme */}
-            <div className="kc-preview-area">
-                <div className="kc-toolbar-wrapper" style={{ 
-                    padding: '1rem 2rem', 
-                    background: 'rgba(15, 23, 42, 0.9)', 
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button className="kc-btn-primary" onClick={() => window.print()}>🖨️ Yazdır</button>
-                        <button className="kc-btn-secondary" onClick={() => console.log('Download')}>💾 İndir</button>
-                        <button className="kc-btn-secondary" onClick={() => console.log('Archive')}>📁 Arşivle</button>
+            <div className="kc-premium-layout">
+                {/* SOL PANEL - Ayarlar (Glassmorphism) */}
+                <div className="kc-sidebar-glass">
+                    <div className="kc-sidebar-header">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+                            {onBack && (
+                                <button 
+                                    onClick={onBack}
+                                    className="kc-btn-back"
+                                    title="Geri Dön"
+                                >
+                                    ←
+                                </button>
+                            )}
+                            <h1 className="kc-brand-title">Kelime-Cümle</h1>
+                        </div>
+                        <p className="kc-brand-subtitle">Ultra Premium PDF Izgara Stüdyosu</p>
                     </div>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button className="kc-btn-secondary" onClick={() => console.log('Share')}>🔗 Paylaş</button>
-                        <button className="kc-btn-accent" onClick={() => onAddToWorkbook?.('kelime-cumle', content)}>📚 Kitapçığa Ekle</button>
+
+                    <div className="kc-sidebar-scrollable custom-scrollbar">
+                        <TypeSelectorPanel 
+                            types={Object.entries(KELIME_CUMLE_REGISTRY).map(([key, val]) => ({
+                                id: key,
+                                title: val.title,
+                                icon: val.icon,
+                                description: val.description
+                            }))}
+                            activeType={config.type}
+                            onTypeChange={(type) => setConfig(prev => ({ ...prev, type: type as KelimeCumleActivityType }))}
+                        />
+
+                        <CommonConfigPanel 
+                            config={config}
+                            generationMode={generationMode}
+                            onConfigChange={(updates) => setConfig(prev => ({ ...prev, ...updates }))}
+                            onModeChange={setGenerationMode}
+                            onGenerate={handleGenerate}
+                            isGenerating={isGenerating}
+                        />
                     </div>
                 </div>
 
-                <div className="kc-preview-viewport">
-                    {error ? (
-                        <ErrorFallback onRetry={handleGenerate} />
-                    ) : (
-                        <A4PreviewShell ref={previewRef}>
-                            {content && (
-                                <Renderer 
-                                    content={content} 
-                                    showAnswers={config.showAnswers} 
-                                />
-                            )}
-                        </A4PreviewShell>
-                    )}
+                {/* SAĞ PANEL - A4 Önizleme */}
+                <div className="kc-preview-glass">
+                    <div className="kc-toolbar-glass">
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                            <button className="kc-btn-action" onClick={() => window.print()}>
+                                🖨️ <span className="btn-text">Kompakt Yazdır</span>
+                            </button>
+                            <button className="kc-btn-action" onClick={() => console.log('Download')}>
+                                💾 <span className="btn-text">İndir</span>
+                            </button>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                            <button className="kc-btn-accent-glow" onClick={() => onAddToWorkbook?.('kelime-cumle', content)}>
+                                📚 Sınıf Kitapçığına Ekle
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="kc-preview-viewport custom-scrollbar">
+                        {error ? (
+                            <ErrorFallback onRetry={handleGenerate} />
+                        ) : (
+                            <div className="kc-a4-wrapper">
+                                {content ? (
+                                    <A4CompactRenderer ref={previewRef}>
+                                        <Renderer 
+                                            content={content} 
+                                            showAnswers={config.showAnswers} 
+                                        />
+                                    </A4CompactRenderer>
+                                ) : (
+                                    <div className="kc-loading-skeleton">Modül Yükleniyor...</div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
