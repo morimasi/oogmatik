@@ -29,13 +29,16 @@ export const A4CompactRenderer = forwardRef<HTMLDivElement, A4CompactRendererPro
                     className="sk-a4-compact"
                     style={{
                         width: '210mm',
-                        minHeight: '297mm',
+                        height: '297mm', // Fixed A4 height for real preview
                         backgroundColor: '#ffffff',
-                        boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-                        padding: '12mm 15mm', // Minimal borders for maximum content
+                        boxShadow: '0 0 40px rgba(0,0,0,0.3)', // Stronger shadow for paper feel
+                        margin: '0 auto',
+                        padding: '15mm 15mm', // Standard borders
                         position: 'relative',
                         display: 'flex',
                         flexDirection: 'column',
+                        overflow: 'hidden', // Contain content within page
+                        border: '1px solid #e2e8f0',
                         ...(typography && {
                             fontSize: `${typography.fontSize}pt`,
                             lineHeight: typography.lineHeight,
@@ -44,8 +47,20 @@ export const A4CompactRenderer = forwardRef<HTMLDivElement, A4CompactRendererPro
                         })
                     }}
                 >
-                    {/* Watermark or header could go here */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    {/* Page Background Texture or Subtle Detail */}
+                    <div className="a4-page-background" style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        pointerEvents: 'none',
+                        zIndex: 0,
+                        opacity: 0.03,
+                        background: 'repeating-linear-gradient(45deg, #000, #000 1px, transparent 1px, transparent 10px)'
+                    }} />
+
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1 }}>
                         {children}
                     </div>
                     
@@ -56,10 +71,11 @@ export const A4CompactRenderer = forwardRef<HTMLDivElement, A4CompactRendererPro
                         borderTop: '1px solid #e5e7eb', 
                         display: 'flex', 
                         justifyContent: 'space-between',
-                        fontSize: '0.75rem',
-                        color: '#94a3b8'
+                        fontSize: '9pt',
+                        color: '#64748b',
+                        fontFamily: 'Inter, sans-serif'
                     }}>
-                        <span>Oogmatik - Uzman Öğrenme Platformu</span>
+                        <span>Bursa Disleksi - Oogmatik</span>
                         <span>www.bursadisleksi.com</span>
                     </div>
                 </div>

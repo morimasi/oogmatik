@@ -35,6 +35,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
     const [generationMode, setGenerationMode] = useState<'ai' | 'offline'>('offline');
     const { generateOffline, generateAI, isGenerating, error } = useKelimeCumleGenerator();
     const [toastMsg, setToastMsg] = useState<string | null>(null);
+    const [scale, setScale] = useState(0.8); // Default scale to fit height better
 
     const handleGenerate = async () => {
         if (generationMode === 'offline') {
@@ -181,6 +182,34 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                                 🔗 <span className="btn-text">Paylaş</span>
                             </button>
                         </div>
+                        
+                        {/* Zoom Kontrolleri */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                            <button 
+                                onClick={() => setScale(prev => Math.max(0.4, prev - 0.1))}
+                                className="kc-zoom-btn"
+                                title="Uzaklaştır"
+                            >
+                                ➖
+                            </button>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 600, minWidth: '45px', textAlign: 'center' }}>
+                                %{Math.round(scale * 100)}
+                            </span>
+                            <button 
+                                onClick={() => setScale(prev => Math.min(1.5, prev + 0.1))}
+                                className="kc-zoom-btn"
+                                title="Yakınlaştır"
+                            >
+                                ➕
+                            </button>
+                            <button 
+                                onClick={() => setScale(0.8)}
+                                style={{ fontSize: '0.75rem', opacity: 0.6, cursor: 'pointer', background: 'none', border: 'none', color: 'white' }}
+                            >
+                                Sıfırla
+                            </button>
+                        </div>
+
                         <div style={{ display: 'flex', gap: '0.75rem' }}>
                             <button className="kc-btn-accent-glow" onClick={handleAddToWorkbook}>
                                 📚 Sınıf Kitapçığına Ekle
@@ -195,7 +224,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                             <div className="kc-a4-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingBottom: '2rem' }}>
                                 {contentChunks.length > 0 ? (
                                     contentChunks.map((chunk, idx) => (
-                                        <A4CompactRenderer key={idx}>
+                                        <A4CompactRenderer key={idx} scale={scale}>
                                             <div className="print-page a4-page" style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
                                                 {/* Page Counter Indicator in UI only */}
                                                 <div className="page-indicator" style={{ position: 'absolute', top: '5px', right: '10px', fontSize: '10px', color: '#94a3b8' }} data-design-only>
