@@ -10,7 +10,7 @@ import { TypeSelectorPanel } from './shared/TypeSelectorPanel';
 import { CommonConfigPanel } from './shared/CommonConfigPanel';
 import { ErrorFallback } from './shared/ErrorFallback';
 import { A4CompactRenderer } from './shared/A4CompactRenderer';
-import { printService } from '../../../utils/printService';
+import { printService } from '../../utils/printService';
 import './KelimeCumleStudio.css';
 
 interface KelimeCumleStudioProps {
