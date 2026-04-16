@@ -99,7 +99,7 @@ const SariKitapStudio = lazy(() =>
   import('./components/SariKitapStudio').then((module) => ({ default: module.SariKitapStudio }))
 );
 const KelimeCumleStudio = lazy(() =>
-  import('./components/KelimeCumleStudio').then((module) => ({ default: module.KelimeCumleStudio }))
+  import('./components/KelimeCumleStudio').then((module) => ({ default: module.default }))
 );
 
 const initialStyleSettings: StyleSettings = {
