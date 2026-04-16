@@ -9,7 +9,7 @@ interface Props {
 export const BoslukDoldurmaRenderer: React.FC<Props> = ({ content, showAnswers }) => {
     // Kelime havuzunu (sağ sütundaki kelimeler) oluştur ve karıştır
     const wordBank = useMemo(() => {
-        const answers = content.items.map(item => item.answer);
+        const answers = content.items.map(item => item.answer || '');
         return answers.sort(() => Math.random() - 0.5);
     }, [content.items]);
 
@@ -36,7 +36,7 @@ export const BoslukDoldurmaRenderer: React.FC<Props> = ({ content, showAnswers }
                         <div style={{ display: 'flex', gap: '0.5rem', lineHeight: 1.4 }}>
                             <span style={{ fontWeight: 800, minWidth: '1.2rem', textAlign: 'right' }}>{index + 1}</span>
                             <div style={{ flex: 1 }}>
-                                {item.sentence.split('………').map((part, i, arr) => (
+                                {(item.sentence || '').split('………').map((part, i, arr) => (
                                     <React.Fragment key={i}>
                                         {part}
                                         {i < arr.length - 1 && (

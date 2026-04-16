@@ -107,7 +107,8 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         return chunks;
     }, [content, config.itemsPerPage, config.type]);
 
-    const activityInfo = KELIME_CUMLE_REGISTRY[config.type];
+    const currentType = content?.activityType || config.type;
+    const activityInfo = KELIME_CUMLE_REGISTRY[currentType] || KELIME_CUMLE_REGISTRY.bosluk_doldurma;
     const Renderer = activityInfo.renderer;
 
     return (

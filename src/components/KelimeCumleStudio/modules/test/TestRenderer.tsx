@@ -35,7 +35,9 @@ export const TestRenderer: React.FC<Props> = ({ content, showAnswers }) => {
                         
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                             {['A', 'B', 'C', 'D'].map((letter, i) => {
-                                const isCorrect = showAnswers && item.options[i] === item.answer;
+                                const options = item.options || [];
+                                const optionText = options[i] || '';
+                                const isCorrect = showAnswers && optionText === item.answer;
                                 return (
                                     <div key={letter} style={{ 
                                         display: 'flex', 
@@ -54,7 +56,7 @@ export const TestRenderer: React.FC<Props> = ({ content, showAnswers }) => {
                                             color: isCorrect ? '#166534' : '#64748b',
                                             minWidth: '1.25rem' 
                                         }}>{letter})</span>
-                                        <span style={{ flex: 1 }}>{item.options[i]}</span>
+                                        <span style={{ flex: 1 }}>{optionText}</span>
                                     </div>
                                 );
                             })}

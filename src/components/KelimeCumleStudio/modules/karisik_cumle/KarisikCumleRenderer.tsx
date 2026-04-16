@@ -40,7 +40,7 @@ export const KarisikCumleRenderer: React.FC<Props> = ({ content, showAnswers }) 
                                 borderRadius: '0.5rem',
                                 border: '1px solid #cbd5e1'
                             }}>
-                                {item.words.map((word, wi) => (
+                                {(item.words || []).map((word, wi) => (
                                     <span key={wi} style={{ 
                                         padding: '0.25rem 0.75rem', 
                                         background: '#f1f5f9', 
