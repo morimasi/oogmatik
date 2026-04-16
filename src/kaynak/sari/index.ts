@@ -14,5 +14,3 @@ export const SARI_KITAP_SOURCES: Record<SariKitapActivityType, SariKitapSourceEn
     bellek: SARI_KITAP_BELLEK,
     hizli_okuma: SARI_KITAP_HIZLI_OKUMA
 };
-
-export type { SariKitapSourceEntry };
