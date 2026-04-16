@@ -11,6 +11,15 @@ export const SariKitapActivityTypeSchema = z.enum([
 ]);
 export type SariKitapActivityType = z.infer<typeof SariKitapActivityTypeSchema>;
 
+// ─── Kaynak Kitap Veri Yapısı ────────────────────────────────────
+export interface SariKitapSourceEntry {
+  id: string;
+  title: string;
+  text: string;
+  ageGroup: AgeGroup;
+  difficulty: SariKitapDifficulty;
+}
+
 // ─── Temel Hece Verisi ───────────────────────────────────────────
 export interface HeceData {
   syllable: string;

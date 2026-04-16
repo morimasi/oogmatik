@@ -1,4 +1,9 @@
-import { SARI_KITAP_SOURCES } from '../../../kaynak/sari/sariKitapData';
+import { SARI_KITAP_SOURCES } from '../../../kaynak/sari/sariKitapData.js';
+import { 
+  SariKitapActivityType, 
+  SariKitapConfig,
+  SariKitapSourceEntry 
+} from '../../../types/sariKitap.js';
 
 // ─── Paylaşımlı System Instruction ──────────────────────────────
 export const SARI_KITAP_SYSTEM_INSTRUCTION = `Sen bir disleksi eğitim uzmanısın. Hızlı okumaya geçiş ve bellek geliştirme amaçlı profesyonel "Sarı Kitap" çalışma kağıtları üretiyorsun.
@@ -36,8 +41,12 @@ STİL REHBERİ (SARI KİTAP):
 function getReferenceExample(type: SariKitapActivityType): string {
   const examples = SARI_KITAP_SOURCES[type];
   if (!examples || examples.length === 0) return '';
-  const ex = examples[0];
-  return `\nREFERANS ÖRNEK (Bu stile uygun üret):\nBaşlık: ${ex.title}\nMetin: ${ex.text}\n`;
+  
+  // Rastgele bir örnek seçerek AI'nın monotonlaşmasını önle
+  const randomIndex = Math.floor(Math.random() * examples.length);
+  const ex = examples[randomIndex];
+  
+  return `\nREFERANS ÖRNEK (Bu stile ve zorluğa uygun üret):\nBaşlık: ${ex.title}\nMetin: ${ex.text}\n`;
 }
 
 // ─── Prompt Builder Tipleri ──────────────────────────────────────
