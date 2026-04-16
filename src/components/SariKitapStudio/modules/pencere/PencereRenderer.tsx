@@ -15,11 +15,17 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
     const allSyllables: HeceData[] = content.heceRows?.flatMap(r => r.syllables) ?? [];
 
     // Grid sütun sayısını hecelere göre belirle
-    const colCount = allSyllables.length > 60 ? 10 : allSyllables.length > 40 ? 8 : 6;
+    const configCols = (c as any).gridColumns;
+    const colCount = configCols === '6' ? 6 : configCols === '8' ? 8 : configCols === '10' ? 10 : (allSyllables.length > 60 ? 10 : allSyllables.length > 40 ? 8 : 6);
     const rowCount = Math.ceil(allSyllables.length / colCount);
 
     const maskBg = c.maskColor ?? '#1e293b';
     const maskOp = c.maskOpacity ?? 0.6;
+
+    const bStyle = (c as any).borderStyle || 'solid';
+    const cellBorder = bStyle === 'none' ? 'none' : 
+                      bStyle === 'bold' ? '2px solid #18181b' :
+                      bStyle === 'dashed' ? '1px dashed #94a3b8' : '1px solid #94a3b8';
 
     return (
         <div className="sk-renderer-pencere" style={{
@@ -27,10 +33,10 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
         }}>
             {/* Başlık */}
             <h2 style={{
-                fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.5rem',
+                fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.4rem',
                 textAlign: 'center', color: '#18181b', textTransform: 'uppercase',
                 letterSpacing: '0.12em', borderBottom: '2px solid #18181b',
-                paddingBottom: '0.4rem'
+                paddingBottom: '0.3rem'
             }}>
                 {content.title}
             </h2>
@@ -38,7 +44,7 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
             {/* Yönerge */}
             <p style={{
                 fontSize: '0.65rem', color: '#64748b', textAlign: 'center',
-                marginBottom: '0.5rem', fontStyle: 'italic', lineHeight: 1.3
+                marginBottom: '0.4rem', fontStyle: 'italic', lineHeight: 1.3
             }}>
                 Sadece açık penceredeki heceleri okuyun. Maskelenmiş bölümleri tahmin etmeyin.
             </p>
@@ -46,7 +52,7 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
             {/* Grid Tablo */}
             <table style={{
                 width: '100%', borderCollapse: 'collapse', flex: 1,
-                tableLayout: 'fixed', border: '2px solid #18181b'
+                tableLayout: 'fixed', border: bStyle === 'none' ? 'none' : '2px solid #18181b'
             }}>
                 <tbody>
                     {Array.from({ length: rowCount }).map((_, ri) => (
@@ -58,11 +64,11 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
                                 if (!syl) {
                                     return (
                                         <td key={ci} style={{
-                                            border: '1px solid #cbd5e1',
-                                            padding: '0.35rem 0.2rem',
+                                            border: cellBorder,
+                                            padding: '0.25rem 0.15rem',
                                             textAlign: 'center',
                                             background: '#f8fafc',
-                                            height: '1.8rem'
+                                            height: '1.6rem'
                                         }} />
                                     );
                                 }
@@ -71,8 +77,8 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
 
                                 return (
                                     <td key={ci} style={{
-                                        border: '1px solid #94a3b8',
-                                        padding: '0.35rem 0.15rem',
+                                        border: cellBorder,
+                                        padding: '0.25rem 0.15rem',
                                         textAlign: 'center',
                                         fontFamily: 'Lexend, sans-serif',
                                         fontSize: '0.85rem',
@@ -80,9 +86,9 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
                                         color: isVisible ? '#18181b' : 'transparent',
                                         background: isVisible ? '#ffffff' : maskBg,
                                         opacity: isVisible ? 1 : maskOp,
-                                        lineHeight: 1.3,
-                                        height: '1.8rem',
-                                        transition: 'all 0.15s ease',
+                                        lineHeight: 1.2,
+                                        height: '1.6rem',
+                                        transition: 'all 0.1s ease',
                                         userSelect: isVisible ? 'text' : 'none'
                                     }}>
                                         {syl.syllable}

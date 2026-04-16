@@ -22,13 +22,15 @@ export function processPencereContent(
     if (config.type !== 'pencere') return rows;
 
     const windowSize = config.windowSize;
+    const visibilityRatio = (config as any).visibilityRatio ?? 0.4;
+    
     return rows.map((row) => ({
         ...row,
         syllables: row.syllables.map((s, i) => ({
             ...s,
             isHighlighted: config.showSequential
                 ? i % (windowSize + 1) < windowSize
-                : Math.random() > 0.4,
+                : Math.random() < visibilityRatio,
         })),
     }));
 }
