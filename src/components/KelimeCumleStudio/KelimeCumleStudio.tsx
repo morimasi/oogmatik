@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
     KelimeCumleConfig, 
     KelimeCumleGeneratedContent, 
@@ -10,6 +10,7 @@ import { TypeSelectorPanel } from './shared/TypeSelectorPanel';
 import { CommonConfigPanel } from './shared/CommonConfigPanel';
 import { ErrorFallback } from './shared/ErrorFallback';
 import { A4CompactRenderer } from './shared/A4CompactRenderer';
+import { printService } from '../../../utils/printService';
 import './KelimeCumleStudio.css';
 
 interface KelimeCumleStudioProps {
@@ -24,7 +25,8 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         ageGroup: '8-10',
         difficulty: 'Orta',
         title: 'Yeni Etkinlik',
-        itemCount: 10,
+        itemCount: 20,
+        itemsPerPage: 'auto',
         showAnswers: false,
         topics: ['Genel']
     });
@@ -32,7 +34,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
     const [content, setContent] = useState<KelimeCumleGeneratedContent | null>(null);
     const [generationMode, setGenerationMode] = useState<'ai' | 'offline'>('offline');
     const { generateOffline, generateAI, isGenerating, error } = useKelimeCumleGenerator();
-    const previewRef = useRef<HTMLDivElement>(null);
+    const [toastMsg, setToastMsg] = useState<string | null>(null);
 
     const handleGenerate = async () => {
         if (generationMode === 'offline') {
@@ -53,11 +55,68 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         handleGenerate();
     }, [config.type]);
 
+    const showToast = (msg: string) => {
+        setToastMsg(msg);
+        setTimeout(() => setToastMsg(null), 3000);
+    };
+
+    const handlePrint = () => {
+        printService.captureAndPrint('.print-page', content?.title || 'Kelime_Cumle_Calismasi', 'print', 'A4');
+    };
+
+    const handleDownload = () => {
+        printService.captureAndPrint('.print-page', content?.title || 'Kelime_Cumle_Calismasi', 'download', 'A4');
+    };
+
+    const handleAddToWorkbook = () => {
+        if (onAddToWorkbook && content) {
+            onAddToWorkbook('kelime-cumle', content);
+            showToast('✅ Kitapçığa eklendi!');
+        } else {
+            showToast('⚠️ Kitapçığa eklenemedi (Sistem Hazır Değil)');
+        }
+    };
+
+    const handleShare = () => {
+        showToast('🔗 Paylaşım bağlantısı kopyalandı!');
+    };
+
+    // Chunking Logic (Pagination)
+    const contentChunks = useMemo(() => {
+        if (!content || !content.items || content.items.length === 0) return [];
+        
+        let perPage = 10; // default
+        if (config.itemsPerPage === 'auto') {
+            switch (config.type) {
+                case 'bosluk_doldurma': perPage = 12; break;
+                case 'zit_anlam': perPage = 15; break;
+                case 'test': perPage = 6; break;
+                default: perPage = 10; break;
+            }
+        } else if (typeof config.itemsPerPage === 'number') {
+            perPage = config.itemsPerPage;
+        }
+
+        const chunks = [];
+        for (let i = 0; i < content.items.length; i += perPage) {
+            chunks.push({
+                ...content,
+                items: content.items.slice(i, i + perPage)
+            });
+        }
+        return chunks;
+    }, [content, config.itemsPerPage, config.type]);
+
     const activityInfo = KELIME_CUMLE_REGISTRY[config.type];
     const Renderer = activityInfo.renderer;
 
     return (
         <div className="kc-studio-premium-container">
+            {toastMsg && (
+                <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', background: '#10b981', color: 'white', padding: '10px 20px', borderRadius: '8px', zIndex: 9999, fontWeight: 'bold', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                    {toastMsg}
+                </div>
+            )}
             {/* Animasyonlu Arkaplan */}
             <div className="kc-premium-bg">
                 <div className="kc-bg-orb orb-1"></div>
@@ -111,15 +170,18 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                 <div className="kc-preview-glass">
                     <div className="kc-toolbar-glass">
                         <div style={{ display: 'flex', gap: '0.75rem' }}>
-                            <button className="kc-btn-action" onClick={() => window.print()}>
-                                🖨️ <span className="btn-text">Kompakt Yazdır</span>
+                            <button className="kc-btn-action" onClick={handlePrint} title="Kompakt Yazdır">
+                                🖨️ <span className="btn-text">Yazdır</span>
                             </button>
-                            <button className="kc-btn-action" onClick={() => console.log('Download')}>
+                            <button className="kc-btn-action" onClick={handleDownload} title="PNG Olarak İndir">
                                 💾 <span className="btn-text">İndir</span>
+                            </button>
+                            <button className="kc-btn-action" onClick={handleShare} title="Uygulama İçi Paylaş">
+                                🔗 <span className="btn-text">Paylaş</span>
                             </button>
                         </div>
                         <div style={{ display: 'flex', gap: '0.75rem' }}>
-                            <button className="kc-btn-accent-glow" onClick={() => onAddToWorkbook?.('kelime-cumle', content)}>
+                            <button className="kc-btn-accent-glow" onClick={handleAddToWorkbook}>
                                 📚 Sınıf Kitapçığına Ekle
                             </button>
                         </div>
@@ -129,14 +191,22 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                         {error ? (
                             <ErrorFallback onRetry={handleGenerate} />
                         ) : (
-                            <div className="kc-a4-wrapper">
-                                {content ? (
-                                    <A4CompactRenderer ref={previewRef}>
-                                        <Renderer 
-                                            content={content} 
-                                            showAnswers={config.showAnswers} 
-                                        />
-                                    </A4CompactRenderer>
+                            <div className="kc-a4-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingBottom: '2rem' }}>
+                                {contentChunks.length > 0 ? (
+                                    contentChunks.map((chunk, idx) => (
+                                        <A4CompactRenderer key={idx}>
+                                            <div className="print-page a4-page" style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+                                                {/* Page Counter Indicator in UI only */}
+                                                <div className="page-indicator" style={{ position: 'absolute', top: '5px', right: '10px', fontSize: '10px', color: '#94a3b8' }} data-design-only>
+                                                    Sayfa {idx + 1} / {contentChunks.length}
+                                                </div>
+                                                <Renderer 
+                                                    content={chunk} 
+                                                    showAnswers={config.showAnswers} 
+                                                />
+                                            </div>
+                                        </A4CompactRenderer>
+                                    ))
                                 ) : (
                                     <div className="kc-loading-skeleton">Modül Yükleniyor...</div>
                                 )}

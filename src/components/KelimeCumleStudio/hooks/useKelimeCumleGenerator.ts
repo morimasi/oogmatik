@@ -37,7 +37,7 @@ export const useKelimeCumleGenerator = () => {
         try {
             const prompt = buildPrompt(config);
             const response = await generateWithGemini(prompt);
-            const content = JSON.parse(response);
+            const content = typeof response === 'string' ? JSON.parse(response) : response;
             return {
                 ...content,
                 activityType: config.type

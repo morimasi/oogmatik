@@ -16,6 +16,7 @@ export interface KelimeCumleConfig {
     difficulty: KelimeCumleDifficulty;
     title: string;
     itemCount: number;
+    itemsPerPage?: number | 'auto';
     showAnswers?: boolean;
     customInstructions?: string;
     topics: string[];

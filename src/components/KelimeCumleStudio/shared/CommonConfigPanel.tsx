@@ -76,16 +76,35 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = ({
 
                 {/* Soru Sayısı */}
                 <div>
-                    <label className="sk-label">Soru Sayısı: {config.itemCount}</label>
+                    <label className="sk-label">Toplam Soru Sayısı: {config.itemCount}</label>
                     <input 
                         type="range" 
                         min="5" 
-                        max="20" 
+                        max="60" 
                         step="1"
                         className="sk-range"
                         value={config.itemCount}
                         onChange={(e) => onConfigChange({ itemCount: parseInt(e.target.value) })}
                     />
+                </div>
+
+                {/* Sayfa Başına Soru (Pagination) */}
+                <div>
+                    <label className="sk-label">Her Sayfadaki Soru Sayısı</label>
+                    <select 
+                        className="sk-select"
+                        value={config.itemsPerPage || 'auto'}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            onConfigChange({ itemsPerPage: val === 'auto' ? 'auto' : parseInt(val) });
+                        }}
+                    >
+                        <option value="auto">Otomatik (Sayfa Dolana Kadar)</option>
+                        <option value="5">5 Soru</option>
+                        <option value="10">10 Soru</option>
+                        <option value="15">15 Soru</option>
+                        <option value="20">20 Soru</option>
+                    </select>
                 </div>
 
                 {/* Cevapları Göster */}
