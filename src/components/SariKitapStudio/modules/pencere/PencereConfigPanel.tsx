@@ -11,21 +11,40 @@ export const PencereConfigPanel: React.FC<ConfigPanelProps> = React.memo(({ conf
             <div className="sk-section-title">Pencere Ayarları</div>
 
             <div>
-                <label className="sk-label">Pencere Boyutu ({c.windowSize} hece)</label>
-                <select className="sk-select" value={c.windowSize} onChange={(e) => onUpdate({ windowSize: Number(e.target.value) as 1 | 2 | 3 })}>
-                    <option value={1}>1 Hece</option>
-                    <option value={2}>2 Hece</option>
-                    <option value={3}>3 Hece</option>
+                <label className="sk-label">Pencere Açıklık Oranı (%{Math.round((c as any).visibilityRatio * 100 || 40)})</label>
+                <input 
+                  type="range" 
+                  className="sk-input" 
+                  min={0.1} 
+                  max={0.8} 
+                  step={0.05} 
+                  value={(c as any).visibilityRatio || 0.4} 
+                  onChange={(e) => onUpdate({ visibilityRatio: Number(e.target.value) } as any)} 
+                />
+            </div>
+
+            <div>
+                <label className="sk-label">Grid Sütun Sayısı</label>
+                <select className="sk-select" value={(c as any).gridColumns || 'auto'} onChange={(e) => onUpdate({ gridColumns: e.target.value } as any)}>
+                    <option value="auto">Otomatik (Hecelere Göre)</option>
+                    <option value="6">6 Sütun</option>
+                    <option value="8">8 Sütun</option>
+                    <option value="10">10 Sütun</option>
                 </select>
             </div>
 
             <div>
-                <label className="sk-label">Açılma Hızı</label>
-                <select className="sk-select" value={c.revealSpeed} onChange={(e) => onUpdate({ revealSpeed: e.target.value as 'yavaş' | 'orta' | 'hızlı' })}>
-                    <option value="yavaş">Yavaş</option>
-                    <option value="orta">Orta</option>
-                    <option value="hızlı">Hızlı</option>
+                <label className="sk-label">Hücre Kenarlık Stili</label>
+                <select className="sk-select" value={(c as any).borderStyle || 'solid'} onChange={(e) => onUpdate({ borderStyle: e.target.value } as any)}>
+                    <option value="solid">İnce Düz</option>
+                    <option value="bold">Kalın Düz</option>
+                    <option value="dashed">Kesikli</option>
+                    <option value="none">Kenarlıksız</option>
                 </select>
+            </div>
+
+            <div style={{ padding: '0.5rem 0', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <label className="sk-label">Görünüm Ayarları</label>
             </div>
 
             <div>
@@ -41,7 +60,7 @@ export const PencereConfigPanel: React.FC<ConfigPanelProps> = React.memo(({ conf
             <div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)', cursor: 'pointer' }}>
                     <input type="checkbox" checked={c.showSequential} onChange={(e) => onUpdate({ showSequential: e.target.checked })} />
-                    Sıralı Gösterim
+                    Sıralı Gösterim (Mod)
                 </label>
             </div>
         </div>
