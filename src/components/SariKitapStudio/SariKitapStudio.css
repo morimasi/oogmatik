@@ -221,7 +221,7 @@
   background: white;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   font-family: 'Lexend', sans-serif;
-  padding: 18mm 15mm; /* Kenar boşlukları PNG'deki gibi optimize edildi */
+  padding: 12mm 10mm;
   box-sizing: border-box;
   color: #18181b;
   position: relative;

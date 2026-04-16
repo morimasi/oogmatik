@@ -126,3 +126,34 @@ export function metniHecele(metin: string): HeceRow[] {
 
   return rows;
 }
+
+/**
+ * Metni kelime kelime parse eder (hece ayırmadan).
+ * Nokta ve Köprü etkinliklerinde kelime bazlı çalışma için kullanılır.
+ */
+export function metniKelimele(metin: string): HeceRow[] {
+  if (!metin) return [];
+
+  const lines = metin.split('\n').filter((line) => line.trim().length > 0);
+  const rows: HeceRow[] = [];
+
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+    const words = lines[lineIndex].split(/\s+/).filter((w) => w.length > 0);
+    const syllables: HeceData[] = [];
+
+    for (const word of words) {
+      syllables.push({
+        syllable: word,
+        isHighlighted: false,
+        dotBelow: false,
+        bridgeNext: false,
+      });
+    }
+
+    if (syllables.length > 0) {
+      rows.push({ syllables, lineIndex });
+    }
+  }
+
+  return rows;
+}

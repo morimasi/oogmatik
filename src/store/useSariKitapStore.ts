@@ -31,15 +31,15 @@ export function createDefaultConfig(type: SariKitapActivityType): SariKitapConfi
     case 'pencere':
       return { ...DEFAULT_BASE, type: 'pencere', windowSize: 2, revealSpeed: 'orta', maskOpacity: 0.6, maskColor: '#1e293b', showSequential: true };
     case 'nokta':
-      return { ...DEFAULT_BASE, type: 'nokta', dotDensity: 1, dotStyle: 'yuvarlak', dotSize: 8, dotColor: '#000000', showGuideLine: false };
+      return { ...DEFAULT_BASE, type: 'nokta', dotPlacement: 'kelime', dotDensity: 1, dotStyle: 'yuvarlak', dotSize: 6, dotColor: '#000000', showGuideLine: false, compactFontSize: 16, wordGap: 0.5 };
     case 'kopru':
-      return { ...DEFAULT_BASE, type: 'kopru', bridgeHeight: 16, bridgeGap: 8, bridgeStyle: 'yay', bridgeColor: '#000000', bridgeThickness: 1.5 };
+      return { ...DEFAULT_BASE, type: 'kopru', bridgePlacement: 'kelime', bridgeHeight: 14, bridgeGap: 6, bridgeWidth: 4, charGap: 1, bridgeStyle: 'yay', bridgeColor: '#000000', bridgeThickness: 1.5, textDensity: 'orta' };
     case 'cift_metin':
       return { ...DEFAULT_BASE, type: 'cift_metin', interleaveMode: 'satir', interleaveRatio: 1, sourceAColor: '#2563eb', sourceBColor: '#ea580c', sourceAStyle: 'bold', sourceBStyle: 'italic', showSourceLabels: true };
     case 'bellek':
-      return { ...DEFAULT_BASE, type: 'bellek', blockCount: 12, blockSize: 'orta', gridColumns: 4, showNumbers: true, repetitionCount: 1 };
+      return { ...DEFAULT_BASE, type: 'bellek', blockCount: 16, blockSize: 'orta', gridColumns: 4, showNumbers: true, repetitionCount: 1, phases: ['A', 'B', 'C', 'D'], blankRatio: 0.5, distractorRatio: 'orta', category: 'karışık', sentenceLines: 4 };
     case 'hizli_okuma':
-      return { ...DEFAULT_BASE, type: 'hizli_okuma', wordsPerBlock: 3, blockRows: 8, showTimer: false, rhythmicMode: true };
+      return { ...DEFAULT_BASE, type: 'hizli_okuma', wordsPerBlock: 3, blockRows: 35, showTimer: false, rhythmicMode: true, autoFill: true, columnMode: 'tek', lineSpacing: 'sıkı' };
   }
 }
 

@@ -9,8 +9,9 @@ import type {
     HeceRow,
     HeceData,
 } from '../../../types/sariKitap';
-import { metniHecele } from '../../../utils/heceAyirici';
+import { metniHecele, metniKelimele } from '../../../utils/heceAyirici';
 import { getMetinByAgeAndDifficulty, getCiftMetinCifti } from './metinHavuzu';
+import type { MemoryPhaseData } from '../../../types/sariKitap';
 
 // ─── Pencere: belirli heceleri vurgula, diğerlerini maskele ─────
 export function processPencereContent(
@@ -32,15 +33,18 @@ export function processPencereContent(
     }));
 }
 
-// ─── Nokta: hecelerin altına nokta ekle ─────────────────────────
+// ─── Nokta: kelimelerin veya hecelerin altına nokta ekle ─────────
 export function processNoktaContent(
     config: SariKitapConfig,
     rawText: string
 ): HeceRow[] {
-    const rows = metniHecele(rawText);
-    if (config.type !== 'nokta') return rows;
+    if (config.type !== 'nokta') return metniHecele(rawText);
 
+    // Kelime bazlı mı hece bazlı mı?
+    const useWords = config.dotPlacement === 'kelime';
+    const rows = useWords ? metniKelimele(rawText) : metniHecele(rawText);
     const density = config.dotDensity;
+
     return rows.map((row) => ({
         ...row,
         syllables: row.syllables.map((s, i) => ({
@@ -50,13 +54,16 @@ export function processNoktaContent(
     }));
 }
 
-// ─── Köprü: ardışık heceler arası yay bayrağı ───────────────────
+// ─── Köprü: kelimeler veya heceler arası yay bayrağı ────────────
 export function processKopruContent(
     config: SariKitapConfig,
     rawText: string
 ): HeceRow[] {
-    const rows = metniHecele(rawText);
-    if (config.type !== 'kopru') return rows;
+    if (config.type !== 'kopru') return metniHecele(rawText);
+
+    // Kelime bazlı mı hece bazlı mı?
+    const useWords = config.bridgePlacement === 'kelime';
+    const rows = useWords ? metniKelimele(rawText) : metniHecele(rawText);
 
     return rows.map((row) => ({
         ...row,
@@ -141,6 +148,7 @@ export function buildGeneratedContent(
     extra?: {
         sourceTexts?: SariKitapGeneratedContent['sourceTexts'];
         wordBlocks?: string[][];
+        memoryData?: MemoryPhaseData;
     }
 ): SariKitapGeneratedContent {
     return {
@@ -152,6 +160,7 @@ export function buildGeneratedContent(
         heceRows,
         sourceTexts: extra?.sourceTexts,
         wordBlocks: extra?.wordBlocks,
+        memoryData: extra?.memoryData,
         generatedAt: new Date().toISOString(),
         model: 'gemini-2.5-flash',
     };

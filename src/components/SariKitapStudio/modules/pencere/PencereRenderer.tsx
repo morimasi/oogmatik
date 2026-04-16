@@ -2,72 +2,108 @@ import React, { memo } from 'react';
 import type { RendererProps } from '../../registry';
 import type { PencereConfig, HeceRow, HeceData } from '../../../../types/sariKitap';
 
+/**
+ * Pencere Renderer — Grid Tablo Yapısı
+ * Kaynak PDF birebir: her hece bir tablo hücresinde, maskelenen hücreler dolu.
+ * Kompakt A4: minimal hücre padding, sayfayı dolduran grid.
+ */
 export const PencereRenderer = memo(({ config, content }: RendererProps) => {
     if (config.type !== 'pencere') return null;
     const c = config as PencereConfig;
 
+    // Tüm heceleri tek düz dizi olarak al
+    const allSyllables: HeceData[] = content.heceRows?.flatMap(r => r.syllables) ?? [];
+
+    // Grid sütun sayısını hecelere göre belirle
+    const colCount = allSyllables.length > 60 ? 10 : allSyllables.length > 40 ? 8 : 6;
+    const rowCount = Math.ceil(allSyllables.length / colCount);
+
+    const maskBg = c.maskColor ?? '#1e293b';
+    const maskOp = c.maskOpacity ?? 0.6;
+
     return (
-        <div className="sk-renderer-pencere" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%', gap: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem', textAlign: 'center', color: '#18181b', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+        <div className="sk-renderer-pencere" style={{
+            padding: 0, display: 'flex', flexDirection: 'column', height: '100%'
+        }}>
+            {/* Başlık */}
+            <h2 style={{
+                fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.5rem',
+                textAlign: 'center', color: '#18181b', textTransform: 'uppercase',
+                letterSpacing: '0.12em', borderBottom: '2px solid #18181b',
+                paddingBottom: '0.4rem'
+            }}>
                 {content.title}
             </h2>
 
-            <div style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: '1.5rem', 
-                flex: 1, 
-                padding: '0 1rem' 
+            {/* Yönerge */}
+            <p style={{
+                fontSize: '0.65rem', color: '#64748b', textAlign: 'center',
+                marginBottom: '0.5rem', fontStyle: 'italic', lineHeight: 1.3
             }}>
-                {content.heceRows?.map((row: HeceRow, ri: number) => (
-                    <div
-                        key={ri}
-                        style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            columnGap: '0.75rem',
-                            rowGap: '1rem',
-                            alignItems: 'baseline',
-                            justifyContent: 'space-between',
-                            padding: '0.25rem 0'
-                        }}
-                    >
-                        {row.syllables.map((s: HeceData, si: number) => (
-                            <span
-                                key={si}
-                                role="text"
-                                style={{
-                                    display: 'inline-block',
-                                    padding: '0.25rem 0.625rem',
-                                    borderRadius: '0.375rem',
-                                    background: s.isHighlighted ? 'transparent' : '#f1f5f9',
-                                    color: s.isHighlighted ? '#18181b' : '#f1f5f9',
-                                    border: s.isHighlighted ? '1.5px solid #18181b' : '1.5px solid #f1f5f9',
-                                    fontSize: '1.25rem',
-                                    fontWeight: 500,
-                                    fontFamily: 'Lexend, sans-serif',
-                                    lineHeight: 1,
-                                    transition: 'all 0.2s ease'
-                                }}
-                                aria-hidden={!s.isHighlighted}
-                            >
-                                {s.syllable}
-                            </span>
-                        ))}
-                    </div>
-                ))}
-            </div>
+                Sadece açık penceredeki heceleri okuyun. Maskelenmiş bölümleri tahmin etmeyin.
+            </p>
 
-            <div style={{ 
-                marginTop: 'auto', 
-                paddingTop: '1rem', 
-                borderTop: '1px solid #e2e8f0', 
-                display: 'flex', 
-                justifyContent: 'center',
-                fontSize: '0.75rem',
-                color: '#64748b'
+            {/* Grid Tablo */}
+            <table style={{
+                width: '100%', borderCollapse: 'collapse', flex: 1,
+                tableLayout: 'fixed', border: '2px solid #18181b'
             }}>
-                1
+                <tbody>
+                    {Array.from({ length: rowCount }).map((_, ri) => (
+                        <tr key={ri}>
+                            {Array.from({ length: colCount }).map((_, ci) => {
+                                const idx = ri * colCount + ci;
+                                const syl = allSyllables[idx];
+
+                                if (!syl) {
+                                    return (
+                                        <td key={ci} style={{
+                                            border: '1px solid #cbd5e1',
+                                            padding: '0.35rem 0.2rem',
+                                            textAlign: 'center',
+                                            background: '#f8fafc',
+                                            height: '1.8rem'
+                                        }} />
+                                    );
+                                }
+
+                                const isVisible = syl.isHighlighted;
+
+                                return (
+                                    <td key={ci} style={{
+                                        border: '1px solid #94a3b8',
+                                        padding: '0.35rem 0.15rem',
+                                        textAlign: 'center',
+                                        fontFamily: 'Lexend, sans-serif',
+                                        fontSize: '0.85rem',
+                                        fontWeight: isVisible ? 600 : 400,
+                                        color: isVisible ? '#18181b' : 'transparent',
+                                        background: isVisible ? '#ffffff' : maskBg,
+                                        opacity: isVisible ? 1 : maskOp,
+                                        lineHeight: 1.3,
+                                        height: '1.8rem',
+                                        transition: 'all 0.15s ease',
+                                        userSelect: isVisible ? 'text' : 'none'
+                                    }}>
+                                        {syl.syllable}
+                                    </td>
+                                );
+                            })}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            {/* Alt bilgi */}
+            <div style={{
+                marginTop: 'auto', paddingTop: '0.5rem',
+                borderTop: '1px solid #e2e8f0',
+                display: 'flex', justifyContent: 'space-between',
+                fontSize: '0.6rem', color: '#94a3b8', padding: '0.5rem 0.25rem 0'
+            }}>
+                <span>Pencere Okuma • {c.difficulty}</span>
+                <span>Oogmatik © Sarı Kitap</span>
+                <span>1</span>
             </div>
         </div>
     );

@@ -5,7 +5,7 @@
  */
 import type { SariKitapConfig, SariKitapGeneratedContent } from '../../../types/sariKitap';
 import { getPromptBuilder } from './shared';
-import { metniHecele } from '../../../utils/heceAyirici';
+import { metniHecele, metniKelimele } from '../../../utils/heceAyirici';
 import { generateOffline } from '../../offlineGenerators/sariKitap';
 import { sariKitapCacheService } from '../../sariKitapService';
 
@@ -58,9 +58,15 @@ export async function generateSariKitapContent(
 
         const aiData = result.data as Record<string, unknown>;
 
-        // 3. Hece post-processing
+        // 3. Hece/Kelime post-processing
         const rawText = (aiData.rawText as string) ?? '';
-        const heceRows = metniHecele(rawText);
+        
+        // Nokta ve Köprü kelime bazlı çalışıyorsa metniKelimele kullan
+        const useWordLevel = (
+            (config.type === 'nokta' && config.dotPlacement === 'kelime') ||
+            (config.type === 'kopru' && config.bridgePlacement === 'kelime')
+        );
+        const heceRows = useWordLevel ? metniKelimele(rawText) : metniHecele(rawText);
 
         const content: SariKitapGeneratedContent = {
             title: (aiData.title as string) ?? 'Sarı Kitap Etkinliği',
