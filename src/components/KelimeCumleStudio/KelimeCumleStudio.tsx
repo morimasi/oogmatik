@@ -92,6 +92,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                 case 'bosluk_doldurma': perPage = 12; break;
                 case 'zit_anlam': perPage = 15; break;
                 case 'test': perPage = 6; break;
+                case 'kelime_tamamlama': perPage = 21; break;
                 default: perPage = 10; break;
             }
         } else if (typeof config.itemsPerPage === 'number') {

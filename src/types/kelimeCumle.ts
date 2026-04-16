@@ -55,4 +55,5 @@ export interface KelimeCumleGeneratedContent {
     pedagogicalNote: string;
     items: any[]; // Modüle göre tipi değişir
     activityType: KelimeCumleActivityType;
+    difficulty?: KelimeCumleDifficulty;
 }

@@ -23,7 +23,8 @@ export const useKelimeCumleGenerator = () => {
             instructions: getInstructions(config.type),
             pedagogicalNote: getPedagogicalNote(config.type),
             items: selectedItems,
-            activityType: config.type
+            activityType: config.type,
+            difficulty: config.difficulty
         };
     }, []);
 
@@ -36,7 +37,8 @@ export const useKelimeCumleGenerator = () => {
             const content = typeof response === 'string' ? JSON.parse(response) : response;
             return {
                 ...content,
-                activityType: config.type
+                activityType: config.type,
+                difficulty: config.difficulty
             };
         } catch (err) {
             console.error('AI Generation Error:', err);
