@@ -46,7 +46,9 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
     const activeModule = getModule(activeType);
 
     const handlePrint = useCallback(() => {
-        window.print();
+        printService.generatePdf('.sk-center-panel', 'sari-kitap', {
+            action: 'print',
+        });
     }, []);
 
     const handleExportPDF = useCallback(() => {

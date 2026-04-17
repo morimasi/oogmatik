@@ -139,12 +139,23 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
          komple 2. sayfaya atar, 1. sayfa başlıkla bomboş kalır!
          Bunu önlemek için TÜM 'break' kilitlerini KIRIYORUZ.
       */
-      .oogmatik-print-wrapper * {
+      .oogmatik-print-wrapper, 
+      .oogmatik-print-wrapper *,
+      #print-overlay .worksheet-page,
+      #print-overlay .print-item-wrapper {
         page-break-inside: auto !important;
         break-inside: auto !important;
         page-break-before: auto !important;
         break-before: auto !important;
         overflow: visible !important;
+        height: auto !important;
+        min-height: 0 !important;
+      }
+
+      /* Hikaye ve uzun metin blokları için özel akış kuralı */
+      .story-content, .long-text-block, .pedagogical-content {
+        display: block !important;
+        page-break-inside: auto !important;
       }
       
       /* A4 Daralma Çökmesine Karşı Ana Kalkan (Print Lock):

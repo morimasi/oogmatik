@@ -293,6 +293,7 @@ export const captureAndPrint = async (
       dataUrls.push(canvas.toDataURL('image/png', 1.0));
     }
 
+    // 4. Yazdırmayı Başlat (Overlay Üzerinden)
     if (action === 'download') {
       dataUrls.forEach((url, i) => {
         const a = document.createElement('a');
