@@ -5,6 +5,7 @@ import { ACTIVITIES } from '../constants';
 import { useAuthStore } from '../store/useAuthStore';
 import { worksheetService } from '../services/worksheetService';
 import { assessmentService } from '../services/assessmentService';
+import { printService } from '../utils/printService';
 
 interface SharedWorksheetsViewProps {
     onLoad: (worksheet: SavedWorksheet) => void;
@@ -88,11 +89,15 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
     };
 
     const handlePrint = (item: SavedWorksheet) => {
-        // This will be handled by the parent component by setting this worksheet as active and triggering print
+        // Load item first
         onLoad(item);
+        // Trigger print with offset to allow content to render
         setTimeout(() => {
-            window.print();
-        }, 500);
+            const targetSelector = '.worksheet-page' || '#print-container';
+            printService.generatePdf(targetSelector, item.name || 'Paylasilan_Etkinlik', {
+                action: 'print'
+            });
+        }, 800);
     };
 
     const handleAddToBooklet = (_item: SavedWorksheet) => {

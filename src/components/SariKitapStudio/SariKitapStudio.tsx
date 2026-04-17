@@ -3,6 +3,7 @@ import { ErrorBoundary } from '../ErrorBoundary';
 import { useSariKitapStore } from '../../store/useSariKitapStore';
 import { useSariKitapGenerator } from './hooks/useSariKitapGenerator';
 import { useExportActions } from './hooks/useExportActions';
+import { printService } from '../../utils/printService';
 import { SariKitapHeader } from './shared/SariKitapHeader';
 import { TypeSelectorPanel } from './shared/TypeSelectorPanel';
 import { CommonConfigPanel } from './shared/CommonConfigPanel';

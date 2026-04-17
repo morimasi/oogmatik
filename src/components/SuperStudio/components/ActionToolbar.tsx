@@ -3,6 +3,7 @@ import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { worksheetService } from '../../../services/worksheetService';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
+import { printService } from '../../../utils/printService';
 
 export const ActionToolbar: React.FC = () => {
   const { generatedContents, isGenerating } = useSuperStudioStore();
@@ -50,7 +51,10 @@ export const ActionToolbar: React.FC = () => {
   };
 
   const handlePrint = () => {
-    window.print();
+    const targetSelector = '.super-reading-preview-area';
+    printService.generatePdf(targetSelector, 'Super_Turkce_Etkinlik', {
+      action: 'print'
+    });
   };
 
   return (

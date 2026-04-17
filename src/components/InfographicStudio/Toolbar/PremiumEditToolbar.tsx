@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { useInfographicLayoutStore } from '../../../store/useInfographicLayoutStore';
+import { printService } from '../../../utils/printService';
 
 const FmtBtn: React.FC<{
   active?: boolean;
@@ -79,11 +80,11 @@ export const PremiumEditToolbar: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-1 border-r border-[var(--border-color)] pr-3">
-          <FmtBtn onClick={() => window.print()} title="Yazdır">
+          <FmtBtn onClick={() => printService.generatePdf('.infographic-canvas-wrapper', 'Oogmatik_Infografik', { action: 'print' })} title="Yazdır">
             <i className="fa-solid fa-print text-sm"></i>
             <span>Yazdır</span>
           </FmtBtn>
-          <FmtBtn onClick={() => updateLayout({})} title="PDF İndir">
+          <FmtBtn onClick={() => printService.generatePdf('.infographic-canvas-wrapper', 'Oogmatik_Infografik', { action: 'download' })} title="PDF İndir">
             <i className="fa-solid fa-file-pdf text-sm"></i>
             <span>PDF</span>
           </FmtBtn>

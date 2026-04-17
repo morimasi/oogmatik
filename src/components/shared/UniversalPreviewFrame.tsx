@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { printService } from '../../utils/printService';
 
 /**
  * UniversalPreviewFrame v2.0: Premium A4/PDF önizleme çerçevesi.
@@ -95,13 +96,8 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
 
   const handleCapturePrint = () => {
     setExportOpen(false);
-    if (!printSelector) {
-      window.print();
-      return;
-    }
-    // PREMIUM ENGINE v2: Shadow-Iframe Injection
-    // Bu yöntem ana penceredeki tüm transform/scale/zoom kısıtlarını bypass ederek en yüksek kalitede (native) çıktı almayı sağlar.
-    import('../../utils/printService').then((m) => m.printService.print(printSelector, 'A4'));
+    const target = printSelector || '.worksheet-page';
+    printService.generatePdf(target, printFileName, { action: 'print' });
   };
 
   const handleCaptureDownload = () => {
