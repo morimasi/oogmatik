@@ -62,7 +62,7 @@ export const ComponentLibrary = () => {
                             </span>
                             <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
                                 {item.isVisible ? 'Aktif' : 'Pasif'}
-                            </div>
+                            </span>
                         </div>
 
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${

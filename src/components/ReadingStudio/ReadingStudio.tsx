@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useReadingStore } from '../../store/useReadingStore';
 import { printService } from '../../utils/printService';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
@@ -31,8 +31,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     redo,
     canUndo,
     canRedo,
-    recalculateLayout,
-    toggleVisibility
+    recalculateLayout
   } = useReadingStore();
 
   const [sidebarTab, setSidebarTab] = useState(
@@ -48,8 +47,6 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       setStoryData(result);
 
       const items: LayoutItem[] = [];
-
-      // Helper to generate IDs
       const getInstId = (prefix: string) => `${prefix}_${Date.now()}`;
 
       // 1. Header (Görünür)
@@ -58,6 +55,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         label: 'Başlık Künyesi',
         instanceId: getInstId('header'),
         isVisible: true,
+        pageIndex: 0,
         specificData: { title: result.title, subtitle: `${config.genre} - ${config.gradeLevel}` },
         style: { h: 120, fontSize: 14, fontFamily: 'Lexend', lineHeight: 1.5, color: '#000000' } as any
       });
@@ -68,6 +66,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         label: 'Hikaye Metni',
         instanceId: getInstId('story'),
         isVisible: true,
+        pageIndex: 0,
         specificData: { text: result.story },
         style: { h: 450, fontSize: 16, fontFamily: 'Lexend', lineHeight: 1.8, color: '#000000' } as any
       });
@@ -78,6 +77,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         label: '5N1K Analizi',
         instanceId: getInstId('5n1k'),
         isVisible: true,
+        pageIndex: 0,
         specificData: { questions: result.fiveW1H },
         style: { h: 320, fontSize: 14, fontFamily: 'Lexend', lineHeight: 1.5, backgroundColor: '#f8fafc', borderRadius: 12, padding: 20 } as any
       });
@@ -88,6 +88,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         label: 'Sözlükçe',
         instanceId: getInstId('voc'),
         isVisible: false,
+        pageIndex: 0,
         specificData: { words: result.vocabulary },
         style: { h: 200, fontSize: 13, fontFamily: 'Lexend', backgroundColor: '#f1f5f9', borderRadius: 12, padding: 15 } as any
       });
@@ -98,6 +99,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         label: 'Pedagojik Hedefler',
         instanceId: getInstId('ped'),
         isVisible: false,
+        pageIndex: 0,
         specificData: { 
             note: result.pedagogicalNote,
             goals: result.pedagogicalGoals 
@@ -111,6 +113,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         label: 'Çoktan Seçmeli Test',
         instanceId: getInstId('test'),
         isVisible: false,
+        pageIndex: 0,
         specificData: { questions: result.multipleChoice },
         style: { h: 450, fontSize: 14, fontFamily: 'Lexend', padding: 20 } as any
       });
@@ -121,6 +124,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         label: 'Muhakeme Sorusu',
         instanceId: getInstId('logic'),
         isVisible: false,
+        pageIndex: 0,
         specificData: { puzzle: result.logicQuestions?.[0], inference: result.inferenceQuestions?.[0] },
         style: { h: 220, fontSize: 14, fontFamily: 'Lexend', backgroundColor: '#fff7ed', borderColor: '#f97316', borderWidth: 1, borderStyle: 'dashed', borderRadius: 16, padding: 20 } as any
       });
@@ -131,6 +135,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         label: 'Hece Treni',
         instanceId: getInstId('train'),
         isVisible: false,
+        pageIndex: 0,
         specificData: { words: result.syllableTrain },
         style: { h: 180, padding: 15 } as any
       });
@@ -141,6 +146,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         label: 'Yaratıcı Alan',
         instanceId: getInstId('creative'),
         isVisible: false,
+        pageIndex: 0,
         specificData: { prompt: result.creativePrompt },
         style: { h: 300, fontSize: 14, fontFamily: 'Lexend', borderColor: '#e2e8f0', borderWidth: 1, borderStyle: 'solid', borderRadius: 12, padding: 20 } as any
       });
@@ -151,12 +157,13 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         label: 'Öğretmen Not Alanı',
         instanceId: getInstId('notes'),
         isVisible: false,
+        pageIndex: 0,
         specificData: { placeholder: 'Buraya değerlendirme notlarınızı ekleyebilirsiniz...' },
         style: { h: 120, fontSize: 12, fontFamily: 'Inter', backgroundColor: '#fefce8', borderRadius: 8, padding: 10 } as any
       });
 
       setLayout(items);
-      setTimeout(() => recalculateLayout(), 50); // Mizanpajı hesapla
+      setTimeout(() => recalculateLayout(), 50);
       setSelectedId(null);
       setDesignMode(false);
     } catch (e) {
@@ -203,7 +210,6 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       className="h-full flex flex-col overflow-hidden absolute inset-0 z-50"
       style={{ backgroundColor: 'var(--bg-inset)', color: 'var(--text-primary)' }}
     >
-      {/* Header */}
       {!isFocusMode && (
         <header
           className="h-16 flex justify-between items-center px-6 shrink-0 z-50"
@@ -265,7 +271,6 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       )}
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
         {!isFocusMode && (
           <aside
             className="w-80 flex flex-col overflow-hidden shadow-2xl z-40"
@@ -292,7 +297,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
               </button>
               <button
                 onClick={() => setSidebarTab('library')}
-                className={`flex-1 min-w-[80px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'library' ? 'text-emerald-500 border-emerald-500 bg-emerald-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+                className={`flex-1 min-w-[80px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'library' ? 'font-black text-accent border-accent bg-accent/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
               >
                 Bileşenler
               </button>
@@ -324,7 +329,6 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
               {sidebarTab === 'archive' && <ArchivePanel />}
             </div>
 
-            {/* Sticky Bottom Generate Button */}
             <div className="p-4 bg-zinc-900 border-t border-zinc-800 shrink-0 z-10 w-full relative mt-auto shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.5)]">
               <button
                 onClick={handleGenerate}
@@ -338,7 +342,6 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
           </aside>
         )}
 
-        {/* Main Canvas Area */}
         <main className="flex-1 overflow-auto p-12 custom-scrollbar flex flex-col items-center relative" style={{ backgroundColor: 'var(--bg-inset)' }}>
           <div
             className="flex gap-4 mb-8 p-2 rounded-2xl shadow-2xl sticky top-0 z-30"
