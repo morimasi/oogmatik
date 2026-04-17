@@ -93,11 +93,12 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
         onLoad(item);
         // Trigger print with offset to allow content to render
         setTimeout(() => {
-            const targetSelector = '.worksheet-page' || '#print-container';
+            // Target the preview container
+            const targetSelector = '#print-container, #print-target, #worksheet-preview-root, .worksheet-page';
             printService.generatePdf(targetSelector, item.name || 'Paylasilan_Etkinlik', {
                 action: 'print'
             });
-        }, 800);
+        }, 1000); // 1 second for full hydration
     };
 
     const handleAddToBooklet = (_item: SavedWorksheet) => {
