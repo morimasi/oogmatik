@@ -247,9 +247,9 @@ export const ReadingStudioContentRenderer = ({
                    <i className="fa-solid fa-brain mr-2"></i>
                    Pedagojik Not ve Hedefler
                </h4>
-               <p className="text-[11px] leading-relaxed italic opacity-80 mb-3">{data.note}</p>
+               <p className="text-[11px] leading-relaxed italic opacity-80 mb-3">{data.note || '-'}</p>
                <div className="flex flex-wrap gap-2">
-                    {data.goals?.map((g: string, i: number) => (
+                    {(Array.isArray(data.goals) ? data.goals : []).map((g: string, i: number) => (
                         <span key={i} className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-black uppercase">
                             # {g}
                         </span>
