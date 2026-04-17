@@ -51,15 +51,10 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         background: #fff !important;
       }
 
-      body.printing-mode #print-overlay table,
-      body.printing-mode #print-overlay tbody,
-      body.printing-mode #print-overlay tr,
-      body.printing-mode #print-overlay td {
-        width: 100% !important;
-        border: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #fff !important;
+      body.printing-mode #print-overlay .print-pages-container {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
       }
 
       body.printing-mode #print-overlay .worksheet-page,
@@ -70,8 +65,8 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         max-width: ${dims.width} !important;
         margin: 0 auto !important;
         box-shadow: none !important;
-        break-inside: avoid-page !important;
-        page-break-inside: avoid !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
       }
 
       body.printing-mode #print-overlay .print-page {

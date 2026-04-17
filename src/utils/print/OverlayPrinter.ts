@@ -140,22 +140,9 @@ export const print = async (
   overlay.style.zIndex = '2147483647';
   overlay.style.display = 'block';
 
-  const printTable = document.createElement('table');
-  const tableHead = document.createElement('thead');
-  const headRow = document.createElement('tr');
-  headRow.appendChild(document.createElement('th'));
-  tableHead.appendChild(headRow);
-
-  const tableBody = document.createElement('tbody');
-  const tableFoot = document.createElement('tfoot');
-  const footRow = document.createElement('tr');
-  footRow.appendChild(document.createElement('td'));
-  tableFoot.appendChild(footRow);
-
-  printTable.appendChild(tableHead);
-  printTable.appendChild(tableBody);
-  printTable.appendChild(tableFoot);
-  overlay.appendChild(printTable);
+  const wrapperContainer = document.createElement('div');
+  wrapperContainer.className = 'print-pages-container';
+  overlay.appendChild(wrapperContainer);
 
   const isLandscape = pages[0]?.classList.contains('landscape');
 
@@ -206,11 +193,7 @@ export const print = async (
     wrapper.className = 'oogmatik-print-wrapper';
     wrapper.appendChild(clone);
 
-    const row = document.createElement('tr');
-    const cell = document.createElement('td');
-    cell.appendChild(wrapper);
-    row.appendChild(cell);
-    tableBody.appendChild(row);
+    wrapperContainer.appendChild(wrapper);
   });
 
   // 5. Native Render Stabilizasyonu
