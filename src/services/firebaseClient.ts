@@ -63,11 +63,11 @@ export const auth = getAuth(app);
 /**
  * Modern Firestore Initialization
  * WebChannel streaming (400 Bad Request) hatalarını önlemek için yapılandırıldı.
+ * Not: Geliştirme sürecinde "Failed to obtain primary lease" hatalarını engellemek için
+ * multiTabManager yerine basit Single Tab IndexedDB tercih edildi.
  */
 export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager()
-  }),
+  localCache: persistentLocalCache(),
   experimentalAutoDetectLongPolling: true
 });
 
