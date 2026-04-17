@@ -114,7 +114,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                 <input
                                     type="range"
                                     className="sk-range"
-                                    min={14}
+                                    min={12}
                                     max={32}
                                     step={1}
                                     value={config.typography.fontSize}
@@ -136,7 +136,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                     type="range"
                                     className="sk-range"
                                     min={0.5}
-                                    max={2.5}
+                                    max={3.0}
                                     step={0.1}
                                     value={config.typography.wordSpacing}
                                     onChange={(e) =>
@@ -156,8 +156,8 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                 <input
                                     type="range"
                                     className="sk-range"
-                                    min={1.4}
-                                    max={3.5}
+                                    min={1.0}
+                                    max={4.0}
                                     step={0.1}
                                     value={config.typography.lineHeight}
                                     onChange={(e) =>

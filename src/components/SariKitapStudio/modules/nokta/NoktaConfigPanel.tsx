@@ -38,17 +38,17 @@ export const NoktaConfigPanel = React.memo(({ config, onUpdate }: ConfigPanelPro
 
             <div>
                 <label className="sk-label">Nokta Boyutu ({c.dotSize}px)</label>
-                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={4} max={20} step={1} value={c.dotSize} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onUpdate({ dotSize: Number(e.target.value) })} />
+                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={2} max={22} step={1} value={c.dotSize} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onUpdate({ dotSize: Number(e.target.value) })} />
             </div>
 
             <div>
                 <label className="sk-label">Font Boyutu ({c.compactFontSize}pt)</label>
-                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={12} max={28} step={1} value={c.compactFontSize} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onUpdate({ compactFontSize: Number(e.target.value) })} />
+                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={12} max={32} step={1} value={c.compactFontSize} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onUpdate({ compactFontSize: Number(e.target.value) })} />
             </div>
 
             <div>
                 <label className="sk-label">Kelime Aralığı ({c.wordGap}rem)</label>
-                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={0.2} max={2.5} step={0.1} value={c.wordGap} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onUpdate({ wordGap: Number(e.target.value) })} />
+                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={0.5} max={2.5} step={0.1} value={c.wordGap} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onUpdate({ wordGap: Number(e.target.value) })} />
             </div>
 
             <div>

@@ -50,10 +50,10 @@ export interface SariKitapTypography {
 }
 
 const TypographySchema = z.object({
-  fontSize: z.number().min(14).max(28),
-  lineHeight: z.number().min(1.6).max(3.0),
-  letterSpacing: z.number().min(0.02).max(0.2),
-  wordSpacing: z.number().min(0).max(2.0),
+  fontSize: z.number().min(12).max(32),
+  lineHeight: z.number().min(1.0).max(4.0),
+  letterSpacing: z.number().min(0.02).max(0.4),
+  wordSpacing: z.number().min(0.1).max(3.0),
 });
 
 // ─── Ortak Config ────────────────────────────────────────────────
@@ -178,11 +178,11 @@ export const SariKitapConfigSchema = z.discriminatedUnion('type', [
     dotPlacement: z.enum(['kelime', 'hece']),
     dotDensity: z.union([z.literal(1), z.literal(2), z.literal(3)]),
     dotStyle: z.enum(['yuvarlak', 'kare', 'elips']),
-    dotSize: z.number().min(4).max(20),
+    dotSize: z.number().min(2).max(22),
     dotColor: HexColorSchema,
     showGuideLine: z.boolean(),
-    compactFontSize: z.number().min(12).max(22),
-    wordGap: z.number().min(0.2).max(2.0),
+    compactFontSize: z.number().min(12).max(32),
+    wordGap: z.number().min(0.1).max(3.0),
   }),
   SariKitapBaseConfigSchema.extend({
     type: z.literal('kopru'),
