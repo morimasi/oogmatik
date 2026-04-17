@@ -4,6 +4,7 @@
 
 import React, { useState, useRef } from 'react';
 import { useSinavStore } from '../../store/useSinavStore';
+import { printService } from '../../utils/printService';
 import { generateExamViaAPI } from '../../services/sinavService';
 import { generateExamPDF, PrintConfig, DEFAULT_PRINT_CONFIG } from '../../utils/sinavPdfGenerator';
 import { KazanimPicker } from './KazanimPicker';
@@ -147,109 +148,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
 
   const handlePrint = () => {
     if (!aktifSinav) return;
-    const printEl = printRef.current;
-    if (!printEl) return;
-
-    const fs = printConfig.fontSize + 2;
-    const ff = printConfig.fontFamily === 'times' ? 'Times New Roman, serif' : 'Lexend, Inter, sans-serif';
-    const mg = printConfig.marginMm;
-    const qs = printConfig.questionSpacingMm;
-    const lh = printConfig.lineHeight;
-    const ta = printConfig.textAlign;
-
-    const html = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8"/>
-<title>${aktifSinav.baslik}</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: ${ff};
-    font-size: ${fs}pt;
-    color: #111;
-    background: #fff;
-    margin: ${mg}mm;
-    text-align: ${ta};
-    line-height: ${lh};
-  }
-  h1 { font-size: ${fs + 4}pt; font-weight: 800; color: #3730a3; margin-bottom: 4pt; }
-  .meta { font-size: ${fs - 2}pt; color: #555; margin-bottom: 8pt; }
-  .student-row { border-bottom: 1px solid #ccc; padding-bottom: 4pt; margin-bottom: 15pt; font-size: ${fs - 1}pt; color: #444; column-span: all; }
-  .sorula-kapsayici { ${printConfig.columns === 2 ? `column-count: 2; column-gap: 12mm;` : ''} }
-  .soru-wrap { margin-bottom: ${qs}mm; break-inside: avoid; display: block; }
-  .soru-no { font-weight: 700; color: #3730a3; }
-  .soru-text { margin-top: 3pt; }
-  .secenekler { margin-top: 4pt; margin-left: 12pt; }
-  .secenek { margin-bottom: 2pt; }
-  .cevap-alani { border-bottom: 1px solid #999; margin-top: 4pt; min-height: 14pt; }
-  .acik-alani { margin-top: 4pt; }
-  .cizgi { border-bottom: 1px solid #bbb; margin-bottom: 6pt; }
-  .kazanim { font-size: 7pt; color: #999; font-style: italic; text-align: right; margin-top: 3pt; }
-  .hr { border: 0; border-top: 0.5pt solid #ddd; margin: 8pt 0; column-span: all; }
-  .baslik-kutu { border: 1.5pt solid #4f46e5; border-radius: 4pt; padding: 8pt 10pt; margin-bottom: 10pt; column-span: all; }
-  .cevap-baslik { font-size: ${fs + 1}pt; font-weight: 700; color: #064e3b; margin-bottom: 8pt; page-break-before: always; column-span: all; }
-  .cevap-tablo { width: 100%; border-collapse: collapse; margin-bottom: 12pt; column-span: all; }
-  .cevap-tablo th { background: #e0e7ff; padding: 3pt 5pt; font-size: ${fs - 1}pt; text-align: left; }
-  .cevap-tablo td { padding: 2.5pt 5pt; font-size: ${fs - 1}pt; border-bottom: 0.3pt solid #e5e7eb; }
-  .cevap-tablo tr:nth-child(even) td { background: #f8f9fa; }
-  .pedanot { font-size: ${fs - 1}pt; color: #1e3a5f; background: #eff6ff; border: 0.5pt solid #93c5fd; border-radius: 3pt; padding: 6pt; margin-top: 10pt; page-break-before: always; column-span: all; }
-  .footer { font-size: 7pt; color: #bbb; text-align: center; margin-top: 20pt; column-span: all; }
-  @media print {
-    @page { size: A4; margin: ${mg}mm; }
-    body { margin: 0; }
-  }
-</style>
-</head>
-<body>
-<div class="baslik-kutu">
-  <h1>${aktifSinav.baslik}</h1>
-  <div class="meta">${aktifSinav.sinif}. Sınıf &nbsp;|&nbsp; ${aktifSinav.sorular.length} Soru &nbsp;|&nbsp; ${aktifSinav.toplamPuan} Puan &nbsp;|&nbsp; ~${Math.ceil(aktifSinav.tahminiSure / 60)} dakika</div>
-</div>
-<div class="student-row">Ad Soyad: _________________________________ &nbsp;&nbsp; Sınıf/Şube: _________ &nbsp;&nbsp; Tarih: _________</div>
-
-<div class="sorula-kapsayici">
-${aktifSinav.sorular.map((s: Soru, i: number) => {
-      const lbl = ['A', 'B', 'C', 'D'];
-      let secContent = '';
-      if (s.tip === 'coktan-secmeli' && Array.isArray(s.secenekler)) {
-        secContent = `<div class="secenekler">${s.secenekler.map((sec: string, si: number) => `<div class="secenek">${lbl[si]}) ${sec}</div>`).join('')}</div>`;
-      } else if (s.tip === 'dogru-yanlis-duzeltme') {
-        secContent = `<div class="secenekler">( ) Doğru &nbsp;&nbsp;&nbsp; ( ) Yanlış &nbsp;&nbsp;&nbsp; Düzeltme: ___________________________</div>`;
-      } else if (s.tip === 'bosluk-doldurma') {
-        secContent = `<div class="secenekler">Cevap: <span style="border-bottom:1px solid #999;display:inline-block;width:180pt;">&nbsp;</span></div>`;
-      } else if (s.tip === 'acik-uclu') {
-        secContent = `<div class="acik-alani">${[0, 1, 2, 3].map(() => '<div class="cizgi">&nbsp;</div>').join('')}</div>`;
-      }
-      return `<div class="soru-wrap">
-  <span class="soru-no">${i + 1}.</span>
-  <span class="soru-text">${s.soruMetni}</span>
-  ${secContent}
-  <div class="kazanim">[${s.kazanimKodu}]</div>
-</div>`;
-    }).join(printConfig.columns === 2 ? '' : '<hr class="hr"/>')}
-</div>
-
-<div class="cevap-baslik">CEVAP ANAHTARI</div>
-<table class="cevap-tablo">
-<thead><tr><th>No</th><th>Doğru Cevap</th><th>Puan</th><th>Kazanım</th></tr></thead>
-<tbody>
-${aktifSinav.cevapAnahtari.sorular.map((c: CevapAnahtari['sorular'][number]) =>
-      `<tr><td>${c.soruNo}.</td><td>${c.dogruCevap}</td><td>${c.puan} puan</td><td>${c.kazanimKodu}</td></tr>`
-    ).join('')}
-</tbody>
-</table>
-
-<div class="pedanot"><strong>Öğretmenin Dikkatine:</strong><br/><br/>${aktifSinav.pedagogicalNote}</div>
-<div class="footer">Oogmatik Sınav Stüdyosu — MEB 2024-2025</div>
-</body>
-</html>`;
-    const w = window.open('', '_blank', 'width=900,height=700');
-    if (!w) { setError('Yazdırma penceresi açılamadı. Pop-up engelleyiciyi devre dışı bırakın.'); return; }
-    w.document.write(html);
-    w.document.close();
-    w.onload = () => { w.focus(); w.print(); };
+    printService.generatePdf('#sinav-print-target', aktifSinav.baslik, { action: 'print' });
   };
 
   const handleSaveExam = () => showSuccess('Sınav kaydedildi! (Geliştirme aşamasında)');
@@ -586,6 +485,24 @@ ${aktifSinav.cevapAnahtari.sorular.map((c: CevapAnahtari['sorular'][number]) =>
           </div>
         </div>
       </div>
+
+      {/* GİZLİ BASKI KATMANI — Sınav + Cevap Anahtarı */}
+      {aktifSinav && (
+        <div id="sinav-print-target" className="hidden">
+          <SinavOnizleme sinav={aktifSinav} showAnswers={false} config={printConfig} />
+          <div style={{ pageBreakBefore: 'always', padding: '20px' }}>
+            <CevapAnahtariComponent cevapAnahtari={aktifSinav.cevapAnahtari} sinavBaslik={aktifSinav.baslik} />
+          </div>
+          {aktifSinav.pedagogicalNote && (
+            <div style={{ pageBreakBefore: 'always', padding: '20px' }}>
+              <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
+                 <strong className="text-emerald-800 font-bold block mb-2">Öğretmenin Dikkatine:</strong>
+                 <p className="text-emerald-900 leading-relaxed font-medium">{aktifSinav.pedagogicalNote}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <style>{`
         .toolbar-btn {
