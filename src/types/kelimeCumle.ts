@@ -20,6 +20,10 @@ export interface KelimeCumleConfig {
     showAnswers?: boolean;
     customInstructions?: string;
     topics: string[];
+    // Tasarım Standartları (Yeni)
+    fontSize?: number;
+    wordSpacing?: number;
+    dotSize?: number;
 }
 
 export interface BoslukDoldurmaItem {

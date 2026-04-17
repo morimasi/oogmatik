@@ -106,6 +106,51 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = ({
                 {openSection === 'visual' && (
                     <div className="kc-accordion-content">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            
+                            {/* Font Boyutu */}
+                            <div>
+                                <label className="kc-label">Font Boyutu: {config.fontSize}pt</label>
+                                <input 
+                                    type="range" 
+                                    min="14" 
+                                    max="28" 
+                                    step="1"
+                                    className="kc-range"
+                                    value={config.fontSize || 22}
+                                    onChange={(e) => onConfigChange({ fontSize: parseInt(e.target.value) })}
+                                />
+                            </div>
+
+                            {/* Kelime Aralığı */}
+                            <div>
+                                <label className="kc-label">Kelime Aralığı: {config.wordSpacing}rem</label>
+                                <input 
+                                    type="range" 
+                                    min="0.5" 
+                                    max="2.5" 
+                                    step="0.1"
+                                    className="kc-range"
+                                    value={config.wordSpacing || 1.5}
+                                    onChange={(e) => onConfigChange({ wordSpacing: parseFloat(e.target.value) })}
+                                />
+                            </div>
+
+                            {/* Nokta Boyutu */}
+                            <div>
+                                <label className="kc-label">Nokta Boyutu: {config.dotSize}px</label>
+                                <input 
+                                    type="range" 
+                                    min="4" 
+                                    max="20" 
+                                    step="1"
+                                    className="kc-range"
+                                    value={config.dotSize || 12}
+                                    onChange={(e) => onConfigChange({ dotSize: parseInt(e.target.value) })}
+                                />
+                            </div>
+
+                            <hr style={{ border: 'none', borderTop: '1px solid var(--border-subtle)', margin: '0.5rem 0' }} />
+
                             {/* Soru Sayısı */}
                             <div>
                                 <label className="kc-label">Soru Sayısı: {config.itemCount}</label>

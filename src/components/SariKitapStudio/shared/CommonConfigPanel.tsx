@@ -12,7 +12,7 @@ interface CommonConfigPanelProps {
 
 export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
     ({ config, onUpdate, generationMode, onModeChange }) => {
-        const [openSections, setOpenSections] = React.useState<string[]>(['pedagoji']);
+        const [openSections, setOpenSections] = React.useState<string[]>(['pedagoji', 'visual']);
 
         const toggleSection = (id: string) => {
             setOpenSections(prev => 
@@ -105,6 +105,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                     </button>
                     {isSectionOpen('visual') && (
                         <div className="sk-accordion-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            {/* Font Boyutu */}
                             <div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
                                     <label className="sk-label" style={{ margin: 0 }}>Yazı Büyüklüğü</label>
@@ -124,6 +125,29 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                     }
                                 />
                             </div>
+
+                            {/* Kelime Aralığı (rem) */}
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                                    <label className="sk-label" style={{ margin: 0 }}>Kelime Aralığı</label>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-color)' }}>{config.typography.wordSpacing}rem</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    className="sk-range"
+                                    min={0.5}
+                                    max={2.5}
+                                    step={0.1}
+                                    value={config.typography.wordSpacing}
+                                    onChange={(e) =>
+                                        onUpdate({
+                                            typography: { ...config.typography, wordSpacing: Number(e.target.value) },
+                                        })
+                                    }
+                                />
+                            </div>
+
+                            {/* Satır Aralığı */}
                             <div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
                                     <label className="sk-label" style={{ margin: 0 }}>Satır Aralığı</label>

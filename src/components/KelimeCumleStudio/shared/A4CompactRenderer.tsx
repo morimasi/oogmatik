@@ -43,7 +43,7 @@ export const A4CompactRenderer = forwardRef<HTMLDivElement, A4CompactRendererPro
                             fontSize: `${typography.fontSize}pt`,
                             lineHeight: typography.lineHeight,
                             letterSpacing: `${typography.letterSpacing}em`,
-                            wordSpacing: `${typography.wordSpacing}em`,
+                            wordSpacing: `${typography.wordSpacing}rem`,
                         })
                     }}
                 >

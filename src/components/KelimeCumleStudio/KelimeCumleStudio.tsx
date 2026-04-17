@@ -28,7 +28,11 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         itemCount: 20,
         itemsPerPage: 'auto',
         showAnswers: false,
-        topics: ['Genel']
+        topics: ['Genel'],
+        // Tasarım Standartları (Varsayılan)
+        fontSize: 22,
+        wordSpacing: 1.5,
+        dotSize: 12
     });
 
     const [content, setContent] = useState<KelimeCumleGeneratedContent | null>(null);
@@ -198,7 +202,15 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                             <div className="kc-a4-wrapper" style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}>
                                 {contentChunks.length > 0 ? (
                                     contentChunks.map((chunk, idx) => (
-                                        <A4CompactRenderer key={idx}>
+                                        <A4CompactRenderer 
+                                            key={idx}
+                                            typography={{
+                                                fontSize: config.fontSize || 22,
+                                                lineHeight: 1.8,
+                                                letterSpacing: 0.04,
+                                                wordSpacing: config.wordSpacing || 1.5
+                                            }}
+                                        >
                                             <div className="print-page a4-page clinic-high-contrast" style={{ 
                                                 height: '100%', 
                                                 width: '100%', 

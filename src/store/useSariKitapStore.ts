@@ -8,10 +8,10 @@ import type {
 
 // ─── Default Typography (Elif Yıldız koşulları) ─────────────────
 const DEFAULT_TYPOGRAPHY: SariKitapBaseConfig['typography'] = {
-  fontSize: 18,
+  fontSize: 22,
   lineHeight: 1.8,
   letterSpacing: 0.04,
-  wordSpacing: 0.1,
+  wordSpacing: 1.5,
 };
 
 // ─── Default Base Config ─────────────────────────────────────────
@@ -31,7 +31,7 @@ export function createDefaultConfig(type: SariKitapActivityType): SariKitapConfi
     case 'pencere':
       return { ...DEFAULT_BASE, type: 'pencere', windowSize: 2, revealSpeed: 'orta', maskOpacity: 0.6, maskColor: '#1e293b', showSequential: true };
     case 'nokta':
-      return { ...DEFAULT_BASE, type: 'nokta', dotPlacement: 'kelime', dotDensity: 1, dotStyle: 'yuvarlak', dotSize: 6, dotColor: '#000000', showGuideLine: false, compactFontSize: 16, wordGap: 0.5 };
+      return { ...DEFAULT_BASE, type: 'nokta', dotPlacement: 'kelime', dotDensity: 1, dotStyle: 'yuvarlak', dotSize: 12, dotColor: '#000000', showGuideLine: false, compactFontSize: 22, wordGap: 1.5 };
     case 'kopru':
       return { ...DEFAULT_BASE, type: 'kopru', bridgePlacement: 'kelime', bridgeHeight: 14, bridgeGap: 6, bridgeWidth: 4, charGap: 1, bridgeStyle: 'yay', bridgeColor: '#000000', bridgeThickness: 1.5, textDensity: 'orta' };
     case 'cift_metin':
@@ -83,41 +83,41 @@ export const useSariKitapStore = create<SariKitapState>()((set, get) => ({
   isFullscreen: false,
   recentGenerations: [],
 
-  setActiveType: (type) => set({
+  setActiveType: (type: SariKitapActivityType) => set({
     activeType: type,
     config: createDefaultConfig(type),
     generatedContent: null,
     error: null,
   }),
 
-  updateConfig: (updates) => set((state) => ({
+  updateConfig: (updates: Partial<SariKitapConfig>) => set((state: SariKitapState) => ({
     config: { ...state.config, ...updates } as SariKitapConfig,
   })),
 
-  replaceConfig: (config) => set({ config }),
+  replaceConfig: (config: SariKitapConfig) => set({ config }),
 
-  setGenerating: (value) => set({ isGenerating: value }),
+  setGenerating: (value: boolean) => set({ isGenerating: value }),
 
-  setGenerationMode: (mode) => set({ generationMode: mode }),
+  setGenerationMode: (mode: 'ai' | 'offline') => set({ generationMode: mode }),
 
-  setContent: (content) => {
+  setContent: (content: SariKitapGeneratedContent | null) => {
     set({ generatedContent: content, error: null });
     if (content) {
       get().addToHistory(content);
     }
   },
 
-  setError: (error) => set({ error, isGenerating: false }),
+  setError: (error: string | null) => set({ error, isGenerating: false }),
 
-  setPreviewScale: (scale) => set({
+  setPreviewScale: (scale: number) => set({
     previewScale: Math.min(1.5, Math.max(0.3, scale)),
   }),
 
-  toggleGrid: () => set((state) => ({ showGrid: !state.showGrid })),
+  toggleGrid: () => set((state: SariKitapState) => ({ showGrid: !state.showGrid })),
 
-  toggleFullscreen: () => set((state) => ({ isFullscreen: !state.isFullscreen })),
+  toggleFullscreen: () => set((state: SariKitapState) => ({ isFullscreen: !state.isFullscreen })),
 
-  addToHistory: (content) => set((state) => ({
+  addToHistory: (content: SariKitapGeneratedContent) => set((state: SariKitapState) => ({
     recentGenerations: [content, ...state.recentGenerations].slice(0, 10),
   })),
 
