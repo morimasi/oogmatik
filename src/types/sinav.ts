@@ -102,6 +102,27 @@ export interface SinavAyarlari {
   ozelKonu?: string;              // Opsiyonel tema (örn: "Uzay keşfi")
 }
 
+// Yazdırma Ayarları
+export interface PrintConfig {
+  fontSize: number;       // 9 | 10 | 11 | 12
+  fontFamily: 'helvetica' | 'times';
+  columns: 1 | 2;
+  marginMm: number;       // 10 | 15 | 20 | 25
+  questionSpacingMm: number; // 6 | 8 | 10 | 14
+  lineHeight: number;     // 1.4 | 1.6 | 1.8
+  textAlign: 'left' | 'justify';
+}
+
+export const DEFAULT_PRINT_CONFIG: PrintConfig = {
+  fontSize: 10,
+  fontFamily: 'helvetica',
+  columns: 1,
+  marginMm: 18,
+  questionSpacingMm: 8,
+  lineHeight: 1.6,
+  textAlign: 'left',
+};
+
 // API Response Types
 export interface SinavGenerationResponse {
   success: boolean;

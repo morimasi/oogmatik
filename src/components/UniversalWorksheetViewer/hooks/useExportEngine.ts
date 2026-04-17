@@ -1,6 +1,7 @@
 import { AppError } from '../../../utils/AppError';
 import { useState, useCallback, useRef } from 'react';
 import type { Worksheet, ExportSettings, ExportJob, ExportFormat } from '../types/worksheet';
+import { printService } from '../../../utils/printService';
 
 interface UseExportEngineReturn {
   jobs: ExportJob[];
@@ -15,100 +16,7 @@ function generateJobId() {
   return `job-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-async function exportAsPdf(worksheet: Worksheet, settings: ExportSettings): Promise<string> {
-  // Dynamically import jsPDF to keep the bundle lean
-  const { default: jsPDF } = await import('jspdf');
-
-  const orientation = settings.orientation === 'landscape' ? 'l' : 'p';
-  const customFormat: [number, number] = [settings.customWidth ?? 210, settings.customHeight ?? 297];
-  const format = settings.pageSize === 'Custom' ? customFormat : settings.pageSize.toLowerCase();
-
-  const doc = new jsPDF({ orientation, unit: 'mm', format });
-
-  const marginX = 20;
-  let y = 20;
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const maxWidth = pageWidth - marginX * 2;
-
-  if (settings.includeHeader && settings.headerText) {
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(settings.headerText, marginX, 12, { maxWidth });
-  }
-
-  doc.setFontSize(20);
-  doc.setTextColor(30, 30, 30);
-  doc.text(worksheet.metadata.title, marginX, y, { maxWidth });
-  y += 12;
-
-  for (const block of worksheet.content.blocks) {
-    if (y > doc.internal.pageSize.getHeight() - 25) {
-      doc.addPage();
-      y = 20;
-    }
-
-    switch (block.type) {
-      case 'heading': {
-        const level = block.headingLevel ?? 2;
-        const size = level === 1 ? 16 : level === 2 ? 14 : 12;
-        doc.setFontSize(size);
-        doc.setTextColor(30, 30, 30);
-        const lines = doc.splitTextToSize(block.content, maxWidth);
-        doc.text(lines, marginX, y);
-        y += lines.length * (size * 0.4) + 4;
-        break;
-      }
-      case 'text': {
-        doc.setFontSize(11);
-        doc.setTextColor(50, 50, 50);
-        const lines = doc.splitTextToSize(block.content, maxWidth);
-        doc.text(lines, marginX, y);
-        y += lines.length * 5 + 4;
-        break;
-      }
-      case 'divider': {
-        doc.setDrawColor(180, 180, 180);
-        doc.line(marginX, y, pageWidth - marginX, y);
-        y += 6;
-        break;
-      }
-      case 'list': {
-        doc.setFontSize(11);
-        doc.setTextColor(50, 50, 50);
-        for (const item of block.listItems ?? []) {
-          const lines = doc.splitTextToSize(`• ${item}`, maxWidth - 5);
-          doc.text(lines, marginX + 5, y);
-          y += lines.length * 5 + 2;
-          if (y > doc.internal.pageSize.getHeight() - 25) {
-            doc.addPage();
-            y = 20;
-          }
-        }
-        y += 4;
-        break;
-      }
-      case 'math': {
-        doc.setFontSize(11);
-        doc.setFont('courier', 'normal');
-        doc.setTextColor(30, 30, 30);
-        const lines = doc.splitTextToSize(block.mathRaw ?? block.content, maxWidth);
-        doc.text(lines, marginX, y);
-        doc.setFont('helvetica', 'normal');
-        y += lines.length * 5 + 4;
-        break;
-      }
-    }
-  }
-
-  if (settings.includeFooter && settings.footerText) {
-    const pageH = doc.internal.pageSize.getHeight();
-    doc.setFontSize(9);
-    doc.setTextColor(120, 120, 120);
-    doc.text(settings.footerText, marginX, pageH - 8, { maxWidth });
-  }
-
-  return doc.output('datauristring');
-}
+// Unified export engine using printService
 
 async function exportAsPng(_worksheet: Worksheet): Promise<string> {
   // Fontların yüklenmesini bekle
@@ -196,9 +104,11 @@ export function useExportEngine(): UseExportEngineReturn {
         switch (settings.format as ExportFormat) {
           case 'pdf': {
             updateJob(job.id, { progress: 40 });
-            url = await exportAsPdf(worksheet, settings);
-            updateJob(job.id, { progress: 90 });
-            triggerDownload(url, `${filename}.pdf`);
+            // Use modern printService for high-fidelity PDF
+            await printService.generatePdf('#worksheet-preview-root', filename, {
+              action: 'download',
+            });
+            updateJob(job.id, { progress: 100, status: 'done' });
             break;
           }
           case 'png': {

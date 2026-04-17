@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { printService } from '../../../utils/printService';
 
 interface ExportOptions {
   format: 'pdf' | 'png';
@@ -11,34 +12,17 @@ export function useExportActions() {
     const element = options.elementRef.current;
     if (!element) return;
 
+    // Use the modern printService for high-fidelity PDF
+    // We target the current preview element.
     try {
-      const h2cModule = await import('html2canvas');
-      const jsPDFModule = await import('jspdf');
-      const html2canvas = h2cModule.default || h2cModule;
-      const jsPDF = jsPDFModule.default || jsPDFModule;
+      // Ensure the element has a unique printable ID if not already set
+      if (!element.id) {
+        element.id = `sari-kitap-preview-${crypto.randomUUID().slice(0, 8)}`;
+      }
 
-      const canvas = await (html2canvas as any)(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
+      await printService.generatePdf(`#${element.id}`, options.filename ?? 'sari-kitap-etkinlik', {
+        action: 'download'
       });
-
-      const pdf = new (jsPDF as any)('p', 'mm', 'a4');
-      const imgData = canvas.toDataURL('image/png');
-      const pdfWidth = 210;
-      const pdfHeight = 297;
-
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-
-      // KVKK-safe metadata
-      pdf.setProperties({
-        title: options.filename ?? 'Sarı Kitap Etkinliği',
-        subject: 'Okuma Destek Materyali',
-        creator: 'Oogmatik EdTech',
-      });
-
-      pdf.save(`${options.filename ?? 'sari-kitap-etkinlik'}.pdf`);
     } catch (error: unknown) {
       throw new Error(`PDF export hatası: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
     }

@@ -3,9 +3,8 @@
  */
 
 import React from 'react';
-import { Sinav } from '../../types/sinav';
+import { Sinav, PrintConfig } from '../../types/sinav';
 import { SoruCard } from './components/SoruCard';
-import { PrintConfig } from '../../utils/sinavPdfGenerator';
 
 interface SinavOnizlemeProps {
   sinav: Sinav;

@@ -128,6 +128,17 @@ export const print = async (
   } else {
     overlay = document.createElement('div');
     overlay.id = 'print-overlay';
+    // Apply absolute positioning and clear transforms for perfect A4 layout
+    overlay.style.position = 'absolute';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '210mm';
+    overlay.style.transform = 'none';
+    (overlay.style as any).scale = 'none';
+    overlay.style.zoom = '1';
+    overlay.style.margin = '0';
+    overlay.style.padding = '0';
+    overlay.style.zIndex = '2147483647';
     document.body.appendChild(overlay);
   }
 
@@ -153,6 +164,15 @@ export const print = async (
   pages.forEach((original) => {
     const origWidth = original.offsetWidth || 1120;
     const clone = original.cloneNode(true) as HTMLElement;
+
+    // ÖNEMLİ: Klonun görünür olduğundan emin ol (hidden/invisible sınıflarını temizle)
+    clone.classList.remove('hidden', 'invisible', 'opacity-0', 'd-none');
+    clone.style.display = 'block';
+    clone.style.visibility = 'visible';
+    clone.style.opacity = '1';
+    clone.style.transform = 'none';
+    (clone.style as any).scale = 'none';
+    clone.style.zoom = '1';
 
     clone.style.width = `${origWidth}px`;
     clone.style.minWidth = `${origWidth}px`;

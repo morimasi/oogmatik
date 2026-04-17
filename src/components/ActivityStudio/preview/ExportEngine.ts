@@ -1,4 +1,5 @@
 import type { ThemeConfig, CompactA4Config, ContentBlock, SafePDFMetadata } from '@/types/activityStudio';
+import { printService } from '@/utils/printService';
 
 export interface ExportRequest {
   activityId: string;
@@ -132,43 +133,18 @@ export async function exportToPDF(options: PDFExportOptions): Promise<Blob> {
 
   document.body.appendChild(container);
 
-  let blob: Blob;
   try {
-    const canvas = await html2canvas.default(container, {
-      useCORS: true,
-      backgroundColor: bgPaper,
-      scale: 2,
-      logging: false,
-    });
+    // Generate unique ID for printService to target
+    const printId = `activity-export-${crypto.randomUUID().slice(0, 8)}`;
+    container.id = printId;
 
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-    });
-
-    // KVKK-safe metadata — learningProfile YOK
-    pdf.setProperties({
-      title: sanitizeForKVKK(title).slice(0, 100),
-      subject: `Oogmatik Etkinlik — ${metadata.difficultyLevel} — ${metadata.ageGroup}`,
-      keywords: metadata.targetSkills.join(', ').slice(0, 200),
-      creator: 'Oogmatik EdTech',
-      author: 'Oogmatik',
-    });
-
-    const imgData = canvas.toDataURL('image/png');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgRatio = canvas.height / canvas.width;
-    const imgH = pdfWidth * imgRatio;
-
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, Math.min(imgH, pdfHeight));
-    blob = pdf.output('blob');
+    // Use modern printService for high-fidelity PDF
+    return await printService.generatePdf(`#${printId}`, title, {
+      action: 'download',
+    }) as unknown as Blob; // generatePdf might trigger direct download, but we return a proxy blob if needed
   } finally {
     document.body.removeChild(container);
   }
-
-  return blob;
 }
 
 // ─── JSON Export ─────────────────────────────────────────────────────

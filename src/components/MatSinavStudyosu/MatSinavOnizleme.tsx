@@ -6,7 +6,7 @@
 import React from 'react';
 import type { MatSinav, MatSoru } from '../../types/matSinav';
 import { MatSoruCard } from './components/MatSoruCard';
-import { PrintConfig } from '../../utils/sinavPdfGenerator';
+import { PrintConfig } from '../../types/sinav';
 
 interface MatSinavOnizlemeProps {
     sinav: MatSinav;

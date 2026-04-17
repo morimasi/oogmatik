@@ -6,7 +6,7 @@ import React, { useState, useRef } from 'react';
 import { useSinavStore } from '../../store/useSinavStore';
 import { printService } from '../../utils/printService';
 import { generateExamViaAPI } from '../../services/sinavService';
-import { generateExamPDF, PrintConfig, DEFAULT_PRINT_CONFIG } from '../../utils/sinavPdfGenerator';
+import { PrintConfig, DEFAULT_PRINT_CONFIG } from '../../types/sinav';
 import { KazanimPicker } from './KazanimPicker';
 import { SoruAyarlari } from './SoruAyarlari';
 import { SinavOnizleme } from './SinavOnizleme';
@@ -88,6 +88,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
 
   const [activeTab, setActiveTab] = useState<TabType>('onizleme');
   const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [printConfig, setPrintConfig] = useState<PrintConfig>(DEFAULT_PRINT_CONFIG);
   const printRef = useRef<HTMLDivElement>(null);
@@ -136,19 +137,34 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
     setTimeout(() => setSuccessMessage(null), 3000);
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownload = async () => {
     if (!aktifSinav) return;
+    setIsDownloading(true);
     try {
-      generateExamPDF(aktifSinav, printConfig);
+      await printService.generatePdf('#sinav-print-target', aktifSinav.baslik, {
+        action: 'download',
+        quality: 'high'
+      });
       showSuccess('PDF indirildi!');
-    } catch {
+    } catch (error) {
+      console.error('İndirme hatası:', error);
       setError('PDF oluşturulurken bir hata oluştu.');
+    } finally {
+      setIsDownloading(false);
     }
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (!aktifSinav) return;
-    printService.generatePdf('#sinav-print-target', aktifSinav.baslik, { action: 'print' });
+    setIsDownloading(true);
+    try {
+      await printService.generatePdf('#sinav-print-target', aktifSinav.baslik, { action: 'print' });
+    } catch (error) {
+      console.error('Yazdırma hatası:', error);
+      setError('Yazdırma başlatılamadı.');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const handleSaveExam = () => showSuccess('Sınav kaydedildi! (Geliştirme aşamasında)');
@@ -399,13 +415,20 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
                 )}
               </button>
               <div className="w-px h-8 bg-[var(--border-color)] mx-2 self-center opacity-40"></div>
-              <button onClick={handlePrint} disabled={!aktifSinav}
-                className="toolbar-btn bg-[var(--text-primary)] text-[var(--bg-primary)] text-[var(--bg-primary)] border-none shadow-lg hover:bg-black hover:translate-y-[-2px]">
-                <span className="text-base">🖨️</span><span className="hidden sm:inline">Yazdır</span>
+              <button 
+                onClick={handlePrint} 
+                disabled={!aktifSinav || isDownloading}
+                className="toolbar-btn bg-[var(--text-primary)] text-[var(--bg-primary)] border-none shadow-lg hover:bg-black hover:translate-y-[-2px]"
+              >
+                <i className="fa-solid fa-print"></i> <span className="hidden sm:inline">Yazdır</span>
               </button>
-              <button onClick={handleDownloadPDF} disabled={!aktifSinav}
-                className="toolbar-btn bg-rose-600 text-[var(--bg-primary)] border-none shadow-lg shadow-rose-100 hover:bg-rose-700 hover:translate-y-[-2px]">
-                <span className="text-base">📄</span>İndir
+              <button 
+                onClick={handleDownload} 
+                disabled={!aktifSinav || isDownloading}
+                className="toolbar-btn bg-rose-600 text-[var(--bg-primary)] border-none shadow-lg shadow-rose-100 hover:bg-rose-700 hover:translate-y-[-2px]"
+              >
+                {isDownloading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <span className="text-base">📄</span>}
+                <span className="hidden sm:inline">İndir</span>
               </button>
             </div>
           </div>

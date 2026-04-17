@@ -1,9 +1,8 @@
 import React from 'react';
 import { SinavOnizleme } from '../SinavStudyosu/SinavOnizleme';
 import { MatSinavOnizleme } from '../MatSinavStudyosu/MatSinavOnizleme';
-import type { Sinav } from '../../types/sinav';
+import { Sinav, PrintConfig } from '../../types/sinav';
 import type { MatSinav } from '../../types/matSinav';
-import type { PrintConfig } from '../../utils/sinavPdfGenerator';
 
 export type ExamType = 'turkce' | 'matematik';
 

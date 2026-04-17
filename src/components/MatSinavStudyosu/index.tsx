@@ -16,7 +16,7 @@ import type { MatSoru, MatSinav, MatCevapAnahtari } from '../../types/matSinav';
 import { renderToString } from 'react-dom/server';
 import { printService } from '../../utils/printService';
 import { GraphicRenderer } from './components/GraphicRenderer';
-import { PrintConfig, DEFAULT_PRINT_CONFIG } from '../../utils/sinavPdfGenerator';
+import { PrintConfig, DEFAULT_PRINT_CONFIG } from '../../types/sinav';
 import { worksheetService } from '../../services/worksheetService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ActivityType } from '../../types';
