@@ -12,19 +12,19 @@ export function useExportActions() {
     if (!element) return;
 
     try {
-      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
-        import('html2canvas'),
-        import('jspdf'),
-      ]);
+      const h2cModule = await import('html2canvas');
+      const jsPDFModule = await import('jspdf');
+      const html2canvas = h2cModule.default || h2cModule;
+      const jsPDF = jsPDFModule.default || jsPDFModule;
 
-      const canvas = await html2canvas(element, {
+      const canvas = await (html2canvas as any)(element, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
       });
 
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdf = new (jsPDF as any)('p', 'mm', 'a4');
       const imgData = canvas.toDataURL('image/png');
       const pdfWidth = 210;
       const pdfHeight = 297;
@@ -49,9 +49,10 @@ export function useExportActions() {
     if (!element) return;
 
     try {
-      const { default: html2canvas } = await import('html2canvas');
+      const h2cModule = await import('html2canvas');
+      const html2canvas = h2cModule.default || h2cModule;
 
-      const canvas = await html2canvas(element, {
+      const canvas = await (html2canvas as any)(element, {
         scale: 2,
         useCORS: true,
         logging: false,
