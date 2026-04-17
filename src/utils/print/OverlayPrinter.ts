@@ -297,6 +297,7 @@ export const captureAndPrint = async (
           return (
             htmlEl.classList?.contains('resize-handle') ||
             htmlEl.classList?.contains('action-button') ||
+            htmlEl.classList?.contains('no-print') ||
             htmlEl.hasAttribute?.('data-design-only')
           );
         },
