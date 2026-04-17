@@ -20,6 +20,14 @@ export interface SariKitapSourceEntry {
   difficulty: SariKitapDifficulty;
 }
 
+export interface SariKitapContent {
+  title: string;
+  category: string;
+  content: string;
+  difficulty: SariKitapDifficulty;
+  tags: string[];
+}
+
 // ─── Temel Hece Verisi ───────────────────────────────────────────
 export interface HeceData {
   syllable: string;

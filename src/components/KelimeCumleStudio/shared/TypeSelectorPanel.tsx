@@ -13,18 +13,20 @@ interface TypeSelectorPanelProps {
 
 export const TypeSelectorPanel: React.FC<TypeSelectorPanelProps> = ({ types, activeType, onTypeChange }) => {
     return (
-        <div className="sk-panel">
-            <div className="sk-section-title">Etkinlik Formatı</div>
-            <div className="sk-module-grid">
+        <div className="kc-panel" style={{ padding: '0.75rem' }}>
+            <div className="kc-label" style={{ marginBottom: '1rem' }}>
+                <span>📑</span> Etkinlik Formatı
+            </div>
+            <div className="kc-module-grid">
                 {types.map((mod) => (
                     <button
                         key={mod.id}
-                        className={`sk-module-card ${activeType === mod.id ? 'active' : ''}`}
+                        className={`kc-module-card ${activeType === mod.id ? 'active' : ''}`}
                         onClick={() => onTypeChange(mod.id)}
                         title={mod.description}
                     >
-                        <span className="sk-module-card-icon">{mod.icon}</span>
-                        <span className="sk-module-card-label">{mod.title}</span>
+                        <span className="kc-module-card-icon">{mod.icon}</span>
+                        <span className="kc-module-card-label">{mod.title}</span>
                     </button>
                 ))}
             </div>

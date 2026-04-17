@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { KelimeCumleConfig } from '../../../types/kelimeCumle';
 
 interface CommonConfigPanelProps {
@@ -18,120 +18,155 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = ({
     onGenerate,
     isGenerating
 }) => {
+    const [openSection, setOpenSection] = useState<'pedagogy' | 'visual' | null>('pedagogy');
+
     return (
-        <div className="sk-panel">
-            <div className="sk-section-title">Genel Ayarlar</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                {/* Üretim Modu */}
-                <div>
-                    <label className="sk-label">Üretim Modu</label>
-                    <div className="sk-mode-toggle">
-                        <button
-                            className={generationMode === 'ai' ? 'active' : ''}
-                            onClick={() => onModeChange('ai')}
-                            title="AI Modu: İçerik anlayışına dayalı yeni üretim"
-                        >
-                            🤖 AI Modu
-                        </button>
-                        <button
-                            className={generationMode === 'offline' ? 'active' : ''}
-                            onClick={() => onModeChange('offline')}
-                            title="Hızlı Mod: Kaynak kitaptan anlık kopyalama"
-                        >
-                            ⚡ Hızlı Mod
-                        </button>
-                    </div>
-                </div>
-
-                {/* Yaş Grubu */}
-                <div>
-                    <label className="sk-label">Yaş Grubu</label>
-                    <select 
-                        className="sk-select"
-                        value={config.ageGroup}
-                        onChange={(e) => onConfigChange({ ageGroup: e.target.value as any })}
-                    >
-                        <option value="5-7">5-7 Yaş</option>
-                        <option value="8-10">8-10 Yaş</option>
-                        <option value="11-13">11-13 Yaş</option>
-                        <option value="14+">14+ Yaş</option>
-                    </select>
-                </div>
-
-                {/* Zorluk */}
-                <div>
-                    <label className="sk-label">Zorluk Seviyesi</label>
-                    <select 
-                        className="sk-select"
-                        value={config.difficulty}
-                        onChange={(e) => onConfigChange({ difficulty: e.target.value as any })}
-                    >
-                        <option value="Başlangıç">Başlangıç</option>
-                        <option value="Orta">Orta</option>
-                        <option value="İleri">İleri</option>
-                        <option value="Uzman">Uzman</option>
-                    </select>
-                </div>
-
-                {/* Soru Sayısı */}
-                <div>
-                    <label className="sk-label">Toplam Soru Sayısı: {config.itemCount}</label>
-                    <input 
-                        type="range" 
-                        min="5" 
-                        max="60" 
-                        step="1"
-                        className="sk-range"
-                        value={config.itemCount}
-                        onChange={(e) => onConfigChange({ itemCount: parseInt(e.target.value) })}
-                    />
-                </div>
-
-                {/* Sayfa Başına Soru (Pagination) */}
-                <div>
-                    <label className="sk-label">Her Sayfadaki Soru Sayısı</label>
-                    <select 
-                        className="sk-select"
-                        value={config.itemsPerPage || 'auto'}
-                        onChange={(e) => {
-                            const val = e.target.value;
-                            onConfigChange({ itemsPerPage: val === 'auto' ? 'auto' : parseInt(val) });
-                        }}
-                    >
-                        <option value="auto">Otomatik (Sayfa Dolana Kadar)</option>
-                        <option value="5">5 Soru</option>
-                        <option value="10">10 Soru</option>
-                        <option value="15">15 Soru</option>
-                        <option value="20">20 Soru</option>
-                    </select>
-                </div>
-
-                {/* Cevapları Göster */}
-                <label className="sk-checkbox-label">
-                    <input 
-                        type="checkbox" 
-                        checked={config.showAnswers}
-                        onChange={(e) => onConfigChange({ showAnswers: e.target.checked })}
-                    />
-                    <span>Cevap Anahtarını Göster</span>
-                </label>
-
-                {/* Oluştur Butonu */}
+            {/* 1. PEDAGOJİK AYARLAR */}
+            <div className={`kc-accordion-item ${openSection === 'pedagogy' ? 'open' : ''}`}>
                 <button 
-                    className="sk-generate-btn"
-                    onClick={onGenerate}
-                    disabled={isGenerating}
+                    className="kc-accordion-header"
+                    onClick={() => setOpenSection(openSection === 'pedagogy' ? null : 'pedagogy')}
                 >
-                    {isGenerating ? (
-                        <>
-                            <span className="animate-spin">⏳</span> Üretiliyor...
-                        </>
-                    ) : (
-                        <>✨ Etkinlik Oluştur</>
-                    )}
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span>🧠</span> Üretim & Pedagoji
+                    </span>
+                    <span>{openSection === 'pedagogy' ? '−' : '+'}</span>
                 </button>
+                
+                {openSection === 'pedagogy' && (
+                    <div className="kc-accordion-content">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {/* Üretim Modu */}
+                            <div>
+                                <label className="kc-label">Üretim Modu</label>
+                                <div className="sk-mode-toggle">
+                                    <button
+                                        className={generationMode === 'ai' ? 'active' : ''}
+                                        onClick={() => onModeChange('ai')}
+                                    >
+                                        🤖 AI
+                                    </button>
+                                    <button
+                                        className={generationMode === 'offline' ? 'active' : ''}
+                                        onClick={() => onModeChange('offline')}
+                                    >
+                                        ⚡ Hızlı
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Yaş Grubu */}
+                            <div>
+                                <label className="kc-label">Yaş Grubu</label>
+                                <select 
+                                    className="kc-select"
+                                    value={config.ageGroup}
+                                    onChange={(e) => onConfigChange({ ageGroup: e.target.value as any })}
+                                >
+                                    <option value="5-7">5-7 Yaş</option>
+                                    <option value="8-10">8-10 Yaş</option>
+                                    <option value="11-13">11-13 Yaş</option>
+                                    <option value="14+">14+ Yaş (LGS)</option>
+                                </select>
+                            </div>
+
+                            {/* Zorluk */}
+                            <div>
+                                <label className="kc-label">Zorluk Seviyesi</label>
+                                <select 
+                                    className="kc-select"
+                                    value={config.difficulty}
+                                    onChange={(e) => onConfigChange({ difficulty: e.target.value as any })}
+                                >
+                                    <option value="Başlangıç">Başlangıç</option>
+                                    <option value="Orta">Orta</option>
+                                    <option value="İleri">İleri</option>
+                                    <option value="Uzman">Uzman</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* 2. GÖRSEL & SAYFA AYARLARI */}
+            <div className={`kc-accordion-item ${openSection === 'visual' ? 'open' : ''}`}>
+                <button 
+                    className="kc-accordion-header"
+                    onClick={() => setOpenSection(openSection === 'visual' ? null : 'visual')}
+                >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span>📏</span> Görünüm & Sayfa
+                    </span>
+                    <span>{openSection === 'visual' ? '−' : '+'}</span>
+                </button>
+                
+                {openSection === 'visual' && (
+                    <div className="kc-accordion-content">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {/* Soru Sayısı */}
+                            <div>
+                                <label className="kc-label">Soru Sayısı: {config.itemCount}</label>
+                                <input 
+                                    type="range" 
+                                    min="5" 
+                                    max="60" 
+                                    step="1"
+                                    className="kc-range"
+                                    value={config.itemCount}
+                                    onChange={(e) => onConfigChange({ itemCount: parseInt(e.target.value) })}
+                                />
+                            </div>
+
+                            {/* Sayfa Başına Soru */}
+                            <div>
+                                <label className="kc-label">Format Yoğunluğu</label>
+                                <select 
+                                    className="kc-select"
+                                    value={config.itemsPerPage || 'auto'}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        onConfigChange({ itemsPerPage: val === 'auto' ? 'auto' : parseInt(val) });
+                                    }}
+                                >
+                                    <option value="auto">Otomatik</option>
+                                    <option value="5">Düşük Yoğunluk (5)</option>
+                                    <option value="10">Normal (10)</option>
+                                    <option value="15">Yüksek Yoğunluk (15)</option>
+                                    <option value="20">Süper Yoğunluk (20)</option>
+                                </select>
+                            </div>
+
+                            {/* Cevap Anahtarı */}
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', color: 'var(--text-main)' }}>
+                                <input 
+                                    type="checkbox" 
+                                    checked={config.showAnswers}
+                                    onChange={(e) => onConfigChange({ showAnswers: e.target.checked })}
+                                    style={{ accentColor: 'var(--accent-color)' }}
+                                />
+                                Cevap Anahtarını Ekle
+                            </label>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* OLUŞTUR BUTONU */}
+            <button 
+                className="kc-btn-accent-glow"
+                onClick={onGenerate}
+                disabled={isGenerating}
+                style={{ marginTop: '0.5rem', width: '100%' }}
+            >
+                {isGenerating ? (
+                    '⚡ Üretiliyor...'
+                ) : (
+                    '✨ Verileri Güncelle'
+                )}
+            </button>
         </div>
     );
 };

@@ -51,10 +51,12 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         }
     };
 
-    // İlk yüklemede ve tip değişiminde otomatik üret
+    // İlk yüklemede ve ayar değişimlerinde (Hızlı Mod ise) otomatik üret
     useEffect(() => {
-        handleGenerate();
-    }, [config.type]);
+        if (generationMode === 'offline') {
+            handleGenerate();
+        }
+    }, [config.type, config.difficulty, config.ageGroup, config.itemCount, config.itemsPerPage, generationMode]);
 
     const showToast = (msg: string) => {
         setToastMsg(msg);
@@ -116,34 +118,30 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
     return (
         <div className="kc-studio-premium-container">
             {toastMsg && (
-                <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', background: '#10b981', color: 'white', padding: '10px 20px', borderRadius: '8px', zIndex: 9999, fontWeight: 'bold', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', background: 'var(--accent-color)', color: 'white', padding: '10px 24px', borderRadius: '12px', zIndex: 9999, fontWeight: 700, boxShadow: '0 8px 16px var(--accent-glow-subtle)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}>
                     {toastMsg}
                 </div>
             )}
-            {/* Animasyonlu Arkaplan */}
+            
+            {/* Animasyonlu Arkaplan - Tema Duyarlı */}
             <div className="kc-premium-bg">
                 <div className="kc-bg-orb orb-1"></div>
                 <div className="kc-bg-orb orb-2"></div>
-                <div className="kc-bg-orb orb-3"></div>
             </div>
 
             <div className="kc-premium-layout">
-                {/* SOL PANEL - Ayarlar (Glassmorphism) */}
+                {/* SOL PANEL - Ayarlar (Premium Sidebar) */}
                 <div className="kc-sidebar-glass">
                     <div className="kc-sidebar-header">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
                             {onBack && (
-                                <button 
-                                    onClick={onBack}
-                                    className="kc-btn-back"
-                                    title="Geri Dön"
-                                >
+                                <button onClick={onBack} className="kc-btn-back" title="Geri Dön">
                                     ←
                                 </button>
                             )}
                             <h1 className="kc-brand-title">Kelime-Cümle</h1>
                         </div>
-                        <p className="kc-brand-subtitle">Ultra Premium PDF Izgara Stüdyosu</p>
+                        <p className="kc-brand-subtitle">Ultra Premium Şablon Stüdyosu</p>
                     </div>
 
                     <div className="kc-sidebar-scrollable custom-scrollbar">
@@ -169,66 +167,48 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                     </div>
                 </div>
 
-                {/* SAĞ PANEL - A4 Önizleme */}
+                {/* SAĞ PANEL - Canlı Önizleme Alanı */}
                 <div className="kc-preview-glass">
                     <div className="kc-toolbar-glass">
-                        <div style={{ display: 'flex', gap: '0.75rem' }}>
-                            <button className="kc-btn-action" onClick={handlePrint} title="Kompakt Yazdır">
-                                🖨️ <span className="btn-text">Yazdır</span>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button className="kc-btn-action" onClick={handlePrint}>
+                                🖨️ <span>Yazdır</span>
                             </button>
-                            <button className="kc-btn-action" onClick={handleDownload} title="PNG Olarak İndir">
-                                💾 <span className="btn-text">İndir</span>
-                            </button>
-                            <button className="kc-btn-action" onClick={handleShare} title="Uygulama İçi Paylaş">
-                                🔗 <span className="btn-text">Paylaş</span>
+                            <button className="kc-btn-action" onClick={handleDownload}>
+                                💾 <span>İndir</span>
                             </button>
                         </div>
                         
                         {/* Zoom Kontrolleri */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                            <button 
-                                onClick={() => setScale(prev => Math.max(0.4, prev - 0.1))}
-                                className="kc-zoom-btn"
-                                title="Uzaklaştır"
-                            >
-                                ➖
-                            </button>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 600, minWidth: '45px', textAlign: 'center' }}>
-                                %{Math.round(scale * 100)}
-                            </span>
-                            <button 
-                                onClick={() => setScale(prev => Math.min(1.5, prev + 0.1))}
-                                className="kc-zoom-btn"
-                                title="Yakınlaştır"
-                            >
-                                ➕
-                            </button>
-                            <button 
-                                onClick={() => setScale(0.8)}
-                                style={{ fontSize: '0.75rem', opacity: 0.6, cursor: 'pointer', background: 'none', border: 'none', color: 'white' }}
-                            >
-                                Sıfırla
-                            </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-tertiary)', padding: '2px 8px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                            <button onClick={() => setScale(prev => Math.max(0.4, prev - 0.1))} className="kc-zoom-btn">➖</button>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, minWidth: '35px', textAlign: 'center' }}>%{Math.round(scale * 100)}</span>
+                            <button onClick={() => setScale(prev => Math.min(1.5, prev + 0.1))} className="kc-zoom-btn">➕</button>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '0.75rem' }}>
-                            <button className="kc-btn-accent-glow" onClick={handleAddToWorkbook}>
-                                📚 Sınıf Kitapçığına Ekle
-                            </button>
-                        </div>
+                        <button className="kc-btn-accent-glow" onClick={handleAddToWorkbook}>
+                            📚 Sınıf Kitapçığına Ekle
+                        </button>
                     </div>
 
                     <div className="kc-preview-viewport custom-scrollbar">
                         {error ? (
                             <ErrorFallback onRetry={handleGenerate} />
                         ) : (
-                            <div className="kc-a4-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingBottom: '2rem' }}>
+                            <div className="kc-a4-wrapper" style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}>
                                 {contentChunks.length > 0 ? (
                                     contentChunks.map((chunk, idx) => (
-                                        <A4CompactRenderer key={idx} scale={scale}>
-                                            <div className="print-page a4-page" style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
-                                                {/* Page Counter Indicator in UI only */}
-                                                <div className="page-indicator" style={{ position: 'absolute', top: '5px', right: '10px', fontSize: '10px', color: '#94a3b8' }} data-design-only>
+                                        <A4CompactRenderer key={idx}>
+                                            <div className="print-page a4-page clinic-high-contrast" style={{ 
+                                                height: '100%', 
+                                                width: '100%', 
+                                                display: 'flex', 
+                                                flexDirection: 'column',
+                                                backgroundColor: '#ffffff', // Her zamana beyaz zemin
+                                                color: '#1a1a1a', // Klinik siyah metin
+                                                position: 'relative'
+                                            }}>
+                                                <div className="page-indicator" style={{ position: 'absolute', top: '10px', right: '15px', fontSize: '10px', color: '#94a3b8', fontStyle: 'italic' }}>
                                                     Sayfa {idx + 1} / {contentChunks.length}
                                                 </div>
                                                 <Renderer 
@@ -239,7 +219,10 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                                         </A4CompactRenderer>
                                     ))
                                 ) : (
-                                    <div className="kc-loading-skeleton">Modül Yükleniyor...</div>
+                                    <div className="kc-loading-skeleton">
+                                        <span className="pulse-icon">📂</span>
+                                        İçerik Hazırlanıyor...
+                                    </div>
                                 )}
                             </div>
                         )}

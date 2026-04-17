@@ -1,70 +1,39 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Sarı Kitap Stüdyosu — Dark Glassmorphism CSS
+   Sarı Kitap Stüdyosu — Ultra Premium & Theme-Sync CSS
    ═══════════════════════════════════════════════════════════════════ */
 
 .sari-kitap-studio {
-  --sk-primary: #eab308;
-  --sk-primary-muted: rgba(234, 179, 8, 0.1);
-  --sk-primary-border: rgba(234, 179, 8, 0.15);
-  --sk-primary-glow: rgba(234, 179, 8, 0.25);
-  --sk-surface: rgba(24, 24, 27, 0.85);
-  --sk-surface-hover: rgba(24, 24, 27, 0.92);
-  --sk-glass-blur: 20px;
-  --sk-border-radius: 1.5rem;
-  --sk-text-primary: rgba(255, 255, 255, 0.95);
-  --sk-text-secondary: rgba(255, 255, 255, 0.6);
-  --sk-text-muted: rgba(255, 255, 255, 0.4);
-
   display: flex;
   flex-direction: column;
   height: 100%;
-  font-family: 'Inter', sans-serif;
-  color: var(--sk-text-primary);
+  font-family: var(--ui-font, 'Inter', sans-serif);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: var(--app-transition);
 }
 
-/* ─── Panel (Glassmorphism) ─────────────────────────────────────── */
+/* ─── Panel (Glassmorphism & Theme Sync) ────────────────────────── */
 
 .sk-panel {
-  background: var(--sk-surface);
-  backdrop-filter: blur(var(--sk-glass-blur));
-  -webkit-backdrop-filter: blur(var(--sk-glass-blur));
-  border: 1px solid var(--sk-primary-border);
-  border-radius: var(--sk-border-radius);
-  padding: 1.25rem;
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--surface-glass-blur));
+  -webkit-backdrop-filter: blur(var(--surface-glass-blur));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-premium);
+  padding: 1rem;
+  transition: var(--app-transition);
 }
 
-/* ─── Header ────────────────────────────────────────────────────── */
-
-.sk-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1.25rem;
-  background: var(--sk-surface);
-  backdrop-filter: blur(var(--sk-glass-blur));
-  border-bottom: 1px solid var(--sk-primary-border);
-  gap: 1rem;
-  flex-shrink: 0;
+.sk-panel:hover {
+  background: var(--surface-elevated);
+  border-color: var(--accent-muted);
 }
 
-.sk-header-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--sk-primary);
-  font-family: 'Inter', sans-serif;
-}
-
-.sk-header-actions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-/* ─── Layout: 2 Panel Grid ──────────────────────────────────────── */
+/* ─── Layout ────────────────────────────────────────────────────── */
 
 .sk-body {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 340px 1fr;
   gap: 1rem;
   flex: 1;
   overflow: hidden;
@@ -75,7 +44,10 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
+  padding-right: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-muted) transparent;
 }
 
 .sk-center-panel {
@@ -84,284 +56,62 @@
   align-items: center;
   justify-content: flex-start;
   overflow: auto;
-  padding: 2rem;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: var(--sk-border-radius);
+  padding: 1.5rem;
+  background: var(--bg-inset);
+  border-radius: var(--radius-premium);
   position: relative;
+  border: 1px solid var(--border-color);
 }
 
-/* ─── Preview Toolbar ───────────────────────────────────────────── */
+/* ─── Header & Toolbar ─────────────────────────────────────────── */
 
 .sk-preview-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 1rem;
-  background: var(--sk-surface);
-  backdrop-filter: blur(var(--sk-glass-blur));
-  border: 1px solid var(--sk-primary-border);
+  padding: 0.625rem 1rem;
+  background: var(--surface-glass);
+  backdrop-filter: blur(var(--surface-glass-blur));
+  border: 1px solid var(--border-color);
   border-radius: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   gap: 1rem;
   position: sticky;
   top: 0;
   z-index: 10;
   width: 100%;
   max-width: 210mm;
+  box-shadow: var(--shadow-premium);
 }
 
-.sk-toolbar-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.sk-toolbar-divider {
-  width: 1px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.sk-toolbar-scale {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.sk-toolbar-dropdown {
-  position: relative;
-}
-
-.sk-dropdown-content {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: var(--sk-surface);
-  backdrop-filter: blur(var(--sk-glass-blur));
-  border: 1px solid var(--sk-primary-border);
-  border-radius: 0.75rem;
-  padding: 0.5rem;
-  min-width: 160px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  z-index: 20;
-}
-
-.sk-toolbar-dropdown:hover .sk-dropdown-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.sk-dropdown-content button {
-  padding: 0.5rem 0.75rem;
-  background: transparent;
-  border: none;
-  border-radius: 0.5rem;
-  color: var(--sk-text-secondary);
-  font-size: 0.8125rem;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.sk-dropdown-content button:hover {
-  background: var(--sk-primary-muted);
-  color: var(--sk-primary);
-}
-
-.sk-toolbar-info {
-  position: relative;
-}
-
-.sk-info-trigger {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--sk-primary);
-  cursor: help;
-  padding: 0.375rem 0.75rem;
-  background: var(--sk-primary-muted);
-  border-radius: 0.5rem;
-}
-
-.sk-info-tooltip {
-  display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  width: 280px;
-  background: var(--sk-surface);
-  backdrop-filter: blur(var(--sk-glass-blur));
-  border: 1px solid var(--sk-primary-border);
-  border-radius: 1rem;
-  padding: 1rem;
-  margin-top: 0.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  z-index: 20;
-}
-
-.sk-toolbar-info:hover .sk-info-tooltip {
-  display: block;
-}
-
-.sk-skill-badge {
-  padding: 0.125rem 0.5rem;
-  background: rgba(234, 179, 8, 0.1);
-  border: 1px solid rgba(234, 179, 8, 0.2);
-  border-radius: 1rem;
-  font-size: 0.6875rem;
-  color: #eab308;
-}
-
-/* ─── A4 Preview Shell ──────────────────────────────────────────── */
+/* ─── A4 Preview Shell (Pure White Base) ───────────────────────── */
 
 .sk-a4-shell {
   width: 210mm;
   min-height: 297mm;
-  background: #fffbef; /* Hafif sarımtırak kitap kağıdı rengi */
-  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4);
+  background: #ffffff; /* Baskı her zaman beyazdır */
+  box-shadow: var(--shadow-premium);
   font-family: 'Lexend', sans-serif;
-  padding: 15mm 20mm; /* Yan marjlar görseldeki gibi genişletildi */
+  padding: 15mm 20mm;
   box-sizing: border-box;
-  color: #18181b;
+  color: #18181b; /* Metin her zaman koyu kontrasta sahip olmalı */
   position: relative;
   margin-top: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Sayfa Numarası ve Alt Bilgi */
-.sk-a4-shell::after {
-  content: "";
-  position: absolute;
-  bottom: 10mm;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
-.sk-a4-shell * {
-  font-family: 'Lexend', sans-serif;
-}
-
-/* ─── Module Cards (Type Selector) ──────────────────────────────── */
-
-.sk-module-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.625rem;
-}
-
-.sk-module-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  padding: 0.75rem 0.5rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 1rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: center;
-}
-
-.sk-module-card:hover {
-  transform: scale(1.03);
-  border-color: var(--sk-primary);
-  background: var(--sk-primary-muted);
-}
-
-.sk-module-card.active {
-  border-color: var(--sk-primary);
-  background: var(--sk-primary-muted);
-  box-shadow: 0 0 20px var(--sk-primary-glow);
-}
-
-.sk-module-card-icon {
-  font-size: 1.5rem;
-}
-
-.sk-module-card-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--sk-text-secondary);
-}
-
-/* ─── Buttons ───────────────────────────────────────────────────── */
-
-.sk-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.75rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.sk-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.sk-btn-primary {
-  background: linear-gradient(135deg, #eab308, #ca8a04);
-  color: #18181b;
-  border-color: transparent;
-}
-
-.sk-btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--sk-primary-glow);
-}
-
-.sk-btn-ghost {
-  background: transparent;
-  color: var(--sk-text-secondary);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.sk-btn-ghost:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--sk-text-primary);
-}
-
-.sk-btn-icon {
-  padding: 0.5rem;
-  border-radius: 0.625rem;
-  background: transparent;
-  color: var(--sk-text-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sk-btn-icon:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--sk-primary);
-}
-
-/* ─── Form Controls ─────────────────────────────────────────────── */
+/* ─── Premium Form Controls ────────────────────────────────────── */
 
 .sk-label {
   font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--sk-text-muted);
+  font-weight: 700;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   margin-bottom: 0.375rem;
   display: block;
 }
@@ -370,202 +120,187 @@
 .sk-input {
   width: 100%;
   padding: 0.5rem 0.75rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0.625rem;
-  color: var(--sk-text-primary);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  color: var(--text-primary);
   font-size: 0.8125rem;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--ui-font);
   outline: none;
-  transition: border-color 0.2s;
+  transition: var(--app-transition);
 }
 
 .sk-select:focus,
 .sk-input:focus {
-  border-color: var(--sk-primary);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--accent-muted);
 }
 
 .sk-select option {
-  background: #18181b;
+  background: var(--bg-paper);
+  color: var(--text-primary);
+}
+
+/* ─── Module Grid (Compact Premium) ────────────────────────────── */
+
+.sk-module-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.sk-module-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.625rem 0.5rem;
+  background: var(--surface-glass);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: var(--app-transition);
+}
+
+.sk-module-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+  background: var(--accent-muted);
+}
+
+.sk-module-card.active {
+  border-color: var(--accent-color);
+  background: var(--accent-muted);
+  box-shadow: 0 0 15px var(--accent-muted);
+}
+
+.sk-module-card-icon { font-size: 1.25rem; }
+.sk-module-card-label {
+  font-size: 0.650rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────── */
+
+.sk-generate-btn {
+  width: 100%;
+  padding: 0.875rem;
+  background: var(--accent-color);
   color: white;
+  font-weight: 800;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: var(--app-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 15px var(--accent-muted);
+}
+
+.sk-generate-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: var(--accent-hover);
+  box-shadow: 0 8px 25px var(--accent-muted);
+}
+
+.sk-generate-btn:active { transform: translateY(0); }
+
+.sk-generate-btn.generating {
+  opacity: 0.8;
+  cursor: wait;
 }
 
 /* ─── Section Header ────────────────────────────────────────────── */
 
 .sk-section-title {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  color: var(--sk-primary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--accent-color);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.75rem;
-}
-
-/* ─── Generate Button ───────────────────────────────────────────── */
-
-.sk-generate-btn {
-  width: 100%;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, #eab308, #ca8a04);
-  color: #18181b;
-  font-weight: 700;
-  font-size: 0.875rem;
-  border: none;
-  border-radius: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.875rem;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
 }
 
-.sk-generate-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px var(--sk-primary-glow);
-}
-
-.sk-generate-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.sk-generate-btn.generating {
-  animation: sk-pulse 1.5s infinite;
-}
-
-@keyframes sk-pulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
-}
-
-/* ─── Empty State ───────────────────────────────────────────────── */
-
-.sk-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 3rem;
-  color: var(--sk-text-muted);
-  gap: 1rem;
-}
-
-.sk-empty-state-icon {
-  font-size: 3rem;
-  opacity: 0.3;
-}
-
-/* ─── History List ──────────────────────────────────────────────── */
+/* ─── History & Tooltip ─────────────────────────────────────────── */
 
 .sk-history-item {
-  padding: 0.625rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--app-transition);
 }
 
 .sk-history-item:hover {
-  border-color: var(--sk-primary-border);
-  background: var(--sk-primary-muted);
+  border-color: var(--accent-color);
+  background: var(--accent-muted);
+  transform: translateX(4px);
 }
 
 .sk-history-item-title {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--sk-text-primary);
-  margin-bottom: 0.25rem;
+  color: var(--text-primary);
+  margin-bottom: 0.125rem;
 }
 
 .sk-history-item-meta {
-  font-size: 0.6875rem;
-  color: var(--sk-text-muted);
+  font-size: 0.625rem;
+  color: var(--text-muted);
 }
 
-/* ─── Toggle / Mode Switcher ────────────────────────────────────── */
+/* ─── Accordion (For Compact UI) ────────────────────────────────── */
 
-.sk-mode-toggle {
-  display: flex;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0.625rem;
+.sk-accordion-item {
+  border-radius: var(--radius-premium);
   overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--surface-glass);
+  margin-bottom: 0.125rem;
 }
 
-.sk-mode-toggle button {
-  flex: 1;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--sk-text-muted);
+.sk-accordion-header {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: transparent;
   border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.sk-mode-toggle button.active {
-  background: var(--sk-primary-muted);
-  color: var(--sk-primary);
-}
-
-/* ─── Error State ───────────────────────────────────────────────── */
-
-.sk-error {
-  padding: 0.75rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 0.75rem;
-  color: #f87171;
+  color: var(--text-primary);
+  font-weight: 700;
   font-size: 0.8125rem;
+  cursor: pointer;
+  text-align: left;
 }
 
-/* ─── Print Overrides ───────────────────────────────────────────── */
+.sk-accordion-header:hover { background: var(--surface-elevated); }
+
+.sk-accordion-content {
+  padding: 0 1rem 1rem 1rem;
+}
+
+/* ─── Print ─── */
 
 @media print {
-  .sari-kitap-studio {
-    display: block;
-  }
-
-  .sk-header,
-  .sk-left-panel,
-  .sk-right-panel {
-    display: none !important;
-  }
-
-  .sk-body {
-    display: block;
-  }
-
+  .sari-kitap-studio { background: white; }
+  .sk-header, .sk-left-panel, .sk-preview-toolbar { display: none !important; }
+  .sk-body { display: block; padding: 0; }
   .sk-a4-shell {
     box-shadow: none;
-    margin: 0;
+    border: none;
+    padding: 0;
     width: 100%;
-    min-height: auto;
-    page-break-inside: avoid;
-  }
-}
-
-/* ─── Responsive ────────────────────────────────────────────────── */
-
-@media (max-width: 1200px) {
-  .sk-body {
-    grid-template-columns: 280px 1fr;
-  }
-  .sk-right-panel {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .sk-body {
-    grid-template-columns: 1fr;
-  }
-  .sk-left-panel {
-    max-height: 300px;
   }
 }

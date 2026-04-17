@@ -10,8 +10,10 @@ interface TypeSelectorPanelProps {
 export const TypeSelectorPanel: React.FC<TypeSelectorPanelProps> = React.memo(
     ({ activeType, onSelect }) => {
         return (
-            <div className="sk-panel">
-                <div className="sk-section-title">Etkinlik Formatı</div>
+            <div className="sk-panel" style={{ padding: '0.75rem' }}>
+                <div className="sk-section-title">
+                    <span>📑</span> Aktivite Formatı
+                </div>
                 <div className="sk-module-grid">
                     {MODULE_LIST.map((mod) => (
                         <button
