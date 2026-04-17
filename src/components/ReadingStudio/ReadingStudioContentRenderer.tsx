@@ -21,6 +21,10 @@ const DraggableItem = ({
   const initialLayout = useRef<LayoutItem[]>([]);
 
   const handleMouseDown = (e: any) => {
+    // 1. Tıklanan bileşeni her halükarda seç (İçerik/Stil düzenleme için odaklan)
+    setSelectedId(item.instanceId);
+
+    // 2. Eğer sürükle/bırak (tasarım) modunda değilse, gerisini çalıştırma
     if (!designMode) return;
 
     const isResizeHandle = e.target.closest('.resize-handle');
@@ -29,7 +33,6 @@ const DraggableItem = ({
     initialLayout.current = [...layout];
 
     const initialStyle = { ...item.style };
-    setSelectedId(item.instanceId);
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       if (!isDragging.current) return;
