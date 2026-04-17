@@ -33,9 +33,11 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
             }}>
                 {content.heceRows.map((row, ri) => {
                     let currentX = 0;
-                    const wordPositions = row.syllables.map((s) => {
-                        // Harf sayısına göre dinamik ama disiplinli genişlik
-                        const wordWidth = s.syllable.length * (charWidth * 0.9); 
+                    const wordPositions = row.syllables?.map((s, si) => {
+                        // Hece uzunluğuna göre dinamik genişlik hesabı (en az 1.5rem)
+                        const rawWidth = (s.syllable?.length || 0) * (charWidth * 0.9);
+                        const wordWidth = Math.max(rawWidth, 15);
+                        
                         const pos = {
                             x: currentX,
                             width: wordWidth,
@@ -44,7 +46,7 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                         const bridgeAreaWidth = 50; // Görseldeki o ferah boşluk
                         currentX += wordWidth + (charGapWidth * 2) + bridgeAreaWidth;
                         return pos;
-                    });
+                    }) || [];
 
                     const totalWidth = currentX;
                     const svgTextY = bHeight + 25;
@@ -59,7 +61,7 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                                 preserveAspectRatio="xMinYMid meet"
                                 style={{ display: 'block', overflow: 'visible' }}
                             >
-                                {row.syllables.map((s, si) => {
+                                {row.syllables?.map((s, si) => {
                                     const pos = wordPositions[si];
                                     return (
                                         <text
@@ -79,8 +81,9 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                                     );
                                 })}
 
-                                {row.syllables.map((s, si) => {
-                                    if (si >= row.syllables.length - 1) return null;
+                                {row.syllables?.map((s, si) => {
+                                    // Son heceyse veya row/syllables hatalıysa sağında yay çizme
+                                    if (!row.syllables || si >= row.syllables.length - 1) return null;
 
                                     const pos1 = wordPositions[si];
                                     const pos2 = wordPositions[si + 1];

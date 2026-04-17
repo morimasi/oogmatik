@@ -20,8 +20,8 @@ export const CiftMetinRenderer = memo(({ config, content }: RendererProps) => {
         );
     }
 
-    const wordsA = src.a.text.split(/\s+/).filter(w => w.length > 0);
-    const wordsB = src.b.text.split(/\s+/).filter(w => w.length > 0);
+    const wordsA = (src.a?.text || '').split(/\s+/).filter(w => w.length > 0);
+    const wordsB = (src.b?.text || '').split(/\s+/).filter(w => w.length > 0);
     
     const interleavedWords: Array<{ text: string; source: 'a' | 'b' }> = [];
     const maxWords = Math.max(wordsA.length, wordsB.length);
