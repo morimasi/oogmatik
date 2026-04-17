@@ -164,7 +164,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Insert system instruction into the user prompt to maintain AI behavior
         // IMPORTANT: Use sanitizedPrompt instead of raw prompt
-        const combinedPrompt = `[SISTEM TALIMATI BASLANGICI]\n${systemInstruction || SYSTEM_INSTRUCTION}\n[SISTEM TALIMATI BITISI]\n\n[KULLANICI ISTEGI]:\n${sanitizedPrompt}`;
+        let combinedPrompt = `[SISTEM TALIMATI BASLANGICI]\n${systemInstruction || SYSTEM_INSTRUCTION}\n[SISTEM TALIMATI BITISI]\n\n[KULLANICI ISTEGI]:\n${sanitizedPrompt}`;
+
+        // Schema'yi Google REST API'in icine nesne olarak basamadigimiz icin Prompt'a yillayalim.
+        if (schema) {
+            combinedPrompt += '\n\n[ZORUNLU JSON YAPISI (ZORUNLU ŞEMA)]:\nAşağıdaki JSON şemasına ve anahtar kelimelerine HARFİYEN UYMALISIN. Çıktı sadece geçerli bir JSON olmalı.\n' + JSON.stringify(schema, null, 2);
+        }
 
         // Text prompt
         contents[0].parts.push({ text: combinedPrompt });
