@@ -218,10 +218,10 @@
 .sk-a4-shell {
   width: 210mm;
   min-height: 297mm;
-  background: white;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  background: #fffbef; /* Hafif sarımtırak kitap kağıdı rengi */
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4);
   font-family: 'Lexend', sans-serif;
-  padding: 12mm 10mm;
+  padding: 15mm 20mm; /* Yan marjlar görseldeki gibi genişletildi */
   box-sizing: border-box;
   color: #18181b;
   position: relative;
@@ -229,6 +229,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* Sayfa Numarası ve Alt Bilgi */

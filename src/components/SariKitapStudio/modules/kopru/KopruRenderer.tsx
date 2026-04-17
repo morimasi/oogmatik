@@ -3,76 +3,54 @@ import type { RendererProps } from '../../registry';
 import type { KopruConfig } from '../../../../types/sariKitap';
 
 /**
- * Köprü Renderer — Kelime Bazlı
- * Her kelime arasında yay köprüsü. Köprü genişliği: ~4 karakter.
- * Kelimeler arası 1 karakter boşluk. Kompakt A4 düzeni.
+ * Köprü Renderer — Kaynak PDF Standartlarında (Gökkuşağı Yay Modeli)
+ * Görseldeki gibi: kalın yaylar, büyük punto, geniş boşluklar ve noktalama uyumu.
  */
 export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, content }) => {
     if (config.type !== 'kopru') return null;
     const c = config as KopruConfig;
 
-    const charWidth = 9;
-    const bridgeCharWidth = c.bridgeWidth ?? 4;
-    const charGapWidth = (c.charGap ?? 1) * charWidth;
-    const bridgePixelWidth = bridgeCharWidth * charWidth;
-    const bThickness = c.bridgeThickness ?? 1.5;
+    // Görseldeki standartlara göre ölçekleme (Punto: 22px, Yay: 2.5px kalınlık)
+    const fontSizePx = 22;
+    const charWidth = 14; // Punto büyüdüğü için karakter genişliğini artırdık
+    const charGapWidth = 12; // Kelime ve yay arasındaki "hava boşluğu"
+    const bThickness = 2.5;
     const bColor = c.bridgeColor ?? '#18181b';
-    const bHeight = c.bridgeHeight ?? 14;
-    const bStyle = c.bridgeStyle ?? 'yay';
-
-    const getStrokeDash = (style: string): string | undefined => {
-        if (style === 'noktalı') return '3,3';
-        if (style === 'düz') return undefined;
-        return undefined;
-    };
-
-    // Satır aralığı — yoğunluğa göre
-    const lineGap = c.textDensity === 'yüksek' ? '0.6rem' : c.textDensity === 'düşük' ? '1.5rem' : '1rem';
+    const bHeight = 18; // Yayın yüksekliği
+    
+    // Satır aralığı — görseldeki gibi ferah (line-height: 2.5)
+    const lineGap = '3.5rem';
 
     return (
         <div className="sk-renderer-kopru" style={{
-            padding: 0, display: 'flex', flexDirection: 'column', height: '100%'
+            padding: '1.5rem 0.5rem', display: 'flex', flexDirection: 'column', height: '100%'
         }}>
-            {/* Başlık */}
-            <h2 style={{
-                fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.5rem',
-                textAlign: 'center', color: '#18181b', textTransform: 'uppercase',
-                letterSpacing: '0.12em', borderBottom: '2px solid #18181b',
-                paddingBottom: '0.4rem'
-            }}>
-                {content.title}
-            </h2>
-
-            {/* Yönerge */}
-            <p style={{
-                fontSize: '0.65rem', color: '#64748b', textAlign: 'center',
-                marginBottom: '0.5rem', fontStyle: 'italic', lineHeight: 1.3
-            }}>
-                Yay köprülerini takip ederek kelimeleri birleştirerek okuyun.
-            </p>
-
-            {/* İçerik — Kelime bazlı köprü SVG */}
+            {/* ═══ İÇERİK ═══ */}
             <div style={{
                 flex: 1, display: 'flex', flexDirection: 'column',
-                gap: lineGap, padding: '0 0.25rem'
+                gap: lineGap, padding: '0 1rem'
             }}>
                 {content.heceRows.map((row, ri) => {
-                    // Her kelime için pozisyon hesapla
-                    let currentX = 4;
+                    // Pozisyonları metin uzunluğuna göre hesapla
+                    let currentX = 0;
                     const wordPositions = row.syllables.map((s) => {
-                        const wordWidth = s.syllable.length * charWidth;
+                        // Word metni için canvas ölçümü simülasyonu
+                        const wordWidth = s.syllable.length * (charWidth * 0.85); 
                         const pos = {
                             x: currentX,
                             width: wordWidth,
                             centerX: currentX + wordWidth / 2
                         };
-                        currentX += wordWidth + charGapWidth + bridgePixelWidth + charGapWidth;
+                        // Mesafe: kelime + sol boşluk + yay genişliği + sağ boşluk
+                        const bridgeAreaWidth = 45; // Köprü alanı sabit ve geniş
+                        currentX += wordWidth + (charGapWidth * 2) + bridgeAreaWidth;
                         return pos;
                     });
 
                     const totalWidth = currentX;
-                    const svgTextY = bHeight + 18;
-                    const svgHeight = svgTextY + 6;
+                    // Yükseklik puntoya ve yaya göre ayarlandı
+                    const svgTextY = bHeight + 25;
+                    const svgHeight = svgTextY + 10;
 
                     return (
                         <div key={ri} style={{ overflow: 'visible', width: '100%' }}>
@@ -82,9 +60,8 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                                 viewBox={`0 0 ${totalWidth} ${svgHeight}`}
                                 preserveAspectRatio="xMinYMid meet"
                                 style={{ display: 'block', overflow: 'visible' }}
-                                aria-hidden="true"
                             >
-                                {/* Kelime metinleri */}
+                                {/* Kelime metinleri (Noktalama dahil) */}
                                 {row.syllables.map((s, si) => {
                                     const pos = wordPositions[si];
                                     return (
@@ -95,9 +72,10 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                                             textAnchor="middle"
                                             style={{
                                                 fontFamily: 'Lexend, sans-serif',
-                                                fontSize: '14px',
-                                                fontWeight: 500,
-                                                fill: '#18181b'
+                                                fontSize: `${fontSizePx}px`,
+                                                fontWeight: 400,
+                                                fill: '#18181b',
+                                                letterSpacing: '0.02em'
                                             }}
                                         >
                                             {s.syllable}
@@ -105,42 +83,29 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                                     );
                                 })}
 
-                                {/* Köprü yayları — kelimeler arası */}
+                                {/* Köprü yayları (Rainbow Bridge) */}
                                 {row.syllables.map((s, si) => {
                                     if (si >= row.syllables.length - 1) return null;
 
                                     const pos1 = wordPositions[si];
                                     const pos2 = wordPositions[si + 1];
 
-                                    // Yay başlangıç ve bitiş noktaları
+                                    // Yay başlangıç ve bitiş noktaları (Kelimeden uzaklaştırıldı)
                                     const x1 = pos1.x + pos1.width + charGapWidth;
                                     const x2 = pos2.x - charGapWidth;
                                     const midX = (x1 + x2) / 2;
-                                    const arcY = svgTextY - 4;
+                                    const arcY = svgTextY - 8; // Metinden biraz yukarıda başla
                                     const arcTopY = arcY - bHeight;
-
-                                    if (bStyle === 'düz') {
-                                        return (
-                                            <line
-                                                key={`b-${si}`}
-                                                x1={x1} y1={arcY}
-                                                x2={x2} y2={arcY}
-                                                stroke={bColor}
-                                                strokeWidth={bThickness}
-                                                strokeDasharray={getStrokeDash(bStyle)}
-                                            />
-                                        );
-                                    }
 
                                     return (
                                         <path
                                             key={`b-${si}`}
+                                            // Quadratic curve ile "gökkuşağı" yay formu
                                             d={`M ${x1},${arcY} Q ${midX},${arcTopY} ${x2},${arcY}`}
                                             fill="none"
                                             stroke={bColor}
                                             strokeWidth={bThickness}
                                             strokeLinecap="round"
-                                            strokeDasharray={getStrokeDash(bStyle)}
                                         />
                                     );
                                 })}
@@ -150,16 +115,18 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                 })}
             </div>
 
-            {/* Alt bilgi */}
+            {/* ═══ SAYFA ALTI (Görseldeki standart) ═══ */}
             <div style={{
-                marginTop: 'auto', paddingTop: '0.5rem',
-                borderTop: '1px solid #e2e8f0',
-                display: 'flex', justifyContent: 'space-between',
-                fontSize: '0.6rem', color: '#94a3b8', padding: '0.5rem 0.25rem 0'
+                marginTop: 'auto',
+                display: 'flex',
+                justifyContent: 'center',
+                padding: '1rem 0',
+                fontSize: '0.9rem',
+                color: '#18181b',
+                fontWeight: 500,
+                fontFamily: 'Inter, sans-serif'
             }}>
-                <span>Köprü Okuma • {c.difficulty}</span>
-                <span>Oogmatik © Sarı Kitap</span>
-                <span>1</span>
+                3
             </div>
         </div>
     );
