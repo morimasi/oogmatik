@@ -109,7 +109,16 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
   if (!aiResponse) return CONTENT_FALLBACK;
 
   // Standart şema (content alanı var) — önce bunu dene
-  if (aiResponse.content) return aiResponse.content;
+  if (aiResponse.content) {
+    if (typeof aiResponse.content === 'string') {
+      return aiResponse.content;
+    }
+    // Eğer AI halüsinasyon görüp içeriyi tekrar obje yaparsa ({title, content} gibi)
+    if (typeof aiResponse.content === 'object' && !Array.isArray(aiResponse.content)) {
+      return aiResponse.content.content || aiResponse.content.text || JSON.stringify(aiResponse.content, null, 2);
+    }
+    return String(aiResponse.content);
+  }
 
   // okuma-anlama: metin + soru/cevap listesi
   if (templateId === 'okuma-anlama') {
