@@ -176,6 +176,21 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         print-color-adjust: exact !important;
         text-rendering: optimizeLegibility !important;
       }
+
+      /* UI Temizliği (Floating UI, Buttons, Toasts) */
+      .no-print, 
+      [role="status"], 
+      button:not(.print-visible),
+      .fixed, .sticky {
+        display: none !important;
+      }
+
+      /* Performans: Baskıda ağır animasyonları devredışı bırak */
+      .backdrop-blur-xl, .backdrop-blur-md {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: white !important;
+      }
     }
   `;
 

@@ -165,14 +165,18 @@ export const print = async (
       (clone.style as unknown as { zoom: string | number }).zoom = scaleRatio;
     }
 
-    // Input, Select ve Canvas Transferi
+    // Input, Select ve Canvas Transferi (Robust Sync)
     const origCanvases = original.querySelectorAll('canvas');
     const cloneCanvases = clone.querySelectorAll('canvas');
     origCanvases.forEach((canvas, i) => {
       const dest = cloneCanvases[i] as HTMLCanvasElement;
-      if (dest) {
+      const src = canvas as HTMLCanvasElement;
+      if (dest && src) {
+        // Boyutları senkronize et (Önemli!)
+        dest.width = src.width;
+        dest.height = src.height;
         const ctx = dest.getContext('2d');
-        if (ctx) ctx.drawImage(canvas, 0, 0);
+        if (ctx) ctx.drawImage(src, 0, 0);
       }
     });
 
@@ -196,25 +200,41 @@ export const print = async (
     wrapperContainer.appendChild(wrapper);
   });
 
-  // 5. Native Render Stabilizasyonu
+  // 5. Native Render Stabilizasyonu (Font Ready + Layout Sync)
   document.body.classList.add('printing-mode');
 
   const prevTheme = document.documentElement.className;
   document.documentElement.className = 'theme-light';
 
-  setTimeout(() => {
-    try {
-      window.print();
-    } catch (err) {
-      console.error('Print trigger failed:', err);
-    } finally {
-      setTimeout(() => {
-        document.documentElement.className = prevTheme;
-        document.body.classList.remove('printing-mode');
-        if (overlay) overlay.style.display = 'none';
-      }, 1000);
+  try {
+    // Fontların yüklendiğinden emin ol
+    if ('fonts' in document) {
+      await (document as any).fonts.ready;
     }
-  }, 500);
+
+    // Layout'un oturması için kısa bir bekleme
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
+    // Yazdırma bittiğinde veya iptal edildiğinde temizlik yap
+    const cleanup = () => {
+      document.documentElement.className = prevTheme;
+      document.body.classList.remove('printing-mode');
+      if (overlay) overlay.style.display = 'none';
+      window.removeEventListener('afterprint', cleanup);
+    };
+
+    window.addEventListener('afterprint', cleanup);
+
+    window.print();
+
+    // Browser afterprint'i desteklemiyorsa fallback temizlik
+    setTimeout(cleanup, 2000);
+  } catch (err) {
+    console.error('Print trigger failed:', err);
+    document.documentElement.className = prevTheme;
+    document.body.classList.remove('printing-mode');
+    if (overlay) overlay.style.display = 'none';
+  }
 };
 
 // ─── html2canvas Tabanlı Yazdırma (captureAndPrint) ─────────────────────────
