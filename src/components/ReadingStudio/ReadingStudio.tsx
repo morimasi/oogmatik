@@ -8,9 +8,7 @@ import { AIProductionPanel } from './Editor/AIProductionPanel';
 import { ComponentLibrary } from './Editor/ComponentLibrary';
 import { ContentPanel } from './Editor/ContentPanel';
 import { ArchivePanel } from './Editor/ArchivePanel';
-import { LayoutItem } from '../../types'; // Added LayoutItem import
-import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
-
+import { LayoutItem } from '../../types';
 import { StylePanel } from './Editor/StylePanel';
 
 interface ReadingStudioInnerProps {
@@ -26,7 +24,6 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     setLayout,
     isLoading,
     setIsLoading,
-    _designMode,
     setDesignMode,
     storyData,
     setSelectedId,
@@ -34,6 +31,8 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     redo,
     canUndo,
     canRedo,
+    recalculateLayout,
+    toggleVisibility
   } = useReadingStore();
 
   const [sidebarTab, setSidebarTab] = useState(
@@ -42,304 +41,126 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
   const [canvasScale, setCanvasScale] = useState(0.85);
   const [isFocusMode, setIsFocusMode] = useState(false);
 
-  // Initial layout setup
-  React.useEffect(() => {
-    if (layout.length === 0) {
-      setLayout([
-        {
-          id: 'header',
-          label: 'Başlık Künyesi',
-          instanceId: 'init_header',
-          isVisible: true,
-          pageIndex: 0,
-          specificData: { title: 'YENİ HİKAYE', subtitle: 'Okuma ve Anlama Çalışması' },
-          style: {
-            x: 20,
-            y: 20,
-            w: 754,
-            h: 120,
-            zIndex: 1,
-            rotation: 0,
-            padding: 10,
-            backgroundColor: 'transparent',
-            borderColor: 'transparent',
-            borderWidth: 0,
-            borderStyle: 'solid',
-            borderRadius: 0,
-            opacity: 1,
-            boxShadow: 'none',
-            textAlign: 'left',
-            color: '#000000',
-            fontSize: 14,
-            fontFamily: 'OpenDyslexic',
-            lineHeight: 1.5,
-          },
-        },
-        {
-          id: 'story_block',
-          label: 'Hikaye Metni',
-          instanceId: 'init_story',
-          isVisible: true,
-          pageIndex: 0,
-          specificData: { text: 'Buraya AI ile üretilen hikaye gelecek...' },
-          style: {
-            x: 20,
-            y: 160,
-            w: 754,
-            h: 420,
-            zIndex: 1,
-            rotation: 0,
-            padding: 10,
-            backgroundColor: 'transparent',
-            borderColor: 'transparent',
-            borderWidth: 0,
-            borderStyle: 'solid',
-            borderRadius: 0,
-            opacity: 1,
-            boxShadow: 'none',
-            textAlign: 'left',
-            color: '#000000',
-            fontSize: 14,
-            fontFamily: 'OpenDyslexic',
-            lineHeight: 1.5,
-          },
-        },
-      ]);
-    }
-  }, []);
-
   const handleGenerate = async () => {
     setIsLoading(true);
     try {
       const result = await generateInteractiveStory(config);
       setStoryData(result);
 
-      const newLayout: LayoutItem[] = [];
-      let lastY = 20;
-      let currentPage = 0;
+      const items: LayoutItem[] = [];
 
-      const addItem = (itemData: any, expectedHeight: number) => {
-        if (lastY + expectedHeight > A4_HEIGHT_PX - 40) {
-          currentPage++;
-          lastY = 20;
-        }
-        itemData.pageIndex = currentPage;
-        itemData.style.y = lastY;
-        newLayout.push(itemData);
-        lastY += expectedHeight + 20;
-      };
+      // Helper to generate IDs
+      const getInstId = (prefix: string) => `${prefix}_${Date.now()}`;
 
-      // Header
-      addItem(
-        {
-          id: 'header',
-          label: 'Başlık Künyesi',
-          instanceId: `header_${Date.now()}`,
-          isVisible: true,
-          specificData: { title: result.title, subtitle: `${config.genre} - ${config.gradeLevel}` },
-          style: {
-            x: 20,
-            y: 0,
-            w: 754,
-            h: 120,
-            zIndex: 1,
-            rotation: 0,
-            padding: 20,
-            backgroundColor: 'transparent',
-            borderColor: '#e2e8f0',
-            borderWidth: 0,
-            borderStyle: 'solid',
-            borderRadius: 8,
-            opacity: 1,
-            boxShadow: 'none',
-            textAlign: 'left',
-            color: '#000000',
-            fontSize: 14,
-            fontFamily: 'OpenDyslexic',
-            lineHeight: 1.5,
-          },
+      // 1. Header (Görünür)
+      items.push({
+        id: 'header',
+        label: 'Başlık Künyesi',
+        instanceId: getInstId('header'),
+        isVisible: true,
+        specificData: { title: result.title, subtitle: `${config.genre} - ${config.gradeLevel}` },
+        style: { h: 120, fontSize: 14, fontFamily: 'Lexend', lineHeight: 1.5, color: '#000000' } as any
+      });
+
+      // 2. Story (Görünür)
+      items.push({
+        id: 'story_block',
+        label: 'Hikaye Metni',
+        instanceId: getInstId('story'),
+        isVisible: true,
+        specificData: { text: result.story },
+        style: { h: 450, fontSize: 16, fontFamily: 'Lexend', lineHeight: 1.8, color: '#000000' } as any
+      });
+
+      // 3. 5N1K (Görünür)
+      items.push({
+        id: '5n1k',
+        label: '5N1K Analizi',
+        instanceId: getInstId('5n1k'),
+        isVisible: true,
+        specificData: { questions: result.fiveW1H },
+        style: { h: 320, fontSize: 14, fontFamily: 'Lexend', lineHeight: 1.5, backgroundColor: '#f8fafc', borderRadius: 12, padding: 20 } as any
+      });
+
+      // 4. Sözlükçe (Gizli)
+      items.push({
+        id: 'vocabulary',
+        label: 'Sözlükçe',
+        instanceId: getInstId('voc'),
+        isVisible: false,
+        specificData: { words: result.vocabulary },
+        style: { h: 200, fontSize: 13, fontFamily: 'Lexend', backgroundColor: '#f1f5f9', borderRadius: 12, padding: 15 } as any
+      });
+
+      // 5. Pedagojik Notlar (Gizli)
+      items.push({
+        id: 'pedagogical_goals',
+        label: 'Pedagojik Hedefler',
+        instanceId: getInstId('ped'),
+        isVisible: false,
+        specificData: { 
+            note: result.pedagogicalNote,
+            goals: result.pedagogicalGoals 
         },
-        120
-      );
+        style: { h: 180, fontSize: 12, fontFamily: 'Lexend', backgroundColor: '#ecfdf5', borderColor: '#10b981', borderWidth: 1, borderStyle: 'solid', borderRadius: 12, padding: 15 } as any
+      });
 
-      // Story Block
-      addItem(
-        {
-          id: 'story_block',
-          label: 'Hikaye Metni',
-          instanceId: `story_${Date.now()}`,
-          isVisible: true,
-          specificData: { text: result.story },
-          style: {
-            x: 20,
-            y: 0,
-            w: 754,
-            h: 450,
-            zIndex: 1,
-            rotation: 0,
-            padding: 20,
-            backgroundColor: 'transparent',
-            borderColor: '#e2e8f0',
-            borderWidth: 0,
-            borderStyle: 'solid',
-            borderRadius: 8,
-            opacity: 1,
-            boxShadow: 'none',
-            textAlign: 'left',
-            color: '#000000',
-            fontSize: 16,
-            fontFamily: 'OpenDyslexic',
-            lineHeight: 1.8,
-          },
-        },
-        450
-      );
+      // 6. Test Soruları (Gizli)
+      items.push({
+        id: 'test_questions',
+        label: 'Çoktan Seçmeli Test',
+        instanceId: getInstId('test'),
+        isVisible: false,
+        specificData: { questions: result.multipleChoice },
+        style: { h: 450, fontSize: 14, fontFamily: 'Lexend', padding: 20 } as any
+      });
 
-      if (result.vocabulary && result.vocabulary.length > 0) {
-        addItem(
-          {
-            id: 'vocabulary',
-            label: 'Kelime Dağarcığı',
-            instanceId: `voc_${Date.now()}`,
-            isVisible: true,
-            specificData: { words: result.vocabulary },
-            style: {
-              x: 20,
-              y: 0,
-              w: 754,
-              h: 150,
-              zIndex: 1,
-              rotation: 0,
-              padding: 15,
-              backgroundColor: '#f8fafc',
-              borderColor: '#e2e8f0',
-              borderWidth: 1,
-              borderStyle: 'solid',
-              borderRadius: 12,
-              opacity: 1,
-              boxShadow: 'none',
-              textAlign: 'left',
-              color: '#000000',
-              fontSize: 14,
-              fontFamily: 'OpenDyslexic',
-              lineHeight: 1.5,
-            },
-          },
-          150
-        );
-      }
+      // 7. Mantık Sorusu (Gizli)
+      items.push({
+        id: 'logic_problem',
+        label: 'Muhakeme Sorusu',
+        instanceId: getInstId('logic'),
+        isVisible: false,
+        specificData: { puzzle: result.logicQuestions?.[0], inference: result.inferenceQuestions?.[0] },
+        style: { h: 220, fontSize: 14, fontFamily: 'Lexend', backgroundColor: '#fff7ed', borderColor: '#f97316', borderWidth: 1, borderStyle: 'dashed', borderRadius: 16, padding: 20 } as any
+      });
 
-      if (result.fiveW1H && result.fiveW1H.length > 0) {
-        addItem(
-          {
-            id: '5n1k',
-            label: '5N1K Çalışması',
-            instanceId: `q5n1k_${Date.now()}`,
-            isVisible: true,
-            specificData: { questions: result.fiveW1H },
-            style: {
-              x: 20,
-              y: 0,
-              w: 754,
-              h: 400,
-              zIndex: 1,
-              rotation: 0,
-              padding: 20,
-              backgroundColor: 'transparent',
-              borderColor: '#e2e8f0',
-              borderWidth: 0,
-              borderStyle: 'solid',
-              borderRadius: 8,
-              opacity: 1,
-              boxShadow: 'none',
-              textAlign: 'left',
-              color: '#000000',
-              fontSize: 14,
-              fontFamily: 'OpenDyslexic',
-              lineHeight: 1.5,
-            },
-          },
-          400
-        );
-      }
+      // 8. Hece Treni (Gizli)
+      items.push({
+        id: 'syllable_train',
+        label: 'Hece Treni',
+        instanceId: getInstId('train'),
+        isVisible: false,
+        specificData: { words: result.syllableTrain },
+        style: { h: 180, padding: 15 } as any
+      });
 
-      if (result.logicQuestions && result.logicQuestions.length > 0) {
-        addItem(
-          {
-            id: 'logic_problem',
-            label: 'Mantık Bulmacası',
-            instanceId: `logic_${Date.now()}`,
-            isVisible: true,
-            specificData: { puzzle: result.logicQuestions[0] },
-            style: {
-              x: 20,
-              y: 0,
-              w: 754,
-              h: 200,
-              zIndex: 1,
-              rotation: 0,
-              padding: 20,
-              backgroundColor: '#fef3c7',
-              borderColor: '#f59e0b',
-              borderWidth: 1,
-              borderStyle: 'dashed',
-              borderRadius: 16,
-              opacity: 1,
-              boxShadow: 'none',
-              textAlign: 'left',
-              color: '#000000',
-              fontSize: 14,
-              fontFamily: 'OpenDyslexic',
-              lineHeight: 1.5,
-            },
-          },
-          200
-        );
-      }
+      // 9. Yaratıcı Yazma/Çizim (Gizli)
+      items.push({
+        id: 'creative_area',
+        label: 'Yaratıcı Alan',
+        instanceId: getInstId('creative'),
+        isVisible: false,
+        specificData: { prompt: result.creativePrompt },
+        style: { h: 300, fontSize: 14, fontFamily: 'Lexend', borderColor: '#e2e8f0', borderWidth: 1, borderStyle: 'solid', borderRadius: 12, padding: 20 } as any
+      });
 
-      if (result.inferenceQuestions && result.inferenceQuestions.length > 0) {
-        addItem(
-          {
-            id: 'questions',
-            label: 'Çıkarım Soruları',
-            instanceId: `inf_${Date.now()}`,
-            isVisible: true,
-            specificData: {
-              questions: result.inferenceQuestions.map((q: any) => ({
-                question: q.question,
-                type: 'open',
-              })),
-            },
-            style: {
-              x: 20,
-              y: 0,
-              w: 754,
-              h: 250,
-              zIndex: 1,
-              rotation: 0,
-              padding: 20,
-              backgroundColor: 'transparent',
-              borderColor: '#e2e8f0',
-              borderWidth: 0,
-              borderStyle: 'solid',
-              borderRadius: 8,
-              opacity: 1,
-              boxShadow: 'none',
-              textAlign: 'left',
-              color: '#000000',
-              fontSize: 14,
-              fontFamily: 'OpenDyslexic',
-              lineHeight: 1.5,
-            },
-          },
-          250
-        );
-      }
+      // 10. Not Alanı (Gizli Extra)
+      items.push({
+        id: 'note_area',
+        label: 'Öğretmen Not Alanı',
+        instanceId: getInstId('notes'),
+        isVisible: false,
+        specificData: { placeholder: 'Buraya değerlendirme notlarınızı ekleyebilirsiniz...' },
+        style: { h: 120, fontSize: 12, fontFamily: 'Inter', backgroundColor: '#fefce8', borderRadius: 8, padding: 10 } as any
+      });
 
-      setLayout(newLayout);
+      setLayout(items);
+      setTimeout(() => recalculateLayout(), 50); // Mizanpajı hesapla
       setSelectedId(null);
       setDesignMode(false);
-    } catch (_e) {
+    } catch (e) {
+      console.error(e);
       alert('Hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setIsLoading(false);

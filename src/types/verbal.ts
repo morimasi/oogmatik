@@ -61,6 +61,9 @@ export interface StorySequencingData extends BaseActivityData {
 export interface InteractiveStoryData extends StoryData {
   syllabifiedStory: string;
   pedagogicalNote: string;
+  pedagogicalGoals?: string[]; // Bilişsel hedefler (Pedagogical Note alt bileşeni)
+  creativePrompt?: string; // Yaratıcı alan yönergesi
+  syllableTrain?: { word: string; syllables: string[] }[]; // Hece treni verisi
   fiveW1H: {
     type: 'who' | 'where' | 'when' | 'what' | 'why' | 'how';
     question: string;

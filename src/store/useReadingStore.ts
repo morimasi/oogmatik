@@ -31,6 +31,8 @@ interface ReadingState {
     updates: Partial<LayoutItem>,
     saveToHistory?: boolean
   ) => void;
+  toggleVisibility: (instanceId: string) => void;
+  recalculateLayout: () => void;
   addComponent: (def: unknown) => void;
   undo: () => void;
   redo: () => void;
@@ -100,7 +102,6 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
   updateComponent: (instanceId, updates, saveToHistory = false) => {
     const { layout, past } = get();
     if (saveToHistory) {
-      // Bellek yönetimi: Geçmişi 20 adımda tut ve sadece gerektiğinde kopyala
       const nextPast = [...past.slice(-19), layout];
       set({ past: nextPast, future: [] });
     }
@@ -111,59 +112,106 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
     }));
   },
 
+  toggleVisibility: (instanceId) => {
+    const { layout, updateComponent, recalculateLayout } = get();
+    const item = layout.find(i => i.instanceId === instanceId);
+    if (!item) return;
+
+    updateComponent(instanceId, { isVisible: !item.isVisible }, true);
+    // Her görünürlük değişiminden sonra mizanpajı otomatik kapat (Reflow)
+    recalculateLayout();
+  },
+
+  recalculateLayout: () => {
+    set((state: ReadingState) => {
+      const margin = 30;
+      let currentY = 20;
+      let currentPage = 0;
+      const sortedItems = [...state.layout].sort((a, b) => {
+         // Id bazlı sabit sıra (User'ın istediği sıra)
+         const orderIndex: Record<string, number> = {
+            'header': 0,
+            'story_block': 1,
+            '5n1k': 2,
+            'vocabulary': 3,
+            'pedagogical_goals': 4,
+            'test_questions': 5,
+            'logic_problem': 6,
+            'syllable_train': 7,
+            'creative_area': 8,
+            'note_area': 9
+         };
+         return (orderIndex[a.id] ?? 99) - (orderIndex[b.id] ?? 99);
+      });
+
+      const updatedLayout = sortedItems.map((item) => {
+        if (!item.isVisible) return item;
+
+        const h = Number(item.style.h) || 100;
+        if (currentY + h > A4_HEIGHT_PX - 40) {
+          currentPage++;
+          currentY = 20;
+        }
+
+        const newItem = {
+          ...item,
+          pageIndex: currentPage,
+          style: {
+            ...item.style,
+            y: currentY,
+            x: 20, // Reset X to standard
+            w: 754  // Reset W to standard width
+          }
+        };
+
+        currentY += h + margin;
+        return newItem;
+      });
+
+      return { layout: updatedLayout };
+    });
+  },
+
   addComponent: (def) => {
-    const { layout, past } = get();
+    const { layout, past, recalculateLayout } = get();
     set({ past: [...past.slice(-19), layout], future: [] });
 
-    const lastPage =
-      layout.length > 0 ? Math.max(...layout.map((l: LayoutItem) => l.pageIndex || 0)) : 0;
-    const itemsOnLastPage = layout.filter((l: LayoutItem) => (l.pageIndex || 0) === lastPage);
-    let lastY =
-      itemsOnLastPage.length > 0
-        ? Math.max(...itemsOnLastPage.map((l: LayoutItem) => (Number(l.style.y) || 0) + (Number(l.style.h) || 0)))
-        : 0;
-
-    let newPageIndex = lastPage;
-    if (lastY + 100 > A4_HEIGHT_PX - 40) {
-      newPageIndex++;
-      lastY = 0;
-    }
-
     const compDef = def as Record<string, unknown>;
-
     const newComp = {
       ...compDef,
       instanceId: `inst_${Date.now()}`,
       isVisible: true,
-      pageIndex: newPageIndex,
       style: {
         x: 20,
-        y: lastY + 20,
+        y: 0, // Recalculate will fix this
         w: 754,
-        h: 100,
+        h: 150,
         zIndex: 1,
         rotation: 0,
-        padding: 10,
+        padding: 15,
         backgroundColor: 'transparent',
         borderColor: 'transparent',
         borderWidth: 0,
         borderStyle: 'solid',
-        borderRadius: 0,
+        borderRadius: 8,
         opacity: 1,
         boxShadow: 'none',
         textAlign: 'left',
         color: '#000000',
         fontSize: 14,
-        fontFamily: 'OpenDyslexic',
+        fontFamily: 'Lexend',
         lineHeight: 1.5,
         ...((compDef.defaultStyle as object) || {}),
       },
       specificData: compDef.specificData || {},
     } as unknown as LayoutItem;
+
     set((state: ReadingState) => ({
       layout: [...state.layout, newComp],
       selectedId: newComp.instanceId,
     }));
+    
+    recalculateLayout();
   },
 
   undo: () => {

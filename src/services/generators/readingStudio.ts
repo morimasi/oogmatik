@@ -21,12 +21,6 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     const diagnosisStr = profile.diagnosis?.join(', ') || 'Özel Öğrenme Güçlüğü (Genel)';
     const interestsStr = profile.interests?.join(', ') || 'Macera, Bilim, Doğa';
 
-    let tasksInstruction = `METİNLE TAM UYUMLU ŞU ÜST DÜZEY BİLEŞENLERİ ÜRET:`;
-    if (config.include5N1K) tasksInstruction += "\n- 5N 1K Analizi: (Kim, Ne, Nerede, Ne Zaman, Nasıl, Neden) soruları ve metne dayalı kanıtlı cevapları.";
-    if (config.countMultipleChoice > 0) tasksInstruction += `\n- Eleştirel Düşünme Soruları: ${config.countMultipleChoice} adet (Metin dışı çıkarım yaptıran).`;
-    if (config.countFillBlanks > 0) tasksInstruction += `\n- Semantik Boşluk Doldurma: ${config.countFillBlanks} adet (Anlam akışını bozan boşluklar).`;
-    if (config.countLogic > 0) tasksInstruction += `\n- Mantıksal Akıl Yürütme: ${config.countLogic} adet (Metindeki olaylar arası neden-sonuç zincirini sorgulayan).`;
-
     const prompt = `
     [ROL: DİSLEKSİ MÜDAHALE UZMANI & ÖDÜLLÜ ÇOCUK YAZARI]
     
@@ -37,14 +31,19 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     - İlgi: ${interestsStr}
     - Odak: "${config.phonemeFocus || 'Akıcı Okuma'}"
     
-    İÇERİK MİMARİSİ:
+    İÇERİK MİMARİSİ (AŞAĞIDAKİ TÜM BİLEŞENLERİ EKSİKSİZ ÜRET):
     1. STORY: ${lengthMap[config.length || 'medium']} uzunluğunda, ${complexityMap[config.textComplexity || 'moderate']} yapıda sürükleyici bir anlatı.
-    2. SYLLABIFIED_STORY: Bu alan çok kritik! Story alanındaki metnin aynısını, her kelimenin hecelerini kısa çizgi ile ayırarak (örn: "ku-şun-lar", "öğ-ren-ci") oluştur. Disleksi desteği için gereklidir.
-    3. PEDAGOGICAL_NOTE: Bu metnin neden bu öğrenci için uygun olduğunu, hangi bilişsel beceriyi (işitsel bellek, görsel dikkat vb.) tetiklediğini teknik olarak açıkla.
+    2. SYLLABIFIED_STORY: Story alanındaki metnin aynısını, her kelimenin hecelerini kısa çizgi ile ayırarak oluştur.
+    3. PEDAGOGICAL_NOTE: Uzman açıklaması.
+    4. PEDAGOGICAL_GOALS: Bu metinle hedeflenen 3-5 adet bilişsel hedef.
+    5. 5N1K: Metne dayalı 6 soru (Kim, Ne, Nerede, Ne Zaman, Nasıl, Neden) ve cevapları.
+    6. VOCABULARY: Metindeki 5 zor kelime, anlamı ve örnek cümlesi.
+    7. TEST_QUESTIONS: Metinle ilgili 4 adet çoktan seçmeli soru. Her sorunun 4 şıkkı (A, B, C, D) ve 1 doğru cevabı olmalı.
+    8. LOGIC_QUESTIONS: Olaylar arası mantık kurmayı gerektiren 1 zor soru.
+    9. SYLLABLE_TRAIN: Metindeki en kritik 5 ile 10 ARASI kelimenin hecelerine ayrılmış listesi (vagon grafiği için).
+    10. CREATIVE_PROMPT: Öğrencinin hikayenin devamını çizmesi veya yazması için yaratıcı bir yönerge.
     
-    ${tasksInstruction}
-    
-    FORMAT: Sadece JSON döndür. story ve syllabifiedStory alanlarında çift tırnak kaçışlarına (escape) dikkat et.
+    FORMAT: Sadece JSON döndür.
     `;
 
     const schema = {
@@ -52,17 +51,27 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
         properties: {
             title: { type: 'STRING' },
             story: { type: 'STRING' },
-            syllabifiedStory: { type: 'STRING', description: "Metnin hecelenmiş versiyonu (örn: ma-sa-yı kur-du)" },
+            syllabifiedStory: { type: 'STRING' },
             genre: { type: 'STRING' },
             gradeLevel: { type: 'STRING' },
-            pedagogicalNote: { type: 'STRING', description: "Uygulanan nöro-pedagojik stratejinin uzman açıklaması" },
+            pedagogicalNote: { type: 'STRING' },
+            pedagogicalGoals: { type: 'ARRAY', items: { type: 'STRING' } },
             imagePrompt: { type: 'STRING' },
+            creativePrompt: { type: 'STRING' },
             vocabulary: {
                 type: 'ARRAY',
                 items: {
                     type: 'OBJECT',
                     properties: { word: { type: 'STRING' }, definition: { type: 'STRING' }, example: { type: 'STRING' } },
                     required: ['word', 'definition']
+                }
+            },
+            syllableTrain: {
+                type: 'ARRAY',
+                items: {
+                    type: 'OBJECT',
+                    properties: { word: { type: 'STRING' }, syllables: { type: 'ARRAY', items: { type: 'STRING' } } },
+                    required: ['word', 'syllables']
                 }
             },
             fiveW1H: {
@@ -85,16 +94,20 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
                     required: ['question', 'answer', 'hint']
                 }
             },
-            inferenceQuestions: {
+            multipleChoice: {
                 type: 'ARRAY',
                 items: {
                     type: 'OBJECT',
-                    properties: { question: { type: 'STRING' }, answer: { type: 'STRING' } },
-                    required: ['question', 'answer']
+                    properties: {
+                        question: { type: 'STRING' },
+                        options: { type: 'ARRAY', items: { type: 'STRING' } },
+                        answer: { type: 'STRING' }
+                    },
+                    required: ['question', 'options', 'answer']
                 }
             }
         },
-        required: ['title', 'story', 'syllabifiedStory', 'pedagogicalNote', 'imagePrompt']
+        required: ['title', 'story', 'syllabifiedStory', 'pedagogicalNote', 'pedagogicalGoals', 'multipleChoice', 'syllableTrain', 'creativePrompt']
     };
 
     return await generateWithSchema(prompt, schema);
