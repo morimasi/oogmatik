@@ -1,137 +1,13 @@
+/**
+ * Oogmatik Snapshot Service
+ * Ekran görüntüsü alma, panoya kopyalama ve paylaşma.
+ * CaptureEngine paylaşımlı modülünü kullanır — kod tekrarı yok.
+ */
+
 import { AppError } from '../utils/AppError';
-// @ts-nocheck
+import { captureAllPages } from './print/CaptureEngine';
 
 export type SnapshotAction = 'download' | 'clipboard' | 'share';
-
-/** Yakalama öncesi fontları yükler */
-const preloadFontsForCapture = async (): Promise<void> => {
-  if (typeof document === 'undefined') return;
-  try {
-    await document.fonts.ready;
-    const fontFamilies = ['Lexend', 'Inter', 'Comic Neue', 'Lora'];
-    const weights = ['400', '600', '700', '800'];
-    const testText = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZabcçdefgğhıijklmnoöprsştuüvyz0123456789';
-    const loadPromises: Promise<unknown>[] = [];
-    for (const family of fontFamilies) {
-      for (const weight of weights) {
-        loadPromises.push(
-          document.fonts.load(`${weight} 16px "${family}"`, testText).catch(() => null)
-        );
-      }
-    }
-    await Promise.allSettled(loadPromises);
-    await new Promise<void>((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-    );
-  } catch (e) {
-    console.warn('[snapshotService] Font ön-yükleme uyarısı:', e);
-  }
-};
-
-/** html2canvas klon dokümana stil sayfalarını kopyalar */
-const onCloneForCapture = (clonedDoc: Document): void => {
-  try {
-    document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
-      clonedDoc.head.appendChild(link.cloneNode(true));
-    });
-    document.querySelectorAll('style').forEach((style) => {
-      clonedDoc.head.appendChild(style.cloneNode(true));
-    });
-    const extra = clonedDoc.createElement('style');
-    extra.textContent =
-      '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; ' +
-      'text-rendering: geometricPrecision !important; font-variant-ligatures: none !important; ' +
-      'letter-spacing: normal !important; word-spacing: normal !important; font-kerning: none !important; }' +
-      ' body { background: #ffffff !important; }';
-    clonedDoc.head.appendChild(extra);
-  } catch (e) {
-    console.warn('[snapshotService] onClone uyarısı:', e);
-  }
-};
-
-const PAGE_SELECTORS = [
-  '.worksheet-page',
-  '.universal-mode-canvas',
-  '.math-canvas-page',
-  '.reading-canvas-page',
-  '.a4-page',
-  '.print-page',
-];
-
-const UI_HIDE_SELECTORS =
-  '.edit-handle, .page-navigator, .no-print, .overlay-ui, .resize-handle, .action-button';
-
-/** Tüm sayfaları HTMLCanvasElement olarak yakalar */
-const capturePages = async (elementSelector: string): Promise<HTMLCanvasElement[]> => {
-  const { default: html2canvas } = await import('html2canvas');
-
-  const roots = Array.from(document.querySelectorAll(elementSelector)) as HTMLElement[];
-  if (roots.length === 0) throw new AppError('Görüntü alınacak içerik bulunamadı.', 'INTERNAL_ERROR', 500);
-
-  // Sayfa elemanlarını topla
-  const pages: HTMLElement[] = [];
-  const selectorText = PAGE_SELECTORS.join(',');
-  roots.forEach((root) => {
-    if (root.matches(selectorText)) {
-      pages.push(root);
-      return;
-    }
-    const nested = Array.from(root.querySelectorAll(selectorText)) as HTMLElement[];
-    pages.push(...(nested.length > 0 ? nested : [root]));
-  });
-
-  // UI öğelerini gizle
-  const uiElements = document.querySelectorAll<HTMLElement>(UI_HIDE_SELECTORS);
-  uiElements.forEach((el) => {
-    el.dataset.origDisplay = el.style.display;
-    el.style.display = 'none';
-  });
-
-  const origBgs: string[] = [];
-  const canvases: HTMLCanvasElement[] = [];
-
-  // Fontların yüklenmesini bekle
-  await preloadFontsForCapture();
-
-  try {
-    for (const page of pages) {
-      origBgs.push(page.style.backgroundColor);
-      page.style.backgroundColor = '#ffffff';
-
-      const canvas = await html2canvas(page, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        windowWidth: document.documentElement.offsetWidth,
-        windowHeight: document.documentElement.offsetHeight,
-        onclone: (_clonedDoc: Document) => onCloneForCapture(_clonedDoc),
-        ignoreElements: (el) => {
-          const h = el as HTMLElement;
-          return (
-            h.classList?.contains('no-print') ||
-            h.classList?.contains('edit-handle') ||
-            h.classList?.contains('resize-handle') ||
-            h.hasAttribute?.('data-design-only')
-          );
-        },
-      });
-      canvases.push(canvas);
-    }
-  } finally {
-    // Geri yükle
-    pages.forEach((p, i) => {
-      p.style.backgroundColor = origBgs[i];
-    });
-    uiElements.forEach((el: any) => {
-      el.style.display = el.dataset.origDisplay || '';
-      delete el.dataset.origDisplay;
-    });
-  }
-
-  return canvases;
-};
 
 /** Canvas → Blob dönüşümü */
 const canvasToBlob = (
@@ -152,22 +28,23 @@ export const snapshotService = {
   /**
    * Ekran görüntüsü al — tüm sayfaları yakalar.
    * action: 'download' | 'clipboard' | 'share' | 'download_zip'
-   * scale: çözünürlük çarpanı (varsayılan 2. 3 yaparsanız yüksek kalite olur)
+   * scale: çözünürlük çarpanı (varsayılan 2, 3 yaparsanız yüksek kalite olur)
    */
   takeSnapshot: async (
     elementSelector: string,
     fileName: string,
     action: SnapshotAction | 'download_zip' = 'download',
-    _customScale: number = 2
+    customScale: number = 2
   ): Promise<void> => {
-    // scale parametresini capturePages içine aktarmayı ileride yapabiliriz,
-    // şu anlık basitlik için default 2 ölçekte kalabilir ya da dinamikleştirebiliriz.
-    // Şimdilik capturePages içerisindeki html2canvas opsiyonlarını dokunmuyoruz.
-    const canvases = await capturePages(elementSelector);
+    let canvases: HTMLCanvasElement[];
+    try {
+      canvases = await captureAllPages(elementSelector, customScale);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Bilinmeyen hata';
+      throw new AppError(message, 'INTERNAL_ERROR', 500);
+    }
 
     if (action === 'download') {
-      // Tek sayfa ise direkt indir, çoklu sayfa ise ayrı sekme/link
-      // Gelişmiş versiyon: Zaten tek sayfaysa direkt insin.
       canvases.forEach((canvas, i) => {
         const link = document.createElement('a');
         link.download = `${fileName}${canvases.length > 1 ? `_sayfa_${i + 1}` : ''}_${Date.now()}.png`;
@@ -178,7 +55,6 @@ export const snapshotService = {
     }
 
     if (action === 'download_zip' && canvases.length > 1) {
-      // Dinamik olarak jszip'i yükle
       const { default: JSZip } = await import('jszip');
       const zip = new JSZip();
 
@@ -207,7 +83,6 @@ export const snapshotService = {
       setTimeout(() => URL.revokeObjectURL(link.href), 10000);
       return;
     } else if (action === 'download_zip') {
-      // Tek sayfa var ama zip istendiyse direkt resmi verelim
       const canvas = canvases[0];
       const link = document.createElement('a');
       link.download = `${fileName}_${Date.now()}.png`;
@@ -235,7 +110,6 @@ export const snapshotService = {
       return true;
     } catch (err) {
       console.error('Panoya kopyalama hatası:', err);
-      // Fallback: data URL'yi panoya kopyala
       try {
         await navigator.clipboard.writeText(canvas.toDataURL('image/png'));
         return true;
@@ -263,7 +137,7 @@ export const snapshotService = {
         });
         return true;
       } catch (err: unknown) {
-        if (err instanceof Error && err.name === 'AbortError') return false; // Kullanıcı iptal etti
+        if (err instanceof Error && err.name === 'AbortError') return false;
         console.error('Share hatası:', err);
       }
     }
@@ -276,7 +150,7 @@ export const snapshotService = {
   /** Tek bir canvas'tan doğrudan Blob döndür — dışarıdan kullanım için */
   captureAsBlob: async (elementSelector: string): Promise<Blob | null> => {
     try {
-      const canvases = await capturePages(elementSelector);
+      const canvases = await captureAllPages(elementSelector);
       if (canvases.length === 0) return null;
       return await canvasToBlob(canvases[0], 'image/png');
     } catch {

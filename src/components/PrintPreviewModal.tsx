@@ -1,8 +1,9 @@
-// @ts-nocheck
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { printService } from '../utils/printService';
 import { snapshotService } from '../utils/snapshotService';
-import { WorksheetData, StyleSettings } from '../types';
+import { renderAllPagesPreview } from '../utils/print/PreviewRenderer';
+import type { WorksheetData, StyleSettings } from '../types';
+import type { PaperSize } from '../utils/print/types';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { ExportProgressModal } from './ExportProgressModal';
 
@@ -14,34 +15,98 @@ interface PrintPreviewModalProps {
   settings?: StyleSettings;
 }
 
-export const PrintPreviewModal = ({
+export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
   isOpen,
   onClose,
-  _worksheetData,
+  worksheetData: _worksheetData,
   title,
-  _settings,
-}: PrintPreviewModalProps) => {
+  settings: _settings,
+}) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [exportProgress, setExportProgress] = useState({ open: false, percent: 0, message: '' });
+  const [previewReady, setPreviewReady] = useState(false);
   const previewContainerRef = useRef<HTMLDivElement>(null);
+  const cleanupRef = useRef<{ cleanup: () => void; scrollToPage: (i: number) => void } | null>(null);
   const { paperSize, setPaperSize } = usePaperSizeStore();
 
-  useEffect(() => {
-    if (isOpen) {
-      // DOM'da kaç tane worksheet-page veya a4-page varsa say
-      const pages = document.querySelectorAll('.worksheet-page, .a4-page, .universal-mode-canvas');
-      setTotalPages(Math.max(1, pages.length));
-      setCurrentPage(1);
+  // Canlı önizleme render
+  const renderPreview = useCallback(() => {
+    const container = previewContainerRef.current;
+    if (!container) return;
+
+    // Önceki preview'ı temizle
+    if (cleanupRef.current) {
+      cleanupRef.current.cleanup();
+      cleanupRef.current = null;
     }
-  }, [isOpen]);
+
+    try {
+      const result = renderAllPagesPreview(
+        container,
+        paperSize as PaperSize,
+        '.worksheet-page, .a4-page, .universal-mode-canvas, .print-page'
+      );
+
+      setTotalPages(result.totalPages);
+      setCurrentPage(1);
+      setPreviewReady(result.totalPages > 0);
+
+      cleanupRef.current = {
+        cleanup: result.cleanup,
+        scrollToPage: result.scrollToPage,
+      };
+    } catch (err) {
+      console.warn('[PrintPreviewModal] Preview render hatası:', err);
+      setPreviewReady(false);
+    }
+  }, [paperSize]);
+
+  // Modal açıldığında preview render et
+  useEffect(() => {
+    if (!isOpen) {
+      setPreviewReady(false);
+      return;
+    }
+
+    // DOM'un render olması için kısa gecikme
+    const timer = setTimeout(() => {
+      renderPreview();
+    }, 150);
+
+    return () => {
+      clearTimeout(timer);
+      if (cleanupRef.current) {
+        cleanupRef.current.cleanup();
+        cleanupRef.current = null;
+      }
+    };
+  }, [isOpen, renderPreview]);
+
+  // Kağıt boyutu değiştiğinde yeniden render
+  useEffect(() => {
+    if (isOpen && previewReady) {
+      renderPreview();
+    }
+  }, [paperSize]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sayfa navigasyonu
+  const handlePageChange = useCallback((direction: 'prev' | 'next') => {
+    setCurrentPage((prev) => {
+      const newPage = direction === 'prev' ? Math.max(1, prev - 1) : Math.min(totalPages, prev + 1);
+      if (cleanupRef.current) {
+        cleanupRef.current.scrollToPage(newPage - 1); // 0-indexed
+      }
+      return newPage;
+    });
+  }, [totalPages]);
 
   if (!isOpen) return null;
 
   const handleAction = async (action: 'print' | 'pdf' | 'zip') => {
     setIsProcessing(true);
-    await new Promise((r) => setTimeout(r, 50)); // UI thread'a nefes aldır
+    await new Promise((r) => setTimeout(r, 50));
 
     const targetSelector = document.getElementById('print-container')
       ? '#print-container'
@@ -51,28 +116,24 @@ export const PrintPreviewModal = ({
       if (action === 'print') {
         await printService.generatePdf(targetSelector, title, {
           action: 'print',
-          paperSize: paperSize,
+          paperSize: paperSize as PaperSize,
         });
       } else if (action === 'pdf') {
         setExportProgress({ open: true, percent: 0, message: 'PDF Hazırlanıyor...' });
         await printService.generateRealPdf(targetSelector, title, {
-          paperSize: paperSize,
+          paperSize: paperSize as PaperSize,
           quality: 'print',
           onProgress: (percent, msg) => setExportProgress({ open: true, percent, message: msg }),
         });
       } else if (action === 'zip') {
         setExportProgress({ open: true, percent: 40, message: 'Görüntüler sıkıştırılıyor...' });
-        await snapshotService.takeSnapshot(targetSelector, title || 'etkinlik', 'download_zip', 2);
+        await snapshotService.takeSnapshot(targetSelector, title ?? 'etkinlik', 'download_zip', 2);
       }
     } catch (e) {
       console.error('Print/Export error:', e);
     } finally {
       setIsProcessing(false);
       setExportProgress({ open: false, percent: 0, message: '' });
-      if (action !== 'pdf' && action !== 'zip') {
-        // PDF ve ZIP indirmede modalı kapatmıyoruz, print'te kapatabiliriz
-        // onClose();
-      }
     }
   };
 
@@ -194,62 +255,68 @@ export const PrintPreviewModal = ({
             </div>
           </div>
 
-          {/* Sağ Panel: Önizleme Alanı */}
+          {/* Sağ Panel: Canlı Önizleme Alanı */}
           <div className="flex-1 bg-zinc-200/50 dark:bg-black/50 overflow-hidden flex flex-col relative">
             {/* Önizleme Araç Çubuğu */}
             <div className="h-14 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between px-6 z-10">
               <div className="flex items-center gap-2 text-sm font-bold text-zinc-600 dark:text-zinc-300">
                 <i className="fa-regular fa-file-lines text-indigo-500"></i>
-                Toplam {totalPages} Sayfa
+                {previewReady ? (
+                  <span>Toplam {totalPages} Sayfa</span>
+                ) : (
+                  <span className="text-zinc-400">Yükleniyor...</span>
+                )}
               </div>
-              <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
+              <div className="flex items-center gap-1">
+                {/* Yenile butonu */}
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                  disabled={currentPage <= 1}
-                  className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-40 transition-colors shadow-sm"
+                  onClick={renderPreview}
+                  className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
+                  title="Önizlemeyi Yenile"
                 >
-                  <i className="fa-solid fa-chevron-left"></i>
+                  <i className="fa-solid fa-arrows-rotate text-xs"></i>
                 </button>
-                <span className="text-xs font-mono font-bold px-2 text-zinc-700 dark:text-zinc-300">
-                  {currentPage} / {totalPages}
-                </span>
-                <button
-                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage >= totalPages}
-                  className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-40 transition-colors shadow-sm"
-                >
-                  <i className="fa-solid fa-chevron-right"></i>
-                </button>
+                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 ml-1">
+                  <button
+                    onClick={() => handlePageChange('prev')}
+                    disabled={currentPage <= 1}
+                    className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-40 transition-colors shadow-sm"
+                  >
+                    <i className="fa-solid fa-chevron-left"></i>
+                  </button>
+                  <span className="text-xs font-mono font-bold px-2 text-zinc-700 dark:text-zinc-300">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => handlePageChange('next')}
+                    disabled={currentPage >= totalPages}
+                    className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-40 transition-colors shadow-sm"
+                  >
+                    <i className="fa-solid fa-chevron-right"></i>
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Önizleme İçeriği */}
+            {/* Canlı Önizleme İçeriği */}
             <div
-              className="flex-1 overflow-auto p-8 flex justify-center items-start custom-scrollbar relative"
+              className="flex-1 overflow-auto p-4 custom-scrollbar relative"
               ref={previewContainerRef}
             >
-              {/* Fake Preview - In a real scenario we'd clone the DOM here or create an iframe */}
-              <div
-                className="bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] transition-all duration-300 flex flex-col relative overflow-hidden ring-1 ring-zinc-200 dark:ring-zinc-800/50 origin-top"
-                style={{
-                  width: paperSize === 'Extreme_Dikey' ? '210mm' : '297mm',
-                  minHeight: paperSize === 'Extreme_Dikey' ? '297mm' : '210mm',
-                  transform: 'scale(1)', // Responsive scaling could be implemented here
-                }}
-              >
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-zinc-50/80 dark:bg-zinc-900/80 z-20 backdrop-blur-sm">
-                  <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-500 flex items-center justify-center mb-4">
-                    <i className="fa-solid fa-eye text-2xl"></i>
+              {/* Container boşken yükleme göstergesi */}
+              {!previewReady && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 z-20">
+                  <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-500 flex items-center justify-center mb-4 animate-pulse">
+                    <i className="fa-solid fa-spinner fa-spin text-2xl"></i>
                   </div>
                   <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-2">
-                    Canlı Önizleme Aktif Değil
+                    Önizleme Hazırlanıyor
                   </h3>
                   <p className="text-sm text-zinc-500 max-w-[280px]">
-                    Gerçek çözünürlükte çıktıyı almak için sol taraftaki eylem düğmelerini kullanın.
-                    İçeriğiniz arka planda güvenle işlenir.
+                    Sayfa içeriği klonlanıyor ve ölçekleniyor...
                   </p>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Loading Overlay */}

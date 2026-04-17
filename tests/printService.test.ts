@@ -294,4 +294,159 @@ describe('printService - Tablet Blank Page Fix', () => {
       expect(window.print).toHaveBeenCalled();
     });
   });
+
+  // ─── Yeni Testler: Barrel Export Uyumluluk ────────────────────────────────
+  describe('Barrel Export — Geriye Dönük Uyumluluk', () => {
+    it('printService.print metodu mevcut olmalı', () => {
+      expect(typeof printService.print).toBe('function');
+    });
+
+    it('printService.captureAndPrint metodu mevcut olmalı', () => {
+      expect(typeof printService.captureAndPrint).toBe('function');
+    });
+
+    it('printService.generatePdf metodu mevcut olmalı', () => {
+      expect(typeof printService.generatePdf).toBe('function');
+    });
+
+    it('printService.generateRealPdf metodu mevcut olmalı', () => {
+      expect(typeof printService.generateRealPdf).toBe('function');
+    });
+
+    it('PaperSize tipi import edilebilmeli', async () => {
+      const mod = await import('../src/utils/printService');
+      expect(mod).toHaveProperty('printService');
+    });
+
+    it('print/index barrel modülünden doğrudan import çalışmalı', async () => {
+      const mod = await import('../src/utils/print/index');
+      expect(mod.printService).toBeDefined();
+      expect(typeof mod.printService.print).toBe('function');
+      expect(typeof mod.printService.captureAndPrint).toBe('function');
+      expect(typeof mod.printService.generatePdf).toBe('function');
+      expect(typeof mod.printService.generateRealPdf).toBe('function');
+    });
+
+    it('CaptureEngine fonksiyonları barrel üzerinden erişilebilmeli', async () => {
+      const mod = await import('../src/utils/print/index');
+      expect(typeof mod.preloadFontsForCapture).toBe('function');
+      expect(typeof mod.onCloneForCapture).toBe('function');
+      expect(typeof mod.captureAllPages).toBe('function');
+      expect(typeof mod.collectPages).toBe('function');
+      expect(typeof mod.hasRenderableContent).toBe('function');
+    });
+
+    it('CSSInjector fonksiyonları barrel üzerinden erişilebilmeli', async () => {
+      const mod = await import('../src/utils/print/index');
+      expect(typeof mod.ensurePrintStyle).toBe('function');
+      expect(typeof mod.forceRenderAllPages).toBe('function');
+      expect(typeof mod.clearRenderAllPagesFlag).toBe('function');
+    });
+
+    it('PreviewRenderer fonksiyonları barrel üzerinden erişilebilmeli', async () => {
+      const mod = await import('../src/utils/print/index');
+      expect(typeof mod.renderPagePreview).toBe('function');
+      expect(typeof mod.renderAllPagesPreview).toBe('function');
+    });
+  });
+
+  // ─── Edge Case: Boş İçerik Korumaları ────────────────────────────────────
+  describe('Edge Case — Boş İçerik', () => {
+    it('selector bulunamadığında fallback window.print çağrılmalı', () => {
+      printService.print('.really-nonexistent', 'A4');
+      expect(window.print).toHaveBeenCalled();
+    });
+
+    it('çoklu sayfa içeriğinde tüm sayfalar klonlanmalı', async () => {
+      for (let i = 0; i < 3; i++) {
+        const page = document.createElement('div');
+        page.className = 'worksheet-page';
+        page.innerHTML = `<p>Sayfa ${i + 1}</p>`;
+        document.body.appendChild(page);
+      }
+
+      printService.print('.worksheet-page', 'A4');
+
+      const overlay = document.getElementById('print-overlay');
+      expect(overlay).not.toBeNull();
+      const clonedContent = overlay!.textContent;
+      expect(clonedContent).toContain('Sayfa 1');
+      expect(clonedContent).toContain('Sayfa 2');
+      expect(clonedContent).toContain('Sayfa 3');
+    });
+
+    it('nested worksheet-page sayfaları doğru toplanmalı', () => {
+      const container = document.createElement('div');
+      container.className = 'content-root';
+
+      const page1 = document.createElement('div');
+      page1.className = 'worksheet-page';
+      page1.innerHTML = '<p>Nested sayfa 1</p>';
+
+      const page2 = document.createElement('div');
+      page2.className = 'a4-page';
+      page2.innerHTML = '<p>Nested sayfa 2</p>';
+
+      container.appendChild(page1);
+      container.appendChild(page2);
+      document.body.appendChild(container);
+
+      printService.print('.content-root', 'A4');
+
+      const overlay = document.getElementById('print-overlay');
+      expect(overlay).not.toBeNull();
+      const text = overlay!.textContent ?? '';
+      expect(text).toContain('Nested sayfa 1');
+      expect(text).toContain('Nested sayfa 2');
+    });
+  });
+
+  // ─── Çoklu Sayfa Overlay Doğrulama ───────────────────────────────────────
+  describe('Çoklu Sayfa Overlay', () => {
+    it('N sayfa = N adet wrapper oluşmalı', () => {
+      const pages = 5;
+      for (let i = 0; i < pages; i++) {
+        const page = document.createElement('div');
+        page.className = 'worksheet-page';
+        page.innerHTML = `<p>S${i + 1}</p>`;
+        document.body.appendChild(page);
+      }
+
+      printService.print('.worksheet-page', 'A4');
+
+      const overlay = document.getElementById('print-overlay');
+      const wrappers = overlay!.querySelectorAll('.oogmatik-print-wrapper');
+      expect(wrappers).toHaveLength(pages);
+    });
+
+    it('input/select degerleri klonlanan overlay icine tasinmali', () => {
+      const page = document.createElement('div');
+      page.className = 'worksheet-page';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = 'test-value';
+      page.appendChild(input);
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = true;
+      page.appendChild(checkbox);
+
+      document.body.appendChild(page);
+
+      printService.print('.worksheet-page', 'A4');
+
+      const overlay = document.getElementById('print-overlay');
+      const clonedInputs = overlay!.querySelectorAll('input');
+      expect(clonedInputs.length).toBeGreaterThanOrEqual(2);
+
+      const textInput = Array.from(clonedInputs).find((i) => i.type === 'text');
+      expect(textInput?.value).toBe('test-value');
+
+      const chk = Array.from(clonedInputs).find((i) => i.type === 'checkbox');
+      expect(chk?.checked).toBe(true);
+    });
+  });
 });
+

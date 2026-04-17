@@ -560,17 +560,66 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
     );
   };
 
+  // --- PAGE BREAK INDICATOR ---
+  const PageBreakIndicator = ({ fromPage, toPage }: { fromPage: number; toPage: number }) => (
+    <div
+      className="no-print w-full max-w-[210mm] flex items-center gap-3 py-1 select-none print:hidden"
+      style={{ opacity: 0.45 }}
+    >
+      <div
+        className="flex-1 h-px"
+        style={{
+          background: 'repeating-linear-gradient(90deg, #9ca3af 0, #9ca3af 4px, transparent 4px, transparent 8px)',
+        }}
+      />
+      <span
+        className="text-[10px] font-bold tracking-[0.1em] whitespace-nowrap"
+        style={{ color: '#9ca3af', fontFamily: 'Inter, sans-serif' }}
+      >
+        ✂ Sayfa {fromPage} → {toPage}
+      </span>
+      <div
+        className="flex-1 h-px"
+        style={{
+          background: 'repeating-linear-gradient(90deg, #9ca3af 0, #9ca3af 4px, transparent 4px, transparent 8px)',
+        }}
+      />
+    </div>
+  );
+
   // --- MAIN RENDER LOGIC ---
   const contentStartPage = settings.showTOC ? 3 : 2;
+
+  // Toplam sayfa sayısını hesapla (kapak + İçindekiler + içerikler + arka kapak)
+  let runningPageNum = 1; // Kapak
 
   return (
     <div className={`workbook-container w-full flex flex-col items-center gap-12 bg-zinc-100 dark:bg-zinc-900 py-12 print:p-0 print:gap-0 print:bg-white ${isLandscape ? 'orientation-landscape' : 'orientation-portrait'}`}>
       {renderCover()}
-      {renderTableOfContents()}
+      <PageBreakIndicator fromPage={runningPageNum} toPage={runningPageNum + 1} />
+      {(() => { runningPageNum++; return null; })()}
+
+      {settings.showTOC && items.length > 0 && (
+        <>
+          {renderTableOfContents()}
+          <PageBreakIndicator fromPage={runningPageNum} toPage={runningPageNum + 1} />
+          {(() => { runningPageNum++; return null; })()}
+        </>
+      )}
+      {!settings.showTOC && renderTableOfContents()}
 
       {items.map((item, index) => {
+        const currentPageNum = index + contentStartPage;
+
         if (item.itemType === 'divider') {
-          return <div key={item.id}>{renderDividerPage(item, index)}</div>;
+          return (
+            <React.Fragment key={item.id}>
+              {renderDividerPage(item, index)}
+              {index < items.length - 1 && (
+                <PageBreakIndicator fromPage={currentPageNum} toPage={currentPageNum + 1} />
+              )}
+            </React.Fragment>
+          );
         }
 
         const mergedSettings = {
@@ -585,54 +634,67 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
 
         if (item.activityType === ActivityType.INFOGRAPHIC_STUDIO) {
           return (
-            <div key={item.id} className="relative w-full flex flex-col items-center">
-              <Worksheet
-                activityType={item.activityType}
-                data={item.data as any}
-                settings={mergedSettings}
-                studentProfile={{
-                  name: settings.studentName,
-                  school: settings.schoolName,
-                  grade: '',
-                  date: new Date().toLocaleDateString('tr-TR'),
-                }}
-              />
-            </div>
+            <React.Fragment key={item.id}>
+              <div className="relative w-full flex flex-col items-center">
+                <Worksheet
+                  activityType={item.activityType}
+                  data={item.data as any}
+                  settings={mergedSettings}
+                  studentProfile={{
+                    name: settings.studentName,
+                    school: settings.schoolName,
+                    grade: '',
+                    date: new Date().toLocaleDateString('tr-TR'),
+                  }}
+                />
+              </div>
+              {index < items.length - 1 && (
+                <PageBreakIndicator fromPage={currentPageNum} toPage={currentPageNum + 1} />
+              )}
+            </React.Fragment>
           );
         }
 
         return (
-          <div key={item.id} className="relative w-full flex justify-center print:m-0">
-            <div className="relative bg-white shadow-2xl worksheet-page" style={getPageStyle()}>
-              <Watermark />
-              <div className="relative z-10 h-full">
-                {item.activityType === 'ASSESSMENT_REPORT' ? (
-                  <div className="p-20 text-center flex flex-col items-center justify-center h-full">
-                    <i className="fa-solid fa-chart-line text-6xl text-zinc-100 mb-8"></i>
-                    <h3 className="text-2xl font-black opacity-20 uppercase tracking-widest">
-                      Gelişim Analiz Raporu
-                    </h3>
-                  </div>
-                ) : (
-                  <Worksheet
-                    activityType={item.activityType}
-                    data={[item.data as any]}
-                    settings={mergedSettings}
-                    studentProfile={{
-                      name: settings.studentName,
-                      school: settings.schoolName,
-                      grade: '',
-                      date: new Date().toLocaleDateString('tr-TR'),
-                    }}
-                  />
-                )}
+          <React.Fragment key={item.id}>
+            <div className="relative w-full flex justify-center print:m-0">
+              <div className="relative bg-white shadow-2xl worksheet-page" style={getPageStyle()}>
+                <Watermark />
+                <div className="relative z-10 h-full">
+                  {item.activityType === 'ASSESSMENT_REPORT' ? (
+                    <div className="p-20 text-center flex flex-col items-center justify-center h-full">
+                      <i className="fa-solid fa-chart-line text-6xl text-zinc-100 mb-8"></i>
+                      <h3 className="text-2xl font-black opacity-20 uppercase tracking-widest">
+                        Gelişim Analiz Raporu
+                      </h3>
+                    </div>
+                  ) : (
+                    <Worksheet
+                      activityType={item.activityType}
+                      data={[item.data as any]}
+                      settings={mergedSettings}
+                      studentProfile={{
+                        name: settings.studentName,
+                        school: settings.schoolName,
+                        grade: '',
+                        date: new Date().toLocaleDateString('tr-TR'),
+                      }}
+                    />
+                  )}
+                </div>
+                <PageFooter pageNum={currentPageNum} />
               </div>
-              <PageFooter pageNum={index + contentStartPage} />
             </div>
-          </div>
+            {index < items.length - 1 && (
+              <PageBreakIndicator fromPage={currentPageNum} toPage={currentPageNum + 1} />
+            )}
+          </React.Fragment>
         );
       })}
 
+      {items.length > 0 && settings.showBackCover && (
+        <PageBreakIndicator fromPage={items.length + contentStartPage - 1} toPage={items.length + contentStartPage} />
+      )}
       {renderBackCover()}
     </div>
   );
