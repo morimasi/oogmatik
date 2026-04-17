@@ -285,7 +285,8 @@ export const capturePage = async (
   page: HTMLElement,
   scale: number = 2
 ): Promise<HTMLCanvasElement> => {
-  const { default: html2canvas } = await import('html2canvas');
+  const html2canvasModule = await import('html2canvas');
+  const html2canvas = html2canvasModule.default || html2canvasModule;
 
   const restoreScales = stripScalesAndTransforms(page);
   const restorePixels = pixelLockElement(page);

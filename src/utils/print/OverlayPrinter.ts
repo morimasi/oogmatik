@@ -265,7 +265,8 @@ export const captureAndPrint = async (
 
     await preloadFontsForCapture();
 
-    const { default: html2canvas } = await import('html2canvas');
+    const html2canvasModule = await import('html2canvas');
+    const html2canvas = html2canvasModule.default || html2canvasModule;
     const dataUrls: string[] = [];
 
     for (const page of pages) {

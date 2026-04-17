@@ -72,7 +72,8 @@ export const generateRealPdf = async (
     await preloadFontsForCapture();
 
     // Dinamik import — kod bölme
-    const { jsPDF } = await import('jspdf');
+    const jspdfModule: any = await import('jspdf');
+    const jsPDF = jspdfModule.jsPDF || (jspdfModule.default ? jspdfModule.default.jsPDF || jspdfModule.default : null) || jspdfModule;
 
     // PDF oluştur
     const pdf = new jsPDF({
