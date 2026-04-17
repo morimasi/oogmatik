@@ -386,8 +386,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
             style={{ transform: `scale(${canvasScale})` }}
           >
             <ReadingStudioContentRenderer layout={layout} storyData={storyData} />
-
-            {!storyData && layout.length === 0 && (
+            {!storyData && (!layout || layout.length === 0) && (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-300 pointer-events-none opacity-20 bg-zinc-50/50">
                 <i className="fa-solid fa-wand-magic-sparkles text-9xl mb-8"></i>
                 <p className="text-2xl font-black uppercase tracking-[0.3em]">Boş Tuval</p>

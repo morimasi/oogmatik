@@ -195,7 +195,7 @@ export const ReadingStudioContentRenderer = ({
 
     // 3. 5N1K ANALYSIS
     if (item.id === '5n1k') {
-      const questions = item.specificData?.questions || [];
+      const questions = Array.isArray(item.specificData?.questions) ? item.specificData.questions : [];
       return (
         <div className="flex flex-col h-full bg-zinc-50/50 rounded-2xl border border-zinc-200" style={boxStyle}>
           <h4 className="font-black text-[11px] uppercase mb-4 text-accent border-b border-accent/20 pb-1">
@@ -206,9 +206,9 @@ export const ReadingStudioContentRenderer = ({
             {questions.map((q: any, i: number) => (
               <div key={i} className="flex flex-col gap-1.5">
                 <span className="text-[10px] font-black opacity-40 uppercase tracking-tighter">
-                  {q.type?.toUpperCase()}?
+                  {q.type?.toUpperCase() || '-'}
                 </span>
-                <p className="text-[13px] font-bold leading-tight">{q.question}</p>
+                <p className="text-[13px] font-bold leading-tight">{q.question || '-'}</p>
                 <div className="h-6 border-b border-zinc-300 border-dashed"></div>
               </div>
             ))}
@@ -219,7 +219,7 @@ export const ReadingStudioContentRenderer = ({
 
     // 4. VOCABULARY
     if (item.id === 'vocabulary') {
-      const words = item.specificData?.words || [];
+      const words = Array.isArray(item.specificData?.words) ? item.specificData.words : [];
       return (
         <div className="flex flex-col h-full bg-amber-50/30 rounded-2xl border border-amber-200/50" style={boxStyle}>
           <h4 className="font-black text-[11px] uppercase mb-3 text-amber-700">
@@ -261,7 +261,7 @@ export const ReadingStudioContentRenderer = ({
 
     // 6. TEST QUESTIONS
     if (item.id === 'test_questions') {
-        const questions = item.specificData?.questions || [];
+        const questions = Array.isArray(item.specificData?.questions) ? item.specificData.questions : [];
         return (
             <div className="flex flex-col h-full" style={boxStyle}>
                  <h4 className="font-black text-[11px] uppercase mb-4 text-indigo-700 border-b border-indigo-100 pb-1">
@@ -276,7 +276,7 @@ export const ReadingStudioContentRenderer = ({
                                 <p className="font-bold text-[14px] leading-snug">{q.question}</p>
                              </div>
                              <div className="grid grid-cols-2 gap-x-8 gap-y-2 ml-9">
-                                {q.options?.map((opt: string, optIdx: number) => (
+                                {(Array.isArray(q.options) ? q.options : []).map((opt: string, optIdx: number) => (
                                     <div key={optIdx} className="flex items-center gap-2">
                                         <div className="w-5 h-5 rounded-full border border-zinc-300 flex items-center justify-center text-[10px] font-bold">
                                             {String.fromCharCode(65 + optIdx)}
@@ -317,7 +317,7 @@ export const ReadingStudioContentRenderer = ({
 
     // 8. SYLLABLE TRAIN (Vagon Tasarımı)
     if (item.id === 'syllable_train') {
-        const words = item.specificData?.words || [];
+        const words = Array.isArray(item.specificData?.words) ? item.specificData.words : [];
         return (
             <div className="flex flex-col h-full" style={boxStyle}>
                  <h4 className="font-black text-[11px] uppercase mb-4 text-cyan-700">
@@ -333,7 +333,7 @@ export const ReadingStudioContentRenderer = ({
                                  <i className="fa-solid fa-train text-xs"></i>
                              </div>
                              {/* Syllable Wagons */}
-                             {w.syllables?.map((syl: string, sylIdx: number) => (
+                             {(Array.isArray(w.syllables) ? w.syllables : []).map((syl: string, sylIdx: number) => (
                                  <div key={sylIdx} className="w-12 h-10 border-2 border-cyan-700 border-l-0 bg-white flex items-center justify-center font-black text-sm relative group overflow-hidden">
                                     {syl.toUpperCase()}
                                     <div className="absolute bottom-0 h-1 bg-cyan-700/20 w-full"></div>
