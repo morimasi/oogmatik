@@ -62,3 +62,36 @@ export const BELLEK_DATA = {
     advanced: BELLEK_WORDS.slice(100, 300),
     expert: BELLEK_WORDS
 };
+
+import { SariKitapSourceEntry } from '../../types/sariKitap.js';
+
+export const SARI_KITAP_BELLEK: SariKitapSourceEntry[] = [
+    {
+        id: 'bellek-1',
+        title: 'Başlangıç Kavram Havuzu (100 Kelime)',
+        text: BELLEK_DATA.beginner.join(', '),
+        ageGroup: '5-7',
+        difficulty: 'Başlangıç'
+    },
+    {
+        id: 'bellek-2',
+        title: 'Orta Seviye Kavram Havuzu (150 Kelime)',
+        text: BELLEK_DATA.medium.join(', '),
+        ageGroup: '8-10',
+        difficulty: 'Orta'
+    },
+    {
+        id: 'bellek-3',
+        title: 'İleri Seviye Kavram Havuzu (200 Kelime)',
+        text: BELLEK_DATA.advanced.join(', '),
+        ageGroup: '11-13',
+        difficulty: 'İleri'
+    },
+    {
+        id: 'bellek-4',
+        title: 'Akademik Master Liste (Tümü)',
+        text: BELLEK_DATA.expert.join(', '),
+        ageGroup: '14+',
+        difficulty: 'Uzman'
+    }
+];
