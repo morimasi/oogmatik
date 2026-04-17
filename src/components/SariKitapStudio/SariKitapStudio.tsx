@@ -137,7 +137,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                     {error && <div className="sk-error">⚠️ {error}</div>}
 
                     {/* Son Üretimler (Sol panelin altına taşındı) */}
-                    {recentGenerations.length > 0 && (
+                    {(Array.isArray(recentGenerations) && recentGenerations.length > 0) && (
                         <div className="sk-panel" style={{ marginTop: 'auto' }}>
                             <div className="sk-section-title">Son Üretimler</div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
