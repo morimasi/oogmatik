@@ -189,18 +189,34 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         margin: 0 !important;
         box-shadow: none !important;
         border: none !important;
-        padding-top: 20mm !important; /* Üstteki tarihin yerine geçen boşluk */
+        padding-top: 15mm !important; /* Üstteki tarihin yerine geçen boşluk */
         padding-bottom: 20mm !important;
         padding-left: 10mm !important;
         padding-right: 10mm !important;
         page-break-after: always !important;
         break-after: page !important;
         background: white !important;
+        display: block !important;
+        position: relative !important;
+      }
+
+      /* Sayfa başı zorunlu boşluk kalkanı (Tarih verisi kalktığı için zorunlu) */
+      .print-page::before, .worksheet-page::before {
+        content: "" !important;
+        display: block !important;
+        height: 10mm !important; /* 0.5 cm'den fazla (1cm) güvenlik tamponu */
+        width: 100% !important;
+      }
+
+      .print-page img {
+        margin-top: 5mm !important; /* Görseller için ekstra iç güvenlik marjı */
       }
 
       .oogmatik-print-wrapper {
         display: block !important;
         background: white !important;
+        margin: 0 !important;
+        padding-top: 5mm !important; /* Ana sarmalayıcı için ek boşluk */
       }
 
       /* UI Temizliği (Floating UI, Buttons, Toasts) */
