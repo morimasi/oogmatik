@@ -96,15 +96,57 @@ export const A4PrintableSheetV2: React.FC<A4PrintableSheetV2Props> = ({
     dynamicClasses = tClass.container;
   }
 
-  // Gelişmiş Sayfalama Mantığı
-  const widgetsPerPage = 4;
-  const pages: WorksheetWidget[][] = [];
+  // Dinamik Ağırlık Hesaplama
+  const getWidgetWeight = (widget: WorksheetWidget): number => {
+    let weight = 15; // Minimum taban ağırlık
 
-  for (let i = 0; i < worksheet.widgets.length; i += widgetsPerPage) {
-    pages.push(worksheet.widgets.slice(i, i + widgetsPerPage));
+    switch (widget.type) {
+      case 'reading_passage':
+        const textHeight = ((widget as any).data?.text || (widget as any).text || '').length / 45;
+        weight = Math.max(30, textHeight * 5); // Metin uzunluğuna göre ölçekle
+        break;
+      case 'quiz_block':
+        const questionCount = (widget as any).data?.questions?.length || 0;
+        weight = 20 + (questionCount * 15);
+        break;
+      case 'infographic':
+        weight = 60; // Görseller genellikle çok yer kaplar
+        break;
+      case 'math_graphic':
+        weight = 50;
+        break;
+      default:
+        weight = 25;
+    }
+    return weight;
+  };
+
+  // Gelişmiş Dinamik Sayfalama Mantığı
+  const LIMIT_PER_PAGE = 100;
+  const pages: WorksheetWidget[][] = [];
+  let currentPage: WorksheetWidget[] = [];
+  let currentWeight = 0;
+
+  worksheet.widgets.forEach((widget) => {
+    const weight = getWidgetWeight(widget);
+    
+    // Eğer widget tek başına limiti aşıyorsa veya mevcut sayfaya sığmıyorsa yeni sayfaya geç
+    if (currentWeight + weight > LIMIT_PER_PAGE && currentPage.length > 0) {
+      pages.push(currentPage);
+      currentPage = [widget];
+      currentWeight = weight;
+    } else {
+      currentPage.push(widget);
+      currentWeight += weight;
+    }
+  });
+
+  if (currentPage.length > 0) {
+    pages.push(currentPage);
   }
 
   if (pages.length === 0) pages.push([]);
+
 
   const content = pages.map((pageWidgets, pageIndex) => (
     <div

@@ -68,12 +68,13 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
     };
 
     const handlePrint = () => {
-        printService.captureAndPrint('.print-page', content?.title || 'Kelime_Cumle_Calismasi', 'print', 'A4');
+        printService.generatePdf('.print-page', content?.title || 'Kelime_Cumle_Calismasi', { action: 'print' });
     };
 
     const handleDownload = () => {
-        printService.captureAndPrint('.print-page', content?.title || 'Kelime_Cumle_Calismasi', 'download', 'A4');
+        printService.generatePdf('.print-page', content?.title || 'Kelime_Cumle_Calismasi', { action: 'download' });
     };
+
 
     const handleAddToWorkbook = () => {
         if (onAddToWorkbook && content) {

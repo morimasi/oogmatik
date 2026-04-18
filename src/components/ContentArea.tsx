@@ -377,25 +377,30 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                       onZoomChange={setZoomScale}
                       downloadLink={
                         <button
-                          onClick={() => {
+                          onClick={async () => {
                             const targetSelector = document.getElementById('print-container')
                               ? '#print-container'
                               : '.worksheet-page';
-                            import('../utils/printService').then((m) => {
-                              const store = usePaperSizeStore.getState();
-                              m.printService.generatePdf(
-                                targetSelector,
-                                activeWorksheetTitle || 'Etkinlik',
-                                { action: 'print', paperSize: store.paperSize }
-                              );
-                            });
+                            
+                            const { printService } = await import('../utils/printService');
+                            const store = usePaperSizeStore.getState();
+                            
+                            await printService.generatePdf(
+                              targetSelector,
+                              activeWorksheetTitle || 'Etkinlik',
+                              { 
+                                action: 'print', 
+                                paperSize: store.paperSize 
+                              }
+                            );
                           }}
-                          className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm"
+                          className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm border border-blue-200/50"
                         >
-                          <i className="fa-solid fa-download"></i>
-                          PDF İndir
+                          <i className="fa-solid fa-print"></i>
+                          Hızlı Yazdır / PDF
                         </button>
                       }
+
                     >
                       <UniversalWorksheetWrapper
                         activityType={activityType}

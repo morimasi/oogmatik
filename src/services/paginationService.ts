@@ -21,41 +21,137 @@ const recursiveSafeText = (val: any): string => {
 };
 
 const getBlockWeight = (block: WorksheetBlock): number => {
-    const content: any = block.content || {};
+    const type = block.type;
+    const content: any = block.content;
+    if (!content) return 0;
 
-    switch (block.type) {
-        case 'header': return 60;
+    switch (type) {
+        case 'header':
+            return 80;
         case 'text': {
             const text = recursiveSafeText(content.text || content);
-            const lines = Math.ceil(text.length / 85);
-            return 15 + (lines * 22);
+            const lines = Math.ceil(text.length / 75);
+            return 25 + lines * 28;
         }
         case 'grid': {
             const rows = Math.ceil((content.cells?.length || 0) / (content.cols || 4));
-            return 35 + (rows * 32);
+            return 45 + rows * 40;
         }
         case 'table': {
             const rows = (content.rows || content.data || []).length;
-            return 40 + (rows * 28);
+            return 50 + rows * 35;
         }
-        case 'image': return content.height || 260;
+        case 'image':
+            return content.height || 300;
         case 'cloze_test': {
             const text = recursiveSafeText(content.text || '');
-            const lines = Math.ceil(text.length / 80);
-            return 60 + (lines * 24);
+            const lines = Math.ceil(text.length / 70);
+            return 70 + lines * 30;
         }
-        case 'categorical_sorting': return 60 + (content.categories?.length || 0) * 45;
+        case 'categorical_sorting':
+            return 80 + (content.categories?.length || 0) * 55;
         case 'match_columns': {
             const leftLen = (content.leftColumn || content.left || []).length;
-            return 50 + leftLen * 35;
+            return 60 + leftLen * 45;
         }
-        case 'visual_clue_card': return 80;
-        case 'neuro_marker': return 45;
-        case 'logic_card': return 140;
-        case 'footer_validation': return 100;
-        case 'svg_shape': return content.height || 100;
-        default: return 70;
+        case 'visual_clue_card':
+            return 100;
+        case 'neuro_marker':
+            return 60;
+        case 'logic_card':
+            return 160;
+        case 'footer_validation':
+            return 120;
+        case 'svg_shape':
+            return content.height || 120;
+        default:
+            return 85;
     }
+};
+
+/**
+ * Sayfa sınırını aşan blokları böler.
+ */
+const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlock[] => {
+    const content: any = block.content;
+    const weight = getBlockWeight(block);
+    if (weight <= maxWeight) return [block];
+
+    // TEXT BLOKLARINI CÜMLE/PARAGRAF BAZLI BÖL
+    if (block.type === 'text') {
+        const text = recursiveSafeText(content.text || '');
+        const paragraphs = text.split(/\n+/);
+        
+        if (paragraphs.length > 1) {
+            const result: WorksheetBlock[] = [];
+            let currentText = '';
+            let currentWeight = 25;
+
+            paragraphs.forEach((p) => {
+                const pWeight = Math.ceil(p.length / 75) * 28;
+                if (currentWeight + pWeight > maxWeight && currentText) {
+                    result.push({ ...block, content: { ...content, text: currentText.trim() } });
+                    currentText = p + '\n';
+                    currentWeight = 25 + pWeight;
+                } else {
+                    currentText += p + '\n';
+                    currentWeight += pWeight;
+                }
+            });
+            
+            if (currentText) {
+                result.push({ ...block, content: { ...content, text: currentText.trim(), isContinuation: true } });
+            }
+            return result;
+        }
+
+        // Tek paragraf ise cümle bazlı böl
+        const sentences = text.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) || [text];
+        if (sentences.length >= 2) {
+            const result: WorksheetBlock[] = [];
+            let currentText = '';
+            let currentWeight = 25;
+
+            sentences.forEach((s) => {
+                const sWeight = Math.ceil(s.length / 75) * 28;
+                if (currentWeight + sWeight > maxWeight && currentText) {
+                    result.push({ ...block, content: { ...content, text: currentText.trim() } });
+                    currentText = s + ' ';
+                    currentWeight = 25 + sWeight;
+                } else {
+                    currentText += s + ' ';
+                    currentWeight += sWeight;
+                }
+            });
+
+            if (currentText) {
+                result.push({ ...block, content: { ...content, text: currentText.trim(), isContinuation: true } });
+            }
+            return result;
+        }
+    }
+
+    // CLOZE TEST BÖLME
+    if (block.type === 'cloze_test') {
+        const text = recursiveSafeText(content.text || '');
+        const sentences = text.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) || [text];
+        if (sentences.length >= 2) {
+            const mid = Math.ceil(sentences.length / 2);
+            return [
+                { ...block, content: { ...content, text: sentences.slice(0, mid).join(' ').trim() } },
+                {
+                    ...block,
+                    content: {
+                        ...content,
+                        text: sentences.slice(mid).join(' ').trim(),
+                        isContinuation: true,
+                    },
+                },
+            ];
+        }
+    }
+
+    return [block];
 };
 
 export const paginationService = {
@@ -63,61 +159,66 @@ export const paginationService = {
         if (!data || !Array.isArray(data) || data.length === 0) return [];
         if (settings && settings.smartPagination === false) return data;
 
-        const allPages: any[] = [];
+        const pages: any[] = [];
+        let currentItems: any[] = [];
+        let currentWeight = 0;
+        let pageIndex = 0;
+        const originalPageTemplate = data[0] || {};
 
-        data.forEach((originalPageData) => {
-            const listKey = originalPageData.blocks ? 'blocks' : (originalPageData.puzzles ? 'puzzles' : (originalPageData.operations ? 'operations' : (originalPageData.steps ? 'steps' : (originalPageData.problems ? 'problems' : (originalPageData.items ? 'items' : null)))));
-
-            if (listKey && Array.isArray(originalPageData[listKey])) {
-                let currentItems: any[] = [];
-                let currentWeight = 0;
-                let pageIndex = 0;
-
-                // İlk sayfa: tam header maliyeti
-                let availableWeight = MAX_PAGE_WEIGHT;
-
-                originalPageData[listKey].forEach((item: any) => {
-                    const weight = originalPageData.blocks ? getBlockWeight(item) : 10;
-
-                    if (currentWeight + weight > availableWeight && currentItems.length > 0) {
-                        allPages.push({
-                            ...originalPageData,
-                            [listKey]: currentItems,
-                            isContinuation: pageIndex > 0,
-                            pageTotalWeight: currentWeight,
-                            _pageIndex: pageIndex,
-                        });
-                        currentItems = [];
-                        currentWeight = 0;
-                        pageIndex++;
-                        // Devam sayfaları: mini-header maliyeti düş
-                        availableWeight = MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST;
+        // Veriyi bir düz listeye aç (bölme işlemiyle beraber)
+        const rawItems: any[] = [];
+        data.forEach(page => {
+            const listKey = page.blocks ? 'blocks' : (page.puzzles ? 'puzzles' : (page.operations ? 'operations' : (page.steps ? 'steps' : (page.problems ? 'problems' : (page.items ? 'items' : null)))));
+            if (listKey && Array.isArray(page[listKey])) {
+                page[listKey].forEach((item: any) => {
+                    const weight = page.blocks ? getBlockWeight(item) : 70;
+                    if (weight > MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST) {
+                        const splitBlocks = splitLargeBlock(item, MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST);
+                        rawItems.push(...splitBlocks);
+                    } else {
+                        rawItems.push(item);
                     }
-                    currentItems.push(item);
-                    currentWeight += weight;
                 });
-
-                if (currentItems.length > 0) {
-                    allPages.push({
-                        ...originalPageData,
-                        [listKey]: currentItems,
-                        isContinuation: pageIndex > 0,
-                        pageTotalWeight: currentWeight,
-                        _pageIndex: pageIndex,
-                    });
-                }
             } else {
-                allPages.push(originalPageData);
+                rawItems.push(page);
             }
         });
 
-        // Toplam sayfa sayısını her sayfaya ekle + sayfa numarası
-        const totalPages = allPages.length;
-        allPages.forEach((page, i) => {
+        rawItems.forEach((item) => {
+            const weight = getBlockWeight(item);
+            const limit = pageIndex === 0 ? MAX_PAGE_WEIGHT : MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST;
+
+            if (currentWeight + weight > limit && currentItems.length > 0) {
+                pages.push({
+                    ...originalPageTemplate,
+                    blocks: [...currentItems],
+                    isContinuation: pageIndex > 0,
+                    _pageIndex: pageIndex,
+                });
+                currentItems = [];
+                currentWeight = 0;
+                pageIndex++;
+            }
+            currentItems.push(item);
+            currentWeight += weight;
+        });
+
+        if (currentItems.length > 0) {
+            pages.push({
+                ...originalPageTemplate,
+                blocks: currentItems,
+                isContinuation: pageIndex > 0,
+                _pageIndex: pageIndex,
+            });
+        }
+
+        const totalPages = pages.length;
+        pages.forEach((page, i) => {
             page._totalPages = totalPages;
             page._currentPage = i + 1;
         });
 
-        return allPages;
+        return pages;
     }
 };
+

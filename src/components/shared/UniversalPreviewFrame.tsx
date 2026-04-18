@@ -102,11 +102,10 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
 
   const handleCaptureDownload = () => {
     setExportOpen(false);
-    if (!printSelector) return;
-    import('../../utils/printService').then((m) =>
-      m.printService.captureAndPrint(printSelector, printFileName, 'download', 'A4')
-    );
+    const target = printSelector || '.worksheet-page';
+    printService.generatePdf(target, printFileName, { action: 'download' });
   };
+
 
   const handleCopyToClipboard = async () => {
     setExportOpen(false);

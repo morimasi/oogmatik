@@ -97,10 +97,14 @@ export const useInfographicExport = (
 
         try {
             show('PDF dışa aktarma işlemi başlatıldı.', 'success');
-            await printService.captureAndPrint(
+            // Yeni motor: generatePdf (action: download)
+            await printService.generatePdf(
                 '.infographic-page-container',
-                result.title || 'Oogmatik_Premium_Worksheet',
-                'download'
+                result.title || result.topic || 'Oogmatik_Premium_Worksheet',
+                { 
+                    action: 'download',
+                    paperSize: 'A4'
+                }
             );
         } catch (error) {
             show('PDF oluşturulurken bir hata oluştu.', 'error');
@@ -111,15 +115,20 @@ export const useInfographicExport = (
         if (!result) return;
 
         try {
-            await printService.captureAndPrint(
+            // Yeni motor: generatePdf (action: print) -> OverlayPrinter.print çağırır
+            await printService.generatePdf(
                 '.infographic-page-container',
-                result.title || 'Oogmatik_Premium_Worksheet',
-                'print'
+                result.title || result.topic || 'Oogmatik_Premium_Worksheet',
+                { 
+                    action: 'print',
+                    paperSize: 'A4'
+                }
             );
         } catch (error) {
             show('Yazdırma işlemi başlatılırken bir hata oluştu.', 'error');
         }
     }, [show]);
+
 
     return {
         handleExportToWorksheet,
