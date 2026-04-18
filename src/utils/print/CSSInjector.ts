@@ -180,10 +180,20 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       /* UI Temizliği (Floating UI, Buttons, Toasts) */
       .no-print, 
       [role="status"], 
+      .fixed.no-print, 
+      .sticky.no-print,
       button:not(.print-visible),
-      .fixed, .sticky {
+      #toast-container {
         display: none !important;
       }
+
+      /* İçerik Görünürlük Garantisi */
+      .oogmatik-print-wrapper, 
+      .oogmatik-print-wrapper * {
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+
 
       /* Performans: Baskıda ağır animasyonları devredışı bırak */
       .backdrop-blur-xl, .backdrop-blur-md {

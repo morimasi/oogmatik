@@ -815,18 +815,29 @@ const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlo
 
 const UnifiedContentRenderer = ({
   data,
+  activityType,
   studentProfile,
   settings,
 }: {
   data: SingleWorksheetData;
+  activityType: ActivityType | null;
   studentProfile?: StudentProfile | null;
   settings?: StyleSettings;
 }) => {
   const { isEditorOpen, selectedBlockId, setSelectedBlockId, snapToGrid, gridSize } =
     useA4EditorStore();
   const architecture = data.layoutArchitecture;
-  const rawBlocks: WorksheetBlock[] = architecture?.blocks || data.blocks || [];
+  const rawBlocks: WorksheetBlock[] = 
+    architecture?.blocks || 
+    data.blocks || 
+    data.puzzles || 
+    data.operations || 
+    data.items || 
+    data.problems || 
+    data.steps || 
+    [];
   const cols = architecture?.cols || 1;
+
 
   // DnD sensors — editor modunda blok sıralama için
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
@@ -988,16 +999,31 @@ const UnifiedContentRenderer = ({
                   : { gap: '6mm' }
               }
             >
-              {pageBlocks.map((block, idx) => (
-                <SortableBlockItem
-                  key={block.id || `b-${pageIdx}-${idx}`}
-                  block={block}
-                  idx={idx}
-                  isEditorOpen={isEditorOpen}
-                  selectedBlockId={selectedBlockId}
-                  setSelectedBlockId={setSelectedBlockId}
-                />
-              ))}
+              {pageBlocks.map((block, idx) => {
+                // EĞER STANDART BLOK DEĞİLSE LEGACY RENDERER TETİKLE
+                const isStandardBlock = block.type && (block.content || block.style);
+
+                return (
+                  <SortableBlockItem
+                    key={block.id || `b-${pageIdx}-${idx}`}
+                    block={block}
+                    idx={idx}
+                    isEditorOpen={isEditorOpen}
+                    selectedBlockId={selectedBlockId}
+                    setSelectedBlockId={setSelectedBlockId}
+                  >
+                    {!isStandardBlock ? (
+                       <SheetRenderer 
+                          activityType={activityType} 
+                          data={{ ...data, blocks: undefined, puzzles: [block], items: [block], problems: [block], steps: [block], operations: [block] }} 
+                          hideWrapper={true} 
+                       />
+                    ) : (
+                      <BlockRenderer block={block} />
+                    )}
+                  </SortableBlockItem>
+                );
+              })}
             </div>
           </SortableContext>
         </DndContext>
@@ -1042,7 +1068,8 @@ const SortableBlockItem: React.FC<{
   isEditorOpen: boolean;
   selectedBlockId: string | null;
   setSelectedBlockId: (id: string | null) => void;
-}> = ({ block, idx, isEditorOpen, selectedBlockId, setSelectedBlockId }) => {
+  children?: React.ReactNode;
+}> = ({ block, idx, isEditorOpen, selectedBlockId, setSelectedBlockId, children }) => {
   const sortableId = block.id || `block-${idx}`;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: sortableId,
@@ -1086,7 +1113,7 @@ const SortableBlockItem: React.FC<{
           <i className="fa-solid fa-grip-vertical text-xs text-zinc-400"></i>
         </button>
       )}
-      <BlockRenderer block={block} />
+      {children || <BlockRenderer block={block} />}
     </div>
   );
 };
@@ -1253,9 +1280,15 @@ export const SheetRenderer = React.memo(
 
     // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
 
-    if (data.layoutArchitecture || data.blocks) {
+    if (!hideWrapper && (data.layoutArchitecture || data.blocks || data.puzzles || data.items || data.problems || data.steps || data.operations)) {
+
       return (
-        <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />
+        <UnifiedContentRenderer 
+          data={data} 
+          activityType={activityType}
+          studentProfile={studentProfile} 
+          settings={settings} 
+        />
       );
     }
 

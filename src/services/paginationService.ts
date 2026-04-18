@@ -184,6 +184,16 @@ export const paginationService = {
             }
         });
 
+        // Orijinal veri anahtarını tespit et
+        let targetKey = 'blocks';
+        for (const page of data) {
+            const listKey = page.blocks ? 'blocks' : (page.puzzles ? 'puzzles' : (page.operations ? 'operations' : (page.steps ? 'steps' : (page.problems ? 'problems' : (page.items ? 'items' : null)))));
+            if (listKey) {
+                targetKey = listKey;
+                break;
+            }
+        }
+
         rawItems.forEach((item) => {
             const weight = getBlockWeight(item);
             const limit = pageIndex === 0 ? MAX_PAGE_WEIGHT : MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST;
@@ -191,7 +201,7 @@ export const paginationService = {
             if (currentWeight + weight > limit && currentItems.length > 0) {
                 pages.push({
                     ...originalPageTemplate,
-                    blocks: [...currentItems],
+                    [targetKey]: [...currentItems],
                     isContinuation: pageIndex > 0,
                     _pageIndex: pageIndex,
                 });
@@ -206,11 +216,12 @@ export const paginationService = {
         if (currentItems.length > 0) {
             pages.push({
                 ...originalPageTemplate,
-                blocks: currentItems,
+                [targetKey]: currentItems,
                 isContinuation: pageIndex > 0,
                 _pageIndex: pageIndex,
             });
         }
+
 
         const totalPages = pages.length;
         pages.forEach((page, i) => {
