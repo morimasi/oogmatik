@@ -37,10 +37,10 @@ export const generateRealPdf = async (
     const onProgress = options?.onProgress;
     const captureScale = QUALITY_SCALE_MAP[quality];
 
-    // Kağıt boyutları (mm)
-    const dims = PAPER_DIMENSIONS[paperSize];
-    const pageW = parseFloat(dims.width);
-    const pageH = parseFloat(dims.height);
+    // Kağıt boyutları (mm) - Fallback ekle
+    const dims = PAPER_DIMENSIONS[paperSize] || PAPER_DIMENSIONS.A4;
+    const pageW = parseFloat(dims?.width || '210mm');
+    const pageH = parseFloat(dims?.height || '297mm');
 
     onProgress?.(5, 'Sayfalar taranıyor...');
 

@@ -49,14 +49,14 @@ const buildCapturedPrintOverlay = (
   overlay.style.zIndex = '2147483647';
   overlay.style.overflow = 'auto';
 
-  const dims = PAPER_DIMENSIONS[paperSize];
+  const dims = PAPER_DIMENSIONS[paperSize] || PAPER_DIMENSIONS.A4;
 
   dataUrls.forEach((url) => {
     const page = document.createElement('div');
     page.className = 'print-page';
-    page.style.width = dims.width;
-    page.style.minHeight = dims.height;
-    page.style.maxWidth = dims.width;
+    page.style.width = dims?.width || '210mm';
+    page.style.minHeight = dims?.height || '297mm';
+    page.style.maxWidth = dims?.width || '210mm';
     page.style.margin = '0 auto';
     page.style.background = '#fff';
     page.style.pageBreakAfter = 'always';
@@ -189,9 +189,10 @@ export const print = async (
     const origCanvases = original.querySelectorAll('canvas');
     const cloneCanvases = clone.querySelectorAll('canvas');
     origCanvases.forEach((canvas, i) => {
-      const dest = cloneCanvases[i] as HTMLCanvasElement;
       const src = canvas as HTMLCanvasElement;
-      if (dest && src) {
+      const dest = cloneCanvases[i] as HTMLCanvasElement;
+      
+      if (dest && src && src.width && src.height) {
         // Boyutları senkronize et (Önemli!)
         dest.width = src.width;
         dest.height = src.height;

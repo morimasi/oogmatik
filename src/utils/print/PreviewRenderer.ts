@@ -39,7 +39,7 @@ export const renderPagePreview = (
   cleanCloneForPreview(clone);
 
   // A4 boyutlandırma
-  const dims = PAPER_DIMENSIONS[paperSize];
+  const dims = PAPER_DIMENSIONS[paperSize] || PAPER_DIMENSIONS.A4;
   const pageWrapper = document.createElement('div');
   pageWrapper.className = 'preview-page-wrapper';
   pageWrapper.style.cssText = `
@@ -92,7 +92,7 @@ export const renderAllPagesPreview = (
   container.innerHTML = '';
 
   const scale = calculatePreviewScale(container, paperSize);
-  const dims = PAPER_DIMENSIONS[paperSize];
+  const dims = PAPER_DIMENSIONS[paperSize] || PAPER_DIMENSIONS.A4;
 
   const scrollContainer = document.createElement('div');
   scrollContainer.className = 'preview-scroll-container';
@@ -181,8 +181,8 @@ const collectSourcePages = (selector: string): HTMLElement[] => {
  * Container boyutuna göre A4 ölçekleme oranını hesaplar.
  */
 const calculatePreviewScale = (container: HTMLElement, paperSize: PaperSize): number => {
-  const dims = PAPER_DIMENSIONS[paperSize];
-  const paperWidthPx = parseFloat(dims.width) * 3.7795; // mm → px (96 DPI)
+  const dims = PAPER_DIMENSIONS[paperSize] || PAPER_DIMENSIONS.A4;
+  const paperWidthPx = parseFloat(dims?.width || '210mm') * 3.7795; // mm → px (96 DPI)
   const containerWidth = container.clientWidth - 48; // 24px padding her taraftan
   return Math.min(1, containerWidth / paperWidthPx);
 };
