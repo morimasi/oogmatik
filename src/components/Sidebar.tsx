@@ -15,6 +15,8 @@ import * as generators from '../services/generators';
 import * as offlineGenerators from '../services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
+import { activityService } from '../services/generators/ActivityService';
+import { GeneratorMode } from '../services/generators/core/types';
 import { adminService } from '../services/adminService';
 import { useStudentStore } from '../store/useStudentStore';
 import './PremiumPopupStyles.css';
@@ -397,19 +399,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         }
       }
       if (!result) {
-        const pascalCaseName = toPascalCase(selectedActivity).replace(/\s+/g, '');
-        const generatorFunctionName = `generate${pascalCaseName}FromAI`;
-        const runOfflineGenerator = async () => {
-          const offlineGenerator = (offlineGenerators as any)[`generateOffline${pascalCaseName}`];
-          if (offlineGenerator) return await offlineGenerator(options);
-          throw new AppError('Üretim motoru bulunamadı.', 'INTERNAL_ERROR', 500);
-        };
-        if (options.mode === 'ai') {
-          const onlineGenerator = (generators as any)[generatorFunctionName];
-          result = onlineGenerator ? await onlineGenerator(options) : await runOfflineGenerator();
-        } else {
-          result = await runOfflineGenerator();
-        }
+        // MERKEZİ ÜRETİM MOTORU: registry.ts ve ActivityService üzerinden üretim
+        const response = await activityService.generate(
+          selectedActivity,
+          options,
+          options.mode === 'ai' ? GeneratorMode.AI : GeneratorMode.OFFLINE
+        );
+        result = response.data;
       }
       if (result) {
         setWorksheetData(result);
