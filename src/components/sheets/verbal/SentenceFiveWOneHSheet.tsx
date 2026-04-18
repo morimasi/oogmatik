@@ -7,113 +7,121 @@ interface Props {
 
 /**
  * Cümlede 5N1K Çalışma Kağıdı - Ultra Profesyonel Tasarım
- * Bu bileşen, her bir cümleyi ve ilgili 5N1K sorularını kompakt bir yapıda sunar.
+ * Her cümlede 6 sorunun tamamını ve premium ikonları barındırır.
  */
 export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
-  const fontFamily = 'Lexend';
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'who': return <i className="fa-solid fa-circle-user text-indigo-500 text-xs"></i>;
+      case 'what': return <i className="fa-solid fa-cube text-emerald-500 text-xs"></i>;
+      case 'where': return <i className="fa-solid fa-location-dot text-rose-500 text-xs"></i>;
+      case 'when': return <i className="fa-solid fa-clock text-amber-500 text-xs"></i>;
+      case 'how': return <i className="fa-solid fa-wand-magic-sparkles text-purple-500 text-xs"></i>;
+      case 'why': return <i className="fa-solid fa-brain text-blue-500 text-xs"></i>;
+      default: return <i className="fa-solid fa-question text-zinc-400 text-xs"></i>;
+    }
+  };
+
+  const getLabel = (type: string) => {
+    switch (type) {
+      case 'who': return 'Kim?';
+      case 'what': return 'Ne?';
+      case 'where': return 'Nerede?';
+      case 'when': return 'Ne zaman?';
+      case 'how': return 'Nasıl?';
+      case 'why': return 'Niçin?';
+      default: return 'Soru:';
+    }
+  };
 
   return (
-    <div className="w-full h-full p-8 print:p-6 flex flex-col bg-white overflow-hidden text-zinc-800 border-none relative" style={{ fontFamily }}>
-      {/* Üst Bilgi Paneli */}
-      <div className="relative z-10 flex justify-between items-start border-b-2 border-indigo-100 pb-4 mb-6 print:mb-4">
-        <div className="flex gap-4 items-center">
-          <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-            <i className="fa-solid fa-list-check text-2xl"></i>
+    <div className="flex flex-col min-h-full font-lexend text-zinc-800 p-2 bg-white">
+      {/* Header Info Panel */}
+      <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-zinc-100">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+             <i className="fa-solid fa-quote-left text-lg"></i>
           </div>
           <div>
-            <h1 className="text-2xl font-black text-indigo-950 tracking-tight uppercase leading-none">
-              {data.title || 'CÜMLEDE 5N1K ÇALIŞMASI'}
-            </h1>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-              Hızlı ve Etkili Okuduğunu Anlama Antrenmanı
+            <h1 className="text-sm font-black text-zinc-900 leading-none">Cümlede 5N1K ve Analiz</h1>
+            <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-1">
+              Okuma Anlama · Odaklanma · Dil Bilgisi
             </p>
           </div>
         </div>
-        
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter w-12 text-right">TARİH:</span>
-            <div className="w-24 border-b border-slate-200 h-3"></div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter w-12 text-right">ÖĞRENCİ:</span>
-            <div className="w-40 border-b-2 border-slate-300 h-4"></div>
-          </div>
+        <div className="flex gap-2">
+            <div className="px-2 py-1 bg-zinc-50 border border-zinc-100 rounded-lg text-[8px] font-bold text-zinc-500">
+                {data.metadata?.ageGroup} Yaş
+            </div>
+             <div className="px-2 py-1 bg-zinc-50 border border-zinc-100 rounded-lg text-[8px] font-bold text-zinc-500 uppercase">
+                {data.metadata?.difficulty}
+            </div>
         </div>
       </div>
 
-      <div className="bg-rose-50/50 rounded-xl p-3 border border-rose-100 mb-6 print:mb-4">
-        <p className="text-[13px] font-bold text-rose-950 leading-tight">
-          <i className="fa-solid fa-circle-info mr-2 text-rose-500"></i>
-          {data.instruction || 'Aşağıdaki cümleleri dikkatle oku ve yanlarındaki soruların cevaplarını boşluklara yaz.'}
-        </p>
+      {/* Yönerge - Ultra Premium */}
+      <div className="mb-4 p-3 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 flex items-start gap-3">
+        <span className="text-xl leading-none">💡</span>
+        <div className="flex flex-col">
+          <span className="text-[10px] font-black text-indigo-600 uppercase tracking-tight">Eğitmen Notu & Yönerge</span>
+          <p className="text-[11px] font-medium text-zinc-600 leading-relaxed mt-0.5">
+            {data.instruction} Cümlenin tüm öğelerini dikkatlice bulup ilgili kutucuklara yazınız.
+          </p>
+        </div>
       </div>
 
-      {/* Cümle Kartları - 2 Sütunlu Grid (Yüksek Yoğunluk) */}
-      <div className="flex-1 grid grid-cols-2 gap-4 print:gap-3 overflow-hidden">
+      {/* Cümle Kartları - High Density 2-Column Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {data.items.map((item, idx) => (
-          <div 
-            key={item.id || idx} 
-            className="flex flex-col border border-slate-200 rounded-2xl p-4 print:p-3 bg-white hover:border-indigo-300 transition-colors page-break-inside-avoid relative"
-          >
-            {/* Numara Rozeti */}
-            <div className="absolute -top-2 -left-2 w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-[10px] font-black shadow-md z-20">
-              {idx + 1}
+          <div key={item.id || idx} className="p-3 bg-white border border-dashed border-zinc-200 rounded-[1.5rem] relative overflow-hidden group hover:border-indigo-300 transition-colors">
+            {/* Index Badge */}
+            <div className="absolute top-0 right-0 p-2 opacity-5">
+                <span className="text-5xl font-black">{idx + 1}</span>
             </div>
 
-            {/* Cümle Alanı */}
-            <div className="mb-3 p-3 bg-slate-50 rounded-xl border-l-4 border-indigo-500">
-              <p className="text-[15px] font-bold text-slate-900 leading-relaxed italic">
-                "{item.sentence}"
-              </p>
+            {/* Cümle */}
+            <div className="mb-3 px-3 py-2 bg-zinc-50 rounded-xl border border-zinc-100 border-l-4 border-l-indigo-500">
+                <p className="text-[12px] font-bold text-zinc-800 leading-snug">
+                    {item.sentence}
+                </p>
             </div>
 
-            {/* Sorular Alanı */}
-            <div className="space-y-3 pl-1">
-              {item.questions.map((q, qIdx) => (
-                <div key={qIdx} className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-[9px] font-black rounded uppercase">
-                      {q.type}
-                    </span>
-                    <span className="text-[13px] font-extrabold text-slate-800">
-                      {q.question}
-                    </span>
+            {/* 5N1K Soru Listesi */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+              {['who', 'what', 'where', 'when', 'how', 'why'].map((type) => {
+                const q = item.questions.find(q => q.type === type);
+                return (
+                  <div key={type} className="flex flex-col gap-1">
+                    <div className="flex items-center gap-1.5 px-1">
+                        {getIcon(type)}
+                        <span className="text-[9px] font-black text-zinc-400 uppercase tracking-tighter">
+                            {getLabel(type)}
+                        </span>
+                    </div>
+                    <div className="h-6 border-b border-zinc-100 flex items-end pb-0.5">
+                        {/* Yazma Alanı Çizgisi */}
+                        <div className="w-full h-px bg-zinc-50"></div>
+                    </div>
                   </div>
-                  <div className="ml-2 border-b border-slate-200 h-5 w-full flex items-end">
-                    {/* Cevap alanı için çizgi */}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Pedagojik Not */}
+      {/* Footer Pedagojik Not */}
       {data.pedagogicalNote && (
-        <div className="mt-4 pt-3 border-t border-slate-100">
-          <div className="bg-indigo-50/30 rounded-xl p-2.5 border border-indigo-100/50">
-            <div className="flex items-center gap-2 mb-0.5">
-              <i className="fa-solid fa-graduation-cap text-[10px] text-indigo-600"></i>
-              <span className="text-[9px] font-black text-indigo-800 uppercase tracking-tighter">Uzman Notu:</span>
-            </div>
-            <p className="text-[10px] leading-relaxed text-slate-500 font-medium tracking-tight">
-              {data.pedagogicalNote}
+        <div className="mt-auto pt-4 flex items-center justify-between border-t border-zinc-100 opacity-60">
+            <p className="text-[9px] font-medium italic text-zinc-500 max-w-[400px]">
+                <span className="font-bold not-italic">Uzman Notu:</span> {data.pedagogicalNote}
             </p>
-          </div>
+            <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-zinc-100 rounded-lg flex items-center justify-center text-[10px]">⚙️</div>
+                <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Oogmatik AI Content Engine v2.5</span>
+            </div>
         </div>
       )}
-
-      {/* Footer */}
-      <footer className="mt-3 pt-2 flex justify-between items-center text-[8px] font-black text-slate-300 uppercase tracking-widest border-t border-slate-50">
-        <div className="flex items-center gap-2">
-          <span>OOGMATIK EDTECH</span>
-          <span className="w-1 h-1 bg-indigo-200 rounded-full"></span>
-          <span>Bilişsel Gelişim Serisi</span>
-        </div>
-        <span>500 Pedagogical Dataset Edition</span>
-      </footer>
     </div>
   );
 };

@@ -255,6 +255,31 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                 {/* SOL PANEL (SaaS Premium Sidebar) */}
                 <div className="lg:col-span-3 flex flex-col bg-[var(--bg-paper)]/50 backdrop-blur-3xl border-r border-[var(--border-color)] shadow-[20px_0_40px_-20px_rgba(0,0,0,0.05)] z-20 overflow-hidden min-h-0">
 
+                    {/* Sticky Oluştur Butonu (Moved to Top) */}
+                    <div className="flex-none p-5 bg-[var(--bg-paper)]/90 backdrop-blur-2xl border-b border-[var(--border-color)] z-30 shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+                        <button
+                            onClick={handleGenerate}
+                            disabled={!canGenerate() || isGenerating}
+                            className={`relative w-full py-4.5 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-xl ${canGenerate() && !isGenerating ? 'bg-accent hover:bg-accent shadow-accent/20 hover:translate-y-[-4px] active:scale-95 active:translate-y-0' : 'bg-[var(--bg-secondary)]/50 cursor-not-allowed text-[var(--text-muted)] shadow-none'}`}
+                        >
+                            {canGenerate() && !isGenerating && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
+                            )}
+                            {isGenerating ? (
+                                <><svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>AI Motoru Üretiyor...</>
+                            ) : (
+                                <>Sınavı Oluştur <i className="fa-solid fa-sparkles text-xs opacity-70 animate-pulse"></i></>
+                            )}
+                        </button>
+                        {!canGenerate() && !isGenerating && (
+                            <div className="mt-4 p-3 bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)]">
+                                <p className="text-[10px] text-[var(--text-muted)] text-center font-bold uppercase tracking-widest leading-relaxed">
+                                    {ayarlar.sinif === null ? 'Sınıf seçimi bekleniyor' : kazanimCount === 0 ? 'Kazanım haritası tamamlanmalı' : toplamSoru < 1 ? 'Hedef: En az 1 soru' : ''}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
 
                         {/* Sınıf Seçimi */}
@@ -312,31 +337,6 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                             </div>
                         )}
 
-                    </div>
-
-                    {/* Sticky Oluştur Butonu */}
-                    <div className="flex-none p-5 bg-[var(--bg-paper)]/90 backdrop-blur-2xl border-t border-[var(--border-color)] z-30 shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
-                        <button
-                            onClick={handleGenerate}
-                            disabled={!canGenerate() || isGenerating}
-                            className={`relative w-full py-4.5 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-xl ${canGenerate() && !isGenerating ? 'bg-accent hover:bg-accent shadow-accent/20 hover:translate-y-[-4px] active:scale-95 active:translate-y-0' : 'bg-[var(--bg-secondary)]/50 cursor-not-allowed text-[var(--text-muted)] shadow-none'}`}
-                        >
-                            {canGenerate() && !isGenerating && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
-                            )}
-                            {isGenerating ? (
-                                <><svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>AI Motoru Üretiyor...</>
-                            ) : (
-                                <>Sınavı Oluştur <i className="fa-solid fa-sparkles text-xs opacity-70 animate-pulse"></i></>
-                            )}
-                        </button>
-                        {!canGenerate() && !isGenerating && (
-                            <div className="mt-4 p-3 bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)]">
-                                <p className="text-[10px] text-[var(--text-muted)] text-center font-bold uppercase tracking-widest leading-relaxed">
-                                    {ayarlar.sinif === null ? 'Sınıf seçimi bekleniyor' : kazanimCount === 0 ? 'Kazanım haritası tamamlanmalı' : toplamSoru < 1 ? 'Hedef: En az 1 soru' : ''}
-                                </p>
-                            </div>
-                        )}
                     </div>
                 </div>
 

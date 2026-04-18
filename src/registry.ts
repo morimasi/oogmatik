@@ -164,6 +164,16 @@ export const getDefaultOptionsForActivity = (
       };
     case ActivityType.BOX_MATH:
       return { ...base, itemCount: 12, variant: 'reverse' };
+    case ActivityType.SENTENCE_5W1H:
+      return {
+        ...base,
+        mode: 'ai',
+        itemCount: 5,
+        difficulty: 'Orta',
+        ageGroup: '8-10',
+        topic: 'Genel',
+        profile: 'dyslexia',
+      };
     default:
       return base;
   }

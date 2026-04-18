@@ -17,17 +17,17 @@ export const generateSentenceFiveWOneHFromAI = async (
     Türkçe dil bilgisi kurallarına uygun, pedagojik değeri yüksek, ilgi çekici ve öğretici "Cümlede 5N1K" soruları üretmeni istiyorum.
 
     GÖREV:
-    - ${count} adet benzersiz cümle üret.
+    - ${count} adet benzersiz ve detaylı cümle üret.
     - Yaş grubu: ${ageGroup}
     - Zorluk seviyesi: ${difficulty}
-    - Her cümle için en az 2, en fazla 4 adet 5N1K sorusu ve cevabı ekle.
-    - Soru tipleri: 'who' (Kim?), 'what' (Ne?), 'where' (Nerede?), 'when' (Ne zaman?), 'how' (Nasıl?), 'why' (Niçin?).
+    - Önemli: Her cümle MUTLAKA şu 6 öğeyi de barındırmalıdır: Kim, Ne, Nerede, Ne Zaman, Nasıl, Niçin.
+    - Her cümle için 6 adet 5N1K sorusu ve cevabı ekle.
 
     KURALLAR:
-    - Cümleler disleksi dostu olmalı (karışık eklerden mümkün olduğunca kaçın, net bir yapı kur).
-    - Cevaplar cümleden doğrudan çıkarılabilmeli.
+    - Cümleler tüm 5N1K öğelerine cevap verecek kadar zengin olmalı (Örn: "Ali, dün akşam okulda karnı acıktığı için sepetinden sessizce elmasını aldı.")
+    - Soru tipleri: 'who', 'what', 'where', 'when', 'how', 'why' anahtarlarını kullan.
+    - Cümleler disleksi dostu olmalı (net yapı, karmaşık tamlamalardan kaçın).
     - Cevaplar kısa ve öz olmalı.
-    - Tanı koyucu dil kullanma.
     - MUTLAKA aşağıdaki JSON yapısında döndür.
 
     ÇIKTI FORMATI (JSON):
@@ -39,12 +39,16 @@ export const generateSentenceFiveWOneHFromAI = async (
           "difficulty": "${difficulty}",
           "ageGroup": "${ageGroup}",
           "questions": [
-            { "type": "who", "question": "Kim?", "answer": "Cevap" },
-            { "type": "where", "question": "Nerede?", "answer": "Cevap" }
+            { "type": "who", "question": "Kim?", "answer": "..." },
+            { "type": "what", "question": "Ne?", "answer": "..." },
+            { "type": "where", "question": "Nerede?", "answer": "..." },
+            { "type": "when", "question": "Ne zaman?", "answer": "..." },
+            { "type": "how", "question": "Nasıl?", "answer": "..." },
+            { "type": "why", "question": "Niçin?", "answer": "..." }
           ]
         }
       ],
-      "pedagogicalNote": "Öğretmen için pedagojik açıklama (neden bu cümleler seçildi?)"
+      "pedagogicalNote": "Öğretmen için pedagojik açıklama"
     }
   `;
 

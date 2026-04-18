@@ -26,6 +26,7 @@ import { NumberPathLogicConfig } from './NumberPathLogicConfig';
 import { DirectionalTrackingConfig } from './DirectionalTrackingConfig';
 import { FutoshikiConfig } from './FutoshikiConfig';
 import { AbcConnectConfig } from './AbcConnectConfig';
+import { SentenceFiveWOneHConfig } from './SentenceFiveWOneHConfig';
 
 import { FiveWOneHConfig } from './FiveWOneHConfig';
 import { ColorfulSyllableReadingConfig } from './ColorfulSyllableReadingConfig';
@@ -83,6 +84,7 @@ export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.BOX_MATH]: BoxMathConfig,
   [ActivityType.KAVRAM_HARITASI]: KavramHaritasiConfig,
   [ActivityType.ES_ANLAMLI_KELIMELER]: EsAnlamliKelimelerConfig,
+  [ActivityType.SENTENCE_5W1H]: SentenceFiveWOneHConfig,
 };
 
 export { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';
