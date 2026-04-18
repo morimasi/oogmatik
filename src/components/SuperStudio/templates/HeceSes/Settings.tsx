@@ -51,7 +51,7 @@ export const HeceSesSettingsPanel: React.FC<TemplateSettingsProps<HeceSesSetting
           <input
             type="range"
             min="8"
-            max="30"
+            max="50"
             value={(settings as unknown as Record<string, number>).wordCount}
             onChange={(e) =>
               onChange({ wordCount: parseInt(e.target.value) } as Partial<HeceSesSettings>)

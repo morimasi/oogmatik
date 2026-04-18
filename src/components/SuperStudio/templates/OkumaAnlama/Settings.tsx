@@ -93,7 +93,7 @@ export const OkumaAnlamaSettingsPanel: React.FC<TemplateSettingsProps<OkumaAnlam
           <input
             type="range"
             min="3"
-            max="20"
+            max="50"
             value={settings.questionCount}
             onChange={(e) => onChange({ questionCount: parseInt(e.target.value) })}
             className="w-full accent-[hsl(var(--accent-h)_var(--accent-s)_var(--accent-l))]"

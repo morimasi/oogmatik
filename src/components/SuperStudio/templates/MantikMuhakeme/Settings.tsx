@@ -51,7 +51,7 @@ export const MantikMuhakemeSettingsPanel: React.FC<
           <input
             type="range"
             min="3"
-            max="20"
+            max="50"
             value={(settings as unknown as Record<string, number>).questionCount}
             onChange={(e) =>
               onChange({

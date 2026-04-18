@@ -51,7 +51,7 @@ export const SozVarligiSettingsPanel: React.FC<TemplateSettingsProps<SozVarligiS
           <input
             type="range"
             min="5"
-            max="20"
+            max="50"
             value={(settings as unknown as Record<string, number>).count}
             onChange={(e) =>
               onChange({ count: parseInt(e.target.value) } as Partial<SozVarligiSettings>)

@@ -125,7 +125,7 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
               <input
                 type="number"
                 min="3"
-                max="15"
+                max="50"
                 value={settings.aiSettings.wordCount}
                 onChange={(e) => updateAiSettings('wordCount', parseInt(e.target.value))}
                 className="w-full px-2 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white"
@@ -205,7 +205,7 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
               <input
                 type="number"
                 min="5"
-                max="30"
+                max="50"
                 value={settings.hizliSettings.questionCount}
                 onChange={(e) => updateHizliSettings('questionCount', parseInt(e.target.value))}
                 className="w-full px-2 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white"

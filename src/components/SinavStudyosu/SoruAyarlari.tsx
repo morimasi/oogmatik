@@ -98,7 +98,7 @@ export const SoruAyarlari: React.FC<SoruAyarlariProps> = ({
 
                   <button
                     onClick={() => {
-                      const newValue = Math.min(20, ayarlar.soruDagilimi[key] + 1);
+                      const newValue = Math.min(50, ayarlar.soruDagilimi[key] + 1);
                       onSoruDagilimiChange(key, newValue);
                     }}
                     className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] font-bold hover:bg-white hover:text-accent shadow-sm transition-all"

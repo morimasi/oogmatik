@@ -58,7 +58,7 @@ export const DilBilgisiSettingsPanel: React.FC<TemplateSettingsProps<DilBilgisiS
           <input
             type="range"
             min="3"
-            max="20"
+            max="50"
             value={(settings as unknown as Record<string, number>).questionCount}
             onChange={(e) =>
               onChange({ questionCount: parseInt(e.target.value) } as Partial<DilBilgisiSettings>)
@@ -88,7 +88,7 @@ export const DilBilgisiSettingsPanel: React.FC<TemplateSettingsProps<DilBilgisiS
           <input
             type="range"
             min="5"
-            max="25"
+            max="50"
             value={(settings as unknown as Record<string, number>).wordCount}
             onChange={(e) =>
               onChange({ wordCount: parseInt(e.target.value) } as Partial<DilBilgisiSettings>)

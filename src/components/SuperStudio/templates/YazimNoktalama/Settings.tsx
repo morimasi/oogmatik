@@ -52,7 +52,7 @@ export const YazimNoktalamaSettingsPanel: React.FC<
           <input
             type="range"
             min="5"
-            max="25"
+            max="50"
             value={(settings as unknown as Record<string, number>).exerciseCount}
             onChange={(e) =>
               onChange({
