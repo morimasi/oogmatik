@@ -86,6 +86,7 @@ import {
   WordSearchData,
   AnagramsData,
   CrosswordData,
+  Sentence5W1HData,
 } from '../types';
 
 import { A4PrintableSheetV2 } from './InfographicStudio/panels/CenterPanel/A4PrintableSheetV2';
@@ -144,6 +145,7 @@ import {
   AttentionToQuestionSheet,
   HandwritingPracticeSheet,
 } from './sheets/verbal/ReadingSupportSheets';
+import { SentenceFiveWOneHSheet } from './sheets/verbal/SentenceFiveWOneHSheet';
 import {
   AnagramSheet,
   WordSearchSheet,
@@ -1659,6 +1661,9 @@ export const SheetRenderer = React.memo(
         break;
       case ActivityType.FIVE_W_ONE_H:
         renderedSheet = <FiveWOneHSheet data={data as any} settings={settings} />;
+        break;
+      case ActivityType.SENTENCE_5W1H:
+        renderedSheet = <SentenceFiveWOneHSheet data={data as any} />;
         break;
       case ActivityType.COLORFUL_SYLLABLE_READING:
         renderedSheet = <ColorfulSyllableReadingSheet data={data as any} settings={settings} />;
