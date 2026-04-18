@@ -19,11 +19,14 @@ export class GenericActivityGenerator<T> extends BaseGenerator<T> {
     }
 
     protected async execute(options: GeneratorOptions): Promise<T | T[]> {
+        // Öncelik: options.mode (UI'dan gelen dinamik seçim), Fallback: this.mode (Varsayılan)
+        const activeMode = (options.mode === 'ai' ? GeneratorMode.AI : 
+                           options.mode === 'fast' ? GeneratorMode.OFFLINE : 
+                           this.mode);
         
-        if (this.mode === GeneratorMode.AI) {
+        if (activeMode === GeneratorMode.AI) {
             if (!this.aiFunction) {
                 // Eğer AI fonksiyonu yoksa ve mod AI ise, offline'a düş (fallback)
-                // veya hata fırlat. Şimdilik offline'a düşmeyi tercih edelim.
                 console.warn(`[GenericGenerator] AI function not provided, falling back to Offline.`);
                 if (this.offlineFunction) return await this.offlineFunction(options);
                 throw new AppError(`[GenericGenerator] No generation function available.`, 'INTERNAL_ERROR', 500);

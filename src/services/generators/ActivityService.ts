@@ -85,6 +85,11 @@ export class ActivityService {
             throw new AppError(`No generator found for activity type: ${type}`, 'INTERNAL_ERROR', 500);
         }
 
+        // Eğer spesifik bir mod parametresi gelmişse options'ı güncelle
+        if (_mode) {
+            options.mode = _mode === GeneratorMode.AI ? 'ai' : 'fast';
+        }
+
         // Alt jeneratörden ham veriyi al
         const data = await generator.generate(options);
 

@@ -10,10 +10,11 @@ export const generateOfflineSentenceFiveWOneH = async (
   options: GeneratorOptions
 ): Promise<Sentence5W1HData> => {
   const { itemCount = 5, difficulty = 'Orta', ageGroup = '8-10' } = options;
+  const targetDifficulty = difficulty.toLowerCase();
 
   // Filtreleme (Önce zorluk ve yaş grubuna göre, bulamazsa sadece yaş grubuna göre)
   let filteredItems = SENTENCE_5W1H_LIBRARY.filter(
-    (item: Sentence5W1HItem) => item.difficulty === difficulty && item.ageGroup === ageGroup
+    (item: Sentence5W1HItem) => item.difficulty === targetDifficulty && item.ageGroup === ageGroup
   );
 
   if (filteredItems.length < 5) {
