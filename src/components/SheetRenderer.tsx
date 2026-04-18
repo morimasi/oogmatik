@@ -1295,9 +1295,10 @@ export const SheetRenderer = React.memo(
     }
 
     // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
+    // ÖNEMLİ: puzzles, items gibi geleneksel veriler doğrudan switch'e gitmeli ki grid yapıları (kolonlar) bozulmasın.
+    const isModernLayout = data.layoutArchitecture || (Array.isArray(data.blocks) && data.blocks.some((b: any) => b.type));
 
-    if (!hideWrapper && (data.layoutArchitecture || (Array.isArray(data.blocks) && data.blocks.some((b: any) => b.type)) || data.puzzles || data.items || data.problems || data.steps || data.operations)) {
-
+    if (!hideWrapper && isModernLayout) {
       return (
         <UnifiedContentRenderer 
           data={data} 

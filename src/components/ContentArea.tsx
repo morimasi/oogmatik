@@ -176,11 +176,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   // Scroller container ref
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!worksheetData) {
-      setProcessedData([]);
-      return;
-    }
+  const processedData = React.useMemo(() => {
+    if (!worksheetData) return [];
+
     const safeData = Array.isArray(worksheetData) ? [...worksheetData] : [{ ...worksheetData }];
 
     // Assign IDs to blocks if they don't have one, to allow editor selection
@@ -199,11 +197,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
     if (activityType && !isRichContent) {
       const paged = paginationService.process(safeData, activityType, styleSettings);
-      setProcessedData(Array.isArray(paged) && paged.length > 0 ? paged : safeData);
-    } else {
-      setProcessedData(safeData);
+      return Array.isArray(paged) && paged.length > 0 ? paged : safeData;
     }
-  }, [worksheetData, activityType, styleSettings.smartPagination, styleSettings.columns]);
+    
+    return safeData;
+  }, [worksheetData, activityType, styleSettings.smartPagination, styleSettings.columns, styleSettings.rows]);
 
   // Native Wheel Listener to prevent default scroll and strictly zoom
   useEffect(() => {

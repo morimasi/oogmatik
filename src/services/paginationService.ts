@@ -157,7 +157,13 @@ const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlo
 export const paginationService = {
     process: (data: WorksheetData, activityType: ActivityType, settings?: StyleSettings): WorksheetData => {
         if (!data || !Array.isArray(data) || data.length === 0) return [];
+        
+        // Optimizasyon: Sayfalama kapalıysa işlemi hızlıca bitir
         if (settings && settings.smartPagination === false) return data;
+
+        // Optimizasyon: Veri zaten sayfalanmışsa tekrar işleme (Smart Skip)
+        const isAlreadyProcessed = data.length > 1 && data.every(p => p._currentPage !== undefined);
+        if (isAlreadyProcessed) return data;
 
         const pages: any[] = [];
         let currentItems: any[] = [];
