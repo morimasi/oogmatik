@@ -28,6 +28,10 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: aiGenerators.generateFiveWOneHFromAI,
     offline: offlineGenerators.generateOfflineFiveWOneH,
   },
+  [ActivityType.SENTENCE_5W1H]: {
+    ai: aiGenerators.generateSentenceFiveWOneHFromAI,
+    offline: offlineGenerators.generateOfflineSentenceFiveWOneH,
+  },
   [ActivityType.LOGIC_ERROR_HUNTER]: {
     ai: aiGenerators.generateLogicErrorHunterFromAI,
     offline: offlineGenerators.generateOfflineLogicErrorHunter,

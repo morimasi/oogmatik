@@ -523,6 +523,27 @@ export interface FiveWOneHData extends SingleWorksheetData {
   questions: FiveWOneHQuestion[];
 }
 
+export interface Sentence5W1HItem {
+  [key: string]: unknown;
+  id: string;
+  sentence: string;
+  questions: {
+    type: 'who' | 'what' | 'where' | 'when' | 'how' | 'why';
+    question: string;
+    answer: string;
+  }[];
+}
+
+export interface Sentence5W1HData extends SingleWorksheetData {
+  settings?: {
+    difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+    topic: string;
+    itemCount: number;
+    showIcons: boolean;
+  };
+  items: Sentence5W1HItem[];
+}
+
 export interface ColorfulSyllableReadingData extends BaseActivityData {
   settings?: {
     difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';

@@ -235,6 +235,14 @@ export const ACTIVITIES: Activity[] = [
     defaultStyle: { columns: 1 },
   },
   {
+    id: ActivityType.SENTENCE_5W1H,
+    title: 'Cümlede 5N1K',
+    description:
+      'Tekil cümleler içerisinde Kim, Ne, Nerede gibi temel öğeleri bulmaya odaklanan yüksek yoğunluklu dil çalışması.',
+    icon: 'fa-solid fa-quote-left',
+    defaultStyle: { columns: 1 },
+  },
+  {
     id: ActivityType.COLORFUL_SYLLABLE_READING,
     title: 'Renkli Hece / Odaklı Okuma',
     description:
@@ -359,6 +367,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     icon: 'fa-solid fa-book-open',
     activities: [
       ActivityType.FIVE_W_ONE_H,
+      ActivityType.SENTENCE_5W1H,
       ActivityType.LOGIC_ERROR_HUNTER,
       ActivityType.VISUAL_INTERPRETATION,
       ActivityType.STORY_COMPREHENSION,

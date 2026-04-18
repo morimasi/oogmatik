@@ -1,0 +1,652 @@
+import { Sentence5W1HItem } from '../../../types/verbal';
+
+export const SENTENCE_5W1H_LIBRARY: Sentence5W1HItem[] = [
+  // ÇOK KOLAY (5-7 Yaş)
+  {
+    id: 's1',
+    sentence: 'Ali elma yedi.',
+    difficulty: 'çok kolay',
+    ageGroup: '5-7',
+    questions: [
+      { type: 'who', question: 'Kim yedi?', answer: 'Ali' },
+      { type: 'what', question: 'Ne yedi?', answer: 'Elma' }
+    ]
+  },
+  {
+    id: 's2',
+    sentence: 'Ayşe parkta koştu.',
+    difficulty: 'çok kolay',
+    ageGroup: '5-7',
+    questions: [
+      { type: 'who', question: 'Kim koştu?', answer: 'Ayşe' },
+      { type: 'where', question: 'Nerede koştu?', answer: 'Parkta' }
+    ]
+  },
+  {
+    id: 's3',
+    sentence: 'Kedi süt içti.',
+    difficulty: 'çok kolay',
+    ageGroup: '5-7',
+    questions: [
+      { type: 'who', question: 'Kim içti?', answer: 'Kedi' },
+      { type: 'what', question: 'Ne içti?', answer: 'Süt' }
+    ]
+  },
+  {
+    id: 's4',
+    sentence: 'Babam eve geldi.',
+    difficulty: 'çok kolay',
+    ageGroup: '5-7',
+    questions: [
+      { type: 'who', question: 'Kim geldi?', answer: 'Babam' },
+      { type: 'where', question: 'Nereye geldi?', answer: 'Eve' }
+    ]
+  },
+  {
+    id: 's5',
+    sentence: 'Kuş ağaca kondu.',
+    difficulty: 'çok kolay',
+    ageGroup: '5-7',
+    questions: [
+      { type: 'who', question: 'Kim kondu?', answer: 'Kuş' },
+      { type: 'where', question: 'Nereye kondu?', answer: 'Ağaca' }
+    ]
+  },
+  {
+    id: 's6',
+    sentence: 'Can topu attı.',
+    difficulty: 'çok kolay',
+    ageGroup: '5-7',
+    questions: [
+      { type: 'who', question: 'Kim attı?', answer: 'Can' },
+      { type: 'what', question: 'Neyi attı?', answer: 'Topu' }
+    ]
+  },
+  {
+    id: 's7',
+    sentence: 'Annem pasta yaptı.',
+    difficulty: 'çok kolay',
+    ageGroup: '5-7',
+    questions: [
+      { type: 'who', question: 'Kim yaptı?', answer: 'Annem' },
+      { type: 'what', question: 'Ne yaptı?', answer: 'Pasta' }
+    ]
+  },
+  {
+    id: 's8',
+    sentence: 'Araba hızla geçti.',
+    difficulty: 'çok kolay',
+    ageGroup: '5-7',
+    questions: [
+      { type: 'who', question: 'Ne geçti?', answer: 'Araba' },
+      { type: 'how', question: 'Nasıl geçti?', answer: 'Hızla' }
+    ]
+  },
+  {
+    id: 's9',
+    sentence: 'Bebek mışıl mışıl uyudu.',
+    difficulty: 'çok kolay',
+    ageGroup: '5-7',
+    questions: [
+      { type: 'who', question: 'Kim uyudu?', answer: 'Bebek' },
+      { type: 'how', question: 'Nasıl uyudu?', answer: 'Mışıl mışıl' }
+    ]
+  },
+  {
+    id: 's10',
+    sentence: 'Güneş sabah doğdu.',
+    difficulty: 'çok kolay',
+    ageGroup: '5-7',
+    questions: [
+      { type: 'who', question: 'Ne doğdu?', answer: 'Güneş' },
+      { type: 'when', question: 'Ne zaman doğdu?', answer: 'Sabah' }
+    ]
+  },
+
+  // KOLAY (8-10 Yaş)
+  {
+    id: 's11',
+    sentence: 'Öğretmen sınıfta ders anlattı.',
+    difficulty: 'kolay',
+    ageGroup: '8-10',
+    questions: [
+      { type: 'who', question: 'Kim anlattı?', answer: 'Öğretmen' },
+      { type: 'where', question: 'Nerede anlattı?', answer: 'Sınıfta' },
+      { type: 'what', question: 'Ne anlattı?', answer: 'Ders' }
+    ]
+  },
+  {
+    id: 's12',
+    sentence: 'Dün akşam kardeşimle oyun oynadık.',
+    difficulty: 'kolay',
+    ageGroup: '8-10',
+    questions: [
+      { type: 'when', question: 'Ne zaman oynadık?', answer: 'Dün akşam' },
+      { type: 'who', question: 'Kiminle oynadık?', answer: 'Kardeşimle' },
+      { type: 'what', question: 'Ne oynadık?', answer: 'Oyun' }
+    ]
+  },
+  {
+    id: 's13',
+    sentence: 'Küçük çocuk acıktığı için ağladı.',
+    difficulty: 'kolay',
+    ageGroup: '8-10',
+    questions: [
+      { type: 'who', question: 'Kim ağladı?', answer: 'Küçük çocuk' },
+      { type: 'why', question: 'Niçin ağladı?', answer: 'Acıktığı için' }
+    ]
+  },
+  {
+    id: 's14',
+    sentence: 'Doktor hastayı dikkatle muayene etti.',
+    difficulty: 'kolay',
+    ageGroup: '8-10',
+    questions: [
+      { type: 'who', question: 'Kim muayene etti?', answer: 'Doktor' },
+      { type: 'who', question: 'Kimi muayene etti?', answer: 'Hastayı' },
+      { type: 'how', question: 'Nasıl muayene etti?', answer: 'Dikkatle' }
+    ]
+  },
+  {
+    id: 's15',
+    sentence: 'Kütüphaneden aldığım kitabı hafta sonu bitireceğim.',
+    difficulty: 'kolay',
+    ageGroup: '8-10',
+    questions: [
+      { type: 'where', question: 'Nereden aldım?', answer: 'Kütüphaneden' },
+      { type: 'what', question: 'Neyi bitireceğim?', answer: 'Kitabı' },
+      { type: 'when', question: 'Ne zaman bitireceğim?', answer: 'Hafta sonu' }
+    ]
+  },
+  {
+    id: 's16',
+    sentence: 'Bahçıvan çiçekleri her sabah sular.',
+    difficulty: 'kolay',
+    ageGroup: '8-10',
+    questions: [
+      { type: 'who', question: 'Kim sular?', answer: 'Bahçıvan' },
+      { type: 'what', question: 'Neyi sular?', answer: 'Çiçekleri' },
+      { type: 'when', question: 'Ne zaman sular?', answer: 'Her sabah' }
+    ]
+  },
+  {
+    id: 's17',
+    sentence: 'Okul servisi yoğun trafik nedeniyle gecikti.',
+    difficulty: 'kolay',
+    ageGroup: '8-10',
+    questions: [
+      { type: 'who', question: 'Ne gecikti?', answer: 'Okul servisi' },
+      { type: 'why', question: 'Niçin gecikti?', answer: 'Yoğun trafik nedeniyle' }
+    ]
+  },
+  {
+    id: 's18',
+    sentence: 'Kırtasiyeden kendime renkli kalemler aldım.',
+    difficulty: 'kolay',
+    ageGroup: '8-10',
+    questions: [
+      { type: 'where', question: 'Nereden aldım?', answer: 'Kırtasiyeden' },
+      { type: 'what', question: 'Ne aldım?', answer: 'Renkli kalemler' }
+    ]
+  },
+  {
+    id: 's19',
+    sentence: 'Yağmur yağınca sokaklar göle döndü.',
+    difficulty: 'kolay',
+    ageGroup: '8-10',
+    questions: [
+      { type: 'when', question: 'Ne zaman göle döndü?', answer: 'Yağmur yağınca' },
+      { type: 'who', question: 'Ne göle döndü?', answer: 'Sokaklar' }
+    ]
+  },
+  {
+    id: 's20',
+    sentence: 'Büyükbabam köyde bize masal anlattı.',
+    difficulty: 'kolay',
+    ageGroup: '8-10',
+    questions: [
+      { type: 'who', question: 'Kim anlattı?', answer: 'Büyükbabam' },
+      { type: 'where', question: 'Nerede anlattı?', answer: 'Köyde' },
+      { type: 'what', question: 'Ne anlattı?', answer: 'Masal' }
+    ]
+  },
+
+  // ORTA (11-13 Yaş)
+  {
+    id: 's21',
+    sentence: 'Bilim insanları Mars üzerinde su bulmak için yeni bir robot tasarladılar.',
+    difficulty: 'orta',
+    ageGroup: '11-13',
+    questions: [
+      { type: 'who', question: 'Kim tasarladı?', answer: 'Bilim insanları' },
+      { type: 'where', question: 'Nerede su bulmak için?', answer: 'Mars üzerinde' },
+      { type: 'why', question: 'Niçin tasarladılar?', answer: 'Su bulmak için' },
+      { type: 'what', question: 'Ne tasarladılar?', answer: 'Yeni bir robot' }
+    ]
+  },
+  {
+    id: 's22',
+    sentence: 'Mühendisler köprünün hasar gören kısımlarını titizlikle onardılar.',
+    difficulty: 'orta',
+    ageGroup: '11-13',
+    questions: [
+      { type: 'who', question: 'Kimler onardı?', answer: 'Mühendisler' },
+      { type: 'what', question: 'Nereyi onardılar?', answer: 'Köprünün hasar gören kısımlarını' },
+      { type: 'how', question: 'Nasıl onardılar?', answer: 'Titizlikle' }
+    ]
+  },
+  {
+    id: 's23',
+    sentence: 'Ozan, sınavda başarılı olamadığı için büyük bir üzüntü yaşadı.',
+    difficulty: 'orta',
+    ageGroup: '11-13',
+    questions: [
+      { type: 'who', question: 'Kim üzüntü yaşadı?', answer: 'Ozan' },
+      { type: 'why', question: 'Niçin üzüntü yaşadı?', answer: 'Sınavda başarılı olamadığı için' },
+      { type: 'what', question: 'Ne yaşadı?', answer: 'Büyük bir üzüntü' }
+    ]
+  },
+  {
+    id: 's24',
+    sentence: 'Belediye ekipleri kış yaklaşırken ağaçları budamaya başladılar.',
+    difficulty: 'orta',
+    ageGroup: '11-13',
+    questions: [
+      { type: 'who', question: 'Kimler başladı?', answer: 'Belediye ekipleri' },
+      { type: 'when', question: 'Ne zaman başladılar?', answer: 'Kış yaklaşırken' },
+      { type: 'what', question: 'Neye başladılar?', answer: 'Ağaçları budamaya' }
+    ]
+  },
+  {
+    id: 's25',
+    sentence: 'Usta yazar, yeni kitabının imza günü için Cumartesi günü İzmir\'e gidecek.',
+    difficulty: 'orta',
+    ageGroup: '11-13',
+    questions: [
+      { type: 'who', question: 'Kim gidecek?', answer: 'Usta yazar' },
+      { type: 'when', question: 'Ne zaman gidecek?', answer: 'Cumartesi günü' },
+      { type: 'where', question: 'Nereye gidecek?', answer: 'İzmir\'e' },
+      { type: 'why', question: 'Niçin gidecek?', answer: 'Yeni kitabının imza günü için' }
+    ]
+  },
+
+  // ZOR (14+ Yaş)
+  {
+    id: 's26',
+    sentence: 'İmparatorluğun çöküş döneminde halk, ağır vergiler altında ezilerek isyan başlattı.',
+    difficulty: 'zor',
+    ageGroup: '14+',
+    questions: [
+      { type: 'when', question: 'Ne zaman isyan başlattı?', answer: 'İmparatorluğun çöküş döneminde' },
+      { type: 'who', question: 'Kim isyan başlattı?', answer: 'Halk' },
+      { type: 'how', question: 'Nasıl isyan başlattılar?', answer: 'Ağır vergiler altında ezilerek' },
+      { type: 'what', question: 'Ne başlattılar?', answer: 'İsyan' }
+    ]
+  },
+  {
+    id: 's27',
+    sentence: 'Küresel ısınmanın etkilerini azaltmak amacıyla düzenlenen konferans, çevre bilincini artırmayı hedefliyor.',
+    difficulty: 'zor',
+    ageGroup: '14+',
+    questions: [
+      { type: 'why', question: 'Niçin düzenlendi?', answer: 'Küresel ısınmanın etkilerini azaltmak amacıyla' },
+      { type: 'who', question: 'Ne hedefliyor?', answer: 'Çevre bilincini artırmayı' }
+    ]
+  },
+  {
+    id: 's28',
+    sentence: 'Antik kentteki kazı çalışmaları, arkeologların özverili çabaları sonucunda yeni bulgular ortaya çıkardı.',
+    difficulty: 'zor',
+    ageGroup: '14+',
+    questions: [
+      { type: 'where', question: 'Neredeki çalışmalar?', answer: 'Antik kentteki' },
+      { type: 'how', question: 'Nasıl ortaya çıkardı?', answer: 'Arkeologların özverili çabaları sonucunda' },
+      { type: 'what', question: 'Ne ortaya çıkardı?', answer: 'Yeni bulgular' }
+    ]
+  },
+  {
+    id: 's29',
+    sentence: 'Sanatçı, toplumsal sorunlara ayna tutmak için eserlerinde sembolik bir dil kullanmayı tercih ediyor.',
+    difficulty: 'zor',
+    ageGroup: '14+',
+    questions: [
+      { type: 'who', question: 'Kim tercih ediyor?', answer: 'Sanatçı' },
+      { type: 'why', question: 'Niçin tercih ediyor?', answer: 'Toplumsal sorunlara ayna tutmak için' },
+      { type: 'what', question: 'Ne kullanıyor?', answer: 'Sembolik bir dil' }
+    ]
+  },
+  {
+    id: 's30',
+    sentence: 'Ekonomik krizle başa çıkabilmek için hükümet tarafından yeni bir paket program açıklandı.',
+    difficulty: 'zor',
+    ageGroup: '14+',
+    questions: [
+      { type: 'why', question: 'Niçin açıklandı?', answer: 'Ekonomik krizle başa çıkabilmek için' },
+      { type: 'who', question: 'Kimin tarafından açıklandı?', answer: 'Hükümet tarafından' },
+      { type: 'what', question: 'Ne açıklandı?', answer: 'Yeni bir paket program' }
+    ]
+  },
+  // s31 - s100 (Çok Kolay ve Kolay Karışık)
+  { id: 's31', sentence: 'Köpek kemik kemirdi.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim kemirdi?', answer: 'Köpek' }, { type: 'what', question: 'Ne kemirdi?', answer: 'Kemik' }] },
+  { id: 's32', sentence: 'Merve şarkı söyledi.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim söyledi?', answer: 'Merve' }, { type: 'what', question: 'Ne söyledi?', answer: 'Şarkı' }] },
+  { id: 's33', sentence: 'Balık suda yüzdü.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim yüzdü?', answer: 'Balık' }, { type: 'where', question: 'Nerede yüzdü?', answer: 'Suda' }] },
+  { id: 's34', sentence: 'Dedem gazete okudu.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim okudu?', answer: 'Dedem' }, { type: 'what', question: 'Ne okudu?', answer: 'Gazete' }] },
+  { id: 's35', sentence: 'Ömer sütü döktü.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim döktü?', answer: 'Ömer' }, { type: 'what', question: 'Neyi döktü?', answer: 'Sütü' }] },
+  { id: 's36', sentence: 'Kuzu ot yedi.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim yedi?', answer: 'Kuzu' }, { type: 'what', question: 'Ne yedi?', answer: 'Ot' }] },
+  { id: 's37', sentence: 'Uçak gökte uçtu.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne uçtu?', answer: 'Uçak' }, { type: 'where', question: 'Nerede uçtu?', answer: 'Gökte' }] },
+  { id: 's38', sentence: 'Gemi denizde yüzdü.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne yüzdü?', answer: 'Gemi' }, { type: 'where', question: 'Nerede yüzdü?', answer: 'Denizde' }] },
+  { id: 's39', sentence: 'Filleri hayvanat bahçesinde gördük.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Neyi gördük?', answer: 'Filleri' }, { type: 'where', question: 'Nerede gördük?', answer: 'Hayvanat bahçesinde' }] },
+  { id: 's40', sentence: 'Elif kalemini kaybetti.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim kaybetti?', answer: 'Elif' }, { type: 'what', question: 'Neyi kaybetti?', answer: 'Kalemini' }] },
+  { id: 's41', sentence: 'Bora bilgisayarda oynadı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim oynadı?', answer: 'Bora' }, { type: 'where', question: 'Nerede oynadı?', answer: 'Bilgisayarda' }] },
+  { id: 's42', sentence: 'Ağaçtan yaprak düştü.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne düştü?', answer: 'Yaprak' }, { type: 'where', question: 'Nereden düştü?', answer: 'Ağaçtan' }] },
+  { id: 's43', sentence: 'Sincap fındık topladı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim topladı?', answer: 'Sincap' }, { type: 'what', question: 'Ne topladı?', answer: 'Fındık' }] },
+  { id: 's44', sentence: 'Tavşan havuç yedi.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim yedi?', answer: 'Tavşan' }, { type: 'what', question: 'Ne yedi?', answer: 'Havuç' }] },
+  { id: 's45', sentence: 'Top bahçeye kaçtı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne kaçtı?', answer: 'Top' }, { type: 'where', question: 'Nereye kaçtı?', answer: 'Bahçeye' }] },
+  { id: 's46', sentence: 'Işık odayı aydınlattı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne aydınlattı?', answer: 'Işık' }, { type: 'where', question: 'Nereyi aydınlattı?', answer: 'Odayı' }] },
+  { id: 's47', sentence: 'Rüzgar sert esti.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne esti?', answer: 'Rüzgar' }, { type: 'how', question: 'Nasıl esti?', answer: 'Sert' }] },
+  { id: 's48', sentence: 'Yemek çok sıcaktı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne sıcaktı?', answer: 'Yemek' }, { type: 'how', question: 'Nasıldı?', answer: 'Çok sıcak' }] },
+  { id: 's49', sentence: 'Kapı gıcırdayarak açıldı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne açıldı?', answer: 'Kapı' }, { type: 'how', question: 'Nasıl açıldı?', answer: 'Gıcırdayarak' }] },
+  { id: 's50', sentence: 'Hava bugün güneşli.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne güneşli?', answer: 'Hava' }, { type: 'when', question: 'Ne zaman?', answer: 'Bugün' }] },
+  { id: 's51', sentence: 'Kitap masada duruyor.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Ne duruyor?', answer: 'Kitap' }, { type: 'where', question: 'Nerede duruyor?', answer: 'Masada' }] },
+  { id: 's52', sentence: 'Zeynep ödevini bitirdi.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Kim bitirdi?', answer: 'Zeynep' }, { type: 'what', question: 'Neyi bitirdi?', answer: 'Ödevini' }] },
+  { id: 's53', sentence: 'Kuşlar güneye göç etti.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Kim göç etti?', answer: 'Kuşlar' }, { type: 'where', question: 'Nereye göç etti?', answer: 'Güneye' }] },
+  { id: 's54', sentence: 'Babam sabah gazete okur.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Kim okur?', answer: 'Babam' }, { type: 'when', question: 'Ne zaman okur?', answer: 'Sabah' }, { type: 'what', question: 'Ne okur?', answer: 'Gazete' }] },
+  { id: 's55', sentence: 'Selin gitar çalmayı seviyor.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Kim seviyor?', answer: 'Selin' }, { type: 'what', question: 'Neyi seviyor?', answer: 'Gitar çalmayı' }] },
+  { id: 's56', sentence: 'Abim yarın İzmir\'e gidecek.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Kim gidecek?', answer: 'Abim' }, { type: 'where', question: 'Nereye gidecek?', answer: 'İzmir\'e' }, { type: 'when', question: 'Ne zaman gidecek?', answer: 'Yarın' }] },
+  { id: 's57', sentence: 'Pastayı mutfakta yedik.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'what', question: 'Neyi yedik?', answer: 'Pastayı' }, { type: 'where', question: 'Nerede yedik?', answer: 'Mutfakta' }] },
+  { id: 's58', sentence: 'Okula yürüyerek gittim.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'where', question: 'Nereye gittim?', answer: 'Okula' }, { type: 'how', question: 'Nasıl gittim?', answer: 'Yürüyerek' }] },
+  { id: 's59', sentence: 'Televizyonu kumanda ile açtı.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'what', question: 'Neyi açtı?', answer: 'Televizyonu' }, { type: 'how', question: 'Nasıl açtı?', answer: 'Kumanda ile' }] },
+  { id: 's60', sentence: 'Çiçekler baharda açar.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Ne açar?', answer: 'Çiçekler' }, { type: 'when', question: 'Ne zaman açar?', answer: 'Baharda' }] },
+  { id: 's61', sentence: 'Dişlerimi her gün fırçalarım.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'what', question: 'Neyi fırçalarım?', answer: 'Dişlerimi' }, { type: 'when', question: 'Ne zaman fırçalarım?', answer: 'Her gün' }] },
+  { id: 's62', sentence: 'Kedi yavaşça koltuğa çıktı.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Kim çıktı?', answer: 'Kedi' }, { type: 'how', question: 'Nasıl çıktı?', answer: 'Yavaşça' }, { type: 'where', question: 'Nereye çıktı?', answer: 'Koltuğa' }] },
+  { id: 's63', sentence: 'Okulda futbol maçı yaptık.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'where', question: 'Nerede yaptık?', answer: 'Okulda' }, { type: 'what', question: 'Ne yaptık?', answer: 'Futbol maçı' }] },
+  { id: 's64', sentence: 'Deniz kıyısında kumdan kale yaptık.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'where', question: 'Nerede yaptık?', answer: 'Deniz kıyısında' }, { type: 'what', question: 'Ne yaptık?', answer: 'Kumdan kale' }] },
+  { id: 's65', sentence: 'Güneş bulutların arkasına saklandı.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Ne saklandı?', answer: 'Güneş' }, { type: 'where', question: 'Nereye saklandı?', answer: 'Bulutların arkasına' }] },
+  { id: 's66', sentence: 'Marketten süt ve ekmek aldım.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'where', question: 'Nereden aldım?', answer: 'Marketten' }, { type: 'what', question: 'Ne aldım?', answer: 'Süt ve ekmek' }] },
+  { id: 's67', sentence: 'Öğretmenimiz bize yeni bir konu öğretti.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Kim öğretti?', answer: 'Öğretmenimiz' }, { type: 'what', question: 'Ne öğretti?', answer: 'Yeni bir konu' }] },
+  { id: 's68', sentence: 'Kardeşim korktuğu için yanıma geldi.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Kim geldi?', answer: 'Kardeşim' }, { type: 'why', question: 'Niçin geldi?', answer: 'Korktuğu için' }] },
+  { id: 's69', sentence: 'Köylüler tarlada pamuk topluyor.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Kim topluyor?', answer: 'Köylüler' }, { type: 'where', question: 'Nerede topluyor?', answer: 'Tarlada' }, { type: 'what', question: 'Ne topluyor?', answer: 'Pamuk' }] },
+  { id: 's70', sentence: 'Bugün gökyüzü çok mavi.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne mavi?', answer: 'Gökyüzü' }, { type: 'when', question: 'Ne zaman?', answer: 'Bugün' }] },
+  { id: 's71', sentence: 'Elma ağaçtan düştü.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne düştü?', answer: 'Elma' }, { type: 'where', question: 'Nereden düştü?', answer: 'Ağaçtan' }] },
+  { id: 's72', sentence: 'Çocuklar bahçede top oynuyor.', difficulty: 'çok kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Kim oynuyor?', answer: 'Çocuklar' }, { type: 'where', question: 'Nerede oynuyor?', answer: 'Bahçede' }] },
+  { id: 's73', sentence: 'Bal arısı çiçeğe kondu.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim kondu?', answer: 'Bal arısı' }, { type: 'where', question: 'Nereye kondu?', answer: 'Çiçeğe' }] },
+  { id: 's74', sentence: 'Otomobil garaja girdi.', difficulty: 'çok kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Ne girdi?', answer: 'Otomobil' }, { type: 'where', question: 'Nereye girdi?', answer: 'Garaja' }] },
+  { id: 's75', sentence: 'Kaplumbağa yavaşça yürüdü.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim yürüdü?', answer: 'Kaplumbağa' }, { type: 'how', question: 'Nasıl yürüdü?', answer: 'Yavaşça' }] },
+  { id: 's76', sentence: 'Ateş odayı ısıttı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne ısıttı?', answer: 'Ateş' }, { type: 'where', question: 'Nereyi ısıttı?', answer: 'Odayı' }] },
+  { id: 's77', sentence: 'Annem akşam yemek yaptı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim yaptı?', answer: 'Annem' }, { type: 'when', question: 'Ne zaman?', answer: 'Akşam' }] },
+  { id: 's78', sentence: 'Fare peyniri yedi.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim yedi?', answer: 'Fare' }, { type: 'what', question: 'Ne yedi?', answer: 'Peyniri' }] },
+  { id: 's79', sentence: 'Kurbağa vırak diyerek zıpladı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim zıpladı?', answer: 'Kurbağa' }, { type: 'how', question: 'Nasıl zıpladı?', answer: 'Vırak diyerek' }] },
+  { id: 's80', sentence: 'Uçak alana indi.', difficulty: 'çok kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Ne indi?', answer: 'Uçak' }, { type: 'where', question: 'Nereye indi?', answer: 'Alana' }] },
+  { id: 's81', sentence: 'Radyo müzik çalıyor.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne çalıyor?', answer: 'Radyo' }, { type: 'what', question: 'Ne çalıyor?', answer: 'Müzik' }] },
+  { id: 's82', sentence: 'Saat tik tak ediyor.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne ediyor?', answer: 'Saat' }, { type: 'how', question: 'Nasıl?', answer: 'Tik tak' }] },
+  { id: 's83', sentence: 'Boya kutusu devrildi.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne devrildi?', answer: 'Boya kutusu' }] },
+  { id: 's84', sentence: 'Masa çok ağırdı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne ağırdı?', answer: 'Masa' }, { type: 'how', question: 'Nasıldı?', answer: 'Çok ağır' }] },
+  { id: 's85', sentence: 'Telefon çaldı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne çaldı?', answer: 'Telefon' }] },
+  { id: 's86', sentence: 'Ispanak yemeliyiz.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'what', question: 'Ne yemeliyiz?', answer: 'Ispanak' }] },
+  { id: 's87', sentence: 'Süt içince güçlendim.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin güçlendim?', answer: 'Süt içince' }] },
+  { id: 's88', sentence: 'Arkadaşım bana kalem verdi.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim verdi?', answer: 'Arkadaşım' }, { type: 'what', question: 'Ne verdi?', answer: 'Kalem' }] },
+  { id: 's89', sentence: 'Dışarıda kar yağıyor.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'where', question: 'Nerede yağıyor?', answer: 'Dışarıda' }, { type: 'who', question: 'Ne yağıyor?', answer: 'Kar' }] },
+  { id: 's90', sentence: 'Abim topu uzağa fırlattı.', difficulty: 'çok kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Kim fırlattı?', answer: 'Abim' }, { type: 'where', question: 'Nereye fırlattı?', answer: 'Uzağa' }] },
+  { id: 's91', sentence: 'Çanta sandalyede duruyor.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'where', question: 'Nerede duruyor?', answer: 'Sandalyede' }] },
+  { id: 's92', sentence: 'Can camı kırdı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim kırdı?', answer: 'Can' }, { type: 'what', question: 'Neyi kırdı?', answer: 'Camı' }] },
+  { id: 's93', sentence: 'Lamba sönünce karanlık oldu.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'when', question: 'Ne zaman karanlık oldu?', answer: 'Lamba sönünce' }] },
+  { id: 's94', sentence: 'Kömür siyah renklidir.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne?', answer: 'Kömür' }, { type: 'how', question: 'Nasıl?', answer: 'Siyah renkli' }] },
+  { id: 's95', sentence: 'Bıçak elini kesti.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne kesti?', answer: 'Bıçak' }, { type: 'where', question: 'Nereyi kesti?', answer: 'Elini' }] },
+  { id: 's96', sentence: 'Köyde horoz öttü.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'where', question: 'Nerede öttü?', answer: 'Köyde' }, { type: 'who', question: 'Kim öttü?', answer: 'Horoz' }] },
+  { id: 's97', sentence: 'Meyveleri yıkayıp yedik.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'how', question: 'Nasıl yedik?', answer: 'Yıkayıp' }, { type: 'what', question: 'Neyi yedik?', answer: 'Meyveleri' }] },
+  { id: 's98', sentence: 'Öğrenci sınıfa girdi.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim girdi?', answer: 'Öğrenci' }, { type: 'where', question: 'Nereye girdi?', answer: 'Sınıfa' }] },
+  { id: 's99', sentence: 'Defterine resim çizdi.', difficulty: 'çok kolay', ageGroup: '8-10', questions: [{ type: 'where', question: 'Nereye çizdi?', answer: 'Defterine' }, { type: 'what', question: 'Ne çizdi?', answer: 'Resim' }] },
+  { id: 's100', sentence: 'Karnı acıkınca yemek yedi.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin yedi?', answer: 'Karnı acıkınca' }] },
+  // s101 - s200 (Orta Seviye - 11-13 Yaş)
+  { id: 's101', sentence: 'Laboratuvarda yapılan deneyler sonucunda yeni bir madde keşfedildi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nerede yapıldı?', answer: 'Laboratuvarda' }, { type: 'what', question: 'Ne keşfedildi?', answer: 'Yeni bir madde' }] },
+  { id: 's102', sentence: 'Yazar, son romanında çocukluk hatıralarını hüzünlü bir dille anlatmış.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kim anlatmış?', answer: 'Yazar' }, { type: 'how', question: 'Nasıl bir dille?', answer: 'Hüzünlü' }, { type: 'what', question: 'Neyi anlatmış?', answer: 'Çocukluk hatıralarını' }] },
+  { id: 's103', sentence: 'Maçın son dakikasında atılan gol taraftarları sevince boğdu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Maçın son dakikasında' }, { type: 'who', question: 'Kimi sevince boğdu?', answer: 'Taraftarları' }] },
+  { id: 's104', sentence: 'Eski radyo bozulduğu için tamirciye götürülmek üzere paketlendi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin paketlendi?', answer: 'Eski radyo bozulduğu için' }, { type: 'where', question: 'Nereye götürülecek?', answer: 'Tamirciye' }] },
+  { id: 's105', sentence: 'Şiddetli yağışlar yüzünden köy yolu trafiğe kapatıldı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin kapatıldı?', answer: 'Şiddetli yağışlar yüzünden' }, { type: 'who', question: 'Neresi kapatıldı?', answer: 'Köy yolu' }] },
+  { id: 's106', sentence: 'Resim sergisi önümüzdeki hafta kültür merkezinde açılacak.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Ne açılacak?', answer: 'Resim sergisi' }, { type: 'when', question: 'Ne zaman?', answer: 'Önümüzdeki hafta' }, { type: 'where', question: 'Nerede?', answer: 'Kültür merkezinde' }] },
+  { id: 's107', sentence: 'Kaptan, fırtınanın yaklaşması üzerine gemiyi güvenli bir limana çekti.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kim çekti?', answer: 'Kaptan' }, { type: 'why', question: 'Niçin çekti?', answer: 'Fırtınanın yaklaşması üzerine' }, { type: 'where', question: 'Nereye çekti?', answer: 'Güvenli bir limana' }] },
+  { id: 's108', sentence: 'Öğrenciler proje ödevi için kütüphanede araştırma yaptılar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kimler yaptı?', answer: 'Öğrenciler' }, { type: 'why', question: 'Niçin yaptılar?', answer: 'Proje ödevi için' }, { type: 'where', question: 'Nerede?', answer: 'Kütüphanede' }] },
+  { id: 's109', sentence: 'Yeni taşındığımız evin bahçesine rengarenk güller diktik.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nereye diktik?', answer: 'Yeni taşındığımız evin bahçesine' }, { type: 'what', question: 'Ne diktik?', answer: 'Rengarenk güller' }] },
+  { id: 's110', sentence: 'Uzay mekiği, fırlatma rampasından büyük bir gürültüyle ayrıldı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Ne ayrıldı?', answer: 'Uzay mekiği' }, { type: 'where', question: 'Nereden ayrıldı?', answer: 'Fırlatma rampasından' }, { type: 'how', question: 'Nasıl?', answer: 'Büyük bir gürültüyle' }] },
+  { id: 's111', sentence: 'Kış gelmeden önce odunlarımızı depoya taşıdık.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman taşıdık?', answer: 'Kış gelmeden önce' }, { type: 'what', question: 'Neyi taşıdık?', answer: 'Odunlarımızı' }] },
+  { id: 's112', sentence: 'Gökyüzündeki uçurtması ipi kopunca hızla uzaklaştı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin uzaklaştı?', answer: 'İpi kopunca' }, { type: 'how', question: 'Nasıl?', answer: 'Hızla' }] },
+  { id: 's113', sentence: 'Babam bozuk musluğu tamir etmek için alet çantasını getirdi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin getirdi?', answer: 'Bozuk musluğu tamir etmek için' }, { type: 'what', question: 'Ne getirdi?', answer: 'Alet çantasını' }] },
+  { id: 's114', sentence: 'Müze müdürü, çalınan tablolar hakkında basın açıklaması yaptı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kim yaptı?', answer: 'Müze müdürü' }, { type: 'what', question: 'Ne hakkında?', answer: 'Çalınan tablolar hakkında' }] },
+  { id: 's115', sentence: 'Köy meydanındaki çeşme susuzluktan dolayı kurudu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Neredeki çeşme?', answer: 'Köy meydanındaki' }, { type: 'why', question: 'Niçin kurudu?', answer: 'Susuzluktan dolayı' }] },
+  { id: 's116', sentence: 'Bisikletimin zinciri atınca eve kadar yürümek zorunda kaldım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin yürümek zorunda kaldı?', answer: 'Bisikletimin zinciri atınca' }, { type: 'where', question: 'Nereye kadar?', answer: 'Eve kadar' }] },
+  { id: 's117', sentence: 'Piknikçiler çöplerini ormanda bıraktıkları için yangın çıktı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin yangın çıktı?', answer: 'Piknikçiler çöplerini ormanda bıraktıkları için' }, { type: 'where', question: 'Nerede çıktı?', answer: 'Ormanda' }] },
+  { id: 's118', sentence: 'Dalgıçlar denizin derinliklerinde batık bir gemi buldular.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kimler buldu?', answer: 'Dalgıçlar' }, { type: 'where', question: 'Nerede buldular?', answer: 'Denizin derinliklerinde' }, { type: 'what', question: 'Ne buldular?', answer: 'Batık bir gemi' }] },
+  { id: 's119', sentence: 'Kuşlar yuva yapmak için ağızlarında çırpı taşıyorlar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin taşıyorlar?', answer: 'Yuva yapmak için' }, { type: 'what', question: 'Ne taşıyorlar?', answer: 'Çırpı' }] },
+  { id: 's120', sentence: 'Sabah erkenden kalkan çiftçiler tarlayı sürmeye gittiler.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kimler gitti?', answer: 'Sabah erkenden kalkan çiftçiler' }, { type: 'where', question: 'Nereye gittiler?', answer: 'Tarlayı sürmeye' }] },
+  { id: 's121', sentence: 'Trafik polisi hatalı park eden sürücüleri uyardı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kim uyardı?', answer: 'Trafik polisi' }, { type: 'who', question: 'Kimi uyardı?', answer: 'Hatalı park eden sürücüleri' }] },
+  { id: 's122', sentence: 'Okulun bahçesindeki basketbol potası fırtınada devrilmiş.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Neredeki pota?', answer: 'Okulun bahçesindeki' }, { type: 'when', question: 'Ne zaman?', answer: 'Fırtınada' }] },
+  { id: 's123', sentence: 'Anıt kabir 10 Kasım günü binlerce ziyaretçi tarafından ziyaret edildi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Neresi ziyaret edildi?', answer: 'Anıt kabir' }, { type: 'when', question: 'Ne zaman?', answer: '10 Kasım günü' }, { type: 'who', question: 'Kimler tarafından?', answer: 'Binlerce ziyaretçi tarafından' }] },
+  { id: 's124', sentence: 'Küçük kız, bebeği uyuduğu için parmak uçlarında yürüyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin o şekilde yürüyor?', answer: 'Bebeği uyuduğu için' }, { type: 'how', question: 'Nasıl yürüyor?', answer: 'Parmak uçlarında' }] },
+  { id: 's125', sentence: 'Tiyatrocular sahneye çıkmadan önce son provalarını yaptılar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kimler yaptı?', answer: 'Tiyatrocular' }, { type: 'when', question: 'Ne zaman?', answer: 'Sahneye çıkmadan önce' }] },
+  { id: 's126', sentence: 'Postacı, adresi bulamadığı için mektubu geri götürdü.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin geri götürdü?', answer: 'Adresi bulamadığı için' }, { type: 'what', question: 'Neyi geri götürdü?', answer: 'Mektubu' }] },
+  { id: 's127', sentence: 'Annem bayram temizliği için bütün perdeleri yıkadı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin yıkadı?', answer: 'Bayram temizliği için' }, { type: 'what', question: 'Neyi yıkadı?', answer: 'Bütün perdeleri' }] },
+  { id: 's128', sentence: 'Gözlüklerim kırıldığı için kitap okumakta zorlanıyorum.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin zorlanıyor?', answer: 'Gözlüklerim kırıldığı için' }, { type: 'what', question: 'Ne yapmakta?', answer: 'Kitap okumakta' }] },
+  { id: 's129', sentence: 'İtfaiye ekipleri merdiven yardımıyla kediyi ağaçtan indirdiler.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kimler indirdi?', answer: 'İtfaiye ekipleri' }, { type: 'how', question: 'Nasıl indirdiler?', answer: 'Merdiven yardımıyla' }, { type: 'where', question: 'Nereden indirdiler?', answer: 'Ağaçtan' }] },
+  { id: 's130', sentence: 'Akşam fırtına çıkınca elektrikler bir anda kesildi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Akşam fırtına çıkınca' }, { type: 'how', question: 'Nasıl?', answer: 'Bir anda' }] },
+  { id: 's131', sentence: 'Baloncu elindeki rengarenk balonları çocuklara dağıttı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kim dağıttı?', answer: 'Baloncu' }, { type: 'what', question: 'Neyi dağıttı?', answer: 'Balonları' }, { type: 'who', question: 'Kime dağıttı?', answer: 'Çocuklara' }] },
+  { id: 's132', sentence: 'İşçiler güneşin altında büyük bir sabırla çalışıyorlar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nerede?', answer: 'Güneşin altında' }, { type: 'how', question: 'Nasıl?', answer: 'Büyük bir sabırla' }] },
+  { id: 's133', sentence: 'Babam bozuk radyoyu tamir etmek için tornavida kullandı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Bozuk radyoyu tamir etmek için' }, { type: 'what', question: 'Ne kullandı?', answer: 'Tornavida' }] },
+  { id: 's134', sentence: 'Minik serçe fırtınada ıslanmamak için saçak altına sığındı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Islanmamak için' }, { type: 'where', question: 'Nereye sığındı?', answer: 'Saçak altına' }] },
+  { id: 's135', sentence: 'Kış mevsiminde kar yağınca çocuklar kayak yapmaya gittiler.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Kış mevsiminde kar yağınca' }, { type: 'what', question: 'Ne yapmaya?', answer: 'Kayak yapmaya' }] },
+  { id: 's136', sentence: 'Okulun bahçesindeki ağaçları korumak için çit çektiler.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Ağaçları korumak için' }, { type: 'what', question: 'Ne çektiler?', answer: 'Çit' }] },
+  { id: 's137', sentence: 'Büyükbabam gençliğinde İstanbul\'da kaptanlık yapmış.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Gençliğinde' }, { type: 'where', question: 'Nerede?', answer: 'İstanbul\'da' }, { type: 'what', question: 'Ne yapmış?', answer: 'Kaptanlık' }] },
+  { id: 's138', sentence: 'Sınavdan yüksek not alınca babası ona bisiklet aldı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Sınavdan yüksek not alınca' }, { type: 'what', question: 'Ne aldı?', answer: 'Bisiklet' }] },
+  { id: 's139', sentence: 'Köylüler kışın yakmak için yazdan odun hazırladılar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman hazırladılar?', answer: 'Yazdan' }, { type: 'why', question: 'Niçin?', answer: 'Kışın yakmak için' }] },
+  { id: 's140', sentence: 'Gemi limana yaklaşırken devasa halatlarla bağlandı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Limana yaklaşırken' }, { type: 'how', question: 'Nasıl?', answer: 'Devasa halatlarla' }] },
+  { id: 's141', sentence: 'Kütüphanede sessizliği sağlamak için levha asıldı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Sessizliği sağlamak için' }, { type: 'where', question: 'Nerede?', answer: 'Kütüphanede' }] },
+  { id: 's142', sentence: 'Ressam doğayı anlatmak için tuvalinde canlı renkler kullandı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Doğayı anlatmak için' }, { type: 'what', question: 'Ne kullandı?', answer: 'Canlı renkler' }] },
+  { id: 's143', sentence: 'Meyveleri toplamak için ağacın altına merdiven dayadık.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Meyveleri toplamak için' }, { type: 'where', question: 'Nereye?', answer: 'Ağacın altına' }] },
+  { id: 's144', sentence: 'Okul takımı rakip takımı farkla yenerek şampiyon oldu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'how', question: 'Nasıl yendi?', answer: 'Farkla yenerek' }, { type: 'who', question: 'Kim şampiyon oldu?', answer: 'Okul takımı' }] },
+  { id: 's145', sentence: 'Bahçedeki havuzu temizlemek için bütün suyu boşalttılar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Havuzu temizlemek için' }, { type: 'what', question: 'Neyi boşalttılar?', answer: 'Bütün suyu' }] },
+  { id: 's146', sentence: 'Büyükannem ördüğü yeleği bana soğuk havalarda giydiriyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Soğuk havalarda' }, { type: 'what', question: 'Neyi giydiriyor?', answer: 'Ördüğü yeleği' }] },
+  { id: 's147', sentence: 'Otobüs arıza yapınca yolcular başka bir araca aktarıldı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Otobüs arıza yapınca' }, { type: 'where', question: 'Nereye?', answer: 'Başka bir araca' }] },
+  { id: 's148', sentence: 'Aşçı lezzetli bir çorba yapmak için taze sebzeler seçti.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Lezzetli bir çorba yapmak için' }, { type: 'what', question: 'Ne seçti?', answer: 'Taze sebzeler' }] },
+  { id: 's149', sentence: 'Trafik sıkışıklığı nedeniyle gideceğimiz yere geç kaldık.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Trafik sıkışıklığı nedeniyle' }, { type: 'how', question: 'Nasıl?', answer: 'Geç' }] },
+  { id: 's150', sentence: 'Mühendisler tüneli açmak için dağı dinamitle patlattılar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Tüneli açmak için' }, { type: 'how', question: 'Nasıl?', answer: 'Dinamitle' }] },
+  { id: 's151', sentence: 'Okul bahçesinde fidan dikme etkinliği düzenlendi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nerede?', answer: 'Okul bahçesinde' }, { type: 'what', question: 'Ne düzenlendi?', answer: 'Fidan dikme etkinliği' }] },
+  { id: 's152', sentence: 'Balıkçı ağına takılan balıkları kovaya doldurdu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nereye doldurdu?', answer: 'Kovaya' }, { type: 'what', question: 'Neyi?', answer: 'Ağına takılan balıkları' }] },
+  { id: 's153', sentence: 'Terzi sökülen pantolonu ince bir dikişle dikti.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'how', question: 'Nasıl dikti?', answer: 'İnce bir dikişle' }, { type: 'what', question: 'Neyi dikti?', answer: 'Sökülen pantolonu' }] },
+  { id: 's154', sentence: 'Gökyüzündeki uçak bulutların arasında kayboldu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nerede kayboldu?', answer: 'Bulutların arasında' }, { type: 'who', question: 'Ne kayboldu?', answer: 'Uçak' }] },
+  { id: 's155', sentence: 'Köy yolları sel suları nedeniyle tahrip oldu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin tahrip oldu?', answer: 'Sel suları nedeniyle' }, { type: 'who', question: 'Ne tahrip oldu?', answer: 'Köy yolları' }] },
+  { id: 's156', sentence: 'Kırtasiyeden aldığım defterin sayfaları çok kalındı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nereden aldım?', answer: 'Kırtasiyeden' }, { type: 'how', question: 'Nasıldı?', answer: 'Çok kalın' }] },
+  { id: 's157', sentence: 'Sporcu antrenörünün tavsiyesiyle her sabah koşuyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Antrenörünün tavsiyesiyle' }, { type: 'when', question: 'Ne zaman?', answer: 'Her sabah' }] },
+  { id: 's158', sentence: 'Okul zili çalınca bütün öğrenciler dışarı fırladı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Okul zili çalınca' }, { type: 'where', question: 'Nereye?', answer: 'Dışarı' }] },
+  { id: 's159', sentence: 'Bahçedeki kuyu susuzluktan dolayı kurudu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Susuzluktan dolayı' }, { type: 'who', question: 'Ne kurudu?', answer: 'Bahçedeki kuyu' }] },
+  { id: 's160', sentence: 'Bilgisayarımın ekranı bozulunca hiçbir şey göremedim.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin göremedi?', answer: 'Bilgisayarımın ekranı bozulunca' }] },
+  { id: 's161', sentence: 'Yolcular vapurun gelmesini iskelede beklediler.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nerede beklediler?', answer: 'İskelede' }, { type: 'what', question: 'Neyi?', answer: 'Vapurun gelmesini' }] },
+  { id: 's162', sentence: 'Sokak kedileri soğuktan korunmak için garaja sığındılar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Soğuktan korunmak için' }, { type: 'where', question: 'Nereye sığındılar?', answer: 'Garaja' }] },
+  { id: 's163', sentence: 'Okul bahçesine basketbol potası takıldı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nereye?', answer: 'Okul bahçesine' }, { type: 'what', question: 'Ne takıldı?', answer: 'Basketbol potası' }] },
+  { id: 's164', sentence: 'Ankara treni gara vaktinde girdi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Vaktinde' }, { type: 'where', question: 'Nereye?', answer: 'Gara' }] },
+  { id: 's165', sentence: 'Gökyüzündeki gökkuşağı yağmurdan sonra belirdi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Yağmurdan sonra' }, { type: 'who', question: 'Ne belirdi?', answer: 'Gökkuşağı' }] },
+  { id: 's166', sentence: 'Köy evinin bacasından dumanlar yükseliyordu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nereden?', answer: 'Köy evinin bacasından' }, { type: 'who', question: 'Ne yükseliyordu?', answer: 'Dumanlar' }] },
+  { id: 's167', sentence: 'Arabayı yıkamak için garajın önüne çektik.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Arabayı yıkamak için' }, { type: 'where', question: 'Nereye?', answer: 'Garajın önüne' }] },
+  { id: 's168', sentence: 'Büyükbabam bize eski savaş hatıralarını anlattı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kim anlattı?', answer: 'Büyükbabam' }, { type: 'what', question: 'Neyi?', answer: 'Eski savaş hatıralarını' }] },
+  { id: 's169', sentence: 'Çekirge tarlada sıçrayarak uzaklaştı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Sıçrayarak' }, { type: 'where', question: 'Nerede?', answer: 'Tarlada' }] },
+  { id: 's170', sentence: 'Okul müdürü başarılı öğrencilere ödül verdi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kim verdi?', answer: 'Okul müdürü' }, { type: 'what', question: 'Ne verdi?', answer: 'Ödül' }] },
+  { id: 's171', sentence: 'Bahçedeki otları temizlemek için çapa kullandı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Otları temizlemek için' }, { type: 'what', question: 'Ne kullandı?', answer: 'Çapa' }] },
+  { id: 's172', sentence: 'Köpek yabancıları görünce havlamaya başladı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Yabancıları görünce' }, { type: 'who', question: 'Kim?', answer: 'Köpek' }] },
+  { id: 's173', sentence: 'Kar yağınca yollar buz tuttu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Kar yağınca' }, { type: 'who', question: 'Ne buz tuttu?', answer: 'Yollar' }] },
+  { id: 's174', sentence: 'Meyve sepetini mutfak masasına bıraktım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nereye?', answer: 'Mutfak masasına' }, { type: 'what', question: 'Neyi?', answer: 'Meyve sepetini' }] },
+  { id: 's175', sentence: 'Öğretmenimiz dersin sonunda ödevlerimizi topladı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Dersin sonunda' }, { type: 'what', question: 'Neyi?', answer: 'Ödevlerimizi' }] },
+  { id: 's176', sentence: 'Eski radyonun anteni kırılınca çekmemeye başladı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Anteni kırılınca' }, { type: 'who', question: 'Ne?', answer: 'Eski radyo' }] },
+  { id: 's177', sentence: 'Babamın hediyesi beni çok mutlu etti.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kim?', answer: 'Babamın hediyesi' }, { type: 'how', question: 'Nasıl?', answer: 'Çok mutlu' }] },
+  { id: 's178', sentence: 'Damlaya damlaya göl olur.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Damlaya damlaya' }, { type: 'who', question: 'Ne olur?', answer: 'Göl' }] },
+  { id: 's179', sentence: 'Ağaç yaşken eğilir.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Yaşken' }, { type: 'who', question: 'Ne?', answer: 'Ağaç' }] },
+  { id: 's180', sentence: 'Sokak lambaları akşam olunca kendiliğinden yanıyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Akşam olunca' }, { type: 'how', question: 'Nasıl?', answer: 'Kendiliğinden' }] },
+  { id: 's181', sentence: 'Fırtınada camlar sarsılmaya başladı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Fırtınada' }, { type: 'who', question: 'Ne?', answer: 'Camlar' }] },
+  { id: 's182', sentence: 'Bahçedeki çiçekleri her gün sularım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Her gün' }, { type: 'what', question: 'Neyi?', answer: 'Çiçekleri' }] },
+  { id: 's183', sentence: 'Kalemimin ucu kırılınca kalemtıraşla açtım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Ucu kırılınca' }, { type: 'how', question: 'Nasıl?', answer: 'Kalemtıraşla' }] },
+  { id: 's184', sentence: 'Yeni aldığım ayakkabı ayağımı vurdu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Ne?', answer: 'Yeni aldığım ayakkabı' }, { type: 'where', question: 'Nereyi?', answer: 'Ayağımı' }] },
+  { id: 's185', sentence: 'Yemekten önce ellerimizi yıkamalıyız.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Yemekten önce' }, { type: 'what', question: 'Neyi?', answer: 'Ellerimizi' }] },
+  { id: 's186', sentence: 'Mutfaktaki bulaşıkları beraber yıkadık.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Neredeki?', answer: 'Mutfaktaki' }, { type: 'how', question: 'Nasıl?', answer: 'Beraber' }] },
+  { id: 's187', sentence: 'Gözlerimi kapatınca hayallere dalarım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Gözlerimi kapatınca' }, { type: 'where', question: 'Nereye?', answer: 'Hayallere' }] },
+  { id: 's188', sentence: 'Pazardan meyve ve sebze aldık.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nereden?', answer: 'Pazardan' }, { type: 'what', question: 'Ne?', answer: 'Meyve ve sebze' }] },
+  { id: 's189', sentence: 'Okulun bahçesi çok geniştir.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Neresi?', answer: 'Okulun bahçesi' }, { type: 'how', question: 'Nasıldır?', answer: 'Çok geniş' }] },
+  { id: 's190', sentence: 'Deniz suyunun tadı tuzludur.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Ne?', answer: 'Deniz suyu' }, { type: 'how', question: 'Nasıl?', answer: 'Tuzlu' }] },
+  { id: 's191', sentence: 'Kış gelince kar botlarımı çıkarırım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Kış gelince' }, { type: 'what', question: 'Neyi?', answer: 'Kar botlarımı' }] },
+  { id: 's192', sentence: 'Gece gökyüzünde yıldızlar parlıyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Gece' }, { type: 'where', question: 'Nerede?', answer: 'Gökyüzünde' }, { type: 'who', question: 'Neler?', answer: 'Yıldızlar' }] },
+  { id: 's193', sentence: 'Bisiklet sürmeyi babamdan öğrendim.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'what', question: 'Neyi?', answer: 'Bisiklet sürmeyi' }, { type: 'who', question: 'Kimden?', answer: 'Babamdan' }] },
+  { id: 's194', sentence: 'Okula geç kalınca taksiye bindim.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Geç kalınca' }, { type: 'where', question: 'Neye?', answer: 'Taksiye' }] },
+  { id: 's195', sentence: 'Dondurma yiyince boğazım şişti.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Dondurma yiyince' }, { type: 'who', question: 'Neresi?', answer: 'Boğazım' }] },
+  { id: 's196', sentence: 'Parkta arkadaşımla karşılaştım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nerede?', answer: 'Parkta' }, { type: 'who', question: 'Kimle?', answer: 'Arkadaşımla' }] },
+  { id: 's197', sentence: 'Annem bana yeni bir kazak ördü.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kim?', answer: 'Annem' }, { type: 'what', question: 'Ne?', answer: 'Kazak' }] },
+  { id: 's198', sentence: 'Kütüphanede ders çalışmak çok verimli oluyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nerede?', answer: 'Kütüphanede' }, { type: 'how', question: 'Nasıl?', answer: 'Verimli' }] },
+  { id: 's199', sentence: 'Uçurtmamın ipi ağaca takıldı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Ne?', answer: 'Uçurtmamın ipi' }, { type: 'where', question: 'Nereye?', answer: 'Ağaca' }] },
+  { id: 's200', sentence: 'Sabah horozun sesiyle uyandım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Sabah' }, { type: 'why', question: 'Niçin?', answer: 'Horozun sesiyle' }] },
+  // s201 - s350 (Karışık Seviyeler)
+  { id: 's201', sentence: 'Okul servisi karda kaldığı için dersler geç başladı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Okul servisi karda kaldığı için' }, { type: 'who', question: 'Ne geç başladı?', answer: 'Dersler' }] },
+  { id: 's202', sentence: 'Mühendisler enerjiden tasarruf etmek için yeni bir motor tasarladılar.', difficulty: 'orta', ageGroup: '14+', questions: [{ type: 'who', question: 'Kim?', answer: 'Mühendisler' }, { type: 'why', question: 'Niçin?', answer: 'Enerjiden tasarruf etmek için' }, { type: 'what', question: 'Ne?', answer: 'Yeni bir motor' }] },
+  { id: 's203', sentence: 'Kış gelince göçmen kuşlar sıcak ülkelere uçarlar.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Kış gelince' }, { type: 'where', question: 'Nereye?', answer: 'Sıcak ülkelere' }] },
+  { id: 's204', sentence: 'Doktor hastaya ilaçlarını düzenli kullanmasını tembihledi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kim?', answer: 'Doktor' }, { type: 'what', question: 'Neyi?', answer: 'İlaçlarını düzenli kullanmasını' }] },
+  { id: 's205', sentence: 'Küçük çocuk kaybolunca polis tarafından ailesine teslim edildi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Kaybolunca' }, { type: 'who', question: 'Kim tarafından?', answer: 'Polis tarafından' }] },
+  { id: 's206', sentence: 'Bahçedeki elmalar olgunlaşınca sepetlerle topladık.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Olgunlaşınca' }, { type: 'how', question: 'Nasıl?', answer: 'Sepetlerle' }] },
+  { id: 's207', sentence: 'Gemi fırtınada büyük dalgalarla boğuşarak limana ulaştı.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Fırtınada' }, { type: 'how', question: 'Nasıl?', answer: 'Büyük dalgalarla boğuşarak' }, { type: 'where', question: 'Nereye?', answer: 'Limana' }] },
+  { id: 's208', sentence: 'Öğrenciler müze gezisinde tarihi eserleri hayranlıkla izlediler.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nerede?', answer: 'Müze gezisinde' }, { type: 'how', question: 'Nasıl?', answer: 'Hayranlıkla' }] },
+  { id: 's209', sentence: 'Kütüphaneci kitapları raflara alfabetik sıraya göre dizdi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Kim?', answer: 'Kütüphaneci' }, { type: 'how', question: 'Nasıl?', answer: 'Alfabetik sıraya göre' }] },
+  { id: 's210', sentence: 'Karbon emisyonunu azaltmak için orman varlığımızı korumalıyız.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Karbon emisyonunu azaltmak için' }, { type: 'what', question: 'Neyi?', answer: 'Orman varlığımızı' }] },
+  { id: 's211', sentence: 'Antik kentteki kazılarda paha biçilemez heykeller bulundu.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'where', question: 'Nerede?', answer: 'Antik kentteki kazılarda' }, { type: 'what', question: 'Ne?', answer: 'Paha biçilemez heykeller' }] },
+  { id: 's212', sentence: 'Babamın saate pili bitince duvar saati durdu.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Pili bitince' }, { type: 'who', question: 'Ne durdu?', answer: 'Duvar saati' }] },
+  { id: 's213', sentence: 'Sokaktaki lambalar arıza nedeniyle bir haftadır yanmıyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Arıza nedeniyle' }, { type: 'how long', question: 'Ne zamandır?', answer: 'Bir haftadır' }] },
+  { id: 's214', sentence: 'Güneş panelleri sayesinde evimizin elektriğini kendimiz üretiyoruz.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Güneş panelleri sayesinde' }, { type: 'what', question: 'Neyi?', answer: 'Evimizin elektriğini' }] },
+  { id: 's215', sentence: 'Okul müdürü konuşma yapmak için kürsüye çıktı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Konuşma yapmak için' }, { type: 'where', question: 'Nereye?', answer: 'Kürsüye' }] },
+  { id: 's216', sentence: 'İtfaiyeciler canlarını dişine takarak yangını söndürdüler.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Canlarını dişine takarak' }, { type: 'what', question: 'Neyi?', answer: 'Yangını' }] },
+  { id: 's217', sentence: 'Aşçı yemeğin tadına bakmak için küçük bir kaşık kullandı.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Yemeğin tadına bakmak için' }, { type: 'what', question: 'Ne?', answer: 'Küçük bir kaşık' }] },
+  { id: 's218', sentence: 'Küresel ısınma buzulların hızla erimesine neden oluyor.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'what', question: 'Ne?', answer: 'Küresel ısınma' }, { type: 'why', question: 'Neye neden oluyor?', answer: 'Buzulların hızla erimesine' }] },
+  { id: 's219', sentence: 'Meyveleri kurutmak için damın üstüne serdik.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Meyveleri kurutmak için' }, { type: 'where', question: 'Nereye?', answer: 'Damın üstüne' }] },
+  { id: 's220', sentence: 'Astronotlar uzay istasyonunda yer çekimsiz ortamda yaşıyorlar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nerede?', answer: 'Uzay istasyonunda' }, { type: 'how', question: 'Nasıl ortamda?', answer: 'Yer çekimsiz ortamda' }] },
+  { id: 's221', sentence: 'Büyükbabam hatıralarını yazmak için sessiz bir odaya çekilir.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Hatıralarını yazmak için' }, { type: 'where', question: 'Nereye?', answer: 'Sessiz bir odaya' }] },
+  { id: 's222', sentence: 'Araba lastiği patlayınca yolda mahsur kaldık.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Lastiği patlayınca' }, { type: 'where', question: 'Nerede?', answer: 'Yolda' }] },
+  { id: 's223', sentence: 'Yağmur dindikten sonra her yer mis gibi toprak koktu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Yağmur dindikten sonra' }, { type: 'how', question: 'Nasıl?', answer: 'Mis gibi' }] },
+  { id: 's224', sentence: 'Ustam ayakkabıyı tamir etmek için örsün üzerine koydu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Tamir etmek için' }, { type: 'where', question: 'Nereye?', answer: 'Örsün üzerine' }] },
+  { id: 's225', sentence: 'Sınav sonuçları açıklandığında bütün sınıf derin bir nefes aldı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Sınav sonuçları açıklandığında' }, { type: 'who', question: 'Kim?', answer: 'Bütün sınıf' }] },
+  { id: 's226', sentence: 'Gökyüzündeki göçmen kuşların dizilişi V harfine benziyordu.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'who', question: 'Ne?', answer: 'Göçmen kuşların dizilişi' }, { type: 'how', question: 'Neye benziyordu?', answer: 'V harfine' }] },
+  { id: 's227', sentence: 'Meyve ağaçlarını dondan korumak için üzerlerini örttük.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Dondan korumak için' }, { type: 'what', question: 'Neleri?', answer: 'Meyve ağaçlarını' }] },
+  { id: 's228', sentence: 'Kaptan dümene geçince mürettebat rahat bir nefes aldı.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Kaptan dümene geçince' }, { type: 'who', question: 'Kim?', answer: 'Mürettebat' }] },
+  { id: 's229', sentence: 'Öğretmenimiz çevre kirliliğine dikkat çekmek için pano hazırlattı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Çevre kirliliğine dikkat çekmek için' }, { type: 'what', question: 'Ne?', answer: 'Pano' }] },
+  { id: 's230', sentence: 'Babama sürpriz yapmak için akşam yemeğini ben hazırladım.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Sürpriz yapmak için' }, { type: 'when', question: 'Ne zaman?', answer: 'Akşam' }, { type: 'who', question: 'Kim?', answer: 'Ben' }] },
+  { id: 's231', sentence: 'Ankara Kalesi\'nden şehri panoramik olarak izleyebilirsiniz.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'where', question: 'Nereden?', answer: 'Ankara Kalesi\'nden' }, { type: 'how', question: 'Nasıl?', answer: 'Panoramik olarak' }] },
+  { id: 's232', sentence: 'Kışın soğuktan korunmak için yünlü kıyafetler giyeriz.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Kışın' }, { type: 'why', question: 'Niçin?', answer: 'Soğuktan korunmak için' }] },
+  { id: 's233', sentence: 'Balonlar rüzgarın etkisiyle gökyüzüne doğru süzüldü.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Rüzgarın etkisiyle' }, { type: 'where', question: 'Nereye?', answer: 'Gökyüzüne doğru' }] },
+  { id: 's234', sentence: 'Uçurtmamızın kuyruğu uzun olduğu için daha dengeli uçuyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Kuyruğu uzun olduğu için' }, { type: 'how', question: 'Nasıl?', answer: 'Daha dengeli' }] },
+  { id: 's235', sentence: 'Bilim insanları yeni bir aşı geliştirmek için gece gündüz çalışıyorlar.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Yeni bir aşı geliştirmek için' }, { type: 'when', question: 'Ne zaman?', answer: 'Gece gündüz' }] },
+  { id: 's236', sentence: 'Kardeşim korktuğu için ışığı açık bırakarak uyumuş.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Korktuğu için' }, { type: 'how', question: 'Nasıl?', answer: 'Işığı açık bırakarak' }] },
+  { id: 's237', sentence: 'Deniz kaplumbağaları yumurtalarını bırakmak için kıyıya çıkarlar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Yumurtalarını bırakmak için' }, { type: 'where', question: 'Nereye?', answer: 'Kıyıya' }] },
+  { id: 's238', sentence: 'Annem pazar alışverişinden dönerken yorulmuştu.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Pazar alışverişinden dönerken' }] },
+  { id: 's239', sentence: 'Sokaktaki trafik gürültüsü nedeniyle uyuyamadım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Sokaktaki trafik gürültüsü nedeniyle' }] },
+  { id: 's240', sentence: 'Okulun bahçesi yaz tatili boyunca çok sessizdi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Yaz tatili boyunca' }, { type: 'how', question: 'Nasıldı?', answer: 'Sessiz' }] },
+  { id: 's241', sentence: 'Minik serçeler ekmek kırıntılarını yemek için pencereye geldiler.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'why', question: 'Niçin?', answer: 'Ekmek kırıntılarını yemek için' }, { type: 'where', question: 'Nereye?', answer: 'Pencereye' }] },
+  { id: 's242', sentence: 'Gökyüzündeki yıldızlar gece karanlığında daha net görünüyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Gece karanlığında' }, { type: 'how', question: 'Nasıl?', answer: 'Daha net' }] },
+  { id: 's243', sentence: 'Marketten yoğurt ve süt almak için evden çıktım.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'why', question: 'Niçin?', answer: 'Yoğurt ve süt almak için' }, { type: 'where', question: 'Nereden?', answer: 'Evden' }] },
+  { id: 's244', sentence: 'Eski radyonun sesini kısmak için düğmesini çevirdim.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Sesini kısmak için' }, { type: 'what', question: 'Neyi?', answer: 'Düğmesini' }] },
+  { id: 's245', sentence: 'Piknikçiler çöplerini toplamadıkları için doğa kirleniyor.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Çöplerini toplamadıkları için' }, { type: 'who', question: 'Ne?', answer: 'Doğa' }] },
+  { id: 's246', sentence: 'Okul takımı final maçında büyük bir başarı sergiledi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Final maçında' }, { type: 'what', question: 'Ne?', answer: 'Büyük bir başarı' }] },
+  { id: 's247', sentence: 'Köy evindeki şömine odayı sıcacık yaptı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Neredeki?', answer: 'Köy evindeki' }, { type: 'how', question: 'Nasıl?', answer: 'Sıcaçık' }] },
+  { id: 's248', sentence: 'Gözlüklerimi sınıfta unuttuğum için eve geri döndüm.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Unuttuğum için' }, { type: 'where', question: 'Nereye?', answer: 'Eve' }] },
+  { id: 's249', sentence: 'Bahçedeki havuz su sızıntısı nedeniyle boşaltıldı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Su sızıntısı nedeniyle' }, { type: 'who', question: 'Ne?', answer: 'Bahçedeki havuz' }] },
+  { id: 's250', sentence: 'Büyükbabam gençliğinde İstanbul\'da öğretmenlik yapmış.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Gençliğinde' }, { type: 'where', question: 'Nerede?', answer: 'İstanbul\'da' }] },
+  { id: 's251', sentence: 'Sincaplar kış için hazırladıkları yiyecekleri ağaç kovuğuna sakladılar.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Kış için' }, { type: 'where', question: 'Nereye?', answer: 'Ağaç kovuğuna' }] },
+  { id: 's252', sentence: 'Kar yağınca yolların kapanması üzerine ulaşım durdu.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Yolların kapanması üzerine' }, { type: 'who', question: 'Ne?', answer: 'Ulaşım' }] },
+  { id: 's253', sentence: 'Uçak yoğun sis nedeniyle başka bir havaalanına yönlendirildi.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Yoğun sis nedeniyle' }, { type: 'where', question: 'Nereye?', answer: 'Başka bir havaalanına' }] },
+  { id: 's254', sentence: 'Kütüphanede sessizce kitap okumak insanı dinlendiriyor.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Sessizce' }, { type: 'where', question: 'Nerede?', answer: 'Kütüphanede' }] },
+  { id: 's255', sentence: 'Hava kararırken sokak lambaları birer birer yanmaya başladı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Birer birer' }, { type: 'when', question: 'Ne zaman?', answer: 'Hava kararırken' }] },
+  { id: 's256', sentence: 'Okulun bahçesindeki fidanları sulamak için kova kullandık.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'why', question: 'Niçin?', answer: 'Sulamak için' }, { type: 'what', question: 'Ne?', answer: 'Kova' }] },
+  { id: 's257', sentence: 'Deniz kıyısındaki martılar simit parçaları için birbirleriyle yarışıyorlar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Simit parçaları için' }, { type: 'where', question: 'Nerede?', answer: 'Deniz kıyısındaki' }] },
+  { id: 's258', sentence: 'Annem akşam yemeği için taze fasulye ayıklıyor.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Akşam yemeği için' }, { type: 'what', question: 'Ne?', answer: 'Taze fasulye' }] },
+  { id: 's259', sentence: 'Babam bozuk radyoyu tamir edebilmek için tornavida kullandı.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Tamir edebilmek için' }, { type: 'what', question: 'Ne?', answer: 'Tornavida' }] },
+  { id: 's260', sentence: 'Bisikletimin tekerleği patlayınca yolda kalmaktan korktum.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin korktu?', answer: 'Tekerleği patlayınca' }, { type: 'where', question: 'Nerede?', answer: 'Yolda' }] },
+  { id: 's261', sentence: 'Sokak kapısı rüzgarın etkisiyle gürültüyle kapandı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Rüzgarın etkisiyle' }, { type: 'how', question: 'Nasıl?', answer: 'Gürültüyle' }] },
+  { id: 's262', sentence: 'Okulun bahçesindeki eski çınar ağacı fırtına nedeniyle devrilmiş.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Fırtına nedeniyle' }, { type: 'who', question: 'Ne?', answer: 'Eski çınar ağacı' }] },
+  { id: 's263', sentence: 'Köyde taze süt içmek için sabah erkenden kalkarız.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Taze süt içmek için' }, { type: 'when', question: 'Ne zaman?', answer: 'Sabah erkenden' }] },
+  { id: 's264', sentence: 'Minik serçe ıslanmış tüylerini kurutmak için güneşe çıktı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Tüylerini kurutmak için' }, { type: 'where', question: 'Nereye?', answer: 'Güneşe' }] },
+  { id: 's265', sentence: 'Arabayı garaja çekmek için dar yoldan geçtik.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Garaja çekmek için' }, { type: 'where', question: 'Nereden?', answer: 'Dar yoldan' }] },
+  { id: 's266', sentence: 'Kardeşim ödevini bitiremediği için hayal kırıklığı yaşadı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Ödevini bitiremediği için' }, { type: 'what', question: 'Ne yaşadı?', answer: 'Hayal kırıklığı' }] },
+  { id: 's267', sentence: 'Öğretmenimiz çevre bilincini artırmak amacıyla yeni bir proje başlattı.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin başlattı?', answer: 'Çevre bilincini artırmak amacıyla' }, { type: 'what', question: 'Ne?', answer: 'Proje' }] },
+  { id: 's268', sentence: 'Eski radyonun anteni bozulduğu için yayınları alamıyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Anteni bozulduğu için' }, { type: 'who', question: 'Ne?', answer: 'Eski radyo' }] },
+  { id: 's269', sentence: 'Bahçedeki çiçekler susuzluktan dolayı solmaya başladı.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Susuzluktan dolayı' }, { type: 'who', question: 'Neler?', answer: 'Çiçekler' }] },
+  { id: 's270', sentence: 'Köy evindeki taş fırından taze ekmek kokuları geliyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nereden?', answer: 'Taş fırından' }, { type: 'what', question: 'Ne kokuları?', answer: 'Taze ekmek' }] },
+  { id: 's271', sentence: 'Okul zili çalınca bütün çocuklar sevinçle bahçeye fırladı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Okul zili çalınca' }, { type: 'how', question: 'Nasıl?', answer: 'Sevinçle' }, { type: 'where', question: 'Nereye?', answer: 'Bahçeye' }] },
+  { id: 's272', sentence: 'Sokaktaki trafik kazası nedeniyle yol bir saat kapalı kaldı.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Trafik kazası nedeniyle' }, { type: 'when', question: 'Ne kadar süre?', answer: 'Bir saat' }] },
+  { id: 's273', sentence: 'Kırtasiyeden aldığım kalemlerin hepsi mavi renkli çıktı.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'where', question: 'Nereden aldım?', answer: 'Kırtasiyeden' }, { type: 'how', question: 'Ne renk?', answer: 'Mavi' }] },
+  { id: 's274', sentence: 'Büyükannem ördüğü atkıyı bana doğum günümde hediye etti.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Doğum günümde' }, { type: 'what', question: 'Ne?', answer: 'Ördüğü atkıyı' }] },
+  { id: 's275', sentence: 'Uçak alana inerken lastikleri gürültüyle yere çarptı.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Gürültüyle' }, { type: 'when', question: 'Ne zaman?', answer: 'Alana inerken' }] },
+  { id: 's276', sentence: 'Meyve sepetini mutfak tezgahının üzerine bıraktım.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'where', question: 'Nereye?', answer: 'Mutfak tezgahının üzerine' }, { type: 'what', question: 'Neyi?', answer: 'Meyve sepetini' }] },
+  { id: 's277', sentence: 'Babamın dükkanı hafta sonu kapalı olduğu için bugün dinleniyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Kapalı olduğu için' }, { type: 'when', question: 'Ne zaman?', answer: 'Hafta sonu' }] },
+  { id: 's278', sentence: 'Gökyüzündeki kara bulutlar yağmurun yakın olduğunu gösteriyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Neler?', answer: 'Kara bulutlar' }, { type: 'what', question: 'Neyi gösteriyor?', answer: 'Yağmurun yakın olduğunu' }] },
+  { id: 's279', sentence: 'Bisikletime binmek için kaskımı takmak zorundayım.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'why', question: 'Niçin?', answer: 'Bisikletime binmek için' }, { type: 'what', question: 'Neyi?', answer: 'Kaskımı' }] },
+  { id: 's280', sentence: 'Sokak kedileri soğuktan korunmak için binanın bodrumuna sığındı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Soğuktan korunmak için' }, { type: 'where', question: 'Nereye?', answer: 'Binanın bodrumuna' }] },
+  { id: 's281', sentence: 'Marketten yoğurt ve ekmek almak için cüzdanımı aldım.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'why', question: 'Niçin?', answer: 'Yoğurt ve ekmek almak için' }, { type: 'what', question: 'Neyi aldım?', answer: 'Cüzdanımı' }] },
+  { id: 's282', sentence: 'Köy meydanındaki tarihi kale restorasyon için kapatıldı.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Restorasyon için' }, { type: 'where', question: 'Neresi?', answer: 'Köy meydanındaki tarihi kale' }] },
+  { id: 's283', sentence: 'Okulun bahçesi yaz akşamları çok canlı oluyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Yaz akşamları' }, { type: 'how', question: 'Nasıl?', answer: 'Çok canlı' }] },
+  { id: 's284', sentence: 'Yeni aldığımız çamaşır makinesi çok sessiz çalışıyor.', difficulty: 'çok kolay', ageGroup: '8-10', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Çok sessiz' }, { type: 'who', question: 'Ne?', answer: 'Çamaşır makinesi' }] },
+  { id: 's285', sentence: 'Piknikçiler ormanda ateş yaktıkları için uyarıldılar.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Ateş yaktıkları için' }, { type: 'where', question: 'Nerede?', answer: 'Ormanda' }] },
+  { id: 's286', sentence: 'Ustam ayakkabının pençesini yenilemek için çekiç kullandı.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Pençesini yenilemek için' }, { type: 'what', question: 'Ne?', answer: 'Çekiç' }] },
+  { id: 's287', sentence: 'Okul kütüphanesinden aldığım kitabı yarın geri vermeliyim.', difficulty: 'çok kolay', ageGroup: '8-10', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Yarın' }, { type: 'where', question: 'Nereden aldım?', answer: 'Okul kütüphanesinden' }] },
+  { id: 's288', sentence: 'Köy yolundaki hendek yağmur sularıyla doldu.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Yağmur sularıyla' }, { type: 'where', question: 'Neresi?', answer: 'Köy yolundaki hendek' }] },
+  { id: 's289', sentence: 'Gözlerimi dinlendirmek için karanlık bir odada uzandım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Gözlerimi dinlendirmek için' }, { type: 'where', question: 'Nerede?', answer: 'Karanlık bir odada' }] },
+  { id: 's290', sentence: 'Marketten dondurma almak için annemden izin aldım.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'why', question: 'Niçin?', answer: 'Dondurma almak için' }, { type: 'who', question: 'Kimden?', answer: 'Annemden' }] },
+  { id: 's291', sentence: 'Radyoda en sevdiğim şarkı çalınca sesini açtım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'En sevdiğim şarkı çalınca' }, { type: 'what', question: 'Neyi açtım?', answer: 'Sesini' }] },
+  { id: 's292', sentence: 'Kardeşim camı yanlışlıkla kırdığı için çok korktu.', difficulty: 'çok kolay', ageGroup: '8-10', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Yanlışlıkla' }, { type: 'why', question: 'Niçin?', answer: 'Kırdığı için' }] },
+  { id: 's293', sentence: 'Babamın getirdiği taze simitler kahvaltıyı şenlendirdi.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'who', question: 'Neler?', answer: 'Taze simitler' }, { type: 'what', question: 'Neyi şenlendirdi?', answer: 'Kahvaltıyı' }] },
+  { id: 's294', sentence: 'Okul bahçesindeki basket maçı heyecanla devam ediyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Heyecanla' }, { type: 'where', question: 'Nerede?', answer: 'Okul bahçesinde' }] },
+  { id: 's295', sentence: 'Kışın karda kaymak için kızağımı hazırladım.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'why', question: 'Niçin?', answer: 'Kaymak için' }, { type: 'what', question: 'Neyi?', answer: 'Kızağımı' }] },
+  { id: 's296', sentence: 'Annem bayram şerbeti yapmak için taze meyveler aldı.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Bayram şerbeti yapmak için' }, { type: 'what', question: 'Ne?', answer: 'Taze meyveler' }] },
+  { id: 's297', sentence: 'Gökyüzündeki göçmen kuşların şarkısı geceyi doldurdu.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Gece' }, { type: 'who', question: 'Ne?', answer: 'Kuşların şarkısı' }] },
+  { id: 's298', sentence: 'Markete giderken yolda küçük bir kediciğe rastladım.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Markete giderken' }, { type: 'where', question: 'Nerede?', answer: 'Yolda' }] },
+  { id: 's299', sentence: 'Eski radyonun antenini tamir etmek için babamdan yardım istedim.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Tamir etmek için' }, { type: 'who', question: 'Kimden?', answer: 'Babamdan' }] },
+  { id: 's300', sentence: 'Karnım acıktığı için mutfağa gidip kendime sandviç yaptım.', difficulty: 'çok kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Karnım acıktığı için' }, { type: 'what', question: 'Ne?', answer: 'Sandviç' }] },
+  { id: 's301', sentence: 'Ders çalışırken müzik dinlemek bazen dikkatimi dağıtıyor.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Ders çalışırken' }, { type: 'what', question: 'Ne?', answer: 'Dikkatimi' }] },
+  { id: 's302', sentence: 'Ankara Garı\'ndan kalkan tren vaktinde hareket etti.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'where', question: 'Nereden?', answer: 'Ankara Garı\'ndan' }, { type: 'how', question: 'Nasıl?', answer: 'Vaktinde' }] },
+  { id: 's303', sentence: 'Deniz kıyısında iyot kokusunu içime çektim.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nerede?', answer: 'Deniz kıyısında' }, { type: 'what', question: 'Neyi?', answer: 'İyot kokusunu' }] },
+  { id: 's304', sentence: 'Yaz tatilinde köye gitmek için biletlerimizi aldık.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Yaz tatilinde' }, { type: 'why', question: 'Niçin?', answer: 'Köye gitmek için' }] },
+  { id: 's305', sentence: 'Okulun bahçesindeki bankları boyamak için fırça getirdik.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Boyamak için' }, { type: 'what', question: 'Ne?', answer: 'Fırça' }] },
+  { id: 's306', sentence: 'Bahçedeki incir ağacı bu yıl çok meyve verdi.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Bu yıl' }, { type: 'who', question: 'Ne?', answer: 'İncir ağacı' }] },
+  { id: 's307', sentence: 'Sokak kedisini doyurmak için kasaptan kemik aldım.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Doyurmak için' }, { type: 'where', question: 'Nereden?', answer: 'Kasaptan' }] },
+  { id: 's308', sentence: 'Yeni aldığım defterin kabını özenle kapladım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'how', question: 'Nasıl?', answer: 'Özenle' }, { type: 'what', question: 'Neyi?', answer: 'Defterin kabını' }] },
+  { id: 's309', sentence: 'Köy yollarını tozdan kurtarmak için asfalt döktüler.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Tozdan kurtarmak için' }, { type: 'what', question: 'Ne?', answer: 'Asfalt' }] },
+  { id: 's310', sentence: 'Büyükbabamın eski saati artık çalışmıyor.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne?', answer: 'Eski saati' }] },
+  { id: 's311', sentence: 'Okul servisinde arkadaşlarımla şarkı söyledik.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'where', question: 'Nerede?', answer: 'Okul servisinde' }, { type: 'what', question: 'Ne?', answer: 'Şarkı' }] },
+  { id: 's312', sentence: 'Bahçedeki kuyunun suyunu boşaltmak için pompa kullandık.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'why', question: 'Niçin?', answer: 'Boşaltmak için' }, { type: 'what', question: 'Ne?', answer: 'Pompa' }] },
+  { id: 's313', sentence: 'Okulun bahçesindeki asırlık ağacı koruma altına aldılar.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'what', question: 'Neyi?', answer: 'Asırlık ağacı' }, { type: 'where', question: 'Nereyi?', answer: 'Koruma altına' }] },
+  { id: 's314', sentence: 'Dışarıda soğuk olduğu için kalın hırkamı giydim.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'why', question: 'Niçin?', answer: 'Soğuk olduğu için' }, { type: 'what', question: 'Neyi?', answer: 'Kalın hırkamı' }] },
+  { id: 's315', sentence: 'Bisikletimin freni tutmadığı için duvara çarptım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Freni tutmadığı için' }, { type: 'where', question: 'Nereye?', answer: 'Duvara' }] },
+  { id: 's316', sentence: 'Marketten çay ve şeker almak için bakkala gittim.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'why', question: 'Niçin?', answer: 'Çay ve şeker almak için' }, { type: 'where', question: 'Nereye?', answer: 'Bakkala' }] },
+  { id: 's317', sentence: 'Sokak kapısını kilitlemeyi unuttuğum için geri döndüm.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Unuttuğum için' }] },
+  { id: 's318', sentence: 'Ankara Kalesi\'nden batan güneşi izlemek harikaydı.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'where', question: 'Nereden?', answer: 'Ankara Kalesi\'nden' }, { type: 'what', question: 'Neyi?', answer: 'Batan güneşi' }] },
+  { id: 's319', sentence: 'Köy evindeki şöminenin odunlarını ben taşıdım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Neredeki?', answer: 'Köy evindeki' }, { type: 'who', question: 'Kim?', answer: 'Ben' }] },
+  { id: 's320', sentence: 'Okulun bahçesindeki fidanları korumak için etrafını çevirdik.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Korumak için' }, { type: 'what', question: 'Neyi?', answer: 'Etrafını' }] },
+  { id: 's321', sentence: 'Babam bozuk radyoyu tamir etmek için içini açtı.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Tamir etmek için' }] },
+  { id: 's322', sentence: 'Kışın soğuk günlerinde sokak hayvanlarını unutmamalıyız.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Kışın soğuk günlerinde' }, { type: 'who', question: 'Kimi?', answer: 'Sokak hayvanlarını' }] },
+  { id: 's323', sentence: 'Okulun bahçesindeki çiçekleri koparmak yasaktır.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'where', question: 'Neredeki?', answer: 'Okulun bahçesindeki' }, { type: 'what', question: 'Neyi?', answer: 'Çiçekleri' }] },
+  { id: 's324', sentence: 'Gökyüzündeki beyaz bulutlar pamuk şekerine benziyor.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Neler?', answer: 'Beyaz bulutlar' }, { type: 'how', question: 'Neye?', answer: 'Pamuk şekerine' }] },
+  { id: 's325', sentence: 'Yemek yemeden önce ellerimizi sabunla yıkamalıyız.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Yemek yemeden önce' }, { type: 'how', question: 'Nasıl?', answer: 'Sabunla' }] },
+  { id: 's326', sentence: 'Okul servisinde arkadaşımla beraber oturduk.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'where', question: 'Nerede?', answer: 'Okul servisinde' }, { type: 'how', question: 'Nasıl?', answer: 'Beraber' }] },
+  { id: 's327', sentence: 'Sokak lambaları hava kararınca kendiliğinden yanar.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Hava kararınca' }, { type: 'how', question: 'Nasıl?', answer: 'Kendiliğinden' }] },
+  { id: 's328', sentence: 'Bisikletimin zincirini yağlamak için babamdan yağ istedim.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Yağlamak için' }, { type: 'who', question: 'Kimden?', answer: 'Babamdan' }] },
+  { id: 's329', sentence: 'Marketten ekmek ve yumurta almak için cüzdanımı aldım.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'why', question: 'Niçin?', answer: 'Ekmek ve yumurta almak için' }, { type: 'what', question: 'Neyi?', answer: 'Cüzdanımı' }] },
+  { id: 's330', sentence: 'Köy yolundaki tozdan kurtulmak için pencereyi kapattık.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Tozdan kurtulmak için' }, { type: 'what', question: 'Neyi?', answer: 'Pencereyi' }] },
+  { id: 's331', sentence: 'Büyükbabamın eski radyosu artık ses vermiyor.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Ne?', answer: 'Eski radyosu' }] },
+  { id: 's332', sentence: 'Okulun bahçesindeki asırlık çınar fırtınada devrildi.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Fırtınada' }, { type: 'who', question: 'Ne?', answer: 'Asırlık çınar' }] },
+  { id: 's333', sentence: 'Kar yağınca her yer bembeyaz bir örtüye büründü.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Kar yağınca' }, { type: 'how', question: 'Nasıl?', answer: 'Bembeyaz bir örtüye' }] },
+  { id: 's334', sentence: 'Göçmen kuşların dönüşü baharın habercisidir.', difficulty: 'zor', ageGroup: '14+', questions: [{ type: 'who', question: 'Ne?', answer: 'Göçmen kuşların dönüşü' }, { type: 'what', question: 'Neyin habercisidir?', answer: 'Baharın' }] },
+  { id: 's335', sentence: 'Kitabımın sayfaları arasına kurutulmuş bir çiçek bıraktım.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'where', question: 'Nereye?', answer: 'Sayfaları arasına' }, { type: 'what', question: 'Ne?', answer: 'Kurutulmuş bir çiçek' }] },
+  { id: 's336', sentence: 'Okulun ilk günü bende büyük bir heyecan uyandırdı.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Okulun ilk günü' }, { type: 'what', question: 'Ne uyandırdı?', answer: 'Heyecan' }] },
+  { id: 's337', sentence: 'Annemin yaptığı poğaçalar fırından yeni çıktı.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Neler?', answer: 'Poğaçalar' }, { type: 'when', question: 'Ne zaman?', answer: 'Yeni' }] },
+  { id: 's338', sentence: 'Gökyüzündeki gökkuşağını yakalamak için hayal kurdum.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'why', question: 'Niçin?', answer: 'Yakalamak için' }, { type: 'what', question: 'Ne kurdum?', answer: 'Hayal' }] },
+  { id: 's339', sentence: 'Sokak kedileri kışın üşümesin diye kapı önüne kutu koyduk.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Üşümesin diye' }, { type: 'where', question: 'Nereye?', answer: 'Kapı önüne' }] },
+  { id: 's340', sentence: 'Okul bahçesindeki çiçekleri korumak için tabela astık.', difficulty: 'çok kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Korumak için' }, { type: 'what', question: 'Ne?', answer: 'Tabela' }] },
+  { id: 's341', sentence: 'Babama sürpriz yapmak için akşam yemeği hazırladık.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'why', question: 'Niçin?', answer: 'Sürpriz yapmak için' }, { type: 'when', question: 'Ne zaman?', answer: 'Akşam' }] },
+  { id: 's342', sentence: 'Kar yağınca yollar bembeyaz oldu.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Kar yağınca' }, { type: 'how', question: 'Nasıl?', answer: 'Bembeyaz' }] },
+  { id: 's343', sentence: 'Okul servisimiz her sabah saat sekizde geliyor.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Her sabah saat sekizde' }] },
+  { id: 's344', sentence: 'Bahçedeki incirler iyice tatlanınca topladık.', difficulty: 'orta', ageGroup: '11-13', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Tatlanınca' }] },
+  { id: 's345', sentence: 'Gökyüzündeki dolunay geceyi aydınlatıyor.', difficulty: 'kolay', ageGroup: '8-10', questions: [{ type: 'who', question: 'Ne?', answer: 'Dolunay' }, { type: 'where', question: 'Nereyi?', answer: 'Geceyi' }] },
+  { id: 's346', sentence: 'Marketten bisküvi ve süt aldık.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'what', question: 'Ne?', answer: 'Bisküvi ve süt' }] },
+  { id: 's347', sentence: 'Okula gitmek için erkenden kalktım.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'why', question: 'Niçin?', answer: 'Gitmek için' }, { type: 'how', question: 'Nasıl?', answer: 'Erkenden' }] },
+  { id: 's348', sentence: 'Deniz kıyısında martılara simit attım.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'where', question: 'Nerede?', answer: 'Deniz kıyısında' }, { type: 'what', question: 'Ne?', answer: 'Simit' }] },
+  { id: 's349', sentence: 'Babam bozuk radyoyu tamir etti.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'who', question: 'Kim?', answer: 'Babam' }, { type: 'what', question: 'Neyi?', answer: 'Bozuk radyoyu' }] },
+  { id: 's350', sentence: 'Annem akşam bize masal okudu.', difficulty: 'çok kolay', ageGroup: '5-7', questions: [{ type: 'when', question: 'Ne zaman?', answer: 'Akşam' }, { type: 'what', question: 'Ne?', answer: 'Masal' }] },
+];
