@@ -91,7 +91,7 @@ export const ColorfulSyllableReadingSheet = ({ data }: Props) => {
             {/* FOOTER */}
             <div className="pt-4 print:pt-1 border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
                 <span>Neuro-Oogmatik Özel Eğitim Teknolojileri</span>
-                <span>Modül: Renkli Hece • Zorluk: {data.settings?.difficulty.toUpperCase()}</span>
+                <span>Modül: Renkli Hece • Zorluk: {data.settings?.difficulty?.toUpperCase() || 'ORTA'}</span>
             </div>
         </div>
     );

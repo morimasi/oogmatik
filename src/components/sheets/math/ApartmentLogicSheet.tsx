@@ -22,7 +22,7 @@ export const ApartmentLogicSheet: React.FC<Props> = ({ data }) => {
             <div className="flex justify-between items-center border-b-4 border-orange-400 pb-4 print:pb-1 mb-6 print:mb-2">
                 <div>
                     <h1 className="text-4xl font-black text-orange-900 tracking-tighter uppercase">{data.content?.title || "Zebra Apartmanı"}</h1>
-                    <p className="text-sm font-bold text-orange-600 mt-1 uppercase tracking-widest">Uzamsal Mantık • Zorluk: {data.settings?.difficulty.toUpperCase()}</p>
+                    <p className="text-sm font-bold text-orange-600 mt-1 uppercase tracking-widest">Uzamsal Mantık • Zorluk: {data.settings?.difficulty?.toUpperCase() || 'ORTA'}</p>
                 </div>
                 <div className="w-16 h-16 bg-orange-50 text-orange-400 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-orange-100">
                     <i className="fa-solid fa-building"></i>

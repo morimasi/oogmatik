@@ -15,7 +15,7 @@ export const LogicErrorHunterSheet: React.FC<Props> = ({ data }) => {
             <div className="flex justify-between items-center border-b-4 border-fuchsia-500 pb-4 print:pb-1 mb-6 print:mb-2">
                 <div>
                     <h1 className="text-4xl font-black text-fuchsia-900 tracking-tighter uppercase">{data.content?.title || "Mantık Hataları Avcısı"}</h1>
-                    <p className="text-sm font-bold text-fuchsia-600 mt-1 uppercase tracking-widest">Hataları Bul ve Düzelt • Zorluk: {data.settings?.difficulty.toUpperCase()}</p>
+                    <p className="text-sm font-bold text-fuchsia-600 mt-1 uppercase tracking-widest">Hataları Bul ve Düzelt • Zorluk: {data.settings?.difficulty?.toUpperCase() || 'ORTA'}</p>
                 </div>
                 <div className="w-16 h-16 bg-fuchsia-50 text-fuchsia-500 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-fuchsia-100">
                     <i className="fa-solid fa-bug-slash"></i>

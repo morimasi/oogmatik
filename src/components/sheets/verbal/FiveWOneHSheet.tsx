@@ -94,12 +94,8 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
             {/* FOOTER */}
             <div className="mt-8 print:mt-2 pt-4 print:pt-1 border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
                 <span>Neuro-Oogmatik Özel Eğitim Teknolojileri</span>
-                <span>Modül: 5N1K Okuma-Anlama • Seviye: {data.settings?.difficulty.toUpperCase()}</span>
+                <span>Modül: 5N1K Okuma-Anlama • Seviye: {data.settings?.difficulty?.toUpperCase() || 'ORTA'}</span>
             </div>
         </div>
     );
 };
-
-
-
-

@@ -338,7 +338,7 @@ export const ReadingStudioContentRenderer = ({
                              {/* Syllable Wagons */}
                              {(Array.isArray(w.syllables) ? w.syllables : []).map((syl: string, sylIdx: number) => (
                                  <div key={sylIdx} className="w-12 h-10 border-2 border-cyan-700 border-l-0 bg-white flex items-center justify-center font-black text-sm relative group overflow-hidden">
-                                    {syl.toUpperCase()}
+                                    {(syl || '').toUpperCase()}
                                     <div className="absolute bottom-0 h-1 bg-cyan-700/20 w-full"></div>
                                     {/* Wheels */}
                                     <div className="absolute -bottom-1 w-[120%] flex justify-around px-1">

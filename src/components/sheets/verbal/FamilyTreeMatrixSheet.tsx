@@ -41,7 +41,7 @@ export const FamilyTreeMatrixSheet: React.FC<Props> = ({ data }) => {
             <div className="flex justify-between items-center border-b-4 border-emerald-400 pb-4 print:pb-1 mb-6 print:mb-2">
                 <div>
                     <h1 className="text-4xl font-black text-emerald-900 tracking-tighter uppercase">{data.content?.title || "Soy Ağacı Bulmacası"}</h1>
-                    <p className="text-sm font-bold text-emerald-600 mt-1 uppercase tracking-widest">Mantıksal Çıkarım • Zorluk: {data.settings?.difficulty.toUpperCase()}</p>
+                    <p className="text-sm font-bold text-emerald-600 mt-1 uppercase tracking-widest">Mantıksal Çıkarım • Zorluk: {data.settings?.difficulty?.toUpperCase() || 'ORTA'}</p>
                 </div>
                 <div className="w-16 h-16 bg-emerald-50 text-emerald-400 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-emerald-100">
                     <i className="fa-solid fa-network-wired"></i>

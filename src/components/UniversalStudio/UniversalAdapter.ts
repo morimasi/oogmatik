@@ -169,7 +169,7 @@ export const convertToLayoutItems = (
 
         layout.push({
           id: block.type as any,
-          label: block.type.toUpperCase(),
+          label: (block.type || 'BLOCK').toUpperCase(),
           instanceId: `univ_block_${Date.now()}_${pIdx}_${bIdx}`,
           isVisible: true,
           pageIndex: pos.page,
@@ -258,6 +258,7 @@ export const convertToLayoutItems = (
             borderWidth: 0,
             borderStyle: 'solid',
             borderRadius: 0,
+            fontSize: 14,
             opacity: 1,
             boxShadow: 'none',
             color: '#000000',
