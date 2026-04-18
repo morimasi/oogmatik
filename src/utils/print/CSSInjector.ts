@@ -171,10 +171,36 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       .md\\:flex-row { flex-direction: row !important; }
       .lg\\:flex-row { flex-direction: row !important; }
 
-      * {
+      @page { 
+        margin: 0px !important; 
+        size: auto; 
+      }
+      
+      html, body {
+        margin: 0px !important;
+        padding: 0px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         text-rendering: optimizeLegibility !important;
+      }
+
+      /* Kâğıt kenarlarında güvenlik boşluğu (Tarayıcı marjının yerini alan padding) */
+      .print-page, .worksheet-page {
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding-top: 20mm !important; /* Üstteki tarihin yerine geçen boşluk */
+        padding-bottom: 20mm !important;
+        padding-left: 10mm !important;
+        padding-right: 10mm !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        background: white !important;
+      }
+
+      .oogmatik-print-wrapper {
+        display: block !important;
+        background: white !important;
       }
 
       /* UI Temizliği (Floating UI, Buttons, Toasts) */
