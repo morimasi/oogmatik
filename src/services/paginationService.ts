@@ -163,7 +163,23 @@ export const paginationService = {
         let currentItems: any[] = [];
         let currentWeight = 0;
         let pageIndex = 0;
-        const originalPageTemplate = data[0] || {};
+        const originalPageTemplate = { ...(data[0] || {}) };
+
+        // Orijinal veri anahtarını tespit et
+        let targetKey = 'blocks';
+        for (const page of data) {
+            const listKey = page.blocks ? 'blocks' : (page.puzzles ? 'puzzles' : (page.operations ? 'operations' : (page.steps ? 'steps' : (page.problems ? 'problems' : (page.items ? 'items' : null)))));
+            if (listKey) {
+                targetKey = listKey;
+                break;
+            }
+        }
+
+        // Çakışmayı önlemek için şablondan diğer anahtarları temizle
+        const keysToClear = ['blocks', 'puzzles', 'operations', 'steps', 'problems', 'items'];
+        keysToClear.forEach(key => {
+            if (key !== targetKey) delete (originalPageTemplate as any)[key];
+        });
 
         // Veriyi bir düz listeye aç (bölme işlemiyle beraber)
         const rawItems: any[] = [];
@@ -184,15 +200,7 @@ export const paginationService = {
             }
         });
 
-        // Orijinal veri anahtarını tespit et
-        let targetKey = 'blocks';
-        for (const page of data) {
-            const listKey = page.blocks ? 'blocks' : (page.puzzles ? 'puzzles' : (page.operations ? 'operations' : (page.steps ? 'steps' : (page.problems ? 'problems' : (page.items ? 'items' : null)))));
-            if (listKey) {
-                targetKey = listKey;
-                break;
-            }
-        }
+
 
         rawItems.forEach((item) => {
             const weight = getBlockWeight(item);

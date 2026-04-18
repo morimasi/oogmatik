@@ -828,13 +828,13 @@ const UnifiedContentRenderer = ({
     useA4EditorStore();
   const architecture = data.layoutArchitecture;
   const rawBlocks: WorksheetBlock[] = 
-    architecture?.blocks || 
-    data.blocks || 
-    data.puzzles || 
-    data.operations || 
-    data.items || 
-    data.problems || 
-    data.steps || 
+    (architecture?.blocks && architecture.blocks.length > 0 ? architecture.blocks : null) || 
+    (data.blocks && data.blocks.length > 0 ? data.blocks : null) || 
+    (data.puzzles && data.puzzles.length > 0 ? data.puzzles : null) || 
+    (data.operations && data.operations.length > 0 ? data.operations : null) || 
+    (data.items && data.items.length > 0 ? data.items : null) || 
+    (data.problems && data.problems.length > 0 ? data.problems : null) || 
+    (data.steps && data.steps.length > 0 ? data.steps : null) || 
     [];
   const cols = architecture?.cols || 1;
 
@@ -1001,7 +1001,8 @@ const UnifiedContentRenderer = ({
             >
               {pageBlocks.map((block, idx) => {
                 // EĞER STANDART BLOK DEĞİLSE LEGACY RENDERER TETİKLE
-                const isStandardBlock = block.type && (block.content || block.style);
+                // Standart blok kriteri: type özelliği olmalı
+                const isStandardBlock = !!block.type;
 
                 return (
                   <SortableBlockItem
@@ -1015,7 +1016,15 @@ const UnifiedContentRenderer = ({
                     {!isStandardBlock ? (
                        <SheetRenderer 
                           activityType={activityType} 
-                          data={{ ...data, blocks: undefined, puzzles: [block], items: [block], problems: [block], steps: [block], operations: [block] }} 
+                          data={{ 
+                            ...data, 
+                            blocks: undefined, 
+                            puzzles: [block], 
+                            items: [block], 
+                            problems: [block], 
+                            steps: [block], 
+                            operations: [block] 
+                          }} 
                           hideWrapper={true} 
                        />
                     ) : (
@@ -1224,6 +1233,19 @@ export const SheetRenderer = React.memo(
       );
     }
 
+    // Sınav Stüdyosu çıktıları (Daha esnek kontrol)
+    if (activityType === ActivityType.SINAV || activityType === ActivityType.MAT_SINAV) {
+      const sinav = data as any;
+      if (sinav && (sinav.sorular || sinav.baslik)) {
+        return withWrapper(
+          <ExamRenderer 
+            examType={activityType === ActivityType.MAT_SINAV ? "matematik" : "turkce"} 
+            data={sinav} 
+          />
+        );
+      }
+    }
+
     if (activityType === ActivityType.VISUAL_INTERPRETATION) {
       return withWrapper(
         <VisualInterpretationSheet data={data as any} settings={settings || ({} as any)} />
@@ -1244,21 +1266,15 @@ export const SheetRenderer = React.memo(
       return withWrapper(<EsAnlamliKelimelerSheet data={data as any} />);
     }
 
-    // Türkçe Sınav Stüdyosu çıktısı
-    if (activityType === ActivityType.SINAV) {
-      const sinav = data as any;
-      if (sinav && sinav.baslik && Array.isArray(sinav.sorular)) {
-        return withWrapper(<ExamRenderer examType="turkce" data={sinav} />);
-      }
+
+    if (activityType && activityType.toString().startsWith('INFOGRAPHIC_')) {
+      return withWrapper(<InfoGraphicRenderer data={data} settings={settings} />);
     }
 
-    // Matematik Sınav Stüdyosu çıktısı
-    if (activityType === ActivityType.MAT_SINAV) {
-      const sinav = data as any;
-      if (sinav && sinav.baslik && Array.isArray(sinav.sorular)) {
-        return withWrapper(<ExamRenderer examType="matematik" data={sinav} />);
-      }
+    if (activityType === ActivityType.MATH_STUDIO) {
+      return withWrapper(<MathPuzzleSheet data={data as any} settings={settings} />);
     }
+
 
     if (activityType === ActivityType.OCR_CONTENT) {
       return withWrapper(
@@ -1280,7 +1296,7 @@ export const SheetRenderer = React.memo(
 
     // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
 
-    if (!hideWrapper && (data.layoutArchitecture || data.blocks || data.puzzles || data.items || data.problems || data.steps || data.operations)) {
+    if (!hideWrapper && (data.layoutArchitecture || (Array.isArray(data.blocks) && data.blocks.some((b: any) => b.type)) || data.puzzles || data.items || data.problems || data.steps || data.operations)) {
 
       return (
         <UnifiedContentRenderer 
@@ -1300,6 +1316,7 @@ export const SheetRenderer = React.memo(
           <AlgorithmSheet data={data as unknown as AlgorithmData} settings={settings} />
         );
         break;
+      case ActivityType.MATH_STUDIO:
       case ActivityType.MATH_PUZZLE:
         renderedSheet = (
           <MathPuzzleSheet data={data as unknown as MathPuzzleData} settings={settings} />
@@ -1731,12 +1748,22 @@ export const SheetRenderer = React.memo(
         break;
       case activityType as any:
         renderedSheet = (
-          <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />
+          <UnifiedContentRenderer 
+            data={data} 
+            activityType={activityType}
+            studentProfile={studentProfile} 
+            settings={settings} 
+          />
         );
         break;
       default:
         renderedSheet = (
-          <UnifiedContentRenderer data={data} studentProfile={studentProfile} settings={settings} />
+          <UnifiedContentRenderer 
+            data={data} 
+            activityType={activityType}
+            studentProfile={studentProfile} 
+            settings={settings} 
+          />
         );
     }
 
