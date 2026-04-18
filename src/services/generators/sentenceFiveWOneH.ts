@@ -20,8 +20,24 @@ export const generateSentenceFiveWOneHFromAI = async (
     - ${count} adet benzersiz ve detaylı cümle üret. (A4 SAYFASINI TAM DOLDURACAK YOĞUNLUKTA)
     - Yaş grubu: ${ageGroup}
     - Zorluk seviyesi: ${difficulty}
-    - Cümle Yapısı: ${complexity} (Basit cümleler yerine daha zengin ve yan cümlecikleri olan yapılar tercih et)
-    - Önemli: Her cümle MUTLAKA şu 6 öğeyi de barındırmalıdır: Kim, Ne, Nerede, Ne Zaman, Nasıl, Niçin.
+    
+    ZORLUK SEVİYESİ KRİTERLERİ (MUTLAKA UY):
+    ${difficulty.toLowerCase() === 'kolay' ? `
+    - Cümleler 5-8 kelime arasında olmalı.
+    - Sadece somut olaylar ve kelimeler kullan.
+    - Cümle yapısı BASİT olmalı, yan cümlecik kullanma.
+    - Öğeler (Kim, Ne vb.) çok net ve doğrudan belirtilmiş olmalı.` : ''}
+    ${difficulty.toLowerCase() === 'orta' ? `
+    - Cümleler 8-12 kelime arasında olmalı.
+    - Standart günlük yaşam senaryoları kullan.
+    - Cümle yapısı BİRLEŞİK veya SIRALI olabilir.
+    - Öğeler detaylarla zenginleştirilmeli.` : ''}
+    ${difficulty.toLowerCase() === 'zor' ? `
+    - Cümleler 12-20 kelime arasında olmalı.
+    - Soyut kavramlar, edebi ifadeler veya kafa karıştırıcı detaylar içermeli.
+    - Cümle yapısı KARMAŞIK (yan cümlecikli, fiilimsili) olmalı.
+    - Öğeler cümle içine ustalıkla gizlenmiş olmalı.` : ''}
+
     - Tasarım: Her sayfa dopdolu olmalı, minimal boşluk bırakılmalı.
     - Her cümle için 6 adet 5N1K sorusu ve cevabı ekle.
 
