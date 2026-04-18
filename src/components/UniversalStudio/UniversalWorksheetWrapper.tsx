@@ -5,6 +5,8 @@ import { convertToLayoutItems } from './UniversalAdapter';
 import { UniversalCanvas } from './UniversalCanvas';
 import { UniversalPropertiesPanel } from './UniversalPropertiesPanel';
 import { SingleWorksheetData, ActivityType } from '../../types';
+import { SheetRenderer } from '../SheetRenderer';
+import { useAppStore } from '../../store/useAppStore';
 
 interface UniversalWorksheetWrapperProps {
   worksheetData: SingleWorksheetData[];
@@ -147,17 +149,30 @@ const UniversalWorksheetInner = ({
         className={`relative flex justify-center ${designMode ? 'flex-1 overflow-auto' : 'w-fit max-w-none overflow-visible'}`}
       >
         {/* Design Mode Toolbar */}
-        <DesignModeToolbar />
+        {designMode && <DesignModeToolbar />}
 
         {!isAdapterRunning && (
           <div
-            className="transition-transform duration-100 ease-out will-change-transform mt-20 mb-20 w-fit max-w-none"
-            style={{
+            className={`transition-all duration-100 ease-out will-change-transform ${designMode ? 'mt-20 mb-20' : ''} w-fit max-w-none`}
+            style={designMode ? {
               transform: `scale(${scale})`,
               transformOrigin: 'top center',
-            }}
+            } : {}}
           >
-            <UniversalCanvas settings={styleSettings} />
+            {designMode ? (
+              <UniversalCanvas settings={styleSettings} />
+            ) : (
+              <div id="print-container" className="flex flex-col gap-8 items-center bg-transparent">
+                {worksheetData.map((page, idx) => (
+                  <SheetRenderer 
+                    key={idx} 
+                    activityType={activityType} 
+                    data={page} 
+                    settings={styleSettings}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

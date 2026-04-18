@@ -378,26 +378,37 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                       downloadLink={
                         <button
                           onClick={async () => {
-                            const targetSelector = document.getElementById('print-container')
-                              ? '#print-container'
-                              : '.worksheet-page';
-                            
+                            // ULTRA PROFESYONEL YAZDIRMA AKIŞI
+                            const { forceRenderAllPages, ensurePrintStyle } = await import('../utils/print/CSSInjector');
                             const { printService } = await import('../utils/printService');
                             const store = usePaperSizeStore.getState();
                             
-                            await printService.generatePdf(
-                              targetSelector,
-                              activeWorksheetTitle || 'Etkinlik',
-                              { 
-                                action: 'print', 
-                                paperSize: store.paperSize 
-                              }
-                            );
+                            // 1. Tüm sayfaların render edilmesini zorla (LazyPage'leri aşar)
+                            forceRenderAllPages();
+                            // 2. Yazdırma stillerini enjekte et (Zorunlu görünürlük)
+                            ensurePrintStyle();
+
+                            // Kısa bir bekleme (Renderların tamamlanması için)
+                            setTimeout(async () => {
+                              const targetSelector = document.getElementById('print-container')
+                                ? '#print-container'
+                                : '.worksheet-page';
+                              
+                              await printService.generatePdf(
+                                targetSelector,
+                                activeWorksheetTitle || 'Oogmatik_Etkinlik',
+                                { 
+                                  action: 'print', 
+                                  paperSize: store.paperSize || 'A4',
+                                  quality: 'high'
+                                }
+                              );
+                            }, 300);
                           }}
-                          className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-sm border border-blue-200/50"
+                          className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-2xl text-xs font-black transition-all flex items-center gap-3 shadow-xl shadow-indigo-200/50 border border-white/20 active:scale-95 group"
                         >
-                          <i className="fa-solid fa-print"></i>
-                          Hızlı Yazdır / PDF
+                          <i className="fa-solid fa-print group-hover:rotate-12 transition-transform"></i>
+                          PROFESYONEL YAZDIR / PDF
                         </button>
                       }
 
