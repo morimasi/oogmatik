@@ -51,10 +51,10 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
         </div>
         <div className="flex gap-2">
             <div className="px-2 py-1 bg-zinc-50 border border-zinc-100 rounded-lg text-[8px] font-bold text-zinc-500">
-                {data.metadata?.ageGroup} Yaş
+                {(data.metadata?.ageGroup as string) || '8-10'} Yaş
             </div>
              <div className="px-2 py-1 bg-zinc-50 border border-zinc-100 rounded-lg text-[8px] font-bold text-zinc-500 uppercase">
-                {data.metadata?.difficulty}
+                {(data.metadata?.difficulty as string) || 'Orta'}
             </div>
         </div>
       </div>
@@ -86,25 +86,22 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
                 </p>
             </div>
 
-            {/* 5N1K Soru Listesi */}
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              {['who', 'what', 'where', 'when', 'how', 'why'].map((type) => {
-                const q = item.questions.find(q => q.type === type);
-                return (
-                  <div key={type} className="flex flex-col gap-1">
-                    <div className="flex items-center gap-1.5 px-1">
-                        {getIcon(type)}
-                        <span className="text-[9px] font-black text-zinc-400 uppercase tracking-tighter">
-                            {getLabel(type)}
-                        </span>
-                    </div>
-                    <div className="h-6 border-b border-zinc-100 flex items-end pb-0.5">
-                        {/* Yazma Alanı Çizgisi */}
-                        <div className="w-full h-px bg-zinc-50"></div>
-                    </div>
+            {/* 5N1K Soru Listesi - Dinamik (Sadece mevcut olanları göster) */}
+            <div className={`grid ${item.questions.length > 3 ? 'grid-cols-2' : 'grid-cols-1'} gap-x-3 gap-y-2`}>
+              {item.questions.map((q, qIdx) => (
+                <div key={qIdx} className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5 px-1">
+                      {getIcon(q.type)}
+                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-tighter">
+                          {getLabel(q.type)}
+                      </span>
                   </div>
-                );
-              })}
+                  <div className="h-6 border-b border-zinc-100 flex items-end pb-0.5">
+                      {/* Yazma Alanı Çizgisi */}
+                      <div className="w-full h-px bg-zinc-50"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ))}

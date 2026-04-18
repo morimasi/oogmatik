@@ -1,51 +1,46 @@
+import { SENTENCE_5W1H_LIBRARY } from './data/sentence5W1HLibrary';
 import { GeneratorOptions } from '../../types/core';
 import { Sentence5W1HData, Sentence5W1HItem } from '../../types/verbal';
-import { SENTENCE_5W1H_LIBRARY } from './data/sentence5W1HLibrary';
-import { AppError } from '../../utils/AppError';
 
 /**
- * Cümlede 5N1K etkinliği için çevrimdışı (kütüphane tabanlı) içerik üreticisi.
+ * Cümlede 5N1K etkinliği için çevrimdışı (offline) içerik üreticisi.
+ * Kütüphanedeki pedagojik cümleleri kullanır.
  */
 export const generateOfflineSentenceFiveWOneH = (
   options: GeneratorOptions
 ): Sentence5W1HData => {
-  const { count = 10, difficulty = 'orta', ageGroup = '8-10' } = options;
+  const { itemCount = 5, difficulty = 'Orta', ageGroup = '8-10' } = options;
 
-  // Filtreleme
+  // Filtreleme (Önce zorluk ve yaş grubuna göre, bulamazsa sadece yaş grubuna göre)
   let filteredItems = SENTENCE_5W1H_LIBRARY.filter(
     (item: Sentence5W1HItem) => item.difficulty === difficulty && item.ageGroup === ageGroup
   );
 
-  // Eğer filtreleme sonucunda yeterli öğe yoksa, sadece yaş grubuna bak
   if (filteredItems.length < 5) {
     filteredItems = SENTENCE_5W1H_LIBRARY.filter((item: Sentence5W1HItem) => item.ageGroup === ageGroup);
   }
 
-  // Eğer hala yeterli değilse (teorik olarak imkansız ama güvenli kod), tüm kütüphaneyi al
   if (filteredItems.length === 0) {
     filteredItems = [...SENTENCE_5W1H_LIBRARY];
   }
 
-  // Karıştır (Fisher-Yates)
-  const shuffled = [...filteredItems].sort(() => 0.5 - Math.random());
-  
-  // Seç
-  const selectedItems = shuffled.slice(0, count);
+  // Rastgele cümleleri seç ve olduğu gibi döndür
+  const selectedSentences = [...filteredItems]
+    .sort(() => 0.5 - Math.random())
+    .slice(0, Math.min(itemCount, filteredItems.length));
 
-  if (selectedItems.length === 0) {
-    throw new AppError(
-      'Kütüphanede uygun cümle bulunamadı.',
-      'OFFLINE_GENERATION_FAILED',
-      500
-    );
-  }
+  const items: Sentence5W1HItem[] = selectedSentences.map((s, idx) => ({
+    ...s,
+    id: `offline-${idx}`,
+    // Kütüphanedeki mevcut soruları (questions) koruyoruz, 
+    // UI tarafında sadece bu sorular gösterilecek.
+  }));
 
   return {
     type: 'SENTENCE_5W1H',
-    title: 'Cümlede 5N1K Çalışması (Hızlı Mod)',
+    title: 'Cümlede 5N1K Çalışması (Hızlı)',
     instruction: 'Aşağıdaki cümleleri okuyunuz ve ilgili 5N1K sorularını cevaplayınız.',
-    items: selectedItems,
-    pedagogicalNote: 'Kütüphaneden seçilen bu cümleler, öğrencinin seviyesine uygun olarak okuduğunu anlama becerilerini desteklemek için yapılandırılmıştır.',
+    items,
     metadata: {
       difficulty,
       ageGroup,
