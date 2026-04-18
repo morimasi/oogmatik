@@ -324,20 +324,6 @@ export const ACTIVITIES: Activity[] = [
     description: 'Kim, Ne, Nerede, Ne Zaman, Nasıl, Niçin sorularını görsel bir panoda analiz et.',
     icon: 'fa-solid fa-clipboard-question',
   },
-  {
-    id: ActivityType.INFOGRAPHIC_CONCEPT_MAP,
-    title: 'Kavram Haritası (İnfografik)',
-    description: 'Konular arası hiyerarşik bağları görselleştiren gelişmiş zihin haritası.',
-    icon: 'fa-solid fa-sitemap',
-  },
-  {
-    id: ActivityType.INFOGRAPHIC_5W1H_BOARD,
-    title: '5N1K Panosu',
-    description: 'Kim, Ne, Nerede, Ne Zaman, Nasıl, Niçin sorularını görsel bir panoda analiz et.',
-    icon: 'fa-solid fa-clipboard-question',
-  },
-  // Diğer 92 aktivite, InfographicStudio içindeki activityMeta.ts üzerinden 
-  // dinamik olarak yüklendiği için burada en kritik olanlar (Arama Indexi için) listelenmiştir.
 ];
 
 // Activity Categories
@@ -372,14 +358,13 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     description: 'Hikaye odaklı, görsel ve metin ilişkilendiren testler.',
     icon: 'fa-solid fa-book-open',
     activities: [
-      ActivityType.LOGIC_ERROR_HUNTER,
       ActivityType.FIVE_W_ONE_H,
+      ActivityType.LOGIC_ERROR_HUNTER,
       ActivityType.VISUAL_INTERPRETATION,
       ActivityType.STORY_COMPREHENSION,
       ActivityType.STORY_ANALYSIS,
       ActivityType.MISSING_PARTS,
       // İnfografik Eklentileri
-      ActivityType.INFOGRAPHIC_5W1H_BOARD,
       ActivityType.INFOGRAPHIC_STORY_MAP,
       ActivityType.INFOGRAPHIC_CHARACTER_ANALYSIS,
     ],

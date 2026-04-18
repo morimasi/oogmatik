@@ -1,5 +1,5 @@
 import { BaseActivityData } from './common';
-import { ActivityType, Student } from './core';
+import { ActivityType, Student, SingleWorksheetData } from './core';
 
 export interface StoryQuestion {
   type:
@@ -506,7 +506,7 @@ export interface FiveWOneHQuestion {
   correctAnswer: string;
 }
 
-export interface FiveWOneHData extends BaseActivityData {
+export interface FiveWOneHData extends SingleWorksheetData {
   settings?: {
     difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
     topic: string; // Kullanıcının seçeceği ilgi alanı
